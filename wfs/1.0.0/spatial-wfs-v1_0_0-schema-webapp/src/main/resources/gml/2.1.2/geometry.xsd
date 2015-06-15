@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema targetNamespace="http://www.opengis.net/gml" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:gml="http://www.opengis.net/gml" xmlns:xlink="http://www.w3.org/1999/xlink" elementFormDefault="qualified" version="2.1.2.2">
+<schema xmlns:gml="http://www.opengis.net/gml" xmlns:xlink="http://www.w3.org/1999/xlink"
+        targetNamespace="http://www.opengis.net/gml" xmlns="http://www.w3.org/2001/XMLSchema"
+        elementFormDefault="qualified" version="2.1.2.2">
   <!-- This version of gml/2.1.2 was previously labeled as 2.1.3 . -->
-	<annotation>
+    <annotation>
 		<appinfo>geometry.xsd v2.1.2.2</appinfo>
 		<documentation xml:lang="en">
       GML Geometry schema.
@@ -11,42 +13,47 @@
       To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
 		</documentation>
 	</annotation>
-	
-	<!-- =========  includes and imports  ========================= -->
-	<include schemaLocation="gml.xsd"/>
-	<!-- bring in the XLink attributes -->
-	<import namespace="http://www.w3.org/1999/xlink" schemaLocation="../../w3/1999/xlink.xsd"/>
-	<!-- ==============================================================
+
+    <!-- =========  includes and imports  ========================= -->
+    <include schemaLocation="gml.xsd"/>
+    <!-- bring in the XLink attributes -->
+    <import namespace="http://www.w3.org/1999/xlink" schemaLocation="../../w3/1999/xlink.xsd"/>
+    <!-- ==============================================================
        global declarations
   =================================================================== -->
-	<element name="_Geometry" type="gml:AbstractGeometryType" abstract="true"/>
-	<element name="_GeometryCollection" type="gml:GeometryCollectionType" abstract="true" substitutionGroup="gml:_Geometry"/>
+    <element name="_Geometry" type="gml:AbstractGeometryType" abstract="true"/>
+	<element name="_GeometryCollection" type="gml:GeometryCollectionType" abstract="true"
+             substitutionGroup="gml:_Geometry"/>
 	<element name="geometryMember" type="gml:GeometryAssociationType"/>
 	<element name="pointMember" type="gml:PointMemberType" substitutionGroup="gml:geometryMember"/>
-	<element name="lineStringMember" type="gml:LineStringMemberType" substitutionGroup="gml:geometryMember"/>
-	<element name="polygonMember" type="gml:PolygonMemberType" substitutionGroup="gml:geometryMember"/>
+	<element name="lineStringMember" type="gml:LineStringMemberType"
+             substitutionGroup="gml:geometryMember"/>
+	<element name="polygonMember" type="gml:PolygonMemberType"
+             substitutionGroup="gml:geometryMember"/>
 	<element name="outerBoundaryIs" type="gml:LinearRingMemberType"/>
 	<element name="innerBoundaryIs" type="gml:LinearRingMemberType"/>
-	<!-- primitive geometry elements -->
-	<element name="Point" type="gml:PointType" substitutionGroup="gml:_Geometry"/>
+    <!-- primitive geometry elements -->
+    <element name="Point" type="gml:PointType" substitutionGroup="gml:_Geometry"/>
 	<element name="LineString" type="gml:LineStringType" substitutionGroup="gml:_Geometry"/>
 	<element name="LinearRing" type="gml:LinearRingType" substitutionGroup="gml:_Geometry"/>
 	<element name="Polygon" type="gml:PolygonType" substitutionGroup="gml:_Geometry"/>
 	<element name="Box" type="gml:BoxType"/>
-	<!-- aggregate geometry elements -->
-	<element name="MultiGeometry" type="gml:GeometryCollectionType" substitutionGroup="gml:_Geometry"/>
+    <!-- aggregate geometry elements -->
+    <element name="MultiGeometry" type="gml:GeometryCollectionType"
+             substitutionGroup="gml:_Geometry"/>
 	<element name="MultiPoint" type="gml:MultiPointType" substitutionGroup="gml:_Geometry"/>
-	<element name="MultiLineString" type="gml:MultiLineStringType" substitutionGroup="gml:_Geometry"/>
+	<element name="MultiLineString" type="gml:MultiLineStringType"
+             substitutionGroup="gml:_Geometry"/>
 	<element name="MultiPolygon" type="gml:MultiPolygonType" substitutionGroup="gml:_Geometry"/>
-	<!-- coordinate elements -->
-	<element name="coord" type="gml:CoordType"/>
+    <!-- coordinate elements -->
+    <element name="coord" type="gml:CoordType"/>
 	<element name="coordinates" type="gml:CoordinatesType"/>
-	<!-- this attribute gives the location where an element is defined -->
-	<attribute name="remoteSchema" type="anyURI"/>
-	<!-- ==============================================================
+    <!-- this attribute gives the location where an element is defined -->
+    <attribute name="remoteSchema" type="anyURI"/>
+    <!-- ==============================================================
        abstract supertypes
   =================================================================== -->
-	<complexType name="AbstractGeometryType" abstract="true">
+    <complexType name="AbstractGeometryType" abstract="true">
 		<annotation>
 			<documentation>
         All geometry elements are derived from this abstract supertype; 
@@ -103,7 +110,7 @@
 		</sequence>
 		<attributeGroup ref="xlink:simpleAttrs"/>
 		<attribute ref="gml:remoteSchema" use="optional"/>
-		<!-- <attributeGroup ref="gml:AssociationAttributeGroup"/> -->
+        <!-- <attributeGroup ref="gml:AssociationAttributeGroup"/> -->
 	</complexType>
 	<complexType name="PointMemberType">
 		<annotation>
@@ -158,10 +165,10 @@
 			</restriction>
 		</complexContent>
 	</complexType>
-	<!-- ==============================================================
+    <!-- ==============================================================
        primitive geometry types
   =================================================================== -->
-	<complexType name="PointType">
+    <complexType name="PointType">
 		<annotation>
 			<documentation>
         A Point is defined by a single coordinate tuple.
@@ -248,10 +255,10 @@
 			</extension>
 		</complexContent>
 	</complexType>
-	<!-- ==============================================================
+    <!-- ==============================================================
        aggregate geometry types
   =================================================================== -->
-	<complexType name="GeometryCollectionType">
+    <complexType name="GeometryCollectionType">
 		<annotation>
 			<documentation>
         A geometry collection must include one or more geometries, referenced 
@@ -319,12 +326,12 @@
 			</restriction>
 		</complexContent>
 	</complexType>
-	<!-- ==============================================================
+    <!-- ==============================================================
        There are two ways to represent coordinates: (1) as a sequence 
        of <coord> elements that encapsulate tuples, or (2) using a 
        single <coordinates> string.
   =================================================================== -->
-	<complexType name="CoordType">
+    <complexType name="CoordType">
 		<annotation>
 			<documentation>
         Represents a coordinate tuple in one, two, or three dimensions.

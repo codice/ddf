@@ -14,11 +14,12 @@
  **/
 package org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common;
 
-import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants;
-
-import javax.xml.namespace.QName;
 import java.util.Arrays;
 import java.util.List;
+
+import javax.xml.namespace.QName;
+
+import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants;
 
 public class Wfs10Constants extends WfsConstants {
 
@@ -33,22 +34,6 @@ public class Wfs10Constants extends WfsConstants {
     public static final String VERSION_1_0_0 = "1.0.0";
 
     /* Service Names */
-
-    public static enum SPATIAL_OPERATORS {
-        BBOX("BBOX"), Beyond("Beyond"), Contains("Contains"), Crosses("Crosses"), Disjoint(
-                "Disjoint"), DWithin("DWithin"), Intersect("Intersect"), Equals("Equals"), Overlaps(
-                "Overlaps"), Touches("Touches"), Within("Within");
-
-        private String value;
-
-        public String getValue() {
-            return value;
-        }
-
-        SPATIAL_OPERATORS(String value) {
-            this.value = value;
-        }
-    }
 
     /* Namespaces */
     public static final String GML_2_1_2_NAMESPACE = "http://www.opengis.net/gml";
@@ -88,6 +73,27 @@ public class Wfs10Constants extends WfsConstants {
 
     public static final QName MULTI_POLYGON = new QName(GML_3_2_NAMESPACE, "MultiPolygon");
 
+    public static List<QName> wktOperandsAsList() {
+        return Arrays.asList(LINEAR_RING, POLYGON, ENVELOPE, LINESTRING, POINT, MULTI_POINT,
+                MULTI_LINESTRING, MULTI_POLYGON, GEOMETRY_COLLECTION);
+    }
+
+    public static enum SPATIAL_OPERATORS {
+        BBOX("BBOX"), Beyond("Beyond"), Contains("Contains"), Crosses("Crosses"), Disjoint(
+                "Disjoint"), DWithin("DWithin"), Intersect("Intersect"), Equals("Equals"), Overlaps(
+                "Overlaps"), Touches("Touches"), Within("Within");
+
+        private String value;
+
+        SPATIAL_OPERATORS(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+            return value;
+        }
+    }
+
     public static enum COMPARISON_OPERATORS {
         Simple_Comparison("Simple_Comparison"),
         LessThan("LessThan"),
@@ -102,16 +108,12 @@ public class Wfs10Constants extends WfsConstants {
 
         private String value;
 
-        public String getValue() {
-            return value;
-        }
-
         COMPARISON_OPERATORS(String value) {
             this.value = value;
         }
-    }
 
-    public static List<QName> wktOperandsAsList() {
-        return Arrays.asList(LINEAR_RING, POLYGON, ENVELOPE, LINESTRING, POINT, MULTI_POINT, MULTI_LINESTRING, MULTI_POLYGON, GEOMETRY_COLLECTION);
+        public String getValue() {
+            return value;
+        }
     }
 }

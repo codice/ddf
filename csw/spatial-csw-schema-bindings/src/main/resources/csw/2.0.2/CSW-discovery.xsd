@@ -1,13 +1,13 @@
 <?xml version="1.0"?>
 <xsd:schema
-   id="csw-discovery"
-   targetNamespace="http://www.opengis.net/cat/csw/2.0.2"
-   xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
-   xmlns:ogc="http://www.opengis.net/ogc"
-   xmlns:ows="http://www.opengis.net/ows"
-   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-   elementFormDefault="qualified"
-   version="2.0.2">
+        xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+        xmlns:ogc="http://www.opengis.net/ogc"
+        xmlns:ows="http://www.opengis.net/ows"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        id="csw-discovery"
+        targetNamespace="http://www.opengis.net/cat/csw/2.0.2"
+        elementFormDefault="qualified"
+        version="2.0.2">
 
    <xsd:annotation>
       <xsd:appinfo>
@@ -50,12 +50,12 @@
       <xsd:complexContent>
          <xsd:extension base="ows:GetCapabilitiesType">
             <xsd:attribute name="service" type="ows:ServiceType" use="optional"
-               default="http://www.opengis.net/cat/csw"/>
+                           default="http://www.opengis.net/cat/csw"/>
          </xsd:extension>
       </xsd:complexContent>
    </xsd:complexType>
    <xsd:element name="Capabilities" id="Capabilities"
-      type="csw:CapabilitiesType"/>
+                type="csw:CapabilitiesType"/>
    <xsd:complexType name="CapabilitiesType" id="CapabilitiesType">
       <xsd:annotation>
          <xsd:documentation>This type extends ows:CapabilitiesBaseType defined in OGC-05-008 
@@ -71,7 +71,7 @@
       </xsd:complexContent>
    </xsd:complexType>
    <xsd:element name="DescribeRecord" type="csw:DescribeRecordType"
-      id="DescribeRecord"/>
+                id="DescribeRecord"/>
    <xsd:complexType name="DescribeRecordType" id="DescribeRecordType">
       <xsd:annotation>
          <xsd:documentation xml:lang="en">This request allows a user to discover elements of the
@@ -87,30 +87,30 @@
          <xsd:extension base="csw:RequestBaseType">
             <xsd:sequence>
                <xsd:element name="TypeName" type="xsd:QName" minOccurs="0"
-                  maxOccurs="unbounded"/>
+                            maxOccurs="unbounded"/>
             </xsd:sequence>
             <xsd:attribute name="outputFormat" type="xsd:string" use="optional"
-               default="application/xml"/>
+                           default="application/xml"/>
             <xsd:attribute name="schemaLanguage" type="xsd:anyURI"
-               use="optional" default="http://www.w3.org/XML/Schema"/>
+                           use="optional" default="http://www.w3.org/XML/Schema"/>
          </xsd:extension>
       </xsd:complexContent>
    </xsd:complexType>
    <xsd:element name="DescribeRecordResponse" id="DescribeRecordResponse"
-      type="csw:DescribeRecordResponseType"/>
+                type="csw:DescribeRecordResponseType"/>
    <xsd:complexType name="DescribeRecordResponseType"
-      id="DescribeRecordResponseType">
+                    id="DescribeRecordResponseType">
       <xsd:annotation>
          <xsd:documentation xml:lang="en">The response contains a list of matching schema components
          in the requested schema language.</xsd:documentation>
       </xsd:annotation>
       <xsd:sequence>
          <xsd:element name="SchemaComponent" type="csw:SchemaComponentType"
-            minOccurs="0" maxOccurs="unbounded"/>
+                      minOccurs="0" maxOccurs="unbounded"/>
       </xsd:sequence>
    </xsd:complexType>
    <xsd:complexType name="SchemaComponentType" mixed="true"
-      id="SchemaComponentType">
+                    id="SchemaComponentType">
       <xsd:annotation>
          <xsd:documentation xml:lang="en">A schema component includes a schema fragment (type
          definition) or an entire schema from some target namespace;
@@ -139,9 +139,9 @@
          <xsd:extension base="csw:RequestBaseType">
             <xsd:sequence>
                <xsd:element name="DistributedSearch"
-                  type="csw:DistributedSearchType" minOccurs="0"/>
+                            type="csw:DistributedSearchType" minOccurs="0"/>
                <xsd:element name="ResponseHandler" type="xsd:anyURI"
-                  minOccurs="0" maxOccurs="unbounded"/>
+                            minOccurs="0" maxOccurs="unbounded"/>
                <xsd:choice>
                   <xsd:element ref="csw:AbstractQuery"/>
                   <xsd:any processContents="strict" namespace="##other"/>
@@ -149,7 +149,7 @@
             </xsd:sequence>
             <xsd:attribute name="requestId" type="xsd:anyURI" use="optional"/>
             <xsd:attribute name="resultType" type="csw:ResultType"
-               use="optional" default="hits"/>
+                           use="optional" default="hits"/>
             <xsd:attributeGroup ref="csw:BasicRetrievalOptions"/>
          </xsd:extension>
       </xsd:complexContent>
@@ -166,12 +166,12 @@
                              records are  returned if maxRecords=0.</xsd:documentation>
       </xsd:annotation>
       <xsd:attribute name="outputFormat" type="xsd:string" use="optional"
-         default="application/xml"/>
+                     default="application/xml"/>
       <xsd:attribute name="outputSchema" type="xsd:anyURI" use="optional"/>
       <xsd:attribute name="startPosition" type="xsd:positiveInteger"
-         use="optional" default="1"/>
+                     use="optional" default="1"/>
       <xsd:attribute name="maxRecords" type="xsd:nonNegativeInteger"
-         use="optional" default="10"/>
+                     use="optional" default="10"/>
    </xsd:attributeGroup>
    <xsd:simpleType name="ResultType" id="ResultType">
       <xsd:restriction base="xsd:string">
@@ -202,14 +202,14 @@
                         and must not forward the request if hopCount=0.</xsd:documentation>
       </xsd:annotation>
       <xsd:attribute name="hopCount" type="xsd:positiveInteger" use="optional"
-         default="2"/>
+                     default="2"/>
    </xsd:complexType>
    <xsd:element name="AbstractQuery" type="csw:AbstractQueryType"
-      id="AbstractQuery" abstract="true"/>
+                id="AbstractQuery" abstract="true"/>
    <xsd:complexType name="AbstractQueryType" id="AbstractQueryType"
-      abstract="true"/>
+                    abstract="true"/>
    <xsd:element name="Query" type="csw:QueryType" id="Query"
-      substitutionGroup="csw:AbstractQuery"/>
+                substitutionGroup="csw:AbstractQuery"/>
    <xsd:complexType name="QueryType" id="QueryType">
       <xsd:annotation>
          <xsd:documentation xml:lang="en">Specifies a query to execute against instances of one or
@@ -235,7 +235,7 @@
                <xsd:element ref="ogc:SortBy" minOccurs="0" maxOccurs="1"/>
             </xsd:sequence>
             <xsd:attribute name="typeNames" type="csw:TypeNameListType"
-               use="required"/>
+                           use="required"/>
          </xsd:extension>
       </xsd:complexContent>
    </xsd:complexType>
@@ -265,12 +265,12 @@
       </xsd:attribute>
    </xsd:complexType>
    <xsd:element name="ElementSetName" type="csw:ElementSetNameType"
-      id="ElementSetName" default="summary"/>
+                id="ElementSetName" default="summary"/>
    <xsd:complexType name="ElementSetNameType" id="ElementSetNameType">
       <xsd:simpleContent>
          <xsd:extension base="csw:ElementSetType">
             <xsd:attribute name="typeNames" type="csw:TypeNameListType"
-               use="optional"/>
+                           use="optional"/>
          </xsd:extension>
       </xsd:simpleContent>
    </xsd:complexType>
@@ -287,7 +287,7 @@
       </xsd:restriction>
    </xsd:simpleType>
    <xsd:element name="GetRecordsResponse" type="csw:GetRecordsResponseType"
-      id="GetRecordsResponse"/>
+                id="GetRecordsResponse"/>
    <xsd:complexType name="GetRecordsResponseType">
       <xsd:annotation>
          <xsd:documentation xml:lang="en">
@@ -358,7 +358,7 @@
       <xsd:attribute name="expires" type="xsd:dateTime" use="optional"/>
    </xsd:complexType>
    <xsd:element name="GetRecordById" type="csw:GetRecordByIdType"
-      id="GetRecordById"/>
+                id="GetRecordById"/>
    <xsd:complexType name="GetRecordByIdType" id="GetRecordByIdType">
       <xsd:annotation>
          <xsd:documentation xml:lang="en">
@@ -384,9 +384,9 @@
       </xsd:complexContent>
    </xsd:complexType>
    <xsd:element name="GetRecordByIdResponse"
-      type="csw:GetRecordByIdResponseType" id="GetRecordByIdResponse"/>
+                type="csw:GetRecordByIdResponseType" id="GetRecordByIdResponse"/>
    <xsd:complexType name="GetRecordByIdResponseType"
-      id="GetRecordByIdResponseType">
+                    id="GetRecordByIdResponseType">
       <xsd:annotation>
          <xsd:documentation xml:lang="en">Returns a representation of the matching entry. If there is no 
          matching record, the response message must be empty.</xsd:documentation>
@@ -418,7 +418,7 @@
       </xsd:complexContent>
    </xsd:complexType>
    <xsd:element name="GetDomainResponse" type="csw:GetDomainResponseType"
-      id="GetDomainResponse"/>
+                id="GetDomainResponse"/>
    <xsd:complexType name="GetDomainResponseType">
       <xsd:annotation>
          <xsd:documentation xml:lang="en">Returns the actual values for some property. In general this is a
@@ -427,7 +427,7 @@
       </xsd:annotation>
       <xsd:sequence>
          <xsd:element name="DomainValues" type="csw:DomainValuesType"
-            maxOccurs="unbounded"/>
+                      maxOccurs="unbounded"/>
       </xsd:sequence>
    </xsd:complexType>
    <xsd:complexType name="DomainValuesType" id="DomainValuesType">
@@ -464,7 +464,7 @@
       </xsd:sequence>
    </xsd:complexType>
    <xsd:element name="Acknowledgement" type="csw:AcknowledgementType"
-      id="Acknowledgement"/>
+                id="Acknowledgement"/>
    <xsd:complexType name="AcknowledgementType" id="AcknowledgementType">
       <xsd:annotation>
          <xsd:documentation xml:lang="en">This is a general acknowledgement response message for all requests 
@@ -482,7 +482,8 @@
    </xsd:complexType>
    <xsd:complexType name="EchoedRequestType" id="EchoedRequestType">
       <xsd:annotation>
-         <xsd:documentation xml:lang="en">Includes a copy of the request message body.</xsd:documentation>
+         <xsd:documentation
+                 xml:lang="en">Includes a copy of the request message body.</xsd:documentation>
       </xsd:annotation>
       <xsd:sequence>
          <xsd:any namespace="##any" processContents="lax"/>

@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema targetNamespace="http://www.opengis.net/gml/3.2" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:gml="http://www.opengis.net/gml/3.2" elementFormDefault="qualified" version="3.2.1.2">
+<schema xmlns:gml="http://www.opengis.net/gml/3.2"
+		targetNamespace="http://www.opengis.net/gml/3.2" xmlns="http://www.w3.org/2001/XMLSchema"
+		elementFormDefault="qualified" version="3.2.1.2">
 	<annotation>
-		<appinfo source="urn:x-ogc:specification:gml:schema-xsd:coverage:3.2.1">coverage.xsd</appinfo>
+		<appinfo
+                source="urn:x-ogc:specification:gml:schema-xsd:coverage:3.2.1">coverage.xsd</appinfo>
 		<documentation>See ISO/DIS 19136 20.3.
 A coverage incorporates a mapping from a spatiotemporal domain to a range set, the latter providing the set in which the attribute values live.  The range set may be an arbitrary set including discrete lists, integer or floating point ranges, and multi-dimensional vector spaces.
 A coverage can be viewed as the graph of the coverage function f:A à B, that is as the set of ordered pairs {(x, f(x)) | where x is in A}. This view is especially applicable to the GML encoding of a coverage.  In the case of a discrete coverage, the domain set A is partitioned into a collection of subsets (typically a disjoint collection) A = UAi and the function f is constant on each Ai. For a spatial domain, the Ai are geometry elements, hence the coverage can be viewed as a collection of (geometry,value) pairs, where the value is an element of the range set.  If the spatial domain A is a topological space then the coverage can be viewed as a collection of (topology,value) pairs, where the topology element in the pair is a topological n-chain (in GML terms this is a gml:TopoPoint, gml:TopoCurve, gml:TopoSurface or gml:TopoSolid). 
@@ -31,7 +34,8 @@ To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
 			</extension>
 		</complexContent>
 	</complexType>
-	<element name="AbstractCoverage" type="gml:AbstractCoverageType" abstract="true" substitutionGroup="gml:AbstractFeature">
+	<element name="AbstractCoverage" type="gml:AbstractCoverageType" abstract="true"
+             substitutionGroup="gml:AbstractFeature">
 		<annotation>
 			<documentation>This element serves as the head of a substitution group which may contain any coverage whose type is derived from gml:AbstractCoverageType.  It may act as a variable in the definition of content models where it is required to permit any coverage to be valid.</documentation>
 		</annotation>
@@ -45,7 +49,8 @@ To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
 			</extension>
 		</complexContent>
 	</complexType>
-	<element name="AbstractDiscreteCoverage" type="gml:DiscreteCoverageType" abstract="true" substitutionGroup="gml:AbstractCoverage">
+	<element name="AbstractDiscreteCoverage" type="gml:DiscreteCoverageType" abstract="true"
+             substitutionGroup="gml:AbstractCoverage">
 		<annotation>
 			<documentation>A discrete coverage consists of a domain set, range set and optionally a coverage function. The domain set consists of either spatial or temporal geometry objects, finite in number. The range set is comprised of a finite number of attribute values each of which is associated to every direct position within any single spatiotemporal object in the domain. In other words, the range values are constant on each spatiotemporal object in the domain. This coverage function maps each element from the coverage domain to an element in its range. The coverageFunction element describes the mapping function.
 This element serves as the head of a substitution group which may contain any discrete coverage whose type is derived from gml:DiscreteCoverageType.</documentation>
@@ -60,7 +65,8 @@ This element serves as the head of a substitution group which may contain any di
 			</extension>
 		</complexContent>
 	</complexType>
-	<element name="AbstractContinuousCoverage" type="gml:AbstractContinuousCoverageType" abstract="true" substitutionGroup="gml:AbstractFeature">
+	<element name="AbstractContinuousCoverage" type="gml:AbstractContinuousCoverageType"
+             abstract="true" substitutionGroup="gml:AbstractFeature">
 		<annotation>
 			<documentation>A continuous coverage as defined in ISO 19123 is a coverage that can return different values for the same feature attribute at different direct positions within a single spatiotemporal object in its spatiotemporal domain. The base type for continuous coverages is AbstractContinuousCoverageType.
 The coverageFunction element describes the mapping function. 
@@ -155,7 +161,8 @@ Note that the fields within a record match the gml:valueComponents of the gml:Co
 			<element name="compression" type="anyURI" minOccurs="0"/>
 		</sequence>
 	</complexType>
-	<element name="coverageFunction" type="gml:CoverageFunctionType" substitutionGroup="gml:AbstractObject">
+	<element name="coverageFunction" type="gml:CoverageFunctionType"
+             substitutionGroup="gml:AbstractObject">
 		<annotation>
 			<documentation>The gml:coverageFunction property describes the mapping function from the domain to the range of the coverage.
 The value of the CoverageFunction is one of gml:CoverageMappingRule and gml:GridFunction.
@@ -169,7 +176,8 @@ If the gml:coverageFunction property is omitted for a gridded coverage (includin
 			<element ref="gml:GridFunction"/>
 		</choice>
 	</complexType>
-	<element name="CoverageMappingRule" type="gml:MappingRuleType" substitutionGroup="gml:AbstractObject">
+	<element name="CoverageMappingRule" type="gml:MappingRuleType"
+             substitutionGroup="gml:AbstractObject">
 		<annotation>
 			<documentation>gml:CoverageMappingRule provides a formal or informal description of the coverage function.
 The mapping rule may be defined as an in-line string (gml:ruleDefinition) or via a remote reference through xlink:href (gml:ruleReference).  
@@ -233,7 +241,8 @@ The gml:startPoint is the index position of a point in the grid that is mapped t
 			<pattern value="[\+\-][1-9][0-9]*"/>
 		</restriction>
 	</simpleType>
-	<element name="MultiPointCoverage" type="gml:DiscreteCoverageType" substitutionGroup="gml:AbstractDiscreteCoverage">
+	<element name="MultiPointCoverage" type="gml:DiscreteCoverageType"
+             substitutionGroup="gml:AbstractDiscreteCoverage">
 		<annotation>
 			<documentation>In a gml:MultiPointCoverage the domain set is a gml:MultiPoint, that is a collection of arbitrarily distributed geometric points.
 The content model is identical with gml:DiscreteCoverageType, but that gml:domainSet shall have values gml:MultiPoint.
@@ -244,7 +253,8 @@ In a gml:MultiPointCoverage the mapping from the domain to the range is straight
 </documentation>
 		</annotation>
 	</element>
-	<element name="MultiCurveCoverage" type="gml:DiscreteCoverageType" substitutionGroup="gml:AbstractDiscreteCoverage">
+	<element name="MultiCurveCoverage" type="gml:DiscreteCoverageType"
+             substitutionGroup="gml:AbstractDiscreteCoverage">
 		<annotation>
 			<documentation>In a gml:MultiCurveCoverage the domain is partioned into a collection of curves comprising a gml:MultiCurve.  The coverage function then maps each curve in the collection to a value in the range set.
 The content model is identical with gml:DiscreteCoverageType, but that gml:domainSet shall have values gml:MultiCurve.
@@ -255,7 +265,8 @@ In a gml:MultiCurveCoverage the mapping from the domain to the range is straight
 </documentation>
 		</annotation>
 	</element>
-	<element name="MultiSurfaceCoverage" type="gml:DiscreteCoverageType" substitutionGroup="gml:AbstractDiscreteCoverage">
+	<element name="MultiSurfaceCoverage" type="gml:DiscreteCoverageType"
+             substitutionGroup="gml:AbstractDiscreteCoverage">
 		<annotation>
 			<documentation>In a gml:MultiSurfaceCoverage the domain is partioned into a collection of surfaces comprising a gml:MultiSurface.  The coverage function than maps each surface in the collection to a value in the range set.
 The content model is identical with gml:DiscreteCoverageType, but that gml:domainSet shall have values gml:MultiSurface.
@@ -266,7 +277,8 @@ In a gml:MultiSurfaceCoverage the mapping from the domain to the range is straig
 </documentation>
 		</annotation>
 	</element>
-	<element name="MultiSolidCoverage" type="gml:DiscreteCoverageType" substitutionGroup="gml:AbstractDiscreteCoverage">
+	<element name="MultiSolidCoverage" type="gml:DiscreteCoverageType"
+             substitutionGroup="gml:AbstractDiscreteCoverage">
 		<annotation>
 			<documentation>In a gml:MultiSolidCoverage the domain is partioned into a collection of solids comprising a gml:MultiSolid.  The coverage function than maps each solid in the collection to a value in the range set.
 The content model is identical with gml:DiscreteCoverageType, but that gml:domainSet shall have values gml:MultiSolid.
@@ -277,14 +289,16 @@ In a gml:MultiSolidCoverage the mapping from the domain to the range is straight
 </documentation>
 		</annotation>
 	</element>
-	<element name="GridCoverage" type="gml:DiscreteCoverageType" substitutionGroup="gml:AbstractDiscreteCoverage">
+	<element name="GridCoverage" type="gml:DiscreteCoverageType"
+             substitutionGroup="gml:AbstractDiscreteCoverage">
 		<annotation>
 			<documentation>A gml:GriddedCoverage is a discrete point coverage in which the domain set is a geometric grid of points.
 Note that this is the same as the gml:MultiPointCoverage except that we have a gml:Grid to describe the domain.
 The simple gridded coverage is not geometrically referenced and hence no geometric positions are assignable to the points in the grid. Such geometric positioning is introduced in the gml:RectifiedGridCoverage.</documentation>
 		</annotation>
 	</element>
-	<element name="RectifiedGridCoverage" type="gml:DiscreteCoverageType" substitutionGroup="gml:AbstractDiscreteCoverage">
+	<element name="RectifiedGridCoverage" type="gml:DiscreteCoverageType"
+             substitutionGroup="gml:AbstractDiscreteCoverage">
 		<annotation>
 			<documentation>The gml:RectifiedGridCoverage is a discrete point coverage based on a rectified grid. It is similar to the grid coverage except that the points of the grid are geometrically referenced. The rectified grid coverage has a domain that is a gml:RectifiedGrid geometry.</documentation>
 		</annotation>

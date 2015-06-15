@@ -14,9 +14,27 @@
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.source.reader;
 
-import com.thoughtworks.xstream.converters.UnmarshallingContext;
-import com.thoughtworks.xstream.io.HierarchicalStreamReader;
-import ddf.catalog.data.Metacard;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
@@ -31,26 +49,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.thoughtworks.xstream.converters.UnmarshallingContext;
+import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import ddf.catalog.data.Metacard;
 
 public class TestGetRecordsMessageBodyReader {
 
@@ -66,8 +68,7 @@ public class TestGetRecordsMessageBodyReader {
     @Test
     public void testConfigurationArguments() throws Exception {
         when(mockInputManager.getTransformerBySchema(anyString()))
-.thenReturn(
-                new CswRecordConverter());
+                .thenReturn(new CswRecordConverter());
 
         CswSourceConfiguration config = new CswSourceConfiguration();
         config.setMetacardCswMappings(
@@ -84,8 +85,7 @@ public class TestGetRecordsMessageBodyReader {
         ArgumentCaptor<UnmarshallingContext> captor = ArgumentCaptor
                 .forClass(UnmarshallingContext.class);
 
-        reader.readFrom(CswRecordCollection.class, null, null,
-                null, null, is);
+        reader.readFrom(CswRecordCollection.class, null, null, null, null, is);
 
         // Verify the context arguments were set correctly
         verify(mockProvider, times(3))
@@ -115,8 +115,8 @@ public class TestGetRecordsMessageBodyReader {
     public void testFullThread() throws Exception {
         CswTransformProvider provider = new CswTransformProvider(null, mockInputManager);
 
-        when(mockInputManager.getTransformerBySchema(anyString())).thenReturn(
-                new CswRecordConverter());
+        when(mockInputManager.getTransformerBySchema(anyString()))
+                .thenReturn(new CswRecordConverter());
 
         CswSourceConfiguration config = new CswSourceConfiguration();
         Map<String, String> mappings = new HashMap<>();
@@ -125,8 +125,8 @@ public class TestGetRecordsMessageBodyReader {
         mappings.put(Metacard.MODIFIED, "modified");
         mappings.put(Metacard.CONTENT_TYPE, "type");
         config.setMetacardCswMappings(mappings);
-//        config.setMetacardCswMappings(
-//                DefaultCswRecordMap.getDefaultCswRecordMap().getCswToMetacardAttributeNames());
+        //        config.setMetacardCswMappings(
+        //                DefaultCswRecordMap.getDefaultCswRecordMap().getCswToMetacardAttributeNames());
         config.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
         config.setIsLonLatOrder(false);
         config.setThumbnailMapping(CswRecordMetacardType.CSW_REFERENCES);
@@ -136,8 +136,8 @@ public class TestGetRecordsMessageBodyReader {
         InputStream is = TestGetRecordsMessageBodyReader.class
                 .getResourceAsStream("/getRecordsResponse.xml");
 
-        CswRecordCollection cswRecords = reader.readFrom(CswRecordCollection.class, null, null,
-                null, null, is);
+        CswRecordCollection cswRecords = reader
+                .readFrom(CswRecordCollection.class, null, null, null, null, is);
 
         List<Metacard> metacards = cswRecords.getCswRecords();
 
@@ -155,23 +155,21 @@ public class TestGetRecordsMessageBodyReader {
         String expectedModifiedDateStr = "2008-12-15";
         DateTimeFormatter dateFormatter = ISODateTimeFormat.dateOptionalTimeParser();
         Date expectedModifiedDate = dateFormatter.parseDateTime(expectedModifiedDateStr).toDate();
-        expectedValues.put(CswRecordMetacardType.CSW_MODIFIED,
-                new String[] {expectedModifiedDateStr});
+        expectedValues
+                .put(CswRecordMetacardType.CSW_MODIFIED, new String[] {expectedModifiedDateStr});
         expectedValues.put(Metacard.MODIFIED, expectedModifiedDate);
-        expectedValues.put(CswRecordMetacardType.CSW_SUBJECT, new String[] {"subject 1",
-                "second subject"});
+        expectedValues.put(CswRecordMetacardType.CSW_SUBJECT,
+                new String[] {"subject 1", "second subject"});
         expectedValues.put(CswRecordMetacardType.CSW_ABSTRACT, new String[] {"abstract 1"});
-        expectedValues.put(CswRecordMetacardType.CSW_RIGHTS, new String[] {"copyright 1",
-                "copyright 2"});
+        expectedValues
+                .put(CswRecordMetacardType.CSW_RIGHTS, new String[] {"copyright 1", "copyright 2"});
         expectedValues.put(CswRecordMetacardType.CSW_LANGUAGE, new String[] {"english"});
         expectedValues.put(CswRecordMetacardType.CSW_TYPE, "dataset");
         expectedValues.put(CswRecordMetacardType.CSW_FORMAT, new String[] {"Shapefile"});
         expectedValues.put(Metacard.GEOGRAPHY,
                 "POLYGON((52.139 5.121, 52.517 5.121, 52.517 4.468, 52.139 4.468, 52.139 5.121))");
-        expectedValues
-                .put(CswRecordMetacardType.OWS_BOUNDING_BOX,
-                        new String[] {
-                                "POLYGON((52.139 5.121, 52.517 5.121, 52.517 4.468, 52.139 4.468, 52.139 5.121))"});
+        expectedValues.put(CswRecordMetacardType.OWS_BOUNDING_BOX, new String[] {
+                "POLYGON((52.139 5.121, 52.517 5.121, 52.517 4.468, 52.139 4.468, 52.139 5.121))"});
         assertMetacard(mc, expectedValues);
 
         expectedValues.clear();
@@ -187,23 +185,21 @@ public class TestGetRecordsMessageBodyReader {
         expectedModifiedDateStr = "2010-12-15";
         dateFormatter = ISODateTimeFormat.dateOptionalTimeParser();
         expectedModifiedDate = dateFormatter.parseDateTime(expectedModifiedDateStr).toDate();
-        expectedValues.put(CswRecordMetacardType.CSW_MODIFIED,
-                new String[] {expectedModifiedDateStr});
+        expectedValues
+                .put(CswRecordMetacardType.CSW_MODIFIED, new String[] {expectedModifiedDateStr});
         expectedValues.put(Metacard.MODIFIED, expectedModifiedDate);
-        expectedValues.put(CswRecordMetacardType.CSW_SUBJECT, new String[] {"first subject",
-                "subject 2"});
+        expectedValues.put(CswRecordMetacardType.CSW_SUBJECT,
+                new String[] {"first subject", "subject 2"});
         expectedValues.put(CswRecordMetacardType.CSW_ABSTRACT, new String[] {"mc2 abstract"});
-        expectedValues.put(CswRecordMetacardType.CSW_RIGHTS, new String[] {"first copyright",
-                "second copyright"});
+        expectedValues.put(CswRecordMetacardType.CSW_RIGHTS,
+                new String[] {"first copyright", "second copyright"});
         expectedValues.put(CswRecordMetacardType.CSW_LANGUAGE, new String[] {"english"});
         expectedValues.put(CswRecordMetacardType.CSW_TYPE, "dataset 2");
         expectedValues.put(CswRecordMetacardType.CSW_FORMAT, new String[] {"Shapefile 2"});
         expectedValues.put(Metacard.GEOGRAPHY,
                 "POLYGON((53.139 6.121, 53.517 6.121, 53.517 5.468, 53.139 5.468, 53.139 6.121))");
-        expectedValues
-                .put(CswRecordMetacardType.OWS_BOUNDING_BOX,
-                        new String[] {
-                                "POLYGON((53.139 6.121, 53.517 6.121, 53.517 5.468, 53.139 5.468, 53.139 6.121))"});
+        expectedValues.put(CswRecordMetacardType.OWS_BOUNDING_BOX, new String[] {
+                "POLYGON((53.139 6.121, 53.517 6.121, 53.517 5.468, 53.139 5.468, 53.139 6.121))"});
         assertMetacard(mc, expectedValues);
 
         expectedValues.clear();
@@ -216,13 +212,12 @@ public class TestGetRecordsMessageBodyReader {
         config.setMetacardCswMappings(
                 DefaultCswRecordMap.getDefaultCswRecordMap().getCswToMetacardAttributeNames());
         config.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
-        GetRecordsMessageBodyReader reader = new GetRecordsMessageBodyReader(
-                mockProvider, config);
+        GetRecordsMessageBodyReader reader = new GetRecordsMessageBodyReader(mockProvider, config);
 
         InputStream is = TestGetRecordsMessageBodyReader.class
                 .getResourceAsStream("/geomaticsGetRecordsResponse.xml");
-        CswRecordCollection cswRecords = reader.readFrom(CswRecordCollection.class, null, null,
-                null, null, is);
+        CswRecordCollection cswRecords = reader
+                .readFrom(CswRecordCollection.class, null, null, null, null, is);
         List<Metacard> metacards = cswRecords.getCswRecords();
         assertThat(metacards, not(nullValue()));
         assertThat(metacards.size(), equalTo(10));

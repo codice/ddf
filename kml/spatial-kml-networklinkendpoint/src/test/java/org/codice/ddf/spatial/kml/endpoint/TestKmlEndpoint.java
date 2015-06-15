@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.ddf.spatial.kml.endpoint;
 
@@ -58,18 +58,6 @@ import de.micromata.opengis.kml.v_2_2_0.NetworkLink;
 
 public class TestKmlEndpoint {
 
-    private static UriInfo mockUriInfo = mock(UriInfo.class);
-
-    private static MultivaluedMap<String, String> mockMap = mock(MultivaluedMap.class);
-
-    private static CatalogFramework mockFramework = mock(CatalogFramework.class);
-
-    private static SourceInfoResponse mockSourceInfoResponse = mock(SourceInfoResponse.class);
-
-    private static Set<SourceDescriptor> descriptors = new HashSet<SourceDescriptor>();
-
-    private static BrandingPlugin mockBranding = mock(BrandingPlugin.class);
-
     private static final String BOMBER_ICON = "bomber-2.png";
 
     private static final String JET_ICON = "jetfighter.png";
@@ -82,6 +70,22 @@ public class TestKmlEndpoint {
 
     private static final String TEST_PORT = "80";
 
+    private static final String LOCAL_SITE_NAME = "localSite";
+
+    private static final String REMOTE_SITE_NAME = "remoteSite";
+
+    private static UriInfo mockUriInfo = mock(UriInfo.class);
+
+    private static MultivaluedMap<String, String> mockMap = mock(MultivaluedMap.class);
+
+    private static CatalogFramework mockFramework = mock(CatalogFramework.class);
+
+    private static SourceInfoResponse mockSourceInfoResponse = mock(SourceInfoResponse.class);
+
+    private static Set<SourceDescriptor> descriptors = new HashSet<SourceDescriptor>();
+
+    private static BrandingPlugin mockBranding = mock(BrandingPlugin.class);
+
     private static byte[] bomberBytes;
 
     private static byte[] jetBtyes;
@@ -89,10 +93,6 @@ public class TestKmlEndpoint {
     private static String bomberPath;
 
     private static String jetPath;
-
-    private static final String LOCAL_SITE_NAME = "localSite";
-
-    private static final String REMOTE_SITE_NAME = "remoteSite";
 
     private static Map<String, String> config = new HashMap<String, String>();
 
@@ -114,8 +114,8 @@ public class TestKmlEndpoint {
         config.put(ConfigurationManager.SERVICES_CONTEXT_ROOT, "/services");
         config.put(ConfigurationManager.CONTACT, "example@example.com");
 
-        when(mockFramework.getSourceInfo(any(SourceInfoRequest.class))).thenReturn(
-                mockSourceInfoResponse);
+        when(mockFramework.getSourceInfo(any(SourceInfoRequest.class)))
+                .thenReturn(mockSourceInfoResponse);
         SourceDescriptorImpl localDescriptor = new SourceDescriptorImpl(LOCAL_SITE_NAME, null);
         SourceDescriptorImpl remoteDescriptor = new SourceDescriptorImpl(REMOTE_SITE_NAME, null);
         descriptors.add(localDescriptor);
@@ -130,8 +130,8 @@ public class TestKmlEndpoint {
         KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding, mockFramework);
         kmlEndpoint.configurationUpdateCallback(config);
         kmlEndpoint.setDescription("This is some description.");
-        kmlEndpoint
-                .setLogo("https://tools.codice.org/wiki/download/attachments/3047457/DDF?version=1&modificationDate=1369422662164&api=v2");
+        kmlEndpoint.setLogo(
+                "https://tools.codice.org/wiki/download/attachments/3047457/DDF?version=1&modificationDate=1369422662164&api=v2");
         kmlEndpoint.setWebSite("https://tools.codice.org/wiki/display/DDF/DDF+Home");
         Kml response = kmlEndpoint.getKmlNetworkLink(mockUriInfo);
         assertThat(response, notNullValue());
@@ -150,7 +150,7 @@ public class TestKmlEndpoint {
 
     @Test
     public void testGetAvailableSources() throws UnknownHostException, MalformedURLException,
-        IllegalArgumentException, UriBuilderException, SourceUnavailableException {
+            IllegalArgumentException, UriBuilderException, SourceUnavailableException {
         when(mockUriInfo.getQueryParameters(false)).thenReturn(mockMap);
         KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding, mockFramework);
         kmlEndpoint.configurationUpdateCallback(config);
@@ -170,8 +170,8 @@ public class TestKmlEndpoint {
 
     @Test
     public void testGetAvailableSourcesVisibleByDefault() throws UnknownHostException,
-        MalformedURLException, IllegalArgumentException, UriBuilderException,
-        SourceUnavailableException {
+            MalformedURLException, IllegalArgumentException, UriBuilderException,
+            SourceUnavailableException {
         when(mockUriInfo.getQueryParameters(false)).thenReturn(mockMap);
         KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding, mockFramework);
         kmlEndpoint.configurationUpdateCallback(config);
@@ -193,8 +193,8 @@ public class TestKmlEndpoint {
 
     @Test
     public void testGetAvailableSourcesWithCount() throws UnknownHostException,
-        MalformedURLException, IllegalArgumentException, UriBuilderException,
-        SourceUnavailableException {
+            MalformedURLException, IllegalArgumentException, UriBuilderException,
+            SourceUnavailableException {
         when(mockUriInfo.getQueryParameters(false)).thenReturn(mockMap);
         KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding, mockFramework);
         kmlEndpoint.configurationUpdateCallback(config);

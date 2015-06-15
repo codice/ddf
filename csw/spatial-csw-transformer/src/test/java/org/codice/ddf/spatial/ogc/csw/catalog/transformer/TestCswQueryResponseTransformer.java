@@ -14,8 +14,43 @@
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.transformer;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.Serializable;
+import java.math.BigInteger;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import javax.ws.rs.WebApplicationException;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+
+import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswJAXBElementProvider;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
+import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswTransformProvider;
+import org.codice.ddf.spatial.ogc.csw.catalog.converter.GetRecordsResponseConverter;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.opengis.filter.Filter;
+
 import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
+
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
@@ -28,38 +63,6 @@ import ddf.catalog.transform.CatalogTransformerException;
 import net.opengis.cat.csw.v_2_0_2.AcknowledgementType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.ResultType;
-import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswJAXBElementProvider;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
-import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswTransformProvider;
-import org.codice.ddf.spatial.ogc.csw.catalog.converter.GetRecordsResponseConverter;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.opengis.filter.Filter;
-
-import javax.ws.rs.WebApplicationException;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.Serializable;
-import java.math.BigInteger;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class TestCswQueryResponseTransformer {
 
@@ -81,9 +84,8 @@ public class TestCswQueryResponseTransformer {
     }
 
     @Test
-    public void testMarshalRecordCollection()
-            throws WebApplicationException, IOException, JAXBException,
-            CatalogTransformerException {
+    public void testMarshalRecordCollection() throws WebApplicationException, IOException,
+            JAXBException, CatalogTransformerException {
 
         GetRecordsType query = new GetRecordsType();
         query.setResultType(ResultType.RESULTS);
@@ -100,8 +102,9 @@ public class TestCswQueryResponseTransformer {
 
         BinaryContent content = transformer.transform(sourceResponse, args);
 
-        verify(mockConverter, times(1)).marshal(captor.capture(), any(
-                HierarchicalStreamWriter.class), any(MarshallingContext.class));
+        verify(mockConverter, times(1))
+                .marshal(captor.capture(), any(HierarchicalStreamWriter.class),
+                        any(MarshallingContext.class));
 
         CswRecordCollection collection = captor.getValue();
 
@@ -115,9 +118,8 @@ public class TestCswQueryResponseTransformer {
     }
 
     @Test
-    public void testMarshalAcknowledgement()
-            throws WebApplicationException, IOException, JAXBException,
-            CatalogTransformerException {
+    public void testMarshalAcknowledgement() throws WebApplicationException, IOException,
+            JAXBException, CatalogTransformerException {
 
         GetRecordsType query = new GetRecordsType();
         query.setResultType(ResultType.VALIDATE);
@@ -133,8 +135,8 @@ public class TestCswQueryResponseTransformer {
 
         String xml = new String(content.getByteArray());
 
-        JAXBElement<?> jaxb = (JAXBElement<?>) getJaxBContext().createUnmarshaller().unmarshal(
-                new ByteArrayInputStream(xml.getBytes("UTF-8")));
+        JAXBElement<?> jaxb = (JAXBElement<?>) getJaxBContext().createUnmarshaller()
+                .unmarshal(new ByteArrayInputStream(xml.getBytes("UTF-8")));
 
         assertThat(jaxb.getValue(), is(instanceOf(AcknowledgementType.class)));
         AcknowledgementType response = (AcknowledgementType) jaxb.getValue();
@@ -155,8 +157,9 @@ public class TestCswQueryResponseTransformer {
 
         BinaryContent content = transformer.transform(sourceResponse, args);
 
-        verify(mockConverter, times(1)).marshal(captor.capture(), any(
-                HierarchicalStreamWriter.class), any(MarshallingContext.class));
+        verify(mockConverter, times(1))
+                .marshal(captor.capture(), any(HierarchicalStreamWriter.class),
+                        any(MarshallingContext.class));
 
         CswRecordCollection collection = captor.getValue();
 
@@ -204,12 +207,12 @@ public class TestCswQueryResponseTransformer {
 
     private JAXBContext getJaxBContext() throws JAXBException {
         JAXBContext context = null;
-        String contextPath = StringUtils.join(new String[] {
-                CswConstants.OGC_CSW_PACKAGE, CswConstants.OGC_FILTER_PACKAGE,
-                CswConstants.OGC_GML_PACKAGE, CswConstants.OGC_OWS_PACKAGE}, ":");
+        String contextPath = StringUtils
+                .join(new String[] {CswConstants.OGC_CSW_PACKAGE, CswConstants.OGC_FILTER_PACKAGE,
+                        CswConstants.OGC_GML_PACKAGE, CswConstants.OGC_OWS_PACKAGE}, ":");
 
-        context = JAXBContext.newInstance(contextPath,
-                CswJAXBElementProvider.class.getClassLoader());
+        context = JAXBContext
+                .newInstance(contextPath, CswJAXBElementProvider.class.getClassLoader());
 
         return context;
     }

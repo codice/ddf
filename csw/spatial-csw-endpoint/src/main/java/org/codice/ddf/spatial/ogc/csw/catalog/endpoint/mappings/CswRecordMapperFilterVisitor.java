@@ -10,15 +10,15 @@
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings;
 
-import ddf.catalog.data.AttributeDescriptor;
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.impl.BasicTypes;
-import ddf.measure.Distance;
-import ddf.measure.Distance.LinearUnit;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
@@ -52,11 +52,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.helpers.NamespaceSupport;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
+import ddf.catalog.data.AttributeDescriptor;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.BasicTypes;
+import ddf.measure.Distance;
+import ddf.measure.Distance.LinearUnit;
 
 /**
  * CswRecordMapperFilterVisitor extends {@link DuplicatingFilterVisitor} to create a new filter
@@ -71,6 +71,9 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
 
     protected static final String SPATIAL_QUERY_TAG = "spatialQueryExtraData";
 
+    private static final Logger LOGGER = LoggerFactory
+            .getLogger(CswRecordMapperFilterVisitor.class);
+
     private List<String> sourceIds = new ArrayList<>();
 
     private Filter visitedFilter;
@@ -79,12 +82,12 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
         return sourceIds;
     }
 
-    public void setVisitedFilter(Filter filter) {
-        visitedFilter = filter;
-    }
-
     public Filter getVisitedFilter() {
         return visitedFilter;
+    }
+
+    public void setVisitedFilter(Filter filter) {
+        visitedFilter = filter;
     }
 
     @Override
@@ -102,8 +105,8 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
         Expression geometry1 = visit(filter.getExpression1(), SPATIAL_QUERY_TAG);
         Expression geometry2 = visit(filter.getExpression2(), extraData);
 
-        return getFactory(extraData).beyond(geometry1, geometry2, distance,
-                UomOgcMapping.METRE.name());
+        return getFactory(extraData)
+                .beyond(geometry1, geometry2, distance, UomOgcMapping.METRE.name());
     }
 
     @Override
@@ -113,12 +116,9 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
         Expression geometry1 = visit(filter.getExpression1(), SPATIAL_QUERY_TAG);
         Expression geometry2 = visit(filter.getExpression2(), extraData);
 
-        return getFactory(extraData).dwithin(geometry1, geometry2, distance,
-                UomOgcMapping.METRE.name());
+        return getFactory(extraData)
+                .dwithin(geometry1, geometry2, distance, UomOgcMapping.METRE.name());
     }
-
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(CswRecordMapperFilterVisitor.class);
 
     @Override
     public Object visit(PropertyName expression, Object extraData) {
@@ -128,8 +128,8 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
         }
         String propertyName = expression.getPropertyName();
         String name;
-        if (CswConstants.BBOX_PROP.equals(propertyName)
-                || CswRecordMetacardType.OWS_BOUNDING_BOX.equals(propertyName)) {
+        if (CswConstants.BBOX_PROP.equals(propertyName) || CswRecordMetacardType.OWS_BOUNDING_BOX
+                .equals(propertyName)) {
             name = Metacard.ANY_GEO;
         } else {
 
@@ -189,7 +189,7 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
         // work around since Solr Provider doesn't support greater on temporal  (DDF-311)
         if (isTemporalQuery(expr1, expr2)) {
             // also not supported by provider (DDF-311)
-            //TODO: work around 1: return getFactory(extraData).after(expr1, expr2); 
+            //TODO: work around 1: return getFactory(extraData).after(expr1, expr2);
             Object val = null;
             Expression other = null;
             if (expr2 instanceof Literal) {
@@ -269,7 +269,7 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
         if (isTemporalQuery(expr1, expr2)) {
             // work around #1 fails, solr provider doesn't support tEquals either (DDF-311)
             //TEquals tEquals = getFactory(extraData).tequals(expr1, expr2);
-            //Before before = getFactory(extraData).before(expr1, expr2);            
+            //Before before = getFactory(extraData).before(expr1, expr2);
             //return getFactory(extraData).or(tEquals, before);
 
             Object val = null;
@@ -295,15 +295,16 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
 
     @Override
     public Object visit(Literal expression, Object extraData) {
-        if (extraData != null && extraData instanceof PropertyName
-                && expression.getValue() instanceof String) {
+        if (extraData != null && extraData instanceof PropertyName && expression
+                .getValue() instanceof String) {
             String propName = ((PropertyName) extraData).getPropertyName();
             AttributeDescriptor attrDesc = CSW_METACARD_TYPE.getAttributeDescriptor(propName);
             if (attrDesc != null && attrDesc.getType() != null) {
                 String value = (String) expression.getValue();
                 Serializable convertedValue = CswRecordConverter
-                        .convertStringValueToMetacardValue(attrDesc
-                                .getType().getAttributeFormat(), value);
+                        .convertStringValueToMetacardValue(attrDesc.getType().getAttributeFormat(),
+                                value);
+
                 return getFactory(extraData).literal(convertedValue);
             }
         }
@@ -314,7 +315,8 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
     public Object visit(And filter, Object extraData) {
         List<Filter> children = filter.getChildren();
         List<Filter> newChildren = new ArrayList<Filter>();
-        for (Iterator<Filter> iter = children.iterator(); iter.hasNext();) {
+        Iterator<Filter> iter = children.iterator();
+        while (iter.hasNext()) {
             Filter child = iter.next();
             if (child != null) {
                 Filter newChild = (Filter) child.accept(this, extraData);
@@ -335,7 +337,8 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
     public Object visit(Or filter, Object extraData) {
         List<Filter> children = filter.getChildren();
         List<Filter> newChildren = new ArrayList<Filter>();
-        for (Iterator<Filter> iter = children.iterator(); iter.hasNext();) {
+        Iterator<Filter> iter = children.iterator();
+        while (iter.hasNext()) {
             Filter child = iter.next();
             if (child != null) {
                 Filter newChild = (Filter) child.accept(this, extraData);

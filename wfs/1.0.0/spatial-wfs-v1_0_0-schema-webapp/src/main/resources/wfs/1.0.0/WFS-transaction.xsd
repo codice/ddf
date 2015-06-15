@@ -1,30 +1,31 @@
 <?xml version="1.0"?>
 <xsd:schema
-   targetNamespace="http://www.opengis.net/wfs"
-   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-   xmlns:gml="http://www.opengis.net/gml"
-   xmlns:ogc="http://www.opengis.net/ogc"
-   xmlns:wfs="http://www.opengis.net/wfs"
-   elementFormDefault="qualified"
-   version="1.0.0.3">
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        xmlns:gml="http://www.opengis.net/gml"
+        xmlns:ogc="http://www.opengis.net/ogc"
+        xmlns:wfs="http://www.opengis.net/wfs"
+        targetNamespace="http://www.opengis.net/wfs"
+        elementFormDefault="qualified"
+        version="1.0.0.3">
    
    <!--
       WFS is an OGC Standard.
       Copyright (c) 2002,2010 Open Geospatial Consortium.
       To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
    -->
-   
-   <!-- ==============================================================
-        Includes and Imports
-        ============================================================== -->
-   <xsd:include schemaLocation="./wfs.xsd"/>
-   <xsd:import namespace="http://www.opengis.net/gml" schemaLocation="../../gml/2.1.2/feature.xsd"/>
-   <xsd:import namespace="http://www.opengis.net/ogc" schemaLocation="../../filter/1.0.0/filter.xsd"/>
 
-   <!-- ==============================================================
-         REQUEST MESSAGES
+    <!-- ==============================================================
+         Includes and Imports
          ============================================================== -->
-   <xsd:element name="GetFeatureWithLock" type="wfs:GetFeatureWithLockType">
+    <xsd:include schemaLocation="./wfs.xsd"/>
+   <xsd:import namespace="http://www.opengis.net/gml" schemaLocation="../../gml/2.1.2/feature.xsd"/>
+   <xsd:import namespace="http://www.opengis.net/ogc"
+               schemaLocation="../../filter/1.0.0/filter.xsd"/>
+
+    <!-- ==============================================================
+          REQUEST MESSAGES
+          ============================================================== -->
+    <xsd:element name="GetFeatureWithLock" type="wfs:GetFeatureWithLockType">
       <xsd:annotation>
          <xsd:documentation>
             This is the root element for the GetFeatureWithLock request.
@@ -55,11 +56,11 @@
       </xsd:annotation>
    </xsd:element>
 
-   <!-- ==============================================================
-         RESPONSE MESSAGES
-         ============================================================== -->
-   <xsd:element name="WFS_LockFeatureResponse"
-                type="wfs:WFS_LockFeatureResponseType">
+    <!-- ==============================================================
+          RESPONSE MESSAGES
+          ============================================================== -->
+    <xsd:element name="WFS_LockFeatureResponse"
+                 type="wfs:WFS_LockFeatureResponseType">
       <xsd:annotation>
          <xsd:documentation>
             The WFS_LockFeatureResponse element contains a report
@@ -77,28 +78,28 @@
       </xsd:annotation>
    </xsd:element>
 
-   <!-- ==============================================================
-         COMMON ATTRIBUTE DOCUMENTATION
-         ============================================================== 
-         EXPIRY:
-            The expiry attribute value is specified in minutes. It
-            indicates how long a Web Feature Service should wait to
-            receive a request from the client application that locked
-            the feature instances.  If the specified time elapses and
-            no request has been received by a Web Feature Service that
-            references the lockId given to the client application, then
-            the locks maintained by the Web Feature Service shall be
-            released and the lockId that references the locked features
-            shall now be invalid.  If the expiry attribute is not specified,
-            then the feature instances shall be locked indefinitely and the
-            intervention of an administrator may be required to release
-            the locks. -->
+    <!-- ==============================================================
+          COMMON ATTRIBUTE DOCUMENTATION
+          ==============================================================
+          EXPIRY:
+             The expiry attribute value is specified in minutes. It
+             indicates how long a Web Feature Service should wait to
+             receive a request from the client application that locked
+             the feature instances.  If the specified time elapses and
+             no request has been received by a Web Feature Service that
+             references the lockId given to the client application, then
+             the locks maintained by the Web Feature Service shall be
+             released and the lockId that references the locked features
+             shall now be invalid.  If the expiry attribute is not specified,
+             then the feature instances shall be locked indefinitely and the
+             intervention of an administrator may be required to release
+             the locks. -->
 
-   <!-- ==============================================================
-         TYPES
-         ============================================================== -->
-   <!-- GETFEATUREWITHLOCK -->
-   <xsd:complexType name="GetFeatureWithLockType">
+    <!-- ==============================================================
+          TYPES
+          ============================================================== -->
+    <!-- GETFEATUREWITHLOCK -->
+    <xsd:complexType name="GetFeatureWithLockType">
       <xsd:annotation>
          <xsd:documentation>
             A GetFeatureWithLock request operates identically to a
@@ -126,8 +127,8 @@
       <xsd:attribute name="maxFeatures"
                      type="xsd:positiveInteger" use="optional"/>
    </xsd:complexType>
-   <!-- LOCKFEATURE -->
-   <xsd:complexType name="LockFeatureType">
+    <!-- LOCKFEATURE -->
+    <xsd:complexType name="LockFeatureType">
       <xsd:annotation>
          <xsd:documentation>
             This type defines the LockFeature operation.  The LockFeature
@@ -192,13 +193,13 @@
       <xsd:sequence>
          <xsd:element ref="ogc:Filter" minOccurs="0" maxOccurs="1"/>
       </xsd:sequence>
-      <xsd:attribute name="handle" 
+      <xsd:attribute name="handle"
                      type="xsd:string" use="optional"/>
-      <xsd:attribute name="typeName" 
+      <xsd:attribute name="typeName"
                      type="xsd:QName" use="required"/>
    </xsd:complexType>
-   <!-- TRANSACTION -->
-   <xsd:complexType name="TransactionType">
+    <!-- TRANSACTION -->
+    <xsd:complexType name="TransactionType">
       <xsd:annotation>
          <xsd:documentation>
             The TranactionType defines the Transaction operation.  A
@@ -311,7 +312,7 @@
    </xsd:element>
    <xsd:complexType name="UpdateElementType">
       <xsd:sequence>
-         <xsd:element ref="wfs:Property" maxOccurs="unbounded" />
+         <xsd:element ref="wfs:Property" maxOccurs="unbounded"/>
          <xsd:element ref="ogc:Filter" minOccurs="0" maxOccurs="1">
             <xsd:annotation>
                <xsd:documentation>
@@ -398,8 +399,8 @@
       </xsd:attribute>
    </xsd:complexType>
 
-   <!-- define structure to specify a property value -->
-   <xsd:element name="Property" type="wfs:PropertyType">
+    <!-- define structure to specify a property value -->
+    <xsd:element name="Property" type="wfs:PropertyType">
       <xsd:annotation>
          <xsd:documentation>
             The Property element is used to specify the new
@@ -427,8 +428,8 @@
          </xsd:element>
       </xsd:sequence>
    </xsd:complexType>
-   <!-- RESPONSE TYPES -->
-   <xsd:complexType name="WFS_LockFeatureResponseType">
+    <!-- RESPONSE TYPES -->
+    <xsd:complexType name="WFS_LockFeatureResponseType">
       <xsd:annotation>
          <xsd:documentation>
             The WFS_LockFeatureResponseType is used to define an
@@ -582,8 +583,8 @@
    <xsd:element name="SUCCESS" type="wfs:EmptyType"/>
    <xsd:element name="FAILED" type="wfs:EmptyType"/>
    <xsd:element name="PARTIAL" type="wfs:EmptyType"/>
-   <!-- MISC TYPES -->
-   <xsd:complexType name="EmptyType"/>
+    <!-- MISC TYPES -->
+    <xsd:complexType name="EmptyType"/>
    <xsd:simpleType name="AllSomeType">
       <xsd:restriction base="xsd:string">
          <xsd:enumeration value="ALL"/>

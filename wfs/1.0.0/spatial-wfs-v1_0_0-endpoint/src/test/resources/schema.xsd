@@ -14,8 +14,8 @@
  *
  **/
 -->
-<schema xmlns="http://www.w3.org/2001/XMLSchema"
-        xmlns:Sport="urn:ddf.catalog.gml.Sport" xmlns:gml="http://www.opengis.net/gml"
+<schema xmlns:Sport="urn:ddf.catalog.gml.Sport"
+        xmlns:gml="http://www.opengis.net/gml" xmlns="http://www.w3.org/2001/XMLSchema"
         attributeFormDefault="unqualified" elementFormDefault="qualified"
         targetNamespace="urn:ddf.catalog.gml.Sport">
     <import namespace="http://www.opengis.net/gml"

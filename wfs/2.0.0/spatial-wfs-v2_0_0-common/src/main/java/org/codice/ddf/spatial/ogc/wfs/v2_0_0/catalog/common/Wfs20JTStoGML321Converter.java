@@ -17,8 +17,18 @@ package org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 
+import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryCollection;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.MultiLineString;
+import com.vividsolutions.jts.geom.MultiPoint;
+import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.io.gml2.GMLWriter;
+
 import net.opengis.gml.v_3_2_1.AbstractRingPropertyType;
 import net.opengis.gml.v_3_2_1.CoordinatesType;
 import net.opengis.gml.v_3_2_1.CurvePropertyType;
@@ -36,22 +46,13 @@ import net.opengis.gml.v_3_2_1.PolygonType;
 import net.opengis.gml.v_3_2_1.RingType;
 import net.opengis.gml.v_3_2_1.SurfacePropertyType;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.GeometryCollection;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.LinearRing;
-import com.vividsolutions.jts.geom.MultiLineString;
-import com.vividsolutions.jts.geom.MultiPoint;
-import com.vividsolutions.jts.geom.MultiPolygon;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.geom.Polygon;
-
 public class Wfs20JTStoGML321Converter {
 
-    private static final ObjectFactory gml320ObjectFactory = new ObjectFactory();
+    private static final ObjectFactory GML320_OBJECT_FACTORY = new ObjectFactory();
 
-    public static DirectPositionType convertToDirectPositionType(Coordinate coordinate, String srsName) {
-        DirectPositionType directPositionType = gml320ObjectFactory.createDirectPositionType();
+    public static DirectPositionType convertToDirectPositionType(Coordinate coordinate,
+            String srsName) {
+        DirectPositionType directPositionType = GML320_OBJECT_FACTORY.createDirectPositionType();
         directPositionType.getValue().add(new Double(coordinate.x));
         directPositionType.getValue().add(new Double(coordinate.y));
         directPositionType.setSrsName(srsName);
@@ -63,19 +64,19 @@ public class Wfs20JTStoGML321Converter {
     }
 
     public static PointType convertToPointType(Point point, String srsName) {
-        PointType pointType = gml320ObjectFactory.createPointType();
+        PointType pointType = GML320_OBJECT_FACTORY.createPointType();
         pointType.setPos(convertToDirectPositionType(point.getCoordinate(), srsName));
         pointType.setSrsName(srsName);
         return pointType;
     }
 
     public static JAXBElement<PointType> convertPointTypeToJAXB(PointType pointType) {
-        return gml320ObjectFactory.createPoint(pointType);
+        return GML320_OBJECT_FACTORY.createPoint(pointType);
     }
 
     public static LineStringType convertToLineStringType(LineString line, String srsName) {
-        LineStringType lineStringType = gml320ObjectFactory.createLineStringType();
-        CoordinatesType coordinatesType = gml320ObjectFactory.createCoordinatesType();
+        LineStringType lineStringType = GML320_OBJECT_FACTORY.createLineStringType();
+        CoordinatesType coordinatesType = GML320_OBJECT_FACTORY.createCoordinatesType();
         StringBuffer stringBuffer = new StringBuffer();
         for (int i = 0; i < line.getCoordinateSequence().size(); i++) {
             Coordinate coordinate = line.getCoordinateSequence().getCoordinate(i);
@@ -95,19 +96,19 @@ public class Wfs20JTStoGML321Converter {
 
     public static JAXBElement<LineStringType> convertLineStringTypeToJAXB(
             LineStringType lineStringType) {
-        return gml320ObjectFactory.createLineString(lineStringType);
+        return GML320_OBJECT_FACTORY.createLineString(lineStringType);
     }
 
     public static PolygonType convertToPolygonType(Polygon polygon, String srsName) {
-        PolygonType polygonType = gml320ObjectFactory.createPolygonType();
+        PolygonType polygonType = GML320_OBJECT_FACTORY.createPolygonType();
 
         //exterior
         LineString lineString = polygon.getExteriorRing();
         LinearRing linearRing = lineString.getFactory()
                 .createLinearRing(lineString.getCoordinateSequence());
         RingType ringType = convertToRingType(linearRing, srsName);
-        JAXBElement<RingType> ringTypeJAXBElement = gml320ObjectFactory.createRing(ringType);
-        AbstractRingPropertyType abstractRingPropertyType = gml320ObjectFactory
+        JAXBElement<RingType> ringTypeJAXBElement = GML320_OBJECT_FACTORY.createRing(ringType);
+        AbstractRingPropertyType abstractRingPropertyType = GML320_OBJECT_FACTORY
                 .createAbstractRingPropertyType();
         abstractRingPropertyType.setAbstractRing(ringTypeJAXBElement);
         polygonType.setExterior(abstractRingPropertyType);
@@ -118,8 +119,8 @@ public class Wfs20JTStoGML321Converter {
             LinearRing linearRing1 = interiorRingN.getFactory()
                     .createLinearRing(interiorRingN.getCoordinateSequence());
             RingType ringType1 = convertToRingType(linearRing1, srsName);
-            JAXBElement<RingType> ringTypeJAXBElement1 = gml320ObjectFactory.createRing(ringType1);
-            AbstractRingPropertyType abstractRingPropertyType1 = gml320ObjectFactory
+            JAXBElement<RingType> ringTypeJAXBElement1 = GML320_OBJECT_FACTORY.createRing(ringType1);
+            AbstractRingPropertyType abstractRingPropertyType1 = GML320_OBJECT_FACTORY
                     .createAbstractRingPropertyType();
             abstractRingPropertyType1.setAbstractRing(ringTypeJAXBElement1);
             polygonType.getInterior().add(abstractRingPropertyType1);
@@ -129,19 +130,19 @@ public class Wfs20JTStoGML321Converter {
     }
 
     public static JAXBElement<PolygonType> convertPolygonTypeToJAXB(PolygonType polygonType) {
-        return gml320ObjectFactory.createPolygon(polygonType);
+        return GML320_OBJECT_FACTORY.createPolygon(polygonType);
     }
 
     public static JAXBElement<MultiPointType> convertMultiPointTypeToJAXB(
             MultiPointType multiPointType) {
-        return gml320ObjectFactory.createMultiPoint(multiPointType);
+        return GML320_OBJECT_FACTORY.createMultiPoint(multiPointType);
     }
 
     public static MultiPointType convertToMultiPointType(MultiPoint multiPoint, String srsName) {
-        MultiPointType multiPointType = gml320ObjectFactory.createMultiPointType();
+        MultiPointType multiPointType = GML320_OBJECT_FACTORY.createMultiPointType();
         for (int i = 0; i < multiPoint.getNumGeometries(); i++) {
             Point point = (Point) multiPoint.getGeometryN(i);
-            PointPropertyType pointPropertyType = gml320ObjectFactory.createPointPropertyType();
+            PointPropertyType pointPropertyType = GML320_OBJECT_FACTORY.createPointPropertyType();
             pointPropertyType.setPoint(convertToPointType(point, srsName));
             multiPointType.getPointMember().add(pointPropertyType);
         }
@@ -150,10 +151,10 @@ public class Wfs20JTStoGML321Converter {
     }
 
     public static RingType convertToRingType(LinearRing line, String srsName) {
-        RingType ringType = gml320ObjectFactory.createRingType();
-        CurvePropertyType curvePropertyType = gml320ObjectFactory.createCurvePropertyType();
+        RingType ringType = GML320_OBJECT_FACTORY.createRingType();
+        CurvePropertyType curvePropertyType = GML320_OBJECT_FACTORY.createCurvePropertyType();
         LineStringType curve = convertToLineStringType(line, srsName);
-        JAXBElement<LineStringType> lineStringTypeJAXBElement = gml320ObjectFactory
+        JAXBElement<LineStringType> lineStringTypeJAXBElement = GML320_OBJECT_FACTORY
                 .createLineString(curve);
         curvePropertyType.setAbstractCurve(lineStringTypeJAXBElement);
         ringType.getCurveMember().add(curvePropertyType);
@@ -167,14 +168,15 @@ public class Wfs20JTStoGML321Converter {
      * @param multiPolygon
      * @return MultiSurfaceType
      */
-    public static MultiSurfaceType convertToMultiSurfaceType(MultiPolygon multiPolygon, String srsName) {
-        MultiSurfaceType multiSurfaceType = gml320ObjectFactory.createMultiSurfaceType();
+    public static MultiSurfaceType convertToMultiSurfaceType(MultiPolygon multiPolygon,
+            String srsName) {
+        MultiSurfaceType multiSurfaceType = GML320_OBJECT_FACTORY.createMultiSurfaceType();
         for (int i = 0; i < multiPolygon.getNumGeometries(); i++) {
             Polygon poly = (Polygon) multiPolygon.getGeometryN(i);
             PolygonType polygonType = convertToPolygonType(poly, srsName);
-            JAXBElement<PolygonType> polygonTypeJAXBElement = gml320ObjectFactory
+            JAXBElement<PolygonType> polygonTypeJAXBElement = GML320_OBJECT_FACTORY
                     .createPolygon(polygonType);
-            SurfacePropertyType surfacePropertyType = gml320ObjectFactory
+            SurfacePropertyType surfacePropertyType = GML320_OBJECT_FACTORY
                     .createSurfacePropertyType();
             surfacePropertyType.setAbstractSurface(polygonTypeJAXBElement);
             multiSurfaceType.getSurfaceMember().add(surfacePropertyType);
@@ -185,26 +187,29 @@ public class Wfs20JTStoGML321Converter {
 
     public static JAXBElement<MultiSurfaceType> convertMultiSurfaceTypeToJAXB(
             MultiSurfaceType multiSurfaceType) {
-        return gml320ObjectFactory.createMultiSurface(multiSurfaceType);
+        return GML320_OBJECT_FACTORY.createMultiSurface(multiSurfaceType);
     }
 
     public static MultiGeometryType convertToMultiGeometryType(GeometryCollection multiGeometry,
             String srsName) {
-        final MultiGeometryType multiGeometryType = gml320ObjectFactory.createMultiGeometryType();
+        final MultiGeometryType multiGeometryType = GML320_OBJECT_FACTORY.createMultiGeometryType();
 
         for (int index = 0; index < multiGeometry.getNumGeometries(); index++) {
             final Geometry geometry = multiGeometry.getGeometryN(index);
-            multiGeometryType.getGeometryMember().add(createGeometryPropertyType(geometry, srsName));
+            multiGeometryType.getGeometryMember()
+                    .add(createGeometryPropertyType(geometry, srsName));
         }
         return multiGeometryType;
     }
 
-    public static JAXBElement<MultiGeometryType> convertMultiGeometryTypeToJAXB(MultiGeometryType multiGeometryType) {
-        return gml320ObjectFactory.createMultiGeometry(multiGeometryType);
+    public static JAXBElement<MultiGeometryType> convertMultiGeometryTypeToJAXB(
+            MultiGeometryType multiGeometryType) {
+        return GML320_OBJECT_FACTORY.createMultiGeometry(multiGeometryType);
     }
 
-    private static GeometryPropertyType createGeometryPropertyType(Geometry geometry, String srsName) {
-        final GeometryPropertyType geometryPropertyType = gml320ObjectFactory
+    private static GeometryPropertyType createGeometryPropertyType(Geometry geometry,
+            String srsName) {
+        final GeometryPropertyType geometryPropertyType = GML320_OBJECT_FACTORY
                 .createGeometryPropertyType();
         if (geometry instanceof Point) {
             PointType pointType = convertToPointType((Point) geometry, srsName);
@@ -228,7 +233,8 @@ public class Wfs20JTStoGML321Converter {
             geometryPropertyType
                     .setAbstractGeometry(convertMultiSurfaceTypeToJAXB(multiSurfaceType));
         } else if (geometry instanceof GeometryCollection) {
-            MultiGeometryType multiGeometryType = convertToMultiGeometryType((GeometryCollection) geometry, srsName);
+            MultiGeometryType multiGeometryType = convertToMultiGeometryType(
+                    (GeometryCollection) geometry, srsName);
             geometryPropertyType
                     .setAbstractGeometry(convertMultiGeometryTypeToJAXB(multiGeometryType));
         } else {
@@ -238,7 +244,7 @@ public class Wfs20JTStoGML321Converter {
     }
 
     public static DirectPositionType convertCoordinateToDirectPositionType(Coordinate coordinate) {
-        final DirectPositionType directPosition = gml320ObjectFactory.createDirectPositionType();
+        final DirectPositionType directPosition = GML320_OBJECT_FACTORY.createDirectPositionType();
 
         directPosition.getValue().add(coordinate.x);
         directPosition.getValue().add(coordinate.y);
@@ -265,13 +271,13 @@ public class Wfs20JTStoGML321Converter {
     // MultiLineStringType maps to MultiCurveType in opengis API
     public static JAXBElement<MultiCurveType> convertMultiCurveTypeToJAXB(
             MultiCurveType multiCurveType) {
-        return gml320ObjectFactory.createMultiCurve(multiCurveType);
+        return GML320_OBJECT_FACTORY.createMultiCurve(multiCurveType);
     }
 
     // MultiLineStringType maps to MultiCurveType in opengis API
     public static MultiCurveType convertToMultiLineStringType(MultiLineString multiLineString,
             String srsName) {
-        final MultiCurveType multiCurveType = gml320ObjectFactory.createMultiCurveType();
+        final MultiCurveType multiCurveType = GML320_OBJECT_FACTORY.createMultiCurveType();
         for (int index = 0; index < multiLineString.getNumGeometries(); index++) {
             final LineString lineString = (LineString) multiLineString.getGeometryN(index);
             multiCurveType.getCurveMember().add(createCurvePropertyType(lineString));
@@ -281,21 +287,21 @@ public class Wfs20JTStoGML321Converter {
     }
 
     private static CurvePropertyType createCurvePropertyType(LineString lineString) {
-        final CurvePropertyType curvePropertyType = gml320ObjectFactory.createCurvePropertyType();
+        final CurvePropertyType curvePropertyType = GML320_OBJECT_FACTORY.createCurvePropertyType();
         curvePropertyType.setAbstractCurve(createElementJAXB(lineString));
         return curvePropertyType;
     }
 
     private static JAXBElement<LineStringType> createElementJAXB(LineString lineString) {
-        return gml320ObjectFactory.createLineString(convertGeometryType(lineString));
+        return GML320_OBJECT_FACTORY.createLineString(convertGeometryType(lineString));
     }
 
     private static LineStringType convertGeometryType(LineString lineString) {
 
-        final LineStringType resultLineString = gml320ObjectFactory.createLineStringType();
+        final LineStringType resultLineString = GML320_OBJECT_FACTORY.createLineStringType();
 
         for (DirectPositionType directPosition : convertCoordinates(lineString.getCoordinates())) {
-            final JAXBElement<DirectPositionType> pos = gml320ObjectFactory
+            final JAXBElement<DirectPositionType> pos = GML320_OBJECT_FACTORY
                     .createPos(directPosition);
             resultLineString.getPosOrPointPropertyOrPointRep().add(pos);
 

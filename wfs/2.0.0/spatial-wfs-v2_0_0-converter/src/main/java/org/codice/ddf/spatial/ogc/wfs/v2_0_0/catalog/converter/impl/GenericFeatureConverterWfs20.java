@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 
 package org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.converter.impl;
@@ -51,27 +51,28 @@ import ddf.catalog.data.impl.MetacardImpl;
 /**
  * This class works in conjunction with XStream to convert a {@link Metacard} to XML according to
  * the GML 3.2.1 spec. It will also convert respective XML into a Metacard.
- * 
+ *
  */
 public class GenericFeatureConverterWfs20 extends AbstractFeatureConverterWfs20 {
 
     private static final String ID = "id";
 
+    private static final Logger LOGGER = LoggerFactory
+            .getLogger(GenericFeatureConverterWfs20.class);
+
     private String sourceId = null;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(GenericFeatureConverterWfs20.class);
-    
-    public GenericFeatureConverterWfs20(){
-    	
+    public GenericFeatureConverterWfs20() {
+
     }
-    
-    public GenericFeatureConverterWfs20(MetacardMapper metacardMapper){
-    	super(metacardMapper);
+
+    public GenericFeatureConverterWfs20(MetacardMapper metacardMapper) {
+        super(metacardMapper);
     }
 
     /**
      * Method to determine if this converter knows how to convert the specified Class.
-     * 
+     *
      * @param clazz
      *            the class to check
      */
@@ -83,7 +84,7 @@ public class GenericFeatureConverterWfs20 extends AbstractFeatureConverterWfs20 
     /**
      * This method will convert a {@link Metacard} instance into xml that will validate against the
      * GML 2.1.2 AbstractFeatureType.
-     * 
+     *
      * @param value
      *            the {@link Metacard} to convert
      * @param writer
@@ -97,11 +98,10 @@ public class GenericFeatureConverterWfs20 extends AbstractFeatureConverterWfs20 
         Metacard metacard = (Metacard) value;
 
         // TODO when we have a reference to the MCT we can get the namespace too
-        QName qname = WfsQnameBuilder.buildQName(metacard.getMetacardType().getName(),
-                metacard.getContentTypeName());
+        QName qname = WfsQnameBuilder
+                .buildQName(metacard.getMetacardType().getName(), metacard.getContentTypeName());
 
-        writer.startNode(qname.getPrefix() + ":"
-                + qname.getLocalPart());
+        writer.startNode(qname.getPrefix() + ":" + qname.getLocalPart());
 
         // Add the "id" attribute if we have an ID
         if (metacard.getAttribute(Metacard.ID).getValue() != null) {
@@ -112,7 +112,8 @@ public class GenericFeatureConverterWfs20 extends AbstractFeatureConverterWfs20 
         if (null != metacard.getLocation()) {
             Geometry geo = XmlNode.readGeometry(metacard.getLocation());
             if (geo != null && !geo.isEmpty()) {
-                XmlNode.writeEnvelope(WfsConstants.GML_PREFIX + ":" + "boundedBy", context, writer, geo.getEnvelopeInternal());
+                XmlNode.writeEnvelope(WfsConstants.GML_PREFIX + ":" + "boundedBy", context, writer,
+                        geo.getEnvelopeInternal());
             }
         }
 
@@ -123,8 +124,8 @@ public class GenericFeatureConverterWfs20 extends AbstractFeatureConverterWfs20 
         for (AttributeDescriptor attributeDescriptor : descriptors) {
             Attribute attribute = metacard.getAttribute(attributeDescriptor.getName());
             if (attribute != null) {
-                writeAttributeToXml(attribute, qname, attributeDescriptor.getType()
-                        .getAttributeFormat(), context, writer);
+                writeAttributeToXml(attribute, qname,
+                        attributeDescriptor.getType().getAttributeFormat(), context, writer);
             }
         }
         writer.endNode();
@@ -179,7 +180,7 @@ public class GenericFeatureConverterWfs20 extends AbstractFeatureConverterWfs20 
 
     /**
      * This method will unmarshal an XML instance of a "gml:member" to a {@link Metacard}.
-     * 
+     *
      * @param hreader
      *            the stream reader responsible for reading this xml doc
      * @param context
@@ -194,12 +195,12 @@ public class GenericFeatureConverterWfs20 extends AbstractFeatureConverterWfs20 
         //in that it cannot fetch the attributes value directly by name.
         String id = null;
         int count = hreader.getAttributeCount();
-        for(int i=0; i < count; ++i){
+        for (int i = 0; i < count; ++i) {
             if (hreader.getAttributeName(i).equals(ID)) {
                 id = hreader.getAttribute(i);
             }
         }
-        
+
         MetacardImpl mc;
         if (metacardType != null) {
             mc = (MetacardImpl) createMetacardFromFeature(hreader, metacardType);
@@ -207,12 +208,12 @@ public class GenericFeatureConverterWfs20 extends AbstractFeatureConverterWfs20 
             throw new IllegalArgumentException(
                     "No MetacardType registered on the FeatureConverter.  Unable to to convert features to metacards.");
         }
-        if(StringUtils.isNotBlank(id)) {
+        if (StringUtils.isNotBlank(id)) {
             mc.setId(id);
         } else {
             LOGGER.warn("Feature id is blank.  Unable to set metacard id.");
         }
-        
+
         mc.setSourceId(sourceId);
 
         // set some default values that we can't get from a generic
@@ -233,7 +234,8 @@ public class GenericFeatureConverterWfs20 extends AbstractFeatureConverterWfs20 
 
         mc.setContentTypeName(metacardType.getName());
         try {
-            mc.setTargetNamespace(new URI(WfsConstants.NAMESPACE_URN_ROOT + metacardType.getName()));
+            mc.setTargetNamespace(
+                    new URI(WfsConstants.NAMESPACE_URN_ROOT + metacardType.getName()));
         } catch (URISyntaxException e) {
             LOGGER.warn("Unable to set Target Namespace on metacard: {}, Exception {}",
                     WfsConstants.NAMESPACE_URN_ROOT + metacardType.getName(), e);

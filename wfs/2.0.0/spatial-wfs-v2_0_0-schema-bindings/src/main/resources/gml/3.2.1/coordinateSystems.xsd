@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema targetNamespace="http://www.opengis.net/gml/3.2" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:gml="http://www.opengis.net/gml/3.2" elementFormDefault="qualified" xml:lang="en"  version="3.2.1.2">
+<schema xmlns:gml="http://www.opengis.net/gml/3.2" targetNamespace="http://www.opengis.net/gml/3.2"
+        xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" xml:lang="en"
+        version="3.2.1.2">
 	<annotation>
 		<appinfo source="urn:x-ogc:specification:gml:schema-xsd:coordinateSystems:3.2.1">coordinateSystems.xsd</appinfo>
 		<documentation>See ISO/DIS 19136 13.4.
@@ -16,7 +18,8 @@ To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
 	</annotation>
 	<include schemaLocation="gml.xsd"/>
 	<include schemaLocation="referenceSystems.xsd"/>
-	<element name="CoordinateSystemAxis" type="gml:CoordinateSystemAxisType" substitutionGroup="gml:Definition">
+	<element name="CoordinateSystemAxis" type="gml:CoordinateSystemAxisType"
+             substitutionGroup="gml:Definition">
 		<annotation>
 			<documentation>gml:CoordinateSystemAxis is a definition of a coordinate system axis.</documentation>
 		</annotation>
@@ -75,7 +78,8 @@ The codeSpace attribute shall reference a source of information specifying the v
 		</sequence>
 		<attributeGroup ref="gml:AssociationAttributeGroup"/>
 	</complexType>
-	<element name="AbstractCoordinateSystem" type="gml:AbstractCoordinateSystemType" abstract="true" substitutionGroup="gml:Definition">
+	<element name="AbstractCoordinateSystem" type="gml:AbstractCoordinateSystemType" abstract="true"
+             substitutionGroup="gml:Definition">
 		<annotation>
 			<documentation>gml:AbstractCoordinateSystem is a coordinate system (CS) is the non-repeating sequence of coordinate system axes that spans a given coordinate space. A CS is derived from a set of mathematical rules for specifying how coordinates in a given space are to be assigned to points. The coordinate values in a coordinate tuple shall be recorded in the order in which the coordinate system axes associations are recorded. This abstract complex type shall not be used, extended, or restricted, in an Application Schema, to define a concrete subtype with a meaning equivalent to a concrete subtype specified in this document.</documentation>
 		</annotation>
@@ -104,7 +108,8 @@ The codeSpace attribute shall reference a source of information specifying the v
 		</sequence>
 		<attributeGroup ref="gml:AssociationAttributeGroup"/>
 	</complexType>
-	<element name="EllipsoidalCS" type="gml:EllipsoidalCSType" substitutionGroup="gml:AbstractCoordinateSystem">
+	<element name="EllipsoidalCS" type="gml:EllipsoidalCSType"
+             substitutionGroup="gml:AbstractCoordinateSystem">
 		<annotation>
 			<documentation>gml:EllipsoidalCS is a two- or three-dimensional coordinate system in which position is specified by geodetic latitude, geodetic longitude, and (in the three-dimensional case) ellipsoidal height. An EllipsoidalCS shall have two or three gml:axis property elements; the number of associations shall equal the dimension of the CS.</documentation>
 		</annotation>
@@ -123,7 +128,8 @@ The codeSpace attribute shall reference a source of information specifying the v
 		</sequence>
 		<attributeGroup ref="gml:AssociationAttributeGroup"/>
 	</complexType>
-	<element name="CartesianCS" type="gml:CartesianCSType" substitutionGroup="gml:AbstractCoordinateSystem">
+	<element name="CartesianCS" type="gml:CartesianCSType"
+             substitutionGroup="gml:AbstractCoordinateSystem">
 		<annotation>
 			<documentation>gml:CartesianCS is a 1-, 2-, or 3-dimensional coordinate system. In the 1-dimensional case, it contains a single straight coordinate axis. In the 2- and 3-dimensional cases gives the position of points relative to orthogonal straight axes. In the multi-dimensional case, all axes shall have the same length unit of measure. A CartesianCS shall have one, two, or three gml:axis property elements.</documentation>
 		</annotation>
@@ -142,7 +148,8 @@ The codeSpace attribute shall reference a source of information specifying the v
 		</sequence>
 		<attributeGroup ref="gml:AssociationAttributeGroup"/>
 	</complexType>
-	<element name="VerticalCS" type="gml:VerticalCSType" substitutionGroup="gml:AbstractCoordinateSystem">
+	<element name="VerticalCS" type="gml:VerticalCSType"
+             substitutionGroup="gml:AbstractCoordinateSystem">
 		<annotation>
 			<documentation>gml:VerticalCS is a one-dimensional coordinate system used to record the heights or depths of points. Such a coordinate system is usually dependent on the Earth's gravity field, perhaps loosely as when atmospheric pressure is the basis for the vertical coordinate system axis. A VerticalCS shall have one gml:axis property element.</documentation>
 		</annotation>
@@ -180,7 +187,8 @@ The codeSpace attribute shall reference a source of information specifying the v
 		</sequence>
 		<attributeGroup ref="gml:AssociationAttributeGroup"/>
 	</complexType>
-	<element name="LinearCS" type="gml:LinearCSType" substitutionGroup="gml:AbstractCoordinateSystem">
+	<element name="LinearCS" type="gml:LinearCSType"
+             substitutionGroup="gml:AbstractCoordinateSystem">
 		<annotation>
 			<documentation>gml:LinearCS is a one-dimensional coordinate system that consists of the points that lie on the single axis described. The associated coordinate is the distance – with or without offset – from the specified datum to the point along the axis. A LinearCS shall have one gml:axis property element.</documentation>
 		</annotation>
@@ -199,7 +207,8 @@ The codeSpace attribute shall reference a source of information specifying the v
 		</sequence>
 		<attributeGroup ref="gml:AssociationAttributeGroup"/>
 	</complexType>
-	<element name="UserDefinedCS" type="gml:UserDefinedCSType" substitutionGroup="gml:AbstractCoordinateSystem">
+	<element name="UserDefinedCS" type="gml:UserDefinedCSType"
+             substitutionGroup="gml:AbstractCoordinateSystem">
 		<annotation>
 			<documentation>gml:UserDefinedCS is a two- or three-dimensional coordinate system that consists of any combination of coordinate axes not covered by any other coordinate system type. A UserDefinedCS shall have two or three gml:axis property elements; the number of property elements shall equal the dimension of the CS.</documentation>
 		</annotation>
@@ -218,7 +227,8 @@ The codeSpace attribute shall reference a source of information specifying the v
 		</sequence>
 		<attributeGroup ref="gml:AssociationAttributeGroup"/>
 	</complexType>
-	<element name="SphericalCS" type="gml:SphericalCSType" substitutionGroup="gml:AbstractCoordinateSystem">
+	<element name="SphericalCS" type="gml:SphericalCSType"
+             substitutionGroup="gml:AbstractCoordinateSystem">
 		<annotation>
 			<documentation>gml:SphericalCS is a three-dimensional coordinate system with one distance measured from the origin and two angular coordinates. A SphericalCS shall have three gml:axis property elements.</documentation>
 		</annotation>
@@ -256,7 +266,8 @@ The codeSpace attribute shall reference a source of information specifying the v
 		</sequence>
 		<attributeGroup ref="gml:AssociationAttributeGroup"/>
 	</complexType>
-	<element name="CylindricalCS" type="gml:CylindricalCSType" substitutionGroup="gml:AbstractCoordinateSystem">
+	<element name="CylindricalCS" type="gml:CylindricalCSType"
+             substitutionGroup="gml:AbstractCoordinateSystem">
 		<annotation>
 			<documentation>gml:CylindricalCS is a three-dimensional coordinate system consisting of a polar coordinate system extended by a straight coordinate axis perpendicular to the plane spanned by the polar coordinate system. A CylindricalCS shall have three gml:axis property elements.</documentation>
 		</annotation>
@@ -275,7 +286,8 @@ The codeSpace attribute shall reference a source of information specifying the v
 		</sequence>
 		<attributeGroup ref="gml:AssociationAttributeGroup"/>
 	</complexType>
-	<element name="AffineCS" type="gml:AffineCSType" substitutionGroup="gml:AbstractCoordinateSystem">
+	<element name="AffineCS" type="gml:AffineCSType"
+             substitutionGroup="gml:AbstractCoordinateSystem">
 		<annotation>
 			<documentation>gml:AffineCS is a two- or three-dimensional coordinate system with straight axes that are not necessarily orthogonal. An AffineCS shall have two or three gml:axis property elements; the number of property elements shall equal the dimension of the CS.</documentation>
 		</annotation>

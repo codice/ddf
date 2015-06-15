@@ -15,10 +15,15 @@
 
 package org.codice.ddf.spatial.ogc.catalog.common;
 
-import ddf.security.PropertiesLoader;
-import ddf.security.service.SecurityManager;
-import ddf.security.settings.SecuritySettingsService;
-import ddf.security.sts.client.configuration.STSClientConfiguration;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
@@ -41,27 +46,21 @@ import org.apache.cxf.ws.security.trust.STSClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import ddf.security.PropertiesLoader;
+import ddf.security.service.SecurityManager;
+import ddf.security.settings.SecuritySettingsService;
+import ddf.security.sts.client.configuration.STSClientConfiguration;
 
 public abstract class TrustedRemoteSource {
-    
-    public static final String DISABLE_CN_CHECK_PROPERTY = "disableCnCheck";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TrustedRemoteSource.class);
+    public static final String DISABLE_CN_CHECK_PROPERTY = "disableCnCheck";
 
     public static final Integer DEFAULT_CONNECTION_TIMEOUT = 30000;
 
     public static final Integer DEFAULT_RECEIVE_TIMEOUT = 60000;
-    
+
     protected static final String ADDRESSING_NAMESPACE = "http://www.w3.org/2005/08/addressing";
-    
+
     protected static final int HTTP_STATUS_CODE_OK = 200;
 
     protected static final int CONNECTION_TIMEOUT_INTERVAL = 3000;
@@ -69,7 +68,9 @@ public abstract class TrustedRemoteSource {
     protected static final String QUESTION_MARK_WSDL = "?wsdl";
 
     protected static final String DOT_WSDL = ".wsdl";
-    
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(TrustedRemoteSource.class);
+
     protected HashMap<String, String> wsdlSuffixMap = new HashMap<String, String>();
 
     protected SecuritySettingsService securitySettingsService;
@@ -84,7 +85,8 @@ public abstract class TrustedRemoteSource {
      * @param connectionTimeout  Connection timeout in milliseconds.
      * @param receiveTimeout     Receive timeout in milliseconds.
      */
-    protected void configureTimeouts(Client client, Integer connectionTimeout, Integer receiveTimeout) {
+    protected void configureTimeouts(Client client, Integer connectionTimeout,
+            Integer receiveTimeout) {
         ClientConfiguration clientConfiguration = WebClient.getConfig(client);
 
         HTTPConduit httpConduit = clientConfiguration.getHttpConduit();
@@ -123,10 +125,10 @@ public abstract class TrustedRemoteSource {
 
         httpConduit.setClient(httpClientPolicy);
     }
-    
+
     /**
      * Creates the JAX-RS client based the information provided.
-     * 
+     *
      * @param clazz
      *            - the interface this client implements
      * @param url
@@ -158,7 +160,7 @@ public abstract class TrustedRemoteSource {
 
     /**
      * Creates the JAX-RS client based the information provided.
-     * 
+     *
      * @param clazz
      *            - the interface this client implements
      * @param url
@@ -198,9 +200,10 @@ public abstract class TrustedRemoteSource {
     private JAXRSClientFactoryBean initClientBean(Class clazz, String url, ClassLoader classLoader,
             List<? extends Object> providers, String username, String password) {
         if (StringUtils.isEmpty(url)) {
-            final String errMsg = TrustedRemoteSource.class.getSimpleName()
-                    + " was called without a valid URL. "
-                    + TrustedRemoteSource.class.getSimpleName() + " will not be able to connect.";
+            final String errMsg =
+                    TrustedRemoteSource.class.getSimpleName() + " was called without a valid URL. "
+                            + TrustedRemoteSource.class.getSimpleName()
+                            + " will not be able to connect.";
             LOGGER.error(errMsg);
             throw new IllegalArgumentException(errMsg);
         }
@@ -239,7 +242,7 @@ public abstract class TrustedRemoteSource {
 
         params.setDisableCNCheck(true);
     }
-    
+
     /**
      * Returns a new STSClient object configured with the properties that have
      * been set.
@@ -278,15 +281,13 @@ public abstract class TrustedRemoteSource {
         // Properties loader should be able to find the properties file no
         // matter where it is
         if (signaturePropertiesPath != null && !signaturePropertiesPath.isEmpty()) {
-            LOGGER.debug(
-                    "Setting signature properties on STSClient: " + signaturePropertiesPath);
+            LOGGER.debug("Setting signature properties on STSClient: " + signaturePropertiesPath);
             Properties signatureProperties = PropertiesLoader
                     .loadProperties(signaturePropertiesPath);
             map.put(SecurityConstants.SIGNATURE_PROPERTIES, signatureProperties);
         }
         if (encryptionPropertiesPath != null && !encryptionPropertiesPath.isEmpty()) {
-            LOGGER.debug(
-                    "Setting encryption properties on STSClient: " + encryptionPropertiesPath);
+            LOGGER.debug("Setting encryption properties on STSClient: " + encryptionPropertiesPath);
             Properties encryptionProperties = PropertiesLoader
                     .loadProperties(encryptionPropertiesPath);
             map.put(SecurityConstants.ENCRYPT_PROPERTIES, encryptionProperties);
@@ -309,12 +310,15 @@ public abstract class TrustedRemoteSource {
                 LOGGER.debug("Setting up SSL on the STSClient HTTP Conduit");
                 HTTPConduit httpConduit = (HTTPConduit) stsClient.getClient().getConduit();
                 if (httpConduit == null) {
-                    LOGGER.info("HTTPConduit was null for stsClient. Unable to configure keystores for stsClient.");
+                    LOGGER.info(
+                            "HTTPConduit was null for stsClient. Unable to configure keystores for stsClient.");
                 } else {
                     if (securitySettingsService != null) {
-                        httpConduit.setTlsClientParameters(securitySettingsService.getTLSParameters());
+                        httpConduit
+                                .setTlsClientParameters(securitySettingsService.getTLSParameters());
                     } else {
-                        LOGGER.debug("Could not get reference to security settings, SSL communications will use system defaults.");
+                        LOGGER.debug(
+                                "Could not get reference to security settings, SSL communications will use system defaults.");
                     }
 
                 }
@@ -324,7 +328,7 @@ public abstract class TrustedRemoteSource {
                 LOGGER.error("Unable to create sts client endpoint.", e);
             }
         }
-        
+
         LOGGER.debug("EXITING: {}", methodName);
         return stsClient;
     }

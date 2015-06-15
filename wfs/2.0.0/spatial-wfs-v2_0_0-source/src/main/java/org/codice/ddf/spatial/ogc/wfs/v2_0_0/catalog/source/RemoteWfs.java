@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.source;
 
@@ -27,15 +27,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.xml.namespace.QName;
 
-import net.opengis.wfs.v_2_0_0.DescribeFeatureTypeType;
-import net.opengis.wfs.v_2_0_0.GetCapabilitiesType;
-import net.opengis.wfs.v_2_0_0.GetFeatureType;
-import net.opengis.wfs.v_2_0_0.GetPropertyValueType;
-import net.opengis.wfs.v_2_0_0.ValueCollectionType;
-import net.opengis.wfs.v_2_0_0.WFSCapabilitiesType;
-
 import org.apache.cxf.jaxrs.client.Client;
-import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.jaxrs.provider.JAXBElementProvider;
 import org.apache.ws.commons.schema.XmlSchema;
@@ -52,10 +44,17 @@ import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20JaxbElementProv
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.source.reader.FeatureCollectionMessageBodyReaderWfs20;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.source.reader.XmlSchemaMessageBodyReaderWfs20;
 
+import net.opengis.wfs.v_2_0_0.DescribeFeatureTypeType;
+import net.opengis.wfs.v_2_0_0.GetCapabilitiesType;
+import net.opengis.wfs.v_2_0_0.GetFeatureType;
+import net.opengis.wfs.v_2_0_0.GetPropertyValueType;
+import net.opengis.wfs.v_2_0_0.ValueCollectionType;
+import net.opengis.wfs.v_2_0_0.WFSCapabilitiesType;
+
 /**
  * A client to a WFS 2.0.0 Service. This class uses the {@link Wfs} interface to create a client
- * proxy from the {@link JAXRSClientFactory}.
- * 
+ * proxy from the {@link org.apache.cxf.jaxrs.client.JAXRSClientFactory}.
+ *
  */
 public class RemoteWfs extends TrustedRemoteSource implements Wfs {
 
@@ -65,10 +64,10 @@ public class RemoteWfs extends TrustedRemoteSource implements Wfs {
 
     public RemoteWfs(String wfsServerUrl, String username, String password,
             boolean disableCnCheck) {
-        wfs = createClientBean(Wfs.class, wfsServerUrl, username, password,
-                disableCnCheck, initProviders(), getClass().getClassLoader(),
-                new MarkableStreamInterceptor());
-        WebClient.getConfig(wfs).getRequestContext().put(org.apache.cxf.message.Message.MAINTAIN_SESSION, Boolean.TRUE);
+        wfs = createClientBean(Wfs.class, wfsServerUrl, username, password, disableCnCheck,
+                initProviders(), getClass().getClassLoader(), new MarkableStreamInterceptor());
+        WebClient.getConfig(wfs).getRequestContext()
+                .put(org.apache.cxf.message.Message.MAINTAIN_SESSION, Boolean.TRUE);
     }
 
     private List<? extends Object> initProviders() {
@@ -77,17 +76,17 @@ public class RemoteWfs extends TrustedRemoteSource implements Wfs {
         // because it is missing the @XmlRootElement Annotation
         JAXBElementProvider<GetFeatureType> provider = new Wfs20JaxbElementProvider<GetFeatureType>();
         Map<String, String> jaxbClassMap = new HashMap<String, String>();
-        
+
         // Ensure a namespace is used when the GetFeature request is generated
-        String expandedName = new QName(Wfs20Constants.WFS_2_0_NAMESPACE, Wfs20Constants.GET_FEATURE)
-                .toString();
+        String expandedName = new QName(Wfs20Constants.WFS_2_0_NAMESPACE,
+                Wfs20Constants.GET_FEATURE).toString();
         jaxbClassMap.put(GetFeatureType.class.getName(), expandedName);
         provider.setJaxbElementClassMap(jaxbClassMap);
         provider.setMarshallAsJaxbElement(true);
 
         featureCollectionReader = new FeatureCollectionMessageBodyReaderWfs20();
-        return Arrays.asList(provider,
-                new XmlSchemaMessageBodyReaderWfs20(), featureCollectionReader);
+        return Arrays
+                .asList(provider, new XmlSchemaMessageBodyReaderWfs20(), featureCollectionReader);
     }
 
     /**
@@ -118,8 +117,8 @@ public class RemoteWfs extends TrustedRemoteSource implements Wfs {
     @GET
     @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
     @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-    public WFSCapabilitiesType getCapabilities(@QueryParam("")
-    GetCapabilitiesRequest request) throws WfsException {
+    public WFSCapabilitiesType getCapabilities(
+            @QueryParam("") GetCapabilitiesRequest request) throws WfsException {
         return this.wfs.getCapabilities(request);
     }
 
@@ -127,8 +126,8 @@ public class RemoteWfs extends TrustedRemoteSource implements Wfs {
     @GET
     @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
     @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-    public XmlSchema describeFeatureType(@QueryParam("")
-    DescribeFeatureTypeRequest request) throws WfsException {
+    public XmlSchema describeFeatureType(@QueryParam("") DescribeFeatureTypeRequest request) throws
+            WfsException {
         return this.wfs.describeFeatureType(request);
     }
 
@@ -144,8 +143,8 @@ public class RemoteWfs extends TrustedRemoteSource implements Wfs {
     @POST
     @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
     @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-    public WFSCapabilitiesType getCapabilities(GetCapabilitiesType getCapabilitesRequest)
-        throws WfsException {
+    public WFSCapabilitiesType getCapabilities(GetCapabilitiesType getCapabilitesRequest) throws
+            WfsException {
         return this.wfs.getCapabilities(getCapabilitesRequest);
     }
 
@@ -153,8 +152,8 @@ public class RemoteWfs extends TrustedRemoteSource implements Wfs {
     @POST
     @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
     @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-    public XmlSchema describeFeatureType(DescribeFeatureTypeType describeFeatureRequest)
-        throws WfsException {
+    public XmlSchema describeFeatureType(DescribeFeatureTypeType describeFeatureRequest) throws
+            WfsException {
         return this.wfs.describeFeatureType(describeFeatureRequest);
     }
 
@@ -164,9 +163,9 @@ public class RemoteWfs extends TrustedRemoteSource implements Wfs {
     @GET
     @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
     @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-    public ValueCollectionType getPropertyValueType(@QueryParam("")
-    GetPropertyValueRequest request) throws WfsException {
-            return this.wfs.getPropertyValueType(request);
+    public ValueCollectionType getPropertyValueType(
+            @QueryParam("") GetPropertyValueRequest request) throws WfsException {
+        return this.wfs.getPropertyValueType(request);
     }
 
     /**
@@ -175,8 +174,8 @@ public class RemoteWfs extends TrustedRemoteSource implements Wfs {
     @POST
     @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
     @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-    public XmlSchema getPropertyValueType(GetPropertyValueType propertyValueTypeRequest) 
-            throws WfsException {
-                return this.wfs.getPropertyValueType(propertyValueTypeRequest);
+    public XmlSchema getPropertyValueType(GetPropertyValueType propertyValueTypeRequest) throws
+            WfsException {
+        return this.wfs.getPropertyValueType(propertyValueTypeRequest);
     }
 }

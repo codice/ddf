@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema targetNamespace="http://www.opengis.net/gml/3.2" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:gml="http://www.opengis.net/gml/3.2" elementFormDefault="qualified" version="3.2.1.2">
+<schema xmlns:gml="http://www.opengis.net/gml/3.2" targetNamespace="http://www.opengis.net/gml/3.2"
+        xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="3.2.1.2">
 	<annotation>
-		<appinfo source="urn:x-ogc:specification:gml:schema-xsd:observation:3.2.1">observation.xsd</appinfo>
+		<appinfo
+                source="urn:x-ogc:specification:gml:schema-xsd:observation:3.2.1">observation.xsd</appinfo>
 		<documentation>See ISO/DIS 19136 Clause 19.
 A GML observation models the act of observing, often with a camera, a person or some form of instrument.  An observation feature describes the "metadata" associated with an information capture event, together with a value for the result of the observation.  This covers a broad range of cases, from a tourist photo (not the photo but the act of taking the photo), to images acquired by space borne sensors or the measurement of a temperature 5 meters below the surfaces of a lake.
 The basic structures introduced in this schema are intended to serve as the foundation for more comprehensive schemas for scientific, technical and engineering measurement schemas.
@@ -64,7 +66,8 @@ The gml:resultOf property indicates the result of the observation.  The value ma
 		<attributeGroup ref="gml:OwnershipAttributeGroup"/>
 		<attributeGroup ref="gml:AssociationAttributeGroup"/>
 	</complexType>
-	<element name="DirectedObservation" type="gml:DirectedObservationType" substitutionGroup="gml:Observation">
+	<element name="DirectedObservation" type="gml:DirectedObservationType"
+             substitutionGroup="gml:Observation">
 		<annotation>
 			<documentation>A gml:DirectedObservation is the same as an observation except that it adds an additional gml:direction property. This is the direction in which the observation was acquired. Clearly this applies only to certain types of observations such as visual observations by people, or observations obtained from terrestrial cameras.</documentation>
 		</annotation>
@@ -78,7 +81,8 @@ The gml:resultOf property indicates the result of the observation.  The value ma
 			</extension>
 		</complexContent>
 	</complexType>
-	<element name="DirectedObservationAtDistance" type="gml:DirectedObservationAtDistanceType" substitutionGroup="gml:DirectedObservation">
+	<element name="DirectedObservationAtDistance" type="gml:DirectedObservationAtDistanceType"
+             substitutionGroup="gml:DirectedObservation">
 		<annotation>
 			<documentation>gml:DirectedObservationAtDistance adds an additional distance property. This is the distance from the observer to the subject of the observation. Clearly this applies only to certain types of observations such as visual observations by people, or observations obtained from terrestrial cameras.</documentation>
 		</annotation>

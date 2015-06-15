@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.ddf.spatial.ogc.wfs.catalog.common;
 
@@ -46,7 +46,7 @@ import ddf.catalog.data.impl.MetacardTypeImpl;
 public class FeatureMetacardType extends MetacardTypeImpl {
 
     private static final long serialVersionUID = 1L;
-    
+
     private static final Logger LOGGER = LoggerFactory.getLogger(FeatureMetacardType.class);
 
     private transient List<String> properties = new ArrayList<String>();
@@ -54,7 +54,7 @@ public class FeatureMetacardType extends MetacardTypeImpl {
     private transient List<String> textualProperties = new ArrayList<String>();
 
     private transient List<String> gmlProperties = new ArrayList<String>();
-    
+
     private transient List<String> temporalProperties = new ArrayList<String>();
 
     private transient QName featureType;
@@ -62,7 +62,7 @@ public class FeatureMetacardType extends MetacardTypeImpl {
     private transient String propertyPrefix;
 
     private transient List<String> nonQueryableProperties;
-    
+
     private transient String gmlNamespace;
 
     public FeatureMetacardType(XmlSchema schema, final QName featureType,
@@ -201,12 +201,10 @@ public class FeatureMetacardType extends MetacardTypeImpl {
     private Boolean processGmlType(XmlSchemaElement xmlSchemaElement) {
         QName qName = xmlSchemaElement.getSchemaTypeName();
         String name = xmlSchemaElement.getName();
-        
-        if (qName != null
-                && StringUtils.isNotEmpty(name)
-                && qName.getNamespaceURI().equals(gmlNamespace)
-                && (qName.getLocalPart().equals("TimeInstantType") || qName.getLocalPart().equals(
-                        "TimePeriodType"))) {
+
+        if (qName != null && StringUtils.isNotEmpty(name) && qName.getNamespaceURI()
+                .equals(gmlNamespace) && (qName.getLocalPart().equals("TimeInstantType") || qName
+                .getLocalPart().equals("TimePeriodType"))) {
             LOGGER.debug("Adding temporal property: {}", propertyPrefix + name);
             temporalProperties.add(propertyPrefix + name);
 
@@ -219,9 +217,9 @@ public class FeatureMetacardType extends MetacardTypeImpl {
 
             return true;
         }
-        
-        if ((qName != null) && qName.getNamespaceURI().equals(gmlNamespace)
-                && (!StringUtils.isEmpty(name))) {
+
+        if ((qName != null) && qName.getNamespaceURI().equals(gmlNamespace) && (!StringUtils
+                .isEmpty(name))) {
             LOGGER.debug("Adding geo property: {}", propertyPrefix + name);
             gmlProperties.add(propertyPrefix + name);
 
@@ -234,7 +232,7 @@ public class FeatureMetacardType extends MetacardTypeImpl {
 
             return true;
         }
-        
+
         return false;
     }
 
@@ -268,9 +266,8 @@ public class FeatureMetacardType extends MetacardTypeImpl {
         // these types are unbounded and unsafe to map to any BasicTypes number values.
         // Potentially the catalog should support a BigInteger type for these types to map to
         if (Constants.XSD_INTEGER.equals(qName) || Constants.XSD_POSITIVEINTEGER.equals(qName)
-                || Constants.XSD_NEGATIVEINTEGER.equals(qName)
-                || Constants.XSD_NONPOSITIVEINTEGER.equals(qName)
-                || Constants.XSD_NONNEGATIVEINTEGER.equals(qName)) {
+                || Constants.XSD_NEGATIVEINTEGER.equals(qName) || Constants.XSD_NONPOSITIVEINTEGER
+                .equals(qName) || Constants.XSD_NONNEGATIVEINTEGER.equals(qName)) {
             return BasicTypes.STRING_TYPE;
         }
         return null;
@@ -292,7 +289,7 @@ public class FeatureMetacardType extends MetacardTypeImpl {
     public List<String> getProperties() {
         return properties;
     }
-    
+
     public List<String> getTemporalProperties() {
         return temporalProperties;
     }

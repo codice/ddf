@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema targetNamespace="http://www.opengis.net/ows/1.1" 
-xmlns:ows="http://www.opengis.net/ows/1.1" 
-xmlns:xlink="http://www.w3.org/1999/xlink" 
-xmlns="http://www.w3.org/2001/XMLSchema" 
-elementFormDefault="qualified" version="1.1.0" xml:lang="en">
+<schema xmlns:ows="http://www.opengis.net/ows/1.1"
+		targetNamespace="http://www.opengis.net/ows/1.1"
+		xmlns="http://www.w3.org/2001/XMLSchema"
+		elementFormDefault="qualified" version="1.1.0" xml:lang="en">
 	<annotation>
 		<appinfo>owsDomainType.xsd 2006-10-06</appinfo>
 		<documentation>This XML Schema Document encodes the allowed values (or domain) of a quantity, often for an input or output parameter to an OWS. Such a parameter is sometimes called a variable, quantity, literal, or typed literal. Such a parameter can use one of many data types, including double, integer, boolean, string, or URI. The allowed values can also be encoded for a quantity that is not explicit or not transferred, but is constrained by a server implementation.
 		Copyright (c) 2006 Open Geospatial Consortium, Inc. All Rights Reserved. </documentation>
 	</annotation>
-	<!-- ==============================================================
-		includes and imports
-	============================================================== -->
-	<include schemaLocation="owsCommon.xsd"></include>
-	<import namespace="http://www.w3.org/1999/xlink" schemaLocation="../../xlink/1.0.0/xlinks.xsd"></import>
-	<!-- ==============================================================
-		elements and types
-	============================================================== -->
-	<complexType name="DomainType">
+    <!-- ==============================================================
+        includes and imports
+    ============================================================== -->
+    <include schemaLocation="owsCommon.xsd"></include>
+	<import namespace="http://www.w3.org/1999/xlink"
+            schemaLocation="../../xlink/1.0.0/xlinks.xsd"></import>
+    <!-- ==============================================================
+        elements and types
+    ============================================================== -->
+    <complexType name="DomainType">
 		<annotation>
 			<documentation>Valid domain (or allowed set of values) of one quantity, with its name or identifier. </documentation>
 		</annotation>
@@ -31,8 +31,8 @@ elementFormDefault="qualified" version="1.1.0" xml:lang="en">
 			</extension>
 		</complexContent>
 	</complexType>
-	<!-- ========================================================== -->
-	<complexType name="UnNamedDomainType">
+    <!-- ========================================================== -->
+    <complexType name="UnNamedDomainType">
 		<annotation>
 			<documentation>Valid domain (or allowed set of values) of one quantity, with needed metadata but without a quantity name or identifier. </documentation>
 		</annotation>
@@ -65,8 +65,8 @@ elementFormDefault="qualified" version="1.1.0" xml:lang="en">
 			</element>
 		</sequence>
 	</complexType>
-	<!-- ========================================================== -->
-	<group name="PossibleValues">
+    <!-- ========================================================== -->
+    <group name="PossibleValues">
 		<annotation>
 			<documentation>Specifies the possible values of this quantity. </documentation>
 		</annotation>
@@ -77,22 +77,22 @@ elementFormDefault="qualified" version="1.1.0" xml:lang="en">
 				<element ref="ows:ValuesReference"/>
 			</choice>
 	</group>
-	<!-- ========================================================== -->
-	<element name="AnyValue">
+    <!-- ========================================================== -->
+    <element name="AnyValue">
 		<annotation>
 			<documentation>Specifies that any value is allowed for this parameter.</documentation>
 		</annotation>
 		<complexType></complexType>
 	</element>
-	<!-- ========================================================== -->
-	<element name="NoValues">
+    <!-- ========================================================== -->
+    <element name="NoValues">
 		<annotation>
 			<documentation>Specifies that no values are allowed for this parameter or quantity.</documentation>
 		</annotation>
 		<complexType></complexType>
 	</element>
-	<!-- ========================================================== -->
-	<element name="ValuesReference">
+    <!-- ========================================================== -->
+    <element name="ValuesReference">
 		<annotation>
 			<documentation>Reference to externally specified list of all the valid values and/or ranges of values for this quantity. (Informative: This element was simplified from the metaDataProperty element in GML 3.0.) </documentation>
 		</annotation>
@@ -108,8 +108,8 @@ elementFormDefault="qualified" version="1.1.0" xml:lang="en">
 			</simpleContent>
 		</complexType>
 	</element>
-	<!-- ========================================================== -->
-	<group name="ValuesUnit">
+    <!-- ========================================================== -->
+    <group name="ValuesUnit">
 		<annotation>
 			<documentation>Indicates that this quantity has units or a reference system, and identifies the unit or reference system used by the AllowedValues or ValuesReference. </documentation>
 		</annotation>
@@ -126,9 +126,9 @@ elementFormDefault="qualified" version="1.1.0" xml:lang="en">
 				</element>
 			</choice>
 	</group>
-	<!-- ========================================================== -->
-	<!-- ========================================================== -->
-	<element name="AllowedValues">
+    <!-- ========================================================== -->
+    <!-- ========================================================== -->
+    <element name="AllowedValues">
 		<annotation>
 			<documentation>List of all the valid values and/or ranges of values for this quantity. For numeric quantities, signed values should be ordered from negative infinity to positive infinity. </documentation>
 		</annotation>
@@ -139,10 +139,10 @@ elementFormDefault="qualified" version="1.1.0" xml:lang="en">
 			</choice>
 		</complexType>
 	</element>
-	<!-- ========================================================== -->
-	<element name="Value" type="ows:ValueType"></element>
-	<!-- ========================================================== -->
-	<complexType name="ValueType">
+    <!-- ========================================================== -->
+    <element name="Value" type="ows:ValueType"></element>
+    <!-- ========================================================== -->
+    <complexType name="ValueType">
 		<annotation>
 			<documentation>A single value, encoded as a string. This type can be used for one value, for a spacing between allowed values, or for the default value of a parameter. </documentation>
 		</annotation>
@@ -150,16 +150,16 @@ elementFormDefault="qualified" version="1.1.0" xml:lang="en">
 			<extension base="string"></extension>
 		</simpleContent>
 	</complexType>
-	<!-- ========================================================== -->
-	<element name="DefaultValue" type="ows:ValueType">
+    <!-- ========================================================== -->
+    <element name="DefaultValue" type="ows:ValueType">
 		<annotation>
 			<documentation>The default value for a quantity for which multiple values are allowed. </documentation>
 		</annotation>
 	</element>
-	<!-- ========================================================== -->
-	<element name="Range" type="ows:RangeType"></element>
-	<!-- ========================================================== -->
-	<complexType name="RangeType">
+    <!-- ========================================================== -->
+    <element name="Range" type="ows:RangeType"></element>
+    <!-- ========================================================== -->
+    <complexType name="RangeType">
 		<annotation>
 			<documentation>A range of values of a numeric parameter. This range can be continuous or discrete, defined by a fixed spacing between adjacent valid values. If the MinimumValue or MaximumValue is not included, there is no value limit in that direction. Inclusion of the specified minimum and maximum values in the range shall be defined by the rangeClosure. </documentation>
 		</annotation>
@@ -178,26 +178,26 @@ elementFormDefault="qualified" version="1.1.0" xml:lang="en">
 			</annotation>
 		</attribute>
 	</complexType>
-	<!-- ========================================================== -->
-	<element name="MinimumValue" type="ows:ValueType">
+    <!-- ========================================================== -->
+    <element name="MinimumValue" type="ows:ValueType">
 		<annotation>
 			<documentation>Minimum value of this numeric parameter. </documentation>
 		</annotation>
 	</element>
-	<!-- ========================================================== -->
-	<element name="MaximumValue" type="ows:ValueType">
+    <!-- ========================================================== -->
+    <element name="MaximumValue" type="ows:ValueType">
 		<annotation>
 			<documentation>Maximum value of this numeric parameter. </documentation>
 		</annotation>
 	</element>
-	<!-- ========================================================== -->
-	<element name="Spacing" type="ows:ValueType">
+    <!-- ========================================================== -->
+    <element name="Spacing" type="ows:ValueType">
 		<annotation>
 			<documentation>The regular distance or spacing between the allowed values in a range. </documentation>
 		</annotation>
 	</element>
-	<!-- ========================================================== -->
-	<attribute name="rangeClosure" default="closed">
+    <!-- ========================================================== -->
+    <attribute name="rangeClosure" default="closed">
 		<annotation>
 			<documentation>Specifies which of the minimum and maximum values are included in the range. Note that plus and minus infinity are considered closed bounds. </documentation>
 		</annotation>
@@ -226,9 +226,9 @@ elementFormDefault="qualified" version="1.1.0" xml:lang="en">
 			</restriction>
 		</simpleType>
 	</attribute>
-	<!-- ========================================================== -->
-	<!-- ========================================================== -->
-	<complexType name="DomainMetadataType">
+    <!-- ========================================================== -->
+    <!-- ========================================================== -->
+    <complexType name="DomainMetadataType">
 		<annotation>
 			<documentation>References metadata about a quantity, and provides a name for this metadata. (Informative: This element was simplified from the metaDataProperty element in GML 3.0.) </documentation>
 		</annotation>
@@ -241,35 +241,35 @@ elementFormDefault="qualified" version="1.1.0" xml:lang="en">
 			</extension>
 		</simpleContent>
 	</complexType>
-	<!-- ========================================================== -->
-	<attribute name="reference" type="anyURI">
+    <!-- ========================================================== -->
+    <attribute name="reference" type="anyURI">
 		<annotation>
 			<documentation>Reference to data or metadata recorded elsewhere, either external to this XML document or within it. Whenever practical, this attribute should be a URL from which this metadata can be electronically retrieved. Alternately, this attribute can reference a URN for well-known metadata. For example, such a URN could be a URN defined in the "ogc" URN namespace. </documentation>
 		</annotation>
 	</attribute>
-	<!-- ========================================================== -->
-	<element name="Meaning" type="ows:DomainMetadataType">
+    <!-- ========================================================== -->
+    <element name="Meaning" type="ows:DomainMetadataType">
 		<annotation>
 			<documentation>Definition of the meaning or semantics of this set of values. This Meaning can provide more specific, complete, precise, machine accessible, and machine understandable semantics about this quantity, relative to other available semantic information. For example, other semantic information is often provided in "documentation" elements in XML Schemas or "description" elements in GML objects. </documentation>
 		</annotation>
 	</element>
-	<!-- ========================================================== -->
-	<element name="DataType" type="ows:DomainMetadataType">
+    <!-- ========================================================== -->
+    <element name="DataType" type="ows:DomainMetadataType">
 		<annotation>
 			<documentation>Definition of the data type of this set of values. In this case, the xlink:href attribute can reference a URN for a well-known data type. For example, such a URN could be a data type identification URN defined in the "ogc" URN namespace. </documentation>
 		</annotation>
 	</element>
-	<!-- ========================================================== -->
-	<element name="ReferenceSystem" type="ows:DomainMetadataType">
+    <!-- ========================================================== -->
+    <element name="ReferenceSystem" type="ows:DomainMetadataType">
 		<annotation>
 			<documentation>Definition of the reference system used by this set of values, including the unit of measure whenever applicable (as is normal). In this case, the xlink:href attribute can reference a URN for a well-known reference system, such as for a coordinate reference system (CRS). For example, such a URN could be a CRS identification URN defined in the "ogc" URN namespace. </documentation>
 		</annotation>
 	</element>
-	<!-- ========================================================== -->
-	<element name="UOM" type="ows:DomainMetadataType">
+    <!-- ========================================================== -->
+    <element name="UOM" type="ows:DomainMetadataType">
 		<annotation>
 			<documentation>Definition of the unit of measure of this set of values. In this case, the xlink:href attribute can reference a URN for a well-known unit of measure (uom). For example, such a URN could be a UOM identification URN defined in the "ogc" URN namespace. </documentation>
 		</annotation>
 	</element>
-	<!-- ========================================================== -->
+    <!-- ========================================================== -->
 </schema>

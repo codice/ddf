@@ -1,31 +1,33 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.common;
 
-import com.sun.xml.bind.marshaller.NamespacePrefixMapper;
+import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.jaxrs.provider.JAXBElementProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import java.lang.reflect.Type;
-import java.util.HashMap;
-import java.util.Map;
+import com.sun.xml.bind.marshaller.NamespacePrefixMapper;
 
 /**
  *
@@ -42,7 +44,7 @@ public class CswJAXBElementProvider<T> extends JAXBElementProvider<T> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CswJAXBElementProvider.class);
 
-    private static final JAXBContext jaxbContext = initJaxbContext();
+    private static final JAXBContext JAXB_CONTEXT = initJaxbContext();
 
     public CswJAXBElementProvider() {
         super();
@@ -54,15 +56,11 @@ public class CswJAXBElementProvider<T> extends JAXBElementProvider<T> {
         prefixes.put(CswConstants.OGC_SCHEMA, CswConstants.OGC_NAMESPACE_PREFIX);
         prefixes.put(CswConstants.GML_SCHEMA, CswConstants.GML_NAMESPACE_PREFIX);
         prefixes.put(CswConstants.DUBLIN_CORE_SCHEMA, CswConstants.DUBLIN_CORE_NAMESPACE_PREFIX);
-        prefixes.put(CswConstants.DUBLIN_CORE_TERMS_SCHEMA, CswConstants.DUBLIN_CORE_TERMS_NAMESPACE_PREFIX);
+        prefixes.put(CswConstants.DUBLIN_CORE_TERMS_SCHEMA,
+                CswConstants.DUBLIN_CORE_TERMS_NAMESPACE_PREFIX);
 
         setNamespaceMapperPropertyName(NS_MAPPER_PROPERTY_RI);
         setNamespacePrefixes(prefixes);
-    }
-
-    @Override
-    public JAXBContext getJAXBContext(Class<?> type, Type genericType) throws JAXBException {
-        return jaxbContext;
     }
 
     private static JAXBContext initJaxbContext() {
@@ -70,29 +68,33 @@ public class CswJAXBElementProvider<T> extends JAXBElementProvider<T> {
 
         // JAXB context path
         // "net.opengis.cat.csw.v_2_0_2:net.opengis.filter.v_1_1_0:net.opengis.gml.v_3_1_1:net.opengis.ows.v_1_0_0"
-        String contextPath = StringUtils.join(new String[] {CswConstants.OGC_CSW_PACKAGE,
-            CswConstants.OGC_FILTER_PACKAGE, CswConstants.OGC_GML_PACKAGE,
-            CswConstants.OGC_OWS_PACKAGE}, ":");
+        String contextPath = StringUtils
+                .join(new String[] {CswConstants.OGC_CSW_PACKAGE, CswConstants.OGC_FILTER_PACKAGE,
+                        CswConstants.OGC_GML_PACKAGE, CswConstants.OGC_OWS_PACKAGE}, ":");
 
         try {
             LOGGER.debug("Creating JAXB context with context path: {}.", contextPath);
-            jaxbContext = JAXBContext.newInstance(contextPath,
-                    CswJAXBElementProvider.class.getClassLoader());
+            jaxbContext = JAXBContext
+                    .newInstance(contextPath, CswJAXBElementProvider.class.getClassLoader());
         } catch (JAXBException e) {
             LOGGER.error("Unable to create JAXB context using contextPath: {}.", contextPath, e);
         }
 
         return jaxbContext;
     }
-    
+
     @Override
-    protected void setNamespaceMapper(Marshaller ms, 
-            Map<String, String> map) throws Exception {
+    public JAXBContext getJAXBContext(Class<?> type, Type genericType) throws JAXBException {
+        return JAXB_CONTEXT;
+    }
+
+    @Override
+    protected void setNamespaceMapper(Marshaller ms, Map<String, String> map) throws Exception {
 
         final Map<String, String> finalMap = map;
-        
+
         NamespacePrefixMapper mapper = new NamespacePrefixMapper() {
-            
+
             protected Map<String, String> prefixMap = finalMap;
 
             @Override
@@ -100,7 +102,7 @@ public class CswJAXBElementProvider<T> extends JAXBElementProvider<T> {
                     boolean requirePrefix) {
                 return prefixMap.get(namespaceUri);
             }
-            
+
         };
 
         ms.setProperty(NS_MAPPER_PROPERTY_RI, mapper);

@@ -14,20 +14,40 @@
  **/
 package org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common;
 
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.List;
+
+import javax.xml.bind.JAXB;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.cxf.common.util.CollectionUtils;
+import org.custommonkey.xmlunit.Diff;
+import org.custommonkey.xmlunit.XMLUnit;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.xml.sax.SAXException;
+
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.LineString;
-
 import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
-
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
-import ogc.schema.opengis.gml.v_2_1_2.AbstractGeometryType;
 
+import ogc.schema.opengis.gml.v_2_1_2.AbstractGeometryType;
 import ogc.schema.opengis.gml.v_2_1_2.GeometryAssociationType;
 import ogc.schema.opengis.gml.v_2_1_2.GeometryCollectionType;
 import ogc.schema.opengis.gml.v_2_1_2.LineStringMemberType;
@@ -41,33 +61,8 @@ import ogc.schema.opengis.gml.v_2_1_2.PointMemberType;
 import ogc.schema.opengis.gml.v_2_1_2.PointType;
 import ogc.schema.opengis.gml.v_2_1_2.PolygonMemberType;
 import ogc.schema.opengis.gml.v_2_1_2.PolygonType;
-import org.apache.commons.lang.StringUtils;
-import org.apache.cxf.common.util.CollectionUtils;
-import org.custommonkey.xmlunit.Diff;
-import org.custommonkey.xmlunit.XMLUnit;
-
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
-import org.xml.sax.SAXException;
-
-import javax.xml.bind.JAXB;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-
-import java.io.IOException;
-import java.io.StringWriter;
-import java.util.List;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertTrue;
 
 public class TestWfs10JTStoGML200Converter {
-
-    private StringWriter writer = null;
 
     private static final String XMLUNIT_IDENTICAL = "XML Identical";
 
@@ -149,26 +144,30 @@ public class TestWfs10JTStoGML200Converter {
                     + "<gml:geometryMember><gml:LineString xmlns:gml='http://www.opengis.net/gml'><gml:coordinates>4.0,6.0 7.0,10.0</gml:coordinates>"
                     + "</gml:LineString></gml:geometryMember></gml:MultiGeometry>";
 
-    private static final String GEOMETRYCOLLECTION_NS1 = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
-            + "<ns1:_GeometryCollection xmlns:ns2=\"http://www.w3.org/1999/xlink\" xmlns:ns1=\"http://www.opengis.net/gml\">"
-            + "    <ns1:geometryMember>        <ns1:Point>            <ns1:coordinates>        4.0,6.0       </ns1:coordinates>"
-            + "        </ns1:Point>    </ns1:geometryMember>    <ns1:geometryMember>        <ns1:LineString>            "
-            + "<ns1:coordinates>        4.0,6.0 7.0,10.0       </ns1:coordinates>        </ns1:LineString>    "
-            + "</ns1:geometryMember></ns1:_GeometryCollection>";
+    private static final String GEOMETRYCOLLECTION_NS1 =
+            "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
+                    + "<ns1:_GeometryCollection xmlns:ns2=\"http://www.w3.org/1999/xlink\" xmlns:ns1=\"http://www.opengis.net/gml\">"
+                    + "    <ns1:geometryMember>        <ns1:Point>            <ns1:coordinates>        4.0,6.0       </ns1:coordinates>"
+                    + "        </ns1:Point>    </ns1:geometryMember>    <ns1:geometryMember>        <ns1:LineString>            "
+                    + "<ns1:coordinates>        4.0,6.0 7.0,10.0       </ns1:coordinates>        </ns1:LineString>    "
+                    + "</ns1:geometryMember></ns1:_GeometryCollection>";
 
+    private StringWriter writer = null;
 
-
-    @BeforeClass public static void setupTestClass() throws JAXBException, ParseException {
+    @BeforeClass
+    public static void setupTestClass() throws JAXBException, ParseException {
         XMLUnit.setIgnoreWhitespace(Boolean.TRUE);
         XMLUnit.setNormalizeWhitespace(Boolean.TRUE);
     }
 
-    @Before public void preTest() throws JAXBException {
+    @Before
+    public void preTest() throws JAXBException {
         writer = new StringWriter();
     }
 
-    @Test public void testGeometryToPolygonGML()
-            throws JAXBException, SAXException, IOException, ParseException, NullPointerException {
+    @Test
+    public void testGeometryToPolygonGML() throws JAXBException, SAXException, IOException,
+            ParseException, NullPointerException {
 
         Polygon polygon = (Polygon) getGeometryFromWkt(POLYGON);
         assertThat(polygon == null, is(Boolean.FALSE));
@@ -182,8 +181,9 @@ public class TestWfs10JTStoGML200Converter {
         assertTrue(XMLUNIT_IDENTICAL, diff.identical());
     }
 
-    @Test public void testGMLToPolygonType()
-            throws JAXBException, SAXException, IOException, ParseException, NullPointerException {
+    @Test
+    public void testGMLToPolygonType() throws JAXBException, SAXException, IOException,
+            ParseException, NullPointerException {
         Polygon polygon = (Polygon) getGeometryFromWkt(POLYGON);
         assertThat(polygon == null, is(Boolean.FALSE));
 
@@ -200,8 +200,9 @@ public class TestWfs10JTStoGML200Converter {
         assertThat(POLYGON_COORDS.equals(coordinates), is(Boolean.TRUE));
     }
 
-    @Test public void testPolygonTypeToJAXB()
-            throws JAXBException, SAXException, IOException, ParseException, NullPointerException {
+    @Test
+    public void testPolygonTypeToJAXB() throws JAXBException, SAXException, IOException,
+            ParseException, NullPointerException {
         Polygon polygon = (Polygon) getGeometryFromWkt(POLYGON);
         assertThat(polygon == null, is(Boolean.FALSE));
         String polygonGML = Wfs10JTStoGML200Converter.convertGeometryToGML(polygon);
@@ -222,8 +223,9 @@ public class TestWfs10JTStoGML200Converter {
         assertThat(diff.identical(), is(Boolean.FALSE));
     }
 
-    @Test public void testGeometryToLineStringGML()
-            throws JAXBException, SAXException, IOException, ParseException, NullPointerException {
+    @Test
+    public void testGeometryToLineStringGML() throws JAXBException, SAXException, IOException,
+            ParseException, NullPointerException {
 
         LineString lineString = (LineString) getGeometryFromWkt(LINESTRING);
         assertThat(lineString == null, is(Boolean.FALSE));
@@ -236,8 +238,9 @@ public class TestWfs10JTStoGML200Converter {
         assertTrue(XMLUNIT_IDENTICAL, diff.identical());
     }
 
-    @Test public void testGMLToLineStringType()
-            throws JAXBException, SAXException, IOException, ParseException, NullPointerException {
+    @Test
+    public void testGMLToLineStringType() throws JAXBException, SAXException, IOException,
+            ParseException, NullPointerException {
         LineString lineString = (LineString) getGeometryFromWkt(LINESTRING);
         assertThat(lineString == null, is(Boolean.FALSE));
         String lineStringGML = Wfs10JTStoGML200Converter.convertGeometryToGML(lineString);
@@ -251,8 +254,9 @@ public class TestWfs10JTStoGML200Converter {
         assertThat(LINESTRING_COORDS.equals(coords), is(Boolean.TRUE));
     }
 
-    @Test public void testLineStringTypeToJAXB()
-            throws JAXBException, SAXException, IOException, ParseException, NullPointerException {
+    @Test
+    public void testLineStringTypeToJAXB() throws JAXBException, SAXException, IOException,
+            ParseException, NullPointerException {
         LineString lineString = (LineString) getGeometryFromWkt(LINESTRING);
         assertThat(lineString == null, is(Boolean.FALSE));
         String lineStringGML = Wfs10JTStoGML200Converter.convertGeometryToGML(lineString);
@@ -269,8 +273,9 @@ public class TestWfs10JTStoGML200Converter {
         assertThat(diff.identical(), is(Boolean.FALSE));
     }
 
-    @Test public void testGeometryToPointGML()
-            throws JAXBException, SAXException, IOException, ParseException, NullPointerException {
+    @Test
+    public void testGeometryToPointGML() throws JAXBException, SAXException, IOException,
+            ParseException, NullPointerException {
         Point point = (Point) getGeometryFromWkt(POINT);
         assertThat(point == null, is(Boolean.FALSE));
         String pointGML = Wfs10JTStoGML200Converter.convertGeometryToGML(point)
@@ -282,8 +287,9 @@ public class TestWfs10JTStoGML200Converter {
         assertTrue(XMLUNIT_IDENTICAL, diff.identical());
     }
 
-    @Test public void testGMLToPointType()
-            throws JAXBException, SAXException, IOException, ParseException, NullPointerException {
+    @Test
+    public void testGMLToPointType() throws JAXBException, SAXException, IOException,
+            ParseException, NullPointerException {
         String pointGML = Wfs10JTStoGML200Converter.convertGeometryToGML(getGeometryFromWkt(POINT))
                 .replaceAll("\n", "");
         PointType pointType = (PointType) Wfs10JTStoGML200Converter
@@ -294,8 +300,9 @@ public class TestWfs10JTStoGML200Converter {
         assertThat(POINT_COORDS.equals(coords), is(Boolean.TRUE));
     }
 
-    @Test public void testPointTypeToJAXB()
-            throws JAXBException, SAXException, IOException, ParseException, NullPointerException {
+    @Test
+    public void testPointTypeToJAXB() throws JAXBException, SAXException, IOException,
+            ParseException, NullPointerException {
         String pointGML = Wfs10JTStoGML200Converter.convertGeometryToGML(getGeometryFromWkt(POINT));
         PointType pointType = (PointType) Wfs10JTStoGML200Converter
                 .convertGMLToGeometryType(pointGML, Wfs10Constants.POINT);
@@ -310,8 +317,9 @@ public class TestWfs10JTStoGML200Converter {
         assertThat(diff.identical(), is(Boolean.FALSE));
     }
 
-    @Test public void testGeometryToMultiPointGML()
-            throws JAXBException, SAXException, IOException, ParseException, NullPointerException {
+    @Test
+    public void testGeometryToMultiPointGML() throws JAXBException, SAXException, IOException,
+            ParseException, NullPointerException {
         MultiPoint multiPoint = (MultiPoint) getGeometryFromWkt(MULTIPOINT);
         assertThat(multiPoint == null, is(Boolean.FALSE));
         String multiPointGML = Wfs10JTStoGML200Converter.convertGeometryToGML(multiPoint)
@@ -323,8 +331,9 @@ public class TestWfs10JTStoGML200Converter {
         assertTrue(XMLUNIT_SIMILAR, diff.similar());
     }
 
-    @Test public void testGMLToMultiPointType()
-            throws JAXBException, SAXException, IOException, ParseException, NullPointerException {
+    @Test
+    public void testGMLToMultiPointType() throws JAXBException, SAXException, IOException,
+            ParseException, NullPointerException {
         String multiPointGML = Wfs10JTStoGML200Converter
                 .convertGeometryToGML(getGeometryFromWkt(MULTIPOINT));
         MultiPointType multiPointType = (MultiPointType) Wfs10JTStoGML200Converter
@@ -351,8 +360,8 @@ public class TestWfs10JTStoGML200Converter {
     }
 
     private String extractPointMemberTypeCoordinates(
-            JAXBElement<? extends GeometryAssociationType> jaxbElement1)
-            throws JAXBException, SAXException, IOException, ParseException, NullPointerException {
+            JAXBElement<? extends GeometryAssociationType> jaxbElement1) throws JAXBException,
+            SAXException, IOException, ParseException, NullPointerException {
         assertThat(Wfs10Constants.POINT_MEMBER.getLocalPart()
                 .equals(jaxbElement1.getName().getLocalPart()), is(Boolean.TRUE));
         PointMemberType pointMemberType1 = (PointMemberType) jaxbElement1.getValue();
@@ -363,8 +372,9 @@ public class TestWfs10JTStoGML200Converter {
                 .trim();
     }
 
-    @Test public void testMultiPointTypeToJAXB()
-            throws JAXBException, SAXException, IOException, ParseException, NullPointerException {
+    @Test
+    public void testMultiPointTypeToJAXB() throws JAXBException, SAXException, IOException,
+            ParseException, NullPointerException {
 
         String multiPointGML = Wfs10JTStoGML200Converter
                 .convertGeometryToGML(getGeometryFromWkt(MULTIPOINT));
@@ -381,8 +391,9 @@ public class TestWfs10JTStoGML200Converter {
         assertThat(diff.identical(), is(Boolean.FALSE));
     }
 
-    @Test public void testGeometryToMultiLineStringGML()
-            throws JAXBException, SAXException, IOException, ParseException, NullPointerException {
+    @Test
+    public void testGeometryToMultiLineStringGML() throws JAXBException, SAXException, IOException,
+            ParseException, NullPointerException {
         MultiLineString multiLineString = (MultiLineString) getGeometryFromWkt(MULTILINESTRING);
         assertThat(multiLineString == null, is(Boolean.FALSE));
         String multiLineStringGML = Wfs10JTStoGML200Converter.convertGeometryToGML(multiLineString)
@@ -394,8 +405,9 @@ public class TestWfs10JTStoGML200Converter {
         assertTrue(XMLUNIT_SIMILAR, diff.similar());
     }
 
-    @Test public void testGMLToMultiLineStringType()
-            throws JAXBException, SAXException, IOException, ParseException, NullPointerException {
+    @Test
+    public void testGMLToMultiLineStringType() throws JAXBException, SAXException, IOException,
+            ParseException, NullPointerException {
 
         String multiLineStringGML = Wfs10JTStoGML200Converter
                 .convertGeometryToGML(getGeometryFromWkt(MULTILINESTRING));
@@ -417,8 +429,8 @@ public class TestWfs10JTStoGML200Converter {
 
     }
 
-    private String extractLineStringMemberCoordinates(JAXBElement element1)
-            throws JAXBException, SAXException, IOException, ParseException, NullPointerException {
+    private String extractLineStringMemberCoordinates(JAXBElement element1) throws JAXBException,
+            SAXException, IOException, ParseException, NullPointerException {
         assertThat(Wfs10Constants.LINESTRING_MEMBER.getLocalPart()
                 .equals(element1.getName().getLocalPart()), is(Boolean.TRUE));
         LineStringMemberType lsMemberType1 = (LineStringMemberType) element1.getValue();
@@ -427,8 +439,9 @@ public class TestWfs10JTStoGML200Converter {
         return lineStringType.getCoordinates().getValue().replaceAll("\n", "").trim();
     }
 
-    @Test public void testMultiLineStringTypeToJAXB()
-            throws JAXBException, SAXException, IOException, ParseException, NullPointerException {
+    @Test
+    public void testMultiLineStringTypeToJAXB() throws JAXBException, SAXException, IOException,
+            ParseException, NullPointerException {
 
         String multiLineString = Wfs10JTStoGML200Converter
                 .convertGeometryToGML(getGeometryFromWkt(MULTILINESTRING));
@@ -446,8 +459,9 @@ public class TestWfs10JTStoGML200Converter {
 
     }
 
-    @Test public void testGeometryToMultiPolygonGML()
-            throws JAXBException, SAXException, IOException, ParseException, NullPointerException {
+    @Test
+    public void testGeometryToMultiPolygonGML() throws JAXBException, SAXException, IOException,
+            ParseException, NullPointerException {
         MultiPolygon multiPolygon = (MultiPolygon) getGeometryFromWkt(MULTIPOLYGON);
         assertThat(multiPolygon == null, is(Boolean.FALSE));
         String multiPolygonGML = Wfs10JTStoGML200Converter.convertGeometryToGML(multiPolygon)
@@ -459,8 +473,9 @@ public class TestWfs10JTStoGML200Converter {
         assertTrue(XMLUNIT_SIMILAR, diff.similar());
     }
 
-    @Test public void testGMLToMultiPolygonType()
-            throws JAXBException, SAXException, IOException, ParseException, NullPointerException {
+    @Test
+    public void testGMLToMultiPolygonType() throws JAXBException, SAXException, IOException,
+            ParseException, NullPointerException {
 
         String multiPolygonGML = Wfs10JTStoGML200Converter
                 .convertGeometryToGML(getGeometryFromWkt(MULTIPOLYGON));
@@ -483,8 +498,8 @@ public class TestWfs10JTStoGML200Converter {
 
     }
 
-    private String extractPolygonMemberCoordinates(PolygonMemberType polygonMemberType1)
-            throws JAXBException, SAXException, IOException, ParseException, NullPointerException {
+    private String extractPolygonMemberCoordinates(PolygonMemberType polygonMemberType1) throws
+            JAXBException, SAXException, IOException, ParseException, NullPointerException {
         JAXBElement<? extends AbstractGeometryType> polygonGeometry1 = polygonMemberType1
                 .getGeometry();
         assertThat(Wfs10Constants.POLYGON.getLocalPart()
@@ -497,8 +512,9 @@ public class TestWfs10JTStoGML200Converter {
         return linearRingType1.getCoordinates().getValue().replaceAll("\n", "").trim();
     }
 
-    @Test public void testMultiPolygonTypeToJAXB()
-            throws JAXBException, SAXException, IOException, ParseException, NullPointerException {
+    @Test
+    public void testMultiPolygonTypeToJAXB() throws JAXBException, SAXException, IOException,
+            ParseException, NullPointerException {
 
         String multiPolygonGML = Wfs10JTStoGML200Converter
                 .convertGeometryToGML(getGeometryFromWkt(MULTIPOLYGON));
@@ -516,16 +532,20 @@ public class TestWfs10JTStoGML200Converter {
 
     }
 
-    @Test public void testTwo() throws Exception {
+    @Test
+    public void testTwo() throws Exception {
         Geometry geometryFromWkt = getGeometryFromWkt(GEOMETRYCOLLECTION);
         String gml = Wfs10JTStoGML200Converter.convertGeometryCollectionToGML(geometryFromWkt);
-        GeometryCollectionType geometryCollectionType = (GeometryCollectionType) Wfs10JTStoGML200Converter.convertGMLToGeometryType(gml, Wfs10Constants.GEOMETRY_COLLECTION);
-        JAXBElement<GeometryCollectionType> jaxbElement = (JAXBElement<GeometryCollectionType>) Wfs10JTStoGML200Converter.convertGeometryTypeToJAXB(geometryCollectionType);
+        GeometryCollectionType geometryCollectionType = (GeometryCollectionType) Wfs10JTStoGML200Converter
+                .convertGMLToGeometryType(gml, Wfs10Constants.GEOMETRY_COLLECTION);
+        JAXBElement<GeometryCollectionType> jaxbElement = (JAXBElement<GeometryCollectionType>) Wfs10JTStoGML200Converter
+                .convertGeometryTypeToJAXB(geometryCollectionType);
         assertFalse(jaxbElement == null);
     }
 
-    @Test public void testGeometryToGeometryCollectionGML()
-            throws JAXBException, SAXException, IOException, ParseException, NullPointerException {
+    @Test
+    public void testGeometryToGeometryCollectionGML() throws JAXBException, SAXException,
+            IOException, ParseException, NullPointerException {
 
         GeometryCollection geometryCollection = (GeometryCollection) getGeometryFromWkt(
                 GEOMETRYCOLLECTION);
@@ -539,8 +559,9 @@ public class TestWfs10JTStoGML200Converter {
         assertTrue(XMLUNIT_SIMILAR, diff.similar());
     }
 
-    @Test public void testGMLToGeometryCollectionType()
-            throws JAXBException, SAXException, IOException, ParseException, NullPointerException {
+    @Test
+    public void testGMLToGeometryCollectionType() throws JAXBException, SAXException, IOException,
+            ParseException, NullPointerException {
 
         String geometryCollectionGML = Wfs10JTStoGML200Converter
                 .convertGeometryToGML(getGeometryFromWkt(GEOMETRYCOLLECTION));
@@ -548,28 +569,36 @@ public class TestWfs10JTStoGML200Converter {
                 .convertGMLToGeometryType(geometryCollectionGML,
                         Wfs10Constants.GEOMETRY_COLLECTION);
         assertFalse(geometryCollectionType == null);
-        List<JAXBElement<? extends GeometryAssociationType>> geometryMembers = geometryCollectionType.getGeometryMember();
+        List<JAXBElement<? extends GeometryAssociationType>> geometryMembers = geometryCollectionType
+                .getGeometryMember();
         assertThat(CollectionUtils.isEmpty(geometryMembers), is(Boolean.FALSE));
         assertThat(geometryMembers.size() == 2, is(Boolean.TRUE));
 
         GeometryAssociationType geometryAssociationType = geometryMembers.get(0).getValue();
-        JAXBElement<? extends AbstractGeometryType> jaxbElement = geometryAssociationType.getGeometry();
-        assertThat(Wfs10Constants.POINT.getLocalPart().equals(jaxbElement.getName().getLocalPart()), is(Boolean.TRUE));
+        JAXBElement<? extends AbstractGeometryType> jaxbElement = geometryAssociationType
+                .getGeometry();
+        assertThat(Wfs10Constants.POINT.getLocalPart().equals(jaxbElement.getName().getLocalPart()),
+                is(Boolean.TRUE));
         PointType pointType = (PointType) jaxbElement.getValue();
         assertThat(pointType == null, is(Boolean.FALSE));
-        assertThat(GEOMETRYCOLLECTION_POINT_COORD.equals(
-                pointType.getCoordinates().getValue().trim()), is(Boolean.TRUE));
+        assertThat(
+                GEOMETRYCOLLECTION_POINT_COORD.equals(pointType.getCoordinates().getValue().trim()),
+                is(Boolean.TRUE));
 
         GeometryAssociationType geometryAssociationType2 = geometryMembers.get(1).getValue();
-        JAXBElement<? extends AbstractGeometryType> jaxbElement2 = geometryAssociationType2.getGeometry();
-        assertThat(Wfs10Constants.LINESTRING.getLocalPart().equals(jaxbElement2.getName().getLocalPart()), is(Boolean.TRUE));
+        JAXBElement<? extends AbstractGeometryType> jaxbElement2 = geometryAssociationType2
+                .getGeometry();
+        assertThat(Wfs10Constants.LINESTRING.getLocalPart()
+                .equals(jaxbElement2.getName().getLocalPart()), is(Boolean.TRUE));
         LineStringType lineStringType = (LineStringType) jaxbElement2.getValue();
         assertThat(lineStringType == null, is(Boolean.FALSE));
-        assertThat(GEOMETRYCOLLECTION_LINESTRING_COORD.equals(lineStringType.getCoordinates().getValue().trim()), is(Boolean.TRUE));
+        assertThat(GEOMETRYCOLLECTION_LINESTRING_COORD
+                .equals(lineStringType.getCoordinates().getValue().trim()), is(Boolean.TRUE));
     }
 
-    @Test public void testGeometryCollectionTypeToJAXB()
-            throws JAXBException, SAXException, IOException, ParseException, NullPointerException {
+    @Test
+    public void testGeometryCollectionTypeToJAXB() throws JAXBException, SAXException, IOException,
+            ParseException, NullPointerException {
 
         String geometryCollectionGML = Wfs10JTStoGML200Converter
                 .convertGeometryToGML(getGeometryFromWkt(GEOMETRYCOLLECTION)).replaceAll("\n", "");

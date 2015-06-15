@@ -28,8 +28,8 @@ import org.apache.commons.io.IOUtils;
 public class TrustedServlet extends HttpServlet {
 
     @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response)
-        throws ServletException, IOException {
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws
+            ServletException, IOException {
 
         OutputStream os = response.getOutputStream();
         IOUtils.copy(new StringReader("Trust this response"), os);

@@ -14,10 +14,36 @@
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.transformer;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.Map;
+
+import javax.activation.MimeType;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.namespace.QName;
+
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
+import org.codice.ddf.spatial.ogc.csw.catalog.converter.GetRecordsResponseConverter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.XStreamException;
 import com.thoughtworks.xstream.io.naming.NoNameCoder;
 import com.thoughtworks.xstream.io.xml.StaxDriver;
+
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.BinaryContentImpl;
@@ -30,30 +56,6 @@ import net.opengis.cat.csw.v_2_0_2.ElementSetType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.ObjectFactory;
 import net.opengis.cat.csw.v_2_0_2.ResultType;
-import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
-import org.codice.ddf.spatial.ogc.csw.catalog.converter.GetRecordsResponseConverter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.activation.MimeType;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.namespace.QName;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.GregorianCalendar;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Implementation of {@link ddf.catalog.transform.QueryResponseTransformer} for CSW 2.0.2
@@ -61,8 +63,7 @@ import java.util.Map;
  */
 public class CswQueryResponseTransformer implements QueryResponseTransformer {
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(CswQueryResponseTransformer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CswQueryResponseTransformer.class);
 
     private XStream xstreamGetRecordsResponse;
 
@@ -74,10 +75,12 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
                 converter);
     }
 
-    @Override public BinaryContent transform(SourceResponse sourceResponse,
+    @Override
+    public BinaryContent transform(SourceResponse sourceResponse,
             Map<String, Serializable> arguments) throws CatalogTransformerException {
         LOGGER.debug("Entering CswQueryResponseTransformer.transform()");
-        if (sourceResponse.getResults() == null && arguments.get(CswConstants.RESULT_TYPE_PARAMETER) == null) {
+        if (sourceResponse.getResults() == null
+                && arguments.get(CswConstants.RESULT_TYPE_PARAMETER) == null) {
             LOGGER.warn("Attempted to Transform and empty Result list.");
             return null;
         }
@@ -105,8 +108,8 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
             } catch (XStreamException e) {
                 throw new CatalogTransformerException(e);
             }
-        } else if (recordCollection.getResultType() != null && ResultType.VALIDATE.equals(
-                recordCollection.getResultType())) {
+        } else if (recordCollection.getResultType() != null && ResultType.VALIDATE
+                .equals(recordCollection.getResultType())) {
             LOGGER.debug("Transforming Acknowledgement");
             try {
                 writeAcknowledgement(recordCollection.getRequest(), os);
@@ -154,11 +157,11 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
 
             Object isByIdQuery = arguments.get(CswConstants.IS_BY_ID_QUERY);
             if (isByIdQuery != null) {
-                recordCollection.setById((Boolean)isByIdQuery);
+                recordCollection.setById((Boolean) isByIdQuery);
             }
 
             Object arg = arguments.get((CswConstants.GET_RECORDS));
-            if (arg != null && arg instanceof GetRecordsType){
+            if (arg != null && arg instanceof GetRecordsType) {
                 recordCollection.setRequest((GetRecordsType) arg);
             }
 
@@ -169,7 +172,7 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
 
             Object outputSchema = arguments.get(CswConstants.OUTPUT_SCHEMA_PARAMETER);
             if (outputSchema instanceof String) {
-                recordCollection.setOutputSchema((String)outputSchema);
+                recordCollection.setOutputSchema((String) outputSchema);
             }
 
             Object doWriteNamespaces = arguments.get(CswConstants.WRITE_NAMESPACES);
@@ -186,17 +189,18 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
 
         xstream.registerConverter(converter);
 
-        xstream.alias(CswConstants.CSW_NAMESPACE_PREFIX + CswConstants.NAMESPACE_DELIMITER
-                + elementName, CswRecordCollection.class);
+        xstream.alias(
+                CswConstants.CSW_NAMESPACE_PREFIX + CswConstants.NAMESPACE_DELIMITER + elementName,
+                CswRecordCollection.class);
 
         return xstream;
     }
 
-    private void writeAcknowledgement(GetRecordsType request, OutputStream outStream)
-            throws IOException {
+    private void writeAcknowledgement(GetRecordsType request, OutputStream outStream) throws
+            IOException {
         try {
-            JAXBContext jaxBContext = JAXBContext.newInstance("net.opengis.cat.csw.v_2_0_2:" +
-                    "net.opengis.filter.v_1_1_0:net.opengis.gml.v_3_1_1:net.opengis.ows.v_1_0_0");
+            JAXBContext jaxBContext = JAXBContext.newInstance("net.opengis.cat.csw.v_2_0_2:"
+                    + "net.opengis.filter.v_1_1_0:net.opengis.gml.v_3_1_1:net.opengis.ows.v_1_0_0");
             Marshaller marshaller = jaxBContext.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
 
@@ -206,8 +210,7 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
             echoedRequest.setAny(jaxBRequest);
             ack.setEchoedRequest(echoedRequest);
             try {
-                ack.setTimeStamp(
-                        DatatypeFactory.newInstance()
+                ack.setTimeStamp(DatatypeFactory.newInstance()
                                 .newXMLGregorianCalendar(new GregorianCalendar()));
             } catch (DatatypeConfigurationException e) {
                 LOGGER.warn("Failed to set timestamp on Acknowledgement, Exception {}", e);

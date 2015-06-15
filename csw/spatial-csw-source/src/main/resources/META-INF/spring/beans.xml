@@ -12,10 +12,10 @@
  *
  **/
 -->
-<beans:beans xmlns="http://www.springframework.org/schema/osgi"
-             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<beans:beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
              xmlns:osgix="http://www.springframework.org/schema/osgi-compendium"
              xmlns:beans="http://www.springframework.org/schema/beans"
+             xmlns="http://www.springframework.org/schema/osgi"
              xsi:schemaLocation="http://www.springframework.org/schema/osgi
         http://www.springframework.org/schema/osgi/spring-osgi.xsd
      http://www.springframework.org/schema/osgi-compendium 
@@ -35,16 +35,16 @@
     -->
     <list id="resourceReaders" interface="ddf.catalog.resource.ResourceReader"/>
 
-    <reference id="cswTransformProvider" interface="com.thoughtworks.xstream.converters.Converter" />
+    <reference id="cswTransformProvider" interface="com.thoughtworks.xstream.converters.Converter"/>
 
     <reference id="securitySettings" interface="ddf.security.settings.SecuritySettingsService"/>
 
     <reference id="securityManager" interface="ddf.security.service.SecurityManager"/>
 
      <osgix:managed-service-factory
-            id="org.codice.ddf.spatial.ogc.csw.catalog.source.CswFederatedSource.id"
-            factory-pid="Csw_Federated_Source"
-            update-strategy="bean-managed" update-method="refresh">
+             id="org.codice.ddf.spatial.ogc.csw.catalog.source.CswFederatedSource.id"
+             factory-pid="Csw_Federated_Source"
+             update-strategy="bean-managed" update-method="refresh">
 
         <osgix:interfaces>
             <beans:value>ddf.catalog.source.FederatedSource</beans:value>

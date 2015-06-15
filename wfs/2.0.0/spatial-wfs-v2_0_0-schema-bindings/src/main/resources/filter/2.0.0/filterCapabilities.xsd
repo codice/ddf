@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsd:schema
-   targetNamespace="http://www.opengis.net/fes/2.0"
-   xmlns:fes="http://www.opengis.net/fes/2.0"
-   xmlns:ows="http://www.opengis.net/ows/1.1"
-   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-   xmlns:xml="http://www.w3.org/XML/1998/namespace"
-   elementFormDefault="qualified"
-   version="2.0.0">
+        xmlns:fes="http://www.opengis.net/fes/2.0"
+        xmlns:ows="http://www.opengis.net/ows/1.1"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        targetNamespace="http://www.opengis.net/fes/2.0"
+        elementFormDefault="qualified"
+        version="2.0.0">
    
    <xsd:annotation>
       <xsd:documentation>
@@ -50,16 +49,16 @@
       </xsd:complexType>
    </xsd:element>
 
-   <!-- CONFORMANCE -->
-   <xsd:complexType name="ConformanceType">
+    <!-- CONFORMANCE -->
+    <xsd:complexType name="ConformanceType">
       <xsd:sequence>
          <xsd:element name="Constraint"
                       type="ows:DomainType" maxOccurs="unbounded"/>
       </xsd:sequence>
    </xsd:complexType>
 
-   <!-- RESOURCE IDENTIFIERS -->
-   <xsd:complexType name="Id_CapabilitiesType">
+    <!-- RESOURCE IDENTIFIERS -->
+    <xsd:complexType name="Id_CapabilitiesType">
       <xsd:sequence>
          <xsd:element name="ResourceIdentifier"
                       type="fes:ResourceIdentifierType" maxOccurs="unbounded"/>
@@ -72,8 +71,8 @@
       <xsd:attribute name="name" type="xsd:QName" use="required"/>
    </xsd:complexType>
 
-   <!-- SCALAR CAPABILITIES -->
-   <xsd:complexType name="Scalar_CapabilitiesType">
+    <!-- SCALAR CAPABILITIES -->
+    <xsd:complexType name="Scalar_CapabilitiesType">
       <xsd:sequence>
          <xsd:element ref="fes:LogicalOperators" minOccurs="0"/>
          <xsd:element name="ComparisonOperators"
@@ -145,8 +144,8 @@
       <xsd:attribute name="name" type="xsd:string" use="required"/>
    </xsd:complexType>
 
-   <!-- SPATIAL CAPABILITIES -->
-   <xsd:complexType name="Spatial_CapabilitiesType">
+    <!-- SPATIAL CAPABILITIES -->
+    <xsd:complexType name="Spatial_CapabilitiesType">
       <xsd:sequence>
          <xsd:element name="GeometryOperands"
                       type="fes:GeometryOperandsType"/>
@@ -203,8 +202,8 @@
       </xsd:union>
    </xsd:simpleType>
 
-   <!-- TEMPORAL CAPABILITIES -->
-   <xsd:complexType name="Temporal_CapabilitiesType">
+    <!-- TEMPORAL CAPABILITIES -->
+    <xsd:complexType name="Temporal_CapabilitiesType">
       <xsd:sequence>
          <xsd:element name="TemporalOperands"
                       type="fes:TemporalOperandsType"/>
@@ -264,8 +263,8 @@
       </xsd:union>
    </xsd:simpleType>
 
-   <!-- EXTENSION CAPABILITIES -->
-   <xsd:complexType name="Extended_CapabilitiesType">
+    <!-- EXTENSION CAPABILITIES -->
+    <xsd:complexType name="Extended_CapabilitiesType">
       <xsd:sequence>
          <xsd:element name="AdditionalOperators"
                       type="fes:AdditionalOperatorsType" minOccurs="0"/>

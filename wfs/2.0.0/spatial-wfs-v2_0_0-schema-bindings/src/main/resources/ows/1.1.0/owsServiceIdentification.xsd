@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema targetNamespace="http://www.opengis.net/ows/1.1" 
-xmlns:ows="http://www.opengis.net/ows/1.1" 
-xmlns="http://www.w3.org/2001/XMLSchema" 
-elementFormDefault="qualified" version="1.0.0" xml:lang="en">
+<schema xmlns:ows="http://www.opengis.net/ows/1.1"
+        targetNamespace="http://www.opengis.net/ows/1.1"
+        xmlns="http://www.w3.org/2001/XMLSchema"
+        elementFormDefault="qualified" version="1.0.0" xml:lang="en">
 	<annotation>
 		<appinfo>owsServiceIdentification.xsd 2006-08-31</appinfo>
 		<documentation>This XML Schema Document encodes the common "ServiceIdentification" section of the GetCapabilities operation response, known as the Capabilities XML document. This section encodes the SV_ServiceIdentification class of ISO 19119 (OGC Abstract Specification Topic 12). 
 		Copyright (c) 2006 Open Geospatial Consortium, Inc. All Rights Reserved. </documentation>
 	</annotation>
-	<!-- ==============================================================
-		includes and imports
-	============================================================== -->
-	<include schemaLocation="owsDataIdentification.xsd"/>
-	<!-- ==============================================================
-		elements and types
-	============================================================== -->
-	<element name="ServiceIdentification">
+    <!-- ==============================================================
+        includes and imports
+    ============================================================== -->
+    <include schemaLocation="owsDataIdentification.xsd"/>
+    <!-- ==============================================================
+        elements and types
+    ============================================================== -->
+    <element name="ServiceIdentification">
 		<annotation>
 			<documentation>General metadata for this specific server. This XML Schema of this section shall be the same for all OWS. </documentation>
 		</annotation>
@@ -28,7 +28,8 @@ elementFormDefault="qualified" version="1.0.0" xml:lang="en">
 								<documentation>A service type name from a registry of services. For example, the values of the codeSpace URI and name and code string may be "OGC" and "catalogue." This type name is normally used for machine-to-machine communication. </documentation>
 							</annotation>
 						</element>
-						<element name="ServiceTypeVersion" type="ows:VersionType" maxOccurs="unbounded">
+						<element name="ServiceTypeVersion" type="ows:VersionType"
+                                 maxOccurs="unbounded">
 							<annotation>
 								<documentation>Unordered list of one or more versions of this service type implemented by this server. This information is not adequate for version negotiation, and shall not be used for that purpose. </documentation>
 							</annotation>

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<xs:schema id="dcmes" targetNamespace="http://purl.org/dc/elements/1.1/"
-   xmlns:xs="http://www.w3.org/2001/XMLSchema"
-   xmlns:dc="http://purl.org/dc/elements/1.1/" elementFormDefault="qualified"
-   attributeFormDefault="unqualified" version="2.0.2">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dc="http://purl.org/dc/elements/1.1/"
+           id="dcmes"
+           targetNamespace="http://purl.org/dc/elements/1.1/" elementFormDefault="qualified"
+           attributeFormDefault="unqualified" version="2.0.2">
    <xs:annotation>
       <xs:documentation xml:lang="en"
-         source="http://dublincore.org/documents/dces/">This schema declares XML elements for the 15 Dublin Core elements in 
+                        source="http://dublincore.org/documents/dces/">This schema declares XML elements for the 15 Dublin Core elements in
     the "http://purl.org/dc/elements/1.1/" namespace.</xs:documentation>
    </xs:annotation>
    <xs:complexType name="SimpleLiteral">
@@ -28,14 +28,14 @@
    </xs:complexType>
    <xs:element name="DC-element" type="dc:SimpleLiteral" abstract="true"/>
    <xs:element name="title" type="dc:SimpleLiteral"
-      substitutionGroup="dc:DC-element">
+               substitutionGroup="dc:DC-element">
       <xs:annotation>
          <xs:documentation xml:lang="en">A name given to the resource. Typically, Title will be a name by 
       which the resource is formally known.</xs:documentation>
       </xs:annotation>
    </xs:element>
    <xs:element name="creator" type="dc:SimpleLiteral"
-      substitutionGroup="dc:DC-element">
+               substitutionGroup="dc:DC-element">
       <xs:annotation>
          <xs:documentation xml:lang="en">An entity primarily responsible for making the content of the resource.
       Examples of Creator include a person, an organization, or a service. 
@@ -43,7 +43,7 @@
       </xs:annotation>
    </xs:element>
    <xs:element name="subject" type="dc:SimpleLiteral"
-      substitutionGroup="dc:DC-element">
+               substitutionGroup="dc:DC-element">
       <xs:annotation>
          <xs:documentation xml:lang="en">A topic of the content of the resource. Typically, Subject will be 
       expressed as keywords, key phrases, or classification codes that 
@@ -53,7 +53,7 @@
       </xs:annotation>
    </xs:element>
    <xs:element name="description" type="dc:SimpleLiteral"
-      substitutionGroup="dc:DC-element">
+               substitutionGroup="dc:DC-element">
       <xs:annotation>
          <xs:documentation xml:lang="en">An account of the content of the resource. Examples of Description 
       include, but are not limited to, an abstract, table of contents, 
@@ -62,7 +62,7 @@
       </xs:annotation>
    </xs:element>
    <xs:element name="publisher" type="dc:SimpleLiteral"
-      substitutionGroup="dc:DC-element">
+               substitutionGroup="dc:DC-element">
       <xs:annotation>
          <xs:documentation xml:lang="en">An entity responsible for making the resource available. Examples of 
       Publisher include a person, an organization, or a service. Typically, 
@@ -70,7 +70,7 @@
       </xs:annotation>
    </xs:element>
    <xs:element name="contributor" type="dc:SimpleLiteral"
-      substitutionGroup="dc:DC-element">
+               substitutionGroup="dc:DC-element">
       <xs:annotation>
          <xs:documentation xml:lang="en">An entity responsible for making contributions to the content of 
       the resource. Examples of Contributor include a person, an organization, 
@@ -79,7 +79,7 @@
       </xs:annotation>
    </xs:element>
    <xs:element name="date" type="dc:SimpleLiteral"
-      substitutionGroup="dc:DC-element">
+               substitutionGroup="dc:DC-element">
       <xs:annotation>
          <xs:documentation xml:lang="en">A date of an event in the lifecycle of the resource. Typically, Date 
       will be associated with the creation or availability of the resource. 
@@ -89,7 +89,7 @@
       </xs:annotation>
    </xs:element>
    <xs:element name="type" type="dc:SimpleLiteral"
-      substitutionGroup="dc:DC-element">
+               substitutionGroup="dc:DC-element">
       <xs:annotation>
          <xs:documentation xml:lang="en">The nature or genre of the content of the resource. Type includes 
       terms describing general categories, functions, genres, or aggregation 
@@ -100,7 +100,7 @@
       </xs:annotation>
    </xs:element>
    <xs:element name="format" type="dc:SimpleLiteral"
-      substitutionGroup="dc:DC-element">
+               substitutionGroup="dc:DC-element">
       <xs:annotation>
          <xs:documentation xml:lang="en">The physical or digital manifestation of the resource. Typically, 
       Format will include the media-type or dimensions of the resource. 
@@ -112,7 +112,7 @@
       </xs:annotation>
    </xs:element>
    <xs:element name="identifier" type="dc:SimpleLiteral"
-      substitutionGroup="dc:DC-element">
+               substitutionGroup="dc:DC-element">
       <xs:annotation>
          <xs:documentation xml:lang="en">An unambiguous reference to the resource within a given context. 
       Recommended best practice is to identify the resource by means of a 
@@ -124,7 +124,7 @@
       </xs:annotation>
    </xs:element>
    <xs:element name="source" type="dc:SimpleLiteral"
-      substitutionGroup="dc:DC-element">
+               substitutionGroup="dc:DC-element">
       <xs:annotation>
          <xs:documentation xml:lang="en">A Reference to a resource from which the present resource is derived.
       The present resource may be derived from the Source resource in whole 
@@ -134,7 +134,7 @@
       </xs:annotation>
    </xs:element>
    <xs:element name="language" type="dc:SimpleLiteral"
-      substitutionGroup="dc:DC-element">
+               substitutionGroup="dc:DC-element">
       <xs:annotation>
          <xs:documentation xml:lang="en">A language of the intellectual content of the resource. Recommended 
       best practice is to use RFC 3066, which, in conjunction with ISO 639, 
@@ -144,7 +144,7 @@
       </xs:annotation>
    </xs:element>
    <xs:element name="relation" type="dc:SimpleLiteral"
-      substitutionGroup="dc:DC-element">
+               substitutionGroup="dc:DC-element">
       <xs:annotation>
          <xs:documentation xml:lang="en">A reference to a related resource. Recommended best practice is to 
       identify the referenced resource by means of a string or number 
@@ -152,7 +152,7 @@
       </xs:annotation>
    </xs:element>
    <xs:element name="coverage" type="dc:SimpleLiteral"
-      substitutionGroup="dc:DC-element">
+               substitutionGroup="dc:DC-element">
       <xs:annotation>
          <xs:documentation xml:lang="en">The extent or scope of the content of the resource. Typically, 
       Coverage will include spatial location (a place name or geographic 
@@ -165,7 +165,7 @@
       </xs:annotation>
    </xs:element>
    <xs:element name="rights" type="dc:SimpleLiteral"
-      substitutionGroup="dc:DC-element">
+               substitutionGroup="dc:DC-element">
       <xs:annotation>
          <xs:documentation xml:lang="en">Information about rights held in and over the resource. Typically, 
       Rights will contain a rights management statement for the resource, 

@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--Modified by Ram Kumar (MSI) on 24 July 2002-->
-<xs:schema targetNamespace="urn:oasis:names:tc:ciq:xsdschema:xAL:2.0" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="urn:oasis:names:tc:ciq:xsdschema:xAL:2.0" elementFormDefault="qualified">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="urn:oasis:names:tc:ciq:xsdschema:xAL:2.0"
+           xmlns="urn:oasis:names:tc:ciq:xsdschema:xAL:2.0" elementFormDefault="qualified">
 	<xs:annotation>
 		<xs:documentation>xAL: eXtensible Address Language 
 This is an XML document type definition (DTD) for
@@ -179,7 +181,8 @@ Code:Address element codes are used by groups like postal groups like ECCMA, ADI
 								<xs:anyAttribute namespace="##other"/>
 							</xs:complexType>
 						</xs:element>
-						<xs:element name="SupplementaryPostalServiceData" minOccurs="0" maxOccurs="unbounded">
+						<xs:element name="SupplementaryPostalServiceData" minOccurs="0"
+                                    maxOccurs="unbounded">
 							<xs:annotation>
 								<xs:documentation>any postal service elements not covered by the container can be represented using this element</xs:documentation>
 							</xs:annotation>
@@ -461,7 +464,8 @@ divisions of cities, suburbs, etc. DependentLocality is a recursive element, but
 					<xs:anyAttribute namespace="##other"/>
 				</xs:complexType>
 			</xs:element>
-			<xs:element name="BuildingName" type="BuildingNameType" minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="BuildingName" type="BuildingNameType" minOccurs="0"
+                        maxOccurs="unbounded">
 				<xs:annotation>
 					<xs:documentation>Name of the building</xs:documentation>
 				</xs:annotation>
@@ -645,7 +649,8 @@ number or a single letter that is surrounded by fixed parts at the left (prefix)
 					<xs:anyAttribute namespace="##other"/>
 				</xs:complexType>
 			</xs:element>
-			<xs:element name="BuildingName" type="BuildingNameType" minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="BuildingName" type="BuildingNameType" minOccurs="0"
+                        maxOccurs="unbounded">
 				<xs:annotation>
 					<xs:documentation>Name of the building</xs:documentation>
 				</xs:annotation>
@@ -795,10 +800,14 @@ have many subdivisions with numbers. Normally the subdivision name is the same a
 									</xs:annotation>
 									<xs:complexType mixed="true">
 										<xs:sequence>
-											<xs:element ref="AddressLine" minOccurs="0" maxOccurs="unbounded"/>
-											<xs:element ref="ThoroughfareNumberPrefix" minOccurs="0" maxOccurs="unbounded"/>
-											<xs:element ref="ThoroughfareNumber" maxOccurs="unbounded"/>
-											<xs:element ref="ThoroughfareNumberSuffix" minOccurs="0" maxOccurs="unbounded"/>
+											<xs:element ref="AddressLine" minOccurs="0"
+                                                        maxOccurs="unbounded"/>
+											<xs:element ref="ThoroughfareNumberPrefix" minOccurs="0"
+                                                        maxOccurs="unbounded"/>
+											<xs:element ref="ThoroughfareNumber"
+                                                        maxOccurs="unbounded"/>
+											<xs:element ref="ThoroughfareNumberSuffix" minOccurs="0"
+                                                        maxOccurs="unbounded"/>
 										</xs:sequence>
 										<xs:attributeGroup ref="grPostal"/>
 										<xs:anyAttribute namespace="##other"/>
@@ -810,10 +819,14 @@ have many subdivisions with numbers. Normally the subdivision name is the same a
 									</xs:annotation>
 									<xs:complexType mixed="true">
 										<xs:sequence>
-											<xs:element ref="AddressLine" minOccurs="0" maxOccurs="unbounded"/>
-											<xs:element ref="ThoroughfareNumberPrefix" minOccurs="0" maxOccurs="unbounded"/>
-											<xs:element ref="ThoroughfareNumber" maxOccurs="unbounded"/>
-											<xs:element ref="ThoroughfareNumberSuffix" minOccurs="0" maxOccurs="unbounded"/>
+											<xs:element ref="AddressLine" minOccurs="0"
+                                                        maxOccurs="unbounded"/>
+											<xs:element ref="ThoroughfareNumberPrefix" minOccurs="0"
+                                                        maxOccurs="unbounded"/>
+											<xs:element ref="ThoroughfareNumber"
+                                                        maxOccurs="unbounded"/>
+											<xs:element ref="ThoroughfareNumberSuffix" minOccurs="0"
+                                                        maxOccurs="unbounded"/>
 										</xs:sequence>
 										<xs:attributeGroup ref="grPostal"/>
 										<xs:anyAttribute namespace="##other"/>
@@ -873,27 +886,32 @@ have many subdivisions with numbers. Normally the subdivision name is the same a
 				</xs:choice>
 				<xs:element ref="ThoroughfareNumberPrefix" minOccurs="0" maxOccurs="unbounded"/>
 				<xs:element ref="ThoroughfareNumberSuffix" minOccurs="0" maxOccurs="unbounded"/>
-				<xs:element name="ThoroughfarePreDirection" type="ThoroughfarePreDirectionType" minOccurs="0">
+				<xs:element name="ThoroughfarePreDirection" type="ThoroughfarePreDirectionType"
+                            minOccurs="0">
 					<xs:annotation>
 						<xs:documentation>North Baker Street, where North is the pre-direction. The direction appears before the name.</xs:documentation>
 					</xs:annotation>
 				</xs:element>
-				<xs:element name="ThoroughfareLeadingType" type="ThoroughfareLeadingTypeType" minOccurs="0">
+				<xs:element name="ThoroughfareLeadingType" type="ThoroughfareLeadingTypeType"
+                            minOccurs="0">
 					<xs:annotation>
 						<xs:documentation>Appears before the thoroughfare name. Ed. Spanish: Avenida Aurora, where Avenida is the leading type / French: Rue Moliere, where Rue is the leading type.</xs:documentation>
 					</xs:annotation>
 				</xs:element>
-				<xs:element name="ThoroughfareName" type="ThoroughfareNameType" minOccurs="0" maxOccurs="unbounded">
+				<xs:element name="ThoroughfareName" type="ThoroughfareNameType" minOccurs="0"
+                            maxOccurs="unbounded">
 					<xs:annotation>
 						<xs:documentation>Specification of the name of a Thoroughfare (also dependant street name): street name, canal name, etc.</xs:documentation>
 					</xs:annotation>
 				</xs:element>
-				<xs:element name="ThoroughfareTrailingType" type="ThoroughfareTrailingTypeType" minOccurs="0">
+				<xs:element name="ThoroughfareTrailingType" type="ThoroughfareTrailingTypeType"
+                            minOccurs="0">
 					<xs:annotation>
 						<xs:documentation>Appears after the thoroughfare name. Ed. British: Baker Lane, where Lane is the trailing type.</xs:documentation>
 					</xs:annotation>
 				</xs:element>
-				<xs:element name="ThoroughfarePostDirection" type="ThoroughfarePostDirectionType" minOccurs="0">
+				<xs:element name="ThoroughfarePostDirection" type="ThoroughfarePostDirectionType"
+                            minOccurs="0">
 					<xs:annotation>
 						<xs:documentation>221-bis Baker Street North, where North is the post-direction. The post-direction appears after the name.</xs:documentation>
 					</xs:annotation>
@@ -905,27 +923,32 @@ have many subdivisions with numbers. Normally the subdivision name is the same a
 					<xs:complexType>
 						<xs:sequence>
 							<xs:element ref="AddressLine" minOccurs="0" maxOccurs="unbounded"/>
-							<xs:element name="ThoroughfarePreDirection" type="ThoroughfarePreDirectionType" minOccurs="0">
+							<xs:element name="ThoroughfarePreDirection"
+                                        type="ThoroughfarePreDirectionType" minOccurs="0">
 								<xs:annotation>
 									<xs:documentation>North Baker Street, where North is the pre-direction. The direction appears before the name.</xs:documentation>
 								</xs:annotation>
 							</xs:element>
-							<xs:element name="ThoroughfareLeadingType" type="ThoroughfareLeadingTypeType" minOccurs="0">
+							<xs:element name="ThoroughfareLeadingType"
+                                        type="ThoroughfareLeadingTypeType" minOccurs="0">
 								<xs:annotation>
 									<xs:documentation>Appears before the thoroughfare name. Ed. Spanish: Avenida Aurora, where Avenida is the leading type / French: Rue Moliere, where Rue is the leading type.</xs:documentation>
 								</xs:annotation>
 							</xs:element>
-							<xs:element name="ThoroughfareName" type="ThoroughfareNameType" minOccurs="0" maxOccurs="unbounded">
+							<xs:element name="ThoroughfareName" type="ThoroughfareNameType"
+                                        minOccurs="0" maxOccurs="unbounded">
 								<xs:annotation>
 									<xs:documentation>Specification of the name of a Thoroughfare (also dependant street name): street name, canal name, etc.</xs:documentation>
 								</xs:annotation>
 							</xs:element>
-							<xs:element name="ThoroughfareTrailingType" type="ThoroughfareTrailingTypeType" minOccurs="0">
+							<xs:element name="ThoroughfareTrailingType"
+                                        type="ThoroughfareTrailingTypeType" minOccurs="0">
 								<xs:annotation>
 									<xs:documentation>Appears after the thoroughfare name. Ed. British: Baker Lane, where Lane is the trailing type.</xs:documentation>
 								</xs:annotation>
 							</xs:element>
-							<xs:element name="ThoroughfarePostDirection" type="ThoroughfarePostDirectionType" minOccurs="0">
+							<xs:element name="ThoroughfarePostDirection"
+                                        type="ThoroughfarePostDirectionType" minOccurs="0">
 								<xs:annotation>
 									<xs:documentation>221-bis Baker Street North, where North is the post-direction. The post-direction appears after the name.</xs:documentation>
 								</xs:annotation>
@@ -1009,7 +1032,8 @@ area can be specified and in this case, one becomes sub-administrative area.</xs
 					<xs:complexType>
 						<xs:sequence>
 							<xs:element ref="AddressLine" minOccurs="0" maxOccurs="unbounded"/>
-							<xs:element name="SubAdministrativeAreaName" minOccurs="0" maxOccurs="unbounded">
+							<xs:element name="SubAdministrativeAreaName" minOccurs="0"
+                                        maxOccurs="unbounded">
 								<xs:annotation>
 									<xs:documentation> Name of the sub-administrative area</xs:documentation>
 								</xs:annotation>
@@ -1385,10 +1409,14 @@ one premise in a street referenced in an address. For example a building address
 										</xs:annotation>
 										<xs:complexType>
 											<xs:sequence>
-												<xs:element ref="AddressLine" minOccurs="0" maxOccurs="unbounded"/>
-												<xs:element ref="PremiseNumberPrefix" minOccurs="0" maxOccurs="unbounded"/>
-												<xs:element ref="PremiseNumber" maxOccurs="unbounded"/>
-												<xs:element ref="PremiseNumberSuffix" minOccurs="0" maxOccurs="unbounded"/>
+												<xs:element ref="AddressLine" minOccurs="0"
+                                                            maxOccurs="unbounded"/>
+												<xs:element ref="PremiseNumberPrefix" minOccurs="0"
+                                                            maxOccurs="unbounded"/>
+												<xs:element ref="PremiseNumber"
+                                                            maxOccurs="unbounded"/>
+												<xs:element ref="PremiseNumberSuffix" minOccurs="0"
+                                                            maxOccurs="unbounded"/>
 											</xs:sequence>
 										</xs:complexType>
 									</xs:element>
@@ -1398,10 +1426,14 @@ one premise in a street referenced in an address. For example a building address
 										</xs:annotation>
 										<xs:complexType>
 											<xs:sequence>
-												<xs:element ref="AddressLine" minOccurs="0" maxOccurs="unbounded"/>
-												<xs:element ref="PremiseNumberPrefix" minOccurs="0" maxOccurs="unbounded"/>
-												<xs:element ref="PremiseNumber" maxOccurs="unbounded"/>
-												<xs:element ref="PremiseNumberSuffix" minOccurs="0" maxOccurs="unbounded"/>
+												<xs:element ref="AddressLine" minOccurs="0"
+                                                            maxOccurs="unbounded"/>
+												<xs:element ref="PremiseNumberPrefix" minOccurs="0"
+                                                            maxOccurs="unbounded"/>
+												<xs:element ref="PremiseNumber"
+                                                            maxOccurs="unbounded"/>
+												<xs:element ref="PremiseNumberSuffix" minOccurs="0"
+                                                            maxOccurs="unbounded"/>
 											</xs:sequence>
 										</xs:complexType>
 									</xs:element>
@@ -1452,13 +1484,15 @@ one premise in a street referenced in an address. For example a building address
 				</xs:choice>
 				<xs:element ref="PremiseNumberPrefix" minOccurs="0" maxOccurs="unbounded"/>
 				<xs:element ref="PremiseNumberSuffix" minOccurs="0" maxOccurs="unbounded"/>
-				<xs:element name="BuildingName" type="BuildingNameType" minOccurs="0" maxOccurs="unbounded">
+				<xs:element name="BuildingName" type="BuildingNameType" minOccurs="0"
+                            maxOccurs="unbounded">
 					<xs:annotation>
 						<xs:documentation>Specification of the name of a building.</xs:documentation>
 					</xs:annotation>
 				</xs:element>
 				<xs:choice>
-					<xs:element name="SubPremise" type="SubPremiseType" minOccurs="0" maxOccurs="unbounded">
+					<xs:element name="SubPremise" type="SubPremiseType" minOccurs="0"
+                                maxOccurs="unbounded">
 						<xs:annotation>
 							<xs:documentation>Specification of a single sub-premise. Examples of sub-premises are apartments and suites. Each sub-premise should be uniquely identifiable.</xs:documentation>
 						</xs:annotation>

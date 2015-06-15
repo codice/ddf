@@ -14,10 +14,10 @@
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.transformer;
 
+import static org.junit.Assert.fail;
+
 import org.junit.Ignore;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 public class TransformerManagerTest {
 
@@ -25,23 +25,26 @@ public class TransformerManagerTest {
     @Test
     public void testGetAvailableMimeTypes() throws Exception {
 
-
     }
+
     @Ignore
     @Test
     public void testGetAvailableSchemas() throws Exception {
         fail();
     }
+
     @Ignore
     @Test
     public void testGetTransformerBySchema() throws Exception {
         fail();
     }
+
     @Ignore
     @Test
     public void testGetTransformerByMimeType() throws Exception {
         fail();
     }
+
     @Ignore
     @Test
     public void testGetCswQueryResponseTransformer() throws Exception {

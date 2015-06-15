@@ -1,18 +1,73 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.source;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.io.StringWriter;
+import java.math.BigInteger;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.namespace.QName;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.cxf.common.util.CollectionUtils;
+import org.apache.ws.commons.schema.XmlSchema;
+import org.codice.ddf.spatial.ogc.catalog.MetadataTransformer;
+import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityCommand;
+import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
+import org.codice.ddf.spatial.ogc.catalog.common.ContentTypeFilterDelegate;
+import org.codice.ddf.spatial.ogc.catalog.common.TrustedRemoteSource;
+import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
+import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
+import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsFeatureCollection;
+import org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverter;
+import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.GenericFeatureConverter;
+import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.DescribeFeatureTypeRequest;
+import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.GetCapabilitiesRequest;
+import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.Wfs10Constants;
+import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.converter.FeatureConverterFactory;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
+import org.osgi.framework.ServiceRegistration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.Constants;
 import ddf.catalog.data.ContentType;
@@ -46,83 +101,16 @@ import ogc.schema.opengis.wfs.v_1_0_0.ObjectFactory;
 import ogc.schema.opengis.wfs.v_1_0_0.QueryType;
 import ogc.schema.opengis.wfs_capabilities.v_1_0_0.FeatureTypeType;
 import ogc.schema.opengis.wfs_capabilities.v_1_0_0.WFSCapabilitiesType;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.cxf.common.util.CollectionUtils;
-import org.apache.ws.commons.schema.XmlSchema;
-import org.codice.ddf.spatial.ogc.catalog.MetadataTransformer;
-import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityCommand;
-import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
-import org.codice.ddf.spatial.ogc.catalog.common.ContentTypeFilterDelegate;
-import org.codice.ddf.spatial.ogc.catalog.common.TrustedRemoteSource;
-import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
-import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
-import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsFeatureCollection;
-import org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverter;
-import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.GenericFeatureConverter;
-import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.DescribeFeatureTypeRequest;
-import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.GetCapabilitiesRequest;
-import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.Wfs10Constants;
-import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.converter.FeatureConverterFactory;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
-import org.osgi.framework.ServiceRegistration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.namespace.QName;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
-import java.io.StringWriter;
-import java.math.BigInteger;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Dictionary;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Provides a Federated and Connected source implementation for OGC WFS servers.
- * 
+ *
  */
 public class WfsSource extends MaskableImpl implements FederatedSource, ConnectedSource {
 
-    private String wfsUrl;
+    public static final int WFS_MAX_FEATURES_RETURNED = 1000;
 
-    private Map<QName, WfsFilterDelegate> featureTypeFilters = new HashMap<QName, WfsFilterDelegate>();
-
-    private String username;
-
-    private String password;
-
-    private Boolean disableCnCheck = Boolean.FALSE;
-
-    private FilterAdapter filterAdapter;
-
-    private RemoteWfs remoteWfs;
-
-    private BundleContext context;
-
-    private Map<String, ServiceRegistration> metacardTypeServiceRegistrations = new HashMap<String, ServiceRegistration>();
+    protected static final int WFS_QUERY_PAGE_SIZE_MULTIPLIER = 3;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WfsSource.class);
 
@@ -156,28 +144,42 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
     private static final String WFS_ERROR_MESSAGE = "Error received from Wfs Server.";
 
-    public static final int WFS_MAX_FEATURES_RETURNED = 1000;
+    private static final String DEFAULT_WFS_TRANSFORMER_ID = "wfs";
 
-    protected static final int WFS_QUERY_PAGE_SIZE_MULTIPLIER = 3;
+    private static final String POLL_INTERVAL_PROPERTY = "pollInterval";
 
     private static Properties describableProperties = new Properties();
 
-    private String[] nonQueryableProperties;
-
-    private List<FeatureConverterFactory> featureConverterFactories;
-
-    private static final String DEFAULT_WFS_TRANSFORMER_ID = "wfs";
-
     static {
-        try (InputStream properties = WfsSource.class.getResourceAsStream(
-                DESCRIBABLE_PROPERTIES_FILE)) {
+        try (InputStream properties = WfsSource.class
+                .getResourceAsStream(DESCRIBABLE_PROPERTIES_FILE)) {
             describableProperties.load(properties);
         } catch (IOException e) {
             LOGGER.info(e.getMessage(), e);
         }
     }
 
-    private static final String POLL_INTERVAL_PROPERTY = "pollInterval";
+    private String wfsUrl;
+
+    private Map<QName, WfsFilterDelegate> featureTypeFilters = new HashMap<QName, WfsFilterDelegate>();
+
+    private String username;
+
+    private String password;
+
+    private Boolean disableCnCheck = Boolean.FALSE;
+
+    private FilterAdapter filterAdapter;
+
+    private RemoteWfs remoteWfs;
+
+    private BundleContext context;
+
+    private Map<String, ServiceRegistration> metacardTypeServiceRegistrations = new HashMap<String, ServiceRegistration>();
+
+    private String[] nonQueryableProperties;
+
+    private List<FeatureConverterFactory> featureConverterFactories;
 
     private Integer pollInterval;
 
@@ -215,11 +217,11 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
     /**
      * Init is called when the bundle is initially configured.
-     * 
+     *
      * <p>
      * The init process creates a RemoteWfs object using the connection parameters from the
      * configuration.
-     * 
+     *
      */
     public void init() {
         setupAvailabilityPoll();
@@ -233,10 +235,10 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
     /**
      * Refresh is called if the bundle configuration is updated.
-     * 
+     *
      * <p>
      * If any of the connection related properties change, an attempt is made to re-connect.
-     * 
+     *
      * @param configuration
      */
     public void refresh(Map<String, Object> configuration) {
@@ -264,11 +266,8 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
         // only attempt to re-connect on a refresh if not connected OR username,
         // password, or the URL changes
-        if (remoteWfs == null
-                || hasWfsUrlChanged(wfsUrl)
-                || hasPasswordChanged(password) 
-                || hasUsernameChanged(username)
-                || hasDisableCnCheck(disableCnCheckProp)) {
+        if (remoteWfs == null || hasWfsUrlChanged(wfsUrl) || hasPasswordChanged(password)
+                || hasUsernameChanged(username) || hasDisableCnCheck(disableCnCheckProp)) {
             this.wfsUrl = wfsUrl;
             this.password = password;
             this.username = username;
@@ -309,7 +308,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
     private boolean hasWfsUrlChanged(String wfsUrl) {
         return !StringUtils.equals(this.wfsUrl, wfsUrl);
     }
-    
+
     private boolean hasPasswordChanged(String password) {
         return !StringUtils.equals(this.password, password);
     }
@@ -317,7 +316,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
     private boolean hasUsernameChanged(String username) {
         return !StringUtils.equals(this.username, username);
     }
-    
+
     private boolean hasDisableCnCheck(Boolean disableCnCheck) {
         return this.disableCnCheck != disableCnCheck;
     }
@@ -340,8 +339,9 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
             // Run the availability check every 1 second. The actually call to
             // the remote server will only occur if the pollInterval has
             // elapsed.
-            availabilityPollFuture = scheduler.scheduleWithFixedDelay(availabilityTask,
-                    AvailabilityTask.NO_DELAY, AvailabilityTask.ONE_SECOND, TimeUnit.SECONDS);
+            availabilityPollFuture = scheduler
+                    .scheduleWithFixedDelay(availabilityTask, AvailabilityTask.NO_DELAY,
+                            AvailabilityTask.ONE_SECOND, TimeUnit.SECONDS);
         }
 
     }
@@ -375,7 +375,8 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
                 LOGGER.debug("Notifying source monitor that WFS source {} is available.", getId());
                 monitor.setAvailable();
             } else {
-                LOGGER.debug("Notifying source monitor that WFS source {} is unavailable.", getId());
+                LOGGER.debug("Notifying source monitor that WFS source {} is unavailable.",
+                        getId());
                 monitor.setUnavailable();
             }
         }
@@ -429,7 +430,8 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         return supportedGeoFilters;
     }
 
-    private void buildFeatureFilters(List<FeatureTypeType> featureTypes, List<String> supportedGeo) {
+    private void buildFeatureFilters(List<FeatureTypeType> featureTypes,
+            List<String> supportedGeo) {
 
         // Use local Map for metacardtype registrations and once they are populated with latest
         // MetacardTypes, then do actual registration
@@ -447,14 +449,14 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
             LOGGER.debug("ftName: {}", ftName);
             try {
-                XmlSchema schema = remoteWfs.describeFeatureType(new DescribeFeatureTypeRequest(
-                        featureTypeType.getName()));
+                XmlSchema schema = remoteWfs.describeFeatureType(
+                        new DescribeFeatureTypeRequest(featureTypeType.getName()));
 
                 if ((schema != null)) {
                     FeatureMetacardType ftMetacard = new FeatureMetacardType(schema,
-                            featureTypeType.getName(),
-                            nonQueryableProperties != null ? Arrays.asList(nonQueryableProperties)
-                                    : new ArrayList<String>(), Wfs10Constants.GML_NAMESPACE);
+                            featureTypeType.getName(), nonQueryableProperties != null ?
+                            Arrays.asList(nonQueryableProperties) :
+                            new ArrayList<String>(), Wfs10Constants.GML_NAMESPACE);
 
                     Dictionary<String, Object> props = new Hashtable<String, Object>();
                     props.put(Metacard.CONTENT_TYPE, new String[] {ftName});
@@ -474,7 +476,8 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
                                 featureConverter = factory.createConverter();
                                 LOGGER.debug(
                                         "WFS Source {}: Features of type: {} will be converted using {}",
-                                        getId(), ftName, featureConverter.getClass().getSimpleName());
+                                        getId(), ftName,
+                                        featureConverter.getClass().getSimpleName());
                                 break;
                             }
 
@@ -525,11 +528,12 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
             for (String ftName : mcTypeRegs.keySet()) {
                 MetacardTypeRegistration mcTypeReg = mcTypeRegs.get(ftName);
                 FeatureMetacardType ftMetacard = mcTypeReg.getFtMetacard();
-                ServiceRegistration serviceRegistration = context.registerService(
-                        MetacardType.class.getName(), ftMetacard, mcTypeReg.getProps());
+                ServiceRegistration serviceRegistration = context
+                        .registerService(MetacardType.class.getName(), ftMetacard,
+                                mcTypeReg.getProps());
                 this.metacardTypeServiceRegistrations.put(ftName, serviceRegistration);
-                this.featureTypeFilters.put(ftMetacard.getFeatureType(), new WfsFilterDelegate(
-                        ftMetacard, supportedGeo, mcTypeReg.getSrs()));
+                this.featureTypeFilters.put(ftMetacard.getFeatureType(),
+                        new WfsFilterDelegate(ftMetacard, supportedGeo, mcTypeReg.getSrs()));
             }
         }
 
@@ -622,15 +626,16 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
             // Only return the number of results originally asked for in the
             // query, or the entire list of results if it is smaller than the
             // original page size.
-            int numberOfResultsToReturn = Math.min(origPageSize, featureCollection
-                    .getFeatureMembers().size());
+            int numberOfResultsToReturn = Math
+                    .min(origPageSize, featureCollection.getFeatureMembers().size());
             List<Result> results = new ArrayList<Result>(numberOfResultsToReturn);
 
             int stopIndex = Math.min((origPageSize * pageNumber) + query.getStartIndex(),
                     featureCollection.getFeatureMembers().size() + 1);
 
-            LOGGER.debug("WFS Source {}: startIndex = {}, stopIndex = {}, origPageSize = {}, pageNumber = {}"
-                    , getId(), query.getStartIndex(), stopIndex, origPageSize, pageNumber);
+            LOGGER.debug(
+                    "WFS Source {}: startIndex = {}, stopIndex = {}, origPageSize = {}, pageNumber = {}",
+                    getId(), query.getStartIndex(), stopIndex, origPageSize, pageNumber);
 
             for (int i = query.getStartIndex(); i < stopIndex; i++) {
                 Metacard mc = featureCollection.getFeatureMembers().get(i - 1);
@@ -657,9 +662,8 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         List<QueryType> queries = new ArrayList<QueryType>();
 
         for (Entry<QName, WfsFilterDelegate> filterDelegateEntry : featureTypeFilters.entrySet()) {
-            if (contentTypes.isEmpty()
-                    || isFeatureTypeInQuery(contentTypes, filterDelegateEntry.getKey()
-                            .getLocalPart())) {
+            if (contentTypes.isEmpty() || isFeatureTypeInQuery(contentTypes,
+                    filterDelegateEntry.getKey().getLocalPart())) {
                 QueryType wfsQuery = new QueryType();
                 wfsQuery.setTypeName(filterDelegateEntry.getKey());
                 FilterType filter = filterAdapter.adapt(query, filterDelegateEntry.getValue());
@@ -691,8 +695,8 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
     private boolean areAnyFiltersSet(FilterType filter) {
         if (filter != null) {
-            return (filter.isSetComparisonOps() || filter.isSetFeatureId()
-                    || filter.isSetLogicOps() || filter.isSetSpatialOps());
+            return (filter.isSetComparisonOps() || filter.isSetFeatureId() || filter.isSetLogicOps()
+                    || filter.isSetSpatialOps());
         } else {
             return false;
         }
@@ -716,8 +720,8 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
         ServiceReference[] refs = null;
         try {
-            refs = context.getServiceReferences(MetadataTransformer.class.getName(), "("
-                    + Constants.SERVICE_ID + "=" + transformerId + ")");
+            refs = context.getServiceReferences(MetadataTransformer.class.getName(),
+                    "(" + Constants.SERVICE_ID + "=" + transformerId + ")");
         } catch (InvalidSyntaxException e) {
             LOGGER.warn("Invalid transformer ID. Returning original metacard.", e);
             return mc;
@@ -815,8 +819,8 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
     }
 
     @Override
-    public ResourceResponse retrieveResource(URI uri, Map<String, Serializable> arguments)
-        throws IOException, ResourceNotFoundException, ResourceNotSupportedException {
+    public ResourceResponse retrieveResource(URI uri, Map<String, Serializable> arguments) throws
+            IOException, ResourceNotFoundException, ResourceNotSupportedException {
         StringBuilder strBuilder = new StringBuilder();
         strBuilder.append("<html><script type=\"text/javascript\">window.location.replace(\"");
         strBuilder.append(uri);
@@ -840,12 +844,12 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         return null;
     }
 
-    public void setWfsUrl(String wfsUrl) {
-        this.wfsUrl = wfsUrl;
-    }
-
     public String getWfsUrl() {
         return wfsUrl;
+    }
+
+    public void setWfsUrl(String wfsUrl) {
+        this.wfsUrl = wfsUrl;
     }
 
     public void setUsername(String username) {
@@ -889,10 +893,11 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
     }
 
     public void setNonQueryableProperties(String[] newNonQueryableProperties) {
-        if(newNonQueryableProperties == null) {
+        if (newNonQueryableProperties == null) {
             this.nonQueryableProperties = new String[0];
         } else {
-            this.nonQueryableProperties = Arrays.copyOf(newNonQueryableProperties, newNonQueryableProperties.length);
+            this.nonQueryableProperties = Arrays
+                    .copyOf(newNonQueryableProperties, newNonQueryableProperties.length);
         }
     }
 
@@ -934,10 +939,10 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
             try {
                 StringWriter writer = new StringWriter();
                 JAXBContext contextObj = JAXBContext.newInstance(GetFeatureType.class);
-    
+
                 Marshaller marshallerObj = contextObj.createMarshaller();
                 marshallerObj.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-    
+
                 marshallerObj.marshal(new ObjectFactory().createGetFeature(getFeature), writer);
                 LOGGER.debug("WfsSource {}: {}", getId(), writer.toString());
             } catch (JAXBException e) {
@@ -953,15 +958,15 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
                 sb.append("\nid:\t" + result.getMetacard().getId());
                 sb.append("\nmetacardType:\t" + result.getMetacard().getMetacardType());
                 if (result.getMetacard().getMetacardType() != null) {
-                    sb.append("\nmetacardType name:\t"
-                            + result.getMetacard().getMetacardType().getName());
+                    sb.append("\nmetacardType name:\t" + result.getMetacard().getMetacardType()
+                            .getName());
                 }
                 sb.append("\ncontentType:\t" + result.getMetacard().getContentTypeName());
                 sb.append("\ntitle:\t" + result.getMetacard().getTitle());
                 sb.append("\nsource:\t" + result.getMetacard().getSourceId());
                 sb.append("\nmetadata:\t" + result.getMetacard().getMetadata());
                 sb.append("\nlocation:\t" + result.getMetacard().getLocation());
-    
+
                 LOGGER.debug("Transform complete. Metacard: {}", sb.toString());
             }
         }
@@ -1002,13 +1007,13 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
     /**
      * Callback class to check the Availability of the WfsSource.
-     * 
+     *
      * NOTE: Ideally, the framework would call isAvailable on the Source and the SourcePoller would
      * have an AvailabilityTask that cached each Source's availability. Until that is done, allow
      * the command to handle the logic of managing availability.
-     * 
+     *
      * @author kcwire
-     * 
+     *
      */
     private class WfsSourceAvailabilityCommand implements AvailabilityCommand {
 

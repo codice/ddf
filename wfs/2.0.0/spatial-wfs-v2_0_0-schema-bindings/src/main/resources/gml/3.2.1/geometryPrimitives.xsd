@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema targetNamespace="http://www.opengis.net/gml/3.2" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:xlink="http://www.w3.org/1999/xlink" elementFormDefault="qualified" version="3.2.1.2">
+<schema xmlns:gml="http://www.opengis.net/gml/3.2" targetNamespace="http://www.opengis.net/gml/3.2"
+		xmlns="http://www.w3.org/2001/XMLSchema"
+		elementFormDefault="qualified" version="3.2.1.2">
 	<annotation>
 		<appinfo source="urn:x-ogc:specification:gml:schema-xsd:geometryPrimitives:3.2.1">geometryPrimitives.xsd</appinfo>
 		<documentation>See ISO/DIS 19136 Clause 11.
@@ -44,7 +46,8 @@ The element segments encapsulates the segments of the curve.</documentation>
 			<documentation>The property baseCurve references or contains the base curve, i.e. it either references the base curve via the XLink-attributes or contains the curve element. A curve element is any element which is substitutable for AbstractCurve. The base curve has positive orientation.</documentation>
 		</annotation>
 	</element>
-	<element name="OrientableCurve" type="gml:OrientableCurveType" substitutionGroup="gml:AbstractCurve">
+	<element name="OrientableCurve" type="gml:OrientableCurveType"
+             substitutionGroup="gml:AbstractCurve">
 		<annotation>
 			<documentation>OrientableCurve consists of a curve and an orientation. If the orientation is "+", then the OrientableCurve is identical to the baseCurve. If the orientation is "-", then the OrientableCurve is related to another AbstractCurve with a parameterization that reverses the sense of the curve traversal.</documentation>
 		</annotation>
@@ -54,7 +57,8 @@ The element segments encapsulates the segments of the curve.</documentation>
 		<attribute name="numDerivativesAtEnd" type="integer" default="0"/>
 		<attribute name="numDerivativeInterior" type="integer" default="0"/>
 	</complexType>
-	<element name="AbstractCurveSegment" type="gml:AbstractCurveSegmentType" abstract="true" substitutionGroup="gml:AbstractObject">
+	<element name="AbstractCurveSegment" type="gml:AbstractCurveSegmentType" abstract="true"
+             substitutionGroup="gml:AbstractObject">
 		<annotation>
 			<documentation>A curve segment defines a homogeneous segment of a curve.
 The attributes numDerivativesAtStart, numDerivativesAtEnd and numDerivativesInterior specify the type of continuity as specified in ISO 19107:2003, 6.4.9.3.
@@ -111,7 +115,8 @@ All curve segments shall have an attribute interpolation with type gml:CurveInte
 			</extension>
 		</complexContent>
 	</complexType>
-	<element name="LineStringSegment" type="gml:LineStringSegmentType" substitutionGroup="gml:AbstractCurveSegment">
+	<element name="LineStringSegment" type="gml:LineStringSegmentType"
+             substitutionGroup="gml:AbstractCurveSegment">
 		<annotation>
 			<documentation>A LineStringSegment is a curve segment that is defined by two or more control points including the start and end point, with linear interpolation between them.
 The content model follows the general pattern for the encoding of curve segments.</documentation>
@@ -131,7 +136,8 @@ The content model follows the general pattern for the encoding of curve segments
 						<element ref="gml:coordinates"/>
 					</choice>
 				</sequence>
-				<attribute name="interpolation" type="gml:CurveInterpolationType" fixed="circularArc3Points"/>
+				<attribute name="interpolation" type="gml:CurveInterpolationType"
+                           fixed="circularArc3Points"/>
 				<attribute name="numArc" type="integer"/>
 			</extension>
 		</complexContent>
@@ -191,12 +197,14 @@ The content model follows the general pattern for the encoding of curve segments
 					<element name="bulge" type="double" maxOccurs="unbounded"/>
 					<element name="normal" type="gml:VectorType" maxOccurs="unbounded"/>
 				</sequence>
-				<attribute name="interpolation" type="gml:CurveInterpolationType" fixed="circularArc2PointWithBulge"/>
+				<attribute name="interpolation" type="gml:CurveInterpolationType"
+                           fixed="circularArc2PointWithBulge"/>
 				<attribute name="numArc" type="integer"/>
 			</extension>
 		</complexContent>
 	</complexType>
-	<element name="ArcStringByBulge" type="gml:ArcStringByBulgeType" substitutionGroup="gml:AbstractCurveSegment">
+	<element name="ArcStringByBulge" type="gml:ArcStringByBulgeType"
+             substitutionGroup="gml:AbstractCurveSegment">
 		<annotation>
 			<documentation>This variant of the arc computes the mid points of the arcs instead of storing the coordinates directly. The control point sequence consists of the start and end points of each arc plus the bulge (see ISO 19107:2003, 6.4.17.2). The normal is a vector normal (perpendicular) to the chord of the arc (see ISO 19107:2003, 6.4.17.4).
 The interpolation is fixed as "circularArc2PointWithBulge".
@@ -247,12 +255,14 @@ As arc is an arc string consisting of a single arc, the attribute "numArc" is fi
 					<element name="startAngle" type="gml:AngleType" minOccurs="0"/>
 					<element name="endAngle" type="gml:AngleType" minOccurs="0"/>
 				</sequence>
-				<attribute name="interpolation" type="gml:CurveInterpolationType" fixed="circularArcCenterPointWithRadius"/>
+				<attribute name="interpolation" type="gml:CurveInterpolationType"
+                           fixed="circularArcCenterPointWithRadius"/>
 				<attribute name="numArc" type="integer" use="required" fixed="1"/>
 			</extension>
 		</complexContent>
 	</complexType>
-	<element name="ArcByCenterPoint" type="gml:ArcByCenterPointType" substitutionGroup="gml:AbstractCurveSegment">
+	<element name="ArcByCenterPoint" type="gml:ArcByCenterPointType"
+             substitutionGroup="gml:AbstractCurveSegment">
 		<annotation>
 			<documentation>This variant of the arc requires that the points on the arc shall be computed instead of storing the coordinates directly. The single control point is the center point of the arc plus the radius and the bearing at start and end. This representation can be used only in 2D.
 The element radius specifies the radius of the arc.
@@ -281,7 +291,8 @@ The content model follows the general pattern for the encoding of curve segments
 			</restriction>
 		</complexContent>
 	</complexType>
-	<element name="CircleByCenterPoint" type="gml:CircleByCenterPointType" substitutionGroup="gml:ArcByCenterPoint">
+	<element name="CircleByCenterPoint" type="gml:CircleByCenterPointType"
+             substitutionGroup="gml:ArcByCenterPoint">
 		<annotation>
 			<documentation>A gml:CircleByCenterPoint is an gml:ArcByCenterPoint with identical start and end angle to form a full circle. Again, this representation can be used only in 2D.</documentation>
 		</annotation>
@@ -302,12 +313,14 @@ The content model follows the general pattern for the encoding of curve segments
 					<element name="vectorAtStart" type="gml:VectorType"/>
 					<element name="vectorAtEnd" type="gml:VectorType"/>
 				</sequence>
-				<attribute name="interpolation" type="gml:CurveInterpolationType" fixed="cubicSpline"/>
+				<attribute name="interpolation" type="gml:CurveInterpolationType"
+                           fixed="cubicSpline"/>
 				<attribute name="degree" type="integer" fixed="3"/>
 			</extension>
 		</complexContent>
 	</complexType>
-	<element name="CubicSpline" type="gml:CubicSplineType" substitutionGroup="gml:AbstractCurveSegment">
+	<element name="CubicSpline" type="gml:CubicSplineType"
+             substitutionGroup="gml:AbstractCurveSegment">
 		<annotation>
 			<documentation>The number of control points shall be at least three.
 vectorAtStart is the unit tangent vector at the start point of the spline. vectorAtEnd is the unit tangent vector at the end point of the spline. Only the direction of the vectors shall be used to determine the shape of the cubic spline, not their length.
@@ -330,9 +343,11 @@ The content model follows the general pattern for the encoding of curve segments
 						<element ref="gml:coordinates"/>
 					</choice>
 					<element name="degree" type="nonNegativeInteger"/>
-					<element name="knot" type="gml:KnotPropertyType" minOccurs="2" maxOccurs="unbounded"/>
+					<element name="knot" type="gml:KnotPropertyType" minOccurs="2"
+                             maxOccurs="unbounded"/>
 				</sequence>
-				<attribute name="interpolation" type="gml:CurveInterpolationType" default="polynomialSpline"/>
+				<attribute name="interpolation" type="gml:CurveInterpolationType"
+                           default="polynomialSpline"/>
 				<attribute name="isPolynomial" type="boolean"/>
 				<attribute name="knotType" type="gml:KnotTypesType"/>
 			</extension>
@@ -396,7 +411,8 @@ weight is the value of the averaging weight used for this knot of the spline.</d
 					<element name="degree" type="nonNegativeInteger"/>
 					<element name="knot" type="gml:KnotPropertyType" minOccurs="2" maxOccurs="2"/>
 				</sequence>
-				<attribute name="interpolation" type="gml:CurveInterpolationType" fixed="polynomialSpline"/>
+				<attribute name="interpolation" type="gml:CurveInterpolationType"
+                           fixed="polynomialSpline"/>
 				<attribute name="isPolynomial" type="boolean" fixed="true"/>
 				<attribute name="knotType" type="gml:KnotTypesType" use="prohibited"/>
 			</restriction>
@@ -424,7 +440,8 @@ knotType is not relevant for Bezier curve segments.
 			</extension>
 		</complexContent>
 	</complexType>
-	<element name="OffsetCurve" type="gml:OffsetCurveType" substitutionGroup="gml:AbstractCurveSegment">
+	<element name="OffsetCurve" type="gml:OffsetCurveType"
+             substitutionGroup="gml:AbstractCurveSegment">
 		<annotation>
 			<documentation>An offset curve is a curve at a constant distance from the basis curve. offsetBase is the base curve from which this curve is defined as an offset. distance and refDirection have the same meaning as specified in ISO 19107:2003, 6.4.23.
 The content model follows the general pattern for the encoding of curve segments.</documentation>
@@ -438,7 +455,8 @@ The content model follows the general pattern for the encoding of curve segments
 			<element name="outDimension" type="positiveInteger"/>
 		</sequence>
 	</complexType>
-	<element name="AffinePlacement" type="gml:AffinePlacementType" substitutionGroup="gml:AbstractObject">
+	<element name="AffinePlacement" type="gml:AffinePlacementType"
+             substitutionGroup="gml:AbstractObject">
 		<annotation>
 			<documentation>location, refDirection, inDimension and outDimension have the same meaning as specified in ISO 19107:2003, 6.4.21.</documentation>
 		</annotation>
@@ -481,7 +499,8 @@ The content model follows the general pattern for the encoding of curve segments
 			</extension>
 		</complexContent>
 	</complexType>
-	<element name="GeodesicString" type="gml:GeodesicStringType" substitutionGroup="gml:AbstractCurveSegment">
+	<element name="GeodesicString" type="gml:GeodesicStringType"
+             substitutionGroup="gml:AbstractCurveSegment">
 		<annotation>
 			<documentation>A sequence of geodesic segments. 
 The number of control points shall be at least two.
@@ -525,7 +544,8 @@ patches encapsulates the patches of the surface.</documentation>
 			<documentation>The property baseSurface references or contains the base surface. The property baseSurface either references the base surface via the XLink-attributes or contains the surface element. A surface element is any element which is substitutable for gml:AbstractSurface. The base surface has positive orientation.</documentation>
 		</annotation>
 	</element>
-	<element name="OrientableSurface" type="gml:OrientableSurfaceType" substitutionGroup="gml:AbstractSurface">
+	<element name="OrientableSurface" type="gml:OrientableSurfaceType"
+             substitutionGroup="gml:AbstractSurface">
 		<annotation>
 			<documentation>OrientableSurface consists of a surface and an orientation. If the orientation is "+", then the OrientableSurface is identical to the baseSurface. If the orientation is "-", then the OrientableSurface is a reference to a gml:AbstractSurface with an up-normal that reverses the direction for this OrientableSurface, the sense of "the top of the surface".</documentation>
 		</annotation>
@@ -579,7 +599,8 @@ All surface patches shall have an attribute interpolation (declared in the types
 			</extension>
 		</complexContent>
 	</complexType>
-	<element name="PolygonPatch" type="gml:PolygonPatchType" substitutionGroup="gml:AbstractSurfacePatch">
+	<element name="PolygonPatch" type="gml:PolygonPatchType"
+             substitutionGroup="gml:AbstractSurfacePatch">
 		<annotation>
 			<documentation>A gml:PolygonPatch is a surface patch that is defined by a set of boundary curves and an underlying surface to which these curves adhere. The curves shall be coplanar and the polygon uses planar interpolation in its interior. 
 interpolation is fixed to "planar", i.e. an interpolation shall return points on a single plane. The boundary of the patch shall be contained within that plane.</documentation>
@@ -670,7 +691,8 @@ If provided, the aggregationType attribute shall have the value "sequence".</doc
 			</extension>
 		</complexContent>
 	</complexType>
-	<element name="AbstractParametricCurveSurface" type="gml:AbstractParametricCurveSurfaceType" abstract="true" substitutionGroup="gml:AbstractSurfacePatch">
+	<element name="AbstractParametricCurveSurface" type="gml:AbstractParametricCurveSurfaceType"
+             abstract="true" substitutionGroup="gml:AbstractSurfacePatch">
 		<annotation>
 			<documentation>The element provides a substitution group head for the surface patches based on parametric curves. All properties are specified in the derived subtypes. All derived subtypes shall conform to the constraints specified in ISO 19107:2003, 6.4.40.
 If provided, the aggregationType attribute shall have the value "set".</documentation>
@@ -687,7 +709,8 @@ If provided, the aggregationType attribute shall have the value "set".</document
 			</extension>
 		</complexContent>
 	</complexType>
-	<element name="AbstractGriddedSurface" type="gml:AbstractGriddedSurfaceType" abstract="true" substitutionGroup="gml:AbstractParametricCurveSurface">
+	<element name="AbstractGriddedSurface" type="gml:AbstractGriddedSurfaceType" abstract="true"
+             substitutionGroup="gml:AbstractParametricCurveSurface">
 		<annotation>
 			<documentation>if provided, rows gives the number of rows, columns the number of columns in the parameter grid. The parameter grid is represented by an instance of the gml:PointGrid group.
 The element provides a substitution group head for the surface patches based on a grid. All derived subtypes shall conform to the constraints specified in ISO 19107:2003, 6.4.41.</documentation>
@@ -696,8 +719,10 @@ The element provides a substitution group head for the surface patches based on 
 	<complexType name="ConeType">
 		<complexContent>
 			<extension base="gml:AbstractGriddedSurfaceType">
-				<attribute name="horizontalCurveType" type="gml:CurveInterpolationType" fixed="circularArc3Points"/>
-				<attribute name="verticalCurveType" type="gml:CurveInterpolationType" fixed="linear"/>
+				<attribute name="horizontalCurveType" type="gml:CurveInterpolationType"
+                           fixed="circularArc3Points"/>
+				<attribute name="verticalCurveType" type="gml:CurveInterpolationType"
+                           fixed="linear"/>
 			</extension>
 		</complexContent>
 	</complexType>
@@ -705,17 +730,22 @@ The element provides a substitution group head for the surface patches based on 
 	<complexType name="CylinderType">
 		<complexContent>
 			<extension base="gml:AbstractGriddedSurfaceType">
-				<attribute name="horizontalCurveType" type="gml:CurveInterpolationType" fixed="circularArc3Points"/>
-				<attribute name="verticalCurveType" type="gml:CurveInterpolationType" fixed="linear"/>
+				<attribute name="horizontalCurveType" type="gml:CurveInterpolationType"
+                           fixed="circularArc3Points"/>
+				<attribute name="verticalCurveType" type="gml:CurveInterpolationType"
+                           fixed="linear"/>
 			</extension>
 		</complexContent>
 	</complexType>
-	<element name="Cylinder" type="gml:CylinderType" substitutionGroup="gml:AbstractGriddedSurface"/>
+	<element name="Cylinder" type="gml:CylinderType"
+             substitutionGroup="gml:AbstractGriddedSurface"/>
 	<complexType name="SphereType">
 		<complexContent>
 			<extension base="gml:AbstractGriddedSurfaceType">
-				<attribute name="horizontalCurveType" type="gml:CurveInterpolationType" fixed="circularArc3Points"/>
-				<attribute name="verticalCurveType" type="gml:CurveInterpolationType" fixed="circularArc3Points"/>
+				<attribute name="horizontalCurveType" type="gml:CurveInterpolationType"
+                           fixed="circularArc3Points"/>
+				<attribute name="verticalCurveType" type="gml:CurveInterpolationType"
+                           fixed="circularArc3Points"/>
 			</extension>
 		</complexContent>
 	</complexType>
@@ -736,14 +766,17 @@ trianglePatches encapsulates the triangles of the triangulated surface.</documen
 		<complexContent>
 			<extension base="gml:SurfaceType">
 				<sequence>
-					<element name="stopLines" type="gml:LineStringSegmentArrayPropertyType" minOccurs="0" maxOccurs="unbounded"/>
-					<element name="breakLines" type="gml:LineStringSegmentArrayPropertyType" minOccurs="0" maxOccurs="unbounded"/>
+					<element name="stopLines" type="gml:LineStringSegmentArrayPropertyType"
+                             minOccurs="0" maxOccurs="unbounded"/>
+					<element name="breakLines" type="gml:LineStringSegmentArrayPropertyType"
+                             minOccurs="0" maxOccurs="unbounded"/>
 					<element name="maxLength" type="gml:LengthType"/>
 					<element name="controlPoint">
 						<complexType>
 							<choice>
 								<element ref="gml:posList"/>
-								<group ref="gml:geometricPositionGroup" minOccurs="3" maxOccurs="unbounded"/>
+								<group ref="gml:geometricPositionGroup" minOccurs="3"
+                                       maxOccurs="unbounded"/>
 							</choice>
 						</complexType>
 					</element>
@@ -772,7 +805,8 @@ trianglePatches encapsulates the triangles of the triangulated surface.</documen
 			<extension base="gml:AbstractGeometricPrimitiveType"/>
 		</complexContent>
 	</complexType>
-	<element name="AbstractSolid" type="gml:AbstractSolidType" abstract="true" substitutionGroup="gml:AbstractGeometricPrimitive">
+	<element name="AbstractSolid" type="gml:AbstractSolidType" abstract="true"
+             substitutionGroup="gml:AbstractGeometricPrimitive">
 		<annotation>
 			<documentation>The AbstractSolid element is the abstract head of the substituition group for all (continuous) solid elements.</documentation>
 		</annotation>
@@ -806,7 +840,8 @@ trianglePatches encapsulates the triangles of the triangulated surface.</documen
 			<extension base="gml:AbstractSolidType">
 				<sequence>
 					<element name="exterior" type="gml:ShellPropertyType" minOccurs="0"/>
-					<element name="interior" type="gml:ShellPropertyType" minOccurs="0" maxOccurs="unbounded"/>
+					<element name="interior" type="gml:ShellPropertyType" minOccurs="0"
+                             maxOccurs="unbounded"/>
 				</sequence>
 			</extension>
 		</complexContent>

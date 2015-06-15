@@ -14,7 +14,65 @@
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.source;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.math.BigInteger;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Dictionary;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.namespace.QName;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.cxf.common.util.CollectionUtils;
+import org.codice.ddf.spatial.ogc.catalog.MetadataTransformer;
+import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityCommand;
+import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
+import org.codice.ddf.spatial.ogc.catalog.common.TrustedRemoteSource;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
+import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswTransformProvider;
+import org.opengis.filter.Filter;
+import org.opengis.filter.sort.SortOrder;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
+import org.osgi.framework.ServiceRegistration;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.thoughtworks.xstream.converters.Converter;
+
 import ddf.catalog.Constants;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
@@ -24,7 +82,6 @@ import ddf.catalog.data.impl.ContentTypeImpl;
 import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
-import ddf.catalog.filter.FilterDelegate;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.ResourceResponse;
@@ -67,62 +124,6 @@ import net.opengis.filter.v_1_1_0.SpatialOperatorsType;
 import net.opengis.ows.v_1_0_0.DomainType;
 import net.opengis.ows.v_1_0_0.Operation;
 import net.opengis.ows.v_1_0_0.OperationsMetadata;
-import org.apache.commons.lang.StringUtils;
-import org.apache.cxf.common.util.CollectionUtils;
-import org.codice.ddf.spatial.ogc.catalog.MetadataTransformer;
-import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityCommand;
-import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
-import org.codice.ddf.spatial.ogc.catalog.common.TrustedRemoteSource;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.Csw;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
-import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswTransformProvider;
-import org.opengis.filter.Filter;
-import org.opengis.filter.sort.SortOrder;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
-import org.osgi.framework.ServiceRegistration;
-import org.osgi.service.cm.Configuration;
-import org.osgi.service.cm.ConfigurationAdmin;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.namespace.QName;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.math.BigInteger;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Dictionary;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 
 /**
  * CswSource provides a DDF {@link FederatedSource} and {@link ConnectedSource} for CSW 2.0.2
@@ -130,70 +131,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class CswSource extends MaskableImpl implements FederatedSource, ConnectedSource {
 
-    private FilterBuilder filterBuilder;
-
-    protected CswSourceConfiguration cswSourceConfiguration;
-
-    private FilterAdapter filterAdapter;
-
-    protected CswFilterDelegate cswFilterDelegate;
-
-    private Set<SourceMonitor> sourceMonitors = new HashSet<SourceMonitor>();
-
-    private Map<String, ContentType> contentTypes;
-
-    private List<ResourceReader> resourceReaders;
-
-    private DomainType supportedOutputSchemas;
-
-    private Set<ElementSetType> detailLevels;
-
-    protected RemoteCsw remoteCsw;
-
-    private BundleContext context;
-
-    private String description = null;
-
-    private CapabilitiesType capabilities;
-
-    private List<ServiceRegistration<?>> registeredMetacardTypes = new ArrayList<ServiceRegistration<?>>();
-
-    private String cswVersion;
-
-    protected boolean contentTypeMappingUpdated;
-
-    protected Converter cswTransformProvider;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(CswSource.class);
-
-    private static final String DEFAULT_CSW_TRANSFORMER_ID = "csw";
-
     protected static final String CSW_SERVER_ERROR = "Error received from CSW server.";
-
-    private static final String DESCRIBABLE_PROPERTIES_FILE = "/describable.properties";
-
-    private static final String DESCRIPTION = "description";
-
-    private static final String ORGANIZATION = "organization";
-
-    private static final String VERSION = "version";
-
-    private static final String TITLE = "name";
-
-    private static final int CONTENT_TYPE_SAMPLE_SIZE = 50;
-
-    private static Properties describableProperties = new Properties();
-
-    private static final JAXBContext JAXB_CONTEXT = initJaxbContext();
-
-    static {
-        try (InputStream properties = CswSource.class.getResourceAsStream(
-                DESCRIBABLE_PROPERTIES_FILE)) {
-            describableProperties.load(properties);
-        } catch (IOException e) {
-            LOGGER.info("Failed to load properties", e);
-        }
-    }
 
     protected static final String CSWURL_PROPERTY = "cswUrl";
 
@@ -214,8 +152,6 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
     protected static final String CONTENT_TYPE_MAPPING_PROPERTY = "contentTypeMapping";
 
     protected static final String IS_LON_LAT_ORDER_PROPERTY = "isLonLatOrder";
-    
-    private static final String USE_POS_LIST_PROPERTY = "usePosList";
 
     protected static final String POLL_INTERVAL_PROPERTY = "pollInterval";
 
@@ -229,26 +165,91 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
 
     protected static final String RECEIVE_TIMEOUT_PROPERTY = "receiveTimeout";
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(CswSource.class);
+
+    private static final String DEFAULT_CSW_TRANSFORMER_ID = "csw";
+
+    private static final String DESCRIBABLE_PROPERTIES_FILE = "/describable.properties";
+
+    private static final String DESCRIPTION = "description";
+
+    private static final String ORGANIZATION = "organization";
+
+    private static final String VERSION = "version";
+
+    private static final String TITLE = "name";
+
+    private static final int CONTENT_TYPE_SAMPLE_SIZE = 50;
+
+    private static final JAXBContext JAXB_CONTEXT = initJaxbContext();
+
+    private static final String USE_POS_LIST_PROPERTY = "usePosList";
+
+    private static Properties describableProperties = new Properties();
+
+    static {
+        try (InputStream properties = CswSource.class
+                .getResourceAsStream(DESCRIBABLE_PROPERTIES_FILE)) {
+            describableProperties.load(properties);
+        } catch (IOException e) {
+            LOGGER.info("Failed to load properties", e);
+        }
+    }
+
+    protected CswSourceConfiguration cswSourceConfiguration;
+
+    protected CswFilterDelegate cswFilterDelegate;
+
+    protected RemoteCsw remoteCsw;
+
+    protected boolean contentTypeMappingUpdated;
+
+    protected Converter cswTransformProvider;
+
     protected String forceSpatialFilter = NO_FORCE_SPATIAL_FILTER;
 
-    private SpatialCapabilitiesType spatialCapabilities;
-
-    private ScheduledExecutorService scheduler;
-
     protected ScheduledFuture<?> availabilityPollFuture;
-
-    private AvailabilityTask availabilityTask;
-
-    private boolean isConstraintCql;
 
     protected SecuritySettingsService securitySettingsService;
 
     protected SecurityManager securityManager;
 
+    private FilterBuilder filterBuilder;
+
+    private FilterAdapter filterAdapter;
+
+    private Set<SourceMonitor> sourceMonitors = new HashSet<SourceMonitor>();
+
+    private Map<String, ContentType> contentTypes;
+
+    private List<ResourceReader> resourceReaders;
+
+    private DomainType supportedOutputSchemas;
+
+    private Set<ElementSetType> detailLevels;
+
+    private BundleContext context;
+
+    private String description = null;
+
+    private CapabilitiesType capabilities;
+
+    private List<ServiceRegistration<?>> registeredMetacardTypes = new ArrayList<ServiceRegistration<?>>();
+
+    private String cswVersion;
+
+    private SpatialCapabilitiesType spatialCapabilities;
+
+    private ScheduledExecutorService scheduler;
+
+    private AvailabilityTask availabilityTask;
+
+    private boolean isConstraintCql;
+
     /**
      * Instantiates a CswSource. This constructor is for unit tests
      *
-     * @param remoteCsw The JAXRS connection to a {@link Csw}
+     * @param remoteCsw The JAXRS connection to a {@link org.codice.ddf.spatial.ogc.csw.catalog.common.Csw}
      * @param context   The {@link BundleContext} from the OSGi Framework
      */
     public CswSource(RemoteCsw remoteCsw, BundleContext context,
@@ -266,6 +267,23 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
     public CswSource() {
         cswSourceConfiguration = new CswSourceConfiguration();
         scheduler = Executors.newSingleThreadScheduledExecutor();
+    }
+
+    private static JAXBContext initJaxbContext() {
+
+        JAXBContext jaxbContext = null;
+
+        String contextPath = StringUtils
+                .join(new String[] {CswConstants.OGC_CSW_PACKAGE, CswConstants.OGC_FILTER_PACKAGE,
+                        CswConstants.OGC_GML_PACKAGE, CswConstants.OGC_OWS_PACKAGE}, ":");
+
+        try {
+            jaxbContext = JAXBContext.newInstance(contextPath, CswSource.class.getClassLoader());
+        } catch (JAXBException e) {
+            LOGGER.error("Failed to initialize JAXBContext", e);
+        }
+
+        return jaxbContext;
     }
 
     /**
@@ -300,8 +318,8 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         LOGGER.debug("{}: Entering refresh()", cswSourceConfiguration.getId());
 
         if (configuration == null || configuration.isEmpty()) {
-            LOGGER.error("Recieved null or empty configuration during refresh for {}: {}", this.getClass()
-                    .getSimpleName(), cswSourceConfiguration.getId());
+            LOGGER.error("Recieved null or empty configuration during refresh for {}: {}",
+                    this.getClass().getSimpleName(), cswSourceConfiguration.getId());
             return;
         }
 
@@ -377,7 +395,6 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         }
         forceSpatialFilter = spatialFilter;
 
-
         String[] contentTypeNames = (String[]) configuration.get(CONTENTTYPES_PROPERTY);
         if (contentTypeNames != null) {
             setContentTypeNames(Arrays.asList(contentTypeNames));
@@ -427,8 +444,8 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
 
         Integer newPollInterval = (Integer) configuration.get(POLL_INTERVAL_PROPERTY);
 
-        if (newPollInterval != null
-                && !newPollInterval.equals(cswSourceConfiguration.getPollIntervalMinutes())) {
+        if (newPollInterval != null && !newPollInterval
+                .equals(cswSourceConfiguration.getPollIntervalMinutes())) {
             LOGGER.debug("Poll Interval was changed for source {}.",
                     cswSourceConfiguration.getId());
             cswSourceConfiguration.setPollIntervalMinutes(newPollInterval);
@@ -457,8 +474,9 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
             // Schedule the availability check every 1 second. The actually call to
             // the remote server will only occur if the pollInterval has
             // elapsed.
-            availabilityPollFuture = scheduler.scheduleWithFixedDelay(availabilityTask,
-                    AvailabilityTask.NO_DELAY, AvailabilityTask.ONE_SECOND, TimeUnit.SECONDS);
+            availabilityPollFuture = scheduler
+                    .scheduleWithFixedDelay(availabilityTask, AvailabilityTask.NO_DELAY,
+                            AvailabilityTask.ONE_SECOND, TimeUnit.SECONDS);
         } else {
             LOGGER.debug("No changes being made on the poller.");
         }
@@ -568,12 +586,14 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
 
         try {
 
-            Subject subject = (Subject)queryRequest.getPropertyValue(SecurityConstants.SECURITY_SUBJECT);
+            Subject subject = (Subject) queryRequest
+                    .getPropertyValue(SecurityConstants.SECURITY_SUBJECT);
             if (subject != null) {
                 LOGGER.debug("Setting user credentials on outgoing CSW request.");
                 remoteCsw.setSubject(subject);
             } else {
-                LOGGER.debug("No user credentials found, sending CSW request with no user information.");
+                LOGGER.debug(
+                        "No user credentials found, sending CSW request with no user information.");
             }
             CswRecordCollection cswRecordCollection = this.remoteCsw.getRecords(getRecordsType);
 
@@ -586,7 +606,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
                     cswRecordCollection.getNumberOfRecordsReturned(),
                     cswRecordCollection.getNumberOfRecordsMatched(),
                     cswSourceConfiguration.getCswUrl());
-                
+
             results = createResults(cswRecordCollection);
             totalHits = cswRecordCollection.getNumberOfRecordsMatched();
         } catch (CswException cswe) {
@@ -631,6 +651,11 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         return sourceId;
     }
 
+    public void setId(String id) {
+        cswSourceConfiguration.setId(id);
+        super.setId(id);
+    }
+
     @Override
     public void maskId(String newSourceId) {
         final String methodName = "maskId";
@@ -672,8 +697,9 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
     }
 
     @Override
-    public ResourceResponse retrieveResource(URI resourceUri, Map<String, Serializable> properties)
-            throws IOException, ResourceNotFoundException, ResourceNotSupportedException {
+    public ResourceResponse retrieveResource(URI resourceUri,
+            Map<String, Serializable> properties) throws IOException, ResourceNotFoundException,
+            ResourceNotSupportedException {
 
         LOGGER.debug("retrieving resource at : {}", resourceUri);
 
@@ -690,8 +716,8 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         Iterator<ResourceReader> iterator = resourceReaders.iterator();
         while (iterator.hasNext() && resource == null) {
             ResourceReader reader = iterator.next();
-            if (reader.getSupportedSchemes() != null && reader.getSupportedSchemes().contains(
-                    scheme)) {
+            if (reader.getSupportedSchemes() != null && reader.getSupportedSchemes()
+                    .contains(scheme)) {
                 try {
                     LOGGER.debug("Found an acceptable resource reader ({}) for URI {}",
                             reader.getId(), resourceUri.toASCIIString());
@@ -733,11 +759,6 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         cswSourceConfiguration.setCswUrl(cswUrl);
     }
 
-    public void setId(String id) {
-        cswSourceConfiguration.setId(id);
-        super.setId(id);
-    }
-
     public void setUsername(String username) {
         cswSourceConfiguration.setUsername(username);
     }
@@ -755,11 +776,10 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         LOGGER.debug("{}: LON/LAT order: {}", cswSourceConfiguration.getId(),
                 cswSourceConfiguration.isLonLatOrder());
     }
-    
+
     public void setUsePosList(Boolean usePosList) {
         cswSourceConfiguration.setUsePosList(usePosList);
-        LOGGER.debug("Using posList rather than individual pos elements?: {}", 
-                usePosList);
+        LOGGER.debug("Using posList rather than individual pos elements?: {}", usePosList);
     }
 
     public void setIsCqlForced(Boolean isCqlForced) {
@@ -805,14 +825,14 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         this.cswSourceConfiguration.setPollIntervalMinutes(interval);
     }
 
+    public Converter getCswTransformProvider() {
+        return this.cswTransformProvider;
+    }
+
     public void setCswTransformProvider(Converter provider) {
         this.cswTransformProvider = provider;
     }
 
-    public Converter getCswTransformProvider() {
-        return this.cswTransformProvider;
-    }
-   
     public String getForceSpatialFilter() {
         return forceSpatialFilter;
     }
@@ -832,8 +852,8 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         getRecordsType.setOutputFormat(MediaType.APPLICATION_XML);
         if (!isOutputSchemaSupported()) {
             String msg = "CSW Source: " + cswSourceConfiguration.getId()
-                    + " does not support output schema: "
-                    + cswSourceConfiguration.getOutputSchema() + ".";
+                    + " does not support output schema: " + cswSourceConfiguration.getOutputSchema()
+                    + ".";
             throw new UnsupportedQueryException(msg);
         }
         getRecordsType.setOutputSchema(cswSourceConfiguration.getOutputSchema());
@@ -850,8 +870,9 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
     private JAXBElement<QueryType> createQuery(Query query, ElementSetType elementSetType,
             List<QName> elementNames) throws UnsupportedQueryException {
         QueryType queryType = new QueryType();
-        queryType.setTypeNames(Arrays.asList(new QName[] {new QName(CswConstants.CSW_OUTPUT_SCHEMA,
-                CswConstants.CSW_RECORD_LOCAL_NAME, CswConstants.CSW_NAMESPACE_PREFIX)}));
+        queryType.setTypeNames(Arrays.asList(new QName[] {
+                new QName(CswConstants.CSW_OUTPUT_SCHEMA, CswConstants.CSW_RECORD_LOCAL_NAME,
+                        CswConstants.CSW_NAMESPACE_PREFIX)}));
         if (null != elementSetType) {
             queryType.setElementSetName(createElementSetName(elementSetType));
         } else if (!CollectionUtils.isEmpty(elementNames)) {
@@ -891,8 +912,8 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
                 }
             }
 
-            propertyName.setContent(Arrays.asList((Object) cswFilterDelegate
-                    .mapPropertyName(propName)));
+            propertyName.setContent(
+                    Arrays.asList((Object) cswFilterDelegate.mapPropertyName(propName)));
             sortProperty.setPropertyName(propertyName);
             if (SortOrder.DESCENDING.equals(query.getSortBy().getSortOrder())) {
                 sortProperty.setSortOrder(SortOrderType.DESC);
@@ -905,8 +926,8 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         return sortBy;
     }
 
-    private QueryConstraintType createQueryConstraint(Query query)
-            throws UnsupportedQueryException {
+    private QueryConstraintType createQueryConstraint(Query query) throws
+            UnsupportedQueryException {
         FilterType filter = createFilter(query);
         if (null == filter) {
             return null;
@@ -934,15 +955,15 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
             throw new UnsupportedQueryException(cswSourceConfiguration.getId()
                     + ": CSW Source did not provide Filter Capabilities, unable to preform query.");
         }
-        
+
         return this.filterAdapter.adapt(query, cswFilterDelegate);
     }
 
     protected List<Result> createResults(CswRecordCollection cswRecordCollection) {
         List<Result> results = new ArrayList<Result>();
 
-        LOGGER.debug("Found {} metacard(s) in the CswRecordCollection.", cswRecordCollection
-                .getCswRecords().size());
+        LOGGER.debug("Found {} metacard(s) in the CswRecordCollection.",
+                cswRecordCollection.getCswRecords().size());
 
         String transformerId = getMetadataTransformerId();
 
@@ -974,8 +995,8 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
     protected Metacard transform(Metacard metacard, MetadataTransformer transformer) {
 
         if (metacard == null) {
-            throw new IllegalArgumentException(cswSourceConfiguration.getId()
-                    + ": Metacard is null.");
+            throw new IllegalArgumentException(
+                    cswSourceConfiguration.getId() + ": Metacard is null.");
         }
 
         try {
@@ -992,8 +1013,8 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         ServiceReference<?>[] refs = null;
 
         try {
-            refs = context.getServiceReferences(MetadataTransformer.class.getName(), "("
-                    + Constants.SERVICE_ID + "=" + transformerId + ")");
+            refs = context.getServiceReferences(MetadataTransformer.class.getName(),
+                    "(" + Constants.SERVICE_ID + "=" + transformerId + ")");
         } catch (InvalidSyntaxException e) {
             LOGGER.warn(cswSourceConfiguration.getId() + ": Invalid transformer ID.", e);
             return null;
@@ -1014,8 +1035,8 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
             Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
 
-            JAXBElement<GetRecordsType> jaxbElement = new JAXBElement<GetRecordsType>(new QName(
-                    CswConstants.CSW_OUTPUT_SCHEMA, CswConstants.GET_RECORDS),
+            JAXBElement<GetRecordsType> jaxbElement = new JAXBElement<GetRecordsType>(
+                    new QName(CswConstants.CSW_OUTPUT_SCHEMA, CswConstants.GET_RECORDS),
                     GetRecordsType.class, getRecordsType);
             marshaller.marshal(jaxbElement, writer);
         } catch (JAXBException e) {
@@ -1031,16 +1052,17 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
             if (remoteCsw != null) {
                 LOGGER.debug("Doing getCapabilities() call for CSW");
                 GetCapabilitiesRequest request = new GetCapabilitiesRequest(CswConstants.CSW);
-                request.setAcceptVersions(CswConstants.VERSION_2_0_2 + ","
-                        + CswConstants.VERSION_2_0_1);
+                request.setAcceptVersions(
+                        CswConstants.VERSION_2_0_2 + "," + CswConstants.VERSION_2_0_1);
 
                 if (context != null) {
                     LOGGER.debug("Checking if STSClientConfiguration is in OSGi registry");
-                    ServiceReference ref = context.getServiceReference(STSClientConfiguration.class
-                            .getName());
+                    ServiceReference ref = context
+                            .getServiceReference(STSClientConfiguration.class.getName());
 
                     if (ref != null) {
-                        STSClientConfiguration stsClientConfig = (STSClientConfiguration) context.getService(ref);
+                        STSClientConfiguration stsClientConfig = (STSClientConfiguration) context
+                                .getService(ref);
                         if (stsClientConfig != null) {
                             LOGGER.debug("stsClientConfig is not null - setting SAML assertion");
                             remoteCsw.setSAMLAssertion(stsClientConfig);
@@ -1049,7 +1071,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
                         }
                     }
                 }
-                
+
                 caps = remoteCsw.getCapabilities(request);
             }
         } catch (CswException cswe) {
@@ -1101,7 +1123,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
     }
 
     /**
-     * Parses the getRecords {@link Operation} to understand the capabilities of the Csw Server. A
+     * Parses the getRecords {@link Operation} to understand the capabilities of the org.codice.ddf.spatial.ogc.csw.catalog.common.Csw Server. A
      * sample GetRecords Operation may look like this:
      * <p/>
      * <pre>
@@ -1138,9 +1160,9 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
      *     </ows:Parameter>
      *   </ows:Operation>
      * </pre>
-     * 
+     *
      * @param capabilitiesType
-     *            The capabilities the Csw Server supports
+     *            The capabilities the org.codice.ddf.spatial.ogc.csw.catalog.common.Csw Server supports
      */
     private void readGetRecordsOperation(CapabilitiesType capabilitiesType) {
         OperationsMetadata operationsMetadata = capabilitiesType.getOperationsMetadata();
@@ -1186,8 +1208,8 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
             }
 
             setFilterDelegate(new CswRecordMetacardType(), getRecordsOp,
-                    capabilitiesType.getFilterCapabilities(), outputFormatValues, 
-                    resultTypesValues, cswSourceConfiguration);
+                    capabilitiesType.getFilterCapabilities(), outputFormatValues, resultTypesValues,
+                    cswSourceConfiguration);
 
             spatialCapabilities = capabilitiesType.getFilterCapabilities().getSpatialCapabilities();
 
@@ -1205,8 +1227,8 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
     }
 
     /**
-     * Sets the {@link FilterDelegate} used by the CswSource. May be overridden
-     * in order to provide a custom FilterDelegate implementation.
+     * Sets the {@link ddf.catalog.filter.FilterDelegate} used by the CswSource. May be overridden
+     * in order to provide a custom ddf.catalog.filter.FilterDelegate implementation.
      *
      * @param cswRecordMetacardType
      * @param getRecordsOp
@@ -1222,8 +1244,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         LOGGER.trace("Setting cswFilterDelegate to default CswFilterDelegate");
 
         cswFilterDelegate = new CswFilterDelegate(cswRecordMetacardType, getRecordsOp,
-                filterCapabilities, outputFormatValues, resultTypesValues,
-                cswSourceConfiguration);
+                filterCapabilities, outputFormatValues, resultTypesValues, cswSourceConfiguration);
     }
 
     private void readSetDetailLevels(DomainType elementSetNamesValues) {
@@ -1282,11 +1303,11 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
 
             for (Configuration managedConfig : managedConfigs) {
                 Dictionary<String, Object> properties = managedConfig.getProperties();
-                Set<String> current = new HashSet<String>(Arrays.asList((String[]) properties
-                        .get(CONTENTTYPES_PROPERTY)));
+                Set<String> current = new HashSet<String>(
+                        Arrays.asList((String[]) properties.get(CONTENTTYPES_PROPERTY)));
 
-                if (contentTypeMappingUpdated
-                        || (current != null && !current.containsAll(contentTypes.keySet()))) {
+                if (contentTypeMappingUpdated || (current != null && !current
+                        .containsAll(contentTypes.keySet()))) {
                     LOGGER.debug("{}: Adding new content types {} for content type mapping: {}.",
                             cswSourceConfiguration.getId(), contentTypes.toString(),
                             cswSourceConfiguration.getContentTypeMapping());
@@ -1316,9 +1337,10 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
             ConfigurationAdmin confAdmin = (ConfigurationAdmin) context
                     .getService(configurationAdminReference);
             try {
-                managedConfig = confAdmin.listConfigurations("(&(" + ID_PROPERTY + "="
-                        + cswSourceConfiguration.getId() + ")" + "(" + CSWURL_PROPERTY + "="
-                        + cswSourceConfiguration.getCswUrl() + "))");
+                managedConfig = confAdmin.listConfigurations(
+                        "(&(" + ID_PROPERTY + "=" + cswSourceConfiguration.getId() + ")" + "("
+                                + CSWURL_PROPERTY + "=" + cswSourceConfiguration.getCswUrl()
+                                + "))");
             } catch (IOException e) {
                 LOGGER.warn("{}: Failed to capture managedConfig.  Exception: {}",
                         cswSourceConfiguration.getId(), e);
@@ -1391,24 +1413,6 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         return msg;
     }
 
-    private static JAXBContext initJaxbContext() {
-
-        JAXBContext jaxbContext = null;
-        
-        String contextPath = StringUtils.join(new String[] {CswConstants.OGC_CSW_PACKAGE,
-            CswConstants.OGC_FILTER_PACKAGE, CswConstants.OGC_GML_PACKAGE,
-            CswConstants.OGC_OWS_PACKAGE}, ":");
-
-        try {
-            jaxbContext = JAXBContext.newInstance(contextPath,
-                    CswSource.class.getClassLoader());
-        } catch (JAXBException e) {
-            LOGGER.error("Failed to initialize JAXBContext", e);
-        }
-
-        return jaxbContext;
-    }
-
     private void availabilityChanged(boolean isAvailable) {
 
         if (isAvailable) {
@@ -1445,8 +1449,9 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
             LOGGER.debug("{}: Registering CSW Record Metacard Type {} with content types: {}",
                     cswSourceConfiguration.getId(), cswRecordMetacardType.getClass().getName(),
                     contentTypesNames);
-            ServiceRegistration<?> registeredMetacardType = context.registerService(
-                    MetacardType.class.getName(), cswRecordMetacardType, metacardTypeProperties);
+            ServiceRegistration<?> registeredMetacardType = context
+                    .registerService(MetacardType.class.getName(), cswRecordMetacardType,
+                            metacardTypeProperties);
             registeredMetacardTypes.add(registeredMetacardType);
         } else {
             LOGGER.debug(
@@ -1469,9 +1474,23 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
     }
 
     private boolean isOutputSchemaSupported() {
-        return this.cswSourceConfiguration.getOutputSchema() != null &&
-               this.supportedOutputSchemas != null ? this.supportedOutputSchemas.getValue()
-                       .contains(cswSourceConfiguration.getOutputSchema()) : false;
+        return this.cswSourceConfiguration.getOutputSchema() != null
+                && this.supportedOutputSchemas != null ?
+                this.supportedOutputSchemas.getValue()
+                        .contains(cswSourceConfiguration.getOutputSchema()) :
+                false;
+    }
+
+    public void setAvailabilityTask(AvailabilityTask availabilityTask) {
+        this.availabilityTask = availabilityTask;
+    }
+
+    public void setSecuritySettings(SecuritySettingsService securitySettings) {
+        this.securitySettingsService = securitySettings;
+    }
+
+    public void setSecurityManager(SecurityManager securityManager) {
+        this.securityManager = securityManager;
     }
 
     /**
@@ -1507,17 +1526,5 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
             return newAvailability;
         }
 
-    }
-
-    public void setAvailabilityTask(AvailabilityTask availabilityTask) {
-        this.availabilityTask = availabilityTask;
-    }
-
-    public void setSecuritySettings(SecuritySettingsService securitySettings) {
-        this.securitySettingsService = securitySettings;
-    }
-
-    public void setSecurityManager(SecurityManager securityManager) {
-        this.securityManager = securityManager;
     }
 }

@@ -14,14 +14,20 @@
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.source.reader;
 
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.XStreamException;
-import com.thoughtworks.xstream.converters.Converter;
-import com.thoughtworks.xstream.converters.DataHolder;
-import com.thoughtworks.xstream.io.HierarchicalStreamReader;
-import com.thoughtworks.xstream.io.xml.XppDriver;
-import com.thoughtworks.xstream.io.xml.XppReader;
-import ddf.catalog.data.Metacard;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Type;
+
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
+import javax.ws.rs.ext.MessageBodyReader;
+
 import org.apache.commons.io.IOUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
@@ -32,18 +38,15 @@ import org.slf4j.LoggerFactory;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
-import javax.ws.rs.ext.MessageBodyReader;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Type;
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.XStreamException;
+import com.thoughtworks.xstream.converters.Converter;
+import com.thoughtworks.xstream.converters.DataHolder;
+import com.thoughtworks.xstream.io.HierarchicalStreamReader;
+import com.thoughtworks.xstream.io.xml.XppDriver;
+import com.thoughtworks.xstream.io.xml.XppReader;
+
+import ddf.catalog.data.Metacard;
 
 /**
  * Custom JAX-RS MessageBodyReader for parsing a CSW GetRecords response, extracting the search
@@ -56,8 +59,7 @@ public class GetRecordsMessageBodyReader implements MessageBodyReader<CswRecordC
 
     private DataHolder argumentHolder;
 
-    public GetRecordsMessageBodyReader(Converter provider,
-            CswSourceConfiguration configuration) {
+    public GetRecordsMessageBodyReader(Converter provider, CswSourceConfiguration configuration) {
         xstream = new XStream(new XppDriver());
         xstream.setClassLoader(this.getClass().getClassLoader());
         GetRecordsResponseConverter converter = new GetRecordsResponseConverter(provider);

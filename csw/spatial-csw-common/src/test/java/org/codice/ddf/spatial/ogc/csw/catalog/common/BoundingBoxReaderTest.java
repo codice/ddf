@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.common;
 
@@ -46,15 +46,14 @@ public class BoundingBoxReaderTest {
      * LON/LAT.
      */
     @Test
-    public void testGetWkt_BoundingBoxInLonLat() throws ParserConfigurationException, SAXException,
-        IOException {
+    public void testGetWktBoundingBoxInLonLat() throws ParserConfigurationException, SAXException,
+            IOException {
         // Setup
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
         Document doc = docBuilder.parse("src/test/resources/BoundingBoxInLonLat.xml");
         HierarchicalStreamReader hReader = new DomReader(doc);
-        BoundingBoxReader boundingBoxReader = new BoundingBoxReader(hReader,
-                true);
+        BoundingBoxReader boundingBoxReader = new BoundingBoxReader(hReader, true);
 
         // Perform Test
         String wktInLonLat = boundingBoxReader.getWkt();
@@ -69,15 +68,14 @@ public class BoundingBoxReaderTest {
      * LON/LAT (i.e., the coords are reversed).
      */
     @Test
-    public void testGetWkt_BoundingBoxInLatLon() throws ParserConfigurationException, SAXException,
-        IOException {
+    public void testGetWktBoundingBoxInLatLon() throws ParserConfigurationException, SAXException,
+            IOException {
         // Setup
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
         Document doc = docBuilder.parse("src/test/resources/BoundingBoxInLatLon.xml");
         HierarchicalStreamReader hReader = new DomReader(doc);
-      BoundingBoxReader boundingBoxReader = new BoundingBoxReader(hReader,
-      false);
+        BoundingBoxReader boundingBoxReader = new BoundingBoxReader(hReader, false);
 
         // Perform Test
         String wktInLonLat = boundingBoxReader.getWkt();
@@ -92,15 +90,14 @@ public class BoundingBoxReaderTest {
      * have same exact Lon/Lat, that the resulting WKT is a POINT in LON/LAT.
      */
     @Test
-    public void testGetWkt_BoundingBoxInLonLatForPoint() throws ParserConfigurationException, SAXException,
-        IOException {
+    public void testGetWktBoundingBoxInLonLatForPoint() throws ParserConfigurationException,
+            SAXException, IOException {
         // Setup
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
         Document doc = docBuilder.parse("src/test/resources/BoundingBoxInLonLatForPoint.xml");
         HierarchicalStreamReader hReader = new DomReader(doc);
-        BoundingBoxReader boundingBoxReader = new BoundingBoxReader(hReader,
-                true);
+        BoundingBoxReader boundingBoxReader = new BoundingBoxReader(hReader, true);
 
         // Perform Test
         String wktInLonLat = boundingBoxReader.getWkt();

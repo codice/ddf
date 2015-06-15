@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 
 package org.codice.ddf.spatial.kml.endpoint;
@@ -50,7 +50,6 @@ import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.operation.SourceInfoResponse;
 import ddf.catalog.operation.impl.SourceInfoRequestEnterprise;
-import ddf.catalog.source.Source;
 import ddf.catalog.source.SourceDescriptor;
 import ddf.catalog.source.SourceUnavailableException;
 import de.micromata.opengis.kml.v_2_2_0.Folder;
@@ -59,15 +58,14 @@ import de.micromata.opengis.kml.v_2_2_0.KmlFactory;
 import de.micromata.opengis.kml.v_2_2_0.Link;
 import de.micromata.opengis.kml.v_2_2_0.NetworkLink;
 import de.micromata.opengis.kml.v_2_2_0.RefreshMode;
-import de.micromata.opengis.kml.v_2_2_0.Style;
 import de.micromata.opengis.kml.v_2_2_0.ViewRefreshMode;
 
 /**
  * Endpoint used to create KML {@link NetworkLink}s. The KML Network Link will link Google Earth to
  * the Catalog through the OpenSearch Endpoint.
- * 
+ *
  * @author Keith C Wire
- * 
+ *
  */
 @Path("/")
 public class KmlEndpoint implements ConfigurationWatcher {
@@ -105,6 +103,8 @@ public class KmlEndpoint implements ConfigurationWatcher {
 
     private static final String COUNT_PARAM = "count=";
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(KmlEndpoint.class);
+
     private String host;
 
     private String port;
@@ -139,8 +139,6 @@ public class KmlEndpoint implements ConfigurationWatcher {
 
     private ClassPathTemplateLoader templateLoader;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(KmlEndpoint.class);
-
     public KmlEndpoint(BrandingPlugin brandingPlugin, CatalogFramework catalogFramework) {
         LOGGER.trace("ENTERING: KML Endpoint Constructor");
         this.branding = brandingPlugin;
@@ -153,8 +151,8 @@ public class KmlEndpoint implements ConfigurationWatcher {
     }
 
     /**
-     * Attempts to load a KML {@link Style} from a file provided via a file system path.
-     * 
+     * Attempts to load a KML {@link de.micromata.opengis.kml.v_2_2_0.Style} from a file provided via a file system path.
+     *
      * @param url
      *            - the path to the file.
      */
@@ -165,16 +163,16 @@ public class KmlEndpoint implements ConfigurationWatcher {
                 styleUrl = url;
                 styleDoc = Kml.unmarshal(new URL(styleUrl).openStream());
             } catch (MalformedURLException e) {
-                LOGGER.warn("StyleUrl is not a valid URL. Unable to serve up custom KML Style.", e);
+                LOGGER.warn("StyleUrl is not a valid URL. Unable to serve up custom KML de.micromata.opengis.kml.v_2_2_0.Style.", e);
             } catch (IOException e) {
-                LOGGER.warn("Unable to open Style Document from StyleUrl.", e);
+                LOGGER.warn("Unable to open de.micromata.opengis.kml.v_2_2_0.Style Document from StyleUrl.", e);
             }
         }
     }
 
     /**
      * Sets the root directory of icons to be provided via this endpoint.
-     * 
+     *
      * @param iconLoc
      *            - the path to the directory of icons
      */
@@ -182,9 +180,13 @@ public class KmlEndpoint implements ConfigurationWatcher {
         this.iconLoc = iconLoc;
     }
 
+    public String getDescription() {
+        return this.description;
+    }
+
     /**
      * Sets the Description that will be used as the description of the Root {@link NetworkLink}.
-     * 
+     *
      * @param description
      *            - the Description of the Root {@link NetworkLink}
      */
@@ -192,13 +194,9 @@ public class KmlEndpoint implements ConfigurationWatcher {
         this.description = description;
     }
 
-    public String getDescription() {
-        return this.description;
-    }
-
     /**
-     * Sets if the Source {@link NetworkLink}s should be Visible by Default.
-     * 
+     * Sets if the ddf.catalog.source.Source {@link NetworkLink}s should be Visible by Default.
+     *
      * @param visibleByDefault
      *            - true to enable
      */
@@ -208,7 +206,7 @@ public class KmlEndpoint implements ConfigurationWatcher {
 
     /**
      * Sets the Maximum Number of results each {@link NetworkLink} will return.
-     * 
+     *
      * @param maxResults
      *            - maximum number of results to return
      */
@@ -216,9 +214,13 @@ public class KmlEndpoint implements ConfigurationWatcher {
         this.maxResults = maxResults;
     }
 
+    public String getWebSite() {
+        return this.webSite;
+    }
+
     /**
      * Sets the Web Site URL that will be used in the description of the Root {@link NetworkLink}.
-     * 
+     *
      * @param webSite
      *            - the URL of the web site
      */
@@ -226,25 +228,20 @@ public class KmlEndpoint implements ConfigurationWatcher {
         this.webSite = webSite;
     }
 
-    public String getWebSite() {
-        return this.webSite;
+    public String getLogo() {
+        return this.logo;
     }
 
     /**
      * Sets the URL of the Logo that will be used in the description of the Root {@link NetworkLink}
      * .
-     * 
+     *
      * @param logo
      *            - the URL to the logo
      */
     public void setLogo(String logo) {
         this.logo = logo;
     }
-
-    public String getLogo() {
-        return this.logo;
-    }
-
 
     public String getProductName() {
         return this.productName;
@@ -260,7 +257,7 @@ public class KmlEndpoint implements ConfigurationWatcher {
 
     /**
      * Creates a {@link NetworkLink} to provide a layer to KML Clients.
-     * 
+     *
      * @param uriInfo
      *            - injected resource providing the URI.
      * @return - KML NetworkLink
@@ -268,8 +265,7 @@ public class KmlEndpoint implements ConfigurationWatcher {
     @GET
     @Path(FORWARD_SLASH)
     @Produces(KML_MIME_TYPE)
-    public Kml getKmlNetworkLink(@Context
-    UriInfo uriInfo) {
+    public Kml getKmlNetworkLink(@Context UriInfo uriInfo) {
         LOGGER.debug("ENTERING: getKmlNetworkLink");
         try {
             return createRootNetworkLink(uriInfo);
@@ -301,8 +297,9 @@ public class KmlEndpoint implements ConfigurationWatcher {
         rootNetworkLink.setVisibility(false);
         Link link = rootNetworkLink.createAndSetLink();
         UriBuilder builder = UriBuilder.fromUri(uriInfo.getBaseUri());
-        builder = generateEndpointUrl(servicesContextRoot + FORWARD_SLASH + CATALOG_URL_PATH
-                + FORWARD_SLASH + KML_TRANSFORM_PARAM + FORWARD_SLASH + "sources", builder);
+        builder = generateEndpointUrl(
+                servicesContextRoot + FORWARD_SLASH + CATALOG_URL_PATH + FORWARD_SLASH
+                        + KML_TRANSFORM_PARAM + FORWARD_SLASH + "sources", builder);
         link.setHref(builder.build().toString());
         link.setViewRefreshMode(ViewRefreshMode.NEVER);
         link.setRefreshMode(RefreshMode.ON_INTERVAL);
@@ -312,9 +309,9 @@ public class KmlEndpoint implements ConfigurationWatcher {
     }
 
     /**
-     * Creates a list of {@link NetworkLink}s, one for each {@link Source} including the local
+     * Creates a list of {@link NetworkLink}s, one for each {@link ddf.catalog.source.Source} including the local
      * catalog.
-     * 
+     *
      * @param uriInfo
      *            - injected resource provding the URI.
      * @return - {@link Kml} containing a folder of {@link NetworkLink}s.
@@ -322,19 +319,19 @@ public class KmlEndpoint implements ConfigurationWatcher {
     @GET
     @Path(FORWARD_SLASH + "sources")
     @Produces(KML_MIME_TYPE)
-    public Kml getAvailableSources(@Context
-    UriInfo uriInfo) {
+    public Kml getAvailableSources(@Context UriInfo uriInfo) {
         try {
-            SourceInfoResponse response = framework.getSourceInfo(new SourceInfoRequestEnterprise(
-                    false));
+            SourceInfoResponse response = framework
+                    .getSourceInfo(new SourceInfoRequestEnterprise(false));
 
             Kml kml = KmlFactory.createKml();
             Folder folder = kml.createAndSetFolder();
             folder.setOpen(true);
             for (SourceDescriptor descriptor : response.getSourceInfo()) {
                 UriBuilder builder = UriBuilder.fromUri(uriInfo.getBaseUri());
-                builder = generateEndpointUrl(servicesContextRoot + FORWARD_SLASH
-                        + CATALOG_URL_PATH + FORWARD_SLASH + OPENSEARCH_URL_PATH, builder);
+                builder = generateEndpointUrl(
+                        servicesContextRoot + FORWARD_SLASH + CATALOG_URL_PATH + FORWARD_SLASH
+                                + OPENSEARCH_URL_PATH, builder);
                 builder = builder.queryParam(SOURCE_PARAM, descriptor.getSourceId());
                 builder = builder.queryParam(OPENSEARCH_SORT_KEY, OPENSEARCH_DEFAULT_SORT);
                 builder = builder.queryParam(OPENSEARCH_FORMAT_KEY, KML_TRANSFORM_PARAM);
@@ -387,8 +384,8 @@ public class KmlEndpoint implements ConfigurationWatcher {
     /*
      * Creates the URL based on the configured host, port, and services context root path.
      */
-    private UriBuilder generateEndpointUrl(String path, UriBuilder uriBuilder)
-        throws UnknownHostException {
+    private UriBuilder generateEndpointUrl(String path, UriBuilder uriBuilder) throws
+            UnknownHostException {
         UriBuilder builder = uriBuilder;
         if (host != null && port != null && servicesContextRoot != null) {
             builder = builder.host(host);
@@ -413,7 +410,7 @@ public class KmlEndpoint implements ConfigurationWatcher {
 
     /**
      * Kml REST Get. Returns the style Document.
-     * 
+     *
      * @param uriInfo
      * @return stylesDoc
      * @throws WebApplicationException
@@ -421,18 +418,17 @@ public class KmlEndpoint implements ConfigurationWatcher {
     @GET
     @Path(FORWARD_SLASH + "styles")
     @Produces(KML_MIME_TYPE)
-    public Kml getKmlStyles(@Context
-    UriInfo uriInfo) {
+    public Kml getKmlStyles(@Context UriInfo uriInfo) {
         if (styleDoc != null) {
             return styleDoc;
         }
         throw new WebApplicationException(new FileNotFoundException(
-                "No KML Style has been configured or unable to load document."), Status.NOT_FOUND);
+                "No KML de.micromata.opengis.kml.v_2_2_0.Style has been configured or unable to load document."), Status.NOT_FOUND);
     }
 
     /**
      * Retrieves an icon from the hosted directory based on the id provided.
-     * 
+     *
      * @param uriInfo
      *            - injected resource providing the URI
      * @param id
@@ -442,9 +438,7 @@ public class KmlEndpoint implements ConfigurationWatcher {
     @GET
     @Path("/icons/{id:.+}")
     @Produces({"image/png", "image/jpeg", "image/tiff", "image/gif"})
-    public byte[] getIcon(@Context
-    UriInfo uriInfo, @PathParam("id")
-    String id) {
+    public byte[] getIcon(@Context UriInfo uriInfo, @PathParam("id") String id) {
 
         byte[] iconBytes = null;
 
@@ -455,8 +449,9 @@ public class KmlEndpoint implements ConfigurationWatcher {
 
                 if (iconStream == null) {
                     LOGGER.warn("Resource not found for icon {}", icon);
-                    throw new WebApplicationException(new FileNotFoundException(
-                            "Resource not found for icon " + icon), Status.NOT_FOUND);
+                    throw new WebApplicationException(
+                            new FileNotFoundException("Resource not found for icon " + icon),
+                            Status.NOT_FOUND);
                 }
 
                 iconBytes = IOUtils.toByteArray(iconStream);

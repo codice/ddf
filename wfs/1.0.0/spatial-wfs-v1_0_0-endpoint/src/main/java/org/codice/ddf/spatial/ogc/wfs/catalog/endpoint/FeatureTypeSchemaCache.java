@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.ddf.spatial.ogc.wfs.catalog.endpoint;
 
@@ -70,22 +70,22 @@ import ddf.catalog.source.SourceUnavailableException;
  */
 public class FeatureTypeSchemaCache {
 
-    private Map<MetacardType, Map<String, Object>> services;
-
-    private CatalogFramework framework;
-
-    private Map<QName, XmlSchema> contentTypeSchemas = new ConcurrentHashMap<QName, XmlSchema>();
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(FeatureTypeSchemaCache.class);
-
     // Protected for unit test
     protected static final QName GML_GEO_PROPERTY_TYPE = new QName(Wfs10Constants.GML_NAMESPACE,
             "GeometryPropertyType");
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(FeatureTypeSchemaCache.class);
 
     private static final QName GML_FEATURE = new QName(Wfs10Constants.GML_NAMESPACE, "_Feature");
 
     private static final QName ABSTRACT_FEATURE_TYPE = new QName(Wfs10Constants.GML_NAMESPACE,
             "AbstractFeatureType");
+
+    private Map<MetacardType, Map<String, Object>> services;
+
+    private CatalogFramework framework;
+
+    private Map<QName, XmlSchema> contentTypeSchemas = new ConcurrentHashMap<QName, XmlSchema>();
 
     public FeatureTypeSchemaCache(BundleContext context, ServicePropertiesMap services,
             CatalogFramework ddf) {
@@ -96,7 +96,7 @@ public class FeatureTypeSchemaCache {
 
     /**
      * Retrieves a schema based on its {@link QName}.
-     * 
+     *
      * @param qname
      *            - the {@link QName} of the type.
      * @return - the schema that describes the type.
@@ -119,7 +119,7 @@ public class FeatureTypeSchemaCache {
 
     /**
      * Returns a list of {@link QName}s of all the cached types.
-     * 
+     *
      * @return - the {@link Set} of {@link QName}s of all the cached types.
      */
     public Set<QName> getFeatureTypeQnames() {
@@ -190,8 +190,8 @@ public class FeatureTypeSchemaCache {
         // BASIC_METACARD and add it to the map
         if (!found) {
             LOGGER.debug("Creating a new schema from BASIC_METACARD for: {}", typeName);
-            QName newQname = WfsQnameBuilder.buildQName(BasicTypes.BASIC_METACARD.getName(),
-                    typeName);
+            QName newQname = WfsQnameBuilder
+                    .buildQName(BasicTypes.BASIC_METACARD.getName(), typeName);
             XmlSchema schema = buildSchemaFromMetacardType(BasicTypes.BASIC_METACARD, newQname);
             contentTypeSchemas.put(newQname, schema);
         }
@@ -241,8 +241,9 @@ public class FeatureTypeSchemaCache {
         // Set<AttributeDescriptor> attributeDescriptors = new
         // HashSet<AttributeDescriptor>();
         // attributeDescriptors.addAll(metacardType.getAttributeDescriptors());
-        rootSequence.getItems().addAll(
-                translateAttributeDescriptors(metacardType.getAttributeDescriptors(), schema));
+        rootSequence.getItems()
+                .addAll(translateAttributeDescriptors(metacardType.getAttributeDescriptors(),
+                        schema));
 
         XmlSchemaComplexContentExtension contentExtension = new XmlSchemaComplexContentExtension();
         contentExtension.setBaseTypeName(ABSTRACT_FEATURE_TYPE);
@@ -272,8 +273,8 @@ public class FeatureTypeSchemaCache {
 
         for (AttributeDescriptor descriptor : sortedADs) {
             if (null != descriptor && descriptor.isStored()) {
-                QName xsdType = getXsdTypeFromAttributeFormat(descriptor.getType()
-                        .getAttributeFormat());
+                QName xsdType = getXsdTypeFromAttributeFormat(
+                        descriptor.getType().getAttributeFormat());
                 if (null != xsdType) {
                     XmlSchemaElement simpleElement = new XmlSchemaElement(parent, false);
                     simpleElement.setName(descriptor.getName());

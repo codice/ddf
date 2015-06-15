@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema targetNamespace="http://www.opengis.net/ows/1.1" 
-xmlns:ows="http://www.opengis.net/ows/1.1" 
-xmlns:xlink="http://www.w3.org/1999/xlink" 
-xmlns="http://www.w3.org/2001/XMLSchema" 
-elementFormDefault="qualified" version="1.1.0" xml:lang="en">
+<schema xmlns:ows="http://www.opengis.net/ows/1.1"
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+        targetNamespace="http://www.opengis.net/ows/1.1"
+        xmlns="http://www.w3.org/2001/XMLSchema"
+        elementFormDefault="qualified" version="1.1.0" xml:lang="en">
 	<annotation>
 		<appinfo>owsManifest.xsd 2006-10-04</appinfo>
 		<documentation>This XML Schema Document specifies types and elements for document or resource references and for package manifests that contain multiple references. The contents of each type and element specified here can be restricted and/or extended for each use in a specific OWS specification.
 		Copyright (c) 2006 Open Geospatial Consortium, Inc. All Rights Reserved. </documentation>
 	</annotation>
-	<!-- ==============================================================
-		includes and imports
-	============================================================== -->
-	<include schemaLocation="owsDataIdentification.xsd"/>
+    <!-- ==============================================================
+        includes and imports
+    ============================================================== -->
+    <include schemaLocation="owsDataIdentification.xsd"/>
 	<import namespace="http://www.w3.org/1999/xlink" schemaLocation="../../xlink/1.0.0/xlinks.xsd"/>
-	<!-- ==========================================================
-		Types and elements
-	    ========================================================== -->
-	<element name="AbstractReferenceBase" type="ows:AbstractReferenceBaseType" abstract="true"/>
-	<!-- ========================================================== -->
-	<complexType name="AbstractReferenceBaseType">
+    <!-- ==========================================================
+        Types and elements
+        ========================================================== -->
+    <element name="AbstractReferenceBase" type="ows:AbstractReferenceBaseType" abstract="true"/>
+    <!-- ========================================================== -->
+    <complexType name="AbstractReferenceBaseType">
 		<annotation>
 			<documentation> Base for a reference to a remote or local resource. </documentation>
 			<documentation>This type contains only a restricted and annotated set of the attributes from the xlink:simpleLink attributeGroup. </documentation>
@@ -56,10 +56,11 @@ elementFormDefault="qualified" version="1.1.0" xml:lang="en">
 			</annotation>
 		</attribute>
 	</complexType>
-	<!-- ========================================================== -->
-	<element name="Reference" type="ows:ReferenceType" substitutionGroup="ows:AbstractReferenceBase"/>
-	<!-- ========================================================== -->
-	<complexType name="ReferenceType">
+    <!-- ========================================================== -->
+    <element name="Reference" type="ows:ReferenceType"
+             substitutionGroup="ows:AbstractReferenceBase"/>
+    <!-- ========================================================== -->
+    <complexType name="ReferenceType">
 		<annotation>
 			<documentation>Complete reference to a remote or local resource, allowing including metadata about that resource. </documentation>
 		</annotation>
@@ -86,11 +87,11 @@ elementFormDefault="qualified" version="1.1.0" xml:lang="en">
 			</extension>
 		</complexContent>
 	</complexType>
-	<!-- =========================================================== -->
-	<!-- =========================================================== -->
-	<element name="ReferenceGroup" type="ows:ReferenceGroupType"/>
-	<!-- =========================================================== -->
-	<complexType name="ReferenceGroupType">
+    <!-- =========================================================== -->
+    <!-- =========================================================== -->
+    <element name="ReferenceGroup" type="ows:ReferenceGroupType"/>
+    <!-- =========================================================== -->
+    <complexType name="ReferenceGroupType">
 		<annotation>
 			<documentation>Logical group of one or more references to remote and/or local resources, allowing including metadata about that group. A Group can be used instead of a Manifest that can only contain one group. </documentation>
 		</annotation>
@@ -102,10 +103,10 @@ elementFormDefault="qualified" version="1.1.0" xml:lang="en">
 			</extension>
 		</complexContent>
 	</complexType>
-	<!-- =========================================================== -->
-	<element name="Manifest" type="ows:ManifestType"/>
-	<!-- =========================================================== -->
-	<complexType name="ManifestType">
+    <!-- =========================================================== -->
+    <element name="Manifest" type="ows:ManifestType"/>
+    <!-- =========================================================== -->
+    <complexType name="ManifestType">
 		<annotation>
 			<documentation>Unordered list of one or more groups of references to remote and/or local resources. </documentation>
 		</annotation>
@@ -117,5 +118,5 @@ elementFormDefault="qualified" version="1.1.0" xml:lang="en">
 			</extension>
 		</complexContent>
 	</complexType>
-	<!-- ========================================================== -->
+    <!-- ========================================================== -->
 </schema>

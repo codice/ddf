@@ -14,24 +14,23 @@
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.source;
 
-import com.thoughtworks.xstream.converters.Converter;
-import ddf.security.Subject;
-import ddf.security.service.SecurityManager;
-import ddf.security.sts.client.configuration.STSClientConfiguration;
-import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
-import net.opengis.cat.csw.v_2_0_2.DescribeRecordResponseType;
-import net.opengis.cat.csw.v_2_0_2.DescribeRecordType;
-import net.opengis.cat.csw.v_2_0_2.GetCapabilitiesType;
-import net.opengis.cat.csw.v_2_0_2.GetRecordByIdType;
-import net.opengis.cat.csw.v_2_0_2.GetRecordsResponseType;
-import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
-import net.opengis.cat.csw.v_2_0_2.TransactionResponseType;
-import net.opengis.cat.csw.v_2_0_2.TransactionType;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.xml.namespace.QName;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.Bus;
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.jaxrs.client.ClientConfiguration;
-import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.cxf.ws.security.trust.STSClient;
@@ -51,33 +50,36 @@ import org.codice.ddf.spatial.ogc.csw.catalog.source.reader.GetRecordsMessageBod
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.xml.namespace.QName;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.thoughtworks.xstream.converters.Converter;
+
+import ddf.security.Subject;
+import ddf.security.service.SecurityManager;
+import ddf.security.sts.client.configuration.STSClientConfiguration;
+import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
+import net.opengis.cat.csw.v_2_0_2.DescribeRecordResponseType;
+import net.opengis.cat.csw.v_2_0_2.DescribeRecordType;
+import net.opengis.cat.csw.v_2_0_2.GetCapabilitiesType;
+import net.opengis.cat.csw.v_2_0_2.GetRecordByIdType;
+import net.opengis.cat.csw.v_2_0_2.GetRecordsResponseType;
+import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
+import net.opengis.cat.csw.v_2_0_2.TransactionResponseType;
+import net.opengis.cat.csw.v_2_0_2.TransactionType;
 
 /**
  * A client to a CSW 2.0.2 Service. This class uses the {@link Csw} interface to create a client
- * proxy from the {@link JAXRSClientFactoryBean}.
+ * proxy from the {@link org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean}.
  */
 public class RemoteCsw extends TrustedRemoteSource implements Csw {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RemoteCsw.class.getName());
+
+    protected Csw csw;
 
     private CswJAXBElementProvider<GetRecordsType> getRecordsTypeProvider;
 
     private List<String> jaxbElementClassNames = new ArrayList<String>();
 
     private Map<String, String> jaxbElementClassMap = new HashMap<String, String>();
-
-    protected Csw csw;
 
     /**
      * Instantiates a new RemoteCsw
@@ -90,8 +92,8 @@ public class RemoteCsw extends TrustedRemoteSource implements Csw {
         csw = createClientBean(Csw.class, cswSourceConfiguration.getCswUrl(),
                 cswSourceConfiguration.getUsername(), cswSourceConfiguration.getPassword(),
                 cswSourceConfiguration.getDisableCnCheck(),
-                initProviders(cswTransformProvider, cswSourceConfiguration), getClass()
-                        .getClassLoader());
+                initProviders(cswTransformProvider, cswSourceConfiguration),
+                getClass().getClassLoader());
     }
 
     /**
@@ -116,12 +118,13 @@ public class RemoteCsw extends TrustedRemoteSource implements Csw {
         client.reset();
         RestSecurity.setSubjectOnClient(subject, client);
     }
-    
+
     public void setSAMLAssertion(STSClientConfiguration stsClientConfig) {
         Client client = WebClient.client(csw);
         LOGGER.debug("ENTERING: setSAMLAssertion()");
         if (stsClientConfig == null || StringUtils.isBlank(stsClientConfig.getAddress())) {
-            LOGGER.debug("STSClientConfiguration is either null or its address is blank - assuming no STS Client is configured, so no SAML assertion will get generated.");
+            LOGGER.debug(
+                    "STSClientConfiguration is either null or its address is blank - assuming no STS Client is configured, so no SAML assertion will get generated.");
             return;
         }
         ClientConfiguration clientConfig = WebClient.getConfig(client);
@@ -131,22 +134,23 @@ public class RemoteCsw extends TrustedRemoteSource implements Csw {
         stsClient.setKeyType(stsClientConfig.getKeyType());
         stsClient.setKeySize(Integer.valueOf(stsClientConfig.getKeySize()));
         try {
-            SecurityToken securityToken = stsClient.requestSecurityToken(stsClientConfig.getAddress());
+            SecurityToken securityToken = stsClient
+                    .requestSecurityToken(stsClientConfig.getAddress());
             org.w3c.dom.Element samlToken = securityToken.getToken();
             if (samlToken != null) {
                 Subject subject = securityManager.getSubject(securityToken);
                 RestSecurity.setSubjectOnClient(subject, client);
             } else {
-                LOGGER.debug("Attempt to retrieve SAML token resulted in null token - could not add token to request");
+                LOGGER.debug(
+                        "Attempt to retrieve SAML token resulted in null token - could not add token to request");
             }
         } catch (Exception e) {
             LOGGER.warn("Exception trying to get SAML assertion", e);
         }
         LOGGER.debug("EXITING: setSAMLAssertion()");
-    }    
+    }
 
-    protected List<? extends Object> initProviders(
-            Converter cswTransformProvider,
+    protected List<? extends Object> initProviders(Converter cswTransformProvider,
             CswSourceConfiguration cswSourceConfiguration) {
         getRecordsTypeProvider = new CswJAXBElementProvider<GetRecordsType>();
         getRecordsTypeProvider.setMarshallAsJaxbElement(true);
@@ -184,83 +188,82 @@ public class RemoteCsw extends TrustedRemoteSource implements Csw {
 
         getRecordsTypeProvider.setJaxbElementClassMap(jaxbElementClassMap);
 
-        GetRecordsMessageBodyReader grmbr = new GetRecordsMessageBodyReader(
-                cswTransformProvider, cswSourceConfiguration);
+        GetRecordsMessageBodyReader grmbr = new GetRecordsMessageBodyReader(cswTransformProvider,
+                cswSourceConfiguration);
         return Arrays.asList(getRecordsTypeProvider, new CswResponseExceptionMapper(), grmbr);
 
     }
 
     @Override
     @GET
-    @Consumes({ MediaType.TEXT_XML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.TEXT_XML, MediaType.APPLICATION_XML })
-    public DescribeRecordResponseType describeRecord(DescribeRecordRequest request)
-            throws CswException {
+    @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
+    @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
+    public DescribeRecordResponseType describeRecord(DescribeRecordRequest request) throws
+            CswException {
         return csw.describeRecord(request);
     }
 
     @Override
     @POST
-    @Consumes({ MediaType.TEXT_XML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.TEXT_XML, MediaType.APPLICATION_XML })
-    public DescribeRecordResponseType describeRecord(DescribeRecordType request)
-            throws CswException {
+    @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
+    @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
+    public DescribeRecordResponseType describeRecord(DescribeRecordType request) throws
+            CswException {
         return csw.describeRecord(request);
     }
 
     @Override
     @GET
-    @Consumes({ MediaType.TEXT_XML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.TEXT_XML, MediaType.APPLICATION_XML })
+    @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
+    @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
     public CapabilitiesType getCapabilities(GetCapabilitiesRequest request) throws CswException {
         return csw.getCapabilities(request);
     }
 
     @Override
     @POST
-    @Consumes({ MediaType.TEXT_XML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.TEXT_XML, MediaType.APPLICATION_XML })
+    @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
+    @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
     public CapabilitiesType getCapabilities(GetCapabilitiesType request) throws CswException {
         return csw.getCapabilities(request);
     }
 
     @Override
     @GET
-    @Consumes({ MediaType.TEXT_XML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.TEXT_XML, MediaType.APPLICATION_XML })
-    public CswRecordCollection getRecordById(GetRecordByIdRequest request)
-            throws CswException {
+    @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
+    @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
+    public CswRecordCollection getRecordById(GetRecordByIdRequest request) throws CswException {
         return csw.getRecordById(request);
     }
 
     @Override
     @POST
-    @Consumes({ MediaType.TEXT_XML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.TEXT_XML, MediaType.APPLICATION_XML })
+    @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
+    @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
     public CswRecordCollection getRecordById(GetRecordByIdType request) throws CswException {
         return csw.getRecordById(request);
     }
 
     @Override
     @GET
-    @Consumes({ MediaType.TEXT_XML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.TEXT_XML, MediaType.APPLICATION_XML })
+    @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
+    @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
     public CswRecordCollection getRecords(GetRecordsRequest request) throws CswException {
         return csw.getRecords(request);
     }
 
     @Override
     @POST
-    @Consumes({ MediaType.TEXT_XML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.TEXT_XML, MediaType.APPLICATION_XML })
+    @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
+    @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
     public CswRecordCollection getRecords(GetRecordsType request) throws CswException {
         return csw.getRecords(request);
     }
 
     @Override
     @POST
-    @Consumes({ MediaType.TEXT_XML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.TEXT_XML, MediaType.APPLICATION_XML })
+    @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
+    @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
     public TransactionResponseType transaction(TransactionType request) throws CswException {
         return csw.transaction(request);
     }

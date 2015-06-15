@@ -14,15 +14,15 @@
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.converter;
 
-import com.thoughtworks.xstream.converters.Converter;
-import com.thoughtworks.xstream.converters.MarshallingContext;
-import com.thoughtworks.xstream.converters.UnmarshallingContext;
-import com.thoughtworks.xstream.io.HierarchicalStreamReader;
-import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
-import ddf.catalog.data.Attribute;
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.impl.MetacardImpl;
-import net.opengis.cat.csw.v_2_0_2.ResultType;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import javax.measure.converter.ConversionException;
+import javax.xml.XMLConstants;
+
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
@@ -31,13 +31,16 @@ import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.measure.converter.ConversionException;
-import javax.xml.XMLConstants;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
+import com.thoughtworks.xstream.converters.Converter;
+import com.thoughtworks.xstream.converters.MarshallingContext;
+import com.thoughtworks.xstream.converters.UnmarshallingContext;
+import com.thoughtworks.xstream.io.HierarchicalStreamReader;
+import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
+
+import ddf.catalog.data.Attribute;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.MetacardImpl;
+import net.opengis.cat.csw.v_2_0_2.ResultType;
 
 /**
  * Converts a {@link org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection} into a
@@ -47,12 +50,6 @@ import java.util.Map.Entry;
 public class GetRecordsResponseConverter implements Converter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GetRecordsResponseConverter.class);
-
-    private Converter transformProvider;
-
-    private DefaultCswRecordMap defaultCswRecordMap = new DefaultCswRecordMap();
-
-    private String outputSchema = CswConstants.CSW_OUTPUT_SCHEMA;
 
     private static final String SEARCH_STATUS_NODE_NAME = "SearchStatus";
 
@@ -71,6 +68,12 @@ public class GetRecordsResponseConverter implements Converter {
     private static final String RECORD_SCHEMA_ATTRIBUTE = "recordSchema";
 
     private static final String ELEMENT_SET_ATTRIBUTE = "elementSet";
+
+    private Converter transformProvider;
+
+    private DefaultCswRecordMap defaultCswRecordMap = new DefaultCswRecordMap();
+
+    private String outputSchema = CswConstants.CSW_OUTPUT_SCHEMA;
 
     /**
      * Creates a new GetRecordsResponseConverter Object
@@ -100,8 +103,9 @@ public class GetRecordsResponseConverter implements Converter {
         CswRecordCollection cswRecordCollection = (CswRecordCollection) source;
 
         for (Entry<String, String> entry : defaultCswRecordMap.getPrefixToUriMapping().entrySet()) {
-            writer.addAttribute(XMLConstants.XMLNS_ATTRIBUTE + CswConstants.NAMESPACE_DELIMITER
-                    + entry.getKey(), entry.getValue());
+            writer.addAttribute(
+                    XMLConstants.XMLNS_ATTRIBUTE + CswConstants.NAMESPACE_DELIMITER + entry
+                            .getKey(), entry.getValue());
         }
 
         long start = 1;
@@ -192,8 +196,8 @@ public class GetRecordsResponseConverter implements Converter {
     @Override
     public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
         if (transformProvider == null) {
-            throw new ConversionException("Unable to locate Converter for outputSchema: "
-                    + outputSchema);
+            throw new ConversionException(
+                    "Unable to locate Converter for outputSchema: " + outputSchema);
         }
         CswRecordCollection cswRecords = new CswRecordCollection();
         List<Metacard> metacards = cswRecords.getCswRecords();
@@ -211,8 +215,8 @@ public class GetRecordsResponseConverter implements Converter {
                     reader.moveDown(); // move down to the <csw:Record> tag
                     String name = reader.getNodeName();
                     LOGGER.debug("node name = {}", name);
-                    Metacard metacard = (Metacard) context.convertAnother(null, MetacardImpl.class,
-                            transformProvider);
+                    Metacard metacard = (Metacard) context
+                            .convertAnother(null, MetacardImpl.class, transformProvider);
                     metacards.add(metacard);
 
                     // move back up to the <SearchResults> parent of the

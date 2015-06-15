@@ -27,7 +27,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerFactoryConfigurationError;
@@ -152,11 +151,11 @@ public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConve
             InputSource is = new InputSource();
             is.setCharacterStream(new StringReader(xml));
             doc = dBuilder.parse(is);
-        } catch (ParserConfigurationException|SAXException|IOException e) {
+        } catch (ParserConfigurationException | SAXException | IOException e) {
             LOGGER.error(XML_PARSE_FAILURE);
         }
 
-        if(null != doc) {
+        if (null != doc) {
             String[] namePrefix = doc.getDocumentElement().getNodeName().split(":");
             String prefix = "";
             if (namePrefix.length < 2) {
@@ -178,7 +177,8 @@ public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConve
             Source xmlSource = new DOMSource(doc);
             Result outputTarget = new StreamResult(outputStream);
             try {
-                TransformerFactory.newInstance().newTransformer().transform(xmlSource, outputTarget);
+                TransformerFactory.newInstance().newTransformer()
+                        .transform(xmlSource, outputTarget);
             } catch (TransformerException | TransformerFactoryConfigurationError e) {
                 LOGGER.error(CREATE_TRANSFORMER_FAILURE);
             }

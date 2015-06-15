@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema targetNamespace="http://www.opengis.net/gml/3.2" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="3.2.1.2">
+<schema xmlns:gml="http://www.opengis.net/gml/3.2" targetNamespace="http://www.opengis.net/gml/3.2"
+		xmlns="http://www.w3.org/2001/XMLSchema"
+		elementFormDefault="qualified" version="3.2.1.2">
 	<annotation>
 		<appinfo source="urn:x-ogc:specification:gml:schema-xsd:deprecatedTypes:3.2.1">deprecatedTypes.xsd</appinfo>
 		<documentation>All global schema components that are part of the GML schema, but were deprecated. See Annex I.
@@ -25,12 +27,14 @@
 			<appinfo>deprecated</appinfo>
 		</annotation>
 	</element>
-	<element name="usesPrimeMeridian" type="gml:PrimeMeridianPropertyType" substitutionGroup="gml:primeMeridian">
+	<element name="usesPrimeMeridian" type="gml:PrimeMeridianPropertyType"
+             substitutionGroup="gml:primeMeridian">
 		<annotation>
 			<appinfo>deprecated</appinfo>
 		</annotation>
 	</element>
-	<element name="usesEllipsoid" type="gml:EllipsoidPropertyType" substitutionGroup="gml:ellipsoid">
+	<element name="usesEllipsoid" type="gml:EllipsoidPropertyType"
+             substitutionGroup="gml:ellipsoid">
 		<annotation>
 			<appinfo>deprecated</appinfo>
 		</annotation>
@@ -80,7 +84,8 @@
 			<appinfo>deprecated</appinfo>
 		</annotation>
 	</element>
-	<element name="AbstractOperation" type="gml:AbstractCoordinateOperationType" abstract="true" substitutionGroup="gml:AbstractSingleOperation">
+	<element name="AbstractOperation" type="gml:AbstractCoordinateOperationType" abstract="true"
+             substitutionGroup="gml:AbstractSingleOperation">
 		<annotation>
 			<appinfo>deprecated</appinfo>
 		</annotation>
@@ -109,7 +114,8 @@
 			<appinfo>deprecated</appinfo>
 		</annotation>
 	</element>
-	<element name="usesSingleOperation" type="gml:CoordinateOperationPropertyType" substitutionGroup="gml:coordOperation">
+	<element name="usesSingleOperation" type="gml:CoordinateOperationPropertyType"
+             substitutionGroup="gml:coordOperation">
 		<annotation>
 			<appinfo>deprecated</appinfo>
 		</annotation>
@@ -119,7 +125,8 @@
 			<appinfo>deprecated</appinfo>
 		</annotation>
 	</element>
-	<element name="usesOperation" type="gml:CoordinateOperationPropertyType" substitutionGroup="gml:coordOperation">
+	<element name="usesOperation" type="gml:CoordinateOperationPropertyType"
+             substitutionGroup="gml:coordOperation">
 		<annotation>
 			<appinfo>deprecated</appinfo>
 		</annotation>
@@ -129,12 +136,14 @@
 			<appinfo>deprecated</appinfo>
 		</annotation>
 	</element>
-	<element name="usesMethod" type="gml:OperationMethodPropertyType" substitutionGroup="gml:method">
+	<element name="usesMethod" type="gml:OperationMethodPropertyType"
+             substitutionGroup="gml:method">
 		<annotation>
 			<appinfo>deprecated</appinfo>
 		</annotation>
 	</element>
-	<element name="usesValue" type="gml:AbstractGeneralParameterValuePropertyType" substitutionGroup="gml:parameterValue">
+	<element name="usesValue" type="gml:AbstractGeneralParameterValuePropertyType"
+             substitutionGroup="gml:parameterValue">
 		<annotation>
 			<appinfo>deprecated</appinfo>
 		</annotation>
@@ -154,17 +163,20 @@
 			<appinfo>deprecated</appinfo>
 		</annotation>
 	</element>
-	<element name="valueOfParameter" type="gml:OperationParameterPropertyType" substitutionGroup="gml:operationParameter">
+	<element name="valueOfParameter" type="gml:OperationParameterPropertyType"
+             substitutionGroup="gml:operationParameter">
 		<annotation>
 			<appinfo>deprecated</appinfo>
 		</annotation>
 	</element>
-	<element name="includesValue" type="gml:AbstractGeneralParameterValuePropertyType" substitutionGroup="gml:parameterValue">
+	<element name="includesValue" type="gml:AbstractGeneralParameterValuePropertyType"
+             substitutionGroup="gml:parameterValue">
 		<annotation>
 			<appinfo>deprecated</appinfo>
 		</annotation>
 	</element>
-	<element name="valuesOfGroup" type="gml:OperationParameterGroupPropertyType" substitutionGroup="gml:group">
+	<element name="valuesOfGroup" type="gml:OperationParameterGroupPropertyType"
+             substitutionGroup="gml:group">
 		<annotation>
 			<appinfo>deprecated</appinfo>
 		</annotation>
@@ -174,7 +186,8 @@
 			<appinfo>deprecated</appinfo>
 		</annotation>
 	</element>
-	<element name="usesParameter" type="gml:AbstractGeneralOperationParameterPropertyType" substitutionGroup="gml:generalOperationParameter">
+	<element name="usesParameter" type="gml:AbstractGeneralOperationParameterPropertyType"
+             substitutionGroup="gml:generalOperationParameter">
 		<annotation>
 			<appinfo>deprecated</appinfo>
 		</annotation>
@@ -184,7 +197,8 @@
 			<appinfo>deprecated</appinfo>
 		</annotation>
 	</element>
-	<element name="abstractGeneralOperationParameterRef" type="gml:AbstractGeneralOperationParameterPropertyType">
+	<element name="abstractGeneralOperationParameterRef"
+             type="gml:AbstractGeneralOperationParameterPropertyType">
 		<annotation>
 			<appinfo>deprecated</appinfo>
 		</annotation>
@@ -194,7 +208,8 @@
 			<appinfo>deprecated</appinfo>
 		</annotation>
 	</element>
-	<element name="includesParameter" type="gml:AbstractGeneralOperationParameterPropertyType" substitutionGroup="gml:parameter">
+	<element name="includesParameter" type="gml:AbstractGeneralOperationParameterPropertyType"
+             substitutionGroup="gml:parameter">
 		<annotation>
 			<appinfo>deprecated</appinfo>
 		</annotation>
@@ -219,7 +234,8 @@
 			<appinfo>deprecated</appinfo>
 		</annotation>
 	</element>
-	<element name="usesAxis" type="gml:CoordinateSystemAxisPropertyType" substitutionGroup="gml:axis">
+	<element name="usesAxis" type="gml:CoordinateSystemAxisPropertyType"
+             substitutionGroup="gml:axis">
 		<annotation>
 			<appinfo>deprecated</appinfo>
 		</annotation>
@@ -244,7 +260,8 @@
 			<appinfo>deprecated</appinfo>
 		</annotation>
 	</element>
-	<element name="TemporalCS" type="gml:TemporalCSType" substitutionGroup="gml:AbstractCoordinateSystem">
+	<element name="TemporalCS" type="gml:TemporalCSType"
+             substitutionGroup="gml:AbstractCoordinateSystem">
 		<annotation>
 			<appinfo>deprecated</appinfo>
 		</annotation>
@@ -296,7 +313,8 @@
 			<appinfo>deprecated</appinfo>
 		</annotation>
 	</element>
-	<element name="ObliqueCartesianCS" type="gml:ObliqueCartesianCSType" substitutionGroup="gml:AbstractCoordinateSystem">
+	<element name="ObliqueCartesianCS" type="gml:ObliqueCartesianCSType"
+             substitutionGroup="gml:AbstractCoordinateSystem">
 		<annotation>
 			<appinfo>deprecated</appinfo>
 		</annotation>
@@ -328,12 +346,14 @@
 			<appinfo>deprecated</appinfo>
 		</annotation>
 	</element>
-	<element name="definedByConversion" type="gml:GeneralConversionPropertyType" substitutionGroup="gml:conversion">
+	<element name="definedByConversion" type="gml:GeneralConversionPropertyType"
+             substitutionGroup="gml:conversion">
 		<annotation>
 			<appinfo>deprecated</appinfo>
 		</annotation>
 	</element>
-	<element name="includesSingleCRS" type="gml:SingleCRSPropertyType" substitutionGroup="gml:componentReferenceSystem">
+	<element name="includesSingleCRS" type="gml:SingleCRSPropertyType"
+             substitutionGroup="gml:componentReferenceSystem">
 		<annotation>
 			<appinfo>deprecated</appinfo>
 		</annotation>
@@ -343,32 +363,38 @@
 			<appinfo>deprecated</appinfo>
 		</annotation>
 	</element>
-	<element name="usesEllipsoidalCS" type="gml:EllipsoidalCSPropertyType" substitutionGroup="gml:ellipsoidalCS">
+	<element name="usesEllipsoidalCS" type="gml:EllipsoidalCSPropertyType"
+             substitutionGroup="gml:ellipsoidalCS">
 		<annotation>
 			<appinfo>deprecated</appinfo>
 		</annotation>
 	</element>
-	<element name="usesCartesianCS" type="gml:CartesianCSPropertyType" substitutionGroup="gml:cartesianCS">
+	<element name="usesCartesianCS" type="gml:CartesianCSPropertyType"
+             substitutionGroup="gml:cartesianCS">
 		<annotation>
 			<appinfo>deprecated</appinfo>
 		</annotation>
 	</element>
-	<element name="usesSphericalCS" type="gml:SphericalCSPropertyType" substitutionGroup="gml:sphericalCS">
+	<element name="usesSphericalCS" type="gml:SphericalCSPropertyType"
+             substitutionGroup="gml:sphericalCS">
 		<annotation>
 			<appinfo>deprecated</appinfo>
 		</annotation>
 	</element>
-	<element name="usesGeodeticDatum" type="gml:GeodeticDatumPropertyType" substitutionGroup="gml:geodeticDatum">
+	<element name="usesGeodeticDatum" type="gml:GeodeticDatumPropertyType"
+             substitutionGroup="gml:geodeticDatum">
 		<annotation>
 			<appinfo>deprecated</appinfo>
 		</annotation>
 	</element>
-	<element name="usesVerticalCS" type="gml:VerticalCSPropertyType" substitutionGroup="gml:verticalCS">
+	<element name="usesVerticalCS" type="gml:VerticalCSPropertyType"
+             substitutionGroup="gml:verticalCS">
 		<annotation>
 			<appinfo>deprecated</appinfo>
 		</annotation>
 	</element>
-	<element name="usesVerticalDatum" type="gml:VerticalDatumPropertyType" substitutionGroup="gml:verticalDatum">
+	<element name="usesVerticalDatum" type="gml:VerticalDatumPropertyType"
+             substitutionGroup="gml:verticalDatum">
 		<annotation>
 			<appinfo>deprecated</appinfo>
 		</annotation>
@@ -388,7 +414,8 @@
 			<appinfo>deprecated</appinfo>
 		</annotation>
 	</element>
-	<element name="usesCS" type="gml:CoordinateSystemPropertyType" substitutionGroup="gml:coordinateSystem">
+	<element name="usesCS" type="gml:CoordinateSystemPropertyType"
+             substitutionGroup="gml:coordinateSystem">
 		<annotation>
 			<appinfo>deprecated</appinfo>
 		</annotation>
@@ -398,7 +425,8 @@
 			<appinfo>deprecated</appinfo>
 		</annotation>
 	</element>
-	<element name="usesEngineeringDatum" type="gml:EngineeringDatumPropertyType" substitutionGroup="gml:engineeringDatum">
+	<element name="usesEngineeringDatum" type="gml:EngineeringDatumPropertyType"
+             substitutionGroup="gml:engineeringDatum">
 		<annotation>
 			<appinfo>deprecated</appinfo>
 		</annotation>
@@ -413,7 +441,8 @@
 			<appinfo>deprecated</appinfo>
 		</annotation>
 	</element>
-	<element name="usesImageDatum" type="gml:ImageDatumPropertyType" substitutionGroup="gml:imageDatum">
+	<element name="usesImageDatum" type="gml:ImageDatumPropertyType"
+             substitutionGroup="gml:imageDatum">
 		<annotation>
 			<appinfo>deprecated</appinfo>
 		</annotation>
@@ -438,7 +467,8 @@
 			<appinfo>deprecated</appinfo>
 		</annotation>
 	</element>
-	<element name="usesTemporalDatum" type="gml:TemporalDatumPropertyType" substitutionGroup="gml:temporalDatum">
+	<element name="usesTemporalDatum" type="gml:TemporalDatumPropertyType"
+             substitutionGroup="gml:temporalDatum">
 		<annotation>
 			<appinfo>deprecated</appinfo>
 		</annotation>
@@ -448,7 +478,8 @@
 			<appinfo>deprecated</appinfo>
 		</annotation>
 	</element>
-	<element name="GeographicCRS" type="gml:GeographicCRSType" substitutionGroup="gml:AbstractSingleCRS">
+	<element name="GeographicCRS" type="gml:GeographicCRSType"
+             substitutionGroup="gml:AbstractSingleCRS">
 		<annotation>
 			<appinfo>deprecated</appinfo>
 		</annotation>
@@ -480,7 +511,8 @@
 			<appinfo>deprecated</appinfo>
 		</annotation>
 	</element>
-	<element name="GeocentricCRS" type="gml:GeocentricCRSType" substitutionGroup="gml:AbstractSingleCRS">
+	<element name="GeocentricCRS" type="gml:GeocentricCRSType"
+             substitutionGroup="gml:AbstractSingleCRS">
 		<annotation>
 			<appinfo>deprecated</appinfo>
 		</annotation>
@@ -719,7 +751,8 @@
 		<attributeGroup ref="gml:AssociationAttributeGroup"/>
 		<attribute name="about" type="anyURI"/>
 	</complexType>
-	<element name="AbstractMetaData" type="gml:AbstractMetaDataType" abstract="true" substitutionGroup="gml:AbstractObject">
+	<element name="AbstractMetaData" type="gml:AbstractMetaDataType" abstract="true"
+             substitutionGroup="gml:AbstractObject">
 		<annotation>
 			<appinfo>deprecated</appinfo>
 		</annotation>
@@ -731,7 +764,8 @@
 		<sequence/>
 		<attribute ref="gml:id"/>
 	</complexType>
-	<element name="GenericMetaData" type="gml:GenericMetaDataType" substitutionGroup="gml:AbstractMetaData">
+	<element name="GenericMetaData" type="gml:GenericMetaDataType"
+             substitutionGroup="gml:AbstractMetaData">
 		<annotation>
 			<appinfo>deprecated</appinfo>
 		</annotation>
@@ -787,7 +821,8 @@
 			<appinfo>deprecated</appinfo>
 		</annotation>
 	</element>
-	<element name="priorityLocation" type="gml:PriorityLocationPropertyType" substitutionGroup="gml:location">
+	<element name="priorityLocation" type="gml:PriorityLocationPropertyType"
+             substitutionGroup="gml:location">
 		<annotation>
 			<appinfo>deprecated</appinfo>
 		</annotation>
@@ -852,12 +887,14 @@
 			</extension>
 		</complexContent>
 	</complexType>
-	<element name="AbstractFeatureCollection" type="gml:AbstractFeatureCollectionType" abstract="true" substitutionGroup="gml:AbstractFeature">
+	<element name="AbstractFeatureCollection" type="gml:AbstractFeatureCollectionType"
+             abstract="true" substitutionGroup="gml:AbstractFeature">
 		<annotation>
 			<appinfo>deprecated</appinfo>
 		</annotation>
 	</element>
-	<element name="FeatureCollection" type="gml:FeatureCollectionType" substitutionGroup="gml:AbstractFeature">
+	<element name="FeatureCollection" type="gml:FeatureCollectionType"
+             substitutionGroup="gml:AbstractFeature">
 		<annotation>
 			<appinfo>deprecated</appinfo>
 		</annotation>
@@ -875,12 +912,14 @@
 			<appinfo>deprecated</appinfo>
 		</annotation>
 	</element>
-	<element name="DefinitionCollection" type="gml:DictionaryType" substitutionGroup="gml:Definition">
+	<element name="DefinitionCollection" type="gml:DictionaryType"
+             substitutionGroup="gml:Definition">
 		<annotation>
 			<appinfo>deprecated</appinfo>
 		</annotation>
 	</element>
-	<element name="definitionMember" type="gml:DictionaryEntryType" substitutionGroup="gml:dictionaryEntry">
+	<element name="definitionMember" type="gml:DictionaryEntryType"
+             substitutionGroup="gml:dictionaryEntry">
 		<annotation>
 			<appinfo>deprecated</appinfo>
 		</annotation>
@@ -898,7 +937,8 @@
 			<element ref="gml:DefinitionProxy"/>
 		</sequence>
 	</complexType>
-	<element name="DefinitionProxy" type="gml:DefinitionProxyType" substitutionGroup="gml:Definition">
+	<element name="DefinitionProxy" type="gml:DefinitionProxyType"
+             substitutionGroup="gml:Definition">
 		<annotation>
 			<appinfo>deprecated</appinfo>
 		</annotation>
@@ -996,12 +1036,14 @@
 			<appinfo>deprecated</appinfo>
 		</annotation>
 	</element>
-	<element name="polygonPatches" type="gml:SurfacePatchArrayPropertyType" substitutionGroup="gml:patches">
+	<element name="polygonPatches" type="gml:SurfacePatchArrayPropertyType"
+             substitutionGroup="gml:patches">
 		<annotation>
 			<appinfo>deprecated</appinfo>
 		</annotation>
 	</element>
-	<element name="trianglePatches" type="gml:SurfacePatchArrayPropertyType" substitutionGroup="gml:patches">
+	<element name="trianglePatches" type="gml:SurfacePatchArrayPropertyType"
+             substitutionGroup="gml:patches">
 		<annotation>
 			<appinfo>deprecated</appinfo>
 		</annotation>
@@ -1036,12 +1078,15 @@
 			<appinfo>deprecated</appinfo>
 		</annotation>
 	</element>
-	<element name="generalOperationParameter" type="gml:AbstractGeneralOperationParameterPropertyType" substitutionGroup="gml:parameter">
+	<element name="generalOperationParameter"
+             type="gml:AbstractGeneralOperationParameterPropertyType"
+             substitutionGroup="gml:parameter">
 		<annotation>
 			<appinfo>deprecated</appinfo>
 		</annotation>
 	</element>
-	<element name="MovingObjectStatus" type="gml:MovingObjectStatusType" substitutionGroup="gml:AbstractTimeSlice">
+	<element name="MovingObjectStatus" type="gml:MovingObjectStatusType"
+             substitutionGroup="gml:AbstractTimeSlice">
 		<annotation>
 			<appinfo>deprecated</appinfo>
 		</annotation>

@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.source.reader;
 
@@ -46,9 +46,13 @@ import com.thoughtworks.xstream.io.xml.WstxDriver;
 
 import ddf.catalog.data.Metacard;
 
-@Consumes({ MediaType.TEXT_XML, MediaType.APPLICATION_XML })
+@Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
 @Provider
-public class FeatureCollectionMessageBodyReaderWfs10 implements MessageBodyReader<WfsFeatureCollection> {
+public class FeatureCollectionMessageBodyReaderWfs10
+        implements MessageBodyReader<WfsFeatureCollection> {
+
+    private static final Logger LOGGER = LoggerFactory
+            .getLogger(FeatureCollectionMessageBodyReaderWfs10.class);
 
     protected XStream xstream;
 
@@ -56,15 +60,13 @@ public class FeatureCollectionMessageBodyReaderWfs10 implements MessageBodyReade
 
     protected Map<String, FeatureConverter> featureConverterMap = new HashMap<String, FeatureConverter>();
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FeatureCollectionMessageBodyReaderWfs10.class);
-
     public FeatureCollectionMessageBodyReaderWfs10() {
         xstream = new XStream(new WstxDriver());
         xstream.setClassLoader(this.getClass().getClassLoader());
         xstream.registerConverter(new GmlGeometryConverter());
         xstream.registerConverter(new GmlEnvelopeConverter());
         xstream.alias("FeatureCollection", WfsFeatureCollection.class);
-        
+
         featureCollectionConverter = new FeatureCollectionConverterWfs10();
         featureCollectionConverter.setFeatureConverterMap(featureConverterMap);
         xstream.registerConverter(featureCollectionConverter);
@@ -87,7 +89,7 @@ public class FeatureCollectionMessageBodyReaderWfs10 implements MessageBodyReade
         // Save original input stream for any exception message that might need to be
         // created
         String originalInputStream = IOUtils.toString(inStream, "UTF-8");
-        
+
         // Re-create the input stream (since it has already been read for potential
         // exception message creation)
         inStream = new ByteArrayInputStream(originalInputStream.getBytes("UTF-8"));

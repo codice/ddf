@@ -18,11 +18,8 @@ import static org.junit.matchers.JUnitMatchers.hasItems;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -58,8 +55,8 @@ public class TestContentTypeFilterDelegate {
     public void testPropertyIsEqualToStringStringBooleanContentType() {
 
         ContentTypeFilterDelegate delegate = new ContentTypeFilterDelegate();
-        List<ContentType> types = delegate.propertyIsEqualTo(Metacard.CONTENT_TYPE,
-                MOCK_TYPE_IMAGE, true);
+        List<ContentType> types = delegate
+                .propertyIsEqualTo(Metacard.CONTENT_TYPE, MOCK_TYPE_IMAGE, true);
         // Ensure that the content type was returned correctly
         assertNotNull(types);
         assertTrue(types.size() == 1);
@@ -79,8 +76,8 @@ public class TestContentTypeFilterDelegate {
     @Test
     public void testPropertyIsLikeStringStringBooleanContentType() {
         ContentTypeFilterDelegate delegate = new ContentTypeFilterDelegate();
-        List<ContentType> types = delegate.propertyIsLike(Metacard.CONTENT_TYPE, MOCK_TYPE_IMAGE,
-                true);
+        List<ContentType> types = delegate
+                .propertyIsLike(Metacard.CONTENT_TYPE, MOCK_TYPE_IMAGE, true);
         // Ensure that the content type was returned correctly
         assertNotNull(types);
         assertTrue(types.size() == 1);
@@ -102,8 +99,8 @@ public class TestContentTypeFilterDelegate {
 
         ContentTypeFilterDelegate delegate = new ContentTypeFilterDelegate();
         @SuppressWarnings("unchecked")
-        List<ContentType> types = delegate.and(Arrays.asList(this.contentTypeImage,
-                this.contentTypeVideo));
+        List<ContentType> types = delegate
+                .and(Arrays.asList(this.contentTypeImage, this.contentTypeVideo));
 
         // Ensure the lists were combined into a single list
         assertNotNull(types);
@@ -130,8 +127,8 @@ public class TestContentTypeFilterDelegate {
 
         ContentTypeFilterDelegate delegate = new ContentTypeFilterDelegate();
         @SuppressWarnings("unchecked")
-        List<ContentType> types = delegate.or(Arrays.asList(this.contentTypeImage,
-                this.contentTypeVideo));
+        List<ContentType> types = delegate
+                .or(Arrays.asList(this.contentTypeImage, this.contentTypeVideo));
 
         // Ensure the lists were combined into a single list
         assertNotNull(types);

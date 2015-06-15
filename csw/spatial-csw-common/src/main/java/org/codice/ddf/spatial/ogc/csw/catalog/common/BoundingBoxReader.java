@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.common;
 
@@ -22,9 +22,9 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 
 /**
  * Parses OWS Bounding Box geometry XML and converts it to WKT.
- * 
+ *
  * Bounding Box XML is of the form:
- * 
+ *
  * <pre>
  *  {@code
  *  <ows:BoundingBox crs="urn:x-ogc:def:crs:EPSG:6.11:4326">
@@ -33,9 +33,9 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
  *  </ows:BoundingBox>
  * }
  * </pre>
- * 
+ *
  * @author rodgersh
- * 
+ *
  */
 public class BoundingBoxReader {
     private static final transient Logger LOGGER = LoggerFactory.getLogger(BoundingBoxReader.class);
@@ -43,7 +43,7 @@ public class BoundingBoxReader {
     private static final String SPACE = " ";
 
     private HierarchicalStreamReader reader;
-    
+
     private boolean isLonLatOrder;
 
     public BoundingBoxReader(HierarchicalStreamReader reader, boolean isLonLatOrder) {
@@ -56,8 +56,9 @@ public class BoundingBoxReader {
 
         // reader should initially be positioned at <ows:BoundingBox> element
         LOGGER.debug("Initial node name = {}", reader.getNodeName());
-        if (!reader.getNodeName().contains("BoundingBox"))
+        if (!reader.getNodeName().contains("BoundingBox")) {
             return null;
+        }
 
         String crs = reader.getAttribute("crs");
         // TODO: CRS value determines order of bounding box values, i.e.,
@@ -88,7 +89,7 @@ public class BoundingBoxReader {
         String[] upperCornerPosition = null;
         if (reader.getNodeName().contains("UpperCorner")) {
             String value = reader.getValue();
-              upperCornerPosition = getCoordinates(value, isLonLatOrder);
+            upperCornerPosition = getCoordinates(value, isLonLatOrder);
         }
 
         // If both corner positions parsed, then compute other 2 corner
@@ -114,19 +115,19 @@ public class BoundingBoxReader {
 
     /**
      * We want to create WKT in LON/LAT order.
-     * 
+     *
      * Points for bounding box will be computed starting with the lower corner, and proceeding in a
      * clockwise rotation. So lower corner point would be point 1, upper corner point would be point
      * 3, and points 2 and 4 would be computed.
      */
     private String createWkt(String[] lowerCornerPosition, String[] upperCornerPosition) {
         LOGGER.debug("Creating WKT in LON/LAT coordinate order.");
-        if (upperCornerPosition[0].equals(lowerCornerPosition[0]) &&
-                upperCornerPosition[1].equals(lowerCornerPosition[1])) {
-            return "POINT(" + lowerCornerPosition[0] + SPACE + lowerCornerPosition[1] +")";
+        if (upperCornerPosition[0].equals(lowerCornerPosition[0]) && upperCornerPosition[1]
+                .equals(lowerCornerPosition[1])) {
+            return "POINT(" + lowerCornerPosition[0] + SPACE + lowerCornerPosition[1] + ")";
         }
-        return "POLYGON((" + lowerCornerPosition[0] + SPACE + lowerCornerPosition[1]
-                + ", " + upperCornerPosition[0] + SPACE + lowerCornerPosition[1] + ", "
+        return "POLYGON((" + lowerCornerPosition[0] + SPACE + lowerCornerPosition[1] + ", "
+                + upperCornerPosition[0] + SPACE + lowerCornerPosition[1] + ", "
                 + upperCornerPosition[0] + SPACE + upperCornerPosition[1] + ", "
                 + lowerCornerPosition[0] + SPACE + upperCornerPosition[1] + ", "
                 + lowerCornerPosition[0] + SPACE + lowerCornerPosition[1] + "))";

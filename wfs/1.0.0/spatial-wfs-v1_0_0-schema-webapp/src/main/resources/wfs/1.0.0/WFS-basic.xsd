@@ -1,31 +1,31 @@
 <?xml version="1.0"?>
-<xsd:schema 
-   targetNamespace="http://www.opengis.net/wfs"
-   xmlns:wfs="http://www.opengis.net/wfs"
-   xmlns:ogc="http://www.opengis.net/ogc"
-   xmlns:gml="http://www.opengis.net/gml"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
-   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-   elementFormDefault="qualified"
-   version="1.0.0.3">
+<xsd:schema
+        xmlns:wfs="http://www.opengis.net/wfs"
+        xmlns:ogc="http://www.opengis.net/ogc"
+        xmlns:gml="http://www.opengis.net/gml"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        targetNamespace="http://www.opengis.net/wfs"
+        elementFormDefault="qualified"
+        version="1.0.0.3">
    
    <!--
       WFS is an OGC Standard.
       Copyright (c) 2002,2010 Open Geospatial Consortium.
       To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
    -->
-   
-   <!-- ==============================================================
-        Includes and Imports
-        ============================================================== -->
-   <xsd:include schemaLocation="./wfs.xsd"/>
-   <xsd:import namespace="http://www.opengis.net/gml" schemaLocation="../../gml/2.1.2/feature.xsd"/>
-   <xsd:import namespace="http://www.opengis.net/ogc" schemaLocation="../../filter/1.0.0/filter.xsd"/>
 
-   <!-- ==============================================================
-        REQUEST MESSAGES 
-        ============================================================== -->
-   <xsd:element name="GetCapabilities" type="wfs:GetCapabilitiesType">
+    <!-- ==============================================================
+         Includes and Imports
+         ============================================================== -->
+    <xsd:include schemaLocation="./wfs.xsd"/>
+   <xsd:import namespace="http://www.opengis.net/gml" schemaLocation="../../gml/2.1.2/feature.xsd"/>
+   <xsd:import namespace="http://www.opengis.net/ogc"
+               schemaLocation="../../filter/1.0.0/filter.xsd"/>
+
+    <!-- ==============================================================
+         REQUEST MESSAGES
+         ============================================================== -->
+    <xsd:element name="GetCapabilities" type="wfs:GetCapabilitiesType">
       <xsd:annotation>
          <xsd:documentation>
             The GetCapapbilities element is used to request that a Web Feature
@@ -55,12 +55,12 @@
       </xsd:annotation>
    </xsd:element>
 
-   <!-- ==============================================================
-        RESPONSE MESSAGES 
-        ============================================================== -->
-   <xsd:element name="FeatureCollection"
-                type="wfs:FeatureCollectionType"
-                substitutionGroup="gml:_FeatureCollection">
+    <!-- ==============================================================
+         RESPONSE MESSAGES
+         ============================================================== -->
+    <xsd:element name="FeatureCollection"
+                 type="wfs:FeatureCollectionType"
+                 substitutionGroup="gml:_FeatureCollection">
       <xsd:annotation>
          <xsd:documentation>
             This element is a container for the response to a GetFeature
@@ -69,40 +69,40 @@
       </xsd:annotation>
    </xsd:element>
 
-   <!-- ==============================================================
-        COMMON ATTRIBUTES DOCUMENTATION
-        ==============================================================
-        VERSION:
-           The version attribute is used to indicate to which version
-           of the Web Feature Service Implementation Specification a
-           request conforms.
+    <!-- ==============================================================
+         COMMON ATTRIBUTES DOCUMENTATION
+         ==============================================================
+         VERSION:
+            The version attribute is used to indicate to which version
+            of the Web Feature Service Implementation Specification a
+            request conforms.
 
-        SERVICE:
-           The service attribute is used to indicate which service
-           should process an operation.  This attribute is particularly
-           useful in the case where a single server implements multiple
-           services (e.g. WMS, WFS, WCS, etc ...).
+         SERVICE:
+            The service attribute is used to indicate which service
+            should process an operation.  This attribute is particularly
+            useful in the case where a single server implements multiple
+            services (e.g. WMS, WFS, WCS, etc ...).
 
-        HANDLE:
-           The purpose of the handle attribute is to allow a client app
-           to associate a mnemonic name with a request for error handling
-           purposes.  If a "handle" is specified, and an exception occurs,
-           a Web Feature Service may use the handle to identify the
-           offending element.
+         HANDLE:
+            The purpose of the handle attribute is to allow a client app
+            to associate a mnemonic name with a request for error handling
+            purposes.  If a "handle" is specified, and an exception occurs,
+            a Web Feature Service may use the handle to identify the
+            offending element.
 
-        TYPENAME:
-           The typeName attribute is used to specify the name of the
-           feature type to be queried.  The term "feature type" is a
-           term used by convention to refer to the container storing 
-           feature instances.  It does not mean type in the programmatic 
-           sense.  The typeName attribute should, instead, be thought
-           of as the feature name. -->
+         TYPENAME:
+            The typeName attribute is used to specify the name of the
+            feature type to be queried.  The term "feature type" is a
+            term used by convention to refer to the container storing
+            feature instances.  It does not mean type in the programmatic
+            sense.  The typeName attribute should, instead, be thought
+            of as the feature name. -->
 
-   <!-- ==============================================================
-        TYPES
-        ============================================================== -->
-   <!-- GETCAPABILITIES -->
-   <xsd:complexType name="GetCapabilitiesType">
+    <!-- ==============================================================
+         TYPES
+         ============================================================== -->
+    <!-- GETCAPABILITIES -->
+    <xsd:complexType name="GetCapabilitiesType">
       <xsd:annotation>
          <xsd:documentation>
             This type defines the GetCapabilities operation.  In response
@@ -116,8 +116,8 @@
       <xsd:attribute name="service"
                      type="xsd:string" use="required" fixed="WFS"/>
    </xsd:complexType>
-   <!-- DESCRIBEFEATURETYPE -->
-   <xsd:complexType name="DescribeFeatureTypeType">
+    <!-- DESCRIBEFEATURETYPE -->
+    <xsd:complexType name="DescribeFeatureTypeType">
       <xsd:annotation>
          <xsd:documentation>
             The DescribeFeatureType operation allows a client application
@@ -164,8 +164,8 @@
          </xsd:annotation>
       </xsd:attribute>
    </xsd:complexType>
-   <!-- GETFEATURE -->
-   <xsd:complexType name="GetFeatureType">
+    <!-- GETFEATURE -->
+    <xsd:complexType name="GetFeatureType">
       <xsd:annotation>
          <xsd:documentation>
             A GetFeature element contains one or more Query elements
@@ -290,8 +290,8 @@
         </xsd:annotation>
      </xsd:attribute>
    </xsd:complexType>
-   <!-- RESPONSE TYPE -->
-   <xsd:complexType name="FeatureCollectionType">
+    <!-- RESPONSE TYPE -->
+    <xsd:complexType name="FeatureCollectionType">
       <xsd:annotation>
          <xsd:documentation>
             This type defines a container for the response to a 

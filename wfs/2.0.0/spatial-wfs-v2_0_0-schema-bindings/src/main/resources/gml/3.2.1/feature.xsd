@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema targetNamespace="http://www.opengis.net/gml/3.2" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="3.2.1.2">
+<schema xmlns:gml="http://www.opengis.net/gml/3.2" targetNamespace="http://www.opengis.net/gml/3.2"
+        xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="3.2.1.2">
 	<annotation>
 		<appinfo source="urn:x-ogc:specification:gml:schema-xsd:feature:3.2.1">feature.xsd</appinfo>
 		<documentation>See ISO/DIS 19136 Clause 9.
@@ -29,7 +30,8 @@ The value of the gml:location property describes the extent, position or relativ
 			</extension>
 		</complexContent>
 	</complexType>
-	<element name="AbstractFeature" type="gml:AbstractFeatureType" abstract="true" substitutionGroup="gml:AbstractGML">
+	<element name="AbstractFeature" type="gml:AbstractFeatureType" abstract="true"
+             substitutionGroup="gml:AbstractGML">
 		<annotation>
 			<documentation>This abstract element serves as the head of a substitution group which may contain any elements whose content model is derived from gml:AbstractFeatureType.  This may be used as a variable in the construction of content models.  
 gml:AbstractFeature may be thought of as "anything that is a GML feature" and may be used to define variables or templates in which the value of a GML property is "any feature". This occurs in particular in a GML feature collection where the feature member properties contain one or multiple copies of gml:AbstractFeature respectively.</documentation>
@@ -56,7 +58,8 @@ gml:AbstractFeature may be thought of as "anything that is a GML feature" and ma
 		</sequence>
 		<attribute name="nilReason" type="gml:NilReasonType"/>
 	</complexType>
-	<element name="EnvelopeWithTimePeriod" type="gml:EnvelopeWithTimePeriodType" substitutionGroup="gml:Envelope">
+	<element name="EnvelopeWithTimePeriod" type="gml:EnvelopeWithTimePeriodType"
+             substitutionGroup="gml:Envelope">
 		<annotation>
 			<documentation>gml:EnvelopeWithTimePeriod is provided for envelopes that include a temporal extent. It adds two time position properties, gml:beginPosition and gml:endPosition, which describe the extent of a time-envelope.  
 Since gml:EnvelopeWithTimePeriod is assigned to the substitution group headed by gml:Envelope, it may be used whenever gml:Envelope is valid.</documentation>

@@ -14,32 +14,40 @@
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.converter;
 
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.converters.MarshallingContext;
-import com.thoughtworks.xstream.converters.UnmarshallingContext;
-import com.thoughtworks.xstream.io.HierarchicalStreamReader;
-import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
-import com.thoughtworks.xstream.io.naming.NoNameCoder;
-import com.thoughtworks.xstream.io.xml.StaxDriver;
-import com.thoughtworks.xstream.io.xml.WstxDriver;
-import com.thoughtworks.xstream.io.xml.XppReader;
-import ddf.catalog.data.AttributeDescriptor;
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.impl.AttributeDescriptorImpl;
-import ddf.catalog.data.impl.AttributeImpl;
-import ddf.catalog.data.impl.BasicTypes;
-import ddf.catalog.data.impl.MetacardImpl;
-import ddf.catalog.data.impl.MetacardTypeImpl;
-import ddf.catalog.transform.InputTransformer;
-import net.opengis.cat.csw.v_2_0_2.ElementSetNameType;
-import net.opengis.cat.csw.v_2_0_2.ElementSetType;
-import net.opengis.cat.csw.v_2_0_2.GetRecordByIdResponseType;
-import net.opengis.cat.csw.v_2_0_2.GetRecordsResponseType;
-import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
-import net.opengis.cat.csw.v_2_0_2.ObjectFactory;
-import net.opengis.cat.csw.v_2_0_2.QueryType;
-import net.opengis.cat.csw.v_2_0_2.ResultType;
-import net.opengis.cat.csw.v_2_0_2.SearchResultsType;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.namespace.QName;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.tika.io.IOUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
@@ -57,38 +65,32 @@ import org.slf4j.LoggerFactory;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.namespace.QName;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.converters.MarshallingContext;
+import com.thoughtworks.xstream.converters.UnmarshallingContext;
+import com.thoughtworks.xstream.io.HierarchicalStreamReader;
+import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
+import com.thoughtworks.xstream.io.naming.NoNameCoder;
+import com.thoughtworks.xstream.io.xml.StaxDriver;
+import com.thoughtworks.xstream.io.xml.WstxDriver;
+import com.thoughtworks.xstream.io.xml.XppReader;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import ddf.catalog.data.AttributeDescriptor;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.AttributeDescriptorImpl;
+import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.impl.MetacardTypeImpl;
+import net.opengis.cat.csw.v_2_0_2.ElementSetNameType;
+import net.opengis.cat.csw.v_2_0_2.ElementSetType;
+import net.opengis.cat.csw.v_2_0_2.GetRecordByIdResponseType;
+import net.opengis.cat.csw.v_2_0_2.GetRecordsResponseType;
+import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
+import net.opengis.cat.csw.v_2_0_2.ObjectFactory;
+import net.opengis.cat.csw.v_2_0_2.QueryType;
+import net.opengis.cat.csw.v_2_0_2.ResultType;
+import net.opengis.cat.csw.v_2_0_2.SearchResultsType;
 
 public class TestGetRecordsResponseConverter {
 
@@ -136,8 +138,8 @@ public class TestGetRecordsResponseConverter {
 
         CswTransformProvider provider = new CswTransformProvider(null, mockInputManager);
 
-        when(mockInputManager.getTransformerBySchema(anyString())).thenReturn(
-                new CswRecordConverter());
+        when(mockInputManager.getTransformerBySchema(anyString()))
+                .thenReturn(new CswRecordConverter());
 
         xstream.registerConverter(new GetRecordsResponseConverter(provider));
         xstream.alias("GetRecordsResponse", CswRecordCollection.class);
@@ -200,23 +202,21 @@ public class TestGetRecordsResponseConverter {
         String expectedModifiedDateStr = "2008-12-15";
         DateTimeFormatter dateFormatter = ISODateTimeFormat.dateOptionalTimeParser();
         Date expectedModifiedDate = dateFormatter.parseDateTime(expectedModifiedDateStr).toDate();
-        expectedValues.put(CswRecordMetacardType.CSW_MODIFIED,
-                new String[] {expectedModifiedDateStr});
+        expectedValues
+                .put(CswRecordMetacardType.CSW_MODIFIED, new String[] {expectedModifiedDateStr});
         expectedValues.put(Metacard.MODIFIED, expectedModifiedDate);
-        expectedValues.put(CswRecordMetacardType.CSW_SUBJECT, new String[] {"subject 1",
-                "second subject"});
+        expectedValues.put(CswRecordMetacardType.CSW_SUBJECT,
+                new String[] {"subject 1", "second subject"});
         expectedValues.put(CswRecordMetacardType.CSW_ABSTRACT, new String[] {"abstract 1"});
-        expectedValues.put(CswRecordMetacardType.CSW_RIGHTS, new String[] {"copyright 1",
-                "copyright 2"});
+        expectedValues
+                .put(CswRecordMetacardType.CSW_RIGHTS, new String[] {"copyright 1", "copyright 2"});
         expectedValues.put(CswRecordMetacardType.CSW_LANGUAGE, new String[] {"english"});
         expectedValues.put(CswRecordMetacardType.CSW_TYPE, "dataset");
         expectedValues.put(CswRecordMetacardType.CSW_FORMAT, new String[] {"Shapefile"});
         expectedValues.put(Metacard.GEOGRAPHY,
                 "POLYGON((52.139 5.121, 52.517 5.121, 52.517 4.468, 52.139 4.468, 52.139 5.121))");
-        expectedValues
-                .put(CswRecordMetacardType.OWS_BOUNDING_BOX,
-                        new String[] {
-                                "POLYGON((52.139 5.121, 52.517 5.121, 52.517 4.468, 52.139 4.468, 52.139 5.121))"});
+        expectedValues.put(CswRecordMetacardType.OWS_BOUNDING_BOX, new String[] {
+                "POLYGON((52.139 5.121, 52.517 5.121, 52.517 4.468, 52.139 4.468, 52.139 5.121))"});
         assertMetacard(mc, expectedValues);
 
         expectedValues.clear();
@@ -233,23 +233,21 @@ public class TestGetRecordsResponseConverter {
         expectedModifiedDateStr = "2010-12-15";
         dateFormatter = ISODateTimeFormat.dateOptionalTimeParser();
         expectedModifiedDate = dateFormatter.parseDateTime(expectedModifiedDateStr).toDate();
-        expectedValues.put(CswRecordMetacardType.CSW_MODIFIED,
-                new String[] {expectedModifiedDateStr});
+        expectedValues
+                .put(CswRecordMetacardType.CSW_MODIFIED, new String[] {expectedModifiedDateStr});
         expectedValues.put(Metacard.MODIFIED, expectedModifiedDate);
-        expectedValues.put(CswRecordMetacardType.CSW_SUBJECT, new String[] {"first subject",
-                "subject 2"});
+        expectedValues.put(CswRecordMetacardType.CSW_SUBJECT,
+                new String[] {"first subject", "subject 2"});
         expectedValues.put(CswRecordMetacardType.CSW_ABSTRACT, new String[] {"mc2 abstract"});
-        expectedValues.put(CswRecordMetacardType.CSW_RIGHTS, new String[] {"first copyright",
-                "second copyright"});
+        expectedValues.put(CswRecordMetacardType.CSW_RIGHTS,
+                new String[] {"first copyright", "second copyright"});
         expectedValues.put(CswRecordMetacardType.CSW_LANGUAGE, new String[] {"english"});
         expectedValues.put(CswRecordMetacardType.CSW_TYPE, "dataset 2");
         expectedValues.put(CswRecordMetacardType.CSW_FORMAT, new String[] {"Shapefile 2"});
         expectedValues.put(Metacard.GEOGRAPHY,
                 "POLYGON((53.139 6.121, 53.517 6.121, 53.517 5.468, 53.139 5.468, 53.139 6.121))");
-        expectedValues
-                .put(CswRecordMetacardType.OWS_BOUNDING_BOX,
-                        new String[] {
-                                "POLYGON((53.139 6.121, 53.517 6.121, 53.517 5.468, 53.139 5.468, 53.139 6.121))"});
+        expectedValues.put(CswRecordMetacardType.OWS_BOUNDING_BOX, new String[] {
+                "POLYGON((53.139 6.121, 53.517 6.121, 53.517 5.468, 53.139 5.468, 53.139 6.121))"});
         assertMetacard(mc, expectedValues);
 
         expectedValues.clear();
@@ -261,43 +259,36 @@ public class TestGetRecordsResponseConverter {
         XStream xstream = new XStream(new WstxDriver());
         xstream.setClassLoader(this.getClass().getClassLoader());
 
-
-
-
         xstream.registerConverter(new GetRecordsResponseConverter(mockProvider));
         xstream.alias("csw:GetRecordsResponse", CswRecordCollection.class);
 
-        String xml =
-                "<?xml version='1.0' encoding='UTF-8'?>"
-                        + "<csw:GetRecordsResponse "
-                        + "xmlns:dc=\"http://purl.org/dc/elements/1.1/\" "
-                        + "xmlns:dct=\"http://purl.org/dc/terms/\" "
-                        + "xmlns:ows=\"http://www.opengis.net/ows\" "
-                        + "xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\" "
-                        + "version=\"2.0.2\"><csw:SearchStatus "
-                        + "timestamp=\"2014-11-11T10:53:32.152-06:00\"/>"
-                        + "<csw:SearchResults numberOfRecordsMatched=\"1\" "
-                        + "numberOfRecordsReturned=\"1\" nextRecord=\"0\" "
-                        + "recordSchema=\"http://www.opengis.net/cat/csw/2.0.2\">"
-                        + "<csw:Record>\n"
-                        + "<dc:identifier>0a2e1b1d2a3755e70a96d61e6bddbc5d</dc:identifier>"
-                        + "<dct:bibliographicCitation>0a2e1b1d2a3755e70a96d61e6bddbc5d</dct:bibliographicCitation>"
-                        + "<dc:title>US woman attacks Gauguin painting</dc:title>"
-                        + "<dct:alternative>US woman attacks Gauguin painting</dct:alternative>"
-                        + "<dc:type>video</dc:type><dc:date>2011-04-06T04:49:20.230-05:00</dc:date>"
-                        + "<dct:modified>2011-04-06T04:49:20.230-05:00</dct:modified>"
-                        + "<dct:created>2011-04-06T04:49:20.230-05:00</dct:created>"
-                        + "<dct:dateAccepted>2011-04-06T04:48:26.180-05:00</dct:dateAccepted>"
-                        + "<dct:dateCopyrighted>2011-04-06T04:48:26.180-05:00</dct:dateCopyrighted><"
-                        + "dct:dateSubmitted>2011-04-06T04:49:20.230-05:00</dct:dateSubmitted>"
-                        + "<dct:issued>2011-04-06T04:49:20.230-05:00</dct:issued>"
-                        + "<dc:publisher>ddf.distribution</dc:publisher>"
-                        + "<ows:BoundingBox crs=\"urn:x-ogc:def:crs:EPSG:6.11:4326\">\n"
-                        + "    <ows:LowerCorner>-50.5056430529222 84.0285103635943</ows:LowerCorner>"
-                        + "<ows:UpperCorner>-50.5056430529222 84.0285103635943</ows:UpperCorner>"
-                        + "</ows:BoundingBox></csw:Record><"
-                        + "/csw:SearchResults>"
-                        + "</csw:GetRecordsResponse>";
+        String xml = "<?xml version='1.0' encoding='UTF-8'?>" + "<csw:GetRecordsResponse "
+                + "xmlns:dc=\"http://purl.org/dc/elements/1.1/\" "
+                + "xmlns:dct=\"http://purl.org/dc/terms/\" "
+                + "xmlns:ows=\"http://www.opengis.net/ows\" "
+                + "xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\" "
+                + "version=\"2.0.2\"><csw:SearchStatus "
+                + "timestamp=\"2014-11-11T10:53:32.152-06:00\"/>"
+                + "<csw:SearchResults numberOfRecordsMatched=\"1\" "
+                + "numberOfRecordsReturned=\"1\" nextRecord=\"0\" "
+                + "recordSchema=\"http://www.opengis.net/cat/csw/2.0.2\">" + "<csw:Record>\n"
+                + "<dc:identifier>0a2e1b1d2a3755e70a96d61e6bddbc5d</dc:identifier>"
+                + "<dct:bibliographicCitation>0a2e1b1d2a3755e70a96d61e6bddbc5d</dct:bibliographicCitation>"
+                + "<dc:title>US woman attacks Gauguin painting</dc:title>"
+                + "<dct:alternative>US woman attacks Gauguin painting</dct:alternative>"
+                + "<dc:type>video</dc:type><dc:date>2011-04-06T04:49:20.230-05:00</dc:date>"
+                + "<dct:modified>2011-04-06T04:49:20.230-05:00</dct:modified>"
+                + "<dct:created>2011-04-06T04:49:20.230-05:00</dct:created>"
+                + "<dct:dateAccepted>2011-04-06T04:48:26.180-05:00</dct:dateAccepted>"
+                + "<dct:dateCopyrighted>2011-04-06T04:48:26.180-05:00</dct:dateCopyrighted><"
+                + "dct:dateSubmitted>2011-04-06T04:49:20.230-05:00</dct:dateSubmitted>"
+                + "<dct:issued>2011-04-06T04:49:20.230-05:00</dct:issued>"
+                + "<dc:publisher>ddf.distribution</dc:publisher>"
+                + "<ows:BoundingBox crs=\"urn:x-ogc:def:crs:EPSG:6.11:4326\">\n"
+                + "    <ows:LowerCorner>-50.5056430529222 84.0285103635943</ows:LowerCorner>"
+                + "<ows:UpperCorner>-50.5056430529222 84.0285103635943</ows:UpperCorner>"
+                + "</ows:BoundingBox></csw:Record><" + "/csw:SearchResults>"
+                + "</csw:GetRecordsResponse>";
         InputStream inStream = IOUtils.toInputStream(xml);
 
         ArgumentCaptor<UnmarshallingContext> captor = ArgumentCaptor
@@ -321,11 +312,10 @@ public class TestGetRecordsResponseConverter {
         assertThat(namespaces.get(CswConstants.XMLNS + CswConstants.NAMESPACE_DELIMITER
                 + CswConstants.DUBLIN_CORE_NAMESPACE_PREFIX), is(CswConstants.DUBLIN_CORE_SCHEMA));
         assertThat(namespaces.get(CswConstants.XMLNS + CswConstants.NAMESPACE_DELIMITER
-                + CswConstants.DUBLIN_CORE_TERMS_NAMESPACE_PREFIX),
+                        + CswConstants.DUBLIN_CORE_TERMS_NAMESPACE_PREFIX),
                 is(CswConstants.DUBLIN_CORE_TERMS_SCHEMA));
         assertThat(namespaces.get(CswConstants.XMLNS + CswConstants.NAMESPACE_DELIMITER
                 + CswConstants.OWS_NAMESPACE_PREFIX), is(CswConstants.OWS_NAMESPACE));
-
 
     }
 
@@ -372,8 +362,8 @@ public class TestGetRecordsResponseConverter {
     }
 
     @Test
-    public void testMarshalRecordCollectionGetBrief()
-            throws UnsupportedEncodingException, JAXBException {
+    public void testMarshalRecordCollectionGetBrief() throws UnsupportedEncodingException,
+            JAXBException {
         final int totalResults = 5;
 
         XStream xstream = createXStream(CswConstants.GET_RECORDS_RESPONSE);
@@ -418,8 +408,8 @@ public class TestGetRecordsResponseConverter {
     }
 
     @Test
-    public void testMarshalRecordCollectionGetSummary()
-            throws UnsupportedEncodingException, JAXBException {
+    public void testMarshalRecordCollectionGetSummary() throws UnsupportedEncodingException,
+            JAXBException {
         final int totalResults = 5;
 
         XStream xstream = createXStream(CswConstants.GET_RECORDS_RESPONSE);
@@ -464,8 +454,8 @@ public class TestGetRecordsResponseConverter {
     }
 
     @Test
-    public void testMarshalRecordCollectionGetFull()
-            throws UnsupportedEncodingException, JAXBException {
+    public void testMarshalRecordCollectionGetFull() throws UnsupportedEncodingException,
+            JAXBException {
         final int totalResults = 5;
 
         XStream xstream = createXStream(CswConstants.GET_RECORDS_RESPONSE);
@@ -509,10 +499,9 @@ public class TestGetRecordsResponseConverter {
         assertThat(resultsType.getRecordSchema(), is(CswConstants.CSW_OUTPUT_SCHEMA));
     }
 
-
     @Test
-    public void testMarshalRecordCollectionHits()
-            throws UnsupportedEncodingException, JAXBException {
+    public void testMarshalRecordCollectionHits() throws UnsupportedEncodingException,
+            JAXBException {
         final int totalResults = 5;
 
         XStream xstream = createXStream(CswConstants.GET_RECORDS_RESPONSE);
@@ -531,7 +520,8 @@ public class TestGetRecordsResponseConverter {
 
         // Verify the context arguments were set correctly
         verify(mockProvider, never())
-                .marshal(any(Object.class), any(HierarchicalStreamWriter.class), any(MarshallingContext.class));
+                .marshal(any(Object.class), any(HierarchicalStreamWriter.class),
+                        any(MarshallingContext.class));
 
         JAXBElement<GetRecordsResponseType> jaxb = (JAXBElement<GetRecordsResponseType>) getJaxBContext()
                 .createUnmarshaller().unmarshal(new ByteArrayInputStream(xml.getBytes("UTF-8")));
@@ -548,8 +538,8 @@ public class TestGetRecordsResponseConverter {
     }
 
     @Test
-    public void testMarshalRecordCollectionGetElements()
-            throws UnsupportedEncodingException, JAXBException {
+    public void testMarshalRecordCollectionGetElements() throws UnsupportedEncodingException,
+            JAXBException {
         final int totalResults = 5;
 
         XStream xstream = createXStream(CswConstants.GET_RECORDS_RESPONSE);
@@ -598,8 +588,8 @@ public class TestGetRecordsResponseConverter {
     }
 
     @Test
-    public void testMarshalRecordCollectionGetFirstPage()
-            throws UnsupportedEncodingException, JAXBException {
+    public void testMarshalRecordCollectionGetFirstPage() throws UnsupportedEncodingException,
+            JAXBException {
         final int maxRecords = 6;
         final int startPosition = 1;
         final int totalResults = 22;
@@ -610,8 +600,8 @@ public class TestGetRecordsResponseConverter {
     }
 
     @Test
-    public void testMarshalRecordCollectionGetMiddlePage()
-            throws UnsupportedEncodingException, JAXBException {
+    public void testMarshalRecordCollectionGetMiddlePage() throws UnsupportedEncodingException,
+            JAXBException {
         final int maxRecords = 6;
         final int startPosition = 4;
         final int totalResults = 22;
@@ -622,8 +612,8 @@ public class TestGetRecordsResponseConverter {
     }
 
     @Test
-    public void testMarshalRecordCollectionGetLastPage()
-            throws UnsupportedEncodingException, JAXBException {
+    public void testMarshalRecordCollectionGetLastPage() throws UnsupportedEncodingException,
+            JAXBException {
         final int maxRecords = 6;
         final int startPosition = 18;
         final int totalResults = 22;
@@ -634,8 +624,8 @@ public class TestGetRecordsResponseConverter {
     }
 
     @Test
-    public void testMarshalRecordCollectionGetAllOnePage()
-            throws UnsupportedEncodingException, JAXBException {
+    public void testMarshalRecordCollectionGetAllOnePage() throws UnsupportedEncodingException,
+            JAXBException {
         final int maxRecords = 23;
         final int startPosition = 1;
         final int totalResults = 22;
@@ -679,14 +669,15 @@ public class TestGetRecordsResponseConverter {
     }
 
     @Test
-    public void testMarshalRecordCollectionFullXml()
-            throws UnsupportedEncodingException, JAXBException {
+    public void testMarshalRecordCollectionFullXml() throws UnsupportedEncodingException,
+            JAXBException {
         final int totalResults = 5;
 
         TransformerManager mockMetacardManager = mock(TransformerManager.class);
-        when(mockMetacardManager.getTransformerBySchema(anyString())).thenReturn(
-                new CswRecordConverter());
-        GetRecordsResponseConverter rrConverter = new GetRecordsResponseConverter(new CswTransformProvider(mockMetacardManager, null));
+        when(mockMetacardManager.getTransformerBySchema(anyString()))
+                .thenReturn(new CswRecordConverter());
+        GetRecordsResponseConverter rrConverter = new GetRecordsResponseConverter(
+                new CswTransformProvider(mockMetacardManager, null));
 
         XStream xstream = new XStream(new StaxDriver(new NoNameCoder()));
 
@@ -802,8 +793,9 @@ public class TestGetRecordsResponseConverter {
 
         xstream.registerConverter(rrConverter);
 
-        xstream.alias(CswConstants.CSW_NAMESPACE_PREFIX + CswConstants.NAMESPACE_DELIMITER
-                + elementName, CswRecordCollection.class);
+        xstream.alias(
+                CswConstants.CSW_NAMESPACE_PREFIX + CswConstants.NAMESPACE_DELIMITER + elementName,
+                CswRecordCollection.class);
         return xstream;
     }
 
@@ -843,8 +835,8 @@ public class TestGetRecordsResponseConverter {
             // for testing a attribute with multiple values
             AttributeDescriptor ad = new AttributeDescriptorImpl(FORMAT, true, true, true, true,
                     BasicTypes.STRING_TYPE);
-            Set<AttributeDescriptor> ads = new HashSet<AttributeDescriptor>(metacard
-                    .getMetacardType().getAttributeDescriptors());
+            Set<AttributeDescriptor> ads = new HashSet<AttributeDescriptor>(
+                    metacard.getMetacardType().getAttributeDescriptors());
             ads.add(ad);
             metacard.setType(new MetacardTypeImpl("test", ads));
             metacard.setLocation(WKT);
@@ -862,12 +854,12 @@ public class TestGetRecordsResponseConverter {
 
     private JAXBContext getJaxBContext() throws JAXBException {
         JAXBContext context = null;
-        String contextPath = StringUtils.join(new String[] {
-                CswConstants.OGC_CSW_PACKAGE, CswConstants.OGC_FILTER_PACKAGE,
-                CswConstants.OGC_GML_PACKAGE, CswConstants.OGC_OWS_PACKAGE}, ":");
+        String contextPath = StringUtils
+                .join(new String[] {CswConstants.OGC_CSW_PACKAGE, CswConstants.OGC_FILTER_PACKAGE,
+                        CswConstants.OGC_GML_PACKAGE, CswConstants.OGC_OWS_PACKAGE}, ":");
 
-        context = JAXBContext.newInstance(contextPath,
-                CswJAXBElementProvider.class.getClassLoader());
+        context = JAXBContext
+                .newInstance(contextPath, CswJAXBElementProvider.class.getClassLoader());
         return context;
     }
 }

@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema targetNamespace="http://www.opengis.net/gml/3.2" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="3.2.1.2">
+<schema xmlns:gml="http://www.opengis.net/gml/3.2" targetNamespace="http://www.opengis.net/gml/3.2"
+        xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="3.2.1.2">
 	<annotation>
-		<appinfo source="urn:x-ogc:specification:gml:schema-xsd:topology:3.2.1">topology.xsd</appinfo>
+		<appinfo
+                source="urn:x-ogc:specification:gml:schema-xsd:topology:3.2.1">topology.xsd</appinfo>
 		<documentation>See ISO/DIS 19136 Clause 14.
 Topology is the branch of mathematics describing the properties of objects which are invariant under continuous deformation. For example, a circle is topologically equivalent to an ellipse because one can be transformed into the other by stretching. In geographic modelling, the foremost use of topology is in accelerating computational geometry. The constructs of topology allow characterisation of the spatial relationships between objects using simple combinatorial or algebraic algorithms. Topology, realised by the appropriate geometry, also allows a compact and unambiguous mechanism for expressing shared geometry among geographic features.
 There are four instantiable classes of primitive topology objects, one for each dimension up to 3D. In addition, topological complexes are supported, too. 
@@ -22,13 +24,15 @@ To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
       <extension base="gml:AbstractGMLType"/>
     </complexContent>
   </complexType>
-  <element name="AbstractTopology" type="gml:AbstractTopologyType" abstract="true" substitutionGroup="gml:AbstractGML"/>
+  <element name="AbstractTopology" type="gml:AbstractTopologyType" abstract="true"
+           substitutionGroup="gml:AbstractGML"/>
   <complexType name="AbstractTopoPrimitiveType" abstract="true">
     <complexContent>
       <extension base="gml:AbstractTopologyType"/>
     </complexContent>
   </complexType>
-  <element name="AbstractTopoPrimitive" type="gml:AbstractTopoPrimitiveType" abstract="true" substitutionGroup="gml:AbstractTopology">
+  <element name="AbstractTopoPrimitive" type="gml:AbstractTopoPrimitiveType" abstract="true"
+           substitutionGroup="gml:AbstractTopology">
     <annotation>
       <documentation>gml:AbstractTopoPrimitive acts as the base type for all topological primitives. Topology primitives are the atomic (smallest possible) units of a topology complex. 
 Each topology primitive may contain references to other topology primitives of codimension 2 or more (gml:isolated). Conversely, nodes may have faces as containers and nodes and edges may have solids as containers (gml:container).</documentation>
@@ -179,7 +183,8 @@ A face may optionally be realised by a 2-dimensional geometric primitive (gml:su
     <complexContent>
       <extension base="gml:AbstractTopoPrimitiveType">
         <sequence>
-          <element name="isolated" type="gml:NodeOrEdgePropertyType" minOccurs="0" maxOccurs="unbounded"/>
+          <element name="isolated" type="gml:NodeOrEdgePropertyType" minOccurs="0"
+                   maxOccurs="unbounded"/>
           <element ref="gml:directedFace" maxOccurs="unbounded"/>
           <element ref="gml:solidProperty" minOccurs="0"/>
         </sequence>

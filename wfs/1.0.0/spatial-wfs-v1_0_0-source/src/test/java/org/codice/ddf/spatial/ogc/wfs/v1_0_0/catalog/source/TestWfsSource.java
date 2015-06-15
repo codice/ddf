@@ -1,18 +1,60 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.source;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.io.ByteArrayInputStream;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
+
+import javax.xml.namespace.QName;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.stream.StreamSource;
+
+import org.apache.ws.commons.schema.XmlSchema;
+import org.apache.ws.commons.schema.XmlSchemaCollection;
+import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
+import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
+import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsFeatureCollection;
+import org.codice.ddf.spatial.ogc.wfs.catalog.source.WfsUriResolver;
+import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.DescribeFeatureTypeRequest;
+import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.GetCapabilitiesRequest;
+import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.Wfs10Constants;
+import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.source.reader.FeatureCollectionMessageBodyReaderWfs10;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+import org.opengis.filter.Filter;
+import org.osgi.framework.BundleContext;
 
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
@@ -40,120 +82,61 @@ import ogc.schema.opengis.wfs.v_1_0_0.QueryType;
 import ogc.schema.opengis.wfs_capabilities.v_1_0_0.FeatureTypeListType;
 import ogc.schema.opengis.wfs_capabilities.v_1_0_0.FeatureTypeType;
 import ogc.schema.opengis.wfs_capabilities.v_1_0_0.WFSCapabilitiesType;
-import org.apache.ws.commons.schema.XmlSchema;
-import org.apache.ws.commons.schema.XmlSchemaCollection;
-import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
-import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
-import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsFeatureCollection;
-import org.codice.ddf.spatial.ogc.wfs.catalog.source.WfsUriResolver;
-import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.DescribeFeatureTypeRequest;
-import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.GetCapabilitiesRequest;
-import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.Wfs10Constants;
-import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.source.reader.FeatureCollectionMessageBodyReaderWfs10;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.opengis.filter.Filter;
-import org.osgi.framework.BundleContext;
-
-import javax.xml.namespace.QName;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.stream.StreamSource;
-import java.io.ByteArrayInputStream;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class TestWfsSource {
 
-    private static final String ONE_TEXT_PROPERTY_SCHEMA = "<?xml version=\"1.0\"?>"
-            + "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">"
-            + "<xs:element name=\"shiporder\">" + "<xs:complexType>" + "<xs:sequence>"
-            + "<xs:element name=\"orderperson\" type=\"xs:string\"/>" + "</xs:sequence>"
-            + "</xs:complexType>" + "</xs:element>" + "</xs:schema>";
+    private static final String ONE_TEXT_PROPERTY_SCHEMA =
+            "<?xml version=\"1.0\"?>" + "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">"
+                    + "<xs:element name=\"shiporder\">" + "<xs:complexType>" + "<xs:sequence>"
+                    + "<xs:element name=\"orderperson\" type=\"xs:string\"/>" + "</xs:sequence>"
+                    + "</xs:complexType>" + "</xs:element>" + "</xs:schema>";
 
-    private static final String TWO_TEXT_PROPERTY_SCHEMA = "<?xml version=\"1.0\"?>"
-            + "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">"
-            + "<xs:element name=\"shiporder\">" + "<xs:complexType>" + "<xs:sequence>"
-            + "<xs:element name=\"orderperson\" type=\"xs:string\"/>"
-            + "<xs:element name=\"orderdog\" type=\"xs:string\"/>" + "</xs:sequence>"
-            + "</xs:complexType>" + "</xs:element>" + "</xs:schema>";
+    private static final String TWO_TEXT_PROPERTY_SCHEMA =
+            "<?xml version=\"1.0\"?>" + "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">"
+                    + "<xs:element name=\"shiporder\">" + "<xs:complexType>" + "<xs:sequence>"
+                    + "<xs:element name=\"orderperson\" type=\"xs:string\"/>"
+                    + "<xs:element name=\"orderdog\" type=\"xs:string\"/>" + "</xs:sequence>"
+                    + "</xs:complexType>" + "</xs:element>" + "</xs:schema>";
 
-    private static final String NO_PROPERTY_SCHEMA = "<?xml version=\"1.0\"?>"
-            + "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">"
-            + "<xs:element name=\"shiporder\">" + "<xs:complexType>" + "<xs:sequence>"
-            + "</xs:sequence>" + "</xs:complexType>" + "</xs:element>" + "</xs:schema>";
+    private static final String NO_PROPERTY_SCHEMA =
+            "<?xml version=\"1.0\"?>" + "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">"
+                    + "<xs:element name=\"shiporder\">" + "<xs:complexType>" + "<xs:sequence>"
+                    + "</xs:sequence>" + "</xs:complexType>" + "</xs:element>" + "</xs:schema>";
 
-    private static final String ONE_GML_PROPERTY_SCHEMA = "<?xml version=\"1.0\"?>"
-            + "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" "
-            + "xmlns:gml=\"http://www.opengis.net/gml\" "
-            + "targetNamespace=\"http://www.opengis.net/gml\">" + "<xs:element name=\"shiporder\">"
-            + "<xs:complexType>" + "<xs:sequence>"
-            + "<xs:element name=\"orderperson\" type=\"gml:FakeGmlProperty\"/>" + "</xs:sequence>"
-            + "</xs:complexType>" + "</xs:element>" + "<xs:complexType name=\"FakeGmlProperty\" />"
-            + "</xs:schema>";
+    private static final String ONE_GML_PROPERTY_SCHEMA =
+            "<?xml version=\"1.0\"?>" + "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" "
+                    + "xmlns:gml=\"http://www.opengis.net/gml\" "
+                    + "targetNamespace=\"http://www.opengis.net/gml\">"
+                    + "<xs:element name=\"shiporder\">" + "<xs:complexType>" + "<xs:sequence>"
+                    + "<xs:element name=\"orderperson\" type=\"gml:FakeGmlProperty\"/>"
+                    + "</xs:sequence>" + "</xs:complexType>" + "</xs:element>"
+                    + "<xs:complexType name=\"FakeGmlProperty\" />" + "</xs:schema>";
 
-    private static final String TWO_GML_PROPERTY_SCHEMA = "<?xml version=\"1.0\"?>"
-            + "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" "
-            + "xmlns:gml=\"http://www.opengis.net/gml\" "
-            + "targetNamespace=\"http://www.opengis.net/gml\">" + "<xs:element name=\"shiporder\">"
-            + "<xs:complexType>" + "<xs:sequence>"
-            + "<xs:element name=\"orderperson\" type=\"gml:FakeGmlProperty\"/>"
-            + "<xs:element name=\"orderdog\" type=\"gml:FakeGmlProperty\"/>" + "</xs:sequence>"
-            + "</xs:complexType>" + "</xs:element>" + "<xs:complexType name=\"FakeGmlProperty\" />"
-            + "</xs:schema>";
+    private static final String TWO_GML_PROPERTY_SCHEMA =
+            "<?xml version=\"1.0\"?>" + "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" "
+                    + "xmlns:gml=\"http://www.opengis.net/gml\" "
+                    + "targetNamespace=\"http://www.opengis.net/gml\">"
+                    + "<xs:element name=\"shiporder\">" + "<xs:complexType>" + "<xs:sequence>"
+                    + "<xs:element name=\"orderperson\" type=\"gml:FakeGmlProperty\"/>"
+                    + "<xs:element name=\"orderdog\" type=\"gml:FakeGmlProperty\"/>"
+                    + "</xs:sequence>" + "</xs:complexType>" + "</xs:element>"
+                    + "<xs:complexType name=\"FakeGmlProperty\" />" + "</xs:schema>";
 
-    private static final String GML_IMPORT_SCHEMA = "<?xml version=\"1.0\"?>"
-            + "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" "
-            + "xmlns:gml=\"http://www.opengis.net/gml\" "
-            + "targetNamespace=\"http://www.opengis.net/gml\">"
-            + "<xs:import namespace=\"http://www.opengis.net/gml\" schemaLocation=\"http://schemas.opengis.net/gml/2.1.2/feature.xsd\"/>"
-            + "<xs:element name=\"shiporder\">" + "<xs:complexType>" + "<xs:sequence>"
-            + "<xs:element name=\"orderperson\" type=\"gml:FakeGmlProperty\"/>" + "</xs:sequence>"
-            + "</xs:complexType>" + "</xs:element>" + "<xs:complexType name=\"FakeGmlProperty\" />"
-            + "</xs:schema>";
+    private static final String GML_IMPORT_SCHEMA =
+            "<?xml version=\"1.0\"?>" + "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" "
+                    + "xmlns:gml=\"http://www.opengis.net/gml\" "
+                    + "targetNamespace=\"http://www.opengis.net/gml\">"
+                    + "<xs:import namespace=\"http://www.opengis.net/gml\" schemaLocation=\"http://schemas.opengis.net/gml/2.1.2/feature.xsd\"/>"
+                    + "<xs:element name=\"shiporder\">" + "<xs:complexType>" + "<xs:sequence>"
+                    + "<xs:element name=\"orderperson\" type=\"gml:FakeGmlProperty\"/>"
+                    + "</xs:sequence>" + "</xs:complexType>" + "</xs:element>"
+                    + "<xs:complexType name=\"FakeGmlProperty\" />" + "</xs:schema>";
 
     private static final String POLYGON_WKT = "POLYGON ((30 10, 10 20, 20 40, 40 40, 30 10))";
 
     private static final String ORDER_PERSON = "orderperson";
 
     private static final String ORDER_DOG = "orderdog";
-
-    private RemoteWfs mockWfs = mock(RemoteWfs.class);
-
-    private WFSCapabilitiesType mockCapabilites = new WFSCapabilitiesType();
-
-    private WfsFeatureCollection mockFeatureCollection = mock(WfsFeatureCollection.class);
-
-    private BundleContext mockContext = mock(BundleContext.class);
-
-    // private ServiceReference mockServiceRef = mock(ServiceReference.class);
-    //
-    private static byte[] resultsByteArray;
-
-    //
-    // private Response mockResponse = mock(Response.class);
-
-    private FeatureCollectionMessageBodyReaderWfs10 mockReader = mock(FeatureCollectionMessageBodyReaderWfs10.class);
-
-    private final GeotoolsFilterBuilder builder = new GeotoolsFilterBuilder();
 
     private static final Integer MAX_FEATURES = 10;
 
@@ -163,13 +146,35 @@ public class TestWfsSource {
 
     private static final String SRS_NAME = "EPSG:4326";
 
-    // private static final QName[] SAMPLE_FEATURE = {new
-    // QName("SampleFeature1"),
-    // new QName("http://example.com", "SampleFeature2", "Prefix")};
+    private static final String LITERAL = "literal";
+
+    private static byte[] resultsByteArray;
+
+    private static final Comparator<QueryType> QUERY_TYPE_COMPARATOR = new Comparator<QueryType>() {
+
+        public int compare(QueryType queryType1, QueryType queryType2) {
+
+            String typeName1 = queryType1.getTypeName().getLocalPart();
+            String typeName2 = queryType2.getTypeName().getLocalPart();
+            return typeName1.compareTo(typeName2);
+        }
+
+    };
+
+    private final GeotoolsFilterBuilder builder = new GeotoolsFilterBuilder();
+
+    private RemoteWfs mockWfs = mock(RemoteWfs.class);
+
+    private WFSCapabilitiesType mockCapabilites = new WFSCapabilitiesType();
+
+    private WfsFeatureCollection mockFeatureCollection = mock(WfsFeatureCollection.class);
+
+    private BundleContext mockContext = mock(BundleContext.class);
+
+    private FeatureCollectionMessageBodyReaderWfs10 mockReader = mock(
+            FeatureCollectionMessageBodyReaderWfs10.class);
 
     private List<QName> sampleFeatures;
-
-    private static final String LITERAL = "literal";
 
     private WfsUriResolver wfsUriResolver = new WfsUriResolver();
 
@@ -184,8 +189,8 @@ public class TestWfsSource {
         when(mockWfs.getCapabilities(any(GetCapabilitiesRequest.class)))
                 .thenReturn(mockCapabilites);
         mockCapabilites.setFilterCapabilities(new FilterCapabilities());
-        mockCapabilites.getFilterCapabilities().setSpatialCapabilities(
-                new SpatialCapabilitiesType());
+        mockCapabilites.getFilterCapabilities()
+                .setSpatialCapabilities(new SpatialCapabilitiesType());
         mockCapabilites.getFilterCapabilities().getSpatialCapabilities()
                 .setSpatialOperators(new SpatialOperatorsType());
         if (null != supportedGeos && !supportedGeos.isEmpty()) {
@@ -200,12 +205,12 @@ public class TestWfsSource {
             wfsUriResolver.setGmlNamespace(Wfs10Constants.GML_NAMESPACE);
             wfsUriResolver.setWfsNamespace(Wfs10Constants.WFS_NAMESPACE);
             schemaCollection.setSchemaResolver(wfsUriResolver);
-            xmlSchema = schemaCollection.read(new StreamSource(new ByteArrayInputStream(schema
-                    .getBytes())));
+            xmlSchema = schemaCollection
+                    .read(new StreamSource(new ByteArrayInputStream(schema.getBytes())));
         }
 
-        when(mockWfs.describeFeatureType(any(DescribeFeatureTypeRequest.class))).thenReturn(
-                xmlSchema);
+        when(mockWfs.describeFeatureType(any(DescribeFeatureTypeRequest.class)))
+                .thenReturn(xmlSchema);
 
         sampleFeatures = new ArrayList<QName>();
         mockCapabilites.setFeatureTypeList(new FeatureTypeListType());
@@ -269,8 +274,8 @@ public class TestWfsSource {
     @Test(expected = UnsupportedQueryException.class)
     public void testQueryEmptyQueryList() throws UnsupportedQueryException, WfsException {
         setUp(NO_PROPERTY_SCHEMA, null, null, ONE_FEATURE, null);
-        QueryImpl propertyIsLikeQuery = new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is()
-                .like().text(LITERAL));
+        QueryImpl propertyIsLikeQuery = new QueryImpl(
+                builder.attribute(Metacard.ANY_TEXT).is().like().text(LITERAL));
         propertyIsLikeQuery.setPageSize(MAX_FEATURES);
         source.query(new QueryRequestImpl(propertyIsLikeQuery));
     }
@@ -278,8 +283,8 @@ public class TestWfsSource {
     @Test
     public void testPropertyIsLikeQuery() throws UnsupportedQueryException, WfsException {
         setUp(ONE_TEXT_PROPERTY_SCHEMA, null, null, ONE_FEATURE, null);
-        QueryImpl propertyIsLikeQuery = new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is()
-                .like().text("literal"));
+        QueryImpl propertyIsLikeQuery = new QueryImpl(
+                builder.attribute(Metacard.ANY_TEXT).is().like().text("literal"));
         propertyIsLikeQuery.setPageSize(MAX_FEATURES);
 
         ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
@@ -299,8 +304,8 @@ public class TestWfsSource {
     @Test
     public void testTwoPropertyQuery() throws UnsupportedQueryException, WfsException {
         setUp(TWO_TEXT_PROPERTY_SCHEMA, null, null, ONE_FEATURE, null);
-        QueryImpl propertyIsLikeQuery = new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is()
-                .like().text(LITERAL));
+        QueryImpl propertyIsLikeQuery = new QueryImpl(
+                builder.attribute(Metacard.ANY_TEXT).is().like().text(LITERAL));
         propertyIsLikeQuery.setPageSize(MAX_FEATURES);
 
         ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
@@ -323,9 +328,10 @@ public class TestWfsSource {
         Filter propertyIsLikeFilter = builder.attribute(Metacard.ANY_TEXT).is().like()
                 .text(LITERAL);
         Filter contentTypeFilter = builder.attribute(Metacard.CONTENT_TYPE).is().like()
-                .text(sampleFeatures.get(0).getLocalPart()); // .text(SAMPLE_FEATURE[0].getLocalPart());
-        QueryImpl propertyIsLikeQuery = new QueryImpl(builder.allOf(propertyIsLikeFilter,
-                contentTypeFilter));
+                .text(sampleFeatures.get(0)
+                        .getLocalPart()); // .text(SAMPLE_FEATURE[0].getLocalPart());
+        QueryImpl propertyIsLikeQuery = new QueryImpl(
+                builder.allOf(propertyIsLikeFilter, contentTypeFilter));
         propertyIsLikeQuery.setPageSize(MAX_FEATURES);
 
         ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
@@ -361,28 +367,17 @@ public class TestWfsSource {
         assertEquals(sampleFeatures.get(0), getFeatureType.getQuery().get(0).getTypeName());
     }
 
-    private static Comparator<QueryType> QueryTypeComparator = new Comparator<QueryType>() {
-
-        public int compare(QueryType queryType1, QueryType queryType2) {
-
-            String typeName1 = queryType1.getTypeName().getLocalPart();
-            String typeName2 = queryType2.getTypeName().getLocalPart();
-            return typeName1.compareTo(typeName2);
-        }
-
-    };
-
     @Test
     public void testTwoContentTypeAndNoPropertyQuery() throws UnsupportedQueryException,
-        WfsException {
+            WfsException {
         setUp(NO_PROPERTY_SCHEMA, null, null, TWO_FEATURES, null);
 
         Filter contentTypeFilter = builder.attribute(Metacard.CONTENT_TYPE).is().like()
                 .text(sampleFeatures.get(0).getLocalPart());
         Filter contentTypeFilter2 = builder.attribute(Metacard.CONTENT_TYPE).is().like()
                 .text(sampleFeatures.get(1).getLocalPart());
-        QueryImpl twoContentTypeQuery = new QueryImpl(builder.anyOf(Arrays.asList(
-                contentTypeFilter, contentTypeFilter2)));
+        QueryImpl twoContentTypeQuery = new QueryImpl(
+                builder.anyOf(Arrays.asList(contentTypeFilter, contentTypeFilter2)));
 
         twoContentTypeQuery.setPageSize(MAX_FEATURES);
 
@@ -392,7 +387,7 @@ public class TestWfsSource {
 
         GetFeatureType getFeatureType = captor.getValue();
         assertMaxFeatures(getFeatureType, twoContentTypeQuery);
-        Collections.sort(getFeatureType.getQuery(), QueryTypeComparator);
+        Collections.sort(getFeatureType.getQuery(), QUERY_TYPE_COMPARATOR);
         assertEquals(TWO_FEATURES.intValue(), getFeatureType.getQuery().size());
         assertEquals(sampleFeatures.get(0), getFeatureType.getQuery().get(0).getTypeName());
     }
@@ -404,8 +399,8 @@ public class TestWfsSource {
                 .text(LITERAL);
         Filter contentTypeFilter = builder.attribute(Metacard.ANY_TEXT).is().like()
                 .text(sampleFeatures.get(0).getLocalPart());
-        QueryImpl propertyIsLikeQuery = new QueryImpl(builder.allOf(propertyIsLikeFilter,
-                contentTypeFilter));
+        QueryImpl propertyIsLikeQuery = new QueryImpl(
+                builder.allOf(propertyIsLikeFilter, contentTypeFilter));
         propertyIsLikeQuery.setPageSize(MAX_FEATURES);
 
         ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
@@ -527,8 +522,8 @@ public class TestWfsSource {
     @Test
     public void testTwoFeatureTypesQuery() throws UnsupportedQueryException, WfsException {
         setUp(ONE_TEXT_PROPERTY_SCHEMA, null, null, TWO_FEATURES, null);
-        QueryImpl propertyIsLikeQuery = new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is()
-                .like().text(LITERAL));
+        QueryImpl propertyIsLikeQuery = new QueryImpl(
+                builder.attribute(Metacard.ANY_TEXT).is().like().text(LITERAL));
         propertyIsLikeQuery.setPageSize(MAX_FEATURES);
 
         ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
@@ -538,7 +533,7 @@ public class TestWfsSource {
         GetFeatureType getFeatureType = captor.getValue();
         assertMaxFeatures(getFeatureType, propertyIsLikeQuery);
         assertTrue(getFeatureType.getQuery().size() == TWO_FEATURES);
-        Collections.sort(getFeatureType.getQuery(), QueryTypeComparator);
+        Collections.sort(getFeatureType.getQuery(), QUERY_TYPE_COMPARATOR);
         QueryType query = getFeatureType.getQuery().get(0);
         assertTrue(query.getTypeName().equals(sampleFeatures.get(0)));
         assertTrue(query.getFilter().isSetComparisonOps());
@@ -552,14 +547,14 @@ public class TestWfsSource {
     /**
      * Given 10 features (and metacards) exist that match search criteria, since page size=4 and
      * startIndex=1, should get 4 results back - metacards 1 thru 4.
-     * 
+     *
      * @throws WfsException
      * @throws TransformerConfigurationException
      * @throws UnsupportedQueryException
      */
     @Test
     public void testPagingStartIndexOne() throws WfsException, TransformerConfigurationException,
-        UnsupportedQueryException {
+            UnsupportedQueryException {
 
         int pageSize = 4;
         int startIndex = 1;
@@ -579,14 +574,14 @@ public class TestWfsSource {
     /**
      * Given 10 features (and metacards) exist that match search criteria, since page size=4 and
      * startIndex=2, should get 4 results back - metacards 2 thru 5.
-     * 
+     *
      * @throws WfsException
      * @throws TransformerConfigurationException
      * @throws UnsupportedQueryException
      */
     @Test
     public void testPagingStartIndexTwo() throws WfsException, TransformerConfigurationException,
-        UnsupportedQueryException {
+            UnsupportedQueryException {
 
         int pageSize = 4;
         int startIndex = 2;
@@ -606,14 +601,14 @@ public class TestWfsSource {
     /**
      * Given 2 features (and metacards) exist that match search criteria, since page size=4 and
      * startIndex=3, should get 0 results back and total hits of 2.
-     * 
+     *
      * @throws WfsException
      * @throws TransformerConfigurationException
      * @throws UnsupportedQueryException
      */
     @Test
     public void testPagingStartIndexGreaterThanNumberOfFeatures() throws WfsException,
-        TransformerConfigurationException, UnsupportedQueryException {
+            TransformerConfigurationException, UnsupportedQueryException {
 
         int pageSize = 4;
         int startIndex = 3;
@@ -633,7 +628,7 @@ public class TestWfsSource {
     // view associated metacard in XML)
     @Test
     public void testPaging() throws WfsException, TransformerConfigurationException,
-        UnsupportedQueryException {
+            UnsupportedQueryException {
 
         int pageSize = 4;
         int startIndex = 1;
@@ -652,14 +647,14 @@ public class TestWfsSource {
      * Given 10 features (and metacards) exist that match search criteria, since page size=20 (which
      * is larger than number of features) and startIndex=1, should get 10 results back - metacards 1
      * thru 10.
-     * 
+     *
      * @throws WfsException
      * @throws TransformerConfigurationException
      * @throws UnsupportedQueryException
      */
     @Test
     public void testPagingPageSizeExceedsFeatureCountStartIndexOne() throws WfsException,
-        TransformerConfigurationException, UnsupportedQueryException {
+            TransformerConfigurationException, UnsupportedQueryException {
 
         int pageSize = 20;
         int startIndex = 1;
@@ -680,14 +675,14 @@ public class TestWfsSource {
      * Given 10 features (and metacards) exist that match search criteria, since page size=20 (which
      * is larger than number of features) and startIndex=2, should get 9 results back - metacards 2
      * thru 10.
-     * 
+     *
      * @throws WfsException
      * @throws TransformerConfigurationException
      * @throws UnsupportedQueryException
      */
     @Test
     public void testPagingPageSizeExceedsFeatureCountStartIndexTwo() throws WfsException,
-        TransformerConfigurationException, UnsupportedQueryException {
+            TransformerConfigurationException, UnsupportedQueryException {
 
         int pageSize = 20;
         int startIndex = 2;
@@ -707,14 +702,14 @@ public class TestWfsSource {
     /**
      * Verify that, per DDF Query API Javadoc, if the startIndex is negative, the WfsSource throws
      * an UnsupportedQueryException.
-     * 
+     *
      * @throws WfsException
      * @throws TransformerConfigurationException
      * @throws UnsupportedQueryException
      */
     @Test(expected = UnsupportedQueryException.class)
     public void testPagingStartIndexNegative() throws WfsException,
-        TransformerConfigurationException, UnsupportedQueryException {
+            TransformerConfigurationException, UnsupportedQueryException {
 
         int pageSize = 4;
         int startIndex = -1;
@@ -727,14 +722,14 @@ public class TestWfsSource {
     /**
      * Verify that, per DDF Query API Javadoc, if the startIndex is zero, the WfsSource throws an
      * UnsupportedQueryException.
-     * 
+     *
      * @throws WfsException
      * @throws TransformerConfigurationException
      * @throws UnsupportedQueryException
      */
     @Test(expected = UnsupportedQueryException.class)
     public void testPagingStartIndexZero() throws WfsException, TransformerConfigurationException,
-        UnsupportedQueryException {
+            UnsupportedQueryException {
         int pageSize = 4;
         int startIndex = 0;
 
@@ -746,14 +741,14 @@ public class TestWfsSource {
     /**
      * Verify that if page size is negative, WfsSource defaults it to the max features that can be
      * returned.
-     * 
+     *
      * @throws WfsException
      * @throws TransformerConfigurationException
      * @throws UnsupportedQueryException
      */
     @Test
-    public void testPagingPageSizeNegative() throws WfsException,
-        TransformerConfigurationException, UnsupportedQueryException {
+    public void testPagingPageSizeNegative() throws WfsException, TransformerConfigurationException,
+            UnsupportedQueryException {
 
         int pageSize = -1;
         int startIndex = 1;
@@ -771,14 +766,14 @@ public class TestWfsSource {
     /**
      * Verify that if page size is zero, WfsSource defaults it to the max features that can be
      * returned.
-     * 
+     *
      * @throws WfsException
      * @throws TransformerConfigurationException
      * @throws UnsupportedQueryException
      */
     @Test
     public void testPagingPageSizeZero() throws WfsException, TransformerConfigurationException,
-        UnsupportedQueryException {
+            UnsupportedQueryException {
 
         int pageSize = 0;
         int startIndex = 1;
@@ -797,14 +792,14 @@ public class TestWfsSource {
      * Given 1010 features (and metacards) exist that match search criteria, since page size=1001
      * (which is larger than max number of features the WfsSource allows to be returned) and
      * startIndex=1, should get 1000 results back, but a total hits of 1010.
-     * 
+     *
      * @throws WfsException
      * @throws TransformerConfigurationException
      * @throws UnsupportedQueryException
      */
     @Test
     public void testPagingPageSizeExceedsMaxFeaturesThatCanBeReturned() throws WfsException,
-        TransformerConfigurationException, UnsupportedQueryException {
+            TransformerConfigurationException, UnsupportedQueryException {
 
         int pageSize = WfsSource.WFS_MAX_FEATURES_RETURNED + 1;
         int startIndex = 1;
@@ -833,9 +828,8 @@ public class TestWfsSource {
     @Test
     public void testQueryTwoFeaturesOneInvalid() throws UnsupportedQueryException, WfsException {
         setUp(TWO_TEXT_PROPERTY_SCHEMA, null, null, TWO_FEATURES, null);
-        Filter orderPersonFilter = builder
-                .attribute(sampleFeatures.get(0) + "." + ORDER_PERSON).is().like()
-                .text(LITERAL);
+        Filter orderPersonFilter = builder.attribute(sampleFeatures.get(0) + "." + ORDER_PERSON)
+                .is().like().text(LITERAL);
         Filter mctFeature1Fitler = builder.attribute(Metacard.CONTENT_TYPE).is().like()
                 .text(sampleFeatures.get(0).getLocalPart());
         Filter feature1Filter = builder.allOf(Arrays.asList(orderPersonFilter, mctFeature1Fitler));
@@ -868,18 +862,17 @@ public class TestWfsSource {
 
     @Test
     public void testQueryTwoFeaturesWithMixedPropertyNames() throws UnsupportedQueryException,
-        WfsException {
+            WfsException {
         setUp(TWO_TEXT_PROPERTY_SCHEMA, null, null, TWO_FEATURES, null);
         Filter orderPersonFilter = builder
-                .attribute(
-                        sampleFeatures.get(0).getLocalPart() + "." + ORDER_PERSON)
-                .is().like().text(LITERAL);
+                .attribute(sampleFeatures.get(0).getLocalPart() + "." + ORDER_PERSON).is().like()
+                .text(LITERAL);
         Filter mctFeature1Fitler = builder.attribute(Metacard.CONTENT_TYPE).is().like()
                 .text(sampleFeatures.get(0).getLocalPart());
         Filter feature1Filter = builder.allOf(Arrays.asList(orderPersonFilter, mctFeature1Fitler));
         Filter orderDogFilter = builder
-                .attribute(sampleFeatures.get(1).getLocalPart() + "." + ORDER_DOG)
-                .is().like().text(LITERAL);
+                .attribute(sampleFeatures.get(1).getLocalPart() + "." + ORDER_DOG).is().like()
+                .text(LITERAL);
         Filter mctFeature2Fitler = builder.attribute(Metacard.CONTENT_TYPE).is().like()
                 .text(sampleFeatures.get(1).getLocalPart());
         Filter feature2Filter = builder.allOf(Arrays.asList(orderDogFilter, mctFeature2Fitler));
@@ -894,7 +887,7 @@ public class TestWfsSource {
 
         GetFeatureType getFeatureType = captor.getValue();
         assertMaxFeatures(getFeatureType, inQuery);
-        Collections.sort(getFeatureType.getQuery(), QueryTypeComparator);
+        Collections.sort(getFeatureType.getQuery(), QUERY_TYPE_COMPARATOR);
         assertEquals(TWO_FEATURES.intValue(), getFeatureType.getQuery().size());
         // Feature 1
         QueryType query = getFeatureType.getQuery().get(0);
@@ -928,8 +921,8 @@ public class TestWfsSource {
         verify(mockWfs).getFeature(captor.capture());
 
         GetFeatureType getFeatureType = captor.getValue();
-        assertEquals(ONE_FEATURE.intValue(), getFeatureType.getQuery().get(0).getFilter()
-                .getFeatureId().size());
+        assertEquals(ONE_FEATURE.intValue(),
+                getFeatureType.getQuery().get(0).getFilter().getFeatureId().size());
 
         assertEquals(ORDER_PERSON,
                 getFeatureType.getQuery().get(0).getFilter().getFeatureId().get(0).getFid());
@@ -950,18 +943,20 @@ public class TestWfsSource {
         verify(mockWfs).getFeature(captor.capture());
 
         GetFeatureType getFeatureType = captor.getValue();
-        assertEquals(TWO_FEATURES.intValue(), getFeatureType.getQuery().get(0).getFilter()
-                .getFeatureId().size());
+        assertEquals(TWO_FEATURES.intValue(),
+                getFeatureType.getQuery().get(0).getFilter().getFeatureId().size());
 
-        assertTrue(ORDER_PERSON.equals(getFeatureType.getQuery().get(0).getFilter().getFeatureId()
-                .get(0).getFid())
-                || ORDER_PERSON.equals(getFeatureType.getQuery().get(0).getFilter().getFeatureId()
-                        .get(1).getFid()));
+        assertTrue(ORDER_PERSON
+                .equals(getFeatureType.getQuery().get(0).getFilter().getFeatureId().get(0).getFid())
+                || ORDER_PERSON
+                .equals(getFeatureType.getQuery().get(0).getFilter().getFeatureId().get(1)
+                        .getFid()));
 
-        assertTrue(ORDER_DOG.equals(getFeatureType.getQuery().get(0).getFilter().getFeatureId()
-                .get(0).getFid())
-                || ORDER_DOG.equals(getFeatureType.getQuery().get(0).getFilter().getFeatureId()
-                        .get(1).getFid()));
+        assertTrue(ORDER_DOG
+                .equals(getFeatureType.getQuery().get(0).getFilter().getFeatureId().get(0).getFid())
+                || ORDER_DOG
+                .equals(getFeatureType.getQuery().get(0).getFilter().getFeatureId().get(1)
+                        .getFid()));
 
     }
 
@@ -984,8 +979,8 @@ public class TestWfsSource {
     @Test(expected = UnsupportedQueryException.class)
     public void testNoFeatures() throws UnsupportedQueryException, WfsException {
         setUp(ONE_TEXT_PROPERTY_SCHEMA, null, null, 0, null);
-        QueryImpl propertyIsLikeQuery = new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is()
-                .like().text("literal"));
+        QueryImpl propertyIsLikeQuery = new QueryImpl(
+                builder.attribute(Metacard.ANY_TEXT).is().like().text("literal"));
         propertyIsLikeQuery.setPageSize(MAX_FEATURES);
         // when(mockWfs.getCapabilities(any(GetCapabilitiesRequest.class))).thenReturn(null);
 
@@ -1004,8 +999,8 @@ public class TestWfsSource {
         verify(mockWfs, atLeastOnce()).setTimeouts(any(Integer.class), any(Integer.class));
     }
 
-    private SourceResponse executeQuery(int startIndex, int pageSize)
-        throws UnsupportedQueryException {
+    private SourceResponse executeQuery(int startIndex, int pageSize) throws
+            UnsupportedQueryException {
 
         Filter filter = builder.attribute(Metacard.ANY_TEXT).is().like().text(LITERAL);
 
@@ -1018,8 +1013,8 @@ public class TestWfsSource {
     }
 
     private void assertMaxFeatures(GetFeatureType getFeatureType, Query inQuery) {
-        int pageSize = (inQuery.getStartIndex() / MAX_FEATURES + 1)
-                * inQuery.getPageSize() * WfsSource.WFS_QUERY_PAGE_SIZE_MULTIPLIER;
+        int pageSize = (inQuery.getStartIndex() / MAX_FEATURES + 1) * inQuery.getPageSize()
+                * WfsSource.WFS_QUERY_PAGE_SIZE_MULTIPLIER;
         assertTrue(getFeatureType.getMaxFeatures().equals(BigInteger.valueOf(pageSize)));
     }
 

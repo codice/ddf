@@ -14,20 +14,37 @@
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.source;
 
-import ddf.catalog.data.ContentType;
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.MetacardType;
-import ddf.catalog.data.Result;
-import ddf.catalog.filter.impl.SortByImpl;
-import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
-import ddf.catalog.operation.SourceResponse;
-import ddf.catalog.operation.impl.QueryImpl;
-import ddf.catalog.operation.impl.QueryRequestImpl;
-import ddf.catalog.source.UnsupportedQueryException;
-import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
-import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
-import net.opengis.cat.csw.v_2_0_2.QueryType;
-import net.opengis.filter.v_1_1_0.SortOrderType;
+import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.xml.bind.JAXBException;
+import javax.xml.datatype.DatatypeConfigurationException;
+
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
@@ -54,35 +71,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
-import javax.xml.bind.JAXBException;
-import javax.xml.datatype.DatatypeConfigurationException;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Dictionary;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import ddf.catalog.data.ContentType;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.Result;
+import ddf.catalog.filter.impl.SortByImpl;
+import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
+import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.operation.impl.QueryImpl;
+import ddf.catalog.operation.impl.QueryRequestImpl;
+import ddf.catalog.source.UnsupportedQueryException;
+import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
+import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
+import net.opengis.cat.csw.v_2_0_2.QueryType;
+import net.opengis.filter.v_1_1_0.SortOrderType;
 
 public class TestCswSource extends TestCswSourceBase {
 
@@ -90,15 +92,14 @@ public class TestCswSource extends TestCswSourceBase {
 
     private CswTransformProvider mockProvider = mock(CswTransformProvider.class);
 
-
     @Test
     public void testParseCapabilities() throws CswException {
         CswSource source = getCswSource(createRemoteCsw(), mockContext, new ArrayList<String>());
 
         assertTrue(source.isAvailable());
         assertEquals(10, source.getContentTypes().size());
-        Set<ContentType> expected = generateContentType(Arrays.asList("a", "b", "c",
-                "d", "e", "f", "g", "h", "i", "j"));
+        Set<ContentType> expected = generateContentType(
+                Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h", "i", "j"));
         assertThat(source.getContentTypes(), is(expected));
     }
 
@@ -109,8 +110,8 @@ public class TestCswSource extends TestCswSourceBase {
 
         assertTrue(source.isAvailable());
         assertEquals(12, source.getContentTypes().size());
-        Set<ContentType> expected = generateContentType(Arrays.asList("a", "b", "c",
-            "d", "e", "f", "g", "h", "i", "j", "x", "y"));
+        Set<ContentType> expected = generateContentType(
+                Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "x", "y"));
         assertThat(source.getContentTypes(), is(expected));
     }
 
@@ -118,15 +119,17 @@ public class TestCswSource extends TestCswSourceBase {
     public void testAddingContentTypesOnQueries() throws CswException, UnsupportedQueryException {
         RemoteCsw remote = createRemoteCsw();
 
-        List<String> expectedNames = new LinkedList<String>(Arrays.asList("a", "b", "c",
-                "d", "e", "f", "g", "h", "i", "j"));
+        List<String> expectedNames = new LinkedList<String>(
+                Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h", "i", "j"));
 
-        ServiceRegistration<?> mockRegisteredMetacardType = (ServiceRegistration<?>) mock(ServiceRegistration.class);
+        ServiceRegistration<?> mockRegisteredMetacardType = (ServiceRegistration<?>) mock(
+                ServiceRegistration.class);
         LOGGER.info("mockRegisteredMetacardType: {}", mockRegisteredMetacardType);
-        doReturn(mockRegisteredMetacardType).when(mockContext).registerService(
-                eq(MetacardType.class.getName()), any(CswRecordMetacardType.class),
-                Matchers.<Dictionary<String, ?>> any());
-        ServiceReference<?> mockServiceReference = (ServiceReference<?>) mock(ServiceReference.class);
+        doReturn(mockRegisteredMetacardType).when(mockContext)
+                .registerService(eq(MetacardType.class.getName()), any(CswRecordMetacardType.class),
+                        Matchers.<Dictionary<String, ?>>any());
+        ServiceReference<?> mockServiceReference = (ServiceReference<?>) mock(
+                ServiceReference.class);
         doReturn(mockServiceReference).when(mockRegisteredMetacardType).getReference();
         when(mockServiceReference.getProperty(eq(Metacard.CONTENT_TYPE))).thenReturn(expectedNames);
 
@@ -141,8 +144,8 @@ public class TestCswSource extends TestCswSourceBase {
 
         when(remote.getRecords(any(GetRecordsType.class))).thenReturn(collection);
 
-        QueryImpl propertyIsLikeQuery = new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is()
-                .like().text("*"));
+        QueryImpl propertyIsLikeQuery = new QueryImpl(
+                builder.attribute(Metacard.ANY_TEXT).is().like().text("*"));
 
         expectedNames.add("dataset");
         expectedNames.add("dataset 2");
@@ -156,7 +159,7 @@ public class TestCswSource extends TestCswSourceBase {
 
     @Test
     public void testPropertyIsLikeQuery() throws JAXBException, UnsupportedQueryException,
-        DatatypeConfigurationException, SAXException, IOException {
+            DatatypeConfigurationException, SAXException, IOException {
 
         // Setup
         final String searchPhrase = "*th*e";
@@ -173,8 +176,8 @@ public class TestCswSource extends TestCswSourceBase {
             fail("Could not configure Mock Remote CSW: " + e.getMessage());
         }
 
-        QueryImpl propertyIsLikeQuery = new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is()
-                .like().text(searchPhrase));
+        QueryImpl propertyIsLikeQuery = new QueryImpl(
+                builder.attribute(Metacard.ANY_TEXT).is().like().text(searchPhrase));
         propertyIsLikeQuery.setPageSize(pageSize);
 
         CswSource cswSource = getCswSource(mockCsw, mockContext, new LinkedList<String>());
@@ -203,7 +206,7 @@ public class TestCswSource extends TestCswSourceBase {
 
     @Test
     public void testQueryWithSorting() throws JAXBException, UnsupportedQueryException,
-        DatatypeConfigurationException, SAXException, IOException {
+            DatatypeConfigurationException, SAXException, IOException {
 
         final String TITLE = "title";
 
@@ -222,8 +225,8 @@ public class TestCswSource extends TestCswSourceBase {
             fail("Could not configure Mock Remote CSW: " + e.getMessage());
         }
 
-        QueryImpl query = new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is()
-                .like().text(searchPhrase));
+        QueryImpl query = new QueryImpl(
+                builder.attribute(Metacard.ANY_TEXT).is().like().text(searchPhrase));
         query.setPageSize(pageSize);
         SortBy sortBy = new SortByImpl(TITLE, SortOrder.DESCENDING);
         query.setSortBy(sortBy);
@@ -249,15 +252,16 @@ public class TestCswSource extends TestCswSourceBase {
 
         QueryType cswQuery = (QueryType) getRecordsType.getAbstractQuery().getValue();
         assertThat(cswQuery.getSortBy().getSortProperty().size(), is(1));
-        assertThat(cswQuery.getSortBy().getSortProperty().get(0).getPropertyName().getContent()
-                .get(0).toString(), equalTo(TITLE));
+        assertThat(
+                cswQuery.getSortBy().getSortProperty().get(0).getPropertyName().getContent().get(0)
+                        .toString(), equalTo(TITLE));
         assertThat(cswQuery.getSortBy().getSortProperty().get(0).getSortOrder(),
                 is(SortOrderType.DESC));
     }
 
     @Test
     public void testQueryWithSortByDistance() throws JAXBException, UnsupportedQueryException,
-        DatatypeConfigurationException, SAXException, IOException {
+            DatatypeConfigurationException, SAXException, IOException {
 
         // Setup
         final String searchPhrase = "*";
@@ -274,8 +278,8 @@ public class TestCswSource extends TestCswSourceBase {
             fail("Could not configure Mock Remote CSW: " + e.getMessage());
         }
 
-        QueryImpl query = new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is().like()
-                .text(searchPhrase));
+        QueryImpl query = new QueryImpl(
+                builder.attribute(Metacard.ANY_TEXT).is().like().text(searchPhrase));
         query.setPageSize(pageSize);
         SortBy sortBy = new SortByImpl(Result.DISTANCE, SortOrder.DESCENDING);
         query.setSortBy(sortBy);
@@ -305,7 +309,7 @@ public class TestCswSource extends TestCswSourceBase {
 
     @Test
     public void testQueryWithSortByRelevance() throws JAXBException, UnsupportedQueryException,
-        DatatypeConfigurationException, SAXException, IOException {
+            DatatypeConfigurationException, SAXException, IOException {
         // Setup
         final String searchPhrase = "*";
         final int pageSize = 1;
@@ -321,8 +325,8 @@ public class TestCswSource extends TestCswSourceBase {
             fail("Could not configure Mock Remote CSW: " + e.getMessage());
         }
 
-        QueryImpl query = new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is().like()
-                .text(searchPhrase));
+        QueryImpl query = new QueryImpl(
+                builder.attribute(Metacard.ANY_TEXT).is().like().text(searchPhrase));
         query.setPageSize(pageSize);
         SortBy sortBy = new SortByImpl(Result.RELEVANCE, SortOrder.DESCENDING);
         query.setSortBy(sortBy);
@@ -348,15 +352,16 @@ public class TestCswSource extends TestCswSourceBase {
 
         QueryType cswQuery = (QueryType) getRecordsType.getAbstractQuery().getValue();
         assertThat(cswQuery.getSortBy().getSortProperty().size(), is(1));
-        assertThat(cswQuery.getSortBy().getSortProperty().get(0).getPropertyName().getContent()
-                .get(0).toString(), equalTo(Metacard.TITLE));
+        assertThat(
+                cswQuery.getSortBy().getSortProperty().get(0).getPropertyName().getContent().get(0)
+                        .toString(), equalTo(Metacard.TITLE));
         assertThat(cswQuery.getSortBy().getSortProperty().get(0).getSortOrder(),
                 is(SortOrderType.DESC));
     }
 
     @Test
     public void testQueryWithSortByTemporal() throws JAXBException, UnsupportedQueryException,
-        DatatypeConfigurationException, SAXException, IOException {
+            DatatypeConfigurationException, SAXException, IOException {
         // Setup
         final String searchPhrase = "*";
         final int pageSize = 1;
@@ -372,8 +377,8 @@ public class TestCswSource extends TestCswSourceBase {
             fail("Could not configure Mock Remote CSW: " + e.getMessage());
         }
 
-        QueryImpl query = new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is().like()
-                .text(searchPhrase));
+        QueryImpl query = new QueryImpl(
+                builder.attribute(Metacard.ANY_TEXT).is().like().text(searchPhrase));
         query.setPageSize(pageSize);
         SortBy sortBy = new SortByImpl(Result.TEMPORAL, SortOrder.DESCENDING);
         query.setSortBy(sortBy);
@@ -399,8 +404,9 @@ public class TestCswSource extends TestCswSourceBase {
 
         QueryType cswQuery = (QueryType) getRecordsType.getAbstractQuery().getValue();
         assertThat(cswQuery.getSortBy().getSortProperty().size(), is(1));
-        assertThat(cswQuery.getSortBy().getSortProperty().get(0).getPropertyName().getContent()
-                .get(0).toString(), equalTo(Metacard.MODIFIED));
+        assertThat(
+                cswQuery.getSortBy().getSortProperty().get(0).getPropertyName().getContent().get(0)
+                        .toString(), equalTo(Metacard.MODIFIED));
         assertThat(cswQuery.getSortBy().getSortProperty().get(0).getSortOrder(),
                 is(SortOrderType.DESC));
     }
@@ -411,7 +417,7 @@ public class TestCswSource extends TestCswSourceBase {
      */
     @Test
     public void testPropertyIsEqualToQueryContentTypeIsMappedToFormat() throws JAXBException,
-        UnsupportedQueryException, DatatypeConfigurationException, SAXException, IOException {
+            UnsupportedQueryException, DatatypeConfigurationException, SAXException, IOException {
 
         // Setup
         int pageSize = 10;
@@ -428,11 +434,12 @@ public class TestCswSource extends TestCswSourceBase {
             fail("Could not configure Mock Remote CSW: " + e.getMessage());
         }
 
-        QueryImpl propertyIsEqualToQuery = new QueryImpl(builder.attribute(Metacard.CONTENT_TYPE)
-                .is().text(format));
+        QueryImpl propertyIsEqualToQuery = new QueryImpl(
+                builder.attribute(Metacard.CONTENT_TYPE).is().text(format));
         propertyIsEqualToQuery.setPageSize(pageSize);
 
-        CswSource cswSource = getCswSource(mockCsw, mockContext, new LinkedList<String>(), CswRecordMetacardType.CSW_FORMAT);
+        CswSource cswSource = getCswSource(mockCsw, mockContext, new LinkedList<String>(),
+                CswRecordMetacardType.CSW_FORMAT);
         cswSource.setCswUrl(URL);
         cswSource.setId(ID);
 
@@ -462,7 +469,7 @@ public class TestCswSource extends TestCswSourceBase {
      */
     @Test
     public void testPropertyIsLikeContentTypeVersion() throws JAXBException,
-        UnsupportedQueryException, DatatypeConfigurationException, SAXException, IOException {
+            UnsupportedQueryException, DatatypeConfigurationException, SAXException, IOException {
 
         // Setup
         int pageSize = 10;
@@ -515,15 +522,15 @@ public class TestCswSource extends TestCswSourceBase {
 
     @Test
     public void testAbsoluteTemporalSearchPropertyIsBetweenQuery() throws JAXBException,
-        UnsupportedQueryException, DatatypeConfigurationException, SAXException, IOException {
+            UnsupportedQueryException, DatatypeConfigurationException, SAXException, IOException {
 
         // Setup
         String expectedXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n"
                 + "<GetRecords resultType=\"results\" outputFormat=\"application/xml\" outputSchema=\"http://www.opengis.net/cat/csw/2.0.2\" startPosition=\"1\" maxRecords=\"10\" service=\"CSW\" version=\"2.0.2\" xmlns:ns2=\"http://www.opengis.net/ogc\" xmlns=\"http://www.opengis.net/cat/csw/2.0.2\" xmlns:ns4=\"http://www.w3.org/1999/xlink\" xmlns:ns3=\"http://www.opengis.net/gml\" xmlns:ns9=\"http://www.w3.org/2001/SMIL20/Language\" xmlns:ns5=\"http://www.opengis.net/ows\" xmlns:ns6=\"http://purl.org/dc/elements/1.1/\" xmlns:ns7=\"http://purl.org/dc/terms/\" xmlns:ns8=\"http://www.w3.org/2001/SMIL20/\">\r\n"
                 + "    <ns10:Query typeNames=\"Record\" xmlns=\"\" xmlns:ns10=\"http://www.opengis.net/cat/csw/2.0.2\">\r\n"
                 + "        <ns10:ElementSetName>full</ns10:ElementSetName>\r\n"
-                + "        <ns10:Constraint version=\"1.1.0\">\r\n"
-                + "            <ns2:Filter>\r\n" + "                <ns2:PropertyIsBetween>\r\n"
+                + "        <ns10:Constraint version=\"1.1.0\">\r\n" + "            <ns2:Filter>\r\n"
+                + "                <ns2:PropertyIsBetween>\r\n"
                 + "                    <ns2:PropertyName>effective</ns2:PropertyName>\r\n"
                 + "                    <ns2:LowerBoundary>\r\n"
                 + "                        <ns2:Literal>START_DATE_TIME</ns2:Literal>\r\n"
@@ -549,7 +556,7 @@ public class TestCswSource extends TestCswSourceBase {
 
         // Create start and end date times that are before current time
         DateTime startDate = new DateTime(2013, 5, 1, 0, 0, 0, 0);
-        DateTime endDate =  new DateTime(2013, 12, 31, 0, 0, 0, 0);
+        DateTime endDate = new DateTime(2013, 12, 31, 0, 0, 0, 0);
         DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
         // Load the expected start and end date time into the excepted result
         // XML
@@ -587,7 +594,7 @@ public class TestCswSource extends TestCswSourceBase {
 
     @Test
     public void testAbsoluteTemporalSearchTwoRanges() throws JAXBException,
-        UnsupportedQueryException, DatatypeConfigurationException, SAXException, IOException {
+            UnsupportedQueryException, DatatypeConfigurationException, SAXException, IOException {
 
         // Setup
         String expectedXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n"
@@ -602,8 +609,7 @@ public class TestCswSource extends TestCswSourceBase {
                 + "        xmlns:ns10=\"http://www.opengis.net/ows\">\r\n"
                 + "        <ns4:ElementSetName>full</ns4:ElementSetName>\r\n"
                 + "        <ns4:Constraint version=\"1.1.0\">\r\n" + "            <ns3:Filter>\r\n"
-                + "                <ns3:Or>\r\n"
-                + "                    <ns3:PropertyIsBetween>\r\n"
+                + "                <ns3:Or>\r\n" + "                    <ns3:PropertyIsBetween>\r\n"
                 + "                        <ns3:PropertyName>effective</ns3:PropertyName>\r\n"
                 + "                        <ns3:LowerBoundary>\r\n"
                 + "                            <ns3:Literal>START1_DATE_TIME</ns3:Literal>\r\n"
@@ -639,9 +645,9 @@ public class TestCswSource extends TestCswSourceBase {
         }
 
         DateTime startDate = new DateTime(2012, 5, 1, 0, 0, 0, 0);
-        DateTime endDate =  new DateTime(2012, 12, 31, 0, 0, 0, 0);
+        DateTime endDate = new DateTime(2012, 12, 31, 0, 0, 0, 0);
         DateTime startDate2 = new DateTime(2013, 5, 1, 0, 0, 0, 0);
-        DateTime endDate2 =  new DateTime(2013, 12, 31, 0, 0, 0, 0);
+        DateTime endDate2 = new DateTime(2013, 12, 31, 0, 0, 0, 0);
 
         DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
         // Load the expected start and end date time into the excepted result
@@ -650,8 +656,6 @@ public class TestCswSource extends TestCswSourceBase {
         expectedXml = expectedXml.replace("END1_DATE_TIME", fmt.print(endDate));
         expectedXml = expectedXml.replace("START2_DATE_TIME", fmt.print(startDate2));
         expectedXml = expectedXml.replace("END2_DATE_TIME", fmt.print(endDate2));
-
-
 
         // Single absolute time range to search across
         FilterFactory filterFactory = new FilterFactoryImpl();
@@ -689,14 +693,14 @@ public class TestCswSource extends TestCswSourceBase {
     public void testCswSourceNoFilterCapabilities() throws CswException, UnsupportedQueryException {
         // Setup
         CapabilitiesType mockCapabilitiesType = mock(CapabilitiesType.class);
-        when(mockCsw.getCapabilities(any(GetCapabilitiesRequest.class))).thenReturn(
-                mockCapabilitiesType);
+        when(mockCsw.getCapabilities(any(GetCapabilitiesRequest.class)))
+                .thenReturn(mockCapabilitiesType);
 
         CswSource cswSource = getCswSource(mockCsw, mockContext, new ArrayList<String>());
         cswSource.setCswUrl(URL);
         cswSource.setId(ID);
-        QueryImpl propertyIsLikeQuery = new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is()
-                .like().text("junk"));
+        QueryImpl propertyIsLikeQuery = new QueryImpl(
+                builder.attribute(Metacard.ANY_TEXT).is().like().text("junk"));
         propertyIsLikeQuery.setPageSize(10);
 
         cswSource.query(new QueryRequestImpl(propertyIsLikeQuery));
@@ -737,8 +741,8 @@ public class TestCswSource extends TestCswSourceBase {
     }
 
     @Test
-    public void testRefresh(){
-        CswSource cswSource = getCswSource(null, null, Collections.<String> emptyList());
+    public void testRefresh() {
+        CswSource cswSource = getCswSource(null, null, Collections.<String>emptyList());
 
         cswSource.refresh(null);
 
@@ -760,7 +764,8 @@ public class TestCswSource extends TestCswSourceBase {
         return cswSourceConfiguration;
     }
 
-    private CswSource getCswSource(RemoteCsw remoteCsw, BundleContext context, List<String> contentTypes)  {
+    private CswSource getCswSource(RemoteCsw remoteCsw, BundleContext context,
+            List<String> contentTypes) {
         return getCswSource(remoteCsw, context, contentTypes, null);
     }
 

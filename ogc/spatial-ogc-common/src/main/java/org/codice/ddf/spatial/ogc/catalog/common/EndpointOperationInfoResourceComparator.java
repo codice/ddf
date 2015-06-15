@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.ddf.spatial.ogc.catalog.common;
 
@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  * HTTP method, Consumes Media Type, and Produces Media Type to determine which method to execute.
  * The {@link WfsEndpoint} and {@link CswEndpoint} require the decision to made based on the
  * "request" query parameter or the type of XML document.
- * 
+ *
  */
 public class EndpointOperationInfoResourceComparator extends OperationResourceInfoComparator
         implements ResourceComparator {
@@ -54,7 +54,7 @@ public class EndpointOperationInfoResourceComparator extends OperationResourceIn
     public static final String REQUEST_PARAM = "request";
 
     public static final String SERVICE_PARAM = "service";
-    
+
     public static final String UNKNOWN_SERVICE = "unknownService";
 
     public static final String UNKNOWN_OPERATION = "unknownOperation";
@@ -63,10 +63,10 @@ public class EndpointOperationInfoResourceComparator extends OperationResourceIn
             .getLogger(EndpointOperationInfoResourceComparator.class);
 
     private String serviceName;
-    
+
     public EndpointOperationInfoResourceComparator() {
         super(null, null);
-        
+
         this.serviceName = null;
     }
 
@@ -98,19 +98,19 @@ public class EndpointOperationInfoResourceComparator extends OperationResourceIn
             String queryString = (String) message.get(Message.QUERY_STRING);
             if (StringUtils.isNotEmpty(queryString)) {
 
-                MultivaluedMap<String, String> allQueryParams = JAXRSUtils.getStructuredParams(
-                        queryString, QUERY_PARAM_DELIMITER, false, false);
+                MultivaluedMap<String, String> allQueryParams = JAXRSUtils
+                        .getStructuredParams(queryString, QUERY_PARAM_DELIMITER, false, false);
                 // Loop through the keys and do a case insensitive check
                 for (Entry<String, List<String>> queryParam : allQueryParams.entrySet()) {
-                    if ((REQUEST_PARAM.equalsIgnoreCase(queryParam.getKey()))
-                            && (!queryParam.getValue().isEmpty()) && requestName == null) {
+                    if ((REQUEST_PARAM.equalsIgnoreCase(queryParam.getKey())) && (!queryParam
+                            .getValue().isEmpty()) && requestName == null) {
                         // We should never have more than one "request" query
                         // param so ignore them if we do
                         requestName = queryParam.getValue().get(0);
                         LOGGER.debug("Request Query Param = {}", requestName);
                     }
-                    if ((SERVICE_PARAM.equalsIgnoreCase(queryParam.getKey()))
-                            && (!queryParam.getValue().isEmpty()) && requestedService == null) {
+                    if ((SERVICE_PARAM.equalsIgnoreCase(queryParam.getKey())) && (!queryParam
+                            .getValue().isEmpty()) && requestedService == null) {
                         // We should never have more than one "service" query
                         // param so ignore them if we do
                         requestedService = queryParam.getValue().get(0);
@@ -163,14 +163,16 @@ public class EndpointOperationInfoResourceComparator extends OperationResourceIn
 
     private int getOperationRank(OperationResourceInfo operation, String requestName,
             String requestedService) {
-        if (serviceName != null && (!serviceName.equalsIgnoreCase(requestedService))
-                && operation.getMethodToInvoke().getName().equalsIgnoreCase(UNKNOWN_SERVICE)) {
+        if (serviceName != null && (!serviceName.equalsIgnoreCase(requestedService)) && operation
+                .getMethodToInvoke().getName().equalsIgnoreCase(UNKNOWN_SERVICE)) {
             return 3;
         }
 
-        return operation.getMethodToInvoke().getName().equalsIgnoreCase(requestName) ? 1
-                : (operation.getMethodToInvoke().getName().equalsIgnoreCase(UNKNOWN_OPERATION) ? 0
-                        : -1);
+        return operation.getMethodToInvoke().getName().equalsIgnoreCase(requestName) ?
+                1 :
+                (operation.getMethodToInvoke().getName().equalsIgnoreCase(UNKNOWN_OPERATION) ?
+                        0 :
+                        -1);
     }
 
 }

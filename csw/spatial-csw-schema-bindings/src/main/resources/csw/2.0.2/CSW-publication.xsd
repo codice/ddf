@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<xsd:schema id="csw-publication"
-   targetNamespace="http://www.opengis.net/cat/csw/2.0.2"
-   xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
-   xmlns:ogc="http://www.opengis.net/ogc"
-   xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
-   version="2.0.2">
+<xsd:schema xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            id="csw-publication"
+            targetNamespace="http://www.opengis.net/cat/csw/2.0.2" elementFormDefault="qualified"
+            version="2.0.2">
    <xsd:annotation>
       <xsd:appinfo>
          <dc:identifier xmlns:dc="http://purl.org/dc/elements/1.1/">http://schemas.opengis.net/csw/2.0.2/CSW-publication.xsd</dc:identifier>
@@ -34,7 +33,7 @@
                </xsd:choice>
             </xsd:sequence>
             <xsd:attribute name="verboseResponse" type="xsd:boolean"
-               use="optional" default="false"/>
+                           use="optional" default="false"/>
             <xsd:attribute name="requestId" type="xsd:anyURI" use="optional"/>
          </xsd:extension>
       </xsd:complexContent>
@@ -50,7 +49,7 @@
       </xsd:annotation>
       <xsd:sequence>
          <xsd:any processContents="strict" namespace="##other"
-            maxOccurs="unbounded"/>
+                  maxOccurs="unbounded"/>
       </xsd:sequence>
       <xsd:attribute name="typeName" type="xsd:anyURI" use="optional"/>
       <xsd:attribute name="handle" type="xsd:ID" use="optional"/>
@@ -121,7 +120,7 @@
       </xsd:sequence>
    </xsd:complexType>
    <xsd:element name="TransactionResponse" type="csw:TransactionResponseType"
-      id="TransactionResponse"/>
+                id="TransactionResponse"/>
    <xsd:complexType name="TransactionResponseType">
       <xsd:annotation>
          <xsd:documentation xml:lang="en">
@@ -133,9 +132,9 @@
       </xsd:annotation>
       <xsd:sequence>
          <xsd:element name="TransactionSummary"
-            type="csw:TransactionSummaryType"/>
+                      type="csw:TransactionSummaryType"/>
          <xsd:element name="InsertResult" type="csw:InsertResultType"
-            minOccurs="0" maxOccurs="unbounded"/>
+                      minOccurs="0" maxOccurs="unbounded"/>
       </xsd:sequence>
       <xsd:attribute name="version" type="xsd:string" use="optional"/>
    </xsd:complexType>
@@ -149,11 +148,11 @@
       </xsd:annotation>
       <xsd:sequence>
          <xsd:element name="totalInserted" type="xsd:nonNegativeInteger"
-            minOccurs="0"/>
+                      minOccurs="0"/>
          <xsd:element name="totalUpdated" type="xsd:nonNegativeInteger"
-            minOccurs="0"/>
+                      minOccurs="0"/>
          <xsd:element name="totalDeleted" type="xsd:nonNegativeInteger"
-            minOccurs="0"/>
+                      minOccurs="0"/>
       </xsd:sequence>
       <xsd:attribute name="requestId" type="xsd:anyURI" use="optional"/>
    </xsd:complexType>
@@ -198,17 +197,17 @@
                <xsd:element name="Source" type="xsd:anyURI"/>
                <xsd:element name="ResourceType" type="xsd:string"/>
                <xsd:element name="ResourceFormat" type="xsd:string"
-                  minOccurs="0" default="application/xml"/>
+                            minOccurs="0" default="application/xml"/>
                <xsd:element name="HarvestInterval" type="xsd:duration"
-                  minOccurs="0"/>
+                            minOccurs="0"/>
                <xsd:element name="ResponseHandler" type="xsd:anyURI"
-                  minOccurs="0" maxOccurs="unbounded"/>
+                            minOccurs="0" maxOccurs="unbounded"/>
             </xsd:sequence>
          </xsd:extension>
       </xsd:complexContent>
    </xsd:complexType>
    <xsd:element name="HarvestResponse" type="csw:HarvestResponseType"
-      id="HarvestResponse">
+                id="HarvestResponse">
       <xsd:annotation>
          <xsd:documentation xml:lang="en">
          The content of the response varies depending on the presence of the 

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema targetNamespace="http://www.opengis.net/gml/3.2" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="3.2.1.2">
+<schema xmlns:gml="http://www.opengis.net/gml/3.2" targetNamespace="http://www.opengis.net/gml/3.2"
+        xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="3.2.1.2">
 	<annotation>
 		<appinfo source="urn:x-ogc:specification:gml:schema-xsd:temporalReferenceSystems:3.2.1">temporalReferenceSystems.xsd</appinfo>
 		<documentation>See ISO/DIS 19136 15.5.
@@ -14,7 +15,8 @@ To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
 	<include schemaLocation="gml.xsd"/>
 	<include schemaLocation="temporalTopology.xsd"/>
 	<include schemaLocation="dictionary.xsd"/>
-	<element name="TimeReferenceSystem" type="gml:TimeReferenceSystemType" substitutionGroup="gml:Definition">
+	<element name="TimeReferenceSystem" type="gml:TimeReferenceSystemType"
+             substitutionGroup="gml:Definition">
 		<annotation>
 			<documentation>A reference system is characterized in terms of its domain of validity: the spatial and temporal extent over which it is applicable. The basic GML element for temporal reference systems is gml:TimeReferenceSystem.  Its content model extends gml:DefinitionType with one additional property, gml:domainOfValidity.</documentation>
 		</annotation>
@@ -28,7 +30,8 @@ To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
 			</extension>
 		</complexContent>
 	</complexType>
-	<element name="TimeCoordinateSystem" type="gml:TimeCoordinateSystemType" substitutionGroup="gml:TimeReferenceSystem">
+	<element name="TimeCoordinateSystem" type="gml:TimeCoordinateSystemType"
+             substitutionGroup="gml:TimeReferenceSystem">
 		<annotation>
 			<documentation>A temporal coordinate system shall be based on a continuous interval scale defined in terms of a single time interval.
 The differences to ISO 19108 TM_CoordinateSystem are:
@@ -50,7 +53,8 @@ The differences to ISO 19108 TM_CoordinateSystem are:
 			</extension>
 		</complexContent>
 	</complexType>
-	<element name="TimeCalendar" type="gml:TimeCalendarType" substitutionGroup="gml:TimeReferenceSystem">
+	<element name="TimeCalendar" type="gml:TimeCalendarType"
+             substitutionGroup="gml:TimeReferenceSystem">
 		<annotation>
 			<documentation>A calendar is a discrete temporal reference system that provides a basis for defining temporal position to a resolution of one day.
 gml:TimeCalendar adds one property to those inherited from gml:TimeReferenceSystem. A gml:referenceFrame provides a link to a gml:TimeCalendarEra that it uses. A  gml:TimeCalendar may reference more than one calendar era. 
@@ -61,7 +65,8 @@ The referenceFrame element follows the standard GML property model, allowing the
 		<complexContent>
 			<extension base="gml:TimeReferenceSystemType">
 				<sequence>
-					<element name="referenceFrame" type="gml:TimeCalendarEraPropertyType" maxOccurs="unbounded"/>
+					<element name="referenceFrame" type="gml:TimeCalendarEraPropertyType"
+                             maxOccurs="unbounded"/>
 				</sequence>
 			</extension>
 		</complexContent>
@@ -124,7 +129,8 @@ gml:TimeClock adds the following properties to those inherited from gml:TimeRefe
 					<element name="referenceEvent" type="gml:StringOrRefType"/>
 					<element name="referenceTime" type="time"/>
 					<element name="utcReference" type="time"/>
-					<element name="dateBasis" type="gml:TimeCalendarPropertyType" minOccurs="0" maxOccurs="unbounded"/>
+					<element name="dateBasis" type="gml:TimeCalendarPropertyType" minOccurs="0"
+                             maxOccurs="unbounded"/>
 				</sequence>
 			</extension>
 		</complexContent>
@@ -139,7 +145,8 @@ gml:TimeClock adds the following properties to those inherited from gml:TimeRefe
 		<attributeGroup ref="gml:OwnershipAttributeGroup"/>
 		<attributeGroup ref="gml:AssociationAttributeGroup"/>
 	</complexType>
-	<element name="TimeOrdinalReferenceSystem" type="gml:TimeOrdinalReferenceSystemType" substitutionGroup="gml:TimeReferenceSystem">
+	<element name="TimeOrdinalReferenceSystem" type="gml:TimeOrdinalReferenceSystemType"
+             substitutionGroup="gml:TimeReferenceSystem">
 		<annotation>
 			<documentation>In some applications of geographic information — such as geology and archaeology — relative position in time is known more precisely than absolute time or duration. The order of events in time can be well established, but the magnitude of the intervals between them cannot be accurately determined; in such cases, the use of an ordinal temporal reference system is appropriate. An ordinal temporal reference system is composed of a sequence of named coterminous eras, which may in turn be composed of sequences of member eras at a finer scale, giving the whole a hierarchical structure of eras of verying resolution. 
 An ordinal temporal reference system whose component eras are not further subdivided is effectively a temporal topological complex constrained to be a linear graph. An ordinal temporal reference system some or all of whose component eras are subdivided is effectively a temporal topological complex with the constraint that parallel branches may only be constructed in pairs where one is a single temporal ordinal era and the other is a sequence of temporal ordinal eras that are called "members" of the "group". This constraint means that within a single temporal ordinal reference system, the relative position of all temporal ordinal eras is unambiguous.  
@@ -151,7 +158,8 @@ gml:TimeOrdinalReferenceSystem adds one or more gml:component properties to the 
 		<complexContent>
 			<extension base="gml:TimeReferenceSystemType">
 				<sequence>
-					<element name="component" type="gml:TimeOrdinalEraPropertyType" maxOccurs="unbounded"/>
+					<element name="component" type="gml:TimeOrdinalEraPropertyType"
+                             maxOccurs="unbounded"/>
 				</sequence>
 			</extension>
 		</complexContent>
@@ -166,11 +174,13 @@ The recursive inclusion of gml:TimeOrdinalEra elements allow the construction of
 		<complexContent>
 			<extension base="gml:DefinitionType">
 				<sequence>
-					<element name="relatedTime" type="gml:RelatedTimeType" minOccurs="0" maxOccurs="unbounded"/>
+					<element name="relatedTime" type="gml:RelatedTimeType" minOccurs="0"
+                             maxOccurs="unbounded"/>
 					<element name="start" type="gml:TimeNodePropertyType" minOccurs="0"/>
 					<element name="end" type="gml:TimeNodePropertyType" minOccurs="0"/>
 					<element name="extent" type="gml:TimePeriodPropertyType" minOccurs="0"/>
-					<element name="member" type="gml:TimeOrdinalEraPropertyType" minOccurs="0" maxOccurs="unbounded"/>
+					<element name="member" type="gml:TimeOrdinalEraPropertyType" minOccurs="0"
+                             maxOccurs="unbounded"/>
 					<element name="group" type="gml:ReferenceType" minOccurs="0"/>
 				</sequence>
 			</extension>

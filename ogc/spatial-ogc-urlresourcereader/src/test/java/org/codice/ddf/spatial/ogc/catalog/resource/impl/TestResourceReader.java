@@ -14,26 +14,10 @@
  **/
 package org.codice.ddf.spatial.ogc.catalog.resource.impl;
 
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
-import com.sun.net.httpserver.HttpServer;
-import ddf.catalog.operation.ResourceResponse;
-import ddf.catalog.resource.Resource;
-import ddf.catalog.resource.ResourceNotFoundException;
-import ddf.mime.MimeTypeMapper;
-import ddf.mime.MimeTypeResolver;
-import ddf.mime.custom.CustomMimeTypeResolver;
-import ddf.mime.mapper.MimeTypeMapperImpl;
-import ddf.mime.tika.TikaMimeTypeResolver;
-import org.apache.commons.io.IOUtils;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.MethodRule;
-import org.junit.rules.TestWatchman;
-import org.junit.runners.model.FrameworkMethod;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -49,10 +33,28 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import org.apache.commons.io.IOUtils;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.MethodRule;
+import org.junit.rules.TestWatchman;
+import org.junit.runners.model.FrameworkMethod;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.HttpServer;
+
+import ddf.catalog.operation.ResourceResponse;
+import ddf.catalog.resource.Resource;
+import ddf.catalog.resource.ResourceNotFoundException;
+import ddf.mime.MimeTypeMapper;
+import ddf.mime.MimeTypeResolver;
+import ddf.mime.custom.CustomMimeTypeResolver;
+import ddf.mime.mapper.MimeTypeMapperImpl;
+import ddf.mime.tika.TikaMimeTypeResolver;
 
 public class TestResourceReader {
 
@@ -98,34 +100,6 @@ public class TestResourceReader {
 
     private static final int HTTP_SUCCESS_CODE = 200;
 
-    private MimeTypeMapper mimeTypeMapper;
-
-    private CustomMimeTypeResolver customResolver;
-
-    static class MockHttpServerSuccessResponse implements HttpHandler {
-
-        private String mockHost;
-
-        private int mockPort;
-
-        public MockHttpServerSuccessResponse(String mockHost, int mockPort) {
-            this.mockHost = mockHost;
-            this.mockPort = mockPort;
-        }
-
-        @Override
-        public void handle(HttpExchange httpExchange) throws IOException {
-            String response = "<!DOCTYPE HTML><html><head><title>dummy</title></head><body>dummy</body></html>";
-            InputStream inputStream = httpExchange.getRequestBody();
-            LOGGER.info("request was '{}'", getStringFromInputStream(inputStream));
-            //TODO assert
-            httpExchange.sendResponseHeaders(HTTP_SUCCESS_CODE, response.length());
-            OutputStream outputStream = httpExchange.getResponseBody();
-            outputStream.write(response.getBytes());
-            outputStream.close();
-        }
-    }
-
     @Rule
     public MethodRule watchman = new TestWatchman() {
         public void starting(FrameworkMethod method) {
@@ -134,10 +108,39 @@ public class TestResourceReader {
         }
 
         public void finished(FrameworkMethod method) {
-            LOGGER.debug("***************************  END: {}  **************************\n"
-                    + method.getName());
+            LOGGER.debug(
+                    "***************************  END: {}  **************************\n" + method
+                            .getName());
         }
     };
+
+    private MimeTypeMapper mimeTypeMapper;
+
+    private CustomMimeTypeResolver customResolver;
+
+    private static String getStringFromInputStream(InputStream inputStream) {
+        BufferedReader bufferedReader = null;
+        StringBuilder stringBuilder = new StringBuilder();
+        String line;
+        try {
+            bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+            while ((line = bufferedReader.readLine()) != null) {
+                stringBuilder.append(line + "\n");
+            }
+        } catch (IOException e) {
+            LOGGER.error("IOException on reading input stream: " + e.getMessage());
+            fail(e.getMessage());
+        } finally {
+            if (bufferedReader != null) {
+                try {
+                    bufferedReader.close();
+                } catch (IOException e) {
+                    LOGGER.error("Error closing bufferedReader in test");
+                }
+            }
+        }
+        return stringBuilder.toString();
+    }
 
     @Before
     public void setUp() {
@@ -196,8 +199,8 @@ public class TestResourceReader {
     public void testReadFileWithCustomExtension() {
         // Add custom file extension to mime type mapping to custom mime type
         // resolver
-        this.customResolver.setCustomMimeTypes(new String[] {CUSTOM_FILE_EXTENSION + "="
-                + CUSTOM_MIME_TYPE});
+        this.customResolver
+                .setCustomMimeTypes(new String[] {CUSTOM_FILE_EXTENSION + "=" + CUSTOM_MIME_TYPE});
 
         String filePath = ABSOLUTE_PATH + TEST_PATH + "CustomExtension.xyz";
         verifyFile(filePath, "CustomExtension.xyz", CUSTOM_MIME_TYPE);
@@ -213,8 +216,8 @@ public class TestResourceReader {
     public void testJpegWithCustomExtension() {
         // Add custom file extension to mime type mapping to custom mime type
         // resolver
-        this.customResolver.setCustomMimeTypes(new String[] {CUSTOM_FILE_EXTENSION + "="
-                + CUSTOM_MIME_TYPE});
+        this.customResolver
+                .setCustomMimeTypes(new String[] {CUSTOM_FILE_EXTENSION + "=" + CUSTOM_MIME_TYPE});
 
         String filePath = ABSOLUTE_PATH + TEST_PATH + "JpegWithCustomExtension.xyz";
         verifyFile(filePath, "JpegWithCustomExtension.xyz", CUSTOM_MIME_TYPE);
@@ -297,28 +300,28 @@ public class TestResourceReader {
         }
     }
 
-    private static String getStringFromInputStream(InputStream inputStream) {
-        BufferedReader bufferedReader = null;
-        StringBuilder stringBuilder = new StringBuilder();
-        String line;
-        try {
-            bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-            while ((line = bufferedReader.readLine()) != null) {
-                stringBuilder.append(line + "\n");
-            }
-        } catch (IOException e) {
-            LOGGER.error("IOException on reading input stream: " + e.getMessage());
-            fail(e.getMessage());
-        } finally {
-            if (bufferedReader != null) {
-                try {
-                    bufferedReader.close();
-                } catch (IOException e) {
-                    LOGGER.error("Error closing bufferedReader in test");
-                }
-            }
+    static class MockHttpServerSuccessResponse implements HttpHandler {
+
+        private String mockHost;
+
+        private int mockPort;
+
+        public MockHttpServerSuccessResponse(String mockHost, int mockPort) {
+            this.mockHost = mockHost;
+            this.mockPort = mockPort;
         }
-        return stringBuilder.toString();
+
+        @Override
+        public void handle(HttpExchange httpExchange) throws IOException {
+            String response = "<!DOCTYPE HTML><html><head><title>dummy</title></head><body>dummy</body></html>";
+            InputStream inputStream = httpExchange.getRequestBody();
+            LOGGER.info("request was '{}'", getStringFromInputStream(inputStream));
+            //TODO assert
+            httpExchange.sendResponseHeaders(HTTP_SUCCESS_CODE, response.length());
+            OutputStream outputStream = httpExchange.getResponseBody();
+            outputStream.write(response.getBytes());
+            outputStream.close();
+        }
     }
 
 }

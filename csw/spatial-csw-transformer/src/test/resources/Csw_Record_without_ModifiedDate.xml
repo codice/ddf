@@ -13,16 +13,15 @@
  **/
 -->
 <csw:Record xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
-  xmlns:ows="http://www.opengis.net/ows" 
-  xmlns:dc="http://purl.org/dc/elements/1.1/" 
-  xmlns:dct="http://purl.org/dc/terms/"
-  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-  xmlns:gml="http://www.opengis.net/gml">
+            xmlns:ows="http://www.opengis.net/ows"
+            xmlns:dc="http://purl.org/dc/elements/1.1/"
+            xmlns:dct="http://purl.org/dc/terms/"
+            xmlns:gml="http://www.opengis.net/gml">
 
     <dc:coverage></dc:coverage>
     <dct:spatial>
         <gml:Polygon gml:srsName="EPSG:4326" gml:srsDimension="2"
-            gml:uomLabels="degrees degrees">
+                     gml:uomLabels="degrees degrees">
             <gml:exterior>
                 <gml:LinearRing>
                     <gml:posList>33.716944444444444 51.70333333333333 33.71666666666667

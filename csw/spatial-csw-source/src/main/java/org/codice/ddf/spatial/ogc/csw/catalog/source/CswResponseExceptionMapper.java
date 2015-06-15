@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.source;
 
@@ -24,9 +24,6 @@ import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
-import net.opengis.ows.v_1_0_0.ExceptionReport;
-import net.opengis.ows.v_1_0_0.ExceptionType;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
 import org.apache.cxf.helpers.IOUtils;
@@ -36,16 +33,19 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.opengis.ows.v_1_0_0.ExceptionReport;
+import net.opengis.ows.v_1_0_0.ExceptionType;
+
 /**
  * Maps the exception report returned as a response from a CSW service into a {@link CswException}.
- * 
+ *
  * The format of the XML error response is specified by, and shall validate against, the exception
  * response schema defined in clause 8 of the OWS Common Implementation Specification. One or more
  * exceptions can be contained in the exception report. See section 10.3.7 of the CSW specification
  * for details.
- * 
+ *
  * An example of an exception report returned by a CSW service would be:
- * 
+ *
  * <pre>
  * {@code
  * <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -62,9 +62,9 @@ import org.slf4j.LoggerFactory;
  * </ows:ExceptionReport>
  * }
  * </pre>
- * 
+ *
  * @author rodgersh
- * 
+ *
  */
 public class CswResponseExceptionMapper implements ResponseExceptionMapper<CswException> {
 
@@ -84,28 +84,31 @@ public class CswResponseExceptionMapper implements ResponseExceptionMapper<CswEx
                     }
                     msg = IOUtils.toString(is);
                 } catch (IOException e) {
-                    cswException = new CswException("Error received from remote Csw server"
-                            + (msg != null ? ": " + msg : ""));
+                    cswException = new CswException(
+                            "Error received from remote Csw server" + (msg != null ?
+                                    ": " + msg :
+                                    ""));
                     LOGGER.warn("Unable to parse exception report: {}", e);
                 }
                 if (msg != null) {
                     try {
                         JAXBElementProvider<ExceptionReport> provider = new JAXBElementProvider<ExceptionReport>();
-                        Unmarshaller um = provider.getJAXBContext(ExceptionReport.class,
-                                ExceptionReport.class).createUnmarshaller();
-                        ExceptionReport report = (ExceptionReport) um.unmarshal(new StringReader(
-                                msg));
+                        Unmarshaller um = provider
+                                .getJAXBContext(ExceptionReport.class, ExceptionReport.class)
+                                .createUnmarshaller();
+                        ExceptionReport report = (ExceptionReport) um
+                                .unmarshal(new StringReader(msg));
                         cswException = convertToCswException(report);
                     } catch (JAXBException e) {
-                        cswException = new CswException("Error received from remote Csw server: "
-                                + msg, e);
+                        cswException = new CswException(
+                                "Error received from remote Csw server: " + msg, e);
                         LOGGER.warn("Error parsing the exception report: {}", e);
                     }
                 }
             } else {
                 cswException = new CswException(
-                        "Error reading response, entity type not understood: "
-                                + response.getEntity().getClass().getName());
+                        "Error reading response, entity type not understood: " + response
+                                .getEntity().getClass().getName());
             }
             cswException.setHttpStatus(response.getStatus());
         } else {
@@ -146,8 +149,8 @@ public class CswResponseExceptionMapper implements ResponseExceptionMapper<CswEx
             cswException = new CswException(exceptionMsg.toString());
         }
         if (null == cswException) {
-            cswException = new CswException("Empty Exception Report (version = "
-                    + report.getVersion() + ")");
+            cswException = new CswException(
+                    "Empty Exception Report (version = " + report.getVersion() + ")");
         }
         return cswException;
     }
