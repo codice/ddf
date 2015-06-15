@@ -1,22 +1,25 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.ddf.ui.searchui.query.endpoint;
 
-import ddf.action.ActionRegistry;
-import ddf.catalog.CatalogFramework;
-import ddf.catalog.filter.FilterBuilder;
+import java.util.Dictionary;
+import java.util.Hashtable;
+
+import javax.servlet.Servlet;
+import javax.servlet.ServletException;
+
 import org.codice.ddf.persistence.PersistentStore;
 import org.codice.ddf.ui.searchui.query.controller.ActivityController;
 import org.codice.ddf.ui.searchui.query.controller.NotificationController;
@@ -36,10 +39,9 @@ import org.osgi.service.event.EventAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.Servlet;
-import javax.servlet.ServletException;
-import java.util.Dictionary;
-import java.util.Hashtable;
+import ddf.action.ActionRegistry;
+import ddf.catalog.CatalogFramework;
+import ddf.catalog.filter.FilterBuilder;
 
 /**
  * The CometdEndpoint binds the SearchService and the CometdServlet together. 
@@ -53,25 +55,29 @@ public class CometdEndpoint {
 
     private final FilterBuilder filterBuilder;
 
-    private SearchController searchController;
-    
-    private ServerAnnotationProcessor cometdAnnotationProcessor;
-
-    private BundleContext bundleContext;
-
     BayeuxServer bayeuxServer;
+
     NotificationController notificationController;
+
     ActivityController activityController;
+
     SearchService searchService;
 
     UserService userService;
 
     WorkspaceService workspaceService;
+
     PersistentStore persistentStore;
+
+    private SearchController searchController;
+
+    private ServerAnnotationProcessor cometdAnnotationProcessor;
+
+    private BundleContext bundleContext;
 
     /**
      * Create a new CometdEndpoint
-     * 
+     *
      * @param cometdServlet
      *            - CometdServlet to bind to the SearchService. This field must not be null.
      * @param framework
@@ -79,7 +85,7 @@ public class CometdEndpoint {
      * @param filterBuilder
      *            - FilterBuilder for the SearchService to use
      */
-    public CometdEndpoint(CometdServlet cometdServlet, CatalogFramework framework, 
+    public CometdEndpoint(CometdServlet cometdServlet, CatalogFramework framework,
             FilterBuilder filterBuilder, PersistentStore persistentStore,
             BundleContext bundleContext, EventAdmin eventAdmin, ActionRegistry actionRegistry) {
         this.bundleContext = bundleContext;
@@ -87,8 +93,10 @@ public class CometdEndpoint {
         this.filterBuilder = filterBuilder;
         this.searchController = new SearchController(framework, actionRegistry);
         this.persistentStore = persistentStore;
-        this.notificationController = new NotificationController(persistentStore, bundleContext, eventAdmin);
-        this.activityController = new ActivityController(persistentStore, bundleContext, eventAdmin);
+        this.notificationController = new NotificationController(persistentStore, bundleContext,
+                eventAdmin);
+        this.activityController = new ActivityController(persistentStore, bundleContext,
+                eventAdmin);
     }
 
     public void init() throws ServletException {
@@ -97,9 +105,9 @@ public class CometdEndpoint {
         properties.put("org.eclipse.jetty.servlet.SessionIdPathParameterName", "none");
         properties.put("org.eclipse.jetty.servlet.SessionPath", "/");
         bundleContext.registerService(Servlet.class, cometdServlet, properties);
-        bayeuxServer = (BayeuxServer) cometdServlet.getServletContext().getAttribute(
-                BayeuxServer.ATTRIBUTE);
-        
+        bayeuxServer = (BayeuxServer) cometdServlet.getServletContext()
+                .getAttribute(BayeuxServer.ATTRIBUTE);
+
         if (bayeuxServer != null) {
             cometdAnnotationProcessor = new ServerAnnotationProcessor(bayeuxServer);
 
@@ -115,12 +123,12 @@ public class CometdEndpoint {
                 @Override
                 public boolean canHandshake(BayeuxServer server, ServerSession session,
                         ServerMessage message) {
-                    
+
                     if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("canHandshake ServerSession: " + session 
+                        LOGGER.debug("canHandshake ServerSession: " + session
                                 + "\ncanHandshake ServerMessage: " + message);
                     }
-                    
+
                     notificationController.registerUserSession(session, message);
                     activityController.registerUserSession(session, message);
                     return true;
@@ -139,7 +147,7 @@ public class CometdEndpoint {
                 }
 
             });
-                 
+
             searchController.setBayeuxServer(bayeuxServer);
             searchService = new SearchService(filterBuilder, searchController);
             userService = new UserService(persistentStore);

@@ -1,32 +1,26 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.ddf.ui.searchui.query.service;
 
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.Result;
-import ddf.catalog.filter.FilterBuilder;
-import ddf.catalog.filter.FilterDelegate;
-import ddf.catalog.filter.impl.SortByImpl;
-import ddf.catalog.operation.Query;
-import ddf.catalog.operation.SourceInfoResponse;
-import ddf.catalog.operation.impl.QueryImpl;
-import ddf.catalog.operation.impl.SourceInfoRequestEnterprise;
-import ddf.catalog.source.SourceDescriptor;
-import ddf.catalog.source.SourceUnavailableException;
-import ddf.security.SecurityConstants;
-import ddf.security.Subject;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import javax.inject.Inject;
+
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.ui.searchui.query.controller.SearchController;
 import org.codice.ddf.ui.searchui.query.model.Search;
@@ -49,17 +43,27 @@ import org.opengis.filter.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.Result;
+import ddf.catalog.filter.FilterBuilder;
+import ddf.catalog.filter.FilterDelegate;
+import ddf.catalog.filter.impl.SortByImpl;
+import ddf.catalog.operation.Query;
+import ddf.catalog.operation.SourceInfoResponse;
+import ddf.catalog.operation.impl.QueryImpl;
+import ddf.catalog.operation.impl.SourceInfoRequestEnterprise;
+import ddf.catalog.source.SourceDescriptor;
+import ddf.catalog.source.SourceUnavailableException;
+import ddf.security.SecurityConstants;
+import ddf.security.Subject;
 
 /**
  * This class performs the searches when a client communicates with the cometd endpoint
  */
 @Service
 public class SearchService {
+
+    public static final String LOCAL_SOURCE = "local";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SearchService.class);
 
@@ -85,15 +89,13 @@ public class SearchService {
 
     private static final int DEFAULT_START_INDEX = 1;
 
-    public static final String LOCAL_SOURCE = "local";
-
     private final FilterBuilder filterBuilder;
 
     private final SearchController searchController;
-    
+
     @Inject
     private BayeuxServer bayeux;
-    
+
     @Session
     private ServerSession serverSession;
 
@@ -105,15 +107,14 @@ public class SearchService {
      * @param searchController
      *            - SearchController to handle async queries
      */
-    public SearchService(FilterBuilder filterBuilder, 
-            SearchController searchController) {
+    public SearchService(FilterBuilder filterBuilder, SearchController searchController) {
         this.filterBuilder = filterBuilder;
         this.searchController = searchController;
     }
 
     /**
      * Service method called by Cometd when something arrives on the service channel
-     * 
+     *
      * @param remote
      *            - Client session
      * @param message
@@ -136,7 +137,7 @@ public class SearchService {
 
             BayeuxContext context = bayeux.getContext();
             Subject subject = null;
-            if(context != null) {
+            if (context != null) {
                 subject = (Subject) context.getRequestAttribute(SecurityConstants.SECURITY_SUBJECT);
             }
 
@@ -175,7 +176,7 @@ public class SearchService {
 
     /**
      * Creates the query requests for each source and hands off the query to the Search Controller
-     * 
+     *
      * @param queryMessage
      *            - JSON message received from cometd
      */
@@ -214,12 +215,11 @@ public class SearchService {
         Set<String> sourceIds;
         if (StringUtils.equalsIgnoreCase(sources, LOCAL_SOURCE)) {
             LOGGER.debug("Received local query");
-            sourceIds = new HashSet<String>(
-                    Arrays.asList(searchController.getFramework().getId()));
+            sourceIds = new HashSet<String>(Arrays.asList(searchController.getFramework().getId()));
         } else if (!(StringUtils.isEmpty(sources))) {
             LOGGER.debug("Received source names from client: {}", sources);
-            sourceIds = new HashSet<String>(Arrays.asList(StringUtils.stripAll(sources
-                    .split(","))));
+            sourceIds = new HashSet<String>(
+                    Arrays.asList(StringUtils.stripAll(sources.split(","))));
         } else {
             LOGGER.debug("Received enterprise query");
             SourceInfoResponse sourceInfo = null;
@@ -227,10 +227,8 @@ public class SearchService {
                 sourceInfo = searchController.getFramework()
                         .getSourceInfo(new SourceInfoRequestEnterprise(true));
             } catch (SourceUnavailableException e) {
-                LOGGER.debug(
-                        "Exception while getting source status. Defaulting to all sources. " +
-                                "This could include unavailable sources.", e
-                );
+                LOGGER.debug("Exception while getting source status. Defaulting to all sources. "
+                                + "This could include unavailable sources.", e);
             }
 
             if (sourceInfo != null) {

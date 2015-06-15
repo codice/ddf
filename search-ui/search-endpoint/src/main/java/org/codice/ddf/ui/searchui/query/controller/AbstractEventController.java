@@ -14,30 +14,6 @@
  **/
 package org.codice.ddf.ui.searchui.query.controller;
 
-import ddf.security.assertion.SecurityAssertion;
-import net.minidev.json.JSONObject;
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.subject.PrincipalCollection;
-import org.apache.shiro.subject.Subject;
-import org.codice.ddf.activities.ActivityEvent;
-import org.codice.ddf.notifications.Notification;
-import org.codice.ddf.persistence.PersistenceException;
-import org.codice.ddf.persistence.PersistentItem;
-import org.codice.ddf.persistence.PersistentStore;
-import org.cometd.annotation.Listener;
-import org.cometd.annotation.Service;
-import org.cometd.annotation.Session;
-import org.cometd.bayeux.server.SecurityPolicy;
-import org.cometd.bayeux.server.ServerMessage;
-import org.cometd.bayeux.server.ServerSession;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.Event;
-import org.osgi.service.event.EventAdmin;
-import org.osgi.service.event.EventConstants;
-import org.osgi.service.event.EventHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -50,16 +26,40 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.PrincipalCollection;
+import org.apache.shiro.subject.Subject;
+import org.codice.ddf.activities.ActivityEvent;
+import org.codice.ddf.notifications.Notification;
+import org.codice.ddf.persistence.PersistenceException;
+import org.codice.ddf.persistence.PersistentItem;
+import org.codice.ddf.persistence.PersistentStore;
+import org.cometd.annotation.Listener;
+import org.cometd.annotation.Service;
+import org.cometd.annotation.Session;
+import org.cometd.bayeux.server.ServerMessage;
+import org.cometd.bayeux.server.ServerSession;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventAdmin;
+import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.EventHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import ddf.security.assertion.SecurityAssertion;
+import net.minidev.json.JSONObject;
+
 /**
  * The {@code AbstractEventController} handles the processing and routing of events.
  */
 @Service
 public abstract class AbstractEventController implements EventHandler {
+    public static final java.lang.String EVENT_TOPIC_CANCEL = "download/action/cancel";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractEventController.class);
 
     private final ExecutorService executorService = Executors.newCachedThreadPool();
-
-    public static final java.lang.String EVENT_TOPIC_CANCEL = "download/action/cancel";
 
     @Session
     protected ServerSession controllerServerSession;
@@ -183,7 +183,7 @@ public abstract class AbstractEventController implements EventHandler {
 
     /**
      * Enables private message delivery to a given user. As of CometD version 2.8.0, this must be
-     * called from the canHandshake method of a {@link SecurityPolicy}. See <a href=
+     * called from the canHandshake method of a {@link org.cometd.bayeux.server.SecurityPolicy}. See <a href=
      * "http://stackoverflow.com/questions/22695516/null-serversession-on-cometd-meta-handshake"
      * >Obtaining user and session information for private message delivery</a> for more
      * information.
@@ -194,8 +194,8 @@ public abstract class AbstractEventController implements EventHandler {
      * @throws IllegalArgumentException when the received {@code ServerSession} or the {@code ServerSession}'s id is
      *                                  null.
      */
-    public void registerUserSession(final ServerSession serverSession, ServerMessage serverMessage)
-            throws IllegalArgumentException {
+    public void registerUserSession(final ServerSession serverSession,
+            ServerMessage serverMessage) throws IllegalArgumentException {
 
         LOGGER.debug("ServerSession: {}\nServerMessage: {}", serverSession, serverMessage);
 
@@ -245,8 +245,9 @@ public abstract class AbstractEventController implements EventHandler {
                     }
 
                     LOGGER.trace("Sending notifications back to client.");
-                    serverSession.deliver(controllerServerSession, topic,
-                            jsonPropMap.toJSONString(), null);
+                    serverSession
+                            .deliver(controllerServerSession, topic, jsonPropMap.toJSONString(),
+                                    null);
                 }
             });
         }
@@ -265,7 +266,7 @@ public abstract class AbstractEventController implements EventHandler {
                     break;
                 }
             }
-            if(null == userId) {
+            if (null == userId) {
                 userId = serverSession.getId();
             }
         } else {

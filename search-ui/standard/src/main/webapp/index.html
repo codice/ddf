@@ -28,15 +28,15 @@
         @import url(lib/cesiumjs/bucket.css);
 
         #toolbar {
-            opacity: 0.85;
+        opacity: 0.85;
         }
 
         .ui-dialog {
-            opacity: 0.9;
+        opacity: 0.9;
         }
 
         .ui-icon-blank {
-            background-position: -224px -192px;
+        background-position: -224px -192px;
         }
     </style>
 
@@ -63,30 +63,32 @@
     <![endif]-->
 </head>
 <body>
-    <header></header>
-    <!--[if lt IE 9]>
-    <div id="iewarning" class="iewarning">
-        <div style="color:yellow">
-            Internet Explorer 8 and below are not supported. Please upgrade your browser or use the latest version of Firefox, Chrome, or Safari.
-        </div>
-        <div style="color:yellow">
-            Consider using the <a href="/search/simple">Simple Search UI</a> if IE 8 or below is your only option.
+<header></header>
+<!--[if lt IE 9]>
+<div id="iewarning" class="iewarning">
+    <div style="color:yellow">
+        Internet Explorer 8 and below are not supported. Please upgrade your browser or use the
+        latest version of Firefox, Chrome, or Safari.
+    </div>
+    <div style="color:yellow">
+        Consider using the <a href="/search/simple">Simple Search UI</a> if IE 8 or below is your
+        only option.
+    </div>
+</div>
+<![endif]-->
+<div id="content" class="height-full">
+    <div id="loading">
+        <div class="loading">
+            Loading...
         </div>
     </div>
-    <![endif]-->
-    <div id="content" class="height-full">
-        <div id="loading">
-            <div class="loading">
-                Loading...
-            </div>
-        </div>
-        <div id="menu" class="search-menu"></div>
-        <div id="controlPanel"></div>
-        <div id="map" class="height-full"></div>
-        <div id="notifications"></div>
-        <div id="modalRegion"></div>
-    </div>
-    <footer></footer>
-    <script data-main="main" src="lib/requirejs/require.js"></script>
-    </body>
+    <div id="menu" class="search-menu"></div>
+    <div id="controlPanel"></div>
+    <div id="map" class="height-full"></div>
+    <div id="notifications"></div>
+    <div id="modalRegion"></div>
+</div>
+<footer></footer>
+<script data-main="main" src="lib/requirejs/require.js"></script>
+</body>
 </html>

@@ -14,10 +14,15 @@
  **/
 package org.codice.ddf.ui.searchui.geocoder.geonames;
 
-import net.minidev.json.JSONArray;
-import net.minidev.json.JSONObject;
-import net.minidev.json.parser.JSONParser;
-import net.minidev.json.parser.ParseException;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.codice.ddf.ui.searchui.geocoder.GeoCoder;
 import org.codice.ddf.ui.searchui.geocoder.GeoResult;
 import org.geotools.geometry.jts.spatialschema.geometry.DirectPositionImpl;
@@ -27,14 +32,10 @@ import org.opengis.geometry.primitive.Point;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.List;
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
+import net.minidev.json.parser.JSONParser;
+import net.minidev.json.parser.ParseException;
 
 public class GeoNamesWebService implements GeoCoder {
 
@@ -48,7 +49,9 @@ public class GeoNamesWebService implements GeoCoder {
 
     //geonames requires an application username, this is the default name for DDF
     protected String username = "ddf_ui";
+
     protected String geoNamesApiServer = "api.geonames.org";
+
     protected String geoNamesProtocol = "http";
 
     @Override
@@ -62,7 +65,8 @@ public class GeoNamesWebService implements GeoCoder {
         } catch (UnsupportedEncodingException e) {
             LOGGER.error("Unable to encode location.", e);
         }
-        urlStr = geoNamesProtocol + "://" + geoNamesApiServer + "/" + method + "JSON" + "?" + term + location + "&username=" + username;
+        urlStr = geoNamesProtocol + "://" + geoNamesApiServer + "/" + method + "JSON" + "?" + term
+                + location + "&username=" + username;
 
         URL url = null;
         try {
@@ -181,8 +185,10 @@ public class GeoNamesWebService implements GeoCoder {
                                     }
                                 }
 
-                                DirectPosition northWest = new DirectPositionImpl(lon - lonOffset, lat + latOffset);
-                                DirectPosition southEast = new DirectPositionImpl(lon + lonOffset, lat - latOffset);
+                                DirectPosition northWest = new DirectPositionImpl(lon - lonOffset,
+                                        lat + latOffset);
+                                DirectPosition southEast = new DirectPositionImpl(lon + lonOffset,
+                                        lat - latOffset);
                                 List<Point> bbox = new ArrayList<Point>();
                                 bbox.add(new PointImpl(northWest));
                                 bbox.add(new PointImpl(southEast));

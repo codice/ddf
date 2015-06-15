@@ -10,7 +10,7 @@
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- **/
+ */
 
 package org.codice.ddf.ui.searchui.standard.properties;
 
@@ -59,13 +59,32 @@ import us.bpsm.edn.parser.Parsers;
 @Path("/")
 public class ConfigurationStore {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationStore.class);
-
     public static final String SERVLET_PATH = "/proxy";
 
     public static final String URL = "url";
 
     public static final String ENDPOINT_NAME = "standard";
+
+    public static final Factory NEW_SET_FACTORY = new Factory() {
+        public Object create() {
+            return new TreeSet();
+        }
+    };
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationStore.class);
+
+    private static MimeType jsonMimeType;
+
+    static {
+        MimeType mime = null;
+        try {
+            String jsonMimeType_STRING = "application/json";
+            mime = new MimeType(jsonMimeType_STRING);
+        } catch (MimeTypeParseException e) {
+            LOGGER.warn("Failed to create json mimetype.");
+        }
+        jsonMimeType = mime;
+    }
 
     private String format;
 
@@ -91,8 +110,6 @@ public class ConfigurationStore {
 
     private BrandingPlugin branding;
 
-    private static MimeType JSON_MIME_TYPE;
-
     private Integer timeout = 15000;
 
     private HttpProxyService httpProxy;
@@ -108,23 +125,6 @@ public class ConfigurationStore {
     private String helpUrl = "help.html";
 
     private Map<String, Set<String>> typeNameMapping = new HashMap<String, Set<String>>();
-
-    public static final Factory NEW_SET_FACTORY = new Factory() {
-        public Object create() {
-            return new TreeSet();
-        }
-    };
-
-    static {
-        MimeType mime = null;
-        try {
-            String JSON_MIME_TYPE_STRING = "application/json";
-            mime = new MimeType(JSON_MIME_TYPE_STRING);
-        } catch (MimeTypeParseException e) {
-            LOGGER.warn("Failed to create json mimetype.");
-        }
-        JSON_MIME_TYPE = mime;
-    }
 
     public ConfigurationStore() {
 
@@ -173,7 +173,7 @@ public class ConfigurationStore {
 
         String configJson = toJson(config);
         BinaryContent content = new BinaryContentImpl(
-                new ByteArrayInputStream(configJson.getBytes()), JSON_MIME_TYPE);
+                new ByteArrayInputStream(configJson.getBytes()), jsonMimeType);
         response = Response.ok(content.getInputStream(), content.getMimeTypeValue()).build();
 
         return response;
@@ -410,14 +410,14 @@ public class ConfigurationStore {
         }
     }
 
+    public Map<String, Set<String>> getTypeNameMapping() {
+        return typeNameMapping;
+    }
+
     public void setTypeNameMapping(String string) {
         if (string != null) {
             this.setTypeNameMapping(new String[] {string});
         }
-    }
-
-    public Map<String, Set<String>> getTypeNameMapping() {
-        return typeNameMapping;
     }
 
     public String getProjection() {

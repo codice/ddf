@@ -15,16 +15,17 @@
 
 package org.codice.ddf.ui.searchui.filter;
 
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.IOException;
+import java.net.URI;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.net.URI;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Servlet for forcing a redirect from the default /search location to the actual web app location.
@@ -39,18 +40,19 @@ public class RedirectServlet extends HttpServlet {
     private RedirectConfiguration redirectConfiguration;
 
     @Override
-    public void service(HttpServletRequest servletRequest, HttpServletResponse servletResponse) throws ServletException, IOException {
-        if(StringUtils.isNotBlank(redirectConfiguration.getDefaultUri())) {
+    public void service(HttpServletRequest servletRequest,
+            HttpServletResponse servletResponse) throws ServletException, IOException {
+        if (StringUtils.isNotBlank(redirectConfiguration.getDefaultUri())) {
             URI uri = URI.create(redirectConfiguration.getDefaultUri());
-            if(uri.isAbsolute()) {
-                logger.warn("Redirecting /search to an absolute URI: "+redirectConfiguration.getDefaultUri());
-            }
-            else {
-                logger.info("Redirecting /search to a relative URI: "+redirectConfiguration.getDefaultUri());
+            if (uri.isAbsolute()) {
+                logger.warn("Redirecting /search to an absolute URI: " + redirectConfiguration
+                        .getDefaultUri());
+            } else {
+                logger.info("Redirecting /search to a relative URI: " + redirectConfiguration
+                        .getDefaultUri());
             }
             servletResponse.sendRedirect(redirectConfiguration.getDefaultUri());
-        }
-        else {
+        } else {
             logger.warn("Search page redirection has not been configured.");
             servletResponse.sendError(404);
         }

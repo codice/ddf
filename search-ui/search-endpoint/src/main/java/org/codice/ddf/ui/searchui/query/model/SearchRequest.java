@@ -14,11 +14,12 @@
  **/
 package org.codice.ddf.ui.searchui.query.model;
 
-import ddf.catalog.operation.Query;
-import org.apache.commons.lang.Validate;
-
 import java.util.Collections;
 import java.util.Set;
+
+import org.apache.commons.lang.Validate;
+
+import ddf.catalog.operation.Query;
 
 /**
  * This class holds all of the search requests processed for a particular query.

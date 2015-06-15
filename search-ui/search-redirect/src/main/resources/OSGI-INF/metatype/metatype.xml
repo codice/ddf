@@ -23,8 +23,8 @@
                 />
     </OCD>
 
-    <Designate 	pid="org.codice.ddf.ui.searchui.filter.RedirectServlet">
-        <Object ocdref="org.codice.ddf.ui.searchui.filter.RedirectServlet" />
+    <Designate pid="org.codice.ddf.ui.searchui.filter.RedirectServlet">
+        <Object ocdref="org.codice.ddf.ui.searchui.filter.RedirectServlet"/>
     </Designate>
 
 </metatype:MetaData>

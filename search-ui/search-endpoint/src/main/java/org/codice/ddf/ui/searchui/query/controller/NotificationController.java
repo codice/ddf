@@ -14,8 +14,11 @@
  **/
 package org.codice.ddf.ui.searchui.query.controller;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import net.minidev.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
@@ -31,34 +34,31 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.EventConstants;
-import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import net.minidev.json.JSONObject;
 
 /**
  * The {@code NotificationController} handles the processing and routing of notifications.
  */
 @Service
 public class NotificationController extends AbstractEventController {
-    private static final Logger LOGGER = LoggerFactory.getLogger(NotificationController.class);
-
     // CometD requires prepending the topic name with a '/' character, whereas
     // the OSGi Event Admin doesn't allow it.
-    protected static final String NOTIFICATION_TOPIC_DOWNLOADS_COMETD = "/"
-            + Notification.NOTIFICATION_TOPIC_DOWNLOADS;
+    protected static final String NOTIFICATION_TOPIC_DOWNLOADS_COMETD =
+            "/" + Notification.NOTIFICATION_TOPIC_DOWNLOADS;
 
-    public NotificationController(PersistentStore persistentStore, BundleContext bundleContext, EventAdmin eventAdmin) {
+    private static final Logger LOGGER = LoggerFactory.getLogger(NotificationController.class);
+
+    public NotificationController(PersistentStore persistentStore, BundleContext bundleContext,
+            EventAdmin eventAdmin) {
         super(persistentStore, bundleContext, eventAdmin);
 
     }
 
     /**
-     * Implementation of {@link EventHandler#handleEvent(Event)} that receives notifications
+     * Implementation of {@link org.osgi.service.event.EventHandler#handleEvent(Event)} that receives notifications
      * published on the {@link #NOTIFICATIONS_TOPIC_NAME} topic from the OSGi eventing framework and
      * forwards them to their intended recipients.
      *
@@ -76,26 +76,26 @@ public class NotificationController extends AbstractEventController {
     @Override
     public void handleEvent(Event event) throws IllegalArgumentException {
 
-        if (null == event.getProperty(Notification.NOTIFICATION_KEY_APPLICATION)
-                || event.getProperty(Notification.NOTIFICATION_KEY_APPLICATION).toString()
-                .isEmpty()) {
-            throw new IllegalArgumentException("Event \""
-                    + Notification.NOTIFICATION_KEY_APPLICATION + "\" property is null or empty");
+        if (null == event.getProperty(Notification.NOTIFICATION_KEY_APPLICATION) || event
+                .getProperty(Notification.NOTIFICATION_KEY_APPLICATION).toString().isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Event \"" + Notification.NOTIFICATION_KEY_APPLICATION
+                            + "\" property is null or empty");
         }
 
-        if (null == event.getProperty(Notification.NOTIFICATION_KEY_MESSAGE)
-                || event.getProperty(Notification.NOTIFICATION_KEY_MESSAGE).toString().isEmpty()) {
+        if (null == event.getProperty(Notification.NOTIFICATION_KEY_MESSAGE) || event
+                .getProperty(Notification.NOTIFICATION_KEY_MESSAGE).toString().isEmpty()) {
             throw new IllegalArgumentException("Event \"" + Notification.NOTIFICATION_KEY_MESSAGE
                     + "\" property is null or empty");
         }
 
         if (null == event.getProperty(Notification.NOTIFICATION_KEY_TIMESTAMP)) {
-            throw new IllegalArgumentException("Event \"" + Notification.NOTIFICATION_KEY_TIMESTAMP
-                    + "\" property is null");
+            throw new IllegalArgumentException(
+                    "Event \"" + Notification.NOTIFICATION_KEY_TIMESTAMP + "\" property is null");
         }
 
-        if (null == event.getProperty(Notification.NOTIFICATION_KEY_TITLE)
-                || event.getProperty(Notification.NOTIFICATION_KEY_TITLE).toString().isEmpty()) {
+        if (null == event.getProperty(Notification.NOTIFICATION_KEY_TITLE) || event
+                .getProperty(Notification.NOTIFICATION_KEY_TITLE).toString().isEmpty()) {
             throw new IllegalArgumentException("Event \"" + Notification.NOTIFICATION_KEY_TITLE
                     + "\" property is null or empty");
         }
@@ -148,7 +148,7 @@ public class NotificationController extends AbstractEventController {
         return Notification.NOTIFICATION_TOPIC_ROOT + "/*";
     }
 
-    @Listener('/'+Notification.NOTIFICATION_TOPIC_ROOT)
+    @Listener('/' + Notification.NOTIFICATION_TOPIC_ROOT)
     public void getPersistedNotifications(final ServerSession remote, Message message) {
         Subject subject = null;
         try {
@@ -172,7 +172,8 @@ public class NotificationController extends AbstractEventController {
         }
 
         if (notifications != null && !notifications.isEmpty()) {
-            queuePersistedMessages(remote, compatibleNotifications, "/" + Notification.NOTIFICATION_TOPIC_BROADCAST);
+            queuePersistedMessages(remote, compatibleNotifications,
+                    "/" + Notification.NOTIFICATION_TOPIC_BROADCAST);
         }
     }
 
@@ -211,9 +212,11 @@ public class NotificationController extends AbstractEventController {
                         //You can have a blank id for anonymous
                         if (id != null) {
                             try {
-                                this.persistentStore.delete(PersistentStore.NOTIFICATION_TYPE, "id = '" + id + "'");
+                                this.persistentStore.delete(PersistentStore.NOTIFICATION_TYPE,
+                                        "id = '" + id + "'");
                             } catch (PersistenceException e) {
-                                throw new IllegalArgumentException("Unable to delete notification with id = " + id);
+                                throw new IllegalArgumentException(
+                                        "Unable to delete notification with id = " + id);
                             }
                         } else {
                             throw new IllegalArgumentException("Message id is null");

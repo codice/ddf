@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.ddf.catalog.transformer.html;
 
@@ -45,9 +45,13 @@ import com.github.jknack.handlebars.Options;
 public class RecordViewHelpers {
 
     public static final SimpleDateFormat ISO_8601_DATE_FORMAT;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RecordViewHelpers.class);
+
     private static TransformerFactory transformerFactory;
+
     private static DocumentBuilderFactory documentBuilderFactory;
-    
+
     static {
         ISO_8601_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         ISO_8601_DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("GMT"));
@@ -56,10 +60,8 @@ public class RecordViewHelpers {
         documentBuilderFactory = DocumentBuilderFactory.newInstance();
     }
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RecordViewHelpers.class);
-
     public CharSequence buildMetadata(String metadata, Options options) {
-        if(metadata == null) {
+        if (metadata == null) {
             return "";
         }
         try {
@@ -71,11 +73,11 @@ public class RecordViewHelpers {
             transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
 
             DocumentBuilder builder = documentBuilderFactory.newDocumentBuilder();
-            StreamResult result = new StreamResult(
-                    new StringWriter());
+            StreamResult result = new StreamResult(new StringWriter());
 
-            transformer.transform(new DOMSource(builder.parse(new InputSource(
-                            new StringReader(metadata)))), result);
+            transformer.transform(
+                    new DOMSource(builder.parse(new InputSource(new StringReader(metadata)))),
+                    result);
             StringBuilder sb = new StringBuilder();
             sb.append("<pre>").append(escapeHtml(result.getWriter().toString())).append("</pre>");
             return new Handlebars.SafeString(sb.toString());
@@ -98,12 +100,12 @@ public class RecordViewHelpers {
     }
 
     public CharSequence formatDate(Date date, Options options) {
-        if(date != null) {
+        if (date != null) {
             return ISO_8601_DATE_FORMAT.format(date);
         }
         return "";
     }
-    
+
     public CharSequence hasServicesUrl(Options options) throws IOException {
         return options.fn(this);
     }
