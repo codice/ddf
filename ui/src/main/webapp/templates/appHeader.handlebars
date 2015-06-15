@@ -11,5 +11,8 @@
  *
  **/
  --}}
-<li class="float-left">{{branding}}</li>
-<li>Admin Console</li>
+ {{#with admin}}
+<label title="{{branding}}">{{branding}}</label>
+<label title="Admin Console">Admin Console</label>
+<label><button type="button" title="Log Out">Log Out</button></label>
+{{/with}}

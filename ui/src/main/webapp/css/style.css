@@ -52,17 +52,37 @@ iframe {
 }
 
 .app-header {
-    padding: 8px 30px;
+    padding: 5px 0px 0px 0px;
     margin-bottom: 21px;
-    list-style: none;
     background-color: #ecf0f1;
-    border-radius: 4px;
     color: #95a5a6;
-    text-align:center;
+    white-space: nowrap;
 }
 
-.app-header > li {
-    display: inline-block;
+.app-header > label {
+    width: 33%;
+    overflow: hidden;
+    -ms-text-overflow: ellipsis;
+    text-overflow: ellipsis;
+    margin: 0px;
+    font-weight: normal;
+    text-align: center;
+    padding: 10px;
+}
+
+.app-header > label:first-of-type {
+    text-align: left;
+}
+
+.app-header > label:last-of-type {
+    text-align: right;
+    padding: 0px;
+}
+
+.app-header > label:last-of-type > button {
+    border: none;
+    background: none;
+    padding: 10px;
 }
 
 .full-height {

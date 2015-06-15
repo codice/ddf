@@ -151,7 +151,7 @@ public class Configuration {
     public String getProductName() {
         if (branding != null) {
             // Remove the version number
-            return StringUtils.substringBeforeLast(branding.getProductName(), " ");
+            return branding.getProductName();
         } else {
             return "";
         }
