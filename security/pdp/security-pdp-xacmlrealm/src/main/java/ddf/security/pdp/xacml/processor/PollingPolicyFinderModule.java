@@ -1,24 +1,22 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.security.pdp.xacml.processor;
 
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.commons.io.monitor.FileAlterationListener;
@@ -29,17 +27,17 @@ import org.slf4j.LoggerFactory;
 import org.wso2.balana.finder.impl.FileBasedPolicyFinderModule;
 
 /**
- * 
+ *
  * @author Dan Figliola
  * @author Shaun Morris
  * @author ddf.isgs@lmco.com
- * 
+ *
  *         This class Polls Directories for policies. It is used with the PDP to poll directories
  *         for changes to polices or the policy set in the directories.
- * 
+ *
  */
-public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule implements
-        FileAlterationListener {
+public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
+        implements FileAlterationListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(PollingPolicyFinderModule.class);
 
     private static final int MULTIPLIER = 1000;
@@ -49,7 +47,7 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule imple
     private Set<String> xacmlPolicyDirectories;
 
     /**
-     * 
+     *
      * @param xacmlPolicyDirectories
      *            - to search for policies
      * @param pollingInterval
@@ -67,7 +65,8 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule imple
 
         for (String xacmlPolicyDirectory : xacmlPolicyDirectories) {
             File directoryToMonitor = new File(xacmlPolicyDirectory);
-            FileAlterationObserver observer = new FileAlterationObserver(directoryToMonitor, getXmlFileFilter());
+            FileAlterationObserver observer = new FileAlterationObserver(directoryToMonitor,
+                    getXmlFileFilter());
             observer.addListener(this);
             monitor.addObserver(observer);
             LOGGER.debug("Monitoring directory: " + directoryToMonitor);
@@ -143,8 +142,8 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule imple
             String directoryPath = observer.getDirectory().getCanonicalPath();
             LOGGER.trace("starting to check directory for xacml policy update(s) " + directoryPath);
 
-            if (!xacmlPolicyDirectories.isEmpty()
-                    && isXacmlPoliciesDirectoryEmpty(xacmlPolicyDirectories.iterator().next())) {
+            if (!xacmlPolicyDirectories.isEmpty() && isXacmlPoliciesDirectoryEmpty(
+                    xacmlPolicyDirectories.iterator().next())) {
                 LOGGER.warn("No XACML Policies found in: {}", directoryPath);
             }
         } catch (IOException e) {
@@ -162,7 +161,7 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule imple
 
     /**
      * Checks if the XACML policy directory is empty.
-     * 
+     *
      * @param xacmlPoliciesDirectory
      *            The directory containing the XACML policy.
      * @return true if the directory is empty and false otherwise.
@@ -175,7 +174,7 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule imple
 
     /**
      * Checks if the XACML policy directory is empty.
-     * 
+     *
      * @param xacmlPoliciesDirectory
      *            The directory containing the XACML policy.
      * @return true if the directory is empty and false otherwise.
@@ -187,7 +186,7 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule imple
 
     /**
      * Checks if the XACML policy directory is empty.
-     * 
+     *
      * @param xacmlPoliciesDirectory
      *            The directory containing the XACML policy.
      * @return true if the directory is empty and false otherwise.

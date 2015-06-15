@@ -1,23 +1,23 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.security.permission;
 
-import ddf.security.common.audit.SecurityLogger;
+import java.util.Collection;
+
 import org.apache.shiro.authz.Permission;
 
-import java.util.Collection;
+import ddf.security.common.audit.SecurityLogger;
 
 /**
  * Permission class handling the match one case. Shiro permissions always "match all" attributes.
@@ -34,7 +34,7 @@ public class MatchOneCollectionPermission extends CollectionPermission {
      * "match one" scenario rather than the "match all" behavior of the overridden classes.
      * Specifically, this permission will imply another permission if that permission matches at
      * least one of our permission attributes.
-     * 
+     *
      * @param p
      *            the permission to check for behavior/functionality comparison.
      * @return {@code true} if this current instance <em>implies</em> the specified
@@ -43,8 +43,9 @@ public class MatchOneCollectionPermission extends CollectionPermission {
     @Override
     public boolean implies(Permission p) {
         if (permissionList.isEmpty()) {
-            SecurityLogger.logDebug(PERMISSION_START_MSG + toString() + PERMISSION_NOT_IMPLIES_MSG
-                    + p.toString() + PERMISSION_END_MSG);
+            SecurityLogger.logDebug(
+                    PERMISSION_START_MSG + toString() + PERMISSION_NOT_IMPLIES_MSG + p.toString()
+                            + PERMISSION_END_MSG);
             return false;
         }
 
@@ -73,12 +74,11 @@ public class MatchOneCollectionPermission extends CollectionPermission {
                                 break;
                             }
                         }
-                    }
                     // Currently we use key value permissions for everything. However, we still need
                     // to be able to handle
                     // permissions other than KV, so this else block will serve as the catch all for
                     // everything else.
-                    else {
+                    } else {
                         // Shiro permissions are always a "match all" condition so we need to flip
                         // the implies to make it match one
                         if (perm.implies(ourPerm)) {
@@ -88,13 +88,15 @@ public class MatchOneCollectionPermission extends CollectionPermission {
                     }
                 }
                 if (!result) {
-                    SecurityLogger.logDebug(PERMISSION_START_MSG + toString()
-                            + PERMISSION_NOT_IMPLIES_MSG + p.toString() + PERMISSION_END_MSG);
+                    SecurityLogger.logDebug(
+                            PERMISSION_START_MSG + toString() + PERMISSION_NOT_IMPLIES_MSG + p
+                                    .toString() + PERMISSION_END_MSG);
                     return false;
                 }
             }
-            SecurityLogger.logDebug(PERMISSION_START_MSG + toString() + PERMISSION_IMPLIES_MSG
-                    + p.toString() + PERMISSION_END_MSG);
+            SecurityLogger.logDebug(
+                    PERMISSION_START_MSG + toString() + PERMISSION_IMPLIES_MSG + p.toString()
+                            + PERMISSION_END_MSG);
             return true;
         }
 
@@ -103,13 +105,15 @@ public class MatchOneCollectionPermission extends CollectionPermission {
             // Shiro permissions are always a "match all" condition so we need to flip the implies
             // to make it match one
             if (p.implies(permission)) {
-                SecurityLogger.logDebug(PERMISSION_START_MSG + toString() + PERMISSION_IMPLIES_MSG
-                        + p.toString() + PERMISSION_END_MSG);
+                SecurityLogger.logDebug(
+                        PERMISSION_START_MSG + toString() + PERMISSION_IMPLIES_MSG + p.toString()
+                                + PERMISSION_END_MSG);
                 return true;
             }
         }
-        SecurityLogger.logDebug(PERMISSION_START_MSG + toString() + PERMISSION_NOT_IMPLIES_MSG
-                + p.toString() + PERMISSION_END_MSG);
+        SecurityLogger.logDebug(
+                PERMISSION_START_MSG + toString() + PERMISSION_NOT_IMPLIES_MSG + p.toString()
+                        + PERMISSION_END_MSG);
         return false;
     }
 }

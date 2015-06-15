@@ -12,18 +12,20 @@
  *
  **/
 -->
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0" xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
+<blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
     <bean id="metacardAttributeExpansion" class="ddf.security.expansion.impl.StraightExpansionImpl">
         <cm:managed-properties persistent-id="ddf.security.metacard.attribute.mapping"
-                               update-strategy="component-managed" update-method="update" />
-        <property name="attributeSeparator" value=" " />
+                               update-strategy="component-managed" update-method="update"/>
+        <property name="attributeSeparator" value=" "/>
         <property name="expansionFileName" value="security/ddf-metacard-attribute-ruleset.cfg"/>
     </bean>
 
-    <service ref="metacardAttributeExpansion" interface="ddf.security.expansion.Expansion" ranking="3">
+    <service ref="metacardAttributeExpansion" interface="ddf.security.expansion.Expansion"
+             ranking="3">
         <service-properties>
-            <entry key="mapping" value="security.metacard.attribute.mapping" />
+            <entry key="mapping" value="security.metacard.attribute.mapping"/>
         </service-properties>
     </service>
 

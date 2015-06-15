@@ -1,35 +1,17 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.notifications.impl;
-
-import com.hazelcast.config.MapConfig;
-import com.hazelcast.config.MapConfig.EvictionPolicy;
-import com.hazelcast.config.MapStoreConfig;
-import com.hazelcast.core.HazelcastInstance;
-import org.apache.commons.io.FileUtils;
-import org.junit.Test;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.net.URL;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -39,6 +21,23 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.File;
+import java.net.URL;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.io.FileUtils;
+import org.junit.Test;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.hazelcast.config.MapConfig;
+import com.hazelcast.config.MapConfig.EvictionPolicy;
+import com.hazelcast.config.MapStoreConfig;
+import com.hazelcast.core.HazelcastInstance;
 
 public class HazelcastNotificationStoreTest {
 
@@ -49,14 +48,13 @@ public class HazelcastNotificationStoreTest {
 
     private static final String PERSISTENT_CACHE_NAME = "persistentNotifications";
 
-
     @Test
     public void testCreateCacheWithXmlConfigFile() throws Exception {
 
         // Set system property that Hazelcast uses for its XML Config file
         String xmlConfigFilename = "notifications-hazelcast.xml";
-        String xmlConfigLocation = System.getProperty("user.dir") + TEST_PATH
-                + "notifications-hazelcast.xml";
+        String xmlConfigLocation =
+                System.getProperty("user.dir") + TEST_PATH + "notifications-hazelcast.xml";
         System.setProperty("hazelcast.config", xmlConfigLocation);
 
         Bundle bundle = mock(Bundle.class);
@@ -89,8 +87,8 @@ public class HazelcastNotificationStoreTest {
 
         // Set system property that Hazelcast uses for its XML Config file
         String xmlConfigFilename = "notifications-hazelcast.xml";
-        String xmlConfigLocation = System.getProperty("user.dir") + TEST_PATH
-                + "notifications-hazelcast.xml";
+        String xmlConfigLocation =
+                System.getProperty("user.dir") + TEST_PATH + "notifications-hazelcast.xml";
         System.setProperty("hazelcast.config", xmlConfigLocation);
 
         Bundle bundle = mock(Bundle.class);
@@ -118,8 +116,8 @@ public class HazelcastNotificationStoreTest {
             String[] persistedNotifications = mapStoreDir.list();
             assertTrue(persistedNotifications.length == 1);
 
-            MockNotification n = (MockNotification) provider.loadFromPersistence(notification
-                    .getId());
+            MockNotification n = (MockNotification) provider
+                    .loadFromPersistence(notification.getId());
             LOGGER.info("notification = {}", n);
             assertEquals(n.getApplication(), "app");
             assertEquals(n.getTitle(), "title");
@@ -140,8 +138,8 @@ public class HazelcastNotificationStoreTest {
 
         // Set system property that Hazelcast uses for its XML Config file
         String xmlConfigFilename = "notifications-hazelcast.xml";
-        String xmlConfigLocation = System.getProperty("user.dir") + TEST_PATH
-                + "notifications-hazelcast.xml";
+        String xmlConfigLocation =
+                System.getProperty("user.dir") + TEST_PATH + "notifications-hazelcast.xml";
         System.setProperty("hazelcast.config", xmlConfigLocation);
 
         Bundle bundle = mock(Bundle.class);
@@ -167,8 +165,9 @@ public class HazelcastNotificationStoreTest {
                 for (int j = 1; j <= numNotificationsPerUser; j++) {
                     String title = "title-" + j;
                     String message = "message-" + j;
-                    store.putNotification(new MockNotification(app, title, message, new Date()
-                            .getTime(), userIds[i]));
+                    store.putNotification(
+                            new MockNotification(app, title, message, new Date().getTime(),
+                                    userIds[i]));
                 }
             }
 
@@ -209,7 +208,8 @@ public class HazelcastNotificationStoreTest {
             assertNotNull(notifications);
             for (Map<String, String> n : notifications) {
                 if (n.get(MockNotification.NOTIFICATION_KEY_USER_ID).equals("user2")) {
-                    store.removeNotification(n.get(MockNotification.NOTIFICATION_KEY_UUID), "user2");
+                    store.removeNotification(n.get(MockNotification.NOTIFICATION_KEY_UUID),
+                            "user2");
                 }
             }
             notifications = store.getNotifications();

@@ -16,7 +16,7 @@
 
  
     <reference-list id="expanders" interface="ddf.security.expansion.Expansion"
-                    availability="optional" />
+                    availability="optional"/>
 
 	<command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
 

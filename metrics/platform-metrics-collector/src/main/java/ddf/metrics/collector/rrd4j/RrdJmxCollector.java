@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.metrics.collector.rrd4j;
 
 import java.io.File;
@@ -48,7 +47,44 @@ import ddf.metrics.collector.MetricsUtil;
 
 public class RrdJmxCollector implements JmxCollector {
 
+    public static final String DEFAULT_METRICS_DIR = "data/metrics/";
+
+    public static final String RRD_FILENAME_SUFFIX = ".rrd";
+
+    public static final String DERIVE_DATA_SOURCE_TYPE = "DERIVE";
+
+    public static final String DEFAULT_DATA_SOURCE_NAME = "data";
+
+    public static final String GAUGE_DATA_SOURCE_TYPE = "GAUGE";
+
+    public static final int ONE_YEAR_IN_15_MINUTE_STEPS = 4 * 24 * 365;
+
+    public static final int TEN_YEARS_IN_HOURS = ONE_YEAR_IN_15_MINUTE_STEPS * 10;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(RrdJmxCollector.class);
+
+    private static final int MILLIS_PER_SECOND = 1000;
+
+    private static final int FIVE_MINUTES_MILLIS = 300000;
+
+    /**
+     * RRD default X-Files factor. he X-Files factor defines what part of an RRD consolidation
+     * interval may be made up from *UNKNOWN* data while the consolidated value is still regarded as
+     * known. It is given as the ratio of allowed *UNKNOWN* Primary Data Points (PDPs) to the number
+     * of PDPs in the interval. Thus, it ranges from 0 <= xff < 1.
+     *
+     * Examples: 0.5 --> 50% --> half of the intervals used may be unknown to build one, known
+     * interval
+     *
+     * 0.0 --> 0% --> every PDP must be known in order to build a known Consolidated Data Point
+     * (CDP).
+     *
+     * 0.999 --> almost 100% --> a known CDP is built even if there's only one known PDP out of many
+     * PDPs.
+     */
+    private static final double DEFAULT_XFF_FACTOR = 0.5;
+
+    private final RrdDbPool pool;
 
     /**
      * Name of the JMX MBean that contains the metric being collected. (Should be set by <config>
@@ -65,41 +101,6 @@ public class RrdJmxCollector implements JmxCollector {
     private String metricName;
 
     private String metricType;
-
-    private static final int MILLIS_PER_SECOND = 1000;
-
-    private static final int FIVE_MINUTES_MILLIS = 300000;
-
-    public static final String DEFAULT_METRICS_DIR = "data/metrics/";
-
-    public static final String RRD_FILENAME_SUFFIX = ".rrd";
-
-    public static final String DERIVE_DATA_SOURCE_TYPE = "DERIVE";
-
-    public static final String DEFAULT_DATA_SOURCE_NAME = "data";
-
-    public static final String GAUGE_DATA_SOURCE_TYPE = "GAUGE";
-
-    public static final int ONE_YEAR_IN_15_MINUTE_STEPS = 4 * 24 * 365;
-
-    public static final int TEN_YEARS_IN_HOURS = ONE_YEAR_IN_15_MINUTE_STEPS * 10;
-
-    /**
-     * RRD default X-Files factor. he X-Files factor defines what part of an RRD consolidation
-     * interval may be made up from *UNKNOWN* data while the consolidated value is still regarded as
-     * known. It is given as the ratio of allowed *UNKNOWN* Primary Data Points (PDPs) to the number
-     * of PDPs in the interval. Thus, it ranges from 0 <= xff < 1.
-     * 
-     * Examples: 0.5 --> 50% --> half of the intervals used may be unknown to build one, known
-     * interval
-     * 
-     * 0.0 --> 0% --> every PDP must be known in order to build a known Consolidated Data Point
-     * (CDP).
-     * 
-     * 0.999 --> almost 100% --> a known CDP is built even if there's only one known PDP out of many
-     * PDPs.
-     */
-    private static final double DEFAULT_XFF_FACTOR = 0.5;
 
     /**
      * Name of the RRD file to store the metric's data being collected. The DDF metrics base
@@ -136,8 +137,6 @@ public class RrdJmxCollector implements JmxCollector {
     private int rrdStep;
 
     private MBeanServer localMBeanServer;
-
-    private final RrdDbPool pool;
 
     private RrdDb rrdDb;
 
@@ -188,6 +187,19 @@ public class RrdJmxCollector implements JmxCollector {
 
         this.rrdDataSourceName = dataSourceName;
         this.rrdDataSourceType = metricType;
+    }
+
+    /**
+     * Determines whether an object's value is a numeric type or a String with a numeric value.
+     *
+     * @param value
+     *            the Object to be tested whether it has a numeric value
+     *
+     * @return true if object's value is numeric, false otherwise
+     */
+    public static boolean isNumeric(Object value) {
+        return ((value instanceof Number) || ((value instanceof String) && NumberUtils
+                .isNumber((String) value)));
     }
 
     @Override
@@ -257,8 +269,7 @@ public class RrdJmxCollector implements JmxCollector {
                     "Unable to configure collector for MBean attribute {}\nData Source type for the RRD file cannot be null - must be either DERIVE, COUNTER or GAUGE.",
                     mbeanAttributeName);
             throw new CollectorException(
-                    "Unable to configure collector for MBean attribute "
-                            + mbeanAttributeName
+                    "Unable to configure collector for MBean attribute " + mbeanAttributeName
                             + "\nData Source type for the RRD file cannot be null - must be either DERIVE, COUNTER or GAUGE.");
         }
 
@@ -303,7 +314,7 @@ public class RrdJmxCollector implements JmxCollector {
     /**
      * Verify MBean and its attribute exists and can be collected, i.e., is numeric data (vs.
      * CompositeData)
-     * 
+     *
      * @return true if MBean can be accessed, false otherwise
      */
     private boolean isMbeanAccessible() {
@@ -337,7 +348,7 @@ public class RrdJmxCollector implements JmxCollector {
     }
 
     private void createRrdFile(final String metricName, final String dsName, final DsType dsType)
-        throws IOException, CollectorException {
+            throws IOException, CollectorException {
         createRrdFile(metricName, dsName, dsType, 0, Double.NaN);
     }
 
@@ -347,7 +358,7 @@ public class RrdJmxCollector implements JmxCollector {
      * exist, which can occur if the RRD file is created then DDF is restarted and this method is
      * called). If the RRD file already exists, then just create an RRD DB instance based on the
      * existing RRD file.
-     * 
+     *
      * @param metricName
      *            path where the RRD file is to be created. This is required.
      * @param dsName
@@ -361,7 +372,7 @@ public class RrdJmxCollector implements JmxCollector {
      * @param maxValue
      *            the maximum value that will be stored in the data source; any values larger than
      *            this will be stored as NaN (aka Unknown)
-     * 
+     *
      * @throws IOException
      * @throws CollectorException
      */
@@ -380,8 +391,8 @@ public class RrdJmxCollector implements JmxCollector {
                     "The name of the data source used in the RRD file must be specified.");
         }
 
-        if (!dsType.equals(DsType.COUNTER) && !dsType.equals(DsType.GAUGE)
-                && !dsType.equals(DsType.DERIVE)) {
+        if (!dsType.equals(DsType.COUNTER) && !dsType.equals(DsType.GAUGE) && !dsType
+                .equals(DsType.DERIVE)) {
             throw new CollectorException(
                     "Data Source type for the RRD file must be either DERIVE, COUNTER or GAUGE.");
         }
@@ -390,8 +401,9 @@ public class RrdJmxCollector implements JmxCollector {
         if (!file.exists()) {
             // Create necessary parent directories
             if (!file.getParentFile().exists()) {
-                if(!file.getParentFile().mkdirs()) {
-                    LOGGER.warn("Could not create parent file: {}", file.getParentFile().getAbsolutePath());
+                if (!file.getParentFile().mkdirs()) {
+                    LOGGER.warn("Could not create parent file: {}",
+                            file.getParentFile().getAbsolutePath());
                 }
             }
 
@@ -417,7 +429,8 @@ public class RrdJmxCollector implements JmxCollector {
                 def.addArchive(ConsolFun.TOTAL, DEFAULT_XFF_FACTOR, 1, 60);
 
                 // 15 minute resolution for the last year
-                def.addArchive(ConsolFun.TOTAL, DEFAULT_XFF_FACTOR, 15, ONE_YEAR_IN_15_MINUTE_STEPS);
+                def.addArchive(ConsolFun.TOTAL, DEFAULT_XFF_FACTOR, 15,
+                        ONE_YEAR_IN_15_MINUTE_STEPS);
 
                 // 1 minute resolution for last 60 minutes
                 def.addArchive(ConsolFun.AVERAGE, DEFAULT_XFF_FACTOR, 1, 60);
@@ -437,11 +450,10 @@ public class RrdJmxCollector implements JmxCollector {
 
                 // 15 minute resolution for the last year
                 def.addArchive(ConsolFun.MIN, DEFAULT_XFF_FACTOR, 15, ONE_YEAR_IN_15_MINUTE_STEPS);
-            }
 
             // Use a GAUGE to store the values we measure directly as they are,
             // e.g., response time for an ingest or query
-            else if (dsType == DsType.GAUGE) {
+            } else if (dsType == DsType.GAUGE) {
                 // If you want to know the amount, look at the averages.
                 // If you want to know the rate, look at the maximum.
 
@@ -449,7 +461,8 @@ public class RrdJmxCollector implements JmxCollector {
                 def.addArchive(ConsolFun.TOTAL, DEFAULT_XFF_FACTOR, 1, 60);
 
                 // 15 minute resolution for the last year
-                def.addArchive(ConsolFun.TOTAL, DEFAULT_XFF_FACTOR, 15, ONE_YEAR_IN_15_MINUTE_STEPS);
+                def.addArchive(ConsolFun.TOTAL, DEFAULT_XFF_FACTOR, 15,
+                        ONE_YEAR_IN_15_MINUTE_STEPS);
 
                 // 1 minute resolution for last 60 minutes
                 def.addArchive(ConsolFun.AVERAGE, DEFAULT_XFF_FACTOR, 1, 60);
@@ -485,7 +498,7 @@ public class RrdJmxCollector implements JmxCollector {
     /**
      * Configures a scheduled threaded executor to poll the metric's MBean periodically and add a
      * sample to the RRD file with the metric's current value.
-     * 
+     *
      * @throws CollectorException
      */
     public void updateSamples() throws CollectorException {
@@ -499,8 +512,8 @@ public class RrdJmxCollector implements JmxCollector {
             public void run() {
                 Object attr = null;
                 try {
-                    attr = localMBeanServer.getAttribute(new ObjectName(mbeanName),
-                            mbeanAttributeName);
+                    attr = localMBeanServer
+                            .getAttribute(new ObjectName(mbeanName), mbeanAttributeName);
 
                     LOGGER.trace("Sampling attribute {} from MBean {}", mbeanAttributeName,
                             mbeanName);
@@ -516,8 +529,9 @@ public class RrdJmxCollector implements JmxCollector {
                     } else if (attr instanceof Double) {
                         val = ((Double) attr);
                     } else {
-                        throw new IllegalArgumentException("Unsupported type " + attr
-                                + " for attribute " + mbeanAttributeName);
+                        throw new IllegalArgumentException(
+                                "Unsupported type " + attr + " for attribute "
+                                        + mbeanAttributeName);
                     }
 
                     LOGGER.trace("MBean attribute {} has value = {}", mbeanAttributeName, val);
@@ -542,8 +556,7 @@ public class RrdJmxCollector implements JmxCollector {
 
                             sampleSkipCount++;
 
-                            LOGGER.debug(
-                                    "now = {},   lastUpdateTime = {}   (sampleSkipCount = {})",
+                            LOGGER.debug("now = {},   lastUpdateTime = {}   (sampleSkipCount = {})",
                                     now, lastUpdateTime, sampleSkipCount);
                         }
                     } catch (IllegalArgumentException iae) {
@@ -592,19 +605,6 @@ public class RrdJmxCollector implements JmxCollector {
         }
 
         return localMBeanServer;
-    }
-
-    /**
-     * Determines whether an object's value is a numeric type or a String with a numeric value.
-     * 
-     * @param value
-     *            the Object to be tested whether it has a numeric value
-     * 
-     * @return true if object's value is numeric, false otherwise
-     */
-    public static boolean isNumeric(Object value) {
-        return ((value instanceof Number) || ((value instanceof String) && NumberUtils
-                .isNumber((String) value)));
     }
 
     public String getMetricsDir() {

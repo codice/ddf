@@ -1,18 +1,32 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.security.ws.policy.impl;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.cxf.helpers.DOMUtils;
 import org.junit.BeforeClass;
@@ -28,29 +42,11 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 /**
  * Tests the policy adding logic (loading policies and converting the WSDLs).
- * 
+ *
  */
 public class PolicyTest {
-
-    private static BundleContext mockContext;
-
-    private static Bundle mockBundle;
 
     private static final String POLICY_LOCATION = "/policies/ddf_sample_policy.xml";
 
@@ -60,10 +56,14 @@ public class PolicyTest {
 
     private static final String WSDL_LOCATION = "/wsdl/w3c_example.wsdl";
 
-    private Logger logger = LoggerFactory.getLogger(PolicyTest.class);
+    private static BundleContext mockContext;
+
+    private static Bundle mockBundle;
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
+
+    private Logger logger = LoggerFactory.getLogger(PolicyTest.class);
 
     @BeforeClass
     public static void setup() {
@@ -77,6 +77,26 @@ public class PolicyTest {
             }
         });
         when(mockContext.getBundle()).thenReturn(mockBundle);
+    }
+
+    public static Document readXml(InputStream is)
+            throws SAXException, IOException, ParserConfigurationException {
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+
+        dbf.setValidating(false);
+        dbf.setIgnoringComments(false);
+        dbf.setIgnoringElementContentWhitespace(true);
+        dbf.setNamespaceAware(true);
+        // dbf.setCoalescing(true);
+        // dbf.setExpandEntityReferences(true);
+
+        DocumentBuilder db = null;
+        db = dbf.newDocumentBuilder();
+        db.setEntityResolver(new DOMUtils.NullResolver());
+
+        // db.setErrorHandler( new MyErrorHandler());
+
+        return db.parse(is);
     }
 
     @Test
@@ -94,10 +114,9 @@ public class PolicyTest {
     @Test
     public void combinePolicyTest() {
         try {
-        	FilePolicyLoader policyLoader = new FilePolicyLoader(mockContext, POLICY_LOCATION);
-            Document wsdlDoc = readXml(
-            		getClass().getResourceAsStream(WSDL_LOCATION));
-            
+            FilePolicyLoader policyLoader = new FilePolicyLoader(mockContext, POLICY_LOCATION);
+            Document wsdlDoc = readXml(getClass().getResourceAsStream(WSDL_LOCATION));
+
             assertNotNull(wsdlDoc);
             assertNotNull(policyLoader.getPolicy());
 
@@ -106,7 +125,7 @@ public class PolicyTest {
             assertNotNull(doc);
             assertFalse(wsdlDoc.isEqualNode(policyLoader.getPolicy()));
             assertFalse(doc.isEqualNode(policyLoader.getPolicy()));
-            
+
         } catch (Exception e) {
             logger.error("Exception while combining policy: ", e);
             fail("Exception while combining policy " + e.getMessage());
@@ -124,25 +143,6 @@ public class PolicyTest {
     public void notXmlFile() throws IOException {
         new FilePolicyLoader(mockContext, TXT_POLICY_LOCATION);
         fail("Should have thrown an exception when passed in a non-xml file.");
-    }
-
-    public static Document readXml(InputStream is) throws SAXException, IOException, ParserConfigurationException {
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-
-        dbf.setValidating(false);
-        dbf.setIgnoringComments(false);
-        dbf.setIgnoringElementContentWhitespace(true);
-        dbf.setNamespaceAware(true);
-        // dbf.setCoalescing(true);
-        // dbf.setExpandEntityReferences(true);
-
-        DocumentBuilder db = null;
-        db = dbf.newDocumentBuilder();
-        db.setEntityResolver(new DOMUtils.NullResolver());
-
-        // db.setErrorHandler( new MyErrorHandler());
-
-        return db.parse(is);
     }
 
 }

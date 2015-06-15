@@ -1,18 +1,24 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package org.codice.solr.xpath;
+
+import java.io.IOException;
+
+import org.apache.lucene.document.Document;
+import org.apache.lucene.util.BytesRef;
+import org.apache.solr.common.SolrException;
+import org.apache.solr.search.DelegatingCollector;
 
 import lux.Config;
 import lux.index.field.TinyBinaryField;
@@ -24,12 +30,6 @@ import net.sf.saxon.s9api.XPathCompiler;
 import net.sf.saxon.s9api.XPathSelector;
 import net.sf.saxon.s9api.XdmNode;
 import net.sf.saxon.s9api.XdmValue;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.util.BytesRef;
-import org.apache.solr.common.SolrException;
-import org.apache.solr.search.DelegatingCollector;
-
-import java.io.IOException;
 
 /**
  * Collector that evaluates each Lucene document against a given XPath
@@ -81,7 +81,8 @@ public class XpathFilterCollector extends DelegatingCollector {
                         super.collect(docId);
                     }
                 } catch (SaxonApiException e) {
-                    throw new SolrException(SolrException.ErrorCode.BAD_REQUEST, "Unable to evaluate xpath: " + xpath, e);
+                    throw new SolrException(SolrException.ErrorCode.BAD_REQUEST,
+                            "Unable to evaluate xpath: " + xpath, e);
                 }
             }
         }

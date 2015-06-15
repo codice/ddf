@@ -1,25 +1,17 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.platform.util;
-
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.ServiceReference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,6 +22,13 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.TreeMap;
+
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -56,7 +55,8 @@ import java.util.TreeMap;
  * @param <T>
  */
 public class SortedServiceList<T> implements List<T> {
-    private static final Logger logger = LoggerFactory.getLogger(SortedServiceList.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SortedServiceList.class);
+
     private static final String READ_ONLY_ERROR_MESSAGE = "This list is meant to be read only.";
 
     private Map<ServiceReference, T> serviceMap = Collections
@@ -94,7 +94,7 @@ public class SortedServiceList<T> implements List<T> {
      */
     public void bindPlugin(ServiceReference ref) {
 
-        logger.debug(this + " Binding " + ref);
+        LOGGER.debug(this + " Binding " + ref);
         BundleContext context = getContext();
 
         if (context != null) {
@@ -102,10 +102,10 @@ public class SortedServiceList<T> implements List<T> {
 
             serviceMap.put(ref, service);
         } else {
-            logger.debug("BundleContext was null, unable to add service reference");
+            LOGGER.debug("BundleContext was null, unable to add service reference");
         }
 
-        logger.debug(Arrays.asList(serviceMap.values()).toString());
+        LOGGER.debug(Arrays.asList(serviceMap.values()).toString());
 
     }
 
@@ -119,11 +119,11 @@ public class SortedServiceList<T> implements List<T> {
      */
     public void unbindPlugin(ServiceReference ref) {
 
-        logger.debug("Unbinding " + ref);
+        LOGGER.debug("Unbinding " + ref);
 
         serviceMap.remove(ref);
 
-        logger.debug(Arrays.asList(serviceMap.values()).toString());
+        LOGGER.debug(Arrays.asList(serviceMap.values()).toString());
     }
 
     /**
@@ -179,7 +179,7 @@ public class SortedServiceList<T> implements List<T> {
 
     @Override
     public T get(int arg0) {
-        logger.debug("GET called on : " + arg0);
+        LOGGER.debug("GET called on : " + arg0);
         if (serviceMap.values() != null) {
             ArrayList<T> list = new ArrayList<T>(serviceMap.values());
             return list.get(arg0);

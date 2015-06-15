@@ -1,18 +1,24 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package ddf.security.sts.claimsHandler;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.security.Principal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.cxf.rt.security.claims.ClaimCollection;
 import org.apache.cxf.sts.claims.ClaimsHandler;
@@ -32,13 +38,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ldap.filter.AndFilter;
 import org.springframework.ldap.filter.EqualsFilter;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.security.Principal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 public class RoleClaimsHandler implements ClaimsHandler {
 
@@ -85,10 +84,10 @@ public class RoleClaimsHandler implements ClaimsHandler {
     }
 
     public void setPropertyFileLocation(String propertyFileLocation) {
-        if (propertyFileLocation != null && !propertyFileLocation.isEmpty()
-                && !propertyFileLocation.equals(this.propertyFileLocation)) {
-            setClaimsLdapAttributeMapping(AttributeMapLoader
-                    .buildClaimsMapFile(propertyFileLocation));
+        if (propertyFileLocation != null && !propertyFileLocation.isEmpty() && !propertyFileLocation
+                .equals(this.propertyFileLocation)) {
+            setClaimsLdapAttributeMapping(
+                    AttributeMapLoader.buildClaimsMapFile(propertyFileLocation));
         }
         this.propertyFileLocation = propertyFileLocation;
     }
@@ -165,12 +164,12 @@ public class RoleClaimsHandler implements ClaimsHandler {
         this.userBaseDn = userBaseDn;
     }
 
-    public void setClaimsLdapAttributeMapping(Map<String, String> ldapClaimMapping) {
-        this.claimsLdapAttributeMapping = ldapClaimMapping;
-    }
-
     public Map<String, String> getClaimsLdapAttributeMapping() {
         return claimsLdapAttributeMapping;
+    }
+
+    public void setClaimsLdapAttributeMapping(Map<String, String> ldapClaimMapping) {
+        this.claimsLdapAttributeMapping = ldapClaimMapping;
     }
 
     @Override
@@ -192,22 +191,26 @@ public class RoleClaimsHandler implements ClaimsHandler {
 
             String user = AttributeMapLoader.getUser(principal);
             if (user == null) {
-                logger.warn("Could not determine user name, possible authentication error. Returning no claims.");
+                logger.warn(
+                        "Could not determine user name, possible authentication error. Returning no claims.");
                 return new ProcessedClaimCollection();
             }
 
             AndFilter filter = new AndFilter();
-            filter.and(new EqualsFilter("objectClass", getObjectClass())).and(
-                    new EqualsFilter(getMemberNameAttribute(), getUserNameAttribute() + "=" + user
-                            + "," + getUserBaseDn()));
+            filter.and(new EqualsFilter("objectClass", getObjectClass()))
+                    .and(new EqualsFilter(getMemberNameAttribute(),
+                            getUserNameAttribute() + "=" + user + "," + getUserBaseDn()));
 
             String filterString = filter.toString();
-            logger.trace("Executing ldap search with base dn of {} and filter of {}", this.groupBaseDn, filterString);
+            logger.trace("Executing ldap search with base dn of {} and filter of {}",
+                    this.groupBaseDn, filterString);
 
             connection = connectionFactory.getConnection();
             if (connection != null) {
                 connection.bind(bindUserDN, bindUserCredentials.toCharArray());
-                ConnectionEntryReader entryReader = connection.search(groupBaseDn, SearchScope.WHOLE_SUBTREE, filter.toString(), attributes);
+                ConnectionEntryReader entryReader = connection
+                        .search(groupBaseDn, SearchScope.WHOLE_SUBTREE, filter.toString(),
+                                attributes);
 
                 SearchResultEntry entry;
                 while (entryReader.hasNext()) {

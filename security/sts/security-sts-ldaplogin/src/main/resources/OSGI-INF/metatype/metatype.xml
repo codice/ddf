@@ -1,4 +1,3 @@
-
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -13,14 +12,15 @@
  **/
 -->
 <metatype:MetaData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                   xsi:schemaLocation="http://www.osgi.org/xmlns/metatype/v1.2.0 http://www.osgi.org/xmlns/metatype/v1.2.0"
-                   xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.2.0">
+                   xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.2.0"
+                   xsi:schemaLocation="http://www.osgi.org/xmlns/metatype/v1.2.0 http://www.osgi.org/xmlns/metatype/v1.2.0">
 
-	<OCD description="STS Ldap Login Configuration" name="Security STS LDAP Login" id="ddf.security.sts.ldap">
+	<OCD description="STS Ldap Login Configuration" name="Security STS LDAP Login"
+         id="ddf.security.sts.ldap">
 	    
 	    <AD name="LDAP URL:" id="ldapUrl" required="true" type="String"
-	      default="ldaps://localhost:1636"
-	      description="LDAP or LDAPS server and port">
+            default="ldaps://localhost:1636"
+            description="LDAP or LDAPS server and port">
 	    </AD>
 
         <AD name="StartTLS:" id="startTls" required="true" type="Boolean"
@@ -29,28 +29,28 @@
         </AD>
 	    
 	    <AD name="LDAP Bind User DN:" id="ldapBindUserDn" required="true" type="String"
-	      default="cn=admin"
-	      description="DN of the user to bind with LDAP. This user should have the ability to verify passwords and read attributes for any user.">
+            default="cn=admin"
+            description="DN of the user to bind with LDAP. This user should have the ability to verify passwords and read attributes for any user.">
 	    </AD>
 	    
 	    <AD name="LDAP Bind User Password:" id="ldapBindUserPass" required="true" type="Password"
-	      default="ENC(c+GitDfYAMTDRESXSDDsMw==)" 
-	      description="Password used to bind user with LDAP.">
+            default="ENC(c+GitDfYAMTDRESXSDDsMw==)"
+            description="Password used to bind user with LDAP.">
 	    </AD>
 	    
 	    <AD name="LDAP Username Attribute:" id="userNameAttribute" required="true" type="String"
-	      default="uid" 
-	      description="Attribute used to designate the user's name in LDAP. Usually this is uid, cn, or something similar.">
+            default="uid"
+            description="Attribute used to designate the user's name in LDAP. Usually this is uid, cn, or something similar.">
 	    </AD>
 	    
 	    <AD name="LDAP Base User DN:" id="userBaseDn" required="true" type="String"
-	      default="ou=users\,dc=example\,dc=com"
-	      description="Full LDAP path to where users can be found.">
+            default="ou=users\,dc=example\,dc=com"
+            description="Full LDAP path to where users can be found.">
 	    </AD>
 	    
 	    <AD name="LDAP Base Group DN:" id="groupBaseDn" required="true" type="String"
-	      default="ou=groups\,dc=example\,dc=com"
-	      description="Full LDAP path to where groups can be found.">
+            default="ou=groups\,dc=example\,dc=com"
+            description="Full LDAP path to where groups can be found.">
 	    </AD>
 
         <AD name="SSL Keystore Alias:" id="keyAlias" required="true" type="String"
@@ -61,7 +61,7 @@
 	</OCD>
 	
 	<Designate pid="ddf.security.sts.ldap">
-	    <Object ocdref="ddf.security.sts.ldap" />
+	    <Object ocdref="ddf.security.sts.ldap"/>
   	</Designate>
   	
 </metatype:MetaData>

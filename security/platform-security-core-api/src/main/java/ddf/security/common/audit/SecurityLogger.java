@@ -1,20 +1,23 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.security.common.audit;
 
-import ddf.security.SecurityConstants;
+import java.security.Principal;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.PhaseInterceptorChain;
@@ -37,13 +40,11 @@ import org.w3c.dom.Node;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSSerializer;
 
-import javax.servlet.http.HttpServletRequest;
-import java.security.Principal;
-import java.util.List;
+import ddf.security.SecurityConstants;
 
 /**
  * Class that contains utility methods for logging common security messages.
- * 
+ *
  */
 public final class SecurityLogger {
     private static final Logger LOGGER = LoggerFactory.getLogger(SecurityConstants.SECURITY_LOGGER);
@@ -68,7 +69,7 @@ public final class SecurityLogger {
 
     /**
      * Log all of the information associated with the security assertion for this message
-     * 
+     *
      * @param message
      *            CXF Message containing the SAML assertion.
      */
@@ -186,8 +187,7 @@ public final class SecurityLogger {
             if (!(principal instanceof SAMLTokenPrincipal)) {
                 // Try to find the SAMLTokenPrincipal if it exists
                 List<?> wsResults = List.class.cast(message.get(WSHandlerConstants.RECV_RESULTS));
-                if(wsResults != null)
-                {
+                if (wsResults != null) {
                     for (Object wsResult : wsResults) {
                         if (wsResult instanceof WSHandlerResult) {
                             List<WSSecurityEngineResult> wsseResults = ((WSHandlerResult) wsResult)
@@ -204,7 +204,8 @@ public final class SecurityLogger {
                     }
                 }
             }
-            if (tokenStore != null && principal != null && principal instanceof SAMLTokenPrincipal) {
+            if (tokenStore != null && principal != null
+                    && principal instanceof SAMLTokenPrincipal) {
                 token = tokenStore.getToken(((SAMLTokenPrincipal) principal).getId());
             }
         }
@@ -214,11 +215,11 @@ public final class SecurityLogger {
     private static TokenStore getTokenStore(Message message) {
         EndpointInfo info = message.getExchange().get(Endpoint.class).getEndpointInfo();
         synchronized (info) {
-            TokenStore tokenStore = (TokenStore) message
-                    .getContextualProperty(org.apache.cxf.ws.security.SecurityConstants.TOKEN_STORE_CACHE_INSTANCE);
+            TokenStore tokenStore = (TokenStore) message.getContextualProperty(
+                    org.apache.cxf.ws.security.SecurityConstants.TOKEN_STORE_CACHE_INSTANCE);
             if (tokenStore == null) {
-                tokenStore = (TokenStore) info
-                        .getProperty(org.apache.cxf.ws.security.SecurityConstants.TOKEN_STORE_CACHE_INSTANCE);
+                tokenStore = (TokenStore) info.getProperty(
+                        org.apache.cxf.ws.security.SecurityConstants.TOKEN_STORE_CACHE_INSTANCE);
             }
             if (tokenStore == null) {
                 TokenStoreFactory tokenStoreFactory = TokenStoreFactory.newInstance();

@@ -1,22 +1,22 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.security.service.impl;
 
-import ddf.security.assertion.SecurityAssertion;
-import ddf.security.expansion.Expansion;
-import ddf.security.permission.KeyValuePermission;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.apache.shiro.authz.AuthorizationException;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.Permission;
@@ -31,9 +31,9 @@ import org.opensaml.xml.schema.XSString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import ddf.security.assertion.SecurityAssertion;
+import ddf.security.expansion.Expansion;
+import ddf.security.permission.KeyValuePermission;
 
 /**
  * Abstraction class used to perform authorization for a realm. This class contains generic methods
@@ -55,7 +55,7 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm {
     /**
      * Takes the security attributes about the subject of the incoming security token and builds
      * sets of permissions and roles for use in further checking.
-     * 
+     *
      * @param principalCollection
      *            holds the security assertions for the primary principal of this request
      * @return a new collection of permissions and roles corresponding to the security assertions
@@ -112,7 +112,7 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm {
      * the expansion service but relies on the name of this attribute as a key. The returned set of
      * Strings represent the possibly expanded set of attributes to be added to the current
      * permissions.
-     * 
+     *
      * @param attribute
      *            current attribute whose values are to be potentially expanded
      * @return a set of potentially expanded values

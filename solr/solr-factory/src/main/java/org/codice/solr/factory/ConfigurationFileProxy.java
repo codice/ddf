@@ -1,26 +1,19 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package org.codice.solr.factory;
 
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -30,7 +23,13 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Enumeration;
 
-import static org.apache.commons.lang.StringUtils.isNotBlank;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Abstraction layer for accessing files or directories on disk. Provides different implementations
@@ -43,12 +42,12 @@ public class ConfigurationFileProxy {
     public static final String SOLR_CONFIG_LOCATION_IN_BUNDLE = "solr/conf";
 
     public static final String DEFAULT_SOLR_DATA_PARENT_DIR = "data/solr";
-    
+
     public static final String CATALOG_SOLR_COLLECTION_NAME = "metacard";
 
-    private File dataDirectory = null;
-
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationFileProxy.class);
+
+    private File dataDirectory = null;
 
     /**
      * Constructor for the proxy
@@ -88,8 +87,8 @@ public class ConfigurationFileProxy {
             LOGGER.info("Solr Config directories made?  {}", directoriesMade);
 
             @SuppressWarnings("rawtypes")
-            Enumeration entries = bundleContext.getBundle().findEntries(
-                    SOLR_CONFIG_LOCATION_IN_BUNDLE, "*.*", false);
+            Enumeration entries = bundleContext.getBundle()
+                    .findEntries(SOLR_CONFIG_LOCATION_IN_BUNDLE, "*.*", false);
 
             while (entries.hasMoreElements()) {
                 URL resourceURL = (URL) (entries.nextElement());
@@ -113,7 +112,7 @@ public class ConfigurationFileProxy {
     }
 
     /**
-     * 
+     *
      * @return the File of the directory where data can be written, should never return {@code null}
      */
     public File getDataDirectory() {
@@ -124,8 +123,9 @@ public class ConfigurationFileProxy {
         BundleContext bundleContext = getContext();
         if (bundleContext != null) {
             try {
-                return new File(new File(DEFAULT_SOLR_DATA_PARENT_DIR + "/" + CATALOG_SOLR_COLLECTION_NAME + "/conf"),
-                        name).toURI().toURL();
+                return new File(new File(
+                        DEFAULT_SOLR_DATA_PARENT_DIR + "/" + CATALOG_SOLR_COLLECTION_NAME
+                                + "/conf"), name).toURI().toURL();
             } catch (MalformedURLException e) {
                 LOGGER.warn("Malformed URL exception getting SOLR configuration file", e);
             }

@@ -1,32 +1,54 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ * <p/>
+ * <p/>
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
 /**
  * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
  * agreements. See the NOTICE file distributed with this work for additional information regarding
  * copyright ownership. The ASF licenses this file to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance with the License. You may obtain a
  * copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
 package ddf.security.sts;
+
+import java.net.URL;
+import java.security.cert.X509Certificate;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.bus.spring.SpringBusFactory;
@@ -53,14 +75,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.net.URL;
-import java.security.cert.X509Certificate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Some unit tests for the CXF STSClient Issue Binding.
@@ -93,68 +107,6 @@ public class StsIssueTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StsIssueTest.class);
 
-    // Enum defining the Port Types
-    public enum StsPortTypes {
-        TRANSPORT, UT_ENCRYPTED, X509, UT;
-    }
-
-    // Enum defining the Wsdl Locations
-    public enum WsdlLocations {
-        TRANSPORT("https://localhost:8993/services/SecurityTokenService/Transport?wsdl"), UT_ENCRYPTED(
-                "https://localhost:8993/services/SecurityTokenService/UTEncrypted?wsdl"), X509(
-                "https://localhost:8993/services/SecurityTokenService/X509?wsdl"), UT(
-                "https://localhost:8993/services/SecurityTokenService/UT?wsdl");
-
-        private String value;
-
-        private WsdlLocations(String value) {
-            this.value = value;
-        }
-
-        @Override
-        public String toString() {
-            return this.value;
-        }
-    }
-
-    // Enum defining the STS Endpoints
-    public enum EndPoints {
-        TRANSPORT("{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}Transport_Port"), UT_ENCRYPTED(
-                "{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}UTEncrypted_Port"), X509(
-                "{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}X509_Port"), UT(
-                "{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}UT_Port");
-
-        private String value;
-
-        private EndPoints(String value) {
-            this.value = value;
-        }
-
-        @Override
-        public String toString() {
-            return this.value;
-        }
-    }
-
-    // Enum defining the STS Addresses
-    public enum StsAddresses {
-        TRANSPORT("http://localhost:8993/services/SecurityTokenServices/Transport"), UT_ENCRYPTED(
-                "https://localhost:8993/services/SecurityTokenServices/UTEncrypted"), X509(
-                "https://localhost:8993/services/SecurityTokenServices/X509"), UT(
-                "https://localhost:8993/services/SecurityTokenServices/UT");
-
-        private String value;
-
-        private StsAddresses(String value) {
-            this.value = value;
-        }
-
-        @Override
-        public String toString() {
-            return this.value;
-        }
-    }
-
     /**
      * Test the Username Token
      */
@@ -171,8 +123,7 @@ public class StsIssueTest {
         Document doc = builder.newDocument();
 
         // Create a Username Token
-        UsernameToken oboToken = new UsernameToken(false, doc,
-                WSConstants.PASSWORD_TEXT);
+        UsernameToken oboToken = new UsernameToken(false, doc, WSConstants.PASSWORD_TEXT);
         oboToken.setName("pangerer");
         oboToken.setPassword("password");
 
@@ -220,8 +171,7 @@ public class StsIssueTest {
         Document doc = builder.newDocument();
 
         // Create a Username Token
-        UsernameToken oboToken = new UsernameToken(false, doc,
-                WSConstants.PASSWORD_TEXT);
+        UsernameToken oboToken = new UsernameToken(false, doc, WSConstants.PASSWORD_TEXT);
 
         // Workout the details of how to fill out the username token
         // ID - the Key that tells the validator its an SSO token
@@ -316,8 +266,8 @@ public class StsIssueTest {
             results = processToken(token);
 
             assert (results != null && results.size() == 1);
-            SamlAssertionWrapper assertion = (SamlAssertionWrapper) results.get(0).get(
-                    WSSecurityEngineResult.TAG_SAML_ASSERTION);
+            SamlAssertionWrapper assertion = (SamlAssertionWrapper) results.get(0)
+                    .get(WSSecurityEngineResult.TAG_SAML_ASSERTION);
             assert (assertion != null);
             assert (assertion.getSaml1() == null && assertion.getSaml2() != null);
             assert (assertion.isSigned());
@@ -340,8 +290,8 @@ public class StsIssueTest {
 
         stsClient.setWsdlLocation(wsdlLocation);
         stsClient.setEndpointName(endpointName);
-        stsClient
-                .setServiceName("{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}SecurityTokenService");
+        stsClient.setServiceName(
+                "{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}SecurityTokenService");
 
         Map<String, Object> properties = new HashMap<String, Object>();
 
@@ -382,7 +332,7 @@ public class StsIssueTest {
      * Method to validate the retrieved token.
      */
     private List<WSSecurityEngineResult> processToken(SecurityToken token)
-        throws WSSecurityException {
+            throws WSSecurityException {
         RequestData requestData = new RequestData();
         WSSConfig wssConfig = WSSConfig.getNewInstance();
         requestData.setWssConfig(wssConfig);
@@ -395,7 +345,71 @@ public class StsIssueTest {
         requestData.setSigVerCrypto(crypto);
 
         Processor processor = new SAMLTokenProcessor();
-        return processor.handleToken(token.getToken(), requestData, new WSDocInfo(token.getToken()
-                .getOwnerDocument()));
+        return processor.handleToken(token.getToken(), requestData,
+                new WSDocInfo(token.getToken().getOwnerDocument()));
+    }
+
+    // Enum defining the Port Types
+    public enum StsPortTypes {
+        TRANSPORT, UT_ENCRYPTED, X509, UT;
+    }
+
+    // Enum defining the Wsdl Locations
+    public enum WsdlLocations {
+        TRANSPORT(
+                "https://localhost:8993/services/SecurityTokenService/Transport?wsdl"), UT_ENCRYPTED(
+                "https://localhost:8993/services/SecurityTokenService/UTEncrypted?wsdl"), X509(
+                "https://localhost:8993/services/SecurityTokenService/X509?wsdl"), UT(
+                "https://localhost:8993/services/SecurityTokenService/UT?wsdl");
+
+        private String value;
+
+        private WsdlLocations(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return this.value;
+        }
+    }
+
+    // Enum defining the STS Endpoints
+    public enum EndPoints {
+        TRANSPORT(
+                "{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}Transport_Port"), UT_ENCRYPTED(
+                "{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}UTEncrypted_Port"), X509(
+                "{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}X509_Port"), UT(
+                "{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}UT_Port");
+
+        private String value;
+
+        private EndPoints(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return this.value;
+        }
+    }
+
+    // Enum defining the STS Addresses
+    public enum StsAddresses {
+        TRANSPORT("http://localhost:8993/services/SecurityTokenServices/Transport"), UT_ENCRYPTED(
+                "https://localhost:8993/services/SecurityTokenServices/UTEncrypted"), X509(
+                "https://localhost:8993/services/SecurityTokenServices/X509"), UT(
+                "https://localhost:8993/services/SecurityTokenServices/UT");
+
+        private String value;
+
+        private StsAddresses(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return this.value;
+        }
     }
 }

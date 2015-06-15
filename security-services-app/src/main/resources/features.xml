@@ -1,4 +1,4 @@
- <!--
+<!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -10,7 +10,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- -->
+-->
 <features name="${project.artifactId}-${project.version}">
 
     <feature name="security-handler-api" install="manual" version="${project.version}"
@@ -200,7 +200,8 @@
         <bundle>mvn:ddf.security.sts/security-sts-anonymousvalidator/${project.version}</bundle>
     </feature>
 
-    <feature name="security-sts-anonymousclaimshandler" install="manual" version="${project.version}"
+    <feature name="security-sts-anonymousclaimshandler" install="manual"
+             version="${project.version}"
              description="Retrieves the anonymous user claims.">
         <bundle>mvn:ddf.security.sts/security-sts-anonymousclaimshandler/${project.version}</bundle>
     </feature>
@@ -215,7 +216,8 @@
         <bundle>mvn:ddf.security.interceptor/security-interceptor-anonymous/${project.version}</bundle>
     </feature>
     
-    <feature name="security-interceptor-anonymous-wrapper" install="manual" version="${project.version}"
+    <feature name="security-interceptor-anonymous-wrapper" install="manual"
+             version="${project.version}"
              description="Wrapper for Security Interceptor Anonymous that injects anonymous user information into incoming SOAP messages.">
         <bundle>mvn:ddf.security.interceptor/security-interceptor-anonymous-wrapper/${project.version}</bundle>
     </feature>

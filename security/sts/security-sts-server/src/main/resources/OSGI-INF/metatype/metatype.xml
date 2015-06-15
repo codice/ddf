@@ -1,4 +1,3 @@
-
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -22,13 +21,13 @@
         </AD>
 	    
 	    <AD name="Token Issuer:" id="issuer" required="true" type="String"
-	      default="localhost"
-	      description="The name of the server issuing tokens. Generally this is the cn or hostname of this machine on the network.">
+            default="localhost"
+            description="The name of the server issuing tokens. Generally this is the cn or hostname of this machine on the network.">
 	    </AD>
 	    
 	    <AD name="Signature Username:" id="signatureUsername" required="true" type="String"
-	      default="localhost"
-	      description="Alias of the private key in the STS Server's keystore used to sign messages.">
+            default="localhost"
+            description="Alias of the private key in the STS Server's keystore used to sign messages.">
 	    </AD>
 
         <AD name="Encryption Username:" id="encryptionUsername" required="true" type="String"
@@ -39,10 +38,11 @@
 	</OCD>
 	
 	<Designate pid="ddf.security.sts">
-	    <Object ocdref="ddf.security.sts" />
+	    <Object ocdref="ddf.security.sts"/>
   	</Designate>
     
-    <OCD name="Security STS CRL" description="Configuration for the STS CRL Interceptor." id="org.codice.ddf.security.sts.crl">
+    <OCD name="Security STS CRL" description="Configuration for the STS CRL Interceptor."
+         id="org.codice.ddf.security.sts.crl">
 
         <AD name="CRL file location:" id="crlLocation" required="true" type="String"
             default=""
@@ -50,14 +50,14 @@
         </AD>
 
         <AD name="Enable CRL Checking:" id="isEnabled" required="true" type="Boolean"
-          default="false" 
-          description="Enables checking incoming requests with a file-based CRL and revoking requests that contain invalid certificates.">
+            default="false"
+            description="Enables checking incoming requests with a file-based CRL and revoking requests that contain invalid certificates.">
         </AD>
         
     </OCD>
     
     <Designate pid="org.codice.ddf.security.sts.crl">
-        <Object ocdref="org.codice.ddf.security.sts.crl" />
+        <Object ocdref="org.codice.ddf.security.sts.crl"/>
     </Designate>
     
 </metatype:MetaData>

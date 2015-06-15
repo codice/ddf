@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.security.service.impl;
 
 import static org.junit.Assert.assertNotNull;
@@ -25,7 +24,6 @@ import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.realm.Realm;
 import org.apache.shiro.subject.SimplePrincipalCollection;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -42,11 +40,11 @@ public class SecurityManagerImplTest {
 
     /**
      * Test for failure when a non-token is sent in.
-     * 
+     *
      * @throws SecurityServiceException
      */
     @Test
-    public void TestBadToken() throws SecurityServiceException {
+    public void testBadToken() throws SecurityServiceException {
         thrown.expect(SecurityServiceException.class);
         SecurityManagerImpl manager = new SecurityManagerImpl();
         manager.getSubject(REALM_NAME);
@@ -54,11 +52,11 @@ public class SecurityManagerImplTest {
 
     /**
      * Test to check for failure when no realms are added.
-     * 
+     *
      * @throws SecurityServiceException
      */
     @Test
-    public void TestAuthTokenNoRealm() throws SecurityServiceException {
+    public void testAuthTokenNoRealm() throws SecurityServiceException {
         thrown.expect(org.apache.shiro.authc.AuthenticationException.class);
         thrown.expectMessage("Authentication failed for token submission");
         AuthenticationToken token = mock(AuthenticationToken.class);
@@ -73,11 +71,11 @@ public class SecurityManagerImplTest {
     /**
      * Creates mock objects and uses those to pass through the system when an authentication token
      * is used.
-     * 
+     *
      * @throws SecurityServiceException
      */
     @Test
-    public void TestAuthToken() throws SecurityServiceException {
+    public void testAuthToken() throws SecurityServiceException {
         // mock setup
         SimplePrincipalCollection principals = new SimplePrincipalCollection();
         SecurityToken secToken = new SecurityToken();
@@ -102,11 +100,11 @@ public class SecurityManagerImplTest {
 
     /**
      * Creates mock objects and uses those to pass through the system when a security token is used.
-     * 
+     *
      * @throws SecurityServiceException
      */
     @Test
-    public void TestSecToken() throws SecurityServiceException {
+    public void testSecToken() throws SecurityServiceException {
         // mock setup
         SimplePrincipalCollection principals = new SimplePrincipalCollection();
         SecurityToken secToken = new SecurityToken();

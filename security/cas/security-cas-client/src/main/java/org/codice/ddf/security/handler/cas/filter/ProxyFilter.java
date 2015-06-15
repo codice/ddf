@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.security.handler.cas.filter;
 
 import java.io.IOException;
@@ -78,7 +77,7 @@ public class ProxyFilter implements Filter {
      * javax.servlet.ServletResponse, javax.servlet.FilterChain)
      */
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse,
-      FilterChain filterChain) throws IOException, ServletException {
+            FilterChain filterChain) throws IOException, ServletException {
         HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
         StringBuffer requestUrl = httpServletRequest.getRequestURL();
 
@@ -90,7 +89,8 @@ public class ProxyFilter implements Filter {
 
         filterProxyChain.addFilters(filters);
 
-        LOGGER.debug("Calling {}.doFilter({},{})", filterProxyChain.getClass().getName(), servletRequest, servletResponse);
+        LOGGER.debug("Calling {}.doFilter({},{})", filterProxyChain.getClass().getName(),
+                servletRequest, servletResponse);
         filterProxyChain.doFilter(servletRequest, servletResponse);
 
     }

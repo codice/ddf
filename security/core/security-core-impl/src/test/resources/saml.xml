@@ -11,20 +11,22 @@
  *
  **/
 -->
-<saml2:Assertion ID="_32E4D3F6633B9C5C2513667603947531" IssueInstant="2013-04-23T23:39:54.756Z"
-  Version="2.0" xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:type="saml2:AssertionType">
+<saml2:Assertion xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion"
+                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 ID="_32E4D3F6633B9C5C2513667603947531" IssueInstant="2013-04-23T23:39:54.756Z"
+                 Version="2.0"
+                 xsi:type="saml2:AssertionType">
   <saml2:Issuer>tokenissuer</saml2:Issuer>
   <ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
     <ds:SignedInfo>
-      <ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" />
-      <ds:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1" />
+      <ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+      <ds:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/>
       <ds:Reference URI="#_32E4D3F6633B9C5C2513667603947531">
         <ds:Transforms>
-          <ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" />
-          <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" />
+          <ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
+          <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
         </ds:Transforms>
-        <ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
+        <ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
         <ds:DigestValue>wnFXchLu5NmQGJ1aZmk9WFtCsHA=</ds:DigestValue>
       </ds:Reference>
     </ds:SignedInfo>
@@ -54,7 +56,8 @@
     </ds:KeyInfo>
   </ds:Signature>
   <saml2:Subject>
-    <saml2:NameID Format="urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified" NameQualifier="http://cxf.apache.org/sts">CN=client,OU=I4CE,O=Lockheed Martin,L=Goodyear,ST=Arizona,C=US</saml2:NameID>
+    <saml2:NameID Format="urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified"
+                  NameQualifier="http://cxf.apache.org/sts">CN=client,OU=I4CE,O=Lockheed Martin,L=Goodyear,ST=Arizona,C=US</saml2:NameID>
     <saml2:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:holder-of-key">
       <saml2:SubjectConfirmationData xsi:type="saml2:KeyInfoConfirmationDataType">
         <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
@@ -91,7 +94,8 @@
     </saml2:AuthnContext>
   </saml2:AuthnStatement>
   <saml2:AttributeStatement>
-    <saml2:Attribute Name="DigitalIdentifier" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+    <saml2:Attribute Name="DigitalIdentifier"
+                     NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
       <saml2:AttributeValue xsi:type="xs:string">CN=client,OU=I4CE,O=Lockheed Martin,L=Goodyear,ST=Arizona,C=US</saml2:AttributeValue>
     </saml2:Attribute>
   </saml2:AttributeStatement>

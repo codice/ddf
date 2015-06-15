@@ -11,13 +11,13 @@
  *
  **/ -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-	xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
+        >
 
 	<bean id="encryptionService" class="ddf.security.encryption.impl.EncryptionServiceImpl">
 	    <!-- The key used to encrypt and decrypt -->
-		<property name="key" value="secret" />
+        <property name="key" value="secret"/>
 	</bean>
 
-	<service ref="encryptionService" interface="ddf.security.encryption.EncryptionService" />
+	<service ref="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
 
 </blueprint>

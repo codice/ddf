@@ -1,30 +1,31 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.security.policy.context;
 
-import ddf.security.permission.CollectionPermission;
-import junit.framework.Assert;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
 import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.codice.ddf.security.policy.context.impl.Policy;
 import org.codice.ddf.security.policy.context.impl.PolicyManager;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import junit.framework.Assert;
+
+import ddf.security.permission.CollectionPermission;
 
 /**
  * Test for PolicyManager
@@ -39,7 +40,8 @@ public class PolicyManagerTest {
         manager.setContextPolicy("/", new Policy("/", null, null, null));
         manager.setContextPolicy("/search", new Policy("/search", null, null, null));
         manager.setContextPolicy("/admin", new Policy("/admin", null, null, null));
-        manager.setContextPolicy("/search/standard", new Policy("/search/standard", null, null, null));
+        manager.setContextPolicy("/search/standard",
+                new Policy("/search/standard", null, null, null));
         manager.setContextPolicy("/cometd", new Policy("/cometd", null, null, null));
         manager.setContextPolicy("/search/simple", new Policy("/search/simple", null, null, null));
         manager.setContextPolicy("/aaaaaa", new Policy("/aaaaaa", null, null, null));
@@ -103,8 +105,10 @@ public class PolicyManagerTest {
     @Test
     public void testConfiguration() {
         Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put("authenticationTypes", "/=SAML|BASIC,/search=SAML|BASIC|ANON,/admin=SAML|BASIC,/foo=BASIC,/blah=ANON,/bleh=ANON,/unprotected=,/unprotected2=");
-        properties.put("requiredAttributes", "/={},/blah=,/search={role=user;control=foo|bar},/admin={role=admin|supervisor}");
+        properties.put("authenticationTypes",
+                "/=SAML|BASIC,/search=SAML|BASIC|ANON,/admin=SAML|BASIC,/foo=BASIC,/blah=ANON,/bleh=ANON,/unprotected=,/unprotected2=");
+        properties.put("requiredAttributes",
+                "/={},/blah=,/search={role=user;control=foo|bar},/admin={role=admin|supervisor}");
         manager.setPolicies(properties);
         testAllPolicies();
     }
@@ -112,8 +116,12 @@ public class PolicyManagerTest {
     @Test
     public void testMangledConfiguration() {
         Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put("authenticationTypes", new String[] {"/=SAML|BASIC,/search=SAML|BASIC|ANON,/admin=SAML|BASIC,/foo=BASIC,/blah=ANON", "/unprotected=,/unprotected2=", "/bleh=ANON"});
-        properties.put("requiredAttributes", new String[] {"/={},/blah=,/search={role=user;control=foo|bar}", "/admin={role=admin|supervisor}"});
+        properties.put("authenticationTypes", new String[] {
+                "/=SAML|BASIC,/search=SAML|BASIC|ANON,/admin=SAML|BASIC,/foo=BASIC,/blah=ANON",
+                "/unprotected=,/unprotected2=", "/bleh=ANON"});
+        properties.put("requiredAttributes",
+                new String[] {"/={},/blah=,/search={role=user;control=foo|bar}",
+                        "/admin={role=admin|supervisor}"});
         manager.setPolicies(properties);
         testAllPolicies();
     }
@@ -124,26 +132,30 @@ public class PolicyManagerTest {
         Assert.assertEquals("/search", policy.getContextPath());
         Iterator<String> authIter = policy.getAuthenticationMethods().iterator();
         int i = 0;
-        while(authIter.hasNext()) {
-            if(i == 0) {
+        while (authIter.hasNext()) {
+            if (i == 0) {
                 Assert.assertEquals("SAML", authIter.next());
-            } else if(i == 1) {
+            } else if (i == 1) {
                 Assert.assertEquals("BASIC", authIter.next());
-            } else if(i == 2) {
+            } else if (i == 2) {
                 Assert.assertEquals("ANON", authIter.next());
             }
 
             i++;
         }
 
-        Iterator<CollectionPermission> permIter = policy.getAllowedAttributePermissions().iterator();
+        Iterator<CollectionPermission> permIter = policy.getAllowedAttributePermissions()
+                .iterator();
         i = 0;
-        while(authIter.hasNext()) {
-            if(i == 0) {
-                Assert.assertEquals("role : user", permIter.next().getPermissionList().get(0).toString());
-            } else if(i == 1) {
-                Assert.assertEquals("control : foo", permIter.next().getPermissionList().get(0).toString());
-                Assert.assertEquals("control : bar", permIter.next().getPermissionList().get(1).toString());
+        while (authIter.hasNext()) {
+            if (i == 0) {
+                Assert.assertEquals("role : user",
+                        permIter.next().getPermissionList().get(0).toString());
+            } else if (i == 1) {
+                Assert.assertEquals("control : foo",
+                        permIter.next().getPermissionList().get(0).toString());
+                Assert.assertEquals("control : bar",
+                        permIter.next().getPermissionList().get(1).toString());
             }
 
             i++;
@@ -154,10 +166,10 @@ public class PolicyManagerTest {
         Assert.assertEquals("/admin", policy.getContextPath());
         authIter = policy.getAuthenticationMethods().iterator();
         i = 0;
-        while(authIter.hasNext()) {
-            if(i == 0) {
+        while (authIter.hasNext()) {
+            if (i == 0) {
                 Assert.assertEquals("SAML", authIter.next());
-            } else if(i == 1) {
+            } else if (i == 1) {
                 Assert.assertEquals("BASIC", authIter.next());
             }
 
@@ -169,8 +181,8 @@ public class PolicyManagerTest {
         Assert.assertEquals("/foo", policy.getContextPath());
         authIter = policy.getAuthenticationMethods().iterator();
         i = 0;
-        while(authIter.hasNext()) {
-            if(i == 0) {
+        while (authIter.hasNext()) {
+            if (i == 0) {
                 Assert.assertEquals("BASIC", authIter.next());
             }
 
@@ -182,10 +194,10 @@ public class PolicyManagerTest {
         Assert.assertEquals("/", policy.getContextPath());
         authIter = policy.getAuthenticationMethods().iterator();
         i = 0;
-        while(authIter.hasNext()) {
-            if(i == 0) {
+        while (authIter.hasNext()) {
+            if (i == 0) {
                 Assert.assertEquals("SAML", authIter.next());
-            } else if(i == 1) {
+            } else if (i == 1) {
                 Assert.assertEquals("BASIC", authIter.next());
             }
 

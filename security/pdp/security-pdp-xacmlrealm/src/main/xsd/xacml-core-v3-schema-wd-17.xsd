@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright OASIS Open 2010. All Rights Reserved. -->
 <xs:schema xmlns:xacml="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17"
-	xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	targetNamespace="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17"
-	elementFormDefault="qualified" attributeFormDefault="unqualified">
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17"
+           elementFormDefault="qualified" attributeFormDefault="unqualified">
 
 <!--
 	<xs:import namespace="http://www.w3.org/XML/1998/namespace"
 		schemaLocation="http://www.w3.org/2001/xml.xsd"/>
 -->
-	<xs:import namespace="http://www.w3.org/XML/1998/namespace"
-		schemaLocation="xml.xsd"/>
+    <xs:import namespace="http://www.w3.org/XML/1998/namespace"
+               schemaLocation="xml.xsd"/>
 
 
 	<xs:element name="Request" type="xacml:RequestType"/>
@@ -20,8 +20,8 @@
 			<xs:element ref="xacml:Attributes" maxOccurs="unbounded"/>
 			<xs:element ref="xacml:MultiRequests" minOccurs="0"/>
 		</xs:sequence>
-		<xs:attribute name="ReturnPolicyIdList" type="xs:boolean" use="required" />
-		<xs:attribute name="CombinedDecision" type="xs:boolean" use="required" />
+		<xs:attribute name="ReturnPolicyIdList" type="xs:boolean" use="required"/>
+		<xs:attribute name="CombinedDecision" type="xs:boolean" use="required"/>
 	</xs:complexType>
 
 	<xs:element name="RequestDefaults" type="xacml:RequestDefaultsType"/>
@@ -150,7 +150,7 @@
 	
 	<xs:element name="AttributesReference" type="xacml:AttributesReferenceType"/>
 	<xs:complexType name="AttributesReferenceType">
-		<xs:attribute name="ReferenceId" type="xs:IDREF" use="required" />
+		<xs:attribute name="ReferenceId" type="xs:IDREF" use="required"/>
 	</xs:complexType>
 	
 	<xs:element name="Obligations" type="xacml:ObligationsType"/>
@@ -211,7 +211,8 @@
 	<xs:element name="ObligationExpression" type="xacml:ObligationExpressionType"/>
 	<xs:complexType name="ObligationExpressionType">
 		<xs:sequence>
-			<xs:element ref="xacml:AttributeAssignmentExpression" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element ref="xacml:AttributeAssignmentExpression" minOccurs="0"
+                        maxOccurs="unbounded"/>
 		</xs:sequence>
 		<xs:attribute name="ObligationId" type="xs:anyURI" use="required"/>
 		<xs:attribute name="FulfillOn" type="xacml:EffectType" use="required"/>
@@ -220,13 +221,15 @@
 	<xs:element name="AdviceExpression" type="xacml:AdviceExpressionType"/>
 	<xs:complexType name="AdviceExpressionType">
 		<xs:sequence>
-			<xs:element ref="xacml:AttributeAssignmentExpression" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element ref="xacml:AttributeAssignmentExpression" minOccurs="0"
+                        maxOccurs="unbounded"/>
 		</xs:sequence>
 		<xs:attribute name="AdviceId" type="xs:anyURI" use="required"/>
 		<xs:attribute name="AppliesTo" type="xacml:EffectType" use="required"/>
 	</xs:complexType>
 
-	<xs:element name="AttributeAssignmentExpression" type="xacml:AttributeAssignmentExpressionType"/>
+	<xs:element name="AttributeAssignmentExpression"
+                type="xacml:AttributeAssignmentExpressionType"/>
 	<xs:complexType name="AttributeAssignmentExpressionType">
 		<xs:sequence>
 			<xs:element ref="xacml:Expression"/>
@@ -436,7 +439,8 @@
 	<xs:element name="Expression" type="xacml:ExpressionType" abstract="true"/>
 	<xs:complexType name="ExpressionType" abstract="true"/>
 
-	<xs:element name="VariableReference" type="xacml:VariableReferenceType" substitutionGroup="xacml:Expression"/>
+	<xs:element name="VariableReference" type="xacml:VariableReferenceType"
+                substitutionGroup="xacml:Expression"/>
 	<xs:complexType name="VariableReferenceType">
 		<xs:complexContent>
 			<xs:extension base="xacml:ExpressionType">
@@ -445,7 +449,8 @@
 		</xs:complexContent>
 	</xs:complexType>
 
-	<xs:element name="AttributeSelector" type="xacml:AttributeSelectorType" substitutionGroup="xacml:Expression"/>
+	<xs:element name="AttributeSelector" type="xacml:AttributeSelectorType"
+                substitutionGroup="xacml:Expression"/>
 	<xs:complexType name="AttributeSelectorType">
 		<xs:complexContent>
 			<xs:extension base="xacml:ExpressionType">
@@ -458,7 +463,8 @@
 		</xs:complexContent>
 	</xs:complexType>
 
-	<xs:element name="AttributeDesignator" type="xacml:AttributeDesignatorType" substitutionGroup="xacml:Expression"/>
+	<xs:element name="AttributeDesignator" type="xacml:AttributeDesignatorType"
+                substitutionGroup="xacml:Expression"/>
 	<xs:complexType name="AttributeDesignatorType">
 		<xs:complexContent>
 			<xs:extension base="xacml:ExpressionType">
@@ -471,12 +477,14 @@
 		</xs:complexContent>
 	</xs:complexType>
 
-	<xs:element name="AttributeValue" type="xacml:AttributeValueType" substitutionGroup="xacml:Expression"/>
+	<xs:element name="AttributeValue" type="xacml:AttributeValueType"
+                substitutionGroup="xacml:Expression"/>
 	<xs:complexType name="AttributeValueType" mixed="true">
 		<xs:complexContent mixed="true">
 			<xs:extension base="xacml:ExpressionType">
 				<xs:sequence>
-					<xs:any namespace="##any" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:any namespace="##any" processContents="lax" minOccurs="0"
+                            maxOccurs="unbounded"/>
 				</xs:sequence>
 				<xs:attribute name="DataType" type="xs:anyURI" use="required"/>
 				<xs:anyAttribute namespace="##any" processContents="lax"/>

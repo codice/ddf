@@ -1,25 +1,17 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package ddf.security.common.util;
-
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.ServiceReference;
-import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,6 +22,13 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.TreeMap;
+
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceReference;
+import org.slf4j.LoggerFactory;
+import org.slf4j.ext.XLogger;
 
 /**
  * <p>
@@ -59,14 +58,15 @@ public class SortedServiceList<T> implements List<T> {
 
     private static final String READ_ONLY_ERROR_MESSAGE = "This list is meant to be read only.";
 
+    private static final XLogger LOGGER = new XLogger(
+            LoggerFactory.getLogger(SortedServiceList.class));
+
     private Map<ServiceReference, T> serviceMap = Collections
             .synchronizedMap(new TreeMap<ServiceReference, T>(new ServiceComparator() {
                 public int compare(ServiceReference ref1, ServiceReference ref2) {
                     return ref2.compareTo(ref1);
                 }
             }));
-
-    private static final XLogger logger = new XLogger(LoggerFactory.getLogger(SortedServiceList.class));
 
     /**
      * Constructor accepting OSGi bundle context. This constructor is currently invoked by the
@@ -87,7 +87,7 @@ public class SortedServiceList<T> implements List<T> {
      */
     public void bindPlugin(ServiceReference ref) {
 
-        logger.debug(this + " Binding " + ref);
+        LOGGER.debug(this + " Binding " + ref);
 
         BundleContext context = getContext();
         if (context != null) {
@@ -95,7 +95,7 @@ public class SortedServiceList<T> implements List<T> {
 
             serviceMap.put(ref, service);
 
-            logger.debug(Arrays.asList(serviceMap.values()).toString());
+            LOGGER.debug(Arrays.asList(serviceMap.values()).toString());
         }
 
     }
@@ -118,11 +118,11 @@ public class SortedServiceList<T> implements List<T> {
      */
     public void unbindPlugin(ServiceReference ref) {
 
-        logger.debug("Unbinding " + ref);
+        LOGGER.debug("Unbinding " + ref);
 
         serviceMap.remove(ref);
 
-        logger.debug(Arrays.asList(serviceMap.values()).toString());
+        LOGGER.debug(Arrays.asList(serviceMap.values()).toString());
     }
 
     /**
@@ -178,7 +178,7 @@ public class SortedServiceList<T> implements List<T> {
 
     @Override
     public T get(int arg0) {
-        logger.debug("GET called on : " + arg0);
+        LOGGER.debug("GET called on : " + arg0);
         if (serviceMap.values() != null) {
             ArrayList<T> list = new ArrayList<T>(serviceMap.values());
             return list.get(arg0);

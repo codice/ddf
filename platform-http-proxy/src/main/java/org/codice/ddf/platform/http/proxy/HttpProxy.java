@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.platform.http.proxy;
 
 import java.io.File;
@@ -30,8 +29,6 @@ import org.slf4j.LoggerFactory;
 
 public class HttpProxy {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(HttpProxy.class);
-
     public static final String KARAF_HOME = "karaf.home";
 
     public static final String PAX_CONFIG = "org.ops4j.pax.web.cfg";
@@ -45,6 +42,8 @@ public class HttpProxy {
     public static final String SECURE_ENABLED_PROPERTY = "org.osgi.service.http.secure.enabled";
 
     public static final String HTTP_ENABLED_PROPERTY = "org.osgi.service.http.enabled";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpProxy.class);
 
     private final HttpProxyService httpProxyService;
 
@@ -67,8 +66,7 @@ public class HttpProxy {
         Properties properties = getProperties();
         stopProxy();
 
-        boolean isSecureEnabled = Boolean
-                .valueOf(properties.getProperty(SECURE_ENABLED_PROPERTY));
+        boolean isSecureEnabled = Boolean.valueOf(properties.getProperty(SECURE_ENABLED_PROPERTY));
         boolean isHttpEnabled = Boolean.valueOf(properties.getProperty(HTTP_ENABLED_PROPERTY));
         if (isSecureEnabled && !isHttpEnabled) {
             String httpPort = properties.getProperty(PORT_PROPERTY);

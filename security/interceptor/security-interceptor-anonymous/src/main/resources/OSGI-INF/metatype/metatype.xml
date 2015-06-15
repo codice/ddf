@@ -12,7 +12,8 @@
  **/ -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-    <OCD name="Security SOAP Anonymous Interceptor" id="org.codice.ddf.security.interceptor.AnonymousInterceptor">
+    <OCD name="Security SOAP Anonymous Interceptor"
+         id="org.codice.ddf.security.interceptor.AnonymousInterceptor">
 
 <!--
         <AD name="Realm" id="realm" required="false" type="String" default="DDF"
@@ -21,11 +22,13 @@
         </AD>
 -->
 
-        <AD name="Deny Anonymous Access" id="anonymousAccessDenied" required="false" type="Boolean" default="false"
+        <AD name="Deny Anonymous Access" id="anonymousAccessDenied" required="false" type="Boolean"
+            default="false"
             description="If set to true, no anonymous access will be allowed via this anonymous interceptor. If set to
             false, this interceptor will generate anonymous tokens for incoming requests that lack a WS-Security header."/>
 
-        <AD name="Override Endpoint Policies" id="overrideEndpointPolicies" required="false" type="Boolean" default="false"
+        <AD name="Override Endpoint Policies" id="overrideEndpointPolicies" required="false"
+            type="Boolean" default="false"
             description="If checked, forces anonymous tokens to be created and inserted into the incoming request regardless
             of whether the policy requires an issued token. If set to false, if the endpoint policies cannot be satisfied,
             no changes will be made to the incoming request. This only applies to incoming requests that lack a WS-Security
@@ -34,7 +37,7 @@
     </OCD>
 
     <Designate pid="org.codice.ddf.security.interceptor.AnonymousInterceptor">
-        <Object ocdref="org.codice.ddf.security.interceptor.AnonymousInterceptor" />
+        <Object ocdref="org.codice.ddf.security.interceptor.AnonymousInterceptor"/>
     </Designate>
 
 </metatype:MetaData>

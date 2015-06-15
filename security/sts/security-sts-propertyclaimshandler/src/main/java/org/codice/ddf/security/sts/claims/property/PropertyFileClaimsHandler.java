@@ -1,20 +1,29 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.security.sts.claims.property;
 
-import ddf.security.PropertiesLoader;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.security.Principal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
+
+import javax.security.auth.kerberos.KerberosPrincipal;
+import javax.security.auth.x500.X500Principal;
+
 import org.apache.cxf.rt.security.claims.Claim;
 import org.apache.cxf.rt.security.claims.ClaimCollection;
 import org.apache.cxf.sts.claims.ClaimsHandler;
@@ -25,15 +34,7 @@ import org.apache.cxf.sts.token.realm.RealmSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.security.auth.kerberos.KerberosPrincipal;
-import javax.security.auth.x500.X500Principal;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.security.Principal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
+import ddf.security.PropertiesLoader;
 
 public class PropertyFileClaimsHandler implements ClaimsHandler, RealmSupport {
 
@@ -150,10 +151,10 @@ public class PropertyFileClaimsHandler implements ClaimsHandler, RealmSupport {
     }
 
     public void setPropertyFileLocation(String propertyFileLocation) {
-        if (propertyFileLocation != null && !propertyFileLocation.isEmpty()
-                && !propertyFileLocation.equals(this.propertyFileLocation)) {
-            userMapping = PropertiesLoader.toMap(PropertiesLoader
-                    .loadProperties(propertyFileLocation));
+        if (propertyFileLocation != null && !propertyFileLocation.isEmpty() && !propertyFileLocation
+                .equals(this.propertyFileLocation)) {
+            userMapping = PropertiesLoader
+                    .toMap(PropertiesLoader.loadProperties(propertyFileLocation));
         }
         this.propertyFileLocation = propertyFileLocation;
     }

@@ -1,22 +1,17 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.security.expansion.impl;
-
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -27,10 +22,19 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.Before;
+import org.junit.Test;
+
 /**
  * Test the methods of the abstract class here (using instances of StraightExpansionImpl.
  */
 public class AbstractExpansionTest {
+    public List<String[]> rulesList1 = new ArrayList<String[]>();
+
+    public List<String[]> rulesList2 = new ArrayList<String[]>();
+
+    public Map<String, List<String[]>> testmap = new HashMap<String, List<String[]>>();
+
     /*
      * Rules for the various tests \A and \z represent the start of input and end of input
      */
@@ -72,12 +76,6 @@ public class AbstractExpansionTest {
 
     private String ruleBogus3 = "xyz:123:456:789:10";
 
-    public List<String[]> rulesList1 = new ArrayList<String[]>();
-
-    public List<String[]> rulesList2 = new ArrayList<String[]>();
-
-    public Map<String, List<String[]>> testmap = new HashMap<String, List<String[]>>();
-
     @Before
     public void setupData() {
         rulesList1.add(rule1a);
@@ -91,7 +89,8 @@ public class AbstractExpansionTest {
         testmap.put("role", rulesList1);
     }
 
-    private void assertMapsAreEqual(Map<String, List<String[]>> m1, Map<String, List<String[]>> m2) {
+    private void assertMapsAreEqual(Map<String, List<String[]>> m1,
+            Map<String, List<String[]>> m2) {
         assert (m1.size() == m2.size());
         assert (m1.keySet().equals(m2.keySet()));
         for (String k : m1.keySet()) {

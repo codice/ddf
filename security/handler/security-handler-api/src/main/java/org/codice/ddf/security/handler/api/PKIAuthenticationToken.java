@@ -1,33 +1,32 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.security.handler.api;
+
+import java.security.Principal;
 
 import org.opensaml.xml.util.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.security.Principal;
-
 public class PKIAuthenticationToken extends BSTAuthenticationToken {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PKIAuthenticationToken.class);
-
     public static final String BST_X509_LN = "X509";
 
     public static final String PKI_TOKEN_VALUE_TYPE =
             BSTAuthenticationToken.BST_NS + BSTAuthenticationToken.TOKEN_VALUE_SEPARATOR
                     + BST_X509_LN;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PKIAuthenticationToken.class);
 
     public PKIAuthenticationToken(Principal principal, byte[] certificates) {
         this(principal, certificates, BaseAuthenticationToken.DEFAULT_REALM);
@@ -46,17 +45,19 @@ public class PKIAuthenticationToken extends BSTAuthenticationToken {
 
     public String getDn() {
         String dn = null;
-        if (principal instanceof Principal)
+        if (principal instanceof Principal) {
             dn = ((Principal) principal).getName();
-        else if (principal instanceof String)
+        } else if (principal instanceof String) {
             dn = (String) principal;
+        }
         return dn;
     }
 
     public byte[] getCertificate() {
         byte[] certs = null;
-        if (credentials instanceof byte[])
+        if (credentials instanceof byte[]) {
             certs = (byte[]) credentials;
+        }
         return certs;
     }
 

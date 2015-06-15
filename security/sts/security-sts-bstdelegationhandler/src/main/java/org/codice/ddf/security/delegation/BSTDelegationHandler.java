@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.security.delegation;
 
 import org.apache.cxf.sts.request.ReceivedToken;
@@ -31,12 +30,17 @@ import org.slf4j.LoggerFactory;
  */
 public class BSTDelegationHandler implements TokenDelegationHandler {
 
-    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(BSTDelegationHandler.class);
     public static final String X509_PKI_PATH = WSConstants.X509TOKEN_NS + "#X509PKIPathv1";
+
     public static final String X509_V3 = WSConstants.X509TOKEN_NS + "#X509v3";
+
     public static final String BASE64_ENCODING = WSConstants.SOAPMESSAGE_NS + "#Base64Binary";
 
-    public static final String BST_VALUE_TYPE = BSTAuthenticationToken.BST_NS + "#" + BSTAuthenticationToken.BST_LN;
+    public static final String BST_VALUE_TYPE =
+            BSTAuthenticationToken.BST_NS + "#" + BSTAuthenticationToken.BST_LN;
+
+    private static final org.slf4j.Logger LOGGER = LoggerFactory
+            .getLogger(BSTDelegationHandler.class);
 
     //private boolean checkAudienceRestriction;
 
@@ -44,8 +48,8 @@ public class BSTDelegationHandler implements TokenDelegationHandler {
         Object token = delegateTarget.getToken();
         if (token instanceof BinarySecurityTokenType) {
             BinarySecurityTokenType bstt = (BinarySecurityTokenType) token;
-            if (BST_VALUE_TYPE.equals(bstt.getValueType()) &&
-                BASE64_ENCODING.equals(bstt.getEncodingType())) {
+            if (BST_VALUE_TYPE.equals(bstt.getValueType()) && BASE64_ENCODING
+                    .equals(bstt.getEncodingType())) {
                 return true;
             }
         }

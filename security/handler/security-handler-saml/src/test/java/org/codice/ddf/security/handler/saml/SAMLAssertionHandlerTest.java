@@ -1,20 +1,34 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.security.handler.saml;
 
-import ddf.security.SecurityConstants;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.io.IOException;
+import java.io.InputStream;
+
+import javax.servlet.FilterChain;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
 import org.apache.cxf.common.util.Base64Utility;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.rs.security.saml.DeflateEncoderDecoder;
@@ -27,22 +41,29 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
-import javax.servlet.FilterChain;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
-import java.io.InputStream;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import ddf.security.SecurityConstants;
 
 public class SAMLAssertionHandlerTest {
+
+    public static Document readXml(InputStream is)
+            throws SAXException, IOException, ParserConfigurationException {
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+
+        dbf.setValidating(false);
+        dbf.setIgnoringComments(false);
+        dbf.setIgnoringElementContentWhitespace(true);
+        dbf.setNamespaceAware(true);
+        // dbf.setCoalescing(true);
+        // dbf.setExpandEntityReferences(true);
+
+        DocumentBuilder db = null;
+        db = dbf.newDocumentBuilder();
+        db.setEntityResolver(new DOMUtils.NullResolver());
+
+        // db.setErrorHandler( new MyErrorHandler());
+
+        return db.parse(is);
+    }
 
     /**
      * This test ensures the proper functionality of SAMLAssertionHandler's
@@ -60,7 +81,7 @@ public class SAMLAssertionHandlerTest {
         String assertionId = assertion.getAttributeNodeNS(null, "ID").getNodeValue();
         SecurityToken samlToken = new SecurityToken(assertionId, assertion, null);
         Cookie cookie = new Cookie(SecurityConstants.SAML_COOKIE_NAME,
-          encodeSaml(samlToken.getToken()));
+                encodeSaml(samlToken.getToken()));
         when(request.getCookies()).thenReturn(new Cookie[] {cookie});
 
         HandlerResult result = handler.getNormalizedToken(request, response, chain, true);
@@ -94,29 +115,10 @@ public class SAMLAssertionHandlerTest {
      *
      * @param name the name of the classpath resource
      */
-    private Document readDocument(String name) throws SAXException, IOException,
-      ParserConfigurationException {
+    private Document readDocument(String name)
+            throws SAXException, IOException, ParserConfigurationException {
         InputStream inStream = getClass().getResourceAsStream(name);
         return readXml(inStream);
-    }
-
-    public static Document readXml(InputStream is) throws SAXException, IOException, ParserConfigurationException {
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-
-        dbf.setValidating(false);
-        dbf.setIgnoringComments(false);
-        dbf.setIgnoringElementContentWhitespace(true);
-        dbf.setNamespaceAware(true);
-        // dbf.setCoalescing(true);
-        // dbf.setExpandEntityReferences(true);
-
-        DocumentBuilder db = null;
-        db = dbf.newDocumentBuilder();
-        db.setEntityResolver(new DOMUtils.NullResolver());
-
-        // db.setErrorHandler( new MyErrorHandler());
-
-        return db.parse(is);
     }
 
     /**

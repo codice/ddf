@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.security.permission;
 
 import static org.junit.Assert.assertEquals;
@@ -79,15 +78,15 @@ public class CollectionPermissionTest {
         assertFalse(userPermission.implies(new ActionPermission(ActionPermission.DELETE_ACTION)));
 
         // user can create and query
-        CollectionPermission task1Permission = new CollectionPermission(new ActionPermission(
-                ActionPermission.CREATE_ACTION),
+        CollectionPermission task1Permission = new CollectionPermission(
+                new ActionPermission(ActionPermission.CREATE_ACTION),
                 new ActionPermission(ActionPermission.QUERY_ACTION));
         assertTrue(userPermission.implies(task1Permission));
 
         // user cannot create AND delete
-        CollectionPermission task2Permission = new CollectionPermission(new ActionPermission(
-                ActionPermission.CREATE_ACTION), new ActionPermission(
-                ActionPermission.DELETE_ACTION));
+        CollectionPermission task2Permission = new CollectionPermission(
+                new ActionPermission(ActionPermission.CREATE_ACTION),
+                new ActionPermission(ActionPermission.DELETE_ACTION));
         assertFalse(userPermission.implies(task2Permission));
 
         // test empty collection (should always return false)

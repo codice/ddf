@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.security.handler.api;
 
 import javax.servlet.FilterChain;
@@ -45,8 +44,8 @@ public interface AuthenticationHandler {
      * @param resolve  flag with true implying that credentials should be obtained, false implying return if no credentials are found.
      * @return result containing a status and the credentials to be placed into the http request
      */
-    HandlerResult getNormalizedToken(ServletRequest request, ServletResponse response, FilterChain chain, boolean resolve) throws ServletException;
-
+    HandlerResult getNormalizedToken(ServletRequest request, ServletResponse response,
+            FilterChain chain, boolean resolve) throws ServletException;
 
     /**
      * Called when downstream authentication fails. Should attempt to re-acquire credentials if appropriate. Returns
@@ -55,6 +54,7 @@ public interface AuthenticationHandler {
      * @param servletRequest htt http response to return http responses or redirects
      * @return result containing a status indicating if further action is necessary
      */
-    HandlerResult handleError(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) throws ServletException;
+    HandlerResult handleError(ServletRequest servletRequest, ServletResponse servletResponse,
+            FilterChain chain) throws ServletException;
 
 }

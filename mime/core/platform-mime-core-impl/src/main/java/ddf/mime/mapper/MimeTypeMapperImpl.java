@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.mime.mapper;
 
 import java.io.IOException;
@@ -41,16 +40,16 @@ import ddf.mime.MimeTypeResolver;
  * registered {@link MimeTypeResolver}s to retieve file extension for a given mime type, and vice
  * versa. Once a file extension (or mime type) is resolved, this mapper stops searching through any
  * remaining {@link MimeTypeResolver}s and returns.
- * 
+ *
  * @since 2.1.0
- * 
+ *
  */
 public class MimeTypeMapperImpl implements MimeTypeMapper {
     private static final Logger LOGGER = LoggerFactory.getLogger(MimeTypeMapperImpl.class);
-    
+
     private static final String XML_FILE_EXTENSION = "xml";
 
-    private static Comparator<MimeTypeResolver> COMPARATOR = new Comparator<MimeTypeResolver>() {
+    private static Comparator<MimeTypeResolver> comparator = new Comparator<MimeTypeResolver>() {
         public int compare(MimeTypeResolver o1, MimeTypeResolver o2) {
             return o1.getPriority() - o2.getPriority();
         }
@@ -66,7 +65,7 @@ public class MimeTypeMapperImpl implements MimeTypeMapper {
 
     /**
      * Constructs the MimeTypeMapper with a list of {@link MimeTypeResolver}s.
-     * 
+     *
      * @param mimeTypeResolvers
      *            the {@link List} of {@link MimeTypeResolver}s
      */
@@ -119,7 +118,7 @@ public class MimeTypeMapperImpl implements MimeTypeMapper {
 
     @Override
     public String getMimeTypeForFileExtension(String fileExtension)
-        throws MimeTypeResolutionException {
+            throws MimeTypeResolutionException {
         LOGGER.trace("ENTERING: getMimeTypeForFileExtension()");
 
         String mimeType = null;
@@ -162,7 +161,7 @@ public class MimeTypeMapperImpl implements MimeTypeMapper {
 
     @Override
     public String guessMimeType(InputStream is, String fileExtension)
-        throws MimeTypeResolutionException {
+            throws MimeTypeResolutionException {
         LOGGER.trace("ENTERING: guessMimeType()");
 
         String mimeType = null;
@@ -173,7 +172,7 @@ public class MimeTypeMapperImpl implements MimeTypeMapper {
         // after the CustomMimeTypeResolvers to prevent Tika default mapping
         // from being used when a CustomMimeTypeResolver may be more appropriate.
         List<MimeTypeResolver> sortedResolvers = sortResolvers(mimeTypeResolvers);
-        
+
         // If file has XML extension, then read root element namespace once so
         // each MimeTypeResolver does not have to open the stream and read the namespace
         String namespace = null;
@@ -224,37 +223,36 @@ public class MimeTypeMapperImpl implements MimeTypeMapper {
 
         return mimeType;
     }
-    
+
     private String getRootElementNamespace(InputStream is) {
         LOGGER.trace("ENTERING: getRootElementNamespace()");
-        
+
         if (is == null) {
             return null;
         }
-        
-        String namespace = null;        
+
+        String namespace = null;
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         dbf.setNamespaceAware(true);
 
         try {
-            DocumentBuilder db = dbf.newDocumentBuilder();        
+            DocumentBuilder db = dbf.newDocumentBuilder();
             Document document = db.parse(is);
             Node node = document.getDocumentElement();
             namespace = node.getNamespaceURI();
         } catch (ParserConfigurationException | SAXException | IOException e) {
             LOGGER.debug("Unable to get root element namespace");
         }
-        
+
         LOGGER.trace("ENXITING: getRootElementNamespace() - namespace = {}", namespace);
-        
+
         return namespace;
     }
-
 
     /**
      * Sort the list of {@link MimeTypeResolver}s by their descending priority, i.e., the lower the
      * priority the later the {@link MimeTypeResolver} is invoked.
-     * 
+     *
      * @param resolvers
      *            the {@link List} of {@link MimeTypeResolver}s
      * @return the sorted list of {@link MimeTypeResolver}s by descending priority

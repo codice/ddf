@@ -1,18 +1,25 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.security.handler.pki;
+
+import java.security.cert.X509Certificate;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.HandlerResult;
@@ -22,26 +29,19 @@ import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import java.security.cert.X509Certificate;
-
 /**
  * Handler for PKI based authentication. X509 chain will be extracted from the HTTP request and
  * converted to a BinarySecurityToken.
  */
 public class PKIHandler implements AuthenticationHandler {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PKIHandler.class);
-
     /**
      * PKI type to use when configuring context policy.
      */
     public static final String AUTH_TYPE = "PKI";
 
     public static final String SOURCE = "PKIHandler";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PKIHandler.class);
 
     protected PKIAuthenticationTokenFactory tokenFactory;
 
@@ -63,7 +63,7 @@ public class PKIHandler implements AuthenticationHandler {
      */
     @Override
     public HandlerResult getNormalizedToken(ServletRequest request, ServletResponse response,
-      FilterChain chain, boolean resolve) throws ServletException {
+            FilterChain chain, boolean resolve) throws ServletException {
 
         String realm = (String) request.getAttribute(ContextPolicy.ACTIVE_REALM);
         HandlerResult handlerResult = new HandlerResult(HandlerResult.Status.NO_ACTION, null);
@@ -85,7 +85,7 @@ public class PKIHandler implements AuthenticationHandler {
 
     @Override
     public HandlerResult handleError(ServletRequest servletRequest, ServletResponse servletResponse,
-      FilterChain chain) throws ServletException {
+            FilterChain chain) throws ServletException {
         String realm = (String) servletRequest.getAttribute(ContextPolicy.ACTIVE_REALM);
         HandlerResult result = new HandlerResult(HandlerResult.Status.NO_ACTION, null);
         result.setSource(realm + "-" + SOURCE);
@@ -96,7 +96,8 @@ public class PKIHandler implements AuthenticationHandler {
     protected PKIAuthenticationToken extractAuthenticationInfo(HttpServletRequest request) {
         PKIAuthenticationToken token;
         String realm = (String) request.getAttribute(ContextPolicy.ACTIVE_REALM);
-        X509Certificate[] certs = (X509Certificate[]) request.getAttribute("javax.servlet.request.X509Certificate");
+        X509Certificate[] certs = (X509Certificate[]) request
+                .getAttribute("javax.servlet.request.X509Certificate");
 
         token = tokenFactory.getTokenFromCerts(certs, realm);
         return token;

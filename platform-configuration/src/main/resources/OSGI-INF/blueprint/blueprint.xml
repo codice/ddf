@@ -10,8 +10,10 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/ -->
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0" xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs"
+<blueprint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+           xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs"
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xsi:schemaLocation="
   http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
   http://cxf.apache.org/blueprint/jaxrs http://cxf.apache.org/schemas/blueprint/jaxrs.xsd">
@@ -26,13 +28,16 @@
     in blueprint. This attribute also helped address a BeanCurrentlyInCreationException was getting as
     DDF started up.
     -->
-    <reference-list id="managedServiceList" interface="org.codice.ddf.configuration.ConfigurationWatcher">
+    <reference-list id="managedServiceList"
+                    interface="org.codice.ddf.configuration.ConfigurationWatcher">
         <reference-listener bind-method="bind" unbind-method="bind" ref="ConfigurationManager"/>
     </reference-list>
 
-    <reference-list id="initialManagedServiceList" interface="org.codice.ddf.configuration.ConfigurationWatcher"/>
+    <reference-list id="initialManagedServiceList"
+                    interface="org.codice.ddf.configuration.ConfigurationWatcher"/>
 
-    <bean id="ConfigurationManager" class="org.codice.ddf.configuration.ConfigurationManager" init-method="init">
+    <bean id="ConfigurationManager" class="org.codice.ddf.configuration.ConfigurationManager"
+          init-method="init">
         <cm:managed-properties persistent-id="ddf.platform.config"
                                update-strategy="component-managed" update-method="updated"/>
         <argument ref="initialManagedServiceList"/>
@@ -40,7 +45,8 @@
     </bean>
 
     <bean id="PlatformUiConfiguration" class="org.codice.ddf.configuration.PlatformUiConfiguration">
-        <cm:managed-properties persistent-id="ddf.platform.ui.config" update-strategy="container-managed"/>
+        <cm:managed-properties persistent-id="ddf.platform.ui.config"
+                               update-strategy="container-managed"/>
     </bean>
 
     <jaxrs:server id="platformConfigurationService" address="/platform">

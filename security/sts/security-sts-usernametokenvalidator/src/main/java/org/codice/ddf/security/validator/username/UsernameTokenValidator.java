@@ -1,17 +1,34 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ * <p/>
+ * <p/>
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements. See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership. The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 /**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
@@ -31,6 +48,19 @@
  * under the License.
  */
 package org.codice.ddf.security.validator.username;
+
+import java.security.Principal;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import javax.security.auth.callback.CallbackHandler;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 
 import org.apache.cxf.common.jaxb.JAXBContextCache;
 import org.apache.cxf.helpers.DOMUtils;
@@ -65,18 +95,6 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import javax.security.auth.callback.CallbackHandler;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import java.security.Principal;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-
 /**
  * This class validates a wsse UsernameToken.
  */
@@ -84,9 +102,9 @@ public class UsernameTokenValidator implements TokenValidator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UsernameTokenValidator.class);
 
-    private UsernameTokenRealmCodec usernameTokenRealmCodec;
-
     protected Map<String, Validator> validators = new ConcurrentHashMap<>();
+
+    private UsernameTokenRealmCodec usernameTokenRealmCodec;
 
     public void addRealm(ServiceReference<JaasRealm> serviceReference) {
         JaasRealm realm = FrameworkUtil.getBundle(UsernameTokenValidator.class).getBundleContext()
@@ -159,28 +177,27 @@ public class UsernameTokenValidator implements TokenValidator {
         //
         // Turn the JAXB UsernameTokenType into a DOM Element for validation
         //
-        UsernameTokenType usernameTokenType = (UsernameTokenType)validateTarget.getToken();
+        UsernameTokenType usernameTokenType = (UsernameTokenType) validateTarget.getToken();
 
         // Marshall the received JAXB object into a DOM Element
         Element usernameTokenElement = null;
         try {
             Set<Class<?>> classes = new HashSet<>();
             classes.add(ObjectFactory.class);
-            classes.add(org.apache.cxf.ws.security.sts.provider.model.wstrust14.ObjectFactory.class);
+            classes.add(
+                    org.apache.cxf.ws.security.sts.provider.model.wstrust14.ObjectFactory.class);
 
-            JAXBContextCache.CachedContextAndSchemas cache =
-                    JAXBContextCache.getCachedContextAndSchemas(classes, null, null, null, false);
+            JAXBContextCache.CachedContextAndSchemas cache = JAXBContextCache
+                    .getCachedContextAndSchemas(classes, null, null, null, false);
             JAXBContext jaxbContext = cache.getContext();
 
             Marshaller marshaller = jaxbContext.createMarshaller();
             Document doc = DOMUtils.createDocument();
             Element rootElement = doc.createElement("root-element");
-            JAXBElement<UsernameTokenType> tokenType =
-                    new JAXBElement<>(
-                            QNameConstants.USERNAME_TOKEN, UsernameTokenType.class, usernameTokenType
-                    );
+            JAXBElement<UsernameTokenType> tokenType = new JAXBElement<>(
+                    QNameConstants.USERNAME_TOKEN, UsernameTokenType.class, usernameTokenType);
             marshaller.marshal(tokenType, rootElement);
-            usernameTokenElement = (Element)rootElement.getFirstChild();
+            usernameTokenElement = (Element) rootElement.getFirstChild();
         } catch (JAXBException ex) {
             LOGGER.warn("", ex);
             return response;
@@ -190,10 +207,10 @@ public class UsernameTokenValidator implements TokenValidator {
         // Validate the token
         //
         try {
-            boolean allowNamespaceQualifiedPasswordTypes =
-                    wssConfig.getAllowNamespaceQualifiedPasswordTypes();
-            UsernameToken ut =
-                    new UsernameToken(usernameTokenElement, allowNamespaceQualifiedPasswordTypes, new BSPEnforcer());
+            boolean allowNamespaceQualifiedPasswordTypes = wssConfig
+                    .getAllowNamespaceQualifiedPasswordTypes();
+            UsernameToken ut = new UsernameToken(usernameTokenElement,
+                    allowNamespaceQualifiedPasswordTypes, new BSPEnforcer());
             // The parsed principal is set independent whether validation is successful or not
             response.setPrincipal(new CustomTokenPrincipal(ut.getName()));
             if (ut.getPassword() == null) {
@@ -230,10 +247,8 @@ public class UsernameTokenValidator implements TokenValidator {
                 //end new section
             }
 
-            Principal principal =
-                    createPrincipal(
-                            ut.getName(), ut.getPassword(), ut.getPasswordType(), ut.getNonce(), ut.getCreated()
-                    );
+            Principal principal = createPrincipal(ut.getName(), ut.getPassword(),
+                    ut.getPasswordType(), ut.getNonce(), ut.getCreated());
 
             // Get the realm of the UsernameToken
             String tokenRealm = null;
@@ -253,7 +268,8 @@ public class UsernameTokenValidator implements TokenValidator {
             }
 
             // Store the successfully validated token in the cache
-            if (tokenParameters.getTokenStore() != null && secToken == null && ReceivedToken.STATE.VALID.equals(validateTarget.getState())) {
+            if (tokenParameters.getTokenStore() != null && secToken == null
+                    && ReceivedToken.STATE.VALID.equals(validateTarget.getState())) {
                 secToken = new SecurityToken(ut.getID());
                 secToken.setToken(ut.getElement());
                 int hashCode = ut.hashCode();
@@ -275,13 +291,8 @@ public class UsernameTokenValidator implements TokenValidator {
     /**
      * Create a principal based on the authenticated UsernameToken.
      */
-    private Principal createPrincipal(
-            String username,
-            String passwordValue,
-            String passwordType,
-            String nonce,
-            String createdTime
-    ) {
+    private Principal createPrincipal(String username, String passwordValue, String passwordType,
+            String nonce, String createdTime) {
         boolean hashed = false;
         if (WSConstants.PASSWORD_DIGEST.equals(passwordType)) {
             hashed = true;

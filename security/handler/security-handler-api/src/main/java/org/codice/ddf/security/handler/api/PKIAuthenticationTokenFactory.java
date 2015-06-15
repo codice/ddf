@@ -1,20 +1,21 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.security.handler.api;
 
-import ddf.security.PropertiesLoader;
+import java.io.IOException;
+import java.security.cert.X509Certificate;
+
 import org.apache.wss4j.common.crypto.Merlin;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.xml.security.Init;
@@ -22,11 +23,11 @@ import org.opensaml.xml.util.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.security.cert.X509Certificate;
+import ddf.security.PropertiesLoader;
 
 public class PKIAuthenticationTokenFactory {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PKIAuthenticationTokenFactory.class);
+    private static final Logger LOGGER = LoggerFactory
+            .getLogger(PKIAuthenticationTokenFactory.class);
 
     private Merlin merlin;
 
@@ -37,14 +38,16 @@ public class PKIAuthenticationTokenFactory {
      */
     public void init() {
         try {
-            merlin = new Merlin(PropertiesLoader.loadProperties(signaturePropertiesPath), PKIAuthenticationTokenFactory.class.getClassLoader(), null);
+            merlin = new Merlin(PropertiesLoader.loadProperties(signaturePropertiesPath),
+                    PKIAuthenticationTokenFactory.class.getClassLoader(), null);
         } catch (WSSecurityException | IOException e) {
             LOGGER.error("Unable to read merlin properties file.", e);
         }
         Init.init();
     }
 
-    public PKIAuthenticationToken getTokenFromString(String certString, boolean isEncoded, String realm) {
+    public PKIAuthenticationToken getTokenFromString(String certString, boolean isEncoded,
+            String realm) {
         PKIAuthenticationToken token;
         byte[] certBytes = isEncoded ? Base64.decode(certString) : certString.getBytes();
         token = getTokenFromBytes(certBytes, realm);

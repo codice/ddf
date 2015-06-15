@@ -1,18 +1,23 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package org.codice.solr.xpath;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.lucene.search.Query;
+import org.apache.solr.common.SolrException;
+import org.apache.solr.search.SolrQueryParser;
+import org.apache.solr.search.SyntaxError;
 
 import lux.Compiler;
 import lux.Evaluator;
@@ -23,12 +28,6 @@ import lux.solr.SolrIndexConfig;
 import net.sf.saxon.om.NodeInfo;
 import net.sf.saxon.om.SequenceIterator;
 import net.sf.saxon.trans.XPathException;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.lucene.search.Query;
-import org.apache.solr.common.SolrException;
-import org.apache.solr.search.SolrQueryParser;
-import org.apache.solr.search.SyntaxError;
 
 /**
  * XPath query parser that will create Lucene and Post Filter queries to support XPath.
@@ -44,7 +43,7 @@ public class XpathQueryParser extends SolrQueryParser {
 
     @Override
     protected Query getFieldQuery(String field, String queryText, boolean quoted)
-        throws SyntaxError {
+            throws SyntaxError {
 
         if (field.equals("xpath")) {
             // post filter with Saxon
@@ -62,7 +61,7 @@ public class XpathQueryParser extends SolrQueryParser {
      * Converts XPath into a Lucene query that will pre-filter based on LuxDB path and attribute
      * index fields. Further post filtering is needed for XPath functionality that cannot evaluated
      * against a LuxDB index.
-     * 
+     *
      * @param queryText
      *            XPath expression to convert into LuxDB index query
      * @return Lucene query to pre-filter using LuxDB index
@@ -70,8 +69,8 @@ public class XpathQueryParser extends SolrQueryParser {
     private Query getLuceneQuery(final String queryText) {
         String xpath = queryText;
 
-        SolrIndexConfig solrIndexConfig = SolrIndexConfig.registerIndexConfiguration(parser
-                .getRequest().getCore());
+        SolrIndexConfig solrIndexConfig = SolrIndexConfig
+                .registerIndexConfiguration(parser.getRequest().getCore());
         LuxSearcher searcher = new LuxSearcher(parser.getRequest().getSearcher());
         Compiler compiler = new Compiler(solrIndexConfig.getIndexConfig());
         Evaluator evaluator = new Evaluator(compiler, searcher, null);
@@ -92,8 +91,8 @@ public class XpathQueryParser extends SolrQueryParser {
         Query luxQuery = lsearch.getQuery();
         if (luxQuery == null || result.getErrors().size() > 0) {
             throw new SolrException(SolrException.ErrorCode.BAD_REQUEST,
-                    "Failed to rewrite XPath into Query: " + queryText + "\nErrors: "
-                            + result.getErrors().toString());
+                    "Failed to rewrite XPath into Query: " + queryText + "\nErrors: " + result
+                            .getErrors().toString());
         }
 
         return luxQuery;
@@ -149,7 +148,7 @@ public class XpathQueryParser extends SolrQueryParser {
         @Override
         public SequenceIterator<NodeInfo> iterateDistributed(String searchQuery,
                 QueryParser queryParser, Evaluator eval, String[] sortCriteria, int start)
-            throws XPathException {
+                throws XPathException {
             return super.iterateDistributed(searchQuery, queryParser, eval, sortCriteria, start);
         }
 

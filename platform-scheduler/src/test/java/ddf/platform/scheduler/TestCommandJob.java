@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.platform.scheduler;
 
 import static org.hamcrest.Matchers.is;
@@ -37,17 +36,17 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Tests the {@link CommandJob} class.
- * 
+ *
  * @author Ashraf Barakat
  * @author ddf.isgs@lmco.com
- * 
+ *
  */
 public class TestCommandJob {
     private static final Logger LOGGER = LoggerFactory.getLogger(TestCommandJob.class);
 
     /**
      * Do no execution when no command processor available
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -67,7 +66,7 @@ public class TestCommandJob {
 
     /**
      * Do not execute command on null input
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -94,7 +93,7 @@ public class TestCommandJob {
 
     /**
      * An empty command will be executed
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -122,7 +121,7 @@ public class TestCommandJob {
 
     /**
      * Tests the simplest command will be executed.
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -166,9 +165,8 @@ public class TestCommandJob {
     private CommandProcessor getCommandProcessor(CommandSession session) {
         CommandProcessor processor = mock(CommandProcessor.class);
 
-        when(
-                processor.createSession(isNull(InputStream.class), isA(PrintStream.class),
-                        isA(PrintStream.class))).thenReturn(session);
+        when(processor.createSession(isNull(InputStream.class), isA(PrintStream.class),
+                isA(PrintStream.class))).thenReturn(session);
         return processor;
     }
 

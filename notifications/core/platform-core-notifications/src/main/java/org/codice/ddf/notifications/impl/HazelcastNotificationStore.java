@@ -1,18 +1,33 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package org.codice.ddf.notifications.impl;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.notifications.store.NotificationStore;
+import org.codice.ddf.notifications.store.PersistentNotification;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hazelcast.config.Config;
 import com.hazelcast.config.JoinConfig;
@@ -24,34 +39,19 @@ import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.query.SqlPredicate;
-import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.notifications.store.NotificationStore;
-import org.codice.ddf.notifications.store.PersistentNotification;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Stores (persists) the notifications for *all* users in a single persistent notifications cache to
  * disk. The default location for the persisted notification is
  * "<INSTALL_DIR>/data/persistentNotifications". Notifications are stored as a HashMap of attributes
  * vs. a Notification Java object. The object persisted must be Serializable.
- * 
+ *
  */
 public class HazelcastNotificationStore implements NotificationStore {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(HazelcastNotificationStore.class);
-
     public static final String NOTIFICATION_CACHE_NAME = "persistentNotifications";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(HazelcastNotificationStore.class);
 
     private HazelcastInstance instance;
 
@@ -114,7 +114,8 @@ public class HazelcastNotificationStore implements NotificationStore {
             } else {
                 MapStoreConfig mapStoreConfig = mapConfig.getMapStoreConfig();
                 if (mapStoreConfig != null) {
-                    LOGGER.debug("mapStoreConfig factoryClassName = {}", mapStoreConfig.getFactoryClassName());
+                    LOGGER.debug("mapStoreConfig factoryClassName = {}",
+                            mapStoreConfig.getFactoryClassName());
                 } else {
                     LOGGER.debug("mapStoreConfig is null");
                 }
@@ -130,12 +131,11 @@ public class HazelcastNotificationStore implements NotificationStore {
 
     @Override
     public void putNotification(Map<String, String> notification) {
-        notificationsCache.put(notification.get(PersistentNotification.NOTIFICATION_KEY_UUID),
-                notification);
-        LOGGER.debug("Successfully cached notification for user = "
-                + notification.get(PersistentNotification.NOTIFICATION_KEY_USER_ID));
+        notificationsCache
+                .put(notification.get(PersistentNotification.NOTIFICATION_KEY_UUID), notification);
+        LOGGER.debug("Successfully cached notification for user = " + notification
+                .get(PersistentNotification.NOTIFICATION_KEY_USER_ID));
     }
-
 
     public void removeNotification(String notificationId, String userId) {
         Map<String, String> notification = (Map<String, String>) notificationsCache
@@ -153,8 +153,8 @@ public class HazelcastNotificationStore implements NotificationStore {
     @Override
     public List<Map<String, String>> getNotifications() {
         List<Map<String, String>> notificationsList = new ArrayList<Map<String, String>>();
-        Collection<Object> notifications = notificationsCache.values(new SqlPredicate(
-                "userId LIKE '%'"));
+        Collection<Object> notifications = notificationsCache
+                .values(new SqlPredicate("userId LIKE '%'"));
         for (Object notificationObj : notifications) {
             @SuppressWarnings("unchecked")
             Map<String, String> notificationMap = (Map<String, String>) notificationObj;
@@ -168,8 +168,8 @@ public class HazelcastNotificationStore implements NotificationStore {
     public List<Map<String, String>> getNotifications(String userId) {
         List<Map<String, String>> notificationsList = new ArrayList<Map<String, String>>();
         if (StringUtils.isNotBlank(userId)) {
-            Collection<Object> notifications = notificationsCache.values(new SqlPredicate(
-                    "userId = '" + userId + "'"));
+            Collection<Object> notifications = notificationsCache
+                    .values(new SqlPredicate("userId = '" + userId + "'"));
             for (Object notificationObj : notifications) {
                 @SuppressWarnings("unchecked")
                 Map<String, String> notificationMap = (Map<String, String>) notificationObj;

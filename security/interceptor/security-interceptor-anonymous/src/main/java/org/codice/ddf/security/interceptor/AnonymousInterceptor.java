@@ -1,26 +1,45 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.security.interceptor;
 
-import ddf.security.Subject;
-import ddf.security.assertion.SecurityAssertion;
-import ddf.security.common.audit.SecurityLogger;
-import ddf.security.encryption.EncryptionService;
-import ddf.security.service.SecurityManager;
-import ddf.security.service.SecurityServiceException;
-import ddf.security.sts.client.configuration.STSClientConfiguration;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+
+import javax.xml.namespace.QName;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.soap.SOAPElement;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPFactory;
+import javax.xml.soap.SOAPMessage;
+import javax.xml.stream.FactoryConfigurationError;
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.soap.SoapBindingConstants;
@@ -70,31 +89,13 @@ import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import javax.xml.namespace.QName;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.soap.SOAPElement;
-import javax.xml.soap.SOAPException;
-import javax.xml.soap.SOAPFactory;
-import javax.xml.soap.SOAPMessage;
-import javax.xml.stream.FactoryConfigurationError;
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
+import ddf.security.Subject;
+import ddf.security.assertion.SecurityAssertion;
+import ddf.security.common.audit.SecurityLogger;
+import ddf.security.encryption.EncryptionService;
+import ddf.security.service.SecurityManager;
+import ddf.security.service.SecurityServiceException;
+import ddf.security.sts.client.configuration.STSClientConfiguration;
 
 /**
  * Interceptor for anonymous access to SOAP endpoints.
@@ -106,6 +107,22 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
     //Token Assertions
     private static final String TOKEN_SAML20 = "http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0";
 
+    private static final ThreadLocal<DocumentBuilder> BUILDER = new ThreadLocal<DocumentBuilder>() {
+        @Override
+        protected DocumentBuilder initialValue() {
+            try {
+                DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                factory.setNamespaceAware(false);
+                return factory.newDocumentBuilder();
+            } catch (ParserConfigurationException ex) {
+                // This exception should not happen
+                throw new IllegalArgumentException("Unable to create new DocumentBuilder", ex);
+            }
+        }
+    };
+
+    private final Object lock = new Object();
+
     private EncryptionService encryptionService;
 
     private SecurityManager securityManager;
@@ -115,28 +132,13 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
     private ContextPolicyManager contextPolicyManager;
 
     private boolean anonymousAccessDenied = false;
+
     private boolean overrideEndpointPolicies = false;
-
-    private final Object lock = new Object();
-
-    private static final ThreadLocal<DocumentBuilder> BUILDER =
-            new ThreadLocal<DocumentBuilder>() {
-                @Override
-                protected DocumentBuilder initialValue() {
-                    try {
-                        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-                        factory.setNamespaceAware(false);
-                        return factory.newDocumentBuilder();
-                    } catch (ParserConfigurationException ex) {
-                        // This exception should not happen
-                        throw new IllegalArgumentException("Unable to create new DocumentBuilder", ex);
-                    }
-                }
-            };
 
     private Subject cachedAnonymousSubject;
 
-    public AnonymousInterceptor(SecurityManager securityManager, ContextPolicyManager contextPolicyManager) {
+    public AnonymousInterceptor(SecurityManager securityManager,
+            ContextPolicyManager contextPolicyManager) {
         super();
         this.securityManager = securityManager;
         this.contextPolicyManager = contextPolicyManager;
@@ -169,12 +171,14 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
 
             Element existingSecurityHeader = null;
             try {
-                existingSecurityHeader = WSSecurityUtil.getSecurityHeader(soapMessage.getSOAPPart(), actor);
+                existingSecurityHeader = WSSecurityUtil
+                        .getSecurityHeader(soapMessage.getSOAPPart(), actor);
             } catch (WSSecurityException e1) {
                 LOGGER.debug("Issue with getting security header", e1);
             }
             if (existingSecurityHeader == null) {
-                LOGGER.debug("Current request has no security header, continuing with AnonymousInterceptor");
+                LOGGER.debug(
+                        "Current request has no security header, continuing with AnonymousInterceptor");
 
                 AssertionInfoMap assertionInfoMap = message.get(AssertionInfoMap.class);
 
@@ -182,7 +186,8 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
                 if ((assertionInfoMap != null) || overrideEndpointPolicies) {
                     RequestData reqData = new CXFRequestData();
 
-                    WSSConfig config = (WSSConfig) message.getContextualProperty(WSSConfig.class.getName());
+                    WSSConfig config = (WSSConfig) message
+                            .getContextualProperty(WSSConfig.class.getName());
                     WSSecurityEngine engine = null;
                     if (config != null) {
                         engine = new WSSecurityEngine();
@@ -204,11 +209,11 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
                     if (soapFactory != null) {
                         //Create security header
                         try {
-                            securityHeader = soapFactory.createElement(WSConstants.WSSE_LN,
-                                                                       WSConstants.WSSE_PREFIX,
-                                                                       WSConstants.WSSE_NS);
+                            securityHeader = soapFactory
+                                    .createElement(WSConstants.WSSE_LN, WSConstants.WSSE_PREFIX,
+                                            WSConstants.WSSE_NS);
                             securityHeader.addAttribute(new QName(WSConstants.URI_SOAP11_ENV,
-                                                                  WSConstants.ATTR_MUST_UNDERSTAND), "1");
+                                    WSConstants.ATTR_MUST_UNDERSTAND), "1");
                         } catch (SOAPException e) {
                             LOGGER.error("Unable to create security header for anonymous user.", e);
                             return;  // can't create the security - just return
@@ -231,9 +236,13 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
                 if (effectivePolicy == null) {
                     if (policyEngine != null) {
                         if (MessageUtils.isRequestor(message)) {
-                            effectivePolicy = policyEngine.getEffectiveClientResponsePolicy(endpointInfo, bindingOperationInfo, message);
+                            effectivePolicy = policyEngine
+                                    .getEffectiveClientResponsePolicy(endpointInfo,
+                                            bindingOperationInfo, message);
                         } else {
-                            effectivePolicy = policyEngine.getEffectiveServerRequestPolicy(endpointInfo, bindingOperationInfo, message);
+                            effectivePolicy = policyEngine
+                                    .getEffectiveServerRequestPolicy(endpointInfo,
+                                            bindingOperationInfo, message);
                         }
                     }
                 }
@@ -261,16 +270,19 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
                     Policy policy = effectivePolicy.getPolicy();
                     if (policy != null) {
                         AssertionInfoMap infoMap = new AssertionInfoMap(policy);
-                        Set<Map.Entry<QName, Collection<AssertionInfo>>> entries = infoMap.entrySet();
+                        Set<Map.Entry<QName, Collection<AssertionInfo>>> entries = infoMap
+                                .entrySet();
                         for (Map.Entry<QName, Collection<AssertionInfo>> entry : entries) {
                             Collection<AssertionInfo> assetInfoList = entry.getValue();
                             for (AssertionInfo info : assetInfoList) {
-                                LOGGER.debug("Assertion Name: {}", info.getAssertion().getName().getLocalPart());
+                                LOGGER.debug("Assertion Name: {}",
+                                        info.getAssertion().getName().getLocalPart());
                                 QName qName = info.getAssertion().getName();
                                 StringWriter out = new StringWriter();
                                 XMLStreamWriter writer = null;
                                 try {
-                                    writer = XMLOutputFactory.newInstance().createXMLStreamWriter(out);
+                                    writer = XMLOutputFactory.newInstance()
+                                            .createXMLStreamWriter(out);
                                 } catch (XMLStreamException e) {
                                     LOGGER.debug("Error with XMLStreamWriter", e);
                                 } catch (FactoryConfigurationError e) {
@@ -321,7 +333,8 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
                                     tokenType = retrieveXmlValue(xml, xpath);
                                     supportingTokenAssertion = qName;
 
-                                } else if (qName.equals(org.apache.cxf.ws.addressing.policy.MetadataConstants.ADDRESSING_ASSERTION_QNAME)) {
+                                } else if (qName
+                                        .equals(org.apache.cxf.ws.addressing.policy.MetadataConstants.ADDRESSING_ASSERTION_QNAME)) {
                                     createAddressing(message, soapMessage, soapFactory);
 
                                 } else if (qName.equals(SP12Constants.TRUST_13)) {
@@ -339,25 +352,31 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
 
                         //Check security and token policies
                         if (tokenAssertion != null && tokenType != null &&
-                            tokenAssertion.trim().equals(SP12Constants.INCLUDE_ALWAYS_TO_RECIPIENT) &&
-                            tokenType.trim().equals(TOKEN_SAML20)) {
+                                tokenAssertion.trim()
+                                        .equals(SP12Constants.INCLUDE_ALWAYS_TO_RECIPIENT) &&
+                                tokenType.trim().equals(TOKEN_SAML20)) {
                             policyRequirementsSupported = true;
                         } else {
-                            LOGGER.warn("AnonymousInterceptor does not support the policies presented by the endpoint.");
+                            LOGGER.warn(
+                                    "AnonymousInterceptor does not support the policies presented by the endpoint.");
                         }
 
                     } else {
                         if (overrideEndpointPolicies) {
-                            LOGGER.debug("WS Policy is null, override is true - an anonymous assertion will be generated");
+                            LOGGER.debug(
+                                    "WS Policy is null, override is true - an anonymous assertion will be generated");
                         } else {
-                            LOGGER.warn("WS Policy is null, override flag is false - no anonymous assertion will be generated.");
+                            LOGGER.warn(
+                                    "WS Policy is null, override flag is false - no anonymous assertion will be generated.");
                         }
                     }
                 } else {
                     if (overrideEndpointPolicies) {
-                        LOGGER.debug("Effective WS Policy is null, override is true - an anonymous assertion will be generated");
+                        LOGGER.debug(
+                                "Effective WS Policy is null, override is true - an anonymous assertion will be generated");
                     } else {
-                        LOGGER.warn("Effective WS Policy is null, override flag is false - no anonymous assertion will be generated.");
+                        LOGGER.warn(
+                                "Effective WS Policy is null, override flag is false - no anonymous assertion will be generated.");
                     }
                 }
 
@@ -369,18 +388,21 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
                             // Add security header to SOAP message
                             soapMessage.getSOAPHeader().addChildElement(securityHeader);
                         } catch (SOAPException e) {
-                            LOGGER.error("Issue when adding security header to SOAP message:" + e.getMessage());
+                            LOGGER.error("Issue when adding security header to SOAP message:" + e
+                                    .getMessage());
                         }
                     } else {
                         LOGGER.debug("Security Header was null so not creating a SAML Assertion");
                     }
                 }
             } else {
-                LOGGER.debug("SOAP message contains security header, no action taken by the AnonymousInterceptor.");
+                LOGGER.debug(
+                        "SOAP message contains security header, no action taken by the AnonymousInterceptor.");
             }
             if (LOGGER.isTraceEnabled()) {
                 try {
-                    LOGGER.trace("SOAP request after anonymous interceptor: {}", SecurityLogger.getFormattedXml(soapMessage.getSOAPHeader().getParentNode()));
+                    LOGGER.trace("SOAP request after anonymous interceptor: {}", SecurityLogger
+                            .getFormattedXml(soapMessage.getSOAPHeader().getParentNode()));
                 } catch (SOAPException e) {
                     //ignore
                 }
@@ -390,7 +412,8 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
         }
     }
 
-    private void createSecurityToken(SoapVersion version, SOAPFactory soapFactory, SOAPElement securityHeader) {
+    private void createSecurityToken(SoapVersion version, SOAPFactory soapFactory,
+            SOAPElement securityHeader) {
         Subject subject = getSubject();
 
         if (subject != null) {
@@ -439,9 +462,9 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
 
     private boolean tokenAboutToExpire(Subject subject) {
         return subject == null || subject.getPrincipals() == null
-                || subject.getPrincipals().oneByType(SecurityAssertion.class) == null
-                || subject.getPrincipals().oneByType(SecurityAssertion.class)
-                .getSecurityToken().isAboutToExpire(TimeUnit.MINUTES.toSeconds(1));
+                || subject.getPrincipals().oneByType(SecurityAssertion.class) == null || subject
+                .getPrincipals().oneByType(SecurityAssertion.class).getSecurityToken()
+                .isAboutToExpire(TimeUnit.MINUTES.toSeconds(1));
     }
 
     private void createIncludeTimestamp(SOAPFactory soapFactory, SOAPElement securityHeader) {
@@ -467,19 +490,21 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
         }
     }
 
-    private void createAddressing(SoapMessage message, SOAPMessage soapMessage, SOAPFactory soapFactory) {
+    private void createAddressing(SoapMessage message, SOAPMessage soapMessage,
+            SOAPFactory soapFactory) {
 
         String addressingProperty = org.apache.cxf.ws.addressing.JAXWSAConstants.CLIENT_ADDRESSING_PROPERTIES_INBOUND;
         AddressingProperties addressingProperties = new AddressingProperties();
         SOAPElement action = null;
 
         try {
-            action = soapFactory
-                    .createElement(org.apache.cxf.ws.addressing.Names.WSA_ACTION_NAME, org.apache.cxf.ws.addressing.JAXWSAConstants.WSA_PREFIX,
-                            org.apache.cxf.ws.security.wss4j.DefaultCryptoCoverageChecker.WSA_NS);
+            action = soapFactory.createElement(org.apache.cxf.ws.addressing.Names.WSA_ACTION_NAME,
+                    org.apache.cxf.ws.addressing.JAXWSAConstants.WSA_PREFIX,
+                    org.apache.cxf.ws.security.wss4j.DefaultCryptoCoverageChecker.WSA_NS);
             action.addTextNode((String) message.get(org.apache.cxf.message.Message.REQUEST_URL));
             AttributedURIType attributedString = new AttributedURIType();
-            String actionValue = StringUtils.defaultIfEmpty((String) message.get(SoapBindingConstants.SOAP_ACTION), "");
+            String actionValue = StringUtils
+                    .defaultIfEmpty((String) message.get(SoapBindingConstants.SOAP_ACTION), "");
             attributedString.setValue(actionValue);
             addressingProperties.setAction(attributedString);
         } catch (SOAPException e) {
@@ -489,7 +514,8 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
         SOAPElement messageId = null;
         try {
             messageId = soapFactory
-                    .createElement(org.apache.cxf.ws.addressing.Names.WSA_MESSAGEID_NAME, org.apache.cxf.ws.addressing.JAXWSAConstants.WSA_PREFIX,
+                    .createElement(org.apache.cxf.ws.addressing.Names.WSA_MESSAGEID_NAME,
+                            org.apache.cxf.ws.addressing.JAXWSAConstants.WSA_PREFIX,
                             org.apache.cxf.ws.security.wss4j.DefaultCryptoCoverageChecker.WSA_NS);
             String uuid = "urn:uuid:" + UUID.randomUUID().toString();
             messageId.addTextNode(uuid);
@@ -502,12 +528,14 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
 
         SOAPElement to = null;
         try {
-            to = soapFactory.createElement(org.apache.cxf.ws.addressing.Names.WSA_TO_NAME, org.apache.cxf.ws.addressing.JAXWSAConstants.WSA_PREFIX,
+            to = soapFactory.createElement(org.apache.cxf.ws.addressing.Names.WSA_TO_NAME,
+                    org.apache.cxf.ws.addressing.JAXWSAConstants.WSA_PREFIX,
                     org.apache.cxf.ws.security.wss4j.DefaultCryptoCoverageChecker.WSA_NS);
             to.addTextNode((String) message.get(org.apache.cxf.message.Message.REQUEST_URL));
             EndpointReferenceType endpointReferenceType = new EndpointReferenceType();
             AttributedURIType attributedString = new AttributedURIType();
-            attributedString.setValue((String) message.get(org.apache.cxf.message.Message.REQUEST_URL));
+            attributedString
+                    .setValue((String) message.get(org.apache.cxf.message.Message.REQUEST_URL));
             endpointReferenceType.setAddress(attributedString);
             addressingProperties.setTo(endpointReferenceType);
         } catch (SOAPException e) {
@@ -516,11 +544,12 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
 
         SOAPElement replyTo = null;
         try {
-            replyTo = soapFactory
-                    .createElement(org.apache.cxf.ws.addressing.Names.WSA_REPLYTO_NAME, org.apache.cxf.ws.addressing.JAXWSAConstants.WSA_PREFIX,
-                            org.apache.cxf.ws.security.wss4j.DefaultCryptoCoverageChecker.WSA_NS);
+            replyTo = soapFactory.createElement(org.apache.cxf.ws.addressing.Names.WSA_REPLYTO_NAME,
+                    org.apache.cxf.ws.addressing.JAXWSAConstants.WSA_PREFIX,
+                    org.apache.cxf.ws.security.wss4j.DefaultCryptoCoverageChecker.WSA_NS);
             SOAPElement address = soapFactory
-                    .createElement(org.apache.cxf.ws.addressing.Names.WSA_ADDRESS_NAME, org.apache.cxf.ws.addressing.JAXWSAConstants.WSA_PREFIX,
+                    .createElement(org.apache.cxf.ws.addressing.Names.WSA_ADDRESS_NAME,
+                            org.apache.cxf.ws.addressing.JAXWSAConstants.WSA_PREFIX,
                             org.apache.cxf.ws.security.wss4j.DefaultCryptoCoverageChecker.WSA_NS);
             address.addTextNode(org.apache.cxf.ws.addressing.Names.WSA_ANONYMOUS_ADDRESS);
             replyTo.addChildElement(address);
@@ -623,16 +652,20 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
         this.contextPolicyManager = contextPolicyManager;
     }
 
-    public void setAnonymousAccessDenied(boolean deny) {
-        anonymousAccessDenied = deny;
-    }
-
     public boolean isAnonymousAccessDenied() {
         return anonymousAccessDenied;
     }
 
+    public void setAnonymousAccessDenied(boolean deny) {
+        anonymousAccessDenied = deny;
+    }
+
     public void setOverrideEndpointPolicies(boolean override) {
         overrideEndpointPolicies = override;
+    }
+
+    public void destroy() {
+        BUILDER.remove();
     }
 
     static class CXFRequestData extends RequestData {
@@ -653,7 +686,8 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
                 key = SecurityConstants.TIMESTAMP_TOKEN_VALIDATOR;
             } else if (WSSecurityEngine.BINARY_TOKEN.equals(qName)) {
                 key = SecurityConstants.BST_TOKEN_VALIDATOR;
-            } else if (WSSecurityEngine.SECURITY_CONTEXT_TOKEN_05_02.equals(qName) || WSSecurityEngine.SECURITY_CONTEXT_TOKEN_05_12.equals(qName)) {
+            } else if (WSSecurityEngine.SECURITY_CONTEXT_TOKEN_05_02.equals(qName)
+                    || WSSecurityEngine.SECURITY_CONTEXT_TOKEN_05_12.equals(qName)) {
                 key = SecurityConstants.SCT_TOKEN_VALIDATOR;
             }
             if (key != null) {
@@ -664,20 +698,18 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
                     } else if (o instanceof Class) {
                         return (Validator) ((Class<?>) o).newInstance();
                     } else if (o instanceof String) {
-                        return (Validator) ClassLoaderUtils.loadClass(o.toString(), WSS4JInInterceptor.class).newInstance();
+                        return (Validator) ClassLoaderUtils
+                                .loadClass(o.toString(), WSS4JInInterceptor.class).newInstance();
                     }
                 } catch (RuntimeException t) {
                     throw t;
                 } catch (Throwable t) {
-                    throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, t.getMessage(), t);
+                    throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE,
+                            t.getMessage(), t);
                 }
             }
             return super.getValidator(qName);
         }
-    }
-
-    public void destroy() {
-        BUILDER.remove();
     }
 
 }

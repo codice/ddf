@@ -13,7 +13,8 @@
  **/
 -->
 <Policy xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" PolicyId="xpath-target-single-req"
-  RuleCombiningAlgId="urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:permit-overrides" Version="1.0">
+        RuleCombiningAlgId="urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:permit-overrides"
+        Version="1.0">
   <PolicyDefaults>
     <XPathVersion>http://www.w3.org/TR/1999/REC-xpath-19991116</XPathVersion>
   </PolicyDefaults>
@@ -23,24 +24,28 @@
         <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">filter</AttributeValue>
           <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id"
-            Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action" DataType="http://www.w3.org/2001/XMLSchema#string"
-            MustBePresent="true" />
+                               Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action"
+                               DataType="http://www.w3.org/2001/XMLSchema#string"
+                               MustBePresent="true"/>
         </Match>
       </AllOf>
       <AllOf>
         <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">query</AttributeValue>
           <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id"
-            Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action" DataType="http://www.w3.org/2001/XMLSchema#string"
-            MustBePresent="true" />
+                               Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action"
+                               DataType="http://www.w3.org/2001/XMLSchema#string"
+                               MustBePresent="true"/>
         </Match>
       </AllOf>
       <AllOf>
         <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">LocalSiteName</AttributeValue>
+          <AttributeValue
+                  DataType="http://www.w3.org/2001/XMLSchema#string">LocalSiteName</AttributeValue>
           <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id"
-            Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action" DataType="http://www.w3.org/2001/XMLSchema#string"
-            MustBePresent="true" />
+                               Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action"
+                               DataType="http://www.w3.org/2001/XMLSchema#string"
+                               MustBePresent="true"/>
         </Match>
       </AllOf>
     </AnyOf>
@@ -50,10 +55,12 @@
       <AnyOf>
         <AllOf>
           <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">filter</AttributeValue>
+            <AttributeValue
+                    DataType="http://www.w3.org/2001/XMLSchema#string">filter</AttributeValue>
             <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id"
-              Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action" DataType="http://www.w3.org/2001/XMLSchema#string"
-              MustBePresent="true" />
+                                 Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action"
+                                 DataType="http://www.w3.org/2001/XMLSchema#string"
+                                 MustBePresent="true"/>
           </Match>
         </AllOf>
       </AnyOf>
@@ -61,11 +68,13 @@
     <Condition>
       <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-subset">
         <AttributeDesignator AttributeId="RESOURCE_ACCESS"
-          Category="urn:oasis:names:tc:xacml:3.0:attribute-category:resource" DataType="http://www.w3.org/2001/XMLSchema#string"
-          MustBePresent="true" />
+                             Category="urn:oasis:names:tc:xacml:3.0:attribute-category:resource"
+                             DataType="http://www.w3.org/2001/XMLSchema#string"
+                             MustBePresent="true"/>
         <AttributeDesignator AttributeId="SUBJECT_ACCESS"
-          Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject" DataType="http://www.w3.org/2001/XMLSchema#string"
-          MustBePresent="true" />
+                             Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject"
+                             DataType="http://www.w3.org/2001/XMLSchema#string"
+                             MustBePresent="true"/>
       </Apply>
     </Condition>
   </Rule>
@@ -76,26 +85,31 @@
           <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
             <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">ATA</AttributeValue>
             <AttributeDesignator AttributeId="http://www.opm.gov/feddata/CountryOfCitizenship"
-              Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject" DataType="http://www.w3.org/2001/XMLSchema#string"
-              MustBePresent="false" />
+                                 Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject"
+                                 DataType="http://www.w3.org/2001/XMLSchema#string"
+                                 MustBePresent="false"/>
           </Match>
           <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">query</AttributeValue>
+            <AttributeValue
+                    DataType="http://www.w3.org/2001/XMLSchema#string">query</AttributeValue>
             <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id"
-              Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action" DataType="http://www.w3.org/2001/XMLSchema#string"
-              MustBePresent="false" />
+                                 Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action"
+                                 DataType="http://www.w3.org/2001/XMLSchema#string"
+                                 MustBePresent="false"/>
           </Match>
         </AllOf>
         <AllOf>
           <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">LocalSiteName</AttributeValue>
+            <AttributeValue
+                    DataType="http://www.w3.org/2001/XMLSchema#string">LocalSiteName</AttributeValue>
             <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id"
-              Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action" DataType="http://www.w3.org/2001/XMLSchema#string"
-              MustBePresent="false" />
+                                 Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action"
+                                 DataType="http://www.w3.org/2001/XMLSchema#string"
+                                 MustBePresent="false"/>
           </Match>
         </AllOf>
       </AnyOf>
     </Target>
   </Rule>
-  <Rule Effect="Deny" RuleId="deny-read" />
+  <Rule Effect="Deny" RuleId="deny-read"/>
 </Policy>

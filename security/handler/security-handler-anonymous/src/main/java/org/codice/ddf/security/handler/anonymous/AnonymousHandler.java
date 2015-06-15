@@ -1,18 +1,26 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.security.handler.anonymous;
+
+import java.io.IOException;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.codice.ddf.security.handler.api.AnonymousAuthenticationToken;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
@@ -25,21 +33,12 @@ import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-
-
 /**
  * Handler that allows anonymous user access via a guest user account. The guest/guest account
  * must be present in the user store for this handler to work correctly.
  */
 public class AnonymousHandler implements AuthenticationHandler {
-    public static final Logger logger = LoggerFactory.getLogger(AnonymousHandler.class.getName());
+    public static final Logger LOGGER = LoggerFactory.getLogger(AnonymousHandler.class.getName());
 
     /**
      * Anonymous type to use when configuring context policy.
@@ -67,7 +66,8 @@ public class AnonymousHandler implements AuthenticationHandler {
      * @return HandlerResult
      */
     @Override
-    public HandlerResult getNormalizedToken(ServletRequest request, ServletResponse response, FilterChain chain, boolean resolve) {
+    public HandlerResult getNormalizedToken(ServletRequest request, ServletResponse response,
+            FilterChain chain, boolean resolve) {
         HandlerResult result = new HandlerResult();
 
         String realm = (String) request.getAttribute(ContextPolicy.ACTIVE_REALM);
@@ -87,12 +87,14 @@ public class AnonymousHandler implements AuthenticationHandler {
      * @param request http request to obtain attributes from and to pass into any local filter chains required
      * @return BSTAuthenticationToken
      */
-    private BaseAuthenticationToken getAuthToken(HttpServletRequest request, HttpServletResponse response, FilterChain chain) {
+    private BaseAuthenticationToken getAuthToken(HttpServletRequest request,
+            HttpServletResponse response, FilterChain chain) {
         //check for basic auth first
         String realm = (String) request.getAttribute(ContextPolicy.ACTIVE_REALM);
         BasicAuthenticationHandler basicAuthenticationHandler = new BasicAuthenticationHandler();
-        HandlerResult handlerResult = basicAuthenticationHandler.getNormalizedToken(request, response, chain, false);
-        if(handlerResult.getStatus().equals(HandlerResult.Status.COMPLETED)) {
+        HandlerResult handlerResult = basicAuthenticationHandler
+                .getNormalizedToken(request, response, chain, false);
+        if (handlerResult.getStatus().equals(HandlerResult.Status.COMPLETED)) {
             return handlerResult.getToken();
         }
         //if basic fails, check for PKI
@@ -100,11 +102,11 @@ public class AnonymousHandler implements AuthenticationHandler {
         pkiHandler.setTokenFactory(tokenFactory);
         try {
             handlerResult = pkiHandler.getNormalizedToken(request, response, chain, false);
-            if(handlerResult.getStatus().equals(HandlerResult.Status.COMPLETED)) {
+            if (handlerResult.getStatus().equals(HandlerResult.Status.COMPLETED)) {
                 return handlerResult.getToken();
             }
         } catch (ServletException e) {
-            logger.warn("Encountered an exception while checking for PKI auth info.", e);
+            LOGGER.warn("Encountered an exception while checking for PKI auth info.", e);
         }
 
         //if everything fails, the user is anonymous, log in as such
@@ -113,7 +115,8 @@ public class AnonymousHandler implements AuthenticationHandler {
     }
 
     @Override
-    public HandlerResult handleError(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) throws ServletException {
+    public HandlerResult handleError(ServletRequest servletRequest, ServletResponse servletResponse,
+            FilterChain chain) throws ServletException {
         HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
         String realm = (String) servletRequest.getAttribute(ContextPolicy.ACTIVE_REALM);
         httpResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -121,12 +124,12 @@ public class AnonymousHandler implements AuthenticationHandler {
             httpResponse.getWriter().write(INVALID_MESSAGE);
             httpResponse.flushBuffer();
         } catch (IOException e) {
-            logger.debug("Failed to send auth response: {}", e);
+            LOGGER.debug("Failed to send auth response: {}", e);
         }
 
         HandlerResult result = new HandlerResult();
         result.setSource(realm + "-AnonymousHandler");
-        logger.debug("In error handler for anonymous - returning action completed.");
+        LOGGER.debug("In error handler for anonymous - returning action completed.");
         result.setStatus(HandlerResult.Status.REDIRECTED);
         return result;
     }

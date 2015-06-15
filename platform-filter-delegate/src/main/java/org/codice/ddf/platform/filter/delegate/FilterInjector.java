@@ -1,18 +1,25 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package org.codice.ddf.platform.filter.delegate;
+
+import java.lang.reflect.Field;
+import java.util.EnumSet;
+
+import javax.servlet.DispatcherType;
+import javax.servlet.Filter;
+import javax.servlet.FilterRegistration;
+import javax.servlet.ServletContext;
 
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHandler;
@@ -22,17 +29,10 @@ import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.DispatcherType;
-import javax.servlet.Filter;
-import javax.servlet.FilterRegistration;
-import javax.servlet.ServletContext;
-import java.lang.reflect.Field;
-import java.util.EnumSet;
-
 /**
  * Injects the delegating filter into the servletcontext as it is being created.
  * This guarantees that all servlets will have the delegating filter added.
- * 
+ *
  */
 public class FilterInjector {
 
@@ -46,7 +46,7 @@ public class FilterInjector {
 
     /**
      * Creates a new filter injector with the specified filter.
-     * 
+     *
      * @param filter
      *            filter that should be injected.
      */
@@ -57,7 +57,7 @@ public class FilterInjector {
     /**
      * Injects the filter into the passed-in servlet context. This only works if
      * the servlet has not already been initialized.
-     * 
+     *
      * @param serviceReference
      *            Reference to the servlet context that the filter should be
      *            injected into.
@@ -79,7 +79,9 @@ public class FilterInjector {
             field = context.getClass().getDeclaredField("this$0");
             field.setAccessible(true);
         } catch (NoSuchFieldException e) {
-            LOGGER.warn("Unable to find enclosing class of ServletContext for delegating filter. Security may not work correctly", e);
+            LOGGER.warn(
+                    "Unable to find enclosing class of ServletContext for delegating filter. Security may not work correctly",
+                    e);
         }
         Field matchAfterField = null;
         Object matchAfterValue = null;
@@ -90,7 +92,9 @@ public class FilterInjector {
             try {
                 httpServiceContext = (ServletContextHandler) field.get(context);
             } catch (IllegalAccessException e) {
-                LOGGER.warn("Unable to get the ServletContextHandler for {}. The delegating filter may not work properly.", refBundle.getSymbolicName(), e);
+                LOGGER.warn(
+                        "Unable to get the ServletContextHandler for {}. The delegating filter may not work properly.",
+                        refBundle.getSymbolicName(), e);
             }
 
             if (httpServiceContext != null) {
@@ -99,10 +103,13 @@ public class FilterInjector {
 
                 if (handler != null) {
                     try {
-                        matchAfterField = handler.getClass().getSuperclass().getDeclaredField("_matchAfterIndex");
+                        matchAfterField = handler.getClass().getSuperclass()
+                                .getDeclaredField("_matchAfterIndex");
                         matchAfterField.setAccessible(true);
                     } catch (NoSuchFieldException e) {
-                        LOGGER.warn("Unable to find the matchAfterIndex value for the ServletHandler. The delegating filter may not work properly.", e);
+                        LOGGER.warn(
+                                "Unable to find the matchAfterIndex value for the ServletHandler. The delegating filter may not work properly.",
+                                e);
                     }
 
                     if (matchAfterField != null) {
@@ -112,7 +119,9 @@ public class FilterInjector {
                             //after we add our delegating filter to the mix
                             matchAfterValue = matchAfterField.get(handler);
                         } catch (IllegalAccessException e) {
-                            LOGGER.warn("Unable to get the value of the match after field. The delegating filter may not work properly.", e);
+                            LOGGER.warn(
+                                    "Unable to get the value of the match after field. The delegating filter may not work properly.",
+                                    e);
                         }
                     }
                 }
@@ -122,8 +131,8 @@ public class FilterInjector {
         try {
             //This causes the value of "_matchAfterIndex" to jump to 0 which means all web.xml filters will be added in front of it
             //this isn't what we want, so we need to reset it back to what it was before
-            FilterRegistration filterReg = context.addFilter(DELEGATING_FILTER,
-                    delegatingServletFilter);
+            FilterRegistration filterReg = context
+                    .addFilter(DELEGATING_FILTER, delegatingServletFilter);
 
             if (filterReg == null) {
                 filterReg = context.getFilterRegistration(DELEGATING_FILTER);
@@ -140,10 +149,13 @@ public class FilterInjector {
                 //this was a filter added via web.xml
                 matchAfterField.set(handler, matchAfterValue);
             } catch (IllegalAccessException e) {
-                LOGGER.warn("Unable to set the match after field back to the original value. The delegating filter might be out of order", e);
+                LOGGER.warn(
+                        "Unable to set the match after field back to the original value. The delegating filter might be out of order",
+                        e);
             }
         } else {
-            LOGGER.warn("Unable to set the match after field back to the original value. The delegating filter might be out of order.");
+            LOGGER.warn(
+                    "Unable to set the match after field back to the original value. The delegating filter might be out of order.");
         }
     }
 

@@ -1,18 +1,30 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.platform.filter.delegate;
+
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedList;
+
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -22,18 +34,6 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedList;
 
 /**
  * {@link DelegateServletFilter} is meant to detect any ServletFilters
@@ -77,7 +77,8 @@ public class DelegateServletFilter implements Filter {
 
             ProxyFilterChain chain = new ProxyFilterChain(filterChain);
 
-            LinkedList<ServiceReference<Filter>> sortedFilters = new LinkedList<ServiceReference<Filter>>(referenceCollection);
+            LinkedList<ServiceReference<Filter>> sortedFilters = new LinkedList<ServiceReference<Filter>>(
+                    referenceCollection);
             // natural ordering of service references is to sort by service ranking
             Collections.sort(sortedFilters);
 
@@ -89,7 +90,8 @@ public class DelegateServletFilter implements Filter {
                 Filter curFilter = context.getService(curService);
                 curFilter.init(filterConfig);
                 if (!curFilter.getClass().toString().equals(this.getClass().toString())) {
-                    LOGGER.debug("Adding filter that has a service ranking of {}", curService.getProperty(Constants.SERVICE_RANKING));
+                    LOGGER.debug("Adding filter that has a service ranking of {}",
+                            curService.getProperty(Constants.SERVICE_RANKING));
                     chain.addFilter(curFilter);
                 }
                 iterator.remove();

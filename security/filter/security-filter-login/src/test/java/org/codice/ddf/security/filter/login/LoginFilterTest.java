@@ -1,29 +1,32 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.security.filter.login;
 
-import ddf.security.service.SecurityManager;
-import ddf.security.service.SecurityServiceException;
-import org.apache.cxf.helpers.DOMUtils;
-import org.apache.cxf.ws.security.tokenstore.SecurityToken;
-import org.codice.ddf.security.handler.api.HandlerResult;
-import org.codice.ddf.security.handler.api.SAMLAuthenticationToken;
-import org.junit.Test;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.security.Principal;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -40,22 +43,40 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.security.Principal;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
 
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
+import org.apache.cxf.helpers.DOMUtils;
+import org.apache.cxf.ws.security.tokenstore.SecurityToken;
+import org.codice.ddf.security.handler.api.HandlerResult;
+import org.codice.ddf.security.handler.api.SAMLAuthenticationToken;
+import org.junit.Test;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
+
+import ddf.security.service.SecurityManager;
+import ddf.security.service.SecurityServiceException;
 
 public class LoginFilterTest {
+
+    public static Document readXml(InputStream is)
+            throws SAXException, IOException, ParserConfigurationException {
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+
+        dbf.setValidating(false);
+        dbf.setIgnoringComments(false);
+        dbf.setIgnoringElementContentWhitespace(true);
+        dbf.setNamespaceAware(true);
+        // dbf.setCoalescing(true);
+        // dbf.setExpandEntityReferences(true);
+
+        DocumentBuilder db = null;
+        db = dbf.newDocumentBuilder();
+        db.setEntityResolver(new DOMUtils.NullResolver());
+
+        // db.setErrorHandler( new MyErrorHandler());
+
+        return db.parse(is);
+    }
 
     @Test
     public void testNoSubject() {
@@ -72,7 +93,7 @@ public class LoginFilterTest {
         FilterChain filterChain = new FilterChain() {
             @Override
             public void doFilter(ServletRequest request, ServletResponse response)
-              throws IOException, ServletException {
+                    throws IOException, ServletException {
                 fail("Should not have called doFilter without a valid Subject");
             }
         };
@@ -107,7 +128,7 @@ public class LoginFilterTest {
         FilterChain filterChain = new FilterChain() {
             @Override
             public void doFilter(ServletRequest request, ServletResponse response)
-              throws IOException, ServletException {
+                    throws IOException, ServletException {
                 fail("Should not have continued down the filter chain without a valid Subject");
             }
         };
@@ -133,10 +154,12 @@ public class LoginFilterTest {
 
     @Test(expected = ServletException.class)
     public void testExpiredSamlCookie()
-            throws IOException, XMLStreamException, ServletException, ParserConfigurationException, SAXException, SecurityServiceException {
+            throws IOException, XMLStreamException, ServletException, ParserConfigurationException,
+            SAXException, SecurityServiceException {
         FilterConfig filterConfig = mock(FilterConfig.class);
         LoginFilter loginFilter = new LoginFilter();
-        ddf.security.service.SecurityManager securityManager = mock(ddf.security.service.SecurityManager.class);
+        ddf.security.service.SecurityManager securityManager = mock(
+                ddf.security.service.SecurityManager.class);
         loginFilter.setSecurityManager(securityManager);
         loginFilter.setSignaturePropertiesFile("signature.properties");
         try {
@@ -161,7 +184,8 @@ public class LoginFilterTest {
 
     @Test(expected = ServletException.class)
     public void testBadSigSamlCookie()
-            throws IOException, XMLStreamException, ServletException, ParserConfigurationException, SAXException, SecurityServiceException {
+            throws IOException, XMLStreamException, ServletException, ParserConfigurationException,
+            SAXException, SecurityServiceException {
         FilterConfig filterConfig = mock(FilterConfig.class);
         LoginFilter loginFilter = new LoginFilter();
         ddf.security.service.SecurityManager securityManager = mock(SecurityManager.class);
@@ -187,28 +211,10 @@ public class LoginFilterTest {
         loginFilter.doFilter(servletRequest, servletResponse, filterChain);
     }
 
-    private Document readDocument(String name) throws SAXException, IOException, ParserConfigurationException {
+    private Document readDocument(String name)
+            throws SAXException, IOException, ParserConfigurationException {
         InputStream inStream = getClass().getResourceAsStream(name);
         return readXml(inStream);
-    }
-
-    public static Document readXml(InputStream is) throws SAXException, IOException, ParserConfigurationException {
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-
-        dbf.setValidating(false);
-        dbf.setIgnoringComments(false);
-        dbf.setIgnoringElementContentWhitespace(true);
-        dbf.setNamespaceAware(true);
-        // dbf.setCoalescing(true);
-        // dbf.setExpandEntityReferences(true);
-
-        DocumentBuilder db = null;
-        db = dbf.newDocumentBuilder();
-        db.setEntityResolver(new DOMUtils.NullResolver());
-
-        // db.setErrorHandler( new MyErrorHandler());
-
-        return db.parse(is);
     }
 
     private class TestHttpServletRequest implements HttpServletRequest {

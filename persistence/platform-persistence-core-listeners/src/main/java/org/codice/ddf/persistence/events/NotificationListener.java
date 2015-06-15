@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package org.codice.ddf.persistence.events;
 
 import org.apache.commons.lang.StringUtils;
@@ -27,14 +26,13 @@ import org.slf4j.LoggerFactory;
 public class NotificationListener implements EventHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NotificationListener.class);
-    
+
     private PersistentStore persistentStore;
-    
-    
+
     public NotificationListener(PersistentStore persistentStore) {
         this.persistentStore = persistentStore;
     }
-    
+
     @Override
     public void handleEvent(Event event) throws IllegalArgumentException {
         LOGGER.debug("Received notification on topic {}", event.getTopic());
@@ -47,22 +45,22 @@ public class NotificationListener implements EventHandler {
         String userId = (String) event.getProperty(Notification.NOTIFICATION_KEY_USER_ID);
 
         if (StringUtils.isEmpty(userId)) {
-            throw new IllegalArgumentException("Event \"" + Notification.NOTIFICATION_KEY_USER_ID
-                    + "\" property is blank");
+            throw new IllegalArgumentException(
+                    "Event \"" + Notification.NOTIFICATION_KEY_USER_ID + "\" property is blank");
         }
-        
+
         //TODO: Do we need to get extra properties out of event for Notification, i.e., STATUS and BYTES?
         PersistentItem item = new PersistentItem();
         item.addIdProperty(id);
         item.addProperty(Notification.NOTIFICATION_KEY_USER_ID, userId);
         item.addProperty(Notification.NOTIFICATION_KEY_TIMESTAMP, timestamp);
         item.addProperty(Notification.NOTIFICATION_KEY_APPLICATION, application);
-        item.addProperty(Notification.NOTIFICATION_KEY_TITLE,  title);
+        item.addProperty(Notification.NOTIFICATION_KEY_TITLE, title);
         item.addProperty(Notification.NOTIFICATION_KEY_MESSAGE, message);
         try {
             persistentStore.add(PersistentStore.NOTIFICATION_TYPE, item);
         } catch (PersistenceException e) {
-            
+
         }
     }
 }

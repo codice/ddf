@@ -1,22 +1,25 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.security.cas;
 
-import ddf.security.common.audit.SecurityLogger;
-import ddf.security.common.util.CommonSSLFactory;
-import ddf.security.encryption.EncryptionService;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.Map;
+
+import javax.net.ssl.HttpsURLConnection;
+import javax.security.auth.callback.CallbackHandler;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.sts.STSPropertiesMBean;
 import org.apache.cxf.sts.request.ReceivedToken;
@@ -39,15 +42,13 @@ import org.opensaml.xml.util.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.net.ssl.HttpsURLConnection;
-import javax.security.auth.callback.CallbackHandler;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.Map;
+import ddf.security.common.audit.SecurityLogger;
+import ddf.security.common.util.CommonSSLFactory;
+import ddf.security.encryption.EncryptionService;
 
 /**
  * Validates Web Single Sign-On Tokens.
- * 
+ *
  * @author kcwire
  */
 public class WebSSOTokenValidator implements TokenValidator, ConfigurationWatcher {
@@ -56,6 +57,8 @@ public class WebSSOTokenValidator implements TokenValidator, ConfigurationWatche
     public static final String CAS_TYPE = "#CAS";
 
     public static final String CAS_BST_SEP = "|";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(WebSSOTokenValidator.class);
 
     private String casServerUrl;
 
@@ -66,8 +69,6 @@ public class WebSSOTokenValidator implements TokenValidator, ConfigurationWatche
     private String keyStorePath;
 
     private String keyStorePassword;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(WebSSOTokenValidator.class);
 
     private EncryptionService encryptionService;
 
@@ -102,12 +103,12 @@ public class WebSSOTokenValidator implements TokenValidator, ConfigurationWatche
         // Check the ValueType to see if this is a supported SSO Token.
         if ((token instanceof BinarySecurityTokenType)) {
             if (CAS_TYPE.equalsIgnoreCase(((BinarySecurityTokenType) token).getValueType())) {
-                LOGGER.debug("Can handle token type of: "
-                        + ((BinarySecurityTokenType) token).getValueType());
+                LOGGER.debug("Can handle token type of: " + ((BinarySecurityTokenType) token)
+                        .getValueType());
                 return true;
             }
-            LOGGER.debug("Cannot handle token type of: "
-                    + ((BinarySecurityTokenType) token).getValueType());
+            LOGGER.debug("Cannot handle token type of: " + ((BinarySecurityTokenType) token)
+                    .getValueType());
         }
         return false;
     }
@@ -135,7 +136,8 @@ public class WebSSOTokenValidator implements TokenValidator, ConfigurationWatche
         response.setToken(validateTarget);
 
         if (!validateTarget.isBinarySecurityToken()) {
-            LOGGER.debug("Validate target is not a binary security token, returning invalid response.");
+            LOGGER.debug(
+                    "Validate target is not a binary security token, returning invalid response.");
             return response;
         }
         LOGGER.debug("Getting binary security token from validate target");
@@ -159,7 +161,8 @@ public class WebSSOTokenValidator implements TokenValidator, ConfigurationWatche
                     ticket = parts[0];
                     service = parts[1];
                 } else {
-                    throw new WSSecurityException(WSSecurityException.ErrorCode.INVALID_SECURITY_TOKEN,
+                    throw new WSSecurityException(
+                            WSSecurityException.ErrorCode.INVALID_SECURITY_TOKEN,
                             "Was not able to parse out BST propertly. Should be in ticket|service format.");
                 }
             } else {
@@ -178,8 +181,8 @@ public class WebSSOTokenValidator implements TokenValidator, ConfigurationWatche
         //
         try {
             LOGGER.debug("Validating ticket [{}] for service [{}].", ticket, service);
-            SecurityLogger.logInfo("Validating ticket [" + ticket + "] for service [" + service
-                    + "].");
+            SecurityLogger
+                    .logInfo("Validating ticket [" + ticket + "] for service [" + service + "].");
 
             // validate either returns an assertion or throws an exception
             Assertion assertion = validate(ticket, service);
@@ -203,7 +206,7 @@ public class WebSSOTokenValidator implements TokenValidator, ConfigurationWatche
 
     /**
      * Updates SSL settings from the DDF ConfigurationManager
-     * 
+     *
      * @param properties
      */
     @Override
@@ -214,13 +217,13 @@ public class WebSSOTokenValidator implements TokenValidator, ConfigurationWatche
             this.trustStorePath = setTrustStorePath;
         }
 
-        String setTrustStorePassword = properties
-                .get(ConfigurationManager.TRUST_STORE_PASSWORD);
+        String setTrustStorePassword = properties.get(ConfigurationManager.TRUST_STORE_PASSWORD);
         if (StringUtils.isNotBlank(setTrustStorePassword)) {
             this.trustStorePassword = setTrustStorePassword;
             if (encryptionService == null) {
-                LOGGER.error("The WebSSOTokenValidator has a null Encryption Service. Unable to decrypt "
-                        + "the encrypted trustStore password. Setting decrypted password to null.");
+                LOGGER.error(
+                        "The WebSSOTokenValidator has a null Encryption Service. Unable to decrypt "
+                                + "the encrypted trustStore password. Setting decrypted password to null.");
                 this.trustStorePassword = null;
             } else {
                 setTrustStorePassword = encryptionService.decryptValue(setTrustStorePassword);
@@ -235,13 +238,13 @@ public class WebSSOTokenValidator implements TokenValidator, ConfigurationWatche
             this.keyStorePath = setKeyStorePath;
         }
 
-        String setKeyStorePassword = properties
-                .get(ConfigurationManager.KEY_STORE_PASSWORD);
+        String setKeyStorePassword = properties.get(ConfigurationManager.KEY_STORE_PASSWORD);
         if (StringUtils.isNotBlank(setKeyStorePassword)) {
             this.keyStorePassword = setKeyStorePassword;
             if (encryptionService == null) {
-                LOGGER.error("The WebSSOTokenValidator has a null Encryption Service. Unable to decrypt "
-                        + "the encrypted keyStore password. Setting decrypted password to null.");
+                LOGGER.error(
+                        "The WebSSOTokenValidator has a null Encryption Service. Unable to decrypt "
+                                + "the encrypted keyStore password. Setting decrypted password to null.");
                 this.keyStorePassword = null;
             } else {
                 setKeyStorePassword = encryptionService.decryptValue(setKeyStorePassword);
@@ -253,7 +256,7 @@ public class WebSSOTokenValidator implements TokenValidator, ConfigurationWatche
 
     /**
      * Validate the CAS ticket and service
-     * 
+     *
      * @param ticket
      * @param service
      * @return
@@ -262,8 +265,9 @@ public class WebSSOTokenValidator implements TokenValidator, ConfigurationWatche
     public Assertion validate(String ticket, String service) throws TicketValidationException {
         LOGGER.trace("CAS Server URL = " + casServerUrl);
         try {
-            HttpsURLConnection.setDefaultSSLSocketFactory(CommonSSLFactory.createSocket(
-                    trustStorePath, trustStorePassword, keyStorePath, keyStorePassword));
+            HttpsURLConnection.setDefaultSSLSocketFactory(CommonSSLFactory
+                    .createSocket(trustStorePath, trustStorePassword, keyStorePath,
+                            keyStorePassword));
         } catch (IOException ioe) {
             throw new TicketValidationException("Could not set up connection to CAS Server.", ioe);
         }

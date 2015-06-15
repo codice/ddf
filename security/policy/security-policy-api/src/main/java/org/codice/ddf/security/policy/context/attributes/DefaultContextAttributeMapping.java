@@ -1,29 +1,29 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.security.policy.context.attributes;
-
-import ddf.security.common.audit.SecurityLogger;
-import ddf.security.permission.CollectionPermission;
-import ddf.security.permission.KeyValuePermission;
-import ddf.security.permission.MatchOneCollectionPermission;
-import org.apache.shiro.authz.Permission;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+
+import org.apache.shiro.authz.Permission;
+
+import ddf.security.common.audit.SecurityLogger;
+import ddf.security.permission.CollectionPermission;
+import ddf.security.permission.KeyValuePermission;
+import ddf.security.permission.MatchOneCollectionPermission;
 
 /**
  * Default implementation of ContextAttributeMapping
@@ -64,7 +64,8 @@ public class DefaultContextAttributeMapping implements ContextAttributeMapping {
     @Override
     public CollectionPermission getAttributePermission() {
         if (accessPermissionCollection == null) {
-            accessPermissionCollection = new AccessPermissionCollection(new ArrayList<Permission>());
+            accessPermissionCollection = new AccessPermissionCollection(
+                    new ArrayList<Permission>());
             accessPermissionCollection.addAll(getKeyValuePermissions());
         }
         return accessPermissionCollection;
@@ -108,8 +109,9 @@ public class DefaultContextAttributeMapping implements ContextAttributeMapping {
         @Override
         public boolean implies(Permission p) {
             if (permissionList.isEmpty()) {
-                SecurityLogger.logDebug(PERMISSION_START_MSG + toString() + PERMISSION_NOT_IMPLIES_MSG
-                  + p.toString() + PERMISSION_END_MSG);
+                SecurityLogger.logDebug(
+                        PERMISSION_START_MSG + toString() + PERMISSION_NOT_IMPLIES_MSG + p
+                                .toString() + PERMISSION_END_MSG);
                 return false;
             }
 
@@ -130,18 +132,17 @@ public class DefaultContextAttributeMapping implements ContextAttributeMapping {
                                 // create new
                                 // single valued key value permissions
                                 KeyValuePermission kvp = new KeyValuePermission(
-                                  ((KeyValuePermission) ourPerm).getKey());
+                                        ((KeyValuePermission) ourPerm).getKey());
                                 kvp.addValue(value);
                                 if (perm.implies(kvp)) {
                                     return true;
                                 }
                             }
-                        }
                         // Currently we use key value permissions for everything. However, we still need
                         // to be able to handle
                         // permissions other than KV, so this else block will serve as the catch all for
                         // everything else.
-                        else {
+                        } else {
                             // Shiro permissions are always a "match all" condition so we need to flip
                             // the implies to make it match one
                             if (perm.implies(ourPerm)) {
@@ -157,13 +158,15 @@ public class DefaultContextAttributeMapping implements ContextAttributeMapping {
                 // Shiro permissions are always a "match all" condition so we need to flip the implies
                 // to make it match one
                 if (p.implies(permission)) {
-                    SecurityLogger.logDebug(PERMISSION_START_MSG + toString() + PERMISSION_IMPLIES_MSG
-                      + p.toString() + PERMISSION_END_MSG);
+                    SecurityLogger.logDebug(
+                            PERMISSION_START_MSG + toString() + PERMISSION_IMPLIES_MSG + p
+                                    .toString() + PERMISSION_END_MSG);
                     return true;
                 }
             }
-            SecurityLogger.logDebug(PERMISSION_START_MSG + toString() + PERMISSION_NOT_IMPLIES_MSG
-              + p.toString() + PERMISSION_END_MSG);
+            SecurityLogger.logDebug(
+                    PERMISSION_START_MSG + toString() + PERMISSION_NOT_IMPLIES_MSG + p.toString()
+                            + PERMISSION_END_MSG);
             return false;
         }
     }

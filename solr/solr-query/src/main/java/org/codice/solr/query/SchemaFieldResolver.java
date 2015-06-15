@@ -1,18 +1,21 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package org.codice.solr.query;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServer;
@@ -23,17 +26,7 @@ import org.apache.solr.client.solrj.response.LukeResponse.FieldInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
 public class SchemaFieldResolver {
-    
-    private static final Logger LOGGER = LoggerFactory.getLogger(SchemaFieldResolver.class);
-
-    private static final Map<String, AttributeFormat> SUFFIX_TO_FORMAT_MAP = new HashMap<String, AttributeFormat>();
-
-    private static final Map<AttributeFormat, String> FORMAT_TO_SUFFIX_MAP = new HashMap<AttributeFormat, String>();
 
     public static final String OBJECT_SUFFIX = "_obj";
 
@@ -58,12 +51,10 @@ public class SchemaFieldResolver {
     public static final String DATE_SUFFIX = "_tdt";
 
     public static final String BINARY_SUFFIX = "_bin";
-    
-    public static final String[] FORMAT_SUFFIXES = new String[] {
-        OBJECT_SUFFIX, LONG_SUFFIX, INTEGER_SUFFIX, SHORT_SUFFIX, FLOAT_SUFFIX,
-        DOUBLE_SUFFIX, BOOLEAN_SUFFIX, GEO_SUFFIX, TEXT_SUFFIX, XML_SUFFIX,
-        DATE_SUFFIX, BINARY_SUFFIX
-    };
+
+    public static final String[] FORMAT_SUFFIXES = new String[] {OBJECT_SUFFIX, LONG_SUFFIX,
+            INTEGER_SUFFIX, SHORT_SUFFIX, FLOAT_SUFFIX, DOUBLE_SUFFIX, BOOLEAN_SUFFIX, GEO_SUFFIX,
+            TEXT_SUFFIX, XML_SUFFIX, DATE_SUFFIX, BINARY_SUFFIX};
 
     public static final String TOKENIZED = "_tokenized";
 
@@ -76,6 +67,12 @@ public class SchemaFieldResolver {
     public static final String METACARD_TYPE_FIELD_NAME = "metacard_type_name" + TEXT_SUFFIX;
 
     public static final String METACARD_TYPE_OBJECT_FIELD_NAME = "metacard_type" + OBJECT_SUFFIX;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SchemaFieldResolver.class);
+
+    private static final Map<String, AttributeFormat> SUFFIX_TO_FORMAT_MAP = new HashMap<String, AttributeFormat>();
+
+    private static final Map<AttributeFormat, String> FORMAT_TO_SUFFIX_MAP = new HashMap<AttributeFormat, String>();
 
     static {
         SUFFIX_TO_FORMAT_MAP.put(GEO_SUFFIX, AttributeFormat.GEOMETRY);
@@ -104,8 +101,12 @@ public class SchemaFieldResolver {
         FORMAT_TO_SUFFIX_MAP.put(AttributeFormat.SHORT, SHORT_SUFFIX);
         FORMAT_TO_SUFFIX_MAP.put(AttributeFormat.OBJECT, OBJECT_SUFFIX);
     }
-    
+
     private SolrServer solrServer;
+
+    public SchemaFieldResolver(SolrServer solrServer) {
+        this.solrServer = solrServer;
+    }
 
     public AttributeFormat getFormat(String suffix) {
         return SUFFIX_TO_FORMAT_MAP.get(suffix);
@@ -115,14 +116,10 @@ public class SchemaFieldResolver {
 
         return FORMAT_TO_SUFFIX_MAP.get(attributeFormat);
     }
-    
-    public SchemaFieldResolver(SolrServer solrServer) {
-        this.solrServer = solrServer;
-    }
 
     public SchemaField getSchemaField(String propertyName, boolean isSearchedAsExactValue) {
         SchemaField schemaField = null;
-        LukeRequest luke = new LukeRequest();        
+        LukeRequest luke = new LukeRequest();
         LukeResponse rsp;
         try {
             rsp = luke.process(solrServer);
@@ -131,11 +128,12 @@ public class SchemaFieldResolver {
                 LOGGER.info("got fieldsInfo for {} fields", fieldsInfo.size());
 
                 for (Map.Entry<String, FieldInfo> entry : fieldsInfo.entrySet()) {
-                    
+
                     // See if any fieldName startsWith(propertyName)
                     // if it does, then see if remainder of fieldName matches any expected suffix
                     // if suffix matches, then get type of field and cache it
-                    if (entry.getKey().startsWith(propertyName) && StringUtils.endsWithAny(entry.getKey(), FORMAT_SUFFIXES)) {
+                    if (entry.getKey().startsWith(propertyName) && StringUtils
+                            .endsWithAny(entry.getKey(), FORMAT_SUFFIXES)) {
                         String fieldType = entry.getValue().getType();
                         int index = StringUtils.lastIndexOfAny(entry.getKey(), FORMAT_SUFFIXES);
                         String suffix = entry.getKey().substring(index);
@@ -158,12 +156,12 @@ public class SchemaFieldResolver {
         } catch (IOException e) {
             LOGGER.info("IOException while processing LukeRequest", e);
         }
-        
+
         LOGGER.info("Did not find SchemaField for property {}", propertyName);
-        
+
         return schemaField;
     }
-       
+
     private String getSpecialIndexSuffix(String suffix) {
 
         if (suffix.equalsIgnoreCase(TEXT_SUFFIX)) {
@@ -173,7 +171,7 @@ public class SchemaFieldResolver {
         } else if (suffix.equalsIgnoreCase(XML_SUFFIX)) {
             return SchemaFieldResolver.TEXT_PATH;
         }
-        
+
         return "";
     }
 }

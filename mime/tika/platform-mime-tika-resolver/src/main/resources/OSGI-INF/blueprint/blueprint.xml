@@ -12,7 +12,8 @@
  *
  **/
 -->
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0" xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0">
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+        >
 
 	<bean id="tikaMimeTypeResolver" class="ddf.mime.tika.TikaMimeTypeResolver">
 	<!-- Add back in if/when we add an ignore list for Tika mime types
@@ -20,9 +21,9 @@
 			persistent-id="ddf.mime.tika.TikaMimeTypeResolver"
 			update-strategy="container-managed"/>
     -->
-		<property name="priority" value="-1" />
+        <property name="priority" value="-1"/>
 	</bean>
 
-	<service ref="tikaMimeTypeResolver" interface="ddf.mime.MimeTypeResolver" />
+	<service ref="tikaMimeTypeResolver" interface="ddf.mime.MimeTypeResolver"/>
 
 </blueprint>

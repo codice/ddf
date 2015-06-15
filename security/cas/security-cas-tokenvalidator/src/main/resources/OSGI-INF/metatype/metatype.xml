@@ -1,4 +1,3 @@
-
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -14,7 +13,8 @@
 -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-	<OCD description="DDF CAS WebSSOTokenValidator Configuration" name="Security STS CAS Token Validator" id="ddf.security.cas.webSSOTokenValidator">
+	<OCD description="DDF CAS WebSSOTokenValidator Configuration"
+         name="Security STS CAS Token Validator" id="ddf.security.cas.webSSOTokenValidator">
 	
         <AD name="CAS Server URL:" id="casServerUrl" required="true" type="String"
             default="https://localhost:8443/cas/"
@@ -24,6 +24,6 @@
 	</OCD>
 	
 	<Designate pid="ddf.security.cas.webSSOTokenValidator">
-	    <Object ocdref="ddf.security.cas.webSSOTokenValidator" />
+	    <Object ocdref="ddf.security.cas.webSSOTokenValidator"/>
   	</Designate>
 </metatype:MetaData>

@@ -1,18 +1,47 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.metrics.plugin.webconsole;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.Response;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.CharEncoding;
@@ -39,61 +68,34 @@ import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.Response;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-
 /**
  * Felix Web Console plugin to create a Metrics tab for interacting with the {@link MetricsEndpoint}
  * . This plugin displays a table of all of the monitored metrics and their associated hyperlinks to
  * display an each metrics collected data in various formats, including PNG graph, CSV, Excel
  * spreadsheet, and PowerPoint slides.
- * 
+ *
  * @author rodgersh
  * @author ddf.isgs@lmco.com
- * 
+ *
  */
-public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin implements
-        ConfigurationWatcher {
+public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin
+        implements ConfigurationWatcher {
+    public static final String NAME = "metrics";
+
+    public static final String LABEL = "Metrics";
+
     private static final long serialVersionUID = -3725252410686520419L;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MetricsWebConsolePlugin.class);
 
     private static final String METRICS_SERVICE_BASE_URL = "/internal/metrics";
 
-    public static final String NAME = "metrics";
-
-    public static final String LABEL = "Metrics";
-
     private static final String DATE_DISPLAY_FORMAT = "L-";
 
     private static final int NUMBER_OF_WEEKLY_REPORTS = 4;
+
     private static final int NUMBER_OF_MONTHLY_REPORTS = 12;
+
     private static final int NUMBER_OF_YEARLY_REPORTS = 1;
 
     private static final String TRUSTSTORE_DEFAULT_LOC = "etc/keystores/serverTruststore.jks";
@@ -113,6 +115,15 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin implements
     private String keyStorePassword;
 
     private String servicesContextRoot = "/services";
+
+    private static String urlEncodeDate(DateMidnight date) throws UnsupportedEncodingException {
+        return urlEncodeDate(date.toDateTime());
+    }
+
+    private static String urlEncodeDate(DateTime date) throws UnsupportedEncodingException {
+        return URLEncoder
+                .encode(date.toString(ISODateTimeFormat.dateTimeNoMillis()), CharEncoding.UTF_8);
+    }
 
     public void start() {
         super.activate(getContext());
@@ -151,13 +162,14 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin implements
     @SuppressWarnings("rawtypes")
     @Override
     protected void renderContent(HttpServletRequest request, HttpServletResponse response)
-        throws ServletException, IOException {
+            throws ServletException, IOException {
         LOGGER.debug("ENTERING: renderContent");
 
         final PrintWriter pw = response.getWriter();
 
-        String metricsServiceUrl = request.getScheme() + "://" + request.getServerName() + ":"
-                + request.getServerPort() + servicesContextRoot + METRICS_SERVICE_BASE_URL;
+        String metricsServiceUrl =
+                request.getScheme() + "://" + request.getServerName() + ":" + request
+                        .getServerPort() + servicesContextRoot + METRICS_SERVICE_BASE_URL;
 
         // Call Metrics Endpoint REST service to get list of all of the monitored
         // metrics and their associated hyperlinks to graph their historical data.
@@ -202,8 +214,8 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin implements
             // String4 = hyperlink for metric data in specific format, e.g.,
             // http://host:port/.../catalogQueries.png?dateOffset=900
             Map<String, Map<String, Map<String, String>>> json = new TreeMap(
-                    (Map<String, Map<String, Map<String, String>>>) parser.parse(metricsList,
-                            containerFactory));
+                    (Map<String, Map<String, Map<String, String>>>) parser
+                            .parse(metricsList, containerFactory));
             Iterator iter = json.entrySet().iterator();
 
             // Create HTML table of Metric Name and hyperlinks to its associated
@@ -261,8 +273,9 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin implements
                     Iterator metricUrlsIter = metricUrls.entrySet().iterator();
                     while (metricUrlsIter.hasNext()) {
                         Map.Entry metricUrl = (Map.Entry) metricUrlsIter.next();
-                        String metricUrlCell = "<a class=\"ui-state-default ui-corner-all\" href=\""
-                                + metricUrl.getValue() + "\">" + metricUrl.getKey() + "</a>&nbsp;";
+                        String metricUrlCell =
+                                "<a class=\"ui-state-default ui-corner-all\" href=\"" + metricUrl
+                                        .getValue() + "\">" + metricUrl.getKey() + "</a>&nbsp;";
                         pw.println(metricUrlCell);
                     }
                     pw.println("</td>");
@@ -396,8 +409,8 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin implements
 
         for (int i = 1; i <= numWeeklyReports; i++) {
             try {
-                DateMidnight startOfLastWeek = new DateMidnight(input.minusWeeks(i).withDayOfWeek(
-                        DateTimeConstants.MONDAY));
+                DateMidnight startOfLastWeek = new DateMidnight(
+                        input.minusWeeks(i).withDayOfWeek(DateTimeConstants.MONDAY));
                 String startDate = urlEncodeDate(startOfLastWeek);
                 LOGGER.debug("Previous Week {} (start):  {}", i, startDate);
 
@@ -423,14 +436,17 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin implements
 
         for (int i = 1; i <= numMonthlyReports; i++) {
             try {
-                DateMidnight startOfLastMonth = new DateMidnight(input.minusMonths(i)
-                        .withDayOfMonth(1));
+                DateMidnight startOfLastMonth = new DateMidnight(
+                        input.minusMonths(i).withDayOfMonth(1));
                 String startDate = urlEncodeDate(startOfLastMonth);
-                LOGGER.debug("Previous Month (start):  {}   (ms = {})", startDate, startOfLastMonth.getMillis());
+                LOGGER.debug("Previous Month (start):  {}   (ms = {})", startDate,
+                        startOfLastMonth.getMillis());
 
-                DateTime endOfLastMonth = startOfLastMonth.plusMonths(1).toDateTime().minus(1 /* millisecond */);
+                DateTime endOfLastMonth = startOfLastMonth.plusMonths(1).toDateTime()
+                        .minus(1 /* millisecond */);
                 String endDate = urlEncodeDate(endOfLastMonth);
-                LOGGER.debug("Previous Month (end):  {}   (ms = {})", endOfLastMonth, endOfLastMonth.getMillis());
+                LOGGER.debug("Previous Month (end):  {}   (ms = {})", endOfLastMonth,
+                        endOfLastMonth.getMillis());
 
                 startTableRow(pw, i);
                 addCellLabelForRange(pw, startOfLastMonth, endOfLastMonth);
@@ -449,14 +465,17 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin implements
 
         for (int i = 1; i <= numYearlyReports; i++) {
             try {
-                DateMidnight startOfLastYear = new DateMidnight(input.minusYears(1)
-                        .withDayOfYear(1));
+                DateMidnight startOfLastYear = new DateMidnight(
+                        input.minusYears(1).withDayOfYear(1));
                 String startDate = urlEncodeDate(startOfLastYear);
-                LOGGER.debug("Previous Year (start):  {}   (ms = {})", startOfLastYear, startOfLastYear.getMillis());
+                LOGGER.debug("Previous Year (start):  {}   (ms = {})", startOfLastYear,
+                        startOfLastYear.getMillis());
 
-                DateTime endOfLastYear = startOfLastYear.plusYears(1).toDateTime().minus(1 /* millisecond */);
+                DateTime endOfLastYear = startOfLastYear.plusYears(1).toDateTime()
+                        .minus(1 /* millisecond */);
                 String endDate = urlEncodeDate(endOfLastYear);
-                LOGGER.debug("Previous Year (end):  {},   (ms = {})", endOfLastYear, endOfLastYear.getMillis());
+                LOGGER.debug("Previous Year (end):  {},   (ms = {})", endOfLastYear,
+                        endOfLastYear.getMillis());
 
                 String urlText = startOfLastYear.toString("yyyy");
                 LOGGER.debug("URL text = [{}]", urlText);
@@ -491,29 +510,27 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin implements
         pw.println("<td>" + cellLabel + "</td>");
     }
 
-    private void addXLSCellLink(PrintWriter pw, String startDate, String endDate, String metricsServiceUrl) {
+    private void addXLSCellLink(PrintWriter pw, String startDate, String endDate,
+            String metricsServiceUrl) {
         addCellLink(pw, startDate, endDate, metricsServiceUrl, "XLS");
     }
 
-    private void addPPTCellLink(PrintWriter pw, String startDate, String endDate, String metricsServiceUrl) {
+    private void addPPTCellLink(PrintWriter pw, String startDate, String endDate,
+            String metricsServiceUrl) {
         addCellLink(pw, startDate, endDate, metricsServiceUrl, "PPT");
     }
 
-    private void addCellLink(PrintWriter pw, String startDate, String endDate, String metricsServiceUrl, String extension) {
-        String reportUrl = metricsServiceUrl + "/report." + extension.toLowerCase() + "?startDate=" + startDate + "&endDate=" + endDate;
-        pw.println("<td><a class=\"ui-state-default ui-corner-all\" href=\"" + reportUrl + "\">" + extension + "</a></td>");
+    private void addCellLink(PrintWriter pw, String startDate, String endDate,
+            String metricsServiceUrl, String extension) {
+        String reportUrl =
+                metricsServiceUrl + "/report." + extension.toLowerCase() + "?startDate=" + startDate
+                        + "&endDate=" + endDate;
+        pw.println("<td><a class=\"ui-state-default ui-corner-all\" href=\"" + reportUrl + "\">"
+                + extension + "</a></td>");
     }
 
     private void endTableRow(PrintWriter pw) {
         pw.println("</tr>");
-    }
-
-    private static String urlEncodeDate(DateMidnight date) throws UnsupportedEncodingException {
-        return urlEncodeDate(date.toDateTime());
-    }
-
-    private static String urlEncodeDate(DateTime date) throws UnsupportedEncodingException {
-        return URLEncoder.encode(date.toString(ISODateTimeFormat.dateTimeNoMillis()), CharEncoding.UTF_8);
     }
 
     @Override

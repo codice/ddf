@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.security.handler.api;
 
 /**
@@ -20,17 +19,6 @@ package org.codice.ddf.security.handler.api;
  * missing tokens, or no action taken), as well as the actual tokens retrieved from the header.
  */
 public class HandlerResult {
-    public enum Status {
-        // completed - auth tokens retrieved ready to move on
-        COMPLETED,
-
-        // no tokens found, no attempt made to obtain any
-        NO_ACTION,
-
-        // performing action to obtain auth tokens, stop processing
-        REDIRECTED
-    }
-
     private Status status;
 
     private String source;
@@ -55,12 +43,12 @@ public class HandlerResult {
         this.status = status;
     }
 
-    public void setToken(BaseAuthenticationToken token) {
-        this.token = token;
-    }
-
     public BaseAuthenticationToken getToken() {
         return this.token;
+    }
+
+    public void setToken(BaseAuthenticationToken token) {
+        this.token = token;
     }
 
     public String getSource() {
@@ -81,5 +69,16 @@ public class HandlerResult {
         sb.append("; Token: ");
         sb.append(token.toString());
         return sb.toString();
+    }
+
+    public enum Status {
+        // completed - auth tokens retrieved ready to move on
+        COMPLETED,
+
+        // no tokens found, no attempt made to obtain any
+        NO_ACTION,
+
+        // performing action to obtain auth tokens, stop processing
+        REDIRECTED
     }
 }

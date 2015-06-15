@@ -13,17 +13,20 @@
  **/
 -->
 <Policy xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17"
-	PolicyId="QueryPolicy"
-	RuleCombiningAlgId="urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:permit-overrides"
-	Version="1.0">
+        PolicyId="QueryPolicy"
+        RuleCombiningAlgId="urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:permit-overrides"
+        Version="1.0">
 	<Target>
 		<AnyOf>
 			<AllOf>
 				<Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-					<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">user</AttributeValue>
-					<AttributeDesignator AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role"
-						Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject"
-						DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true" />
+					<AttributeValue
+                            DataType="http://www.w3.org/2001/XMLSchema#string">user</AttributeValue>
+					<AttributeDesignator
+                            AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role"
+                            Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject"
+                            DataType="http://www.w3.org/2001/XMLSchema#string"
+                            MustBePresent="true"/>
 				</Match>
 			</AllOf>
 		</AnyOf>
@@ -33,20 +36,26 @@
 			<AnyOf>
 				<AllOf>
 					<Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-						<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">USA</AttributeValue>
-						<AttributeDesignator AttributeId="http://www.opm.gov/feddata/CountryOfCitizenship"
-							Category="http://example.com/category" DataType="http://www.w3.org/2001/XMLSchema#string"
-							MustBePresent="true" />
+						<AttributeValue
+                                DataType="http://www.w3.org/2001/XMLSchema#string">USA</AttributeValue>
+						<AttributeDesignator
+                                AttributeId="http://www.opm.gov/feddata/CountryOfCitizenship"
+                                Category="http://example.com/category"
+                                DataType="http://www.w3.org/2001/XMLSchema#string"
+                                MustBePresent="true"/>
 					</Match>
 					<Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-						<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">query</AttributeValue>
-						<AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id"
-							Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action" DataType="http://www.w3.org/2001/XMLSchema#string"
-							MustBePresent="true" />
+						<AttributeValue
+                                DataType="http://www.w3.org/2001/XMLSchema#string">query</AttributeValue>
+						<AttributeDesignator
+                                AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id"
+                                Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action"
+                                DataType="http://www.w3.org/2001/XMLSchema#string"
+                                MustBePresent="true"/>
 					</Match>
 				</AllOf>
 			</AnyOf>
 		</Target>
 	</Rule>
-	<Rule Effect="Deny" RuleId="deny-query" />
+	<Rule Effect="Deny" RuleId="deny-query"/>
 </Policy>

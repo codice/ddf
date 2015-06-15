@@ -1,49 +1,38 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.metrics.interceptor;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.Matchers.anyObject;
-
-import javax.xml.namespace.QName;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.interceptor.InterceptorChain;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
-import org.apache.cxf.service.Service;
-import org.apache.cxf.service.model.EndpointInfo;
 import org.junit.Test;
-import org.mockito.Matchers;
-import org.mockito.Mockito;
 
 /**
  * @author willisod
- * 
+ *
  */
 public class MetricsOutInterceptorTest {
 
@@ -65,7 +54,7 @@ public class MetricsOutInterceptorTest {
      * Test method for
      * {@link ddf.metrics.interceptor.MetricsOutInterceptor#handleMessage(org.apache.cxf.message.Message)}
      * .
-     * 
+     *
      * @throws InterruptedException
      */
     @Test
@@ -92,7 +81,7 @@ public class MetricsOutInterceptorTest {
      * Test method for
      * {@link ddf.metrics.interceptor.MetricsOutInterceptor#handleMessage(org.apache.cxf.message.Message)}
      * .
-     * 
+     *
      * @throws InterruptedException
      */
     @Test
@@ -125,7 +114,7 @@ public class MetricsOutInterceptorTest {
      * Test method for
      * {@link ddf.metrics.interceptor.MetricsOutInterceptor#handleMessage(org.apache.cxf.message.Message)}
      * .
-     * 
+     *
      * @throws InterruptedException
      */
     @Test
@@ -157,7 +146,7 @@ public class MetricsOutInterceptorTest {
      * Test method for
      * {@link ddf.metrics.interceptor.MetricsOutInterceptor#handleMessage(org.apache.cxf.message.Message)}
      * .
-     * 
+     *
      * @throws InterruptedException
      */
     @Test
@@ -191,7 +180,7 @@ public class MetricsOutInterceptorTest {
      * Test method for
      * {@link ddf.metrics.interceptor.MetricsOutInterceptor#handleMessage(org.apache.cxf.message.Message)}
      * .
-     * 
+     *
      * @throws InterruptedException
      */
     @Test
@@ -218,7 +207,7 @@ public class MetricsOutInterceptorTest {
      * Test method for
      * {@link ddf.metrics.interceptor.MetricsOutInterceptor#handleMessage(org.apache.cxf.message.Message)}
      * .
-     * 
+     *
      * @throws InterruptedException
      */
     @Test

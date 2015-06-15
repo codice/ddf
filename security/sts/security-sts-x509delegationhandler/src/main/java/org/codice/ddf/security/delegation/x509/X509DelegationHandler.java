@@ -1,18 +1,19 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.security.delegation.x509;
+
+import java.util.logging.Logger;
 
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.sts.request.ReceivedToken;
@@ -23,8 +24,6 @@ import org.apache.cxf.ws.security.sts.provider.model.secext.BinarySecurityTokenT
 import org.apache.wss4j.dom.WSConstants;
 import org.slf4j.LoggerFactory;
 
-import java.util.logging.Logger;
-
 /**
  * The SAML TokenDelegationHandler implementation. It disallows ActAs or OnBehalfOf for
  * all cases apart from the case of a Bearer SAML Token. In addition, the AppliesTo
@@ -33,14 +32,16 @@ import java.util.logging.Logger;
  */
 public class X509DelegationHandler implements TokenDelegationHandler {
 
-    private static final org.slf4j.Logger LOGGER = LoggerFactory
-      .getLogger(X509DelegationHandler.class);
-    private static final Logger LOG =
-        LogUtils.getL7dLogger(X509DelegationHandler.class);
     public static final String X509_PKI_PATH = WSConstants.X509TOKEN_NS + "#X509PKIPathv1";
+
     public static final String X509_V3 = WSConstants.X509TOKEN_NS + "#X509v3";
 
     public static final String BASE64_ENCODING = WSConstants.SOAPMESSAGE_NS + "#Base64Binary";
+
+    private static final org.slf4j.Logger LOGGER = LoggerFactory
+            .getLogger(X509DelegationHandler.class);
+
+    private static final Logger LOG = LogUtils.getL7dLogger(X509DelegationHandler.class);
 
     private boolean checkAudienceRestriction;
 
@@ -142,7 +143,7 @@ public class X509DelegationHandler implements TokenDelegationHandler {
     }
 
     */
-/**
+    /**
      * Set whether to perform a check that the received AppliesTo address is contained in the
      * token as one of the AudienceRestriction URIs. The default is false.
      * @param checkAudienceRestriction whether to perform an audience restriction check or not

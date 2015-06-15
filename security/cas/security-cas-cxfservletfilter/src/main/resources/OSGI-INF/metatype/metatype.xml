@@ -17,11 +17,12 @@
 
   <OCD name="Security CAS CXF Servlet Filter" id="ddf.security.cas.filter.CXFFilterAdder">
     <AD description="URL pattern to have the filter match to. The default matches on all REST and Opensearch queries."
-      name="URL Pattern" id="urlPattern" required="true" type="String" default="/services/catalog/*" />
+        name="URL Pattern" id="urlPattern" required="true" type="String"
+        default="/services/catalog/*"/>
   </OCD>
 
   <Designate pid="ddf.security.cas.filter.CXFFilterAdder">
-    <Object ocdref="ddf.security.cas.filter.CXFFilterAdder" />
+    <Object ocdref="ddf.security.cas.filter.CXFFilterAdder"/>
   </Designate>
 
 </metatype:MetaData>

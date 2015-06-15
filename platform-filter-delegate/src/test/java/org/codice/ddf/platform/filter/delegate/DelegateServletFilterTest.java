@@ -1,18 +1,36 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.platform.filter.delegate;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -25,39 +43,21 @@ import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 /**
  * Tests that the DelegateServletFilter is functionality properly.
- * 
+ *
  */
 public class DelegateServletFilterTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DelegateServletFilterTest.class);
+
+    FilterChain initialChain;
 
     private Filter filter1;
 
     private Filter filter2;
 
     private Filter filter3;
-
-    FilterChain initialChain;
 
     @Before
     public void resetGlobals() {
@@ -66,14 +66,14 @@ public class DelegateServletFilterTest {
 
     /**
      * Tests the main logic of performing the filter with adding filters.
-     * 
+     *
      * @throws ServletException
      * @throws IOException
      * @throws InvalidSyntaxException
      */
     @Test
-    public void testDoFilterWithFilters() throws IOException, ServletException,
-            InvalidSyntaxException {
+    public void testDoFilterWithFilters()
+            throws IOException, ServletException, InvalidSyntaxException {
         ServletRequest request = mock(HttpServletRequest.class);
         ServletResponse response = mock(HttpServletResponse.class);
 
@@ -94,14 +94,14 @@ public class DelegateServletFilterTest {
 
     /**
      * Tests the main logic of performing the filter with no incoming filters.
-     * 
+     *
      * @throws ServletException
      * @throws IOException
      * @throws InvalidSyntaxException
      */
     @Test
-    public void testDoFilterWithNoFilters() throws IOException, ServletException,
-            InvalidSyntaxException {
+    public void testDoFilterWithNoFilters()
+            throws IOException, ServletException, InvalidSyntaxException {
         ServletRequest request = mock(HttpServletRequest.class);
         ServletResponse response = mock(HttpServletResponse.class);
 
@@ -143,8 +143,8 @@ public class DelegateServletFilterTest {
         verify(initialChain).doFilter(request, response);
     }
 
-    private List<Filter> mockFilters(boolean includeFilters) throws InvalidSyntaxException,
-            IOException, ServletException {
+    private List<Filter> mockFilters(boolean includeFilters)
+            throws InvalidSyntaxException, IOException, ServletException {
         List<Filter> filters = new ArrayList<Filter>(3);
         filter1 = createMockFilter("filter1");
         filter2 = createMockFilter("filter2");
@@ -166,14 +166,13 @@ public class DelegateServletFilterTest {
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 Object[] args = invocation.getArguments();
                 LOGGER.debug("{} was called.", name);
-                ((FilterChain) args[2]).doFilter(((ServletRequest) args[0]),
-                        ((ServletResponse) args[1]));
+                ((FilterChain) args[2])
+                        .doFilter(((ServletRequest) args[0]), ((ServletResponse) args[1]));
                 return null;
             }
 
         })
-                .when(mockFilter)
-                .doFilter(any(ServletRequest.class), any(ServletResponse.class),
+                .when(mockFilter).doFilter(any(ServletRequest.class), any(ServletResponse.class),
                         any(FilterChain.class));
 
         return mockFilter;
@@ -184,7 +183,7 @@ public class DelegateServletFilterTest {
         BundleContext context = mock(BundleContext.class);
         List<Filter> mockFilters = mockFilters(includeFilters);
         List<ServiceReference<Filter>> referenceList = new ArrayList<ServiceReference<Filter>>();
-        for(Filter curFilter : mockFilters) {
+        for (Filter curFilter : mockFilters) {
             ServiceReference<Filter> mockRef = mock(ServiceReference.class);
             when(context.getService(mockRef)).thenReturn(curFilter);
             referenceList.add(mockRef);
@@ -193,6 +192,5 @@ public class DelegateServletFilterTest {
 
         return context;
     }
-
 
 }

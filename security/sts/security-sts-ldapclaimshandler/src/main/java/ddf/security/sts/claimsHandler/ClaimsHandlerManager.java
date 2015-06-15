@@ -1,21 +1,28 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package ddf.security.sts.claimsHandler;
 
-import ddf.security.common.util.CommonSSLFactory;
-import ddf.security.encryption.EncryptionService;
+import java.io.File;
+import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.net.ssl.SSLContext;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.sts.claims.ClaimsHandler;
 import org.codice.ddf.configuration.ConfigurationManager;
@@ -30,14 +37,8 @@ import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.net.ssl.SSLContext;
-import java.io.File;
-import java.io.IOException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.util.HashMap;
-import java.util.Map;
+import ddf.security.common.util.CommonSSLFactory;
+import ddf.security.encryption.EncryptionService;
 
 /**
  * Creates and registers LDAP and Role claims handlers.
@@ -46,28 +47,38 @@ import java.util.Map;
 public class ClaimsHandlerManager implements ConfigurationWatcher {
 
     public static final String URL = "url";
+
     public static final String START_TLS = "startTls";
+
     public static final String LDAP_BIND_USER_DN = "ldapBindUserDn";
+
     public static final String PASSWORD = "password";
+
     public static final String USER_NAME_ATTRIBUTE = "userNameAttribute";
+
     public static final String USER_BASE_DN = "userBaseDn";
+
     public static final String OBJECT_CLASS = "objectClass";
+
     public static final String MEMBER_NAME_ATTRIBUTE = "memberNameAttribute";
+
     public static final String GROUP_BASE_DN = "groupBaseDn";
+
     public static final String USER_DN = "userDn";
+
     public static final String PROPERTY_FILE_LOCATION = "propertyFileLocation";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClaimsHandlerManager.class);
+
+    protected String keystoreLoc, keystorePass;
+
+    protected String truststoreLoc, truststorePass;
 
     private EncryptionService encryptService;
 
     private ServiceRegistration<ClaimsHandler> roleHandlerRegistration = null;
 
     private ServiceRegistration<ClaimsHandler> ldapHandlerRegistration = null;
-
-    protected String keystoreLoc, keystorePass;
-
-    protected String truststoreLoc, truststorePass;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ClaimsHandlerManager.class);
 
     private Map<String, Object> ldapProperties = new HashMap<>();
 
@@ -89,7 +100,8 @@ public class ClaimsHandlerManager implements ConfigurationWatcher {
      * @param props Map of properties.
      */
     public void update(Map<String, Object> props) {
-        LOGGER.debug("Received an updated set of configurations for the LDAP/Role Claims Handlers.");
+        LOGGER.debug(
+                "Received an updated set of configurations for the LDAP/Role Claims Handlers.");
         String url = (String) props.get(ClaimsHandlerManager.URL);
         Boolean startTls;
         if (props.get(ClaimsHandlerManager.START_TLS) instanceof String) {
@@ -104,15 +116,17 @@ public class ClaimsHandlerManager implements ConfigurationWatcher {
         String memberNameAttribute = (String) props.get(ClaimsHandlerManager.MEMBER_NAME_ATTRIBUTE);
         String groupBaseDn = (String) props.get(ClaimsHandlerManager.GROUP_BASE_DN);
         String userNameAttribute = (String) props.get(ClaimsHandlerManager.USER_NAME_ATTRIBUTE);
-        String propertyFileLocation = (String) props.get(ClaimsHandlerManager.PROPERTY_FILE_LOCATION);
+        String propertyFileLocation = (String) props
+                .get(ClaimsHandlerManager.PROPERTY_FILE_LOCATION);
         try {
             if (encryptService != null) {
                 password = encryptService.decryptValue(password);
             }
             LDAPConnectionFactory connection1 = createLdapConnectionFactory(url, startTls);
             LDAPConnectionFactory connection2 = createLdapConnectionFactory(url, startTls);
-            registerRoleClaimsHandler(connection1, propertyFileLocation, userBaseDn, userNameAttribute, objectClass, memberNameAttribute,
-                    groupBaseDn, userDn, password);
+            registerRoleClaimsHandler(connection1, propertyFileLocation, userBaseDn,
+                    userNameAttribute, objectClass, memberNameAttribute, groupBaseDn, userDn,
+                    password);
             registerLdapClaimsHandler(connection2, propertyFileLocation, userBaseDn,
                     userNameAttribute, userDn, password);
 
@@ -138,15 +152,19 @@ public class ClaimsHandlerManager implements ConfigurationWatcher {
         try {
             if (useSsl || useTls) {
                 SSLContext sslContext = SSLContext.getInstance(CommonSSLFactory.PROTOCOL);
-                if(keystoreLoc != null && truststoreLoc != null) {
-                    sslContext.init(CommonSSLFactory.createKeyManagerFactory(keystoreLoc, keystorePass).getKeyManagers(),
-                            CommonSSLFactory.createTrustManagerFactory(truststoreLoc, truststorePass).getTrustManagers(), new SecureRandom());
+                if (keystoreLoc != null && truststoreLoc != null) {
+                    sslContext.init(CommonSSLFactory
+                                    .createKeyManagerFactory(keystoreLoc, keystorePass)
+                                    .getKeyManagers(), CommonSSLFactory
+                                    .createTrustManagerFactory(truststoreLoc, truststorePass)
+                                    .getTrustManagers(), new SecureRandom());
                 }
 
                 lo.setSSLContext(sslContext);
             }
         } catch (IOException | NoSuchAlgorithmException | KeyManagementException e) {
-            LOGGER.error("Error encountered while configuring SSL. Secure connection will fail.", e);
+            LOGGER.error("Error encountered while configuring SSL. Secure connection will fail.",
+                    e);
         }
 
         lo.setUseStartTLS(useTls);
@@ -158,7 +176,8 @@ public class ClaimsHandlerManager implements ConfigurationWatcher {
         Integer port = useSsl ? 636 : 389;
         try {
             port = Integer.valueOf(url.substring(url.lastIndexOf(":") + 1));
-        } catch (NumberFormatException ignore) {}
+        } catch (NumberFormatException ignore) {
+        }
 
         return new LDAPConnectionFactory(host, port, lo);
     }
@@ -178,7 +197,8 @@ public class ClaimsHandlerManager implements ConfigurationWatcher {
      *            Base DN of the group.
      */
     private void registerRoleClaimsHandler(LDAPConnectionFactory connection, String propertyFileLoc,
-            String userBaseDn, String userNameAttr, String objectClass, String memberNameAttribute, String groupBaseDn, String userDn, String password) {
+            String userBaseDn, String userNameAttr, String objectClass, String memberNameAttribute,
+            String groupBaseDn, String userDn, String password) {
         RoleClaimsHandler roleHandler = new RoleClaimsHandler();
         roleHandler.setLdapConnectionFactory(connection);
         roleHandler.setPropertyFileLocation(propertyFileLoc);
@@ -318,19 +338,20 @@ public class ClaimsHandlerManager implements ConfigurationWatcher {
     @Override
     public void configurationUpdateCallback(Map<String, String> configuration) {
         String keystoreLocation = configuration.get(ConfigurationManager.KEY_STORE);
-        String keystorePassword = encryptService.decryptValue(configuration
-                .get(ConfigurationManager.KEY_STORE_PASSWORD));
+        String keystorePassword = encryptService
+                .decryptValue(configuration.get(ConfigurationManager.KEY_STORE_PASSWORD));
 
         String truststoreLocation = configuration.get(ConfigurationManager.TRUST_STORE);
-        String truststorePassword = encryptService.decryptValue(configuration
-                .get(ConfigurationManager.TRUST_STORE_PASSWORD));
+        String truststorePassword = encryptService
+                .decryptValue(configuration.get(ConfigurationManager.TRUST_STORE_PASSWORD));
 
         if (StringUtils.isNotBlank(keystoreLocation)) {
             if (new File(keystoreLocation).exists()) {
                 this.keystoreLoc = keystoreLocation;
                 this.keystorePass = keystorePassword;
             } else {
-                LOGGER.debug("Keystore file does not exist at location {}, not updating keystore values.");
+                LOGGER.debug(
+                        "Keystore file does not exist at location {}, not updating keystore values.");
             }
         }
         if (StringUtils.isNotBlank(truststoreLocation)) {
@@ -338,7 +359,8 @@ public class ClaimsHandlerManager implements ConfigurationWatcher {
                 this.truststoreLoc = truststoreLocation;
                 this.truststorePass = truststorePassword;
             } else {
-                LOGGER.debug("Truststore file does not exist at location {}, not updating truststore values.");
+                LOGGER.debug(
+                        "Truststore file does not exist at location {}, not updating truststore values.");
             }
         }
         update(props);

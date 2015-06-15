@@ -1,26 +1,25 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.security.permission;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.shiro.authz.Permission;
-import org.apache.shiro.authz.permission.WildcardPermission;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.shiro.authz.Permission;
+import org.apache.shiro.authz.permission.WildcardPermission;
 
 /**
  * Permission class comprised of a key and a list of corresponding values. Contains the logic to
@@ -33,7 +32,7 @@ public class KeyValuePermission implements Permission {
 
     /**
      * Creates a new KeyValuePermission with the specified key and an empty list of values.
-     * 
+     *
      * @param key
      *            the key to be used for this permission
      */
@@ -43,7 +42,7 @@ public class KeyValuePermission implements Permission {
 
     /**
      * Creates a new KeyValuePermission with the specified key and corresponding list of values.
-     * 
+     *
      * @param key
      *            the key to be used for this permission
      * @param values
@@ -74,7 +73,7 @@ public class KeyValuePermission implements Permission {
 
     /**
      * Adds an additional value to the existing values.
-     * 
+     *
      * @param value
      *            new value to be added to the existing values for this key/value pair
      */
@@ -100,7 +99,7 @@ public class KeyValuePermission implements Permission {
      * If the keys of each permission are equal and if the values from this object implies the
      * values from the passed in permission, then this permission will imply the passed in
      * permission.
-     * 
+     *
      * @param p
      *            permission to checked to see if this permission implies p
      * @return {@code true} if this current instance <em>implies</em> all the functionality and/or
@@ -135,7 +134,7 @@ public class KeyValuePermission implements Permission {
     /**
      * Returns a {@link org.apache.shiro.authz.permission.WildcardPermission} representing a
      * {@link KeyValuePermission}
-     * 
+     *
      * @param perm
      *            the permission to convert.
      * @return new equivalent permission
@@ -146,14 +145,14 @@ public class KeyValuePermission implements Permission {
             wildcardString.append(value);
             wildcardString.append(",");
         }
-        WildcardPermission wildcardPermission = new WildcardPermission(wildcardString.toString()
-                .substring(0, wildcardString.length() - 1));
+        WildcardPermission wildcardPermission = new WildcardPermission(
+                wildcardString.toString().substring(0, wildcardString.length() - 1));
         return wildcardPermission;
     }
 
     /**
      * Creates a string representation of this key/value permission object.
-     * 
+     *
      * @return a string representation of this key/value permission object
      */
     @Override

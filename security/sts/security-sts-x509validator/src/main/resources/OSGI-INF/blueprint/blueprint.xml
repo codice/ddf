@@ -30,11 +30,10 @@
   specific language governing permissions and limitations
   under the License.
 -->
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
-           xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.2.0">
+<blueprint xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.2.0"
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <ext:property-placeholder />
+    <ext:property-placeholder/>
 
     <bean id="x509TokenValidator" class="org.apache.cxf.sts.token.validator.X509TokenValidator">
 
@@ -42,7 +41,8 @@
 
     <bean id="x509PathTokenValidator"
           class="org.codice.ddf.security.validator.x509.X509PathTokenValidator" init-method="init">
-        <property name="signaturePropertiesPath" value="${ddf.home}/etc/ws-security/server/signature.properties"/>
+        <property name="signaturePropertiesPath"
+                  value="${ddf.home}/etc/ws-security/server/signature.properties"/>
     </bean>
 
     <service ref="x509TokenValidator"

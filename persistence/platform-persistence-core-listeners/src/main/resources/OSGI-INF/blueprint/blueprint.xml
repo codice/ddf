@@ -10,22 +10,21 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/ -->
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-    xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="
+<blueprint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xsi:schemaLocation="
         http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
         ">
     
-    <reference id="persistentStore" interface="org.codice.ddf.persistence.PersistentStore" />
+    <reference id="persistentStore" interface="org.codice.ddf.persistence.PersistentStore"/>
     
     <bean id="notificationListener" class="org.codice.ddf.persistence.events.NotificationListener">
-        <argument ref="persistentStore" />
+        <argument ref="persistentStore"/>
     </bean>
     
-    <service ref="notificationListener" interface="org.osgi.service.event.EventHandler" >
+    <service ref="notificationListener" interface="org.osgi.service.event.EventHandler">
         <service-properties>
-            <entry key="event.topics" >
+            <entry key="event.topics">
                 <array value-type="java.lang.String">
                     <value>ddf/notifications/broadcast</value>
                     <value>ddf/notifications/catalog/downloads</value>
@@ -35,12 +34,12 @@
     </service>
 
     <bean id="activityListener" class="org.codice.ddf.persistence.events.ActivityListener">
-        <argument ref="persistentStore" />
+        <argument ref="persistentStore"/>
     </bean>
 
-    <service ref="activityListener" interface="org.osgi.service.event.EventHandler" >
+    <service ref="activityListener" interface="org.osgi.service.event.EventHandler">
         <service-properties>
-            <entry key="event.topics" >
+            <entry key="event.topics">
                 <array value-type="java.lang.String">
                     <value>ddf/activities</value>
                     <value>ddf/activities/broadcast</value>

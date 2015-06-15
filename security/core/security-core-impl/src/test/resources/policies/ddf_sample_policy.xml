@@ -12,19 +12,19 @@
  **/
 -->
 <!-- NOTE: THIS IS A SAMPLE DDF POLCIY AND SHOULD NOT BE USED FOR PRODUCTION -->
-<wsp:Policy wsu:Id="TransportSAML2Policy"
-            xmlns:http="http://schemas.xmlsoap.org/wsdl/http/"
+<wsp:Policy xmlns:http="http://schemas.xmlsoap.org/wsdl/http/"
             xmlns:wsp="http://www.w3.org/ns/ws-policy"
             xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
             xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata"
             xmlns:sp="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702"
             xmlns:t="http://docs.oasis-open.org/ws-sx/ws-trust/200512"
             xmlns:wsaw="http://www.w3.org/2005/08/addressing"
-            xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex">
+            xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex"
+            wsu:Id="TransportSAML2Policy">
   <wsp:ExactlyOne>
     <wsp:All>
       <wsam:Addressing wsp:Optional="false">
-        <wsp:Policy />
+        <wsp:Policy/>
       </wsam:Addressing>
       <sp:TransportBinding xmlns:sp="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702">
         <wsp:Policy>
@@ -32,50 +32,54 @@
             <wsp:Policy>
               <sp:HttpsToken>
                 <wsp:Policy>
-                  <sp:RequireClientCertificate />
+                  <sp:RequireClientCertificate/>
                 </wsp:Policy>
               </sp:HttpsToken>
             </wsp:Policy>
           </sp:TransportToken>
           <sp:AlgorithmSuite>
             <wsp:Policy>
-              <sp:Basic128 />
+              <sp:Basic128/>
             </wsp:Policy>
           </sp:AlgorithmSuite>
           <sp:Layout>
             <wsp:Policy>
-              <sp:Lax />
+              <sp:Lax/>
             </wsp:Policy>
           </sp:Layout>
-          <sp:IncludeTimestamp />
-          <sp:EncryptSignature />
-          <sp:OnlySignEntireHeadersAndBody />
+          <sp:IncludeTimestamp/>
+          <sp:EncryptSignature/>
+          <sp:OnlySignEntireHeadersAndBody/>
         </wsp:Policy>
       </sp:TransportBinding>
-      <sp:SignedSupportingTokens xmlns:sp="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702">
+      <sp:SignedSupportingTokens
+              xmlns:sp="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702">
         <wsp:Policy>
           <sp:IssuedToken
-            sp:IncludeToken="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702/IncludeToken/AlwaysToRecipient">
+                  sp:IncludeToken="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702/IncludeToken/AlwaysToRecipient">
             <sp:RequestSecurityTokenTemplate>
               <t:TokenType>http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0
               </t:TokenType>
               <t:KeyType>http://docs.oasis-open.org/ws-sx/ws-trust/200512/PublicKey</t:KeyType>
-              <t:Claims Dialect="http://schemas.xmlsoap.org/ws/2005/05/identity" xmlns:ic="http://schemas.xmlsoap.org/ws/2005/05/identity">
+              <t:Claims xmlns:ic="http://schemas.xmlsoap.org/ws/2005/05/identity"
+                        Dialect="http://schemas.xmlsoap.org/ws/2005/05/identity">
                   <!-- Add any additional claims you want to grab for the service -->
-                <ic:ClaimType Uri="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role"
-                  Optional="true" />
-                <ic:ClaimType Uri="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"
-                  Optional="true" />
-                <ic:ClaimType Uri="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"
-                  Optional="true" />
+                  <ic:ClaimType Uri="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role"
+                                Optional="true"/>
+                <ic:ClaimType
+                        Uri="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"
+                        Optional="true"/>
+                <ic:ClaimType
+                        Uri="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"
+                        Optional="true"/>
                 <ic:ClaimType Uri="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname"
-                  Optional="true" />
+                              Optional="true"/>
                 <ic:ClaimType Uri="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname"
-                  Optional="true" />
+                              Optional="true"/>
               </t:Claims>
             </sp:RequestSecurityTokenTemplate>
             <wsp:Policy>
-              <sp:RequireInternalReference />
+              <sp:RequireInternalReference/>
             </wsp:Policy>
             <sp:Issuer>
               <wsaw:Address>https://localhost:8993/services/SecurityTokenService/X509</wsaw:Address>
@@ -94,16 +98,16 @@
       </sp:SignedSupportingTokens>
       <sp:Wss11>
         <wsp:Policy>
-          <sp:MustSupportRefIssuerSerial />
-          <sp:MustSupportRefThumbprint />
-          <sp:MustSupportRefEncryptedKey />
+          <sp:MustSupportRefIssuerSerial/>
+          <sp:MustSupportRefThumbprint/>
+          <sp:MustSupportRefEncryptedKey/>
         </wsp:Policy>
       </sp:Wss11>
       <sp:Trust13>
         <wsp:Policy>
-          <sp:MustSupportIssuedTokens />
-          <sp:RequireClientEntropy />
-          <sp:RequireServerEntropy />
+          <sp:MustSupportIssuedTokens/>
+          <sp:RequireClientEntropy/>
+          <sp:RequireServerEntropy/>
         </wsp:Policy>
       </sp:Trust13>
     </wsp:All>

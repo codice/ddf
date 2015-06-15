@@ -1,18 +1,21 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package ddf.ldap.ldaplogin;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 
 import org.apache.karaf.jaas.config.JaasRealm;
 import org.apache.karaf.jaas.config.impl.Config;
@@ -24,10 +27,6 @@ import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-
 /**
  * Registers LDAP as a JAAS realm.
  *
@@ -35,22 +34,28 @@ import java.util.Properties;
 public class LdapLoginConfig {
 
     public static final String LDAP_BIND_USER_DN = "ldapBindUserDn";
-    public static final String LDAP_BIND_USER_PASS = "ldapBindUserPass";
-    public static final String LDAP_URL = "ldapUrl";
-    public static final String USER_BASE_DN = "userBaseDn";
-    public static final String GROUP_BASE_DN = "groupBaseDn";
-    public static final String KEY_ALIAS = "keyAlias";
-    public static final String START_TLS = "startTls";
 
-    private static String LDAP_MODULE = ddf.ldap.ldaplogin.SslLdapLoginModule.class.getName();
+    public static final String LDAP_BIND_USER_PASS = "ldapBindUserPass";
+
+    public static final String LDAP_URL = "ldapUrl";
+
+    public static final String USER_BASE_DN = "userBaseDn";
+
+    public static final String GROUP_BASE_DN = "groupBaseDn";
+
+    public static final String KEY_ALIAS = "keyAlias";
+
+    public static final String START_TLS = "startTls";
 
     private static final String CONFIG_NAME = "ldap";
 
     private static final String SUFFICIENT_FLAG = "sufficient";
 
-    private ServiceRegistration<JaasRealm> registration = null;
-
     private static final Logger LOGGER = LoggerFactory.getLogger(LdapLoginConfig.class);
+
+    private static final String LDAP_MODULE = ddf.ldap.ldaplogin.SslLdapLoginModule.class.getName();
+
+    private ServiceRegistration<JaasRealm> registration = null;
 
     private Map<String, String> ldapProperties = new HashMap<String, String>();
 
@@ -66,7 +71,8 @@ public class LdapLoginConfig {
             try {
                 registration.unregister();
             } catch (IllegalStateException ise) {
-                LOGGER.debug("Service was already unregistered, continuing on to register new service.");
+                LOGGER.debug(
+                        "Service was already unregistered, continuing on to register new service.");
             }
         }
         Config config = new Config();

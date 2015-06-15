@@ -1,26 +1,44 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package ddf.security.realm.sts;
 
-import ddf.security.PropertiesLoader;
-import ddf.security.assertion.SecurityAssertion;
-import ddf.security.assertion.impl.SecurityAssertionImpl;
-import ddf.security.common.audit.SecurityLogger;
-import ddf.security.common.util.CommonSSLFactory;
-import ddf.security.encryption.EncryptionService;
-import ddf.security.sts.client.configuration.STSClientConfiguration;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.xml.stream.XMLStreamException;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.Bus;
@@ -60,31 +78,13 @@ import org.w3c.dom.Node;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSSerializer;
 
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-import javax.xml.stream.XMLStreamException;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import ddf.security.PropertiesLoader;
+import ddf.security.assertion.SecurityAssertion;
+import ddf.security.assertion.impl.SecurityAssertionImpl;
+import ddf.security.common.audit.SecurityLogger;
+import ddf.security.common.util.CommonSSLFactory;
+import ddf.security.encryption.EncryptionService;
+import ddf.security.sts.client.configuration.STSClientConfiguration;
 
 /**
  * The STS Realm is the main piece of the security framework responsible for exchanging a binary
@@ -267,12 +267,9 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
 
             if (authToken != null) {
                 LOGGER.debug(
-                        "Telling the STS to request a security token on behalf of the auth token"
-                );
-                SecurityLogger
-                        .logInfo(
-                                "Telling the STS to request a security token on behalf of the auth token"
-                        );
+                        "Telling the STS to request a security token on behalf of the auth token");
+                SecurityLogger.logInfo(
+                        "Telling the STS to request a security token on behalf of the auth token");
                 stsClient.setWsdlLocation(stsAddress);
                 stsClient.setOnBehalfOf(authToken);
                 stsClient.setTokenType(stsClientConfig.getAssertionType());
@@ -309,12 +306,9 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
 
             if (securityToken != null) {
                 LOGGER.debug(
-                        "Telling the STS to renew a security token on behalf of the auth token"
-                );
-                SecurityLogger
-                        .logInfo(
-                                "Telling the STS to renew a security token on behalf of the auth token"
-                        );
+                        "Telling the STS to renew a security token on behalf of the auth token");
+                SecurityLogger.logInfo(
+                        "Telling the STS to renew a security token on behalf of the auth token");
                 stsClient.setWsdlLocation(stsAddress);
                 stsClient.setTokenType(stsClientConfig.getAssertionType());
                 stsClient.setKeyType(stsClientConfig.getKeyType());
@@ -339,8 +333,7 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
     /**
      * Log properties from DDF configuration updates.
      */
-    private void logIncomingProperties(@SuppressWarnings("rawtypes")
-    Map properties) {
+    private void logIncomingProperties(@SuppressWarnings("rawtypes") Map properties) {
         @SuppressWarnings("unchecked")
         Set<String> keys = properties.keySet();
         StringBuilder builder = new StringBuilder();
@@ -376,14 +369,13 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
     /**
      * Determines if the received update is a DDF System Settings update.
      */
-    private boolean isDdfConfigurationUpdate(@SuppressWarnings("rawtypes")
-    Map properties) {
+    private boolean isDdfConfigurationUpdate(@SuppressWarnings("rawtypes") Map properties) {
         boolean updated = false;
 
-        if (properties.containsKey(ConfigurationManager.TRUST_STORE)
-                && properties.containsKey(ConfigurationManager.TRUST_STORE_PASSWORD)
-                && properties.containsKey(ConfigurationManager.KEY_STORE)
-                && properties.containsKey(ConfigurationManager.KEY_STORE_PASSWORD)) {
+        if (properties.containsKey(ConfigurationManager.TRUST_STORE) && properties
+                .containsKey(ConfigurationManager.TRUST_STORE_PASSWORD) && properties
+                .containsKey(ConfigurationManager.KEY_STORE) && properties
+                .containsKey(ConfigurationManager.KEY_STORE_PASSWORD)) {
             updated = true;
         } else {
             updated = false;
@@ -423,11 +415,9 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
             } catch (KeyStoreException e) {
                 LOGGER.error("Unable to read trust store: ", e);
             } catch (NoSuchAlgorithmException e) {
-                LOGGER.error(
-                        "Problems creating SSL socket. Usually this is "
+                LOGGER.error("Problems creating SSL socket. Usually this is "
                                 + "referring to the certificate sent by the server not being trusted by the client.",
-                        e
-                );
+                        e);
             } finally {
                 IOUtils.closeQuietly(fis);
             }
@@ -452,8 +442,8 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
                 LOGGER.debug("Loading keyStore");
                 keyStore.load(fis, keyStorePassword.toCharArray());
 
-                KeyManagerFactory keyFactory = KeyManagerFactory.getInstance(KeyManagerFactory
-                        .getDefaultAlgorithm());
+                KeyManagerFactory keyFactory = KeyManagerFactory
+                        .getInstance(KeyManagerFactory.getDefaultAlgorithm());
                 keyFactory.init(keyStore, keyStorePassword.toCharArray());
                 LOGGER.debug("key manager factory initialized");
                 KeyManager[] km = keyFactory.getKeyManagers();
@@ -467,11 +457,9 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
             } catch (KeyStoreException e) {
                 LOGGER.error("Unable to read key store: ", e);
             } catch (NoSuchAlgorithmException e) {
-                LOGGER.error(
-                        "Problems creating SSL socket. Usually this is "
+                LOGGER.error("Problems creating SSL socket. Usually this is "
                                 + "referring to the certificate sent by the server not being trusted by the client.",
-                        e
-                );
+                        e);
             } catch (UnrecoverableKeyException e) {
                 LOGGER.error("Unable to read key store: ", e);
             } finally {
@@ -520,8 +508,7 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
             this.trustStorePath = setTrustStorePath;
         }
 
-        String setTrustStorePassword = properties
-                .get(ConfigurationManager.TRUST_STORE_PASSWORD);
+        String setTrustStorePassword = properties.get(ConfigurationManager.TRUST_STORE_PASSWORD);
         if (StringUtils.isNotBlank(setTrustStorePassword)) {
             if (encryptionService == null) {
                 LOGGER.error(
@@ -541,8 +528,7 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
             this.keyStorePath = setKeyStorePath;
         }
 
-        String setKeyStorePassword = properties
-                .get(ConfigurationManager.KEY_STORE_PASSWORD);
+        String setKeyStorePassword = properties.get(ConfigurationManager.KEY_STORE_PASSWORD);
         if (StringUtils.isNotBlank(setKeyStorePassword)) {
             if (encryptionService == null) {
                 LOGGER.error(
@@ -602,7 +588,8 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
         //DDF-733 map.put(SecurityConstants.CALLBACK_HANDLER, new CommonCallbackHandler());
 
         LOGGER.debug("Setting STS TOKEN USE CERT FOR KEY INFO to \"true\"");
-        map.put(SecurityConstants.STS_TOKEN_USE_CERT_FOR_KEYINFO, String.valueOf(stsClientConfig.getUseKey()));
+        map.put(SecurityConstants.STS_TOKEN_USE_CERT_FOR_KEYINFO,
+                String.valueOf(stsClientConfig.getUseKey()));
 
         LOGGER.debug("Adding in realm information to the STSClient");
         map.put("CLIENT_REALM", "DDF");
@@ -645,9 +632,11 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
         LOGGER.debug("Configuring the STS client.");
 
         try {
-            if(trustStorePath != null && trustStorePassword != null && keyStorePath != null && keyStorePassword != null) {
-                HttpsURLConnection.setDefaultSSLSocketFactory(CommonSSLFactory.createSocket(
-                        trustStorePath, trustStorePassword, keyStorePath, keyStorePassword));
+            if (trustStorePath != null && trustStorePassword != null && keyStorePath != null
+                    && keyStorePassword != null) {
+                HttpsURLConnection.setDefaultSSLSocketFactory(CommonSSLFactory
+                        .createSocket(trustStorePath, trustStorePassword, keyStorePath,
+                                keyStorePassword));
             }
         } catch (IOException ioe) {
             throw new RuntimeException(
@@ -661,7 +650,8 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
         setClaimsOnStsClient(createClaimsElement());
 
         if (stsClient.getWsdlLocation() != null && stsClient.getWsdlLocation().startsWith(HTTPS)) {
-            if(trustStorePath != null && trustStorePassword != null && keyStorePath != null && keyStorePassword != null) {
+            if (trustStorePath != null && trustStorePassword != null && keyStorePath != null
+                    && keyStorePassword != null) {
                 setupSslOnStsClientHttpConduit();
             }
         } else {
@@ -717,16 +707,17 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
         List<String> claims = new ArrayList<String>();
         claims.addAll(stsClientConfig.getClaims());
 
-        if(contextPolicyManager != null) {
-            Collection<ContextPolicy> contextPolicies = contextPolicyManager.getAllContextPolicies();
+        if (contextPolicyManager != null) {
+            Collection<ContextPolicy> contextPolicies = contextPolicyManager
+                    .getAllContextPolicies();
             Set<String> attributes = new LinkedHashSet<String>();
-            if(contextPolicies != null && contextPolicies.size() > 0) {
-                for(ContextPolicy contextPolicy : contextPolicies) {
+            if (contextPolicies != null && contextPolicies.size() > 0) {
+                for (ContextPolicy contextPolicy : contextPolicies) {
                     attributes.addAll(contextPolicy.getAllowedAttributeNames());
                 }
             }
 
-            if(attributes.size() > 0) {
+            if (attributes.size() > 0) {
                 claims.addAll(attributes);
             }
         }

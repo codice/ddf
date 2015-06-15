@@ -16,10 +16,10 @@
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
 
         <command name="platform/describe">
-            <action class="org.codice.ddf.commands.platform.DescribeCommand" />
+            <action class="org.codice.ddf.commands.platform.DescribeCommand"/>
         </command>
         <command name="platform/envlist">
-            <action class="org.codice.ddf.commands.platform.EnvListCommand" />
+            <action class="org.codice.ddf.commands.platform.EnvListCommand"/>
         </command>
 
     </command-bundle>
@@ -28,6 +28,7 @@
         <property name="bundleContext" ref="blueprintBundleContext"/>
     </bean>
 
-    <service id="platformDescribeCommandWatcher" ref="platformDescribeCommand" interface="org.codice.ddf.configuration.ConfigurationWatcher"/>
+    <service id="platformDescribeCommandWatcher" ref="platformDescribeCommand"
+             interface="org.codice.ddf.configuration.ConfigurationWatcher"/>
 
 </blueprint>

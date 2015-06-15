@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.metrics.collector.rrd4j;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -26,7 +25,6 @@ import java.io.IOException;
 import java.util.Calendar;
 
 import org.junit.After;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.rrd4j.ConsolFun;
 import org.rrd4j.DsType;
@@ -43,7 +41,8 @@ import ddf.metrics.collector.CollectorException;
 
 public class RrdJmxCollectorTest {
 
-    private static final transient Logger LOGGER = LoggerFactory.getLogger(RrdJmxCollectorTest.class);
+    private static final transient Logger LOGGER = LoggerFactory
+            .getLogger(RrdJmxCollectorTest.class);
 
     private static final String TEST_DIR = "target/";
 
@@ -64,8 +63,9 @@ public class RrdJmxCollectorTest {
             jmxCollector.destroy();
         }
 
-        if (rrdDb == null)
+        if (rrdDb == null) {
             return;
+        }
 
         if (!rrdDb.isClosed()) {
             rrdDb.close();
@@ -89,7 +89,8 @@ public class RrdJmxCollectorTest {
         RrdJmxCollector jmxCollector = new RrdJmxCollector("java.lang:type=Runtime", "Uptime",
                 "jvmUptime");
         assertThat(jmxCollector, not(nullValue()));
-        assertThat(jmxCollector.getRrdDataSourceType(), is(RrdJmxCollector.DERIVE_DATA_SOURCE_TYPE));
+        assertThat(jmxCollector.getRrdDataSourceType(),
+                is(RrdJmxCollector.DERIVE_DATA_SOURCE_TYPE));
     }
 
     @Test
@@ -251,7 +252,8 @@ public class RrdJmxCollectorTest {
         String mbeanAttributeName = "ClassPath";
         String metricName = mbeanAttributeName.toLowerCase();
 
-        jmxCollector = new RrdJmxCollector("java.lang:type=Runtime", mbeanAttributeName, metricName);
+        jmxCollector = new RrdJmxCollector("java.lang:type=Runtime", mbeanAttributeName,
+                metricName);
         jmxCollector.setSampleRate(1);
         jmxCollector.setMetricsDir(TEST_DIR);
 
@@ -276,8 +278,8 @@ public class RrdJmxCollectorTest {
         String mbeanAttributeName = "Uptime";
         String metricName = mbeanAttributeName.toLowerCase();
 
-        jmxCollector = new RrdJmxCollector("java.lang:type=Runtime", mbeanAttributeName,
-                metricName, "ABSOLUTE");
+        jmxCollector = new RrdJmxCollector("java.lang:type=Runtime", mbeanAttributeName, metricName,
+                "ABSOLUTE");
         jmxCollector.setSampleRate(1);
         jmxCollector.setMetricsDir(TEST_DIR);
 
@@ -323,8 +325,8 @@ public class RrdJmxCollectorTest {
             String dataSourceType, int sampleRate) throws Exception {
         dataSourceName = mbeanAttributeName.toLowerCase();
 
-        jmxCollector = new RrdJmxCollector("java.lang:type=Runtime", mbeanAttributeName,
-                metricName, dataSourceType, dataSourceName);
+        jmxCollector = new RrdJmxCollector("java.lang:type=Runtime", mbeanAttributeName, metricName,
+                dataSourceType, dataSourceName);
 
         jmxCollector.setSampleRate(sampleRate);
         jmxCollector.setMinimumUpdateTimeDelta(0);

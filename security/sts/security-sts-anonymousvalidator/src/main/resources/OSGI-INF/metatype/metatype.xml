@@ -14,7 +14,8 @@
 -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-	<OCD description="Anonymous Validator Configuration" name="Security STS Anonymous Validator" id="ddf.security.sts.anonymousvalidator">
+	<OCD description="Anonymous Validator Configuration" name="Security STS Anonymous Validator"
+         id="ddf.security.sts.anonymousvalidator">
         <AD name="Supported Realms" id="supportedRealm" required="true" type="String"
             cardinality="100"
             default="karaf,ldap"
@@ -23,7 +24,7 @@
 	</OCD>
 	
 	<Designate pid="ddf.security.sts.anonymousvalidator">
-	    <Object ocdref="ddf.security.sts.anonymousvalidator" />
+	    <Object ocdref="ddf.security.sts.anonymousvalidator"/>
   	</Designate>
 
 </metatype:MetaData>

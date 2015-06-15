@@ -1,4 +1,3 @@
-
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -30,11 +29,11 @@
   specific language governing permissions and limitations
   under the License.
 -->
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-           xmlns:jaxws="http://cxf.apache.org/blueprint/jaxws"
+<blueprint xmlns:jaxws="http://cxf.apache.org/blueprint/jaxws"
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
            xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0
 		http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
         http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0
@@ -201,11 +200,11 @@
     </bean>
 
     <!--ENDPOINT CONFIGURATION -->
-    <jaxws:endpoint id="STS"
+    <jaxws:endpoint xmlns:ns1="http://docs.oasis-open.org/ws-sx/ws-trust/200512/"
+                    id="STS"
                     implementor="#STSProviderBean"
                     address="/SecurityTokenService"
                     wsdlLocation="classpath:META-INF/sts/wsdl/ws-trust-1.4-service.wsdl"
-                    xmlns:ns1="http://docs.oasis-open.org/ws-sx/ws-trust/200512/"
                     serviceName="ns1:SecurityTokenService"
                     endpointName="ns1:STS_Port"
                     depends-on="propertyWrapper">
@@ -233,7 +232,7 @@
         <argument ref="SAMLConditionsProvider"/>
         <argument ref="STSProperties"/>
         <cm:managed-properties persistent-id="ddf.security.sts"
-                               update-strategy="container-managed" />
+                               update-strategy="container-managed"/>
     </bean>
 </blueprint>
 

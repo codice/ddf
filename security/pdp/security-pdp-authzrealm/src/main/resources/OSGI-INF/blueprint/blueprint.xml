@@ -12,11 +12,12 @@
  *
  **/
 -->
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0" xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
+<blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
     <bean id="pdpAuthzRealm" class="ddf.security.pdp.realm.SimpleAuthzRealm">
         <cm:managed-properties persistent-id="ddf.security.pdp.realm.SimpleAuthzRealm"
-                               update-strategy="container-managed" />
+                               update-strategy="container-managed"/>
         <property name="expansionServiceList" ref="userAttributeExpansionList"/>
         <property name="accessRoleList">
             <list>
@@ -27,7 +28,7 @@
     </bean>
 
     <reference-list id="userAttributeExpansionList" interface="ddf.security.expansion.Expansion"
-              filter="(mapping=security.user.attribute.mapping)" availability="optional" />
+                    filter="(mapping=security.user.attribute.mapping)" availability="optional"/>
 
     <service ref="pdpAuthzRealm">
         <interfaces>

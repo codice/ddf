@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.security.filter.login;
 
 import java.io.IOException;
@@ -91,7 +90,19 @@ public class LoginFilter implements Filter {
 
     private static final String SAML_EXPIRATION = "saml.expiration";
 
-    private SecurityManager securityManager;
+    private static final ThreadLocal<DocumentBuilder> BUILDER = new ThreadLocal<DocumentBuilder>() {
+        @Override
+        protected DocumentBuilder initialValue() {
+            try {
+                DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                factory.setNamespaceAware(true);
+                return factory.newDocumentBuilder();
+            } catch (ParserConfigurationException ex) {
+                // This exception should not happen
+                throw new IllegalArgumentException("Unable to create new DocumentBuilder", ex);
+            }
+        }
+    };
 
     private static SAMLObjectBuilder<Status> statusBuilder;
 
@@ -105,28 +116,15 @@ public class LoginFilter implements Filter {
 
     private static XMLObjectBuilderFactory builderFactory = Configuration.getBuilderFactory();
 
+    private final Object lock = new Object();
+
+    private SecurityManager securityManager;
+
     private String signaturePropertiesFile;
 
     private Crypto signatureCrypto;
 
     private Validator assertionValidator = new SamlAssertionValidator();
-
-    private final Object lock = new Object();
-
-    private static final ThreadLocal<DocumentBuilder> BUILDER =
-            new ThreadLocal<DocumentBuilder>() {
-                @Override
-                protected DocumentBuilder initialValue() {
-                    try {
-                        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-                        factory.setNamespaceAware(true);
-                        return factory.newDocumentBuilder();
-                    } catch (ParserConfigurationException ex) {
-                        // This exception should not happen
-                        throw new IllegalArgumentException("Unable to create new DocumentBuilder", ex);
-                    }
-                }
-            };
 
     /**
      * Default expiration value is 31 minutes
@@ -135,6 +133,85 @@ public class LoginFilter implements Filter {
 
     public LoginFilter() {
         super();
+    }
+
+    /**
+     * Creates the SAML response that we use for validation against the CXF
+     * code.
+     *
+     * @param inResponseTo
+     * @param issuer
+     * @param status
+     * @return Response
+     */
+    private static Response createSamlResponse(String inResponseTo, String issuer, Status status) {
+        if (responseBuilder == null) {
+            responseBuilder = (SAMLObjectBuilder<Response>) builderFactory
+                    .getBuilder(Response.DEFAULT_ELEMENT_NAME);
+        }
+        Response response = responseBuilder.buildObject();
+
+        response.setID(UUID.randomUUID().toString());
+        response.setIssueInstant(new DateTime());
+        response.setInResponseTo(inResponseTo);
+        response.setIssuer(createIssuer(issuer));
+        response.setStatus(status);
+        response.setVersion(SAMLVersion.VERSION_20);
+
+        return response;
+    }
+
+    /**
+     * Creates the issuer object for the response.
+     *
+     * @param issuerValue
+     * @return Issuer
+     */
+    private static Issuer createIssuer(String issuerValue) {
+        if (issuerBuilder == null) {
+            issuerBuilder = (SAMLObjectBuilder<Issuer>) builderFactory
+                    .getBuilder(Issuer.DEFAULT_ELEMENT_NAME);
+        }
+        Issuer issuer = issuerBuilder.buildObject();
+        issuer.setValue(issuerValue);
+
+        return issuer;
+    }
+
+    /**
+     * Creates the status object for the response.
+     *
+     * @param statusCodeValue
+     * @param statusMessage
+     * @return Status
+     */
+    private static Status createStatus(String statusCodeValue, String statusMessage) {
+        if (statusBuilder == null) {
+            statusBuilder = (SAMLObjectBuilder<Status>) builderFactory
+                    .getBuilder(Status.DEFAULT_ELEMENT_NAME);
+        }
+        if (statusCodeBuilder == null) {
+            statusCodeBuilder = (SAMLObjectBuilder<StatusCode>) builderFactory
+                    .getBuilder(StatusCode.DEFAULT_ELEMENT_NAME);
+        }
+        if (statusMessageBuilder == null) {
+            statusMessageBuilder = (SAMLObjectBuilder<StatusMessage>) builderFactory
+                    .getBuilder(StatusMessage.DEFAULT_ELEMENT_NAME);
+        }
+
+        Status status = statusBuilder.buildObject();
+
+        StatusCode statusCode = statusCodeBuilder.buildObject();
+        statusCode.setValue(statusCodeValue);
+        status.setStatusCode(statusCode);
+
+        if (statusMessage != null) {
+            StatusMessage statusMessageObject = statusMessageBuilder.buildObject();
+            statusMessageObject.setMessage(statusMessage);
+            status.setStatusMessage(statusMessageObject);
+        }
+
+        return status;
     }
 
     @Override
@@ -154,7 +231,7 @@ public class LoginFilter implements Filter {
      */
     @Override
     public void doFilter(final ServletRequest request, final ServletResponse response,
-      final FilterChain chain) throws IOException, ServletException {
+            final FilterChain chain) throws IOException, ServletException {
         LOGGER.debug("Performing doFilter() on LoginFilter");
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
@@ -167,7 +244,10 @@ public class LoginFilter implements Filter {
             final Subject subject = validateRequest(httpRequest, httpResponse);
             if (subject != null) {
                 httpRequest.setAttribute(SecurityConstants.SECURITY_SUBJECT, subject);
-                LOGGER.debug("Now performing request as user {} for {}", subject.getPrincipal(), StringUtils.isNotBlank(httpRequest.getContextPath()) ? httpRequest.getContextPath() : httpRequest.getServletPath());
+                LOGGER.debug("Now performing request as user {} for {}", subject.getPrincipal(),
+                        StringUtils.isNotBlank(httpRequest.getContextPath()) ?
+                                httpRequest.getContextPath() :
+                                httpRequest.getServletPath());
                 SecurityLogger.logDebug("Executing request as user: " + subject.getPrincipal());
                 subject.execute(new Callable<Object>() {
 
@@ -180,9 +260,11 @@ public class LoginFilter implements Filter {
                                 return null;
                             }
                         };
-                        SecurityAssertion securityAssertion = subject.getPrincipals().oneByType(SecurityAssertion.class);
+                        SecurityAssertion securityAssertion = subject.getPrincipals()
+                                .oneByType(SecurityAssertion.class);
                         HashSet emptySet = new HashSet();
-                        javax.security.auth.Subject javaSubject = new javax.security.auth.Subject(true, securityAssertion.getPrincipals(), emptySet, emptySet);
+                        javax.security.auth.Subject javaSubject = new javax.security.auth.Subject(
+                                true, securityAssertion.getPrincipals(), emptySet, emptySet);
                         javax.security.auth.Subject.doAs(javaSubject, action);
                         return null;
                     }
@@ -197,7 +279,7 @@ public class LoginFilter implements Filter {
     }
 
     private Subject validateRequest(final HttpServletRequest httpRequest,
-      final HttpServletResponse httpResponse) throws IOException, ServletException {
+            final HttpServletResponse httpResponse) throws IOException, ServletException {
 
         Subject subject = null;
 
@@ -222,7 +304,8 @@ public class LoginFilter implements Filter {
         return subject;
     }
 
-    private Subject handleAuthenticationToken(HttpServletRequest httpRequest, SAMLAuthenticationToken token) throws ServletException {
+    private Subject handleAuthenticationToken(HttpServletRequest httpRequest,
+            SAMLAuthenticationToken token) throws ServletException {
         Subject subject;
         try {
             LOGGER.debug("Validating received SAML assertion.");
@@ -231,10 +314,14 @@ public class LoginFilter implements Filter {
             if (token.isReference()) {
                 wasReference = true;
                 LOGGER.trace("Converting SAML reference to assertion");
-                Object sessionToken = httpRequest.getSession(false).getAttribute(SecurityConstants.SAML_ASSERTION);
+                Object sessionToken = httpRequest.getSession(false)
+                        .getAttribute(SecurityConstants.SAML_ASSERTION);
                 if (LOGGER.isTraceEnabled()) {
-                    LOGGER.trace("Http Session assertion - class: {}  loader: {}", sessionToken.getClass().getName(), sessionToken.getClass().getClassLoader());
-                    LOGGER.trace("SecurityToken class: {}  loader: {}", SecurityToken.class.getName(), SecurityToken.class.getClassLoader());
+                    LOGGER.trace("Http Session assertion - class: {}  loader: {}",
+                            sessionToken.getClass().getName(),
+                            sessionToken.getClass().getClassLoader());
+                    LOGGER.trace("SecurityToken class: {}  loader: {}",
+                            SecurityToken.class.getName(), SecurityToken.class.getClassLoader());
                 }
                 SecurityToken savedToken = null;
                 try {
@@ -252,7 +339,8 @@ public class LoginFilter implements Filter {
                 }
             }
 
-            SAMLAuthenticationToken newToken = renewSecurityToken(httpRequest.getSession(false), token);
+            SAMLAuthenticationToken newToken = renewSecurityToken(httpRequest.getSession(false),
+                    token);
 
             synchronized (lock) {
                 SecurityToken securityToken;
@@ -261,14 +349,15 @@ public class LoginFilter implements Filter {
                 } else {
                     securityToken = (SecurityToken) token.getCredentials();
                 }
-                if(!wasReference) {
+                if (!wasReference) {
                     // wrap the token
-                    SamlAssertionWrapper assertion = new SamlAssertionWrapper(securityToken.getToken());
+                    SamlAssertionWrapper assertion = new SamlAssertionWrapper(
+                            securityToken.getToken());
 
                     // get the crypto junk
                     Crypto crypto = getSignatureCrypto();
-                    Response samlResponse = createSamlResponse(
-                            httpRequest.getRequestURI(), assertion.getIssuerString(),
+                    Response samlResponse = createSamlResponse(httpRequest.getRequestURI(),
+                            assertion.getIssuerString(),
                             createStatus(SAMLProtocolResponseValidator.SAML2_STATUSCODE_SUCCESS,
                                     null));
 
@@ -287,17 +376,21 @@ public class LoginFilter implements Filter {
 
                     if (assertion.isSigned()) {
                         if (assertion.getSaml1() != null) {
-                            assertion.getSaml1().getDOM().setIdAttributeNS(null, "AssertionID", true);
+                            assertion.getSaml1().getDOM()
+                                    .setIdAttributeNS(null, "AssertionID", true);
                         } else {
                             assertion.getSaml2().getDOM().setIdAttributeNS(null, "ID", true);
                         }
 
                         // Verify the signature
                         try {
-                            WSSSAMLKeyInfoProcessor wsssamlKeyInfoProcessor = new WSSSAMLKeyInfoProcessor(requestData, new WSDocInfo(samlResponse.getDOM().getOwnerDocument()));
+                            WSSSAMLKeyInfoProcessor wsssamlKeyInfoProcessor = new WSSSAMLKeyInfoProcessor(
+                                    requestData,
+                                    new WSDocInfo(samlResponse.getDOM().getOwnerDocument()));
                             assertion.verifySignature(wsssamlKeyInfoProcessor, crypto);
                         } catch (WSSecurityException e) {
-                            throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, "invalidSAMLsecurity");
+                            throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE,
+                                    "invalidSAMLsecurity");
                         }
                     }
 
@@ -305,7 +398,8 @@ public class LoginFilter implements Filter {
                     try {
                         assertionValidator.validate(credential, requestData);
                     } catch (WSSecurityException ex) {
-                        throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, "invalidSAMLsecurity");
+                        throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE,
+                                "invalidSAMLsecurity");
                     }
                 }
 
@@ -322,14 +416,16 @@ public class LoginFilter implements Filter {
         return subject;
     }
 
-    private SAMLAuthenticationToken renewSecurityToken(HttpSession session, SAMLAuthenticationToken savedToken) throws WSSecurityException {
+    private SAMLAuthenticationToken renewSecurityToken(HttpSession session,
+            SAMLAuthenticationToken savedToken) throws WSSecurityException {
         long timeoutSeconds = -1;
         if (session != null) {
             Long afterMil = (Long) session.getAttribute(SAML_EXPIRATION);
             long beforeMil = System.currentTimeMillis();
             if (afterMil == null) {
                 synchronized (lock) {
-                    SamlAssertionWrapper assertion = new SamlAssertionWrapper(((SecurityToken) savedToken.getCredentials()).getToken());
+                    SamlAssertionWrapper assertion = new SamlAssertionWrapper(
+                            ((SecurityToken) savedToken.getCredentials()).getToken());
                     if (assertion.getSaml2() != null) {
                         DateTime after = assertion.getSaml2().getConditions().getNotOnOrAfter();
                         afterMil = after.getMillis();
@@ -349,17 +445,26 @@ public class LoginFilter implements Filter {
                         LOGGER.debug("Refresh of user assertion successful");
                         for (Object principal : subject.getPrincipals()) {
                             if (principal instanceof SecurityAssertion) {
-                                SecurityToken token = ((SecurityAssertion) principal).getSecurityToken();
+                                SecurityToken token = ((SecurityAssertion) principal)
+                                        .getSecurityToken();
                                 SAMLAuthenticationToken samlAuthenticationToken = new SAMLAuthenticationToken(
-                                        (java.security.Principal) savedToken.getPrincipal(), token, savedToken.getRealm());
+                                        (java.security.Principal) savedToken.getPrincipal(), token,
+                                        savedToken.getRealm());
                                 if (LOGGER.isTraceEnabled()) {
-                                    LOGGER.trace("Setting session token - class: {}  classloader: {}", token.getClass().getName(), token.getClass().getClassLoader());
+                                    LOGGER.trace(
+                                            "Setting session token - class: {}  classloader: {}",
+                                            token.getClass().getName(),
+                                            token.getClass().getClassLoader());
                                 }
-                                ((SecurityTokenHolder) session.getAttribute(SecurityConstants.SAML_ASSERTION)).setSecurityToken(token);
+                                ((SecurityTokenHolder) session
+                                        .getAttribute(SecurityConstants.SAML_ASSERTION))
+                                        .setSecurityToken(token);
 
-                                SamlAssertionWrapper assertion = new SamlAssertionWrapper(((SecurityToken) savedToken.getCredentials()).getToken());
+                                SamlAssertionWrapper assertion = new SamlAssertionWrapper(
+                                        ((SecurityToken) savedToken.getCredentials()).getToken());
                                 if (assertion.getSaml2() != null) {
-                                    DateTime after = assertion.getSaml2().getConditions().getNotOnOrAfter();
+                                    DateTime after = assertion.getSaml2().getConditions()
+                                            .getNotOnOrAfter();
                                     afterMil = after.getMillis();
                                 }
 
@@ -371,7 +476,9 @@ public class LoginFilter implements Filter {
                         }
 
                     } catch (SecurityServiceException e) {
-                        LOGGER.warn("Unable to refresh user's SAML assertion. User will log out prematurely.", e);
+                        LOGGER.warn(
+                                "Unable to refresh user's SAML assertion. User will log out prematurely.",
+                                e);
                         session.invalidate();
                     } catch (Exception e) {
                         LOGGER.warn("Unhandled exception occurred.", e);
@@ -383,7 +490,8 @@ public class LoginFilter implements Filter {
         return null;
     }
 
-    private Subject handleAuthenticationToken(HttpServletRequest httpRequest, BaseAuthenticationToken token) throws ServletException {
+    private Subject handleAuthenticationToken(HttpServletRequest httpRequest,
+            BaseAuthenticationToken token) throws ServletException {
         Subject subject;
 
         HttpSession session = httpRequest.getSession(true);
@@ -428,85 +536,6 @@ public class LoginFilter implements Filter {
     }
 
     /**
-     * Creates the SAML response that we use for validation against the CXF
-     * code.
-     *
-     * @param inResponseTo
-     * @param issuer
-     * @param status
-     * @return Response
-     */
-    private static Response createSamlResponse(String inResponseTo, String issuer, Status status) {
-        if (responseBuilder == null) {
-            responseBuilder = (SAMLObjectBuilder<Response>) builderFactory
-              .getBuilder(Response.DEFAULT_ELEMENT_NAME);
-        }
-        Response response = responseBuilder.buildObject();
-
-        response.setID(UUID.randomUUID().toString());
-        response.setIssueInstant(new DateTime());
-        response.setInResponseTo(inResponseTo);
-        response.setIssuer(createIssuer(issuer));
-        response.setStatus(status);
-        response.setVersion(SAMLVersion.VERSION_20);
-
-        return response;
-    }
-
-    /**
-     * Creates the issuer object for the response.
-     *
-     * @param issuerValue
-     * @return Issuer
-     */
-    private static Issuer createIssuer(String issuerValue) {
-        if (issuerBuilder == null) {
-            issuerBuilder = (SAMLObjectBuilder<Issuer>) builderFactory
-              .getBuilder(Issuer.DEFAULT_ELEMENT_NAME);
-        }
-        Issuer issuer = issuerBuilder.buildObject();
-        issuer.setValue(issuerValue);
-
-        return issuer;
-    }
-
-    /**
-     * Creates the status object for the response.
-     *
-     * @param statusCodeValue
-     * @param statusMessage
-     * @return Status
-     */
-    private static Status createStatus(String statusCodeValue, String statusMessage) {
-        if (statusBuilder == null) {
-            statusBuilder = (SAMLObjectBuilder<Status>) builderFactory
-              .getBuilder(Status.DEFAULT_ELEMENT_NAME);
-        }
-        if (statusCodeBuilder == null) {
-            statusCodeBuilder = (SAMLObjectBuilder<StatusCode>) builderFactory
-              .getBuilder(StatusCode.DEFAULT_ELEMENT_NAME);
-        }
-        if (statusMessageBuilder == null) {
-            statusMessageBuilder = (SAMLObjectBuilder<StatusMessage>) builderFactory
-              .getBuilder(StatusMessage.DEFAULT_ELEMENT_NAME);
-        }
-
-        Status status = statusBuilder.buildObject();
-
-        StatusCode statusCode = statusCodeBuilder.buildObject();
-        statusCode.setValue(statusCodeValue);
-        status.setStatusCode(statusCode);
-
-        if (statusMessage != null) {
-            StatusMessage statusMessageObject = statusMessageBuilder.buildObject();
-            statusMessageObject.setMessage(statusMessage);
-            status.setStatusMessage(statusMessageObject);
-        }
-
-        return status;
-    }
-
-    /**
      * Creates a cookie to be returned to the browser if the token was
      * successfully exchanged for a SAML assertion. Adds it to the response
      * object to be sent back to the caller.
@@ -519,9 +548,12 @@ public class LoginFilter implements Filter {
             HttpSession session = httpRequest.getSession(true);
             if (session.getAttribute(SecurityConstants.SAML_ASSERTION) == null) {
                 if (LOGGER.isTraceEnabled()) {
-                    LOGGER.trace("Creating token in session - class: {}  classloader: {}", securityToken.getClass().getName(), securityToken.getClass().getClassLoader());
+                    LOGGER.trace("Creating token in session - class: {}  classloader: {}",
+                            securityToken.getClass().getName(),
+                            securityToken.getClass().getClassLoader());
                 }
-                session.setAttribute(SecurityConstants.SAML_ASSERTION, new SecurityTokenHolder(securityToken));
+                session.setAttribute(SecurityConstants.SAML_ASSERTION,
+                        new SecurityTokenHolder(securityToken));
                 SamlAssertionWrapper assertion = null;
                 DateTime after = null;
                 try {

@@ -1,18 +1,31 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package ddf.compression.exi;
+
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.StringWriter;
+
+import javax.xml.parsers.SAXParserFactory;
+import javax.xml.transform.sax.SAXTransformerFactory;
+import javax.xml.transform.sax.TransformerHandler;
+import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.io.IOUtils;
 import org.custommonkey.xmlunit.Diff;
@@ -23,19 +36,6 @@ import org.openexi.proc.common.GrammarOptions;
 import org.openexi.proc.grammars.GrammarCache;
 import org.openexi.sax.EXIReader;
 import org.xml.sax.InputSource;
-
-import javax.xml.parsers.SAXParserFactory;
-import javax.xml.transform.sax.SAXTransformerFactory;
-import javax.xml.transform.sax.TransformerHandler;
-import javax.xml.transform.stream.StreamResult;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.StringWriter;
-
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
 
 /**
  * Tests out the functionality of the EXIEncoder class.
@@ -70,7 +70,8 @@ public class EXIEncoderTest {
 
         GrammarCache grammarCache;
 
-        SAXTransformerFactory saxTransformerFactory = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
+        SAXTransformerFactory saxTransformerFactory = (SAXTransformerFactory) SAXTransformerFactory
+                .newInstance();
         SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
         saxParserFactory.setNamespaceAware(true);
         TransformerHandler transformerHandler = saxTransformerFactory.newTransformerHandler();
@@ -88,8 +89,10 @@ public class EXIEncoderTest {
         reader.parse(new InputSource(new ByteArrayInputStream(exiStream.toByteArray())));
         XMLUnit.setNormalize(true);
         XMLUnit.setNormalizeWhitespace(true);
-        Diff diff = XMLUnit.compareXML(IOUtils.toString(getClass().getResourceAsStream(TEST_FILE)), stringWriter.getBuffer().toString());
-        assertTrue("The XML input file (" + TEST_FILE + ") did not match the EXI-decoded output", diff.similar());
+        Diff diff = XMLUnit.compareXML(IOUtils.toString(getClass().getResourceAsStream(TEST_FILE)),
+                stringWriter.getBuffer().toString());
+        assertTrue("The XML input file (" + TEST_FILE + ") did not match the EXI-decoded output",
+                diff.similar());
     }
 
     /**

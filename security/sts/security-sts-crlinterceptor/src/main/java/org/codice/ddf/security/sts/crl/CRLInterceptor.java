@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.security.sts.crl;
 
 import java.io.File;
@@ -40,7 +39,7 @@ import ddf.security.common.audit.SecurityLogger;
 /**
  * Interceptor that checks an incoming message against a defined certification
  * revocation list (CRL).
- * 
+ *
  */
 public class CRLInterceptor extends AbstractPhaseInterceptor<Message> {
 
@@ -52,7 +51,7 @@ public class CRLInterceptor extends AbstractPhaseInterceptor<Message> {
 
     /**
      * Creates a new crl interceptor.
-     * 
+     *
      */
     public CRLInterceptor() {
         super(Phase.PRE_PROTOCOL);
@@ -88,14 +87,15 @@ public class CRLInterceptor extends AbstractPhaseInterceptor<Message> {
                 throw new AccessDeniedException(errorMsg);
             }
         } else {
-            LOGGER.debug("Allowing message through. CRL checking has been disabled or there were no certificates sent by the client.");
+            LOGGER.debug(
+                    "Allowing message through. CRL checking has been disabled or there were no certificates sent by the client.");
         }
 
     }
 
     /**
      * Sets the location of the CRL.
-     * 
+     *
      * @param location
      *            Location of the DER-encoded CRL file that should be used to
      *            check certificate revocation.
@@ -122,7 +122,7 @@ public class CRLInterceptor extends AbstractPhaseInterceptor<Message> {
     /**
      * Sets the isEnabled flag for the CRL checker which determines if the
      * interceptor should check the incoming request to the specified CRL.
-     * 
+     *
      * @param isEnabled
      *            boolean value that either turns on crl checking (true) or
      *            turns off checking (false).
@@ -133,7 +133,7 @@ public class CRLInterceptor extends AbstractPhaseInterceptor<Message> {
 
     /**
      * Generates a new CRL object from the given location.
-     * 
+     *
      * @param location
      *            File location of the CRL file.
      * @return new CRL object
@@ -145,8 +145,8 @@ public class CRLInterceptor extends AbstractPhaseInterceptor<Message> {
      *             If the input CRL file is invalid and cannot be used to
      *             generate a crl object.
      */
-    private CRL createCRL(String location) throws FileNotFoundException, CertificateException,
-            CRLException {
+    private CRL createCRL(String location)
+            throws FileNotFoundException, CertificateException, CRLException {
         FileInputStream fis = new FileInputStream(new File(location));
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
         return cf.generateCRL(fis);

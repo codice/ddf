@@ -1,19 +1,22 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 
 package org.codice.ddf.security.interceptor;
+
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Set;
 
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.interceptor.Fault;
@@ -30,23 +33,19 @@ import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Set;
-
 public class AnonymousInterceptorWrapper extends AbstractWSS4JInterceptor {
-	private static final Logger LOGGER = LoggerFactory.getLogger(AnonymousInterceptorWrapper.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AnonymousInterceptorWrapper.class);
 
     private PhaseInterceptor anonIntercep;
 
-	public AnonymousInterceptorWrapper() {
+    public AnonymousInterceptorWrapper() {
         super();
         setPhase(Phase.PRE_PROTOCOL);
         //make sure this interceptor runs before the WSS4J one in the same Phase, otherwise it won't work
         Set<String> before = getBefore();
         before.add(WSS4JInInterceptor.class.getName());
         before.add(PolicyBasedWSS4JInInterceptor.class.getName());
-	}
+    }
 
     protected BundleContext getContext() {
         Bundle cxfBundle = FrameworkUtil.getBundle(AnonymousInterceptorWrapper.class);
@@ -57,13 +56,14 @@ public class AnonymousInterceptorWrapper extends AbstractWSS4JInterceptor {
     }
 
     @Override
-	public void handleMessage(SoapMessage msg) throws Fault {
+    public void handleMessage(SoapMessage msg) throws Fault {
         BundleContext context = getContext();
         PhaseInterceptor anonIntercep = null;
         Collection<ServiceReference<PhaseInterceptor>> anonIntercepRefs = null;
         if (context != null) {
             try {
-                anonIntercepRefs = context.getServiceReferences(PhaseInterceptor.class, "(interceptor=anonymous)");
+                anonIntercepRefs = context
+                        .getServiceReferences(PhaseInterceptor.class, "(interceptor=anonymous)");
             } catch (InvalidSyntaxException e) {
                 //ignore, it isn't invalid
             }
@@ -80,6 +80,6 @@ public class AnonymousInterceptorWrapper extends AbstractWSS4JInterceptor {
         } else {
             LOGGER.debug("Unable to acquire bundle context for anonymous interceptor");
         }
-	}
+    }
 
 }

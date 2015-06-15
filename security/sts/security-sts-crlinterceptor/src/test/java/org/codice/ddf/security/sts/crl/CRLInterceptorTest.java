@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.security.sts.crl;
 
 import static org.junit.Assert.fail;
@@ -35,8 +34,8 @@ import org.slf4j.LoggerFactory;
 /**
  * Tests the CRL Interceptor by using use cases where a certificate gets revoked
  * or passes.
- * 
- * 
+ *
+ *
  */
 public class CRLInterceptorTest {
 
@@ -44,17 +43,17 @@ public class CRLInterceptorTest {
 
     private static final String VALID_CERT = "/certs/ia.crt";
 
-    private static final String CRL_LOCATION = CRLInterceptorTest.class.getResource(
-            "/certs/root.crl").getFile();
+    private static final String CRL_LOCATION = CRLInterceptorTest.class
+            .getResource("/certs/root.crl").getFile();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CRLInterceptorTest.class);
 
     // START Error cases (calling interceptor should throw AccessDeniedException)
-    
+
     /**
      * Verifies that a certificate designated as revoked in the CRL is properly
      * caught in the interceptor.
-     * 
+     *
      */
     @Test(expected = AccessDeniedException.class)
     public void testDenyCertificate() {
@@ -71,7 +70,7 @@ public class CRLInterceptorTest {
         callNewInterceptor(CRL_LOCATION, true, message);
 
     }
-    
+
     /**
      * Tests that the interceptor will deny access if it is enabled and there is
      * no CRL file set.
@@ -112,15 +111,15 @@ public class CRLInterceptorTest {
 
         callNewInterceptor(VALID_CERT, true, message);
     }
-    
+
     // END Error Cases
-    
+
     // START Success Cases
 
     /**
      * Tests that a certificate not designated as revoked in the CRL is properly
      * let through the interceptor.
-     * 
+     *
      */
     @Test
     public void testPassCertificate() {
@@ -140,7 +139,7 @@ public class CRLInterceptorTest {
     /**
      * Tests that the interceptor does not error out if no certificate is in the
      * incoming message.
-     * 
+     *
      */
     @Test
     public void testPassNoCertificate() {
@@ -171,11 +170,11 @@ public class CRLInterceptorTest {
 
         // bad certificate
         callNewInterceptor(CRL_LOCATION, false, message);
-        
+
         // bad crl file (points to cert instead of crl)
         callNewInterceptor(VALID_CERT, false, message);
     }
-    
+
     // END Success Cases
 
     private Message createMockMessageWithCert(String certificateFile) throws CertificateException {

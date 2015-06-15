@@ -1,26 +1,17 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.security.policy.context.impl;
-
-import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.security.policy.context.ContextPolicy;
-import org.codice.ddf.security.policy.context.ContextPolicyManager;
-import org.codice.ddf.security.policy.context.attributes.ContextAttributeMapping;
-import org.codice.ddf.security.policy.context.attributes.DefaultContextAttributeMapping;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,6 +20,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.security.policy.context.ContextPolicy;
+import org.codice.ddf.security.policy.context.ContextPolicyManager;
+import org.codice.ddf.security.policy.context.attributes.ContextAttributeMapping;
+import org.codice.ddf.security.policy.context.attributes.DefaultContextAttributeMapping;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of ContextPolicyManager. This implementation starts with a default empty policy
@@ -54,7 +53,8 @@ public class PolicyManager implements ContextPolicyManager {
 
     private List<String> whiteListContexts = new ArrayList<String>();
 
-    private ContextPolicy defaultPolicy = new Policy("/", DEFAULT_REALM, new ArrayList<String>(), new ArrayList<ContextAttributeMapping>());
+    private ContextPolicy defaultPolicy = new Policy("/", DEFAULT_REALM, new ArrayList<String>(),
+            new ArrayList<ContextAttributeMapping>());
 
     private Map<String, Object> policyProperties = new HashMap<String, Object>();
 
@@ -203,7 +203,9 @@ public class PolicyManager implements ContextPolicyManager {
                 if (mappings == null) {
                     mappings = new ArrayList<>();
                 }
-                policyStore.put(context.getKey(), new Policy(context.getKey(), contextToRealm.get(context.getKey()), context.getValue(), mappings));
+                policyStore.put(context.getKey(),
+                        new Policy(context.getKey(), contextToRealm.get(context.getKey()),
+                                context.getValue(), mappings));
             }
         }
     }
@@ -228,7 +230,8 @@ public class PolicyManager implements ContextPolicyManager {
     public void setAuthenticationTypes(List<String> authenticationTypes) {
         LOGGER.debug("setAuthenticationTypes(List<String>) called with {}", authenticationTypes);
         if (authenticationTypes != null) {
-            policyProperties.put(AUTH_TYPES, authenticationTypes.toArray(new String[authenticationTypes.size()]));
+            policyProperties.put(AUTH_TYPES,
+                    authenticationTypes.toArray(new String[authenticationTypes.size()]));
         } else {
             policyProperties.put(AUTH_TYPES, null);
         }
@@ -242,7 +245,8 @@ public class PolicyManager implements ContextPolicyManager {
     public void setRequiredAttributes(List<String> requiredAttributes) {
         LOGGER.debug("setRequiredAttributes(List<String>) called with {}", requiredAttributes);
         if (requiredAttributes != null) {
-            policyProperties.put(REQ_ATTRS, requiredAttributes.toArray(new String[requiredAttributes.size()]));
+            policyProperties.put(REQ_ATTRS,
+                    requiredAttributes.toArray(new String[requiredAttributes.size()]));
         } else {
             policyProperties.put(REQ_ATTRS, null);
         }

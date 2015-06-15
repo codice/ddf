@@ -34,8 +34,8 @@
    Version: $Id$
 -->
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           xmlns:cas="http://www.yale.edu/tp/cas" 
-           targetNamespace="http://www.yale.edu/tp/cas" 
+           xmlns:cas="http://www.yale.edu/tp/cas"
+           targetNamespace="http://www.yale.edu/tp/cas"
            elementFormDefault="qualified" attributeFormDefault="unqualified">
 
     <xs:element name="serviceResponse" type="cas:ServiceResponseType"/>

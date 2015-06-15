@@ -1,17 +1,34 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ * <p/>
+ * <p/>
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements. See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership. The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 /**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
@@ -32,7 +49,11 @@
  */
 package org.codice.ddf.security.validator.x509;
 
-import ddf.security.PropertiesLoader;
+import java.io.IOException;
+import java.security.cert.X509Certificate;
+
+import javax.security.auth.callback.CallbackHandler;
+
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.sts.STSPropertiesMBean;
 import org.apache.cxf.sts.request.ReceivedToken;
@@ -56,9 +77,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Text;
 
-import javax.security.auth.callback.CallbackHandler;
-import java.io.IOException;
-import java.security.cert.X509Certificate;
+import ddf.security.PropertiesLoader;
 
 /**
  * X509PKIPathv1 validator for the STS.  This validator is responsible for validating X509 tokens
@@ -71,11 +90,12 @@ public class X509PathTokenValidator implements TokenValidator {
 
     public static final String BASE64_ENCODING = WSConstants.SOAPMESSAGE_NS + "#Base64Binary";
 
-    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(X509PathTokenValidator.class);
-
-    private Validator validator = new SignatureTrustValidator();
+    private static final org.slf4j.Logger LOGGER = LoggerFactory
+            .getLogger(X509PathTokenValidator.class);
 
     protected Merlin merlin;
+
+    private Validator validator = new SignatureTrustValidator();
 
     private String signaturePropertiesPath;
 
@@ -84,7 +104,8 @@ public class X509PathTokenValidator implements TokenValidator {
      */
     public void init() {
         try {
-            merlin = new Merlin(PropertiesLoader.loadProperties(signaturePropertiesPath), X509PathTokenValidator.class.getClassLoader(), null);
+            merlin = new Merlin(PropertiesLoader.loadProperties(signaturePropertiesPath),
+                    X509PathTokenValidator.class.getClassLoader(), null);
         } catch (WSSecurityException | IOException e) {
             LOGGER.error("Unable to read merlin properties file.", e);
         }
@@ -117,8 +138,8 @@ public class X509PathTokenValidator implements TokenValidator {
      */
     public boolean canHandleToken(ReceivedToken validateTarget, String realm) {
         Object token = validateTarget.getToken();
-        if ((token instanceof BinarySecurityTokenType)
-                && X509_PKI_PATH.equals(((BinarySecurityTokenType)token).getValueType())) {
+        if ((token instanceof BinarySecurityTokenType) && X509_PKI_PATH
+                .equals(((BinarySecurityTokenType) token).getValueType())) {
             return true;
         }
         return false;
@@ -149,7 +170,8 @@ public class X509PathTokenValidator implements TokenValidator {
             return response;
         }
 
-        BinarySecurityTokenType binarySecurityType = (BinarySecurityTokenType)validateTarget.getToken();
+        BinarySecurityTokenType binarySecurityType = (BinarySecurityTokenType) validateTarget
+                .getToken();
 
         // Test the encoding type
         String encodingType = binarySecurityType.getEncodingType();
@@ -166,7 +188,7 @@ public class X509PathTokenValidator implements TokenValidator {
         binarySecurity.setEncodingType(encodingType);
         binarySecurity.setValueType(binarySecurityType.getValueType());
         String data = binarySecurityType.getValue();
-        ((Text)binarySecurity.getElement().getFirstChild()).setData(data);
+        ((Text) binarySecurity.getElement().getFirstChild()).setData(data);
 
         //
         // Validate the token
@@ -187,7 +209,8 @@ public class X509PathTokenValidator implements TokenValidator {
             }
 
             Credential returnedCredential = validator.validate(credential, requestData);
-            response.setPrincipal(returnedCredential.getCertificates()[0].getSubjectX500Principal());
+            response.setPrincipal(
+                    returnedCredential.getCertificates()[0].getSubjectX500Principal());
             validateTarget.setState(STATE.VALID);
         } catch (WSSecurityException ex) {
             LOGGER.warn("Unable to validate credentials.", ex);

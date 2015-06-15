@@ -1,31 +1,17 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.mime.mapper;
-
-import ddf.mime.MimeTypeToTransformerMapper;
-import org.junit.Test;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.Constants;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
-
-import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
-import javax.ws.rs.core.MediaType;
-import java.util.Arrays;
-import java.util.List;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -34,11 +20,26 @@ import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.Arrays;
+import java.util.List;
+
+import javax.activation.MimeType;
+import javax.activation.MimeTypeParseException;
+import javax.ws.rs.core.MediaType;
+
+import org.junit.Test;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
+
+import ddf.mime.MimeTypeToTransformerMapper;
+
 public class TestMimeTypeToTransformerMapperImpl {
 
     /**
      * We expect an empty services list to be returned when no bundleContext is provided
-     * 
+     *
      * @throws MimeTypeParseException
      */
     @Test
@@ -64,7 +65,7 @@ public class TestMimeTypeToTransformerMapperImpl {
     /**
      * We expect an empty services list to be returned when no services have been registered in the
      * service registry
-     * 
+     *
      * @throws MimeTypeParseException
      * @throws InvalidSyntaxException
      */
@@ -84,8 +85,8 @@ public class TestMimeTypeToTransformerMapperImpl {
                 return context;
             }
         };
-        List<Object> matches = matcher.findMatches(Object.class, new MimeType(
-                MediaType.APPLICATION_ATOM_XML));
+        List<Object> matches = matcher
+                .findMatches(Object.class, new MimeType(MediaType.APPLICATION_ATOM_XML));
 
         // then
         assertThat(matches.isEmpty(), is(true));
@@ -95,7 +96,7 @@ public class TestMimeTypeToTransformerMapperImpl {
     /**
      * We expect to receive all the services to be returned when the user does not provide any mime
      * types
-     * 
+     *
      * @throws MimeTypeParseException
      * @throws InvalidSyntaxException
      */
@@ -157,13 +158,13 @@ public class TestMimeTypeToTransformerMapperImpl {
 
     /**
      * We expect to receive all the services to be returned which is in this case an empty list.
-     * 
+     *
      * @throws MimeTypeParseException
      * @throws InvalidSyntaxException
      */
     @Test
-    public void testNullMimeTypeWithEmptyServiceList() throws MimeTypeParseException,
-        InvalidSyntaxException {
+    public void testNullMimeTypeWithEmptyServiceList()
+            throws MimeTypeParseException, InvalidSyntaxException {
 
         // given
         final BundleContext context = mock(BundleContext.class);
@@ -186,9 +187,9 @@ public class TestMimeTypeToTransformerMapperImpl {
 
     /**
      * Testing a negative case where the mimetypes don't match.
-     * 
+     *
      * Tests if
-     * 
+     *
      * InputTransformer Registered: <br/>
      * {BaseType1, BaseType2}. <br/>
      * <br/>
@@ -196,7 +197,7 @@ public class TestMimeTypeToTransformerMapperImpl {
      * {BasetType3} <br/>
      * <br/>
      * Empty Set should be returned.
-     * 
+     *
      * @throws MimeTypeParseException
      * @throws InvalidSyntaxException
      */
@@ -227,8 +228,8 @@ public class TestMimeTypeToTransformerMapperImpl {
                 return context;
             }
         };
-        List<Object> matches = matcher.findMatches(Object.class, new MimeType(
-                MediaType.APPLICATION_XML));
+        List<Object> matches = matcher
+                .findMatches(Object.class, new MimeType(MediaType.APPLICATION_XML));
 
         // then
         assertThat(matches.size(), is(0));
@@ -237,7 +238,7 @@ public class TestMimeTypeToTransformerMapperImpl {
 
     /**
      * Testing a negative case where the mimetypes don't match.
-     * 
+     *
      * Tests if
      * <p>
      * InputTransformer Registered: <br/>
@@ -248,13 +249,13 @@ public class TestMimeTypeToTransformerMapperImpl {
      * <br/>
      * Empty Set should be returned.
      * </p>
-     * 
+     *
      * @throws MimeTypeParseException
      * @throws InvalidSyntaxException
      */
     @Test
-    public void testNoMatch_InputTransformerBaseTypeAndId() throws MimeTypeParseException,
-        InvalidSyntaxException {
+    public void testNoMatchInputTransformerBaseTypeAndId()
+            throws MimeTypeParseException, InvalidSyntaxException {
 
         // given
         final BundleContext context = mock(BundleContext.class);
@@ -276,8 +277,8 @@ public class TestMimeTypeToTransformerMapperImpl {
                 return context;
             }
         };
-        List<Object> matches = matcher.findMatches(Object.class, new MimeType(
-                MediaType.APPLICATION_XML));
+        List<Object> matches = matcher
+                .findMatches(Object.class, new MimeType(MediaType.APPLICATION_XML));
 
         // then
         assertThat(matches.size(), is(0));
@@ -286,7 +287,7 @@ public class TestMimeTypeToTransformerMapperImpl {
 
     /**
      * Testing a negative case where the mimetype ids don't match.
-     * 
+     *
      * Tests if
      * <p>
      * InputTransformer Registered: <br/>
@@ -297,13 +298,13 @@ public class TestMimeTypeToTransformerMapperImpl {
      * <br/>
      * Empty Set should be returned.
      * </p>
-     * 
+     *
      * @throws MimeTypeParseException
      * @throws InvalidSyntaxException
      */
     @Test
-    public void testBaseTypeMatch_IdMismatch() throws MimeTypeParseException,
-        InvalidSyntaxException {
+    public void testBaseTypeMatchIdMismatch()
+            throws MimeTypeParseException, InvalidSyntaxException {
 
         // given
         final BundleContext context = mock(BundleContext.class);
@@ -325,8 +326,8 @@ public class TestMimeTypeToTransformerMapperImpl {
                 return context;
             }
         };
-        List<Object> matches = matcher.findMatches(Object.class, new MimeType(
-                MediaType.APPLICATION_ATOM_XML + "; id=a2"));
+        List<Object> matches = matcher.findMatches(Object.class,
+                new MimeType(MediaType.APPLICATION_ATOM_XML + "; id=a2"));
 
         // then
         assertThat(matches.size(), is(0));
@@ -335,7 +336,7 @@ public class TestMimeTypeToTransformerMapperImpl {
 
     /**
      * Tests if a basetype matches that the list will return the correct sorted list.
-     * 
+     *
      * @throws MimeTypeParseException
      * @throws InvalidSyntaxException
      */
@@ -369,8 +370,8 @@ public class TestMimeTypeToTransformerMapperImpl {
                 return context;
             }
         };
-        List<Object> matches = matcher.findMatches(Object.class, new MimeType(
-                MediaType.APPLICATION_JSON));
+        List<Object> matches = matcher
+                .findMatches(Object.class, new MimeType(MediaType.APPLICATION_JSON));
 
         // then
         assertThat(matches.size(), is(1));
@@ -380,7 +381,7 @@ public class TestMimeTypeToTransformerMapperImpl {
 
     /**
      * Tests if a basetype matches that the list will return the correct sorted list.
-     * 
+     *
      * @throws MimeTypeParseException
      * @throws InvalidSyntaxException
      */
@@ -421,8 +422,8 @@ public class TestMimeTypeToTransformerMapperImpl {
                 return context;
             }
         };
-        List<Object> matches = matcher.findMatches(Object.class, new MimeType(
-                MediaType.APPLICATION_JSON));
+        List<Object> matches = matcher
+                .findMatches(Object.class, new MimeType(MediaType.APPLICATION_JSON));
 
         // then
         assertThat(matches.size(), is(2));
@@ -433,7 +434,7 @@ public class TestMimeTypeToTransformerMapperImpl {
 
     /**
      * Tests if a single id match will return only one item
-     * 
+     *
      * @throws MimeTypeParseException
      * @throws InvalidSyntaxException
      */
@@ -467,8 +468,8 @@ public class TestMimeTypeToTransformerMapperImpl {
                 return context;
             }
         };
-        List<Object> matches = matcher.findMatches(Object.class, new MimeType(
-                MediaType.APPLICATION_JSON + "; id=a1"));
+        List<Object> matches = matcher
+                .findMatches(Object.class, new MimeType(MediaType.APPLICATION_JSON + "; id=a1"));
 
         // then
         assertThat(matches.size(), is(1));
@@ -477,8 +478,8 @@ public class TestMimeTypeToTransformerMapperImpl {
     }
 
     @Test
-    public void testInvalidMimeTypeServiceProperty() throws MimeTypeParseException,
-        InvalidSyntaxException {
+    public void testInvalidMimeTypeServiceProperty()
+            throws MimeTypeParseException, InvalidSyntaxException {
 
         // given
         final BundleContext context = mock(BundleContext.class);
@@ -498,8 +499,8 @@ public class TestMimeTypeToTransformerMapperImpl {
                 return context;
             }
         };
-        List<Object> matches = matcher.findMatches(Object.class, new MimeType(
-                MediaType.APPLICATION_JSON + "; id=a1"));
+        List<Object> matches = matcher
+                .findMatches(Object.class, new MimeType(MediaType.APPLICATION_JSON + "; id=a1"));
 
         // then
         assertThat(matches.size(), is(0));
@@ -508,13 +509,13 @@ public class TestMimeTypeToTransformerMapperImpl {
     /**
      * Tests the case where the ServiceReference Properties does not have a list of MimeTypes,
      * instead it provides a single String for the MimeType
-     * 
+     *
      * @throws MimeTypeParseException
      * @throws InvalidSyntaxException
      */
     @Test
-    public void testSingleMimeTypeServiceProperty() throws MimeTypeParseException,
-        InvalidSyntaxException {
+    public void testSingleMimeTypeServiceProperty()
+            throws MimeTypeParseException, InvalidSyntaxException {
 
         // given
         final BundleContext context = mock(BundleContext.class);
@@ -523,8 +524,8 @@ public class TestMimeTypeToTransformerMapperImpl {
         ServiceReference[] refs = {ref};
 
         when(ref.getProperty(Constants.SERVICE_RANKING)).thenReturn(0);
-        when(ref.getProperty(MimeTypeToTransformerMapper.MIME_TYPE_KEY)).thenReturn(
-                MediaType.APPLICATION_JSON);
+        when(ref.getProperty(MimeTypeToTransformerMapper.MIME_TYPE_KEY))
+                .thenReturn(MediaType.APPLICATION_JSON);
 
         Object simpleTransformer1 = new Object();
 
@@ -539,16 +540,16 @@ public class TestMimeTypeToTransformerMapperImpl {
                 return context;
             }
         };
-        List<Object> matches = matcher.findMatches(Object.class, new MimeType(
-                MediaType.APPLICATION_JSON));
+        List<Object> matches = matcher
+                .findMatches(Object.class, new MimeType(MediaType.APPLICATION_JSON));
 
         // then
         assertThat(matches.size(), is(1));
     }
 
     @Test
-    public void testInvalidMimeTypeServicePropertyWithMatch() throws MimeTypeParseException,
-        InvalidSyntaxException {
+    public void testInvalidMimeTypeServicePropertyWithMatch()
+            throws MimeTypeParseException, InvalidSyntaxException {
 
         // given
         final BundleContext context = mock(BundleContext.class);
@@ -573,8 +574,8 @@ public class TestMimeTypeToTransformerMapperImpl {
                 return context;
             }
         };
-        List<Object> matches = matcher.findMatches(Object.class, new MimeType(
-                MediaType.APPLICATION_JSON + "; id=a1"));
+        List<Object> matches = matcher
+                .findMatches(Object.class, new MimeType(MediaType.APPLICATION_JSON + "; id=a1"));
 
         // then
         assertThat(matches.size(), is(1));
@@ -583,13 +584,13 @@ public class TestMimeTypeToTransformerMapperImpl {
 
     /**
      * Tests if a multiple id match will return only one item
-     * 
+     *
      * @throws MimeTypeParseException
      * @throws InvalidSyntaxException
      */
     @Test
-    public void testMultiIdMatchExtraParameters() throws MimeTypeParseException,
-        InvalidSyntaxException {
+    public void testMultiIdMatchExtraParameters()
+            throws MimeTypeParseException, InvalidSyntaxException {
 
         // given
         final BundleContext context = mock(BundleContext.class);
@@ -601,9 +602,9 @@ public class TestMimeTypeToTransformerMapperImpl {
         ServiceReference ref3 = createMockReference(3, null, null);
         ServiceReference[] refs = {ref3, ref2, ref1};
 
-//        InputTransformer simpleTransformer1 = getSimpleTransformer("1");
-//        InputTransformer simpleTransformer2 = getSimpleTransformer("2");
-//        InputTransformer simpleTransformer3 = getSimpleTransformer("3");
+        //        InputTransformer simpleTransformer1 = getSimpleTransformer("1");
+        //        InputTransformer simpleTransformer2 = getSimpleTransformer("2");
+        //        InputTransformer simpleTransformer3 = getSimpleTransformer("3");
         Object simpleTransformer1 = new Object();
         Object simpleTransformer2 = new Object();
         Object simpleTransformer3 = new Object();
@@ -626,8 +627,8 @@ public class TestMimeTypeToTransformerMapperImpl {
                 return context;
             }
         };
-        List<Object> matches = matcher.findMatches(Object.class, new MimeType(
-                MediaType.APPLICATION_JSON + "; id=a1;charset=UTF-8"));
+        List<Object> matches = matcher.findMatches(Object.class,
+                new MimeType(MediaType.APPLICATION_JSON + "; id=a1;charset=UTF-8"));
 
         // then
         assertThat(matches.size(), is(2));
@@ -645,11 +646,11 @@ public class TestMimeTypeToTransformerMapperImpl {
      */
     @Test
     public void testNullServiceList() throws MimeTypeParseException, InvalidSyntaxException {
- 
+
         // given
         final BundleContext context = mock(BundleContext.class);
         ServiceReference[] refs = null;
- 
+
         // when
         when(context.getServiceReferences(isA(String.class), isNull(String.class)))
                 .thenReturn(refs);
@@ -659,21 +660,22 @@ public class TestMimeTypeToTransformerMapperImpl {
                 return context;
             }
         };
-        List<Object> matches = matcher.findMatches(Object.class, new MimeType(
-                MediaType.APPLICATION_ATOM_XML));
- 
+        List<Object> matches = matcher
+                .findMatches(Object.class, new MimeType(MediaType.APPLICATION_ATOM_XML));
+
         // then
         assertThat(matches.isEmpty(), is(true));
- 
-    }    
-    
-    private ServiceReference createMockReference(int i, List<String> mimeTypesSupported, String id) {
+
+    }
+
+    private ServiceReference createMockReference(int i, List<String> mimeTypesSupported,
+            String id) {
 
         ServiceReference ref = mock(ServiceReference.class);
 
         when(ref.getProperty(Constants.SERVICE_RANKING)).thenReturn(i);
-        when(ref.getProperty(MimeTypeToTransformerMapper.MIME_TYPE_KEY)).thenReturn(
-                mimeTypesSupported);
+        when(ref.getProperty(MimeTypeToTransformerMapper.MIME_TYPE_KEY))
+                .thenReturn(mimeTypesSupported);
         when(ref.getProperty(MimeTypeToTransformerMapper.ID_KEY)).thenReturn(id);
 
         return ref;

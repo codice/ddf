@@ -1,28 +1,17 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.security.claims.anonymous;
-
-import org.apache.cxf.rt.security.claims.Claim;
-import org.apache.cxf.rt.security.claims.ClaimCollection;
-import org.apache.cxf.sts.claims.ClaimsHandler;
-import org.apache.cxf.sts.claims.ClaimsParameters;
-import org.apache.cxf.sts.claims.ProcessedClaim;
-import org.apache.cxf.sts.claims.ProcessedClaimCollection;
-import org.apache.cxf.sts.token.realm.RealmSupport;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -34,19 +23,29 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.cxf.rt.security.claims.Claim;
+import org.apache.cxf.rt.security.claims.ClaimCollection;
+import org.apache.cxf.sts.claims.ClaimsHandler;
+import org.apache.cxf.sts.claims.ClaimsParameters;
+import org.apache.cxf.sts.claims.ProcessedClaim;
+import org.apache.cxf.sts.claims.ProcessedClaimCollection;
+import org.apache.cxf.sts.token.realm.RealmSupport;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Provides claims for an anonymous auth token.
  */
 public class AnonymousClaimsHandler implements ClaimsHandler, RealmSupport {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AnonymousClaimsHandler.class);
-    
+
     private Map<URI, List<String>> claimsMap = new HashMap<URI, List<String>>();
 
     private List<String> supportedRealms;
 
     private String realm;
-    
+
     public AnonymousClaimsHandler() {
         LOGGER.debug("Starting AnonymousClaimsHandler");
     }
@@ -55,8 +54,8 @@ public class AnonymousClaimsHandler implements ClaimsHandler, RealmSupport {
         if (attributes != null) {
             LOGGER.debug("Attribute value list was set.");
             List<String> attrs = new ArrayList<String>(attributes.size());
-            for(String attr : attributes) {
-                if(attr.contains(",")) {
+            for (String attr : attributes) {
+                if (attr.contains(",")) {
                     String[] tmpAttrs = attr.split(",");
                     attrs.addAll(Arrays.asList(tmpAttrs));
                 } else {
@@ -83,12 +82,12 @@ public class AnonymousClaimsHandler implements ClaimsHandler, RealmSupport {
     }
 
     private void initClaimsMap(List<String> attributes) {
-        for(String attr : attributes) {
+        for (String attr : attributes) {
             String[] claimMapping = attr.split("=");
-            if(claimMapping.length == 2) {
+            if (claimMapping.length == 2) {
                 try {
                     List<String> values = new ArrayList<String>();
-                    if(claimMapping[1].contains("|")) {
+                    if (claimMapping[1].contains("|")) {
                         String[] valsArr = claimMapping[1].split("\\|");
                         Collections.addAll(values, valsArr);
                     } else {
@@ -96,7 +95,9 @@ public class AnonymousClaimsHandler implements ClaimsHandler, RealmSupport {
                     }
                     claimsMap.put(new URI(claimMapping[0]), values);
                 } catch (URISyntaxException e) {
-                    LOGGER.warn("Claims mapping cannot be converted to a URI. This claim will be excluded: {}", attr, e);
+                    LOGGER.warn(
+                            "Claims mapping cannot be converted to a URI. This claim will be excluded: {}",
+                            attr, e);
                 }
             } else {
                 LOGGER.warn("Invalid claims mapping entered for anonymous user: {}", attr);
@@ -126,7 +127,7 @@ public class AnonymousClaimsHandler implements ClaimsHandler, RealmSupport {
                 ProcessedClaim c = new ProcessedClaim();
                 c.setClaimType(claimType);
                 c.setPrincipal(principal);
-                for(String val : value) {
+                for (String val : value) {
                     c.addValue(val);
                 }
                 claimsColl.add(c);
@@ -153,5 +154,5 @@ public class AnonymousClaimsHandler implements ClaimsHandler, RealmSupport {
     public void setHandlerRealm(String realm) {
         this.realm = realm;
     }
-    
+
 }

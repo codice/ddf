@@ -1,17 +1,34 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ * <p/>
+ * <p/>
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements. See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership. The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 /**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
@@ -32,7 +49,13 @@
  */
 package org.codice.ddf.security.validator.pki;
 
-import ddf.security.PropertiesLoader;
+import java.io.IOException;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.security.auth.callback.CallbackHandler;
+
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.sts.STSPropertiesMBean;
 import org.apache.cxf.sts.request.ReceivedToken;
@@ -57,11 +80,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Text;
 
-import javax.security.auth.callback.CallbackHandler;
-import java.io.IOException;
-import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.List;
+import ddf.security.PropertiesLoader;
 
 /**
  * PKIAuthenticationToken validator for the STS.
@@ -83,7 +102,8 @@ public class PKITokenValidator implements TokenValidator {
      */
     public void init() {
         try {
-            merlin = new Merlin(PropertiesLoader.loadProperties(signaturePropertiesPath), PKITokenValidator.class.getClassLoader(), null);
+            merlin = new Merlin(PropertiesLoader.loadProperties(signaturePropertiesPath),
+                    PKITokenValidator.class.getClassLoader(), null);
         } catch (WSSecurityException | IOException e) {
             LOGGER.error("Unable to read merlin properties file.", e);
         }
@@ -158,8 +178,8 @@ public class PKITokenValidator implements TokenValidator {
             return response;
         }
 
-        BinarySecurityTokenType binarySecurityType = pkiToken.createBinarySecurityTokenType(
-                pkiToken.getCredentials());
+        BinarySecurityTokenType binarySecurityType = pkiToken
+                .createBinarySecurityTokenType(pkiToken.getCredentials());
 
         // Test the encoding type
         String encodingType = binarySecurityType.getEncodingType();
@@ -223,11 +243,9 @@ public class PKITokenValidator implements TokenValidator {
             LOGGER.debug("Encoded username/password credential: {}", encodedCredential);
             BaseAuthenticationToken base = null;
             try {
-                base = PKIAuthenticationToken
-                        .parse(encodedCredential, true);
+                base = PKIAuthenticationToken.parse(encodedCredential, true);
                 return new PKIAuthenticationToken(base.getPrincipal(),
-                        base.getCredentials().toString(),
-                        base.getRealm());
+                        base.getCredentials().toString(), base.getRealm());
             } catch (WSSecurityException e) {
                 LOGGER.warn("Unable to parse {} from encodedToken.",
                         PKIAuthenticationToken.class.getSimpleName(), e);
