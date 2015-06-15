@@ -21,7 +21,6 @@ import ddf.catalog.operation.ResourceRequest;
 import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.PreResourcePlugin;
 import ddf.catalog.plugin.StopProcessingException;
-import ddf.sdk.plugin.prequery.DummyPreQueryPlugin;
 
 /***************************************************************************************
  * Follow DDF Developer's Guide to implement Life-cycle Services, Sources, or Transformers This

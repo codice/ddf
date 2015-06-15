@@ -14,9 +14,9 @@
  **/
 package ddf.sdk.plugin.presubscription;
 
-import ddf.catalog.data.Metacard;
 import org.opengis.filter.Filter;
 
+import ddf.catalog.data.Metacard;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.delegate.CopyFilterDelegate;
 

@@ -38,10 +38,10 @@ import ddf.catalog.source.UnsupportedQueryException;
  ****************************************************************************************/
 
 public class DummyPreQueryPlugin implements PreQueryPlugin {
-    private static Logger LOGGER = LoggerFactory.getLogger(DummyPreQueryPlugin.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DummyPreQueryPlugin.class);
 
-    private static String ENTERING = "ENTERING {}";
-    private static String EXITING = "EXITING {}";
+    private static final String ENTERING = "ENTERING {}";
+    private static final String EXITING = "EXITING {}";
 
     private FilterAdapter filterAdapter;
 
