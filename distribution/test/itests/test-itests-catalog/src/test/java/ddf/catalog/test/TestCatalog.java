@@ -14,13 +14,13 @@
  **/
 package ddf.catalog.test;
 
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.xml.HasXPath.hasXPath;
+import static org.junit.Assert.fail;
 import static com.jayway.restassured.RestAssured.delete;
 import static com.jayway.restassured.RestAssured.expect;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.xml.HasXPath.hasXPath;
-import static org.junit.Assert.fail;
 
 import org.junit.After;
 import org.junit.Before;

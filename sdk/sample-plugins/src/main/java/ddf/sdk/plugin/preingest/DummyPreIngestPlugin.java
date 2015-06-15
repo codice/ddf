@@ -37,10 +37,10 @@ import ddf.catalog.plugin.PreIngestPlugin;
 
 public class DummyPreIngestPlugin implements PreIngestPlugin {
     // TODO: Fill in all methods with appropriate logic
-    private static Logger LOGGER = LoggerFactory.getLogger(DummyPreIngestPlugin.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(DummyPreIngestPlugin.class.getName());
 
-    private static String ENTERING = "ENTERING {}";
-    private static String EXITING = "EXITING {}";
+    private static final String ENTERING = "ENTERING {}";
+    private static final String EXITING = "EXITING {}";
 
     public DummyPreIngestPlugin() {
 

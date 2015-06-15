@@ -25,10 +25,10 @@ import ddf.catalog.plugin.PreDeliveryPlugin;
 import ddf.catalog.plugin.StopProcessingException;
 
 public class DummyPreDeliveryPlugin implements PreDeliveryPlugin {
-    private static Logger LOGGER = LoggerFactory.getLogger(DummyPreDeliveryPlugin.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DummyPreDeliveryPlugin.class);
 
-    private static String ENTERING = "ENTERING {}";
-    private static String EXITING = "EXITING {}";
+    private static final String ENTERING = "ENTERING {}";
+    private static final String EXITING = "EXITING {}";
 
     public DummyPreDeliveryPlugin() {
         LOGGER.trace("INSIDE: DummyPreDeliveryPlugin constructor");
