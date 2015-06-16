@@ -325,18 +325,18 @@ The Compound search itself has its own temporal sort policy field that it will u
 
 == Prerequisites
 * Supported platforms are *NIX - Unix/Linux/OSX, Solaris, and Windows.
-* JDK7 must be installed (http://www.oracle.com/technetwork/java/javase/downloads/index.html).
+* JDK8 must be installed (http://www.oracle.com/technetwork/java/javase/downloads/index.html).
 * The JAVA_HOME environment variable must be set to the location where the JDK is installed.
 
 .Example of Setting Up on *NIX
 ----
-JAVA_HOME=/usr/java/jdk1.7.0
+JAVA_HOME=/usr/java/jdk1.8.0
 export JAVA_HOME
 ----
 
 .Example of Setting Up JAVA_HOME on Windows
 ----
-set JAVA_HOME=C:\Program Files\Java\jdk1.7.0
+set JAVA_HOME=C:\Program Files\Java\jdk1.8.0
 ----
 
 .*NIX
@@ -459,7 +459,7 @@ unzip ddf-X.Y.zip
 
 .Example: Use Java to Unzip in Windows
 ----
-"C:\Program Files\Java\jdk1.7.0\bin\jar.exe" xf ddf-X.Y.zip
+"C:\Program Files\Java\jdk1.8.0\bin\jar.exe" xf ddf-X.Y.zip
 ----
 
 * Run {branding} using the appropriate script.
@@ -548,7 +548,7 @@ unzip ddf-kernel-X.Y.zip
 
 .Example: Using Java to Unzip in Windows
 ----
-"C:\Program Files\Java\jdk1.7.0\bin\jar.exe" xf ddf-kernel-X.Y.zip
+"C:\Program Files\Java\jdk1.8.0\bin\jar.exe" xf ddf-kernel-X.Y.zip
 ----
 
 * If the {branding} Standalone Solr Server will be installed later, an additional configuration step is required for the {branding} kernel. Add the following lines to the bottom of the `<INSTALL_DIR>/etc/org.ops4j.pax.web.cfg` file:
@@ -4772,7 +4772,7 @@ Complete the following procedure.
 `java -version`
 . This should return something similar to:
 +
-`java version "1.6.0_22" Java(TM) SE Runtime Environment (build 1.6.0_22-b04) Java HotSpot(TM) Server VM (build 17.1-b03, mixed mode)`
+`java version "1.8.0_45" Java(TM) SE Runtime Environment (build 1.8.0_45-b14) Java HotSpot(TM) Server VM (build 25.45-b02, mixed mode)`
 . If running *nix, verify that bash is installed.
 +
 `echo $SHELL`
