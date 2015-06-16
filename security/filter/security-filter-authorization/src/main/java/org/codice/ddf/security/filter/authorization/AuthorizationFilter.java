@@ -11,6 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
+
 package org.codice.ddf.security.filter.authorization;
 
 import java.io.IOException;
@@ -27,6 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.util.CollectionUtils;
 import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.codice.ddf.security.policy.context.ContextPolicyManager;
 import org.slf4j.Logger;
@@ -92,16 +94,19 @@ public class AuthorizationFilter implements Filter {
                 if (StringUtils.isEmpty(path)) {
                     path = httpRequest.getRequestURI();
                 }
+                ActionPermission actionPermission = new ActionPermission(path);
                 ContextPolicy policy = contextPolicyManager.getContextPolicy(path);
 
                 if (policy != null) {
                     Collection<CollectionPermission> permissions = policy
                             .getAllowedAttributePermissions();
-
-                    for (CollectionPermission permission : permissions) {
-                        if (subject == null || !subject
-                                .isPermittedAll(permission.getPermissionList())) {
-                            permitted = false;
+                    if (!CollectionUtils.isEmpty(permissions)) {
+                        permissions.add(new CollectionPermission(actionPermission));
+                        for (CollectionPermission permission : permissions) {
+                            if (subject == null || !subject
+                                    .isPermittedAll(permission.getPermissionList())) {
+                                permitted = false;
+                            }
                         }
                     }
                 } else {

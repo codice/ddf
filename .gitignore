@@ -7,6 +7,7 @@
 *.checkstyle
 *.DS_Store
 node_modules/
+node/
 target/
 bin/
 atlassian-ide-plugin.xml
