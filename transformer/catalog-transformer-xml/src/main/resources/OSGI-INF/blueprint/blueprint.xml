@@ -12,41 +12,50 @@
  **/ -->
 
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-		>
+           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
-	<service interface="ddf.catalog.transform.InputTransformer">
-		<service-properties>
-			<entry key="id" value="xml"/>
-			<entry key="mime-type" value="text/xml"/>
+    <service interface="ddf.catalog.transform.InputTransformer">
+        <service-properties>
+            <entry key="id" value="xml"/>
+            <entry key="mime-type" value="text/xml"/>
             <entry key="schema" value="urn:catalog:metacard"/>
-		</service-properties>
-		<bean class="ddf.catalog.transformer.xml.XmlInputTransformer">
-			<property name="metacardTypes">
-				<reference-list interface="ddf.catalog.data.MetacardType" availability="optional"/>
-			</property>
-		</bean>
-	</service>
+        </service-properties>
+        <bean class="ddf.catalog.transformer.xml.XmlInputTransformer">
+            <property name="metacardTypes">
+                <reference-list interface="ddf.catalog.data.MetacardType" availability="optional"/>
+            </property>
+        </bean>
+    </service>
 
-	<service interface="ddf.catalog.transform.MetacardTransformer">
-		<service-properties>
-			<entry key="id" value="xml"/>
-			<entry key="mime-type" value="text/xml"/>
-			<entry key="title" value="View as XML..."/>
+    <service interface="ddf.catalog.transform.MetacardTransformer">
+        <service-properties>
+            <entry key="id" value="xml"/>
+            <entry key="mime-type" value="text/xml"/>
+            <entry key="title" value="View as XML..."/>
             <!-- deprecated -->
             <entry key="shortname" value="xml"/>
             <entry key="schema" value="urn:catalog:metacard"/>
-		</service-properties>
-		<bean class="ddf.catalog.transformer.xml.XmlMetacardTransformer"/>
-	</service>
+        </service-properties>
+        <bean class="ddf.catalog.transformer.xml.XmlMetacardTransformer"/>
+    </service>
 
-	<service interface="ddf.catalog.transform.QueryResponseTransformer">
-		<service-properties>
-			<entry key="id" value="xml"/>
-			<entry key="shortname" value="xml"/>
-			<entry key="mime-type" value="text/xml"/>
+    <bean id="xmlResponseQueueTransformer" class="ddf.catalog.transformer.xml.XmlResponseQueueTransformer">
+        <cm:managed-properties
+                persistent-id="ddf.catalog.transformer.xml.XmlResponseQueueTransformer"
+                update-strategy="container-managed"/>
+        <argument ref="fjp"/>
+        <property name="threshold" value="50"/>
+    </bean>
+
+    <bean id="fjp" class="java.util.concurrent.ForkJoinPool"/>
+
+    <service ref="xmlResponseQueueTransformer" interface="ddf.catalog.transform.QueryResponseTransformer">
+        <service-properties>
+            <entry key="id" value="xml"/>
+            <entry key="shortname" value="xml"/>
+            <entry key="mime-type" value="text/xml"/>
             <entry key="schema" value="urn:catalog:metacard"/>
-		</service-properties>
-		<bean class="ddf.catalog.transformer.xml.XmlResponseQueueTransformer"/>
-	</service>
-	
+        </service-properties>
+    </service>
+
 </blueprint>

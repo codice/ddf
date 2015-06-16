@@ -10,7 +10,7 @@
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- */
+ **/
 package ddf.catalog.transform.xml;
 
 import static org.custommonkey.xmlunit.XMLAssert.assertXpathEvaluatesTo;
@@ -21,6 +21,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static junit.framework.Assert.assertEquals;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -35,6 +36,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ForkJoinPool;
 
 import org.custommonkey.xmlunit.NamespaceContext;
 import org.custommonkey.xmlunit.SimpleNamespaceContext;
@@ -62,11 +64,12 @@ import ddf.catalog.transformer.xml.XmlResponseQueueTransformer;
 
 /**
  * Tests the {@link XmlResponseQueueTransformer} transformations
- *
  */
 public class TestXmlResponseQueueTransformer {
 
     private static final String DEFAULT_ID = "myID";
+
+    private boolean verboseDebug = false;
 
     private static final String DEFAULT_TYPE_NAME = BasicTypes.BASIC_METACARD.getName();
 
@@ -87,13 +90,13 @@ public class TestXmlResponseQueueTransformer {
 
     private static final String DEFAULT_SOURCE_ID = "mySourceId";
 
-    private boolean verboseDebug = false;
+    private static final ForkJoinPool FJP = new ForkJoinPool();
 
     @BeforeClass
     public static void setupTestClass() {
 
         // makes xpaths easier to write when prefixes are declared beforehand.
-        HashMap map = new HashMap();
+        HashMap<String, String> map = new HashMap<>();
         map.put("gml", "http://www.opengis.net/gml");
         map.put("mc", "urn:catalog:metacard");
 
@@ -110,7 +113,8 @@ public class TestXmlResponseQueueTransformer {
     public void testNullSourceResponse() throws CatalogTransformerException {
 
         // given
-        XmlResponseQueueTransformer transformer = new XmlResponseQueueTransformer();
+        XmlResponseQueueTransformer transformer = new XmlResponseQueueTransformer(FJP);
+        transformer.setThreshold(2);
 
         // when
         BinaryContent binaryContent = transformer.transform(null, null);
@@ -133,7 +137,8 @@ public class TestXmlResponseQueueTransformer {
             throws CatalogTransformerException, IOException, XpathException, SAXException {
 
         // given
-        XmlResponseQueueTransformer transformer = new XmlResponseQueueTransformer();
+        XmlResponseQueueTransformer transformer = new XmlResponseQueueTransformer(FJP);
+        transformer.setThreshold(2);
 
         SourceResponse response = givenMetacardTypeName(null);
 
@@ -166,7 +171,8 @@ public class TestXmlResponseQueueTransformer {
             throws CatalogTransformerException, IOException, XpathException, SAXException {
 
         // given
-        XmlResponseQueueTransformer transformer = new XmlResponseQueueTransformer();
+        XmlResponseQueueTransformer transformer = new XmlResponseQueueTransformer(FJP);
+        transformer.setThreshold(2);
 
         SourceResponse response = givenMetacardTypeName("");
 
@@ -191,7 +197,8 @@ public class TestXmlResponseQueueTransformer {
             throws CatalogTransformerException, IOException, XpathException, SAXException {
 
         // given
-        XmlResponseQueueTransformer transformer = new XmlResponseQueueTransformer();
+        XmlResponseQueueTransformer transformer = new XmlResponseQueueTransformer(FJP);
+        transformer.setThreshold(2);
 
         SourceResponse response = givenSourceResponse(null, null);
 
@@ -219,7 +226,8 @@ public class TestXmlResponseQueueTransformer {
             throws CatalogTransformerException, IOException, XpathException, SAXException {
 
         // given
-        XmlResponseQueueTransformer transformer = new XmlResponseQueueTransformer();
+        XmlResponseQueueTransformer transformer = new XmlResponseQueueTransformer(FJP);
+        transformer.setThreshold(2);
 
         SourceResponse response = givenSourceResponse(DEFAULT_SOURCE_ID, null);
 
@@ -247,7 +255,8 @@ public class TestXmlResponseQueueTransformer {
             throws CatalogTransformerException, IOException, XpathException, SAXException {
 
         // given
-        XmlResponseQueueTransformer transformer = new XmlResponseQueueTransformer();
+        XmlResponseQueueTransformer transformer = new XmlResponseQueueTransformer(FJP);
+        transformer.setThreshold(2);
 
         SourceResponse response = givenSourceResponse(DEFAULT_SOURCE_ID, DEFAULT_ID);
 
@@ -273,12 +282,12 @@ public class TestXmlResponseQueueTransformer {
     @Test
     public void testMultiple()
             throws CatalogTransformerException, IOException, XpathException, SAXException {
-
         // given
-        XmlResponseQueueTransformer transformer = new XmlResponseQueueTransformer();
+        XmlResponseQueueTransformer transformer = new XmlResponseQueueTransformer(FJP);
+        transformer.setThreshold(2);
 
         SourceResponse response = givenSourceResponse(new MetacardStub("source1", "id1"),
-                new MetacardStub("source2", "id2"));
+                new MetacardStub("source2", "id2"), new MetacardStub("source3", "id3"));
 
         // when
         BinaryContent binaryContent = transformer.transform(response, null);
@@ -300,8 +309,39 @@ public class TestXmlResponseQueueTransformer {
 
         assertXpathEvaluatesTo("id2", "/mc:metacards/mc:metacard[2]/@gml:id", output);
 
+        assertXpathEvaluatesTo("source3", "/mc:metacards/mc:metacard[3]/mc:source", output);
+
+        assertXpathEvaluatesTo("id3", "/mc:metacards/mc:metacard[3]/@gml:id", output);
+
+        assertXpathEvaluatesTo("3", "count(/mc:metacards/mc:metacard)", output);
+
         verifyDefaults("1", output);
         verifyDefaults("2", output);
+        verifyDefaults("3", output);
+    }
+
+    @Test
+    public void testCompareSerialToFork() throws IOException, CatalogTransformerException {
+        SourceResponse response = givenSourceResponse(new MetacardStub("source1", "id1"),
+                new MetacardStub("source2", "id2"), new MetacardStub("source3", "id3"),
+                new MetacardStub("source4", "id4"));
+
+        XmlResponseQueueTransformer serialXform = new XmlResponseQueueTransformer(FJP);
+        serialXform.setThreshold(2);
+        XmlResponseQueueTransformer forkXForm = new XmlResponseQueueTransformer(FJP);
+        forkXForm.setThreshold(10);
+
+
+        BinaryContent serialBc = serialXform.transform(response, null);
+        BinaryContent forkBc = forkXForm.transform(response, null);
+
+        String serialOutput = new String(serialBc.getByteArray());
+        String forkOutput = new String(forkBc.getByteArray());
+
+        // There are expected whitespace differences between the outputs.
+        // This is an overly aggressive conversion; a better test would be to unmarshal the
+        // xml metacards back into Metacard instances and compare equality.
+        assertEquals(serialOutput.replaceAll("\\s", ""), forkOutput.replaceAll("\\s", ""));
     }
 
     @Test
@@ -325,23 +365,21 @@ public class TestXmlResponseQueueTransformer {
         mc.setLocation(testLocation);
         mc.setThumbnail(testThumbnail);
 
-        String metadata = null;
-        FileInputStream stream = new FileInputStream(
-                new File("src/test/resources/extensibleMetacard.xml"));
-        try {
+        String metadata;
+        try (FileInputStream stream = new FileInputStream(
+                new File("src/test/resources/extensibleMetacard.xml"))) {
             FileChannel fc = stream.getChannel();
             MappedByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
             /* Instead of using default, pass in a decoder. */
             metadata = Charset.defaultCharset().decode(bb).toString();
-        } finally {
-            stream.close();
         }
 
         mc.setMetadata(metadata);
 
-        Metacard mci = (Metacard) mc;
+        Metacard mci = mc;
 
-        XmlResponseQueueTransformer transformer = new XmlResponseQueueTransformer();
+        XmlResponseQueueTransformer transformer = new XmlResponseQueueTransformer(FJP);
+        transformer.setThreshold(2);
 
         SourceResponse response = new SourceResponseImpl(null,
                 Arrays.asList((Result) new ResultImpl(mci)));
@@ -389,8 +427,7 @@ public class TestXmlResponseQueueTransformer {
     }
 
     /**
-     * @param index
-     *            TODO
+     * @param index  TODO
      * @param output
      * @throws IOException
      * @throws SAXException
