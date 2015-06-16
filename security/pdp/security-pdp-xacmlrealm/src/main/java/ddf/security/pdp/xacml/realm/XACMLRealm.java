@@ -51,9 +51,6 @@ import oasis.names.tc.xacml._3_0.core.schema.wd_17.ResponseType;
  * Performs authorization backed by a XACML-based PDP.
  */
 public class XACMLRealm extends AbstractAuthorizingRealm {
-
-    private static Logger LOGGER = LoggerFactory.getLogger(XACMLRealm.class);
-
     private static final String AUTHZ_PERMITTED_EXCEPTION = " does not have permission to perform action.";
 
     private static final String AUTHZ_ROLE_EXCEPTION = " does not have the checked role(s).";
@@ -68,7 +65,7 @@ public class XACMLRealm extends AbstractAuthorizingRealm {
     public XACMLRealm(String dirPath) throws PdpException {
         super();
         pdp = new BalanaPdp(dirPath);
-        LOGGER.debug("Creating new PDP-backed Authorizing Realm");
+        logger.debug("Creating new PDP-backed Authorizing Realm");
     }
 
     @Override
@@ -124,54 +121,54 @@ public class XACMLRealm extends AbstractAuthorizingRealm {
             curPermission = permissions.get(i);
             if (curPermission instanceof ActionPermission) {
                 curAction = ((ActionPermission) curPermission).getAction();
-                LOGGER.debug("Checking if {} has access to perform a {} action", primaryPrincipal,
+                logger.debug("Checking if {} has access to perform a {} action", primaryPrincipal,
                         curAction);
 
                 SecurityLogger.logInfo(
                         "Checking if [" + primaryPrincipal + "] has access to perform a ["
                                 + curAction + "] action");
 
-                LOGGER.debug("Received authZ info, creating XACML request.");
+                logger.debug("Received authZ info, creating XACML request.");
                 RequestType curRequest = createActionXACMLRequest(primaryPrincipal, info,
                         curAction);
-                LOGGER.debug("Created XACML request, calling PDP.");
+                logger.debug("Created XACML request, calling PDP.");
 
                 curResponse = isPermitted(curRequest);
-                LOGGER.debug("Received response from PDP, returning {}.", curResponse);
+                logger.debug("Received response from PDP, returning {}.", curResponse);
                 results[i] = curResponse;
             } else if (curPermission instanceof KeyValueCollectionPermission) {
-                LOGGER.debug("Checking if {} has access to current metacard", primaryPrincipal);
+                logger.debug("Checking if {} has access to current metacard", primaryPrincipal);
 
                 SecurityLogger.logInfo("Checking if [" + primaryPrincipal
                         + "] has access to view current metacard");
 
-                LOGGER.debug("Received authZ info, creating XACML request.");
+                logger.debug("Received authZ info, creating XACML request.");
                 RequestType curRequest = createRedactXACMLRequest(primaryPrincipal, info,
                         (KeyValueCollectionPermission) curPermission);
-                LOGGER.debug("Created XACML request, calling PDP.");
+                logger.debug("Created XACML request, calling PDP.");
 
                 curResponse = isPermitted(curRequest);
-                LOGGER.debug("Received response from PDP, returning {}.", curResponse);
+                logger.debug("Received response from PDP, returning {}.", curResponse);
                 results[i] = curResponse;
             } else if (curPermission instanceof KeyValuePermission) {
                 //Need to refactor this into a private method with the above condition
                 //This is to handle the case where there is a single KeyValuePermission
-                LOGGER.debug("Checking if {} has access to current metacard", primaryPrincipal);
+                logger.debug("Checking if {} has access to current metacard", primaryPrincipal);
 
                 SecurityLogger.logInfo("Checking if [" + primaryPrincipal
                         + "] has access to view current metacard");
                 KeyValueCollectionPermission keyValueCollectionPermission = new KeyValueCollectionPermission(
                         (KeyValuePermission) curPermission);
-                LOGGER.debug("Received authZ info, creating XACML request.");
+                logger.debug("Received authZ info, creating XACML request.");
                 RequestType curRequest = createRedactXACMLRequest(primaryPrincipal, info,
                         keyValueCollectionPermission);
-                LOGGER.debug("Created XACML request, calling PDP.");
+                logger.debug("Created XACML request, calling PDP.");
 
                 curResponse = isPermitted(curRequest);
-                LOGGER.debug("Received response from PDP, returning {}.", curResponse);
+                logger.debug("Received response from PDP, returning {}.", curResponse);
                 results[i] = curResponse;
             } else {
-                LOGGER.warn(
+                logger.warn(
                         "Could not check permissions with {}, permission being requested MUST be an ActionPermission or RedactionPermission",
                         curPermission);
                 results[i] = false;
@@ -182,7 +179,7 @@ public class XACMLRealm extends AbstractAuthorizingRealm {
 
     protected RequestType createActionXACMLRequest(String subject, AuthorizationInfo info,
             String action) {
-        LOGGER.debug("Creating XACML request for subject: {} with action: {}", subject, action);
+        logger.debug("Creating XACML request for subject: {} with action: {}", subject, action);
 
         RequestType xacmlRequestType = new RequestType();
         xacmlRequestType.setCombinedDecision(false);
@@ -195,7 +192,7 @@ public class XACMLRealm extends AbstractAuthorizingRealm {
         actionAttribute.setIncludeInResult(false);
         AttributeValueType actionValue = new AttributeValueType();
         actionValue.setDataType(XACMLConstants.STRING_DATA_TYPE);
-        LOGGER.trace("Adding action: {} for subject: {}", action, subject);
+        logger.trace("Adding action: {} for subject: {}", action, subject);
         actionValue.getContent().add(action);
         actionAttribute.getAttributeValue().add(actionValue);
         actionAttributes.getAttribute().add(actionAttribute);
@@ -205,7 +202,7 @@ public class XACMLRealm extends AbstractAuthorizingRealm {
         AttributesType subjectAttributes = createSubjectAttributes(subject, info);
         xacmlRequestType.getAttributes().add(subjectAttributes);
 
-        LOGGER.debug("Successfully created XACML request for subject: {} with action: {}", subject,
+        logger.debug("Successfully created XACML request for subject: {} with action: {}", subject,
                 action);
 
         return xacmlRequestType;
@@ -213,7 +210,7 @@ public class XACMLRealm extends AbstractAuthorizingRealm {
 
     protected RequestType createRedactXACMLRequest(String subject, AuthorizationInfo info,
             CollectionPermission permission) {
-        LOGGER.debug("Creating XACML request for subject: {} and metacard permissions {}", subject,
+        logger.debug("Creating XACML request for subject: {} and metacard permissions {}", subject,
                 permission);
 
         RequestType xacmlRequestType = new RequestType();
@@ -228,7 +225,7 @@ public class XACMLRealm extends AbstractAuthorizingRealm {
         actionAttribute.setIncludeInResult(false);
         AttributeValueType actionValue = new AttributeValueType();
         actionValue.setDataType(XACMLConstants.STRING_DATA_TYPE);
-        LOGGER.trace("Adding action: {} for subject: {}", XACMLConstants.FILTER_ACTION, subject);
+        logger.trace("Adding action: {} for subject: {}", XACMLConstants.FILTER_ACTION, subject);
         actionValue.getContent().add(XACMLConstants.FILTER_ACTION);
         actionAttribute.getAttributeValue().add(actionValue);
         actionAttributes.getAttribute().add(actionAttribute);
@@ -253,7 +250,7 @@ public class XACMLRealm extends AbstractAuthorizingRealm {
                     resourceAttribute.setAttributeId(((KeyValuePermission) curPermission).getKey());
                     resourceAttribute.setIncludeInResult(false);
                     resourceAttributeValue.setDataType(XACMLConstants.STRING_DATA_TYPE);
-                    LOGGER.trace("Adding permission: {}:{} for incoming resource",
+                    logger.trace("Adding permission: {}:{} for incoming resource",
                             new Object[] {((KeyValuePermission) curPermission).getKey(),
                                     curPermValue});
                     resourceAttributeValue.getContent().add(curPermValue);
@@ -265,7 +262,7 @@ public class XACMLRealm extends AbstractAuthorizingRealm {
 
             xacmlRequestType.getAttributes().add(metadataAttributes);
         } else {
-            LOGGER.warn(
+            logger.warn(
                     "Permission on the resource need to be of type KeyValueCollectionPermission, cannot process this resource.");
         }
 
@@ -277,16 +274,16 @@ public class XACMLRealm extends AbstractAuthorizingRealm {
         ResponseType xacmlResponse = null;
 
         try {
-            LOGGER.debug("Calling PDP to evaluate XACML request.");
+            logger.debug("Calling PDP to evaluate XACML request.");
             xacmlResponse = pdp.evaluate(xacmlRequest);
-            LOGGER.debug("Received response from PDP.");
+            logger.debug("Received response from PDP.");
             permitted = xacmlResponse != null
                     && xacmlResponse.getResult().get(0).getDecision() == DecisionType.PERMIT ?
                     true :
                     false;
-            LOGGER.debug("Permitted: " + permitted);
+            logger.debug("Permitted: " + permitted);
         } catch (PdpException e) {
-            LOGGER.error(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
             permitted = false;
         }
 
@@ -301,7 +298,7 @@ public class XACMLRealm extends AbstractAuthorizingRealm {
         subjectAttribute.setIncludeInResult(false);
         AttributeValueType subjectValue = new AttributeValueType();
         subjectValue.setDataType(XACMLConstants.STRING_DATA_TYPE);
-        LOGGER.debug("Adding subject: {}", subject);
+        logger.debug("Adding subject: {}", subject);
         subjectValue.getContent().add(subject);
         subjectAttribute.getAttributeValue().add(subjectValue);
         subjectAttributes.getAttribute().add(subjectAttribute);
@@ -312,7 +309,7 @@ public class XACMLRealm extends AbstractAuthorizingRealm {
             roleAttribute.setIncludeInResult(false);
             AttributeValueType roleValue = new AttributeValueType();
             roleValue.setDataType(XACMLConstants.STRING_DATA_TYPE);
-            LOGGER.trace("Adding role: {} for subject: {}", curRole, subject);
+            logger.trace("Adding role: {} for subject: {}", curRole, subject);
             roleValue.getContent().add(curRole);
             roleAttribute.getAttributeValue().add(roleValue);
             subjectAttributes.getAttribute().add(roleAttribute);
@@ -326,7 +323,7 @@ public class XACMLRealm extends AbstractAuthorizingRealm {
                     subjAttr.setAttributeId(((KeyValuePermission) curPermission).getKey());
                     subjAttr.setIncludeInResult(false);
                     subjAttrValue.setDataType(XACMLConstants.STRING_DATA_TYPE);
-                    LOGGER.trace("Adding permission: {}:{} for subject: {}",
+                    logger.trace("Adding permission: {}:{} for subject: {}",
                             new Object[] {((KeyValuePermission) curPermission).getKey(),
                                     curPermValue, subject});
                     subjAttrValue.getContent().add(curPermValue);
@@ -334,7 +331,7 @@ public class XACMLRealm extends AbstractAuthorizingRealm {
                     subjectAttributes.getAttribute().add(subjAttr);
                 }
             } else {
-                LOGGER.warn(
+                logger.warn(
                         "Permissions for subject were not of type KeyValuePermission, cannot add any subject permissions to the request.");
             }
         }
