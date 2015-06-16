@@ -33,7 +33,7 @@ public interface Describable {
     /**
      * Returns the name, aka ID, of the describable item. The name should be unique for each
      * instance.
-     * <p/>
+     *
      * Example: <code>fsprovider</code> for a {@link ddf.content.storage.StorageProvider}
      * that stores content to a file system
      *

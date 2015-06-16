@@ -24,7 +24,7 @@ import ddf.content.operation.Response;
 /**
  * Response properties are the properties added specifically to a {@link Response} that are intended
  * for distribution to external clients, e.g., by Endpoints.
- * <p/>
+ *
  * Properties, associated with the parent class {@link ddf.content.operation.Operation} are properties intended for use by
  * the Content Framework components, e.g., {@link ddf.content.storage.StorageProvider}s and {@link ddf.content.plugin.ContentPlugin}s.
  */

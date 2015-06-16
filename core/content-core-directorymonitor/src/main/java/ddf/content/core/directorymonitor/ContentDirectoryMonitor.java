@@ -61,7 +61,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
     /**
      * This method will stop and remove any existing Camel routes in this context, and then
      * configure a new Camel route using the properties set in the setter methods.
-     * <p/>
+     * 
      * Invoked after all of the setter methods have been called (for initial route creation), and
      * also called whenever an existing route is updated.
      */
@@ -96,7 +96,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
      * method is invoked by the container as specified by the update-strategy and update-method
      * attributes in Spring beans XML file.
      *
-     * @param properties
+     * @param properties - properties map for the configuration
      */
     public void updateCallback(Map<String, Object> properties) {
         LOGGER.trace("ENTERING: updateCallback");
@@ -112,7 +112,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
     }
 
     /**
-     * @param monitoredDirectoryPath
+     * @param monitoredDirectoryPath - directory path for the monitored directory
      */
     public void setMonitoredDirectoryPath(String monitoredDirectoryPath) {
         LOGGER.trace("INSIDE: setMonitoredDirectoryPath");
@@ -121,7 +121,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
     }
 
     /**
-     * @param directive
+     * @param directive - directive for the monitor
      */
     public void setDirective(String directive) {
         LOGGER.trace("INSIDE: setDirective");
@@ -130,7 +130,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
     }
 
     /**
-     * @param copyIngestedFiles
+     * @param copyIngestedFiles - flag to copy ingested files
      */
     public void setCopyIngestedFiles(boolean copyIngestedFiles) {
         LOGGER.trace("INSIDE: setCopyIngestedFiles");

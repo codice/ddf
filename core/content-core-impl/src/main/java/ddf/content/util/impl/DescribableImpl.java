@@ -43,7 +43,7 @@ public abstract class DescribableImpl implements Describable {
     /**
      * Sets the version of the describable item.
      *
-     * @param version
+     * @param version - version of this item
      */
     public void setVersion(String version) {
         LOGGER.debug("Setting version = {}", version);
@@ -58,7 +58,7 @@ public abstract class DescribableImpl implements Describable {
     /**
      * Sets the ID of the describable item.
      *
-     * @param id
+     * @param id - id of this item
      */
     public void setId(String id) {
         LOGGER.debug("ENTERING: setId - id = {}", id);
@@ -90,7 +90,7 @@ public abstract class DescribableImpl implements Describable {
     /**
      * Sets the description of the describable item.
      *
-     * @param description
+     * @param description - description of this item
      */
     public void setDescription(String description) {
         LOGGER.debug("ENTERING: setDescription");
@@ -106,7 +106,7 @@ public abstract class DescribableImpl implements Describable {
     /**
      * Sets the organization of the describable item.
      *
-     * @param organization
+     * @param organization - organization of this item
      */
     public void setOrganization(String organization) {
         LOGGER.debug("ENTERING: setOrganization");

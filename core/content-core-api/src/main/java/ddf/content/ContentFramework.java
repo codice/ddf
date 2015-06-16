@@ -27,7 +27,7 @@ import ddf.content.operation.UpdateResponse;
  * The {@link ContentFramework} functions as the routing mechanism between all content components.
  * It decouples clients from service implementations and provides integration points for Content
  * Plugins.
- * <p/>
+ *
  * General, high-level flow:
  * <ul>
  * <li>An endpoint will invoke the active {@link ContentFramework}, typically via an OSGi
@@ -42,15 +42,12 @@ import ddf.content.operation.UpdateResponse;
  * </ul>
  * </li>
  * </ul>
- * <p/>
  *
- * @author Hugh Rodgers, Lockheed Martin
- * @author ddf.isgs@lmco.com
  */
 public interface ContentFramework {
     /**
      * Creates the {@link ddf.content.data.ContentItem} in the {@link ddf.content.storage.StorageProvider}.
-     * <p/>
+     *
      * <b>Implementations of this method must:</b>
      * <ol>
      * <li>Call {@link ddf.content.storage.StorageProvider#create(CreateRequest)} on the registered
@@ -72,7 +69,7 @@ public interface ContentFramework {
     /**
      * Reads a {@link ddf.content.data.ContentItem} from the {@link ddf.content.storage.StorageProvider}. The {@link ddf.content.data.ContentItem} must
      * exist in the {@link ddf.content.storage.StorageProvider} for it to be successfully retrieved.
-     * <p/>
+     *
      * Implementations of this method must call {@link ddf.content.storage.StorageProvider#read(ReadRequest)} on the
      * registered {@link ddf.content.storage.StorageProvider}
      *
@@ -86,7 +83,7 @@ public interface ContentFramework {
      * Updates a {@link ddf.content.data.ContentItem} in the {@link ddf.content.storage.StorageProvider}. The {@link ddf.content.data.ContentItem} must
      * exist in the {@link ddf.content.storage.StorageProvider} for it to be successfully updated. The
      * {@link ddf.content.data.ContentItem} will not be created if it does not already exist.
-     * <p/>
+     *
      * <b>Implementations of this method must:</b>
      * <ol>
      * <li>Call {@link ddf.content.storage.StorageProvider#update(UpdateRequest)} on the registered
@@ -107,7 +104,7 @@ public interface ContentFramework {
     /**
      * Deletes a {@link ddf.content.data.ContentItem} from the {@link ddf.content.storage.StorageProvider}. The {@link ddf.content.data.ContentItem} must
      * exist in the {@link ddf.content.storage.StorageProvider} for it to be successfully deleted.
-     * <p/>
+     *
      * <b>Implementations of this method must:</b>
      * <ol>
      * <li>Call {@link ddf.content.storage.StorageProvider#delete(DeleteRequest)} on the registered
