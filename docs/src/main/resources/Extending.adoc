@@ -203,7 +203,7 @@ npm uninstall -g bower && npm install -g bower
 +
 . Download and use Cygwin to perform the build. This may allow a user to simulate a run on a *nix system, which may not experience these issues.
 
-These options are taken from suggestions provided on github issue tickets. There have been several tickets created and closed, and several workarounds have been suggested. However, it appears that the issue still exists. Once more information develops on the resolution of this issue, this page will be updated.
+These options are taken from suggestions provided on github issue tickets. There have been several tickets created and closed, and several workarounds have been suggested. However, it appears that these have not resolved the issue. Once more information develops on a solution for this issue, this page will be updated.
 ====
 
 == DDF Development Prerequisites
@@ -283,7 +283,7 @@ During DDF installation, the major directories shown in the table below are crea
 |===
 
 == Formatting Source Code
-A code formatter for the Eclipse IDE that can be used across all DDF projects will allow developers to format code similarly and minimize merge issues in the future.
+A code formatter for the Eclipse IDE that can be used across all DDF projects to enforce code consistency and minimize merge issues in the future.
 
 DDF uses an updated version of the Apache ServiceMix Code Formatter (http://servicemix.apache.org/developers/building.html) for code formatting. 
 
@@ -694,7 +694,7 @@ Recommendations for developing UI components.
 
 As depicted in the architectural diagram above, DDF runs on top of an OSGi framework, a Java virtual machine (JVM), several choices of operating systems, and the physical hardware infrastructure. The items within the dotted line represent the DDF out-of-the-box.
 
-DDF is a customized and branded distribution of Apache Karaf.  DDF could also be considered to be a more lightweight OSGi distribution, as compared to Apache ServiceMix, FUSE ESB, or Talend ESB, all of which are also built upon Apache Karaf.  Similar to its peers, DDF incorporates additional upstream dependencies (https://tools.codice.org/#DDFArchitecture-AdditionalUpstreamDependencies).
+DDF is a customized and branded distribution of Apache Karaf.  DDF could also be considered to be a more lightweight OSGi distribution, as compared to Apache ServiceMix, FUSE ESB, or Talend ESB, all of which are also built upon Apache Karaf.  Like its peers, DDF incorporates additional upstream dependencies (https://tools.codice.org/#DDFArchitecture-AdditionalUpstreamDependencies).
 
 DDF as a framework hosts DDF applications, which are extensible by adding components via OSGi. The best example of this is the DDF Catalog (API), which offers extensibility via several types of Catalog Components. The DDF Catalog API serves as the foundation for several applications and resides in the applications tier.
 
@@ -998,7 +998,7 @@ Example (represented as simple XML for ease of understanding):
 </user>
 ----
 
-In the above example, the user's claims are represented very simply and are similar to how they would actually appear in a SAML 2 assertion. Each of these user (or subject) claims will be converted to a KeyValuePermission object. These permission objects will be implied against the permission object generated from the metacard record. In this particular case, the metacard might be allowed if the policy is configured appropriately because all of the permissions line up correctly.
+In the above example, the user's claims are represented very simply and resemble how they would actually appear in a SAML 2 assertion. Each of these user (or subject) claims will be converted to a KeyValuePermission object. These permission objects will be implied against the permission object generated from the metacard record. In this particular case, the metacard might be allowed if the policy is configured appropriately because all of the permissions line up correctly.
 
 ==== Redaction Policies
 The procedure for setting up a policy differs depending on which PDP implementation installed. The `security-pdp-java` implementation is the simplest PDP to use, so it will be covered here.
@@ -1975,7 +1975,7 @@ The `AttributeStatement` block contains all of the claims requested.
                         </ds:Reference>
                      </ds:SignedInfo>
                      <ds:SignatureValue>
-mYR7w1/dnuh8Z7t9xjCb4XkYQLshj+UuYlGOuTwDYsUPcS2qI0nAgMD1VsDP7y1fDJxeqsq7HYhFKsnqRfebMM4WLH1D/lJ4rD4UO+i9l3tuiHml7SN24WM1/bOqfDUCoDqmwG8afUJ3r4vmTNPWTfOss8BZ/8ODgZzm08ndlkxDfvcN7OrExbV/3/45JwF/MMPZoqvi2MJGfX56E9fErJNuzezpWnRqPOlWPxyffKMAlVaB9zF6gvVnUqcW2k/Z8X9lN7O5jouBI281ZnIfsIPuBJERFtYNVDHsIXM1pJnrY6FlKIaOsi55LQu3Ruir/n82pU7BT5aWtxwrn7akBg==                    </ds:SignatureValue>
+mYR7w1/dnuh8Z7t9xjCb4XkYQLshj+UuYlGOuTwDYsUPcS2qI0nAgMD1VsDP7y1fDJxeqsq7HYhFKsnqRfebMM4WLH1D/lJ4rD4UO+i9l3tuiHml7SN24WM1/bOqfDUCoDqmwG8afUJ3r4vmTNPWTgOss8BZ/8ODgZzm08ndlkxDfvcN7OrExbV/3/45JwF/MMPZoqvi2MJGfX56E9fErJNuzezpWnRqPOlWPxyffKMAlVaB9zF6gvVnUqcW2k/Z8X9lN7O5jouBI281ZnIfsIPuBJERFtYNVDHsIXM1pJnrY6FlKIaOsi55LQu3Ruir/n82pU7BT5aWtxwrn7akBg==                    </ds:SignatureValue>
                      <ds:KeyInfo>
                         <ds:X509Data>
                            <ds:X509Certificate>MIIFHTCCBAWgAwIBAgICJe8wDQYJKoZIhvcNAQEFBQAwXDELMAkGA1UEBhMCVVMxGDAWBgNVBAoT
@@ -2061,7 +2061,7 @@ hwtE3xo6qQRRWlO3/clC4RnTev1crFVJQVBF3yfpRu8udJ2SOGdqU0vjUSu1h7aMkYJMHIu08Whj
                         <saml2:AttributeValue xsi:type="xs:string">Peter Parker</saml2:AttributeValue>
                      </saml2:Attribute>
                      <saml2:Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
-                        <saml2:AttributeValue xsi:type="xs:string">dodusers</saml2:AttributeValue>
+                        <saml2:AttributeValue xsi:type="xs:string">users</saml2:AttributeValue>
                      </saml2:Attribute>
                      <saml2:Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
                         <saml2:AttributeValue xsi:type="xs:string">users</saml2:AttributeValue>
@@ -2117,7 +2117,7 @@ A sample XACML policy is located at the end of this page.
 Information on specific bundle configurations and names can be found on the Security PDP application page.
 
 ==== Creating a Policy
-This document assumes familiarity with the XACML schema and does not go into detail on the XACML language. 
+This document assumes a basic knowledge the XACML schema and does not go into detail on the XACML language. 
 There are some {branding}-specific items that need to be considered, when creating a policy, to be compatible with the XACMLRealm. 
 When creating a policy, a target is used to indicate that a certain action should be run only for one type of request. 
 Targets can be used on both the main policy element and any individual rules. 
@@ -2220,10 +2220,6 @@ This is the sample policy that was used for the following sample request and res
             <AnyOf>
                 <AllOf>
                     <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">ATA</AttributeValue>
-                        <AttributeDesignator AttributeId="http://www.opm.gov/feddata/CountryOfCitizenship" Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
-                    </Match>
-                    <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
                         <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">query</AttributeValue>
                         <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
                     </Match>
@@ -2276,9 +2272,6 @@ This is the sample policy that was used for the following sample request and res
         <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname" IncludeInResult="false">
             <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Test User</AttributeValue>
         </Attribute>
-        <Attribute AttributeId="http://www.opm.gov/feddata/CountryOfCitizenship" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">ATA</AttributeValue>
-        </Attribute>
     </Attributes>
 </Request>
 ----
@@ -2328,9 +2321,6 @@ This is the sample policy that was used for the following sample request and res
         </Attribute>
         <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname" IncludeInResult="false">
             <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Test User</AttributeValue>
-        </Attribute>
-        <Attribute AttributeId="http://www.opm.gov/feddata/CountryOfCitizenship" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">USA</AttributeValue>
         </Attribute>
     </Attributes>
 </Request>
@@ -2384,9 +2374,6 @@ All of the resource's RESOURCE_ACCESS attributes were matched with the Subject's
         </Attribute>
         <Attribute AttributeId="SUBJECT_ACCESS" IncludeInResult="false">
             <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">B</AttributeValue>
-        </Attribute>
-        <Attribute AttributeId="http://www.opm.gov/feddata/CountryOfCitizenship" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">ATA</AttributeValue>
         </Attribute>
     </Attributes>
     <Attributes Category="urn:oasis:names:tc:xacml:3.0:attribute-category:resource">
@@ -2443,9 +2430,6 @@ The resource had an additional RESOURCE_ACCESS attribute 'C' that the subject di
         </Attribute>
         <Attribute AttributeId="SUBJECT_ACCESS" IncludeInResult="false">
             <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">B</AttributeValue>
-        </Attribute>
-        <Attribute AttributeId="http://www.opm.gov/feddata/CountryOfCitizenship" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">ATA</AttributeValue>
         </Attribute>
     </Attributes>
     <Attributes Category="urn:oasis:names:tc:xacml:3.0:attribute-category:resource">
