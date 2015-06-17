@@ -13,6 +13,8 @@
  */
 package ddf.metrics.interceptor;
 
+import java.util.concurrent.TimeUnit;
+
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
@@ -22,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import com.codahale.metrics.Histogram;
 import com.codahale.metrics.JmxReporter;
 import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.SlidingTimeWindowReservoir;
 
 /**
  * This class is extended by the METRICS interceptors used for capturing round trip message latency.
@@ -42,20 +45,17 @@ public abstract class AbstractMetricsInterceptor extends AbstractPhaseIntercepto
     private static final JmxReporter REPORTER = JmxReporter.forRegistry(METRICS)
             .inDomain(REGISTRY_NAME).build();
 
-    final Histogram messageLatency;
+    static final Histogram MESSAGE_LATENCY = METRICS.register(MetricRegistry.name(HISTOGRAM_NAME), new Histogram(new SlidingTimeWindowReservoir(1, TimeUnit.MINUTES)));
 
     /**
      * Constructor to pass the phase to {@code AbstractPhaseInterceptor} and creates a new
      * histogram.
-     *
+     * 
      * @param phase
      */
     public AbstractMetricsInterceptor(String phase) {
 
         super(phase);
-
-        messageLatency = METRICS.histogram(MetricRegistry.name(HISTOGRAM_NAME));
-
         REPORTER.start();
     }
 
@@ -97,7 +97,7 @@ public abstract class AbstractMetricsInterceptor extends AbstractPhaseIntercepto
     }
 
     private void increaseCounter(Exchange ex, LatencyTimeRecorder ltr) {
-        messageLatency.update(ltr.getLatencyTime());
+        MESSAGE_LATENCY.update(ltr.getLatencyTime());
     }
 
 }
