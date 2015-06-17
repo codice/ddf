@@ -1648,8 +1648,8 @@ A workaround is to modify `config.ldif` as seen in the steps below and hot deplo
 *** `ds-cfg-trust-store-file: ../../keystores/serverTruststore.jks`
 *** `ds-cfg-trust-store-pin: password`
 *** `cn: JKS`
-** If using the default keystores and certificates, start the `ldap-dibemebedded
-app:start ldap-dibembedded`
+** If using the default keystores and certificates, start the `opendj-embedded
+app:start opendj-embedded`
 * Shutdown {branding}
 ** `<ddf-home>/bin/shutdown -f`
 * Add the newly created keystore and truststore
@@ -2078,7 +2078,7 @@ Notifications are messages that are sent to clients to inform them of some signi
 
 When a notification is received, {branding} Standard UI displays a popup containing the contents of the notification, so a user is made aware of how their downloads are proceeding.  
 
-Behind the scenes, the {branding} Standard UI invokes the REST endpoint to retrieve a resource.  In this request, it adds the query parameter "user" with the CometD session ID or the unique User ID as the value.  This allows the CometD server to know which subscriber is interested in the notification.  For example,  http://{branding}_HOST:8181/services/catalog/sources/dib.distribution/2f5db9e5131444279a1293c541c106cd?transform=resource&user=1w1qlo79j6tscii19jszwp9s2i55 notifications contain the following information:
+Behind the scenes, the {branding} Standard UI invokes the REST endpoint to retrieve a resource.  In this request, it adds the query parameter "user" with the CometD session ID or the unique User ID as the value.  This allows the CometD server to know which subscriber is interested in the notification.  For example,  http://{branding}_HOST:8181/services/catalog/sources/ddf.distribution/2f5db9e5131444279a1293c541c106cd?transform=resource&user=1w1qlo79j6tscii19jszwp9s2i55 notifications contain the following information:
 
 [cols="1,4,1" options="header"]
 |===
@@ -2226,8 +2226,8 @@ A workaround is to modify `config.ldif` as seen in the steps below and hot deplo
 *** `ds-cfg-trust-store-file: ../../keystores/serverTruststore.jks`
 *** `ds-cfg-trust-store-pin: password`
 *** `cn: JKS`
-** If using the default keystores and certificates, start the `ldap-dibemebedded
-app:start ldap-dibembedded`
+** If using the default keystores and certificates, start the `opendj-embedded
+app:start opendj-embedded`
 * Shutdown {branding}
 ** `<ddf-home>/bin/shutdown -f`
 * Add the newly created keystore and truststore
