@@ -1648,15 +1648,13 @@ A workaround is to modify `config.ldif` as seen in the steps below and hot deplo
 *** `ds-cfg-trust-store-file: ../../keystores/serverTruststore.jks`
 *** `ds-cfg-trust-store-pin: password`
 *** `cn: JKS`
-** If using the default keystores and certificates, start the `ldap-dibemebedded
-app:start ldap-dibembedded`
-* Shutdown {branding}
-** `<ddf-home>/bin/shutdown -f`
-* Add the newly created keystore and truststore
-** put the newly created `serverKeystore.jks` in `<ddf-home>/etc/keystores`
-** put the newly created `serverTruststore.jks` in `<ddf-home>/etc/keystores`
-* Configure system properties
-In `<ddf-home>/etc/system.properties`, modify the keystore and truststore paths and passwords as appropriate.
+** Shutdown {branding}
+*** `<ddf-home>/bin/shutdown -f`
+** Add the newly created keystore and truststore
+*** put the newly created `serverKeystore.jks` in `<ddf-home>/etc/keystores`
+*** put the newly created `serverTruststore.jks` in `<ddf-home>/etc/keystores`
+** Configure system properties
+*** In `<ddf-home>/etc/system.properties`, modify the keystore and truststore paths and passwords as appropriate.
 
 .system.properties
 [source]
@@ -2078,7 +2076,7 @@ Notifications are messages that are sent to clients to inform them of some signi
 
 When a notification is received, {branding} Standard UI displays a popup containing the contents of the notification, so a user is made aware of how their downloads are proceeding.  
 
-Behind the scenes, the {branding} Standard UI invokes the REST endpoint to retrieve a resource.  In this request, it adds the query parameter "user" with the CometD session ID or the unique User ID as the value.  This allows the CometD server to know which subscriber is interested in the notification.  For example,  http://{branding}_HOST:8181/services/catalog/sources/dib.distribution/2f5db9e5131444279a1293c541c106cd?transform=resource&user=1w1qlo79j6tscii19jszwp9s2i55 notifications contain the following information:
+Behind the scenes, the {branding} Standard UI invokes the REST endpoint to retrieve a resource.  In this request, it adds the query parameter "user" with the CometD session ID or the unique User ID as the value.  This allows the CometD server to know which subscriber is interested in the notification.  For example,  https://{branding}_HOST:8993/services/catalog/sources/ddf.distribution/2f5db9e5131444279a1293c541c106cd?transform=resource&user=1w1qlo79j6tscii19jszwp9s2i55 notifications contain the following information:
 
 [cols="1,4,1" options="header"]
 |===
@@ -2226,15 +2224,13 @@ A workaround is to modify `config.ldif` as seen in the steps below and hot deplo
 *** `ds-cfg-trust-store-file: ../../keystores/serverTruststore.jks`
 *** `ds-cfg-trust-store-pin: password`
 *** `cn: JKS`
-** If using the default keystores and certificates, start the `ldap-dibemebedded
-app:start ldap-dibembedded`
-* Shutdown {branding}
-** `<ddf-home>/bin/shutdown -f`
-* Add the newly created keystore and truststore
-** put the newly created `serverKeystore.jks` in `<ddf-home>/etc/keystores`
-** put the newly created `serverTruststore.jks` in `<ddf-home>/etc/keystores`
-* Configure system properties
-In `<ddf-home>/etc/system.properties`, modify the keystore and truststore paths and passwords as appropriate.
+** Shutdown {branding}
+*** `<ddf-home>/bin/shutdown -f`
+** Add the newly created keystore and truststore
+*** put the newly created `serverKeystore.jks` in `<ddf-home>/etc/keystores`
+*** put the newly created `serverTruststore.jks` in `<ddf-home>/etc/keystores`
+** Configure system properties
+*** In `<ddf-home>/etc/system.properties`, modify the keystore and truststore paths and passwords as appropriate.
 
 .system.properties
 [source]
@@ -3312,7 +3308,7 @@ The web administration console is not compatible with Internet Explorer 7.
 ==== Disable the Web Console
 To harden {branding} for security purposes, disable the Web Console, so users do not have access. All configuration is performed using the {branding} command line console and/or .cfg configuration files.
 
-. Open the Web Console: http://localhost:8181/system/console.
+. Open the Web Console: https://localhost:8993/system/console.
 . Enter the username (default is "admin") and the password (default is "admin").
 . Select the Features tab.
 . Select the *Install/Uninstall* button to uninstall the webconsole-base feature. If attempting to access a page on the Web Console, an HTTP 404 error occurs.
@@ -4398,7 +4394,7 @@ Total subscriptions found: 3
 Subscription ID
 my.contextual.id.v20|http://172.18.14.169:8088/mockCatalogEventConsumerBinding?WSDL
 my.contextual.id.v30|http://172.18.14.169:8088/mockEventConsumerBinding?WSDL
-my.contextual.id.json|http://172.18.14.169:8088/services/json-ddms/local/event/notification
+my.contextual.id.json|http://172.18.14.169:8088/services/json/local/event/notification
 ----
 
 ===== List a Specific Subscription by ID
@@ -4427,7 +4423,7 @@ Total subscriptions found: 3
 Subscription ID
 my.contextual.id.v20|http://172.18.14.169:8088/mockCatalogEventConsumerBinding?WSDL
 my.contextual.id.v30|http://172.18.14.169:8088/mockEventConsumerBinding?WSDL
-my.contextual.id.json|http://172.18.14.169:8088/services/json-ddms/local/event/notification
+my.contextual.id.json|http://172.18.14.169:8088/services/json/local/event/notification
  
 
 ddf@local>subscriptions:list "*json*"
@@ -4435,7 +4431,7 @@ ddf@local>subscriptions:list "*json*"
 Total subscriptions found: 1
  
 Subscription ID
-my.contextual.id.json|http://172.18.14.169:8088/services/json-ddms/local/event/notification
+my.contextual.id.json|http://172.18.14.169:8088/services/json/local/event/notification
  
   
 ddf@local>subscriptions:list "*WSDL"
@@ -4458,7 +4454,7 @@ Total subscriptions found: 2
  
 Subscription ID
 my.contextual.id.v20|http://172.18.14.169:8088/mockCatalogEventConsumerBinding?WSDL
-my.contextual.id.json|http://172.18.14.169:8088/services/json-ddms/local/event/notification
+my.contextual.id.json|http://172.18.14.169:8088/services/json/local/event/notification
 ----
 
 The example below illustrates searching for any subscription that has "json" and "172.18.14.169" in its subscription ID. This could be a handy way of finding all subscriptions for a specific site.
@@ -4469,7 +4465,7 @@ ddf@local>subscriptions:list -f "(&(subscription-id=*json*) (subscription-id=*17
 Total subscriptions found: 1
  
 Subscription ID
-my.contextual.id.json|http://172.18.14.169:8088/services/json-ddms/local/event/notification
+my.contextual.id.json|http://172.18.14.169:8088/services/json/local/event/notification
 ----
 
 ==== `subscriptions:delete` Command Usage Example
@@ -4479,9 +4475,9 @@ When the `delete` command is executed it will display each subscription ID it is
 ===== Delete a Specific Subscription Using Its Exact ID
 
 ----
-ddf@local>subscriptions:delete "my.contextual.id.json|http://172.18.14.169:8088/services/json-ddms/local/event/notification"
+ddf@local>subscriptions:delete "my.contextual.id.json|http://172.18.14.169:8088/services/json/local/event/notification"
  
-Deleted subscription for ID = my.contextual.id.json|http://172.18.14.169:8088/services/json-ddms/local/event/notification
+Deleted subscription for ID = my.contextual.id.json|http://172.18.14.169:8088/services/json/local/event/notification
  
 Deleted 1 subscriptions out of 1 subscriptions found.
 ----
@@ -4501,7 +4497,7 @@ Deleted 2 subscriptions out of 2 subscriptions found.
  
 ddf@local>subscriptions:delete "*json*"
  
-Deleted subscription for ID = my.contextual.id.json|http://172.18.14.169:8088/services/json-ddms/local/event/notification
+Deleted subscription for ID = my.contextual.id.json|http://172.18.14.169:8088/services/json/local/event/notification
  
 Deleted 1 subscriptions out of 1 subscriptions found.
 ----
@@ -4513,7 +4509,7 @@ ddf@local>subscriptions:delete *
  
 Deleted subscription for ID = my.contextual.id.v30|http://172.18.14.169:8088/mockEventConsumerBinding?WSDL
 Deleted subscription for ID = my.contextual.id.v20|http://172.18.14.169:8088/mockCatalogEventConsumerBinding?WSDL
-Deleted subscription for ID = my.contextual.id.json|http://172.18.14.169:8088/services/json-ddms/local/event/notification
+Deleted subscription for ID = my.contextual.id.json|http://172.18.14.169:8088/services/json/local/event/notification
  
 Deleted 3 subscriptions out of 3 subscriptions found.
 ----
