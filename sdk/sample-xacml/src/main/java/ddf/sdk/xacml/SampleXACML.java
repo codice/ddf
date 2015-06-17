@@ -53,16 +53,26 @@ public class SampleXACML {
                     if (karafHomeDir.exists()) {
                         String policyDirStr = karafHomeDirStr + POLICY_DIR;
                         File outputDir = new File(policyDirStr);
-                        if (outputDir.mkdirs()) {
+                        boolean outputDirExists = false;
+                        if (!outputDir.exists()) {
+                            if (outputDir.mkdirs()) {
+                                LOGGER.debug("Creating directory {}", policyDirStr);
+                                outputDirExists = true;
+                            } else {
+                                LOGGER.error("Could not make the policy output directory!");
+                            }
+                        } else {
+                            outputDirExists = true;
+                        }
+                        if (outputDirExists) {
                             File outputFile = new File(policyDirStr + POLICY_FILE);
                             outStream = FileUtils.openOutputStream(outputFile);
                             if (null != outStream) {
+                                LOGGER.debug("Copying file {} to {}", POLICY_FILE, policyDirStr);
                                 IOUtils.copy(inStream, outStream);
                             } else {
                                 LOGGER.error("Could not create policy file output stream!");
                             }
-                        } else {
-                            LOGGER.error("Could not make the policy output directory!");
                         }
                     } else {
                         LOGGER.error("Karaf home directory does not exist!");
