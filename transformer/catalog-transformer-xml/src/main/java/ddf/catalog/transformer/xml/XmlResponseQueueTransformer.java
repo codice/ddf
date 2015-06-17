@@ -201,6 +201,12 @@ public class XmlResponseQueueTransformer extends AbstractXmlTransformer
         private StringWriter doCompute() {
             StringWriter stringWriter = new StringWriter(BUFFER_SIZE);
             MetacardPrintWriter writer = new MetacardPrintWriter(stringWriter);
+            XmlPullParser parser;
+            try {
+                parser = XppFactory.createDefaultParser();
+            } catch (XmlPullParserException e) {
+                throw new ConversionException("Unable to initialize pull parser.", e);
+            }
 
             for (Result result : resultList) {
                 Metacard metacard = result.getMetacard();
@@ -237,7 +243,7 @@ public class XmlResponseQueueTransformer extends AbstractXmlTransformer
                     if (attribute != null) {
                         AttributeFormat format = attributeDescriptor.getType().getAttributeFormat();
                         try {
-                            writeAttributeToXml(writer, attribute, format);
+                            writeAttributeToXml(writer, parser, attribute, format);
                         } catch (CatalogTransformerException | IOException e) {
                             cancelOperation.set(true);
                             throw new RuntimeException("Failure to write node; operation aborted",
@@ -251,8 +257,9 @@ public class XmlResponseQueueTransformer extends AbstractXmlTransformer
             return stringWriter;
         }
 
-        private void writeAttributeToXml(MetacardPrintWriter writer, Attribute attribute,
-                AttributeFormat format) throws IOException, CatalogTransformerException {
+        private void writeAttributeToXml(MetacardPrintWriter writer, XmlPullParser parser,
+                Attribute attribute, AttributeFormat format)
+                throws IOException, CatalogTransformerException {
             String attributeName = attribute.getName();
 
             for (Serializable value : attribute.getValues()) {
@@ -274,7 +281,7 @@ public class XmlResponseQueueTransformer extends AbstractXmlTransformer
                     xmlValue = DateFormatUtils.formatUTC(date, DF_PATTERN);
                     break;
                 case GEOMETRY:
-                    xmlValue = geoToXml(new GeometryTransformer().transform(attribute));
+                    xmlValue = geoToXml(GeometryTransformer.transform(attribute), parser);
                     break;
                 case OBJECT:
                     ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -309,35 +316,30 @@ public class XmlResponseQueueTransformer extends AbstractXmlTransformer
             }
         }
 
-        private String geoToXml(BinaryContent content) {
-            try {
-                XmlPullParser parser = XppFactory.createDefaultParser();
-                XppReader source = new XppReader(new InputStreamReader(content.getInputStream()),
-                        parser);
+        private String geoToXml(BinaryContent content, XmlPullParser parser) {
+            XppReader source = new XppReader(new InputStreamReader(content.getInputStream()),
+                    parser);
 
-                // Skip the first two nodes, the root nodes of the ns3: namespace
-                source.moveDown();
-                source.moveDown();
+            // Skip the first two nodes, the root nodes of the ns3: namespace
+            source.moveDown();
+            source.moveDown();
 
-                StringWriter stringWriter = new StringWriter(BUFFER_SIZE);
-                PrettyPrintWriter destination = new PrettyPrintWriter(stringWriter);
+            StringWriter stringWriter = new StringWriter(BUFFER_SIZE);
+            PrettyPrintWriter destination = new PrettyPrintWriter(stringWriter);
 
-                new HierarchicalStreamCopier().copy(source, destination);
+            new HierarchicalStreamCopier().copy(source, destination);
 
-                // Ideally, we would not intermittently get different namespace prefixes from
-                // marshalling; however, we are and can't safely use a NamespacePrefixMapper.
-                // So we have this. We specifically look for the 'ns1' prefix which this
-                // transformer has locked to the http://www.opengis.net/gml URI. If we do not
-                // find it, we do a regex replace of the 'ns?' prefix we do find.
-                String geoNode = stringWriter.toString();
-                if (!geoNode.startsWith("<ns1:")) {
-                    geoNode = geoNode.replaceAll("([</])ns\\d:", "$1ns1:");
-                }
-
-                return geoNode;
-            } catch (XmlPullParserException e) {
-                throw new ConversionException("Unable to copy metadata to XML Output.", e);
+            // Ideally, we would not intermittently get different namespace prefixes from
+            // marshalling; however, we are and can't safely use a NamespacePrefixMapper.
+            // So we have this. We specifically look for the 'ns1' prefix which this
+            // transformer has locked to the http://www.opengis.net/gml URI. If we do not
+            // find it, we do a regex replace of the 'ns?' prefix we do find.
+            String geoNode = stringWriter.toString();
+            if (!geoNode.startsWith("<ns1:")) {
+                geoNode = geoNode.replaceAll("([</])ns\\d:", "$1ns1:");
             }
+
+            return geoNode;
         }
     }
 

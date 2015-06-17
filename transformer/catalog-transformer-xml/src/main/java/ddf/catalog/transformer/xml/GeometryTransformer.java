@@ -35,18 +35,17 @@ import ddf.catalog.transformer.xml.adapter.GeometryAdapter;
 class GeometryTransformer extends AbstractXmlTransformer {
     private static final int BUFFER_SIZE = 512;
 
-    BinaryContent transform(Attribute attribute) throws CatalogTransformerException {
+    static BinaryContent transform(Attribute attribute) throws CatalogTransformerException {
         BinaryContent transformedContent = null;
 
         ClassLoader tccl = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread()
-                    .setContextClassLoader(getClass().getClassLoader());
+                    .setContextClassLoader(GeometryTransformer.class.getClassLoader());
 
             ByteArrayOutputStream os = new ByteArrayOutputStream(BUFFER_SIZE);
 
             Marshaller marshaller = CONTEXT.createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
             marshaller.setEventHandler(new DefaultValidationEventHandler());
 
             try {
