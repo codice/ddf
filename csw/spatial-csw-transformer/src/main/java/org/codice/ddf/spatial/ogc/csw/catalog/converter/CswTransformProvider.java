@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -41,7 +42,8 @@ import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import com.thoughtworks.xstream.io.copy.HierarchicalStreamCopier;
-import com.thoughtworks.xstream.io.xml.PrettyPrintWriter;
+import com.thoughtworks.xstream.io.naming.NoNameCoder;
+import com.thoughtworks.xstream.io.xml.CompactWriter;
 import com.thoughtworks.xstream.io.xml.XppReader;
 import com.thoughtworks.xstream.io.xml.xppdom.XppFactory;
 
@@ -171,9 +173,9 @@ public class CswTransformProvider implements Converter {
         try (InputStream is = readXml(reader, context)) {
             InputStream inputStream = is;
             if (LOGGER.isDebugEnabled()) {
-                String originalInputStream = IOUtils.toString(inputStream, "UTF-8");
+                String originalInputStream = IOUtils.toString(inputStream, StandardCharsets.UTF_8.name());
                 LOGGER.debug("About to transform\n{}", originalInputStream);
-                inputStream = new ByteArrayInputStream(originalInputStream.getBytes("UTF-8"));
+                inputStream = new ByteArrayInputStream(originalInputStream.getBytes(StandardCharsets.UTF_8.name()));
             }
             metacard = transformer.transform(inputStream);
         } catch (IOException | CatalogTransformerException e) {
@@ -182,11 +184,22 @@ public class CswTransformProvider implements Converter {
         return metacard;
     }
 
-    private InputStream readXml(HierarchicalStreamReader reader, UnmarshallingContext context) {
-        StringWriter stringWriter = new StringWriter();
-        PrettyPrintWriter writer = new PrettyPrintWriter(stringWriter);
-        new HierarchicalStreamCopier().copy(reader, writer);
-        return IOUtils.toInputStream(stringWriter.toString());
+    private InputStream readXml(HierarchicalStreamReader reader, UnmarshallingContext context)
+            throws IOException {
+        InputStream is = null;
+
+        Map<String, String> namespaces = null;
+        Object namespaceObj = context.get(CswConstants.WRITE_NAMESPACES);
+        if (namespaceObj instanceof Map<?, ?>) {
+            namespaces = (Map<String, String>) namespaceObj;
+        }
+
+        StringWriter writer = new StringWriter();
+        XStreamAttributeCopier copier = new XStreamAttributeCopier();
+        NoNameCoder noNameCoder = new NoNameCoder();
+        copier.copyAttributes(reader, new CompactWriter(writer, noNameCoder), namespaces);
+        return IOUtils.toInputStream(writer.toString(), StandardCharsets.UTF_8.name());
+
     }
 
     @Override

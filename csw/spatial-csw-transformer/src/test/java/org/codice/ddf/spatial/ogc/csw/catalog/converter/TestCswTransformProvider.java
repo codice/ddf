@@ -26,6 +26,7 @@ import static org.mockito.Mockito.when;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.activation.MimeType;
@@ -67,6 +68,9 @@ public class TestCswTransformProvider {
 
     private MetacardTransformer mockMetacardTransformer = mock(MetacardTransformer.class);
 
+    private static final String OTHER_SCHEMA = "http://example.com/scheam.xsd";
+
+
     @Test
     public void testMarshalCswRecord() throws Exception {
         when(mockMetacardManager.getTransformerBySchema(CswConstants.CSW_OUTPUT_SCHEMA))
@@ -95,7 +99,6 @@ public class TestCswTransformProvider {
 
     @Test
     public void testMarshalOtherSchema() throws Exception {
-        final String OTHER_SCHEMA = "http://example.com/scheam.xsd";
         when(mockMetacardManager.getTransformerBySchema(OTHER_SCHEMA))
                 .thenReturn(mockMetacardTransformer);
 
@@ -183,7 +186,6 @@ public class TestCswTransformProvider {
 
         InputStream inStream = captor.getValue();
         String result = IOUtils.toString(inStream);
-        System.out.println("result = " + result);
 
         XMLUnit.setIgnoreWhitespace(true);
         XMLAssert.assertXMLEqual(getRecord(), result);
@@ -192,7 +194,6 @@ public class TestCswTransformProvider {
     @Test
     public void testUnmarshalOtherSchema() throws Exception {
         InputTransformer mockInputTransformer = mock(InputTransformer.class);
-        final String OTHER_SCHEMA = "http://example.com/scheam.xsd";
         when(mockInputManager.getTransformerBySchema(OTHER_SCHEMA))
                 .thenReturn(mockInputTransformer);
 
@@ -218,6 +219,7 @@ public class TestCswTransformProvider {
         assertThat(outputSchema, is(OTHER_SCHEMA));
     }
 
+
     @Test(expected = ConversionException.class)
     public void testUnmarshalNoTransformers() throws Exception {
         when(mockInputManager.getTransformerBySchema(anyString())).thenReturn(null);
@@ -231,11 +233,66 @@ public class TestCswTransformProvider {
 
     }
 
+    @Test
+    public void testUnmarshalMissingNamespaces() throws Exception {
+        InputTransformer mockInputTransformer = mock(InputTransformer.class);
+        when(mockInputManager.getTransformerBySchema(anyString())).thenReturn(mockInputTransformer);
+
+        Map<String, String> namespaces = new HashMap<>();
+        namespaces.put("xmlns:csw", "http://www.opengis.net/cat/csw/2.0.2");
+        namespaces.put("xmlns:dc", "http://purl.org/dc/elements/1.1/");
+        namespaces.put("xmlns:dct", "http://purl.org/dc/terms/");
+
+        HierarchicalStreamReader reader = new XppReader(
+                new StringReader(getRecordMissingNamespaces()),
+                XmlPullParserFactory.newInstance().newPullParser());
+        CswTransformProvider provider = new CswTransformProvider(null, mockInputManager);
+        UnmarshallingContext context = new TreeUnmarshaller(null, null, null, null);
+        context.put(CswConstants.WRITE_NAMESPACES, namespaces);
+        context.put(CswConstants.OUTPUT_SCHEMA_PARAMETER, OTHER_SCHEMA);
+
+
+        ArgumentCaptor<InputStream> captor = ArgumentCaptor.forClass(InputStream.class);
+
+        Metacard metacard = (Metacard) provider.unmarshal(reader, context);
+
+        // Verify the context arguments were set correctly
+        verify(mockInputTransformer, times(1)).transform(captor.capture());
+
+        InputStream inStream = captor.getValue();
+        String result = IOUtils.toString(inStream);
+
+        XMLUnit.setIgnoreWhitespace(true);
+        XMLAssert.assertXMLEqual(getRecord(), result);
+    }
+
     private String getRecord() {
         return "<csw:Record xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\" \n"
                 + "xmlns:dc=\"http://purl.org/dc/elements/1.1/\" \n"
                 + "xmlns:dct=\"http://purl.org/dc/terms/\" \n"
                 + "xmlns:ows=\"http://www.opengis.net/ows\">\n"
+                + "  <dct:created>2014-11-01T00:00:00.000-05:00</dct:created>\n"
+                + "  <dc:title>This is my title</dc:title>\n"
+                + "  <dct:alternative>This is my title</dct:alternative>\n"
+                + "  <dc:date>2016-11-01T00:00:00.000-05:00</dc:date>\n"
+                + "  <dct:modified>2016-11-01T00:00:00.000-05:00</dct:modified>\n"
+                + "  <dct:dateSubmitted>2016-11-01T00:00:00.000-05:00</dct:dateSubmitted>\n"
+                + "  <dct:issued>2016-11-01T00:00:00.000-05:00</dct:issued>\n"
+                + "  <dc:identifier>ID</dc:identifier>\n"
+                + "  <dct:bibliographicCitation>ID</dct:bibliographicCitation>\n"
+                + "  <dct:dateAccepted>2015-11-01T00:00:00.000-05:00</dct:dateAccepted>\n"
+                + "  <dct:dateCopyrighted>2015-11-01T00:00:00.000-05:00</dct:dateCopyrighted>\n"
+                + "  <dc:type>I have some content type</dc:type>\n"
+                + "  <dc:source>http://host:port/my/product.pdf</dc:source>\n"
+                + "  <dc:publisher>sourceID</dc:publisher>\n"
+                + "  <ows:BoundingBox crs=\"urn:x-ogc:def:crs:EPSG:6.11:4326\">\n"
+                + "    <ows:LowerCorner>10.0 10.0</ows:LowerCorner>\n"
+                + "    <ows:UpperCorner>40.0 40.0</ows:UpperCorner>\n" + "  </ows:BoundingBox>\n"
+                + "</csw:Record>";
+    }
+
+    private String getRecordMissingNamespaces() {
+        return "<csw:Record xmlns:ows=\"http://www.opengis.net/ows\">\n"
                 + "  <dct:created>2014-11-01T00:00:00.000-05:00</dct:created>\n"
                 + "  <dc:title>This is my title</dc:title>\n"
                 + "  <dct:alternative>This is my title</dct:alternative>\n"
