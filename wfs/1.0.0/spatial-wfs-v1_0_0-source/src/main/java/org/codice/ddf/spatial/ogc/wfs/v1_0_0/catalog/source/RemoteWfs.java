@@ -88,7 +88,7 @@ public class RemoteWfs extends TrustedRemoteSource implements Wfs {
      * Sets the TLS Parameters on the current client
      */
     protected void setTlsParameters() {
-        Client client = WebClient.client(wfs);
+        Client client = WebClient.fromClientObject(wfs);
         setTlsParameters(client);
     }
 
@@ -101,7 +101,7 @@ public class RemoteWfs extends TrustedRemoteSource implements Wfs {
      *            Time in milliseconds to allow a receive.
      */
     public void setTimeouts(Integer connectionTimeout, Integer receiveTimeout) {
-        this.configureTimeouts(WebClient.client(wfs), connectionTimeout, receiveTimeout);
+        this.configureTimeouts(WebClient.fromClientObject(wfs), connectionTimeout, receiveTimeout);
     }
 
     public FeatureCollectionMessageBodyReaderWfs10 getFeatureCollectionReader() {

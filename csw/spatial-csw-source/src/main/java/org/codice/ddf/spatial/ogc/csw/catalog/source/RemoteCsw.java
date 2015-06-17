@@ -100,7 +100,7 @@ public class RemoteCsw extends TrustedRemoteSource implements Csw {
      * Sets the TLS Parameters on the current client
      */
     protected void setTlsParameters() {
-        Client client = WebClient.client(csw);
+        Client client = WebClient.fromClientObject(csw);
         setTlsParameters(client);
     }
 
@@ -110,17 +110,17 @@ public class RemoteCsw extends TrustedRemoteSource implements Csw {
      * @param receiveTimeout Time in milliseconds to allow a receive.
      */
     public void setTimeouts(Integer connectionTimeout, Integer receiveTimeout) {
-        this.configureTimeouts(WebClient.client(csw), connectionTimeout, receiveTimeout);
+        this.configureTimeouts(WebClient.fromClientObject(csw), connectionTimeout, receiveTimeout);
     }
 
     public void setSubject(Subject subject) {
-        Client client = WebClient.client(csw);
+        Client client = WebClient.fromClientObject(csw);
         client.reset();
         RestSecurity.setSubjectOnClient(subject, client);
     }
 
     public void setSAMLAssertion(STSClientConfiguration stsClientConfig) {
-        Client client = WebClient.client(csw);
+        Client client = WebClient.fromClientObject(csw);
         LOGGER.debug("ENTERING: setSAMLAssertion()");
         if (stsClientConfig == null || StringUtils.isBlank(stsClientConfig.getAddress())) {
             LOGGER.debug(

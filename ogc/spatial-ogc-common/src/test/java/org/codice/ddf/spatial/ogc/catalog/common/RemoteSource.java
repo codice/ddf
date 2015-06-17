@@ -36,11 +36,11 @@ public class RemoteSource extends TrustedRemoteSource implements GenericRemoteSo
     }
 
     public void setTimeouts(Integer connectionTimeout, Integer receiveTimeout) {
-        this.configureTimeouts(WebClient.client(grs), connectionTimeout, receiveTimeout);
+        this.configureTimeouts(WebClient.fromClientObject(grs), connectionTimeout, receiveTimeout);
     }
 
     public void setTlsParameters() {
-        setTlsParameters(WebClient.client(grs));
+        setTlsParameters(WebClient.fromClientObject(grs));
     }
 
     @GET
