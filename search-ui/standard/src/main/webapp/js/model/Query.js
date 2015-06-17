@@ -432,9 +432,7 @@ define([
 
             buildSearchData: function(){
                 var data = this.toJSON();
-                if(this.filters.length === 0){
-                    this.filters.reset(this.toFilters()); // init filters from search parameters.
-                }
+                this.filters.reset(this.toFilters()); // init filters from search parameters.
                 // this overrides the cql generation with the filters cql.
                 data.cql = this.filters.toCQL();
 
