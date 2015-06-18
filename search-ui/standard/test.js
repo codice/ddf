@@ -56,8 +56,9 @@ app.listen = function() {
 
     bayeux.getClient().subscribe('/service/query', function(message) {
         if (message && message.id && message.id.match(/[a-f0-9]*-/)) {
-            bayeux.getClient().publish('/' + message.id, JSON.parse(fs.readFileSync(
-                path.resolve('.', 'src/test/resources', 'query.json'), {'encoding': 'utf8'})));
+            bayeux.getClient()
+                .publish('/' + message.id,
+                JSON.parse(fs.readFileSync(path.resolve('.', 'src/test/resources', message.cql.indexOf('notfound') === -1 ? 'query.json' : 'query2.json'), {'encoding': 'utf8'})));
         }
     });
 

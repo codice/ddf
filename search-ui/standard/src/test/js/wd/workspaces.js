@@ -46,10 +46,36 @@ describe('Workspace', function () {
             .waitForElementById('Done').click();
     });
 
+    it("should return different results after editing search keyword", function () {
+        return this.browser
+            .waitForElementByClassName('workspace-row')
+            .waitForElementById('Edit').click()
+            .waitForElementById('edit').click()
+            .waitForElementByCssSelector('#workspaces input[name="q"]').clear().type('notfound')
+            .waitForElementById('workspaceSearchButton')
+            .safeExecute('document.querySelectorAll("#workspaceSearchButton")[0].scrollIntoView(true)')
+            .elementById('workspaceSearchButton').click()
+            .waitForConditionInBrowser('document.querySelectorAll("a.workspace-name").length === 1', shared.timeout)
+            .waitForConditionInBrowser('document.querySelectorAll(".fa-spin").length === 0', shared.timeout)
+            .waitForElementByClassName('workspace-row').click()
+            .waitForElementById('low-count')
+            .waitForConditionInBrowser('document.querySelector("#low-count").innerHTML.indexOf("0") === 0', shared.timeout)
+            .waitForElementById('Workspace').click()
+            .waitForElementById('Edit').click()
+            .waitForElementById('edit').click()
+            .waitForElementByCssSelector('#workspaces input[name="q"]').clear().type('*')
+            .waitForElementById('workspaceSearchButton')
+            .safeExecute('document.querySelectorAll("#workspaceSearchButton")[0].scrollIntoView(true)')
+            .elementById('workspaceSearchButton').click()
+            .waitForConditionInBrowser('document.querySelectorAll("a.workspace-name").length === 1', shared.timeout)
+            .waitForConditionInBrowser('document.querySelectorAll(".fa-spin").length === 0', shared.timeout);
+    });
+
     it("should allow viewing search in workspace", function () {
         return this.browser
             .waitForElementByClassName('workspace-row').click()
-            .waitForElementByCssSelector('#workspaces .result-count i', asserters.textInclude('results'), shared.timeout)
+            .waitForElementById('low-count')
+            .waitForConditionInBrowser('document.querySelector("#low-count").innerHTML.indexOf("results") !== -1', shared.timeout)
             .waitForConditionInBrowser('document.querySelectorAll("a.metacard-link").length >= 10', shared.timeout);
     });
 

@@ -65,9 +65,9 @@ describe('Contextual', function () {
         it("should be able to display cached metacard summary", function () {
             return this.browser
                 .waitForElementById('nextRecord', asserters.isDisplayed, shared.timeout).click()
-                .waitForConditionInBrowser('document.querySelector("#summary .pull-right .attribute-value").innerText.indexOf("ago") >= 0', shared.timeout)
+                .waitForConditionInBrowser('document.querySelector("#summary .pull-right .attribute-value").innerHTML.indexOf("ago") >= 0', shared.timeout)
                 .waitForElementById('prevRecord', asserters.isDisplayed, shared.timeout).click()
-                .waitForConditionInBrowser('document.querySelector("#summary .pull-right .attribute-value").innerText.indexOf("Unknown") >= 0', shared.timeout);
+                .waitForConditionInBrowser('document.querySelector("#summary .pull-right .attribute-value").innerHTML.indexOf("Unknown") >= 0', shared.timeout);
         });
 
         it("should be able to display metacard details", function () {
