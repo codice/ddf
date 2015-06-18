@@ -212,7 +212,7 @@ public class XmlResponseQueueTransformer extends AbstractXmlTransformer
                 Metacard metacard = result.getMetacard();
                 writer.startNode("metacard");
                 if (metacard.getId() != null) {
-                    writer.addAttribute("ns1:id", metacard.getId());
+                    writer.addAttribute(GML_PREFIX + ":id", metacard.getId());
                 }
 
                 writer.startNode("type");
@@ -300,9 +300,13 @@ public class XmlResponseQueueTransformer extends AbstractXmlTransformer
 
                 // Write the node if we were able to convert it.
                 if (xmlValue != null) {
-                    writer.startNode(TYPE_NAME_LOOKUP.get(format));
-                    writer.addAttribute("name", attributeName);
-                    writer.startNode("value");
+                    // The GeometryTransformer creates an XML fragment containing
+                    // both the name - with namespaces declared - and the value
+                    if (format != AttributeFormat.GEOMETRY) {
+                        writer.startNode(TYPE_NAME_LOOKUP.get(format));
+                        writer.addAttribute("name", attributeName);
+                        writer.startNode("value");
+                    }
 
                     if (format == AttributeFormat.XML || format == AttributeFormat.GEOMETRY) {
                         writer.setRawValue(xmlValue);
@@ -310,8 +314,10 @@ public class XmlResponseQueueTransformer extends AbstractXmlTransformer
                         writer.setValue(xmlValue);
                     }
 
-                    writer.endNode(); // value
-                    writer.endNode(); // type
+                    if (format != AttributeFormat.GEOMETRY) {
+                        writer.endNode(); // value
+                        writer.endNode(); // type
+                    }
                 }
             }
         }
@@ -320,26 +326,12 @@ public class XmlResponseQueueTransformer extends AbstractXmlTransformer
             XppReader source = new XppReader(new InputStreamReader(content.getInputStream()),
                     parser);
 
-            // Skip the first two nodes, the root nodes of the ns3: namespace
-            source.moveDown();
-            source.moveDown();
-
             StringWriter stringWriter = new StringWriter(BUFFER_SIZE);
             PrettyPrintWriter destination = new PrettyPrintWriter(stringWriter);
 
             new HierarchicalStreamCopier().copy(source, destination);
 
-            // Ideally, we would not intermittently get different namespace prefixes from
-            // marshalling; however, we are and can't safely use a NamespacePrefixMapper.
-            // So we have this. We specifically look for the 'ns1' prefix which this
-            // transformer has locked to the http://www.opengis.net/gml URI. If we do not
-            // find it, we do a regex replace of the 'ns?' prefix we do find.
-            String geoNode = stringWriter.toString();
-            if (!geoNode.startsWith("<ns1:")) {
-                geoNode = geoNode.replaceAll("([</])ns\\d:", "$1ns1:");
-            }
-
-            return geoNode;
+            return stringWriter.toString();
         }
     }
 
@@ -359,6 +351,8 @@ public class XmlResponseQueueTransformer extends AbstractXmlTransformer
     private static final Map<AttributeType.AttributeFormat, String> TYPE_NAME_LOOKUP;
 
     private static final Map<String, String> NAMESPACE_MAP;
+
+    private static final String GML_PREFIX = "gml";
 
     static {
         try {
@@ -382,10 +376,10 @@ public class XmlResponseQueueTransformer extends AbstractXmlTransformer
 
         NAMESPACE_MAP = new ImmutableMap.Builder<String, String>()
                 .put(nsPrefix, "urn:catalog:metacard")
-                .put(nsPrefix + ":ns" + 1, "http://www.opengis.net/gml")
-                .put(nsPrefix + ":ns" + 2, "http://www.w3.org/1999/xlink")
-                .put(nsPrefix + ":ns" + 4, "http://www.w3.org/2001/SMIL20/")
-                .put(nsPrefix + ":ns" + 5, "http://www.w3.org/2001/SMIL20/Language").build();
+                .put(nsPrefix + ":" + GML_PREFIX, "http://www.opengis.net/gml")
+                .put(nsPrefix + ":xlink", "http://www.w3.org/1999/xlink")
+                .put(nsPrefix + ":smil", "http://www.w3.org/2001/SMIL20/")
+                .put(nsPrefix + ":smillang", "http://www.w3.org/2001/SMIL20/Language").build();
     }
 
     /**
