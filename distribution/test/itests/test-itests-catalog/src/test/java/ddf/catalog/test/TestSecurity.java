@@ -98,6 +98,7 @@ public class TestSecurity extends AbstractIntegrationTest {
             try {
                 setLogLevels();
                 waitForAllBundles();
+                configurePDP();
                 waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query");
                 ranBefore = true;
             } catch (Exception e) {
@@ -108,6 +109,8 @@ public class TestSecurity extends AbstractIntegrationTest {
         }
         LOGGER.info("Starting {}", testName.getMethodName());
     }
+
+    public void configurePDP() throws Exception {}
 
     @Test
     public void testAnonymousRestAccess() throws Exception {

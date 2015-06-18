@@ -34,7 +34,6 @@
         <module>ddf-sso-query-widget</module>
         <module>sample-metrics</module>
         <module>sample-soap-endpoint</module>
-        <module>sample-xacml</module>
         <module>sdk-app</module>
     </modules>
 
