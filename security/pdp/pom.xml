@@ -32,6 +32,7 @@
   <modules>
     <module>security-pdp-xacmlrealm</module>
     <module>security-pdp-authzrealm</module>
+    <module>sample-xacml</module>
   </modules>
 
 </project>
