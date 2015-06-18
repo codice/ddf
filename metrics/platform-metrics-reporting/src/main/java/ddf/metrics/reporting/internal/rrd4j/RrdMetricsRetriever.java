@@ -13,7 +13,8 @@
  */
 package ddf.metrics.reporting.internal.rrd4j;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Rectangle;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -73,7 +74,7 @@ import ddf.metrics.reporting.internal.MetricsRetriever;
 /**
  * Retrieves metrics historical data from an RRD file and formats that data in a variety of formats
  * over a specified time range.
- *
+ * <p/>
  * The supported formats include:
  * <ul>
  * <li>a PNG graph of the data (returned to the client as a byte array)</li>
@@ -83,7 +84,7 @@ import ddf.metrics.reporting.internal.MetricsRetriever;
  * <li>as XML (no schema provided)</li>
  * <li>a JSON-formatted string</li>
  * </ul>
- *
+ * <p/>
  * Aggregate reports, which include the data for all metrics, over a specified time range are also
  * supported in XLS (Excel) and PPT (PowerPoint) format. For example, if there are 10 metrics that
  * are having data collected, then an aggregate report in XLS would be a spreadsheet with a separate
@@ -93,7 +94,6 @@ import ddf.metrics.reporting.internal.MetricsRetriever;
  *
  * @author rodgersh
  * @author ddf.isgs@lmco.com
- *
  */
 public class RrdMetricsRetriever implements MetricsRetriever {
 
@@ -138,12 +138,10 @@ public class RrdMetricsRetriever implements MetricsRetriever {
     /**
      * Formats timestamp (in seconds since Unix epoch) into human-readable format of MMM DD YYYY
      * hh:mm:ss.
-     *
+     * <p/>
      * Example: Apr 10 2013 09:14:43
      *
-     * @param timestamp
-     *            time in seconds since Unix epoch of Jan 1, 1970 12:00:00
-     *
+     * @param timestamp time in seconds since Unix epoch of Jan 1, 1970 12:00:00
      * @return formatted date/time string of the form MMM DD YYYY hh:mm:ss
      */
     static String getCalendarTime(long timestamp) {
@@ -668,17 +666,11 @@ public class RrdMetricsRetriever implements MetricsRetriever {
      * specified time range. This worksheet is titled with the trhe metric's name and added to the
      * specified Workbook.
      *
-     * @param wb
-     *            the workbook to add this worksheet to
-     * @param metricName
-     *            the name of the metric whose data is being rendered in this worksheet
-     * @param rrdFilename
-     *            the name of the RRD file to retrieve the metric's data from
-     * @param startTime
-     *            start time, in seconds since Unix epoch, to fetch metric's data
-     * @param endTime
-     *            end time, in seconds since Unix epoch, to fetch metric's data
-     *
+     * @param wb          the workbook to add this worksheet to
+     * @param metricName  the name of the metric whose data is being rendered in this worksheet
+     * @param rrdFilename the name of the RRD file to retrieve the metric's data from
+     * @param startTime   start time, in seconds since Unix epoch, to fetch metric's data
+     * @param endTime     end time, in seconds since Unix epoch, to fetch metric's data
      * @throws IOException
      * @throws MetricsGraphException
      */
@@ -762,16 +754,11 @@ public class RrdMetricsRetriever implements MetricsRetriever {
     /**
      * Retrieves the RRD stored data for the specified metric over the specified time range.
      *
-     * @param rrdFilename
-     *            the name of the RRD file containing the metric's data
-     * @param startTime
-     *            start time, in seconds since Unix epoch, to fetch metric's data
-     * @param endTime
-     *            end time, in seconds since Unix epoch, to fetch metric's data
-     *
+     * @param rrdFilename the name of the RRD file containing the metric's data
+     * @param startTime   start time, in seconds since Unix epoch, to fetch metric's data
+     * @param endTime     end time, in seconds since Unix epoch, to fetch metric's data
      * @return domain object containing the metric's sampled data, which consists of the timestamps
-     *         and their associated values, and the total count of the sampled data
-     *
+     * and their associated values, and the total count of the sampled data
      * @throws IOException
      * @throws MetricsGraphException
      */
@@ -823,8 +810,8 @@ public class RrdMetricsRetriever implements MetricsRetriever {
                 long timestamp = timestamps[i];
                 // Filter out the RRD values that have not yet been sampled (they will
                 // have been set to NaN as a placeholder when the RRD file was created)
-                if (timestamp >= startTime && timestamp <= endTime
-                        && !Double.toString(values[i]).equals("NaN")) {
+                if (timestamp >= startTime && timestamp <= endTime && !Double.toString(values[i])
+                        .equals("NaN")) {
                     // RRD averages the collected samples over the step interval.
                     // To "undo" this averaging and get the actual count, need to
                     // multiply the sampled data value by the RRD step interval.
@@ -841,8 +828,8 @@ public class RrdMetricsRetriever implements MetricsRetriever {
                 long timestamp = timestamps[i];
                 // Filter out the RRD values that have not yet been sampled (they will
                 // have been set to NaN as a placeholder when the RRD file was created)
-                if (timestamp >= startTime && timestamp <= endTime
-                        && !Double.toString(values[i]).equals("NaN")) {
+                if (timestamp >= startTime && timestamp <= endTime && !Double.toString(values[i])
+                        .equals("NaN")) {
                     validTimestamps.add(timestamp);
                     validValues.add(values[i]);
                 }
@@ -865,15 +852,10 @@ public class RrdMetricsRetriever implements MetricsRetriever {
      * count across all of the metric's data, which is displayed at the bottom of the slide, under
      * the graph.
      *
-     * @param ppt
-     *            the PowerPoint slide deck to add this slide to
-     * @param title
-     *            the title for this slide
-     * @param graph
-     *            the metric's graph to be added to this slide
-     * @param metricData
-     *            the metric's data
-     *
+     * @param ppt        the PowerPoint slide deck to add this slide to
+     * @param title      the title for this slide
+     * @param graph      the metric's graph to be added to this slide
+     * @param metricData the metric's data
      * @throws IOException
      * @throws MetricsGraphException
      */
