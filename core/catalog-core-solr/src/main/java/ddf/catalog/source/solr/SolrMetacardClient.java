@@ -126,8 +126,33 @@ public class SolrMetacardClient {
         return sourceResponseImpl;
     }
 
+    public List<Metacard> query(String queryString) throws UnsupportedQueryException {
+        SolrQuery query = new SolrQuery();
+        query.setQuery(queryString);
+        try {
+            QueryResponse solrResponse = server.query(query, SolrRequest.METHOD.POST);
+            SolrDocumentList docs = solrResponse.getResults();
+
+            List<Metacard> results = new ArrayList<>();
+            for (SolrDocument doc : docs) {
+                try {
+                    results.add(createMetacard(doc));
+                } catch (MetacardCreationException e) {
+                    LOGGER.warn("Metacard creation exception creating result", e);
+                    throw new UnsupportedQueryException("Could not create metacard(s).");
+                }
+            }
+
+            return results;
+        } catch (SolrServerException e) {
+            LOGGER.warn("Failure in Solr server query.", e);
+            throw new UnsupportedQueryException("Could not complete solr query.");
+        }
+
+    }
+
     protected SolrQuery getSolrQuery(QueryRequest request, SolrFilterDelegate solrFilterDelegate)
-            throws UnsupportedQueryException {
+        throws UnsupportedQueryException {
         solrFilterDelegate.setSortPolicy(request.getQuery().getSortBy());
         SolrQuery query = filterAdapter.adapt(request.getQuery(), solrFilterDelegate);
 
@@ -202,7 +227,7 @@ public class SolrMetacardClient {
     }
 
     private ResultImpl createResult(SolrDocument doc, String sortProperty)
-            throws MetacardCreationException {
+        throws MetacardCreationException {
         ResultImpl result = new ResultImpl(createMetacard(doc));
 
         if (doc.get(RELEVANCE_SORT_FIELD) != null) {
@@ -246,7 +271,7 @@ public class SolrMetacardClient {
     }
 
     public List<SolrInputDocument> add(List<Metacard> metacards, boolean forceAutoCommit)
-            throws IOException, SolrServerException, MetacardCreationException {
+        throws IOException, SolrServerException, MetacardCreationException {
         if (metacards == null || metacards.size() == 0) {
             return null;
         }
@@ -266,7 +291,7 @@ public class SolrMetacardClient {
     }
 
     protected SolrInputDocument getSolrInputDocument(Metacard metacard)
-            throws MetacardCreationException {
+        throws MetacardCreationException {
         SolrInputDocument solrInputDocument = new SolrInputDocument();
 
         resolver.addFields(metacard, solrInputDocument);
@@ -297,6 +322,10 @@ public class SolrMetacardClient {
         }
     }
 
+    public void deleteByQuery(String query) throws IOException, SolrServerException {
+        server.deleteByQuery(query);
+    }
+
     public String getIdentifierQuery(String fieldName, List<? extends Serializable> identifiers) {
         StringBuilder queryBuilder = new StringBuilder();
         for (Serializable id : identifiers) {
@@ -313,9 +342,9 @@ public class SolrMetacardClient {
             List<SolrInputDocument> docs) throws SolrServerException, IOException {
         return new org.apache.solr.client.solrj.request.UpdateRequest().add(docs)
                 .setAction(AbstractUpdateRequest.ACTION.COMMIT,
-                        /* waitForFlush */ true,
-                        /* waitToMakeVisible */ true,
-                        /* softCommit */ true).process(server);
+                /* waitForFlush */true,
+                /* waitToMakeVisible */true,
+                /* softCommit */true).process(server);
     }
 
 }
