@@ -587,7 +587,7 @@ public class RrdMetricsRetriever implements MetricsRetriever {
                 if (isSum) {
                     sumOrAvg.setCellValue((double) metricData.getTotalCount());
                 } else {
-                    sumOrAvg.setCellValue(doubleAverage(metricData.getValues()));
+                    sumOrAvg.setCellValue(cumulativeRunningAverage(metricData.getValues()));
                 }
 
                 chunkStart.setMillis(chunkEnd);
@@ -605,7 +605,7 @@ public class RrdMetricsRetriever implements MetricsRetriever {
         }
     }
 
-    private double doubleAverage(List<Double> values) {
+    private double cumulativeRunningAverage(List<Double> values) {
         if (values.size() == 0) {
             return 0;
         }
