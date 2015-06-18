@@ -170,8 +170,12 @@ define([
                     lat: undefined,
                     lon: undefined,
                     radius: undefined,
-                    bbox: undefined
+                    bbox: undefined,
+                    polygon: undefined,
+                    usng: undefined,
+                    usngbb: undefined
                 }, {unset: true});
+                wreqr.vent.trigger("search:drawstop");
                 wreqr.vent.trigger("search:drawend");
                 this.updateScrollbar();
             },
@@ -443,16 +447,21 @@ define([
             beforeShowDatePicker: function(picker){
                 picker.style.zIndex = 200;
             },
-
+            notDrawing: function(){
+                this.clearLocation();
+            },
             drawCircle: function(){
+                this.clearLocation();
                 wreqr.vent.trigger("search:drawcircle", this.model);
             },
 
             drawPolygon: function(){
+                this.clearLocation();
                 wreqr.vent.trigger("search:drawpoly", this.model);
             },
 
             drawBbox: function(){
+                this.clearLocation();
                 wreqr.vent.trigger("search:drawbbox", this.model);
             },
 
