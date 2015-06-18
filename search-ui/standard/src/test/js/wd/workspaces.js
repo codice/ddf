@@ -74,6 +74,7 @@ describe('Workspace', function () {
     it("should allow viewing search in workspace", function () {
         return this.browser
             .waitForElementByClassName('workspace-row').click()
+            .waitForElementById('low-count')
             .waitForConditionInBrowser('document.querySelector("#low-count").innerHTML.indexOf("results") !== -1', shared.timeout)
             .waitForConditionInBrowser('document.querySelectorAll("a.metacard-link").length >= 10', shared.timeout);
     });
