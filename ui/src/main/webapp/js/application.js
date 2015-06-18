@@ -10,13 +10,14 @@
  *
  **/
 /*global define*/
-
+/* jslint browser:true */
 // #Main Application
 define([
     'underscore',
     'backbone',
     'marionette',
     'icanhaz',
+    'jquery',
     'poller',
     'js/wreqr',
     'js/models/Module',
@@ -27,7 +28,7 @@ define([
     'text!templates/footer.handlebars',
     'text!templates/moduleTab.handlebars',
     'text!templates/alerts.handlebars'
-    ],function (_, Backbone, Marionette, ich, poller, wreqr, Module, AppModel, tabs, appHeader, header, footer, moduleTab, alerts) {
+    ],function (_, Backbone, Marionette, ich, $, poller, wreqr, Module, AppModel, tabs, appHeader, header, footer, moduleTab, alerts) {
     'use strict';
 
     var Application = {};
@@ -75,13 +76,31 @@ define([
         });
     };
 
-    var setHeader = function() {
-        Application.App.appHeader.show(new Marionette.ItemView({
+    var setHeader = function () {
+        Application.App.appHeader.show(new (Backbone.Marionette.ItemView.extend({
             template: 'appHeader',
             className: 'app-header',
-            tagName: 'ol',
-            model: Application.AppModel
-        }));
+            tagName: 'div',
+            model: Application.AppModel,
+            events: {
+                'click button': 'logout'
+            },
+            logout: function () {
+                //this function is only here to handle clearing basic auth credentials
+                //if you aren't using basic auth, this shouldn't do anything
+                var logoutBasic = function () {
+                    window.location = '/login/index.html?prevurl=/admin/index.html';
+                };
+
+                $.ajax({
+                    type: "GET",
+                    url: '/logout',
+                    async: false,
+                    error: logoutBasic,
+                    success: logoutBasic
+                });
+            }
+        }))());
     };
 
     Application.AppModel = new AppModel();
