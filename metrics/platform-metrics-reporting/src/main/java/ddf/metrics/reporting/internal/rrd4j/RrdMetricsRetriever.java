@@ -21,9 +21,9 @@ import java.io.OutputStream;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -37,6 +37,7 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
+import org.apache.commons.math.stat.descriptive.SummaryStatistics;
 import org.apache.poi.hslf.model.Picture;
 import org.apache.poi.hslf.model.Slide;
 import org.apache.poi.hslf.model.TextBox;
@@ -106,8 +107,6 @@ public class RrdMetricsRetriever implements MetricsRetriever {
 
     public static final String SUMMARY_TIMESTAMP = "dd-MM-yy HHmm";
 
-    public static final int MILLISECONDS_PER_SECOND = 1000;
-
     public static final int EXCEL_MAX_COLUMNS = 256;
 
     /**
@@ -146,7 +145,7 @@ public class RrdMetricsRetriever implements MetricsRetriever {
      */
     static String getCalendarTime(long timestamp) {
         Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(timestamp * 1000);
+        calendar.setTimeInMillis(TimeUnit.SECONDS.toMillis(timestamp));
 
         String calTime =
                 MONTHS[calendar.get(Calendar.MONTH)] + " " + calendar.get(Calendar.DATE) + " "
@@ -545,8 +544,8 @@ public class RrdMetricsRetriever implements MetricsRetriever {
             long startTime, long endTime, SUMMARY_INTERVALS summaryInterval)
             throws IOException, MetricsGraphException {
         // convert seconds to milliseconds
-        startTime *= MILLISECONDS_PER_SECOND;
-        endTime *= MILLISECONDS_PER_SECOND;
+        startTime = TimeUnit.SECONDS.toMillis(startTime);
+        endTime = TimeUnit.SECONDS.toMillis(endTime);
         DateTime reportStart = new DateTime(startTime, DateTimeZone.UTC);
         DateTime reportEnd = new DateTime(endTime, DateTimeZone.UTC);
 
@@ -572,8 +571,8 @@ public class RrdMetricsRetriever implements MetricsRetriever {
                 // offset range by one millisecond so rrd will calculate granularity correctly
                 chunkEnd.addMillis(-1);
                 MetricData metricData = getMetricData(getRrdFilename(metricsDir, metricName),
-                        chunkStart.getMillis() / MILLISECONDS_PER_SECOND,
-                        chunkEnd.getMillis() / MILLISECONDS_PER_SECOND);
+                        TimeUnit.MILLISECONDS.toSeconds(chunkStart.getMillis()),
+                        TimeUnit.MILLISECONDS.toSeconds(chunkEnd.getMillis()));
                 isSum = metricData.hasTotalCount();
                 chunkEnd.addMillis(1);
 
@@ -606,13 +605,15 @@ public class RrdMetricsRetriever implements MetricsRetriever {
         }
     }
 
-    private Double doubleAverage(Collection<Double> values) {
-        Double average = 0.0;
-        int count = 0;
-        for (Double value : values) {
-            average = (value + count * average) / (count + 1);
+    private double doubleAverage(List<Double> values) {
+        if (values.size() == 0) {
+            return 0;
         }
-        return average;
+        SummaryStatistics summaryStatistics = new SummaryStatistics();
+        for (Double value : values) {
+            summaryStatistics.addValue(value);
+        }
+        return summaryStatistics.getMean();
     }
 
     private String getTimestamp(MutableDateTime chunkStart, int columnCounter,
