@@ -46,6 +46,8 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.custommonkey.xmlunit.XMLTestCase;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -366,8 +368,8 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
         metricNames.add("queryCount_Gauge");
 
         MetricsRetriever metricsRetriever = new RrdMetricsRetriever();
-        OutputStream os = metricsRetriever
-                .createXlsReport(metricNames, TEST_DIR, START_TIME, endTime);
+        OutputStream os = metricsRetriever.createXlsReport(metricNames, TEST_DIR, START_TIME,
+                endTime, null);
         InputStream xls = new ByteArrayInputStream(((ByteArrayOutputStream) os).toByteArray());
         assertThat(xls, not(nullValue()));
 
@@ -381,6 +383,51 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
         sheet = wb.getSheetAt(1);
         assertThat(sheet, not(nullValue()));
         verifyWorksheet(sheet, wb.getSheetName(1), 6, false);
+    }
+
+    @Test
+    public void testMetricsXlsReportSummary() throws Exception {
+        String metricName = "queryCount_Gauge";
+        long endTime = new DateTime(DateTimeZone.UTC).getMillis();
+        List<String> metricNames = new ArrayList<String>();
+        metricNames.add(metricName);
+        for (RrdMetricsRetriever.SUMMARY_INTERVALS interval : RrdMetricsRetriever.SUMMARY_INTERVALS
+                .values()) {
+            long startTime = 0L;
+            switch (interval) {
+            case minute:
+                startTime = new DateTime(DateTimeZone.UTC).minusHours(1).getMillis();
+                break;
+            case hour:
+                startTime = new DateTime(DateTimeZone.UTC).minusDays(1).getMillis();
+                break;
+            case day:
+                startTime = new DateTime(DateTimeZone.UTC).minusWeeks(1).getMillis();
+                break;
+            case week:
+                startTime = new DateTime(DateTimeZone.UTC).minusMonths(1).getMillis();
+                break;
+            case month:
+                startTime = new DateTime(DateTimeZone.UTC).minusYears(1).getMillis();
+                break;
+            }
+            int sampleSize = (int) ((endTime - startTime) / (RRD_STEP * 1000));
+            new RrdFileBuilder().rrdFileName(TEST_DIR + metricName + RRD_FILE_EXTENSION)
+                    .dsType(DsType.GAUGE).numSamples(sampleSize).numRows(sampleSize)
+                    .startTime(startTime).build();
+            MetricsRetriever metricsRetriever = new RrdMetricsRetriever();
+            OutputStream os = metricsRetriever
+                    .createXlsReport(metricNames, TEST_DIR, startTime, endTime,
+                            interval.toString());
+            InputStream xls = new ByteArrayInputStream(((ByteArrayOutputStream) os).toByteArray());
+            assertThat(xls, not(nullValue()));
+
+            HSSFWorkbook wb = new HSSFWorkbook(xls);
+            assertThat(wb.getNumberOfSheets(), equalTo(1));
+
+            HSSFSheet sheet = wb.getSheetAt(0);
+            assertThat(sheet, not(nullValue()));
+        }
     }
 
     @Test

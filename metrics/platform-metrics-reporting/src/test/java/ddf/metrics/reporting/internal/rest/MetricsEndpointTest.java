@@ -498,8 +498,8 @@ public class MetricsEndpointTest extends XMLTestCase {
         MetricsEndpoint endpoint = new MetricsEndpoint();
         endpoint.setMetricsDir(TEST_DIR);
 
-        Response response = endpoint
-                .getMetricsReport("xls", null, null, Integer.toString(dateOffset), uriInfo);
+        Response response = endpoint.getMetricsReport("xls", null, null,
+                Integer.toString(dateOffset), "minute", uriInfo);
 
         cleanupRrd();
 
@@ -512,7 +512,7 @@ public class MetricsEndpointTest extends XMLTestCase {
 
         HSSFWorkbook wb = new HSSFWorkbook(is);
         assertThat(wb.getNumberOfSheets(), equalTo(1));
-        HSSFSheet sheet = wb.getSheet("0 Uptime");
+        HSSFSheet sheet = wb.getSheetAt(0);
         assertThat(sheet, not(nullValue()));
     }
 
@@ -528,8 +528,8 @@ public class MetricsEndpointTest extends XMLTestCase {
         MetricsEndpoint endpoint = new MetricsEndpoint();
         endpoint.setMetricsDir(TEST_DIR);
 
-        Response response = endpoint
-                .getMetricsReport("ppt", null, null, Integer.toString(dateOffset), uriInfo);
+        Response response = endpoint.getMetricsReport("ppt", null, null,
+                Integer.toString(dateOffset), null, uriInfo);
 
         cleanupRrd();
 
@@ -543,6 +543,21 @@ public class MetricsEndpointTest extends XMLTestCase {
         SlideShow ppt = new SlideShow(is);
         Slide[] slides = ppt.getSlides();
         assertThat(slides.length, equalTo(1));
+    }
+
+    @Test
+    public void testSummaryFormat() throws URISyntaxException {
+        boolean pass = false;
+        try {
+            MetricsEndpoint endpoint = new MetricsEndpoint();
+            endpoint.setMetricsDir(TEST_DIR);
+
+            Response response = endpoint
+                    .getMetricsReport("ppt", null, null, "3600", "minute‰", createUriInfo());
+        } catch (MetricsEndpointException e) {
+            pass = true;
+        }
+        assertThat("Format not rejected", pass, is(true));
     }
 
     // NOTE: "expected" annotation does not work when test case extends XMLTestCase,

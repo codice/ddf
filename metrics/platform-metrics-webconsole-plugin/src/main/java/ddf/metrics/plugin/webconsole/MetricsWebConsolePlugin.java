@@ -55,6 +55,7 @@ import org.codice.ddf.configuration.ConfigurationWatcher;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
+import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
@@ -404,7 +405,7 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin
     }
 
     void addWeeklyReportUrls(PrintWriter pw, int numWeeklyReports, String metricsServiceUrl) {
-        DateTime input = new DateTime();
+        DateTime input = newDateTime();
         LOGGER.debug("NOW:  {}", input);
 
         for (int i = 1; i <= numWeeklyReports; i++) {
@@ -430,8 +431,12 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin
         }
     }
 
+    private DateTime newDateTime() {
+        return new DateTime(DateTimeZone.UTC);
+    }
+
     void addMonthlyReportUrls(PrintWriter pw, int numMonthlyReports, String metricsServiceUrl) {
-        DateTime input = new DateTime();
+        DateTime input = newDateTime();
         LOGGER.debug("NOW:  {}", input);
 
         for (int i = 1; i <= numMonthlyReports; i++) {
@@ -460,7 +465,7 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin
     }
 
     void addYearlyReportUrls(PrintWriter pw, int numYearlyReports, String metricsServiceUrl) {
-        DateTime input = new DateTime();
+        DateTime input = newDateTime();
         LOGGER.debug("NOW:  {}", input);
 
         for (int i = 1; i <= numYearlyReports; i++) {

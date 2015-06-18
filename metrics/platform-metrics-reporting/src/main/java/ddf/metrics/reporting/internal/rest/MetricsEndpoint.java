@@ -32,6 +32,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
+import java.util.TimeZone;
 import java.util.TreeMap;
 
 import javax.ws.rs.GET;
@@ -156,10 +157,10 @@ public class MetricsEndpoint implements ConfigurationWatcher {
      * optionally specified with the yAxisLabel and title parameters. These 2 parameters do not
      * apply for the other formats.
      *
-     * @param metricFilename
-     *            name of the file containing the metric's graph, e.g., queryCount.png
      * @param metricName
      *            Name of the metric being graphed, e.g., queryCount
+     * @param outputFormat
+     *            output format of the metric, e.g. csv
      * @param startDate
      *            Specifies the start of the time range of the search on the metric's data (RFC-3339
      *            - Date and Time format, i.e. YYYY-MM-DDTHH:mm:ssZ). Cannot be used with dateOffset
@@ -213,7 +214,7 @@ public class MetricsEndpoint implements ConfigurationWatcher {
             LOGGER.trace("Parsed endTime = " + endTime);
         } else {
             // Default end time for metrics graphing to now (in seconds)
-            Calendar now = Calendar.getInstance();
+            Calendar now = getCalendar();
             endTime = now.getTimeInMillis() / MILLISECONDS_PER_SECOND;
             LOGGER.trace("Defaulted endTime to " + endTime);
 
@@ -232,7 +233,7 @@ public class MetricsEndpoint implements ConfigurationWatcher {
 
             // Set startDate to new calculated startTime (so that startDate is displayed properly
             // in graph's title)
-            Calendar cal = Calendar.getInstance();
+            Calendar cal = getCalendar();
             cal.setTimeInMillis(startTime * MILLISECONDS_PER_SECOND);
             startDate = DATE_FORMATTER.format(cal.getTime());
         } else {
@@ -242,7 +243,7 @@ public class MetricsEndpoint implements ConfigurationWatcher {
 
             // Set startDate to new calculated startTime (so that startDate is displayed properly
             // in graph's title)
-            Calendar cal = Calendar.getInstance();
+            Calendar cal = getCalendar();
             cal.setTimeInMillis(startTime * MILLISECONDS_PER_SECOND);
             startDate = DATE_FORMATTER.format(cal.getTime());
         }
@@ -424,6 +425,9 @@ public class MetricsEndpoint implements ConfigurationWatcher {
      * PPT-formatted report will be one PowerPoint slide deck with a slide per metric. Each slide
      * will contain the metric's PNG graph.
      *
+     * If a summary interval is requested, the XSL report will instead contain a single table, with
+     * the summarized values for each interval and metric. Cannot be used with PPT format.
+     *
      * Note that the time range can be specified as either a start and end date (in RFC3339 format,
      * i.e., YYYY-MM-DD'T'hh:mm:ssZ), or as an offset in seconds from the current time. These 2 time
      * range mechanisms cannot be combined, e.g., you cannot specify an end date and an offset to be
@@ -432,18 +436,16 @@ public class MetricsEndpoint implements ConfigurationWatcher {
      * By default, the metric's name will be used for the y-axis label, and the metric name and time
      * range will be used for the graph's title for the report in PPT format.
      *
-     * @param startDate
-     *            Specifies the start of the time range of the search on the metric's data (RFC-3339
-     *            - Date and Time format, i.e. YYYY-MM-DDTHH:mm:ssZ). Cannot be used with dateOffset
-     *            parameter.
-     * @param endDate
-     *            Specifies the end of the time range of the search on the metric's data (RFC-3339 -
-     *            Date and Time format, i.e. YYYY-MM-DDTHH:mm:ssZ). Cannot be used with dateOffset
-     *            parameter.
-     * @param dateOffset
-     *            Specifies an offset, backwards from the current time, to search on the modified
-     *            time field for entries. Defined in seconds. Cannot be used with startDate or
-     *            endDate parameters.
+     * @param startDate       Specifies the start of the time range of the search on the metric's data (RFC-3339
+     *                        - Date and Time format, i.e. YYYY-MM-DDTHH:mm:ssZ). Cannot be used with dateOffset
+     *                        parameter.
+     * @param endDate         Specifies the end of the time range of the search on the metric's data (RFC-3339 -
+     *                        Date and Time format, i.e. YYYY-MM-DDTHH:mm:ssZ). Cannot be used with dateOffset
+     *                        parameter.
+     * @param dateOffset      Specifies an offset, backwards from the current time, to search on the modified
+     *                        time field for entries. Defined in seconds. Cannot be used with startDate or
+     *                        endDate parameters.
+     * @param summaryInterval One of {@link ddf.metrics.reporting.internal.rrd4j.RrdMetricsRetriever.SUMMARY_INTERVALS}
      * @param uriInfo
      *
      * @return Response containing the report as a stream in either XLS or PPT format
@@ -454,7 +456,8 @@ public class MetricsEndpoint implements ConfigurationWatcher {
     @Path("/report.{outputFormat}")
     public Response getMetricsReport(@PathParam("outputFormat") String outputFormat,
             @QueryParam("startDate") String startDate, @QueryParam("endDate") String endDate,
-            @QueryParam("dateOffset") String dateOffset, @Context UriInfo uriInfo)
+            @QueryParam("dateOffset") String dateOffset,
+            @QueryParam("summaryInterval") String summaryInterval, @Context UriInfo uriInfo)
             throws MetricsEndpointException {
         LOGGER.debug("ENTERING: getMetricsReport  -  outputFormat = " + outputFormat);
         LOGGER.debug("request url: " + uriInfo.getRequestUri());
@@ -477,7 +480,7 @@ public class MetricsEndpoint implements ConfigurationWatcher {
             LOGGER.debug("Parsed endTime = " + endTime);
         } else {
             // Default end time for metrics graphing to now (in seconds)
-            Calendar now = Calendar.getInstance();
+            Calendar now = getCalendar();
             endTime = now.getTimeInMillis() / MILLISECONDS_PER_SECOND;
             LOGGER.debug("Defaulted endTime to " + endTime);
 
@@ -496,7 +499,7 @@ public class MetricsEndpoint implements ConfigurationWatcher {
 
             // Set startDate to new calculated startTime (so that startDate is displayed properly
             // in graph's title)
-            Calendar cal = Calendar.getInstance();
+            Calendar cal = getCalendar();
             cal.setTimeInMillis(startTime * MILLISECONDS_PER_SECOND);
             startDate = DATE_FORMATTER.format(cal.getTime());
         } else {
@@ -506,7 +509,7 @@ public class MetricsEndpoint implements ConfigurationWatcher {
 
             // Set startDate to new calculated startTime (so that startDate is displayed properly
             // in graph's title)
-            Calendar cal = Calendar.getInstance();
+            Calendar cal = getCalendar();
             cal.setTimeInMillis(startTime * MILLISECONDS_PER_SECOND);
             startDate = DATE_FORMATTER.format(cal.getTime());
         }
@@ -523,7 +526,8 @@ public class MetricsEndpoint implements ConfigurationWatcher {
         try {
             if (outputFormat.equalsIgnoreCase("xls")) {
                 OutputStream os = metricsRetriever
-                        .createXlsReport(metricNames, metricsDir, startTime, endTime);
+                        .createXlsReport(metricNames, metricsDir, startTime, endTime,
+                                summaryInterval);
                 InputStream is = new ByteArrayInputStream(
                         ((ByteArrayOutputStream) os).toByteArray());
                 ResponseBuilder responseBuilder = Response.ok(is);
@@ -531,6 +535,11 @@ public class MetricsEndpoint implements ConfigurationWatcher {
                 responseBuilder.header("Content-Disposition", dispositionString);
                 response = responseBuilder.build();
             } else if (outputFormat.equalsIgnoreCase("ppt")) {
+                if (StringUtils.isNotEmpty(summaryInterval)) {
+                    throw new MetricsEndpointException(
+                            "Summary interval not allowed for ppt format",
+                            Response.Status.BAD_REQUEST);
+                }
                 OutputStream os = metricsRetriever
                         .createPptReport(metricNames, metricsDir, startTime, endTime);
                 InputStream is = new ByteArrayInputStream(
@@ -541,11 +550,11 @@ public class MetricsEndpoint implements ConfigurationWatcher {
                 response = responseBuilder.build();
             }
         } catch (IOException e) {
-            LOGGER.warn("Could not create " + outputFormat + " report");
+            LOGGER.warn("Could not create " + outputFormat + " report", e);
             throw new MetricsEndpointException("Could not create " + outputFormat + " report",
                     Response.Status.BAD_REQUEST);
         } catch (MetricsGraphException e) {
-            LOGGER.warn("Could not create " + outputFormat + " report");
+            LOGGER.warn("Could not create " + outputFormat + " report", e);
             throw new MetricsEndpointException("Could not create " + outputFormat + " report",
                     Response.Status.BAD_REQUEST);
         }
@@ -553,6 +562,10 @@ public class MetricsEndpoint implements ConfigurationWatcher {
         LOGGER.debug("EXITING: getMetricsReport");
 
         return response;
+    }
+
+    private Calendar getCalendar() {
+        return Calendar.getInstance(TimeZone.getTimeZone("UTC"));
     }
 
     /**
@@ -596,7 +609,7 @@ public class MetricsEndpoint implements ConfigurationWatcher {
             String metricsName, UriInfo uriInfo) {
         // Generate text and hyperlink for single metric for 15 minute, 1 hour, 4 hours,
         // 12 hours, 1 day, 3 days, 1 week, 1 month, and 1 year
-        Calendar cal = Calendar.getInstance();
+        Calendar cal = getCalendar();
         long endTime = cal.getTimeInMillis() / 1000;
         LOGGER.trace("Defaulted endTime to " + endTime);
 
