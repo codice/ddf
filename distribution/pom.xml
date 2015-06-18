@@ -36,6 +36,7 @@
     </properties>
 
     <modules>
+        <module>docs</module>
         <module>console-branding</module>
         <module>webconsole-branding</module>
         <module>webconsole-branding-plugin</module>
