@@ -4321,7 +4321,7 @@ hwtE3xo6qQRRWlO3/clC4RnTev1crFVJQVBF3yfpRu8udJ2SOGdqU0vjUSu1h7aMkYJMHIu08Whj
                         <saml2:AttributeValue xsi:type="xs:string">Peter Parker</saml2:AttributeValue>
                      </saml2:Attribute>
                      <saml2:Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
-                        <saml2:AttributeValue xsi:type="xs:string">dodusers</saml2:AttributeValue>
+                        <saml2:AttributeValue xsi:type="xs:string">users</saml2:AttributeValue>
                      </saml2:Attribute>
                      <saml2:Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
                         <saml2:AttributeValue xsi:type="xs:string">users</saml2:AttributeValue>
@@ -4714,14 +4714,6 @@ The resource had an additional RESOURCE_ACCESS attribute 'C' that the subject di
 </Response>
 ----
 
-=== Expansion
-
-Expansion defines the rules for mapping between the attributes found in records and the attributes assigned to users. The configuration files are found in the dib-enterprise-suite-$<version>/security directory. Specifically, edit the following files:
-
-* `ddf-user-attribute-ruleset.cfg`
-* `ddf-metacard-attribute-ruleset.cfg`
-
-Add any desired mappings to the ruleset so they will be expanded correctly.
 
 ==== Expansion Service
 
