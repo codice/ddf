@@ -19,7 +19,7 @@ This section provides are very high level overview of introductory concepts of s
 There are four basic types of metadata search. Additionally, any of the types can be combined to create a compound search.
 
 ==== Contextual Search
-A contextual search is used when searching for textual information. It is similar to a Google search over the metadata contained in the MDC. Contextual searches may use wildcards, logical operators, and approximate matches. 
+A contextual search is used when searching for textual information. It is like performing a Google search over the metadata contained in the MDC. Contextual searches may use wildcards, logical operators, and approximate matches. 
 
 ==== Spatial Search
 A spatial search is used for Area of Interest (AOI) searches. Polygon and point radius searches are supported. Specifically, the spatial search looks at the metacards' location attribute and coordinates are specified in WGS 84 decimal degrees. 
@@ -46,7 +46,7 @@ Data is returned from searches as Catalog Search Result objects. This is a subty
 Because it is a subtype of Catalog Entry, a Catalog Search Result has all Catalog Entry’s fields such as metadata, effective time, and modified time. It also contains some of the following fields, depending on type of search, that are populated by {branding} when the search occurs:
 
 * Distance: Populated when a point radius spatial search occurs. Numerical value that indicates the result’s distance from the center point of the search.
-* Units: Populated when a point radius spatial search occurs. Indicates the units (kilometer, mile, etc.) for the distance field.
+* Units: Populated when a point radius spatial search occurs. Indicates the units (e.g. kilometer) for the distance field.
 * Relevance: Populated when a contextual search occurs. Numerical value that indicates how relevant the text in the result is to the text originally searched for.
 
 === Search Programmatic Flow
