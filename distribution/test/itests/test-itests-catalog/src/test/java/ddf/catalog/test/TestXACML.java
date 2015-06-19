@@ -13,25 +13,11 @@
  **/
 package ddf.catalog.test;
 
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.fail;
-import static org.ops4j.pax.exam.CoreOptions.options;
-import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.editConfigurationFileExtend;
-import static com.jayway.restassured.RestAssured.given;
-import static com.jayway.restassured.RestAssured.when;
-
 import java.io.IOException;
 import java.util.Dictionary;
-import java.util.HashMap;
-import java.util.Hashtable;
 
 import org.apache.commons.lang.StringUtils;
-import org.hamcrest.xml.HasXPath;
-import org.junit.Before;
-import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
