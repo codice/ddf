@@ -11,8 +11,8 @@
  *
  **/
  --}}
-<div class="entry">
-    <table class="table">
+<div id="metrics-region">
+    <table class="table table-striped">
         <tr>
             <th>Metric</th>
             {{#each this.catalogExceptions}}
@@ -20,16 +20,38 @@
             {{/each}}
         </tr>
         {{#each this}}
-            <tr>
-                <td>{{titleizeCamelCase @key}}</td>
-                {{#each this}}
-                    <td>
-                        {{#each this}}
-                            <a href="{{this}}">{{@key}}</a>
-                        {{/each}}
-                    </td>
-                {{/each}}
-            </tr>
+            {{#unless this.interval}}
+                <tr>
+                    <td>{{titleizeCamelCase @key}}</td>
+                    {{#each this}}
+                        <td id="metrics-download">
+                            {{#each this}}
+                                <a href="{{this}}">{{@key}}</a>
+                            {{/each}}
+                        </td>
+                    {{/each}}
+                </tr>
+            {{/unless}}
         {{/each}}
     </table>
+    <a href="#" id="download-summary">Download</a>
+    a report for the last
+    <select id="range">
+        {{#each this.summaryParams.count}}
+            <option value="{{this}}">{{titleizeCamelCase this}}</option>
+        {{/each}}
+    </select>
+    complete
+    <select id="unit">
+        {{#each this.summaryParams.unit}}
+            <option value="{{this}}">{{titleizeCamelCase this}}s</option>
+        {{/each}}
+    </select>
+    summarized by
+    <select id="interval">
+        {{#each this.summaryParams.interval}}
+            <option value="{{this}}">{{titleizeCamelCase this}}</option>
+        {{/each}}
+    </select>
+    .
 </div>

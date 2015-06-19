@@ -579,8 +579,8 @@ public class RrdMetricsRetriever implements MetricsRetriever {
                 if (headingRow.getCell(columnCounter) == null) {
                     Cell headingRowCell = headingRow.createCell(columnCounter);
                     headingRowCell.getCellStyle().setWrapText(true);
-                    headingRowCell
-                            .setCellValue(getTimestamp(chunkStart, columnCounter, summaryInterval));
+                    headingRowCell.setCellValue(
+                            getTimestamp(chunkStart, chunkEnd, columnCounter, summaryInterval));
                 }
 
                 Cell sumOrAvg = row.createCell(columnCounter);
@@ -616,8 +616,8 @@ public class RrdMetricsRetriever implements MetricsRetriever {
         return summaryStatistics.getMean();
     }
 
-    private String getTimestamp(MutableDateTime chunkStart, int columnCounter,
-            SUMMARY_INTERVALS summaryInterval) {
+    private String getTimestamp(MutableDateTime chunkStart, MutableDateTime chunkEnd,
+            int columnCounter, SUMMARY_INTERVALS summaryInterval) {
         StringBuilder title = new StringBuilder();
         title.append(StringUtils.capitalize(summaryInterval.toString())).append(" ")
                 .append(columnCounter).append("\n");
@@ -634,7 +634,9 @@ public class RrdMetricsRetriever implements MetricsRetriever {
             timestamp = "MM-y";
             break;
         }
-        title.append(chunkStart.toDateTime(DateTimeZone.getDefault()).toString(timestamp));
+        title.append(chunkStart.toDateTime(DateTimeZone.getDefault()).toString(timestamp))
+                .append(" to ")
+                .append(chunkEnd.toDateTime(DateTimeZone.getDefault()).toString(timestamp));
         return title.toString();
     }
 

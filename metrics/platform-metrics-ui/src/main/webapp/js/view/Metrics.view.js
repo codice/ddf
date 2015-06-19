@@ -37,6 +37,73 @@ define([
             template: 'metricsTemplate',
             initialize: function () {
                 _.bindAll(this);
+            },
+            events: {
+                "click #download-summary": "downloadSummary"
+            },
+            downloadSummary: function (e) {
+                e.preventDefault();
+                var range = this.$('#range')[0].value;
+                var unit = this.$('#unit')[0].value;
+                var interval = this.$('#interval')[0].value;
+                var endDate = new Date();
+                switch (unit) {
+                    case 'year':
+                        endDate.setUTCMonth(0);
+                        endDate.setUTCDate(0);
+                        endDate.setUTCHours(0);
+                        endDate.setUTCMinutes(0);
+                        break;
+                    case 'month':
+                        endDate.setUTCMonth(endDate.getUTCMonth(), 0);
+                        endDate.setUTCHours(0);
+                        endDate.setUTCMinutes(0);
+                        break;
+                    case 'week':
+                        endDate.setUTCDate(endDate.getUTCDate() - endDate.getUTCDay());
+                        endDate.setUTCHours(0);
+                        endDate.setUTCMinutes(0);
+                        break;
+                    case 'day':
+                        endDate.setUTCHours(0);
+                        endDate.setUTCMinutes(0);
+                        break;
+                    case 'hour':
+                        endDate.setUTCMinutes(0);
+                        break;
+                }
+                endDate.setUTCSeconds(0);
+                endDate.setUTCMilliseconds(0);
+                var startDate = new Date(endDate);
+                while (range > 0) {
+                    switch (unit) {
+                        case 'hour':
+                            startDate.setUTCHours(startDate.getUTCHours() - 1);
+                            break;
+                        case 'day':
+                            startDate.setUTCDate(startDate.getUTCDate() - 1);
+                            break;
+                        case 'week':
+                            startDate.setUTCDate(startDate.getUTCDate() - 7);
+                            break;
+                        case 'month':
+                            startDate.setUTCMonth(startDate.getUTCMonth() - 1);
+                            break;
+                        case 'year':
+                            startDate.setUTCFullYear(startDate.getUTCFullYear() - 1);
+                            break;
+                    }
+                    range--;
+                }
+                //endDate.setUTCMinutes(endDate.getUTCMinutes() + endDate.getTimezoneOffset());
+                //startDate.setUTCMinutes(startDate.getUTCMinutes() + startDate.getTimezoneOffset());
+                console.log(endDate.toISOString().replace('.000Z', 'Z'));
+                console.log(startDate.toISOString().replace('.000Z', 'Z'));
+                console.log(range + ' ' + unit + ' ' + interval);
+                /*global window: false */
+                window.location.href = '/services/internal/metrics/report.xls?startDate=' +
+                    startDate.toISOString().replace('.000Z', 'Z') + '&endDate=' +
+                    endDate.toISOString().replace('.000Z', 'Z') + '&summaryInterval=' + interval;
             }
         });
 

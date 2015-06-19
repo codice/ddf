@@ -1,83 +1,54 @@
-@activeColor: #18BC9C;
-@highlightColor : lighten(@activeColor, 35);
+@active-color: #18BC9C;
+@highlight-color: lighten(@active-color, 35);
+@alt-row-color: #f9f9f9;
 
-
-table.align-middle{
+table.align-middle {
   td {
     vertical-align: middle !important;
   }
 }
 
-#sourcesRegion {
+#metrics-region {
   a {
     text-decoration: none;
+    border: solid lighten(@active-color, 40);
+    background-color: lighten(@active-color, 53);
   }
+
+  table {
+    border-collapse: separate;
+    border-spacing: 0px 0;
+  }
+
+  td {
+    padding: 0px 0;
+  }
+
   .table-striped > tbody {
-    tr.highlight-on-hover:hover td {
-      background-color: @highlightColor;
+    tr > th {
+      background-color: darken(@alt-row-color, 30);
     }
 
-    tr:nth-child(odd) > td{
-      .configurationSelect {
+    tr > td:first-child {
+      font-size: small;
+    }
+
+    tr > td:not(:first-child) > a {
+      font-size: xx-small;
+    }
+
+    tr:nth-child(odd) > td {
+      .metrics-download {
         border: none;
-        background-color: #f9f9f9;
+        background-color: @alt-row-color;
       }
     }
 
-    tr:nth-child(even) > td{
-      .configurationSelect {
+    tr:nth-child(even) > td {
+      .metrics-download {
         border: none;
         background-color: white;
       }
-    }
-  }
-}
-#sources-modal {
-  a {
-    text-decoration: none;
-  }
-  .modal {
-    overflow-y: auto;
-  }
-  .endpointUrl {
-    width: 100%;
-  }
-  .error-text {
-    display: none;
-  }
-  .control-group {
-    [class*='col-md-'] {
-      padding-left: 10px;
-      padding-right: 10px;
-    }
-
-    .btn-group.card-style-toggle {
-      .btn-xs {
-        padding: 1px 5px;
-        font-size: 10px;
-      }
-    }
-    .btn-group {
-      .btn.active {
-        background-color: @activeColor;
-        border-color: darken(@activeColor, 10);
-      }
-    }
-
-    .description > i {
-      margin-top: 8px;
-    }
-  }
-  .delete-source-name {
-    padding: 8px 0px 0px 0px;
-    color: @activeColor;
-    width: 100%;
-    font-weight: 700;
-  }
-  .delete-source-config {
-    padding: 4px 10px 4px 10px;
-    .label.label-danger {
-      margin-left: 16px;
     }
   }
 }
@@ -94,7 +65,7 @@ table.align-middle{
 }
 
 .newLink {
-  text-decoration: none!important;
+  text-decoration: none !important;
   width: 100%;
   font-weight: 700;
 }

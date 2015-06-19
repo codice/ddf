@@ -17,10 +17,34 @@ define([
     function (Backbone) {
         "use strict";
         var Metrics = {};
-        Metrics.MetricsModel = Backbone.Model.extend ({
+        Metrics.MetricsModel = Backbone.Model.extend({
             urlRoot: '/services/internal/metrics/',
             initialize: function () {
                 this.fetch();
+            },
+            defaults: {
+                'summaryParams': {
+                    'count': [
+                        '1',
+                        '2',
+                        '3',
+                        '6'
+                    ],
+                    'unit': [
+                        'hour',
+                        'day',
+                        'week',
+                        'month',
+                        'year'
+                    ],
+                    'interval': [
+                        'minute',
+                        'hour',
+                        'day',
+                        'week',
+                        'month'
+                    ]
+                }
             }
         });
         return Metrics;
