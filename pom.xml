@@ -17,7 +17,7 @@
 
     <groupId>ddf</groupId>
     <artifactId>ddf-parent</artifactId>
-    <version>3.0.2-SNAPSHOT</version>
+    <version>3.0.3-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>DDF Parent</name>
     <description>Distributed Data Framework (DDF) Parent</description>
@@ -690,8 +690,13 @@
         </profile>
 
         <profile>
-            <id>release</id>
-            <properties>
+            <id>documentation</id>
+            <activation>
+    	       <file>
+                  <exists>${basedir}/src/assembly/bin.xml</exists>
+               </file> 
+	    </activation>
+		<properties>
                 <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
                 <asciidoctor.maven.plugin.version>1.5.2</asciidoctor.maven.plugin.version>
                 <packaging>pom</packaging>
