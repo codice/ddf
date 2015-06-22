@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- */
+ **/
 package org.codice.proxy.http;
 
 import java.io.File;
@@ -40,7 +40,13 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class HttpProxyServiceImpl implements HttpProxyService {
+    BundleContext bundleContext = null;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpProxyServiceImpl.class);
+
     public static final String SERVLET_NAME = "CamelServlet";
+
+    private static final String SERVLET_COMPONENT = "servlet";
 
     public static final String SERVLET_PATH = "/proxy";
 
@@ -74,15 +80,9 @@ public class HttpProxyServiceImpl implements HttpProxyService {
 
     public static final String HTTP_PROXY_AUTH_HOST_KEY = "proxyAuthHost";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(HttpProxyServiceImpl.class);
-
-    private static final String SERVLET_COMPONENT = "servlet";
-
     private static final int DEFAULT_TIMEOUT_MS = 5000;
 
     private static final String SERVLET = "servlet";
-
-    BundleContext bundleContext = null;
 
     int incrementer = 0;
 
@@ -128,11 +128,11 @@ public class HttpProxyServiceImpl implements HttpProxyService {
 
     public String start(final String endpointName, final String targetUri, final Integer timeout)
             throws Exception {
-        return start(endpointName, targetUri, timeout, false);
+        return start(endpointName, targetUri, timeout, false, null);
     }
 
     public String start(final String endpointName, final String targetUri, final Integer timeout,
-            final boolean matchOnPrefix) throws Exception {
+            final boolean matchOnPrefix, final Object bean) throws Exception {
 
         // Enable proxy settings for the external target
         enableProxySettings();
@@ -157,19 +157,33 @@ public class HttpProxyServiceImpl implements HttpProxyService {
 
         final String matchPrefix = (matchOnPrefix) ? "?matchOnUriPrefix=true" : "";
 
-        final String protocolDelimeter = (routeEndpointType.equals(SERVLET)) ? ":///" : "://";
+        final String protocolDelimiter = (routeEndpointType.equals(SERVLET)) ? ":///" : "://";
 
         // Create Camel route
-        RouteBuilder routeBuilder = new RouteBuilder() {
-            @Override
-            public void configure() throws Exception {
-                from(routeEndpointType + protocolDelimeter + endpointName + matchPrefix)
-                        .removeHeader("Authorization").removeHeader("Cookie").to(targetUri
-                        + "?bridgeEndpoint=true&throwExceptionOnFailure=false&httpClient.soTimeout="
-                        + timeout + "&httpClient.connectionManagerTimeout=" + timeout)
-                        .routeId(endpointName);
-            }
-        };
+        RouteBuilder routeBuilder;
+        if (bean == null) {
+            routeBuilder = new RouteBuilder() {
+                @Override
+                public void configure() throws Exception {
+                    from(routeEndpointType + protocolDelimiter + endpointName + matchPrefix)
+                            .removeHeader("Authorization").removeHeader("Cookie").to(targetUri
+                            + "?bridgeEndpoint=true&throwExceptionOnFailure=false&httpClient.soTimeout="
+                            + timeout + "&httpClient.connectionManagerTimeout=" + timeout)
+                            .routeId(endpointName);
+                }
+            };
+        } else {
+            routeBuilder = new RouteBuilder() {
+                @Override
+                public void configure() throws Exception {
+                    from(routeEndpointType + protocolDelimiter + endpointName + matchPrefix)
+                            .removeHeader("Authorization").removeHeader("Cookie").to(targetUri
+                            + "?bridgeEndpoint=true&throwExceptionOnFailure=false&httpClient.soTimeout="
+                            + timeout + "&httpClient.connectionManagerTimeout=" + timeout)
+                            .routeId(endpointName).bean(bean);
+                }
+            };
+        }
         camelContext.addRoutes(routeBuilder);
         camelContext.start();
         LOGGER.debug("Started proxy route at servlet endpoint: {}, routing to: {}", endpointName,
