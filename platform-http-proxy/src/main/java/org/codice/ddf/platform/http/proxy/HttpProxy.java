@@ -16,10 +16,13 @@ package org.codice.ddf.platform.http.proxy;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Properties;
 
+import org.apache.camel.Exchange;
+import org.apache.camel.Message;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codice.proxy.http.HttpProxyService;
@@ -32,6 +35,10 @@ public class HttpProxy {
     public static final String KARAF_HOME = "karaf.home";
 
     public static final String PAX_CONFIG = "org.ops4j.pax.web.cfg";
+
+    public static final String CXF_CONFIG = "org.apache.cxf.osgi.cfg";
+
+    public static final String CXF_CONTEXT = "org.apache.cxf.servlet.context";
 
     public static final String CONFIG_DIR = "etc";
 
@@ -53,6 +60,7 @@ public class HttpProxy {
 
     /**
      * Constructor
+     *
      * @param httpProxyService - proxy service to use to start a camel proxy
      */
     public HttpProxy(HttpProxyService httpProxyService) {
@@ -71,6 +79,7 @@ public class HttpProxy {
         if (isSecureEnabled && !isHttpEnabled) {
             String httpPort = properties.getProperty(PORT_PROPERTY);
             String httpsPort = properties.getProperty(SECURE_PORT_PROPERTY);
+            String cxfContext = properties.getProperty(CXF_CONTEXT);
             String host;
             try {
                 host = StringUtils.isNotBlank(hostname) ?
@@ -81,25 +90,29 @@ public class HttpProxy {
                 host = "localhost";
             }
             endpointName = ((HttpProxyServiceImpl) httpProxyService)
-                    .start("0.0.0.0:" + httpPort, "https://" + host + ":" + httpsPort, 1000, true);
+                    .start("0.0.0.0:" + httpPort, "https://" + host + ":" + httpsPort, 120000, true,
+                            new PolicyRemoveBean(httpPort, httpsPort, host, cxfContext));
         }
     }
 
     /**
      * Returns the pax web properties.
+     *
      * @return Properties - contains pax web properties
      */
     Properties getProperties() throws IOException {
         File paxConfig = new File(
                 System.getProperty(KARAF_HOME) + File.separator + CONFIG_DIR + File.separator
                         + PAX_CONFIG);
+        File cxfConfig = new File(
+                System.getProperty(KARAF_HOME) + File.separator + CONFIG_DIR + File.separator
+                        + CXF_CONFIG);
         Properties properties = new Properties();
-        if (paxConfig.exists()) {
-            FileReader reader = new FileReader(paxConfig);
-            try {
-                properties.load(reader);
-            } finally {
-                IOUtils.closeQuietly(reader);
+        if (paxConfig.exists() && cxfConfig.exists()) {
+            try (FileReader paxReader = new FileReader(paxConfig);
+                    FileReader cxfReader = new FileReader(cxfConfig)) {
+                properties.load(paxReader);
+                properties.load(cxfReader);
             }
         }
         return properties;
@@ -116,5 +129,56 @@ public class HttpProxy {
 
     public void setHostname(String hostname) {
         this.hostname = hostname;
+    }
+
+    public static class PolicyRemoveBean {
+
+        private final String httpPort;
+
+        private final String httpsPort;
+
+        private final String host;
+
+        private final String cxfContext;
+
+        public PolicyRemoveBean(String httpPort, String httpsPort, String host, String cxfContext) {
+            this.httpPort = httpPort;
+            this.httpsPort = httpsPort;
+            this.host = host;
+            this.cxfContext = cxfContext;
+        }
+
+        public void rewrite(Exchange exchange) throws IOException {
+            try {
+                Message httpMessage = exchange.getIn();
+                if (httpMessage != null) {
+                    Object body = httpMessage.getBody();
+                    if (body != null) {
+                        String bodyStr;
+                        if (body instanceof InputStream) {
+                            bodyStr = IOUtils.toString((InputStream) body);
+                        } else if (body instanceof String) {
+                            bodyStr = (String) body;
+                        } else {
+                            bodyStr = body.toString();
+                        }
+
+                        String queryString = (String) httpMessage.getHeader(Exchange.HTTP_QUERY);
+                        String httpUri = (String) httpMessage.getHeader(Exchange.HTTP_URI);
+                        if ("wsdl".equalsIgnoreCase(queryString) || "_wadl"
+                                .equalsIgnoreCase(queryString) || httpUri.equals(cxfContext)) {
+                            bodyStr = bodyStr.replaceAll("<wsp:PolicyReference.+?/>", "");
+                            bodyStr = bodyStr
+                                    .replaceAll("<wsp:Policy [\\S\\s]*.+?</wsp:Policy>", "");
+                            bodyStr = bodyStr.replaceAll("https://" + host + ":" + httpsPort,
+                                    "http://" + host + ":" + httpPort);
+                        }
+                        exchange.getIn().setBody(bodyStr);
+                    }
+                }
+            } catch (Exception e) {
+                LOGGER.error("Exception occurred while processing policy removal bean.", e);
+            }
+        }
     }
 }
