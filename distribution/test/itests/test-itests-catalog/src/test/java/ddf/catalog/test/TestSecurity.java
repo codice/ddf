@@ -16,7 +16,6 @@ package ddf.catalog.test;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.fail;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
 
@@ -30,7 +29,6 @@ import java.util.Hashtable;
 import java.util.TimeZone;
 
 import org.hamcrest.xml.HasXPath;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.PaxExam;
@@ -38,13 +36,11 @@ import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
 import org.osgi.service.cm.Configuration;
 
+import ddf.common.test.BeforeExam;
+
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
 public class TestSecurity extends AbstractIntegrationTest {
-
-    private static boolean ranBefore = false;
-
-    protected static boolean setupFailed = false;
 
     protected static final String SOAP_ENV = "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n"
             + "    <soap:Header>\n"
@@ -87,26 +83,11 @@ public class TestSecurity extends AbstractIntegrationTest {
             + "    </soap:Body>\n"
             + "</soap:Envelope>";
 
-    @Before
-    public void beforeTest() {
-        if (setupFailed) {
-            fail("Setup failed");
-        }
-
-        LOGGER.info("Before {}", testName.getMethodName());
-        if (!ranBefore) {
-            try {
-                setLogLevels();
-                waitForAllBundles();
-                waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query");
-                ranBefore = true;
-            } catch (Exception e) {
-                LOGGER.error("Failed to setup test", e);
-                setupFailed = true;
-                fail("Failed to setup security tests: " + e.getMessage());
-            }
-        }
-        LOGGER.info("Starting {}", testName.getMethodName());
+    @BeforeExam
+    public void beforeTest() throws Exception {
+        setLogLevels();
+        waitForAllBundles();
+        waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query");
     }
 
     @Test

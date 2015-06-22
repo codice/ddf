@@ -24,6 +24,11 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>org.ops4j.pax.exam</groupId>
+			<artifactId>pax-exam-container-karaf</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>ddf.catalog.core</groupId>
 			<artifactId>catalog-core-api</artifactId>
 			<scope>test</scope>
