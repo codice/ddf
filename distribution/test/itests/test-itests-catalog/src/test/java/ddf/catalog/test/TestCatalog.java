@@ -16,19 +16,18 @@ package ddf.catalog.test;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.xml.HasXPath.hasXPath;
-import static org.junit.Assert.fail;
 import static com.jayway.restassured.RestAssured.delete;
 import static com.jayway.restassured.RestAssured.expect;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
+
+import ddf.common.test.BeforeExam;
 
 /**
  * Tests the Catalog framework components. Includes helper methods at the Catalog level.
@@ -38,36 +37,12 @@ import org.ops4j.pax.exam.spi.reactors.PerClass;
 @ExamReactorStrategy(PerClass.class)
 public class TestCatalog extends AbstractIntegrationTest {
 
-    private static boolean ranBefore = false;
-
-    protected static boolean setupFailed = false;
-
-    @Before
-    public void beforeTest() {
-        if (setupFailed) {
-            fail("Setup failed");
-        }
-
-        LOGGER.info("Before {}", testName.getMethodName());
-        if (!ranBefore) {
-            try {
-                setLogLevels();
-                waitForAllBundles();
-                waitForCatalogProvider();
-                waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query");
-                ranBefore = true;
-            } catch (Exception e) {
-                LOGGER.error("Failed to setup test", e);
-                setupFailed = true;
-                fail("Failed to setup catalog: " + e.getMessage());
-            }
-        }
-        LOGGER.info("Starting {}", testName.getMethodName());
-    }
-
-    @After
-    public void afterTest() {
-        LOGGER.info("End of {}", testName.getMethodName());
+    @BeforeExam
+    public void beforeExam() throws Exception {
+        setLogLevels();
+        waitForAllBundles();
+        waitForCatalogProvider();
+        waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query");
     }
 
     @Test
@@ -93,16 +68,16 @@ public class TestCatalog extends AbstractIntegrationTest {
         deleteMetacard(id);
     }
 
-    protected void deleteMetacard(String id) {
+    public static void deleteMetacard(String id) {
         LOGGER.info("Deleteing metacard {}", id);
         delete(REST_PATH + id).then().assertThat().statusCode(200).log().all();
     }
 
-    protected String ingestGeoJson(String json) {
+    public static String ingestGeoJson(String json) {
         return ingest(json, "application/json");
     }
 
-    protected String ingest(String data, String mimeType) {
+    public static String ingest(String data, String mimeType) {
         LOGGER.info("Ingesting data of type {}:\n{}", mimeType, data);
         return given().body(data).header("Content-Type", mimeType).expect().log().all()
                 .statusCode(201).when().post(REST_PATH).getHeader("id");

@@ -53,7 +53,6 @@ import org.apache.karaf.features.FeaturesService;
 import org.apache.karaf.shell.osgi.BlueprintListener;
 import org.apache.karaf.shell.osgi.BlueprintListener.BlueprintState;
 import org.junit.Rule;
-import org.junit.rules.TestName;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.karaf.options.LogLevelOption;
 import org.osgi.framework.Bundle;
@@ -77,6 +76,7 @@ import com.jayway.restassured.response.Response;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.FederatedSource;
+import ddf.common.test.PaxExamRule;
 
 /**
  * Abstract integration test with helper methods and configuration at the container level.
@@ -124,7 +124,7 @@ public abstract class AbstractIntegrationTest {
     public static final String TEST_LOGLEVEL_PROPERTY = "org.codice.test.defaultLoglevel";
 
     @Rule
-    public TestName testName = new TestName();
+    public PaxExamRule paxExamRule = new PaxExamRule(this);
 
     @Inject
     protected BundleContext bundleCtx;
