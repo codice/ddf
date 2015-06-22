@@ -29,7 +29,6 @@ import java.io.IOException;
 import java.util.HashMap;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.PaxExam;
@@ -40,13 +39,15 @@ import org.slf4j.ext.XLogger;
 
 import com.jayway.restassured.http.ContentType;
 
+import ddf.common.test.BeforeExam;
+
 /**
  * Tests Federation aspects.
  *
  */
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
-public class TestFederation extends TestCatalog {
+public class TestFederation extends AbstractIntegrationTest {
 
     private static final XLogger LOGGER = new XLogger(LoggerFactory.getLogger(TestFederation.class));
 
@@ -72,65 +73,49 @@ public class TestFederation extends TestCatalog {
 
     private String localSourceID = "";
 
-    /*
-     * The fields must be static if they are purposely used across all test methods.
-     */
-    private static boolean ranBefore = false;
-
     private static String[] metacardIds = new String[2];
 
-    /**
-     * Runs each time before each test, items that don't need to be run each time have a conditional
-     * flag.
-     *
-     */
-    @Before
-    public void beforeFederation() {
-        if (!ranBefore) {
-            try {
-                LOGGER.info("Running one-time federation setup.");
+    @BeforeExam
+    public void beforeExam() throws Exception {
+        setLogLevels();
+        waitForAllBundles();
+        waitForCatalogProvider();
+        waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query");
 
-                OpenSearchSourceProperties openSearchProperties = new OpenSearchSourceProperties(
-                        OPENSEARCH_SOURCE_ID);
-                createManagedService(OpenSearchSourceProperties.FACTORY_PID, openSearchProperties);
+        OpenSearchSourceProperties openSearchProperties = new OpenSearchSourceProperties(
+                OPENSEARCH_SOURCE_ID);
+        createManagedService(OpenSearchSourceProperties.FACTORY_PID, openSearchProperties);
 
-                waitForHttpEndpoint(CSW_PATH + "?_wadl");
-                get(CSW_PATH + "?_wadl").prettyPrint();
-                CswSourceProperties cswProperties = new CswSourceProperties(CSW_SOURCE_ID);
-                createManagedService(CswSourceProperties.FACTORY_PID, cswProperties);
+        waitForHttpEndpoint(CSW_PATH + "?_wadl");
+        get(CSW_PATH + "?_wadl").prettyPrint();
+        CswSourceProperties cswProperties = new CswSourceProperties(CSW_SOURCE_ID);
+        createManagedService(CswSourceProperties.FACTORY_PID, cswProperties);
 
-                CswSourceProperties cswProperties2 = new CswSourceProperties(CSW_SOURCE_WITH_METACARD_XML_ID);
-                cswProperties2.put("outputSchema", "urn:catalog:metacard");
-                createManagedService(CswSourceProperties.FACTORY_PID, cswProperties2);
+        CswSourceProperties cswProperties2 = new CswSourceProperties(CSW_SOURCE_WITH_METACARD_XML_ID);
+        cswProperties2.put("outputSchema", "urn:catalog:metacard");
+        createManagedService(CswSourceProperties.FACTORY_PID, cswProperties2);
 
-                waitForFederatedSource(OPENSEARCH_SOURCE_ID);
-                waitForFederatedSource(CSW_SOURCE_ID);
-                waitForFederatedSource(CSW_SOURCE_WITH_METACARD_XML_ID);
+        waitForFederatedSource(OPENSEARCH_SOURCE_ID);
+        waitForFederatedSource(CSW_SOURCE_ID);
+        waitForFederatedSource(CSW_SOURCE_WITH_METACARD_XML_ID);
 
-                waitForSourcesToBeAvailable(OPENSEARCH_SOURCE_ID, CSW_SOURCE_ID,
-                        CSW_SOURCE_WITH_METACARD_XML_ID);
+        waitForSourcesToBeAvailable(OPENSEARCH_SOURCE_ID, CSW_SOURCE_ID,
+                CSW_SOURCE_WITH_METACARD_XML_ID);
 
-                File file = new File("sample.txt");
-                if (!file.createNewFile()) {
-                    fail("Unable to create sample.txt file");
-                }
-                FileUtils.write(file, SAMPLE_DATA);
-                String fileLocation = file.toURI().toURL().toString();
-                metacardIds[GEOJSON_RECORD_INDEX] = ingest(Library.getSimpleGeoJson(),
-                        "application/json");
-
-                LOGGER.debug("File Location: {}", fileLocation);
-                metacardIds[XML_RECORD_INDEX] = ingest(Library.getSimpleXml(fileLocation), "text/xml");
-
-                LOGGER.info("Source status: \n{}", get(REST_PATH + "sources").body());
-
-                ranBefore = true;
-            } catch (Exception e) {
-                LOGGER.error("Failed to setup federation.", e);
-                setupFailed = true;
-                fail("Failed to setup federation: " + e.getMessage());
-            }
+        File file = new File("sample.txt");
+        if (!file.createNewFile()) {
+            fail("Unable to create sample.txt file");
         }
+        FileUtils.write(file, SAMPLE_DATA);
+        String fileLocation = file.toURI().toURL().toString();
+        metacardIds[GEOJSON_RECORD_INDEX] = TestCatalog.ingest(Library.getSimpleGeoJson(),
+                "application/json");
+
+        LOGGER.debug("File Location: {}", fileLocation);
+        metacardIds[XML_RECORD_INDEX] = TestCatalog.ingest(
+                Library.getSimpleXml(fileLocation), "text/xml");
+
+        LOGGER.info("Source status: \n{}", get(REST_PATH + "sources").body());
     }
 
     /**
