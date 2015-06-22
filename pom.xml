@@ -30,7 +30,6 @@
 	<modules>
         <module>distribution</module>
 		<module>sdk</module>
-        <module>docs</module>
 	</modules>
 
     <build>
