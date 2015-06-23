@@ -702,8 +702,13 @@
         </profile>
 
         <profile>
-            <id>release</id>
-            <properties>
+            <id>documentation</id>
+            <activation>
+    	       <file>
+                  <exists>${basedir}/src/assembly/bin.xml</exists>
+               </file> 
+	    </activation>
+		<properties>
                 <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
                 <asciidoctor.maven.plugin.version>1.5.2</asciidoctor.maven.plugin.version>
                 <packaging>pom</packaging>
