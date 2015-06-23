@@ -25,6 +25,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyMap;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -57,14 +58,18 @@ import org.mockito.ArgumentCaptor;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.cache.impl.ResourceCache;
+import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.data.impl.BinaryContentImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.federation.FederationStrategy;
@@ -78,6 +83,7 @@ import ddf.catalog.operation.ResourceRequest;
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.operation.SourceInfoRequest;
 import ddf.catalog.operation.SourceInfoResponse;
+import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.Update;
 import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.operation.UpdateResponse;
@@ -114,6 +120,8 @@ import ddf.catalog.source.SourceMonitor;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
+import ddf.catalog.transform.MetacardTransformer;
+import ddf.catalog.transform.QueryResponseTransformer;
 import ddf.catalog.util.impl.CachedSource;
 import ddf.catalog.util.impl.SourcePoller;
 import ddf.catalog.util.impl.SourcePollerRunner;
@@ -427,7 +435,6 @@ public class CatalogFrameworkImplTest {
                 return uri;
             }
 
-
             @Override
             protected ResourceInfo getResourceInfo(ResourceRequest resourceRequest, String site,
                     boolean isEnterprise, StringBuilder federatedSite,
@@ -535,8 +542,7 @@ public class CatalogFrameworkImplTest {
     }
 
     @Test(expected = FederationException.class)
-    public void testPostQueryStopExecution()
-            throws UnsupportedQueryException, FederationException {
+    public void testPostQueryStopExecution() throws UnsupportedQueryException, FederationException {
 
         SourcePoller poller = mock(SourcePoller.class);
 
@@ -595,16 +601,166 @@ public class CatalogFrameworkImplTest {
         // TODO create
     }
 
-    @Ignore
-    @Test
-    public void testQueryTransform() {
-        // TODO create
+    @Test(expected = CatalogTransformerException.class)
+    public void testQueryTransformWithTransformException() throws Exception {
+        MockEventProcessor eventAdmin = new MockEventProcessor();
+        MockMemoryProvider provider = new MockMemoryProvider("Provider", "Provider", "v1.0", "DDF",
+                new HashSet<ContentType>(), true, new Date());
+        BundleContext context = mock(BundleContext.class);
+        QueryResponseTransformer transformer = mock(QueryResponseTransformer.class);
+        ServiceReference reference = mock(ServiceReference.class);
+        ServiceReference[] serviceReferences = new ServiceReference[] {reference};
+        when(context.getServiceReferences(anyString(), anyString())).thenReturn(serviceReferences);
+        when(context.getService(isA(ServiceReference.class))).thenReturn(transformer);
+        when(transformer.transform(isA(SourceResponse.class), isA(Map.class)))
+                .thenThrow(new CatalogTransformerException("Could not transform"));
+
+        CatalogFramework framework = this
+                .createDummyCatalogFramework(provider, context, eventAdmin, true);
+        SourceResponse response = new SourceResponseImpl(null, null);
+
+        framework.transform(response, "NONE", new HashMap<String, Serializable>());
+
     }
 
-    @Ignore
+    @Test(expected = IllegalArgumentException.class)
+    public void testQueryTransformWithNullResponse() throws Exception {
+        MockEventProcessor eventAdmin = new MockEventProcessor();
+        MockMemoryProvider provider = new MockMemoryProvider("Provider", "Provider", "v1.0", "DDF",
+                new HashSet<ContentType>(), true, new Date());
+        BundleContext context = mock(BundleContext.class);
+        ServiceReference reference = mock(ServiceReference.class);
+        ServiceReference[] serviceReferences = new ServiceReference[] {reference};
+        when(context.getServiceReferences(anyString(), anyString())).thenReturn(serviceReferences);
+
+        CatalogFramework framework = this
+                .createDummyCatalogFramework(provider, context, eventAdmin, true);
+
+        framework.transform((SourceResponse) null, "NONE", new HashMap<String, Serializable>());
+
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testQueryTransformWithInvalidSyntaxException() throws Exception {
+        MockEventProcessor eventAdmin = new MockEventProcessor();
+        MockMemoryProvider provider = new MockMemoryProvider("Provider", "Provider", "v1.0", "DDF",
+                new HashSet<ContentType>(), true, new Date());
+        BundleContext context = mock(BundleContext.class);
+
+        when(context.getServiceReferences(anyString(), anyString()))
+                .thenThrow(new InvalidSyntaxException("Invalid Syntax", ""));
+
+        CatalogFramework framework = this
+                .createDummyCatalogFramework(provider, context, eventAdmin, true);
+
+        framework.transform((SourceResponse) null, "NONE", new HashMap<String, Serializable>());
+
+    }
+
     @Test
-    public void testMetacardTransform() {
-        // TODO create
+    public void testQueryTransform() throws Exception {
+        MockEventProcessor eventAdmin = new MockEventProcessor();
+        MockMemoryProvider provider = new MockMemoryProvider("Provider", "Provider", "v1.0", "DDF",
+                new HashSet<ContentType>(), true, new Date());
+        BundleContext context = mock(BundleContext.class);
+        QueryResponseTransformer transformer = mock(QueryResponseTransformer.class);
+        ServiceReference reference = mock(ServiceReference.class);
+        ServiceReference[] serviceReferences = new ServiceReference[] {reference};
+        when(context.getServiceReferences(anyString(), anyString())).thenReturn(serviceReferences);
+        when(context.getService(isA(ServiceReference.class))).thenReturn(transformer);
+        when(transformer.transform(isA(SourceResponse.class), isA(Map.class)))
+                .thenReturn(new BinaryContentImpl(null));
+
+        CatalogFramework framework = this
+                .createDummyCatalogFramework(provider, context, eventAdmin, true);
+        SourceResponse response = new SourceResponseImpl(null, null);
+
+        BinaryContent content = framework
+                .transform(response, "NONE", new HashMap<String, Serializable>());
+
+        assertNotNull(content);
+    }
+
+    @Test(expected = CatalogTransformerException.class)
+    public void testMetacardTransformWithTransformException() throws Exception {
+        MockEventProcessor eventAdmin = new MockEventProcessor();
+        MockMemoryProvider provider = new MockMemoryProvider("Provider", "Provider", "v1.0", "DDF",
+                new HashSet<ContentType>(), true, new Date());
+        BundleContext context = mock(BundleContext.class);
+        MetacardTransformer transformer = mock(MetacardTransformer.class);
+        ServiceReference reference = mock(ServiceReference.class);
+        ServiceReference[] serviceReferences = new ServiceReference[] {reference};
+        when(context.getServiceReferences(anyString(), anyString())).thenReturn(serviceReferences);
+        when(context.getService(isA(ServiceReference.class))).thenReturn(transformer);
+        when(transformer.transform(isA(Metacard.class), isA(Map.class)))
+                .thenThrow(new CatalogTransformerException("Could not transform"));
+
+        CatalogFramework framework = this
+                .createDummyCatalogFramework(provider, context, eventAdmin, true);
+        MetacardImpl newCard = new MetacardImpl();
+        newCard.setId(null);
+
+        framework.transform(newCard, "NONE", new HashMap<String, Serializable>());
+
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testMetacardTransformWithNullMetacard() throws Exception {
+        MockEventProcessor eventAdmin = new MockEventProcessor();
+        MockMemoryProvider provider = new MockMemoryProvider("Provider", "Provider", "v1.0", "DDF",
+                new HashSet<ContentType>(), true, new Date());
+        BundleContext context = mock(BundleContext.class);
+        ServiceReference reference = mock(ServiceReference.class);
+        ServiceReference[] serviceReferences = new ServiceReference[] {reference};
+        when(context.getServiceReferences(anyString(), anyString())).thenReturn(serviceReferences);
+
+        CatalogFramework framework = this
+                .createDummyCatalogFramework(provider, context, eventAdmin, true);
+
+        framework.transform((Metacard) null, "NONE", new HashMap<String, Serializable>());
+
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testMetacardTransformWithInvalidSyntaxException() throws Exception {
+        MockEventProcessor eventAdmin = new MockEventProcessor();
+        MockMemoryProvider provider = new MockMemoryProvider("Provider", "Provider", "v1.0", "DDF",
+                new HashSet<ContentType>(), true, new Date());
+        BundleContext context = mock(BundleContext.class);
+
+        when(context.getServiceReferences(anyString(), anyString()))
+                .thenThrow(new InvalidSyntaxException("Invalid Syntax", ""));
+
+        CatalogFramework framework = this
+                .createDummyCatalogFramework(provider, context, eventAdmin, true);
+
+        framework.transform((Metacard) null, "NONE", new HashMap<String, Serializable>());
+
+    }
+
+    @Test
+    public void testMetacardTransform() throws Exception {
+        MockEventProcessor eventAdmin = new MockEventProcessor();
+        MockMemoryProvider provider = new MockMemoryProvider("Provider", "Provider", "v1.0", "DDF",
+                new HashSet<ContentType>(), true, new Date());
+        BundleContext context = mock(BundleContext.class);
+        MetacardTransformer transformer = mock(MetacardTransformer.class);
+        ServiceReference reference = mock(ServiceReference.class);
+        ServiceReference[] serviceReferences = new ServiceReference[] {reference};
+        when(context.getServiceReferences(anyString(), anyString())).thenReturn(serviceReferences);
+        when(context.getService(isA(ServiceReference.class))).thenReturn(transformer);
+        when(transformer.transform(isA(Metacard.class), isA(Map.class)))
+                .thenReturn(new BinaryContentImpl(null));
+
+        CatalogFramework framework = this
+                .createDummyCatalogFramework(provider, context, eventAdmin, true);
+        MetacardImpl newCard = new MetacardImpl();
+        newCard.setId(null);
+
+        BinaryContent content = framework
+                .transform(newCard, "NONE", new HashMap<String, Serializable>());
+
+        assertNotNull(content);
     }
 
     @Test
@@ -999,7 +1155,6 @@ public class CatalogFrameworkImplTest {
      * (federated or local) that are available to perform the query.
      *
      * @throws SourceUnavailableException
-     *
      */
     @Ignore
     @Test(expected = SourceUnavailableException.class)
@@ -1258,7 +1413,7 @@ public class CatalogFrameworkImplTest {
      * Tests that you can get a resource's (product) options. Covers the case where the source ID
      * specified is actually the local catalog provider's site name (so this reduces down to a
      * getResourceOptions for local provider); and the case where a federated source is specified.
-     *
+     * <p/>
      * Test for DDF-1763.
      *
      * @throws Exception
@@ -1548,7 +1703,9 @@ public class CatalogFrameworkImplTest {
 
     }
 
-    /**************************** utility methods ******************************/
+    /****************************
+     * utility methods
+     ******************************/
 
     private List<FederatedSource> createDefaultFederatedSourceList(boolean isAvailable) {
         FederatedSource siteA = new MockSource("A", "Site A", "v1.0", "DDF", null, isAvailable,
@@ -1567,6 +1724,11 @@ public class CatalogFrameworkImplTest {
 
     private CatalogFramework createDummyCatalogFramework(CatalogProvider provider,
             MockEventProcessor admin, boolean sourceAvailability) {
+        return createDummyCatalogFramework(provider, null, admin, sourceAvailability);
+    }
+
+    private CatalogFramework createDummyCatalogFramework(CatalogProvider provider,
+            BundleContext context, MockEventProcessor admin, boolean sourceAvailability) {
         // Mock register the provider in the container
         // Mock the source poller
         SourcePoller mockPoller = mock(SourcePoller.class);
@@ -1575,7 +1737,7 @@ public class CatalogFrameworkImplTest {
         when(mockPoller.getCachedSource(isA(Source.class))).thenReturn(mockSource);
 
         CatalogFrameworkImpl framework = new CatalogFrameworkImpl(
-                Collections.singletonList(provider), null, new ArrayList<PreIngestPlugin>(),
+                Collections.singletonList(provider), context, new ArrayList<PreIngestPlugin>(),
                 new ArrayList<PostIngestPlugin>(), new ArrayList<PreQueryPlugin>(),
                 new ArrayList<PostQueryPlugin>(), new ArrayList<PreResourcePlugin>(),
                 new ArrayList<PostResourcePlugin>(), new ArrayList<ConnectedSource>(),
