@@ -157,8 +157,6 @@
         <!-- Properties for the frontend-maven-plugin -->
         <node.version>v0.10.30</node.version>
         <npm.version>1.4.12</npm.version>
-
-        <argLine>-XX:MaxPermSize=512m</argLine>
     </properties>
 
     <!--
