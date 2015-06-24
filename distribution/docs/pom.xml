@@ -53,7 +53,7 @@
                 <configuration>
                     <skip>true</skip>
                 </configuration>
-            </plugin>
+            </plugin>a
         </plugins>
     </build>
 
