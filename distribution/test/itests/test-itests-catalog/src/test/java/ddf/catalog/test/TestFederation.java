@@ -215,7 +215,7 @@ public class TestFederation extends TestCatalog {
         String restUrl = REST_PATH + "sources/" + OPENSEARCH_SOURCE_ID + "/"
                 + metacardIds[GEOJSON_RECORD_INDEX] + "?transform=resource";
 
-        expect().log().all().body(containsString("Unknown resource request")).when().get(restUrl);
+        expect().log().all().body(containsString("Try different transformer")).when().get(restUrl);
     }
 
     @Test
