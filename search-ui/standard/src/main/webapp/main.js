@@ -76,7 +76,7 @@ require.config({
         pnotify: 'lib/pnotify/jquery.pnotify.min',
 
         // map
-        cesium: 'lib/cesiumjs/Build/Cesium/Cesium',
+        cesium: 'lib/cesiumjs/Cesium/Cesium',
         drawHelper: 'lib/cesium-drawhelper/DrawHelper',
         openlayers: 'lib/openlayers3/build/ol',
         usngs: 'lib/usng.js/usng'

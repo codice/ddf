@@ -29,12 +29,14 @@ define([
 
                     var canvas = document.createElement('canvas');
 
-                    //Older firefox needs the experimental check, thin clients may error out while
-                    //requesting this though, so best to just wrap with a try
-                    //we don't really care, we just want it to fail and not display the map without
-                    //breaking the rest of the ui
+                    var webglOptions = {};
+
+                    // Override select WebGL defaults
+                    webglOptions.alpha = false; // WebGL default is true
+                    webglOptions.failIfMajorPerformanceCaveat = true; // WebGL default is false
+
                     try {
-                        var gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+                        var gl = canvas.getContext('webgl', webglOptions) || canvas.getContext('experimental-webgl', webglOptions) || undefined;
                         if (gl && context) {
                             this.isWebglAvailable = true;
                         }
