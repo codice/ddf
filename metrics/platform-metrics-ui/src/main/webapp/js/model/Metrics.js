@@ -20,6 +20,13 @@ define([
         "use strict";
         var Metrics = {};
 
+        Metrics.DetailModel = Backbone.AssociatedModel.extend({
+            urlRoot: '/services/internal/metrics/',
+            initialize: function () {
+                this.fetch();
+            }
+        });
+
         Metrics.SummaryModel = Backbone.AssociatedModel.extend({
             defaults: {
                 'ranges': [
@@ -67,17 +74,20 @@ define([
         });
 
         Metrics.MetricsModel = Backbone.AssociatedModel.extend({
-            urlRoot: '/services/internal/metrics/',
             initialize: function () {
-                this.fetch();
-                this.set({'summaryParams': new Metrics.SummaryModel()});
-                Backbone.Associations.EVENTS_NC = true;
+                this.set({'summary': new Metrics.SummaryModel()});
+                this.set({'details': new Metrics.DetailModel()});
             },
             relations: [
                 {
                     type: Backbone.One,
-                    key: 'summaryParams',
+                    key: 'summary',
                     relatedModel: Metrics.SummaryModel
+                },
+                {
+                    type: Backbone.One,
+                    key: 'details',
+                    relatedModel: Metrics.DetailModel
                 }
             ]
         });

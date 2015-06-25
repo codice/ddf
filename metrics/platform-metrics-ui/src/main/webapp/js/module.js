@@ -51,9 +51,6 @@ define([
                     region: App.mainRegion
                 });
                 MetricsModule.contentController.show();
-                metrics.on('sync', function () {
-                    MetricsModule.contentController.show();
-                });
             });
 
 

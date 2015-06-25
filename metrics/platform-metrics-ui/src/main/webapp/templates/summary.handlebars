@@ -11,7 +11,23 @@
  *
  **/
  --}}
-<div id="details-region">
-</div>
-<div id="summary-region">
-</div>
+<a href="{{this.download}}">Download</a>
+a report for the last
+<select name="range">
+    {{#each this.ranges}}
+        <option value="{{this}}">{{titleizeCamelCase this}}</option>
+    {{/each}}
+</select>
+complete
+<select name="unit">
+    {{#each this.units}}
+        <option value="{{this}}">{{titleizeCamelCase this}}s</option>
+    {{/each}}
+</select>
+summarized by
+<select name="interval">
+    {{#each this.intervals}}
+        <option value="{{this}}">{{titleizeCamelCase this}}</option>
+    {{/each}}
+</select>
+.

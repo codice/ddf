@@ -17,12 +17,16 @@ define([
         'marionette',
         'handlebars',
         'icanhaz',
-        'text!templates/metrics.handlebars'
+        'text!templates/metrics.handlebars',
+        'text!templates/details.handlebars',
+        'text!templates/summary.handlebars'
     ],
-    function (Backbone, $, _, Marionette, Handlebars, ich, metricsTemplate) {
+    function (Backbone, $, _, Marionette, Handlebars, ich, metricsTemplate, detailsTemplate, summaryTemplate) {
 
         var MetricsView = {};
         ich.addTemplate('metricsTemplate', metricsTemplate);
+        ich.addTemplate('detailsTemplate', detailsTemplate);
+        ich.addTemplate('summaryTemplate', summaryTemplate);
 
         Handlebars.registerHelper('titleizeCamelCase', function (camelCase) {
             // insert a space before all caps
@@ -33,15 +37,16 @@ define([
                 });
         });
 
-        MetricsView.MetricsPage = Marionette.ItemView.extend({
-            template: 'metricsTemplate',
+        MetricsView.Summary = Marionette.ItemView.extend({
+            template: 'summaryTemplate',
+
             initialize: function () {
                 _.bindAll(this);
                 this.modelBinder = new Backbone.ModelBinder();
-                this.listenTo(this.model, 'nested-change', this.updateAndRender);
+                this.listenTo(this.model, 'change', this.updateAndRender);
             },
             updateAndRender: function () {
-                this.model.get('summaryParams').summarize();
+                this.model.summarize();
                 this.render();
             },
             converter: function (direction, bindValue) {
@@ -54,10 +59,29 @@ define([
             },
             onRender: function () {
                 var bindings = Backbone.ModelBinder.createDefaultBindings(this.el, 'name', this.converter);
-                this.modelBinder.bind(this.model.get('summaryParams'), this.$el, bindings);
+                this.modelBinder.bind(this.model, this.$el, bindings);
             },
             onClose: function () {
                 this.modelBinder.unbind();
+            }
+        });
+
+        MetricsView.Details = Marionette.ItemView.extend({
+            template: 'detailsTemplate',
+            initialize: function () {
+                this.listenTo(this.model, 'sync', this.render);
+            }
+        });
+
+        MetricsView.MetricsPage = Marionette.Layout.extend({
+            template: 'metricsTemplate',
+            regions: {
+                details: '#details-region',
+                summary: '#summary-region'
+            },
+            onShow: function () {
+                this.details.show(new MetricsView.Details({model: this.model.get('details')}));
+                this.summary.show(new MetricsView.Summary({model: this.model.get('summary')}));
             }
         });
 

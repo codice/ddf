@@ -11,7 +11,23 @@
  *
  **/
  --}}
-<div id="details-region">
-</div>
-<div id="summary-region">
-</div>
+<table class="table table-striped">
+    <tr>
+        <th>Metric</th>
+        {{#each this.catalogExceptions}}
+            <th>{{@key}}</th>
+        {{/each}}
+    </tr>
+    {{#each this}}
+        <tr>
+            <td>{{titleizeCamelCase @key}}</td>
+            {{#each this}}
+                <td class="metrics-download">
+                    {{#each this}}
+                        <a target="_blank" href="{{this}}">{{@key}}</a>
+                    {{/each}}
+                </td>
+            {{/each}}
+        </tr>
+    {{/each}}
+</table>
