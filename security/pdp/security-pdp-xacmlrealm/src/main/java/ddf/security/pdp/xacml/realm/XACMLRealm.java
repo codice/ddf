@@ -11,8 +11,10 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
+
 package ddf.security.pdp.xacml.realm;
 
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -28,6 +30,7 @@ import org.apache.shiro.subject.PrincipalCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ddf.security.assertion.SecurityAssertion;
 import ddf.security.common.audit.SecurityLogger;
 import ddf.security.pdp.xacml.PdpException;
 import ddf.security.pdp.xacml.XACMLConstants;
@@ -48,7 +51,6 @@ import oasis.names.tc.xacml._3_0.core.schema.wd_17.ResponseType;
  * Performs authorization backed by a XACML-based PDP.
  */
 public class XACMLRealm extends AbstractAuthorizingRealm {
-
     private static final String AUTHZ_PERMITTED_EXCEPTION = " does not have permission to perform action.";
 
     private static final String AUTHZ_ROLE_EXCEPTION = " does not have the checked role(s).";
@@ -104,6 +106,13 @@ public class XACMLRealm extends AbstractAuthorizingRealm {
     public boolean[] isPermitted(PrincipalCollection subjectPrincipal,
             List<Permission> permissions) {
         boolean[] results = new boolean[permissions.size()];
+        String primaryPrincipal = "";
+        Principal principal = subjectPrincipal.oneByType(SecurityAssertion.class).getPrincipal();
+        if (null != principal) {
+            primaryPrincipal = principal.getName();
+        } else {
+            primaryPrincipal = subjectPrincipal.getPrimaryPrincipal().toString();
+        }
         AuthorizationInfo info = getAuthorizationInfo(subjectPrincipal);
         Permission curPermission;
         boolean curResponse;
@@ -112,30 +121,29 @@ public class XACMLRealm extends AbstractAuthorizingRealm {
             curPermission = permissions.get(i);
             if (curPermission instanceof ActionPermission) {
                 curAction = ((ActionPermission) curPermission).getAction();
-                logger.debug("Checking if {} has access to perform a {} action",
-                        subjectPrincipal.getPrimaryPrincipal(), curAction);
+                logger.debug("Checking if {} has access to perform a {} action", primaryPrincipal,
+                        curAction);
 
-                SecurityLogger.logInfo("Checking if [" + subjectPrincipal.getPrimaryPrincipal()
-                        + "] has access to perform a [" + curAction + "] action");
+                SecurityLogger.logInfo(
+                        "Checking if [" + primaryPrincipal + "] has access to perform a ["
+                                + curAction + "] action");
 
                 logger.debug("Received authZ info, creating XACML request.");
-                RequestType curRequest = createActionXACMLRequest(
-                        (String) subjectPrincipal.getPrimaryPrincipal(), info, curAction);
+                RequestType curRequest = createActionXACMLRequest(primaryPrincipal, info,
+                        curAction);
                 logger.debug("Created XACML request, calling PDP.");
 
                 curResponse = isPermitted(curRequest);
                 logger.debug("Received response from PDP, returning {}.", curResponse);
                 results[i] = curResponse;
             } else if (curPermission instanceof KeyValueCollectionPermission) {
-                logger.debug("Checking if {} has access to current metacard",
-                        subjectPrincipal.getPrimaryPrincipal());
+                logger.debug("Checking if {} has access to current metacard", primaryPrincipal);
 
-                SecurityLogger.logInfo("Checking if [" + subjectPrincipal.getPrimaryPrincipal()
+                SecurityLogger.logInfo("Checking if [" + primaryPrincipal
                         + "] has access to view current metacard");
 
                 logger.debug("Received authZ info, creating XACML request.");
-                RequestType curRequest = createRedactXACMLRequest(
-                        (String) subjectPrincipal.getPrimaryPrincipal(), info,
+                RequestType curRequest = createRedactXACMLRequest(primaryPrincipal, info,
                         (KeyValueCollectionPermission) curPermission);
                 logger.debug("Created XACML request, calling PDP.");
 
@@ -145,16 +153,14 @@ public class XACMLRealm extends AbstractAuthorizingRealm {
             } else if (curPermission instanceof KeyValuePermission) {
                 //Need to refactor this into a private method with the above condition
                 //This is to handle the case where there is a single KeyValuePermission
-                logger.debug("Checking if {} has access to current metacard",
-                        subjectPrincipal.getPrimaryPrincipal());
+                logger.debug("Checking if {} has access to current metacard", primaryPrincipal);
 
-                SecurityLogger.logInfo("Checking if [" + subjectPrincipal.getPrimaryPrincipal()
+                SecurityLogger.logInfo("Checking if [" + primaryPrincipal
                         + "] has access to view current metacard");
                 KeyValueCollectionPermission keyValueCollectionPermission = new KeyValueCollectionPermission(
                         (KeyValuePermission) curPermission);
                 logger.debug("Received authZ info, creating XACML request.");
-                RequestType curRequest = createRedactXACMLRequest(
-                        (String) subjectPrincipal.getPrimaryPrincipal(), info,
+                RequestType curRequest = createRedactXACMLRequest(primaryPrincipal, info,
                         keyValueCollectionPermission);
                 logger.debug("Created XACML request, calling PDP.");
 
