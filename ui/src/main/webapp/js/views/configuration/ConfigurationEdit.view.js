@@ -118,7 +118,7 @@ define([
             _.each(this.collectionArray.models, function(model) {
                 values.push(model.get('value'));
             });
-            this.configuration.get('properties').set(this.model.get('id'), values.join());
+            this.configuration.get('properties').set(this.model.get('id'), values);
         },
         onRender: function() {
             this.listItems.show(new ConfigurationEditView.ConfigurationMultiValueCollection({
