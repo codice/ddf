@@ -14,7 +14,7 @@
 <features name="${project.artifactId}-${project.version}">
 
     <feature name="sdk-metrics" version="${project.version}" install="manual"
-        description="SDK sample metrics.">
+             description="SDK sample metrics.">
         <bundle>mvn:ddf.sdk/sample-metrics/${project.version}</bundle>
     </feature>
 
@@ -30,5 +30,5 @@
         <feature>security-pep-metacard-attributes</feature>
         <feature>sdk-soap</feature>
     </feature>
-	
+
 </features>
