@@ -20,11 +20,11 @@
             {{/each}}
         </tr>
         {{#each this}}
-            {{#unless this.interval}}
+            {{#unless this.intervals}}
                 <tr>
                     <td>{{titleizeCamelCase @key}}</td>
                     {{#each this}}
-                        <td id="metrics-download">
+                        <td class="metrics-download">
                             {{#each this}}
                                 <a target="_blank" href="{{this}}">{{@key}}</a>
                             {{/each}}
@@ -34,22 +34,22 @@
             {{/unless}}
         {{/each}}
     </table>
-    <a href="#" id="download-summary">Download</a>
+    <a href="{{this.summaryParams.download}}">Download</a>
     a report for the last
-    <select id="range">
-        {{#each this.summaryParams.count}}
+    <select name="range">
+        {{#each this.summaryParams.ranges}}
             <option value="{{this}}">{{titleizeCamelCase this}}</option>
         {{/each}}
     </select>
     complete
-    <select id="unit">
-        {{#each this.summaryParams.unit}}
+    <select name="unit">
+        {{#each this.summaryParams.units}}
             <option value="{{this}}">{{titleizeCamelCase this}}s</option>
         {{/each}}
     </select>
     summarized by
-    <select id="interval">
-        {{#each this.summaryParams.interval}}
+    <select name="interval">
+        {{#each this.summaryParams.intervals}}
             <option value="{{this}}">{{titleizeCamelCase this}}</option>
         {{/each}}
     </select>

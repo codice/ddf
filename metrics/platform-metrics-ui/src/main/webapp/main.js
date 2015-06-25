@@ -22,7 +22,6 @@
             'marionette',
             'icanhaz',
             'js/application',
-            '../admin/js/HandlebarsHelpers',
             'modelbinder',
             'bootstrap'
         ], function ($, Backbone, Marionette, ich, Application) {
@@ -31,18 +30,18 @@
             var app = Application.App;
             // Once the application has been initialized (i.e. all initializers have completed), start up
             // Backbone.history.
-            app.on('initialize:after', function() {
+            app.on('initialize:after', function () {
                 Backbone.history.start();
                 //bootstrap call for tabs
                 $('tabs').tab();
             });
 
-            if(window){
+            if (window) {
                 // make ddf object available on window.  Makes debugging in chrome console much easier
                 window.app = app;
-                if(!window.console){
+                if (!window.console) {
                     window.console = {
-                        log: function(){
+                        log: function () {
                             // no op
                         }
                     };
@@ -52,7 +51,7 @@
             // Actually start up the application.
             app.start();
 
-            require(['js/module'], function(){
+            require(['js/module'], function () {
 
             });
 

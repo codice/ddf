@@ -3,7 +3,6 @@
     "version": "0.0.1",
     "private": true,
     "dependencies": {
-        "backbone-relational": "0.8.8",
         "backbone.modelbinder": "v1.0.5",
         "components-backbone": "1.1.0",
         "backbone-poller": "0.2.8",
@@ -28,7 +27,8 @@
         "lato": "0.2.0",
         "moment": "2.5.1",
         "backbone-associations": "v0.6.2",
-        "iframe-resizer": "2.6.2"
+        "iframe-resizer": "2.6.2",
+        "moment": "2.10.3"
     },
     "resolutions": {
         "jquery": "~1.11.0",

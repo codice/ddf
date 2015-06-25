@@ -12,40 +12,74 @@
 /*global define*/
 
 define([
-        'backbone'
+        'backbone',
+        'moment',
+        'backboneassociation'
     ],
-    function (Backbone) {
+    function (Backbone, moment) {
         "use strict";
         var Metrics = {};
-        Metrics.MetricsModel = Backbone.Model.extend({
+
+        Metrics.SummaryModel = Backbone.AssociatedModel.extend({
+            defaults: {
+                'ranges': [
+                    '1',
+                    '2',
+                    '3',
+                    '6'
+                ],
+                'units': [
+                    'hour',
+                    'day',
+                    'week',
+                    'month',
+                    'year'
+                ],
+                'intervals': [
+                    'minute',
+                    'hour',
+                    'day',
+                    'week',
+                    'month'
+                ],
+                'range': '1',
+                'unit': 'hour',
+                'interval': 'minute'
+            },
+            formatDate: function (startDate) {
+                return startDate.toDate().toISOString().replace('.000Z', 'Z');
+            },
+            summarize: function () {
+                var endDate = moment();
+                endDate.utc();
+                var unit = this.get('unit');
+                endDate.startOf(unit);
+                var startDate = moment(endDate);
+                startDate.utc();
+                startDate.subtract(this.get('range'), unit + 's');
+                this.set('download', '/services/internal/metrics/report.xls?startDate=' +
+                    this.formatDate(startDate) + '&endDate=' + this.formatDate(endDate) +
+                    '&summaryInterval=' + this.get('interval'));
+            },
+            initialize: function () {
+                this.summarize();
+            }
+        });
+
+        Metrics.MetricsModel = Backbone.AssociatedModel.extend({
             urlRoot: '/services/internal/metrics/',
             initialize: function () {
                 this.fetch();
+                this.set({'summaryParams': new Metrics.SummaryModel()});
+                Backbone.Associations.EVENTS_NC = true;
             },
-            defaults: {
-                'summaryParams': {
-                    'count': [
-                        '1',
-                        '2',
-                        '3',
-                        '6'
-                    ],
-                    'unit': [
-                        'hour',
-                        'day',
-                        'week',
-                        'month',
-                        'year'
-                    ],
-                    'interval': [
-                        'minute',
-                        'hour',
-                        'day',
-                        'week',
-                        'month'
-                    ]
+            relations: [
+                {
+                    type: Backbone.One,
+                    key: 'summaryParams',
+                    relatedModel: Metrics.SummaryModel
                 }
-            }
+            ]
         });
         return Metrics;
 

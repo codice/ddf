@@ -17,47 +17,48 @@
 
         paths: {
 
-            bootstrap: '../admin/lib/components-bootstrap/js/bootstrap.min',
-            spin: '../admin/lib/spin.js/spin',
-            q: '../admin/lib/q/q',
+            moment: '../../admin/metrics/lib/moment/moment',
+
+            bootstrap: '../../admin/metrics/lib/components-bootstrap/js/bootstrap.min',
+            spin: '../../admin/metrics/lib/spin.js/spin',
+            q: '../../admin/metrics/lib/q/q',
 
             // backbone
-            backbone: '../admin/lib/components-backbone/backbone-min',
-            backbonerelational: '../admin/lib/backbone-relational/backbone-relational',
-            backboneassociation: '../admin/lib/backbone-associations/backbone-associations-min',
-            underscore: '../admin/lib/lodash/dist/lodash.underscore.min',
-            marionette: '../admin/lib/marionette/lib/backbone.marionette.min',
+            backbone: '../../admin/metrics/lib/components-backbone/backbone-min',
+            backboneassociation: '../../admin/metrics/lib/backbone-associations/backbone-associations-min',
+            underscore: '../../admin/metrics/lib/lodash/dist/lodash.underscore.min',
+            marionette: '../../admin/metrics/lib/marionette/lib/backbone.marionette.min',
             // TODO test combining
-            modelbinder: '../admin/lib/backbone.modelbinder/Backbone.ModelBinder.min',
-            collectionbinder: '../admin/lib/backbone.modelbinder/Backbone.CollectionBinder.min',
-            poller: '../admin/lib/backbone-poller/backbone.poller',
-            iframeresizer: '../admin/lib/iframe-resizer/js/iframeResizer.min',
+            modelbinder: '../../admin/metrics/lib/backbone.modelbinder/Backbone.ModelBinder.min',
+            collectionbinder: '../../admin/metrics/lib/backbone.modelbinder/Backbone.CollectionBinder.min',
+            poller: '../../admin/metrics/lib/backbone-poller/backbone.poller',
+            iframeresizer: '../../admin/metrics/lib/iframe-resizer/js/iframeResizer.min',
 
             // ddf
-            spinnerConfig : 'js/spinnerConfig',
+            spinnerConfig: 'js/spinnerConfig',
 
             // jquery
-            jquery: '../admin/lib/jquery/jquery.min',
-            jqueryui: '../admin/lib/jquery-ui/ui/minified/jquery-ui.min',
-            'jquery.ui.widget': '../admin/lib/jquery-ui/ui/minified/jquery.ui.widget.min',
-            multiselect: '../admin/lib/bootstrap-multiselect/js/bootstrap-multiselect',
-            perfectscrollbar: '../admin/lib/perfect-scrollbar/min/perfect-scrollbar-0.4.8.with-mousewheel.min',
-            fileupload: '../admin/lib/jquery-file-upload/js/jquery.fileupload',
-            fileuploadiframe: '../admin/lib/jquery-file-upload/js/jquery.iframe-transport',
+            jquery: '../../admin/metrics/lib/jquery/jquery.min',
+            jqueryui: '../../admin/metrics/lib/jquery-ui/ui/minified/jquery-ui.min',
+            'jquery.ui.widget': '../../admin/metrics/lib/jquery-ui/ui/minified/jquery.ui.widget.min',
+            multiselect: '../../admin/metrics/lib/bootstrap-multiselect/js/bootstrap-multiselect',
+            perfectscrollbar: '../../admin/metrics/lib/perfect-scrollbar/min/perfect-scrollbar-0.4.8.with-mousewheel.min',
+            fileupload: '../../admin/metrics/lib/jquery-file-upload/js/jquery.fileupload',
+            fileuploadiframe: '../../admin/metrics/lib/jquery-file-upload/js/jquery.iframe-transport',
 
             // handlebars
-            handlebars: '../admin/lib/handlebars/handlebars.min',
-            icanhaz: '../admin/lib/icanhandlebarz/ICanHandlebarz',
+            handlebars: '../../admin/metrics/lib/handlebars/handlebars.min',
+            icanhaz: '../../admin/metrics/lib/icanhandlebarz/ICanHandlebarz',
 
             // require plugins
-            text: '../admin/lib/requirejs-plugins/lib/text',
-            css: '../admin/lib/require-css/css',
+            text: '../../admin/metrics/lib/requirejs-plugins/lib/text',
+            css: '../../admin/metrics/lib/require-css/css',
 
             // default admin ui
-            app: '../admin/js/application',
+            app: '../../admin/metrics/js/application',
 
             // datatables
-            datatables: '../admin/lib/datatables/media/js/jquery.dataTables'
+            datatables: '../../admin/metrics/lib/datatables/media/js/jquery.dataTables'
         },
 
 
@@ -81,7 +82,7 @@
                 exports: 'Handlebars'
             },
             icanhaz: {
-                deps: ['handlebars','jquery'],
+                deps: ['handlebars', 'jquery'],
                 exports: 'ich'
             },
 

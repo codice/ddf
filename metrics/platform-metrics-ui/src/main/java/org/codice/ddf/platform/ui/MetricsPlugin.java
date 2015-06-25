@@ -14,8 +14,7 @@
 package org.codice.ddf.platform.ui;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 
 import org.codice.ddf.admin.application.plugin.AbstractApplicationPlugin;
 
@@ -26,9 +25,7 @@ public class MetricsPlugin extends AbstractApplicationPlugin {
      */
     public MetricsPlugin() {
         this.displayName = "Metrics";
-        this.iframeLocation = URI.create("/metrics/index.html");
-        List<String> apps = new ArrayList<String>();
-        apps.add("platform-app");
-        this.setAssociations(apps);
+        this.iframeLocation = URI.create("/admin/metrics/index.html");
+        this.setAssociations(Arrays.asList("platform-app"));
     }
 }

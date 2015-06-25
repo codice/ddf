@@ -18,6 +18,7 @@
 
     <bean id="metricsPlugin" class="org.codice.ddf.platform.ui.MetricsPlugin"></bean>
 
-    <service interface="org.codice.ddf.admin.application.plugin.ApplicationPlugin" ref="metricsPlugin" />
+    <service interface="org.codice.ddf.admin.application.plugin.ApplicationPlugin"
+             ref="metricsPlugin"/>
 
 </blueprint>

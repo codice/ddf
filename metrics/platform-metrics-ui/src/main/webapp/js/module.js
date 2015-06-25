@@ -20,9 +20,9 @@ define([
         'poller',
         'js/model/Metrics.js'
     ],
-    function(Application, MetricsView, poller, Metrics) {
+    function (Application, MetricsView, poller, Metrics) {
 
-        Application.App.module('Metrics', function(MetricsModule, App, Backbone, Marionette)  {
+        Application.App.module('Metrics', function (MetricsModule, App, Backbone, Marionette) {
 
             var metrics = new Metrics.MetricsModel();
 
@@ -33,11 +33,11 @@ define([
 
             var Controller = Marionette.Controller.extend({
 
-                initialize: function(options){
+                initialize: function (options) {
                     this.region = options.region;
                 },
 
-                show: function(){
+                show: function () {
                     this.region.show(metricsPage);
                 }
 
@@ -46,7 +46,7 @@ define([
             // Initialize this module when the app starts
             // ------------------------------------------
 
-            MetricsModule.addInitializer(function(){
+            MetricsModule.addInitializer(function () {
                 MetricsModule.contentController = new Controller({
                     region: App.mainRegion
                 });
