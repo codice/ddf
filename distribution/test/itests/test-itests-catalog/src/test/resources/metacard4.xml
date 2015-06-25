@@ -26,11 +26,11 @@
             <ns2:Polygon>
                 <ns2:exterior>
                     <ns2:LinearRing>
-                        <ns2:pos>-112.267735 33.469045</ns2:pos>
-                        <ns2:pos>-112.269967 33.468007</ns2:pos>
-                        <ns2:pos>-112.269430 33.466396</ns2:pos>
-                        <ns2:pos>-112.265761 33.467344</ns2:pos>
-                        <ns2:pos>-112.267735 33.469045</ns2:pos>
+                        <ns2:pos>-122.349320 47.621763</ns2:pos>
+                        <ns2:pos>-122.348194 47.620606</ns2:pos>
+                        <ns2:pos>-122.349760 47.619622</ns2:pos>
+                        <ns2:pos>-122.351134 47.620302</ns2:pos>
+                        <ns2:pos>-122.349320 47.621763</ns2:pos>
                     </ns2:LinearRing>
                 </ns2:exterior>
             </ns2:Polygon>
@@ -48,7 +48,7 @@
     <string name="metadata">
         <value>&lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;
             &lt;Resource&gt;
-            &lt;name&gt;Connexta&lt;/name&gt;
+            &lt;name&gt;Space Needle&lt;/name&gt;
             &lt;/Resource&gt;
         </value>
     </string>

@@ -93,8 +93,8 @@ public class TestCatalog extends AbstractIntegrationTest {
                 .body(not(hasXPath("/metacards/metacard[@id='" + id3 + "']")))
                 .body(not(hasXPath("/metacards/metacard[@id='" + id4 + "']")));
 
-        // Execute a geo search...this should match two cards, both polygons around Connexta
-        response = executeOpenSearch("xml", "lat=33.467", "lon=-112.266", "radius=500");
+        // Execute a geo search...this should match two cards, both polygons around the Space Needle
+        response = executeOpenSearch("xml", "lat=47.62", "lon=-122.356", "radius=500");
         response.body(hasXPath("/metacards/metacard[@id='" + id2 + "']"))
                 .body(hasXPath("/metacards/metacard[@id='" + id4 + "']"))
                 .body(not(hasXPath("/metacards/metacard[@id='" + id1 + "']")))
