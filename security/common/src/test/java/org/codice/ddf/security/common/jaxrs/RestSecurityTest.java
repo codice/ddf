@@ -14,6 +14,7 @@
 package org.codice.ddf.security.common.jaxrs;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -72,7 +73,7 @@ public class RestSecurityTest {
                 new Date());
         when(assertion.getSecurityToken()).thenReturn(token);
         when(subject.getPrincipals()).thenReturn(new SimplePrincipalCollection(assertion, "sts"));
-        WebClient client = WebClient.create("http://example.org");
+        WebClient client = WebClient.create("https://example.org");
         RestSecurity.setSubjectOnClient(subject, client);
         assertNotNull(client.getHeaders().get("Cookie"));
         ArrayList cookies = (ArrayList) client.getHeaders().get("Cookie");
@@ -83,6 +84,20 @@ public class RestSecurityTest {
             }
         }
         assertTrue(containsSaml);
+    }
+
+    @Test
+    public void testNotSetSubjectOnClient() throws Exception {
+        Element samlToken = readDocument("/saml.xml").getDocumentElement();
+        Subject subject = mock(Subject.class);
+        SecurityAssertion assertion = mock(SecurityAssertion.class);
+        SecurityToken token = new SecurityToken(UUID.randomUUID().toString(), samlToken, new Date(),
+                new Date());
+        when(assertion.getSecurityToken()).thenReturn(token);
+        when(subject.getPrincipals()).thenReturn(new SimplePrincipalCollection(assertion, "sts"));
+        WebClient client = WebClient.create("http://example.org");
+        RestSecurity.setSubjectOnClient(subject, client);
+        assertNull(client.getHeaders().get("Cookie"));
     }
 
     /**

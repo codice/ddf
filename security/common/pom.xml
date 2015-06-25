@@ -24,6 +24,7 @@
 
     <groupId>ddf.security</groupId>
     <artifactId>ddf-security-common</artifactId>
+    <name>DDF :: Security :: Common</name>
     <packaging>bundle</packaging>
 
     <dependencies>
