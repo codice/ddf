@@ -78,17 +78,16 @@ function (ich,Marionette,Backbone,ConfigurationEdit,Service,Utils,wreqr,_,$,moda
             this.mode = options.mode;
         },
         onRender: function() {
-            var $boundData = this.$el.find('.bound-controls');
             var config = this.model.get('currentConfiguration') || this.model.get('disabledConfigurations').at(0);
-            var props = config.get('properties');
-            
+            var properties = config.get('properties');
+
             this.$el.attr('role', "dialog");
             this.$el.attr('aria-hidden', "true");
             this.renderNameField();
             this.renderTypeDropdown();
-            this.initRadioButtonUI(props);
+            this.initRadioButtonUI(properties);
             if (!_.isNull(this.model)) {
-                this.modelBinder.bind(props, $boundData, Backbone.ModelBinder.createDefaultBindings($boundData, 'name'));
+                this.rebind(properties);
             }
         },
         initRadioButtonUI: function(boundModel) {
@@ -151,6 +150,7 @@ function (ich,Marionette,Backbone,ConfigurationEdit,Service,Utils,wreqr,_,$,moda
          * Submit to the backend.
          */
         submitData: function() {
+            wreqr.vent.trigger('beforesave');
             var view = this;
             var model = view.model.get('editConfig');
             if (model) {
@@ -301,7 +301,6 @@ function (ich,Marionette,Backbone,ConfigurationEdit,Service,Utils,wreqr,_,$,moda
         },
         handleTypeChange: function(evt) {
             var view = this;
-            var $boundData = view.$el.find('.bound-controls');
             var $select = this.$(evt.currentTarget);
             if ($select.hasClass('sourceTypesSelect')) {
                 this.modelBinder.unbind();
@@ -310,11 +309,18 @@ function (ich,Marionette,Backbone,ConfigurationEdit,Service,Utils,wreqr,_,$,moda
 
                 var properties = config.get('properties');
                 view.checkName(view.$('.sourceName').find('input').val().trim());
-                view.renderDetails(this.model, config.get('service'));
+                view.renderDetails(config);
                 view.initRadioButtonUI(properties);
-                view.modelBinder.bind(properties, $boundData, Backbone.ModelBinder.createDefaultBindings($boundData, 'name'));
+                view.rebind(properties);
             }
             view.$el.trigger('shown.bs.modal');
+        },
+        rebind: function (properties) {
+            var $boundData = this.$el.find('.bound-controls');
+            var bindings = Backbone.ModelBinder.createDefaultBindings($boundData, 'name');
+            //this is done so that model binder wont watch these values. We need to handle this ourselves.
+            delete bindings.value;
+            this.modelBinder.bind(properties, $boundData, bindings);
         },
         findConfigFromId: function(id) {
             var model = this.model;
@@ -337,15 +343,16 @@ function (ich,Marionette,Backbone,ConfigurationEdit,Service,Utils,wreqr,_,$,moda
             }
             return config;
         },
-        renderDetails: function(model, configuration) {
-            if (!_.isUndefined(configuration)) {
-                var toDisplay = configuration.get('metatype').filter(function(mt) {
-                    return !_.contains(['shortname', 'id', 'parameters'], mt.get('id'));
+        renderDetails: function (configuration) {
+            var service = configuration.get('service');
+            if (!_.isUndefined(service)) {
+                var toDisplay = service.get('metatype').filter(function (mt) {
+                    return !_.contains(['shortname', 'id'], mt.get('id'));
                 });
                 this.details.show(new ConfigurationEdit.ConfigurationCollection({
                     collection: new Service.MetatypeList(toDisplay),
-                    service: configuration,
-                    configuration: this.model}));
+                    service: service,
+                    configuration: configuration}));
             } else {
                 this.$(this.details.el).html('');
                 this.$(this.buttons.el).html('');
