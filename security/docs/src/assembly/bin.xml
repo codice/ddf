@@ -25,6 +25,7 @@
             <directory>${project.build.directory}/docs/html</directory>
             <excludes>
                 <exclude>config.html</exclude>
+                <exclude>*Contents.html</exclude>
             </excludes>
         </fileSet>
         <fileSet>
@@ -32,6 +33,7 @@
             <directory>${project.build.directory}/docs/pdf</directory>
             <excludes>
                 <exclude>config.pdf</exclude>
+                <exclude>*Contents.pdf</exclude>
                 <exclude>**/*.pdfmarks</exclude>
             </excludes>
         </fileSet>
