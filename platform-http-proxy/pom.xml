@@ -71,8 +71,7 @@
                         <Embed-Dependency>
                             proxy-camel-route,
                             proxy-camel-servlet,
-                            camel-core-osgi,
-                            camel-http
+                            camel-core-osgi
                         </Embed-Dependency>
                         <Export-Package/>
                     </instructions>
