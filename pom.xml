@@ -146,10 +146,7 @@
         <snapshots.repository.url />
 
         <!-- Must MANUALLY update this if the ddf/support project's version changes -->
-        <ddf.support.version>2.3.2</ddf.support.version>
-
-        <!-- Must MANUALLY update this if the ddf/support-pmd project's version changes -->
-        <ddf.support.pmd.version>3.0.3-SNAPSHOT</ddf.support.pmd.version>
+        <ddf.support.version>2.3.3-SNAPSHOT</ddf.support.version>
 
         <!-- Do NOT set karaf.data or karaf.base -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -221,9 +218,9 @@
                     <version>3.4</version>
                     <dependencies>
                         <dependency>
-                            <groupId>ddf</groupId>
+                            <groupId>ddf.support</groupId>
                             <artifactId>support-pmd</artifactId>
-                            <version>${ddf.support.pmd.version}</version>
+                            <version>${ddf.support.version}</version>
                         </dependency>
                     </dependencies>
                     <configuration>
@@ -1188,7 +1185,4 @@
         </pluginRepository>
     </pluginRepositories>
 
-    <modules>
-            <module>support-pmd</module>
-    </modules>
 </project>
