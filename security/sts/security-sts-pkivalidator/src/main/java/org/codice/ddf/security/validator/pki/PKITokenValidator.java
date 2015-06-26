@@ -219,6 +219,7 @@ public class PKITokenValidator implements TokenValidator {
             Credential returnedCredential = validator.validate(credential, requestData);
             response.setPrincipal(
                     returnedCredential.getCertificates()[0].getSubjectX500Principal());
+            validateTarget.setPrincipal(returnedCredential.getCertificates()[0].getSubjectX500Principal());
             validateTarget.setState(STATE.VALID);
         } catch (WSSecurityException ex) {
             LOGGER.warn("Unable to validate credentials.", ex);
