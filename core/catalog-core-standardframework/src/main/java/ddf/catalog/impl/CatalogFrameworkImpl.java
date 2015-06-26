@@ -249,46 +249,31 @@ public class CatalogFrameworkImpl extends DescribableImpl
     /**
      * Instantiates a new CatalogFrameworkImpl
      *
-     * @param context
-     *            The BundleContext that will be utilized by this instance.
-     * @param catalogProvider
-     *            The {@link CatalogProvider} used for query, create, update, and delete operations.
-     * @param preIngest
-     *            A {@link List} of {@link PreIngestPlugin}(s) that will be invoked prior to the
-     *            ingest operation.
-     * @param postIngest
-     *            A list of {@link PostIngestPlugin}(s) that will be invoked after the ingest
-     *            operation.
-     * @param preQuery
-     *            A {@link List} of {@link PreQueryPlugin}(s) that will be invoked prior to the
-     *            query operation.
-     * @param postQuery
-     *            A {@link List} of {@link PostQueryPlugin}(s) that will be invoked after the query
-     *            operation.
-     * @param preResource
-     *            A {@link List} of {@link PreResourcePlugin}(s) that will be invoked prior to the
-     *            getResource operation.
-     * @param postResource
-     *            A {@link List} of {@link PostResourcePlugin}(s) that will be invoked after the
-     *            getResource operation.
-     * @param connectedSources
-     *            {@link List} of {@link ConnectedSource}(s) that will be searched on all queries
-     * @param federatedSources
-     *            A {@link List} of {@link FederatedSource}(s) that will be searched on an
-     *            enterprise query.
-     * @param resourceReaders
-     *            Set of {@link ResourceReader}(s) that will be get a {@link Resource}
-     * @param queryStrategy
-     *            The default federation strategy (e.g. Sorted).
-     * @param queryResponsePostProcessor
-     *            The {@link QueryResponsePostProcessor} to use to do extra processing on the
-     *            response before calling any post-query plug-ins registered.
-     * @param pool
-     *            An ExecutorService used to manage threaded operations.
-     * @param poller
-     *            An {@link SourcePoller} used to poll source availability.
+     * @param context                    The BundleContext that will be utilized by this instance.
+     * @param catalogProvider            The {@link CatalogProvider} used for query, create, update, and delete operations.
+     * @param preIngest                  A {@link List} of {@link PreIngestPlugin}(s) that will be invoked prior to the
+     *                                   ingest operation.
+     * @param postIngest                 A list of {@link PostIngestPlugin}(s) that will be invoked after the ingest
+     *                                   operation.
+     * @param preQuery                   A {@link List} of {@link PreQueryPlugin}(s) that will be invoked prior to the
+     *                                   query operation.
+     * @param postQuery                  A {@link List} of {@link PostQueryPlugin}(s) that will be invoked after the query
+     *                                   operation.
+     * @param preResource                A {@link List} of {@link PreResourcePlugin}(s) that will be invoked prior to the
+     *                                   getResource operation.
+     * @param postResource               A {@link List} of {@link PostResourcePlugin}(s) that will be invoked after the
+     *                                   getResource operation.
+     * @param connectedSources           {@link List} of {@link ConnectedSource}(s) that will be searched on all queries
+     * @param federatedSources           A {@link List} of {@link FederatedSource}(s) that will be searched on an
+     *                                   enterprise query.
+     * @param resourceReaders            Set of {@link ResourceReader}(s) that will be get a {@link Resource}
+     * @param queryStrategy              The default federation strategy (e.g. Sorted).
+     * @param queryResponsePostProcessor The {@link QueryResponsePostProcessor} to use to do extra processing on the
+     *                                   response before calling any post-query plug-ins registered.
+     * @param pool                       An ExecutorService used to manage threaded operations.
+     * @param poller                     An {@link SourcePoller} used to poll source availability.
      * @deprecated Use
-     *             {@link #CatalogFrameworkImpl(List, BundleContext, List, List, List, List, List, List, List, List, List, FederationStrategy, QueryResponsePostProcessor, ExecutorService, SourcePoller, ResourceCache, DownloadsStatusEventPublisher, ReliableResourceDownloadManager)}
+     * {@link #CatalogFrameworkImpl(List, BundleContext, List, List, List, List, List, List, List, List, List, FederationStrategy, QueryResponsePostProcessor, ExecutorService, SourcePoller, ResourceCache, DownloadsStatusEventPublisher, ReliableResourceDownloadManager)}
      */
     public CatalogFrameworkImpl(BundleContext context, CatalogProvider catalogProvider,
             List<PreIngestPlugin> preIngest, List<PostIngestPlugin> postIngest,
@@ -308,47 +293,32 @@ public class CatalogFrameworkImpl extends DescribableImpl
     /**
      * Instantiates a new CatalogFrameworkImpl
      *
-     * @param catalogProviders
-     *            A {@link List} of {@link CatalogProvider} used for query, create, update, and
-     *            delete operations. Only the first item in this list is used as the local catalog
-     *            provider. A list is used to be able to detect when an actual CatalogProvider is
-     *            instantiated and bound by blueprint.
-     * @param context
-     *            The BundleContext that will be utilized by this instance.
-     * @param preIngest
-     *            A {@link List} of {@link PreIngestPlugin}(s) that will be invoked prior to the
-     *            ingest operation.
-     * @param postIngest
-     *            A list of {@link PostIngestPlugin}(s) that will be invoked after the ingest
-     *            operation.
-     * @param preQuery
-     *            A {@link List} of {@link PreQueryPlugin}(s) that will be invoked prior to the
-     *            query operation.
-     * @param postQuery
-     *            A {@link List} of {@link PostQueryPlugin}(s) that will be invoked after the query
-     *            operation.
-     * @param preResource
-     *            A {@link List} of {@link PreResourcePlugin}(s) that will be invoked prior to the
-     *            getResource operation.
-     * @param postResource
-     *            A {@link List} of {@link PostResourcePlugin}(s) that will be invoked after the
-     *            getResource operation.
-     * @param connectedSources
-     *            {@link List} of {@link ConnectedSource}(s) that will be searched on all queries
-     * @param federatedSources
-     *            A {@link List} of {@link FederatedSource}(s) that will be searched on an
-     *            enterprise query.
-     * @param resourceReaders
-     *            Set of {@link ResourceReader}(s) that will be get a {@link Resource}.
-     * @param queryStrategy
-     *            The default federation strategy (e.g. Sorted).
-     * @param queryResponsePostProcessor
-     *            The {@link QueryResponsePostProcessor} to use to do extra processing on the
-     *            response before calling any post-query plug-ins registered.
-     * @param pool
-     *            An ExecutorService used to manage threaded operations.
-     * @param poller
-     *            An {@link SourcePoller} used to poll source availability.
+     * @param catalogProviders           A {@link List} of {@link CatalogProvider} used for query, create, update, and
+     *                                   delete operations. Only the first item in this list is used as the local catalog
+     *                                   provider. A list is used to be able to detect when an actual CatalogProvider is
+     *                                   instantiated and bound by blueprint.
+     * @param context                    The BundleContext that will be utilized by this instance.
+     * @param preIngest                  A {@link List} of {@link PreIngestPlugin}(s) that will be invoked prior to the
+     *                                   ingest operation.
+     * @param postIngest                 A list of {@link PostIngestPlugin}(s) that will be invoked after the ingest
+     *                                   operation.
+     * @param preQuery                   A {@link List} of {@link PreQueryPlugin}(s) that will be invoked prior to the
+     *                                   query operation.
+     * @param postQuery                  A {@link List} of {@link PostQueryPlugin}(s) that will be invoked after the query
+     *                                   operation.
+     * @param preResource                A {@link List} of {@link PreResourcePlugin}(s) that will be invoked prior to the
+     *                                   getResource operation.
+     * @param postResource               A {@link List} of {@link PostResourcePlugin}(s) that will be invoked after the
+     *                                   getResource operation.
+     * @param connectedSources           {@link List} of {@link ConnectedSource}(s) that will be searched on all queries
+     * @param federatedSources           A {@link List} of {@link FederatedSource}(s) that will be searched on an
+     *                                   enterprise query.
+     * @param resourceReaders            Set of {@link ResourceReader}(s) that will be get a {@link Resource}.
+     * @param queryStrategy              The default federation strategy (e.g. Sorted).
+     * @param queryResponsePostProcessor The {@link QueryResponsePostProcessor} to use to do extra processing on the
+     *                                   response before calling any post-query plug-ins registered.
+     * @param pool                       An ExecutorService used to manage threaded operations.
+     * @param poller                     An {@link SourcePoller} used to poll source availability.
      */
 
     // NOTE: The List<CatalogProvider> argument is first because when it was the second
@@ -1334,7 +1304,7 @@ public class CatalogFrameworkImpl extends DescribableImpl
 
     @Override
     public BinaryContent transform(Metacard metacard, String transformerShortname,
-            Map<String, Serializable> arguments) {
+            Map<String, Serializable> arguments) throws CatalogTransformerException {
 
         ServiceReference[] refs;
         try {
@@ -1350,23 +1320,18 @@ public class CatalogFrameworkImpl extends DescribableImpl
             throw new IllegalArgumentException(
                     "Transformer " + transformerShortname + " not found");
         } else {
-            try {
-                MetacardTransformer transformer = (MetacardTransformer) context.getService(refs[0]);
-                if (metacard != null) {
-                    return transformer.transform(metacard, arguments);
-                } else {
-                    throw new IllegalArgumentException("Metacard is null.");
-                }
-
-            } catch (CatalogTransformerException e) {
-                throw new IllegalArgumentException(e);
+            MetacardTransformer transformer = (MetacardTransformer) context.getService(refs[0]);
+            if (metacard != null) {
+                return transformer.transform(metacard, arguments);
+            } else {
+                throw new IllegalArgumentException("Metacard is null.");
             }
         }
     }
 
     @Override
     public BinaryContent transform(SourceResponse response, String transformerShortname,
-            Map<String, Serializable> arguments) {
+            Map<String, Serializable> arguments) throws CatalogTransformerException {
 
         ServiceReference[] refs;
         try {
@@ -1382,17 +1347,12 @@ public class CatalogFrameworkImpl extends DescribableImpl
             throw new IllegalArgumentException(
                     "Transformer " + transformerShortname + " not found");
         } else {
-            try {
-                QueryResponseTransformer transformer = (QueryResponseTransformer) context
-                        .getService(refs[0]);
-                if (response != null) {
-                    return transformer.transform(response, arguments);
-                } else {
-                    throw new IllegalArgumentException("QueryResponse is null.");
-                }
-
-            } catch (CatalogTransformerException e) {
-                throw new IllegalArgumentException(e);
+            QueryResponseTransformer transformer = (QueryResponseTransformer) context
+                    .getService(refs[0]);
+            if (response != null) {
+                return transformer.transform(response, arguments);
+            } else {
+                throw new IllegalArgumentException("QueryResponse is null.");
             }
         }
     }
