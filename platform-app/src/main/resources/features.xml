@@ -633,6 +633,7 @@
         <bundle>mvn:com.googlecode.json-simple/json-simple/1.1.1</bundle>
         <bundle>mvn:ddf.metrics.reporting/metrics-reporting/${project.version}</bundle>
         <bundle>mvn:ddf.metrics.webconsoleplugin/metrics-webconsole-plugin/${project.version}</bundle>
+        <bundle>mvn:ddf.metrics.ui/metrics-ui/${project.version}</bundle>
     </feature>
 
     <feature name="metrics-services" install="manual" version="${project.version}"
