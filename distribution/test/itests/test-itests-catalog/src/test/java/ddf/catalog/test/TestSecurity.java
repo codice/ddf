@@ -80,10 +80,10 @@ public class TestSecurity extends AbstractIntegrationTest {
 
     @BeforeExam
     public void beforeTest() throws Exception {
-            setLogLevels();
-            waitForAllBundles();
-            configurePDP();
-            waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query");
+        setLogLevels();
+        waitForAllBundles();
+        configurePDP();
+        waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query");
     }
 
     public void configurePDP() throws Exception {
