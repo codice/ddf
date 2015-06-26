@@ -10,16 +10,15 @@
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package ddf.catalog.test;
 
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasXPath;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.fail;
-import static com.jayway.restassured.RestAssured.expect;
 import static com.jayway.restassured.RestAssured.get;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
@@ -199,8 +198,7 @@ public class TestFederation extends AbstractIntegrationTest {
     public void testFederatedRetrieveNoProduct() throws Exception {
         String restUrl = REST_PATH + "sources/" + OPENSEARCH_SOURCE_ID + "/"
                 + metacardIds[GEOJSON_RECORD_INDEX] + "?transform=resource";
-
-        expect().log().all().body(containsString("Unknown resource request")).when().get(restUrl);
+        when().get(restUrl).then().log().all().assertThat().statusCode(equalTo(500));
     }
 
     @Test
