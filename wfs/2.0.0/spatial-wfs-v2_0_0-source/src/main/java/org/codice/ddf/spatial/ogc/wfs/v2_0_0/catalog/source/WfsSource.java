@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.source;
 
@@ -805,8 +804,8 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         }
     }
 
-    private JAXBElement<SortByType> buildSortBy(QName featureType, SortBy incomingSortBy) throws
-            UnsupportedQueryException {
+    private JAXBElement<SortByType> buildSortBy(QName featureType, SortBy incomingSortBy)
+            throws UnsupportedQueryException {
         net.opengis.filter.v_2_0_0.ObjectFactory filterObjectFactory = new net.opengis.filter.v_2_0_0.ObjectFactory();
 
         String propertyName = mapSortByPropertyName(featureType,
@@ -1000,8 +999,8 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
     }
 
     @Override
-    public ResourceResponse retrieveResource(URI uri, Map<String, Serializable> arguments) throws
-            IOException, ResourceNotFoundException, ResourceNotSupportedException {
+    public ResourceResponse retrieveResource(URI uri, Map<String, Serializable> arguments)
+            throws IOException, ResourceNotFoundException, ResourceNotSupportedException {
         StringBuilder strBuilder = new StringBuilder();
         strBuilder.append("<html><script type=\"text/javascript\">window.location.replace(\"");
         strBuilder.append(uri);
