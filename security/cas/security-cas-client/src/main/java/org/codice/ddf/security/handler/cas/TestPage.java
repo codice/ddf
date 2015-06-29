@@ -34,13 +34,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
  * Proxy granting ticket callback used by the CAS server. Nothing really to do here, we just need
  * something running at the callback url so the CAS server doesn't get a HTTP 404 error. This is
  * also used as a test page.
  *
  * @see javax.servlet.http.HttpServlet
- *
  */
 public class TestPage extends HttpServlet {
     private static final long serialVersionUID = 1L;
@@ -58,7 +56,7 @@ public class TestPage extends HttpServlet {
 
     /**
      * @see javax.servlet.http.HttpServlet#doGet(javax.servlet.http.HttpServletRequest,
-     *      javax.servlet.http.HttpServletResponse)
+     * javax.servlet.http.HttpServletResponse)
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -68,7 +66,7 @@ public class TestPage extends HttpServlet {
 
     /**
      * @see javax.servlet.http.HttpServlet#doPost(javax.servlet.http.HttpServletRequest,
-     *      javax.servlet.http.HttpServletResponse)
+     * javax.servlet.http.HttpServletResponse)
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -84,8 +82,10 @@ public class TestPage extends HttpServlet {
             createPage(request, out);
         } catch (Exception e) {
             LOGGER.error("Error creating SSO Test Page.  See log.", e);
-            out.print(
-                    "<html><head><title>Error Creating Test Page</title></head><body>Error Creating Test Page</body></html>");
+            if (null != out) {
+                out.print(
+                        "<html><head><title>Error Creating Test Page</title></head><body>Error Creating Test Page</body></html>");
+            }
         }
     }
 

@@ -251,17 +251,17 @@ public class ClaimsHandlerManager implements ConfigurationWatcher {
     private ServiceRegistration<ClaimsHandler> registerClaimsHandler(ClaimsHandler handler,
             ServiceRegistration<ClaimsHandler> registration) {
         BundleContext context = getContext();
-        if (registration != null) {
-            ClaimsHandler oldClaimsHandler = context.getService(registration.getReference());
-            if (oldClaimsHandler instanceof RoleClaimsHandler) {
-                ((RoleClaimsHandler) oldClaimsHandler).disconnect();
-            } else if (oldClaimsHandler instanceof LdapClaimsHandler) {
-                ((LdapClaimsHandler) oldClaimsHandler).disconnect();
+        if (null != context) {
+            if (registration != null) {
+                ClaimsHandler oldClaimsHandler = context.getService(registration.getReference());
+                if (oldClaimsHandler instanceof RoleClaimsHandler) {
+                    ((RoleClaimsHandler) oldClaimsHandler).disconnect();
+                } else if (oldClaimsHandler instanceof LdapClaimsHandler) {
+                    ((LdapClaimsHandler) oldClaimsHandler).disconnect();
+                }
+                registration.unregister();
             }
-            registration.unregister();
-        }
 
-        if (context != null) {
             return context.registerService(ClaimsHandler.class, handler, null);
         }
         return null;

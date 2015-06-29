@@ -167,9 +167,13 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
      * @return true if the directory is empty and false otherwise.
      */
     private boolean isXacmlPoliciesDirectoryEmpty(File xacmlPoliciesDirectory) {
-        return xacmlPoliciesDirectory.isDirectory()
-                && xacmlPoliciesDirectory.listFiles(getXmlFilenameFilter()).length == 0;
+        boolean empty = false;
+        if (null != xacmlPoliciesDirectory && xacmlPoliciesDirectory.isDirectory()) {
+            File[] files = xacmlPoliciesDirectory.listFiles();
+            empty = files.length == 0;
+        }
 
+        return empty;
     }
 
     /**

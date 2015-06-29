@@ -89,8 +89,10 @@ public class EXIEncoderTest {
         reader.parse(new InputSource(new ByteArrayInputStream(exiStream.toByteArray())));
         XMLUnit.setNormalize(true);
         XMLUnit.setNormalizeWhitespace(true);
-        Diff diff = XMLUnit.compareXML(IOUtils.toString(getClass().getResourceAsStream(TEST_FILE)),
+        InputStream stream = getClass().getResourceAsStream(TEST_FILE);
+        Diff diff = XMLUnit.compareXML(IOUtils.toString(stream),
                 stringWriter.getBuffer().toString());
+        IOUtils.closeQuietly(stream);
         assertTrue("The XML input file (" + TEST_FILE + ") did not match the EXI-decoded output",
                 diff.similar());
     }

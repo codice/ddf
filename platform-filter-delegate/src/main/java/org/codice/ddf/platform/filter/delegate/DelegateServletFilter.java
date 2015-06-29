@@ -66,10 +66,12 @@ public class DelegateServletFilter implements Filter {
         Collection<ServiceReference<Filter>> referenceCollection = null;
         BundleContext context = getContext();
 
-        try {
-            referenceCollection = context.getServiceReferences(Filter.class, null);
-        } catch (InvalidSyntaxException ise) {
-            LOGGER.debug("Should not get this exception as there is no filter being passed.");
+        if (null != context) {
+            try {
+                referenceCollection = context.getServiceReferences(Filter.class, null);
+            } catch (InvalidSyntaxException ise) {
+                LOGGER.debug("Should not get this exception as there is no filter being passed.");
+            }
         }
 
         if (referenceCollection != null && !referenceCollection.isEmpty()) {

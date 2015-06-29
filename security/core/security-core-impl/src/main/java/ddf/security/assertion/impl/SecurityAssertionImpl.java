@@ -184,6 +184,7 @@ public class SecurityAssertionImpl implements SecurityAssertion {
                                     .setAuthnContextClassRef(authenticationContextClassRef);
                             authenticationStatement.setAuthnContext(authenticationContext);
                         }
+                        break;
                     case Attribute.DEFAULT_ELEMENT_LOCAL_NAME:
                         attribute = new Attr();
                         if (attributeStatement != null) {

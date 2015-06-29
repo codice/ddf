@@ -132,7 +132,7 @@ public class MetricsEndpoint implements ConfigurationWatcher {
 
     private String servicesContextRoot = "/services";
 
-    private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+    private final SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 
     private String metricsDir = DEFAULT_METRICS_DIR;
 
@@ -220,7 +220,7 @@ public class MetricsEndpoint implements ConfigurationWatcher {
 
             // Set endDate to new calculated endTime (so that endDate is displayed properly
             // in graph's title)
-            endDate = DATE_FORMATTER.format(now.getTime());
+            endDate = dateFormatter.format(now.getTime());
         }
 
         long startTime;
@@ -235,7 +235,7 @@ public class MetricsEndpoint implements ConfigurationWatcher {
             // in graph's title)
             Calendar cal = getCalendar();
             cal.setTimeInMillis(startTime * MILLISECONDS_PER_SECOND);
-            startDate = DATE_FORMATTER.format(cal.getTime());
+            startDate = dateFormatter.format(cal.getTime());
         } else {
             // Default start time for metrics graphing to end time last 24 hours (in seconds)
             startTime = endTime - ONE_DAY_IN_SECONDS;
@@ -245,7 +245,7 @@ public class MetricsEndpoint implements ConfigurationWatcher {
             // in graph's title)
             Calendar cal = getCalendar();
             cal.setTimeInMillis(startTime * MILLISECONDS_PER_SECOND);
-            startDate = DATE_FORMATTER.format(cal.getTime());
+            startDate = dateFormatter.format(cal.getTime());
         }
 
         LOGGER.trace("startDate = " + startDate + ",   endDate = " + endDate);
@@ -486,7 +486,7 @@ public class MetricsEndpoint implements ConfigurationWatcher {
 
             // Set endDate to new calculated endTime (so that endDate is displayed properly
             // in graph's title)
-            endDate = DATE_FORMATTER.format(now.getTime());
+            endDate = dateFormatter.format(now.getTime());
         }
 
         long startTime;
@@ -501,7 +501,7 @@ public class MetricsEndpoint implements ConfigurationWatcher {
             // in graph's title)
             Calendar cal = getCalendar();
             cal.setTimeInMillis(startTime * MILLISECONDS_PER_SECOND);
-            startDate = DATE_FORMATTER.format(cal.getTime());
+            startDate = dateFormatter.format(cal.getTime());
         } else {
             // Default start time for metrics graphing to end time last 24 hours (in seconds)
             startTime = endTime - ONE_DAY_IN_SECONDS;
@@ -511,7 +511,7 @@ public class MetricsEndpoint implements ConfigurationWatcher {
             // in graph's title)
             Calendar cal = getCalendar();
             cal.setTimeInMillis(startTime * MILLISECONDS_PER_SECOND);
-            startDate = DATE_FORMATTER.format(cal.getTime());
+            startDate = dateFormatter.format(cal.getTime());
         }
 
         LOGGER.debug("startDate = " + startDate + ",   endDate = " + endDate);

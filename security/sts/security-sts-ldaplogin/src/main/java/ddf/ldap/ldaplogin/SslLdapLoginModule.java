@@ -155,6 +155,9 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
         }
 
         user = ((NameCallback) callbacks[0]).getName();
+        if (user == null) {
+            return false;
+        }
 
         char[] tmpPassword = ((PasswordCallback) callbacks[1]).getPassword();
 
@@ -162,7 +165,7 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
         // This is to prevent someone from logging into Karaf as any user without providing a
         // valid password (because if authentication = none, the password could be any
         // value - it is ignored).
-        if ("none".equals(authentication) && (user != null || tmpPassword != null)) {
+        if ("none".equals(authentication) && (tmpPassword != null)) {
             LOGGER.debug(
                     "Changing from authentication = none to simple since user or password was specified.");
             // default to simple so that the provided user/password will get checked
@@ -322,62 +325,67 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
             Map<String, ?> sharedState, Map<String, ?> options) {
         super.initialize(subject, callbackHandler, options);
         BundleContext bundleContext = getContext();
-        ServiceReference ref = null;
-        try {
-            Map<String, String> option = (Map<String, String>) options;
+        if (null != bundleContext) {
+            ServiceReference ref = null;
+            try {
+                Map<String, String> option = (Map<String, String>) options;
 
-            ref = bundleContext.getServiceReference(EncryptionService.class.getName());
-            EncryptionService encryptionService = (EncryptionService) bundleContext.getService(ref);
+                ref = bundleContext.getServiceReference(EncryptionService.class.getName());
+                EncryptionService encryptionService = (EncryptionService) bundleContext
+                        .getService(ref);
 
-            if (encryptionService != null) {
-                String decryptedPassword = encryptionService
-                        .decryptValue(option.get(CONNECTION_PASSWORD));
-                option.put(CONNECTION_PASSWORD, decryptedPassword);
-            } else {
-                LOGGER.error("Encryption service reference for ldap was null.");
+                if (encryptionService != null) {
+                    String decryptedPassword = encryptionService
+                            .decryptValue(option.get(CONNECTION_PASSWORD));
+                    option.put(CONNECTION_PASSWORD, decryptedPassword);
+                } else {
+                    LOGGER.error("Encryption service reference for ldap was null.");
+                }
+
+            } catch (SecurityException | IllegalStateException e) {
+                LOGGER.error(
+                        "Error decrypting connection password passed into ldap configuration: ", e);
+            } finally {
+                if (ref != null) {
+                    bundleContext.ungetService(ref);
+                }
+            }
+            connectionURL = (String) options.get(CONNECTION_URL);
+            connectionUsername = (String) options.get(CONNECTION_USERNAME);
+            connectionPassword = (String) options.get(CONNECTION_PASSWORD);
+            userBaseDN = (String) options.get(USER_BASE_DN);
+            userFilter = (String) options.get(USER_FILTER);
+            userSearchSubtree = Boolean.parseBoolean((String) options.get(USER_SEARCH_SUBTREE));
+            roleBaseDN = (String) options.get(ROLE_BASE_DN);
+            roleFilter = (String) options.get(ROLE_FILTER);
+            roleNameAttribute = (String) options.get(ROLE_NAME_ATTRIBUTE);
+            roleSearchSubtree = Boolean.parseBoolean((String) options.get(ROLE_SEARCH_SUBTREE));
+            sslProvider = (String) options.get(SSL_PROVIDER);
+            sslProtocol = (String) options.get(SSL_PROTOCOL);
+            sslAlgorithm = (String) options.get(SSL_ALGORITHM);
+            sslKeystore = (String) options.get(SSL_KEYSTORE);
+            sslKeyAlias = (String) options.get(SSL_KEYALIAS);
+            sslTrustStore = (String) options.get(SSL_TRUSTSTORE);
+            try {
+                sslTimeout = Integer.parseInt((String) options.get(SSL_TIMEOUT));
+            } catch (Exception e) {
+                sslTimeout = CREATE_SSL_FACTORY_ARG_6;
+            }
+            startTls = Boolean.parseBoolean((String) options.get(SSL_STARTTLS));
+
+            if (ldapConnectionFactory != null) {
+                ldapConnectionFactory.close();
             }
 
-        } catch (SecurityException | IllegalStateException e) {
-            LOGGER.error("Error decrypting connection password passed into ldap configuration: ",
-                    e);
-        } finally {
-            if (ref != null) {
-                bundleContext.ungetService(ref);
+            try {
+                ldapConnectionFactory = createLdapConnectionFactory(connectionURL, startTls);
+            } catch (LdapException e) {
+                LOGGER.error(
+                        "Unable to create LDAP Connection Factory. LDAP log in will not be possible.",
+                        e);
             }
-        }
-        connectionURL = (String) options.get(CONNECTION_URL);
-        connectionUsername = (String) options.get(CONNECTION_USERNAME);
-        connectionPassword = (String) options.get(CONNECTION_PASSWORD);
-        userBaseDN = (String) options.get(USER_BASE_DN);
-        userFilter = (String) options.get(USER_FILTER);
-        userSearchSubtree = Boolean.parseBoolean((String) options.get(USER_SEARCH_SUBTREE));
-        roleBaseDN = (String) options.get(ROLE_BASE_DN);
-        roleFilter = (String) options.get(ROLE_FILTER);
-        roleNameAttribute = (String) options.get(ROLE_NAME_ATTRIBUTE);
-        roleSearchSubtree = Boolean.parseBoolean((String) options.get(ROLE_SEARCH_SUBTREE));
-        sslProvider = (String) options.get(SSL_PROVIDER);
-        sslProtocol = (String) options.get(SSL_PROTOCOL);
-        sslAlgorithm = (String) options.get(SSL_ALGORITHM);
-        sslKeystore = (String) options.get(SSL_KEYSTORE);
-        sslKeyAlias = (String) options.get(SSL_KEYALIAS);
-        sslTrustStore = (String) options.get(SSL_TRUSTSTORE);
-        try {
-            sslTimeout = Integer.parseInt((String) options.get(SSL_TIMEOUT));
-        } catch (Exception e) {
-            sslTimeout = CREATE_SSL_FACTORY_ARG_6;
-        }
-        startTls = Boolean.parseBoolean((String) options.get(SSL_STARTTLS));
-
-        if (ldapConnectionFactory != null) {
-            ldapConnectionFactory.close();
-        }
-
-        try {
-            ldapConnectionFactory = createLdapConnectionFactory(connectionURL, startTls);
-        } catch (LdapException e) {
-            LOGGER.error(
-                    "Unable to create LDAP Connection Factory. LDAP log in will not be possible.",
-                    e);
+        } else {
+            LOGGER.error("Unable to retrieve Bundle Context!");
         }
     }
 
@@ -393,14 +401,18 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
                 SSLContext sslContext = SSLContext.getInstance(CommonSSLFactory.PROTOCOL);
                 if (sslKeystore != null && sslTrustStore != null) {
                     BundleContext bundleContext = getContext();
-                    ServiceReference<org.apache.karaf.jaas.config.KeystoreManager> ref = bundleContext
-                            .getServiceReference(
-                                    org.apache.karaf.jaas.config.KeystoreManager.class);
-                    org.apache.karaf.jaas.config.KeystoreManager manager = bundleContext
-                            .getService(ref);
-                    sslContext = manager
-                            .createSSLContext(sslProvider, sslProtocol, sslAlgorithm, sslKeystore,
-                                    sslKeyAlias, sslTrustStore, sslTimeout);
+                    if (null != bundleContext) {
+                        ServiceReference<org.apache.karaf.jaas.config.KeystoreManager> ref = bundleContext
+                                .getServiceReference(
+                                        org.apache.karaf.jaas.config.KeystoreManager.class);
+                        org.apache.karaf.jaas.config.KeystoreManager manager = bundleContext
+                                .getService(ref);
+                        sslContext = manager
+                                .createSSLContext(sslProvider, sslProtocol, sslAlgorithm,
+                                        sslKeystore, sslKeyAlias, sslTrustStore, sslTimeout);
+                    } else {
+                        LOGGER.error("Unable to retrieve Bundle Context!");
+                    }
                 }
 
                 lo.setSSLContext(sslContext);

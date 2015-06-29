@@ -75,8 +75,12 @@ public class HazelcastNotificationStoreTest {
         assertEquals(0, mapConfig.getTimeToLiveSeconds());
         assertEquals(EvictionPolicy.NONE, mapConfig.getEvictionPolicy());
         MapStoreConfig mapStoreConfig = mapConfig.getMapStoreConfig();
-        assertEquals("org.codice.ddf.notifications.impl.FileSystemMapStoreFactory",
-                mapStoreConfig.getFactoryClassName());
+        if (null != mapStoreConfig) {
+            assertEquals("org.codice.ddf.notifications.impl.FileSystemMapStoreFactory",
+                    mapStoreConfig.getFactoryClassName());
+        } else {
+            fail();
+        }
 
         instance.getMap(PERSISTENT_CACHE_NAME).destroy();
         instance.shutdown();
@@ -118,11 +122,15 @@ public class HazelcastNotificationStoreTest {
 
             MockNotification n = (MockNotification) provider
                     .loadFromPersistence(notification.getId());
-            LOGGER.info("notification = {}", n);
-            assertEquals(n.getApplication(), "app");
-            assertEquals(n.getTitle(), "title");
-            assertEquals(n.getMessage(), "message");
-            assertEquals(n.getUserId(), "user1");
+            if (null != n) {
+                LOGGER.info("notification = {}", n);
+                assertEquals(n.getApplication(), "app");
+                assertEquals(n.getTitle(), "title");
+                assertEquals(n.getMessage(), "message");
+                assertEquals(n.getUserId(), "user1");
+            } else {
+                fail();
+            }
 
         } finally {
             instance.getMap(PERSISTENT_CACHE_NAME).destroy();

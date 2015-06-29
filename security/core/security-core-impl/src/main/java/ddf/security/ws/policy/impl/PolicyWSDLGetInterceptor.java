@@ -31,12 +31,12 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import ddf.security.ws.policy.PolicyLoader;
 
 /**
  * Extension of the WSDLGetInterceptor that adds in the policy to the WSDL for clients to see.
- *
  */
 public class PolicyWSDLGetInterceptor extends WSDLGetInterceptor {
 
@@ -107,21 +107,22 @@ public class PolicyWSDLGetInterceptor extends WSDLGetInterceptor {
      * the main definitions element of the WSDL and a PolicyReference pointing to it should be added
      * to the main soap binding.
      *
-     * @param wsdlDoc
-     *            WDSL file without the policy added
-     * @param policyDoc
-     *            Policy to add to the WSDL.
+     * @param wsdlDoc   WDSL file without the policy added
+     * @param policyDoc Policy to add to the WSDL.
      * @return A combined Node containing the WSDL with the policy added.
      */
     protected Document addPolicyToWSDL(Document wsdlDoc, Document policyDoc) {
         Element newElement = wsdlDoc.getDocumentElement();
         Node policyNode = policyDoc.getDocumentElement();
         newElement.appendChild(wsdlDoc.importNode(policyNode, true));
-        Element bindingElement = (Element) newElement.getElementsByTagName("binding").item(0);
-        Element policyReferenceElement = wsdlDoc
-                .createElementNS("http://www.w3.org/ns/ws-policy", "wsp:PolicyReference");
-        policyReferenceElement.setAttribute("URI", "#TransportSAML2Policy");
-        bindingElement.appendChild(policyReferenceElement);
+        NodeList bindingElements = newElement.getElementsByTagName("binding");
+        if (null != bindingElements) {
+            Element bindingElement = (Element) bindingElements.item(0);
+            Element policyReferenceElement = wsdlDoc
+                    .createElementNS("http://www.w3.org/ns/ws-policy", "wsp:PolicyReference");
+            policyReferenceElement.setAttribute("URI", "#TransportSAML2Policy");
+            bindingElement.appendChild(policyReferenceElement);
+        }
 
         return newElement.getOwnerDocument();
     }

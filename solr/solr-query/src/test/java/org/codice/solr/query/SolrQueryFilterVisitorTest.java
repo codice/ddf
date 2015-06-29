@@ -76,9 +76,42 @@ public class SolrQueryFilterVisitorTest {
             // codecs, posting formats, and analyzers
             solrConfig = new SolrConfig(solrConfigHome.getParent(), "solrConfig.xml",
                     new InputSource(FileUtils.openInputStream(solrConfigFile)));
+            assertNotNull(solrConfig);
             indexSchema = new IndexSchema(solrConfig, "schema.xml",
                     new InputSource(FileUtils.openInputStream(solrSchemaFile)));
+            assertNotNull(indexSchema);
             container = CoreContainer.createAndLoad(solrConfigHome.getAbsolutePath(), solrFile);
+            assertNotNull(container);
+            CoreDescriptor coreDescriptor = new CoreDescriptor(container, CORE_NAME,
+                    solrConfig.getResourceLoader().getInstanceDir());
+            assertNotNull(coreDescriptor);
+
+            File dataDir = new File(workingDir + "data");  //configProxy.getDataDirectory();
+            LOGGER.debug("Using data directory [{}]", dataDir);
+            SolrCore core = new SolrCore(CORE_NAME, dataDir.getAbsolutePath(), solrConfig, indexSchema,
+                    coreDescriptor);
+            assertNotNull(core);
+            container.register(CORE_NAME, core, false);
+
+            EmbeddedSolrServer solrServer = new EmbeddedSolrServer(container, CORE_NAME);
+
+            // the test
+            SolrQueryFilterVisitor visitor = new SolrQueryFilterVisitor(solrServer, CORE_NAME);
+            Filter filter = ECQL.toFilter("Name = 'Hugh'");
+            SolrQuery solrQuery = (SolrQuery) filter.accept(visitor, null);
+            assertNotNull(solrQuery);
+
+            // Solr does not support outside parenthesis in certain queries and throws EOF exception.
+            String queryPhrase = solrQuery.getQuery().trim();
+            if (queryPhrase.matches("\\(\\s*\\{!.*\\)")) {
+                solrQuery.setQuery(queryPhrase.replaceAll("^\\(\\s*|\\s*\\)$", ""));
+            }
+            LOGGER.info("solrQuery = {}", solrQuery);
+
+            QueryResponse solrResponse = solrServer.query(solrQuery, METHOD.POST);
+            assertNotNull(solrResponse);
+            long numResults = solrResponse.getResults().getNumFound();
+            LOGGER.info("numResults = {}", numResults);
         } catch (ParserConfigurationException e) {
             LOGGER.warn("Parser configuration exception loading index schema", e);
         } catch (IOException e) {
@@ -86,35 +119,6 @@ public class SolrQueryFilterVisitorTest {
         } catch (SAXException e) {
             LOGGER.warn("SAX exception loading index schema", e);
         }
-
-        CoreDescriptor coreDescriptor = new CoreDescriptor(container, CORE_NAME,
-                solrConfig.getResourceLoader().getInstanceDir());
-
-        File dataDir = new File(workingDir + "data");  //configProxy.getDataDirectory();
-        LOGGER.debug("Using data directory [{}]", dataDir);
-        SolrCore core = new SolrCore(CORE_NAME, dataDir.getAbsolutePath(), solrConfig, indexSchema,
-                coreDescriptor);
-        container.register(CORE_NAME, core, false);
-
-        EmbeddedSolrServer solrServer = new EmbeddedSolrServer(container, CORE_NAME);
-
-        // the test
-        SolrQueryFilterVisitor visitor = new SolrQueryFilterVisitor(solrServer, CORE_NAME);
-        Filter filter = ECQL.toFilter("Name = 'Hugh'");
-        SolrQuery solrQuery = (SolrQuery) filter.accept(visitor, null);
-        assertNotNull(solrQuery);
-
-        // Solr does not support outside parenthesis in certain queries and throws EOF exception.
-        String queryPhrase = solrQuery.getQuery().trim();
-        if (queryPhrase.matches("\\(\\s*\\{!.*\\)")) {
-            solrQuery.setQuery(queryPhrase.replaceAll("^\\(\\s*|\\s*\\)$", ""));
-        }
-        LOGGER.info("solrQuery = {}", solrQuery);
-
-        QueryResponse solrResponse = solrServer.query(solrQuery, METHOD.POST);
-        assertNotNull(solrResponse);
-        long numResults = solrResponse.getResults().getNumFound();
-        LOGGER.info("numResults = {}", numResults);
     }
 
 }
