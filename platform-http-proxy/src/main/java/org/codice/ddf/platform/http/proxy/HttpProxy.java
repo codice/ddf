@@ -157,6 +157,7 @@ public class HttpProxy {
                         String bodyStr;
                         if (body instanceof InputStream) {
                             bodyStr = IOUtils.toString((InputStream) body);
+                            IOUtils.closeQuietly((InputStream) body);
                         } else if (body instanceof String) {
                             bodyStr = (String) body;
                         } else {
