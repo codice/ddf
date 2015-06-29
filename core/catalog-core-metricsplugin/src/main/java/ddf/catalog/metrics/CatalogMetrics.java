@@ -16,6 +16,7 @@ package ddf.catalog.metrics;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.configuration.ConfigurationManager;
@@ -25,6 +26,7 @@ import com.codahale.metrics.Histogram;
 import com.codahale.metrics.JmxReporter;
 import com.codahale.metrics.Meter;
 import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.SlidingTimeWindowReservoir;
 
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterAdapter;
@@ -108,7 +110,7 @@ public final class CatalogMetrics
 
         this.filterAdapter = filterAdapter;
 
-        resultCount = metrics.histogram(MetricRegistry.name(QUERIES_SCOPE, "TotalResults"));
+        resultCount = metrics.register(MetricRegistry.name(QUERIES_SCOPE, "TotalResults"), new Histogram(new SlidingTimeWindowReservoir(1, TimeUnit.MINUTES)));
 
         queries = metrics.meter(MetricRegistry.name(QUERIES_SCOPE));
         federatedQueries = metrics.meter(MetricRegistry.name(QUERIES_SCOPE, "Federated"));
