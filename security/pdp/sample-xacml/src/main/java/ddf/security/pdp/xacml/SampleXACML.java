@@ -98,18 +98,18 @@ public class SampleXACML {
                     outStream = FileUtils.openOutputStream(outputFile);
                     if (null != outStream) {
                         IOUtils.copy(inStream, outStream);
-                        LOGGER.info("Copying file to" + policyDirStr + copyFileNames[i]);
+                        LOGGER.info("Copying file to {}{}", policyDirStr, copyFileNames[i]);
                     } else {
-                        LOGGER.info("Could not create policy file output stream! File: "
-                                + copyFileNames[i]);
+                        LOGGER.info("Could not create policy file output stream! File: {}",
+                                copyFileNames[i]);
                         allSuccessful = false;
                     }
                 } else {
-                    LOGGER.info("Karaf home directory does not exist! File: " + copyFileNames[i]);
+                    LOGGER.info("Karaf home directory does not exist! File: {}", copyFileNames[i]);
                     allSuccessful = false;
                 }
             } catch (IOException ex) {
-                LOGGER.info("Unable to write out policy file! File: " + copyFileNames[i], ex);
+                LOGGER.info("Unable to write out policy file! File: {}", copyFileNames[i], ex);
                 allSuccessful = false;
             } finally {
                 IOUtils.closeQuietly(inStream);
