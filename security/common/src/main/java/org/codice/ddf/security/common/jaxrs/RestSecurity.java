@@ -50,7 +50,8 @@ public final class RestSecurity {
      * @throws NullPointerException if client is null
      */
     public static void setSubjectOnClient(Subject subject, Client client) {
-        if (subject != null) {
+        if (client != null && subject != null && "https"
+                .equalsIgnoreCase(client.getCurrentURI().getScheme())) {
             javax.ws.rs.core.Cookie cookie = createSamlCookie(subject, true);
             if (cookie == null) {
                 LOGGER.debug("SAML Cookie was null. Unable to set the cookie for the client.");
@@ -68,7 +69,7 @@ public final class RestSecurity {
      * @see #setSubjectOnClient(ddf.security.Subject, org.apache.cxf.jaxrs.client.Client)
      */
     public static void setUnsecuredSubjectOnClient(Subject subject, Client client) {
-        if (subject != null) {
+        if (client != null && subject != null) {
             javax.ws.rs.core.Cookie cookie = createSamlCookie(subject, false);
             if (cookie == null) {
                 LOGGER.debug("SAML Cookie was null. Unable to set the cookie for the client.");
@@ -99,10 +100,16 @@ public final class RestSecurity {
                 }
             }
             if (samlToken != null) {
+                BigDecimal maxAge = null;
+                if (expires == null) {
+                    //default to 10 minutes
+                    maxAge = new BigDecimal(600);
+                } else {
+                    maxAge = new BigDecimal((expires.getTime() - new Date().getTime()) / 1000);
+                }
                 cookie = new NewCookie(new Cookie(SECURITY_COOKIE_NAME, encodeSaml(samlToken)), "",
                         // gives us a checked exception for the cast
-                        new BigDecimal((expires.getTime() - new Date().getTime()) / 1000)
-                                .intValueExact(), secure).toCookie();
+                        maxAge.intValueExact(), secure).toCookie();
             }
         } catch (WSSecurityException | ArithmeticException e) {
             LOGGER.error("Unable to parse SAML assertion from subject.", e);
