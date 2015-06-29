@@ -55,11 +55,11 @@ describe('Workspace', function () {
             .waitForElementById('workspaceSearchButton')
             .safeExecute('document.querySelectorAll("#workspaceSearchButton")[0].scrollIntoView(true)')
             .elementById('workspaceSearchButton').click()
-            .waitForConditionInBrowser('document.querySelectorAll("a.workspace-name").length === 1', shared.timeout*2)
-            .waitForConditionInBrowser('document.querySelectorAll(".fa-spin").length === 0', shared.timeout*2)
+            .waitForConditionInBrowser('document.querySelectorAll("a.workspace-name").length === 1', shared.timeout)
+            .waitForConditionInBrowser('document.querySelectorAll(".fa-spin").length === 0', shared.timeout)
             .waitForElementByClassName('workspace-row').click()
             .waitForElementById('low-count')
-            .waitForConditionInBrowser('document.querySelector("#low-count").innerHTML.indexOf("0") === 0', shared.timeout * 2)
+            .waitForConditionInBrowser('document.querySelector("#low-count").innerHTML.indexOf("0") === 0', shared.timeout)
             .waitForElementById('Workspace').click()
             .waitForElementById('Edit').click()
             .waitForElementById('edit').click()
@@ -67,8 +67,8 @@ describe('Workspace', function () {
             .waitForElementById('workspaceSearchButton')
             .safeExecute('document.querySelectorAll("#workspaceSearchButton")[0].scrollIntoView(true)')
             .elementById('workspaceSearchButton').click()
-            .waitForConditionInBrowser('document.querySelectorAll("a.workspace-name").length === 1', shared.timeout*2)
-            .waitForConditionInBrowser('document.querySelectorAll(".fa-spin").length === 0', shared.timeout*2);
+            .waitForConditionInBrowser('document.querySelectorAll("a.workspace-name").length === 1', shared.timeout)
+            .waitForConditionInBrowser('document.querySelectorAll(".fa-spin").length === 0', shared.timeout);
     });
 
     it("should allow viewing search in workspace", function () {
