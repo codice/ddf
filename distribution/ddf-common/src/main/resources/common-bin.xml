@@ -85,6 +85,11 @@
       <fileMode>0755</fileMode>
     </fileSet>
 
+    <!-- HTML & PDF Documentation -->
+    <fileSet>
+      <directory>${setup.folder}/docs</directory>
+      <outputDirectory>/documentation</outputDirectory>
+    </fileSet>
 
     <!-- Javadoc -->
     <fileSet>
