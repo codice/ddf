@@ -28,6 +28,23 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
+ * <p/>
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements. See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership. The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 /**
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -88,6 +105,7 @@ import org.apache.wss4j.dom.message.token.UsernameToken;
 import org.apache.wss4j.dom.validate.Credential;
 import org.apache.wss4j.dom.validate.JAASUsernameTokenValidator;
 import org.apache.wss4j.dom.validate.Validator;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
@@ -107,19 +125,23 @@ public class UsernameTokenValidator implements TokenValidator {
     private UsernameTokenRealmCodec usernameTokenRealmCodec;
 
     public void addRealm(ServiceReference<JaasRealm> serviceReference) {
-        JaasRealm realm = FrameworkUtil.getBundle(UsernameTokenValidator.class).getBundleContext()
-                .getService(serviceReference);
-        LOGGER.trace("Adding validator for JaasRealm {}", realm.getName());
-        JAASUsernameTokenValidator validator = new JAASUsernameTokenValidator();
-        validator.setContextName(realm.getName());
-        validators.put(realm.getName(), validator);
+        Bundle bundle = FrameworkUtil.getBundle(UsernameTokenValidator.class);
+        if (null != bundle) {
+            JaasRealm realm = bundle.getBundleContext().getService(serviceReference);
+            LOGGER.trace("Adding validator for JaasRealm {}", realm.getName());
+            JAASUsernameTokenValidator validator = new JAASUsernameTokenValidator();
+            validator.setContextName(realm.getName());
+            validators.put(realm.getName(), validator);
+        }
     }
 
     public void removeRealm(ServiceReference<JaasRealm> serviceReference) {
-        JaasRealm realm = FrameworkUtil.getBundle(UsernameTokenValidator.class).getBundleContext()
-                .getService(serviceReference);
-        LOGGER.trace("Removing validator for JaasRealm {}", realm.getName());
-        validators.remove(realm.getName());
+        Bundle bundle = FrameworkUtil.getBundle(UsernameTokenValidator.class);
+        if (null != bundle) {
+            JaasRealm realm = bundle.getBundleContext().getService(serviceReference);
+            LOGGER.trace("Removing validator for JaasRealm {}", realm.getName());
+            validators.remove(realm.getName());
+        }
     }
 
     /**

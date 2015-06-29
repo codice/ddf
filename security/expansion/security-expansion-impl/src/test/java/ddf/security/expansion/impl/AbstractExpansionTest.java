@@ -13,6 +13,8 @@
  */
 package ddf.security.expansion.impl;
 
+import static org.junit.Assert.fail;
+
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -116,7 +118,6 @@ public class AbstractExpansionTest {
     @Test
     public void testAddExpansionRules() {
         StraightExpansionImpl exp = new StraightExpansionImpl();
-        Map<String, List<String[]>> map = new HashMap<String, List<String[]>>();
         exp.addExpansionList("role", rulesList1);
         assertMapsAreEqual(exp.getExpansionMap(), testmap);
 
@@ -137,8 +138,8 @@ public class AbstractExpansionTest {
 
     @Test
     public void testSetExpansionRules() {
-        StraightExpansionImpl exp = new StraightExpansionImpl();
-        Map<String, List<String[]>> map = new HashMap<String, List<String[]>>();
+        StraightExpansionImpl exp = null;
+        Map<String, List<String[]>> map = null;
         exp = new StraightExpansionImpl();
         List<String> listOfRules = new ArrayList<String>();
         listOfRules.add(rule1aStr);
@@ -227,30 +228,34 @@ public class AbstractExpansionTest {
         StraightExpansionImpl exp = new StraightExpansionImpl();
 
         URL testConfigFile = ClassLoader.getSystemResource("testExpansionConfig.cfg");
-        String filename = testConfigFile.getFile();
-        exp.loadConfiguration(filename);
+        if (null != testConfigFile) {
+            String filename = testConfigFile.getFile();
+            exp.loadConfiguration(filename);
 
-        map = exp.getExpansionMap();
-        assertMapsAreEqual(map, testmap);
+            map = exp.getExpansionMap();
+            assertMapsAreEqual(map, testmap);
 
-        // make sure exisitng rules get cleared on reload
-        exp.addExpansionRule("xyz", rule4);
+            // make sure exisitng rules get cleared on reload
+            exp.addExpansionRule("xyz", rule4);
 
-        exp.loadConfiguration(filename);
-        map = exp.getExpansionMap();
-        assertMapsAreEqual(map, testmap);
+            exp.loadConfiguration(filename);
+            map = exp.getExpansionMap();
+            assertMapsAreEqual(map, testmap);
 
-        exp.loadConfiguration("");
-        map = exp.getExpansionMap();
-        assert (map.isEmpty());
+            exp.loadConfiguration("");
+            map = exp.getExpansionMap();
+            assert (map.isEmpty());
 
-        exp.loadConfiguration(null);
-        map = exp.getExpansionMap();
-        assert (map.isEmpty());
+            exp.loadConfiguration(null);
+            map = exp.getExpansionMap();
+            assert (map.isEmpty());
 
-        exp = new StraightExpansionImpl();
-        exp.loadConfiguration(null);
-        map = exp.getExpansionMap();
-        assert (map.isEmpty());
+            exp = new StraightExpansionImpl();
+            exp.loadConfiguration(null);
+            map = exp.getExpansionMap();
+            assert (map.isEmpty());
+        } else {
+            fail();
+        }
     }
 }

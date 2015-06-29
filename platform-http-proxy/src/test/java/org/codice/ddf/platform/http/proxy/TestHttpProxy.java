@@ -59,6 +59,8 @@ public class TestHttpProxy {
                     properties.load(propertiesStream);
                 } catch (IOException e) {
                     fail(e.getMessage());
+                } finally {
+                    IOUtils.closeQuietly(propertiesStream);
                 }
                 return properties;
             }
@@ -89,6 +91,8 @@ public class TestHttpProxy {
                     properties.load(propertiesStream);
                 } catch (IOException e) {
                     fail(e.getMessage());
+                } finally {
+                    IOUtils.closeQuietly(propertiesStream);
                 }
                 properties.put("org.osgi.service.http.enabled", "true");
                 return properties;

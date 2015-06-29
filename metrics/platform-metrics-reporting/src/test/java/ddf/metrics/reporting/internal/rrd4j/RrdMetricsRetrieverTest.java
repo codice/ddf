@@ -41,6 +41,7 @@ import org.apache.poi.hslf.model.Picture;
 import org.apache.poi.hslf.model.Shape;
 import org.apache.poi.hslf.model.Slide;
 import org.apache.poi.hslf.model.TextBox;
+import org.apache.poi.hslf.usermodel.PictureData;
 import org.apache.poi.hslf.usermodel.SlideShow;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -101,9 +102,11 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
 
         File testDir = new File(TEST_DIR);
         File[] fileList = testDir.listFiles(pngFilter);
-        for (File file : fileList) {
-            if (file.isFile()) {
-                file.delete();
+        if (null != fileList) {
+            for (File file : fileList) {
+                if (file.isFile()) {
+                    file.delete();
+                }
             }
         }
     }
@@ -279,8 +282,12 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
         assertThat(wb.getNumberOfSheets(), equalTo(1));
 
         HSSFSheet sheet = wb.getSheet("Query Count");
-        assertThat(sheet, not(nullValue()));
-        verifyWorksheet(sheet, "Query Count", 6, true);
+        if (null != sheet) {
+            assertThat(sheet, not(nullValue()));
+            verifyWorksheet(sheet, "Query Count", 6, true);
+        } else {
+            fail();
+        }
     }
 
     @Test
@@ -319,8 +326,12 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
         HSSFWorkbook wb = new HSSFWorkbook(xls);
         assertThat(wb.getNumberOfSheets(), equalTo(1));
         HSSFSheet sheet = wb.getSheet("Query Count");
-        assertThat(sheet, not(nullValue()));
-        verifyWorksheet(sheet, "Query Count", 6, false);
+        if (null != sheet) {
+            assertThat(sheet, not(nullValue()));
+            verifyWorksheet(sheet, "Query Count", 6, false);
+        } else {
+            fail();
+        }
     }
 
     @Test
@@ -368,8 +379,8 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
         metricNames.add("queryCount_Gauge");
 
         MetricsRetriever metricsRetriever = new RrdMetricsRetriever();
-        OutputStream os = metricsRetriever.createXlsReport(metricNames, TEST_DIR, START_TIME,
-                endTime, null);
+        OutputStream os = metricsRetriever
+                .createXlsReport(metricNames, TEST_DIR, START_TIME, endTime, null);
         InputStream xls = new ByteArrayInputStream(((ByteArrayOutputStream) os).toByteArray());
         assertThat(xls, not(nullValue()));
 
@@ -585,7 +596,9 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
         }
 
         assertThat(picture, not(nullValue()));
-        assertThat(picture.getPictureData().getType(), equalTo(Picture.PNG));
+        PictureData picData = picture.getPictureData();
+        assertThat(picData, not(nullValue()));
+        assertThat(picData.getType(), equalTo(Picture.PNG));
         assertThat(numTextBoxes, equalTo(numExpectedTextBoxes));
     }
 

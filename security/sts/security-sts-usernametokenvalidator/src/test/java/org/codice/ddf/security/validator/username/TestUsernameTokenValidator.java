@@ -62,6 +62,59 @@ public class TestUsernameTokenValidator {
     }
 
     @Test
+    public void testValidateBadTokenNoTokenStore() {
+        UsernameTokenValidator usernameTokenValidator = new UsernameTokenValidator() {
+            public void addRealm(ServiceReference<JaasRealm> serviceReference) {
+                validators.put("myrealm", meanValidator);
+            }
+        };
+        usernameTokenValidator.addRealm(null);
+
+        TokenValidatorParameters tokenValidatorParameters = mock(TokenValidatorParameters.class);
+        STSPropertiesMBean stsPropertiesMBean = mock(STSPropertiesMBean.class);
+        when(stsPropertiesMBean.getSignatureCrypto()).thenReturn(mock(Crypto.class));
+        when(tokenValidatorParameters.getStsProperties()).thenReturn(stsPropertiesMBean);
+        ReceivedToken receivedToken = mock(ReceivedToken.class);
+        doCallRealMethod().when(receivedToken).setState(any(ReceivedToken.STATE.class));
+        doCallRealMethod().when(receivedToken).getState();
+        when(receivedToken.isUsernameToken()).thenReturn(true);
+        when(tokenValidatorParameters.getToken()).thenReturn(receivedToken);
+
+        Set<Class<?>> classes = new HashSet<>();
+        classes.add(ObjectFactory.class);
+        classes.add(org.apache.cxf.ws.security.sts.provider.model.wstrust14.ObjectFactory.class);
+        JAXBContextCache.CachedContextAndSchemas cache = null;
+        try {
+            cache = JAXBContextCache.getCachedContextAndSchemas(classes, null, null, null, false);
+        } catch (JAXBException e) {
+            fail(e.getMessage());
+        }
+        JAXBContext jaxbContext = cache.getContext();
+        Unmarshaller unmarshaller = null;
+        try {
+            if (jaxbContext != null) {
+                unmarshaller = jaxbContext.createUnmarshaller();
+            }
+        } catch (JAXBException e) {
+            fail(e.getMessage());
+        }
+        JAXBElement<?> token = null;
+        if (unmarshaller != null) {
+            try {
+                token = (JAXBElement<?>) unmarshaller
+                        .unmarshal(this.getClass().getResourceAsStream("/user-no-password.xml"));
+            } catch (JAXBException e) {
+                fail(e.getMessage());
+            }
+        }
+        when(receivedToken.getToken()).thenReturn(token.getValue());
+
+        TokenValidatorResponse tokenValidatorResponse = usernameTokenValidator
+                .validateToken(tokenValidatorParameters);
+        assertEquals(ReceivedToken.STATE.INVALID, tokenValidatorResponse.getToken().getState());
+    }
+
+    @Test
     public void testValidateBadToken() {
         UsernameTokenValidator usernameTokenValidator = new UsernameTokenValidator() {
             public void addRealm(ServiceReference<JaasRealm> serviceReference) {

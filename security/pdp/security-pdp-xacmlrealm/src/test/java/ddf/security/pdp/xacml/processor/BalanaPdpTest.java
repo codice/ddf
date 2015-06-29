@@ -104,79 +104,82 @@ public class BalanaPdpTest {
         // Setup
         File destDir = folder.newFolder(TEMP_DIR_NAME);
         LOGGER.debug("Making directory: {}", destDir.getPath());
-        destDir.mkdir();
-        File srcFile = new File(
-                projectHome + File.separator + RELATIVE_POLICIES_DIR + File.separator
-                        + POLICY_FILE);
-        FileUtils.copyFileToDirectory(srcFile, destDir);
+        if (destDir.mkdir()) {
+            File srcFile = new File(
+                    projectHome + File.separator + RELATIVE_POLICIES_DIR + File.separator
+                            + POLICY_FILE);
+            FileUtils.copyFileToDirectory(srcFile, destDir);
 
-        RequestType xacmlRequestType = new RequestType();
-        xacmlRequestType.setCombinedDecision(false);
-        xacmlRequestType.setReturnPolicyIdList(false);
+            RequestType xacmlRequestType = new RequestType();
+            xacmlRequestType.setCombinedDecision(false);
+            xacmlRequestType.setReturnPolicyIdList(false);
 
-        AttributesType actionAttributes = new AttributesType();
-        actionAttributes.setCategory(ACTION_CATEGORY);
-        AttributeType actionAttribute = new AttributeType();
-        actionAttribute.setAttributeId(ACTION_ID);
-        actionAttribute.setIncludeInResult(false);
-        AttributeValueType actionValue = new AttributeValueType();
-        actionValue.setDataType(STRING_DATA_TYPE);
-        actionValue.getContent().add(QUERY_ACTION);
-        actionAttribute.getAttributeValue().add(actionValue);
-        actionAttributes.getAttribute().add(actionAttribute);
+            AttributesType actionAttributes = new AttributesType();
+            actionAttributes.setCategory(ACTION_CATEGORY);
+            AttributeType actionAttribute = new AttributeType();
+            actionAttribute.setAttributeId(ACTION_ID);
+            actionAttribute.setIncludeInResult(false);
+            AttributeValueType actionValue = new AttributeValueType();
+            actionValue.setDataType(STRING_DATA_TYPE);
+            actionValue.getContent().add(QUERY_ACTION);
+            actionAttribute.getAttributeValue().add(actionValue);
+            actionAttributes.getAttribute().add(actionAttribute);
 
-        AttributesType subjectAttributes = new AttributesType();
-        subjectAttributes.setCategory(SUBJECT_CATEGORY);
-        AttributeType subjectAttribute = new AttributeType();
-        subjectAttribute.setAttributeId(SUBJECT_ID);
-        subjectAttribute.setIncludeInResult(false);
-        AttributeValueType subjectValue = new AttributeValueType();
-        subjectValue.setDataType(STRING_DATA_TYPE);
-        subjectValue.getContent().add(TEST_USER_1);
-        subjectAttribute.getAttributeValue().add(subjectValue);
-        subjectAttributes.getAttribute().add(subjectAttribute);
+            AttributesType subjectAttributes = new AttributesType();
+            subjectAttributes.setCategory(SUBJECT_CATEGORY);
+            AttributeType subjectAttribute = new AttributeType();
+            subjectAttribute.setAttributeId(SUBJECT_ID);
+            subjectAttribute.setIncludeInResult(false);
+            AttributeValueType subjectValue = new AttributeValueType();
+            subjectValue.setDataType(STRING_DATA_TYPE);
+            subjectValue.getContent().add(TEST_USER_1);
+            subjectAttribute.getAttributeValue().add(subjectValue);
+            subjectAttributes.getAttribute().add(subjectAttribute);
 
-        AttributeType roleAttribute = new AttributeType();
-        roleAttribute.setAttributeId(ROLE_CLAIM);
-        roleAttribute.setIncludeInResult(false);
-        AttributeValueType roleValue = new AttributeValueType();
-        roleValue.setDataType(STRING_DATA_TYPE);
-        roleValue.getContent().add(ROLE);
-        roleAttribute.getAttributeValue().add(roleValue);
-        subjectAttributes.getAttribute().add(roleAttribute);
+            AttributeType roleAttribute = new AttributeType();
+            roleAttribute.setAttributeId(ROLE_CLAIM);
+            roleAttribute.setIncludeInResult(false);
+            AttributeValueType roleValue = new AttributeValueType();
+            roleValue.setDataType(STRING_DATA_TYPE);
+            roleValue.getContent().add(ROLE);
+            roleAttribute.getAttributeValue().add(roleValue);
+            subjectAttributes.getAttribute().add(roleAttribute);
 
-        AttributesType categoryAttributes = new AttributesType();
-        categoryAttributes.setCategory(PERMISSIONS_CATEGORY);
-        AttributeType citizenshipAttribute = new AttributeType();
-        citizenshipAttribute.setAttributeId(CITIZENSHIP_ATTRIBUTE);
-        citizenshipAttribute.setIncludeInResult(false);
-        AttributeValueType citizenshipValue = new AttributeValueType();
-        citizenshipValue.setDataType(STRING_DATA_TYPE);
-        citizenshipValue.getContent().add(US_COUNTRY);
-        citizenshipAttribute.getAttributeValue().add(citizenshipValue);
-        categoryAttributes.getAttribute().add(citizenshipAttribute);
+            AttributesType categoryAttributes = new AttributesType();
+            categoryAttributes.setCategory(PERMISSIONS_CATEGORY);
+            AttributeType citizenshipAttribute = new AttributeType();
+            citizenshipAttribute.setAttributeId(CITIZENSHIP_ATTRIBUTE);
+            citizenshipAttribute.setIncludeInResult(false);
+            AttributeValueType citizenshipValue = new AttributeValueType();
+            citizenshipValue.setDataType(STRING_DATA_TYPE);
+            citizenshipValue.getContent().add(US_COUNTRY);
+            citizenshipAttribute.getAttributeValue().add(citizenshipValue);
+            categoryAttributes.getAttribute().add(citizenshipAttribute);
 
-        xacmlRequestType.getAttributes().add(actionAttributes);
-        xacmlRequestType.getAttributes().add(subjectAttributes);
-        xacmlRequestType.getAttributes().add(categoryAttributes);
+            xacmlRequestType.getAttributes().add(actionAttributes);
+            xacmlRequestType.getAttributes().add(subjectAttributes);
+            xacmlRequestType.getAttributes().add(categoryAttributes);
 
-        BalanaPdp pdp = new BalanaPdp(destDir);
+            BalanaPdp pdp = new BalanaPdp(destDir);
 
-        // Perform Test
-        ResponseType xacmlResponse = pdp.evaluate(xacmlRequestType);
+            // Perform Test
+            ResponseType xacmlResponse = pdp.evaluate(xacmlRequestType);
 
-        // Verify
-        JAXBContext jaxbContext = JAXBContext.newInstance(ResponseType.class);
-        Marshaller marshaller = jaxbContext.createMarshaller();
-        ObjectFactory objectFactory = new ObjectFactory();
-        Writer writer = new StringWriter();
-        marshaller.marshal(objectFactory.createResponse(xacmlResponse), writer);
-        LOGGER.debug("\nXACML 3.0 Response:\n{}", writer.toString());
-        assertEquals(xacmlResponse.getResult().get(0).getDecision(), DecisionType.PERMIT);
+            // Verify
+            JAXBContext jaxbContext = JAXBContext.newInstance(ResponseType.class);
+            Marshaller marshaller = jaxbContext.createMarshaller();
+            ObjectFactory objectFactory = new ObjectFactory();
+            Writer writer = new StringWriter();
+            marshaller.marshal(objectFactory.createResponse(xacmlResponse), writer);
+            LOGGER.debug("\nXACML 3.0 Response:\n{}", writer.toString());
+            assertEquals(xacmlResponse.getResult().get(0).getDecision(), DecisionType.PERMIT);
 
-        // Cleanup
-        LOGGER.debug("Deleting directory: " + destDir);
-        FileUtils.deleteDirectory(destDir);
+            // Cleanup
+            LOGGER.debug("Deleting directory: " + destDir);
+            FileUtils.deleteDirectory(destDir);
+        } else {
+            LOGGER.debug("Could not create directory: " + destDir);
+        }
     }
 
     @Test
@@ -274,17 +277,19 @@ public class BalanaPdpTest {
         // Setup
         File dir = folder.newFolder(TEMP_DIR_NAME);
         LOGGER.debug("Making directory: {}", dir.getPath());
-        dir.mkdir();
+        if (dir.mkdir()) {
+            assertTrue(dir.isDirectory());
+            assertTrue(isDirEmpty(dir));
 
-        assertTrue(dir.isDirectory());
-        assertTrue(isDirEmpty(dir));
+            // Perform Test
+            new BalanaPdp(dir);
 
-        // Perform Test
-        new BalanaPdp(dir);
-
-        // Cleanup
-        LOGGER.debug("Deleting directory: {}", dir.getPath());
-        dir.delete();
+            // Cleanup
+            LOGGER.debug("Deleting directory: {}", dir.getPath());
+            FileUtils.deleteDirectory(dir);
+        } else {
+            LOGGER.debug("Could not create directory: {}", dir.getPath());
+        }
     }
 
     @Test
@@ -382,16 +387,22 @@ public class BalanaPdpTest {
         // Setup
         tempDir = folder.newFolder(TEMP_DIR_NAME);
         LOGGER.debug("Making directory: {}", tempDir.getPath());
-        tempDir.mkdir();
-        File srcFile = new File(
-                projectHome + File.separator + RELATIVE_POLICIES_DIR + File.separator
-                        + POLICY_FILE);
-        FileUtils.copyFileToDirectory(srcFile, tempDir);
+        boolean dirExists = true;
+        if (!tempDir.exists()) {
+            dirExists = tempDir.mkdir();
+        }
+        if (dirExists) {
+            File srcFile = new File(
+                    projectHome + File.separator + RELATIVE_POLICIES_DIR + File.separator
+                            + POLICY_FILE);
+            FileUtils.copyFileToDirectory(srcFile, tempDir);
+        }
     }
 
     private boolean isDirEmpty(File dir) {
-        return dir != null && dir.isDirectory()
-                && dir.listFiles(getXmlFilenameFilter()).length == 0;
+        return ((null != dir) && (dir.isDirectory()) && (null != dir
+                .listFiles(getXmlFilenameFilter())) && (dir.listFiles(getXmlFilenameFilter()).length
+                == 0));
     }
 
     private FilenameFilter getXmlFilenameFilter() {

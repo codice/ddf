@@ -461,10 +461,14 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
     }
 
     private boolean tokenAboutToExpire(Subject subject) {
-        return subject == null || subject.getPrincipals() == null
-                || subject.getPrincipals().oneByType(SecurityAssertion.class) == null || subject
-                .getPrincipals().oneByType(SecurityAssertion.class).getSecurityToken()
-                .isAboutToExpire(TimeUnit.MINUTES.toSeconds(1));
+        boolean tokenAboutToExpire = true;
+        if ((null != subject) && (null != subject.getPrincipal()) && (null != subject
+                .getPrincipals().oneByType(SecurityAssertion.class)) && (!subject.getPrincipals()
+                .oneByType(SecurityAssertion.class).getSecurityToken()
+                .isAboutToExpire(TimeUnit.MINUTES.toSeconds(1)))) {
+            tokenAboutToExpire = false;
+        }
+        return tokenAboutToExpire;
     }
 
     private void createIncludeTimestamp(SOAPFactory soapFactory, SOAPElement securityHeader) {
@@ -594,7 +598,7 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
     }
 
     private boolean evaluateExpression(String xml, String xpathStmt) {
-        Boolean result = null;
+        Boolean result = false;
         Document document = createDocument(xml);
 
         XPathFactory xFactory = XPathFactory.newInstance();

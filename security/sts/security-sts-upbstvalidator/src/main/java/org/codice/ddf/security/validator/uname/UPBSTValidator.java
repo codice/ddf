@@ -94,6 +94,7 @@ import org.apache.wss4j.dom.validate.JAASUsernameTokenValidator;
 import org.apache.wss4j.dom.validate.Validator;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.UPAuthenticationToken;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
@@ -112,19 +113,23 @@ public class UPBSTValidator implements TokenValidator {
     private UsernameTokenRealmCodec usernameTokenRealmCodec;
 
     public void addRealm(ServiceReference<JaasRealm> serviceReference) {
-        JaasRealm realm = FrameworkUtil.getBundle(UPBSTValidator.class).getBundleContext()
-                .getService(serviceReference);
-        LOGGER.trace("Adding validator for JaasRealm {}", realm.getName());
-        JAASUsernameTokenValidator validator = new JAASUsernameTokenValidator();
-        validator.setContextName(realm.getName());
-        validators.put(realm.getName(), validator);
+        Bundle bundle = FrameworkUtil.getBundle(UPBSTValidator.class);
+        if (null != bundle) {
+            JaasRealm realm = bundle.getBundleContext().getService(serviceReference);
+            LOGGER.trace("Adding validator for JaasRealm {}", realm.getName());
+            JAASUsernameTokenValidator validator = new JAASUsernameTokenValidator();
+            validator.setContextName(realm.getName());
+            validators.put(realm.getName(), validator);
+        }
     }
 
     public void removeRealm(ServiceReference<JaasRealm> serviceReference) {
-        JaasRealm realm = FrameworkUtil.getBundle(UPBSTValidator.class).getBundleContext()
-                .getService(serviceReference);
-        LOGGER.trace("Removing validator for JaasRealm {}", realm.getName());
-        validators.remove(realm.getName());
+        Bundle bundle = FrameworkUtil.getBundle(UPBSTValidator.class);
+        if (null != bundle) {
+            JaasRealm realm = bundle.getBundleContext().getService(serviceReference);
+            LOGGER.trace("Removing validator for JaasRealm {}", realm.getName());
+            validators.remove(realm.getName());
+        }
     }
 
     /**
@@ -157,7 +162,6 @@ public class UPBSTValidator implements TokenValidator {
      * @return true if the token can be handled
      */
     public boolean canHandleToken(ReceivedToken validateTarget, String cxfRealm) {
-        Object token = validateTarget.getToken();
         boolean canHandle = false;
         UPAuthenticationToken usernameToken = getUsernameTokenFromTarget(validateTarget);
         if (usernameToken != null) {

@@ -16,6 +16,7 @@ package org.codice.ddf.platform.error.handler.impl;
 import static org.boon.Boon.toJson;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,10 +44,14 @@ public class DefaultErrorHandler implements ErrorHandler {
     private void initIndexHtml() {
         if (SERVER_ERROR_PLEASE_SEE_LOGS.equals(indexHtml)) {
             Bundle bundle = FrameworkUtil.getBundle(DefaultErrorHandler.class);
-            try {
-                indexHtml = IOUtils.toString(bundle.getEntry("/index.html").openStream());
-            } catch (Exception e) {
-                LOGGER.error("Unable to read/parse index.html.", e);
+            if (null != bundle) {
+                try {
+                    indexHtml = IOUtils.toString(bundle.getEntry("/index.html").openStream());
+                } catch (Exception e) {
+                    LOGGER.error("Unable to read/parse index.html.", e);
+                }
+            } else {
+                LOGGER.error("Unable to retrieve Bundle");
             }
         }
     }
@@ -66,7 +71,7 @@ public class DefaultErrorHandler implements ErrorHandler {
         jsonMap.put("throwable", stack);
         jsonMap.put("uri", uri);
         String data = toJson(jsonMap);
-        String encodedBytes = Base64Utility.encode(data.getBytes());
+        String encodedBytes = Base64Utility.encode(data.getBytes(StandardCharsets.UTF_8));
 
         String localIndexHtml = indexHtml.replace("WINDOW_DATA", "\"" + encodedBytes + "\"");
 

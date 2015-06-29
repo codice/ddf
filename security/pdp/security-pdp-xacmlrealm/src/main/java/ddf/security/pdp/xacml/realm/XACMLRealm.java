@@ -27,6 +27,7 @@ import org.apache.shiro.authz.AuthorizationException;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.Permission;
 import org.apache.shiro.subject.PrincipalCollection;
+import org.apache.shiro.util.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -105,73 +106,72 @@ public class XACMLRealm extends AbstractAuthorizingRealm {
     @Override
     public boolean[] isPermitted(PrincipalCollection subjectPrincipal,
             List<Permission> permissions) {
-        boolean[] results = new boolean[permissions.size()];
-        String primaryPrincipal = "";
-        Principal principal = subjectPrincipal.oneByType(SecurityAssertion.class).getPrincipal();
-        if (null != principal) {
-            primaryPrincipal = principal.getName();
-        } else {
-            primaryPrincipal = subjectPrincipal.getPrimaryPrincipal().toString();
-        }
-        AuthorizationInfo info = getAuthorizationInfo(subjectPrincipal);
-        Permission curPermission;
-        boolean curResponse;
-        String curAction;
-        for (int i = 0; i < permissions.size(); i++) {
-            curPermission = permissions.get(i);
-            if (curPermission instanceof ActionPermission) {
-                curAction = ((ActionPermission) curPermission).getAction();
-                logger.debug("Checking if {} has access to perform a {} action", primaryPrincipal,
-                        curAction);
-
-                SecurityLogger.logInfo(
-                        "Checking if [" + primaryPrincipal + "] has access to perform a ["
-                                + curAction + "] action");
-
-                logger.debug("Received authZ info, creating XACML request.");
-                RequestType curRequest = createActionXACMLRequest(primaryPrincipal, info,
-                        curAction);
-                logger.debug("Created XACML request, calling PDP.");
-
-                curResponse = isPermitted(curRequest);
-                logger.debug("Received response from PDP, returning {}.", curResponse);
-                results[i] = curResponse;
-            } else if (curPermission instanceof KeyValueCollectionPermission) {
-                logger.debug("Checking if {} has access to current metacard", primaryPrincipal);
-
-                SecurityLogger.logInfo("Checking if [" + primaryPrincipal
-                        + "] has access to view current metacard");
-
-                logger.debug("Received authZ info, creating XACML request.");
-                RequestType curRequest = createRedactXACMLRequest(primaryPrincipal, info,
-                        (KeyValueCollectionPermission) curPermission);
-                logger.debug("Created XACML request, calling PDP.");
-
-                curResponse = isPermitted(curRequest);
-                logger.debug("Received response from PDP, returning {}.", curResponse);
-                results[i] = curResponse;
-            } else if (curPermission instanceof KeyValuePermission) {
-                //Need to refactor this into a private method with the above condition
-                //This is to handle the case where there is a single KeyValuePermission
-                logger.debug("Checking if {} has access to current metacard", primaryPrincipal);
-
-                SecurityLogger.logInfo("Checking if [" + primaryPrincipal
-                        + "] has access to view current metacard");
-                KeyValueCollectionPermission keyValueCollectionPermission = new KeyValueCollectionPermission(
-                        (KeyValuePermission) curPermission);
-                logger.debug("Received authZ info, creating XACML request.");
-                RequestType curRequest = createRedactXACMLRequest(primaryPrincipal, info,
-                        keyValueCollectionPermission);
-                logger.debug("Created XACML request, calling PDP.");
-
-                curResponse = isPermitted(curRequest);
-                logger.debug("Received response from PDP, returning {}.", curResponse);
-                results[i] = curResponse;
+        boolean[] results = null;
+        if (!CollectionUtils.isEmpty(subjectPrincipal) && !CollectionUtils.isEmpty(permissions)) {
+            results = new boolean[permissions.size()];
+            String primaryPrincipal = "";
+            Principal principal = subjectPrincipal.oneByType(SecurityAssertion.class).getPrincipal();
+            if (null != principal) {
+                primaryPrincipal = principal.getName();
             } else {
-                logger.warn(
-                        "Could not check permissions with {}, permission being requested MUST be an ActionPermission or RedactionPermission",
-                        curPermission);
-                results[i] = false;
+                primaryPrincipal = subjectPrincipal.getPrimaryPrincipal().toString();
+            }
+            AuthorizationInfo info = getAuthorizationInfo(subjectPrincipal);
+            Permission curPermission;
+            boolean curResponse;
+            String curAction;
+            for (int i = 0; i < permissions.size(); i++) {
+                curPermission = permissions.get(i);
+                if (curPermission instanceof ActionPermission) {
+                    curAction = ((ActionPermission) curPermission).getAction();
+                    logger.debug("Checking if {} has access to perform a {} action",
+                            primaryPrincipal, curAction);
+
+                    SecurityLogger.logInfo(
+                            "Checking if [" + primaryPrincipal + "] has access to perform a [" + curAction + "] action");
+
+                    logger.debug("Received authZ info, creating XACML request.");
+                    RequestType curRequest = createActionXACMLRequest(primaryPrincipal, info,
+                            curAction);
+                    logger.debug("Created XACML request, calling PDP.");
+
+                    curResponse = isPermitted(curRequest);
+                    logger.debug("Received response from PDP, returning {}.", curResponse);
+                    results[i] = curResponse;
+                } else if (curPermission instanceof KeyValueCollectionPermission) {
+                    logger.debug("Checking if {} has access to current metacard", primaryPrincipal);
+
+                    SecurityLogger.logInfo("Checking if [" + primaryPrincipal + "] has access to view current metacard");
+
+                    logger.debug("Received authZ info, creating XACML request.");
+                    RequestType curRequest = createRedactXACMLRequest(primaryPrincipal, info, (KeyValueCollectionPermission) curPermission);
+                    logger.debug("Created XACML request, calling PDP.");
+
+                    curResponse = isPermitted(curRequest);
+                    logger.debug("Received response from PDP, returning {}.", curResponse);
+                    results[i] = curResponse;
+                } else if (curPermission instanceof KeyValuePermission) {
+                    //Need to refactor this into a private method with the above condition
+                    //This is to handle the case where there is a single KeyValuePermission
+                    logger.debug("Checking if {} has access to current metacard", primaryPrincipal);
+
+                    SecurityLogger.logInfo("Checking if [" + primaryPrincipal + "] has access to view current metacard");
+                    KeyValueCollectionPermission keyValueCollectionPermission = new KeyValueCollectionPermission(
+                            (KeyValuePermission) curPermission);
+                    logger.debug("Received authZ info, creating XACML request.");
+                    RequestType curRequest = createRedactXACMLRequest(primaryPrincipal, info,
+                            keyValueCollectionPermission);
+                    logger.debug("Created XACML request, calling PDP.");
+
+                    curResponse = isPermitted(curRequest);
+                    logger.debug("Received response from PDP, returning {}.", curResponse);
+                    results[i] = curResponse;
+                } else {
+                    logger.warn(
+                            "Could not check permissions with {}, permission being requested MUST be an ActionPermission or RedactionPermission",
+                            curPermission);
+                    results[i] = false;
+                }
             }
         }
         return results;

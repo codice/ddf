@@ -82,10 +82,11 @@ public class SAMLAuthenticationToken extends BaseAuthenticationToken {
         if (element != null) {
             DOMImplementationLS lsImpl = (DOMImplementationLS) element.getOwnerDocument()
                     .getImplementation().getFeature("LS", "3.0");
-            LSSerializer serializer = lsImpl.createLSSerializer();
-            serializer.getDomConfig().setParameter("xml-declaration",
-                    false); //by default its true, so set it to false to get String without xml-declaration
-            creds = serializer.writeToString(element);
+            if (null != lsImpl) {
+                LSSerializer serializer = lsImpl.createLSSerializer();
+                serializer.getDomConfig().setParameter("xml-declaration", false); //by default its true, so set it to false to get String without xml-declaration
+                creds = serializer.writeToString(element);
+            }
             LOGGER.trace("XML representation of SAML token: {}", creds);
         }
         return creds;

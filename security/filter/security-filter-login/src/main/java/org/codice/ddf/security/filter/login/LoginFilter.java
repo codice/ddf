@@ -262,10 +262,14 @@ public class LoginFilter implements Filter {
                         };
                         SecurityAssertion securityAssertion = subject.getPrincipals()
                                 .oneByType(SecurityAssertion.class);
-                        HashSet emptySet = new HashSet();
-                        javax.security.auth.Subject javaSubject = new javax.security.auth.Subject(
-                                true, securityAssertion.getPrincipals(), emptySet, emptySet);
-                        javax.security.auth.Subject.doAs(javaSubject, action);
+                        if (null != securityAssertion) {
+                            HashSet emptySet = new HashSet();
+                            javax.security.auth.Subject javaSubject = new javax.security.auth.Subject(
+                                    true, securityAssertion.getPrincipals(), emptySet, emptySet);
+                            javax.security.auth.Subject.doAs(javaSubject, action);
+                        } else {
+                            LOGGER.debug("Subject had no security assertion.");
+                        }
                         return null;
                     }
 
@@ -540,7 +544,7 @@ public class LoginFilter implements Filter {
      * successfully exchanged for a SAML assertion. Adds it to the response
      * object to be sent back to the caller.
      *
-     * @param httpRequest the http request object for this request
+     * @param httpRequest   the http request object for this request
      * @param securityToken the SecurityToken object representing the SAML assertion
      */
     private void createSamlCookie(HttpServletRequest httpRequest, SecurityToken securityToken) {
@@ -617,6 +621,7 @@ public class LoginFilter implements Filter {
 
     /**
      * Returns session expiration time in minutes.
+     *
      * @return minutes for session expiration
      */
     public int getExpirationTime() {
@@ -625,6 +630,7 @@ public class LoginFilter implements Filter {
 
     /**
      * Sets session expiration time in minutes
+     *
      * @param expirationTime - time in minutes
      */
     public void setExpirationTime(int expirationTime) {

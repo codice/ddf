@@ -486,16 +486,18 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
     private void configureSslOnClient(Client client) {
         HTTPConduit httpConduit = (HTTPConduit) client.getConduit();
 
-        TLSClientParameters tlsParams = new TLSClientParameters();
-        tlsParams.setDisableCNCheck(true);
+        if (null != httpConduit) {
+            TLSClientParameters tlsParams = new TLSClientParameters();
+            tlsParams.setDisableCNCheck(true);
 
-        setupTrustStore(tlsParams, trustStorePath, trustStorePassword);
+            setupTrustStore(tlsParams, trustStorePath, trustStorePassword);
 
-        setupKeyStore(tlsParams, keyStorePath, keyStorePassword);
+            setupKeyStore(tlsParams, keyStorePath, keyStorePassword);
 
-        setupCipherSuiteFilters(tlsParams);
+            setupCipherSuiteFilters(tlsParams);
 
-        httpConduit.setTlsClientParameters(tlsParams);
+            httpConduit.setTlsClientParameters(tlsParams);
+        }
     }
 
     /**
@@ -784,9 +786,13 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
         document.appendChild(copy);
         DOMImplementation domImpl = document.getImplementation();
         DOMImplementationLS domImplLs = (DOMImplementationLS) domImpl.getFeature("LS", "3.0");
-        LSSerializer serializer = domImplLs.createLSSerializer();
-        serializer.getDomConfig().setParameter("format-pretty-print", true);
-        return serializer.writeToString(document);
+        if (null != domImplLs) {
+            LSSerializer serializer = domImplLs.createLSSerializer();
+            serializer.getDomConfig().setParameter("format-pretty-print", true);
+            return serializer.writeToString(document);
+        } else {
+            return "";
+        }
     }
 
     /**

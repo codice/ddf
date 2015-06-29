@@ -16,6 +16,7 @@ package org.codice.solr.factory;
 import static org.hamcrest.Matchers.hasItemInArray;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -45,7 +46,6 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Tests the ConfigurationFileProxy
- *
  */
 public class TestConfigurationFileProxy {
 
@@ -228,7 +228,12 @@ public class TestConfigurationFileProxy {
      * @param tempLocation
      */
     private void verifyFilesExist(File tempLocation) {
-        assertThat(tempLocation.listFiles().length, is(2));
+        File[] files = tempLocation.listFiles();
+        if (null != files) {
+            assertThat(files.length, is(2));
+        } else {
+            fail();
+        }
         assertThat(tempLocation.list(), hasItemInArray(FILE_NAME_1));
         assertThat(tempLocation.list(), hasItemInArray(FILE_NAME_2));
     }
