@@ -212,6 +212,7 @@ public class X509PathTokenValidator implements TokenValidator {
             response.setPrincipal(
                     returnedCredential.getCertificates()[0].getSubjectX500Principal());
             validateTarget.setState(STATE.VALID);
+            validateTarget.setPrincipal(returnedCredential.getCertificates()[0].getSubjectX500Principal());
         } catch (WSSecurityException ex) {
             LOGGER.warn("Unable to validate credentials.", ex);
         }

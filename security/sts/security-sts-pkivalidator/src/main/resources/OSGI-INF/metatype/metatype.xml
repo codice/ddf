@@ -18,7 +18,7 @@
 	<OCD description="STS PKI Token Validator Configuration."
          name="Security STS PKI Token Validator" id="org.codice.ddf.security.validator.pki">
 
-	    <AD name="Realms" id="url" required="true" type="String" cardinality="100"
+	    <AD name="Realms" id="realms" required="true" type="String" cardinality="100"
             default="karaf"
             description="The realms to be validated by this validator.">
 	    </AD>

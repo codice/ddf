@@ -303,6 +303,7 @@ public class UsernameTokenValidator implements TokenValidator {
             response.setPrincipal(principal);
             response.setTokenRealm(tokenRealm);
             validateTarget.setState(ReceivedToken.STATE.VALID);
+            validateTarget.setPrincipal(principal);
         } catch (WSSecurityException ex) {
             LOGGER.warn("", ex);
         }

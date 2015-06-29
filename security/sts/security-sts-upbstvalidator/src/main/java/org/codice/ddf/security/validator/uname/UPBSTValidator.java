@@ -344,6 +344,7 @@ public class UPBSTValidator implements TokenValidator {
 
             response.setPrincipal(principal);
             response.setTokenRealm(tokenRealm);
+            validateTarget.setPrincipal(principal);
         } catch (WSSecurityException ex) {
             LOGGER.warn("", ex);
         }
