@@ -146,7 +146,7 @@
         <snapshots.repository.url />
 
         <!-- Must MANUALLY update this if the ddf/support project's version changes -->
-        <ddf.support.version>2.3.3</ddf.support.version>
+        <ddf.support.version>2.3.4-SNAPSHOT</ddf.support.version>
 
         <!-- Do NOT set karaf.data or karaf.base -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
