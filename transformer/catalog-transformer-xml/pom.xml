@@ -65,6 +65,16 @@
         </dependency>
 
         <dependency>
+            <groupId>com.thoughtworks.xstream</groupId>
+            <artifactId>xstream</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>xmlunit</groupId>
             <artifactId>xmlunit</artifactId>
             <scope>test</scope>
@@ -91,7 +101,11 @@
                 <configuration>
                     <instructions>
                         <Embed-Dependency>
-                            ogc-tools-gml-jts,catalog-transformer-xml-binding,jaxb2-basics-runtime,gml-v_3_1_1-schema;inline=true
+                            guava,
+                            ogc-tools-gml-jts,
+                            catalog-transformer-xml-binding,
+                            jaxb2-basics-runtime,
+                            gml-v_3_1_1-schema;inline=true
                         </Embed-Dependency>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.name}</Bundle-Name>
@@ -151,6 +165,81 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.lazerycode.jmeter</groupId>
+                <artifactId>jmeter-maven-plugin</artifactId>
+                <version>1.10.1</version>
+                <configuration>
+                    <testResultsTimestamp>false</testResultsTimestamp>
+                    <overrideRootLogLevel>DEBUG</overrideRootLogLevel>
+                    <suppressJMeterOutput>false</suppressJMeterOutput>
+                    <ignoreResultFailures>true</ignoreResultFailures>
+
+                    <testFilesIncluded>
+                        <testFilesIncluded>XMLTransformerPerformance.jmx</testFilesIncluded>
+                    </testFilesIncluded>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>kg.apc</groupId>
+                        <artifactId>jmeter-plugins</artifactId>
+                        <version>1.0.0</version>
+                        <exclusions>
+                            <!--
+                               Unfortunately some transitive dependencies cannot be found on mvncentral
+                               and we have to explicitly exclude them.
+                               For a complete list, see https://github.com/mlex/jmeter-maven-example/
+                           -->
+                            <exclusion>
+                                <groupId>kg.apc</groupId>
+                                <artifactId>perfmon</artifactId>
+                            </exclusion>
+                            <!-- ... -->
+
+                            <!--
+                                Because of a bug in the jmeter-maven-plugin (see
+                                https://github.com/Ronnie76er/jmeter-maven-plugin/issues/77) we have to
+                                exclude jmeter dependencies here, too.
+                            -->
+                            <exclusion>
+                                <groupId>org.apache.jmeter</groupId>
+                                <artifactId>jorphan</artifactId>
+                            </exclusion>
+                            <!-- ... -->
+                        </exclusions>
+                    </dependency>
+                </dependencies>
+            </plugin>
+            <plugin>
+                <groupId>de.codecentric</groupId>
+                <artifactId>jmeter-graph-maven-plugin</artifactId>
+                <version>0.1.0</version>
+                <configuration>
+                    <inputFile>${project.build.directory}/jmeter/results/XMLTransformerPerformance.jtl</inputFile>
+                    <graphs>
+                        <!-- ... you can declare more <graph>-elements here -->
+                        <graph>
+                            <pluginType>BytesThroughputOverTime</pluginType>
+                            <width>800</width>
+                            <height>600</height>
+                            <outputFile>${project.build.directory}/jmeter/results/XMLTransformerPerformance2-bytes.png</outputFile>
+                        </graph>
+                        <graph>
+                            <pluginType>ThroughputVsThreads</pluginType>
+                            <width>800</width>
+                            <height>600</height>
+                            <outputFile>${project.build.directory}/jmeter/results/XMLTransformerPerformance2-thruvthreads.png</outputFile>
+                        </graph>
+                        <graph>
+                            <pluginType>TimesVsThreads</pluginType>
+                            <width>800</width>
+                            <height>600</height>
+                            <outputFile>${project.build.directory}/jmeter/results/XMLTransformerPerformance2-timevthreads.png</outputFile>
+                        </graph>
+
+                    </graphs>
+                </configuration>
             </plugin>
         </plugins>
     </build>
