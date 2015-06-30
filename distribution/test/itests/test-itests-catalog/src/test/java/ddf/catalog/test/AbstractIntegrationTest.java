@@ -91,7 +91,7 @@ public abstract class AbstractIntegrationTest {
 
     protected static final String LOGGER_PREFIX = "log4j.logger.";
 
-    protected static final String KARAF_VERSION = "2.3.8";
+    protected static final String KARAF_VERSION = "2.4.1";
 
     protected static final int ONE_MINUTE_MILLIS = 60000;
 
