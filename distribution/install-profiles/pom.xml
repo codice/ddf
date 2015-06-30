@@ -19,7 +19,7 @@
     <parent>
 	    <artifactId>distribution</artifactId>
 	    <groupId>ddf</groupId>
-	    <version>2.7.0.RC1</version>
+	    <version>2.7.0.RC2</version>
 	  </parent>
 
     <name>DDF :: Distribution :: Install Profiles</name>
@@ -79,4 +79,8 @@
         </plugins>
     </build>
 
+
+  <scm>
+    <tag>distribution-2.7.0.RC2</tag>
+  </scm>
 </project>
