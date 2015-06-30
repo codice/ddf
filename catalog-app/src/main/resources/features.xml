@@ -191,6 +191,8 @@
     <feature name="catalog-transformer-xml" install="manual" version="${project.version}"
              description="XML MetacardTransformer and InputTransformer">
         <bundle>mvn:ddf.catalog.transformer/catalog-transformer-xml/${project.version}</bundle>
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xstream/${xstream.bundle.version}</bundle>
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xpp3/${cxf.xpp3.bundle.version}</bundle>
         <bundle>mvn:commons-collections/commons-collections/3.2.1</bundle>
     </feature>
     
