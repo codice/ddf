@@ -166,11 +166,14 @@ public class HttpProxy {
 
                         String queryString = (String) httpMessage.getHeader(Exchange.HTTP_QUERY);
                         String httpUri = (String) httpMessage.getHeader(Exchange.HTTP_URI);
-                        if ("wsdl".equalsIgnoreCase(queryString) || "_wadl"
-                                .equalsIgnoreCase(queryString) || httpUri.equals(cxfContext)) {
+                        boolean isWsdlOrWadl = "wsdl".equalsIgnoreCase(queryString) || "_wadl"
+                                .equalsIgnoreCase(queryString) || httpUri.equals(cxfContext);
+                        if (isWsdlOrWadl) {
                             bodyStr = bodyStr.replaceAll("<wsp:PolicyReference.+?/>", "");
                             bodyStr = bodyStr
                                     .replaceAll("<wsp:Policy [\\S\\s]*.*?</wsp:Policy>", "");
+                        }
+                        if (isWsdlOrWadl || (queryString != null && queryString.endsWith(".xsd"))) {
                             bodyStr = bodyStr.replaceAll("https://" + host + ":" + httpsPort,
                                     "http://" + host + ":" + httpPort);
                         }
