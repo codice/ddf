@@ -170,7 +170,7 @@ public class HttpProxy {
                                 .equalsIgnoreCase(queryString) || httpUri.equals(cxfContext)) {
                             bodyStr = bodyStr.replaceAll("<wsp:PolicyReference.+?/>", "");
                             bodyStr = bodyStr
-                                    .replaceAll("<wsp:Policy [\\S\\s]*.+?</wsp:Policy>", "");
+                                    .replaceAll("<wsp:Policy [\\S\\s]*.*?</wsp:Policy>", "");
                             bodyStr = bodyStr.replaceAll("https://" + host + ":" + httpsPort,
                                     "http://" + host + ":" + httpPort);
                         }
