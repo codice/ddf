@@ -324,6 +324,7 @@
 
     <modules>
         <module>platform-configuration</module>
+        <module>parser</module>
         <module>action</module>
         <module>compression</module>
         <module>solr</module>
