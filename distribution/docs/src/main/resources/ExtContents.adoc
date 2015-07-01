@@ -687,7 +687,7 @@ Recommendations for developing UI components.
 |                      /------------------------------------------------------------------------------\/--------------\ |
 |       Hardware       |cEEE                       x86                                                ||cEEE SPARC    | |
 |                      \------------------------------------------------------------------------------/\--------------/ |
-+-----------------------------------------------------------------------------------------------------------------------|
++-----------------------------------------------------------------------------------------------------------------------+
 ----
 
 As depicted in the architectural diagram above, DDF runs on top of an OSGi framework, a Java virtual machine (JVM), several choices of operating systems, and the physical hardware infrastructure. The items within the dotted line represent the DDF out-of-the-box.
