@@ -7,31 +7,31 @@ include::ManContents.adoc[]
 
 <<<
 
-include::${project.build.directory}/apps/admin/Managing.adoc[]
+include::${project.build.directory}/apps/admin/ManContents.adoc[]
 
 <<<
 
-include::${project.build.directory}/apps/catalog/Managing.adoc[]
+include::${project.build.directory}/apps/catalog/ManContents.adoc[]
 
 <<<
 
-include::${project.build.directory}/apps/content/Managing.adoc[]
+include::${project.build.directory}/apps/content/ManContents.adoc[]
 
 <<<
 
-include::${project.build.directory}/apps/platform/Managing.adoc[]
+include::${project.build.directory}/apps/platform/ManContents.adoc[]
 
 <<<
 
-include::${project.build.directory}/apps/security/Managing.adoc[]
+include::${project.build.directory}/apps/security/ManContents.adoc[]
 
 <<<
 
-include::${project.build.directory}/apps/spatial/Managing.adoc[]
+include::${project.build.directory}/apps/spatial/ManContents.adoc[]
 
 <<<
 
-include::${project.build.directory}/apps/ui/Managing.adoc[]
+include::${project.build.directory}/apps/ui/ManContents.adoc[]
 
 <<<
 
@@ -43,31 +43,31 @@ include::IntContents.adoc[]
 
 <<<
 
-include::${project.build.directory}/apps/admin/Integrating.adoc[]
+include::${project.build.directory}/apps/admin/IntContents.adoc[]
 
 <<<
 
-include::${project.build.directory}/apps/catalog/Integrating.adoc[]
+include::${project.build.directory}/apps/catalog/IntContents.adoc[]
 
 <<<
 
-include::${project.build.directory}/apps/content/Integrating.adoc[]
+include::${project.build.directory}/apps/content/IntContents.adoc[]
 
 <<<
 
-include::${project.build.directory}/apps/platform/Integrating.adoc[]
+include::${project.build.directory}/apps/platform/IntContents.adoc[]
 
 <<<
 
-include::${project.build.directory}/apps/security/Integrating.adoc[]
+include::${project.build.directory}/apps/security/IntContents.adoc[]
 
 <<<
 
-include::${project.build.directory}/apps/spatial/Integrating.adoc[]
+include::${project.build.directory}/apps/spatial/IntContents.adoc[]
 
 <<<
 
-include::${project.build.directory}/apps/ui/Integrating.adoc[]
+include::${project.build.directory}/apps/ui/IntContents.adoc[]
 
 <<<
 
@@ -77,28 +77,28 @@ include::ExtContents.adoc[]
 
 <<<
 
-include::${project.build.directory}/apps/admin/Extending.adoc[]
+include::${project.build.directory}/apps/admin/ExtContents.adoc[]
 
 <<<
 
-include::${project.build.directory}/apps/catalog/Extending.adoc[]
+include::${project.build.directory}/apps/catalog/ExtContents.adoc[]
 
 <<<
 
-include::${project.build.directory}/apps/content/Extending.adoc[]
+include::${project.build.directory}/apps/content/ExtContents.adoc[]
 
 <<<
 
-include::${project.build.directory}/apps/platform/Extending.adoc[]
+include::${project.build.directory}/apps/platform/ExtContents.adoc[]
 
 <<<
 
-include::${project.build.directory}/apps/security/Extending.adoc[]
+include::${project.build.directory}/apps/security/ExtContents.adoc[]
 
 <<<
 
-include::${project.build.directory}/apps/spatial/Extending.adoc[]
+include::${project.build.directory}/apps/spatial/ExtContents.adoc[]
 
 <<<
 
-include::${project.build.directory}/apps/ui/Extending.adoc[]
+include::${project.build.directory}/apps/ui/ExtContents.adoc[]
