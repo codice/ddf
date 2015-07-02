@@ -234,6 +234,7 @@
         <fieldType name="text_ws" class="solr.TextField" positionIncrementGap="100">
       <analyzer>
         <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+          <filter class="solr.PatternReplaceFilterFactory" pattern="^\p{Punct}*(.*?)\p{Punct}*$" replacement="$1"/>
       </analyzer>
     </fieldType>
 
@@ -624,6 +625,8 @@
    <dynamicField name="*_txt" type="string" indexed="true" stored="true"/>
    
    <dynamicField name="*_txt_set" type="string" indexed="true" stored="true" multiValued="true"/>
+
+   <dynamicField name="*_txt_ws" type="text_ws" indexed="true" stored="false"/>
    
    <dynamicField name="*_xml" type="string" indexed="false" stored="true"/>
    
@@ -670,6 +673,7 @@
    
    <copyField source="*_txt" dest="*_txt_tokenized"/>
    <copyField source="*_txt" dest="*_txt_tokenized_has_case"/>
+   <copyField source="*_txt" dest="*_txt_ws"/>
 
     <!-- Necessary for Spatial4j to work -->
     <copyField source="*_geo" dest="*_geo_index"/>
