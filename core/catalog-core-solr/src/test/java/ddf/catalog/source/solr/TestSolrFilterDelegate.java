@@ -152,6 +152,42 @@ public class TestSolrFilterDelegate {
     END OMIT per DDF-314*/
 
     @Test
+    public void testPropertyIsLikeWildcard() {
+        String searchPhrase = "abc-123*";
+        String expectedQuery = SolrFilterDelegate.WHITESPACE_TOKENIZED_METADATA_FIELD + ":(abc\\-123*)";
+        boolean isCaseSensitive = false;
+
+        SolrQuery isLikeQuery = toTest.propertyIsLike(Metacard.ANY_TEXT, searchPhrase, isCaseSensitive);
+
+        assertThat(isLikeQuery.getQuery(), is(expectedQuery));
+
+    }
+
+    @Test
+    public void testPropertyIsLikeWildcardNoTokens() {
+        String searchPhrase = "title*";
+        String expectedQuery = SolrFilterDelegate.WHITESPACE_TOKENIZED_METADATA_FIELD + ":(title*)";
+        boolean isCaseSensitive = false;
+
+        SolrQuery isLikeQuery = toTest
+                .propertyIsLike(Metacard.ANY_TEXT, searchPhrase, isCaseSensitive);
+
+        assertThat(isLikeQuery.getQuery(), is(expectedQuery));
+
+    }
+
+    @Test
+    public void testPropertyIsLikeMultipleTermsWithWildcard() {
+        String searchPhrase = "abc 123*";
+        String expectedQuery = SolrFilterDelegate.WHITESPACE_TOKENIZED_METADATA_FIELD + ":(abc 123*)";
+
+        SolrQuery isLikeQuery = toTest.propertyIsLike(Metacard.ANY_TEXT, searchPhrase, false);
+
+        assertThat(isLikeQuery.getQuery(), is(expectedQuery));
+
+    }
+
+    @Test
     public void testTemporalBefore() {
         stub(mockResolver.getField("created", AttributeFormat.DATE, false))
                 .toReturn("created_date");

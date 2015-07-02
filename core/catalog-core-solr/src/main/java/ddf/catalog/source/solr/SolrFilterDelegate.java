@@ -121,6 +121,9 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
     public static final String TOKENIZED_METADATA_FIELD = Metacard.METADATA + "_txt" + TOKENIZED;
 
+    public static final String WHITESPACE_TOKENIZED_METADATA_FIELD =
+            Metacard.METADATA + SchemaFields.TEXT_SUFFIX + SchemaFields.WHITESPACE_TEXT_SUFFIX;
+
     private static final double DEFAULT_ERROR_IN_METERS = 1;
 
     private static final double DEFAULT_ERROR_IN_DEGREES = metersToDegrees(DEFAULT_ERROR_IN_METERS);
@@ -243,17 +246,22 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
         if (isCaseSensitive) {
             mappedPropertyName = resolver.getCaseSensitiveField(mappedPropertyName);
         }
-
         String searchPhrase = escapeSpecialCharacters(pattern);
         if (!searchPhrase.contains(SOLR_WILDCARD_CHAR) && !searchPhrase
                 .contains(SOLR_SINGLE_WILDCARD_CHAR)) {
             // Not an exact phrase
             searchPhrase = QUOTE + searchPhrase + QUOTE;
+
+            return new SolrQuery(mappedPropertyName + ":" + searchPhrase);
         } else {
-            searchPhrase = "(" + searchPhrase + ")";
+            if (Metacard.ANY_TEXT.equals(propertyName)) {
+                return new SolrQuery(
+                        WHITESPACE_TOKENIZED_METADATA_FIELD + ":(" + searchPhrase + ")");
+            } else {
+                return new SolrQuery(mappedPropertyName + ":(" + searchPhrase + ")");
+            }
         }
 
-        return new SolrQuery(mappedPropertyName + ":" + searchPhrase);
     }
 
     @Override
