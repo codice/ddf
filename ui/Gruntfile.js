@@ -15,6 +15,9 @@ module.exports = function (grunt) {
 
     var which = require('which');
 
+    require('load-grunt-tasks')(grunt);
+    grunt.loadTasks('src/main/grunt/tasks');
+
     grunt.initConfig({
        
         pkg: grunt.file.readJSON('package.json'),
@@ -24,9 +27,6 @@ module.exports = function (grunt) {
         },
         bower: {
             install: {
-                options: {
-                    bowerOptions: {"--offline": true}
-                }
 
             }
         },
@@ -149,38 +149,6 @@ module.exports = function (grunt) {
     //just load it in down here after the express task is loaded. DO NOT move this task above the test task or
     //all tests will fail.
     grunt.registerTask('test', ['express:test','casperjs']);
-    grunt.registerTask('bower-offline-install', 'Bower offline install work-around', function() {
-        var bower = require('bower');
-        var done = this.async();
-        grunt.log.writeln("Trying to install bower packages OFFline.");
-        bower.commands
-            .install([], {save: true}, { offline: true })
-             .on('data', function(data){
-                grunt.log.write(data);
-            })
-            .on('error', function(data){
-                grunt.log.writeln(data);
-                grunt.log.writeln("Trying to install bower packages ONline.");
-                bower.commands
-                    .install()
-                    .on('data', function(data){
-                        grunt.log.write(data);
-                    })
-                    .on('error', function(data){
-                        grunt.log.write(data);
-                        done(false);
-                    })
-                    .on('end', function () {
-                        grunt.log.write("Bower installed online.");
-                        done();
-                    });
-            })
-            .on('end', function () {
-
-                grunt.log.writeln("Bower installed offline.");
-               done();
-            });
-    });
 
     var buildTasks = ['clean', 'bower-offline-install', 'sed:imports', 'less','cssmin', 'jshint'];
     try {
