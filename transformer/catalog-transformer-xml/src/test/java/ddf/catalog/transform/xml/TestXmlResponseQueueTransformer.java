@@ -38,11 +38,14 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ForkJoinPool;
 
+import org.codice.ddf.parser.Parser;
+import org.codice.ddf.parser.xml.XmlParser;
 import org.custommonkey.xmlunit.NamespaceContext;
 import org.custommonkey.xmlunit.SimpleNamespaceContext;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.custommonkey.xmlunit.exceptions.XpathException;
 import org.joda.time.DateTime;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -92,6 +95,10 @@ public class TestXmlResponseQueueTransformer {
 
     private static final ForkJoinPool FJP = new ForkJoinPool();
 
+    private XmlResponseQueueTransformer transformer;
+
+    private Parser parser;
+
     @BeforeClass
     public static void setupTestClass() {
 
@@ -104,6 +111,12 @@ public class TestXmlResponseQueueTransformer {
         XMLUnit.setXpathNamespaceContext(ctx);
     }
 
+    @Before
+    public void setup() {
+        parser = new XmlParser();
+        transformer = new XmlResponseQueueTransformer(parser, FJP);
+    }
+
     /**
      * Should throw exception when given {@code null} input
      *
@@ -113,7 +126,6 @@ public class TestXmlResponseQueueTransformer {
     public void testNullSourceResponse() throws CatalogTransformerException {
 
         // given
-        XmlResponseQueueTransformer transformer = new XmlResponseQueueTransformer(FJP);
         transformer.setThreshold(2);
 
         // when
@@ -137,7 +149,6 @@ public class TestXmlResponseQueueTransformer {
             throws CatalogTransformerException, IOException, XpathException, SAXException {
 
         // given
-        XmlResponseQueueTransformer transformer = new XmlResponseQueueTransformer(FJP);
         transformer.setThreshold(2);
 
         SourceResponse response = givenMetacardTypeName(null);
@@ -171,7 +182,6 @@ public class TestXmlResponseQueueTransformer {
             throws CatalogTransformerException, IOException, XpathException, SAXException {
 
         // given
-        XmlResponseQueueTransformer transformer = new XmlResponseQueueTransformer(FJP);
         transformer.setThreshold(2);
 
         SourceResponse response = givenMetacardTypeName("");
@@ -197,7 +207,6 @@ public class TestXmlResponseQueueTransformer {
             throws CatalogTransformerException, IOException, XpathException, SAXException {
 
         // given
-        XmlResponseQueueTransformer transformer = new XmlResponseQueueTransformer(FJP);
         transformer.setThreshold(2);
 
         SourceResponse response = givenSourceResponse(null, null);
@@ -226,7 +235,6 @@ public class TestXmlResponseQueueTransformer {
             throws CatalogTransformerException, IOException, XpathException, SAXException {
 
         // given
-        XmlResponseQueueTransformer transformer = new XmlResponseQueueTransformer(FJP);
         transformer.setThreshold(2);
 
         SourceResponse response = givenSourceResponse(DEFAULT_SOURCE_ID, null);
@@ -255,7 +263,6 @@ public class TestXmlResponseQueueTransformer {
             throws CatalogTransformerException, IOException, XpathException, SAXException {
 
         // given
-        XmlResponseQueueTransformer transformer = new XmlResponseQueueTransformer(FJP);
         transformer.setThreshold(2);
 
         SourceResponse response = givenSourceResponse(DEFAULT_SOURCE_ID, DEFAULT_ID);
@@ -283,7 +290,6 @@ public class TestXmlResponseQueueTransformer {
     public void testMultiple()
             throws CatalogTransformerException, IOException, XpathException, SAXException {
         // given
-        XmlResponseQueueTransformer transformer = new XmlResponseQueueTransformer(FJP);
         transformer.setThreshold(2);
 
         SourceResponse response = givenSourceResponse(new MetacardStub("source1", "id1"),
@@ -326,9 +332,9 @@ public class TestXmlResponseQueueTransformer {
                 new MetacardStub("source2", "id2"), new MetacardStub("source3", "id3"),
                 new MetacardStub("source4", "id4"));
 
-        XmlResponseQueueTransformer serialXform = new XmlResponseQueueTransformer(FJP);
+        XmlResponseQueueTransformer serialXform = new XmlResponseQueueTransformer(parser, FJP);
         serialXform.setThreshold(2);
-        XmlResponseQueueTransformer forkXForm = new XmlResponseQueueTransformer(FJP);
+        XmlResponseQueueTransformer forkXForm = new XmlResponseQueueTransformer(parser, FJP);
         forkXForm.setThreshold(10);
 
 
@@ -378,7 +384,6 @@ public class TestXmlResponseQueueTransformer {
 
         Metacard mci = mc;
 
-        XmlResponseQueueTransformer transformer = new XmlResponseQueueTransformer(FJP);
         transformer.setThreshold(2);
 
         SourceResponse response = new SourceResponseImpl(null,

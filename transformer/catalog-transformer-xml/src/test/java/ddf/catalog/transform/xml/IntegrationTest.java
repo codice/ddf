@@ -16,6 +16,8 @@ package ddf.catalog.transform.xml;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.codice.ddf.parser.Parser;
+import org.codice.ddf.parser.xml.XmlParser;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,8 +38,10 @@ public class IntegrationTest {
 
     @Test
     public void testInputAndOutput() throws CatalogTransformerException, IOException {
-        InputTransformer inputTransformer = new XmlInputTransformer();
-        MetacardTransformer outputTransformer = new XmlMetacardTransformer();
+        Parser parser = new XmlParser();
+
+        InputTransformer inputTransformer = new XmlInputTransformer(parser);
+        MetacardTransformer outputTransformer = new XmlMetacardTransformer(parser);
 
         InputStream input = getClass().getResourceAsStream("/extensibleMetacard.xml");
         Metacard metacard = inputTransformer.transform(input);

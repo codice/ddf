@@ -13,8 +13,14 @@
  */
 package ddf.catalog.transformer.xml;
 
-import javax.xml.bind.JAXBContext;
+import java.util.ArrayList;
+import java.util.List;
 
+import javax.activation.MimeType;
+import javax.activation.MimeTypeParseException;
+
+import org.codice.ddf.parser.Parser;
+import org.codice.ddf.parser.ParserConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,30 +29,38 @@ import ddf.catalog.transformer.xml.binding.MetacardElement;
 import net.opengis.gml.v_3_1_1.AbstractGeometryType;
 
 public abstract class AbstractXmlTransformer {
-
-    public static final String TEXT_XML = "text/xml";
-
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractXmlTransformer.class);
 
-    protected static final JAXBContext CONTEXT = initContext();
+    private static final List<String> CONTEXT_PATH;
 
-    protected AbstractXmlTransformer() {
-        super();
-    }
+    public static final MimeType MIME_TYPE;
 
-    private static JAXBContext initContext() {
-        JAXBContext context = null;
+    static {
         try {
-            String contextPath =
-                    MetacardElement.class.getPackage().getName() + ":" + AdaptedMetacard.class
-                            .getPackage().getName() + ":" + AbstractGeometryType.class.getPackage()
-                            .getName();
-            context = JAXBContext
-                    .newInstance(contextPath, AbstractXmlTransformer.class.getClassLoader());
-        } catch (Exception e) {
-            LOGGER.error("JAXB Context could not be created.", e);
+            CONTEXT_PATH = new ArrayList<>();
+            CONTEXT_PATH.add(MetacardElement.class.getPackage().getName());
+            CONTEXT_PATH.add(AdaptedMetacard.class.getPackage().getName());
+            CONTEXT_PATH.add(AbstractGeometryType.class.getPackage().getName());
+
+            MIME_TYPE = new MimeType("text", "xml");
+        } catch (MimeTypeParseException e) {
+            LOGGER.info("Failure creating MIME type", e);
+            throw new ExceptionInInitializerError(e);
         }
-        return context;
     }
 
+    private final Parser parser;
+
+    protected AbstractXmlTransformer(Parser parser) {
+        super();
+        this.parser = parser;
+    }
+
+    protected final ParserConfigurator getParserConfigurator() {
+        return parser.configureParser(CONTEXT_PATH, AbstractXmlTransformer.class.getClassLoader());
+    }
+
+    protected final Parser getParser() {
+        return parser;
+    }
 }
