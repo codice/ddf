@@ -255,8 +255,13 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
             return new SolrQuery(mappedPropertyName + ":" + searchPhrase);
         } else {
             if (Metacard.ANY_TEXT.equals(propertyName)) {
-                return new SolrQuery(
-                        WHITESPACE_TOKENIZED_METADATA_FIELD + ":(" + searchPhrase + ")");
+                if (isCaseSensitive) {
+                    return new SolrQuery(
+                            WHITESPACE_TOKENIZED_METADATA_FIELD + SchemaFields.HAS_CASE + ":(" + searchPhrase + ")");
+                } else {
+                    return new SolrQuery(
+                            WHITESPACE_TOKENIZED_METADATA_FIELD + ":(" + searchPhrase + ")");
+                }
             } else {
                 return new SolrQuery(mappedPropertyName + ":(" + searchPhrase + ")");
             }

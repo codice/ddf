@@ -185,6 +185,12 @@ public class DynamicSchemaResolver {
                                 ad.getName() + getFieldSuffix(AttributeFormat.STRING) + SchemaFields.WHITESPACE_TEXT_SUFFIX;
                         solrInputDocument.addField(whitespaceTokenizedIndexName, parsedText);
 
+                        // text => metadata_txt_ws_has_case
+                        String whiteSpaceTokenizedHasCaseIndexName =
+                                ad.getName() + getFieldSuffix(AttributeFormat.STRING) + SchemaFields.WHITESPACE_TEXT_SUFFIX
+                                + SchemaFields.HAS_CASE;
+                        solrInputDocument.addField(whiteSpaceTokenizedHasCaseIndexName, parsedText);
+
                         // text => metadata_txt_tokenized
                         String specialStringIndexName =
                                 ad.getName() + getFieldSuffix(AttributeFormat.STRING)
