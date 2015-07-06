@@ -188,6 +188,16 @@ public class TestSolrFilterDelegate {
     }
 
     @Test
+    public void testPropertyIsLikeCaseSensitiveWildcard() {
+        String searchPhrase = "abc-123*";
+        String expectedQuery = SolrFilterDelegate.WHITESPACE_TOKENIZED_METADATA_FIELD + SchemaFields.HAS_CASE + ":(abc\\-123*)";
+
+        SolrQuery isLikeQuery = toTest.propertyIsLike(Metacard.ANY_TEXT, searchPhrase, true);
+
+        assertThat(isLikeQuery.getQuery(), is(expectedQuery));
+    }
+
+    @Test
     public void testTemporalBefore() {
         stub(mockResolver.getField("created", AttributeFormat.DATE, false))
                 .toReturn("created_date");
