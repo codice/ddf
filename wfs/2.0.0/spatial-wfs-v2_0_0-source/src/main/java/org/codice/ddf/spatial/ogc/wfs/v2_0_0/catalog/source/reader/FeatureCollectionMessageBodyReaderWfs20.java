@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.source.reader;
 
@@ -120,60 +119,73 @@ public class FeatureCollectionMessageBodyReaderWfs20
         // created and additional attributes
         String originalInputStream = IOUtils.toString(inStream, "UTF-8");
         LOGGER.debug("{}", originalInputStream);
-        //Fetch FeatureCollection attributes
-        Unmarshaller unmarshaller = null;
-        JAXBElement<FeatureCollectionType> wfsFeatureCollectionType = null;
+
+        ClassLoader ccl = Thread.currentThread().getContextClassLoader();
+
         try {
-            unmarshaller = JAXB_CONTEXT.createUnmarshaller();
-            Reader reader = new StringReader(originalInputStream);
-            wfsFeatureCollectionType = (JAXBElement<FeatureCollectionType>) unmarshaller
-                    .unmarshal(reader);
-        } catch (ClassCastException e1) {
-            LOGGER.warn("Exception unmarshalling {}, could be an OWS Exception Report from server.",
-                    e1.getMessage());
-
-            // If an ExceptionReport is sent from the remote WFS site it will be sent with an
-            // JAX-RS "OK" status, hence the ErrorResponse exception mapper will not fire.
-            // Instead the ServiceExceptionReport will come here and be treated like a GetFeature
-            // response, resulting in an XStreamException since ExceptionReport cannot be
-            // unmarshalled. So this catch clause is responsible for catching that XStream
-            // exception and creating a JAX-RS response containing the original stream
-            // (with the ExceptionReport) and rethrowing it as a WebApplicationException,
-            // which CXF will wrap as a ClientException that the WfsSource catches, converts
-            // to a WfsException, and logs.
-
-            ByteArrayInputStream bis = new ByteArrayInputStream(originalInputStream.getBytes());
-            ResponseBuilder responseBuilder = Response.ok(bis);
-            responseBuilder.type("text/xml");
-            Response response = responseBuilder.build();
-            throw new WebApplicationException(e1, response);
-        } catch (JAXBException e1) {
-            LOGGER.error("Error in retrieving feature collection.", e1);
-        }
-
-        Wfs20FeatureCollection featureCollection = null;
-
-        if (null != wfsFeatureCollectionType && null != wfsFeatureCollectionType.getValue()) {
-            BigInteger numberReturned = wfsFeatureCollectionType.getValue().getNumberReturned();
-            String numberMatched = wfsFeatureCollectionType.getValue().getNumberMatched();
-
-            // Re-create the input stream (since it has already been read for potential
-            // exception message creation)
-            inStream = new ByteArrayInputStream(originalInputStream.getBytes("UTF-8"));
-
+            Thread.currentThread().setContextClassLoader(
+                    FeatureCollectionMessageBodyReaderWfs20.class.getClassLoader());
+            //Fetch FeatureCollection attributes
+            Unmarshaller unmarshaller = null;
+            JAXBElement<FeatureCollectionType> wfsFeatureCollectionType = null;
             try {
-                featureCollection = (Wfs20FeatureCollection) xstream.fromXML(inStream);
-                featureCollection.setNumberMatched(numberMatched);
-                featureCollection.setNumberReturned(numberReturned);
+                unmarshaller = JAXB_CONTEXT.createUnmarshaller();
+                Reader reader = new StringReader(originalInputStream);
+                wfsFeatureCollectionType = (JAXBElement<FeatureCollectionType>) unmarshaller
+                        .unmarshal(reader);
+            } catch (ClassCastException e1) {
+                LOGGER.warn(
+                        "Exception unmarshalling {}, could be an OWS Exception Report from server.",
+                        e1.getMessage());
 
-            } catch (XStreamException e) {
-                LOGGER.error("Exception unmarshalling {}", e);
-            } finally {
-                IOUtils.closeQuietly(inStream);
+                // If an ExceptionReport is sent from the remote WFS site it will be sent with an
+                // JAX-RS "OK" status, hence the ErrorResponse exception mapper will not fire.
+                // Instead the ServiceExceptionReport will come here and be treated like a GetFeature
+                // response, resulting in an XStreamException since ExceptionReport cannot be
+                // unmarshalled. So this catch clause is responsible for catching that XStream
+                // exception and creating a JAX-RS response containing the original stream
+                // (with the ExceptionReport) and rethrowing it as a WebApplicationException,
+                // which CXF will wrap as a ClientException that the WfsSource catches, converts
+                // to a WfsException, and logs.
+
+                ByteArrayInputStream bis = new ByteArrayInputStream(originalInputStream.getBytes());
+                ResponseBuilder responseBuilder = Response.ok(bis);
+                responseBuilder.type("text/xml");
+                Response response = responseBuilder.build();
+                throw new WebApplicationException(e1, response);
+            } catch (JAXBException e1) {
+                LOGGER.error("Error in retrieving feature collection.", e1);
+            } catch (RuntimeException | Error e) {
+                LOGGER.error("Error processing collection", e);
+                throw e;
             }
-        }
 
-        return featureCollection;
+            Wfs20FeatureCollection featureCollection = null;
+
+            if (null != wfsFeatureCollectionType && null != wfsFeatureCollectionType.getValue()) {
+                BigInteger numberReturned = wfsFeatureCollectionType.getValue().getNumberReturned();
+                String numberMatched = wfsFeatureCollectionType.getValue().getNumberMatched();
+
+                // Re-create the input stream (since it has already been read for potential
+                // exception message creation)
+                inStream = new ByteArrayInputStream(originalInputStream.getBytes("UTF-8"));
+
+                try {
+                    featureCollection = (Wfs20FeatureCollection) xstream.fromXML(inStream);
+                    featureCollection.setNumberMatched(numberMatched);
+                    featureCollection.setNumberReturned(numberReturned);
+
+                } catch (XStreamException e) {
+                    LOGGER.error("Exception unmarshalling {}", e);
+                } finally {
+                    IOUtils.closeQuietly(inStream);
+                }
+            }
+
+            return featureCollection;
+        } finally {
+            Thread.currentThread().setContextClassLoader(ccl);
+        }
     }
 
     public void registerConverter(FeatureConverter converter) {
