@@ -18,18 +18,5 @@
     <bean id="module" class="org.codice.admin.modules.installer.InstallerModule"></bean>
 
     <service interface="org.codice.ddf.ui.admin.api.module.AdminModule" ref="module"/>
-    <!--
-    <bean id="filter" class="org.codice.admin.modules.installer.filter.RedirectFilter">
-        <cm:managed-properties persistent-id="org.codice.admin.modules.installer.filter.RedirectFilter"
-                               update-strategy="component-managed" update-method="setLoginIgnoreList"/>
-    </bean>
 
-    <service ref="filter"
-             interface="javax.servlet.Filter" ranking="1">
-        <service-properties>
-            <entry key="filter-name" value="RedirectFilter"/>
-            <entry key="urlPatterns" value="/*"/>
-        </service-properties>
-    </service>
-    -->
 </blueprint>
