@@ -226,8 +226,9 @@ public class ConfigurationAdminExt {
                 }
 
                 Configuration[] configs = configurationAdmin.listConfigurations(
-                        "(" + ConfigurationAdmin.SERVICE_FACTORYPID + "=" + service
-                                .get(MAP_ENTRY_ID) + ")");
+                        "(|(service.factoryPid=" + service.get(MAP_ENTRY_ID)
+                                + ")(service.factoryPid=" + service.get(MAP_ENTRY_ID)
+                                + "_disabled))");
                 if (configs != null) {
                     addConfigurationData(service, configs);
                 }
@@ -600,7 +601,7 @@ public class ConfigurationAdminExt {
         }
 
         List<Map<String, Object>> metatypeList = new ArrayList<Map<String, Object>>();
-        Iterator ei = ocdCollection.entrySet().iterator(); 
+        Iterator ei = ocdCollection.entrySet().iterator();
         while (ei.hasNext()) {
             Entry ociEntry = (Entry) ei.next();
             final String pid = (String) ociEntry.getKey();
