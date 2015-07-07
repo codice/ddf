@@ -431,8 +431,8 @@
                         <doclet>org.umlgraph.doclet.UmlGraphDoc</doclet>
                         <docletArtifact>
                             <groupId>org.umlgraph</groupId>
-                            <artifactId>umlgraph</artifactId>
-                            <version>5.6.6</version>
+                            <artifactId>doclet</artifactId>
+                            <version>5.1</version>
                         </docletArtifact>
                         <additionalparam>
                             -inferrel -attributes -types -visibility
@@ -672,7 +672,6 @@
                                 <aggregate>true</aggregate>
                                 <show>protected</show>
                                 <doclet>org.umlgraph.doclet.UmlGraphDoc</doclet>
-                                <!-- This version of the doclet does not run on JDK 1.7 -->
                                 <docletArtifact>
                                     <groupId>org.umlgraph</groupId>
                                     <artifactId>doclet</artifactId>
@@ -947,8 +946,8 @@
                                 </goals>
                                 <phase>pre-site</phase>
                                 <configuration>
-                                    <outputDirectory>${project.build.directory}/docs/</outputDirectory>
-                                    <reportOutputDirectory>${project.reporting.outputDirectory}/docs/
+                                    <outputDirectory>${project.build.directory}/project-info/</outputDirectory>
+                                    <reportOutputDirectory>${project.reporting.outputDirectory}/project-info/
                                     </reportOutputDirectory>
                                     <destDir>api</destDir>
                                 </configuration>
@@ -960,15 +959,10 @@
             <reporting>
                 <plugins>
                     <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-project-info-reports-plugin</artifactId>
-                        <version>2.7</version>
-                        <reportSets>
-                            <reportSet>
-                                <reports>
-                                </reports>
-                            </reportSet>
-                        </reportSets>
+                        <artifactId>maven-checkstyle-plugin</artifactId>
+                        <configuration>
+                            <skip>true</skip>
+                        </configuration>
                     </plugin>
                 </plugins>
             </reporting>
