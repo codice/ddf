@@ -144,6 +144,14 @@ public abstract class AbstractIntegrationTest {
     // PAX-EXAM wipes away field information before each test method.
     protected static CatalogProvider catalogProvider;
 
+    static {
+        // Make Pax URL use the maven.repo.local setting if present
+        if (System.getProperty("maven.repo.local") != null) {
+            System.setProperty("org.ops4j.pax.url.mvn.localRepository",
+                    System.getProperty("maven.repo.local"));
+        }
+    }
+
     /**
      * Configures the pax exam test container
      *
@@ -231,7 +239,11 @@ public abstract class AbstractIntegrationTest {
                         + "http://svn.apache.org/repos/asf/servicemix/m2-repo@id=servicemix,"
                         + "http://repository.springsource.com/maven/bundles/release@id=springsource,"
                         + "http://repository.springsource.com/maven/bundles/external@id=springsourceext,"
-                        + "http://oss.sonatype.org/content/repositories/releases/@id=sonatype"));
+                        + "http://oss.sonatype.org/content/repositories/releases/@id=sonatype"),
+                when(System.getProperty("maven.repo.local") != null)
+                        .useOptions(editConfigurationFilePut("etc/org.ops4j.pax.url.mvn.cfg",
+                                "org.ops4j.pax.url.mvn.localRepository",
+                                System.getProperty("maven.repo.local"))));
     }
 
     protected Option[] configureSystemSettings() {
