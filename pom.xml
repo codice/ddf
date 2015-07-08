@@ -17,11 +17,7 @@
     <parent>
         <groupId>ddf</groupId>
         <artifactId>ddf-parent</artifactId>
-<<<<<<< HEAD
         <version>3.0.4-SNAPSHOT</version>
-=======
-        <version>3.0.3-SNAPSHOT</version>
->>>>>>> DDF-1270: enabled compiling docs into single html/pdf file.
     </parent>
     <groupId>ddf.catalog</groupId>
     <artifactId>catalog</artifactId>
