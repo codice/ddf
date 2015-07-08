@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- /**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/ -->
+<blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+           xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs"
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+
+    <bean id="appService"
+          class="org.codice.ddf.admin.application.service.impl.ApplicationServiceImpl">
+        <cm:managed-properties
+                persistent-id="org.codice.ddf.admin.application.service.impl.ApplicationServiceImpl"
+                update-strategy="container-managed"/>
+        <argument ref="bundleStateServices"/>
+        <property name="configFileName"
+                  value="etc/org.codice.ddf.admin.applicationlist.properties"/>
+    </bean>
+
+    <service ref="appService"
+             interface="org.codice.ddf.admin.application.service.ApplicationService"/>
+
+    <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
+
+    <reference id="featuresService" interface="org.apache.karaf.features.FeaturesService"/>
+
+    <reference-list id="bundleStateServices"
+                    interface="org.apache.karaf.bundle.core.BundleStateService"/>
+
+    <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
+        <command name="app/list">
+            <action class="org.codice.ddf.admin.application.service.impl.ListApplicationCommand"/>
+            <!-- no arguments, so no completer -->
+        </command>
+        <command name="app/status">
+            <action class="org.codice.ddf.admin.application.service.impl.StatusApplicationCommand"/>
+            <completers>
+                <ref component-id="allApplicationsCompleter"/>
+                <null/>
+            </completers>
+        </command>
+        <command name="app/tree">
+            <action class="org.codice.ddf.admin.application.service.impl.TreeApplicationCommand"/>
+            <!-- no arguments, so no completer -->
+        </command>
+        <command name="app/start">
+            <action class="org.codice.ddf.admin.application.service.impl.StartApplicationCommand"/>
+            <completers>
+                <ref component-id="notActiveApplicationsCompleter"/>
+                <null/>
+            </completers>
+        </command>
+        <command name="app/stop">
+            <action class="org.codice.ddf.admin.application.service.impl.StopApplicationCommand"/>
+            <completers>
+                <ref component-id="activeApplicationsCompleter"/>
+                <null/>
+            </completers>
+        </command>
+        <command name="app/add">
+            <action class="org.codice.ddf.admin.application.service.impl.AddApplicationCommand"/>
+            <!-- user needs to provide a URL that we cannot guess, so no completer -->
+        </command>
+        <command name="app/remove">
+            <action class="org.codice.ddf.admin.application.service.impl.RemoveApplicationCommand"/>
+            <completers>
+                <ref component-id="allApplicationsCompleter"/>
+                <null/>
+            </completers>
+        </command>
+    </command-bundle>
+
+    <bean id="appServiceMBean"
+          class="org.codice.ddf.admin.application.service.impl.ApplicationServiceBean"
+          init-method="init"
+          destroy-method="destroy">
+        <argument ref="appService"/>
+        <argument ref="configurationAdminExt"></argument>
+        <property name="applicationPlugins" ref="applicationPluginList"/>
+    </bean>
+
+    <bean id="configurationAdminExt" class="org.codice.ddf.ui.admin.api.ConfigurationAdminExt">
+        <argument ref="configurationAdmin"></argument>
+    </bean>
+
+    <jaxrs:server id="restService" address="/application">
+        <jaxrs:serviceBeans>
+            <ref component-id="restSvc"/>
+        </jaxrs:serviceBeans>
+    </jaxrs:server>
+
+    <bean id="restSvc" class="org.codice.ddf.admin.application.rest.ApplicationUploadEndpoint">
+        <argument ref="appService"/>
+    </bean>
+
+    <bean id="allApplicationsCompleter"
+          class="org.codice.ddf.admin.application.service.impl.AllApplicationsCompleter">
+        <argument ref="appService"/>
+    </bean>
+    <bean id="activeApplicationsCompleter"
+          class="org.codice.ddf.admin.application.service.impl.ActiveApplicationsCompleter">
+        <argument ref="appService"/>
+    </bean>
+    <bean id="notActiveApplicationsCompleter"
+          class="org.codice.ddf.admin.application.service.impl.NotActiveApplicationsCompleter">
+        <argument ref="appService"/>
+    </bean>
+
+    <reference-list id="applicationPluginList"
+                    interface="org.codice.ddf.admin.application.plugin.ApplicationPlugin"
+                    availability="optional"/>
+
+</blueprint>
