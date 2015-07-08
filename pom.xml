@@ -549,26 +549,26 @@
                     </snapshots>
                 </repository>
             </repositories>
-            <dependencies>
-                <dependency>
-                    <groupId>rubygems</groupId>
-                    <artifactId>asciidoctor-diagram</artifactId>
-                    <version>1.2.1</version>
-                    <type>gem</type>
-                    <scope>provided</scope>
-                    <exclusions>
-                        <exclusion>
-                            <groupId>rubygems</groupId>
-                            <artifactId>asciidoctor</artifactId>
-                        </exclusion>
-                    </exclusions>
-                </dependency>
-                <dependency>
-                    <groupId>org.asciidoctor</groupId>
-                    <artifactId>asciidoctorj</artifactId>
-                    <version>1.5.2</version>
-                </dependency>
-            </dependencies>
+                <dependencies>
+                    <dependency>
+                        <groupId>rubygems</groupId>
+                        <artifactId>asciidoctor-diagram</artifactId>
+                        <version>1.2.1</version>
+                        <type>gem</type>
+                        <scope>provided</scope>
+                        <exclusions>
+                            <exclusion>
+                                <groupId>rubygems</groupId>
+                                <artifactId>asciidoctor</artifactId>
+                            </exclusion>
+                        </exclusions>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.asciidoctor</groupId>
+                        <artifactId>asciidoctorj</artifactId>
+                        <version>1.5.2</version>
+                    </dependency>
+                </dependencies>
             <build>
                 <defaultGoal>process-resources</defaultGoal>
                 <pluginManagement>
