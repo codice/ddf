@@ -163,7 +163,7 @@ function (ich,Marionette,Backbone,ConfigurationEdit,Service,Utils,wreqr,_,$,moda
                     var needsRefresh = true;
                     var existingSource = view.parentModel.get('collection').find(function(item) {
                         var config = item.get('currentConfiguration');
-                        return (config && config.id === view.getPID(model));
+                        return (config && config.id === model.id);
                     });
                     if (existingSource) {
                         var toDisable = existingSource.get('currentConfiguration');
@@ -286,9 +286,6 @@ function (ich,Marionette,Backbone,ConfigurationEdit,Service,Utils,wreqr,_,$,moda
         getId: function(config) {
             var properties = config.get('properties');
             return properties.get('shortname') || properties.get('id');
-        },
-        getPID: function(config) {
-            return config.id;
         },
         closeAndUnbind: function() {
             this.modelBinder.unbind();
