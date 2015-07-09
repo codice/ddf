@@ -162,7 +162,8 @@ function (ich,Marionette,Backbone,ConfigurationEdit,Service,Utils,wreqr,_,$,moda
                 model.save().then(function() {
                     var needsRefresh = true;
                     var existingSource = view.parentModel.get('collection').find(function(item) {
-                        return item.get('name') === view.getId(model);
+                        var config = item.get('currentConfiguration');
+                        return (config && config.id === model.id);
                     });
                     if (existingSource) {
                         var toDisable = existingSource.get('currentConfiguration');

@@ -132,6 +132,7 @@ define(function (require) {
         parseServiceModel: function() {
             var resModel = this;
             var collection = resModel.get('collection');
+            collection.reset();
             if(this.model.get("value")) {
                 this.model.get("value").each(function(service) {
                     if(!_.isEmpty(service.get("configurations"))) {
