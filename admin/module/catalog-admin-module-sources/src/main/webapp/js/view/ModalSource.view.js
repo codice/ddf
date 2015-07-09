@@ -236,6 +236,8 @@ function (ich,Marionette,Backbone,ConfigurationEdit,Service,Utils,wreqr,_,$,moda
             if (!_.isUndefined(config)) {
                 var properties =  config.get('properties');
                 properties.set('shortname', name);
+                properties.set('id', name);
+
             }
         },
         /**
