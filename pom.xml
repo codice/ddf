@@ -4,7 +4,7 @@
  * Copyright (c) Codice Foundation
  *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
+ * version 3 of the License, or any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
@@ -150,6 +150,9 @@
 
         <!-- Do NOT set karaf.data or karaf.base -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- ouput directory for reports -->
+        <project.report.output.directory>project-info</project.report.output.directory>
 
         <!-- Properties for the frontend-maven-plugin -->
         <node.version>v0.10.30</node.version>
@@ -421,6 +424,7 @@
                         </execution>
                     </executions>
                     <configuration>
+                        <bottom><![CDATA[This work is licensed under a <a href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License<a>.]]> </bottom>
                         <failOnError>false</failOnError>
                         <aggregate>true</aggregate>
                         <show>protected</show>
@@ -631,7 +635,7 @@
             <activation>
     	       <file>
                   <exists>${basedir}/src/assembly/bin.xml</exists>
-               </file> 
+               </file>
 	    </activation>
 		<properties>
                 <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -850,7 +854,6 @@
                                 </execution>
                             </executions>
                         </plugin>
-                        
                     </plugins>
                 </pluginManagement>
             </build>
@@ -878,8 +881,8 @@
                                 <phase>pre-site</phase>
                                 <configuration>
                                     <failOnError>false</failOnError>
-                                    <outputDirectory>${project.build.directory}/project-info/</outputDirectory>
-                                    <reportOutputDirectory>${project.reporting.outputDirectory}/project-info/
+                                    <outputDirectory>${project.build.directory}/{project.report.output.directory}/</outputDirectory>
+                                    <reportOutputDirectory>${project.reporting.outputDirectory}/{project.report.output.directory}/
                                     </reportOutputDirectory>
                                     <destDir>api</destDir>
                                 </configuration>
