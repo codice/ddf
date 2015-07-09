@@ -44,100 +44,11 @@
     <mailingLists>
         <mailingList>
             <name>Google Groups Mailing List</name>
-            <archive>http://groups.google.com/group/ddf-codice</archive>
-            <subscribe>http://groups.google.com/group/ddf-codice/subscribe</subscribe>
+            <archive>http://groups.google.com/group/ddf-users</archive>
+            <subscribe>http://groups.google.com/group/ddf-users/subscribe</subscribe>
         </mailingList>
     </mailingLists>
 
-    <developers>
-        <developer>
-            <name>Keith C Wire</name>
-            <organization>Connexta</organization>
-        </developer>
-        <developer>
-            <name>Ashraf Barakat</name>
-            <organization>Self</organization>
-        </developer>
-        <developer>
-            <name>Bruce Beyeler</name>
-            <organization>Lockheed Martin</organization>
-        </developer>
-        <developer>
-            <name>Damon Jones</name>
-            <organization>Lockheed Martin</organization>
-        </developer>
-        <developer>
-            <name>Dan Figliola</name>
-            <organization>Lockheed Martin</organization>
-        </developer>
-        <developer>
-            <name>Dave Willison</name>
-            <organization>Aviture</organization>
-        </developer>
-        <developer>
-            <name>Hugh Rodgers</name>
-            <organization>Lockheed Martin</organization>
-        </developer>
-        <developer>
-            <name>Ian Barnett</name>
-            <organization>Self</organization>
-        </developer>
-        <developer>
-            <name>Jason Smith</name>
-            <organization>Lockheed Martin</organization>
-        </developer>
-        <developer>
-            <name>Jay McNallie</name>
-            <organization>Lockheed Martin</organization>
-        </developer>
-        <developer>
-            <name>Jesse Kim</name>
-            <organization>Lockheed Martin</organization>
-        </developer>
-        <developer>
-            <name>Khoa Tran</name>
-            <organization>Lockheed Martin</organization>
-        </developer>
-        <developer>
-            <name>Matthew Ramey</name>
-            <organization>Lockheed Martin</organization>
-        </developer>
-        <developer>
-            <name>Michael Menousek</name>
-            <organization>Connexta</organization>
-        </developer>
-        <developer>
-            <name>Phillip Klinefelter</name>
-            <organization>Lockheed Martin</organization>
-        </developer>
-        <developer>
-            <name>Scott Tustison</name>
-            <organization>Lockheed Martin</organization>
-        </developer>
-        <developer>
-            <name>Shaun Morris</name>
-            <organization>Lockheed Martin</organization>
-        </developer>
-        <developer>
-            <name>William Miller</name>
-            <organization>Lockheed Martin</organization>
-        </developer>
-    </developers>
-
-    <contributors>
-        <contributor>
-            <name>Brad Hards</name>
-            <organization>Sigma Bravo</organization>
-        </contributor>
-        <contributor>
-            <name>Jeff Vettraino</name>
-            <organization>Cohesive Integrations</organization>
-        </contributor>
-        <contributor>
-            <name>Sam Snyder</name>
-            <organization>Aviture</organization>
-        </contributor>
-    </contributors>
 
     <properties>
 
