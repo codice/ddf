@@ -24,7 +24,7 @@ import java.util.UUID;
 
 import org.junit.Test;
 
-import ddf.catalog.cache.solr.impl.SolrCacheMBean;
+import ddf.catalog.cache.SolrCacheMBean;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
 
