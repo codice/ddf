@@ -121,19 +121,5 @@
                 </plugins>
             </reporting>
         </profile>
-        <profile>
-            <id>ddf-release</id>
-            <activation>
-                <property>
-                    <name>ddf-release</name>
-                </property>
-            </activation>
-
-            <modules>
-                <module>ddf-distro-src</module>
-                <module>ddf-distro-repo</module>
-            </modules>
-
-        </profile>
     </profiles>
 </project>
