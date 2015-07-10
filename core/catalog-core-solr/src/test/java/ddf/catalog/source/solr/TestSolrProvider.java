@@ -2141,6 +2141,19 @@ public class TestSolrProvider extends SolrProviderTestCase {
                 filterBuilder.attribute(Metacard.METADATA).is().like().text(soughtWord));
     }
 
+    @Test
+    public void testContextualXmlTagsNotIndexed() throws Exception {
+        deleteAllIn(provider);
+
+        create(Arrays.asList((Metacard) new MockMetacard(Library.getFlagstaffRecord())));
+
+        String xmlTag = "lastBuildDate";
+
+        queryAndVerifyCount(0, filterBuilder.attribute(Metacard.METADATA).is().like().text(xmlTag));
+        queryAndVerifyCount(0,
+                filterBuilder.attribute(Metacard.METADATA).is().like().text(xmlTag + "*"));
+    }
+
     /**
      * Testing {@link Metacard#ANY_TEXT}
      *
@@ -2246,6 +2259,51 @@ public class TestSolrProvider extends SolrProviderTestCase {
         sourceResponse = provider.query(new QueryRequestImpl(query));
         assertEquals(0, sourceResponse.getResults().size());
 
+    }
+
+    @Test
+    public void testContextualCaseSensitiveWildcardWithPunctuation() throws Exception {
+
+        deleteAllIn(provider);
+
+        List<Metacard> list = Arrays
+                .asList((Metacard) new MockMetacard(Library.getFlagstaffRecord()),
+                        (Metacard) new MockMetacard(Library.getTampaRecord()));
+
+        create(list);
+
+        CommonQueryBuilder queryBuilder = new CommonQueryBuilder();
+
+        boolean isCaseSensitive = true;
+        boolean isFuzzy = false;
+
+        QueryImpl query = null;
+        SourceResponse sourceResponse = null;
+
+        /** WILDCARD CASE SENSITIVE CONTEXTUAL QUERY **/
+        query = queryBuilder
+                .like(Metacard.ANY_TEXT, "http://www.flagstaffchamber.com/arizona-cardinals*",
+                        isCaseSensitive, isFuzzy);
+        sourceResponse = provider.query(new QueryRequestImpl(query));
+        assertEquals(1, sourceResponse.getResults().size());
+
+        query = queryBuilder
+                .like(Metacard.ANY_TEXT, "http://*10160", isCaseSensitive, isFuzzy);
+        sourceResponse = provider.query(new QueryRequestImpl(query));
+        assertEquals(1, sourceResponse.getResults().size());
+
+        /** NEGATIVE CASES **/
+        query = queryBuilder
+                .like(Metacard.ANY_TEXT, "HTTP://www.flagstaffchamber.com/arizona-cardinals*",
+                        isCaseSensitive, isFuzzy);
+        query.setStartIndex(1);
+        sourceResponse = provider.query(new QueryRequestImpl(query));
+        assertEquals(0, sourceResponse.getResults().size());
+
+        query = queryBuilder.like(Metacard.ANY_TEXT, "10160*", isCaseSensitive, isFuzzy);
+        query.setStartIndex(1);
+        sourceResponse = provider.query(new QueryRequestImpl(query));
+        assertEquals(0, sourceResponse.getResults().size());
     }
 
     @Test
