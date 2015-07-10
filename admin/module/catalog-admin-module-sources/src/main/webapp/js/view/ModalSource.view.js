@@ -236,7 +236,11 @@ function (ich,Marionette,Backbone,ConfigurationEdit,Service,Utils,wreqr,_,$,moda
         setConfigName: function(config, name) {
             if (!_.isUndefined(config)) {
                 var properties =  config.get('properties');
-                properties.set('shortname', name);
+                properties.set({
+                       'shortname': name,
+                       'id': name
+                });
+
             }
         },
         /**
