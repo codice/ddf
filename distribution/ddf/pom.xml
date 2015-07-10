@@ -38,7 +38,7 @@
 
     <properties>
         <distribution.file.name>ddf-${project.version}</distribution.file.name>
-        <opendj-embedded.app.version>1.3.0-SNAPSHOT</opendj-embedded.app.version>
+        <opendj-embedded.app.version>1.3.0</opendj-embedded.app.version>
         <ddf.platform.app.version>2.8.0-SNAPSHOT</ddf.platform.app.version>
         <ddf.content.app.version>2.6.0-SNAPSHOT</ddf.content.app.version>
         <ddf.catalog.app.version>2.8.0-SNAPSHOT</ddf.catalog.app.version>
