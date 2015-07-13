@@ -416,6 +416,7 @@
         <module>admin</module>
         <module>catalog-app</module>
         <module>solr</module>
+        <module>content</module>
         <module>docs</module>
     </modules>
 
