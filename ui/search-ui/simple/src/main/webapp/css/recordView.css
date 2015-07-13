@@ -1,0 +1,84 @@
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+
+.panel-primary {
+	border: 1px solid;
+	border-color: #DDDDDD;
+	border-radius: 15px 15px 0px 0px;
+	background-color: #EEEEEE;
+	margin: 2px;
+}
+
+.panel-heading {
+	background-color: #EEEEEE;
+}
+
+
+.panel-heading h2    {
+	color: #999999;
+	padding-left:  20px;
+}
+
+.panel-info {
+	background-color: #FFFFFF;
+	padding: 5px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+div.record-view {
+	padding-bottom: 10px;
+	padding-left: 10px;
+	padding-right: 10px
+}
+
+.record-table {
+	width: 100%;
+}
+
+.property-td {
+    font-weight: bold;
+    color: #555555;
+    vertical-align: top;
+    padding-right: 10px;
+    white-space: nowrap;
+    width: 1%;
+}
+
+.value-div {
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.table-header {
+    color: #555555;
+    text-align: left;
+    font-size: 16px;
+}
+
+.custom-thead {
+    border-bottom: 1px solid #DDDDDD;
+} 
+
+.icon-tag {
+    color: black
+}
+
+.attributeValue {
+    background-color: #ffffff !important;
+    margin-right: 10px !important
+}
+
+.metadata-xml {
+	border: none;
+	width: 100%;
+}
