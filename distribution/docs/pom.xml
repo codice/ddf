@@ -22,7 +22,7 @@
     </parent>
 
     <artifactId>docs</artifactId>
-  <version>2.7.0</version>
+  <version>3.0.3</version>
     <name>DDF DOCS</name>
 
     <build>
@@ -64,8 +64,4 @@
             <url>http://artifacts.codice.org/content/groups/public/</url>
         </repository>
     </repositories>
-
-  <scm>
-    <tag>ddf-distribution-2.7.0</tag>
-  </scm>
 </project>
