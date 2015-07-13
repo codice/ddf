@@ -55,6 +55,7 @@
         <!--  default URL properties -->
         <ddf.scm.connection.url />
         <snapshots.repository.url />
+        <reports.repository.url />
 
         <!-- Must MANUALLY update this if the ddf/support project's version changes -->
         <ddf.support.version>2.3.4-SNAPSHOT</ddf.support.version>
@@ -90,6 +91,10 @@
             <id>releases</id>
             <url>${releases.repository.url}</url>
         </repository>
+        <site>
+            <id>reports</id>
+            <url>${reports.repository.url}</url>
+        </site>
     </distributionManagement>
 
     <build>
@@ -356,6 +361,9 @@
                         <execution>
                             <id>default-report</id>
                             <phase>prepare-package</phase>
+                            <configuration>
+                                <outputDirectory>${project.build.directory}/site/${project.report.output.directory}/jacoco/</outputDirectory>
+                            </configuration>
                             <goals>
                                 <goal>report</goal>
                             </goals>
@@ -770,6 +778,83 @@
             </build>
         </profile>
 
+        <profile>
+            <id>reports-all</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>generate-javadocs</id>
+                                <goals>
+                                    <goal>aggregate</goal>
+                                </goals>
+                                <phase>pre-site</phase>
+                                <configuration>
+                                    <failOnError>false</failOnError>
+                                    <outputDirectory>${project.build.directory}/${project.report.output.directory}/</outputDirectory>
+                                    <reportOutputDirectory>${project.reporting.outputDirectory}/${project.report.output.directory}/
+                                    </reportOutputDirectory>
+                                    <destDir>api</destDir>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.owasp</groupId>
+                        <artifactId>dependency-check-maven</artifactId>
+                        <version>1.2.9</version>
+                        <dependencies>
+                            <dependency>
+                                <groupId>ddf.support</groupId>
+                                <artifactId>support-owasp</artifactId>
+                                <version>${ddf.support.version}</version>
+                            </dependency>
+                        </dependencies>
+                        <configuration>
+                            <failBuildOnCVSS>7</failBuildOnCVSS>
+                            <format>ALL</format>
+                            <suppressionFile>dependency-check-maven-config.xml</suppressionFile>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>check</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+            <reporting>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-checkstyle-plugin</artifactId>
+                        <configuration>
+                            <skip>true</skip>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.owasp</groupId>
+                        <artifactId>dependency-check-maven</artifactId>
+                        <version>1.2.9</version>
+                        <reportSets>
+                            <reportSet>
+                                <reports>
+                                    <report>aggregate</report>
+                                </reports>
+                            </reportSet>
+                        </reportSets>
+                    </plugin>
+                </plugins>
+            </reporting>
+        </profile>
+
         <!--
           This profile contains settings for producing javadocs for site deployment. Site deployment can be overridden
           by specifying <ddf.site.repo> within .m2/settings.xml
@@ -792,8 +877,8 @@
                                 <phase>pre-site</phase>
                                 <configuration>
                                     <failOnError>false</failOnError>
-                                    <outputDirectory>${project.build.directory}/{project.report.output.directory}/</outputDirectory>
-                                    <reportOutputDirectory>${project.reporting.outputDirectory}/{project.report.output.directory}/
+                                    <outputDirectory>${project.build.directory}/${project.report.output.directory}/</outputDirectory>
+                                    <reportOutputDirectory>${project.reporting.outputDirectory}/${project.report.output.directory}/
                                     </reportOutputDirectory>
                                     <destDir>api</destDir>
                                 </configuration>
