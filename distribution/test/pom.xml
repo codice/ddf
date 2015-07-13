@@ -16,13 +16,13 @@
 	<parent>
 		<groupId>ddf</groupId>
         <artifactId>distribution</artifactId>
-        <version>2.7.0.RC3-SNAPSHOT</version>
+        <version>2.7.0</version>
 	</parent>
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>ddf.test</groupId>
 	<artifactId>test</artifactId>
-  <version>2.7.0.RC1</version>
+  <version>2.7.0</version>
 	<packaging>pom</packaging>
 	<name>DDF Test</name>
 
