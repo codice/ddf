@@ -287,6 +287,11 @@
                 <version>2.1</version>
             </dependency>
             <dependency>
+                <groupId>commons-collections</groupId>
+                <artifactId>commons-collections</artifactId>
+                <version>3.2.1</version>
+            </dependency>
+            <dependency>
                 <groupId>com.hazelcast</groupId>
                 <artifactId>hazelcast</artifactId>
                 <version>3.2.1</version>
@@ -427,6 +432,7 @@
         <module>catalog-app</module>
         <module>solr</module>
         <module>content</module>
+        <module>ui</module>
         <module>docs</module>
     </modules>
 

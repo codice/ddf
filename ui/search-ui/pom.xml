@@ -49,7 +49,7 @@
             <dependency>
                 <groupId>ddf.catalog.core</groupId>
                 <artifactId>catalog-core-api</artifactId>
-                <version>${ddf.catalog.app.version}</version>
+                <version>${project.version}</version>
             </dependency>
         </dependencies>
 

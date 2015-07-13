@@ -28,10 +28,6 @@
     <name>DDF :: Content :: Core :: CatalogerPlugin</name>
     <packaging>bundle</packaging>
 
-    <properties>
-        <ddf.catalog.app.version>2.7.0-SNAPSHOT</ddf.catalog.app.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>ddf.content.core</groupId>
