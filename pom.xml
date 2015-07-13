@@ -400,6 +400,16 @@
                 <artifactId>org.restlet.ext.servlet</artifactId>
                 <version>${restlet.version}</version>
             </dependency>
+            <dependency>
+                <groupId>ddf.content.core</groupId>
+                <artifactId>content-core-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ddf.content.core</groupId>
+                <artifactId>content-core-impl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
