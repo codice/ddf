@@ -137,8 +137,4 @@
         </profile>
     </profiles>
 
-
-  <scm>
-    <tag>ddf-distribution-2.7.0.RC1</tag>
-  </scm>
 </project>

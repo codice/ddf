@@ -40,7 +40,6 @@
         assembly using the maven-assemply-plugin and <componentDescriptors> to inject it (in resources)
   -->
   <artifactId>ddf-common</artifactId>
-  <version>2.7.0.RC1</version>
   <groupId>ddf.distribution</groupId>
   <name>DDF :: Distribution :: DDF Common</name>
   <packaging>jar</packaging>
