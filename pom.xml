@@ -69,6 +69,9 @@
         <!-- Properties for the frontend-maven-plugin -->
         <node.version>v0.10.30</node.version>
         <npm.version>1.4.12</npm.version>
+
+        <!-- Set this to true to generate reports (javadoc, owasp, etc.) for deployment -->
+        <generate.all.reports>false</generate.all.reports>
     </properties>
 
     <!--
@@ -779,31 +782,14 @@
         </profile>
 
         <profile>
-            <id>reports-all</id>
+            <id>owasp</id>
             <activation>
-                <activeByDefault>false</activeByDefault>
+                <property>
+                    <name>generate.all.reports</name>
+                </property>
             </activation>
             <build>
                 <plugins>
-                    <plugin>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>generate-javadocs</id>
-                                <goals>
-                                    <goal>aggregate</goal>
-                                </goals>
-                                <phase>pre-site</phase>
-                                <configuration>
-                                    <failOnError>false</failOnError>
-                                    <outputDirectory>${project.build.directory}/${project.report.output.directory}/</outputDirectory>
-                                    <reportOutputDirectory>${project.reporting.outputDirectory}/${project.report.output.directory}/
-                                    </reportOutputDirectory>
-                                    <destDir>api</destDir>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
                     <plugin>
                         <groupId>org.owasp</groupId>
                         <artifactId>dependency-check-maven</artifactId>
@@ -855,14 +841,12 @@
             </reporting>
         </profile>
 
-        <!--
-          This profile contains settings for producing javadocs for site deployment. Site deployment can be overridden
-          by specifying <ddf.site.repo> within .m2/settings.xml
-        -->
         <profile>
-            <id>javadoc-site</id>
+            <id>javadoc</id>
             <activation>
-                <activeByDefault>false</activeByDefault>
+                <property>
+                    <name>generate.all.reports</name>
+                </property>
             </activation>
             <build>
                 <plugins>
@@ -897,9 +881,6 @@
                     </plugin>
                 </plugins>
             </reporting>
-            <properties>
-                <ddf.site.repo>dav:http://artifacts.codice.org/content/sites/ddf-site/</ddf.site.repo>
-            </properties>
         </profile>
 
         <profile>
@@ -959,58 +940,6 @@
                     </plugin>
                 </plugins>
             </build>
-        </profile>
-
-        <profile>
-            <id>owasp</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.owasp</groupId>
-                        <artifactId>dependency-check-maven</artifactId>
-                        <version>1.2.9</version>
-                        <dependencies>
-                            <dependency>
-                                <groupId>ddf.support</groupId>
-                                <artifactId>support-owasp</artifactId>
-                                <version>${ddf.support.version}</version>
-                            </dependency>
-                        </dependencies>
-                        <configuration>
-                            <failBuildOnCVSS>7</failBuildOnCVSS>
-                            <format>ALL</format>
-                            <suppressionFile>dependency-check-maven-config.xml</suppressionFile>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>check</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-            <reporting>
-                <plugins>
-                    <plugin>
-                        <groupId>org.owasp</groupId>
-                        <artifactId>dependency-check-maven</artifactId>
-                        <version>1.2.9</version>
-                        <reportSets>
-                            <reportSet>
-                                <reports>
-                                    <report>aggregate</report>
-                                </reports>
-                            </reportSet>
-                        </reportSets>
-                    </plugin>
-                </plugins>
-            </reporting>
         </profile>
     </profiles>
 
