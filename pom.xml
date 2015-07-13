@@ -346,6 +346,7 @@
         <module>platform-filter-delegate</module>
         <module>error</module>
         <module>platform-http-proxy</module>
+        <module>admin</module>
         <module>platform-app</module>
         <module>docs</module>
     </modules>
