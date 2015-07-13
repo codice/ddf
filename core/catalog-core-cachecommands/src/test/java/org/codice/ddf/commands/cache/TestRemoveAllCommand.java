@@ -21,7 +21,7 @@ import static org.mockito.Mockito.verify;
 
 import org.junit.Test;
 
-import ddf.catalog.cache.solr.impl.SolrCacheMBean;
+import ddf.catalog.cache.SolrCacheMBean;
 
 
 

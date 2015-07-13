@@ -29,7 +29,7 @@ import org.fusesource.jansi.Ansi.Color;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import ddf.catalog.cache.solr.impl.SolrCacheMBean;
+import ddf.catalog.cache.SolrCacheMBean;
 
 public abstract class CacheCommands extends OsgiCommandSupport {
 

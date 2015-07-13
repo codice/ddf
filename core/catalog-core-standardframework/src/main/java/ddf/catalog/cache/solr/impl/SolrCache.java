@@ -31,6 +31,7 @@ import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import javax.management.StandardMBean;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -47,6 +48,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 
+import ddf.catalog.cache.SolrCacheMBean;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardCreationException;
 import ddf.catalog.data.impl.MetacardImpl;
@@ -198,13 +200,15 @@ public class SolrCache implements SolrCacheMBean {
     private void configureMBean() {
         LOGGER.info("Registering Cache Manager Service MBean");
         mbeanServer = ManagementFactory.getPlatformMBeanServer();
+
         try {
             try {
-                mbeanServer.registerMBean(this, objectName);
+
+                mbeanServer.registerMBean(new StandardMBean(this, SolrCacheMBean.class), objectName);
             } catch (InstanceAlreadyExistsException e) {
                 LOGGER.info("Re-registering Cache Manager MBean");
                 mbeanServer.unregisterMBean(objectName);
-                mbeanServer.registerMBean(this, objectName);
+                mbeanServer.registerMBean(new StandardMBean(this, SolrCacheMBean.class), objectName);
             }
         } catch (Exception e) {
             LOGGER.warn("Could not register MBean.", e);

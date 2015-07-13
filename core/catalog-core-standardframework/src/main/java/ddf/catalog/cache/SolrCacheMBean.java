@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  * 
  **/
-package ddf.catalog.cache.solr.impl;
+package ddf.catalog.cache;
 
 import java.util.List;
 import ddf.catalog.data.Metacard;
