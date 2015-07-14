@@ -18,8 +18,8 @@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -p 9101 admin@lo
 The Pax Exam tests support Maven Surefire Plugin properties.  One useful property is the `test` property to select a single test class or method to execute.
 
 ```
-mvn clean test –Dtest=TestFederation
-mvn clean test –Dtest=TestFederation#<testMethodName>
+mvn clean test -Dtest=TestFederation
+mvn clean test -Dtest=TestFederation#<testMethodName>
 ```
 
 This can be combined with the `isDebugEnabled` property.
