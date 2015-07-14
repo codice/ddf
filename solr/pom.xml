@@ -26,6 +26,16 @@
 	<groupId>ddf.catalog.solr</groupId>
 	<name>DDF Catalog Solr</name>
 	<packaging>pom</packaging>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>joda-time</groupId>
+                <artifactId>joda-time</artifactId>
+                <version>2.7</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 	
 	<modules>
 		<module>catalog-solr-embedded-provider</module>
