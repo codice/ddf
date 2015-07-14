@@ -1245,6 +1245,41 @@ TLS_RSA_WITH_AES_128_CBC_SHA
 
 |===
 
+
+=== Configuring 1-way and 2-way SSL
+
+1-way SSL is enabled out of the box. You can see this reflected in the org.ops4j.pax.web.cfg file at the line that reads:
+
+[source,bash]
+----
+org.osgi.service.http.secure.enabled=true
+----
+
+2-way SSL is also supported out of the box if the client initiates a 2-way SSL connection with the server, however this 2-way SSL connection is not required by the server until a property is added to the org.ops4j.pax.web.cfg file that specifies that client authorization is needed instead of wanted. This can be done by adding the following line to org.ops4j.pax.web.cfg:
+
+[source,bash]
+----
+org.ops4j.pax.web.ssl.clientauthneeded=true
+----
+
+Note that if both:
+
+[source,bash]
+----
+org.ops4j.pax.web.ssl.clientauthneeded=true
+----
+and
+[source,bash]
+----
+org.ops4j.pax.web.ssl.clientauthwanted=true
+----
+are specified, 2-way SSL will still be required by the server since the "clientauthneeded" property takes precedence.
+
+==== SSL Port
+
+The port for connecting over HTTPS can be changed by changing the port number assigned to the org.osgi.service.http.port.secure property in the org.ops4j.pax.web.cfg file. When changing this port number, be sure to verify that the chosen port does not conflict with any other secure ports being used in your network. For example, JBoss and other application servers use port 8443 by default.
+
+
 === Configuring {branding} with New Certificates
 {branding} ships with default certificates configured to identify the local machine as "localhost." This allows one to unzip {branding} and run immediately in a secure manner. However, in order to access the {branding} instance from another machine over HTTPS (now the default for many services) without receiving warnings or failures, the default certificates need to be replaced with a certificate reflecting the name of the host machine as reachable from other network nodes.
 
