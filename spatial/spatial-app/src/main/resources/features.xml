@@ -39,7 +39,7 @@
     <feature name="spatial-wfs" install="manual" version="${project.version}"
              description="Web Feature Service (WFS).">
         <bundle>mvn:org.codice.ddf.spatial/spatial-ogc-urlresourcereader/${project.version}</bundle>
-        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xpp3/${xpp3.bundle.version}</bundle>
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xpp3/${cxf.xpp3.bundle.version}</bundle>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xmlpull/${xmlpull.bundle.version}
         </bundle>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xstream/${xstream.bundle.version}

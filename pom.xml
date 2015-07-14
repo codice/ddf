@@ -28,11 +28,10 @@
     <properties>
         <ddf.admin.app.version>1.1.1</ddf.admin.app.version>
         <ddf.platform.app.version>2.8.0-SNAPSHOT</ddf.platform.app.version>
-        <ddf.security.app.version>2.7.0</ddf.security.app.version>
         <org.codice.ddf.notifications.version>1.1.0</org.codice.ddf.notifications.version>
         <org.codice.ddf.activities.version>0.3.0</org.codice.ddf.activities.version>
         <abdera.version>1.1.3</abdera.version>
-        <xstream.bundle.version>1.4.3_1</xstream.bundle.version>
+        <xstream.bundle.version>1.4.8_1</xstream.bundle.version>
         <cxf.xpp3.bundle.version>1.1.4c_6</cxf.xpp3.bundle.version>
         <jts.version>1.12</jts.version>
         <jts.bundle.version>1.12_1</jts.bundle.version>
@@ -59,6 +58,11 @@
         <restlet.version>2.1.4</restlet.version>
         <lux.version>1.0.1</lux.version>
         <solr.saxon.version>9.5.1-5</solr.saxon.version>
+        <handlebars.version>2.0.0</handlebars.version>
+        <antlr.version>4.3</antlr.version>
+        <jaxb.annotate.plugin.version>0.6.0</jaxb.annotate.plugin.version>
+        <jaxb.visitor.plugin.version>1.13</jaxb.visitor.plugin.version>
+        <xmlpull.bundle.version>1.1.3.1_2</xmlpull.bundle.version>
     </properties>
 
     <distributionManagement>
@@ -83,6 +87,16 @@
                 <version>${camel.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.camel</groupId>
+                <artifactId>camel-context</artifactId>
+                <version>${camel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.camel</groupId>
+                <artifactId>camel-saxon</artifactId>
+                <version>${camel.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.cxf</groupId>
@@ -120,6 +134,11 @@
                 <version>${ddf.platform.app.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>xml-apis</groupId>
+                <artifactId>xml-apis</artifactId>
+                <version>1.4.01</version>
             </dependency>
             <dependency>
                 <groupId>ddf.catalog.core</groupId>
@@ -194,7 +213,7 @@
             <dependency>
                 <groupId>ddf.security</groupId>
                 <artifactId>ddf-security-common</artifactId>
-                <version>${ddf.security.app.version}</version>
+                <version>${ddf.platform.app.version}</version>
             </dependency>
             <dependency>
                 <groupId>ddf.security.core</groupId>
@@ -220,6 +239,16 @@
                 <groupId>ddf.mime.tika</groupId>
                 <artifactId>mime-tika-resolver</artifactId>
                 <version>${ddf.platform.app.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.tika</groupId>
+                <artifactId>tika-bundle</artifactId>
+                <version>${tika.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.tika</groupId>
+                <artifactId>tika-core</artifactId>
+                <version>${tika.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.vividsolutions</groupId>
@@ -249,6 +278,26 @@
             <dependency>
                 <groupId>org.geotools.xsd</groupId>
                 <artifactId>gt-xsd-gml3</artifactId>
+                <version>${org.geotools.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.geotools</groupId>
+                <artifactId>gt-xml</artifactId>
+                <version>${org.geotools.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.geotools</groupId>
+                <artifactId>gt-shapefile</artifactId>
+                <version>${org.geotools.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.geotools</groupId>
+                <artifactId>gt-epsg-hsql</artifactId>
+                <version>${org.geotools.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.geotools</groupId>
+                <artifactId>gt-cql</artifactId>
                 <version>${org.geotools.version}</version>
             </dependency>
             <dependency>
@@ -290,6 +339,11 @@
                 <groupId>commons-collections</groupId>
                 <artifactId>commons-collections</artifactId>
                 <version>3.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-collections4</artifactId>
+                <version>4.0</version>
             </dependency>
             <dependency>
                 <groupId>com.hazelcast</groupId>
@@ -415,6 +469,51 @@
                 <artifactId>content-core-impl</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.sun.xml.bind</groupId>
+                <artifactId>jaxb-impl</artifactId>
+                <version>2.2.11</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sun.xml.bind</groupId>
+                <artifactId>jaxb-osgi</artifactId>
+                <version>2.2.11</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sun.xml.bind</groupId>
+                <artifactId>jaxb-xjc</artifactId>
+                <version>2.2.11</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sun.xml.bind</groupId>
+                <artifactId>jaxb-core</artifactId>
+                <version>2.2.11</version>
+            </dependency>
+            <dependency>
+                <groupId>ddf.catalog.core</groupId>
+                <artifactId>catalog-core-urlresourcereader</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.thoughtworks.xstream</groupId>
+                <artifactId>xstream</artifactId>
+                <version>1.4.8</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.jknack</groupId>
+                <artifactId>handlebars</artifactId>
+                <version>${handlebars.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.antlr</groupId>
+                <artifactId>antlr4-runtime</artifactId>
+                <version>${antlr.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>0.9.24</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -433,6 +532,7 @@
         <module>solr</module>
         <module>content</module>
         <module>ui</module>
+        <module>spatial</module>
         <module>docs</module>
     </modules>
 
