@@ -28,6 +28,8 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.codice.ddf.parser.Parser;
 import org.codice.ddf.parser.ParserConfigurator;
 import org.codice.ddf.parser.ParserException;
@@ -39,6 +41,9 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
+/**
+ * XML Parser implementation, uses JAXB internally to marshal and unmarshal object.
+ */
 public class XmlParser implements Parser {
     private static final Joiner CTX_JOINER = Joiner.on(":").skipNulls();
 
@@ -167,14 +172,13 @@ public class XmlParser implements Parser {
 
             CacheKey cacheKey = (CacheKey) o;
 
-            return joinedPath.equals(cacheKey.joinedPath) && loader.equals(cacheKey.loader);
+            return new EqualsBuilder().append(joinedPath, cacheKey.joinedPath)
+                    .append(loader, cacheKey.loader).isEquals();
         }
 
         @Override
         public int hashCode() {
-            int result = joinedPath.hashCode();
-            result = 31 * result + loader.hashCode();
-            return result;
+            return new HashCodeBuilder(17, 37).append(joinedPath).append(loader).toHashCode();
         }
     }
 }
