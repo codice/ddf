@@ -39,8 +39,10 @@ define(function (require) {
     Service.Configuration = Backbone.AssociatedModel.extend({
         configUrl: "/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0",
 
-        defaults: {
-            properties: new Service.Properties()
+        defaults: function() {
+            return {
+                properties: new Service.Properties()
+            };
         },
         relations: [
             {
@@ -291,8 +293,10 @@ define(function (require) {
     Service.Model = Backbone.AssociatedModel.extend({
         configUrl: "/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0",
 
-        defaults: {
-            configurations: new Service.ConfigurationList()
+        defaults: function() {
+            return {
+                configurations: new Service.ConfigurationList()
+            };
         },
         relations: [
             {
@@ -334,7 +338,7 @@ define(function (require) {
     });
 
     Service.Response = Backbone.AssociatedModel.extend({
-        url: "/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/listServices",
+        url: "/jolokia/exec/org.codice.ddf.catalog.admin.plugin.AdminSourcePollerServiceBean:service=admin-source-poller-service/allSourceInfo",
         relations: [
             {
                 type: Backbone.Many,

@@ -88,6 +88,7 @@ import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.resource.impl.ResourceImpl;
+import ddf.catalog.service.ConfiguredService;
 import ddf.catalog.source.ConnectedSource;
 import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.SourceMonitor;
@@ -106,7 +107,8 @@ import ogc.schema.opengis.wfs_capabilities.v_1_0_0.WFSCapabilitiesType;
  * Provides a Federated and Connected source implementation for OGC WFS servers.
  *
  */
-public class WfsSource extends MaskableImpl implements FederatedSource, ConnectedSource {
+public class WfsSource extends MaskableImpl implements FederatedSource, ConnectedSource,
+        ConfiguredService {
 
     public static final int WFS_MAX_FEATURES_RETURNED = 1000;
 
@@ -200,6 +202,8 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
     private Set<SourceMonitor> sourceMonitors = new HashSet<SourceMonitor>();
 
     private SecuritySettingsService securitySettingsService;
+
+    protected String configurationPid;
 
     public WfsSource(RemoteWfs remoteWfs, FilterAdapter filterAdapter, BundleContext context,
             AvailabilityTask task) {
@@ -1005,6 +1009,16 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
     }
 
+    @Override
+    public String getConfigurationPid() {
+        return configurationPid;
+    }
+
+    @Override
+    public void setConfigurationPid(String configurationPid) {
+        this.configurationPid = configurationPid;
+    }
+
     /**
      * Callback class to check the Availability of the WfsSource.
      *
@@ -1042,6 +1056,5 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
             }
             return newAvailability;
         }
-
     }
 }

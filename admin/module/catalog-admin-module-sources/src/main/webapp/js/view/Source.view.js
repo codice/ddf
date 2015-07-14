@@ -56,16 +56,11 @@ function (ich,Marionette,_,$,Q,ModalSource,EmptyView,Service,Status,wreqr,Utils,
         initialize: function(){
             _.bindAll(this);
             this.listenTo(this.model, 'change', this.render);
-            this.listenTo(wreqr.vent, 'status:update', this.updateStatus);
-            this.getInitialStatuses();
-        },
-        getInitialStatuses: function() {
-            var statusModel = new Status.List();
-            statusModel.fetch({
-                success: function() {
-                    wreqr.vent.trigger('status:update', statusModel);
-                }
-            });
+
+            if (this.model.has('currentConfiguration')) {
+                this.listenTo(wreqr.vent, 'status:update-'+ this.model.attributes.currentConfiguration.id, this.updateStatus);
+            }
+
         },
         serializeData: function(){
             var data = {};
@@ -123,18 +118,8 @@ function (ich,Marionette,_,$,Q,ModalSource,EmptyView,Service,Status,wreqr,Utils,
             evt.stopPropagation();
         },
         updateStatus: function(statusList) {
-            var model = this.model;
-            var currentStatus = statusList.find(function(status) {
-                return status.id === model.id;
-            });
-            var available = model.get('available');
-            if (currentStatus) {
-                var curAvail = currentStatus.get('available');
-                if (available !== curAvail) {
-                    model.set('available', curAvail);
-                    this.render();
-                }
-            }
+            this.model.set('available', statusList.models[0].get('value'));
+            this.render();
         }
     });
 

@@ -92,6 +92,7 @@ import ddf.catalog.operation.impl.SourceResponseImpl;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.resource.ResourceReader;
+import ddf.catalog.service.ConfiguredService;
 import ddf.catalog.source.ConnectedSource;
 import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.SourceMonitor;
@@ -129,7 +130,8 @@ import net.opengis.ows.v_1_0_0.OperationsMetadata;
  * CswSource provides a DDF {@link FederatedSource} and {@link ConnectedSource} for CSW 2.0.2
  * services.
  */
-public class CswSource extends MaskableImpl implements FederatedSource, ConnectedSource {
+public class CswSource extends MaskableImpl implements FederatedSource, ConnectedSource,
+        ConfiguredService {
 
     protected static final String CSW_SERVER_ERROR = "Error received from CSW server.";
 
@@ -192,6 +194,8 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
     private static final String USE_POS_LIST_PROPERTY = "usePosList";
 
     private static Properties describableProperties = new Properties();
+
+    protected String configurationPid;
 
     static {
         try (InputStream properties = CswSource.class
@@ -1537,6 +1541,16 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
 
     public void setSecurityManager(SecurityManager securityManager) {
         this.securityManager = securityManager;
+    }
+
+    @Override
+    public String getConfigurationPid() {
+        return configurationPid;
+    }
+
+    @Override
+    public void setConfigurationPid(String configurationPid) {
+        this.configurationPid = configurationPid;
     }
 
     /**
