@@ -87,7 +87,7 @@
                         <Export-Package />
                         <Import-Package>
                             *,
-                            org.codice.ddf.ui.admin.api.module;version="[1.2.0,2.0.0)"
+                            org.codice.ddf.ui.admin.api.module;version="[1.2.0,3.0.0)"
                         </Import-Package>
                     </instructions>
                 </configuration>
