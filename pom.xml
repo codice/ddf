@@ -70,8 +70,6 @@
         <node.version>v0.10.30</node.version>
         <npm.version>1.4.12</npm.version>
 
-        <!-- Set this to true to generate reports (javadoc, owasp, etc.) for deployment -->
-        <generate.all.reports>false</generate.all.reports>
     </properties>
 
     <!--
@@ -782,11 +780,22 @@
         </profile>
 
         <profile>
+            <id>release</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <distributionManagement>
+                <site>
+                    <id>reports</id>
+                    <url>${reports.repository.url}/${version}</url>
+                </site>
+            </distributionManagement>
+        </profile>
+
+        <profile>
             <id>owasp</id>
             <activation>
-                <property>
-                    <name>generate.all.reports</name>
-                </property>
+                <activeByDefault>false</activeByDefault>
             </activation>
             <build>
                 <plugins>
@@ -844,9 +853,7 @@
         <profile>
             <id>javadoc</id>
             <activation>
-                <property>
-                    <name>generate.all.reports</name>
-                </property>
+                <activeByDefault>false</activeByDefault>
             </activation>
             <build>
                 <plugins>
