@@ -417,7 +417,8 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
         // sanity check to make sure no values are
         // null
         for (Entry<String, Object> curEntry : configurationTable.entrySet()) {
-            if (curEntry.getValue() == null) {
+            Object value = curEntry.getValue();
+            if (value == null || (value instanceof ArrayList && CollectionUtils.sizeIsEmpty(value))) {
                 curEntry.setValue("");
             }
         }
