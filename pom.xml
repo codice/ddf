@@ -515,42 +515,6 @@
             </build>
         </profile>
         <profile>
-            <id>bundleSource</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <!-- NOTE: We don't need a groupId specification because the group is
-                            org.apache.maven.plugins ...which is assumed by default.
-                        -->
-                        <artifactId>maven-assembly-plugin</artifactId>
-                        <version>2.2.2</version>
-                        <configuration>
-                            <descriptorRefs>
-                                <descriptorRef>project</descriptorRef>
-                            </descriptorRefs>
-                            <formats>
-                                <format>zip</format>
-                            </formats>
-                            <runOnlyAtExecutionRoot>true</runOnlyAtExecutionRoot>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>make-assembly</id>
-                                <!-- this is used for inheritance merges -->
-                                <phase>package</phase>
-                                <!-- append to the packaging phase. -->
-                                <goals>
-                                    <goal>single</goal>
-                                    <!-- goals == mojos -->
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-
-        <profile>
             <id>documentation</id>
             <activation>
     	       <file>
