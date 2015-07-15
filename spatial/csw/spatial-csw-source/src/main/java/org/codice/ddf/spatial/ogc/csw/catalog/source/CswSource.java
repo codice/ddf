@@ -151,6 +151,8 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
 
     protected static final String CONTENT_TYPE_MAPPING_PROPERTY = "contentTypeMapping";
 
+    protected static final String IDENTIFIER_MAPPING_PROPERTY = "identifierMapping";
+
     protected static final String IS_LON_LAT_ORDER_PROPERTY = "isLonLatOrder";
 
     protected static final String POLL_INTERVAL_PROPERTY = "pollInterval";
@@ -164,6 +166,10 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
     protected static final String CONNECTION_TIMEOUT_PROPERTY = "connectionTimeout";
 
     protected static final String RECEIVE_TIMEOUT_PROPERTY = "receiveTimeout";
+
+    protected static final String QUERY_TYPE_QNAME_PROPERTY = "queryTypeQName";
+
+    protected static final String QUERY_TYPE_PREFIX_PROPERTY = "queryTypePrefix";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CswSource.class);
 
@@ -366,6 +372,21 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
                     oldOutputSchema);
         }
 
+        String queryTypeQName = (String) configuration.get(QUERY_TYPE_QNAME_PROPERTY);
+        if (StringUtils.isNotBlank(queryTypeQName)) {
+            cswSourceConfiguration.setQueryTypeQName(queryTypeQName);
+        }
+
+        String queryTypePrefix = (String) configuration.get(QUERY_TYPE_PREFIX_PROPERTY);
+        if (StringUtils.isNotBlank(queryTypePrefix)) {
+            cswSourceConfiguration.setQueryTypePrefix(queryTypePrefix);
+        }
+
+        String identifierMapping = (String) configuration.get(IDENTIFIER_MAPPING_PROPERTY);
+        if (StringUtils.isNotBlank(identifierMapping)) {
+            cswSourceConfiguration.setIdentifierMapping(identifierMapping);
+        }
+
         Boolean sslProp = (Boolean) configuration
                 .get(TrustedRemoteSource.DISABLE_CN_CHECK_PROPERTY);
         if (sslProp != null) {
@@ -546,6 +567,16 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
     public void setOutputSchema(String outputSchema) {
         cswSourceConfiguration.setOutputSchema(outputSchema);
         LOGGER.debug("Setting output schema to: {}", outputSchema);
+    }
+
+    public void setQueryTypeQName(String queryTypeQName) {
+        cswSourceConfiguration.setQueryTypeQName(queryTypeQName);
+        LOGGER.debug("Setting queryTypeQName to: {}", queryTypeQName);
+    }
+
+    public void setQueryTypePrefix(String queryTypePrefix) {
+        cswSourceConfiguration.setQueryTypePrefix(queryTypePrefix);
+        LOGGER.debug("Setting queryTypePrefix to: {}", queryTypePrefix);
     }
 
     @Override
@@ -806,6 +837,10 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         cswSourceConfiguration.setThumbnailMapping(thumbnailMapping);
     }
 
+    public void setIdentifierMapping(String identifierMapping) {
+        cswSourceConfiguration.setIdentifierMapping(identifierMapping);
+    }
+
     public void setFilterAdapter(FilterAdapter filterAdapter) {
         this.filterAdapter = filterAdapter;
     }
@@ -870,9 +905,21 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
     private JAXBElement<QueryType> createQuery(Query query, ElementSetType elementSetType,
             List<QName> elementNames) throws UnsupportedQueryException {
         QueryType queryType = new QueryType();
-        queryType.setTypeNames(Arrays.asList(new QName[] {
-                new QName(CswConstants.CSW_OUTPUT_SCHEMA, CswConstants.CSW_RECORD_LOCAL_NAME,
-                        CswConstants.CSW_NAMESPACE_PREFIX)}));
+
+        QName queryTypeQName = null;
+        try {
+            queryTypeQName = new QName(
+                    QName.valueOf(cswSourceConfiguration.getQueryTypeQName()).getNamespaceURI(),
+                    QName.valueOf(cswSourceConfiguration.getQueryTypeQName()).getLocalPart(),
+                    cswSourceConfiguration.getQueryTypePrefix());
+        } catch (IllegalArgumentException e) {
+            LOGGER.warn("Unable to parse query type QName of {}.  Defaulting to CSW Record",
+                    cswSourceConfiguration.getQueryTypeQName());
+            queryTypeQName = new QName(CswConstants.CSW_OUTPUT_SCHEMA,
+                    CswConstants.CSW_RECORD_LOCAL_NAME, CswConstants.CSW_NAMESPACE_PREFIX);
+        }
+
+        queryType.setTypeNames(Arrays.asList(new QName[] {queryTypeQName}));
         if (null != elementSetType) {
             queryType.setElementSetName(createElementSetName(elementSetType));
         } else if (!CollectionUtils.isEmpty(elementNames)) {
@@ -1230,21 +1277,20 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
      * Sets the {@link ddf.catalog.filter.FilterDelegate} used by the CswSource. May be overridden
      * in order to provide a custom ddf.catalog.filter.FilterDelegate implementation.
      *
-     * @param cswRecordMetacardType
+     * @param metacardType
      * @param getRecordsOp
      * @param filterCapabilities
      * @param outputFormatValues
      * @param resultTypesValues
      * @param cswSourceConfiguration
      */
-    protected void setFilterDelegate(CswRecordMetacardType cswRecordMetacardType,
-            Operation getRecordsOp, FilterCapabilities filterCapabilities,
-            DomainType outputFormatValues, DomainType resultTypesValues,
-            CswSourceConfiguration cswSourceConfiguration) {
+    protected void setFilterDelegate(MetacardType metacardType, Operation getRecordsOp,
+            FilterCapabilities filterCapabilities, DomainType outputFormatValues,
+            DomainType resultTypesValues, CswSourceConfiguration cswSourceConfiguration) {
         LOGGER.trace("Setting cswFilterDelegate to default CswFilterDelegate");
 
-        cswFilterDelegate = new CswFilterDelegate(cswRecordMetacardType, getRecordsOp,
-                filterCapabilities, outputFormatValues, resultTypesValues, cswSourceConfiguration);
+        cswFilterDelegate = new CswFilterDelegate(metacardType, getRecordsOp, filterCapabilities,
+                outputFormatValues, resultTypesValues, cswSourceConfiguration);
     }
 
     private void readSetDetailLevels(DomainType elementSetNamesValues) {
