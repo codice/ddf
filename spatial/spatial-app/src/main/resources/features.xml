@@ -68,6 +68,20 @@
         <bundle>mvn:org.codice.ddf.spatial/spatial-csw-source/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-csw-endpoint/${project.version}</bundle>
     </feature>
+    
+    <feature name="spatial-geo" install="manual" version="${project.version}"
+             description="Contains the API and implementations for working with GeoNames resources">
+        <bundle>mvn:org.codice.ddf.spatial/spatial-geo-api/${project.version}</bundle>
+        <bundle>mvn:org.codice.ddf.spatial/spatial-geo-create/${project.version}</bundle>
+        <bundle>mvn:org.codice.ddf.spatial/spatial-geo-extract/${project.version}</bundle>
+        <bundle>mvn:org.codice.ddf.spatial/spatial-geo-index/${project.version}</bundle>
+    </feature>
+
+    <feature name="spatial-commands" install="manual" version="${project.version}"
+             description="OSGi commands">
+        <feature>spatial-geo</feature>
+        <bundle>mvn:org.codice.ddf.spatial/spatial-commands/${project.version}</bundle>
+    </feature>
 
     <feature name="spatial-app" install="auto" version="${project.version}"
              description="DDF Spatial contains standards-based, geospatial endpoints, sources, and transforms.::DDF Spatial">
@@ -79,6 +93,8 @@
         <feature>spatial-wfs-v1_0_0</feature>
         <feature>spatial-wfs-v2_0_0</feature>
         <feature>spatial-csw</feature>
+        <feature>spatial-geo</feature>
+        <feature>spatial-commands</feature>
     </feature>
     
 </features>

@@ -167,5 +167,7 @@
         <module>csw</module>
         <module>spatial-app</module>
         <module>docs</module>
+        <module>geo</module>
+        <module>spatial-commands</module>
     </modules>
 </project>
