@@ -14,22 +14,24 @@
 
 package org.codice.ddf.spatial.geo.index;
 
-import static org.apache.lucene.index.IndexWriter.MaxFieldLength;
+import static org.apache.lucene.index.IndexWriterConfig.OpenMode;
 import static org.codice.ddf.spatial.geo.GeoEntryExtractor.ExtractionCallback;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.List;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.document.DoubleField;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.document.NumericField;
+import org.apache.lucene.document.LongField;
+import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
-import org.apache.lucene.util.Version;
 import org.codice.ddf.spatial.geo.GeoEntry;
 import org.codice.ddf.spatial.geo.GeoEntryExtractionException;
 import org.codice.ddf.spatial.geo.GeoEntryExtractor;
@@ -42,7 +44,7 @@ import org.slf4j.LoggerFactory;
 public class GeoNamesLuceneIndexer implements GeoEntryIndexer {
     private static final Logger LOGGER = LoggerFactory.getLogger(GeoNamesLuceneIndexer.class);
 
-    private static final Analyzer ANALYZER = new StandardAnalyzer(Version.LUCENE_30);
+    private static final Analyzer ANALYZER = new StandardAnalyzer();
 
     private String indexLocation;
 
@@ -62,7 +64,7 @@ public class GeoNamesLuceneIndexer implements GeoEntryIndexer {
         Directory directory;
 
         try {
-            directory = FSDirectory.open(new File(indexLocation));
+            directory = FSDirectory.open(Paths.get(indexLocation));
         } catch (IOException e) {
             LOGGER.error("Error opening the directory for the GeoNames index: {}",
                     indexLocation, e);
@@ -70,9 +72,11 @@ public class GeoNamesLuceneIndexer implements GeoEntryIndexer {
                     indexLocation, e);
         }
 
+        final IndexWriterConfig indexWriterConfig = new IndexWriterConfig(ANALYZER);
+        indexWriterConfig.setOpenMode(create ? OpenMode.CREATE : OpenMode.APPEND);
+
         // Try-with-resources to ensure the IndexWriter always gets closed.
-        try (final IndexWriter indexWriter = new IndexWriter(directory, ANALYZER, create,
-                MaxFieldLength.LIMITED)) {
+        try (final IndexWriter indexWriter = new IndexWriter(directory, indexWriterConfig)) {
             final ExtractionCallback extractionCallback = new ExtractionCallback() {
                 @Override
                 public void extracted(final GeoEntry newEntry) {
@@ -110,7 +114,7 @@ public class GeoNamesLuceneIndexer implements GeoEntryIndexer {
         Directory directory;
 
         try {
-            directory = FSDirectory.open(new File(indexLocation));
+            directory = FSDirectory.open(Paths.get(indexLocation));
         } catch (IOException e) {
             LOGGER.error("Error opening the directory for the GeoNames index: {}",
                     indexLocation, e);
@@ -118,9 +122,11 @@ public class GeoNamesLuceneIndexer implements GeoEntryIndexer {
                     indexLocation, e);
         }
 
+        final IndexWriterConfig indexWriterConfig = new IndexWriterConfig(ANALYZER);
+        indexWriterConfig.setOpenMode(create ? OpenMode.CREATE : OpenMode.APPEND);
+
         // Try-with-resources to ensure the IndexWriter always gets closed.
-        try (final IndexWriter indexWriter = new IndexWriter(directory, ANALYZER, create,
-                MaxFieldLength.LIMITED)) {
+        try (final IndexWriter indexWriter = new IndexWriter(directory, indexWriterConfig)) {
             try {
                 indexGeoEntries(indexWriter, geoEntryList, progressCallback);
             } catch (IOException e) {
@@ -162,15 +168,11 @@ public class GeoNamesLuceneIndexer implements GeoEntryIndexer {
     private void addDocument(final IndexWriter indexWriter, final GeoEntry geoEntry)
             throws IOException {
         final Document document = new Document();
-        document.add(new Field("name", geoEntry.getName(), Field.Store.YES, Field.Index.ANALYZED));
-        document.add(new NumericField("latitude", Field.Store.YES, true)
-                .setDoubleValue(geoEntry.getLatitude()));
-        document.add(new NumericField("longitude", Field.Store.YES, true)
-                .setDoubleValue(geoEntry.getLongitude()));
-        document.add(new Field("feature_code", geoEntry.getFeatureCode(), Field.Store.YES,
-                Field.Index.ANALYZED));
-        document.add(new NumericField("population", Field.Store.YES, true)
-                .setLongValue(geoEntry.getPopulation()));
+        document.add(new TextField("name", geoEntry.getName(), Field.Store.YES));
+        document.add(new DoubleField("latitude", geoEntry.getLatitude(), Field.Store.YES));
+        document.add(new DoubleField("longitude", geoEntry.getLongitude(), Field.Store.YES));
+        document.add(new TextField("feature_code", geoEntry.getFeatureCode(), Field.Store.YES));
+        document.add(new LongField("population", geoEntry.getPopulation(), Field.Store.YES));
         try {
             indexWriter.addDocument(document);
         } catch (IOException e) {

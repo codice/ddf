@@ -40,7 +40,12 @@
         <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-core</artifactId>
-            <version>3.0.2</version>
+            <version>5.2.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-analyzers-common</artifactId>
+            <version>5.2.1</version>
         </dependency>
     </dependencies>
 
@@ -54,6 +59,10 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Export-Package/>
+                        <Embed-Dependency>
+                            lucene-core,
+                            lucene-analyzers-common
+                        </Embed-Dependency>
                     </instructions>
                 </configuration>
             </plugin>
