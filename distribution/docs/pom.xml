@@ -17,12 +17,11 @@
 
     <parent>
         <groupId>ddf</groupId>
-        <artifactId>ddf-parent</artifactId>
-        <version>3.0.3</version>
+        <artifactId>distribution</artifactId>
+        <version>2.7.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>docs</artifactId>
-  <version>3.0.3</version>
     <name>DDF DOCS</name>
 
     <build>
