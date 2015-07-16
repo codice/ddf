@@ -47,13 +47,6 @@
         <ddf.admin.version>1.2.0</ddf.admin.version>
     </properties>
 
-    <distributionManagement>
-        <site>
-            <id>ddf-site</id>
-            <url>${ddf.site.repo}/ddf-platform/${project.version}</url>
-        </site>
-    </distributionManagement>
-
     <dependencyManagement>
         <dependencies>
             <dependency>
