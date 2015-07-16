@@ -28,6 +28,22 @@
     <name>DDF :: UI :: DOCS</name>
     <build>
         <plugins>
+            <!-- Disable vulnerability checks since this project only contains documentation -->
+            <plugin>
+                <groupId>org.owasp</groupId>
+                <artifactId>dependency-check-maven</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <configuration>
+                            <failBuildOnCVSS>11</failBuildOnCVSS>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>de.saumya.mojo</groupId>
                 <artifactId>gem-maven-plugin</artifactId>
