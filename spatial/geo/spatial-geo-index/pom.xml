@@ -38,14 +38,13 @@
             <artifactId>slf4j-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-core</artifactId>
-            <version>5.2.1</version>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.lucene</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-analyzers-common</artifactId>
-            <version>5.2.1</version>
+            <version>${lucene.analyzers-common.version}</version>
         </dependency>
     </dependencies>
 
@@ -60,7 +59,6 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Export-Package/>
                         <Embed-Dependency>
-                            lucene-core,
                             lucene-analyzers-common
                         </Embed-Dependency>
                     </instructions>
