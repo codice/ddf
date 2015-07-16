@@ -1,0 +1,80 @@
+
+== Overview
+
+The DDF Content application provides a framework for storing, reading, processing, transforming and cataloging data. This guide documents the installation, maintenance, and support of this application.
+
+== Prerequisites
+
+Before the DDF Content application can be installed, the following prerequisites must be met: 
+
+* the DDF Kernel must be running,
+* the DDF Platform Application must be installed, and
+* the DDF Catalog Application must be installed. 
+
+The Content application will continue to function properly as a content store without the Catalog application. However, the Content application will not support creating metacards for ingested content. In addition, without the Catalog application, the Content application will be displayed as FAILED by the Platform Status Service and the Application Commands.
+
+== Installing
+
+. Before installing a DDF application, verify that its prerequisites have been met. 
+. Copy the DDF application's KAR file to the `<INSTALL_DIRECTORY>/deploy` directory.
+
+[NOTE]
+====
+These Installation steps are the same whether DDF was installed from a distribution zip or a custom installation using the DDF Kernel zip.
+====
+
+== Verifying
+
+. Verify the appropriate features for the DDF application have been installed using the `features:list` command to view the KAR file's features.
+. Verify that the bundles within the installed features are in an active state.
+
+== Uninstalling
+
+[WARNING]
+====
+It is very important to save the KAR file or the feature repository URL for the application prior to an uninstall so that the uninstall can be reverted if necessary.
+====
+
+If the DDF application is deployed on the DDF Kernel in a custom installation (or the application has been upgraded previously), i.e., its KAR file is in the `<INSTALL_DIRECTORY>/deploy` directory, uninstall it by deleting this KAR file.
+
+Otherwise, if the DDF application is running as part of the DDF distribution zip, it is uninstalled *the first time and only the first time* using the `features:removeurl` command:
+
+.Uninstall DDF application from DDF distribution
+[source,terminal,linenums]
+----
+features:removeurl -u <DDF application's feature repository URL>
+
+Example:   features:removeurl -u mvn:ddf.catalog/catalog-app/2.3.0/xml/features
+----
+
+The uninstall of the application can be verified by the absence of any of the DDF application's features in the `features:list` command output.
+
+=== Reverting the Uninstall
+
+If the uninstall of the DDF application needs to be reverted, this is accomplished by either:
+
+* copying the application's KAR file previously in the `<INSTALL_DIRECTORY>/deploy` directory, OR adding the application's feature repository back into DDF and installing its main feature, which typically is of the form `<applicationName>-app`, e.g., `catalog-app`.
+
+.Reverting DDF application's uninstall
+[source,terminal,linenums]
+----
+features:addurl <DDF application's feature repository URL>
+
+features:install <DDF application's main feature>
+ 
+Example:
+
+    ddf@local>features:addurl mvn:ddf.catalog/catalog-app/2.3.0/xml/features
+
+    ddf@local>features:install catalog-app
+----
+
+== Upgrading
+
+To upgrade an application, complete the following procedure.
+
+. Uninstall the application by following the Uninstall Applications instructions above.
+. Install the new application KAR file by copying the admin-app-X.Y.kar file to the `<INSTALL_DIRECTORY>/deploy` directory.
+. Start the application. +
+`features:install admin-app`
+. Complete the steps in the Verify section above to determine if the upgrade was successful.

@@ -32,9 +32,9 @@
             <outputDirectory>pdf</outputDirectory>
             <directory>${project.build.directory}/docs/pdf</directory>
             <excludes>
-                <exclude>config.pdf</exclude>
+                <exclude>**/*config.pdf</exclude>
                 <exclude>**/*.pdfmarks</exclude>
-                <exclude>*Contents.pdf</exclude>
+                <exclude>**/*Contents.pdf</exclude>
             </excludes>
         </fileSet>
     </fileSets>
