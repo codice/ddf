@@ -727,6 +727,11 @@
                                                 <classifier>Managing</classifier>
                                             </artifact>
                                             <artifact>
+                                                <file>${project.build.directory}/docs/html/DDFOmnibus.html</file>
+                                                <type>html</type>
+                                                <classifier>DDFOmnibus</classifier>
+                                            </artifact>
+                                            <artifact>
                                                 <file>${project.build.directory}/docs/pdf/Extending.pdf</file>
                                                 <type>pdf</type>
                                                 <classifier>Extending</classifier>
@@ -740,6 +745,11 @@
                                                 <file>${project.build.directory}/docs/pdf/Managing.pdf</file>
                                                 <type>pdf</type>
                                                 <classifier>Managing</classifier>
+                                            </artifact>
+                                            <artifact>
+                                                <file>${project.build.directory}/docs/pdf/DDFOmnibus.pdf</file>
+                                                <type>pdf</type>
+                                                <classifier>DDFOmnibus</classifier>
                                             </artifact>
                                         </artifacts>
                                     </configuration>
