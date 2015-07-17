@@ -258,7 +258,7 @@ public abstract class AbstractIntegrationTest {
                         "security-services-app,catalog-app,solr-app,spatial-app,sdk-app"),
                 editConfigurationFileExtend("etc/org.apache.karaf.features.cfg",
                         "featuresRepositories",
-                        "mvn:ddf.sdk/sdk-app/2.7.0/xml/features"));
+                        "mvn:ddf.sdk/sdk-app/2.7.1-SNAPSHOT/xml/features"));
 
     }
 
