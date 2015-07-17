@@ -590,9 +590,9 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
                     break;
                 } catch (ExecutionException e) {
                     logger.warn("Couldn't get results from completed federated query for {}",
-                            sourceId, e.getCause());
+                            sourceId, e);
                     processingDetails
-                            .add(new ProcessingDetailsImpl(sourceId, new Exception(e.getCause())));
+                            .add(new ProcessingDetailsImpl(sourceId, e));
                 }
             }
             logger.debug("All sources finished returning results: {}", resultList.size());
