@@ -46,6 +46,30 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.5</version>
+                <executions>
+                    <execution>
+                        <id>attach-omnibus</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>attach-artifact</goal>
+                        </goals>
+                        <configuration>
+                            <artifacts>
+                                <artifact>
+                                    <file>${project.build.directory}/docs/html/DDFOmnibus.html</file>
+                                    <type>html</type>
+                                    <classifier>DDFOmnibus</classifier>
+                                </artifact>
+                                <artifact>
+                                    <file>${project.build.directory}/docs/pdf/DDFOmnibus.pdf</file>
+                                    <type>pdf</type>
+                                    <classifier>DDFOmnibus</classifier>
+                                </artifact>
+                            </artifacts>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
