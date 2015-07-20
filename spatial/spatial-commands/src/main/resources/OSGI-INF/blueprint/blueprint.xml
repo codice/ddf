@@ -22,7 +22,7 @@
         </command>
     </command-bundle>
 
-    <reference id="geoEntryIndexer" interface="org.codice.ddf.spatial.geo.GeoEntryIndexer"/>
-    <reference id="geoEntryExtractor" interface="org.codice.ddf.spatial.geo.GeoEntryExtractor"/>
+    <reference id="geoEntryIndexer" interface="org.codice.ddf.spatial.geocoding.GeoEntryIndexer"/>
+    <reference id="geoEntryExtractor" interface="org.codice.ddf.spatial.geocoding.GeoEntryExtractor"/>
 
 </blueprint>

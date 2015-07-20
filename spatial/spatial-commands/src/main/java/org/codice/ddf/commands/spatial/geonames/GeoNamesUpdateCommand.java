@@ -20,11 +20,11 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
-import org.codice.ddf.spatial.geo.GeoEntryExtractionException;
-import org.codice.ddf.spatial.geo.GeoEntryExtractor;
-import org.codice.ddf.spatial.geo.GeoEntryIndexer;
-import org.codice.ddf.spatial.geo.GeoEntryIndexingException;
-import org.codice.ddf.spatial.geo.ProgressCallback;
+import org.codice.ddf.spatial.geocoding.GeoEntryExtractionException;
+import org.codice.ddf.spatial.geocoding.GeoEntryExtractor;
+import org.codice.ddf.spatial.geocoding.GeoEntryIndexer;
+import org.codice.ddf.spatial.geocoding.GeoEntryIndexingException;
+import org.codice.ddf.spatial.geocoding.ProgressCallback;
 
 @Command(scope = "geonames", name = "update",
         description = "Adds new entries to an existing local GeoNames index. Attempting to " +

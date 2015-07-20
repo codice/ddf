@@ -170,7 +170,7 @@
         <module>wfs</module>
         <module>wcs</module>
         <module>csw</module>
-        <module>geo</module>
+        <module>geocoding</module>
         <module>spatial-commands</module>
         <module>spatial-app</module>
         <module>docs</module>
