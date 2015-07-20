@@ -527,6 +527,26 @@ public class TestCswCqlFilter {
     }
 
     /**
+     * Property is equal to with alternate id property
+     *
+     * @throws UnsupportedQueryException
+     */
+    @Test
+    public void testPropertyIsEqualToStringLiteralAlternateIdMapping()
+            throws UnsupportedQueryException {
+        String replacedIdentifierProperty = propertyName;
+        CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(false,
+                CswRecordMetacardType.CSW_TYPE, effectiveDateMapping, createdDateMapping,
+                modifiedDateMapping, replacedIdentifierProperty);
+
+        CswFilterDelegate cswFilterDelegate = initDefaultCswFilterDelegate(cswSourceConfiguration);
+        FilterType filterType = cswFilterDelegate
+                .propertyIsEqualTo(propertyName, stringLiteral, isCaseSensitive);
+        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        assertEquals(propertyIsEqualTo, cqlText);
+    }
+
+    /**
      * Verify that when given a non ISO 8601 formatted date, the CswFilterDelegate converts the date
      * to ISO 8601 format (ie. the xml generated off of the filterType should have an ISO 8601
      * formatted date in it).
@@ -555,7 +575,7 @@ public class TestCswCqlFilter {
         DateTime endDate = new DateTime(2013, 12, 31, 0, 0, 0, 0);
         CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(false,
                 CswRecordMetacardType.CSW_TYPE, effectiveDateMapping, createdDateMapping,
-                modifiedDateMapping);
+                modifiedDateMapping, CswRecordMetacardType.CSW_IDENTIFIER);
 
         CswFilterDelegate cswFilterDelegate = initDefaultCswFilterDelegate(cswSourceConfiguration);
         FilterType filterType = cswFilterDelegate
@@ -583,7 +603,7 @@ public class TestCswCqlFilter {
         String replacedTemporalProperty = "myEffectiveDate";
         CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(false,
                 CswRecordMetacardType.CSW_TYPE, replacedTemporalProperty, createdDateMapping,
-                modifiedDateMapping);
+                modifiedDateMapping, CswRecordMetacardType.CSW_IDENTIFIER);
 
         CswFilterDelegate cswFilterDelegate = initDefaultCswFilterDelegate(cswSourceConfiguration);
         FilterType filterType = cswFilterDelegate
@@ -608,7 +628,7 @@ public class TestCswCqlFilter {
         String replacedTemporalProperty = "myCreatedDate";
         CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(false,
                 CswRecordMetacardType.CSW_TYPE, effectiveDateMapping, replacedTemporalProperty,
-                modifiedDateMapping);
+                modifiedDateMapping, CswRecordMetacardType.CSW_IDENTIFIER);
 
         CswFilterDelegate localCswFilterDelegate = initDefaultCswFilterDelegate(
                 cswSourceConfiguration);
@@ -635,7 +655,7 @@ public class TestCswCqlFilter {
         String replacedTemporalProperty = "myModifiedDate";
         CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(false,
                 CswRecordMetacardType.CSW_TYPE, effectiveDateMapping, createdDateMapping,
-                replacedTemporalProperty);
+                replacedTemporalProperty, CswRecordMetacardType.CSW_IDENTIFIER);
 
         CswFilterDelegate localCswFilterDelegate = initDefaultCswFilterDelegate(
                 cswSourceConfiguration);
@@ -659,7 +679,7 @@ public class TestCswCqlFilter {
         long duration = 92000000000L;
         CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(false,
                 CswRecordMetacardType.CSW_TYPE, effectiveDateMapping, createdDateMapping,
-                modifiedDateMapping);
+                modifiedDateMapping, CswRecordMetacardType.CSW_IDENTIFIER);
         CswFilterDelegate localCswFilterDelegate = initDefaultCswFilterDelegate(
                 cswSourceConfiguration);
         FilterType filterType = localCswFilterDelegate.relative(propertyNameModified, duration);
@@ -1394,6 +1414,7 @@ public class TestCswCqlFilter {
     private CswSourceConfiguration initCswSourceConfiguration(boolean isLonLatOrder,
             String contentType) {
         CswSourceConfiguration cswSourceConfiguration = new CswSourceConfiguration();
+        cswSourceConfiguration.setIdentifierMapping(CswRecordMetacardType.CSW_IDENTIFIER);
         cswSourceConfiguration.setIsLonLatOrder(isLonLatOrder);
         cswSourceConfiguration.setContentTypeMapping(contentType);
         return cswSourceConfiguration;
@@ -1401,8 +1422,9 @@ public class TestCswCqlFilter {
 
     private CswSourceConfiguration initCswSourceConfiguration(boolean isLonLatOrder,
             String contentType, String effectiveDateMapping, String createdDateMapping,
-            String modifiedDateMapping) {
+            String modifiedDateMapping, String identifierMapping) {
         CswSourceConfiguration cswSourceConfiguration = new CswSourceConfiguration();
+        cswSourceConfiguration.setIdentifierMapping(identifierMapping);
         cswSourceConfiguration.setIsLonLatOrder(isLonLatOrder);
         cswSourceConfiguration.setContentTypeMapping(contentType);
         cswSourceConfiguration.setEffectiveDateMapping(effectiveDateMapping);

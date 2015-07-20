@@ -28,7 +28,6 @@ import javax.xml.namespace.QName;
 
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants.BinarySpatialOperand;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -40,6 +39,7 @@ import com.vividsolutions.jts.io.WKTReader;
 import com.vividsolutions.jts.io.WKTWriter;
 
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
 import net.opengis.filter.v_1_1_0.ComparisonOperatorType;
 import net.opengis.filter.v_1_1_0.ComparisonOperatorsType;
 import net.opengis.filter.v_1_1_0.FilterCapabilities;
@@ -81,7 +81,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
 
     private CswSourceConfiguration cswSourceConfiguration;
 
-    private CswRecordMetacardType cswRecordMetacardType;
+    private MetacardType metacardType;
 
     private CswFilterFactory cswFilterFactory;
 
@@ -97,11 +97,11 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
      * @param resultTypesValues
      *            An {@link net.opengis.ows.v_1_0_0.DomainType} containing a list of Result Types supported
      */
-    public CswFilterDelegate(CswRecordMetacardType cswRecordMetacardType, Operation getRecordsOp,
+    public CswFilterDelegate(MetacardType metacardType, Operation getRecordsOp,
             FilterCapabilities filterCapabilities, DomainType outputFormatValues,
             DomainType resultTypesValues, CswSourceConfiguration cswSourceConfiguration) {
         super(getRecordsOp, outputFormatValues, resultTypesValues);
-        this.cswRecordMetacardType = cswRecordMetacardType;
+        this.metacardType = metacardType;
         this.cswSourceConfiguration = cswSourceConfiguration;
         this.cswFilterFactory = new CswFilterFactory(cswSourceConfiguration.isLonLatOrder(),
                 cswSourceConfiguration.isSetUsePosList());
@@ -1124,7 +1124,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         if (isAnyText(propertyName)) {
             propertyName = CswConstants.ANY_TEXT;
         } else if (isId(propertyName)) {
-            propertyName = CswRecordMetacardType.CSW_IDENTIFIER;
+            propertyName = cswSourceConfiguration.getIdentifierMapping();
         } else if (isAnyGeo(propertyName)) {
             propertyName = CswConstants.BBOX_PROP;
         } else if (isContentType(propertyName)) {
@@ -1359,8 +1359,8 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
 
     private boolean isPropertyQueryable(String propertyName) {
         if (propertyName.equalsIgnoreCase(CswConstants.ANY_TEXT) || (
-                cswRecordMetacardType.getAttributeDescriptor(propertyName) != null
-                        && cswRecordMetacardType.getAttributeDescriptor(propertyName)
+                metacardType.getAttributeDescriptor(propertyName) != null
+                        && metacardType.getAttributeDescriptor(propertyName)
                         .isIndexed())) {
             LOGGER.debug("Property [{}] is queryable.", propertyName);
             return true;

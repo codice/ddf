@@ -70,12 +70,15 @@
             <beans:property name="modifiedDateMapping" value=""/>
             <beans:property name="resourceUriMapping" value=""/>
             <beans:property name="thumbnailMapping" value=""/>
+            <beans:property name="identifierMapping" value="identifier"/>
             <beans:property name="contentTypeNames">
                 <beans:list></beans:list>
             </beans:property>
             <beans:property name="pollInterval" value=""/>
             <beans:property name="resourceReaders" ref="resourceReaders"/>
             <beans:property name="outputSchema" value=""/>
+            <beans:property name="queryTypeQName" value=""/>
+            <beans:property name="queryTypePrefix" value=""/>
             <beans:property name="cswTransformProvider" ref="cswTransformProvider"/>
             <beans:property name="isCqlForced" value="false"/>
             <beans:property name="forceSpatialFilter" value=""/>
@@ -113,12 +116,15 @@
             <beans:property name="modifiedDateMapping" value=""/>
             <beans:property name="resourceUriMapping" value=""/>
             <beans:property name="thumbnailMapping" value=""/>
+            <beans:property name="identifierMapping" value="identifier"/>
             <beans:property name="contentTypeNames">
                 <beans:list></beans:list>
             </beans:property>
             <beans:property name="pollInterval" value=""/>
             <beans:property name="resourceReaders" ref="resourceReaders"/>
             <beans:property name="outputSchema" value=""/>
+            <beans:property name="queryTypeQName" value=""/>
+            <beans:property name="queryTypePrefix" value=""/>
             <beans:property name="cswTransformProvider" ref="cswTransformProvider"/>
             <beans:property name="isCqlForced" value="false"/>
             <beans:property name="forceSpatialFilter" value=""/>
