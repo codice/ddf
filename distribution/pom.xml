@@ -32,7 +32,7 @@
         <commons-io.version>2.1</commons-io.version>
         <karaf.version>2.4.3</karaf.version>
         <pax.web.version>3.2.4</pax.web.version>
-        <pax.cdi.version>0.8.0</pax.cdi.version>
+        <pax.cdi.version>0.11.0</pax.cdi.version>
     </properties>
 
     <modules>
