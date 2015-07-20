@@ -640,7 +640,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
             if (featureCollection.getNumberReturned() == null) {
                 LOGGER.warn("Number Returned Attribute was not added to the response");
-            } else if (!featureCollection.getNumberReturned().equals(numResults)) {
+            } else if (!featureCollection.getNumberReturned().equals(BigInteger.valueOf(numResults))) {
                 LOGGER.warn(
                         "Number Returned Attribute ({}) did not match actual number returned ({})",
                         featureCollection.getNumberReturned(), numResults);
