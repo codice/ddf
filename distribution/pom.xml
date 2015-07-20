@@ -31,7 +31,7 @@
         <commons-io.version>2.1</commons-io.version>
         <karaf.version>2.4.3</karaf.version>
         <pax.web.version>3.2.4</pax.web.version>
-        <pax.cdi.version>0.8.0</pax.cdi.version>
+        <pax.cdi.version>0.11.0</pax.cdi.version>
         <ddf.platform.app.version>2.8.0-SNAPSHOT</ddf.platform.app.version>
         <ddf.content.app.version>2.8.0-SNAPSHOT</ddf.content.app.version>
         <ddf.catalog.app.version>2.8.0-SNAPSHOT</ddf.catalog.app.version>
