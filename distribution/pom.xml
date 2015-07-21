@@ -37,7 +37,7 @@
         <ddf.catalog.app.version>2.8.0-SNAPSHOT</ddf.catalog.app.version>
         <ddf.searchui.app.version>2.8.0-SNAPSHOT</ddf.searchui.app.version>
         <ddf.spatial.app.version>2.8.0-SNAPSHOT</ddf.spatial.app.version>
-        <ddf.admin.app.version>1.3.0-SNAPSHOT</ddf.admin.app.version>
+        <ddf.admin.app.version>2.8.0-SNAPSHOT</ddf.admin.app.version>
     </properties>
 
     <modules>
