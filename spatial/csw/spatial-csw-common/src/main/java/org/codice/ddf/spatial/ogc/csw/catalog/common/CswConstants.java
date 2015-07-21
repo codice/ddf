@@ -37,6 +37,8 @@ public interface CswConstants {
 
     String CAPABILITIES = "Capabilities";
 
+    String TRANSACTION = "Transaction";
+
     String CSW = "CSW";
 
     String XML = "XML";
@@ -77,11 +79,16 @@ public interface CswConstants {
 
     String CONSTRAINT_LANGUAGE_CQL = "CQL_Text";
 
+    List<String> CONSTRAINT_LANGUAGES = Arrays
+            .asList(CONSTRAINT_LANGUAGE_FILTER, CONSTRAINT_LANGUAGE_CQL);
+
     String OWS_NAMESPACE = "http://www.opengis.net/ows";
 
     QName POST = new QName(OWS_NAMESPACE, "Post");
 
     QName GET = new QName(OWS_NAMESPACE, "Get");
+
+    QName BOUNDING_BOX_QNAME = new QName(OWS_NAMESPACE, "BoundingBox");
 
     String POST_ENCODING = "PostEncoding";
 
@@ -145,6 +152,10 @@ public interface CswConstants {
     String DUBLIN_CORE_SCHEMA = "http://purl.org/dc/elements/1.1/";
 
     String DUBLIN_CORE_TERMS_SCHEMA = "http://purl.org/dc/terms/";
+
+    QName DC_IDENTIFIER_QNAME = new QName(DUBLIN_CORE_SCHEMA, "identifier");
+
+    QName DC_TITLE_QNAME = new QName(DUBLIN_CORE_SCHEMA, "title");
 
     String CSW_OGCCORE_OUTPUT_SCHEMA = "OGCCORE";
 

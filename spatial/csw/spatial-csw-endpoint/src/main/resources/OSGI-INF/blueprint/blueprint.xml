@@ -24,12 +24,20 @@
 
     <bean id="cswJaxbElementProvider"
           class="org.codice.ddf.spatial.ogc.csw.catalog.common.CswJAXBElementProvider">
+        <property name="singleJaxbContext" value="true"/>
+        <property name="extraClass">
+            <list>
+                <value>net.opengis.cat.csw.v_2_0_2.TransactionResponseType</value>
+                <value>net.opengis.cat.csw.v_2_0_2.CapabilitiesType</value>
+                <value>net.opengis.cat.csw.v_2_0_2.DescribeRecordResponseType</value>
+            </list>
+        </property>
         <property name="marshallAsJaxbElement" value="true"/>
         <property name="marshallerProperties">
             <map/>
         </property>
         <property name="schemaLocation"
-                  value="http://www.opengis.net/csw /ogc/csw/2.0.2/CSW-discovery.xsd"/>
+                  value="http://www.opengis.net/csw /ogc/csw/2.0.2/CSW-publication.xsd"/>
         <property name="unmarshallAsJaxbElement" value="true"/>
         <property name="jaxbElementClassMap">
             <map>
@@ -44,6 +52,12 @@
                         <value>net.opengis.cat.csw.v_2_0_2.DescribeRecordResponseType</value>
                     </key>
                     <value>{http://www.opengis.net/cat/csw/2.0.2}DescribeRecordResponse</value>
+                </entry>
+                <entry>
+                    <key>
+                        <value>net.opengis.cat.csw.v_2_0_2.TransactionResponseType</value>
+                    </key>
+                    <value>{http://www.opengis.net/cat/csw/2.0.2}TransactionResponse</value>
                 </entry>
             </map>
         </property>
@@ -81,7 +95,14 @@
           class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswExceptionMapper"/>
     <bean id="cswRecordCollectionWriter"
           class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.writer.CswRecordCollectionMessageBodyWriter">
-    	<argument ref="queryResponseTransformerManager"/>
+        <argument ref="queryResponseTransformerManager"/>
+    </bean>
+
+    <reference id="cswRecordConverter" interface="com.thoughtworks.xstream.converters.Converter" />
+
+    <bean id="transactionMessageBodyReader"
+          class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.reader.TransactionMessageBodyReader">
+        <argument ref="cswRecordConverter"/>
     </bean>
 
     <reference id="catalogFramework" interface="ddf.catalog.CatalogFramework"/>
@@ -106,6 +127,8 @@
             <ref component-id="cswJaxbElementProvider"/>
             <ref component-id="cswExceptionMapperProvider"/>
             <ref component-id="cswRecordCollectionWriter"/>
+            <ref component-id="transactionMessageBodyReader"/>
+            <!--<ref component-id="transactionMessageBodyReader"/>-->
         </jaxrs:providers>
     </jaxrs:server>
 

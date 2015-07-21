@@ -46,6 +46,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.DescribeRecordRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordByIdRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordsRequest;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.source.reader.GetRecordsMessageBodyReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,7 +64,6 @@ import net.opengis.cat.csw.v_2_0_2.GetRecordByIdType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsResponseType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.TransactionResponseType;
-import net.opengis.cat.csw.v_2_0_2.TransactionType;
 
 /**
  * A client to a CSW 2.0.2 Service. This class uses the {@link Csw} interface to create a client
@@ -84,8 +84,8 @@ public class RemoteCsw extends TrustedRemoteSource implements Csw {
     /**
      * Instantiates a new RemoteCsw
      *
-     * @param cswTransformProvider The reference to the the CSW Transform Provider
-     * @param cswSourceConfiguration   The Csw Source Configuration
+     * @param cswTransformProvider   The reference to the the CSW Transform Provider
+     * @param cswSourceConfiguration The Csw Source Configuration
      */
     public RemoteCsw(Converter cswTransformProvider,
             CswSourceConfiguration cswSourceConfiguration) {
@@ -106,8 +106,9 @@ public class RemoteCsw extends TrustedRemoteSource implements Csw {
 
     /**
      * Sets the timeouts to use for connection and receive requests.
+     *
      * @param connectionTimeout Time in milliseconds to allow a connection.
-     * @param receiveTimeout Time in milliseconds to allow a receive.
+     * @param receiveTimeout    Time in milliseconds to allow a receive.
      */
     public void setTimeouts(Integer connectionTimeout, Integer receiveTimeout) {
         this.configureTimeouts(WebClient.fromClientObject(csw), connectionTimeout, receiveTimeout);
@@ -198,8 +199,8 @@ public class RemoteCsw extends TrustedRemoteSource implements Csw {
     @GET
     @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
     @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-    public DescribeRecordResponseType describeRecord(DescribeRecordRequest request) throws
-            CswException {
+    public DescribeRecordResponseType describeRecord(DescribeRecordRequest request)
+            throws CswException {
         return csw.describeRecord(request);
     }
 
@@ -207,8 +208,8 @@ public class RemoteCsw extends TrustedRemoteSource implements Csw {
     @POST
     @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
     @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-    public DescribeRecordResponseType describeRecord(DescribeRecordType request) throws
-            CswException {
+    public DescribeRecordResponseType describeRecord(DescribeRecordType request)
+            throws CswException {
         return csw.describeRecord(request);
     }
 
@@ -264,7 +265,7 @@ public class RemoteCsw extends TrustedRemoteSource implements Csw {
     @POST
     @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
     @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-    public TransactionResponseType transaction(TransactionType request) throws CswException {
+    public TransactionResponseType transaction(CswTransactionRequest request) throws CswException {
         return csw.transaction(request);
     }
 
