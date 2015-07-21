@@ -14,6 +14,7 @@
 package ddf.catalog.test;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.xml.HasXPath.hasXPath;
 import static com.jayway.restassured.RestAssured.delete;
@@ -40,6 +41,23 @@ import ddf.common.test.BeforeExam;
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
 public class TestCatalog extends AbstractIntegrationTest {
+
+    private static final String CSW_ENDPOINT = SERVICE_ROOT + "/csw";
+
+    public static void deleteMetacard(String id) {
+        LOGGER.info("Deleting metacard {}", id);
+        delete(REST_PATH + id).then().assertThat().statusCode(200).log().all();
+    }
+
+    public static String ingestGeoJson(String json) {
+        return ingest(json, "application/json");
+    }
+
+    public static String ingest(String data, String mimeType) {
+        LOGGER.info("Ingesting data of type {}:\n{}", mimeType, data);
+        return given().body(data).header("Content-Type", mimeType).expect().log().all()
+                .statusCode(201).when().post(REST_PATH).getHeader("id");
+    }
 
     @BeforeExam
     public void beforeExam() throws Exception {
@@ -106,6 +124,18 @@ public class TestCatalog extends AbstractIntegrationTest {
         deleteMetacard(id4);
     }
 
+    @Test
+    public void testCswIngest() {
+        ValidatableResponse response = given().header("Content-Type", "application/xml")
+                .body(Library.getCswIngest()).post(CSW_ENDPOINT).then();
+        response.body(hasXPath("//TransactionResponse/TransactionSummary/totalInserted", is("1")),
+                hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("0")),
+                hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("0")),
+                hasXPath("//TransactionResponse/InsertResult/BriefRecord/title",
+                        is("Aliquam fermentum purus quis arcu")),
+                hasXPath("//TransactionResponse/InsertResult/BriefRecord/BoundingBox"));
+    }
+
     private ValidatableResponse executeOpenSearch(String format, String... query) {
         StringBuilder buffer = new StringBuilder(OPENSEARCH_PATH).append("?").append("format=")
                 .append(format);
@@ -121,25 +151,10 @@ public class TestCatalog extends AbstractIntegrationTest {
         return when().get(url).then();
     }
 
-    public static void deleteMetacard(String id) {
-        LOGGER.info("Deleting metacard {}", id);
-        delete(REST_PATH + id).then().assertThat().statusCode(200).log().all();
-    }
-
     protected String ingestXmlFromResource(String resourceName) throws IOException {
         StringWriter writer = new StringWriter();
         IOUtils.copy(getClass().getResourceAsStream(resourceName), writer);
         return ingest(writer.toString(), "text/xml");
-    }
-
-    public static String ingestGeoJson(String json) {
-        return ingest(json, "application/json");
-    }
-
-    public static String ingest(String data, String mimeType) {
-        LOGGER.info("Ingesting data of type {}:\n{}", mimeType, data);
-        return given().body(data).header("Content-Type", mimeType).expect().log().all()
-                .statusCode(201).when().post(REST_PATH).getHeader("id");
     }
 
 }
