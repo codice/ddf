@@ -1,0 +1,4 @@
+= Distributed Data Framework Documentation Omnibus
+include::config.adoc[]
+
+include::DDFOmniContents.adoc[]

@@ -32,10 +32,15 @@
         <karaf.version>2.4.1</karaf.version>
         <pax.web.version>3.1.2</pax.web.version>
         <pax.cdi.version>0.8.0</pax.cdi.version>
+        <ddf.platform.app.version>2.8.0-SNAPSHOT</ddf.platform.app.version>
+        <ddf.content.app.version>2.8.0-SNAPSHOT</ddf.content.app.version>
+        <ddf.catalog.app.version>2.8.0-SNAPSHOT</ddf.catalog.app.version>
+        <ddf.searchui.app.version>2.8.0-SNAPSHOT</ddf.searchui.app.version>
+        <ddf.spatial.app.version>2.8.0-SNAPSHOT</ddf.spatial.app.version>
+        <ddf.admin.app.version>2.8.0-SNAPSHOT</ddf.admin.app.version>
     </properties>
 
     <modules>
-        <module>docs</module>
         <module>console-branding</module>
         <module>webconsole-branding</module>
         <module>webconsole-branding-plugin</module>
@@ -44,6 +49,7 @@
         <module>install-profiles</module>
         <module>ddf</module>
         <module>test</module>
+        <module>docs</module>
     </modules>
 
     <repositories>
