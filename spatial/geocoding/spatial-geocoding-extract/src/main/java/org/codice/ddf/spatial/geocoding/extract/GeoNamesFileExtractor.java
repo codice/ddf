@@ -16,7 +16,6 @@ package org.codice.ddf.spatial.geocoding.extract;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
@@ -29,15 +28,11 @@ import org.codice.ddf.spatial.geocoding.GeoEntryCreator;
 import org.codice.ddf.spatial.geocoding.GeoEntryExtractionException;
 import org.codice.ddf.spatial.geocoding.GeoEntryExtractor;
 import org.codice.ddf.spatial.geocoding.ProgressCallback;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 
 public class GeoNamesFileExtractor implements GeoEntryExtractor {
-    private static final Logger LOGGER = LoggerFactory.getLogger(GeoNamesFileExtractor.class);
-
     private GeoEntryCreator geoEntryCreator;
 
     public void setGeoEntryCreator(final GeoEntryCreator geoEntryCreator) {
@@ -102,16 +97,10 @@ public class GeoNamesFileExtractor implements GeoEntryExtractor {
             // above loop when progress is 100. In any case, we need to give a progress update when
             // the work is complete.
             extractionCallback.updateProgress(100);
-        } catch (ArrayIndexOutOfBoundsException e) {
-            LOGGER.error("{} is not in the format expected by the GeoEntryCreator",
-                    inputTextFileLocation, e);
+        } catch (IndexOutOfBoundsException e) {
             throw new GeoEntryExtractionException(inputTextFileLocation + " does not follow the " +
                     "expected GeoNames file format.", e);
-        } catch (FileNotFoundException e) {
-            LOGGER.error("Could not find the input file: {}", inputTextFileLocation, e);
-            throw new GeoEntryExtractionException("Could not find " + inputTextFileLocation, e);
         } catch (IOException e) {
-            LOGGER.error("An error occurred while reading {}", inputTextFileLocation, e);
             throw new GeoEntryExtractionException("An error occurred while reading " +
                     inputTextFileLocation, e);
         }
@@ -127,7 +116,6 @@ public class GeoNamesFileExtractor implements GeoEntryExtractor {
                 unzipFile(fileLocation, textFileName);
                 return FilenameUtils.getFullPath(fileLocation) + textFileName;
             } catch (ZipException e) {
-                LOGGER.error("Error unzipping {} from {}", textFileName, fileLocation, e);
                 throw new GeoEntryExtractionException("Error unzipping " + textFileName + " from " +
                     fileLocation, e);
             }

@@ -25,11 +25,15 @@ import org.codice.ddf.spatial.geocoding.GeoEntryExtractor;
 import org.codice.ddf.spatial.geocoding.GeoEntryIndexer;
 import org.codice.ddf.spatial.geocoding.GeoEntryIndexingException;
 import org.codice.ddf.spatial.geocoding.ProgressCallback;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Command(scope = "geonames", name = "update",
         description = "Adds new entries to an existing local GeoNames index. Attempting to " +
                 "add entries when no index exists is an error.")
 public final class GeoNamesUpdateCommand extends OsgiCommandSupport {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GeoNamesUpdateCommand.class);
+
     @Argument(index = 0, name = "resource",
             description = "The resource whose contents you wish to insert into the index.",
             required = true)
@@ -68,9 +72,11 @@ public final class GeoNamesUpdateCommand extends OsgiCommandSupport {
             geoEntryIndexer.updateIndex(resource, geoEntryExtractor, create, progressCallback);
             CONSOLE.println("\nDone.");
         } catch (GeoEntryExtractionException e) {
+            LOGGER.error("Error extracting GeoNames data from resource {}", resource, e);
             CONSOLE.printf("Could not extract GeoNames data from resource %s.\n" + "Message: %s\n"
                     + "Check the logs for more details.\n", resource, e.getMessage());
         } catch (GeoEntryIndexingException e) {
+            LOGGER.error("Error indexing GeoNames data", e);
             CONSOLE.printf("Could not index the GeoNames data.\n" + "Message: %s\n"
                     + "Check the logs for more details.\n", e.getMessage());
         }

@@ -38,12 +38,8 @@ import org.codice.ddf.spatial.geocoding.GeoEntryExtractor;
 import org.codice.ddf.spatial.geocoding.GeoEntryIndexer;
 import org.codice.ddf.spatial.geocoding.GeoEntryIndexingException;
 import org.codice.ddf.spatial.geocoding.ProgressCallback;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class GeoNamesLuceneIndexer implements GeoEntryIndexer {
-    private static final Logger LOGGER = LoggerFactory.getLogger(GeoNamesLuceneIndexer.class);
-
     private static final Analyzer ANALYZER = new StandardAnalyzer();
 
     private String indexLocation;
@@ -66,17 +62,12 @@ public class GeoNamesLuceneIndexer implements GeoEntryIndexer {
         try {
             directory = FSDirectory.open(Paths.get(indexLocation));
         } catch (IOException e) {
-            LOGGER.error("Error opening the directory for the GeoNames index: {}",
-                    indexLocation, e);
             throw new GeoEntryIndexingException("Couldn't open the directory for the index, " +
                     indexLocation, e);
         }
 
-        final IndexWriterConfig indexWriterConfig = new IndexWriterConfig(ANALYZER);
-        indexWriterConfig.setOpenMode(create ? OpenMode.CREATE : OpenMode.APPEND);
-
         // Try-with-resources to ensure the IndexWriter always gets closed.
-        try (final IndexWriter indexWriter = new IndexWriter(directory, indexWriterConfig)) {
+        try (final IndexWriter indexWriter = createIndexWriter(create, directory)) {
             final ExtractionCallback extractionCallback = new ExtractionCallback() {
                 @Override
                 public void extracted(final GeoEntry newEntry) {
@@ -104,9 +95,15 @@ public class GeoNamesLuceneIndexer implements GeoEntryIndexer {
                 throw e;
             }
         } catch (IOException e) {
-            LOGGER.error("Error writing to the index", e);
             throw new GeoEntryIndexingException("Error writing to the index.", e);
         }
+    }
+
+    IndexWriter createIndexWriter(final boolean create, final Directory directory)
+            throws IOException {
+        final IndexWriterConfig indexWriterConfig = new IndexWriterConfig(ANALYZER);
+        indexWriterConfig.setOpenMode(create ? OpenMode.CREATE : OpenMode.APPEND);
+        return new IndexWriter(directory, indexWriterConfig);
     }
 
     private void buildIndex(final List<GeoEntry> geoEntryList, final boolean create,
@@ -116,17 +113,12 @@ public class GeoNamesLuceneIndexer implements GeoEntryIndexer {
         try {
             directory = FSDirectory.open(Paths.get(indexLocation));
         } catch (IOException e) {
-            LOGGER.error("Error opening the directory for the GeoNames index: {}",
-                    indexLocation, e);
             throw new GeoEntryIndexingException("Couldn't open the directory for the index, " +
                     indexLocation, e);
         }
 
-        final IndexWriterConfig indexWriterConfig = new IndexWriterConfig(ANALYZER);
-        indexWriterConfig.setOpenMode(create ? OpenMode.CREATE : OpenMode.APPEND);
-
         // Try-with-resources to ensure the IndexWriter always gets closed.
-        try (final IndexWriter indexWriter = new IndexWriter(directory, indexWriterConfig)) {
+        try (final IndexWriter indexWriter = createIndexWriter(create, directory)) {
             try {
                 indexGeoEntries(indexWriter, geoEntryList, progressCallback);
             } catch (IOException e) {
@@ -136,7 +128,6 @@ public class GeoNamesLuceneIndexer implements GeoEntryIndexer {
                 throw e;
             }
         } catch (IOException e) {
-            LOGGER.error("Error writing to the index", e);
             throw new GeoEntryIndexingException("Error writing to the index.", e);
         }
     }
@@ -173,11 +164,6 @@ public class GeoNamesLuceneIndexer implements GeoEntryIndexer {
         document.add(new DoubleField("longitude", geoEntry.getLongitude(), Field.Store.YES));
         document.add(new TextField("feature_code", geoEntry.getFeatureCode(), Field.Store.YES));
         document.add(new LongField("population", geoEntry.getPopulation(), Field.Store.YES));
-        try {
-            indexWriter.addDocument(document);
-        } catch (IOException e) {
-            LOGGER.error("Error adding document to the index", e);
-            throw e;
-        }
+        indexWriter.addDocument(document);
     }
 }
