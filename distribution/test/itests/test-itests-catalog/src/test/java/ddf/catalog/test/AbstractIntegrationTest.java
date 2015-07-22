@@ -270,8 +270,7 @@ public abstract class AbstractIntegrationTest {
                         "security-services-app,catalog-app,solr-app,spatial-app,sdk-app"),
                 editConfigurationFileExtend("etc/org.apache.karaf.features.cfg",
                         "featuresRepositories",
-                        "mvn:ddf.sdk/sdk-app/2.3.0.ALPHA1-SNAPSHOT/xml/features"));
-
+                        "mvn:ddf.sdk/sdk-app/2.8.0-SNAPSHOT/xml/features"));
     }
 
     /**
@@ -328,7 +327,7 @@ public abstract class AbstractIntegrationTest {
         sourceConfig.update(new Hashtable<>(properties));
 
         long millis = 0;
-        while (!listener.isUpdated() && millis < TimeUnit.MINUTES.toMillis(5)) {
+        while (!listener.isUpdated() && millis < TimeUnit.MINUTES.toMillis(10)) {
             try {
                 Thread.sleep(CONFIG_UPDATE_WAIT_INTERVAL);
                 millis += CONFIG_UPDATE_WAIT_INTERVAL;
