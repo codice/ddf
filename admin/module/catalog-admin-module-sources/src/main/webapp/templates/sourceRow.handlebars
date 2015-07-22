@@ -13,8 +13,13 @@
  --}}
 <td>
     <a href='#{{id}}' class='newLink' data-toggle="modal">
-        {{name}}
+        {{#if name}}
+            {{name}}
+        {{else}}
+            <span class='label label-danger'>[No Title]</span>
+        {{/if}}
     </a>
+
     <div class="modal-container">
 
     </div>

@@ -40,7 +40,7 @@ var server = {};
 server.requestProxy = function (req, res) {
     "use strict";
 
-    req.url = "http://localhost:8181" + req.url;
+    req.url = "https://localhost:8993" + req.url;
     var urlObj = URL.parse(req.url);
     req.url = urlObj.path;
     // Buffer requests so that eventing and async methods still work
@@ -48,11 +48,16 @@ server.requestProxy = function (req, res) {
     var buffer = httpProxy.buffer(req);
     console.log('Proxying Request "' + req.url + '"');
 
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
     proxy.proxyRequest(req, res, {
         host: urlObj.hostname,
         port: urlObj.port || 80,
         buffer: buffer,
-        changeOrigin: true
+        changeOrigin: true,
+        secure: false,
+        target: {
+            https: true
+        }
     });
 
 };
