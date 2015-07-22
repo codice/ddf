@@ -29,8 +29,10 @@ import junit.framework.Assert;
 
 import ddf.security.pdp.realm.SimpleAuthzRealm;
 import ddf.security.permission.ActionPermission;
+import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
 import ddf.security.permission.KeyValuePermission;
+import ddf.security.policy.extension.PolicyExtension;
 
 /**
  * User: tustisos Date: 3/20/13 Time: 9:35 AM
@@ -105,8 +107,7 @@ public class SimpleAuthzRealmTest {
     @Test
     public void testIsPermittedOneSingle() {
         permissionList.clear();
-        KeyValuePermission kvp = new KeyValuePermission("country",
-                Arrays.asList("AUS", "CAN", "GBR"));
+        KeyValuePermission kvp = new KeyValuePermission("country", Arrays.asList("AUS", "CAN", "GBR"));
         permissionList.add(kvp);
         PrincipalCollection mockSubjectPrincipal = Mockito.mock(PrincipalCollection.class);
 
@@ -120,8 +121,7 @@ public class SimpleAuthzRealmTest {
     @Test
     public void testIsPermittedOneMultiple() {
         permissionList.clear();
-        KeyValuePermission kvp = new KeyValuePermission("country",
-                Arrays.asList("AUS", "CAN", "GBR"));
+        KeyValuePermission kvp = new KeyValuePermission("country", Arrays.asList("AUS", "CAN", "GBR"));
         permissionList.add(kvp);
 
         String ruleClaim = "FineAccessControls";
@@ -198,6 +198,34 @@ public class SimpleAuthzRealmTest {
 
         for (boolean permitted : permittedArray) {
             Assert.assertEquals(false, permitted);
+        }
+    }
+
+    @Test
+    public void testBadPolicyExtension() {
+        permissionList.clear();
+        KeyValuePermission kvp = new KeyValuePermission("country", Arrays.asList("AUS", "CAN", "GBR"));
+        permissionList.add(kvp);
+        PrincipalCollection mockSubjectPrincipal = Mockito.mock(PrincipalCollection.class);
+
+        testRealm.addPolicyExtension(new PolicyExtension() {
+            @Override
+            public KeyValueCollectionPermission isPermittedMatchAll(CollectionPermission subjectAllCollection,
+                    KeyValueCollectionPermission matchAllCollection) {
+                throw new NullPointerException();
+            }
+
+            @Override
+            public KeyValueCollectionPermission isPermittedMatchOne(CollectionPermission subjectAllCollection,
+                    KeyValueCollectionPermission matchOneCollection) {
+                throw new NullPointerException();
+            }
+        });
+
+        boolean[] permittedArray = testRealm.isPermitted(mockSubjectPrincipal, permissionList);
+
+        for (boolean permitted : permittedArray) {
+            Assert.assertEquals(true, permitted);
         }
     }
 }

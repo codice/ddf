@@ -30,6 +30,10 @@
     <reference-list id="userAttributeExpansionList" interface="ddf.security.expansion.Expansion"
                     filter="(mapping=security.user.attribute.mapping)" availability="optional"/>
 
+    <reference-list id="policyExtensionList" interface="ddf.security.policy.extension.PolicyExtension" availability="optional">
+        <reference-listener bind-method="addPolicyExtension" unbind-method="removePolicyExtension" ref="pdpAuthzRealm"/>
+    </reference-list>
+
     <service ref="pdpAuthzRealm">
         <interfaces>
             <value>org.apache.shiro.realm.Realm</value>

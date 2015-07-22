@@ -42,6 +42,7 @@ import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
 import ddf.security.permission.KeyValuePermission;
 import ddf.security.permission.MatchOneCollectionPermission;
+import ddf.security.policy.extension.PolicyExtension;
 import ddf.security.service.impl.AbstractAuthorizingRealm;
 
 /**
@@ -56,7 +57,7 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
      * Identifies the key used to retrieve a List of Strings that represent the mapping between
      * metacard and user attributes. The mappings defined in this List of Strings are used by the
      * "match all" evaluation to determine if this user should be authorized to access this data.
-     * <p>
+     * <p/>
      * Each string is of the format: <code>metacardAttribute=userAttribute</code> where
      * metacardAttribute is the name of an attribute in the metacard and userAttribute is the name
      * of the corresponding attribute in the user credentials. It is the value of each of these
@@ -69,7 +70,7 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
      * Identifies the key used to retrieve a List of Strings that represent the mapping between
      * metacard and user attributes. The mappings defined in this List of Strings are used by the
      * "match one" evaluation to determine if this user should be authorized to access this data.
-     * <p>
+     * <p/>
      * Each string is of the format: <code>metacardAttribute=userAttribute</code> where
      * metacardAttribute is the name of an attribute in the metacard and userAttribute is the name
      * of the corresponding attribute in the user credentials. It is the value of each of these
@@ -92,8 +93,7 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
      */
     public static final String OPEN_ACCESS_ACTION_LIST = "openAccessActionList";
 
-    private static final XLogger LOGGER = new XLogger(
-            LoggerFactory.getLogger(SimpleAuthzRealm.class));
+    private static final XLogger LOGGER = new XLogger(LoggerFactory.getLogger(SimpleAuthzRealm.class));
 
     private static final String ACCESS_DENIED_MSG = "User not authorized";
 
@@ -109,14 +109,15 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
 
     private List<String> openAccessActionList;
 
+    private List<PolicyExtension> policyExtensions = new ArrayList<>();
+
     private HashMap<String, String> matchAllMap = new HashMap<String, String>();
 
     private HashMap<String, String> matchOneMap = new HashMap<String, String>();
 
     // this realm is for authorization only
     @Override
-    protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token)
-            throws AuthenticationException {
+    protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
         return null;
     }
 
@@ -168,11 +169,10 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
      * authorization data, where it will then be cached for efficient reuse. This ensures that stale
      * authorization data will not be reused.
      *
-     * @param principals
-     *            the corresponding Subject's identifying principals with which to look up the
-     *            Subject's {@code AuthorizationInfo}.
+     * @param principals the corresponding Subject's identifying principals with which to look up the
+     *                   Subject's {@code AuthorizationInfo}.
      * @return the authorization information for the account associated with the specified
-     *         {@code principals}, or {@code null} if no account could be found.
+     * {@code principals}, or {@code null} if no account could be found.
      */
     @Override
     public AuthorizationInfo getAuthorizationInfo(PrincipalCollection principals) {
@@ -185,15 +185,13 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
     /**
      * Returns <tt>true</tt> if the corresponding subject/user is permitted to perform an action or
      * access a resource summarized by the specified permission.
-     *
-     * <p>
+     * <p/>
+     * <p/>
      * More specifically, this method determines if any <tt>Permission</tt>s associated with the
      * subject {@link Permission#implies(Permission) imply} the specified permission.
      *
-     * @param subjectPrincipal
-     *            the application-specific subject/user identifier.
-     * @param permission
-     *            the permission that is being checked.
+     * @param subjectPrincipal the application-specific subject/user identifier.
+     * @param permission       the permission that is being checked.
      * @return true if the corresponding Subject/user is permitted, false otherwise.
      */
     @Override
@@ -204,28 +202,25 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
     /**
      * Checks if the corresponding Subject/user implies the given Permissions and returns a boolean
      * array indicating which permissions are implied.
-     *
-     * <p>
+     * <p/>
+     * <p/>
      * More specifically, this method should determine if each <tt>Permission</tt> in the array is
      * {@link Permission#implies(Permission) implied} by permissions already associated with the
      * subject.
-     *
-     * <p>
+     * <p/>
+     * <p/>
      * This is primarily a performance-enhancing method to help reduce the number of
      * {@link #isPermitted} invocations over the wire in client/server systems.
      *
-     * @param subjectPrincipal
-     *            the application-specific subject/user identifier.
-     * @param permissions
-     *            the permissions that are being checked.
+     * @param subjectPrincipal the application-specific subject/user identifier.
+     * @param permissions      the permissions that are being checked.
      * @return an array of booleans whose indices correspond to the index of the permissions in the
-     *         given list. A true value at an index indicates the user is permitted for for the
-     *         associated <tt>Permission</tt> object in the list. A false value at an index
-     *         indicates otherwise.
+     * given list. A true value at an index indicates the user is permitted for for the
+     * associated <tt>Permission</tt> object in the list. A false value at an index
+     * indicates otherwise.
      */
     @Override
-    public boolean[] isPermitted(PrincipalCollection subjectPrincipal,
-            List<Permission> permissions) {
+    public boolean[] isPermitted(PrincipalCollection subjectPrincipal, List<Permission> permissions) {
         boolean[] results = new boolean[permissions.size()];
         AuthorizationInfo info = getAuthorizationInfo(subjectPrincipal);
         int i = 0;
@@ -240,14 +235,11 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
      * Checks if the corresponding Subject/user contained within the AuthorizationInfo object
      * implies the given Permission.
      *
-     * @param permission
-     *            the permission being checked.
-     * @param info
-     *            the application-specific subject/user identifier.
+     * @param permission the permission being checked.
+     * @param info       the application-specific subject/user identifier.
      * @return true if the user is permitted
      */
-    private boolean isPermitted(PrincipalCollection subjectPrincipal, Permission permission,
-            AuthorizationInfo info) {
+    private boolean isPermitted(PrincipalCollection subjectPrincipal, Permission permission, AuthorizationInfo info) {
         Collection<Permission> perms = getPermissions(info);
         String curUser = "<user>";
         if (subjectPrincipal != null && subjectPrincipal.getPrimaryPrincipal() != null) {
@@ -256,13 +248,12 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
         if (SecurityLogger.isDebugEnabled()) {
             SecurityLogger.logDebug("Starting permissions check for user [" + curUser + "]");
         }
-        if (perms != null && !perms.isEmpty()) {
+        if (!CollectionUtils.isEmpty(perms)) {
             if (permission instanceof KeyValuePermission) {
                 permission = new KeyValueCollectionPermission((KeyValuePermission) permission);
             }
             if (permission != null && permission instanceof KeyValueCollectionPermission) {
-                List<KeyValuePermission> metacardPermissions = ((KeyValueCollectionPermission) permission)
-                        .getKeyValuePermissionList();
+                List<KeyValuePermission> metacardPermissions = ((KeyValueCollectionPermission) permission).getKeyValuePermissionList();
                 List<KeyValuePermission> matchOnePermissions = new ArrayList<KeyValuePermission>();
                 List<KeyValuePermission> matchAllPermissions = new ArrayList<KeyValuePermission>();
 
@@ -271,87 +262,103 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
                     // user specificied this metacard key in the match all list - remap key
                     if (matchAllMap.containsKey(metacardKey)) {
                         if (SecurityLogger.isDebugEnabled()) {
-                            SecurityLogger.logDebug(
-                                    "Mapping metacard key " + metacardKey + " to " + matchAllMap
-                                            .get(metacardKey));
+                            SecurityLogger.logDebug("Mapping metacard key " + metacardKey + " to " + matchAllMap.get(metacardKey));
                         }
-                        KeyValuePermission kvp = new KeyValuePermission(
-                                matchAllMap.get(metacardKey), metacardPermission.getValues());
+                        KeyValuePermission kvp = new KeyValuePermission(matchAllMap.get(metacardKey), metacardPermission.getValues());
                         matchAllPermissions.add(kvp);
-                    // user specified this metacard key in the match one list - remap key
+                        // user specified this metacard key in the match one list - remap key
                     } else if (matchOneMap.containsKey(metacardKey)) {
                         if (SecurityLogger.isDebugEnabled()) {
-                            SecurityLogger.logDebug(
-                                    "Mapping metacard key " + metacardKey + " to " + matchOneMap
-                                            .get(metacardKey));
+                            SecurityLogger.logDebug("Mapping metacard key " + metacardKey + " to " + matchOneMap.get(metacardKey));
                         }
-                        KeyValuePermission kvp = new KeyValuePermission(
-                                matchOneMap.get(metacardKey), metacardPermission.getValues());
+                        KeyValuePermission kvp = new KeyValuePermission(matchOneMap.get(metacardKey), metacardPermission.getValues());
                         matchOnePermissions.add(kvp);
-                    // this metacard key was not specified in either - default to match all with the
-                    // same key value
+                        // this metacard key was not specified in either - default to match all with the
+                        // same key value
                     } else {
                         matchAllPermissions.add(metacardPermission);
                     }
                 }
 
-                KeyValueCollectionPermission matchAllCollection = new KeyValueCollectionPermission(
-                        matchAllPermissions);
-                KeyValueCollectionPermission matchOneCollection = new KeyValueCollectionPermission(
-                        matchOnePermissions);
                 CollectionPermission subjectAllCollection = new CollectionPermission(perms);
-                MatchOneCollectionPermission subjectOneCollection = new MatchOneCollectionPermission(
-                        perms);
+                KeyValueCollectionPermission matchAllCollection = new KeyValueCollectionPermission(matchAllPermissions);
+                KeyValueCollectionPermission matchOneCollection = new KeyValueCollectionPermission(matchOnePermissions);
+
+                matchAllCollection = isPermittedByExtensionAll(subjectAllCollection, matchAllCollection);
+                matchOneCollection = isPermittedByExtensionOne(subjectAllCollection, matchOneCollection);
+                MatchOneCollectionPermission subjectOneCollection = new MatchOneCollectionPermission(perms);
 
                 boolean matchAll = subjectAllCollection.implies(matchAllCollection);
                 boolean matchOne = subjectOneCollection.implies(matchOneCollection);
                 if (SecurityLogger.isDebugEnabled()) {
                     if (matchAll && matchOne) {
-                        SecurityLogger.logDebug(
-                                PERMISSION_FINISH_1_MSG + curUser + PERMISSION_FINISH_2_MSG
-                                        + permission + "] is implied.");
+                        SecurityLogger.logDebug(PERMISSION_FINISH_1_MSG + curUser + PERMISSION_FINISH_2_MSG + permission + "] is implied.");
                     } else {
-                        SecurityLogger.logDebug(
-                                PERMISSION_FINISH_1_MSG + curUser + PERMISSION_FINISH_2_MSG
-                                        + permission + "] is not implied.");
+                        SecurityLogger.logDebug(PERMISSION_FINISH_1_MSG + curUser + PERMISSION_FINISH_2_MSG + permission + "] is not implied.");
                     }
                 }
                 return (matchAll && matchOne);
             }
 
             for (Permission perm : perms) {
-                if (permission instanceof ActionPermission && isPermitted(
-                        (ActionPermission) permission, info)) {
+                if (permission instanceof ActionPermission && isPermitted((ActionPermission) permission, info)) {
                     if (SecurityLogger.isDebugEnabled()) {
-                        SecurityLogger.logDebug(
-                                PERMISSION_FINISH_1_MSG + curUser + PERMISSION_FINISH_2_MSG
-                                        + permission + "] is implied.");
+                        SecurityLogger.logDebug(PERMISSION_FINISH_1_MSG + curUser + PERMISSION_FINISH_2_MSG + permission + "] is implied.");
                     }
                     return true;
                 } else if (permission != null && perm.implies(permission)) {
                     if (SecurityLogger.isDebugEnabled()) {
-                        SecurityLogger.logDebug(
-                                PERMISSION_FINISH_1_MSG + curUser + PERMISSION_FINISH_2_MSG
-                                        + permission + "] is implied.");
+                        SecurityLogger.logDebug(PERMISSION_FINISH_1_MSG + curUser + PERMISSION_FINISH_2_MSG + permission + "] is implied.");
                     }
                     return true;
                 }
             }
-        } else if (permission instanceof ActionPermission && isPermitted(
-                (ActionPermission) permission, info)) {
+        } else if (permission instanceof ActionPermission && isPermitted((ActionPermission) permission, info)) {
             if (SecurityLogger.isDebugEnabled()) {
-                SecurityLogger.logDebug(
-                        PERMISSION_FINISH_1_MSG + curUser + PERMISSION_FINISH_2_MSG + permission
-                                + "] is implied.");
+                SecurityLogger.logDebug(PERMISSION_FINISH_1_MSG + curUser + PERMISSION_FINISH_2_MSG + permission + "] is implied.");
             }
             return true;
         }
         if (SecurityLogger.isDebugEnabled()) {
-            SecurityLogger.logDebug(
-                    PERMISSION_FINISH_1_MSG + curUser + PERMISSION_FINISH_2_MSG + permission
-                            + "] is not implied.");
+            SecurityLogger.logDebug(PERMISSION_FINISH_1_MSG + curUser + PERMISSION_FINISH_2_MSG + permission + "] is not implied.");
         }
         return false;
+    }
+
+    private KeyValueCollectionPermission isPermittedByExtensionAll(CollectionPermission subjectAllCollection,
+            KeyValueCollectionPermission matchAllCollection) {
+        if (!CollectionUtils.isEmpty(policyExtensions)) {
+            KeyValueCollectionPermission resultCollection = new KeyValueCollectionPermission();
+            resultCollection.addAll(matchAllCollection.getPermissionList());
+            for (PolicyExtension policyExtension : policyExtensions) {
+                try {
+                    resultCollection = policyExtension.isPermittedMatchAll(subjectAllCollection, resultCollection);
+                } catch (Exception e) {
+                    SecurityLogger.logWarn("Policy Extension plugin did not complete correctly.", e);
+                    LOGGER.warn("Policy Extension plugin did not complete correctly.", e);
+                }
+            }
+            return resultCollection;
+        }
+        return matchAllCollection;
+    }
+
+    private KeyValueCollectionPermission isPermittedByExtensionOne(CollectionPermission subjectAllCollection,
+            KeyValueCollectionPermission matchOneCollection) {
+        if (!CollectionUtils.isEmpty(policyExtensions)) {
+            KeyValueCollectionPermission resultCollection = new KeyValueCollectionPermission();
+            resultCollection.addAll(matchOneCollection.getPermissionList());
+            for (PolicyExtension policyExtension : policyExtensions) {
+                try {
+                    resultCollection = policyExtension.isPermittedMatchOne(subjectAllCollection, resultCollection);
+                } catch (Exception e) {
+                    SecurityLogger.logWarn("Policy Extension plugin did not complete correctly.", e);
+                    LOGGER.warn("Policy Extension plugin did not complete correctly.", e);
+                }
+            }
+            return resultCollection;
+        }
+        return matchOneCollection;
     }
 
     private boolean isPermitted(ActionPermission actionPermission, AuthorizationInfo info) {
@@ -360,10 +367,9 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
             // check to see if the action they are trying to perform is an action anyone can do
             if (openAccessActionList != null) {
                 for (String openAction : openAccessActionList) {
-                    if (action.indexOf(openAction) != -1) {
+                    if (action.contains(openAction)) {
                         if (SecurityLogger.isDebugEnabled()) {
-                            SecurityLogger.logDebug("Action permission [" + actionPermission
-                                    + "] implied as an open action.");
+                            SecurityLogger.logDebug("Action permission [" + actionPermission + "] implied as an open action.");
                         }
                         return true;
                     }
@@ -392,8 +398,7 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
     /**
      * Returns a {@link WildcardPermission} representing a {@link KeyValuePermission}
      *
-     * @param perm
-     *            the permission to convert.
+     * @param perm the permission to convert.
      * @return new equivalent permission
      */
     private WildcardPermission buildWildcardFromKeyValue(KeyValuePermission perm) {
@@ -402,17 +407,14 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
             wildcardString.append(value);
             wildcardString.append(",");
         }
-        WildcardPermission wildcardPermission = new WildcardPermission(
-                wildcardString.toString().substring(0, wildcardString.length() - 1));
-        return wildcardPermission;
+        return new WildcardPermission(wildcardString.toString().substring(0, wildcardString.length() - 1));
     }
 
     /**
      * Returns a collection of {@link Permission} objects that the {@link AuthorizationInfo} object
      * of a {@link ddf.security.Subject} is asserting.
      *
-     * @param info
-     *            the application-specific subject/user identifier.
+     * @param info the application-specific subject/user identifier.
      * @return collection of Permissions.
      */
     private Collection<Permission> getPermissions(AuthorizationInfo info) {
@@ -441,8 +443,7 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
      * Returns a collection of {@link Permission} objects that are built from the associated
      * collection of Strings.
      *
-     * @param stringPerms
-     *            collection of Strings that represent permissions.
+     * @param stringPerms collection of Strings that represent permissions.
      * @return collection of Permissions
      */
     private Collection<Permission> resolvePermissions(Collection<String> stringPerms) {
@@ -462,8 +463,7 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
      * Returns a collection of {@link Permission} objects that are built from the associated
      * collection of Strings that represent the roles that a user possesses.
      *
-     * @param roleNames
-     *            user roles.
+     * @param roleNames user roles.
      * @return collection of Permissions
      */
     private Collection<Permission> resolveRolePermissions(Collection<String> roleNames) {
@@ -485,9 +485,8 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
      * Sets the list of roles that are allowed to execute privileged operations. Each string in the
      * list defines a specific role that users may be assigned.
      *
-     * @param accessRoleList
-     *            List of String values that correspond to roles that are allowed to execute
-     *            privileged operations.
+     * @param accessRoleList List of String values that correspond to roles that are allowed to execute
+     *                       privileged operations.
      */
     public void setAccessRoleList(List<String> accessRoleList) {
         this.accessRoleList = accessRoleList;
@@ -495,6 +494,7 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
 
     /**
      * Returns a comma-delimited string of privileged access roles.
+     *
      * @return comma delimited String of access roles
      */
     public String getAccessRoleList() {
@@ -508,8 +508,8 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
     /**
      * Takes in a comma-delimited string of privileged access roles.
      *
-     * @see SimpleAuthzRealm#setAccessRoleList(List)
      * @param commaStr
+     * @see SimpleAuthzRealm#setAccessRoleList(List)
      */
 
     public void setAccessRoleList(String commaStr) {
@@ -522,8 +522,7 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
      * string is contained in the SOAP action string, then access is automatically allowed for this
      * operation.
      *
-     * @param openAccessActionList
-     *            List of SOAP action strings that may be accessed by users in any role.
+     * @param openAccessActionList List of SOAP action strings that may be accessed by users in any role.
      */
     public void setOpenAccessActionList(List<String> openAccessActionList) {
         this.openAccessActionList = openAccessActionList;
@@ -532,18 +531,38 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
     /**
      * Takes in a comma-delimited string of open access roles.
      *
+     * @param comma-delimited string of open access roles.
      * @see SimpleAuthzRealm#setOpenAccessActionList(List)
-     * @param Comma
-     *            -delimited string of open access roles.
      */
     public void setOpenAccessActionList(String commaStr) {
         setOpenAccessActionList(convertToList(commaStr));
     }
 
     /**
+     * Sets list of policy extension objects
+     *
+     * @param policyExtensions
+     */
+    public void setPolicyExtensions(List<PolicyExtension> policyExtensions) {
+        this.policyExtensions = policyExtensions;
+    }
+
+    public void addPolicyExtension(PolicyExtension policyExtension) {
+        if (policyExtensions != null) {
+            policyExtensions.add(policyExtension);
+        }
+    }
+
+    public void removePolicyExtension(PolicyExtension policyExtension) {
+        if (policyExtensions != null) {
+            policyExtensions.remove(policyExtension);
+        }
+    }
+
+    /**
      * Sets the mappings used by the "match all" evaluation to determine if this user should be
      * authorized to access requested data.
-     * <p>
+     * <p/>
      * Each string is of the format: <code>metacardAttribute=userAttribute</code><br/>
      * where <code>metacardAttribute</code> is the name of an attribute in the metacard and
      * <code>userAttribute</code> is the name of the corresponding attribute in the user
@@ -551,9 +570,8 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
      * It is the values corresponding to each of these attributes that will be evaluated against
      * each other when determining if authorization should be allowed.
      *
-     * @param list
-     *            List of Strings that define mappings between metadata attributes and user
-     *            attributes
+     * @param list List of Strings that define mappings between metadata attributes and user
+     *             attributes
      */
     public void setMatchAllMappings(List<String> list) {
         String[] values;
@@ -562,13 +580,10 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
             for (String mapping : list) {
                 values = mapping.split("=");
                 if (values.length == 2) {
-                    LOGGER.debug("Adding mapping: {} = {} to matchAllMap.", values[1].trim(),
-                            values[0].trim());
+                    LOGGER.debug("Adding mapping: {} = {} to matchAllMap.", values[1].trim(), values[0].trim());
                     matchAllMap.put(values[1].trim(), values[0].trim());
                 } else {
-                    LOGGER.warn(
-                            "Match all mapping ignored: {} doesn't match expected format of metacardAttribute=userAttribute",
-                            mapping);
+                    LOGGER.warn("Match all mapping ignored: {} doesn't match expected format of metacardAttribute=userAttribute", mapping);
                 }
             }
         }
@@ -577,8 +592,8 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
     /**
      * Takes in a comma-delimited string of match all mappings.
      *
-     * @see SimpleAuthzRealm#setMatchAllMappings(List)
      * @param commaStr
+     * @see SimpleAuthzRealm#setMatchAllMappings(List)
      */
     public void setMatchAllMappings(String commaStr) {
         setMatchAllMappings(convertToList(commaStr));
@@ -587,7 +602,7 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
     /**
      * Sets the mappings used by the "match one" evaluation to determine if this user should be
      * authorized to access requested data.
-     * <p>
+     * <p/>
      * Each string is of the format: <code>metacardAttribute=userAttribute</code><br/>
      * where <code>metacardAttribute</code> is the name of an attribute in the metacard and
      * <code>userAttribute</code> is the name of the corresponding attribute in the user
@@ -595,9 +610,8 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
      * It is the values corresponding to each of these attributes that will be evaluated against
      * each other when determining if authorization should be allowed.
      *
-     * @param list
-     *            List of Strings that define mappings between metadata attributes and user
-     *            attributes
+     * @param list List of Strings that define mappings between metadata attributes and user
+     *             attributes
      */
     public void setMatchOneMappings(List<String> list) {
         String[] values;
@@ -606,13 +620,10 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
             for (String mapping : list) {
                 values = mapping.split("=");
                 if (values.length == 2) {
-                    LOGGER.debug("Adding mapping: {} = {} to matchOneMap.", values[1].trim(),
-                            values[0].trim());
+                    LOGGER.debug("Adding mapping: {} = {} to matchOneMap.", values[1].trim(), values[0].trim());
                     matchOneMap.put(values[1].trim(), values[0].trim());
                 } else {
-                    LOGGER.warn(
-                            "Match one mapping ignored: {} doesn't match expected format of metacardAttribute=userAttribute",
-                            mapping);
+                    LOGGER.warn("Match one mapping ignored: {} doesn't match expected format of metacardAttribute=userAttribute", mapping);
                 }
             }
         }
@@ -621,8 +632,8 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
     /**
      * Takes in a comma-delimited string of match one mappings.
      *
-     * @see SimpleAuthzRealm#setMatchOneMappings(List)
      * @param commaStr
+     * @see SimpleAuthzRealm#setMatchOneMappings(List)
      */
     public void setMatchOneMappings(String commaStr) {
         setMatchOneMappings(convertToList(commaStr));
