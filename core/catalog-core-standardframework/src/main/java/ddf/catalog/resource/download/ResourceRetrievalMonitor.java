@@ -37,7 +37,7 @@ public class ResourceRetrievalMonitor extends TimerTask {
 
     private Future<?> future;
 
-    private ReliableResourceCallable reliableResourceCallable;
+    private final ReliableResourceCallable reliableResourceCallable;
 
     private long monitorPeriod;
 
