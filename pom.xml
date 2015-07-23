@@ -249,7 +249,7 @@
                     <configuration>
                         <autoVersionSubmodules>true</autoVersionSubmodules>
                         <preparationGoals>clean verify install</preparationGoals>
-                        <arguments>-Pgenerate_uml_javadoc</arguments>
+                        <arguments>-Pjavadoc-unpack</arguments>
                         <pushChanges>false</pushChanges>
                     </configuration>
                 </plugin>
@@ -353,6 +353,7 @@
                         <failOnError>false</failOnError>
                         <aggregate>true</aggregate>
                         <show>protected</show>
+                        <skip>true</skip>
                     </configuration>
                 </plugin>
 
