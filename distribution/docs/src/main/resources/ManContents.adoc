@@ -1598,7 +1598,7 @@ After the keystore is successfully created, delete the jetty files used to perfo
 *** Select {branding} Security.
 *** Select *Configuration* tab.
 *** Select the *Web Context Policy Manager*.
-*** Add `/system/consoleKEEP` to the Whitelisted Contexts
+*** Add `/system/console` to the Whitelisted Contexts
 
 
 [NOTE]
@@ -1740,12 +1740,12 @@ org.apache.ws.security.crypto.merlin.keystore.file=etc/keystores/serverKeystore.
 ** Admin Console: `https://ddf:8993/admin`
 ** Search UI: https://ddf:8993/search
 
-* Remove system/consoleKEEP from whitelist
+* Remove system/console from whitelist
 ** `https://localhost:8993/admin`
 *** Select {branding} Security.
 *** Select *Configuration* tab.
 *** Select the *Web Context Policy Manager*.
-*** Remove `/system/consoleKEEP` from the Whitelisted Contexts
+*** Remove `/system/console` from the Whitelisted Contexts
 
 === Configuring Solr Catalog Provider
 
@@ -1801,7 +1801,7 @@ An essential part to the {branding} Clustering solution is the ability to manage
 The goal of the {branding} Cluster solution is to keep applications and configurations synchronized on every {branding} server. When setting up a {branding} server, it is recommended that only one server is setup per machine (virtual or non-virtual). This means that for each physical machine or virtual machine (VM) that is setup, only one instance of the {branding} is deployed on it. This configuration provides the least complexity in configuration of the {branding} Cluster and allows the {branding} server itself to utilize the resources of the entire system. It is also recommended that all {branding} servers and systems be configured the same. This means that all {branding} server platforms have the same configurations and applications running initially. Also, ensure that all physical and virtual systems running the {branding} servers have the same configuration (e.g., operating system, memory, CPU, etc.).
 
 ===== Start and Configure New {branding} Server Node Clusters
-Before starting your {branding} cluster nodes, you must first setup your node network configurations. See the Configuring {branding} Clustering For Multicast & Unicast section for more information. To view all of the available nodes, navigate in your browser to the {branding} Admin Console (https://localhost:8993/admin) and click on the tab labeled “Clustered Groups”. Under the group “default”, you should see all running {branding} nodes that have been clustered. It is also possible to move all instances into a named group. In order to perform this action, you must have access to one of the {branding} command line shells directly or utilize Gogo located at https://localhost:8993/system/consoleKEEP/gogo.
+Before starting your {branding} cluster nodes, you must first setup your node network configurations. See the Configuring {branding} Clustering For Multicast & Unicast section for more information. To view all of the available nodes, navigate in your browser to the {branding} Admin Console (https://localhost:8993/admin) and click on the tab labeled “Clustered Groups”. Under the group “default”, you should see all running {branding} nodes that have been clustered. It is also possible to move all instances into a named group. In order to perform this action, you must have access to one of the {branding} command line shells directly or utilize Gogo located at https://localhost:8993/system/console/gogo.
 
 [source,bash]
 ----
@@ -1952,7 +1952,7 @@ As you can see, the multicast option has been set to true and the tcp-ip option 
 
 ===== Verify Synchronized {branding} Nodes
 
-In most cases, the {branding} system console should provide you with a listing of all features, repositories, and configurations that are installed on the cluster. There are times when the cluster can become out of sync. This instance may occur if a system has been offline for some time. One way to verify the synchronized lists of the cluster is to run cluster commands from the command line. In order to perform these actions, you must have access to one of the {branding} command line shells directly or through the use of Gogo (http://localhost:8993/system/consoleKEEP/gogo). Once at the command line, execute the following command to see the list of deployed features for your cluster:
+In most cases, the {branding} system console should provide you with a listing of all features, repositories, and configurations that are installed on the cluster. There are times when the cluster can become out of sync. This instance may occur if a system has been offline for some time. One way to verify the synchronized lists of the cluster is to run cluster commands from the command line. In order to perform these actions, you must have access to one of the {branding} command line shells directly or through the use of Gogo (http://localhost:8993/system/console/gogo). Once at the command line, execute the following command to see the list of deployed features for your cluster:
 
 [source,bash]
 ----
@@ -2169,7 +2169,7 @@ eventAdmin.postEvent(event);
 ** `https://localhost:8993/admin`
 *** Navigate to the DDF Security 
 *** Navigate to Web Context Policy Manager
-*** Add /system/consoleKEEP to the Whitelisted Contexts
+*** Add /system/console to the Whitelisted Contexts
 
 
 [NOTE]
@@ -2322,11 +2322,11 @@ org.apache.ws.security.crypto.merlin.keystore.file=etc/keystores/serverKeystore.
 ** Admin Console: `https://ddf:8993/admin`
 ** Search UI: https://ddf:8993/search
 
-* Remove system/consoleKEEP from whitelist
+* Remove system/console from whitelist
 ** `https://localhost:8993/admin`
 *** Navigate to DDF Security
 *** Navigate to the Web Context Policy Manager
-*** Remove `/system/consoleKEEP` from the Whitelisted Contexts
+*** Remove `/system/console` from the Whitelisted Contexts
 
 === Auditing
 
