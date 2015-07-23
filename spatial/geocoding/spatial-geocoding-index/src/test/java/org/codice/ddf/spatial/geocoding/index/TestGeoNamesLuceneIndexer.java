@@ -15,6 +15,8 @@
 package org.codice.ddf.spatial.geocoding.index;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.doReturn;
@@ -25,6 +27,8 @@ import static org.mockito.Mockito.verify;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
@@ -37,61 +41,80 @@ import org.codice.ddf.spatial.geocoding.GeoEntryExtractor;
 import org.codice.ddf.spatial.geocoding.ProgressCallback;
 import org.codice.ddf.spatial.geocoding.TestBase;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 public class TestGeoNamesLuceneIndexer extends TestBase {
-    private static final String ABSOLUTE_PATH = new File(".").getAbsolutePath();
+    private static final String RESOURCE_PATH = new File(".").getAbsolutePath() +
+            "/src/test/resources/geonames/";
 
-    private static final String TEST_PATH = "/src/test/resources/geonames/";
+    private static final String INDEX_PATH = RESOURCE_PATH + "index";
+
+    private static final String NAME_1 = "Phoenix";
+    private static final String NAME_2 = "Tempe";
+    private static final String NAME_3 = "Glendale";
+
+    private static final double LAT_1 = 1.234;
+    private static final double LAT_2 = -12.34;
+    private static final double LAT_3 = -1.234;
+
+    private static final double LON_1 = 56.78;
+    private static final double LON_2 = 5.678;
+    private static final double LON_3 = -5.678;
+
+    private static final String FEATURE_CODE_1 = "PPL";
+    private static final String FEATURE_CODE_2 = "ADM";
+    private static final String FEATURE_CODE_3 = "PCL";
+
+    private static final long POP_1 = 1000000;
+    private static final long POP_2 = 10000000;
+    private static final long POP_3 = 100000000;
 
     private IndexWriter indexWriter;
     private GeoNamesLuceneIndexer geoNamesLuceneIndexer;
     private ArgumentCaptor<Document> documentArgumentCaptor;
 
     private static final GeoEntry GEO_ENTRY_1 = new GeoEntry.Builder()
-            .name("Phoenix")
-            .latitude(1.234)
-            .longitude(56.78)
-            .featureCode("PPL")
-            .population(1000000)
+            .name(NAME_1)
+            .latitude(LAT_1)
+            .longitude(LON_1)
+            .featureCode(FEATURE_CODE_1)
+            .population(POP_1)
             .build();
 
     private static final GeoEntry GEO_ENTRY_2 = new GeoEntry.Builder()
-            .name("Tempe")
-            .latitude(-12.34)
-            .longitude(5.678)
-            .featureCode("PPL")
-            .population(10000000)
+            .name(NAME_2)
+            .latitude(LAT_2)
+            .longitude(LON_2)
+            .featureCode(FEATURE_CODE_2)
+            .population(POP_2)
             .build();
 
     private static final GeoEntry GEO_ENTRY_3 = new GeoEntry.Builder()
-            .name("Glendale")
-            .latitude(-1.234)
-            .longitude(-5.678)
-            .featureCode("PPL")
-            .population(100000000)
+            .name(NAME_3)
+            .latitude(LAT_3)
+            .longitude(LON_3)
+            .featureCode(FEATURE_CODE_3)
+            .population(POP_3)
             .build();
 
     private static final List<GeoEntry> GEO_ENTRY_LIST =
             Arrays.asList(GEO_ENTRY_1, GEO_ENTRY_2, GEO_ENTRY_3);
 
-    @Before
-    public void setUp() throws IOException {
+    @After
+    public void tearDown() {
+        // Delete the directory created by the indexer.
+        FileUtils.deleteQuietly(new File(RESOURCE_PATH));
+    }
+
+    private void configureMocks() throws IOException {
         indexWriter = mock(IndexWriter.class);
         geoNamesLuceneIndexer = spy(new GeoNamesLuceneIndexer());
         doReturn(indexWriter)
                 .when(geoNamesLuceneIndexer)
                 .createIndexWriter(anyBoolean(), any(Directory.class));
-        geoNamesLuceneIndexer.setIndexLocation(ABSOLUTE_PATH + TEST_PATH + "index");
+        geoNamesLuceneIndexer.setIndexLocation(INDEX_PATH);
         documentArgumentCaptor = ArgumentCaptor.forClass(Document.class);
-    }
-
-    @After
-    public void tearDown() {
-        // Delete the directory created by the indexer.
-        FileUtils.deleteQuietly(new File(ABSOLUTE_PATH + TEST_PATH));
     }
 
     private GeoEntry createGeoEntryFromDocument(final Document document) {
@@ -107,19 +130,22 @@ public class TestGeoNamesLuceneIndexer extends TestBase {
     private void verifyDocumentList(final List<Document> documentList) {
         assertEquals(3, documentList.size());
 
-        verifyGeoEntry(createGeoEntryFromDocument(documentList.get(0)), "Phoenix", 1.234, 56.78,
-                "PPL", 1000000);
-        verifyGeoEntry(createGeoEntryFromDocument(documentList.get(1)), "Tempe", -12.34, 5.678,
-                "PPL", 10000000);
-        verifyGeoEntry(createGeoEntryFromDocument(documentList.get(2)), "Glendale", -1.234, -5.678,
-                "PPL", 100000000);
+        verifyGeoEntry(createGeoEntryFromDocument(documentList.get(0)), NAME_1, LAT_1, LON_1,
+                FEATURE_CODE_1, POP_1);
+        verifyGeoEntry(createGeoEntryFromDocument(documentList.get(1)), NAME_2, LAT_2, LON_2,
+                FEATURE_CODE_2, POP_2);
+        verifyGeoEntry(createGeoEntryFromDocument(documentList.get(2)), NAME_3, LAT_3, LON_3,
+                FEATURE_CODE_3, POP_3);
     }
 
     @Test
     public void testCreateIndexFromList() throws IOException {
+        configureMocks();
+
         geoNamesLuceneIndexer.updateIndex(GEO_ENTRY_LIST, true, null);
 
-        verify(indexWriter, times(3)).addDocument(documentArgumentCaptor.capture());
+        verify(indexWriter, times(GEO_ENTRY_LIST.size()))
+                .addDocument(documentArgumentCaptor.capture());
 
         final List<Document> documentList = documentArgumentCaptor.getAllValues();
 
@@ -128,11 +154,14 @@ public class TestGeoNamesLuceneIndexer extends TestBase {
 
     @Test
     public void testCreateIndexFromListWithProgressUpdates() throws IOException {
+        configureMocks();
+
         final ProgressCallback progressCallback = mock(ProgressCallback.class);
 
         geoNamesLuceneIndexer.updateIndex(GEO_ENTRY_LIST, true, progressCallback);
 
-        verify(indexWriter, times(3)).addDocument(documentArgumentCaptor.capture());
+        verify(indexWriter, times(GEO_ENTRY_LIST.size()))
+                .addDocument(documentArgumentCaptor.capture());
 
         final List<Document> documentList = documentArgumentCaptor.getAllValues();
 
@@ -144,6 +173,8 @@ public class TestGeoNamesLuceneIndexer extends TestBase {
 
     @Test
     public void testCreateIndexFromExtractor() throws IOException {
+        configureMocks();
+
         final ProgressCallback progressCallback = mock(ProgressCallback.class);
 
         geoNamesLuceneIndexer.updateIndex(null, new GeoEntryExtractor() {
@@ -172,5 +203,19 @@ public class TestGeoNamesLuceneIndexer extends TestBase {
         verifyDocumentList(documentList);
 
         verify(progressCallback, times(1)).updateProgress(100);
+    }
+
+    @Test
+    public void testDirectoryCreatedForNewIndex() {
+        assertFalse("The 'geonames/index' directory should not exist.",
+                Files.exists(Paths.get(INDEX_PATH)));
+
+        geoNamesLuceneIndexer = new GeoNamesLuceneIndexer();
+
+        geoNamesLuceneIndexer.setIndexLocation(INDEX_PATH);
+
+        geoNamesLuceneIndexer.updateIndex(GEO_ENTRY_LIST, true, null);
+
+        assertTrue(Files.exists(Paths.get(INDEX_PATH)));
     }
 }

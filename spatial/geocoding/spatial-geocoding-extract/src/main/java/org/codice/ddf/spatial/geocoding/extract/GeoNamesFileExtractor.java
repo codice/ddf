@@ -97,7 +97,7 @@ public class GeoNamesFileExtractor implements GeoEntryExtractor {
             // above loop when progress is 100. In any case, we need to give a progress update when
             // the work is complete.
             extractionCallback.updateProgress(100);
-        } catch (IndexOutOfBoundsException e) {
+        } catch (IndexOutOfBoundsException | NumberFormatException e) {
             throw new GeoEntryExtractionException(inputTextFileLocation + " does not follow the " +
                     "expected GeoNames file format.", e);
         } catch (IOException e) {

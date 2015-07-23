@@ -19,13 +19,14 @@ import org.codice.ddf.spatial.geocoding.TestBase;
 import org.junit.Test;
 
 public class TestGeoNamesCreator extends TestBase {
+    private static final GeoNamesCreator GEONAMES_CREATOR = new GeoNamesCreator();
+
     @Test
     public void testNoEmptyFields() {
         final String geoNamesEntryStr = "5289282\tChandler\tChandler\t" +
                 "Candler,Candleris,Chandler,Chandlur\t33.30616\t-111.84125\tP\tPPL\tUS\tUS\tAZ\t" +
                 "013\t012\t011\t236123\t370\t368\tAmerica/Phoenix\t2011-05-14";
-        final GeoNamesCreator geoNamesCreator = new GeoNamesCreator();
-        final GeoEntry geoEntry = geoNamesCreator.createGeoEntry(geoNamesEntryStr);
+        final GeoEntry geoEntry = GEONAMES_CREATOR.createGeoEntry(geoNamesEntryStr);
         verifyGeoEntry(geoEntry, "Chandler", 33.30616, -111.84125, "PPL", 236123);
     }
 
@@ -34,8 +35,38 @@ public class TestGeoNamesCreator extends TestBase {
         final String geoNamesEntryStr = "5288858\tCave Creek\tCave Creek\t\t33.83333\t" +
                 "-111.95083\tP\tPPL\tUS\t\tAZ\t013\t\t\t5015\t648\t649\tAmerica/Phoenix\t" +
                 "2011-05-14";
-        final GeoNamesCreator geoNamesCreator = new GeoNamesCreator();
-        final GeoEntry geoEntry = geoNamesCreator.createGeoEntry(geoNamesEntryStr);
+        final GeoEntry geoEntry = GEONAMES_CREATOR.createGeoEntry(geoNamesEntryStr);
         verifyGeoEntry(geoEntry, "Cave Creek", 33.83333, -111.95083, "PPL", 5015);
+    }
+
+    @Test(expected = ArrayIndexOutOfBoundsException.class)
+    public void testNotEnoughFields() {
+        final String wrongFormat = "5288858\tCave Creek\tCave Creek\tAlternate names\t33.83333";
+        final GeoEntry geoEntry = GEONAMES_CREATOR.createGeoEntry(wrongFormat);
+    }
+
+    @Test(expected = NumberFormatException.class)
+    public void testWrongFieldOrder() {
+        /* This string has the correct number of fields but the fields are in the wrong order. The
+           GeoNamesCreator will attempt to parse the latitude and longitude from the string, but
+           because there are non-double values where the latitude and longitude should be, a
+           NumberFormatException should be thrown. */
+        final String wrongFormat = "5289282\t33.30616\t-111.84125\t" +
+                "Candler,Candleris,Chandler,Chandlur\tChandler\tChandler\tP\tPPL\tUS\tUS\tAZ\t" +
+                "013\t012\t011\t236123\t370\t368\tAmerica/Phoenix\t2011-05-14";
+        final GeoEntry geoEntry = GEONAMES_CREATOR.createGeoEntry(wrongFormat);
+    }
+
+    @Test(expected = ArrayIndexOutOfBoundsException.class)
+    public void testNotTabDelimited() {
+        final String wrongFormat = "5289282,Chandler,Chandler," +
+                "Candler,Candleris,Chandler,Chandlu,33.30616,-111.84125,P,PPL,US,US,AZ," +
+                "013,012,011,236123,370,368,America/Phoenix,2011-05-14";
+        final GeoEntry geoEntry = GEONAMES_CREATOR.createGeoEntry(wrongFormat);
+    }
+
+    @Test(expected = ArrayIndexOutOfBoundsException.class)
+    public void testEmptyLine() {
+        final GeoEntry geoEntry = GEONAMES_CREATOR.createGeoEntry("");
     }
 }

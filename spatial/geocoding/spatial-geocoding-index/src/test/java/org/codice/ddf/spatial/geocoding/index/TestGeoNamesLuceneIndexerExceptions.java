@@ -131,12 +131,4 @@ public class TestGeoNamesLuceneIndexerExceptions {
             assertThat(e.getCause(), instanceOf(IOException.class));
         }
     }
-
-    @Test
-    public void testNoExceptionWhenOverwritingIndex() {
-        geoNamesLuceneIndexer = new GeoNamesLuceneIndexer();
-        geoNamesLuceneIndexer.setIndexLocation(ABSOLUTE_PATH + TEST_PATH + "index");
-        geoNamesLuceneIndexer.updateIndex(Collections.singletonList(GEO_ENTRY), true, null);
-        geoNamesLuceneIndexer.updateIndex(Collections.singletonList(GEO_ENTRY), true, null);
-    }
 }

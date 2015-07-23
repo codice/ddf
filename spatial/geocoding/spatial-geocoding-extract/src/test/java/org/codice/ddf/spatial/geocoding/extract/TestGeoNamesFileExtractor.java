@@ -30,6 +30,7 @@ import java.io.FileNotFoundException;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.codice.ddf.spatial.geocoding.GeoEntry;
 import org.codice.ddf.spatial.geocoding.GeoEntryExtractionException;
 import org.codice.ddf.spatial.geocoding.ProgressCallback;
@@ -40,9 +41,17 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 public class TestGeoNamesFileExtractor extends TestBase {
-    private static final String ABSOLUTE_PATH = new File(".").getAbsolutePath();
+    private static final String VALID_TEXT_FILE_PATH =
+            TestGeoNamesFileExtractor.class.getResource("/geonames/valid.txt").getPath();
 
-    private static final String TEST_PATH = "/src/test/resources/geonames/";
+    private static final String INVALID_TEXT_FILE_PATH =
+            TestGeoNamesFileExtractor.class.getResource("/geonames/invalid.txt").getPath();
+
+    private static final String VALID_ZIP_FILE_PATH =
+            TestGeoNamesFileExtractor.class.getResource("/geonames/valid_zip.zip").getPath();
+
+    private static final String UNSUPPORTED_FILE_PATH =
+            TestGeoNamesFileExtractor.class.getResource("/geonames/foo.rtf").getPath();
 
     private GeoNamesFileExtractor geoNamesFileExtractor;
 
@@ -90,33 +99,34 @@ public class TestGeoNamesFileExtractor extends TestBase {
 
     @Test
     public void testExtractFromValidTextFileAllAtOnce() {
-        testFileExtractionAllAtOnce(ABSOLUTE_PATH + TEST_PATH + "valid.txt",
-                mock(ProgressCallback.class));
+        testFileExtractionAllAtOnce(VALID_TEXT_FILE_PATH, mock(ProgressCallback.class));
     }
 
     @Test
     public void testExtractFromValidTextFileStreaming() {
-        testFileExtractionStreaming(ABSOLUTE_PATH + TEST_PATH + "valid.txt");
+        testFileExtractionStreaming(VALID_TEXT_FILE_PATH);
     }
 
     @Test
     public void testExtractFromValidZipFileAllAtOnce() {
-        testFileExtractionAllAtOnce(ABSOLUTE_PATH + TEST_PATH + "valid_zip.zip", null);
+        testFileExtractionAllAtOnce(VALID_ZIP_FILE_PATH, null);
         // Delete the extracted text file.
-        FileUtils.deleteQuietly(new File(ABSOLUTE_PATH + TEST_PATH + "valid_zip.txt"));
+        FileUtils.deleteQuietly(new File(
+                FilenameUtils.removeExtension(VALID_ZIP_FILE_PATH) + ".txt"));
     }
 
     @Test
     public void testExtractFromValidZipFileStreaming() {
-        testFileExtractionStreaming(ABSOLUTE_PATH + TEST_PATH + "valid_zip.zip");
+        testFileExtractionStreaming(VALID_ZIP_FILE_PATH);
         // Delete the extracted text file.
-        FileUtils.deleteQuietly(new File(ABSOLUTE_PATH + TEST_PATH + "valid_zip.txt"));
+        FileUtils.deleteQuietly(new File(
+                FilenameUtils.removeExtension(VALID_ZIP_FILE_PATH) + ".txt"));
     }
 
     @Test
     public void testExtractFromTextFileWrongFormat() {
         try {
-            geoNamesFileExtractor.getGeoEntries(ABSOLUTE_PATH + TEST_PATH + "invalid.txt", null);
+            geoNamesFileExtractor.getGeoEntries(INVALID_TEXT_FILE_PATH, null);
             fail("Should have thrown a GeoEntryExtractionException because 'invalid.txt' is not " +
                     "formatted in the expected way.");
         } catch (GeoEntryExtractionException e) {
@@ -127,7 +137,8 @@ public class TestGeoNamesFileExtractor extends TestBase {
     @Test
     public void testExtractFromNonexistentFile() {
         try {
-            geoNamesFileExtractor.getGeoEntries(ABSOLUTE_PATH + TEST_PATH + "fake.txt", null);
+            geoNamesFileExtractor.getGeoEntries(
+                    FilenameUtils.getFullPath(VALID_TEXT_FILE_PATH) + "fake.txt", null);
             fail("Should have thrown a GeoEntryExtractionException because 'fake.txt' does not " +
                     "exist.");
         } catch (GeoEntryExtractionException e) {
@@ -135,19 +146,13 @@ public class TestGeoNamesFileExtractor extends TestBase {
         }
     }
 
-    @Test
+    @Test(expected = GeoEntryExtractionException.class)
     public void testExtractFromUnsupportedFileType() {
-        try {
-            geoNamesFileExtractor.getGeoEntries(ABSOLUTE_PATH + TEST_PATH + "fake.tar", null);
-            fail("Should have thrown a GeoEntryExtractionException because 'fake.tar' is not a " +
-                    ".txt or a .zip.");
-        } catch (GeoEntryExtractionException e) {
-            assertEquals("Input must be a .txt or a .zip.", e.getMessage());
-        }
+        geoNamesFileExtractor.getGeoEntries(UNSUPPORTED_FILE_PATH, null);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testNullExtractionCallback() {
-        geoNamesFileExtractor.getGeoEntriesStreaming(ABSOLUTE_PATH + TEST_PATH + "fake.txt", null);
+        geoNamesFileExtractor.getGeoEntriesStreaming(VALID_TEXT_FILE_PATH, null);
     }
 }
