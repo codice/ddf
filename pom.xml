@@ -28,7 +28,6 @@
          If access to the previous tags are needed, please refer back to an older DDF repository
          before the transition over to a modular structure. -->
 	<modules>
-        <module>sdk</module>
         <module>distribution</module>
 	</modules>
 
