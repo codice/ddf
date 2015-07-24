@@ -104,7 +104,7 @@
                                         <artifactItem>
                                             <groupId>ddf.admin</groupId>
                                             <artifactId>docs</artifactId>
-                                            <version>${ddf.admin.app.version}</version>
+                                            <version>${ddf.platform.app.version}</version>
                                             <type>jar</type>
                                             <overWrite>false</overWrite>
                                             <outputDirectory>${project.build.directory}/apps/admin</outputDirectory>
@@ -120,7 +120,7 @@
                                         <artifactItem>
                                             <groupId>ddf.content</groupId>
                                             <artifactId>docs</artifactId>
-                                            <version>${ddf.content.app.version}</version>
+                                            <version>${ddf.catalog.app.version}</version>
                                             <type>jar</type>
                                             <overWrite>false</overWrite>
                                             <outputDirectory>${project.build.directory}/apps/content</outputDirectory>
@@ -144,7 +144,7 @@
                                         <artifactItem>
                                             <groupId>org.codice.ddf.spatial</groupId>
                                             <artifactId>docs</artifactId>
-                                            <version>${ddf.spatial.app.version}</version>
+                                            <version>${ddf.catalog.app.version}</version>
                                             <type>jar</type>
                                             <overWrite>false</overWrite>
                                             <outputDirectory>${project.build.directory}/apps/spatial</outputDirectory>
@@ -152,7 +152,7 @@
                                         <artifactItem>
                                             <groupId>ddf.ui</groupId>
                                             <artifactId>docs</artifactId>
-                                            <version>${ddf.searchui.app.version}</version>
+                                            <version>${ddf.catalog.app.version}</version>
                                             <type>jar</type>
                                             <overWrite>false</overWrite>
                                             <outputDirectory>${project.build.directory}/apps/ui</outputDirectory>
