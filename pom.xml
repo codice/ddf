@@ -39,7 +39,7 @@
         <osgi.version>5.0.0</osgi.version>
         <shiro.version>1.2.3</shiro.version>
         <org.geotools.version>8.4</org.geotools.version>
-        <karaf.version>2.4.1</karaf.version>
+        <karaf.version>2.4.3</karaf.version>
         <tika.version>1.7</tika.version>
         <cas.client.version>3.1.10</cas.client.version>
         <cas.client.bundle.version>${cas.client.version}_1</cas.client.bundle.version>
