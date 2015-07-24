@@ -32,8 +32,7 @@
         <exclude>etc/org.apache.karaf.log.cfg</exclude>
         <exclude>etc/org.ops4j.pax.web.cfg</exclude>
         <exclude>etc/users.properties</exclude>
-        <exclude>etc/system.properties</exclude> 
-        <exclude>etc/startup.properties</exclude>
+        <exclude>etc/system.properties</exclude>
         <exclude>etc/jre.properties</exclude>
         <!-- 
         Since Karaf v2.2.9, Karaf includes a default user "karaf" with its own authentication key in it, thus
