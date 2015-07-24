@@ -330,22 +330,20 @@ public class TestFederation extends AbstractIntegrationTest {
         String sourcesURL = ADMIN_SOURCE_PATH + ADMIN_ALL_SOURCE_INFO_PATH;
         String statusURL = ADMIN_SOURCE_PATH + ADMIN_SOURCE_STATUS_PATH + "/";
 
-        // Get list of service.pids (only 4)
-        ArrayList<String> servicePids = new ArrayList<>();
+        // Find and test OpenSearch Federated Source
+        String openSearchPid = "";
         String json = given().auth().basic("admin", "admin").when().get(sourcesURL).asString();
         List<Map<String, Object>> sources = from(json).get("value");
         for (Map<String, Object> source : sources) {
-            if (source.containsKey("configurations")) {
+            if (source.containsKey("configurations") && source.get("id").equals("OpenSearchSource")) {
                 ArrayList<Map<String, Object>> configs = (ArrayList<Map<String, Object>>) source
                         .get("configurations");
-                for (Map<String, Object> config : configs) {
-                    servicePids.add((String) config.get("id"));
-                }
+                openSearchPid = ((String) configs.get(0).get("id"));
+                break;
             }
         }
 
-        // Test OpenSearch Federated Source
-        given().auth().basic("admin", "admin").when().get(statusURL + servicePids.get(0)).then()
+        given().auth().basic("admin", "admin").when().get(statusURL + openSearchPid).then()
                 .log().all().assertThat().body(containsString("\"value\":true"));
     }
 
@@ -361,7 +359,7 @@ public class TestFederation extends AbstractIntegrationTest {
         String sourcesURL = ADMIN_SOURCE_PATH + ADMIN_ALL_SOURCE_INFO_PATH;
         String statusURL = ADMIN_SOURCE_PATH + ADMIN_SOURCE_STATUS_PATH + "/";
 
-        // Get list of service.pids (only 4)
+        // Get list of service.pids
         ArrayList<String> servicePids = new ArrayList<>();
         String json = given().auth().basic("admin", "admin").when().get(sourcesURL).asString();
         List<Map<String, Object>> sources = from(json).get("value");
