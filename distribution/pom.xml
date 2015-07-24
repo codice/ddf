@@ -50,6 +50,7 @@
         <module>ddf</module>
         <module>test</module>
         <module>docs</module>
+        <module>sdk</module>
     </modules>
 
     <repositories>
