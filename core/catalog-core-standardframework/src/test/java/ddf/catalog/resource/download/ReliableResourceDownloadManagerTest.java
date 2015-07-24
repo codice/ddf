@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
@@ -75,12 +76,6 @@ import ddf.catalog.resource.data.ReliableResource;
 import ddf.catalog.resourceretriever.ResourceRetriever;
 
 public class ReliableResourceDownloadManagerTest {
-
-    public static final int MAX_RETRY_ATTEMPTS = 3;
-
-    public static final int DELAY_BETWEEN_ATTEMPTS = 5;
-
-
     public static final int MONITOR_PERIOD = 5;
 
     public static final String EXPECTED_METACARD_ID = "abc123";
@@ -93,15 +88,13 @@ public class ReliableResourceDownloadManagerTest {
     private static final Logger LOGGER = LoggerFactory
             .getLogger(ReliableResourceDownloadManagerTest.class);
 
-    public static String workingDir;
+    private static String productCacheDirectory;
 
-    public static String productCacheDirectory;
+    private static String productInputFilename;
 
-    public static String productInputFilename;
+    private static long expectedFileSize;
 
-    public static long expectedFileSize;
-
-    public static String expectedFileContents;
+    private static String expectedFileContents;
 
     @Rule
     public MethodRule watchman = new TestWatchman() {
@@ -115,10 +108,6 @@ public class ReliableResourceDownloadManagerTest {
                     method.getName());
         }
     };
-
-    private boolean cacheEnabled;
-
-    private boolean cacheWhenCanceled;
 
     private ResourceCache resourceCache;
 
@@ -146,7 +135,7 @@ public class ReliableResourceDownloadManagerTest {
 
     @BeforeClass
     public static void oneTimeSetup() throws IOException {
-        workingDir = System.getProperty("user.dir");
+        String workingDir = System.getProperty("user.dir");
         productCacheDirectory = workingDir + "/target/tests/product-cache";
         productInputFilename = workingDir + "/src/test/resources/foo_10_lines.txt";
         File productInputFile = new File(productInputFilename);
@@ -156,8 +145,6 @@ public class ReliableResourceDownloadManagerTest {
 
     @Before
     public void setup() {
-        cacheEnabled = false;
-        cacheWhenCanceled = false;
         resourceCache = mock(ResourceCache.class);
         when(resourceCache.getProductCacheDirectory()).thenReturn(productCacheDirectory);
         eventPublisher = mock(DownloadsStatusEventPublisher.class);
@@ -290,7 +277,7 @@ public class ReliableResourceDownloadManagerTest {
 
     /**
      * Verifies that if client is reading from @ReliableResourceInputStream slower than
-     * @ReliableResourceCallable is reading from product InputStream and writing to FileBackedOutputStream,
+     * {@link ReliableResourceCallable} is reading from product InputStream and writing to FileBackedOutputStream,
      * that complete product is still successfully downloaded by the client.
      * (This will be the case with CXF and @ReliableResourceCallable)
      *
@@ -468,7 +455,7 @@ public class ReliableResourceDownloadManagerTest {
     public void testClientCancelProductDownloadCachingStops() throws Exception {
 
         mis = new MockInputStream(productInputFilename, true);
-        mis.setReadDelay(MONITOR_PERIOD - 2);
+        mis.setReadDelay(MONITOR_PERIOD - 2, TimeUnit.MILLISECONDS);
 
         Metacard metacard = getMockMetacard(EXPECTED_METACARD_ID, EXPECTED_METACARD_SOURCE_ID);
         resourceResponse = getMockResourceResponse();
@@ -575,7 +562,7 @@ public class ReliableResourceDownloadManagerTest {
         // download manager is writing to, simulating a cache file exception during
         // the product download
         mis = new MockInputStream(productInputFilename, true);
-        mis.setReadDelay(MONITOR_PERIOD - 2);
+        mis.setReadDelay(MONITOR_PERIOD - 2, TimeUnit.MILLISECONDS);
 
         Metacard metacard = getMockMetacard(EXPECTED_METACARD_ID, EXPECTED_METACARD_SOURCE_ID);
         resourceResponse = getMockResourceResponse();
@@ -623,7 +610,6 @@ public class ReliableResourceDownloadManagerTest {
         Metacard metacard = getMockMetacard(EXPECTED_METACARD_ID, EXPECTED_METACARD_SOURCE_ID);
         resourceResponse = getMockResourceResponse();
 
-        cacheEnabled = true;
         downloadMgr = new ReliableResourceDownloadManager(resourceCache, eventPublisher,
                 eventListener, downloadStatusInfo);
 
@@ -755,7 +741,7 @@ public class ReliableResourceDownloadManagerTest {
                 invocationCount++;
                 if (readSlow) {
                     mis = new MockInputStream(productInputFilename, true);
-                    mis.setReadDelay(MONITOR_PERIOD - 2);
+                    mis.setReadDelay(MONITOR_PERIOD - 2, TimeUnit.MILLISECONDS);
                 } else {
                     mis = new MockInputStream(productInputFilename);
                 }
@@ -769,10 +755,10 @@ public class ReliableResourceDownloadManagerTest {
                 } else if (retryType == RetryType.TIMEOUT_EXCEPTION) {
                     if (invocationCount == 1) {
                         mis.setInvocationCountToTimeout(3);
-                        mis.setReadDelay(MONITOR_PERIOD * 2);
+                        mis.setReadDelay(MONITOR_PERIOD * 2, TimeUnit.SECONDS);
                     } else {
                         mis.setInvocationCountToTimeout(-1);
-                        mis.setReadDelay(0);
+                        mis.setReadDelay(0, TimeUnit.SECONDS);
                     }
                 } else if (retryType == RetryType.NETWORK_CONNECTION_UP_AND_DOWN) {
                     mis.setInvocationCountToThrowIOException(2);
@@ -782,15 +768,6 @@ public class ReliableResourceDownloadManagerTest {
                     } else {
                         throw new ResourceNotFoundException();
                     }
-                } else if (retryType == RetryType.CLIENT_CANCELS_DOWNLOAD) {
-
-                } else if (retryType == RetryType.CACHE_FILE_EXCEPTION) {
-                    //                        FileOutputStream cacheFileOutputStream = downloadMgr.getFileOutputStream();
-                    //                        try {
-                    //                            LOGGER.debug("Closing cacheFileOutputStream to simulate CACHED_FILE_OUTPUT_STREAM_EXCEPTION");
-                    //                            cacheFileOutputStream.close();
-                    //                        } catch (IOException e) {
-                    //                        }
                 }
 
                 // Reset the mock Resource so that it can be reconfigured to return
@@ -829,7 +806,7 @@ public class ReliableResourceDownloadManagerTest {
                 invocationCount++;
                 if (readSlow) {
                     mis = new MockInputStream(productInputFilename, true);
-                    mis.setReadDelay(MONITOR_PERIOD - 2);
+                    mis.setReadDelay(MONITOR_PERIOD - 2, TimeUnit.MILLISECONDS);
                 } else {
                     mis = new MockInputStream(productInputFilename);
                 }
@@ -849,10 +826,10 @@ public class ReliableResourceDownloadManagerTest {
                 } else if (retryType == RetryType.TIMEOUT_EXCEPTION) {
                     if (invocationCount == 1) {
                         mis.setInvocationCountToTimeout(3);
-                        mis.setReadDelay(MONITOR_PERIOD * 2);
+                        mis.setReadDelay(MONITOR_PERIOD * 2, TimeUnit.SECONDS);
                     } else {
                         mis.setInvocationCountToTimeout(-1);
-                        mis.setReadDelay(0);
+                        mis.setReadDelay(0, TimeUnit.MILLISECONDS);
                     }
                 } else if (retryType == RetryType.NETWORK_CONNECTION_UP_AND_DOWN) {
                     mis.setInvocationCountToThrowIOException(2);
@@ -879,9 +856,11 @@ public class ReliableResourceDownloadManagerTest {
                 reset(resourceResponse);
                 when(resourceResponse.getRequest()).thenReturn(resourceRequest);
                 when(resourceResponse.getResource()).thenReturn(resource);
-                Map<String, Serializable> responseProperties = new HashMap<String, Serializable>();
+                Map<String, Serializable> responseProperties = new HashMap<>();
                 responseProperties.put("BytesSkipped", true);
                 when(resourceResponse.getProperties()).thenReturn(responseProperties);
+                when(resourceResponse.containsPropertyName("BytesSkipped")).thenReturn(true);
+                when(resourceResponse.getPropertyValue("BytesSkipped")).thenReturn(true);
 
                 return resourceResponse;
             }

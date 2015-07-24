@@ -255,16 +255,8 @@ public class ReliableResourceDownloader implements Runnable {
                             downloaderConfig.getMonitorPeriodMS());
                     downloadStarted.set(Boolean.TRUE);
                     reliableResourceStatus = downloadFuture.get();
-                } catch (InterruptedException e) {
-                    LOGGER.error("InterruptedException - Unable to store product file {}", filePath,
-                            e);
-                    reliableResourceStatus = reliableResourceCallable.getReliableResourceStatus();
-                } catch (ExecutionException e) {
-                    LOGGER.error("ExecutionException - Unable to store product file {}", filePath,
-                            e);
-                    reliableResourceStatus = reliableResourceCallable.getReliableResourceStatus();
-                } catch (CancellationException e) {
-                    LOGGER.error("CancellationException - Unable to store product file {}",
+                } catch (InterruptedException | CancellationException | ExecutionException e) {
+                    LOGGER.error("{} - Unable to store product file {}", e.getClass().getSimpleName(),
                             filePath, e);
                     reliableResourceStatus = reliableResourceCallable.getReliableResourceStatus();
                 }
@@ -505,11 +497,7 @@ public class ReliableResourceDownloader implements Runnable {
 
             // So that Callable can account for bytes read in previous download attempt(s)
             reliableResourceCallable.setBytesRead(bytesRead);
-        } catch (ResourceNotFoundException e) {
-            LOGGER.warn("Unable to re-retrieve product; cannot download product file {}", filePath);
-        } catch (ResourceNotSupportedException e) {
-            LOGGER.warn("Unable to re-retrieve product; cannot download product file {}", filePath);
-        } catch (IOException e) {
+        } catch (ResourceNotFoundException | ResourceNotSupportedException | IOException e) {
             LOGGER.warn("Unable to re-retrieve product; cannot download product file {}", filePath);
         }
 

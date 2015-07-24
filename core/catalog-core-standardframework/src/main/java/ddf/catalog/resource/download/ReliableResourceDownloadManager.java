@@ -122,11 +122,7 @@ public class ReliableResourceDownloadManager {
 
         try {
             resourceResponse = retriever.retrieveResource();
-        } catch (ResourceNotFoundException e) {
-            throw new DownloadException("Cannot download resource", e);
-        } catch (ResourceNotSupportedException e) {
-            throw new DownloadException("Cannot download resource", e);
-        } catch (IOException e) {
+        } catch (ResourceNotFoundException | ResourceNotSupportedException | IOException e) {
             throw new DownloadException("Cannot download resource", e);
         }
 

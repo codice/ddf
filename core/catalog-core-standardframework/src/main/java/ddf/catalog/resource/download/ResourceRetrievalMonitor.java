@@ -35,19 +35,19 @@ public class ResourceRetrievalMonitor extends TimerTask {
 
     private long previousBytesRead = 0;
 
-    private Future<?> future;
+    private final Future<?> future;
 
-    private ReliableResourceCallable reliableResourceCallable;
+    private final ReliableResourceCallable reliableResourceCallable;
 
-    private long monitorPeriod;
+    private final long monitorPeriod;
 
-    private DownloadsStatusEventPublisher eventPublisher;
+    private final DownloadsStatusEventPublisher eventPublisher;
 
-    private ResourceResponse resourceResponse;
+    private final ResourceResponse resourceResponse;
 
-    private Metacard metacard;
+    private final Metacard metacard;
 
-    private String downloadIdentifier;
+    private final String downloadIdentifier;
 
     /**
      * @param future the @Future that started the @ReliableResourceCallable doing the resource download
