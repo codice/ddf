@@ -63,7 +63,6 @@
                 <configuration>
                     <autoVersionSubmodules>true</autoVersionSubmodules>
                     <preparationGoals>clean verify install</preparationGoals>
-                    <arguments>-Pgenerate_uml_javadoc</arguments>
                     <pushChanges>false</pushChanges>
                 </configuration>
             </plugin>
