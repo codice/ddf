@@ -257,7 +257,7 @@
 
     <profiles>
         <profile>
-            <id>generate_uml_javadoc</id>
+            <id>javadoc-unpack</id>
             <build>
                 <plugins>
                     <plugin>
