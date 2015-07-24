@@ -25,13 +25,10 @@ mvn clean test -Dtest=TestFederation#<testMethodName>
 This can be combined with the `isDebugEnabled` property.
 
 ## Investigating the Test Container
-Add the following code to the test class that is failing.
+Use the `keepRuntimeFolder` property to keep the test container for test failure investigation.
 
 ```
-@Override
-protected Option[] configureCustom() {
-    return options(keepRuntimeFolder());
-}
+mvn clean test -DkeepRuntimeFolder=true
 ```
 
 The runtime folder used during the test will be available under `target/exam/<GUID>`.  It is possible to rerun the instance and verify that all bundles (excluding the test probe) are installed and working properly.  You can also inspect the logs under `target/exam/<GUID>/data/logs`.
