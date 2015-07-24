@@ -347,7 +347,8 @@ public class TestFederation extends AbstractIntegrationTest {
                 .log().all().assertThat().body(containsString("\"value\":true"));
     }
 
-    // TODO: Connected csw/wfs sources are broken and need to be fixed before we can test their status
+    // TODO: Connected csw/wfs sources are broken. Ticket: DDF-1366
+
     @Ignore
     public void testConnectedSourceStatus() {
         try {
