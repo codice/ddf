@@ -34,6 +34,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.codice.ddf.platform.util.Exceptions;
 import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
@@ -589,10 +590,11 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
                     interruptRemainingSources(processingDetails, e);
                     break;
                 } catch (ExecutionException e) {
-                    logger.warn("Couldn't get results from completed federated query for {}",
-                            sourceId, e.getCause());
-                    processingDetails
-                            .add(new ProcessingDetailsImpl(sourceId, new Exception(e.getCause())));
+                    logger.warn("Couldn't get results from completed federated query. {}",
+                            sourceId + ", " + Exceptions.getFullMessage(e), e);
+
+                    processingDetails.add(new ProcessingDetailsImpl(sourceId,
+                            new Exception(Exceptions.getFullMessage(e))));
                 }
             }
             logger.debug("All sources finished returning results: {}", resultList.size());

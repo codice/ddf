@@ -29,6 +29,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>ddf.platform</groupId>
+            <artifactId>platform-util</artifactId>
+            <version>${ddf.platform.app.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-api-impl</artifactId>
         </dependency>
