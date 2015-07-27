@@ -855,7 +855,7 @@ They are passed in the AuthorizationInfo of the Subject along with the Permissio
 |This realm delegates the authorization decision to a XACML-based Policy Decision Point (PDP) backend. It creates a XACML 3.0 request and looks on the OSGi framework for any service implementing ddf.security.pdp.api.PolicyDecisionPoint.
 
 |ddf.security.pdp.realm.SimpleAuthZRealm    
-|This realm performs the authorization decision without delegating to an external service. It uses the incoming permissions to create a decision.
+|This realm performs the authorization decision without delegating to an external service. It uses the incoming permissions to create a decision. However, it is possible to extend this realm using the ddf.security.policy.extension.PolicyExtension interface. This interface allows an integrator to add additional policy information to the PDP that can't be covered via its generic matching policies. This approach is often easier to configure for those that are not familiar with XACML. Note that no PolicyExtension implementations are provided out of the box.
 
 === Securing REST
 
