@@ -129,4 +129,28 @@ public final class Library {
         return getCswQuery(propertyName, literalValue, "application/json", null);
     }
 
+    public static String getCswIngest() {
+        return "<csw:Transaction\n" + "    service=\"CSW\"\n" + "    version=\"2.0.2\"\n"
+                + "    verboseResponse=\"true\"\n"
+                + "    xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\">\n"
+                + "    <csw:Insert typeName=\"csw:Record\">\n" + "        <csw:Record\n"
+                + "            xmlns:ows=\"http://www.opengis.net/ows\"\n"
+                + "            xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\"\n"
+                + "            xmlns:dc=\"http://purl.org/dc/elements/1.1/\"\n"
+                + "            xmlns:dct=\"http://purl.org/dc/terms/\"\n"
+                + "            xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\n"
+                + "            <dc:identifier>123</dc:identifier>\n"
+                + "            <dc:title>Aliquam fermentum purus quis arcu</dc:title>\n"
+                + "            <dc:type>http://purl.org/dc/dcmitype/Text</dc:type>\n"
+                + "            <dc:subject>Hydrography--Dictionaries</dc:subject>\n"
+                + "            <dc:format>application/pdf</dc:format>\n"
+                + "            <dc:date>2006-05-12</dc:date>\n"
+                + "            <dct:abstract>Vestibulum quis ipsum sit amet metus imperdiet vehicula. Nulla scelerisque cursus mi.</dct:abstract>\n"
+                + "            <ows:BoundingBox crs=\"urn:x-ogc:def:crs:EPSG:6.11:4326\">\n"
+                + "                <ows:LowerCorner>44.792 -6.171</ows:LowerCorner>\n"
+                + "                <ows:UpperCorner>51.126 -2.228</ows:UpperCorner>\n"
+                + "            </ows:BoundingBox>\n" + "        </csw:Record>\n"
+                + "    </csw:Insert>\n" + "</csw:Transaction>";
+    }
+
 }
