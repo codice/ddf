@@ -22,7 +22,6 @@
 		<service-properties>
 			<entry key="id" value="csw"/>
 			<entry key="mime-type" value="text/xml"/>
-            <!-- TODO - still need to register OGCCORE for old school system -->
             <entry key="schema" value="http://www.opengis.net/cat/csw/2.0.2"/>
 		</service-properties>
 		<bean class="org.codice.ddf.spatial.ogc.csw.catalog.converter.CswRecordConverter"/>

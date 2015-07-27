@@ -59,6 +59,8 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.DescribeRecordRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordsRequest;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequest;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.InsertTransaction;
 import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;
 import org.geotools.filter.AttributeExpressionImpl;
 import org.geotools.filter.LiteralExpressionImpl;
@@ -105,15 +107,19 @@ import com.vividsolutions.jts.io.WKTReader;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.AttributeBuilder;
 import ddf.catalog.filter.ContextualExpressionBuilder;
 import ddf.catalog.filter.ExpressionBuilder;
 import ddf.catalog.filter.FilterBuilder;
+import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.QueryRequest;
+import ddf.catalog.operation.impl.CreateResponseImpl;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryResponseImpl;
+import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.QueryResponseTransformer;
@@ -129,6 +135,8 @@ import net.opengis.cat.csw.v_2_0_2.QueryConstraintType;
 import net.opengis.cat.csw.v_2_0_2.QueryType;
 import net.opengis.cat.csw.v_2_0_2.ResultType;
 import net.opengis.cat.csw.v_2_0_2.SchemaComponentType;
+import net.opengis.cat.csw.v_2_0_2.TransactionResponseType;
+import net.opengis.cat.csw.v_2_0_2.TransactionSummaryType;
 import net.opengis.filter.v_1_1_0.BinaryComparisonOpType;
 import net.opengis.filter.v_1_1_0.BinarySpatialOpType;
 import net.opengis.filter.v_1_1_0.ComparisonOperatorType;
@@ -1953,14 +1961,108 @@ public class TestCswEndpoint {
 
     }
 
+    @Test
+    public void testIngestTransaction()
+            throws CswException, SourceUnavailableException, FederationException, IngestException {
+        CswTransactionRequest request = new CswTransactionRequest();
+        request.setInsertTransaction(new InsertTransaction(CswConstants.CSW_TYPE, null,
+                Arrays.<Metacard>asList(new MetacardImpl())));
+
+        CatalogFramework framework = mock(CatalogFramework.class);
+        CreateResponseImpl createResponse = new CreateResponseImpl(null, null,
+                Arrays.<Metacard>asList(new MetacardImpl()));
+        when(framework.create(any(CreateRequest.class))).thenReturn(createResponse);
+
+        CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
+                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
+
+        TransactionResponseType response = cswEndpoint.transaction(request);
+        assertThat(response, notNullValue());
+        assertThat(response.getInsertResult().isEmpty(), is(true));
+        assertThat(response.getTransactionSummary(), notNullValue());
+        TransactionSummaryType summary = response.getTransactionSummary();
+        assertThat(summary.getTotalDeleted().intValue(), is(0));
+        assertThat(summary.getTotalUpdated().intValue(), is(0));
+        assertThat(summary.getTotalInserted().intValue(), is(1));
+        // Verify the response will marshal
+        JAXBContext context;
+        try {
+
+            context = JAXBContext.newInstance(
+                    "net.opengis.cat.csw.v_2_0_2:net.opengis.filter.v_1_1_0:net.opengis.gml.v_3_1_1");
+            Marshaller marshaller = context.createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            marshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
+            StringWriter sw = new StringWriter();
+
+            JAXBElement<TransactionResponseType> wrappedResponse = new JAXBElement<>(
+                    new QName("http://www.opengis.net/cat/csw/2.0.2"),
+                    TransactionResponseType.class, response);
+
+            marshaller.marshal(wrappedResponse, sw);
+
+            LOGGER.info("\nResponse\n" + sw.toString() + "\n\n");
+
+        } catch (JAXBException e) {
+            fail("Could not marshall message, Error: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void testIngestVerboseTransaction()
+            throws CswException, SourceUnavailableException, FederationException, IngestException {
+        CswTransactionRequest request = new CswTransactionRequest();
+        request.setInsertTransaction(new InsertTransaction(CswConstants.CSW_TYPE, null,
+                Arrays.<Metacard>asList(new MetacardImpl())));
+        request.setVerbose(true);
+
+        CatalogFramework framework = mock(CatalogFramework.class);
+        CreateResponseImpl createResponse = new CreateResponseImpl(null, null,
+                Arrays.<Metacard>asList(new MetacardImpl()));
+        when(framework.create(any(CreateRequest.class))).thenReturn(createResponse);
+
+        CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
+                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
+
+        TransactionResponseType response = cswEndpoint.transaction(request);
+        assertThat(response, notNullValue());
+        assertThat(response.getInsertResult().size(), is(1));
+        assertThat(response.getTransactionSummary(), notNullValue());
+        TransactionSummaryType summary = response.getTransactionSummary();
+        assertThat(summary.getTotalDeleted().intValue(), is(0));
+        assertThat(summary.getTotalUpdated().intValue(), is(0));
+        assertThat(summary.getTotalInserted().intValue(), is(1));
+        // Verify the response will marshal
+        JAXBContext context;
+        try {
+
+            String contextPath = StringUtils.join(new String[] {CswConstants.OGC_CSW_PACKAGE,
+                    CswConstants.OGC_FILTER_PACKAGE, CswConstants.OGC_GML_PACKAGE,
+                    CswConstants.OGC_OWS_PACKAGE}, ":");
+            context = JAXBContext.newInstance(contextPath);
+            Marshaller marshaller = context.createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            marshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
+            StringWriter sw = new StringWriter();
+
+            JAXBElement<TransactionResponseType> wrappedResponse = new JAXBElement<>(
+                    new QName("http://www.opengis.net/cat/csw/2.0.2", "Transaction"),
+                    TransactionResponseType.class, response);
+
+            marshaller.marshal(wrappedResponse, sw);
+
+            LOGGER.info("\nResponse\n" + sw.toString() + "\n\n");
+
+        } catch (JAXBException e) {
+            fail("Could not marshall message, Error: " + e.getMessage());
+        }
+    }
+
     /**
      * Runs a binary Spatial CQL Query, verifying that the right filter class is generated based on CQL
      *
-     * @param clz
-     *            Class of filter to generate
-     * @param cql
-     *            CQL Query String
-     *
+     * @param clz Class of filter to generate
+     * @param cql CQL Query String
      * @throws UnsupportedQueryException
      * @throws SourceUnavailableException
      * @throws FederationException
@@ -2007,11 +2109,8 @@ public class TestCswEndpoint {
     /**
      * Runs a relative spatial CQL Query, verifying that the right filter class is generated based on CQL
      *
-     * @param clz
-     *            Class of filter to generate
-     * @param cql
-     *            CQL Query String
-     *
+     * @param clz Class of filter to generate
+     * @param cql CQL Query String
      * @throws UnsupportedQueryException
      * @throws SourceUnavailableException
      * @throws FederationException
@@ -2154,9 +2253,7 @@ public class TestCswEndpoint {
     /**
      * Runs a binary Spatial OGC Query, verifying that the right filter class is generated based on OGC Filter
      *
-     * @param constraint
-     *            The OGC Filter Constraint as an XML string
-     *
+     * @param constraint The OGC Filter Constraint as an XML string
      * @throws UnsupportedQueryException
      * @throws SourceUnavailableException
      * @throws FederationException
@@ -2194,9 +2291,7 @@ public class TestCswEndpoint {
     /**
      * Runs a binary Spatial OGC Query, verifying that the right filter class is generated based on OGC Filter
      *
-     * @param spatialOps
-     *            BinarySpatialOps query
-     *
+     * @param spatialOps BinarySpatialOps query
      * @throws UnsupportedQueryException
      * @throws SourceUnavailableException
      * @throws FederationException
@@ -2247,9 +2342,7 @@ public class TestCswEndpoint {
     /**
      * Runs a binary Spatial OGC Query, verifying that the right filter class is generated based on OGC Filter
      *
-     * @param spatialOps
-     *            BinarySpatialOps query
-     *
+     * @param spatialOps BinarySpatialOps query
      * @throws UnsupportedQueryException
      * @throws SourceUnavailableException
      * @throws FederationException
@@ -2301,12 +2394,9 @@ public class TestCswEndpoint {
      * Runs a binary Temporal OGC Query, verifying that the right filter class is generated based on
      * OGC Filter
      *
-     * @param expectedAttr
-     *            Exprected Mapped Attribute
-     * @param temporalOps
-     *            The Temporal query, in terms of a binary comparison
-     * @param clz
-     *            the Expected Class result
+     * @param expectedAttr Exprected Mapped Attribute
+     * @param temporalOps  The Temporal query, in terms of a binary comparison
+     * @param clz          the Expected Class result
      * @throws UnsupportedQueryException
      * @throws SourceUnavailableException
      * @throws FederationException
@@ -2330,12 +2420,9 @@ public class TestCswEndpoint {
      * Runs an Or'd query of multiple binary Temporal OGC Query, verifying that the right filter
      * class is generated based on OGC Filter
      *
-     * @param expectedAttr
-     *            Exprected Mapped Attribute
-     * @param temporalOps
-     *            The Temporal query, in terms of a binary comparison
-     * @param clz
-     *            the Expected Class result
+     * @param expectedAttr Exprected Mapped Attribute
+     * @param temporalOps  The Temporal query, in terms of a binary comparison
+     * @param clz          the Expected Class result
      * @throws UnsupportedQueryException
      * @throws SourceUnavailableException
      * @throws FederationException
@@ -2542,8 +2629,7 @@ public class TestCswEndpoint {
     /**
      * Helper method to verify the ServiceProvider section matches the endpoint's definition
      *
-     * @param ct
-     *            The CapabilitiesType to verify
+     * @param ct The CapabilitiesType to verify
      */
     private void verifyServiceProvider(CapabilitiesType ct) {
         ServiceProvider sp = ct.getServiceProvider();
@@ -2553,8 +2639,7 @@ public class TestCswEndpoint {
     /**
      * Helper method to verify the ServiceIdentification section matches the endpoint's definition
      *
-     * @param ct
-     *            The CapabilitiesType to verify
+     * @param ct The CapabilitiesType to verify
      */
     private void verifyServiceIdentification(CapabilitiesType ct) {
         ServiceIdentification si = ct.getServiceIdentification();
@@ -2567,27 +2652,40 @@ public class TestCswEndpoint {
     /**
      * Helper method to verify the OperationsMetadata section matches the endpoint's definition
      *
-     * @param ct
-     *            The CapabilitiesType to verify
+     * @param ct The CapabilitiesType to verify
      */
     private void verifyOperationsMetadata(CapabilitiesType ct) {
         OperationsMetadata om = ct.getOperationsMetadata();
         List<Operation> opList = om.getOperation();
-        ArrayList<String> opNames = new ArrayList<String>();
+        ArrayList<String> opNames = new ArrayList<>();
         for (Operation op : opList) {
             opNames.add(op.getName());
+            if (StringUtils.equals(CswConstants.TRANSACTION, op.getName()) ||
+                    StringUtils.equals(CswConstants.GET_RECORDS, op.getName())) {
+                for (DomainType parameter : op.getParameter()) {
+                    if (StringUtils.equals(CswConstants.CONSTRAINT_LANGUAGE_PARAMETER,
+                            parameter.getName())) {
+                        assertThat(parameter.getValue(),
+                                contains(CswConstants.CONSTRAINT_LANGUAGE_FILTER,
+                                        CswConstants.CONSTRAINT_LANGUAGE_CQL));
+                    } else if (StringUtils
+                            .equals(CswConstants.TYPE_NAMES_PARAMETER, parameter.getName())) {
+                        assertThat(parameter.getValue(), contains(CswConstants.CSW_RECORD));
+                    }
+                }
+            }
         }
         assertTrue(opNames.contains(CswConstants.GET_CAPABILITIES));
         assertTrue(opNames.contains(CswConstants.DESCRIBE_RECORD));
         assertTrue(opNames.contains(CswConstants.GET_RECORDS));
         assertTrue(opNames.contains(CswConstants.GET_RECORD_BY_ID));
+        assertTrue(opNames.contains(CswConstants.TRANSACTION));
     }
 
     /**
      * Helper method to verify the FilterCapabilities section matches the endpoint's definition
      *
-     * @param ct
-     *            The CapabilitiesType to verify
+     * @param ct The CapabilitiesType to verify
      */
     private void verifyFilterCapabilities(CapabilitiesType ct) {
         FilterCapabilities fc = ct.getFilterCapabilities();

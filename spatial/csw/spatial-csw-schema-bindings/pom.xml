@@ -29,13 +29,11 @@
         <dependency>
             <groupId>org.jvnet.jaxb2_commons</groupId>
             <artifactId>jaxb2-basics-runtime</artifactId>
-            <version>0.6.0</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.sun.xml.bind</groupId>
             <artifactId>jaxb-impl</artifactId>
-            <version>2.1.13</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -112,20 +110,13 @@
                                 <arg>-Xwildcard</arg>
                                 <arg>-Xinject-code</arg>
                                 <arg>-Xinheritance</arg>
-                                <!--<arg>-Xvisitor</arg>
-                                <arg>-Xvisitor-package:net.opengis.filter.v_1_1_0</arg>-->
                             </args>
                             <plugins>
                                 <plugin>
                                     <groupId>org.jvnet.jaxb2_commons</groupId>
                                     <artifactId>jaxb2-basics</artifactId>
-                                    <version>0.6.0</version>
+                                    <version>0.9.4</version>
                                 </plugin>
-                                <!--<plugin>
-                                    <groupId>com.massfords</groupId>
-                                    <artifactId>jaxb-visitor</artifactId>
-                                    <version>${jaxb.visitor.plugin.version}</version>
-                                </plugin>-->
                             </plugins>
                         </configuration>
                     </execution>

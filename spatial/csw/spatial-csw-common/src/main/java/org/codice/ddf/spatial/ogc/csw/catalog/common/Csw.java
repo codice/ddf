@@ -22,6 +22,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequest;
+
 import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
 import net.opengis.cat.csw.v_2_0_2.DescribeRecordResponseType;
 import net.opengis.cat.csw.v_2_0_2.DescribeRecordType;
@@ -29,11 +31,9 @@ import net.opengis.cat.csw.v_2_0_2.GetCapabilitiesType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordByIdType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.TransactionResponseType;
-import net.opengis.cat.csw.v_2_0_2.TransactionType;
 
 /**
  * JAX-RS Interface to define an OGC Catalogue Service for Web (CSW).
- *
  */
 @Path("/")
 public interface Csw {
@@ -47,8 +47,8 @@ public interface Csw {
     @GET
     @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
     @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-    CapabilitiesType getCapabilities(@QueryParam("") GetCapabilitiesRequest request) throws
-            CswException;
+    CapabilitiesType getCapabilities(@QueryParam("") GetCapabilitiesRequest request)
+            throws CswException;
 
     /**
      * GetCapabilities - HTTP POST
@@ -70,8 +70,8 @@ public interface Csw {
     @GET
     @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
     @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-    DescribeRecordResponseType describeRecord(@QueryParam("") DescribeRecordRequest request) throws
-            CswException;
+    DescribeRecordResponseType describeRecord(@QueryParam("") DescribeRecordRequest request)
+            throws CswException;
 
     /**
      * DescribeRecord - HTTP POST
@@ -114,8 +114,8 @@ public interface Csw {
     @GET
     @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
     @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-    CswRecordCollection getRecordById(@QueryParam("") GetRecordByIdRequest request) throws
-            CswException;
+    CswRecordCollection getRecordById(@QueryParam("") GetRecordByIdRequest request)
+            throws CswException;
 
     /**
      * GetRecordById - HTTP POST
@@ -137,6 +137,6 @@ public interface Csw {
     @POST
     @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
     @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-    TransactionResponseType transaction(TransactionType request) throws CswException;
+    TransactionResponseType transaction(CswTransactionRequest request) throws CswException;
 
 }
