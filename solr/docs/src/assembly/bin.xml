@@ -25,14 +25,16 @@
             <directory>${project.build.directory}/docs/html</directory>
             <excludes>
                 <exclude>config.html</exclude>
+                <exclude>*Contents.html</exclude>
             </excludes>
         </fileSet>
         <fileSet>
             <outputDirectory>pdf</outputDirectory>
             <directory>${project.build.directory}/docs/pdf</directory>
             <excludes>
-                <exclude>config.pdf</exclude>
+                <exclude>**/*config.pdf</exclude>
                 <exclude>**/*.pdfmarks</exclude>
+                <exclude>**/*Contents.pdf</exclude>
             </excludes>
         </fileSet>
     </fileSets>

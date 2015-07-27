@@ -111,11 +111,12 @@
     
     <feature name="abdera" install="manual" version="${project.version}"
              description="Apache Abdera">
+        <bundle>wrap:mvn:org.apache.james/apache-mime4j-core/0.7.2</bundle>
         <bundle>mvn:commons-codec/commons-codec/1.4</bundle>
         <!-- This bundle <bundle>mvn:org.apache.ws.commons.axiom/axiom-impl/1.2.10</bundle>
         does not export any classes. Must use the servicemix version. -->
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.axiom-impl/1.2.12-2</bundle>
-        <bundle>mvn:org.apache.ws.commons.axiom/axiom-api/1.2.10</bundle>
+        <bundle>mvn:org.apache.ws.commons.axiom/axiom-api/1.2.14</bundle>
         <bundle>mvn:org.apache.abdera/abdera-core/${abdera.version}</bundle>
         <bundle>mvn:org.apache.abdera/abdera-client/${abdera.version}</bundle>
         <bundle>mvn:org.apache.abdera/abdera-i18n/${abdera.version}</bundle>

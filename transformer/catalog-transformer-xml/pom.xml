@@ -41,6 +41,13 @@
         </dependency>
 
         <dependency>
+            <groupId>ddf.platform</groupId>
+            <artifactId>platform-parser-xml</artifactId>
+            <version>2.8.0-SNAPSHOT</version>
+        </dependency>
+
+
+        <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-commons</artifactId>
             <scope>test</scope>

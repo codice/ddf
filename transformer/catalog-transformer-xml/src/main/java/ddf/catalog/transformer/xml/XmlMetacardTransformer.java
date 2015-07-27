@@ -18,12 +18,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
 import java.util.Map;
 
-import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
-import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.helpers.DefaultValidationEventHandler;
 
+import org.codice.ddf.parser.Parser;
+import org.codice.ddf.parser.ParserConfigurator;
+import org.codice.ddf.parser.ParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,46 +39,31 @@ public class XmlMetacardTransformer extends AbstractXmlTransformer implements Me
 
     private static final Logger LOGGER = LoggerFactory.getLogger(XmlMetacardTransformer.class);
 
+    public XmlMetacardTransformer(Parser parser) {
+        super(parser);
+    }
+
     @Override
     public BinaryContent transform(Metacard metacard, Map<String, Serializable> arguments)
             throws CatalogTransformerException {
-
-        BinaryContent transformedContent = null;
-
         if (metacard == null) {
             LOGGER.debug("Attempted to transform null metacard");
             throw new CatalogTransformerException("Unable to transform null metacard");
         }
 
-        ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+        ParserConfigurator parserConfigurator = getParserConfigurator()
+                .setAdapter(new AttributeAdapter(metacard.getMetacardType()))
+                .setHandler(new DefaultValidationEventHandler())
+                .addProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+
         try {
-            Thread.currentThread()
-                    .setContextClassLoader(XmlMetacardTransformer.class.getClassLoader());
-            Marshaller marshaller = CONTEXT.createMarshaller();
             ByteArrayOutputStream os = new ByteArrayOutputStream();
+            getParser().marshal(parserConfigurator, new AdaptedMetacard(metacard), os);
 
-            // TODO configure this option via Metatype DDF-2158
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-            marshaller.setAdapter(new AttributeAdapter(metacard.getMetacardType()));
-            marshaller.setEventHandler(new DefaultValidationEventHandler());
-
-            try {
-                marshaller.marshal(new AdaptedMetacard(metacard), os);
-            } catch (RuntimeException e) {
-                // catch runtime exception of JAXB or writing to stream.
-                throw new CatalogTransformerException("Failed Transformation", e);
-            }
             ByteArrayInputStream bais = new ByteArrayInputStream(os.toByteArray());
-            transformedContent = new BinaryContentImpl(bais, new MimeType(TEXT_XML));
-        } catch (JAXBException e) {
-            throw new CatalogTransformerException("Failed JAXB Transformation", e);
-        } catch (MimeTypeParseException e) {
-            throw new CatalogTransformerException(
-                    "Failed Transformation with MimeType Parsing error", e);
-        } finally {
-            Thread.currentThread().setContextClassLoader(tccl);
+            return new BinaryContentImpl(bais, MIME_TYPE);
+        } catch (ParserException e) {
+            throw new CatalogTransformerException("Failed XML Transformation", e);
         }
-
-        return transformedContent;
     }
 }

@@ -88,21 +88,8 @@ public class ProductDownloadClient implements Callable<ByteArrayOutputStream> {
                     break;
                 } else if (simulateCacheFileExceptionChunkCount == chunkCount) {
                     LOGGER.debug("got 1");
-                    // FileOutputStream cacheFileOutputStream = downloadMgr.getFileOutputStream();
-                    // try {
-                    // LOGGER.debug("Closing cacheFileOutputStream to simulate CACHED_FILE_OUTPUT_STREAM_EXCEPTION");
-                    // cacheFileOutputStream.close();
-                    // } catch (IOException e) {
-                    // }
                 } else if (simulateFbosExceptionChunkCount == chunkCount) {
                     LOGGER.debug("got 2");
-                    // FileBackedOutputStream fbos = downloadMgr.getFileBackedOutputStream();
-                    // try {
-                    // LOGGER.debug("Closing FileBackedOutputStream to simulate CLIENT_OUTPUT_STREAM_EXCEPTION");
-                    // fbos.close();
-                    // } catch (IOException e) {
-                    // LOGGER.debug("Could not close FileBackedOutputStream");
-                    // }
                 }
             }
             IOUtils.closeQuietly(is);

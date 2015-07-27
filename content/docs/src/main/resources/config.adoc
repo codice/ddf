@@ -1,22 +1,17 @@
 Version ${version}. Copyright (c) Codice Foundation
 :imagesdir: target/docs/images
-:toc: right
+:toc: left
 :branding: DDF
 :icons: font
-:example-caption!:
-:source-highlighter: coderay
 :data-uri:
 :title-logo: logo_ddf.png
+:example-caption!:
+:source-highlighter: coderay
 :last-update-label: Copyright (c) Codice Foundation. +
-This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either version 3 of the License, or any later version. +
-This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. +
-See the GNU Lesser General Public License for more details. +
-A copy of the GNU Lesser General Public License is distributed along with this program and can be found at http://www.gnu.org/licenses/lgpl.html. +
+This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0/). +
 This page last updated:
 
 ifdef::backend-pdf[]
 == License
-Copyright (c) Codice Foundation. This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either version 3 of the License, or any later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. +
-See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at: +
-http://www.gnu.org/licenses/lgpl.html.
+This work is licensed under a http://creativecommons.org/licenses/by/4.0/[Creative Commons Attribution 4.0 International License].
 endif::[]

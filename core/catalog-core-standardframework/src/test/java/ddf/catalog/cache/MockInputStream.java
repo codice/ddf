@@ -17,6 +17,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +35,9 @@ public class MockInputStream extends InputStream {
 
     private int invocationCountToTimeout = -1;
 
-    private int readDelay = 0;
+    private long readDelay = 0;
+
+    private TimeUnit timeUnit;
 
     private boolean readSlow;
 
@@ -60,8 +63,9 @@ public class MockInputStream extends InputStream {
         invocationCountToTimeout = count;
     }
 
-    public void setReadDelay(int delay) {
+    public void setReadDelay(long delay, TimeUnit timeUnit) {
         this.readDelay = delay;
+        this.timeUnit = timeUnit;
     }
 
     @Override
@@ -83,11 +87,14 @@ public class MockInputStream extends InputStream {
             // By closing stream, when try to read from it an IOException will be thrown.
             is.close();
         } else if (invocationCount == invocationCountToTimeout) {
-            LOGGER.info("Simulating read taking too long by sleeping for {} ms", readDelay);
+            LOGGER.info("Simulating read taking too long by sleeping for {} ms",
+                    timeUnit.toMillis(readDelay));
             try {
                 // Simulates read of InputStream chunk from remote source taking
                 // longer than the timeout for each chunk to be read
-                Thread.sleep(readDelay);
+                if (readDelay > 0) {
+                    timeUnit.sleep(readDelay);
+                }
             } catch (InterruptedException e) {
                 LOGGER.info("Thread sleep interrupted");
                 return 0;
@@ -97,7 +104,9 @@ public class MockInputStream extends InputStream {
             try {
                 // Slows down reading of product input stream so that client
                 // has time to come up
-                Thread.sleep(readDelay);
+                if (readDelay > 0) {
+                    timeUnit.sleep(readDelay);
+                }
             } catch (InterruptedException e) {
                 LOGGER.info("Thread sleep interrupted");
                 return 0;

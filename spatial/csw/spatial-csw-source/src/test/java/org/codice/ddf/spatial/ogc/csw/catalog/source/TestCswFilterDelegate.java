@@ -1186,7 +1186,7 @@ public class TestCswFilterDelegate {
     public void testDuring() throws JAXBException, SAXException, IOException {
         CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(false, false,
                 CswRecordMetacardType.CSW_TYPE, effectiveDateMapping, createdDateMapping,
-                modifiedDateMapping);
+                modifiedDateMapping, CswRecordMetacardType.CSW_IDENTIFIER);
 
         CswFilterDelegate localCswFilterDelegate = createCswFilterDelegate(cswSourceConfiguration);
 
@@ -1208,7 +1208,7 @@ public class TestCswFilterDelegate {
         // Setup
         CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(false, false,
                 CswRecordMetacardType.CSW_TYPE, effectiveDateMapping, createdDateMapping,
-                modifiedDateMapping);
+                modifiedDateMapping, CswRecordMetacardType.CSW_IDENTIFIER);
 
         DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
         String dateStr = fmt.print(testStartDate);
@@ -1230,7 +1230,7 @@ public class TestCswFilterDelegate {
         // Setup
         CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(false, false,
                 CswRecordMetacardType.CSW_TYPE, effectiveDateMapping, createdDateMapping,
-                modifiedDateMapping);
+                modifiedDateMapping, CswRecordMetacardType.CSW_IDENTIFIER);
 
         DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
         String dateStr = fmt.print(testStartDate);
@@ -1254,7 +1254,7 @@ public class TestCswFilterDelegate {
         String replacedTemporalProperty = "myEffectiveDate";
         CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(false, false,
                 CswRecordMetacardType.CSW_TYPE, replacedTemporalProperty, createdDateMapping,
-                modifiedDateMapping);
+                modifiedDateMapping, CswRecordMetacardType.CSW_IDENTIFIER);
 
         CswFilterDelegate localCswFilterDelegate = createCswFilterDelegate(cswSourceConfiguration);
 
@@ -1277,7 +1277,7 @@ public class TestCswFilterDelegate {
         String replacedTemporalProperty = "myCreatedDate";
         CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(false, false,
                 CswRecordMetacardType.CSW_TYPE, effectiveDateMapping, replacedTemporalProperty,
-                modifiedDateMapping);
+                modifiedDateMapping, CswRecordMetacardType.CSW_IDENTIFIER);
 
         CswFilterDelegate localCswFilterDelegate = createCswFilterDelegate(cswSourceConfiguration);
 
@@ -1301,7 +1301,7 @@ public class TestCswFilterDelegate {
         String replacedTemporalProperty = "myModifiedDate";
         CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(false, false,
                 CswRecordMetacardType.CSW_TYPE, effectiveDateMapping, createdDateMapping,
-                replacedTemporalProperty);
+                replacedTemporalProperty, CswRecordMetacardType.CSW_IDENTIFIER);
 
         CswFilterDelegate localCswFilterDelegate = createCswFilterDelegate(cswSourceConfiguration);
 
@@ -1318,12 +1318,28 @@ public class TestCswFilterDelegate {
     }
 
     @Test
+    public void testPropertyIsEqualToAlternateIdMapping()
+            throws JAXBException, SAXException, IOException {
+
+        String replacedIdentifierProperty = propertyName;
+        CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(false, false,
+                CswRecordMetacardType.CSW_TYPE, effectiveDateMapping, createdDateMapping,
+                modifiedDateMapping, replacedIdentifierProperty);
+
+        CswFilterDelegate localCswFilterDelegate = createCswFilterDelegate(cswSourceConfiguration);
+
+        FilterType filterType = localCswFilterDelegate
+                .propertyIsEqualTo(Metacard.ID, stringLiteral, isCaseSensitive);
+        assertXMLEqual(propertyIsEqualToXml, getXmlFromMarshaller(filterType));
+    }
+
+    @Test
     public void testRelative() throws JAXBException, SAXException, IOException {
         long duration = 92000000000L;
 
         CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(false, false,
                 CswRecordMetacardType.CSW_TYPE, effectiveDateMapping, createdDateMapping,
-                modifiedDateMapping);
+                modifiedDateMapping, CswRecordMetacardType.CSW_IDENTIFIER);
         CswFilterDelegate localCswFilterDelegate = createCswFilterDelegate(cswSourceConfiguration);
 
         Map<String, Object> propMap = new HashMap<String, Object>();
@@ -2769,6 +2785,7 @@ public class TestCswFilterDelegate {
     private CswSourceConfiguration initCswSourceConfiguration(boolean isLonLatOrder,
             boolean usePosList, String contentType) {
         CswSourceConfiguration cswSourceConfiguration = new CswSourceConfiguration();
+        cswSourceConfiguration.setIdentifierMapping(CswRecordMetacardType.CSW_IDENTIFIER);
         cswSourceConfiguration.setIsLonLatOrder(isLonLatOrder);
         cswSourceConfiguration.setUsePosList(usePosList);
         cswSourceConfiguration.setContentTypeMapping(contentType);
@@ -2777,8 +2794,9 @@ public class TestCswFilterDelegate {
 
     private CswSourceConfiguration initCswSourceConfiguration(boolean isLonLatOrder,
             boolean usePosList, String contentType, String effectiveDateMapping,
-            String createdDateMapping, String modifiedDateMapping) {
+            String createdDateMapping, String modifiedDateMapping, String identifierMapping) {
         CswSourceConfiguration cswSourceConfiguration = new CswSourceConfiguration();
+        cswSourceConfiguration.setIdentifierMapping(identifierMapping);
         cswSourceConfiguration.setIsLonLatOrder(isLonLatOrder);
         cswSourceConfiguration.setUsePosList(usePosList);
         cswSourceConfiguration.setContentTypeMapping(contentType);

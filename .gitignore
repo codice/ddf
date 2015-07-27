@@ -13,3 +13,4 @@ target/
 bin/
 atlassian-ide-plugin.xml
 *.sonar-ide.properties
+ui/search-ui/standard/src/main/webapp/css/styles.css

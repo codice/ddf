@@ -58,6 +58,10 @@ public class CswSourceConfiguration {
 
     private String outputSchema;
 
+    private String queryTypeQName;
+
+    private String queryTypePrefix;
+
     public String getCswUrl() {
         return cswUrl;
     }
@@ -213,5 +217,30 @@ public class CswSourceConfiguration {
 
     public void setOutputSchema(String outputSchema) {
         this.outputSchema = outputSchema;
+    }
+
+    public String getQueryTypeQName() {
+        return queryTypeQName;
+    }
+
+    public void setQueryTypeQName(String queryTypeQName) {
+        this.queryTypeQName = queryTypeQName;
+    }
+
+    public String getQueryTypePrefix() {
+        return queryTypePrefix;
+    }
+
+    public void setQueryTypePrefix(String queryTypePrefix) {
+        this.queryTypePrefix = queryTypePrefix;
+    }
+
+    public String getIdentifierMapping() {
+        return metacardCswMappings.get(Metacard.ID);
+    }
+
+    public void setIdentifierMapping(String identifierMapping) {
+        metacardCswMappings.put(Metacard.ID, identifierMapping);
+
     }
 }

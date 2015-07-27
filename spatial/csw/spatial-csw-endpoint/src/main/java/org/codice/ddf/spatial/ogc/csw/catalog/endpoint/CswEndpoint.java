@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.math.BigInteger;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -61,6 +62,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.DescribeRecordRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordByIdRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordsRequest;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.DefaultCswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings.CswRecordMapperFilterVisitor;
 import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;
@@ -80,6 +82,11 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.io.WKTReader;
+
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -87,12 +94,17 @@ import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.FilterDelegate;
 import ddf.catalog.filter.impl.SortByImpl;
+import ddf.catalog.operation.CreateRequest;
+import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
+import ddf.catalog.operation.impl.CreateRequestImpl;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
+import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
+import net.opengis.cat.csw.v_2_0_2.BriefRecordType;
 import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
 import net.opengis.cat.csw.v_2_0_2.DescribeRecordResponseType;
 import net.opengis.cat.csw.v_2_0_2.DescribeRecordType;
@@ -100,12 +112,14 @@ import net.opengis.cat.csw.v_2_0_2.ElementSetType;
 import net.opengis.cat.csw.v_2_0_2.GetCapabilitiesType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordByIdType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
+import net.opengis.cat.csw.v_2_0_2.InsertResultType;
 import net.opengis.cat.csw.v_2_0_2.ObjectFactory;
 import net.opengis.cat.csw.v_2_0_2.QueryType;
 import net.opengis.cat.csw.v_2_0_2.ResultType;
 import net.opengis.cat.csw.v_2_0_2.SchemaComponentType;
 import net.opengis.cat.csw.v_2_0_2.TransactionResponseType;
-import net.opengis.cat.csw.v_2_0_2.TransactionType;
+import net.opengis.cat.csw.v_2_0_2.TransactionSummaryType;
+import net.opengis.cat.csw.v_2_0_2.dc.elements.SimpleLiteral;
 import net.opengis.filter.v_1_1_0.ComparisonOperatorType;
 import net.opengis.filter.v_1_1_0.ComparisonOperatorsType;
 import net.opengis.filter.v_1_1_0.EID;
@@ -120,6 +134,7 @@ import net.opengis.filter.v_1_1_0.SpatialCapabilitiesType;
 import net.opengis.filter.v_1_1_0.SpatialOperatorNameType;
 import net.opengis.filter.v_1_1_0.SpatialOperatorType;
 import net.opengis.filter.v_1_1_0.SpatialOperatorsType;
+import net.opengis.ows.v_1_0_0.BoundingBoxType;
 import net.opengis.ows.v_1_0_0.CodeType;
 import net.opengis.ows.v_1_0_0.DCP;
 import net.opengis.ows.v_1_0_0.DomainType;
@@ -222,6 +237,7 @@ public class CswEndpoint implements Csw {
 
     public static synchronized JAXBContext getJaxBContext() throws JAXBException {
         if (jaxBContext == null) {
+
             jaxBContext = JAXBContext.newInstance("net.opengis.cat.csw.v_2_0_2:"
                     + "net.opengis.filter.v_1_1_0:net.opengis.gml.v_3_1_1:net.opengis.ows.v_1_0_0");
         }
@@ -232,8 +248,8 @@ public class CswEndpoint implements Csw {
     @GET
     @Consumes({"text/xml", "application/xml"})
     @Produces({"text/xml", "application/xml"})
-    public CapabilitiesType getCapabilities(@QueryParam("") GetCapabilitiesRequest request) throws
-            CswException {
+    public CapabilitiesType getCapabilities(@QueryParam("") GetCapabilitiesRequest request)
+            throws CswException {
 
         capabilitiesType = buildCapabilitiesType();
 
@@ -273,8 +289,8 @@ public class CswEndpoint implements Csw {
     @GET
     @Consumes({"text/xml", "application/xml"})
     @Produces({"text/xml", "application/xml"})
-    public DescribeRecordResponseType describeRecord(
-            @QueryParam("") DescribeRecordRequest request) throws CswException {
+    public DescribeRecordResponseType describeRecord(@QueryParam("") DescribeRecordRequest request)
+            throws CswException {
 
         if (request == null) {
             throw new CswException("DescribeRecordRequest request is null");
@@ -303,8 +319,8 @@ public class CswEndpoint implements Csw {
     @POST
     @Consumes({"text/xml", "application/xml"})
     @Produces({"text/xml", "application/xml"})
-    public DescribeRecordResponseType describeRecord(DescribeRecordType request) throws
-            CswException {
+    public DescribeRecordResponseType describeRecord(DescribeRecordType request)
+            throws CswException {
 
         if (request == null) {
             throw new CswException("DescribeRecordRequest request is null");
@@ -320,8 +336,8 @@ public class CswEndpoint implements Csw {
     @Override
     @GET
     @Produces({MediaType.WILDCARD})
-    public CswRecordCollection getRecords(@QueryParam("") GetRecordsRequest request) throws
-            CswException {
+    public CswRecordCollection getRecords(@QueryParam("") GetRecordsRequest request)
+            throws CswException {
 
         if (request == null) {
             throw new CswException("GetRecordsRequest request is null");
@@ -372,8 +388,8 @@ public class CswEndpoint implements Csw {
     @GET
     @Consumes({"text/xml", "application/xml"})
     @Produces({"text/xml", "application/xml"})
-    public CswRecordCollection getRecordById(@QueryParam("") GetRecordByIdRequest request) throws
-            CswException {
+    public CswRecordCollection getRecordById(@QueryParam("") GetRecordByIdRequest request)
+            throws CswException {
         if (request == null) {
             throw new CswException("GetRecordByIdRequest request is null");
         }
@@ -431,9 +447,78 @@ public class CswEndpoint implements Csw {
     @POST
     @Consumes({"text/xml", "application/xml"})
     @Produces({"text/xml", "application/xml"})
-    public TransactionResponseType transaction(TransactionType request) throws CswException {
-        notImplemented("Transaction_POST");
-        return null;
+    public TransactionResponseType transaction(CswTransactionRequest request) throws CswException {
+        if (request == null) {
+            throw new CswException("DescribeRecordRequest request is null");
+        }
+
+        TransactionResponseType response = new TransactionResponseType();
+        TransactionSummaryType summary = new TransactionSummaryType();
+        summary.setTotalInserted(BigInteger.valueOf(0));
+        summary.setTotalUpdated(BigInteger.valueOf(0));
+        summary.setTotalDeleted(BigInteger.valueOf(0));
+        response.setTransactionSummary(summary);
+        if (request.getInsertTransaction() != null) {
+            CreateRequest createRequest = new CreateRequestImpl(
+                    request.getInsertTransaction().getRecords());
+            try {
+                CreateResponse createResponse = framework.create(createRequest);
+                if (request.isVerbose()) {
+                    response.getInsertResult().add(getInsertResultFromResponse(createResponse));
+                }
+                response.setVersion(CswConstants.VERSION_2_0_2);
+                summary.setTotalInserted(
+                        BigInteger.valueOf(createResponse.getCreatedMetacards().size()));
+            } catch (IngestException | SourceUnavailableException e) {
+                LOGGER.error("Unable to ingest records", e);
+            }
+        }
+        return response;
+    }
+
+    private InsertResultType getInsertResultFromResponse(CreateResponse createResponse) {
+        InsertResultType result = new InsertResultType();
+        WKTReader reader = new WKTReader();
+        for (Metacard metacard : createResponse.getCreatedMetacards()) {
+            BoundingBoxType boundingBox = new BoundingBoxType();
+            Geometry geometry = null;
+            try {
+                if (metacard.getAttribute(CswConstants.BBOX_PROP) != null) {
+                    geometry = reader.read(metacard.getAttribute(CswConstants.BBOX_PROP).getValue()
+                            .toString());
+                } else if (StringUtils.isNotBlank(metacard.getLocation())) {
+                    geometry = reader.read(metacard.getLocation());
+                }
+            } catch (ParseException e) {
+                LOGGER.warn("Unable to parse BoundingBox.", e);
+            }
+            BriefRecordType briefRecordType = new BriefRecordType();
+            if (geometry != null) {
+                Envelope bounds = geometry.getEnvelopeInternal();
+                if (bounds != null) {
+                    boundingBox.setCrs(CswConstants.SRS_NAME);
+                    boundingBox.setLowerCorner(Arrays.asList(bounds.getMinX(), bounds.getMinY()));
+                    boundingBox.setUpperCorner(Arrays.asList(bounds.getMaxX(), bounds.getMaxY()));
+                    briefRecordType.getBoundingBox().add(new net.opengis.ows.v_1_0_0.ObjectFactory()
+                            .createBoundingBox(boundingBox));
+                }
+            }
+            SimpleLiteral identifier = new SimpleLiteral();
+            identifier.getContent().add(metacard.getId());
+            briefRecordType.getIdentifier()
+                    .add(new JAXBElement<>(CswConstants.DC_IDENTIFIER_QNAME, SimpleLiteral.class,
+                            identifier));
+            SimpleLiteral title = new SimpleLiteral();
+            title.getContent().add(metacard.getTitle());
+            briefRecordType.getTitle()
+                    .add(new JAXBElement<>(CswConstants.DC_TITLE_QNAME, SimpleLiteral.class,
+                            title));
+            SimpleLiteral type = new SimpleLiteral();
+            type.getContent().add(metacard.getContentTypeName());
+            briefRecordType.setType(type);
+            result.getBriefRecord().add(briefRecordType);
+        }
+        return result;
     }
 
     @GET
@@ -473,13 +558,13 @@ public class CswEndpoint implements Csw {
     /**
      * Validates TypeName to namspace uri mapping in query request.
      *
-     * @param typeNames this can be a comma separated list of types which
-     *                  can be prefixed with prefixes.
-     *                  example csw:Record
-     * @param namespaces the namespace parameter from the request
-     *                   example NAMESPACE=xmlns(csw=http://www.opengis.net/cat/csw/2.0.2)
+     * @param typeNames                    this can be a comma separated list of types which
+     *                                     can be prefixed with prefixes.
+     *                                     example csw:Record
+     * @param namespaces                   the namespace parameter from the request
+     *                                     example NAMESPACE=xmlns(csw=http://www.opengis.net/cat/csw/2.0.2)
      * @param namespacePrefixToUriMappings map of namespace prefixes to namespace uri
-     *                  example key=csw value=http://www.opengis.net/cat/csw/2.0.2
+     *                                     example key=csw value=http://www.opengis.net/cat/csw/2.0.2
      * @throws CswException
      */
     private void validateTypeNameToNamespaceMappings(String typeNames, String namespaces,
@@ -513,15 +598,13 @@ public class CswEndpoint implements Csw {
     }
 
     /**
-     *
      * Returns a list of QNames based on typeNames and namespaces given
      *
-     *
-     * @param typeNames this can be a comma separated list of types which
-     *                  can be prefixed with prefixes.
-     *                  example csw:Record
+     * @param typeNames                    this can be a comma separated list of types which
+     *                                     can be prefixed with prefixes.
+     *                                     example csw:Record
      * @param namespacePrefixToUriMappings map of namespace prefixes to namespace uri
-     *                  example key=csw value=http://www.opengis.net/cat/csw/2.0.2
+     *                                     example key=csw value=http://www.opengis.net/cat/csw/2.0.2
      * @return List of QNames so that types and namespaces are associated
      */
     private List<QName> typeStringToQNames(String typeNames,
@@ -558,11 +641,11 @@ public class CswEndpoint implements Csw {
      * for a single type, or localName, this returns the corresponding namespace
      * from the qualified list of namespaces.
      *
-     * @param typePrefix prefix to a typeName
-     *                  example csw is the prefix in the typeName csw:Record
-     * @param type a single type that has already been split
+     * @param typePrefix                   prefix to a typeName
+     *                                     example csw is the prefix in the typeName csw:Record
+     * @param type                         a single type that has already been split
      * @param namespacePrefixToUriMappings map of namespace prefixes to namespace uri
-     *                  example key=csw value=http://www.opengis.net/cat/csw/2.0.2
+     *                                     example key=csw value=http://www.opengis.net/cat/csw/2.0.2
      * @return corresponding namespace for the given type
      */
     private String getNamespaceFromType(String typePrefix, String type,
@@ -657,8 +740,7 @@ public class CswEndpoint implements Csw {
             }
 
             try {
-                QueryResponse queryResponse = framework
-                        .query(queryRequest);
+                QueryResponse queryResponse = framework.query(queryRequest);
                 response.setSourceResponse(queryResponse);
             } catch (UnsupportedQueryException e) {
                 LOGGER.warn("Unable to query", e);
@@ -700,13 +782,15 @@ public class CswEndpoint implements Csw {
                     null);
         }
         visitor.setVisitedFilter(filter);
-        if (query.getTypeNames().contains(new QName(CswConstants.CSW_OUTPUT_SCHEMA, 
-                CswConstants.CSW_RECORD_LOCAL_NAME, CswConstants.CSW_NAMESPACE_PREFIX))) {
-            
+        if (query.getTypeNames().contains(
+                new QName(CswConstants.CSW_OUTPUT_SCHEMA, CswConstants.CSW_RECORD_LOCAL_NAME,
+                        CswConstants.CSW_NAMESPACE_PREFIX))) {
+
             try {
                 visitor.setVisitedFilter((Filter) filter.accept(visitor, null));
-            } catch(UnsupportedOperationException ose) {
-                throw new CswException(ose.getMessage(), CswConstants.INVALID_PARAMETER_VALUE, null);
+            } catch (UnsupportedOperationException ose) {
+                throw new CswException(ose.getMessage(), CswConstants.INVALID_PARAMETER_VALUE,
+                        null);
             }
         }
         return visitor;
@@ -796,9 +880,7 @@ public class CswEndpoint implements Csw {
      * Creates a CapabilitiesType object with only specified sections to be returned as a
      * GetCapabilities response.
      *
-     * @param sections
-     *            The list of desired sections for the GetCapabilities response
-     *
+     * @param sections The list of desired sections for the GetCapabilities response
      * @return The constructed CapabilitiesType object, containing only the user-specified sections
      */
     private CapabilitiesType buildCapabilitiesType(List<String> sections) {
@@ -936,10 +1018,8 @@ public class CswEndpoint implements Csw {
                 schemaTransformerManager.getAvailableSchemas(), getRecordsOp);
         addOperationParameter(CswConstants.TYPE_NAMES_PARAMETER,
                 Arrays.asList(CswConstants.CSW_RECORD), getRecordsOp);
-        addOperationParameter(CswConstants.CONSTRAINT_LANGUAGE_PARAMETER, Arrays.asList(
-                        CswConstants.CONSTRAINT_LANGUAGE_FILTER,
-                        CswConstants.CONSTRAINT_LANGUAGE_CQL),
-                getRecordsOp);
+        addOperationParameter(CswConstants.CONSTRAINT_LANGUAGE_PARAMETER,
+                CswConstants.CONSTRAINT_LANGUAGES, getRecordsOp);
         addFederatedCatalogs(getRecordsOp);
 
         // Builds GetRecordById operation metadata
@@ -952,8 +1032,17 @@ public class CswEndpoint implements Csw {
         addOperationParameter(CswConstants.ELEMENT_SET_NAME_PARAMETER,
                 Arrays.asList("brief", "summary", "full"), getRecordByIdOp);
 
+        // Builds Transactions operation metadata
+        Operation transactionOp = buildOperation(CswConstants.TRANSACTION,
+                Arrays.asList(CswConstants.POST));
+        addOperationParameter(CswConstants.TYPE_NAMES_PARAMETER,
+                Arrays.asList(CswConstants.CSW_RECORD), transactionOp);
+        addOperationParameter(CswConstants.CONSTRAINT_LANGUAGE_PARAMETER,
+                CswConstants.CONSTRAINT_LANGUAGES, transactionOp);
+
         List<Operation> ops = Arrays
-                .asList(getCapabilitiesOp, describeRecordOp, getRecordsOp, getRecordByIdOp);
+                .asList(getCapabilitiesOp, describeRecordOp, getRecordsOp, getRecordByIdOp,
+                        transactionOp);
         om.setOperation(ops);
 
         om.getParameter().add(createDomainType(CswConstants.SERVICE, CswConstants.CSW));
@@ -999,10 +1088,8 @@ public class CswEndpoint implements Csw {
      * Creates an Operation object for the OperationsMetadata section TODO: We currently don't use
      * the constraint or metadata elements, those can be added in as desired
      *
-     * @param name
-     *            The name of the operation
-     * @param types
-     *            The request types supported (GET/POST)
+     * @param name  The name of the operation
+     * @param types The request types supported (GET/POST)
      * @return The constructed Operation object
      */
     private Operation buildOperation(String name, List<QName> types) {
@@ -1055,8 +1142,7 @@ public class CswEndpoint implements Csw {
     /**
      * Verifies that that if types are passed, then they are fully qualified
      *
-     * @param types
-     *            List of QNames representing types
+     * @param types List of QNames representing types
      */
     private void validateFullyQualifiedTypes(List<QName> types) throws CswException {
         for (QName type : types) {
@@ -1070,8 +1156,7 @@ public class CswEndpoint implements Csw {
     /**
      * Verifies that if types are passed, then they exist.
      *
-     * @param types
-     *            List of QNames representing types
+     * @param types   List of QNames representing types
      * @param version the specified version of the types
      */
     private void validateTypes(List<QName> types, String version) throws CswException {

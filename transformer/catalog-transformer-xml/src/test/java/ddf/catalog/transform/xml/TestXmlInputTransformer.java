@@ -27,7 +27,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.codice.ddf.parser.xml.XmlParser;
 import org.geotools.data.Base64;
+import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,10 +47,16 @@ public class TestXmlInputTransformer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestXmlInputTransformer.class);
 
+    private XmlInputTransformer xit;
+
+    @Before
+    public void setup() {
+        xit = new XmlInputTransformer(new XmlParser());
+    }
+
     @Test
     public void testTransformWithInvalidMetacardType()
             throws IOException, CatalogTransformerException {
-        XmlInputTransformer xit = new XmlInputTransformer();
         Metacard metacard = xit
                 .transform(new FileInputStream("src/test/resources/invalidExtensibleMetacard.xml"));
 
@@ -70,7 +78,6 @@ public class TestXmlInputTransformer {
     @Test
     public void testTransformWithExtensibleMetacardType()
             throws IOException, CatalogTransformerException {
-        XmlInputTransformer xit = new XmlInputTransformer();
         List<MetacardType> metacardTypes = new ArrayList<MetacardType>(1);
         MetacardType extensibleType = new MetacardTypeImpl("extensible.metacard",
                 BasicTypes.BASIC_METACARD.getAttributeDescriptors());
@@ -96,8 +103,6 @@ public class TestXmlInputTransformer {
     @Test
     public void testSimpleMetadata()
             throws IOException, CatalogTransformerException, ParseException {
-
-        XmlInputTransformer xit = new XmlInputTransformer();
         Metacard metacard = xit.transform(new FileInputStream("src/test/resources/metacard1.xml"));
 
         LOGGER.info("Attributes: ");
@@ -124,7 +129,7 @@ public class TestXmlInputTransformer {
         assertEquals("Title!", metacard.getAttribute(Metacard.TITLE).getValue());
 
         assertArrayEquals(Base64.decode(
-                "AAABAAABAQEAAQAAAQEBAAEAAAEBAQABAAABAQEAAQAAAQEBAAEAAAEBAQABAAABAQE="),
+                        "AAABAAABAQEAAQAAAQEBAAEAAAEBAQABAAABAQEAAQAAAQEBAAEAAAEBAQABAAABAQE="),
                 (byte[]) metacard.getAttribute(Metacard.THUMBNAIL).getValue());
 
         // TODO use XMLUnit to test equivalence
@@ -139,7 +144,6 @@ public class TestXmlInputTransformer {
     @Test
     public void testFallbackToBasicMetacardForUnknowMetacardType()
             throws FileNotFoundException, IOException, CatalogTransformerException, ParseException {
-        XmlInputTransformer xit = new XmlInputTransformer();
         List<MetacardType> metacardTypes = new ArrayList<MetacardType>(1);
         metacardTypes.add(BasicTypes.BASIC_METACARD);
         xit.setMetacardTypes(metacardTypes);
@@ -170,7 +174,7 @@ public class TestXmlInputTransformer {
         assertThat("Title!", is(metacard.getAttribute(Metacard.TITLE).getValue()));
 
         assertArrayEquals(Base64.decode(
-                "AAABAAABAQEAAQAAAQEBAAEAAAEBAQABAAABAQEAAQAAAQEBAAEAAAEBAQABAAABAQE="),
+                        "AAABAAABAQEAAQAAAQEBAAEAAAEBAQABAAABAQEAAQAAAQEBAAEAAAEBAQABAAABAQE="),
                 (byte[]) metacard.getAttribute(Metacard.THUMBNAIL).getValue());
 
         assertThat(metacard.getAttribute(Metacard.METADATA).getValue().toString(),

@@ -26,15 +26,15 @@
             required="false" type="String"/>
         <AD description="Password for CSW Service (optional)" name="Password" id="password"
             required="false" type="Password"/>
-            
+
         <AD description="Disable CN check for the server certificate. This should only be used when testing."
             name="Disable CN Check" id="disableCnCheck" required="true"
             type="Boolean" default="false"/>
-            
+
         <AD description="Force Longitude/Latitude coordinate order"
             name="Force Longitude/Latitude coordinate order" id="isLonLatOrder" required="true"
             type="Boolean" default="false"/>
-            
+
         <AD description="Use a <posList> element rather than a series of <pos> elements when issuing geospatial queries containing a LinearRing"
             name="Use posList in LinearRing" id="usePosList" required="false" type="Boolean"
             default="false"/>
@@ -51,12 +51,12 @@
             id="modifiedDateMapping"
             required="false" type="String"
             default="modified"/>
-            
+
         <AD description="CSW field to map to Metacard's resource URI to retrieve product associated with the CSW record."
             name="Resource URI maps to" id="resourceUriMapping"
             required="false" type="String"
             default="source"/>
-        	
+
         <AD description="CSW field to map to Metacard's thumbnail URI to retrieve thumbnail data associated with the CSW record."
             name="Thumbnail maps to" id="thumbnailMapping"
             required="false" type="String"
@@ -66,9 +66,14 @@
             id="contentTypeMapping" required="true"
             type="String" default="type"/>
 
+        <AD description="CSW field to map to Metacard's ID attribute."
+            name="ID maps to" id="identifierMapping"
+            required="true" type="String"
+            default="identifier"/>
+
         <AD name="Content Types" id="contentTypeNames" required="false" type="String"
             cardinality="100" description="The content types that can be found on server"/>
-        	
+
         <AD description="Poll Interval to Check if the Source is available (in minutes - minimum 1)."
             name="Poll Interval" id="pollInterval"
             required="true" type="Integer" default="5"/>
@@ -80,14 +85,22 @@
         <AD description="Amount of time to wait for a response before timing out, in milliseconds."
             name="Receive Timeout" id="receiveTimeout"
             required="true" type="Integer" default="60000"/>
-            
+
         <AD description="Output Schema" name="Output Schema" id="outputSchema" required="true"
             type="String" default="http://www.opengis.net/cat/csw/2.0.2"/>
-        
+
+        <AD description="Qualified Name for the Query Type used in the CSW GetRecords request"
+            name="Query Type QName" id="queryTypeQName" required="true" type="String"
+            default="{http://www.opengis.net/cat/csw/2.0.2}Record"/>
+
+        <AD description="Namespace prefix for the Query Type used in the CSW GetRecords request"
+            name="Query Type Namespace Prefix" id="queryTypePrefix" required="true" type="String"
+            default="csw"/>
+
         <AD description="Force CQL Text" name="Force CQL Text as the Query Language"
             id="isCqlForced" required="true"
             type="Boolean" default="false"/>
-            
+
         <AD description="Force only the selected Spatial Filter Type as the only available Spatial Filter."
             name="Forced Spatial Filter Type" id="forceSpatialFilter"
             required="false" type="String" default="NO_FILTER">
@@ -119,15 +132,15 @@
             required="false" type="String"/>
         <AD description="Password for CSW Service (optional)" name="Password" id="password"
             required="false" type="String"/>
-            
+
         <AD description="Disable CN check for the server certificate. This should only be used when testing."
             name="Disable CN Check" id="disableCnCheck" required="true"
             type="Boolean" default="false"/>
-            
+
         <AD description="Force Longitude/Latitude coordinate order"
             name="Force Longitude/Latitude coordinate order" id="isLonLatOrder" required="true"
             type="Boolean" default="false"/>
-            
+
         <AD description="Use a <posList> element rather than a series of <pos> elements when issuing geospatial queries containing a LinearRing"
             name="Use posList in LinearRing" id="usePosList" required="false" type="Boolean"
             default="false"/>
@@ -144,12 +157,12 @@
             id="modifiedDateMapping"
             required="false" type="String"
             default="modified"/>
-            
+
         <AD description="CSW field to map to Metacard's resource URI to retrieve product associated with the CSW record."
             name="Resource URI maps to" id="resourceUriMapping"
             required="false" type="String"
             default="source"/>
-        	
+
         <AD description="CSW field to map to Metacard's thumbnail URI to retrieve thumbnail data associated with the CSW record."
             name="Thumbnail maps to" id="thumbnailMapping"
             required="false" type="String"
@@ -158,6 +171,11 @@
         <AD description="CSW field to map to Metacard's content type" name="Content type maps to"
             id="contentTypeMapping" required="true"
             type="String" default="type"/>
+
+        <AD description="CSW field to map to Metacard's ID attribute."
+            name="ID maps to" id="identifierMapping"
+            required="true" type="String"
+            default="identifier"/>
 
         <AD name="Content Types" id="contentTypeNames" required="false" type="String"
             cardinality="100" description="The content types that can be found on server"/>
@@ -176,11 +194,19 @@
 
         <AD description="Output Schema" name="Output Schema" id="outputSchema" required="true"
             type="String" default="http://www.opengis.net/cat/csw/2.0.2"/>
-        
+
+        <AD description="Qualified Name for the Query Type used in the CSW GetRecords request"
+            name="Query Type QName" id="queryTypeQName" required="true" type="String"
+            default="{http://www.opengis.net/cat/csw/2.0.2}Record"/>
+
+        <AD description="Namespace prefix for the Query Type used in the CSW GetRecords request"
+            name="Query Type Namespace Prefix" id="queryTypePrefix" required="true" type="String"
+            default="csw"/>
+
         <AD description="Force CQL Text" name="Force CQL Text as the Query Language"
             id="isCqlForced" required="true"
             type="Boolean" default="false"/>
-            
+
         <AD description="Force only the selected Spatial Filter Type as the only available Spatial Filter."
             name="Forced Spatial Filter Type" id="forceSpatialFilter"
             required="false" type="String" default="">
