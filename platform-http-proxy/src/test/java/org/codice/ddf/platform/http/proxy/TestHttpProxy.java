@@ -16,6 +16,7 @@ package org.codice.ddf.platform.http.proxy;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
@@ -144,7 +145,29 @@ public class TestHttpProxy {
 
         policyRemoveBean.rewrite(exchange);
 
-        assertFalse(httpMessage.getBody().toString().contains("Policy"));
+        assertFalse(httpMessage.getBody().toString().contains("https:"));
+    }
+
+    @Test
+    public void testPolicyRemoveBeanGzipEncoding() throws IOException {
+        InputStream inpuStream = TestHttpProxy.class.getResourceAsStream("/test.wsdl");
+        String wsdl = IOUtils.toString(inpuStream);
+        HttpProxy.PolicyRemoveBean policyRemoveBean = new HttpProxy.PolicyRemoveBean("8181", "8993",
+                "localhost", "/services");
+        Exchange exchange = mock(Exchange.class);
+        HttpMessage httpMessage = mock(HttpMessage.class);
+        when(exchange.getIn()).thenReturn(httpMessage);
+        when(exchange.getOut()).thenReturn(httpMessage);
+        when(httpMessage.getHeader("CamelHttpQuery")).thenReturn("wsdl");
+        when(httpMessage.getBody()).thenReturn(inpuStream);
+        when(httpMessage.getHeader(Exchange.CONTENT_ENCODING)).thenReturn("gzip");
+        doCallRealMethod().when(httpMessage).setBody(any());
+        doCallRealMethod().when(httpMessage).getBody();
+        httpMessage.setBody(wsdl);
+
+        policyRemoveBean.rewrite(exchange);
+
+        assertTrue(httpMessage.getBody().toString().contains("https:"));
     }
 
     @Test
@@ -176,6 +199,6 @@ public class TestHttpProxy {
 
         policyRemoveBean.rewrite(exchange);
 
-        assertFalse(httpMessage.getBody().toString().contains("Policy"));
+        assertFalse(httpMessage.getBody().toString().contains("https:"));
     }
 }

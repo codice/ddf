@@ -281,7 +281,7 @@
    
    <wsdl:service name="SecurityTokenService">
       <wsdl:port name="STS_Port" binding="tns:STS_Binding">
-         <soap:address location="http://localhost:8181/services/SecurityTokenService" />
+         <soap:address location="https://localhost:8993/services/SecurityTokenService" />
       </wsdl:port>
   </wsdl:service>
 
