@@ -593,8 +593,8 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
                     logger.warn("Couldn't get results from completed federated query. {}",
                             sourceId + ", " + Exceptions.getFullMessage(e), e);
 
-                    processingDetails.add(new ProcessingDetailsImpl(sourceId, new Exception(
-                            org.codice.ddf.platform.util.Exceptions.getFullMessage(e))));
+                    processingDetails.add(new ProcessingDetailsImpl(sourceId,
+                            new Exception(Exceptions.getFullMessage(e))));
                 }
             }
             logger.debug("All sources finished returning results: {}", resultList.size());
