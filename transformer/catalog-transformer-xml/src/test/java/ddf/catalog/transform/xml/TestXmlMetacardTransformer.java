@@ -29,9 +29,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.codice.ddf.parser.xml.XmlParser;
 import org.custommonkey.xmlunit.NamespaceContext;
 import org.custommonkey.xmlunit.SimpleNamespaceContext;
 import org.custommonkey.xmlunit.XMLUnit;
+import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +48,13 @@ public class TestXmlMetacardTransformer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestXmlMetacardTransformer.class);
 
+    private XmlMetacardTransformer transformer;
+
+    @Before
+    public void setup() {
+        transformer = new XmlMetacardTransformer(new XmlParser());
+    }
+
     @Test
     public void testXmlMetacardTransformerSparse() throws CatalogTransformerException {
 
@@ -55,8 +64,7 @@ public class TestXmlMetacardTransformer {
         mc.setSourceId("FooBarSource");
         mc.setTitle("Title!");
         mc.setExpirationDate(new Date());
-        mc.setLocation(
-                "POLYGON ((35 10, 10 20, 15 40, 45 45, 35 10),(20 30, 35 35, 30 20, 20 30))");
+        mc.setLocation("POLYGON ((35 10, 10 20, 15 40, 45 45, 35 10),(20 30, 35 35, 30 20, 20 30))");
         mc.setMetadata(
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><foo><bar/></foo>");
         byte[] bytes = {0, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0,
@@ -64,8 +72,6 @@ public class TestXmlMetacardTransformer {
         mc.setThumbnail(bytes);
 
         Metacard mci = (Metacard) mc;
-
-        XmlMetacardTransformer transformer = new XmlMetacardTransformer();
 
         BinaryContent bc = transformer.transform(mci, null);
 
@@ -126,8 +132,6 @@ public class TestXmlMetacardTransformer {
         mc.setMetadata(metadata);
 
         Metacard mci = (Metacard) mc;
-
-        XmlMetacardTransformer transformer = new XmlMetacardTransformer();
 
         BinaryContent bc = transformer.transform(mci, null);
 

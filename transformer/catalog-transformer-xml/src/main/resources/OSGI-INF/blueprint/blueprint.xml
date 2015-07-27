@@ -14,6 +14,9 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
+    <reference id="xmlParser" interface="org.codice.ddf.parser.Parser" filter="(id=xml)"
+               availability="mandatory"/>
+
     <service interface="ddf.catalog.transform.InputTransformer">
         <service-properties>
             <entry key="id" value="xml"/>
@@ -21,6 +24,7 @@
             <entry key="schema" value="urn:catalog:metacard"/>
         </service-properties>
         <bean class="ddf.catalog.transformer.xml.XmlInputTransformer">
+            <argument ref="xmlParser"/>
             <property name="metacardTypes">
                 <reference-list interface="ddf.catalog.data.MetacardType" availability="optional"/>
             </property>
@@ -36,20 +40,25 @@
             <entry key="shortname" value="xml"/>
             <entry key="schema" value="urn:catalog:metacard"/>
         </service-properties>
-        <bean class="ddf.catalog.transformer.xml.XmlMetacardTransformer"/>
+        <bean class="ddf.catalog.transformer.xml.XmlMetacardTransformer">
+            <argument ref="xmlParser"/>
+        </bean>
     </service>
 
-    <bean id="xmlResponseQueueTransformer" class="ddf.catalog.transformer.xml.XmlResponseQueueTransformer">
+    <bean id="xmlResponseQueueTransformer"
+          class="ddf.catalog.transformer.xml.XmlResponseQueueTransformer">
         <cm:managed-properties
                 persistent-id="ddf.catalog.transformer.xml.XmlResponseQueueTransformer"
                 update-strategy="container-managed"/>
+        <argument ref="xmlParser"/>
         <argument ref="fjp"/>
         <property name="threshold" value="50"/>
     </bean>
 
     <bean id="fjp" class="java.util.concurrent.ForkJoinPool"/>
 
-    <service ref="xmlResponseQueueTransformer" interface="ddf.catalog.transform.QueryResponseTransformer">
+    <service ref="xmlResponseQueueTransformer"
+             interface="ddf.catalog.transform.QueryResponseTransformer">
         <service-properties>
             <entry key="id" value="xml"/>
             <entry key="shortname" value="xml"/>

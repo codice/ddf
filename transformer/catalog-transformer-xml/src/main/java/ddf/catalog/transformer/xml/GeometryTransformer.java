@@ -17,11 +17,11 @@ package ddf.catalog.transformer.xml;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
-import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 import javax.xml.bind.helpers.DefaultValidationEventHandler;
+
+import org.codice.ddf.parser.Parser;
+import org.codice.ddf.parser.ParserConfigurator;
+import org.codice.ddf.parser.ParserException;
 
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.BinaryContent;
@@ -35,35 +35,21 @@ import ddf.catalog.transformer.xml.adapter.GeometryAdapter;
 class GeometryTransformer extends AbstractXmlTransformer {
     private static final int BUFFER_SIZE = 512;
 
-    static BinaryContent transform(Attribute attribute) throws CatalogTransformerException {
-        BinaryContent transformedContent = null;
+    public GeometryTransformer(Parser parser) {
+        super(parser);
+    }
 
-        ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+    public BinaryContent transform(Attribute attribute) throws CatalogTransformerException {
+        ParserConfigurator parserConfigurator = getParserConfigurator()
+                .setHandler(new DefaultValidationEventHandler());
+
         try {
-            Thread.currentThread()
-                    .setContextClassLoader(GeometryTransformer.class.getClassLoader());
-
             ByteArrayOutputStream os = new ByteArrayOutputStream(BUFFER_SIZE);
-
-            Marshaller marshaller = CONTEXT.createMarshaller();
-            marshaller.setEventHandler(new DefaultValidationEventHandler());
-
-            try {
-                marshaller.marshal(GeometryAdapter.marshalFrom(attribute), os);
-            } catch (RuntimeException e) {
-                throw new CatalogTransformerException("Failed to marshall geometry data", e);
-            }
+            getParser().marshal(parserConfigurator, GeometryAdapter.marshalFrom(attribute), os);
             ByteArrayInputStream bais = new ByteArrayInputStream(os.toByteArray());
-            transformedContent = new BinaryContentImpl(bais, new MimeType(TEXT_XML));
-        } catch (JAXBException e) {
-            throw new CatalogTransformerException("Failed JAXB Transformation", e);
-        } catch (MimeTypeParseException e) {
-            throw new CatalogTransformerException(
-                    "Failed Transformation with MimeType Parsing error", e);
-        } finally {
-            Thread.currentThread().setContextClassLoader(tccl);
+            return new BinaryContentImpl(bais, MIME_TYPE);
+        } catch (ParserException e) {
+            throw new CatalogTransformerException("Failed to marshall geometry data", e);
         }
-
-        return transformedContent;
     }
 }

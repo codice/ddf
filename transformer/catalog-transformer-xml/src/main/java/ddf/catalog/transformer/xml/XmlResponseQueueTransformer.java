@@ -34,6 +34,7 @@ import javax.activation.MimeTypeParseException;
 
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.xerces.impl.dv.util.Base64;
+import org.codice.ddf.parser.Parser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xmlpull.v1.XmlPullParser;
@@ -157,18 +158,23 @@ public class XmlResponseQueueTransformer extends AbstractXmlTransformer
 
         private final ForkJoinPool fjp;
 
+        private final GeometryTransformer geometryTransformer;
+
         private final int threshold;
 
         private final AtomicBoolean cancelOperation;
 
-        MetacardForkTask(ImmutableList<Result> resultList, ForkJoinPool fjp, int threshold) {
-            this(resultList, fjp, threshold, new AtomicBoolean(false));
+        MetacardForkTask(ImmutableList<Result> resultList, ForkJoinPool fjp,
+                GeometryTransformer geometryTransformer, int threshold) {
+            this(resultList, fjp, geometryTransformer, threshold, new AtomicBoolean(false));
         }
 
-        private MetacardForkTask(ImmutableList<Result> resultList, ForkJoinPool fjp, int threshold,
+        private MetacardForkTask(ImmutableList<Result> resultList, ForkJoinPool fjp,
+                GeometryTransformer geometryTransformer, int threshold,
                 AtomicBoolean cancelOperation) {
             this.resultList = resultList;
             this.fjp = fjp;
+            this.geometryTransformer = geometryTransformer;
             this.threshold = threshold;
             this.cancelOperation = cancelOperation;
         }
@@ -185,11 +191,11 @@ public class XmlResponseQueueTransformer extends AbstractXmlTransformer
                 int half = resultList.size() / 2;
 
                 MetacardForkTask fLeft = new MetacardForkTask(resultList.subList(0, half), fjp,
-                        threshold, cancelOperation);
+                        geometryTransformer, threshold, cancelOperation);
                 fLeft.fork();
                 MetacardForkTask fRight = new MetacardForkTask(
-                        resultList.subList(half, resultList.size()), fjp, threshold,
-                        cancelOperation);
+                        resultList.subList(half, resultList.size()), fjp, geometryTransformer,
+                        threshold, cancelOperation);
                 StringWriter rightList = fRight.compute();
                 StringWriter leftList = fLeft.join();
 
@@ -281,7 +287,7 @@ public class XmlResponseQueueTransformer extends AbstractXmlTransformer
                     xmlValue = DateFormatUtils.formatUTC(date, DF_PATTERN);
                     break;
                 case GEOMETRY:
-                    xmlValue = geoToXml(GeometryTransformer.transform(attribute), parser);
+                    xmlValue = geoToXml(geometryTransformer.transform(attribute), parser);
                     break;
                 case OBJECT:
                     ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -336,6 +342,8 @@ public class XmlResponseQueueTransformer extends AbstractXmlTransformer
     }
 
     private final ForkJoinPool fjp;
+
+    private final GeometryTransformer geometryTransformer;
 
     private int threshold;
 
@@ -392,8 +400,10 @@ public class XmlResponseQueueTransformer extends AbstractXmlTransformer
      *
      * @param fjp the {@code ForkJoinPool} to inject
      */
-    public XmlResponseQueueTransformer(ForkJoinPool fjp) {
+    public XmlResponseQueueTransformer(Parser parser, ForkJoinPool fjp) {
+        super(parser);
         this.fjp = fjp;
+        geometryTransformer = new GeometryTransformer(parser);
     }
 
     /**
@@ -422,7 +432,7 @@ public class XmlResponseQueueTransformer extends AbstractXmlTransformer
             if (response.getResults() != null && !response.getResults().isEmpty()) {
                 StringWriter metacardContent = fjp
                         .invoke(new MetacardForkTask(ImmutableList.copyOf(response.getResults()),
-                                fjp, threshold));
+                                fjp, geometryTransformer, threshold));
 
                 writer.setRawValue(metacardContent.getBuffer().toString());
             }
