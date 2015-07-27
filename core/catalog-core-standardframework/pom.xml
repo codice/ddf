@@ -192,7 +192,6 @@
                             noggit,
                             zookeeper,
                             <!-- End of Solr cache dependencies -->
-
                             guava,
                             notifications,
                             activities,

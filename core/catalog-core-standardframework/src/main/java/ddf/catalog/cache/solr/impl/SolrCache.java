@@ -14,35 +14,34 @@
 package ddf.catalog.cache.solr.impl;
 
 import java.io.IOException;
-
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
-
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.StandardMBean;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.UpdateResponse;
-
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrException;
 import org.apache.solr.common.SolrInputDocument;
 import org.codice.solr.factory.SolrServerFactory;
+import org.opengis.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,11 +50,14 @@ import com.google.common.collect.Lists;
 import ddf.catalog.cache.SolrCacheMBean;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardCreationException;
+import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.operation.impl.QueryImpl;
+import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.source.solr.DynamicSchemaResolver;
 import ddf.catalog.source.solr.SchemaFields;
@@ -63,9 +65,9 @@ import ddf.catalog.source.solr.SolrFilterDelegate;
 import ddf.catalog.source.solr.SolrFilterDelegateFactory;
 import ddf.catalog.source.solr.SolrMetacardClient;
 
+
 /**
  * Catalog cache implementation using Apache Solr 4
- *
  */
 public class SolrCache implements SolrCacheMBean {
 
@@ -104,11 +106,20 @@ public class SolrCache implements SolrCacheMBean {
 
     private MBeanServer mbeanServer;
 
+    private String protocol;
+
+    private String host;
+
+    private String port;
+
+    private String contextRoot;
+
+    static final String PATH = "/catalog/sources";
+
     /**
      * Convenience constructor that creates a the Solr server
      *
-     * @param adapter
-     *            injected implementation of FilterAdapter
+     * @param adapter injected implementation of FilterAdapter
      */
     public SolrCache(FilterAdapter adapter, SolrFilterDelegateFactory solrFilterDelegateFactory) {
         this.filterAdapter = adapter;
@@ -300,8 +311,22 @@ public class SolrCache implements SolrCacheMBean {
     }
 
     @Override
-    public List<Metacard> query(String query) throws UnsupportedQueryException {
-        return client.query(query);
+    public List<Metacard> query(Filter filter) throws UnsupportedQueryException {
+        QueryRequest queryRequest = new QueryRequestImpl(new QueryImpl(filter), true);
+
+        SourceResponse response = client.query(queryRequest);
+        return getMetacardsFromResponse(response);
+    }
+
+    private List<Metacard> getMetacardsFromResponse(SourceResponse sourceResponse) {
+        if (CollectionUtils.isNotEmpty(sourceResponse.getResults())) {
+            List<Metacard> metacards = new ArrayList<>(sourceResponse.getResults().size());
+            for (Result result : sourceResponse.getResults()) {
+                metacards.add(result.getMetacard());
+            }
+            return metacards;
+        }
+        return Collections.emptyList();
     }
 
     private class ExpirationRunner implements Runnable {
@@ -321,7 +346,7 @@ public class SolrCache implements SolrCacheMBean {
     private class CacheSolrMetacardClient extends SolrMetacardClient {
 
         public CacheSolrMetacardClient(SolrServer solrServer, FilterAdapter catalogFilterAdapter,
-                SolrFilterDelegateFactory solrFilterDelegateFactory) {
+                                       SolrFilterDelegateFactory solrFilterDelegateFactory) {
             super(solrServer, catalogFilterAdapter, solrFilterDelegateFactory,
                     new DynamicSchemaResolver());
         }
@@ -342,14 +367,18 @@ public class SolrCache implements SolrCacheMBean {
 
         @Override
         protected SolrQuery getSolrQuery(QueryRequest request,
-                SolrFilterDelegate solrFilterDelegate) throws UnsupportedQueryException {
+                                         SolrFilterDelegate solrFilterDelegate) throws UnsupportedQueryException {
             SolrQuery query = super.getSolrQuery(request, solrFilterDelegate);
+
+            if (request.isEnterprise()) {
+                return query;
+            }
 
             List<SolrQuery> sourceQueries = new ArrayList<>();
             for (String source : request.getSourceIds()) {
                 sourceQueries.add(solrFilterDelegate.propertyIsEqualTo(StringUtils
-                                        .removeEnd(METACARD_SOURCE_NAME, SchemaFields.TEXT_SUFFIX),
-                                source, true));
+                                .removeEnd(METACARD_SOURCE_NAME, SchemaFields.TEXT_SUFFIX),
+                        source, true));
             }
             if (sourceQueries.size() > 0) {
                 SolrQuery allSourcesQuery;
@@ -366,7 +395,7 @@ public class SolrCache implements SolrCacheMBean {
 
         @Override
         protected SolrInputDocument getSolrInputDocument(Metacard metacard)
-            throws MetacardCreationException {
+                throws MetacardCreationException {
             SolrInputDocument solrInputDocument = super.getSolrInputDocument(metacard);
 
             solrInputDocument.addField(CACHED_DATE, new Date());

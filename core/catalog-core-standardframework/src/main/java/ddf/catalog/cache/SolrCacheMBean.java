@@ -15,9 +15,12 @@
 package ddf.catalog.cache;
 
 import java.util.List;
-import ddf.catalog.data.Metacard;
 
+import org.opengis.filter.Filter;
+
+import ddf.catalog.data.Metacard;
 import ddf.catalog.source.UnsupportedQueryException;
+
 
 public interface SolrCacheMBean {
 
@@ -27,6 +30,6 @@ public interface SolrCacheMBean {
 
     void removeById(String[] ids) throws Exception;
 
-    List<Metacard> query(String query) throws UnsupportedQueryException;
+    List<Metacard> query(Filter filter) throws UnsupportedQueryException;
 
 }

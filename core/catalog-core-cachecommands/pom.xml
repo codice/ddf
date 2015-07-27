@@ -78,7 +78,7 @@
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-cql</artifactId>
-            <version>8.4</version>
+            <version>13.0</version>
         </dependency>
 
         <dependency>

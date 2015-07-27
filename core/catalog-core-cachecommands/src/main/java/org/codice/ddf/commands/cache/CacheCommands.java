@@ -16,6 +16,7 @@ package org.codice.ddf.commands.cache;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.lang.management.ManagementFactory;
+import java.util.concurrent.TimeUnit;
 
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanServer;
@@ -30,6 +31,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import ddf.catalog.cache.SolrCacheMBean;
+import ddf.catalog.filter.FilterBuilder;
 
 public abstract class CacheCommands extends OsgiCommandSupport {
 
@@ -40,7 +42,7 @@ public abstract class CacheCommands extends OsgiCommandSupport {
 
     protected PrintStream console = System.out;
 
-    protected static final double MILLISECONDS_PER_SECOND = 1000.0;
+    protected static final double MILLISECONDS_PER_SECOND = TimeUnit.SECONDS.toMillis(1);
 
     private static final Color ERROR_COLOR = Ansi.Color.RED;
 
@@ -53,13 +55,16 @@ public abstract class CacheCommands extends OsgiCommandSupport {
     protected SolrCacheMBean getCacheProxy() throws IOException, MalformedObjectNameException,
         InstanceNotFoundException {
 
-
         ObjectName solrCacheObjectName = new ObjectName(SolrCacheMBean.OBJECTNAME);
         MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
 
         return MBeanServerInvocationHandler.newProxyInstance(mBeanServer, solrCacheObjectName,
                 SolrCacheMBean.class, false);
 
+    }
+
+    protected FilterBuilder getFilterBuilder() {
+        return getService(FilterBuilder.class);
     }
 
     protected void printColor(Color color, String message) {

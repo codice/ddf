@@ -69,8 +69,4 @@ public class TestRemoveCommand {
         return metacards;
     }
 
-    private void removeMetacard(String[] ids) {
-
-    }
-
 }
