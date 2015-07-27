@@ -70,12 +70,12 @@
         <dependency>
             <groupId>org.codice.org.forgerock.opendj</groupId>
             <artifactId>opendj-core</artifactId>
-            <version>3.0.0.ALPHA1</version>
+            <version>3.0.0.ALPHA2</version>
         </dependency>
         <dependency>
             <groupId>org.codice.org.forgerock.opendj</groupId>
             <artifactId>opendj-grizzly</artifactId>
-            <version>3.0.0.ALPHA1</version>
+            <version>3.0.0.ALPHA2</version>
         </dependency>
         <dependency>
             <groupId>org.codice.org.forgerock.commons</groupId>
