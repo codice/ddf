@@ -10,7 +10,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 -->
-<img src="https://tools.codice.org/wiki/download/attachments/3047458/ddf.jpg"/>
+<img src="https://tools.codice.org/wiki/download/attachments/1179800/ddf.jpg"/>
 # [Distributed Data Framework \(DDF\)](http://ddf.codice.org/)
 [![Build Status](https://travis-ci.org/codice/ddf.png)](https://travis-ci.org/codice/ddf?branch=master)
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/3703/badge.svg)](https://scan.coverity.com/projects/3703)
@@ -60,14 +60,10 @@ In order to run through a full build, be sure to have a clone for all repositori
 
 ```
 git clone git://github.com/codice/ddf.git
-git clone ddf-admin (https://github.com/codice/ddf-admin.git)
 git clone ddf-catalog (https://github.com/codice/ddf-catalog.git)
-git clone ddf-content (https://github.com/codice/ddf-content.git)
 git clone ddf-parent (https://github.com/codice/ddf-parent.git)
 git clone ddf-platform (https://github.com/codice/ddf-platform.git)
-git clone ddf-spatial (https://github.com/codice/ddf-spatial.git)
 git clone ddf-support  (https://github.com/codice/ddf-support.git)
-git clone ddf-ui (https://github.com/codice/ddf-ui.git)
 ```
 Change to the top level directory of DDF source distribution.
 
