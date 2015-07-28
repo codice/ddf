@@ -4,7 +4,7 @@
  * Copyright (c) Codice Foundation
  *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
+ * version 3 of the License, or any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
@@ -142,6 +142,11 @@
                 <artifactId>jaxb2-basics-runtime</artifactId>
                 <version>${jaxb2.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.apache.servicemix.bundles</groupId>
+                <artifactId>org.apache.servicemix.bundles.lucene</artifactId>
+                <version>${lucene.bundle.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <!-- global dependencies; do NOT redeclare in any sub pom -->
@@ -165,6 +170,8 @@
         <module>wfs</module>
         <module>wcs</module>
         <module>csw</module>
+        <module>geocoding</module>
+        <module>spatial-commands</module>
         <module>spatial-app</module>
         <module>docs</module>
     </modules>
