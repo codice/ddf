@@ -93,10 +93,14 @@ public abstract class AbstractIntegrationTest {
     protected static final String LOGGER_PREFIX = "log4j.logger.";
 
     protected static final String KARAF_VERSION = "2.4.3";
-    
-    protected static final int ONE_MINUTE_MILLIS = 60000;
 
-    protected static final int FIVE_MINUTES_MILLIS = ONE_MINUTE_MILLIS * 5;
+    protected static final long REQUIRED_BUNDLES_TIMEOUT = TimeUnit.MINUTES.toMillis(10);
+
+    protected static final long MANAGED_SERVICE_TIMEOUT = TimeUnit.MINUTES.toMillis(10);
+
+    protected static final long CATALOG_PROVIDER_TIMEOUT = TimeUnit.MINUTES.toMillis(10);
+
+    protected static final long HTTP_ENDPOINT_TIMEOUT = TimeUnit.MINUTES.toMillis(5);
 
     // TODO: Use the Camel AvailablePortFinder.getNextAvailable() test method
     protected static final String HTTP_PORT = "9081";
@@ -188,7 +192,7 @@ public abstract class AbstractIntegrationTest {
     protected Option[] configurePaxExam() {
         return options(logLevel(LogLevelOption.LogLevel.INFO),
                 useOwnExamBundlesStartLevel(100),
-                // increase timeout for TravisCI
+                // increase timeout for CI environment
                 systemTimeout(TimeUnit.MINUTES.toMillis(10)),
                 when(Boolean.getBoolean("keepRuntimeFolder")).useOptions(keepRuntimeFolder()));
     }
@@ -329,7 +333,7 @@ public abstract class AbstractIntegrationTest {
         sourceConfig.update(new Hashtable<>(properties));
 
         long millis = 0;
-        while (!listener.isUpdated() && millis < TimeUnit.MINUTES.toMillis(10)) {
+        while (!listener.isUpdated() && millis < MANAGED_SERVICE_TIMEOUT) {
             try {
                 Thread.sleep(CONFIG_UPDATE_WAIT_INTERVAL);
                 millis += CONFIG_UPDATE_WAIT_INTERVAL;
@@ -390,7 +394,7 @@ public abstract class AbstractIntegrationTest {
                     blueprintListener, null);
         }
 
-        long timeoutLimit = System.currentTimeMillis() + FIVE_MINUTES_MILLIS;
+        long timeoutLimit = System.currentTimeMillis() + REQUIRED_BUNDLES_TIMEOUT;
         while (!ready) {
             List<Bundle> bundles = Arrays.asList(bundleCtx.getBundles());
 
@@ -432,7 +436,7 @@ public abstract class AbstractIntegrationTest {
         LOGGER.info("Waiting for CatalogProvider to become available.");
 
         CatalogProvider provider = null;
-        long timeoutLimit = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(5);
+        long timeoutLimit = System.currentTimeMillis() + CATALOG_PROVIDER_TIMEOUT;
         boolean available = false;
 
         while (!available) {
@@ -498,7 +502,7 @@ public abstract class AbstractIntegrationTest {
     protected void waitForHttpEndpoint(String path) throws InterruptedException {
         LOGGER.info("Waiting for {}", path);
 
-        long timeoutLimit = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(5);
+        long timeoutLimit = System.currentTimeMillis() + HTTP_ENDPOINT_TIMEOUT;
         boolean available = false;
 
         while (!available) {
