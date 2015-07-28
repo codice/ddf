@@ -50,6 +50,8 @@ public class HttpProxy {
 
     public static final String HTTP_ENABLED_PROPERTY = "org.osgi.service.http.enabled";
 
+    public static final String GZIP_ENCODING = "gzip";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpProxy.class);
 
     private final HttpProxyService httpProxyService;
@@ -152,32 +154,33 @@ public class HttpProxy {
             try {
                 Message httpMessage = exchange.getIn();
                 if (httpMessage != null) {
-                    Object body = httpMessage.getBody();
-                    if (body != null) {
-                        String bodyStr;
-                        if (body instanceof InputStream) {
-                            bodyStr = IOUtils.toString((InputStream) body);
-                            IOUtils.closeQuietly((InputStream) body);
-                        } else if (body instanceof String) {
-                            bodyStr = (String) body;
-                        } else {
-                            bodyStr = body.toString();
-                        }
+                    String encoding = (String) httpMessage.getHeader(Exchange.CONTENT_ENCODING);
+                    if (encoding == null || !encoding.contains(GZIP_ENCODING)) {
+                        Object body = httpMessage.getBody();
+                        if (body != null) {
+                            String bodyStr;
+                            if (body instanceof InputStream) {
+                                bodyStr = IOUtils.toString((InputStream) body);
+                                IOUtils.closeQuietly((InputStream) body);
+                            } else if (body instanceof String) {
+                                bodyStr = (String) body;
+                            } else {
+                                bodyStr = body.toString();
+                            }
 
-                        String queryString = (String) httpMessage.getHeader(Exchange.HTTP_QUERY);
-                        String httpUri = (String) httpMessage.getHeader(Exchange.HTTP_URI);
-                        boolean isWsdlOrWadl = "wsdl".equalsIgnoreCase(queryString) || "_wadl"
-                                .equalsIgnoreCase(queryString) || httpUri.equals(cxfContext);
-                        if (isWsdlOrWadl) {
-                            bodyStr = bodyStr.replaceAll("<wsp:PolicyReference.+?/>", "");
-                            bodyStr = bodyStr
-                                    .replaceAll("<wsp:Policy [\\S\\s]*.*?</wsp:Policy>", "");
+                            String queryString = (String) httpMessage
+                                    .getHeader(Exchange.HTTP_QUERY);
+                            String httpUri = (String) httpMessage.getHeader(Exchange.HTTP_URI);
+                            boolean isWsdlOrWadl = "wsdl".equalsIgnoreCase(queryString) || "_wadl"
+                                    .equalsIgnoreCase(queryString) || httpUri.equals(cxfContext);
+
+                            if (isWsdlOrWadl || (queryString != null && queryString
+                                    .endsWith(".xsd"))) {
+                                bodyStr = bodyStr.replaceAll("https://" + host + ":" + httpsPort,
+                                        "http://" + host + ":" + httpPort);
+                            }
+                            exchange.getIn().setBody(bodyStr);
                         }
-                        if (isWsdlOrWadl || (queryString != null && queryString.endsWith(".xsd"))) {
-                            bodyStr = bodyStr.replaceAll("https://" + host + ":" + httpsPort,
-                                    "http://" + host + ":" + httpPort);
-                        }
-                        exchange.getIn().setBody(bodyStr);
                     }
                 }
             } catch (Exception e) {
