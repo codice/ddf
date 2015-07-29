@@ -23,6 +23,7 @@ public class GeoEntry {
     private final double longitude;
     private final String featureCode;
     private final long population;
+    private final String alternateNames;
 
     private GeoEntry(final Builder builder) {
         name = builder.name;
@@ -30,6 +31,7 @@ public class GeoEntry {
         longitude = builder.longitude;
         featureCode = builder.featureCode;
         population = builder.population;
+        alternateNames = builder.alternateNames;
     }
 
     public static class Builder {
@@ -38,6 +40,7 @@ public class GeoEntry {
         private double longitude;
         private String featureCode;
         private long population;
+        private String alternateNames;
 
         public Builder name(final String name) {
             this.name = name;
@@ -64,6 +67,11 @@ public class GeoEntry {
             return this;
         }
 
+        public Builder alternateNames(final String alternateNames) {
+            this.alternateNames = alternateNames;
+            return this;
+        }
+
         public GeoEntry build() {
             return new GeoEntry(this);
         }
@@ -87,5 +95,9 @@ public class GeoEntry {
 
     public long getPopulation() {
         return population;
+    }
+
+    public String getAlternateNames() {
+        return alternateNames;
     }
 }

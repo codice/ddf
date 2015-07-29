@@ -14,18 +14,24 @@
 
 package org.codice.ddf.spatial.geocoding;
 
-import static org.junit.Assert.assertEquals;
+/**
+ * Thrown by a {@link GeoEntryQueryable} when an error occurs while querying a GeoNames resource.
+ */
+public class GeoEntryQueryException extends RuntimeException {
+    /**
+     * Instantiates a new exception with the provided message.
+     * @param message  the message
+     */
+    public GeoEntryQueryException(final String message) {
+        super(message);
+    }
 
-public abstract class TestBase {
-
-    protected void verifyGeoEntry(final GeoEntry geoEntry, final String name, final double latitude,
-            final double longitude, final String featureCode, final long population,
-            final String alternateNames) {
-        assertEquals(name, geoEntry.getName());
-        assertEquals(latitude, geoEntry.getLatitude(), 0);
-        assertEquals(longitude, geoEntry.getLongitude(), 0);
-        assertEquals(featureCode, geoEntry.getFeatureCode());
-        assertEquals(population, geoEntry.getPopulation());
-        assertEquals(alternateNames, geoEntry.getAlternateNames());
+    /**
+     * Instantiates a new exception with the provided message and {@link Throwable}.
+     * @param message  the message
+     * @param throwable  the throwable
+     */
+    public GeoEntryQueryException(final String message, final Throwable throwable) {
+        super(message, throwable);
     }
 }

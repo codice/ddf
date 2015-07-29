@@ -20,15 +20,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.codice.ddf.ui.searchui.geocoder.GeoCoder;
 import org.codice.ddf.ui.searchui.geocoder.GeoResult;
-import org.geotools.geometry.jts.spatialschema.geometry.DirectPositionImpl;
-import org.geotools.geometry.jts.spatialschema.geometry.primitive.PointImpl;
-import org.opengis.geometry.DirectPosition;
-import org.opengis.geometry.primitive.Point;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -111,91 +105,13 @@ public class GeoNamesWebService implements GeoCoder {
                             if (firstResult != null) {
                                 double lat = Double.valueOf((String) firstResult.get("lat"));
                                 double lon = Double.valueOf((String) firstResult.get("lng"));
-                                DirectPosition position = new DirectPositionImpl(lon, lat);
-                                geoResult.setPoint(new PointImpl(position));
 
                                 Long population = (Long) firstResult.get("population");
                                 String adminCode = (String) firstResult.get("fcode");
-                                double latOffset = 0;
-                                double lonOffset = 0;
-                                if (adminCode != null) {
-                                    // these first two could be countries, the third is probably a city
-                                    if (adminCode.startsWith(ADMINISTRATIVE_LOCATION)) {
-                                        //probably a state or county
-                                        if (adminCode.endsWith("1")) {
-                                            latOffset = 5;
-                                            lonOffset = 5;
-                                        } else if (adminCode.endsWith("2")) {
-                                            latOffset = 4;
-                                            lonOffset = 4;
-                                        } else if (adminCode.endsWith("3")) {
-                                            latOffset = 3;
-                                            lonOffset = 3;
-                                        } else if (adminCode.endsWith("4")) {
-                                            latOffset = 2;
-                                            lonOffset = 2;
-                                        } else if (adminCode.endsWith("5")) {
-                                            latOffset = 1;
-                                            lonOffset = 1;
-                                        }
-                                    } else if (adminCode.startsWith(POLITICAL_ENTITY)) {
-                                        //probably a country
-                                        latOffset = 6;
-                                        lonOffset = 6;
-                                        if (population != null && population != 0) {
-                                            if (population > 100000000) {
-                                                latOffset *= 2;
-                                                lonOffset *= 2;
-                                            } else if (population > 10000000) {
-                                                latOffset *= 1;
-                                                lonOffset *= 1;
-                                            } else if (population > 1000000) {
-                                                latOffset *= .8;
-                                                lonOffset *= .8;
-                                            } else {
-                                                latOffset *= .5;
-                                                lonOffset *= .5;
-                                            }
-                                        }
-                                    } else if (adminCode.startsWith(POPULATED_PLACE)) {
-                                        //about 30 miles or so
-                                        latOffset = .5;
-                                        lonOffset = .5;
-                                        if (population != null && population != 0) {
-                                            if (population > 10000000) {
-                                                latOffset *= 1.5;
-                                                lonOffset *= 1.5;
-                                            } else if (population > 1000000) {
-                                                latOffset *= .8;
-                                                lonOffset *= .8;
-                                            } else if (population > 100000) {
-                                                latOffset *= .5;
-                                                lonOffset *= .5;
-                                            } else if (population > 10000) {
-                                                latOffset *= .3;
-                                                lonOffset *= .3;
-                                            } else {
-                                                latOffset *= .2;
-                                                lonOffset *= .2;
-                                            }
-                                        }
-                                    } else {
-                                        latOffset = .1;
-                                        lonOffset = .1;
-                                    }
-                                }
 
-                                DirectPosition northWest = new DirectPositionImpl(lon - lonOffset,
-                                        lat + latOffset);
-                                DirectPosition southEast = new DirectPositionImpl(lon + lonOffset,
-                                        lat - latOffset);
-                                List<Point> bbox = new ArrayList<Point>();
-                                bbox.add(new PointImpl(northWest));
-                                bbox.add(new PointImpl(southEast));
-
-                                geoResult.setBbox(bbox);
-
-                                geoResult.setFullName((String) firstResult.get("name"));
+                                geoResult = GeoResultCreator.createGeoResult(
+                                        (String) firstResult.get("name"), lat, lon, adminCode,
+                                        population);
                             }
                         }
                     }
