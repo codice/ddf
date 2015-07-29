@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.ogc.catalog.common;
 
@@ -26,9 +25,11 @@ import java.io.FileInputStream;
 import java.net.SocketException;
 import java.security.KeyStore;
 
+import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLHandshakeException;
+import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 
@@ -233,6 +234,18 @@ public class TestTrustedRemoteSource {
         filter.getInclude().addAll(SecuritySettingsService.SSL_ALLOWED_ALGORITHMS);
         filter.getExclude().addAll(SecuritySettingsService.SSL_DISALLOWED_ALGORITHMS);
         tlsParams.setCipherSuitesFilter(filter);
+
+        tlsParams.setHostnameVerifier(new HostnameVerifier() {
+            @Override
+            public boolean verify(String host, SSLSession sslSession) {
+                if (!sslSession.getPeerHost().equals(host)) {
+                    LOGGER.debug(String.format(
+                            "Server hostname - %s - does not match client request - %s; verifying regardless.",
+                            sslSession.getPeerHost(), host));
+                }
+                return true;
+            }
+        });
 
         return tlsParams;
     }
