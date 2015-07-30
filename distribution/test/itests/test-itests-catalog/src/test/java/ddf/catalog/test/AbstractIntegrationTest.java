@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Dictionary;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
@@ -94,13 +95,17 @@ public abstract class AbstractIntegrationTest {
 
     protected static final String KARAF_VERSION = "2.4.3";
 
-    protected static final long REQUIRED_BUNDLES_TIMEOUT = TimeUnit.MINUTES.toMillis(10);
+    //    protected static final long REQUIRED_BUNDLES_TIMEOUT = TimeUnit.MINUTES.toMillis(10);
+    protected static final long REQUIRED_BUNDLES_TIMEOUT = 500;
 
-    protected static final long MANAGED_SERVICE_TIMEOUT = TimeUnit.MINUTES.toMillis(10);
+    //    protected static final long MANAGED_SERVICE_TIMEOUT = TimeUnit.MINUTES.toMillis(10);
+    protected static final long MANAGED_SERVICE_TIMEOUT = 500;
 
-    protected static final long CATALOG_PROVIDER_TIMEOUT = TimeUnit.MINUTES.toMillis(10);
+    //    protected static final long CATALOG_PROVIDER_TIMEOUT = TimeUnit.MINUTES.toMillis(10);
+    protected static final long CATALOG_PROVIDER_TIMEOUT = 500;
 
-    protected static final long HTTP_ENDPOINT_TIMEOUT = TimeUnit.MINUTES.toMillis(10);
+    //    protected static final long HTTP_ENDPOINT_TIMEOUT = TimeUnit.MINUTES.toMillis(10);
+    protected static final long HTTP_ENDPOINT_TIMEOUT = 500;
 
     // TODO: Use the Camel AvailablePortFinder.getNextAvailable() test method
     protected static final String HTTP_PORT = "9081";
@@ -437,6 +442,7 @@ public abstract class AbstractIntegrationTest {
 
     protected CatalogProvider waitForCatalogProvider() throws InterruptedException {
         LOGGER.info("Waiting for CatalogProvider to become available.");
+        printInactiveBundles();
 
         CatalogProvider provider = null;
         long timeoutLimit = System.currentTimeMillis() + CATALOG_PROVIDER_TIMEOUT;
@@ -475,9 +481,30 @@ public abstract class AbstractIntegrationTest {
 
         for (Bundle bundle : bundleCtx.getBundles()) {
             if (bundle.getState() != Bundle.ACTIVE) {
-                LOGGER.info("{} | {}", bundle.getSymbolicName(),
-                        OsgiStringUtils.bundleStateAsString(bundle));
+                StringBuffer headerString = new StringBuffer("[ ");
+                Dictionary<String, String> headers = bundle.getHeaders();
+                Enumeration<String> keys = headers.keys();
+
+                while (keys.hasMoreElements()) {
+                    String key = keys.nextElement();
+                    headerString.append(key).append("=").append(headers.get(key)).append(", ");
+                }
+
+                headerString.append(" ]");
+                LOGGER.info("{} | {} | {} | {}", bundle.getSymbolicName(),
+                        bundle.getVersion().toString(), OsgiStringUtils.bundleStateAsString(bundle),
+                        headerString.toString());
             }
+        }
+
+        Map<Thread, StackTraceElement[]> stackTraces = Thread.getAllStackTraces();
+        for (Thread thread : stackTraces.keySet()) {
+            LOGGER.info(thread.toString());
+            StackTraceElement[] stackTrace = thread.getStackTrace();
+            for (StackTraceElement stackTraceElement : stackTrace) {
+                LOGGER.info("    {}", stackTraceElement.toString());
+            }
+            LOGGER.info("");
         }
     }
 
