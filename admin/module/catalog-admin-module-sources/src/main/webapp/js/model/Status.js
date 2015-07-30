@@ -19,16 +19,13 @@ function (Backbone) {
     var Status = {};
 
     Status.Model = Backbone.Model.extend({
-    });
-
-    Status.List = Backbone.Collection.extend({
         url: "/jolokia/exec/org.codice.ddf.catalog.admin.plugin.AdminSourcePollerServiceBean:service=admin-source-poller-service/sourceStatus/",
-        model: Status.Model,
+            model: Status.Model,
 
-         initialize: function(pid) {
-            this.url += pid;
-        }
-    });
+            initialize: function(pid) {
+                this.url += pid;
+            }
+        });
 
     return Status;
 });

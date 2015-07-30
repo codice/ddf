@@ -117,8 +117,8 @@ function (ich,Marionette,_,$,Q,ModalSource,EmptyView,Service,Status,wreqr,Utils,
             wreqr.vent.trigger('refreshSources');
             evt.stopPropagation();
         },
-        updateStatus: function(statusList) {
-            this.model.set('available', statusList.models[0].get('value'));
+        updateStatus: function(status) {
+            this.model.set('available', status.get('value'));
             this.render();
         }
     });

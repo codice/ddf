@@ -54,7 +54,7 @@ function (wreqr, Service, Backbone, _, poller, Status) {
             this.set({currentConfiguration: configuration});
 
             var pid = configuration.id;
-            var statusModel = new Status.List(pid);
+            var statusModel = new Status.Model(pid);
             statusModel.on('sync', function() {
                 wreqr.vent.trigger('status:update-'+pid, statusModel);
             });
