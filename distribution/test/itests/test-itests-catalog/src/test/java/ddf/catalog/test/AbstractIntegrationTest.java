@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package ddf.catalog.test;
 
 import static org.junit.Assert.fail;
@@ -71,6 +70,7 @@ import org.osgi.service.metatype.MetaTypeService;
 import org.osgi.service.metatype.ObjectClassDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.osgi.util.OsgiStringUtils;
 
 import com.jayway.restassured.response.Response;
 
@@ -425,6 +425,7 @@ public abstract class AbstractIntegrationTest {
 
             if (!ready) {
                 if (System.currentTimeMillis() > timeoutLimit) {
+                    printInactiveBundles();
                     fail(String.format("Bundles and blueprint did not start within %d minutes.",
                             TimeUnit.MILLISECONDS.toMinutes(REQUIRED_BUNDLES_TIMEOUT)));
                 }
@@ -456,6 +457,8 @@ public abstract class AbstractIntegrationTest {
 
             if (!available) {
                 if (System.currentTimeMillis() > timeoutLimit) {
+                    LOGGER.info("CatalogProvider.isAvailable = {}", available);
+                    printInactiveBundles();
                     fail(String.format("Catalog provider timed out after %d minutes.",
                             TimeUnit.MILLISECONDS.toMinutes(CATALOG_PROVIDER_TIMEOUT)));
                 }
@@ -465,6 +468,17 @@ public abstract class AbstractIntegrationTest {
 
         LOGGER.info("CatalogProvider is available.");
         return provider;
+    }
+
+    private void printInactiveBundles() {
+        LOGGER.info("Listing inactive bundles");
+
+        for (Bundle bundle : bundleCtx.getBundles()) {
+            if (bundle.getState() != Bundle.ACTIVE) {
+                LOGGER.info("{} | {}", bundle.getSymbolicName(),
+                        OsgiStringUtils.bundleStateAsString(bundle));
+            }
+        }
     }
 
     protected FederatedSource waitForFederatedSource(String id)
