@@ -365,7 +365,7 @@ public class ConfigurationAdminExt {
      *            the bundle which name to retrieve
      * @return the bundle name - see the description of the method for more details.
      */
-    String getName(Bundle bundle) {
+    public String getName(Bundle bundle) {
         Locale locale = Locale.getDefault();
         final String loc = locale == null ? null : locale.toString();
         String name = bundle.getHeaders(loc).get(Constants.BUNDLE_NAME);
@@ -551,7 +551,7 @@ public class ConfigurationAdminExt {
      *
      * @return see the method description
      */
-    Map getFactoryPidObjectClasses() {
+    public Map getFactoryPidObjectClasses() {
         return getObjectClassDefinitions(FACTORY_PID_GETTER);
     }
 
@@ -589,7 +589,7 @@ public class ConfigurationAdminExt {
         return serviceList;
     }
 
-    private List<Map<String, Object>> addMetaTypeNamesToMap(final Map ocdCollection,
+    public List<Map<String, Object>> addMetaTypeNamesToMap(final Map ocdCollection,
             final String filterSpec, final String type) {
         Filter filter = null;
         if (filterSpec != null) {
