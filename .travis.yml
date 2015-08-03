@@ -1,7 +1,0 @@
-language: java
-install: mvn install --quiet -DskipTests=true -B
-script: mvn test --quiet -B
-jdk:
-  - openjdk7
-  - oraclejdk7
-  - oraclejdk8
