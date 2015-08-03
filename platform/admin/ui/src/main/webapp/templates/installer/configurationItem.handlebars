@@ -1,0 +1,32 @@
+{{!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ --}}
+<div class="form-group has-feedback">
+    <div class="input-group btn-group col-xs-4 item">
+        <span class="input-group-addon">{{name}}</span>
+
+        {{#is optionValues.length 0}}
+            <input type="{{#is type 1}}text{{/is}}{{#is type 5}}text{{/is}}{{#is type 6}}text{{/is}}{{#is type 7}}text{{/is}}{{#is type 8}}text{{/is}}{{#is type 9}}text{{/is}}{{#is type 10}}text{{/is}}{{#is type 12}}password{{/is}}{{#is type 11}}checkbox{{/is}}{{#is type 2}}number{{/is}}{{#is type 3}}number{{/is}}{{#is type 4}}number{{/is}}"
+                   class="form-control" name="{{id}}" placeholder="{{#defaultValue}}{{.}}{{/defaultValue}}" value="{{#defaultValue}}{{.}}{{/defaultValue}}">
+        {{/is}}
+        {{#isnt optionValues.length 0}}
+            <select id="{{id}}" name="{{id}}">
+                {{#each optionLabels}}
+                    <option value="{{lookup ../optionValues @index}}" {{#is @index 0}}selected="selected" {{/is}}>{{.}}</option>
+                {{/each}}
+            </select>
+        {{/isnt}}
+    </div>
+    <span class="error-text" name="{{id}}Error" style="display: none"></span>
+    <span class="description">{{description}}</span>
+</div>

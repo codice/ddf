@@ -1,0 +1,4 @@
+= Managing {branding} Security Application
+include::config.adoc[]
+
+include::ManContents.adoc[]
