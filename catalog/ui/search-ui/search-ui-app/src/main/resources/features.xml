@@ -1,0 +1,39 @@
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ -->
+ 
+<features name="${project.artifactId}-${project.version}">
+
+    <feature name="search-ui" install="manual" version="${project.version}" description="Search UI">
+        <feature>camel-http</feature>
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.javax-inject/${javax.inject.bundle.version}</bundle>
+        <bundle>mvn:ddf.ui.search/simple/${project.version}</bundle>  
+        <bundle>mvn:ddf.ui.search/standard/${project.version}</bundle>
+        <bundle>mvn:ddf.ui.search/search-redirect/${project.version}</bundle>
+        <bundle>mvn:ddf.ui.search/search-htmltransformer/${project.version}</bundle>
+        <bundle>mvn:ddf.ui.search/search-endpoint/${project.version}</bundle>
+        <bundle>mvn:ddf.ui.search/search-geocoder/${project.version}</bundle>
+        <bundle>mvn:ddf.ui.search/search-geonames/${project.version}</bundle>
+
+        <config name="org.codice.ddf.ui.searchui.filter.RedirectServlet">
+            defaultUri=/search/standard
+        </config>
+    </feature>
+
+    <feature name="search-ui-app" install="auto" version="${project.version}"
+             description="The DDF Standard Search UI is an application that not only provides results in a html format but also provides a convenient, simple querying user interface.\nThe left pane of the SearchUI contains basic fields to query the Catalog and other Sources. The right pane consists of a map.\nIt includes both standard (3d globe) and simple (text page) versions.::DDF Standard Search UI">
+        <feature>catalog-app</feature>
+        <feature>search-ui</feature>
+    </feature>
+    
+</features>

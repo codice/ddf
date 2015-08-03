@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<blueprint xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xsi:schemaLocation="http://cxf.apache.org/blueprint/jaxrs http://cxf.apache.org/schemas/blueprint/jaxrs.xsd">
+
+    <bean id="CswResourceComparator"
+          class="org.codice.ddf.spatial.ogc.catalog.common.EndpointOperationInfoResourceComparator">
+        <argument value="csw"/>
+    </bean>
+
+    <bean id="cswJaxbElementProvider"
+          class="org.codice.ddf.spatial.ogc.csw.catalog.common.CswJAXBElementProvider">
+        <property name="singleJaxbContext" value="true"/>
+        <property name="extraClass">
+            <list>
+                <value>net.opengis.cat.csw.v_2_0_2.TransactionResponseType</value>
+                <value>net.opengis.cat.csw.v_2_0_2.CapabilitiesType</value>
+                <value>net.opengis.cat.csw.v_2_0_2.DescribeRecordResponseType</value>
+            </list>
+        </property>
+        <property name="marshallAsJaxbElement" value="true"/>
+        <property name="marshallerProperties">
+            <map/>
+        </property>
+        <property name="schemaLocation"
+                  value="http://www.opengis.net/csw /ogc/csw/2.0.2/CSW-publication.xsd"/>
+        <property name="unmarshallAsJaxbElement" value="true"/>
+        <property name="jaxbElementClassMap">
+            <map>
+                <entry>
+                    <key>
+                        <value>net.opengis.cat.csw.v_2_0_2.CapabilitiesType</value>
+                    </key>
+                    <value>{http://www.opengis.net/cat/csw/2.0.2}Capabilities</value>
+                </entry>
+                <entry>
+                    <key>
+                        <value>net.opengis.cat.csw.v_2_0_2.DescribeRecordResponseType</value>
+                    </key>
+                    <value>{http://www.opengis.net/cat/csw/2.0.2}DescribeRecordResponse</value>
+                </entry>
+                <entry>
+                    <key>
+                        <value>net.opengis.cat.csw.v_2_0_2.TransactionResponseType</value>
+                    </key>
+                    <value>{http://www.opengis.net/cat/csw/2.0.2}TransactionResponse</value>
+                </entry>
+            </map>
+        </property>
+    </bean>
+
+    <!-- QueryResponseTransformer TransformerManager -->
+    <bean id="queryResponseTransformerManager"
+          class="org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager">
+        <argument ref="blueprintBundleContext"/>
+        <argument ref="queryResponseTransformers"/>
+    </bean>
+
+    <bean id="queryResponseTransformers" class="ddf.catalog.util.impl.SortedServiceReferenceList"/>
+    <reference-list id="queryResponseTransformerList" member-type="service-reference"
+                    interface="ddf.catalog.transform.QueryResponseTransformer">
+        <reference-listener bind-method="bindService" unbind-method="unbindService"
+                            ref="queryResponseTransformers"/>
+    </reference-list>
+
+    <!-- MetacardTransformer Manager -->
+    <bean id="metacardTransformerManager"
+          class="org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager">
+        <argument ref="blueprintBundleContext"/>
+        <argument ref="metacardTransformers"/>
+    </bean>
+
+    <bean id="metacardTransformers" class="ddf.catalog.util.impl.SortedServiceReferenceList"/>
+    <reference-list id="metacardTransformerList" member-type="service-reference"
+                    interface="ddf.catalog.transform.MetacardTransformer">
+        <reference-listener bind-method="bindService" unbind-method="unbindService"
+                            ref="metacardTransformers"/>
+    </reference-list>
+
+    <bean id="cswExceptionMapperProvider"
+          class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswExceptionMapper"/>
+    <bean id="cswRecordCollectionWriter"
+          class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.writer.CswRecordCollectionMessageBodyWriter">
+        <argument ref="queryResponseTransformerManager"/>
+    </bean>
+
+    <reference id="cswRecordConverter" interface="com.thoughtworks.xstream.converters.Converter" />
+
+    <bean id="transactionMessageBodyReader"
+          class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.reader.TransactionMessageBodyReader">
+        <argument ref="cswRecordConverter"/>
+    </bean>
+
+    <reference id="catalogFramework" interface="ddf.catalog.CatalogFramework"/>
+    <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
+
+    <bean id="CswSvc" class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswEndpoint">
+        <argument ref="blueprintBundleContext"/>
+        <argument ref="catalogFramework"/>
+        <argument ref="filterBuilder"/>
+        <argument ref="queryResponseTransformerManager"/>
+        <argument ref="metacardTransformerManager"/>
+    </bean>
+
+    <jaxrs:server id="CswService" address="/csw">
+        <jaxrs:serviceBeans>
+            <ref component-id="CswSvc"/>
+        </jaxrs:serviceBeans>
+        <jaxrs:resourceComparator>
+            <ref component-id="CswResourceComparator"/>
+        </jaxrs:resourceComparator>
+        <jaxrs:providers>
+            <ref component-id="cswJaxbElementProvider"/>
+            <ref component-id="cswExceptionMapperProvider"/>
+            <ref component-id="cswRecordCollectionWriter"/>
+            <ref component-id="transactionMessageBodyReader"/>
+        </jaxrs:providers>
+    </jaxrs:server>
+
+</blueprint>

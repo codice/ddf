@@ -1,0 +1,4 @@
+= Integrating {branding} Spatial App
+include::config.adoc[]
+
+include::IntContents.adoc[]

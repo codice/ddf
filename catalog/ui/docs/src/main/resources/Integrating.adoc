@@ -1,0 +1,4 @@
+= Integrating {branding} Standard Search UI
+include::config.adoc[]
+
+include::IntContents.adoc[]
