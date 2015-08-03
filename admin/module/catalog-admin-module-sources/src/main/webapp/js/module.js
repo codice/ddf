@@ -30,18 +30,6 @@ function(wreqr, Application, SourceView, poller, Source, Status, Service) {
         var serviceModel = new Service.Response();
         serviceModel.fetch();
 
-        var statusModel = new Status.List();
-        statusModel.on('sync', function() {
-            wreqr.vent.trigger('status:update', statusModel);
-        });
-
-        var options = {
-            delay: 30000
-        };
-
-        var statusPoller = poller.get(statusModel, options);
-        statusPoller.start();
-
         var sourceResponse = new Source.Response({model: serviceModel});
 
         var sourcePage = new SourceView.SourcePage({model: sourceResponse});

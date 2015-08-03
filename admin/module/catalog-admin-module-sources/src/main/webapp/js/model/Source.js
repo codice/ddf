@@ -13,14 +13,16 @@
  *
  **/
 /*global define*/
-define(function (require) {
-
-    var Backbone = require('backbone'),
-        Service = require('js/model/Service.js'),
-        _ = require('underscore');
-
-    require('backboneassociation');
-
+define([
+    'wreqr',
+    'js/model/Service.js',
+    'backbone',
+    'underscore',
+    'poller',
+    'js/model/Status.js',
+    'backboneassociation'
+],
+function (wreqr, Service, Backbone, _, poller, Status) {
     var Source = {};
 
     Source.ConfigurationList = Backbone.Collection.extend({
@@ -50,6 +52,19 @@ define(function (require) {
         },
         setCurrentConfiguration: function(configuration) {
             this.set({currentConfiguration: configuration});
+
+            var pid = configuration.id;
+            var statusModel = new Status.Model(pid);
+            statusModel.on('sync', function() {
+                wreqr.vent.trigger('status:update-'+pid, statusModel);
+            });
+            
+            var options = {
+                delay: 30000
+            };
+
+            var statusPoller = poller.get(statusModel, options);
+            statusPoller.start();
         },
         hasConfiguration: function(configuration) {
             var id = configuration.get('id');
@@ -184,22 +199,9 @@ define(function (require) {
             
             if(serviceCollection) {
                 serviceCollection.each(function(service) {
-                    var id = service.get('id');
-                    var name = service.get('name');
-                    var factory = service.get('factory');
-
-                    // Looks for any service factory which produces services which contain
-                    // Source or Service in the name or in the service id
-                    // TODO: Find a more reliable solution, in particular, perhaps, querying the
-                    //       server for only ServiceFactories which produce FederatedSources and
-                    //       ConnectedSources
-                    if (( !_.isUndefined(id) && (id.indexOf('Source') !== -1 || id.indexOf('Service') !== -1) ||
-                            !_.isUndefined(name) && (name.indexOf('Source') !== -1 || name.indexOf('Service') !== -1)) && 
-                            !initialModel.hasConfiguration(service) && factory) {
-                        var config = new Service.Configuration({service: service});
-                        config.set('fpid', config.get('fpid') + '_disabled');
-                        initialModel.addDisabledConfiguration(config);
-                    }
+                    var config = new Service.Configuration({service: service});
+                    config.set('fpid', config.get('fpid') + '_disabled');
+                    initialModel.addDisabledConfiguration(config);
                 });
             }
             return initialModel;
