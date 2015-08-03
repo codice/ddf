@@ -16,14 +16,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>ddf</groupId>
-        <artifactId>ddf-parent</artifactId>
-        <version>3.0.4-SNAPSHOT</version>
+        <groupId>ddf.lib</groupId>
+        <artifactId>lib</artifactId>
+        <version>2.8.0-SNAPSHOT</version>
     </parent>
 
     <groupId>org.codice.httpproxy</groupId>
     <artifactId>httpproxy-pom</artifactId>
-    <version>1.0.5-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Codice DDF HTTP Proxy</name>
 
