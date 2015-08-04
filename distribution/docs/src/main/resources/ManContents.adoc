@@ -4,7 +4,7 @@ Distributed Data Framework ({branding}) is an agile and modular integration fram
 This page provides instructions to install, start, and stop the {branding}.
 
 == Documentation Guide
- 
+
 === Introduction
 
 ==== Overview
@@ -56,24 +56,24 @@ Questions about {branding} or this documentation should be posted to the {brandi
 {branding} is comprised of several modular applications, to be installed or uninstalled as needed.
 
 {branding} Administrative Application::
-The administrative application enhances administrative capabilities when installing and managing {branding}. It contains various services and interfaces that allow administrators more control over their systems. 
+The administrative application enhances administrative capabilities when installing and managing {branding}. It contains various services and interfaces that allow administrators more control over their systems.
 {branding} Catalog Application::
 The {branding} Catalog provides a framework for storing, searching, processing, and transforming information.
-Clients typically perform query, create, read, update, and delete (QCRUD) operations against the Catalog. 
+Clients typically perform query, create, read, update, and delete (QCRUD) operations against the Catalog.
 At the core of the Catalog functionality is the *Catalog Framework*, which routes all requests and responses through the system, invoking additional processing per the system configuration.
 {branding} Content Application::
-The {branding} Content application provides a framework for storing, reading, processing, transforming and cataloging data. 
-{branding} Platform Application:: 
+The {branding} Content application provides a framework for storing, reading, processing, transforming and cataloging data.
+{branding} Platform Application::
 The Platform application is considered to be a core application of the distribution. The Platform application has fundamental building blocks that the distribution needs to run.
 These building blocks include subsets of: Karaf (http://karaf.apache.org/), CXF (http://cxf.apache.org/), Cellar (http://karaf.apache.org/index/subprojects/cellar.html), and Camel (http://camel.apache.org/). 
 +
-Included as part of the Platform application is also a Command Scheduler. The Command Scheduler allows users to schedule Command Line Shell Commands to run at certain specified intervals. 
+Included as part of the Platform application is also a Command Scheduler. The Command Scheduler allows users to schedule Command Line Shell Commands to run at certain specified intervals.
 {branding} Security Application::
-The Security application provides authentication, authorization, and auditing services for the {branding}. They comprise both a framework that developers and integrators can extend and a reference implementation that meets security requirements. More information about the security framework and how everything works as a single security solution can be found on the Managing Web Service Security page. 
+The Security application provides authentication, authorization, and auditing services for the {branding}. They comprise both a framework that developers and integrators can extend and a reference implementation that meets security requirements. More information about the security framework and how everything works as a single security solution can be found on the Managing Web Service Security page.
 {branding} Solr Catalog Application::
-The Solr Catalog Provider (SCP) is an implementation of the `CatalogProvider` interface using Apache Solr (http://lucene.apache.org/solr/) as a data store. 
+The Solr Catalog Provider (SCP) is an implementation of the `CatalogProvider` interface using Apache Solr (http://lucene.apache.org/solr/) as a data store.
 {branding} Spatial Application::
-The {branding} Spatial Application provides KML transformer and a KML network link endpoint that allows a user to generate a View-based KML Query Results Network Link. 
+The {branding} Spatial Application provides KML transformer and a KML network link endpoint that allows a user to generate a View-based KML Query Results Network Link.
 {branding} Standard Search UI::
 The {branding} Standard Search UI application allows a user to search for records in the local Catalog (provider) and federated sources. Results of the search are returned in HTML format and are displayed on a globe, providing a visual representation of where the records were found.
 
@@ -138,7 +138,7 @@ Other applications may be installed at a later time.
 ==== Catalog Capabilities
 
 . Create an entry in the Catalog by ingesting a valid GeoJson file (attached to this page). This ingest can be performed using:
-.. A REST client, such as Google Chrome's Advanced REST Client. OR 
+.. A REST client, such as Google Chrome's Advanced REST Client. OR
 .. Using the following curl command to POST to the Catalog REST CRUD endpoint.
 +
 .Windows Example
@@ -151,7 +151,7 @@ curl.exe -H "Content-type: application/json;id=geojson" -i -X POST -d @"C:\path\
 curl -H "Content-type: application/json;id=geojson" -i -X POST -d @geojson_valid.json https://localhost:8993/services/catalog
 ----
 +
-Where: 
+Where:
 *-H* adds an HTTP header. In this case, Content-type header `application/json;id=geojson` is added to match the data being sent in the request.
 *-i* requests that HTTP headers are displayed in the response.
 *-X* specifies the type of HTTP operation. For this example, it is necessary to POST (ingest) data to the server.
@@ -241,13 +241,13 @@ This section provides are very high level overview of introductory concepts of s
 There are four basic types of metadata search. Additionally, any of the types can be combined to create a compound search.
 
 ===== Contextual Search
-A contextual search is used when searching for textual information. It is similar to a Google search over the metadata contained in the MDC. Contextual searches may use wildcards, logical operators, and approximate matches. 
+A contextual search is used when searching for textual information. It is similar to a Google search over the metadata contained in the MDC. Contextual searches may use wildcards, logical operators, and approximate matches.
 
 ===== Spatial Search
-A spatial search is used for Area of Interest (AOI) searches. Polygon and point radius searches are supported. Specifically, the spatial search looks at the metacards' location attribute and coordinates are specified in WGS 84 decimal degrees. 
+A spatial search is used for Area of Interest (AOI) searches. Polygon and point radius searches are supported. Specifically, the spatial search looks at the metacards' location attribute and coordinates are specified in WGS 84 decimal degrees.
 
 ===== Temporal Search
-A temporal search finds information from a specific time range.  Two types of temporal searches are supported, relative and absolute.  Relative searches contain an offset from the current time, while absolute searches contain a start and an end timestamp. Temporal searches can look at the effective date attribute or the modified date. 
+A temporal search finds information from a specific time range.  Two types of temporal searches are supported, relative and absolute.  Relative searches contain an offset from the current time, while absolute searches contain a start and an end timestamp. Temporal searches can look at the effective date attribute or the modified date.
 
 ===== Datatype
 A datatype search is used to search for metadata based on the datatype, and optional versions.  Wildcards (*) can be used in both the datatype and version fields.  Metadata that matches any of the datatypes (and associated versions if specified) will be returned.  If a version is not specified, then all metadata records for the specified datatype(s) regardless of version will be returned.
@@ -295,19 +295,19 @@ There are three policies available.
 |Default Order
 |Available for
 
-|Temporal   
-|The catalog search result’s effective time field  
-|Newest to oldest 
+|Temporal
+|The catalog search result’s effective time field
+|Newest to oldest
 |All Search Types
 
-|Distance   
-|The catalog search result’s distance field  
-|Nearest to farthest 
+|Distance
+|The catalog search result’s distance field
+|Nearest to farthest
 |Point-Radius Spatial searches
 
-|Relevance  
-|The catalog search result’s relevance field 
-|Most to least relevant 
+|Relevance
+|The catalog search result’s relevance field
+|Most to least relevant
 |Contextual
 
 |===
@@ -317,8 +317,8 @@ If no sort policy is defined for a particular search, the temporal policy will a
 [WARNING]
 ====
 For Compound searches, the parent Compound search’s sort policy is used.
-For example, if a Spatial search and Contextual search are the components of a Compound search, the Spatial search might have a distance policy and the Contextual search might have a relevance policy. 
-The parent Compound search, though, does not use the policy of its child objects to define its sorting approach. 
+For example, if a Spatial search and Contextual search are the components of a Compound search, the Spatial search might have a distance policy and the Contextual search might have a relevance policy.
+The parent Compound search, though, does not use the policy of its child objects to define its sorting approach.
 The Compound search itself has its own temporal sort policy field that it will use to order the results of the search.
 ====
 
@@ -362,7 +362,7 @@ echo %JAVA_HOME%
 
 * {branding} installation zip file.
 * A web browser.
-* For Linux systems, increase the file descriptor limit by editing `/etc/sysctl.conf` to include or change the following: 
+* For Linux systems, increase the file descriptor limit by editing `/etc/sysctl.conf` to include or change the following:
 
 .File Descriptor Limit
 ----
@@ -415,7 +415,7 @@ It is recommended that the root user create a new install directory that can be 
 ----
 mkdir new_installation
 chown ddf-user:ddf-group new_installation
- 
+
 su - ddf-user
 ----
 
@@ -472,7 +472,7 @@ unzip ddf-X.Y.zip
 ----
 <INSTALL_DIRECTORY>/ddf-X.Y/bin/ddf.bat
 ----
-* Wait for the console prompt to appear. 
+* Wait for the console prompt to appear.
 
 .Command Prompt when Initially Loaded
 ----
@@ -496,14 +496,14 @@ Installer Module.
 
 [NOTE]
 ====
-It is recommended that the root user create a new install directory that can be owned by a non-root user (e.g., ddf-user). The non-root user (e.g., ddf-user) can now be used for the remaining installation instructions. 
-==== 
+It is recommended that the root user create a new install directory that can be owned by a non-root user (e.g., ddf-user). The non-root user (e.g., ddf-user) can now be used for the remaining installation instructions.
+====
 
 .Example: Create a Directory and Switch User on *NIX
 ----
 mkdir new_installation
 chown ddf-user:ddf-group new_installation
- 
+
 su - ddf-user
 ----
 
@@ -570,7 +570,7 @@ org.ops4j.pax.web.config.file={karaf.home}/etc/jetty.xml
 <INSTALL_DIRECTORY>/ddf-kernel-X.Y/bin/ddf.bat
 ----
 
-* Wait for the console prompt to appear. 
+* Wait for the console prompt to appear.
 .Command Prompt when Initially Loaded
 ----
 ddf@local>
@@ -624,14 +624,14 @@ The order the {branding} applications are listed below is the recommended order 
 * Proceed to Configuration.
 
 ==== (Option 2/Part 2) Configuration
-. Open a compatible web browser and log in to the Administrator Console (https://localhost:8993/admin) with username "admin" and password "admin" (no quotes).  
+. Open a compatible web browser and log in to the Administrator Console (https://localhost:8993/admin) with username "admin" and password "admin" (no quotes).
 . Select the Configuration tab in the Administrator Console.
-.. Select Platform Global Configuration.  
-... In the Host field, enter the IP address or hostname of the installation.  
+.. Select Platform Global Configuration.
+... In the Host field, enter the IP address or hostname of the installation.
 ... In the Port field, enter 8181. The port can be changed later, if necessary.
 ... Enter the site name (e.g., the name {branding} will return in federation and web service responses).
 ... Select the Save button.
-.. Select Catalog Sorted Federation Strategy.  
+.. Select Catalog Sorted Federation Strategy.
 ... In the Maximum start index field, enter the maximum query offset number or keep the default setting. Refer to Standard Catalog Framework for additional information.
 ... Select the Save button.
 
@@ -674,7 +674,7 @@ During {branding} installation, the major directories shown in the table below a
 |bin
 |Scripts to start and stop {branding}
 
-|data	
+|data
 |The working directory of the system – installed bundles and their data
 
 |data/log/ddf.log
@@ -683,7 +683,7 @@ During {branding} installation, the major directories shown in the table below a
 |deploy
 |Hot-deploy directory – KARs and bundles added to this directory will be hot-deployed (Empty upon {branding} installation)
 
-|docs	
+|docs
 |The {branding} Catalog API Javadoc
 
 |etc
@@ -698,12 +698,12 @@ During {branding} installation, the major directories shown in the table below a
 |lib
 |The system's bootstrap libraries. Includes the ddf-branding.jar file which is used to brand the system console with the {branding} logo.
 
-|licenses	
+|licenses
 |Licensing information related to the system
 
 |system
 |Local bundle repository. Contains all of the JARs required by {branding}, including third-party JARs.
- 
+
 |===
 
 == Configuring
@@ -771,7 +771,7 @@ The features tab breaks down the individual features of the application that can
 image::features_tab.png[Features Tab,]
 
 ==== Managing Applications
-The Manage button enables activation/deactivation and adding/removing applications. 
+The Manage button enables activation/deactivation and adding/removing applications.
 
 image::managing_applications.png[Manage]
 
@@ -784,10 +784,10 @@ Deactivating the platform-app, admin-app, and security-services-app will cause e
 ====
 
 ===== Adding Applications
-The Add Application button is at the end of the list of currently active applications. 
+The Add Application button is at the end of the list of currently active applications.
 
 ===== Removing Applications
-To remove an application, it must first be deactivated. This enables the Remove Application button. 
+To remove an application, it must first be deactivated. This enables the Remove Application button.
 
 ===== Upgrading Applications
 
@@ -798,8 +798,8 @@ The configuration and features installed can be viewed and edited from the Syste
 
 [IMPORTANT]
 ====
-In general, applications should be managed via the applications tab. 
-Configuration via this page could result in an unstable system. 
+In general, applications should be managed via the applications tab.
+Configuration via this page could result in an unstable system.
 Proceed with caution!
 ====
 
@@ -837,83 +837,83 @@ The default username/password is admin/admin. To change this, refer to Security 
 |Default Value
 |Required
 
-|Protocol	
-|protocol	
-|String	
-|Default protocol that should be used to connect to this machine.	
-|https	
+|Protocol
+|protocol
+|String
+|Default protocol that should be used to connect to this machine.
+|https
 |yes
 
-|Host	
-|host	
-|String	
-|The hostname or IP address used to advertise the system. Do not enter localhost. Possibilities include the address of a single node or that of a load balancer in a multi-node deployment. 
+|Host
+|host
+|String
+|The hostname or IP address used to advertise the system. Do not enter localhost. Possibilities include the address of a single node or that of a load balancer in a multi-node deployment.
 
-NOTE: Does not change the address the system runs on.	 	
+NOTE: Does not change the address the system runs on.
 |
 |yes
 
-|Port	
-|port	
-|String	
-|The port used to advertise the system. Possibilities include the port of a single node or that of a load balancer in a multi-node deployment. 
+|Port
+|port
+|String
+|The port used to advertise the system. Possibilities include the port of a single node or that of a load balancer in a multi-node deployment.
 
-NOTE: Does not change the port the system runs on. 	 	
+NOTE: Does not change the port the system runs on.
 |
 |yes
 
 ////
-|Trust Store	
-|trustStore	
-|String	
-|The trust store used for outgoing SSL connections. Path is relative to ddf.home.	
-|etc/keystores/clientTruststore.jks	
+|Trust Store
+|trustStore
+|String
+|The trust store used for outgoing SSL connections. Path is relative to ddf.home.
+|etc/keystores/clientTruststore.jks
 |no
 
-|Trust Store Password	
-|trustStorePassword	
-|String	
-|The password associated with the trust store.	
-|changeit (encrypted)	
+|Trust Store Password
+|trustStorePassword
+|String
+|The password associated with the trust store.
+|changeit (encrypted)
 |no
 
-|Key Store	
-|keyStore	
-|String	
-|The key store used for outgoing SSL connections. Path is relative to karaf.home.	
-|etc/keystores/clientKeystore.jks	
+|Key Store
+|keyStore
+|String
+|The key store used for outgoing SSL connections. Path is relative to karaf.home.
+|etc/keystores/clientKeystore.jks
 |no
 
-|Key Store Password	
-|keyStorePassword	
-|String	
-|The password associated with the key store.	
-|changeit (encrypted)	
+|Key Store Password
+|keyStorePassword
+|String
+|The password associated with the key store.
+|changeit (encrypted)
 |no
 
-//// 
+////
 
-|Site Name	
-|id	
-|String	
-|The site name for {branding}.	
-|ddf.distribution	
+|Site Name
+|id
+|String
+|The site name for {branding}.
+|ddf.distribution
 |yes
 
-|Version	
-|version	
-|String	
+|Version
+|version
+|String
 |The version of {branding} that is running.
 
 This value should not be changed from the factory default.
-|2.3.0	
+|2.3.0
 |yes
 
-|Organization	
-|organization	
-|String	
-|The organization responsible for this installation of {branding}.	
-|Codice Foundation	
+|Organization
+|organization
+|String
+|The organization responsible for this installation of {branding}.
+|Codice Foundation
 |yes
 
 |Site Contact
@@ -940,7 +940,7 @@ Features may have dependencies on other features and will auto-install them as n
 .. `https://localhost:8993/admin`
 .. Enter Username and Password.
 . Select the appropriate application.
-. Select the Features tab. 
+. Select the Features tab.
 . Select the play arrow under the Actions column for the feature that should be installed.
 . Wait for the *Status* to change from *Uninstalled* to *Installed*.
 
@@ -1074,7 +1074,7 @@ State         Version          Name                          Repository  Descrip
 ----
 
 === Configuring {branding} using Configuration (.cfg) files
-The {branding} can also be configured with configuration (.cfg) files. 
+The {branding} can also be configured with configuration (.cfg) files.
 
 ==== HTTP Port Configuration
 [IMPORTANT]
@@ -1093,29 +1093,29 @@ Edit the port numbers in the files in the {branding} install folder. The line nu
 |Original Value
 |Example of New Value
 
-|bin/karaf.bat	
-|99	
-|5005	
+|bin/karaf.bat
+|99
+|5005
 |i.e. 5006
 
-|etc/org.apache.karaf.management.cfg	
-|27	
-|1099	
+|etc/org.apache.karaf.management.cfg
+|27
+|1099
 |i.e. 1199
 
-|" "	
-|32	
-|44444	
+|" "
+|32
+|44444
 |i.e. 44445
 
-|etc/org.ops4j.pax.web.cfg	
-|9	
-|8181	
+|etc/org.ops4j.pax.web.cfg
+|9
+|8181
 |i.e. 8281
 
-|" "	
-|22	
-|8993	
+|" "
+|22
+|8993
 |i.e. 8994
 
 |===
@@ -1217,8 +1217,8 @@ In order for outbound secure connections (HTTPS) to be made from components like
 |Sample Value
 |Description
 
-|javax.net.ssl.trustStore	
-|etc/keystores/serverKeystore.jks	
+|javax.net.ssl.trustStore
+|	etc/keystores/serverTruststore.jks
 |The java keystore that contains the trusted public certificates for Certificate Authorities (CA's) that can be used to validate SSL Connections for outbound TLS/SSL connections (e.g. HTTPS). When making outbound secure connections a handshake will be done with the remote secure server and the CA that is in the signing chain for the remote server's certificate must be present in the trust store for the secure connection to be successful.
 
 |javax.net.ssl.trustStorePassword
@@ -1226,32 +1226,34 @@ In order for outbound secure connections (HTTPS) to be made from components like
 |This is the password for the truststore listed in the above property
 
 |javax.net.ssl.keyStore
-|etc/keystores/serverTruststore.jks
+|etc/keystores/serverKeystore.jks
 |The keystore that contains the private key for the local server that can be used to signing and encryption. This must be set if establishing outgoing 2-way (mutual) SSL connections where the local server must also present it's certificate for the remote server to verify.
 
 |javax.net.ssl.keyStorePassword
 |changeit
 |The password for the keystore listed above
 
-|javax.net.ssl.keyStoreType	
-|jks	
+|javax.net.ssl.keyStoreType
+|jks
 |The type of keystore
 
-|https.cipherSuites	
+|https.cipherSuites
 |TLS_DHE_RSA_WITH_AES_128_CBC_SHA, +
 TLS_DHE_RSA_WITH_AES_128_CBC_SHA, +
 TLS_DHE_DSS_WITH_AES_128_CBC_SHA, +
 TLS_RSA_WITH_AES_128_CBC_SHA
 |The cipher suites that are supported when making outbound HTTPS connections
 
-|https.protocols	 
-|TLSv1.1,TLSv1.2	
+|https.protocols
+|TLSv1.1,TLSv1.2
 |The protocols that are supported when making outbound HTTPS connections
 
 |===
 
 === Configuring {branding} with New Certificates
 {branding} ships with default certificates configured to identify the local machine as "localhost." This allows one to unzip {branding} and run immediately in a secure manner. However, in order to access the {branding} instance from another machine over HTTPS (now the default for many services) without receiving warnings or failures, the default certificates need to be replaced with a certificate reflecting the name of the host machine as reachable from other network nodes.
+
+{branding} uses public key infrastructure known as X.509 or PKIX. It is documented in the IEFT RFC 5280.
 
 [IMPORTANT]
 ====
@@ -1267,21 +1269,53 @@ It is important when configuring a new certificate that you follow in order the 
 |Definition
 |Example
 
-|FQDN	
-|Fully Qualified Domain Name	
-|search.codice.org
-
-|{branding}_HOME	
-|The path to the unzipped {branding} distribution	
+|{branding}_HOME
+|The path to the unzipped {branding} distribution
 |/opt/ddf/ddf-2.6.0
 
-|Alias	
-|The nickname given to a certificate within a keystore to make it easily identifiable	
-|localhost within the default {branding} serverKeystore.jks
+|alias
+|The nickname given to a certificate within a keystore to make it easily identifiable. Normally the alias should be the {branding} instance's FQDN.
+|localhost
 
-|CN	
-|Common Name - The FQDN of the server as defined within the Certificate.	
+|Certificate
+|A combination of an entity's identity information with the entity's public key. The entity can be a person, organization, or something else, but in this case the entity is a computer on the network. To be valid, a certificate must be digitally (cryptographically) signed by a certifcate authority. By signing a certificate, the CA attests that the public key truly belongs to the entity and no one else.
+|<FQDN>.crt
+
+|CN
+|Common Name - The FQDN of the {branding} instance as defined within the Certificate.
 |search.codice.org
+
+|CSR
+|Certificate Signing Request. A certificate that has not yet been signed by a certificate auhority.
+|<FQDN>.csr
+
+|FQDN
+|Fully Qualified Domain Name
+|search.codice.org
+
+|HTTPS
+|Hyper-Text Transfer Protocol Secure. An encrypted alternative to HTTP.  The HTTP connection is encrypted over TLS. See IETF RFC 2818 for more information.
+|https://
+
+|keytool
+|The Java keytool is a key and certificate management utility.
+|
+
+|openssl
+|The openssl program is a command line tool for using the various cryptography functions of OpenSSL's crypto library from the shell.
+|
+
+|PKCS#12
+|Personal Information Exchange Syntax. A standard that allows certifcates, private keys, and optional attributes to be combined into a single file.  See IETF RFC 7292 for more information.
+|<FQDN>.p12
+
+|PORT
+|TCP Port of service
+|8993
+
+|TLS
+|Transport Layer Security protocol. Provides privacy and data integrity between client and server. See IETF RFC 5246 for more information.
+|
 
 |===
 
@@ -1290,7 +1324,7 @@ It is important when configuring a new certificate that you follow in order the 
 ===== Updates via Web Configuration
 It is best to first change the URLs in {branding} before changing the certs. This allows {branding} to run in it's default state while everything gets updated. Once everything is updated, simply stop {branding}, update the keystores, and start it back up.
 
-. Start DDF 
+. Start DDF
 +
 [source,bash]
 ----
@@ -1303,54 +1337,59 @@ $> ./ddf
 +
 . The next few steps will require you to open a configuration and edit the given properties. +
 +
-[NOTE]
+[IMPORTANT]
 ====
-Important: When updating the Solr URL's be sure to include "/solr" at the end of the URL.
+When updating the Solr URL's be sure to include "/solr" at the end of the URL.
 ====
 +
 [cols="3" options="header"]
 |===
 
 |Configuration Name
-|Property Name	
+|Property Name
 |New Value
 
-|Catalog Federation Strategy	
-|Solr URL	
+|Catalog Federation Strategy
+|Solr URL
 |https://<FQDN>:<PORT>/solr
 
-|Persistent Store	
-|Solr URL	
+|Persistent Store
+|Solr URL
 |https://<FQDN>:<PORT>/solr
 
 |Platform Global Config
-|Host	
+|Host
 |<FQDN>
 
-|Catalog External Solr Catalog Provider	
-|HTTP URL	
+|Catalog External Solr Catalog Provider
+|HTTP URL
 |https://<FQDN>:<PORT>/solr
 
-|Security STS Client	
-|STS WSDL Address	
+|Security STS Client
+|STS WSDL Address
 |https://<FQDN>:<PORT>/services/SecurityTokenService?wsdl
 
-|Security STS Server	
-|Token Issuer	
-|<FQDN> 
+|Security STS Server
+|Token Issuer
+|<FQDN>
 
-|*Security STS Server
+|Security STS Server
 |Signature Username
-|<Alias> *Only change this field if you change the alias in the keystore
+|<FQDN>
 
-|*Security STS Server
+|Security STS Server
 |Encryption Username
-|<Alias> *Only change this field if you change the alias in the keystore
+|<FQDN>
 
-|=== 
-+
-. Once the URLs have been changed, shut down the system
-+
+|===
+
+[NOTE]
+====
+The Security STS Server Signature Username and Encryption Username are the keystore alias that points to the {branding} instance's private key entry. The alias used for this key is the instance's FQDN. That is why the <FQDN> is used as the configured value.
+====
+
+Once the URLs have been changed, shut down the system.
+
 [source,bash]
 ----
 ## From the DDF Console
@@ -1370,11 +1409,6 @@ localhost=localhost,group,admin,manager,viewer,webconsole
 <FQDN>=<FQDN>,group,admin,manager,viewer,webconsole
 ## Save and close the user.properties
 ----
-
-[IMPORTANT]
-====
-If you plan on using a keystore alias other than localhost for your new certs or you plan on changing the keystore passwords from there default you will need to update the files below otherwise skip down to <<Creating New Certificates>>
-====
 
 In <{branding}_HOME>/etc/system.properties, modify the keystore and truststore paths and passwords as appropriate.
 
@@ -1399,7 +1433,7 @@ In <{branding}_HOME>/etc/ws-security/issuer, modify encryption.properties
 org.apache.ws.security.crypto.provider=org.apache.ws.security.components.crypto.Merlin
 org.apache.ws.security.crypto.merlin.keystore.type=jks
 org.apache.ws.security.crypto.merlin.keystore.password=<NewPassword>
-org.apache.ws.security.crypto.merlin.keystore.alias=<Alias>
+org.apache.ws.security.crypto.merlin.keystore.alias=<FQDN>
 org.apache.ws.security.crypto.merlin.keystore.file=etc/keystores/serverKeystore.jks
 ----
 
@@ -1412,7 +1446,7 @@ In <{branding}_HOME>/etc/ws-security/issuer, modify signature.properties
 org.apache.ws.security.crypto.provider=org.apache.ws.security.components.crypto.Merlin
 org.apache.ws.security.crypto.merlin.keystore.type=jks
 org.apache.ws.security.crypto.merlin.keystore.password=<NewPassword>
-org.apache.ws.security.crypto.merlin.keystore.alias=<Alias>
+org.apache.ws.security.crypto.merlin.keystore.alias=<FQDN>
 org.apache.ws.security.crypto.merlin.keystore.file=etc/keystores/serverKeystore.jks
 ----
 
@@ -1426,7 +1460,7 @@ org.apache.ws.security.crypto.provider=org.apache.ws.security.components.crypto.
 org.apache.ws.security.crypto.merlin.keystore.type=jks
 org.apache.ws.security.crypto.merlin.keystore.password=<NewPassword>
 org.apache.ws.security.crypto.merlin.keystore.private.password=<NewPassword>
-org.apache.ws.security.crypto.merlin.keystore.alias=<Alias>
+org.apache.ws.security.crypto.merlin.keystore.alias=<FQDN>
 org.apache.ws.security.crypto.merlin.keystore.file=etc/keystores/serverKeystore.jks
 ----
 
@@ -1440,99 +1474,187 @@ org.apache.ws.security.crypto.provider=org.apache.ws.security.components.crypto.
 org.apache.ws.security.crypto.merlin.keystore.type=jks
 org.apache.ws.security.crypto.merlin.keystore.password=<NewPassword>
 org.apache.ws.security.crypto.merlin.keystore.private.password=<NewPassword>
-org.apache.ws.security.crypto.merlin.keystore.alias=<Alias>
+org.apache.ws.security.crypto.merlin.keystore.alias=<FQDN>
 org.apache.ws.security.crypto.merlin.keystore.file=etc/keystores/serverKeystore.jks
 ----
 
-==== Creating New Certificates
 * If you already have a key pair and don't need to create them skip to <<Installing Certificates>>.
-* If you want to create new certificates signed by the Demo CA then skip to <<Create Certs Signed by the Demo CA>>
 
-===== Create private key and certificate signing request
+==== Create Private Key and Certificate Signing Request
 
-.Create private key
+[NOTE]
+====
+These steps assume that openssl is installed on the machine as a command line utility.
+====
+
+Open a console or terminal and change directory
+
 [source,bash]
 ----
-$> openssl req -newkey rsa:2048 -keyout ddf.key -out ddf.csr
+$> cd <{branding}_HOME>/etc/certs
 ----
 
-This command will prompt you for information about the certificate. When you are prompted for the "Common Name" or "CN" enter the Fully Qualified Domain Name (FQDN) of the system. An example of a FQDN would be "search.codice.org".
-Using the CSR (ddf.csr in this case), submit a request for a signed certificate from the organization's certificate issuer.  The issuer should respond with a certificate signed by the Certificate Authority (CA), typically in PEM format (base 64-encoded ASCII).  This signed certificate will be referred to as "ddf.crt". If you want to create your own CA and sign your own request see the section on <<Certificate Management>>
+Create a new RSA key pair (public and private keys) and use the public key to create a certificate signing request. This happens with a single command to `openssl`
 
-===== Creating a new Keystore/Truststore with an existing Certificate and Private Key
-Using the private key, certificate, and CA certificate one can create a new keystore containing the data from the new files.
-
-.For a CA chain, concatenate the CA's together and create the pkcs #12 store:
 [source,bash]
 ----
-$> cat <root CA PEM> <intermediate CA 1 PEM> <intermediate CA 2 PEM> > ca-chain.txt
-$> openssl pkcs12 -export -out ddf.p12 -in ddf.crt -inkey ddf.key -chain -CAfile ca-chain.txt
+$> openssl req -newkey rsa:2048 -keyout <FQDN>.key -out <FQDN>.csr
 ----
 
-==== Installing Certificates
+The command encrypts the private key to protect it. The command prompts for a pass phrase that will decrypt the private key:
 
-.Create the keystore:
+----
+writing new private key to '....key'
+Enter PEM pass phrase:
+----
+Enter a pass phrase (the default is `changeit`).
+
+The command prompts for identity information:
+
+* For country, use the same two-letter ISO code as the certificate authority. For the Demo CA, use "US".
+* For the "Common Name" or "CN" enter the Fully Qualified Domain Name (FQDN) of the system. An example of a FQDN would be "search.codice.org".
+* The passphrase must match the passphrase configured in the `.properties` files.  The default passphrase is `changeit`.
+
+This command creates two files:
+
+* <FDQN>.csr, the certificate signing request. The CSR includes the public key that matches the private key.
+* <FQDN>.key, a private key cryptogrpahically linked to the CSR
+
+//TODO:
+//If you want to create your own CA and sign your own request see the section on <<Certificate Management>>
+
+==== Sign the CSR to Create a Valid Certificate
+
+[NOTE]
+====
+This step assume Demo CA signs the CSR. If the CSR is signed by a different CA, skip this step.
+====
+
+----
+$> openssl ca -config openssl-demo.cnf -policy policy_anything -passin "pass:secret" -in <FQDN>.csr -out <FQDN>.crt
+----
+
+The command prompts:
+
+----
+    >Certificate is to be certified until Jul 23 21:06:37 2016 GMT (365 days)
+    >Sign the certificate? [y/n]:
+----
+
+Enter *y* and select return. It responds:
+
+----
+    >1 out of 1 certificate requests certified, commit? [y/n]
+----
+
+Enter *y* and select return again.
+
+----
+    >Write out database with 1 new entries
+    >Data Base Updated
+----
+
+A new `.crt` file is writen to the current directory. y default, the certificate is valid for one year. This period can be changed using `openssl` command line options or by editing the opensll configuration file, `openssl-demo.cnf`.
+
+==== Create PKCS#12 File
+The private key and certificate need to be combined into a new structure that can be imported into the keystore. A file that conforms to the PKCS#12 specification is created as an intermediary step in the process.
+
+=====Creating the Chain of Trust
+
+ * If the certificate was signed by the Demo CA, skip this step. It is necessary because `openssl` automatically adds the issuer's (signer's) certificate to the PKCS12 file to create the complete chain of trust.
+
+ //TODO: Ask Scott under what circumstances this step is not necessary
+
+ * Concatenate all the issuer's certificate, all intermediate certificates, and the root authority's certificate into a text file.
+
+----
+$>  cat <root CA PEM> <intermediate CA 1 PEM> <intermediate CA 2 PEM> > ca-chain.txt
+----
+
+[NOTE]
+====
+If a certificate chain file was created, add the following options to the next command:
+----
+-chain -CAfile ca-chain.txt
+----
+====
+
+Create the PKCS#12 file:
+
+----
+$> openssl pkcs12 -in <FQDN>.crt -inkey <FQDN>.key -certfile demoCA/cacert.pem -out <FQDN>.p12 -export -name <FQDN> -passin "pass:changeit" -passout "pass:changeit"
+----
+
+[NOTE]
+====
+The argument for `-passin` is the password that was used to encrypt the private key. The argument for `-passout` sets the password used to decrypt the PKCS#12 file.
+====
+
+==== Install Signed Certificate Into Key Store
+Use the Java keytool to import the signed certificate into the server keystore file. The keytool needs the password word to decrypt the PKCS#12 file (`-srcstorepass`) and the password to decrypt the existing server keystore.
+
+[NOTE]
+====
+This example assumes the passwords are `changeit`. This example also assumes the server keystore is in the default location and has the default name,  `<DDF_HOME>/etc/keystores/serverKeystore.jks`
+====
+
 [source,bash]
 ----
-$> keytool -importkeystore -srckeystore ddf.p12 -destkeystore serverKeystore.jks -srcstoretype pkcs12 -alias 1
-$> keytool -changealias -alias 1 -destalias <Alias> -keystore serverKeystore.jks
-# import each CA into keystore
-$> keytool -importcert -file <CA PEM> -keystore serverKeystore.jks -alias <CA alias>
+keytool -importkeystore -srckeystore <FQDN>.p12 -srcstoretype pkcs12 -destkeystore <DDF_HOME>/etc/keystores/serverKeystore.jks -srcalias <FQDN> -deststorepass changeit -srcstorepass changeit
 ----
 
-The truststore can be created with only the use of the CA certificates.  Based on the concept of CA signing, the CA should be the only entry needed in the truststore.
-[source,bash]
+[TIP]
+====
+Check the contents of a Java keystore with the keytool:
+
+----
+keytool -list -keystore <{branding}_HOME>/etc/keystore/serverKeystore.jks
+----
+
+Add `-v` to list the entire contents of the key store entries.
+
+----
+keytool -list -v -keystore <{branding}_HOME>/etc/keystore/serverKeystore.jks
+====
+
+==== Remove localhost Private Key Entry
+The server key store comes configured with a key for localhost. It should be removed when a certificate with the server's FQDN certificate is installed.  If the localhost key exists, the Solr server uses the that key to sign messages. The browser and other client processes will halt when trying to connect to Solr because the client expects common name to be the Solr processes's <FQDN>. Use the keytool to remove the localhost entry:
+
+----
+$> keytool -delete -keystore <{branding}_HOME>/etc/keystore/serverKeystore.jks -alias localhost
+----
+
+==== Import CA Certificates into Key Store
+
+* The Demo CA certificate is already imported into the keystore file that is included in the {branding} distribution. If the FQDN certificate was signed by the Demo CA, skip this step.
+
+//TODO: Add command here.
+
+==== Import CA Certificates into Trust Store
+
+* The Demo CA certificate is already imported into the truststore file that is included in the {branding} distribution. If the FQDN certificate was signed by the Demo CA, skip this step.
+* The truststore is created from the  CA certificates.  The CA should be the only entry needed in the trust store.
 ----
 # import each CA into truststore
 $> keytool -import -trustcacerts -alias <CA alias> -file <CA PEM> -keystore serverTruststore.jks
 ----
-
-Copy the serverKeystore.jks and serverTruststor.jks to the <{branding}_HOME>/etc/keystores/ directory.
 
 [NOTE]
 ====
 When federating with other {branding} instances that do not share the same CA, you will need to import the CA certs from the other federated instances and they will need to import yours.
 ====
 
-==== Create Certs Signed by the Demo CA
-If you ...
+//TODO: I have a question out to Scott if this is still necessary.
+//==== Configure hostname mapping
+//In `/etc/hosts` add the following mapping:
+//
+//* 127.0.0.1       <FQDN>
 
-* Didn't create or import new certs as described above and
-* Do not need a specific CA to sign your certificates and
-* Want to use the Demo CA that is shipped with {branding}
-
-Do the following:
-[NOTE]
-====
-These instructions are only for running on a Linux system. If you are running on a Windows or OSX system, you will need to create your certificates on the Linux system, and then copy them over to your original system. The shell scripts for creating and swapping the certificates only work on Linux systems.
-====
-
-Create new certificates for as many machines/VMs as you wish. These will all be signed by the same certificate of authority.
-
+==== Restart Server Porcesses
+Rstart the {branding} instance:
 [source,bash]
 ----
-$> cd <DDF_HOME>/etc/certs
-## Make the shell scripts executable
-$> chmod a+x *.sh
-## Run the CertNew.sh script to create a new certificate, you will be prompted for the fully-qualified name of the host running the DDF. You can run this as many times as you wish to create as many certificates as you desire. 
-$> ./CertNew.sh
-## The certificate for each host is created in a subdirectory named after the hostname you specified.
-## Run the CertSwap.sh script to replace the existing localhost certificate with those created above
-$> ./CertSwap.sh <systemname>/<systemname>.jks systemname
-## You will be prompted for the keystore password (changeit). It will also ask if you should overwrite the existing alias (yes)
-----
-
-==== Configure hostname mapping
-In `/etc/hosts` add the following mapping:
-
-* 127.0.0.1       <FQDN>
-
-
-==== You're Done
-Start the DDF instance back up:
-[source,bash]
-----
-$> cd <DDF_HOME>/bin
+$> cd <{branding}_HOME>/bin
 $> ./ddf
 ----
 
@@ -1563,10 +1685,10 @@ The following steps define the procedure for using a PKCS12 certificate. This is
 . Add a cert to a new Java keystore, replacing cert with the name of the PKCS12 keystore to be converted.
 . Replace `clientKeystore` with the desired name of the Java keystore: +
 `java -cp jetty-6.1.5.jar org.mortbay.jetty.security.PKCS12Import cert.p12 clientKeystore.jks`
-. Enter the two passwords when prompted. 
+. Enter the two passwords when prompted.
 .. Input keystore passphrase is the passphrase that is used to protect cert.p12.
 .. Output keystore passphrase is the passphrase that is set for the new Java keystore clientKeystore.jks.
-. It is recommended to set the private key password to the same as the keystore password due to limitations in Java. 
+. It is recommended to set the private key password to the same as the keystore password due to limitations in Java.
 . Run the following command to determine the alias name of the added current entry. It is listed after Alias Name: +
 `keytool -list -v -keystore clientKeystore.jks`
 . Clone the existing key using the java keytool executable, filling in `<CurrentAlias>`, `<NewAlias>`, `clientKeystore.jks`, and `password` with the correct names. +
@@ -1671,12 +1793,12 @@ javax.net.ssl.keyStorePassword=password
 javax.net.ssl.trustStore=etc/keystores/serverTruststore.jks
 javax.net.ssl.trustStorePassword=password
 javax.net.ssl.keyStoreType=jks
- 
+
 # HTTPS Specific settings.  If making a Secure Connection not leveraging the HTTPS Jaav libraries and
 # classes (e.g. if you are using secure sockets directly) then you will have to set this directly
 https.cipherSuites=TLS_DHE_RSA_WITH_AES_128_CBC_SHA,TLS_DHE_RSA_WITH_AES_128_CBC_SHA,TLS_DHE_DSS_WITH_AES_128_CBC_SHA,TLS_RSA_WITH_AES_128_CBC_SHA
 https.protocols=TLSv1,TLSv1.1,TLSv1.2
----- 
+----
 
 * Configure users properties
 ** In `<ddf-home>/etc/users.properties`, change `localhost=localhost,admin` to `ddf=ddf,admin`
@@ -1692,7 +1814,7 @@ org.apache.ws.security.crypto.merlin.keystore.type=jks
 org.apache.ws.security.crypto.merlin.keystore.password=password
 org.apache.ws.security.crypto.merlin.keystore.alias=ddf
 org.apache.ws.security.crypto.merlin.keystore.file=etc/keystores/serverKeystore.jks
----- 
+----
 
 * In `<ddf-home>/etc/ws-security/issuer`, modify `signature.properties`
 
@@ -1831,7 +1953,7 @@ As you can see, there are now two groups, the default group and the new group th
 [source,bash]
 ----
 cluster:group-join mygroup 192.168.1.110:5701
- 
+
 cluster:group-quit default 192.168.1.110:5701
 ----
 The first command allows the {branding} node to join the new group. The second command removes the {branding} node from the “default” group.
@@ -1874,7 +1996,7 @@ From the Configuration console, the following features are available:
 
 For more information on using the console, refer to the {branding} User's Guide.
 
-===== Control Feature and Configuration Synchronization 
+===== Control Feature and Configuration Synchronization
 
 There may be instances where certain configurations are to remain local to a certain {branding} node. This behavior can be controlled through the cellar groups configuration. To open this configuration, navigate to Within the configuration list, search for the configuration with name “org.apache.karaf.cellar.groups”. Click on the configuration to view / edit. Within the file you will see many configurations listed with the following format:
 
@@ -2063,7 +2185,7 @@ This scenario uses the Dummy Catalog Provider as the catalog provider {branding}
 . Uninstall a Catalog Provider (if installed) by completing the procedure in the Uninstalling Features section.
 . Install the new Catalog Provider, which will be the , by installing its feature ddf-provider-dummy by completing the instructions in the Installing Features section.
 . Verify {branding} is running with the Dummy Provider as its Catalog Provider.
-.. Select the Services tab in the Web Console. 
+.. Select the Services tab in the Web Console.
 .. Locate the column labeled Bundle on the right. If {branding} is running with the Dummy Provider, there is an entry labeled ddf.providers.provider-dummy, as shown below.
 
 .New catalog provider Dummy Provider installed
@@ -2080,9 +2202,9 @@ Id      Type(s)                                              Bundle
 Notifications are messages that are sent to clients to inform them of some significant event happening in {branding}.  Clients must subscribe to a {branding} notification channel to receive these messages.
 
 ==== Usage
-{branding} notifications are currently being utilized in the {branding} Catalog application for resource retrieval.  When a user initiates a resource retrieval via the {branding} Standard UI, {branding} opens the channel `/ddf/notification/catalog/downloads`, where notifications indicating the progress of that resource download are sent.  Any client interested in receiving these progress notifications must subscribe to that channel.  When {branding} starts downloading the resource to the client that requested it, a notification with a status of "Started" will be broadcast.  If the resource download fails, a notification with a status of "Failed" will be broadcast.  Or, if the resource download is being attempted again after a failure, "Retry" will be broadcast. 
+{branding} notifications are currently being utilized in the {branding} Catalog application for resource retrieval.  When a user initiates a resource retrieval via the {branding} Standard UI, {branding} opens the channel `/ddf/notification/catalog/downloads`, where notifications indicating the progress of that resource download are sent.  Any client interested in receiving these progress notifications must subscribe to that channel.  When {branding} starts downloading the resource to the client that requested it, a notification with a status of "Started" will be broadcast.  If the resource download fails, a notification with a status of "Failed" will be broadcast.  Or, if the resource download is being attempted again after a failure, "Retry" will be broadcast.
 
-When a notification is received, {branding} Standard UI displays a popup containing the contents of the notification, so a user is made aware of how their downloads are proceeding.  
+When a notification is received, {branding} Standard UI displays a popup containing the contents of the notification, so a user is made aware of how their downloads are proceeding.
 
 Behind the scenes, the {branding} Standard UI invokes the REST endpoint to retrieve a resource.  In this request, it adds the query parameter "user" with the CometD session ID or the unique User ID as the value.  This allows the CometD server to know which subscriber is interested in the notification.  For example,  http://{branding}_HOST:8993/services/catalog/sources/ddf.distribution/2f5db9e5131444279a1293c541c106cd?transform=resource&user=1w1qlo79j6tscii19jszwp9s2i55 notifications contain the following information:
 
@@ -2093,50 +2215,50 @@ Behind the scenes, the {branding} Standard UI invokes the REST endpoint to retri
 |Description
 |Required by {branding} Standard UI
 
-|application	
+|application
 |"Downloads" for resource retrieval.  This is used as a "type" or category of messages.
 |Yes
 
-|title	
-|Resource/file name for resource retrieval.	
+|title
+|Resource/file name for resource retrieval.
 |Yes
 
-|message	
-|Human-readable message containing status and a more detailed message.	
+|message
+|Human-readable message containing status and a more detailed message.
 |Yes
 
-|timestamp	
-|Timestamp in milliseconds of when event occurs.	
+|timestamp
+|Timestamp in milliseconds of when event occurs.
 |Yes
 
-|user	
-|CometD Session ID or unique User ID.	
+|user
+|CometD Session ID or unique User ID.
 |Yes
 
-|status	
-|Status of event.	
+|status
+|Status of event.
 |No
 
-|option	
-|Resource retrieval option.	
+|option
+|Resource retrieval option.
 |No
 
-|bytes	
-|Number of bytes transmitted.	
+|bytes
+|Number of bytes transmitted.
 |No
 
 |===
 
 ==== Receive Notifications
 
-* If interested in retrieve resource notifications, a client must subscribe to the CometD `channel/ddf/notification/catalog/downloads`.   
+* If interested in retrieve resource notifications, a client must subscribe to the CometD `channel/ddf/notification/catalog/downloads`.
 * If interested in all notification types, a client must subscribe to the CometD `channel/ddf/notification/**`
-* A client will only receive notifications for resources they have requested.  
+* A client will only receive notifications for resources they have requested.
 * {branding} Standard UI is subscribed to all notifications of interest to that `user/browser session: /ddf/notification/**`
 * See the Usage section for the data that a notification contains.
 
 ==== Publish Notifications
-Any application running in {branding} can publish notifications that can be viewed by the {branding} Standard UI or received by another notifications client.  
+Any application running in {branding} can publish notifications that can be viewed by the {branding} Standard UI or received by another notifications client.
 . Set a properties map containing entries for each of the parameters listed above in the Usage section.
 +
 . Set the OSGi event topic to `ddf/notification/<application-name>/<notification-type>`.  Notice that there is no preceding slash on an OSGi event topic name, while there is one on the CometD channel name. The OSGi event topic corresponds to the CometD channel this is published on.
@@ -2155,9 +2277,9 @@ properties.put("user", getProperty(resourceResponse, USER));
 properties.put("status", "Completed");
 properties.put("bytes", 1024);
 properties.put("timestamp", sysTimeMillis);
- 
+
 Event event = new Event("ddf/notification/catalog/downloads", properties);
- 
+
 eventAdmin.postEvent(event);
 ----
 
@@ -2167,7 +2289,7 @@ eventAdmin.postEvent(event);
 
 * Add system console to whitelisted contexts
 ** `https://localhost:8993/admin`
-*** Navigate to the DDF Security 
+*** Navigate to the DDF Security
 *** Navigate to Web Context Policy Manager
 *** Add /system/console to the Whitelisted Contexts
 
@@ -2183,7 +2305,7 @@ Enable Backup Plugin: true
 ====
 {branding} is enabled with an Insecure Defaults Service which will warn users/admins if the system is configured with insecure defaults.
 
-A banner is displayed on the admin console notifying "The system is insecure because default configuration values are in use." 
+A banner is displayed on the admin console notifying "The system is insecure because default configuration values are in use."
 
 A detailed view is available of the properties to update.
 ====
@@ -2253,12 +2375,12 @@ javax.net.ssl.keyStorePassword=password
 javax.net.ssl.trustStore=etc/keystores/serverTruststore.jks
 javax.net.ssl.trustStorePassword=password
 javax.net.ssl.keyStoreType=jks
- 
+
 # HTTPS Specific settings.  If making a Secure Connection not leveraging the HTTPS Java libraries and
 # classes (e.g. if you are using secure sockets directly) then you will have to set this directly
 https.cipherSuites=TLS_DHE_RSA_WITH_AES_128_CBC_SHA,TLS_DHE_RSA_WITH_AES_128_CBC_SHA,TLS_DHE_DSS_WITH_AES_128_CBC_SHA,TLS_RSA_WITH_AES_128_CBC_SHA
 https.protocols=TLSv1,TLSv1.1,TLSv1.2
----- 
+----
 
 * Configure users properties
 ** In `<ddf-home>/etc/users.properties`, change `localhost=localhost,admin` to `ddf=ddf,admin`
@@ -2274,7 +2396,7 @@ org.apache.ws.security.crypto.merlin.keystore.type=jks
 org.apache.ws.security.crypto.merlin.keystore.password=password
 org.apache.ws.security.crypto.merlin.keystore.alias=ddf
 org.apache.ws.security.crypto.merlin.keystore.file=etc/keystores/serverKeystore.jks
----- 
+----
 
 * In `<ddf-home>/etc/ws-security/issuer`, modify `signature.properties`
 
@@ -2410,7 +2532,7 @@ SERVER IP ADDRESS: 127.0.0.1
 .Sample – Failed login
 [source,bash]
 ----
-The failure was simulated using a filter on the x509 credential handler. This filter looks for a certain CN in the certificate chain and will fail if it cannot find a match. The server was set up to trust the certificate via the Java truststore, but there were additional requirements for logging in. For this test-case, the chain it was looking for is "CN=Hogwarts Certifying Authority.+". Example from the CAS wiki: https://wiki.jasig.org/display/CASUM/X.509+Certificates. 
+The failure was simulated using a filter on the x509 credential handler. This filter looks for a certain CN in the certificate chain and will fail if it cannot find a match. The server was set up to trust the certificate via the Java truststore, but there were additional requirements for logging in. For this test-case, the chain it was looking for is "CN=Hogwarts Certifying Authority.+". Example from the CAS wiki: https://wiki.jasig.org/display/CASUM/X.509+Certificates.
 2013-04-25 14:15:47,477 DEBUG [org.jasig.cas.adaptors.x509.authentication.handler.support.X509CredentialsAuthenticationHandler] - <Evaluating CN=testUser1, OU=Ozone, O=Ozone, L=Columbia, ST=Maryland, C=US, SerialNumber=4>
 2013-04-25 14:15:47,478 DEBUG [org.jasig.cas.adaptors.x509.authentication.handler.support.X509CredentialsAuthenticationHandler] - <.* matches CN=testUser1, OU=Ozone, O=Ozone, L=Columbia, ST=Maryland, C=US == true>
 2013-04-25 14:15:47,478 DEBUG [org.jasig.cas.adaptors.x509.authentication.handler.support.X509CredentialsAuthenticationHandler] - <CN=Hogwarts Certifying Authority.+ matches EMAILADDRESS=goss-support@owfgoss.org, CN=localhost, OU=Ozone, O=Ozone, L=Columbia, ST=Maryland, C=US == false>
@@ -2503,7 +2625,7 @@ EXCEPTION: org.apache.cxf.ws.security.sts.provider.STSException: The request was
 <BinarySecurityToken ValueType="#CAS" EncodingType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary" ns1:Id="CAS" xmlns="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:ns1="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">U1QtMTctQmw0aGRrS05jaTV3cE82Zm11VE0tY2FzfGh0dHBzOi8vdG9rZW5pc3N1ZXI6ODk5My9zZXJ2aWNlcy9TZWN1cml0eVRva2VuU2VydmljZQ==</BinarySecurityToken>
  Request IP: 0:0:0:0:0:0:0:1%0, Port: 53363
 15:27:48,351 | INFO  | tp1343209378-282 | securityLogger                   | rity.common.audit.SecurityLogger  156 | 247 - security-core-api - 2.2.0.RC6-SNAPSHOT | Finished requesting security token. Request IP: 127.0.0.1, Port: 53363
-  
+
 **This message will show when DEBUG is on**
 15:27:48,355 | DEBUG | tp1343209378-282 | securityLogger                   | rity.common.audit.SecurityLogger  102 | 247 - security-core-api - 2.2.0.RC6-SNAPSHOT | <?xml version="1.0" encoding="UTF-16"?>
 <saml2:Assertion>
@@ -2523,7 +2645,7 @@ SAML ASSERTION WILL BE LOCATED HERE
 
 === Web Context Policy Manager
 
-The Web Context Policy Manager defines all security policies for REST endpoints within {branding}. 
+The Web Context Policy Manager defines all security policies for REST endpoints within {branding}.
 It defines :
 
 * the realms a context should authenticate against.
@@ -2549,10 +2671,10 @@ For example, installing the `security-sts-ldaplogin` feature adds an ldap realm.
 |PKI
 |Activates public key infrastructure authentication
 
-|anon(anonymous) 
+|anon(anonymous)
 |provides anonymous access
 
-|=== 
+|===
 
 === CAS SSO Configuration
 
@@ -2611,7 +2733,7 @@ $ cp cas-distribution/src/main/resources/tomcat/conf/server.xml <TOMCAT_INSTALLA
 mkdir <TOMCAT_INSTALLATION_DIR>/certs
 ----
 +
-Copy casKeystore.jks from the {branding} installation directory into <TOMCAT_INSTALLATION_DIR>/certs/.  This will allow CAS to use a "cas" private key and to trust anything signed by "server", "ca", or "ca-root".  
+Copy casKeystore.jks from the {branding} installation directory into <TOMCAT_INSTALLATION_DIR>/certs/.  This will allow CAS to use a "cas" private key and to trust anything signed by "server", "ca", or "ca-root".
 Linux  Expand source
 Windows  Expand source
 +
@@ -2679,7 +2801,7 @@ As part of setting up the server, it is critical to make sure that Tomcat trusts
 When configuring CAS to integrate with {branding}, there are two main configurations that need to be modified. By default, {branding} uses 'server' as the hostname for the local {branding} instance and 'cas' as the hostname for the CAS server.
 
 ===== CAS Client
-The CAS client bundle contains CAS client code that can be used by other bundles when validating and retrieving tickets from CAS. This bundle is extensively used when performing authentication. 
+The CAS client bundle contains CAS client code that can be used by other bundles when validating and retrieving tickets from CAS. This bundle is extensively used when performing authentication.
 
 When setting up {branding}, the 'Server Name' and 'Proxy Callback URL' must be set to the hostname of the local {branding} instance.
 
@@ -2695,7 +2817,7 @@ Information on each of the CAS-specific bundles that come with {branding}, as we
 The following is a sample workflow hat shows how CAS integrates within the {branding} WSS Implementation.
 
 . User points browser to {branding} Query Page.
-. CAS servlet filters are invoked during request. 
+. CAS servlet filters are invoked during request.
 . Assuming a user is not already signed in, the user is redirected to CAS login page.
 .. For X.509 authentication, CAS will try to obtain a certificate from the browser. Most browsers will prompt the user to select a valid certificate to use.
 .. For username/password authentication, CAS will display a login page.
@@ -2729,18 +2851,18 @@ Copy `thirdparty/spring-ldap-1.2.1/target/spring-ldap-1.2.1_1.jar` to `{ozone-wi
 [source,xml,linenums]
 ----
 <bean id="authenticationManager" class="org.jasig.cas.authentication.AuthenticationManagerImpl">
- 
+
     <!-- other property definitions -->
- 
+
     <property name="authenticationHandlers">
         <list>
             <bean class="org.jasig.cas.adaptors.ldap.FastBindLdapAuthenticationHandler" >
                 <property name="filter" value="uid=%u,ou=users,dc=example,dc=com" />
                 <property name="contextSource" ref="contextSource" />
             </bean>
- 
+
             <!-- other bean definitions -->
- 
+
         </list>
     </property>
 </bean>
@@ -2800,7 +2922,7 @@ Ozone is also set up to work in LDAP. This section is a reference when Ozone is 
 ----
 <bean id="contextSource" class="org.springframework.security.ldap.DefaultSpringSecurityContextSource">
     <!-- The URL of the ldap server, along with the base path that all other ldap path will be relative to -->
-    <constructor-arg value="ldap://localhost:1389/dc=example,dc=com"/>       
+    <constructor-arg value="ldap://localhost:1389/dc=example,dc=com"/>
 </bean>
 ----
 +
@@ -2812,7 +2934,7 @@ Ozone is also set up to work in LDAP. This section is a reference when Ozone is 
 <bean id="authoritiesPopulator" class="org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator">
     <constructor-arg ref="contextSource"/>
     <!-- search base for determining what roles a user has -->
-    <constructor-arg value="ou=roles"/>        
+    <constructor-arg value="ou=roles"/>
 </bean>
 ----
 +
@@ -2823,7 +2945,7 @@ Ozone is also set up to work in LDAP. This section is a reference when Ozone is 
 ----
 <bean id="ldapUserSearch" class="org.springframework.security.ldap.search.FilterBasedLdapUserSearch">
     <!-- search base for finding User records -->
-    <constructor-arg value="ou=users" />    
+    <constructor-arg value="ou=users" />
     <constructor-arg value="(uid={0})" /> <!-- filter applied to entities under the search base in order to find a given user.
                                                 this default searches for an entity with a matching uid -->
     <constructor-arg ref="contextSource" />
@@ -2837,7 +2959,7 @@ Ozone is also set up to work in LDAP. This section is a reference when Ozone is 
 <bean id="userDetailsMapper" class="ozone.securitysample.authentication.ldap.OWFUserDetailsContextMapper">
     <constructor-arg ref="contextSource" />
     <!-- search base for finding OWF group membership -->
-    <constructor-arg value="ou=groups" />        
+    <constructor-arg value="ou=groups" />
     <constructor-arg value="(member={0})" /> <!-- filter that matches only groups that have the given username listed
                                                       as a "member" attribute -->
 </bean>
@@ -2923,14 +3045,14 @@ In `apache-tomcat-{version}/webapps/cas/WEB-INF/deployerConfigContext.xml`, make
 ----
 <bean id="authenticationManager"
   class="org.jasig.cas.authentication.AuthenticationManagerImpl">
-        
+
   <!-- Other property definitions -->
- 
+
    <property name="authenticationHandlers">
      <list>
- 
+
        <!-- Other bean definitions -->
- 
+
        <bean
          class="org.jasig.cas.adaptors.x509.authentication.handler.support.X509CredentialsAuthenticationHandler">
          <property name="trustedIssuerDnPattern" value=".*" />
@@ -2940,7 +3062,7 @@ In `apache-tomcat-{version}/webapps/cas/WEB-INF/deployerConfigContext.xml`, make
            <property name="requireKeyUsage" value="true" />
          -->
        </bean>
-    </list>  
+    </list>
   </property>
 </bean>
 ----
@@ -2948,7 +3070,7 @@ In `apache-tomcat-{version}/webapps/cas/WEB-INF/deployerConfigContext.xml`, make
 ==== Configure the Credentials to the Principal Resolver
 In `apache-tomcat-{version}/webapps/cas/WEB-INF/deployerConfigContext.xml`, make the following modifications:
 
-. In the list stanza of the property stanza with name `credentialsToPrincipalResolver` of the bean stanza with id `AuthenticationManager`, add the `X509CertificateCredentialsToIdentifierPrincipalResolver` bean definition.  The pattern in the value attribute on the property stanza can be modified to suit your needs.  The following is a simple example that uses the first CN field in the DN as the Principal. 
+. In the list stanza of the property stanza with name `credentialsToPrincipalResolver` of the bean stanza with id `AuthenticationManager`, add the `X509CertificateCredentialsToIdentifierPrincipalResolver` bean definition.  The pattern in the value attribute on the property stanza can be modified to suit your needs.  The following is a simple example that uses the first CN field in the DN as the Principal.
 +
 .X509CertificateCredentialsToIdentifierPrincipalResolver
 [source,xml,linenums]
@@ -2957,9 +3079,9 @@ In `apache-tomcat-{version}/webapps/cas/WEB-INF/deployerConfigContext.xml`, make
   class="org.jasig.cas.authentication.AuthenticationManagerImpl">
   <property name="credentialsToPrincipalResolvers">
     <list>
-     
+
       <!-- Other bean definitions -->
- 
+
       <bean
         class="org.jasig.cas.adaptors.x509.authentication.principal.X509CertificateCredentialsToIdentifierPrincipalResolver">
         <property name="identifier" value="$OU $CN" />
@@ -2967,7 +3089,7 @@ In `apache-tomcat-{version}/webapps/cas/WEB-INF/deployerConfigContext.xml`, make
     </list>
   </property>
   <!-- Other property definitions -->
- 
+
 </bean>
 ----
 +
@@ -2979,16 +3101,16 @@ In `apache-tomcat-{version}/webapps/cas/WEB-INF/deployerConfigContext.xml`, make
 |Resolver Class
 |Identifier Output
 
-|X509CertificateCredentialsToDistinguishedNamePrincipalResolver	
+|X509CertificateCredentialsToDistinguishedNamePrincipalResolver
 |Retrieve the complete distinguished name and use that as the identifier.
 
 |X509CertificateCredentialsToIdentifierPrincipalResolver
 |Transform some subset of the identifier into the ID for the principal.
 
-|X509CertificateCredentialsToSerialNumberPrincipalResolver	
+|X509CertificateCredentialsToSerialNumberPrincipalResolver
 |Use the unique serial number of the certificate.
 
-|X509CertificateCredentialsToSerialNumberAndIssuerDNPrincipalResolver	
+|X509CertificateCredentialsToSerialNumberAndIssuerDNPrincipalResolver
 |Create a most-likely globally unique reference to this certificate as a DN-like entry, using the CA name and the unique serial number of the certificate for that CA.
 |===
 
@@ -3005,12 +3127,12 @@ To verify certificate authentication with the default CAS files you must make su
 ==== External Links
 For more information on CAS configuration options and what each setting means, refer to their documentation page: https://wiki.jasig.org/display/CASUM/X.509+Certificates.
 
-=== Certificate Management 
+=== Certificate Management
 {branding} uses certificates in two ways:
 
 . To transmit and receive encrypted messages.
 . To perform authentication of an incoming user request.
-This page details general management operations of using certificates in {branding}. 
+This page details general management operations of using certificates in {branding}.
 
 ==== Default Certificates
 {branding} comes with a default keystore that contains certificates. The keystore is used for different services and the certificate contained within it is aliased to "localhost".
@@ -3023,9 +3145,9 @@ This page details general management operations of using certificates in {brandi
 |Configuration Location
 |Usage
 
-|localhost	
-|serverKeystore.jks	
-|serverTruststore.jks	
+|localhost
+|serverKeystore.jks
+|serverTruststore.jks
 |File: etc/org.ops4j.pax.web.cfg
 
 File: etc/ws-security/server/encryption.properties
@@ -3080,7 +3202,7 @@ cat client.crt >> client.key
 openssl pkcs12 -export -in client.key -out client.p12
 keytool -importkeystore -srckeystore client.p12 -destkeystore clientKeystore.jks -srcstoretype pkcs12 -alias 1
 keytool -changealias -alias 1 -destalias client -keystore clientKeystore.jks
-keytool -importcert -file ca.crt -keystore clientKeystore.jks -alias "ca" 
+keytool -importcert -file ca.crt -keystore clientKeystore.jks -alias "ca"
 keytool -importcert -file ca-root.crt -keystore clientKeystore.jks -alias "ca-root"
 ----
 +
@@ -3121,7 +3243,7 @@ The following steps define the procedure for importing a PKCS12 keystore generat
 ====== Revoke a Certificate and Create a New CRL that Contains the Revoked Certificate
 ----
 $> openssl ca -revoke tokenissuer.crt
- 
+
 $> openssl ca -gencrl -out crl-tokenissuer-revoked.pem
 ----
 
@@ -3153,7 +3275,7 @@ Example xml snippet for the jaxws:endpoint with the property:
 <jaxws:endpoint id="Test" implementor="#testImpl"
                 wsdlLocation="classpath:META-INF/wsdl/TestService.wsdl"
                 address="/TestService">
- 
+
     <jaxws:properties>
         <entry key="ws-security.enableRevocation" value="true"/>
     </jaxws:properties>
@@ -3230,13 +3352,13 @@ Below is an example of the security:encrypt command used to encrypt the plain te
 
 ----
 ddf@local>security:encrypt myPasswordToEncrypt
-  
+
 bR9mJpDVo8bTRwqGwIFxHJ5yFJzatKwjXjIo/8USWm8=
 ----
 
 === Redaction and Filtering
 
-Redaction and filtering are performed in a Post Query plugin that occurs after a query has been performed. 
+Redaction and filtering are performed in a Post Query plugin that occurs after a query has been performed.
 
 ==== How Redaction and Filtering Works
 Each metacard result will contain security attributes that are pulled from the metadata record after being processed by a PostQueryPlugin that populates this attribute. The security attribute is a HashMap containing a set of keys that map to lists of values. The metacard is then processed by a filter/redaction plugin that creates a KeyValueCollectionPermission from the metacard's security attribute. This permission is then checked against the user subject to determine if the subject has the correct claims to view that metacard. The decision to filter/redact* the metacard eventually relies on the installed PDP (features:install security-pdp-java OR features:install security-pdp-xacml). The PDP that is being used returns a decision, and the metacard will either be filtered/redacted or allowed to pass through.
@@ -3348,7 +3470,7 @@ Example redacted record:
 ----
 
 === Security Token Service
-The Security Token Service (STS) is a service running in {branding} that allows clients to request SAML v2.0 assertions.  These assertions are then used to authenticate a client allowing them to issue other requests, such as ingests or queries to {branding} services.  
+The Security Token Service (STS) is a service running in {branding} that allows clients to request SAML v2.0 assertions.  These assertions are then used to authenticate a client allowing them to issue other requests, such as ingests or queries to {branding} services.
 
 The STS is an extension of Apache CXF-STS.  It is a SOAP web service that utilizes WS-Security policies. The generated SAML assertions contain attributes about a user and is used by the Policy Enforcement Point (PEP) in the secure endpoints. Specific configuration details on the bundles that come with {branding} can be found on the Security STS application page. This page details all of the STS components that come out of the box with {branding}, along with configuration options, installation help, and which services they import and export.
 
@@ -3356,7 +3478,7 @@ The STS is an extension of Apache CXF-STS.  It is a SOAP web service that utiliz
 Once installed, the STS can be used to request SAML v2.0 assertions via a SOAP web service request. Out of the box, the STS supports authentication from existing SAML tokens, CAS proxy tickets, username/password, and x509 certificates. It also supports retrieving claims using LDAP.
 
 ===== Standalone Installation
-The STS cannot currently be installed on a kernel distribution of {branding}. To run a STS-only {branding} installation, uninstall the catalog components that are not being used. The following list displays the features that can be uninstalled to minimize the runtime size of {branding} in an STS-only mode. This list is not a comprehensive list of every feature that can be uninstalled; it is a list of the larger components that can be uninstalled without impacting the STS functionality.  
+The STS cannot currently be installed on a kernel distribution of {branding}. To run a STS-only {branding} installation, uninstall the catalog components that are not being used. The following list displays the features that can be uninstalled to minimize the runtime size of {branding} in an STS-only mode. This list is not a comprehensive list of every feature that can be uninstalled; it is a list of the larger components that can be uninstalled without impacting the STS functionality.
 
 .Unnecessary Features
 * catalog-core-standardframework
@@ -3374,7 +3496,7 @@ Claims handlers are classes that convert the incoming user credentials into a se
 A claim is an additional piece of data about a principal that can be included in a token along with basic token data. A claims manager provides hooks for a developer to plug in claims handlers to ensure that the STS includes the specified claims in the issued token.
 
 ====== Motivation
-A developer may want to add a custom claims handler to retrieve attributes from an external attribute store. 
+A developer may want to add a custom claims handler to retrieve attributes from an external attribute store.
 
 ====== Steps
 The following steps define the procedure for adding a custom claims handler to the STS.
@@ -3401,21 +3523,21 @@ The following steps define the procedure for adding a custom claims handler to t
  * specific language governing permissions and limitations
  * under the License.
  */
- 
+
 package org.apache.cxf.sts.claims;
- 
+
 import java.net.URI;
 import java.util.List;
- 
+
 /**
  * This interface provides a pluggable way to handle Claims.
  */
 public interface ClaimsHandler {
- 
+
     List<URI> getSupportedClaimTypes();
- 
+
     ClaimCollection retrieveClaimValues(RequestClaimCollection claims, ClaimsParameters parameters);
- 
+
 }
 ----
 +
@@ -3425,11 +3547,11 @@ public interface ClaimsHandler {
 ----
 <?xml version="1.0" encoding="UTF-8"?>
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
- 
+
     <bean id="CustomClaimsHandler" class="security.sts.claimsHandler.CustomClaimsHandler" />
-     
+
     <service ref="customClaimsHandler" interface="org.apache.cxf.sts.claims.ClaimsHandler"/>
-   
+
 </blueprint>
 ----
 . Deploy the bundle.
@@ -3902,9 +4024,9 @@ L6tQ</ds:X509Certificate>
 
 ===== UsernameToken Bearer SAML Security Token Request/Response
 
-To obtain a SAML assertion to use in secure communication to {branding}, a RequestSecurityToken (RST) request has to be made to the STS.  
+To obtain a SAML assertion to use in secure communication to {branding}, a RequestSecurityToken (RST) request has to be made to the STS.
 
-A Bearer SAML assertion is automatically trusted by the endpoint. The client doesn't have to prove it can own that SAML assertion. It is the simplest way to request a SAML assertion, but many endpoints won't accept a KeyType of Bearer. 
+A Bearer SAML assertion is automatically trusted by the endpoint. The client doesn't have to prove it can own that SAML assertion. It is the simplest way to request a SAML assertion, but many endpoints won't accept a KeyType of Bearer.
 
 ====== Request
 *Explanation*
@@ -3963,13 +4085,13 @@ A Bearer SAML assertion is automatically trusted by the endpoint. The client doe
 ----
 
 ====== Response
-This is the response from the STS containing the SAML assertion to be used in subsequent requests to QCRUD endpoints:  
+This is the response from the STS containing the SAML assertion to be used in subsequent requests to QCRUD endpoints:
 
-The `saml2:Assertion` block contains the entire SAML assertion.  
+The `saml2:Assertion` block contains the entire SAML assertion.
 
-The `Signature` block contains a signature from the STS's private key.  The endpoint receiving the SAML assertion will verify that it trusts the signer and ensure that the message wasn't tampered with.  
+The `Signature` block contains a signature from the STS's private key.  The endpoint receiving the SAML assertion will verify that it trusts the signer and ensure that the message wasn't tampered with.
 
-The `AttributeStatement` block contains all the Claims requested. 
+The `AttributeStatement` block contains all the Claims requested.
 
 The `Lifetime` block indicates the valid time interval in which the SAML assertion can be used.
 
@@ -4097,9 +4219,9 @@ HM0dPfiQLQ99ElWkv/0=</ds:X509Certificate>
 
 ===== X.509 PublicKey SAML Security Token Request/Response
 
-In order to obtain a SAML assertion to use in secure communication to {branding}, a RequestSecurityToken (RST) request has to be made to the STS. 
+In order to obtain a SAML assertion to use in secure communication to {branding}, a RequestSecurityToken (RST) request has to be made to the STS.
 
-An endpoint's policy will specify the type of security token needed.  Most of the endpoints that have been used with {branding} require a SAML v2.0 assertion with a required KeyType of http://docs.oasis-open.org/ws-sx/ws-trust/200512/PublicKey.  This means that the SAML assertion provided by the client to a {branding} endpoint must contain a SubjectConfirmation block with a type of "holder-of-key" containing the client's public key.  This is used to prove that the client can possess the SAML assertion returned by the STS. 
+An endpoint's policy will specify the type of security token needed.  Most of the endpoints that have been used with {branding} require a SAML v2.0 assertion with a required KeyType of http://docs.oasis-open.org/ws-sx/ws-trust/200512/PublicKey.  This means that the SAML assertion provided by the client to a {branding} endpoint must contain a SubjectConfirmation block with a type of "holder-of-key" containing the client's public key.  This is used to prove that the client can possess the SAML assertion returned by the STS.
 
 ====== Request
 *Explanation*
@@ -4111,7 +4233,7 @@ The STS that comes with {branding} requires the following to be in the RequestSe
 * KeyType of http://docs.oasis-open.org/ws-sx/ws-trust/200512/PublicKey
 * X509 Certificate as the Proof of Possession or POP.  This needs to be the certificate of the client that will be both requesting the SAML assertion and using the SAML assertion to issue a query
 * Claims (optional): Some endpoints may require that the SAML assertion include attributes of the user, such as an authenticated user's role, name identifier, email address, etc.  If the SAML assertion needs those attributes, the RequestSecurityToken must specify which ones to include.
-** UsernameToken: If Claims are required, the RequestSecurityToken security header must contain a UsernameToken element with a username and password. 
+** UsernameToken: If Claims are required, the RequestSecurityToken security header must contain a UsernameToken element with a username and password.
 
 .Sample Request
 [source,xml,linenums]
@@ -4126,7 +4248,7 @@ The STS that comes with {branding} requires the following to be in the RequestSe
             <wsu:Created>2014-02-19T17:30:40.771Z</wsu:Created>
             <wsu:Expires>2014-02-19T19:10:40.771Z</wsu:Expires>
          </wsu:Timestamp>
-         
+
          <!-- OPTIONAL: Only required if the endpoint that the SAML assertion will be sent to requires claims. -->
          <wsse:UsernameToken wsu:Id="UsernameToken-16">
             <wsse:Username>pparker</wsse:Username>
@@ -4140,7 +4262,7 @@ The STS that comes with {branding} requires the following to be in the RequestSe
       <wst:RequestSecurityToken xmlns:wst="http://docs.oasis-open.org/ws-sx/ws-trust/200512">
          <wst:TokenType>http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0</wst:TokenType>
          <wst:KeyType>http://docs.oasis-open.org/ws-sx/ws-trust/200512/PublicKey</wst:KeyType>
- 
+
          <!-- OPTIONAL: Only required if the endpoint that the SAML assertion will be sent to requires claims. -->
          <wst:Claims Dialect="http://schemas.xmlsoap.org/ws/2005/05/identity" xmlns:ic="http://schemas.xmlsoap.org/ws/2005/05/identity">
             <ic:ClaimType Optional="true" Uri="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role"/>
@@ -4191,14 +4313,14 @@ hwtE3xo6qQRRWlO3/clC4RnTev1crFVJQVBF3yfpRu8udJ2SOGdqU0vjUSu1h7aMkYJMHIu08Whj
 
 ====== Response
 *Explanation*
-This is the response from the STS containing the SAML assertion to be used in subsequent requests to QCRUD endpoints.  
+This is the response from the STS containing the SAML assertion to be used in subsequent requests to QCRUD endpoints.
 
-The `saml2:Assertion` block contains the entire SAML assertion.  
+The `saml2:Assertion` block contains the entire SAML assertion.
 
-The `Signature` block contains a signature from the STS's private key.  The endpoint receiving the SAML assertion will verify that it trusts the signer and ensure that the message wasn't tampered with.  
+The `Signature` block contains a signature from the STS's private key.  The endpoint receiving the SAML assertion will verify that it trusts the signer and ensure that the message wasn't tampered with.
 
-The `SubjectConfirmation` block contains the client's public key, so the server can verify that the client has permission to hold this SAML assertion.   
-The `AttributeStatement` block contains all of the claims requested.  
+The `SubjectConfirmation` block contains the client's public key, so the server can verify that the client has permission to hold this SAML assertion.
+The `AttributeStatement` block contains all of the claims requested.
 
 .Sample Response
 [source,xml,linenums]
@@ -4309,7 +4431,7 @@ hwtE3xo6qQRRWlO3/clC4RnTev1crFVJQVBF3yfpRu8udJ2SOGdqU0vjUSu1h7aMkYJMHIu08Whj
                         <saml2:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:unspecified</saml2:AuthnContextClassRef>
                      </saml2:AuthnContext>
                   </saml2:AuthnStatement>
- 
+
                   <!-- This block will only be included if Claims were requested in the RST. -->
                   <saml2:AttributeStatement>
                      <saml2:Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
@@ -4357,7 +4479,7 @@ hwtE3xo6qQRRWlO3/clC4RnTev1crFVJQVBF3yfpRu8udJ2SOGdqU0vjUSu1h7aMkYJMHIu08Whj
       </ns2:RequestSecurityTokenResponseCollection>
    </soap:Body>
 </soap:Envelope>
----- 
+----
 
 === XACML Policy Decision Point (PDP)
 
@@ -4377,14 +4499,14 @@ For {branding}, these actions are populated by various components in the securit
 |Component Setting the action
 |Description
 
-|Filtering / Redaction	
-|filter	
-|security-pdp-xacmlrealm	
+|Filtering / Redaction
+|filter
+|security-pdp-xacmlrealm
 |When performing any redaction or filtering, the XACMLRealm will set the action-id to "filter".
 
-|Service	
-|<SOAPAction>	
-|security-pep-interceptor	
+|Service
+|<SOAPAction>
+|security-pep-interceptor
 |If the PEP Interceptor is added to any SOAP-based web services for service authorization, the action-id will be the SOAPAction of the incoming request. This allows the XACML policy to have specific rules for individual services within the system.
 
 |===
@@ -4400,10 +4522,10 @@ In the examples below, the policy has specified targets for the above type of ca
 Attributes for the XACML request are populated with the information in the calling subject and the resource being checked.
 
 ====== Subject
-The attributes for the subject are obtained from the SAML claims and populated within the XACMLRealm as individual attributes under the urn:oasis:names:tc:xacml:1.0:subject-category:access-subject category. The name of the claim is used for the *AttributeId* value. Examples of the items being populated are available at the end of this page.  
+The attributes for the subject are obtained from the SAML claims and populated within the XACMLRealm as individual attributes under the urn:oasis:names:tc:xacml:1.0:subject-category:access-subject category. The name of the claim is used for the *AttributeId* value. Examples of the items being populated are available at the end of this page.
 
 ====== Resource
-The attributes for resources are obtained through the permissions process. When checking permissions, the XACMLRealm retrieves a list of permissions that should be checked against the subject. These permissions are populated outside of the realm and should be populated with the security attributes located in the metacard security property. When the permissions are of a key-value type, the key being used is populated as the AttributeId value under the urn:oasis:names:tc:xacml:3.0:attribute-category:resource category. 
+The attributes for resources are obtained through the permissions process. When checking permissions, the XACMLRealm retrieves a list of permissions that should be checked against the subject. These permissions are populated outside of the realm and should be populated with the security attributes located in the metacard security property. When the permissions are of a key-value type, the key being used is populated as the AttributeId value under the urn:oasis:names:tc:xacml:3.0:attribute-category:resource category.
 
 ==== Example Requests and Responses
 The following items are a sample request, response, and the corresponding policy. For the XACML PDP, the request is made by the XACML realm (security-pdp-xacmlrealm), passed to the XACML processing engine (security-pdp-xacmlprocessor), which reads the policy and outputs a response.
@@ -4595,7 +4717,7 @@ This is the sample policy that was used for the following sample request and res
 ===== Metacard Authorization
 
 ====== Subject Permitted
-All of the resource's RESOURCE_ACCESS attributes were matched with the Subject's SUBJECT_ACCESS attributes. 
+All of the resource's RESOURCE_ACCESS attributes were matched with the Subject's SUBJECT_ACCESS attributes.
 
 .Request
 [source,xml,linenums]
@@ -4728,24 +4850,24 @@ Each instance of the expansion service consists of a collection of rule sets. Ea
 [cols="3" options="header"]
 |===
 
-|Key (Attribute)	
+|Key (Attribute)
 2.1+^|Rules (original → new)
 
-1.3+^|key1	
-|value1	
+1.3+^|key1
+|value1
 |replacement1
 
-|value2	
+|value2
 |replacement2
 
-|value3	
+|value3
 |replacement3
 
-1.2+^|key2	
-|value1	
+1.2+^|key2
+|value1
 |replacement1
 
-|value2	
+|value2
 |replacement2
 
 |===
@@ -4754,24 +4876,24 @@ The examples below use the following collection of rule sets:
 [cols="3" options="header"]
 |===
 
-|Key (Attribute)	
+|Key (Attribute)
 2.1+^|Rules (original → new)
 
-1.3+^|Location	
-|Goodyear	
+1.3+^|Location
+|Goodyear
 |Goodyear AZ
 
-|AZ	
+|AZ
 |AZ USA
 
-|CA	
+|CA
 |CA USA
 
-1.2+^|Title	
-|VP-Sales	
+1.2+^|Title
+|VP-Sales
 |VP-Sales VP Sales
 
-|VP-Engineering	
+|VP-Engineering
 |VP-Engineering VP Engineering
 
 |===
@@ -4787,12 +4909,12 @@ It is expected that multiple instances of the expansion service will be running 
 |Value
 |Description
 
-|mapping	
-|security.user.attribute.mapping	
+|mapping
+|security.user.attribute.mapping
 |This instance is configured with rules that expand the user's attribute values for security checking.
 
-|mapping	
-|security.metacard.attribute.mapping	
+|mapping
+|security.metacard.attribute.mapping
 |This instance is configured with rules that expand the metacard's security attributes before comparing with the user's attributes.
 
 |===
@@ -4809,7 +4931,7 @@ The following configuration file defines the rules shown above in the example ta
 # separator string and each resulting attributed added to the attribute set (duplicates are
 # suppressed). No value indicates the defualt value of ' ' (space).
 separator=
- 
+
 # The following rules define the attribute expansion to be performed. The rules are of the
 # form:
 #       <attribute name>:<original value>:<expanded value>
@@ -4830,8 +4952,8 @@ Title:VP-Engineering:VP-Engineering VP Engineering
 |Namespace
 |Description
 
-|{branding}::Security::Expansion::Commands	
-|security	
+|{branding}::Security::Expansion::Commands
+|security
 |The expansion commands provide detailed information about the expansion rules in place and the ability to see the results of expanding specific values against the active rule set.
 
 |===
@@ -4850,10 +4972,10 @@ Title:VP-Engineering:VP-Engineering VP Engineering
 |Command
 |Description
 
-|expand	
+|expand
 |Runs the expansion service on the provided data returning the expanded value.
 
-|expansions	
+|expansions
 |Dumps the ruleset for each active expansion service.
 
 |===
@@ -4910,20 +5032,20 @@ This page assumes that there is a keystore for each of the services/servers. If 
 |Keystore File
 |Comments
 
-|CAS	
-|keystore.jks	
+|CAS
+|keystore.jks
 |Used on the CAS Tomcat server.
 
-|STS	
-|stsKeystore.jks	
+|STS
+|stsKeystore.jks
 |Used to sign SAML and as incoming connections.
 
-|{branding}	
+|{branding}
 |serverKeystore.jks +
 clientKeystore.jks
 |Server used for incoming connections. +
 Client used for outgoing connections.
- 
+
 |===
 
 link:Distributed WSS.pptx[Distributed WSS]
@@ -4937,7 +5059,7 @@ It is implied that the three authentication components identified below are inst
 ===== LDAP
 LDAP is used to maintain a list of trusted {branding} users and the attributes associated with them. It interacts with both CAS and the STS. The former uses LDAP to create session information, and the latter queries LDAP for user attributes and converts them to SAML claims.
 
-. Obtain and unzip the {branding} kernel (ddf-distribution-kernel-<VERSION>.zip). 
+. Obtain and unzip the {branding} kernel (ddf-distribution-kernel-<VERSION>.zip).
 . Start the distribution.
 . Deploy the Embedded LDAP application by copying the ldap-embedded-app-<VERSION>.kar into the <DISTRIBUTION_HOME>/deploy directory. Verify that the LDAP server is installed by checking the {branding} log or by performing an la command and verifying that the OpenDJ bundle is in the active state. Additionally, it should be responding to LDAP requests on the default ports, which are 1389 and 1636.
 . Copy the environment's Java keystore file into the {DISTRIBUTION}/etc/keystores folder, making sure it overwrites the folder's existing serverKeystore.jks file.
@@ -4960,12 +5082,12 @@ The Security Token Service, unlike the LDAP, cannot currently be installed on a 
 +
 `org.ops4j.pax.web.ssl.keystore=etc/keystores/serverKeystore.jks`
 +
-and change it to: 
+and change it to:
 +
 `org.ops4j.pax.web.ssl.keystore=etc/keystores/stsKeystore.jks`
 +
 . Update the password fields to the ones you keystore uses.
-. Verify that the stsKeystores.jks file in `/etc/keystores` trusts the hostnames used in your environment (the hostnames of LDAP, CAS, and any {branding} users that make use of this STS server). 
+. Verify that the stsKeystores.jks file in `/etc/keystores` trusts the hostnames used in your environment (the hostnames of LDAP, CAS, and any {branding} users that make use of this STS server).
 +
 . Start the distribution.
 . Enter the following commands to install the features used by the STS server:
@@ -4981,15 +5103,15 @@ features:install security-cas-tokenvalidator
 . Verify that the *LDAP URL*, *LDAP Bind User DN*, and *LDAP Bind User Password* fields match your LDAP server's information. The default {branding} LDAP username is "cn=user", and the default password is "secret" (no quotes) . In a production environment, the username and password should be changed in the LDAP data file.
 . Select the *Save* button.
 . Open the *Security STS LDAP and Roles Claims Handler* configuration.
-. Populate the same URL, user, and password fields with your LDAP server information. 
+. Populate the same URL, user, and password fields with your LDAP server information.
 . Select the *Save* button.
 . Open the *Security STS CAS Token Validator* configuration.
-. Under *CAS Server URL*, type the URL for your CAS server. 
+. Under *CAS Server URL*, type the URL for your CAS server.
 . Select the *Save* button.
-. Open the Platform Global Configuration. 
-.. Change the protocol to https. 
-.. Populate the host/port information with the STS server's host/port. For STS, the default port is 8993. 
-.. Update the *Trust Store* and *Key Store* location/password fields with your environment's .jks files. 
+. Open the Platform Global Configuration.
+.. Change the protocol to https.
+.. Populate the host/port information with the STS server's host/port. For STS, the default port is 8993.
+.. Update the *Trust Store* and *Key Store* location/password fields with your environment's .jks files.
 .. Select the Save button.
 
 All of the authentication components should be running and configured at this point. The final step is to configure a {branding} instance, so this authentication scheme is used.
@@ -5005,11 +5127,11 @@ Once everything is configured and running, hooking up an existing {branding} ins
 features:install security-cas-cxfservletfilter
 ----
 +
-. Open the *Security CAS Client* configuration. 
+. Open the *Security CAS Client* configuration.
 .. Under *Server Name* and *Proxy Callback URL*, replace the hostname of 'server' with your server hostname.
 .. Under *CAS Server URL*, enter the hostname for the CAS server.
 . Open the *Security STS Client* configuration. Verify that the host/port information in the *STS Address* field points to your STS server.
-. Open the *Platform Global Configuration*. 
+. Open the *Platform Global Configuration*.
 .. Change the protocol to https.
 .. Populate the host/port information with the {branding} instance's host/port. For {branding}, the default port is 8993.
 .. Update the *Trust Store* and *Key Store* location/password fields with your environment's .jks files.
@@ -5054,8 +5176,8 @@ In order for outbound secure connections (HTTPS) to be made from components like
 |Sample Value
 |Description
 
-|javax.net.ssl.trustStore	
-|etc/keystores/serverKeystore.jks	
+|javax.net.ssl.trustStore
+|etc/keystores/serverKeystore.jks
 |The java keystore that contains the trusted public certificates for Certificate Authorities (CA's) that can be used to validate SSL Connections for outbound TLS/SSL connections (e.g. HTTPS). When making outbound secure connections a handshake will be done with the remote secure server and the CA that is in the signing chain for the remote server's certificate must be present in the trust store for the secure connection to be successful.
 
 |javax.net.ssl.trustStorePassword
@@ -5070,11 +5192,11 @@ In order for outbound secure connections (HTTPS) to be made from components like
 |changeit
 |The password for the keystore listed above
 
-|javax.net.ssl.keyStoreType	
-|jks	
+|javax.net.ssl.keyStoreType
+|jks
 |The type of keystore
 
-|https.cipherSuites	
+|https.cipherSuites
 |TLS_DHE_RSA_WITH_AES_128_CBC_SHA,
 TLS_DHE_RSA_WITH_AES_128_CBC_SHA,
 TLS_DHE_DSS_WITH_AES_128_CBC_SHA,
@@ -5162,7 +5284,7 @@ config:update
 ====
 
 ==== Directory Permissions on Windows
-Restrict access to sensitive files by ensuring that the only users with access privileges are administrators.  
+Restrict access to sensitive files by ensuring that the only users with access privileges are administrators.
 
 . Right-click on the file or directory noted below then select *Full Control → Administrators → System*.
 . Click *Properties → Security → Advanced* and select Creator Owner for `DDF_HOME` (e.g., `C:\ddf`).
@@ -5181,7 +5303,7 @@ A NON_ROOT_USER (e.g., ddf) is recommended for installation.
 +
 [source, bash, linenums]
 ----
-chown -R NON_ROOT_USER $DDF_HOME $DDF_HOME/etc $DDF_HOME/data 
+chown -R NON_ROOT_USER $DDF_HOME $DDF_HOME/etc $DDF_HOME/data
 chgrp -R NON_ROOT_USER $DDF_HOME/etc $DDF_HOME/data
 chmod -R og-w $DDF_HOME/etc $DDF_HOME/data
 ----
@@ -5281,7 +5403,7 @@ Additional documentation on keytool can be found at http://docs.oracle.com/javas
 ----
 ~ $ keytool -genkey -keyalg RSA -alias selfsigned -keystore keystore.jks -storepass password -validity 360 -keysize 2048
 What is your first and last name?
-  [Unknown]:  Nick Fury      
+  [Unknown]:  Nick Fury
 What is the name of your organizational unit?
   [Unknown]:  Marvel
 What is the name of your organization?
@@ -5295,12 +5417,12 @@ What is the two-letter country code for this unit?
 Is CN=Nick Fury, OU=SHIELD, O=Marvel, L="New  York", ST=NY, C=US correct?
   [no]:  yes
 Enter key password for <selfsigned>
-    (RETURN if same as keystore password): 
+    (RETURN if same as keystore password):
 Re-enter new password:
 ----
 
 ==== Signing a JAR/KAR
-Once a keystore is available, the 
+Once a keystore is available, the
 
 Additional documentation on jarsigner can be found at http://docs.oracle.com/javase/6/docs/technotes/tools/windows/jarsigner.html
 
@@ -5311,7 +5433,7 @@ Additional documentation on jarsigner can be found at http://docs.oracle.com/jav
 ----
 
 ==== Verifying a JAR/KAR
-The jarsigner utility is also used to verify a signature in a JAR-formatted file. 
+The jarsigner utility is also used to verify a signature in a JAR-formatted file.
 
 .Using jarsigner to verify a file
 [source]
@@ -5562,7 +5684,7 @@ The default Web Console user is "admin" (no quotes) with a password of "admin" (
 ----
 Format:
 USER=PASSWORD,ROLE1,ROLE2,....
- 
+
 Current default:
 admin=admin,admin
 ----
@@ -5617,7 +5739,7 @@ ddf@local>shutdown
 
 .Force Shutdown without prompt
 ----
-ddf@local>shutdown -f 
+ddf@local>shutdown -f
 ----
 
 * Or run the stop script:
@@ -5676,12 +5798,12 @@ RUN_AS_USER=<ddf-user>
 #Add the following:
 wrapper.java.additional.9=-XX:PermSize=128m
 wrapper.java.additional.10=-XX:MaxPermSize=512m
-wrapper.java.additional.11=-Dderby.system.home="..\data\derby" 
+wrapper.java.additional.11=-Dderby.system.home="..\data\derby"
 wrapper.java.additional.12=-Dderby.storage.fileSyncTransactionLog=true
 wrapper.java.additional.13=-Dcom.sun.management.jmxremote
 wrapper.java.additional.14=-Dfile.encoding=UTF8
 wrapper.java.additional.15=-Dddf.home=%DDF_HOME%
-    
+
 #Update the following:
 wrapper.java.maxmemory=2048
 ----
@@ -5771,7 +5893,7 @@ The Command Line Shell Console is the console that is available to the user when
 Call `osgi:list` on the console to view the status of the bundles loaded in the distribution.
 
 ===== View Installed Features
-Execute `features:list` to view the features installed in the distribution. 
+Execute `features:list` to view the features installed in the distribution.
 
 [NOTE]
 ====
@@ -5800,8 +5922,8 @@ Most commands can bypass the Catalog framework and interact directly with the Ca
 ==== Commands
 
 ----
-catalog:describe     catalog:dump         catalog:envlist      catalog:ingest       catalog:inspect     
-catalog:latest       catalog:migrate      catalog:range        catalog:remove       catalog:removeall    
+catalog:describe     catalog:dump         catalog:envlist      catalog:ingest       catalog:inspect
+catalog:latest       catalog:migrate      catalog:range        catalog:remove       catalog:removeall
 catalog:replicate    catalog:search       catalog:spatial
 ----
 
@@ -5920,46 +6042,46 @@ offset            = 'Z' | (('+' | '-') HH [':' mm [':' ss [('.' | ',') SSS]]]
 
 ----
 ddf@local>// Given we've ingested a few metacards
-ddf@local>catalog:latest                                
-#       ID                                Modified Date              Title                                  
-1       a6e9ae09c792438e92a3c9d7452a449f  2014-06-13T09:56:18+10:00                                         
-2       b4aced45103a400da42f3b319e58c3ed  2014-06-13T09:52:12+10:00                                         
+ddf@local>catalog:latest
+#       ID                                Modified Date              Title
+1       a6e9ae09c792438e92a3c9d7452a449f  2014-06-13T09:56:18+10:00
+2       b4aced45103a400da42f3b319e58c3ed  2014-06-13T09:52:12+10:00
 3       a63ab22361e14cee9970f5284e8eb4e0  2014-06-13T09:49:36+10:00  myTitle
- 
+
 ddf@local>// Filter out older files
 ddf@local>catalog:dump --created-after 2014-06-13T09:55:00+10:00 /home/bradh/ddf-catalog-dump
  1 file(s) dumped in 0.015 seconds
- 
+
 ddf@local>// Filter out new file
 ddf@local>catalog:dump --created-before 2014-06-13T09:55:00+10:00 /home/bradh/ddf-catalog-dump
  2 file(s) dumped in 0.023 seconds
- 
+
 ddf@local>// Choose middle file
 ddf@local>catalog:dump --created-after 2014-06-13T09:50:00+10:00 --created-before 2014-06-13T09:55:00+10:00 /home/bradh/ddf-catalog-dump
  1 file(s) dumped in 0.020 seconds
- 
+
 ddf@local>// Modified dates work the same way
 ddf@local>catalog:dump --modified-after 2014-06-13T09:50:00+10:00 --modified-before 2014-06-13T09:55:00+10:00 /home/bradh/ddf-catalog-dump
  1 file(s) dumped in 0.015 seconds
- 
+
 ddf@local>// Can mix and match, most restrictive limits apply
 ddf@local>catalog:dump --modified-after 2014-06-13T09:45:00+10:00 --modified-before 2014-06-13T09:55:00+10:00 --created-before 2014-06-13T09:50:00+10:00 /home/bradh/ddf-catalog-dump
  1 file(s) dumped in 0.024 seconds
- 
+
 ddf@local>// Can use UTC instead of (or in combination with) explicit timezone offset
 ddf@local>catalog:dump --modified-after 2014-06-13T09:50:00+10:00 --modified-before 2014-06-13T09:55:00Z /home/bradh/ddf-catalog-dump
  2 file(s) dumped in 0.020 seconds
 ddf@local>catalog:dump --modified-after 2014-06-13T09:50:00+10:00 --modified-before 2014-06-12T23:55:00Z /home/bradh/ddf-catalog-dump
  1 file(s) dumped in 0.015 seconds
- 
+
 ddf@local>// Can leave off timezone, but default (local time on server) may not match what you expect!
 ddf@local>catalog:dump --modified-after 2014-06-13T09:50:00 --modified-before 2014-06-13T09:55:00 /home/bradh/ddf-catalog-dump
  1 file(s) dumped in 0.018 seconds
- 
+
 ddf@local>// Can leave off trailing minutes / seconds
 ddf@local>catalog:dump --modified-after 2014-06-13T09 --modified-before 2014-06-13T09:55 /home/bradh/ddf-catalog-dump
  2 file(s) dumped in 0.024 seconds
- 
+
 ddf@local>// Can use year and day number
 ddf@local>catalog:dump --modified-after 2014-164T09:50:00 /home/bradh/ddf-catalog-dump
  2 file(s) dumped in 0.027 seconds
@@ -5980,15 +6102,15 @@ ddf@local>catalog:dump --modified-after 2014-164T09:50:00 /home/bradh/ddf-catalo
 |Complicated data has spatial types and large text.
 
 |Ingest serialized data file with scientific notation in WKT string causes RuntimeException.
-|WKT string with scientific notation such as POINT (-34.8932113039107 -4.77974239601E-5) won't ingest. This occurs with serialized data format only.  
+|WKT string with scientific notation such as POINT (-34.8932113039107 -4.77974239601E-5) won't ingest. This occurs with serialized data format only.
 |===
 
 === Command Scheduler
 
-Command Scheduler is a capability exposed through the Admin Console (https://localhost:8993/admin) that allows administrators to schedule Command Line Shell Commands to be run at specified intervals. 
+Command Scheduler is a capability exposed through the Admin Console (https://localhost:8993/admin) that allows administrators to schedule Command Line Shell Commands to be run at specified intervals.
 
 ==== Usage
-The Command Scheduler allows administrators to schedule Command Line Shell Commands to be run in a "platform-independent" method. For instance, if an administrator wanted to use the Catalog commands to export all records of a Catalog to a directory, the administrator could write a cron job or a scheduled task to remote into the container and execute the command. Writing these types of scripts are specific to the administrator's operating system and also requires extra logic for error handling if the container is up. The administrator can also create a Command Schedule, which currently requires only two fields. The Command Scheduler only runs when the container is running, so there is no need to verify if the container is up. In addition, when the container is restarted, the commands are rescheduled and executed again. 
+The Command Scheduler allows administrators to schedule Command Line Shell Commands to be run in a "platform-independent" method. For instance, if an administrator wanted to use the Catalog commands to export all records of a Catalog to a directory, the administrator could write a cron job or a scheduled task to remote into the container and execute the command. Writing these types of scripts are specific to the administrator's operating system and also requires extra logic for error handling if the container is up. The administrator can also create a Command Schedule, which currently requires only two fields. The Command Scheduler only runs when the container is running, so there is no need to verify if the container is up. In addition, when the container is restarted, the commands are rescheduled and executed again.
 
 ===== Schedule a Command
 
@@ -5996,7 +6118,7 @@ The Command Scheduler allows administrators to schedule Command Line Shell Comma
 . Select {branding} Platform
 . Select *Platform Command Scheduler*.
 . Type the command or commands to be executed in the *Command* text field. Commands can be separated by a semicolon and will execute in order from left to right.
-. Type in a positive integer for the *Interval In Seconds* field. 
+. Type in a positive integer for the *Interval In Seconds* field.
 . Select the *Save* button. Once the *Save* button is selected, the command is executed immediately. It's next scheduled execution begins after the amount of seconds specified in the *Interval In Seconds* field and repeats indefinitely until the container is shut down or the scheduled command is deleted.
 
 [NOTE]
@@ -6104,9 +6226,9 @@ Note that no arguments are required for the `subscriptions:list` command. If no 
 
 ----
 ddf@local>subscriptions:list
- 
+
 Total subscriptions found: 3
- 
+
 Subscription ID
 my.contextual.id.v20|http://172.18.14.169:8088/mockCatalogEventConsumerBinding?WSDL
 my.contextual.id.v30|http://172.18.14.169:8088/mockEventConsumerBinding?WSDL
@@ -6117,9 +6239,9 @@ my.contextual.id.json|http://172.18.14.169:8088/services/json/local/event/notifi
 
 ----
 ddf@local>subscriptions:list "my.contextual.id.v20|http://172.18.14.169:8088/mockCatalogEventConsumerBinding?WSDL"
- 
+
 Total subscriptions found: 1
- 
+
 Subscription ID
 my.contextual.id.v20|http://172.18.14.169:8088/mockCatalogEventConsumerBinding?WSDL
 ----
@@ -6133,27 +6255,27 @@ It is recommended to always quote the search phrase (or LDAP filter) argument to
 
 ----
 ddf@local>subscriptions:list "my*"
- 
+
 Total subscriptions found: 3
- 
+
 Subscription ID
 my.contextual.id.v20|http://172.18.14.169:8088/mockCatalogEventConsumerBinding?WSDL
 my.contextual.id.v30|http://172.18.14.169:8088/mockEventConsumerBinding?WSDL
 my.contextual.id.json|http://172.18.14.169:8088/services/json/local/event/notification
- 
+
 
 ddf@local>subscriptions:list "*json*"
- 
+
 Total subscriptions found: 1
- 
+
 Subscription ID
 my.contextual.id.json|http://172.18.14.169:8088/services/json/local/event/notification
- 
-  
+
+
 ddf@local>subscriptions:list "*WSDL"
- 
+
 Total subscriptions found: 2
- 
+
 Subscription ID
 my.contextual.id.v20|http://172.18.14.169:8088/mockCatalogEventConsumerBinding?WSDL
 my.contextual.id.v30|http://172.18.14.169:8088/mockEventConsumerBinding?WSDL
@@ -6165,9 +6287,9 @@ The example below illustrates searching for any subscription that has "json" or 
 
 ----
 ddf@local>subscriptions:list -f "(|(subscription-id=*json*) (subscription-id=*v20*))"
- 
+
 Total subscriptions found: 2
- 
+
 Subscription ID
 my.contextual.id.v20|http://172.18.14.169:8088/mockCatalogEventConsumerBinding?WSDL
 my.contextual.id.json|http://172.18.14.169:8088/services/json/local/event/notification
@@ -6177,9 +6299,9 @@ The example below illustrates searching for any subscription that has "json" and
 
 ----
 ddf@local>subscriptions:list -f "(&(subscription-id=*json*) (subscription-id=*172.18.14.169*))"
- 
+
 Total subscriptions found: 1
- 
+
 Subscription ID
 my.contextual.id.json|http://172.18.14.169:8088/services/json/local/event/notification
 ----
@@ -6192,9 +6314,9 @@ When the `delete` command is executed it will display each subscription ID it is
 
 ----
 ddf@local>subscriptions:delete "my.contextual.id.json|http://172.18.14.169:8088/services/json/local/event/notification"
- 
+
 Deleted subscription for ID = my.contextual.id.json|http://172.18.14.169:8088/services/json/local/event/notification
- 
+
 Deleted 1 subscriptions out of 1 subscriptions found.
 ----
 
@@ -6202,19 +6324,19 @@ Deleted 1 subscriptions out of 1 subscriptions found.
 
 ----
 ddf@local>subscriptions:delete "my*"
- 
+
 Deleted subscription for ID = my.contextual.id.v20|http://172.18.14.169:8088/mockCatalogEventConsumerBinding?WSDL
 Deleted subscription for ID = my.contextual.id.v30|http://172.18.14.169:8088/mockEventConsumerBinding?WSDL
- 
+
 Deleted 2 subscriptions out of 2 subscriptions found.
- 
- 
- 
- 
+
+
+
+
 ddf@local>subscriptions:delete "*json*"
- 
+
 Deleted subscription for ID = my.contextual.id.json|http://172.18.14.169:8088/services/json/local/event/notification
- 
+
 Deleted 1 subscriptions out of 1 subscriptions found.
 ----
 
@@ -6222,11 +6344,11 @@ Deleted 1 subscriptions out of 1 subscriptions found.
 
 ----
 ddf@local>subscriptions:delete *
- 
+
 Deleted subscription for ID = my.contextual.id.v30|http://172.18.14.169:8088/mockEventConsumerBinding?WSDL
 Deleted subscription for ID = my.contextual.id.v20|http://172.18.14.169:8088/mockCatalogEventConsumerBinding?WSDL
 Deleted subscription for ID = my.contextual.id.json|http://172.18.14.169:8088/services/json/local/event/notification
- 
+
 Deleted 3 subscriptions out of 3 subscriptions found.
 ----
 
@@ -6234,10 +6356,10 @@ Deleted 3 subscriptions out of 3 subscriptions found.
 
 ----
 ddf@local>subscriptions:delete -f "(&(subscription-id=*WSDL) (subscription-id=*172.18.14.169*))"
- 
+
 Deleted subscription for ID = my.contextual.id.v20|http://172.18.14.169:8088/mockCatalogEventConsumerBinding?WSDL
 Deleted subscription for ID = my.contextual.id.v30|http://172.18.14.169:8088/mockEventConsumerBinding?WSDL
- 
+
 Deleted 2 subscriptions out of 2 subscriptions found.
 ----
 
@@ -6299,12 +6421,12 @@ For details on any command type `help` followed by the platform command. For exa
 ddf@local>help platform:envlist
 DESCRIPTION
         platform:envlist
- 
+
         Provides a list of environment variables
- 
+
 SYNTAX
         platform:envlist [options]
- 
+
 OPTIONS
         --help
                 Display this help message
@@ -6362,12 +6484,12 @@ For details on any command, type help then the command. For example, help store:
 ddf@local>help store:list
 DESCRIPTION
         store:list
- 
+
     Lists entries that are available in the persistent store.
- 
+
 SYNTAX
         store:list [options]
- 
+
 OPTIONS
         User ID, -u, --user
                 User ID to search for notifications. If an id is not provided, then all of the notifications for all users are displayed.
@@ -6391,7 +6513,7 @@ The CQL syntax used should follow the OGC CQL format. Examples and a description
 ----
 Finding all notifications that were sent due to a download:
 ddf@local>store:list --cql "application='Downloads'" --type notification
- 
+
 Deleting a specific notification:
 ddf@local>store:delete --cql "id='fdc150b157754138a997fe7143a98cfa'" --type notification
 ----
@@ -6414,7 +6536,7 @@ The {branding} console application has a command line option for ingesting files
 The syntax for the ingest command is "ingest" -t <transformer type> <file path relative to the installation path.
 
 For XML data, run this command:
----- 
+----
 ingest -t xml examples/metacards/xml
 ----
 
@@ -6431,7 +6553,7 @@ Several third-party tools, such as curl.exe and the Chrome Advanced Rest Client,
 
 ==== Advanced (more records, automated ingest)
 The {branding} provides endpoints for both REST and SOAP services, allowing integration with other data systems and the ability to further automate ingesting data into the catalog. For further information, see Integrating Endpoints.
-	
+
 == Troubleshooting
 
 === Exception Starting {branding} (Windows)
@@ -6441,14 +6563,14 @@ An exception is sometimes thrown starting {branding} on a Windows machine (x86).
 
 If using an unsupported terminal, java.lang.NoClassDefFoundError: Could not initialize class org.fusesource.jansi.internal.Kernel32 is thrown.
 
-==== Solution:  
+==== Solution:
 Install missing Windows libraries.
 
 Some Windows platforms are missing libraries that are required by {branding}.  These libraries are provided by the Microsoft Visual C++ 2008 Redistributable Package x64 (http://www.microsoft.com/en-us/download/details.aspx?id=15336).
 
 === Blank Web Console
 
-==== Problem: 
+==== Problem:
 https://localhost:8993/system/console opens as a blank page.
 
 ==== Solution:
@@ -6527,4 +6649,3 @@ Perform one or all of the following recommended solutions, as necessary.
 * Wait for proper shutdown of {branding} prior to starting a new instance.
 * Verify running java.exe are not {branding} (e.g., kill/close if necessary).
 * Utilize automated start/stop scripts to run {branding} as a service.
-
