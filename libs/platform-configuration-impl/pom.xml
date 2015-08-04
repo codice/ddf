@@ -29,7 +29,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Karaf-defined Properties -->
-        <ddf.platform.version>2.3.1</ddf.platform.version>
         <org.slf4j.version>1.7.1</org.slf4j.version>
     </properties>
 
@@ -37,7 +36,7 @@
         <dependency>
             <groupId>ddf.platform</groupId>
             <artifactId>platform-configuration</artifactId>
-            <version>${ddf.platform.version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>

@@ -39,12 +39,12 @@
         <dependency>
             <groupId>ddf.admin.core</groupId>
             <artifactId>admin-core-api</artifactId>
-            <version>${ddf.admin.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.admin.core</groupId>
             <artifactId>admin-core-appservice</artifactId>
-            <version>${ddf.admin.version}</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 

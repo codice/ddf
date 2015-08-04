@@ -28,7 +28,7 @@
         <dependency>
             <groupId>org.codice.httpproxy</groupId>
             <artifactId>proxy-camel-route</artifactId>
-            <version>${ddf.httpproxy.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
@@ -42,7 +42,7 @@
         <dependency>
             <groupId>org.codice.httpproxy</groupId>
             <artifactId>proxy-camel-servlet</artifactId>
-            <version>${ddf.httpproxy.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.camel</groupId>

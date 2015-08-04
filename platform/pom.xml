@@ -42,8 +42,6 @@
         <tika.version>1.7</tika.version>
         <cas.client.version>3.1.10</cas.client.version>
         <cas.client.bundle.version>${cas.client.version}_1</cas.client.bundle.version>
-        <ddf.httpproxy.version>1.0.5-SNAPSHOT</ddf.httpproxy.version>
-        <ddf.admin.version>1.2.0</ddf.admin.version>
     </properties>
 
     <dependencyManagement>
