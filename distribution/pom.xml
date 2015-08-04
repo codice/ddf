@@ -31,12 +31,6 @@
         <karaf.version>2.4.3</karaf.version>
         <pax.web.version>3.2.4</pax.web.version>
         <pax.cdi.version>0.11.0</pax.cdi.version>
-        <ddf.platform.app.version>2.8.0-SNAPSHOT</ddf.platform.app.version>
-        <ddf.content.app.version>2.8.0-SNAPSHOT</ddf.content.app.version>
-        <ddf.catalog.app.version>2.8.0-SNAPSHOT</ddf.catalog.app.version>
-        <ddf.searchui.app.version>2.8.0-SNAPSHOT</ddf.searchui.app.version>
-        <ddf.spatial.app.version>2.8.0-SNAPSHOT</ddf.spatial.app.version>
-        <ddf.admin.app.version>2.8.0-SNAPSHOT</ddf.admin.app.version>
     </properties>
 
     <modules>

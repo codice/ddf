@@ -31,7 +31,6 @@
         <dependency>
             <groupId>ddf.platform</groupId>
             <artifactId>platform-util</artifactId>
-            <version>${ddf.platform.app.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
@@ -124,7 +123,6 @@
         <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-urlresourcereader</artifactId>
-            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -141,7 +139,7 @@
         <dependency>
             <groupId>ddf.security.encryption</groupId>
             <artifactId>security-encryption-api</artifactId>
-            <version>${ddf.platform.app.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>

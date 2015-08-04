@@ -51,12 +51,10 @@
         <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-api-impl</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.security.core</groupId>
             <artifactId>security-core-api</artifactId>
-            <version>${ddf.platform.app.version}</version>
         </dependency>
         <dependency>
             <groupId>javax.ws.rs</groupId>
@@ -79,7 +77,6 @@
         <dependency>
             <groupId>ddf.catalog.common</groupId>
             <artifactId>geo-formatter</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.codice.ddf</groupId>
@@ -110,7 +107,7 @@
         <dependency>
             <groupId>ddf.persistence.core</groupId>
             <artifactId>persistence-core-api</artifactId>
-            <version>${ddf.platform.app.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.geotools</groupId>
@@ -136,7 +133,6 @@
         <dependency>
             <groupId>ddf.action.core</groupId>
             <artifactId>action-core-api</artifactId>
-            <version>2.5.0</version>
         </dependency>
     </dependencies>
 

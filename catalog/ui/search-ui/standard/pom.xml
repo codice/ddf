@@ -63,12 +63,12 @@
         <dependency>
             <groupId>org.codice.httpproxy</groupId>
             <artifactId>proxy-camel-servlet</artifactId>
-            <version>${ddf.httpproxy.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.codice.httpproxy</groupId>
             <artifactId>proxy-camel-route</artifactId>
-            <version>${ddf.httpproxy.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.camel</groupId>
@@ -91,7 +91,7 @@
         <dependency>
             <groupId>ddf.platform.error</groupId>
             <artifactId>platform-error-servlet</artifactId>
-            <version>${ddf.platform.app.version}</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 

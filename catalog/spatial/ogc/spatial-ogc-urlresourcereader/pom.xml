@@ -65,13 +65,13 @@
         <dependency>
             <groupId>ddf.mime.core</groupId>
             <artifactId>mime-core-configurableresolver</artifactId>
-            <version>${ddf.platform.app.version}</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>ddf.mime.tika</groupId>
             <artifactId>mime-tika-resolver</artifactId>
-            <version>${ddf.platform.app.version}</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

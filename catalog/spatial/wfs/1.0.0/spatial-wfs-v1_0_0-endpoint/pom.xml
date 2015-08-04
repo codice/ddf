@@ -34,7 +34,6 @@
         <dependency>
             <groupId>ddf.platform</groupId>
             <artifactId>platform-configuration</artifactId>
-            <version>${ddf.platform.app.version}</version>
         </dependency>
 
         <dependency>

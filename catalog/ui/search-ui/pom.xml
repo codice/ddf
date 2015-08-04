@@ -29,10 +29,6 @@
     <name>DDF :: Search</name>
     <packaging>pom</packaging>
 
-    <properties>
-        <ddf.httpproxy.version>1.0.3</ddf.httpproxy.version>
-    </properties>
-
     <modules>
         <module>simple</module>
         <module>standard</module>

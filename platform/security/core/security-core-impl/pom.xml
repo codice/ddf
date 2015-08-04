@@ -115,7 +115,7 @@
                             the project their code is in, hence the version
                             supplied by dependency management would be incorrect.
                             -->
-                            ddf.security.expansion;version="[1.0,2)",
+                            ddf.security.expansion;version="[1.0,3)",
                             <!--
                             Needed to ensure the javax.xml.stream bundle exported
                             by Servicemix is used vs. the bundle exported by OSGi
