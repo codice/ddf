@@ -837,10 +837,10 @@ Authenticating Realms are used to authenticate an incoming authentication token 
 `org.apache.shiro.realm.AuthorizingRealm`
 
 Authorizing Realms are used to perform authorization on the current Subject. 
-These are used when performing both Service AuthZ and Filtering/Redaction. 
+These are used when performing both Service AuthZ and Filtering.
 They are passed in the AuthorizationInfo of the Subject along with the Permissions of the object wanting to be accessed. The response from these realms is a true (if the Subject has permission to access) or false (if the Subject does not).
 
-====== Implementations of Authorizing Realms that come with {branding}:
+====== Other implementations of the Security API that come with {branding}:
 
 [cols="1,2" options="header"]
 |===
@@ -848,68 +848,101 @@ They are passed in the AuthorizationInfo of the Subject along with the Permissio
 |Classname
 |Description
 
-|ddf.security.service.AbstractAuthorizingRealm
-|This is an Abstract Authorizing Realm that takes care of caching and parsing the Subject's AuthorizingInfo and should be extended to allow the implementing realm focus on making the decision.
+|org.codice.ddf.platform.filter.delegate.DelegateServletFilter
+|The DelegateServletFilter detects any servlet filters that have been exposed as OSGi services and places them in-order in front of any servlet or web application running on the container.
 
-|ddf.security.pep.realm.XACMLRealm  
+|org.codice.ddf.security.filter.websso.WebSSOFilter
+|This filter serves as the main security filter that works in conjunction with a number of handlers to protect a variety of contexts, each using different authentication schemes and policies.
+
+|org.codice.ddf.security.handler.saml.SAMLAssertionHandler
+|This handler is executed by the WebSSOFilter for any contexts configured to use it. This handler should always come first when configured in the Web Context Policy Manager, as it provides a caching capability to web contexts that use it. The handler will first check for the existence of a cookie named "org.codice.websso.saml.token" to extract a Base64 + deflate SAML assertion from the request. If an assertion is found it will be converted to a SecurityToken. Failing that, the handler will check for a JSESSIONID cookie that might relate to a current SSO session with the container. If the JSESSIONID is valid, the SecurityToken will be retrieved from the cache in the LoginFilter.
+
+|org.codice.ddf.security.handler.basic.BasicAuthenticationHandler
+|Checks for basic authentication credentials in the http request header. If they exist, they are retrieved and passed to the LoginFilter for exchange.
+
+|org.codice.ddf.security.handler.pki.PKIHandler
+|Handler for PKI based authentication. X509 chain will be extracted from the HTTP request and converted to a BinarySecurityToken.
+
+|org.codice.ddf.security.handler.anonymous.AnonymousHandler
+|Handler that allows anonymous user access via a guest user account. The guest account credentials are configured via the org.codice.ddf.security.claims.anonymous.AnonymousClaimsHandler. The AnonymousHandler also checks for the existence of basic auth credentials or PKI credentials that might be able to override the use of the anonymous user.
+
+|org.codice.ddf.security.filter.login.LoginFilter
+|This filter runs immediately after the WebSSOFilter and exchanges any authentication information found in the request with a Subject via Shiro.
+
+|org.codice.ddf.security.filter.authorization.AuthorizationFilter
+|This filter runs immediately after the LoginFilter and checks any permissions assigned to the web context against the attributes of the user via Shiro.
+
+|org.apache.shiro.realm.AuthenticatingRealm
+|This is an abstract authenticating realm that exchanges an org.apache.shiro.authc.AuthenticationToken for a ddf.security.Subject in the form of an org.apache.shiro.authc.AuthenticationInfo
+
+|ddf.security.realm.sts.StsRealm
+|This realm is an implementation of org.apache.shiro.realm.AuthenticatingRealm and connects to an STS (configurable) to exchange the authentication token for a Subject.
+
+|ddf.security.service.AbstractAuthorizingRealm
+|This is an abstract authorizing realm that takes care of caching and parsing the Subject's AuthorizingInfo and should be extended to allow the implementing realm focus on making the decision.
+
+|ddf.security.pdp.realm.XACMLRealm
 |This realm delegates the authorization decision to a XACML-based Policy Decision Point (PDP) backend. It creates a XACML 3.0 request and looks on the OSGi framework for any service implementing ddf.security.pdp.api.PolicyDecisionPoint.
 
 |ddf.security.pdp.realm.SimpleAuthZRealm    
 |This realm performs the authorization decision without delegating to an external service. It uses the incoming permissions to create a decision. However, it is possible to extend this realm using the ddf.security.policy.extension.PolicyExtension interface. This interface allows an integrator to add additional policy information to the PDP that can't be covered via its generic matching policies. This approach is often easier to configure for those that are not familiar with XACML. Note that no PolicyExtension implementations are provided out of the box.
 
-=== Securing REST
-
+|org.codice.ddf.security.validator.*
+|A number of STS validators are provided for X.509 (BinarySecurityToken), UsernameToken, SAML Assertion, and DDF custom tokens. The DDF custom tokens are all BinarySecurityTokens that may have PKI or username/password information as well as an authentication realm (correlates to JAAS realms installed in the container). The authentication realm allows an administrator to restrict which services they wish to use to authenticate users. For example: installing the security-sts-ldaplogin feature will enable a JAAS realm with the name "ldap". This realm can then be specified on any context using the Web Context Policy Manager. That realm selection is then passed via the token sent to the STS to determine which validator to use.
 
 |===
 
+=== Securing REST
+
 [ditaa,security_architecture,png]
 ....
-+----------------------------------------------------------------------------------------------------------------------------------------------------------+
-|                                                                                                                                                          |   
-|                       /----------\          /----------------\                                             /-------------------------------------------\ |      
-| /-------=--\ Request  |          | Request  |          cDEF  |                                             |                 STS Server                | |
-| | External |--------->|Delegating|--------->|    Web SSO     |                                 /-------\   |  /----------\  /----------\  /----------\ | |
-| |   DDF    | Response | Servlet  | Response |     Filter     |                           /---->|-=---->|-->|->|Validators|->|  Claims  |->|  Token   | | |
-| |  Client  |<---------| Filter   |<---------|                |                           |     |  STS  |   |  |          |  | Handlers |  | Issuers  | | |
-| \----------/          |     cEEE |          | /------------\ |                           |     | Realm |   |  \----------/  \----------/  \----------/ | |
-|                       \----------/          | |Whitelisted?| |                           |     |       |   |                                    |      | |
-|                                             | \------------/ |                     /-----+ /---|<-=----|<--|<-----=-----------------------------/      | |
-|                                /--------\   |    |      |    |                     |TOKEN| |   |  cDEF |   |                                           | |
-|                                |   c5F5 |   |    |Yes   |No  |   /-----=-\         \-----+ |   \-------/   |                                cDEF       | |
-|                                |Endpoint|<--|<-=-/      \-=->|-->|Web Cxt|               | |               \-------------------------------------------/ |
-|                                |        |   |                |   |Policy |               | |                                                             |
-|                                \--------/   |        /---=---|<--|Manager|               | +--------\                                                    |
-|                           /-----------\     |        |       |   \-------/               | |RESPONSE|                                                    |
-|                           |Basic Auth.|<-\  |        v       |   /---------\             | +--------/                                                    |
-|                           |  Handler  |  |  | /------------\ |   |         |             | |                                                             |
-|                           \-----------/  \--|-|loop through| |   |    cDEF |   /-------\ | |                                                             |
-|                                |            | | configured | |   | /-=---->|-->|----=->|-/ |                                                             |
-|                                v         /->| |  handlers  | |   | |Login  |   |       |   |                                                             |
-|                           /-----------\  |  | \------------/ |   | |Filter |   | Shiro |   |                                                             |
-|                           |PKI Handler|  |  |       |        |   | |  /--=-|<--|<---=--|<--/                                                             |
-|                           \-----------/  |  |       \---=--->|-->|-/  |    |   |       |                                                                 |
-|                                |         |  |                |   |    |    |   |       |                                                                 |
-|                                v         |  \----------------/   |    V    |   |  c555 |                                                                 |
-|                          /------------\  |                       \---------/   |       |                                                                 |
-|                          |Anon Handler|  |                            |        |       |                                                                 |
-|                          \------------/  |                            v        |       |                                                                 |
-|                                |         |                       /---------\   |       |       /--------\                                                |
-|                                v         |                       |    |    |   |       |       |cDEF    |   /=--------\                                  |
-|                           /-----------\  |                       |    \-=->|-->|----=->|------>|-=----->|-->|         |                                  |
-|                           |SAML Assert|  |                       |  AuthZ  |   |       |       | Simple |   |Expansion|                                  |
-|                           |  Handler  |  |                       | Filter  |   |       |       | Authz  |   | Service |                                  |
-|           /-------\       \-----------/  |                       |   cDEF  |   |       |       | Realm  |   |         |                                  |
-|           | cF55  |            |         |                       |    /-=--|<--|<----=-|<------|<-=-----|<--|         |                                  |
-|           | Auth. |            v         |                       |    |    |   |       |       |        |   \---------/                                  |
-|           | Error |       /-----------\  |                       |    v    |   |       |       \--------/                                                |
-|           \-------/       |   Other   |  |                       \---------/   \-------/                                                                 |
-|               ^           | Handlers  |  |                            |                                                                                  |
-|               |           \-----------/  |                            v                                                                                  |
-|               |               |   |      |                  /------------------\                                                                         |
-|               \---------------/   \------/                  |c5F5 Endpoint     |                                                                         |
-|                                                             \------------------/                                                                         |
-|                                                                                                                                                          |
-+----------------------------------------------------------------------------------------------------------------------------------------------------------+
++------------------------------------------------------------------------------------------------------------------------------------------------------------+
+|                                                                                                                                                            |
+|                       /----------\          /----------------\                                               /-------------------------------------------\ |
+| /-------=--\          |          |          |          cDEF  |                                               |                 STS Server                | |
+| | External | Request  |Delegating| Request  |    Web SSO     |                                   /-------\   |  /----------\  /----------\  /----------\ | |
+| |   DDF    |--------->| Servlet  |--------->|     Filter     |                             /---->|       |-->|->|Validators|->|  Claims  |->|  Token   | | |
+| |  Client  |          | Filter   |          |                |                             |     |  STS  |   |  |          |  | Handlers |  | Issuers  | | |
+| \----------/          |     cEEE |          | /------------\ |                             |     | Realm |   |  \----------/  \----------/  \----------/ | |
+|       ^               \----------/          | |Whitelisted?| |<-------\                    |     |       |   |                                    |      | |
+|       |                                     | \------------/ |        |              /-----+ /---|       |<--|<-----=-----------------------------/      | |
+|       |                   /-----------\     |    |      |    |        v              |TOKEN| |   |  cDEF |   |                                           | |
+|       |         Response  |   c5F5    |     |    |Yes   |No  |     /-----=-\         \-----+ |   \-------/   |                                cDEF       | |
+|       +-------------------|  Endpoint |<----|<-=-/      |    |     |Web Cxt|               | |               \-------------------------------------------/ |
+|       |                   \-----------/     |           :    |  /->|Policy |               | |                                                             |
+|       |                                     |           |    |  |  |Manager|               | +-------\                                                     |
+|       |                   /-----------\     |           |    |  |  \-------/               | |SUBJECT|                                                     |
+|       |                   |Basic Auth.|<-\  |           v    |  |  /---------\   /-------\ | +-------/                                                     |
+|       |                   |  Handler  |  |  | /------------\ |  |  |         |   | Shiro | | |                                                             |
+|       |                   \-----------/  \--| |loop through| |  |  |    cDEF |   |       | | |                                                             |
+|       |                         |           | | configured | |  |  |         |-->|----=->|-/ |                                                             |
+|       |                         v        /->| |  handlers  | |  |  |  Login  |   |       |   |                                                             |
+|       |                   /-----------\  |  | \------------/ |  |  |  Filter |   |       |   |                                                             |
+|       |                   |PKI Handler|  |  |       |        |  |  |         |<--|<---=--|<--/                                                             |
+|       |                   \-----------/  |  |       \---=--->|--|->|-=--\    |   |       |                                                                 |
+|       |                         |        |  |                |  |  |    |    |   |       |                                                                 |
+|       |                         v        |  \----------------/  |  |    v    |   |  c555 |                                                                 |
+|       |                  /------------\  |                      |  \---------/   |       |                                                                 |
+|       |                  |Anon Handler|  |                      |       |        |       |                                                                 |
+|       |                  \------------/  |                      |       v        |       |                                                                 |
+|       |                         |        |                      |  /---------\   |       |                                                                 |
+|       |                         v        |                      |  |    |cDEF|   |       |                                                                 |
+|       |                   /-----------\  |                      |  |    :    |   |       |       /--------\                                                |
+|       |                   |SAML Assert|  |                      |  |  AuthZ  |   |       |       |cDEF    |   /=--------\                                  |
+|       |                   |  Handler  |  |                      \->| Filter  |-->|----=->|------>|        |-->|         |                                  |
+|       |   /--------\      \-----------/  |      /-----------\      |/-------\|   |       |       |  PDP   |   |Expansion|                                  |
+|       |   | cF55   |            |        |      | cF55      |  No  || Has   ||   |       |       | (Java) |   | Service |                                  |
+|       |   | Not    |            v        |      | Not       |<-----|| Perm? ||   |       |       | (XACML)|   |         |                                  |
+|       |   |Handled |      /-----------\  |      | Authorized|      |\-------/|<--|<----=-|<------|        |<--|         |                                  |
+|       |   \--------/      |   Other   |  |      \-----------/      |    |Yes |   |       |       |        |   \---------/                                  |
+|       |       ^           | Handlers  |  |                         |    v    |   |       |       \--------/                                                |
+|       |       |           \-----------/  |                         \---------/   \-------/                                                                 |
+|       |       |               |   |      |                              |                                                                                  |
+|       |       \---------------/   \------/                              v                                                                                  |
+|       |                                       Response        /------------------\                                                                         |
+|       \-------------------------------------------------------|c5F5 Endpoint     |                                                                         |
+|                                                               \------------------/                                                                         |
++------------------------------------------------------------------------------------------------------------------------------------------------------------+
 ....
 
 The delegating servlet filter is topmost filter for all web contexts. It loads in all security filters. 
@@ -921,11 +954,10 @@ The filter loops through all configured context handlers until one signals that 
 This configuration can be changed by modifying the web context policy manager configuration.
 If unable to resolve the context, the filter will return an authentication error and the process stops.
 If a handler is successfully found, an auth token is assigned and the request continues to the login filter.
-
-=== Login Filter
-
 The Login Filter receives a token and return a subject.
 To retrieve the subject, the token is sent through Shiro to the STS Realm where the token will be exchanged for a SAML assertion through a SOAP call to an STS server.
+If the Subject is returned, the request moves to the Authorization Filter to check permissions on the user.
+If the user has the correct permissions to access that web context, the request is allowed to hit the endpoint.
 
 === Encryption Service
 
@@ -942,24 +974,19 @@ ddf@local>security:encrypt myPasswordToEncrypt
 bR9mJpDVo8bTRwqGwIFxHJ5yFJzatKwjXjIo/8USWm8=
 ----
 
-=== Redaction and Filtering
+=== Filtering
 
-Redaction and filtering are performed in a Post Query plugin that occurs after a query has been performed. 
+Metacard filtering is performed in a Post Query plugin that occurs after a query has been performed.
 
-==== How Redaction and Filtering Works
-Each metacard result will contain security attributes that are pulled from the metadata record after being processed by a PostQueryPlugin that populates this attribute. 
+==== How Filtering Works
+Each metacard result will contain security attributes that are pulled from the metadata record after being processed by a PostQueryPlugin (Not provided! You must create your own plugin for your specific metadata!) that populates this attribute.
 The security attribute is a HashMap containing a set of keys that map to lists of values. 
-The metacard is then processed by a filter/redaction plugin that creates a KeyValueCollectionPermission from the metacard's security attribute. 
+The metacard is then processed by a filter plugin that creates a KeyValueCollectionPermission from the metacard's security attribute.
 This permission is then checked against the user subject to determine if the subject has the correct claims to view that metacard. 
-The decision to filter/redact* the metacard eventually relies on the installed PDP (features:install security-pdp-java OR features:install security-pdp-xacml). 
-The PDP that is being used returns a decision, and the metacard will either be filtered/redacted or allowed to pass through.
+The decision to filter the metacard eventually relies on the installed PDP (features:install security-pdp-java OR features:install security-pdp-xacml).
+The PDP that is being used returns a decision, and the metacard will either be filtered or allowed to pass through.
 
-[NOTE]
-====
-*The default setting is to redact records*.
-====
-
-The security attributes populated on the metacard are completely dependent on the type of the metacard. Each type of metacard must have its own PostQueryPlugin that reads the metadata being returned and populates the metacard's security attribute. If the subject or resource (metacard) permissions are missing during redaction, that resource is redacted.
+The security attributes populated on the metacard are completely dependent on the type of the metacard. Each type of metacard must have its own PostQueryPlugin that reads the metadata being returned and populates the metacard's security attribute. If the subject permissions are missing during filtering, all resources will be filtered.
 
 Example (represented as simple XML for ease of understanding):
 [source,xml,linenums]
@@ -998,7 +1025,7 @@ Example (represented as simple XML for ease of understanding):
 
 In the above example, the user's claims are represented very simply and are similar to how they would actually appear in a SAML 2 assertion. Each of these user (or subject) claims will be converted to a KeyValuePermission object. These permission objects will be implied against the permission object generated from the metacard record. In this particular case, the metacard might be allowed if the policy is configured appropriately because all of the permissions line up correctly.
 
-==== Redaction Policies
+==== Filter Policies
 The procedure for setting up a policy differs depending on which PDP implementation installed. The `security-pdp-java` implementation is the simplest PDP to use, so it will be covered here.
 
 . Open the https://localhost:8993/system/console/configuration.*
@@ -1011,53 +1038,15 @@ The procedure for setting up a policy differs depending on which PDP implementat
 
 [NOTE]
 ====
-See the Security PDP AuthZ Realm section of this documentation for a description of the configuration page.
+See the Security PDP AuthZ Realm (Java PDP) section of this documentation for a description of the configuration page.
 ====
 
 With the security-pdp-java feature configured in this way, the above Metacard would be displayed to the user.
 
 The XACML PDP is explained in more detail in the XACML Policy Decision Point (PDP) section of this documentation. It the administrator's responsibility to write a XACML policy capable of returning the correct response message. The Java-based PDP should perform adequately in most situations. It is possible to install the security-pdp-java and security-pdp-xacml features at the same time. The system could be configured in this way in order to allow the Java PDP to handle most cases and only have XACML policies to handle more complex situations than what the Java PDP is designed for. Keep in mind that this would be a very complex configuration with both PDPs installed, and this should only be performed if you understand the complex details.
 
-==== Redact a New Type of Metacard
-To enable redaction/filtering on a new type of record, implement a PostQueryPlugin that is able to read the string metadata contained within the metacard record. The plugin must set the security attribute to a map of list of values extracted from the metacard. Note that in {branding}, there is no default plugin that populates the security attribute on the metacard. A plugin must be created to populate these fields in order for redaction/filtering to work correctly.
-
-Example redacted record:
-[source,xml,linenums]
-----
-<?xml version="1.0" encoding="UTF-8"?>
-<metacard xmlns="urn:catalog:metacard" xmlns:ns2="http://www.opengis.net/gml" xmlns:ns3="http://www.w3.org/1999/xlink" xmlns:ns4="http://www.w3.org/2001/SMIL20/" xmlns:ns5="http://www.w3.org/2001/SMIL20/Language" ns2:id="99f494b22f4341e9a3ba3ef6a5fe8734">
-    <type>ddf.metacard</type>
-    <source>ddf.distribution</source>
-    <stringxml name="metadata">
-        <value>
-            <meta:Resource xmlns:meta="...">
-                <meta:identifier meta:qualifier="http://metadata/noaccess" meta:value="REDACTED"/>
-                <meta:title>REDACTED</meta:title>
-                <meta:creator>
-                    <meta:Organization>
-                        <meta:name>REDACTED</meta:name>
-                    </meta:Organization>
-                </meta:creator>
-                <meta:subjectCoverage>
-                    <meta:Subject>
-                        <meta:category meta:label="REDACTED"/>
-                    </meta:Subject>
-                </meta:subjectCoverage>
-                <meta:security SEC:controls="A B" SEC:group="X" SEC:origin="USA"/>
-            </meta:Resource>
-        </value>
-    </stringxml>
-    <string name="resource-uri">
-        <value>catalog://metadata/noaccess</value>
-    </string>
-    <string name="title">
-        <value>REDACTED</value>
-    </string>
-    <string name="resource-size">
-        <value>REDACTED</value>
-    </string>
-</metacard>
-----
+==== Filter a New Type of Metacard
+To enable filtering on a new type of record, implement a PostQueryPlugin that is able to read the string metadata contained within the metacard record. The plugin must set the security attribute to a map of list of values extracted from the metacard. Note that in {branding}, there is no default plugin that populates the security attribute on the metacard. A plugin must be created to populate these fields in order for filtering to work correctly.
 
 === Security Token Service
 The Security Token Service (STS) is a service running in {branding} that allows clients to request SAML v2.0 assertions. 
@@ -2132,10 +2121,10 @@ For {branding}, these actions are populated by various components in the securit
 |Component Setting the action
 |Description
 
-|Filtering / Redaction  
+|Filtering
 |filter 
 |security-pdp-xacmlrealm    
-|When performing any redaction or filtering, the XACMLRealm will set the action-id to "filter".
+|When performing any filtering, the XACMLRealm will set the action-id to "filter".
 
 |Service    
 |<SOAPAction>   
@@ -2149,7 +2138,7 @@ For {branding}, these actions are populated by various components in the securit
 These are only the action-id values that are currently created by the components that come with {branding}. Additional components can be created and added to {branding} to identify specific action-ids.
 ====
 
-In the examples below, the policy has specified targets for the above type of calls. For the Filtering/Redaction code, the target was set for "filter", and the Service validation code targets were geared toward two services: query and LocalSiteName. In a production environment, these actions for service authorization will generally be full URNs that are described within the SOAP WSDL.
+In the examples below, the policy has specified targets for the above type of calls. For the filtering code, the target was set for "filter", and the Service validation code targets were geared toward two services: query and LocalSiteName. In a production environment, these actions for service authorization will generally be full URNs that are described within the SOAP WSDL.
 
 ===== Attributes
 Attributes for the XACML request are populated with the information in the calling subject and the resource being checked.
@@ -2654,69 +2643,69 @@ ddf@local>expand Title "VP-Engineering Manager"
 
 [ditaa,soap_security_flow,png]
 ....
-+--------------------------------------------------------------+
-|                                                              |
-| /--------\   get WSDL   /-------------\                      |
-| |        |------------->|             |                      |
-| |  SOAP  |     WSDL     |             |                      |
-| | Secure |<-------------|    SOAP     |                      |
-| | Client |              |  Endpoint   |                      |
-| |        |              |             |                      |
-| |        |              |        cDEF |                      |
-| |        |              |             |                      |
-| |        |              \-------------/                      |
-| |        |                                                   |
-| |        |  get token   /-------------\                      |
-| |        |------------->|             |                      |
-| |        |     token    |             |                      |
-| |        |<-------------|    STS      |                      |
-| |        |              |             |<---------------\     |
-| |        |              |             |                |     |
-| |        |              |        cDEF |                |     |
-| |        |              |             |                |     |
-| |        |              \-------------/                |     | 
-| |        |                                             |     |
-| |        |              /-------------\                |     |
-| |        |              |             |                |     |
-| |        |              |             |                |     |
-| |        |              |    SOAP     |                |     |
-| |        |secure call to|  Endpoint   |<-------\       |     |
-| |        |------------->|             |        |       |     |
-| | cDEF   |   results    |        cDEF |        |       |     |
-| |        |<-------------|             |        |       |     |
-| \--------/              \-------------/        |       |     | 
-|                                                |       |     |
-| /--------\              /-------------\        |       |     |
-| |        |              |             |        |       |     |
-| |  Dumb  |              |  Anonymous  |        |       |     |
-| |  SOAP  |              | Interceptor |        |       |     |
-| | Client |call endpoint | /---------\ |        |       |     |
-| |        |------------->| |  Read   | |        |       |     |
-| | cDEF   |              | | Policy  | |        |       |     |
-| |        |              | \---------/ |        |       |     |
-| \--------/              |      |      |        |       |     |
-|                         |      v      |        |       |     |
-|                         | /---------\ |        |       |     |
-|                         | |  Build  | |        |       |     |
-|                         | |Security | |        |   /-------\ |
-|                         | | Headers | |        |   |       | |
-|                         | \---------/ |        |   |  STS  | |
-|                         |      |      |        |   | Realm | |
-|                         |      v      |        |   |       | |
-|                         | /---------\ |        |   \-----=-/ |
-|                         | |   Get   | |        |     ^   |   |
-|                         | |Anon SAML| |        |     |   |   |
-|                         | \---------/ |        |     |   |   |
-|                         |      | cDEF |        |     |   v   |
-|                         |      v      |        |   /-------\ |
-|                         \-------------/        \---| c444  | |
-|                                |        Subject    |       | |
-|                                \------------------>| Shiro | |
-|                                                    |       | |
-|                                                    |       | |
-|                                                    \-------/ |
-|                                                              |
-+--------------------------------------------------------------+
++--------------------------------------------------------------------------------------------+
+|                                                                                            |
+| /--------\              /-------------\                                                    |
+| |        |   get WSDL   |             |                                                    |
+| | Secure |------------->|             |                                                    |
+| |  SOAP  |              |    SOAP     |                                                    |
+| | Client |              |  Endpoint   |<-------\                                           |
+| |        |     WSDL     |             |        |                                           |
+| |        |<-------------|        c5F5 |        |                                           |
+| |        |              |             |        |                                           |
+| |        |              \-------------/        |                                           |
+| |        |                                     |                                           |
+| |        |              /-------------\        |                                           |
+| |        |  get token   |             |        |                                           |
+| |        |------------->|             |<-------|-------\                                   |
+| |        |              |    STS      |        |       |                                   |
+| |        |              |   Server    |        |   /-------\                               |
+| |        |     token    |             |        |   |       |                               |
+| |        |<-------------|        cDEF |        |   |  STS  |                               |
+| |        |              |             |        |   | Realm |                               |
+| |        |              \-------------/        |   |       |                               |
+| |        |                                     |   \-----=-/                               |
+| |        |              /-------------\        |       ^                                   |
+| |        | secure call  |             |--------/       |                                   |
+| |        |------------->|             |Authorized? /-------\       /-------------\         |
+| |        |              |   Policy    |----------->|--=--->|------>|             |         |
+| |        |              | Enforcement | Decision   |       |       |    PDP      |         |
+| |        |   results    |   Point     |<-----------|<--=---|<------|   (Java)    |         |
+| | cDEF   |<-------------|        cDEF |            |       |       |   (XACML)   |         |
+| |        |              |             |<-------\   |       |       |             |         |
+| \--------/              \-------------/        |   |       |       |    cDEF     |         |
+|                                                |   |       |       \-------------/         |
+| /--------\              /-------------\        |   |       |           ^    |              |
+| |        |              |             |        |   |       |           |    |              |
+| |  Dumb  |              |  Anonymous  |        |   |  c444 |           |    v              |
+| |  SOAP  |              | Interceptor |        |   | Shiro |       /----------=--\         |
+| | Client |call endpoint | /---------\ |        |   |       |       |             |         |
+| |        |------------->| |  Read   | |        |   |       |       | Expansion   |         |
+| | cDEF   |              | | Policy  | |        |   |       |       | Service     |         |
+| |        |              | \---------/ |        |   |       |       |             |         |
+| \--------/              |      |      |        |   |       |       |             |         |
+|                         |      v      |        |   |       |       |             |         |
+|                         | /---------\ |        |   |       |       \-------------/         |
+|                         | |  Build  | |        |   |       |                               |
+|                         | |Security | |        |   |       |                               |
+|                         | | Headers | |        |   |       |                               |
+|                         | \---------/ |        |   |       |                               |
+|                         |      |      |        |   |       |                               |
+|                         |      v      |        |   |       |                               |
+|                         | /---------\ |        |   |       |                               |
+|                         | |   Get   | |        |   |       |                               |
+|                         | |Anon SAML| |        |   |       |                               |
+|                         | \---------/ |--------/   |       |                               |
+|                         |      | cDEF |            |       |                               |
+|                         |      v      |            |       |                               |
+|                         \-------------/            |       |                               |
+|                            ^   |    Anon Token     |       |                               |
+|                            |   \------------------>|       |                               |
+|                            |         Subject       |       |                               |
+|                            \-----------------------|       |                               |
+|                                                    \-------/                               |
+|                                                                                            |
++--------------------------------------------------------------------------------------------+
 ....
 
 === SOAP Secure Client
