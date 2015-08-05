@@ -105,6 +105,12 @@ public class PolicyManager implements ContextPolicyManager {
     }
 
     public void setPolicies(Map<String, Object> properties) {
+        if (properties == null) {
+            LOGGER.info("setPolicies() called with null properties map, ignoring.");
+            LOGGER.info("Policy Store already contains {} items", policyStore.size());
+            return;
+        }
+
         LOGGER.debug("setPolicies called: {}", properties);
         policyStore.clear();
         policyStore.put("/", defaultPolicy);
@@ -208,6 +214,8 @@ public class PolicyManager implements ContextPolicyManager {
                                 context.getValue(), mappings));
             }
         }
+
+        LOGGER.debug("Policy store initialized, now contains {} entries", policyStore.size());
     }
 
     private List<String> expandStrings(String[] itemArr) {
