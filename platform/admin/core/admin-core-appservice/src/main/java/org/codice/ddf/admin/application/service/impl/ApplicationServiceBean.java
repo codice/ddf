@@ -561,4 +561,13 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
 
         return returnValues;
     }
+    /**
+     * serviceTracker setter method. Needed for use in unit tests.
+     *
+     * @param serviceTracker
+     *              the desired serviceTracker instance
+     */
+    void setServiceTracker(ServiceTracker serviceTracker) {
+        this.serviceTracker = serviceTracker;
+    }
 }

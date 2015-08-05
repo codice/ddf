@@ -74,9 +74,11 @@ public class ApplicationConfigurationPluginTest {
         assertTrue(compareMap(constructedJSON, pluginMap));
 
         String newAppAssocation = "NewGuy";
+        List<String> associations = new ArrayList<>();
+        associations.add(newAppAssocation);
         List<String> modifiedCopy = new ArrayList<String>(ORIGINAL_APP_ASSOCIATIONS);
         modifiedCopy.add(newAppAssocation);
-        plugin.addAssociations(newAppAssocation);
+        plugin.addAssocations(associations);
 
         assertEquals(plugin.getAssocations(), modifiedCopy);
 

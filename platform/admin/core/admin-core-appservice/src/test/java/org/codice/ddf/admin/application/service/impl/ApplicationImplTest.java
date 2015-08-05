@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -22,6 +22,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.net.URI;
 import java.util.Arrays;
 import java.util.Set;
 
@@ -38,6 +39,11 @@ import org.junit.Test;
  */
 public class ApplicationImplTest {
 
+    private static final String FILE_NO_MAIN_FEATURES = "test-features-no-main-feature.xml";
+
+    private static final String FILE_MAIN_FEATURE = "test-features-with-main-feature.xml";
+
+    private static final String MAIN_FEATURE_NAME = "Main Feature Test";
     /**
      * number of non-duplicate bundles in the feature file
      */
@@ -52,7 +58,7 @@ public class ApplicationImplTest {
     @Test
     public void testAppGetters() throws Exception {
         RepositoryImpl repo = new RepositoryImpl(
-                getClass().getClassLoader().getResource("test-features-no-main-feature.xml")
+                getClass().getClassLoader().getResource(FILE_NO_MAIN_FEATURES)
                         .toURI());
         repo.load();
         Application testApp = new ApplicationImpl(repo);
@@ -91,7 +97,7 @@ public class ApplicationImplTest {
         String mainFeatureDescription = "Main Feature Test";
         String appToString = mainFeatureName + " - " + mainFeatureVersion;
         RepositoryImpl repo = new RepositoryImpl(
-                getClass().getClassLoader().getResource("test-features-with-main-feature.xml")
+                getClass().getClassLoader().getResource(FILE_MAIN_FEATURE)
                         .toURI());
         repo.load();
         Application testApp = new ApplicationImpl(repo);
@@ -118,7 +124,7 @@ public class ApplicationImplTest {
         String mainFeatureDescription = null;
         String appToString = mainFeatureName + " - " + mainFeatureVersion;
         RepositoryImpl repo = new RepositoryImpl(
-                getClass().getClassLoader().getResource("test-features-no-main-feature.xml")
+                getClass().getClassLoader().getResource(FILE_NO_MAIN_FEATURES)
                         .toURI());
         repo.load();
         Application testApp = new ApplicationImpl(repo);
@@ -140,7 +146,7 @@ public class ApplicationImplTest {
     @Test
     public void testAppEquality() throws Exception {
         RepositoryImpl repo1 = new RepositoryImpl(
-                getClass().getClassLoader().getResource("test-features-with-main-feature.xml")
+                getClass().getClassLoader().getResource(FILE_MAIN_FEATURE)
                         .toURI());
         repo1.load();
         Application testApp1 = new ApplicationImpl(repo1);
@@ -148,7 +154,7 @@ public class ApplicationImplTest {
         Application testAppNull = null;
 
         RepositoryImpl repo2 = new RepositoryImpl(
-                getClass().getClassLoader().getResource("test-features-no-main-feature.xml")
+                getClass().getClassLoader().getResource(FILE_NO_MAIN_FEATURES)
                         .toURI());
         repo2.load();
         Application testApp2 = new ApplicationImpl(repo2);
@@ -160,6 +166,37 @@ public class ApplicationImplTest {
         assertFalse(testApp2.equals(testApp1));
         assertFalse(testApp1.equals(testAppNull));
 
+    }
+
+    /**
+     * Tests the {@link ApplicationImpl#getURI()} method
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testGetURI() throws Exception {
+        URI testURI = getClass().getClassLoader().getResource(FILE_MAIN_FEATURE)
+                .toURI();
+        RepositoryImpl repo1 = new RepositoryImpl(testURI);
+        repo1.load();
+        Application testApp1 = new ApplicationImpl(repo1);
+        assertEquals(testURI, testApp1.getURI());
+    }
+
+    /**
+     * Tests the {@link ApplicationImpl#getDescription()} method
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testGetDescription() throws Exception {
+        RepositoryImpl repo = new RepositoryImpl(
+                getClass().getClassLoader().getResource(FILE_MAIN_FEATURE)
+                        .toURI());
+        repo.load();
+
+        Application testApp = new ApplicationImpl(repo);
+        assertEquals(MAIN_FEATURE_NAME, testApp.getDescription());
     }
 
 }
