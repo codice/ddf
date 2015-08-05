@@ -263,4 +263,11 @@ public class InsecureDefaultsServiceBean implements InsecureDefaultsServiceBeanM
         String truststorePassword = System.getProperty(TRUSTSTORE_PASSWORD_SYSTEM_PROPERTY);
         return truststorePassword;
     }
+
+    /**
+     * Package-private getter for validators list. Needed for unit tests.
+     */
+    List<Validator> getValidators() {
+        return validators;
+    }
 }
