@@ -1,0 +1,4 @@
+= Extending {branding} Solr Catalog Application
+include::config.adoc[]
+                     
+include::ExtContents.adoc[]

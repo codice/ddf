@@ -1,0 +1,4 @@
+= Integrating with the {branding} Admin Application Service
+include::config.adoc[]
+
+include::IntContents.adoc[]

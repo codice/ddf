@@ -28,9 +28,6 @@
 
     <properties>
         <cxf.version>3.0.4</cxf.version>
-        <ddf.catalog.app.version>2.8.0-SNAPSHOT</ddf.catalog.app.version>
-        <ddf.security.app.version>2.8.0-SNAPSHOT</ddf.security.app.version>
-        <ddf.platform.app.version>2.8.0-SNAPSHOT</ddf.platform.app.version>
     </properties>
 
     <modules>

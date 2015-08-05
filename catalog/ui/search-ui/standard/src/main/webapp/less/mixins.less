@@ -1,0 +1,25 @@
+.color-default(){
+  color: @default-color;
+}
+
+.color-primary() {
+  color: @primary-color;
+}
+
+.color-success() {
+  color: @success-color;
+}
+
+.i-clickable() {
+  cursor: pointer;
+  .color-primary();
+
+  &:hover {
+    .color-default();
+  }
+
+  &:active {
+    .color-success();
+  }
+
+}

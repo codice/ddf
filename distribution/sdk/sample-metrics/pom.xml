@@ -32,13 +32,13 @@
         <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-api</artifactId>
-            <version>${ddf.catalog.app.version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>filter-proxy</artifactId>
-            <version>${ddf.catalog.app.version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
@@ -50,7 +50,7 @@
         <dependency>
             <groupId>ddf.metrics.collector</groupId>
             <artifactId>metrics-collector</artifactId>
-            <version>${ddf.platform.app.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.rrd4j</groupId>
