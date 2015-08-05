@@ -113,5 +113,6 @@
         <module>catalog-core-resourcesizeplugin</module>
         <module>catalog-core-backupplugin</module>
         <module>catalog-core-solr</module>
+	<module>catalog-core-solrcommands</module>
     </modules>
 </project>
