@@ -60,9 +60,6 @@ In order to run through a full build, be sure to have a clone for all repositori
 
 ```
 git clone git://github.com/codice/ddf.git
-git clone ddf-catalog (https://github.com/codice/ddf-catalog.git)
-git clone ddf-parent (https://github.com/codice/ddf-parent.git)
-git clone ddf-platform (https://github.com/codice/ddf-platform.git)
 git clone ddf-support  (https://github.com/codice/ddf-support.git)
 ```
 Change to the top level directory of DDF source distribution.

@@ -1,0 +1,4 @@
+= Managing {branding} Admin Application
+include::config.adoc[]
+
+include::ManContents.adoc[]

@@ -1,0 +1,4 @@
+= Extending {branding} Platform Application
+include::config.adoc[]
+
+include::ExtContents.adoc[]

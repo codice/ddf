@@ -1,0 +1,4 @@
+= Integrating {branding} Security Application
+include::config.adoc[]
+
+include::IntContents.adoc[]

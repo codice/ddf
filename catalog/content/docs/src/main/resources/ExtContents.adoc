@@ -1,0 +1,18 @@
+
+== Overview
+
+The DDF Content application provides a framework for storing, reading, processing, transforming and cataloging data.
+
+This guide supports developers creating extensions of the existing framework. There are currently no DDF Content development details beyond those covered in the DDF Developer's Guide.
+
+== Whitelist
+
+The following packages have been exported by the DDF Content Application and are approved for use by third parties:
+
+* ddf.content
+* ddf.content.data
+* ddf.content.operation
+* ddf.content.plugin
+* ddf.content.storage
+* ddf.content.util
+* ddf.content.core.directorymonitor

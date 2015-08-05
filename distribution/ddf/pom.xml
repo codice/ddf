@@ -81,31 +81,31 @@
                                     mvn:ddf.distribution/kernel/${project.version}/xml/features
                                 </descriptor>
                                 <descriptor>
-                                    mvn:ddf.platform/platform-app/${ddf.platform.app.version}/xml/features
+                                    mvn:ddf.platform/platform-app/${project.version}/xml/features
                                 </descriptor>
                                 <descriptor>
-                                    mvn:ddf.security/security-services-app/${ddf.platform.app.version}/xml/features
+                                    mvn:ddf.security/security-services-app/${project.version}/xml/features
                                 </descriptor>
                                 <descriptor>
-                                    mvn:ddf.catalog/catalog-app/${ddf.catalog.app.version}/xml/features
+                                    mvn:ddf.catalog/catalog-app/${project.version}/xml/features
                                 </descriptor>
                                 <descriptor>
-                                    mvn:ddf.content/content-app/${ddf.content.app.version}/xml/features
+                                    mvn:ddf.content/content-app/${project.version}/xml/features
                                 </descriptor>
                                 <descriptor>
-                                    mvn:ddf.catalog.solr/solr-app/${ddf.catalog.app.version}/xml/features
+                                    mvn:ddf.catalog.solr/solr-app/${project.version}/xml/features
                                 </descriptor>
                                 <descriptor>
                                     mvn:org.codice.opendj.embedded/opendj-embedded-app/${opendj-embedded.app.version}/xml/features
                                 </descriptor>
                                 <descriptor>
-                                    mvn:org.codice.ddf.spatial/spatial-app/${ddf.spatial.app.version}/xml/features
+                                    mvn:org.codice.ddf.spatial/spatial-app/${project.version}/xml/features
                                 </descriptor>
                                 <descriptor>
-                                    mvn:ddf.ui.search/search-ui-app/${ddf.searchui.app.version}/xml/features
+                                    mvn:ddf.ui.search/search-ui-app/${project.version}/xml/features
                                 </descriptor>
                                 <descriptor>
-                                    mvn:ddf.admin/admin-app/${ddf.admin.app.version}/xml/features
+                                    mvn:ddf.admin/admin-app/${project.version}/xml/features
                                 </descriptor>
                                 <descriptor>
                                     mvn:ddf.distribution/install-profiles/${install-profiles.app.version}/xml/features
@@ -139,7 +139,7 @@
                                 <artifactItem>
                                     <groupId>ddf.admin</groupId>
                                     <artifactId>docs</artifactId>
-                                    <version>${ddf.admin.app.version}</version>
+                                    <version>${project.version}</version>
                                     <type>zip</type>
                                     <classifier>export</classifier>
                                     <overWrite>true</overWrite>
@@ -148,7 +148,7 @@
                                 <artifactItem>
                                     <groupId>ddf.catalog</groupId>
                                     <artifactId>docs</artifactId>
-                                    <version>${ddf.catalog.app.version}</version>
+                                    <version>${project.version}</version>
                                     <outputDirectory>${setup.folder}/docs/catalog</outputDirectory>
                                     <classifier>export</classifier>
                                     <type>zip</type>
@@ -156,7 +156,7 @@
                                 <artifactItem>
                                     <groupId>ddf.catalog.solr</groupId>
                                     <artifactId>docs</artifactId>
-                                    <version>${ddf.catalog.app.version}</version>
+                                    <version>${project.version}</version>
                                     <outputDirectory>${setup.folder}/docs/solr</outputDirectory>
                                     <classifier>export</classifier>
                                     <type>zip</type>
@@ -164,7 +164,7 @@
                                 <artifactItem>
                                     <groupId>ddf.content</groupId>
                                     <artifactId>docs</artifactId>
-                                    <version>${ddf.content.app.version}</version>
+                                    <version>${project.version}</version>
                                     <outputDirectory>${setup.folder}/docs/content</outputDirectory>
                                     <classifier>export</classifier>
                                     <type>zip</type>
@@ -172,7 +172,7 @@
                                 <artifactItem>
                                     <groupId>ddf.platform</groupId>
                                     <artifactId>docs</artifactId>
-                                    <version>${ddf.platform.app.version}</version>
+                                    <version>${project.version}</version>
                                     <outputDirectory>${setup.folder}/docs/platform</outputDirectory>
                                     <classifier>export</classifier>
                                     <type>zip</type>
@@ -180,7 +180,7 @@
                                 <artifactItem>
                                     <groupId>ddf.platform.security</groupId>
                                     <artifactId>docs</artifactId>
-                                    <version>${ddf.platform.app.version}</version>
+                                    <version>${project.version}</version>
                                     <outputDirectory>${setup.folder}/docs/security</outputDirectory>
                                     <classifier>export</classifier>
                                     <type>zip</type>
@@ -188,7 +188,7 @@
                                 <artifactItem>
                                     <groupId>org.codice.ddf.spatial</groupId>
                                     <artifactId>docs</artifactId>
-                                    <version>${ddf.spatial.app.version}</version>
+                                    <version>${project.version}</version>
                                     <outputDirectory>${setup.folder}/docs/spatial</outputDirectory>
                                     <classifier>export</classifier>
                                     <type>zip</type>
@@ -196,7 +196,7 @@
                                 <artifactItem>
                                     <groupId>ddf.ui</groupId>
                                     <artifactId>docs</artifactId>
-                                    <version>${ddf.searchui.app.version}</version>
+                                    <version>${project.version}</version>
                                     <outputDirectory>${setup.folder}/docs/ui</outputDirectory>
                                     <classifier>export</classifier>
                                     <type>zip</type>
@@ -224,28 +224,28 @@
                                     <fileset dir="${setup.folder}/docs/ddf/docs-${project.version}"/>
                                 </move>
                                 <move todir="${setup.folder}/docs/admin">
-                                    <fileset dir="${setup.folder}/docs/admin/docs-${ddf.admin.app.version}"/>
+                                    <fileset dir="${setup.folder}/docs/admin/docs-${project.version}"/>
                                 </move>
                                 <move todir="${setup.folder}/docs/catalog">
-                                    <fileset dir="${setup.folder}/docs/catalog/docs-${ddf.catalog.app.version}"/>
+                                    <fileset dir="${setup.folder}/docs/catalog/docs-${project.version}"/>
                                 </move>
                                 <move todir="${setup.folder}/docs/solr">
-                                    <fileset dir="${setup.folder}/docs/solr/docs-${ddf.catalog.app.version}"/>
+                                    <fileset dir="${setup.folder}/docs/solr/docs-${project.version}"/>
                                 </move>
                                 <move todir="${setup.folder}/docs/content">
-                                    <fileset dir="${setup.folder}/docs/content/docs-${ddf.content.app.version}"/>
+                                    <fileset dir="${setup.folder}/docs/content/docs-${project.version}"/>
                                 </move>
                                 <move todir="${setup.folder}/docs/platform">
-                                    <fileset dir="${setup.folder}/docs/platform/docs-${ddf.platform.app.version}"/>
+                                    <fileset dir="${setup.folder}/docs/platform/docs-${project.version}"/>
                                 </move>
                                 <move todir="${setup.folder}/docs/security">
-                                    <fileset dir="${setup.folder}/docs/security/docs-${ddf.platform.app.version}"/>
+                                    <fileset dir="${setup.folder}/docs/security/docs-${project.version}"/>
                                 </move>
                                 <move todir="${setup.folder}/docs/spatial">
-                                    <fileset dir="${setup.folder}/docs/spatial/docs-${ddf.spatial.app.version}"/>
+                                    <fileset dir="${setup.folder}/docs/spatial/docs-${project.version}"/>
                                 </move>
                                 <move todir="${setup.folder}/docs/ui">
-                                    <fileset dir="${setup.folder}/docs/ui/docs-${ddf.searchui.app.version}"/>
+                                    <fileset dir="${setup.folder}/docs/ui/docs-${project.version}"/>
                                 </move>
                             </tasks>
                         </configuration>
@@ -275,7 +275,7 @@
                                         <artifactItem>
                                             <groupId>ddf.catalog.core</groupId>
                                             <artifactId>catalog-core-api</artifactId>
-                                            <version>${ddf.catalog.app.version}</version>
+                                            <version>${project.version}</version>
                                             <type>javadoc</type>
                                             <outputDirectory>${setup.folder}/catalog_api_javadoc
                                             </outputDirectory>
@@ -283,7 +283,7 @@
                                         <artifactItem>
                                             <groupId>ddf.mime.core</groupId>
                                             <artifactId>mime-core-api</artifactId>
-                                            <version>${ddf.platform.app.version}</version>
+                                            <version>${project.version}</version>
                                             <type>javadoc</type>
                                             <outputDirectory>${setup.folder}/mime_api_javadoc
                                             </outputDirectory>
@@ -291,7 +291,7 @@
                                         <artifactItem>
                                             <groupId>ddf.action.core</groupId>
                                             <artifactId>action-core-api</artifactId>
-                                            <version>${ddf.platform.app.version}</version>
+                                            <version>${project.version}</version>
                                             <type>javadoc</type>
                                             <outputDirectory>${setup.folder}/action_api_javadoc
                                             </outputDirectory>
@@ -299,7 +299,7 @@
                                         <artifactItem>
                                             <groupId>ddf.content.core</groupId>
                                             <artifactId>content-core-api</artifactId>
-                                            <version>${ddf.content.app.version}</version>
+                                            <version>${project.version}</version>
                                             <type>javadoc</type>
                                             <outputDirectory>${setup.folder}/content_api_javadoc
                                             </outputDirectory>
@@ -307,7 +307,7 @@
                                         <artifactItem>
                                             <groupId>ddf.security.core</groupId>
                                             <artifactId>security-core-api</artifactId>
-                                            <version>${ddf.platform.app.version}</version>
+                                            <version>${project.version}</version>
                                             <type>javadoc</type>
                                             <outputDirectory>${setup.folder}/security_api_javadoc
                                             </outputDirectory>
@@ -315,7 +315,7 @@
                                         <artifactItem>
                                             <groupId>ddf.security.encryption</groupId>
                                             <artifactId>security-encryption-api</artifactId>
-                                            <version>${ddf.platform.app.version}</version>
+                                            <version>${project.version}</version>
                                             <type>javadoc</type>
                                             <outputDirectory>
                                                 ${setup.folder}/encryption_api_javadoc

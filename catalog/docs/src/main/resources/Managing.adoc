@@ -1,0 +1,4 @@
+= Managing DDF Catalog Application
+include::config.adoc[]
+
+include::ManContents.adoc[]

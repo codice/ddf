@@ -1,0 +1,4 @@
+= Extending DDF Content Application
+include::config.adoc[]
+
+include::ExtContents.adoc[]

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+
+<blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+           xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs"
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+
+    <reference id="webBranding" interface="org.apache.felix.webconsole.BrandingPlugin"/>
+
+    <camelContext xmlns="http://camel.apache.org/schema/blueprint" id="proxyCamelContext"/>
+
+
+    <bean id="camelServletCreator" class="org.codice.proxy.http.CamelServletCreator"
+          init-method="registerServlet">
+    	<argument ref="blueprintBundleContext"/>
+        <argument ref="proxyCamelContext"/>
+    </bean>
+
+    <bean id="httpProxyService" class="org.codice.proxy.http.HttpProxyServiceImpl"
+          destroy-method="destroy">
+    	<argument ref="blueprintBundleContext"/>
+    	<argument ref="proxyCamelContext"/>
+    </bean>
+
+	<bean id="configurationStore"
+          class="org.codice.ddf.ui.searchui.standard.properties.ConfigurationStore"
+          destroy-method="destroy">
+		<cm:managed-properties persistent-id="org.codice.ddf.ui.search.standard.properties"
+                               update-strategy="container-managed"/>
+        <property name="branding" ref="webBranding"/>
+        <property name="httpProxy" ref="httpProxyService"/>
+        <property name="imageryProviders"
+                  value='{"type" "OSM" "url" "http://otile1.mqcdn.com/tiles/1.0.0/map" "fileExtension" "jpg" "alpha" 1},{"type" "OSM" "url" "http://otile1.mqcdn.com/tiles/1.0.0/sat" "fileExtension" "jpg" "alpha" 0.5}'/>
+        <property name="terrainProvider"
+                  value='{"type" "CT" "url" "http://cesiumjs.org/stk-terrain/tilesets/world/tiles"}'/>
+	</bean>
+  
+    <jaxrs:server id="restService" address="/store">
+        <jaxrs:serviceBeans>
+            <ref component-id="configurationStore"/>
+        </jaxrs:serviceBeans>
+        <jaxrs:outInterceptors>
+            <bean class="org.apache.cxf.jaxrs.provider.jsonp.JsonpPreStreamInterceptor"/>
+            <bean class="org.apache.cxf.jaxrs.provider.jsonp.JsonpPostStreamInterceptor"/>
+        </jaxrs:outInterceptors>
+    </jaxrs:server>
+
+</blueprint>

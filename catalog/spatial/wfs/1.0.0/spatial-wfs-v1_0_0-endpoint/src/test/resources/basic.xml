@@ -1,0 +1,46 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<wfs:FeatureCollection xmlns:wfs="http://www.opengis.net/wfs" xmlns:gml="http://www.opengis.net/gml"
+                       xmlns:ddf.metacard.basic="urn:ddf.catalog.gml.ddf.metacard.basic"
+                       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                       xsi:schemaLocation="urn:ddf.catalog.gml.ddf.metacard.basic null/wfs?service=wfs&amp;request=DescribeFeatureType&amp;version=1.0.0&amp;typeName=ddf.metacard.basic:basic ">
+    <gml:boundedBy>
+        <gml:Box srsName="EPSG:4326">
+            <gml:coordinates>1.0,1.0 1.0,1.0</gml:coordinates>
+        </gml:Box>
+    </gml:boundedBy>
+    <gml:featureMember>
+        <ddf.metacard.basic:basic fid="basic_id">
+            <gml:boundedBy>
+                <gml:Box srsName="EPSG:4326">
+                    <gml:coordinates>1.0,1.0 1.0,1.0</gml:coordinates>
+                </gml:Box>
+            </gml:boundedBy>
+            <ddf.metacard.basic:created>2013-03-26T18:00:29+00:00</ddf.metacard.basic:created>
+            <ddf.metacard.basic:effective>2013-03-26T18:00:29+00:00</ddf.metacard.basic:effective>
+            <ddf.metacard.basic:id>basic_id</ddf.metacard.basic:id>
+            <ddf.metacard.basic:location>
+                <gml:Point>
+                    <gml:coordinates>
+                        1.0,1.0
+                    </gml:coordinates>
+                </gml:Point>
+            </ddf.metacard.basic:location>
+            <ddf.metacard.basic:metadata-content-type>basic</ddf.metacard.basic:metadata-content-type>
+            <ddf.metacard.basic:metadata-content-type-version>1.0.0</ddf.metacard.basic:metadata-content-type-version>
+            <ddf.metacard.basic:title>basic_title</ddf.metacard.basic:title>
+        </ddf.metacard.basic:basic>
+    </gml:featureMember>
+</wfs:FeatureCollection>

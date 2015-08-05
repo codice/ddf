@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+
+ -->
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
+
+    <OCD name="Xml Query Transformer"
+         description="Xml Response Queue Transformer"
+         id="ddf.catalog.transformer.xml.XmlResponseQueueTransformer">
+        <AD name="Parallel Marhsalling Threshold" id="threshold" required="true" type="Integer"
+            default="50"
+            min="2"
+            description="Response size threshold above which marshalling is run in parallel"/>
+    </OCD>
+
+    <Designate
+            pid="ddf.catalog.transformer.xml.XmlResponseQueueTransformer">
+        <Object
+                ocdref="ddf.catalog.transformer.xml.XmlResponseQueueTransformer"/>
+    </Designate>
+
+</metatype:MetaData>
