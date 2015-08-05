@@ -156,12 +156,6 @@ public class SolrMetacardClient {
         solrFilterDelegate.setSortPolicy(request.getQuery().getSortBy());
         SolrQuery query = filterAdapter.adapt(request.getQuery(), solrFilterDelegate);
 
-        // Solr does not support outside parenthesis in certain queries and throws EOF exception.
-        String queryPhrase = query.getQuery().trim();
-        if (queryPhrase.matches("\\(\\s*\\{!.*\\)")) {
-            query.setQuery(queryPhrase.replaceAll("^\\(\\s*|\\s*\\)$", ""));
-        }
-
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Prepared Query: {}", query.getQuery());
             if (query.getFilterQueries() != null && query.getFilterQueries().length > 0) {
@@ -183,7 +177,17 @@ public class SolrMetacardClient {
         // Solr is 0-based
         query.setStart(request.getQuery().getStartIndex() - 1);
 
+        removeOuterParenthesesIfFunctionPresent(query);
+
         return query;
+    }
+
+    protected void removeOuterParenthesesIfFunctionPresent(SolrQuery query) {
+        // Solr does not support outside parenthesis in certain queries and throws EOF exception.
+        String queryPhrase = query.getQuery().trim();
+        if (queryPhrase.matches("\\s*\\(\\s*\\{!.*\\)")) {
+            query.setQuery(queryPhrase.replaceAll("^\\s*\\(\\s*|\\s*\\)$", ""));
+        }
     }
 
     protected String getSortProperty(QueryRequest request, SolrQuery query) {

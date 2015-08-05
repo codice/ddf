@@ -40,6 +40,39 @@
     <build>
         <plugins>
 
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <phase>generate-test-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}/target/test-classes</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/resources</directory>
+                                    <filtering>true</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
             <!--
                 We only need to add one jar for extra spatial capabilities.
                 If we use the mvn bundle plugin, it will unnecessarily add extra
@@ -346,6 +379,11 @@
                                     <file>target/classes/solr/conf/solrconfig.xml</file>
                                     <type>xml</type>
                                     <classifier>solrconfig</classifier>
+                                </artifact>
+                                <artifact>
+                                    <file>target/classes/solr/conf/solrconfig-inmemory.xml</file>
+                                    <type>xml</type>
+                                    <classifier>solrconfig-inmemory</classifier>
                                 </artifact>
                                 <artifact>
                                     <file>target/classes/solr/conf/stopwords_en.txt</file>

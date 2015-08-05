@@ -691,6 +691,9 @@
         <configfile finalname="/data/solr/metacard/conf/solrconfig.xml">
             mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solrconfig
         </configfile>
+        <configfile finalname="/data/solr/metacard/conf/solrconfig-inmemory.xml">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solrconfig-inmemory
+        </configfile>
         <configfile finalname="/data/solr/metacard/conf/schema.xml">
             mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/schema
         </configfile>

@@ -48,7 +48,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.security.assertion.SecurityAssertion;
-import net.minidev.json.JSONObject;
 
 /**
  * The {@code AbstractEventController} handles the processing and routing of events.
@@ -174,10 +173,10 @@ public abstract class AbstractEventController implements EventHandler {
     public void adminCancelDownload(String userId, String downloadIdentifier) {
         String downloadId = userId + downloadIdentifier;
 
-        JSONObject jsonPropMap = new JSONObject();
-        jsonPropMap.put(ActivityEvent.DOWNLOAD_ID_KEY, downloadId);
+        Map<String, Object> propMap = new HashMap<>();
+        propMap.put(ActivityEvent.DOWNLOAD_ID_KEY, downloadId);
 
-        Event event = new Event(ActivityEvent.EVENT_TOPIC_DOWNLOAD_CANCEL, jsonPropMap);
+        Event event = new Event(ActivityEvent.EVENT_TOPIC_DOWNLOAD_CANCEL, propMap);
         eventAdmin.postEvent(event);
     }
 
@@ -224,10 +223,8 @@ public abstract class AbstractEventController implements EventHandler {
     protected void queuePersistedMessages(final ServerSession serverSession,
             List<Map<String, Object>> messages, final String topic) {
         for (Map<String, Object> notification : messages) {
-            final JSONObject jsonPropMap = new JSONObject();
-            jsonPropMap.putAll(notification);
-
-            LOGGER.debug("Sending the following property map \"{}\": ", jsonPropMap.toJSONString());
+            final Map<String, Object> propMap = new HashMap<>();
+            propMap.putAll(notification);
 
             executorService.submit(new Runnable() {
                 @Override
@@ -246,7 +243,7 @@ public abstract class AbstractEventController implements EventHandler {
 
                     LOGGER.trace("Sending notifications back to client.");
                     serverSession
-                            .deliver(controllerServerSession, topic, jsonPropMap.toJSONString(),
+                            .deliver(controllerServerSession, topic, propMap,
                                     null);
                 }
             });

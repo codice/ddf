@@ -20,6 +20,7 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.core.IsNull.nullValue;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -52,9 +53,13 @@ import org.cometd.bayeux.server.ServerChannel;
 import org.cometd.bayeux.server.ServerMessage;
 import org.cometd.bayeux.server.ServerMessage.Mutable;
 import org.cometd.bayeux.server.ServerSession;
+import org.geotools.filter.text.cql2.CQLException;
+import org.geotools.filter.text.ecql.ECQL;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.opengis.filter.Filter;
+import org.opengis.filter.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,13 +69,15 @@ import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.federation.FederationException;
+import ddf.catalog.filter.impl.SortByImpl;
+import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
+import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryResponseImpl;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
-import net.minidev.json.JSONObject;
 
 /**
  * Test cases for {@link org.codice.ddf.ui.searchui.query.controller.SearchController}
@@ -94,7 +101,8 @@ public class SearchControllerTest {
         framework = createFramework();
 
         searchController = new SearchController(framework,
-                new ActionRegistryImpl(Collections.<ActionProvider>emptyList())) {
+                new ActionRegistryImpl(Collections.<ActionProvider>emptyList()),
+                new GeotoolsFilterAdapterImpl()) {
             @Override
             ExecutorService getExecutorService() {
                 return new SequentialExectorService();
@@ -134,10 +142,10 @@ public class SearchControllerTest {
     }
 
     @Test
-    public void testMetacardTypeValuesCacheEnabled() {
+    public void testMetacardTypeValuesCacheEnabled() throws Exception {
 
         final String ID = "id";
-        Set<String> srcIds = new HashSet<String>();
+        Set<String> srcIds = new HashSet<>();
         srcIds.add(ID);
 
         BayeuxServer bayeuxServer = mock(BayeuxServer.class);
@@ -147,10 +155,9 @@ public class SearchControllerTest {
 
         when(bayeuxServer.getChannel(any(String.class))).thenReturn(channel);
 
-        SearchRequest request = new SearchRequest(srcIds, mock(Query.class), ID);
+        SearchRequest request = new SearchRequest(srcIds, getQueryRequest("title LIKE 'Meta*'"), ID);
 
         searchController.setBayeuxServer(bayeuxServer);
-        // Disable Cache
         searchController.setCacheDisabled(false);
         searchController.executeQuery(request, mockServerSession, null);
 
@@ -160,41 +167,62 @@ public class SearchControllerTest {
         assertReplies(replies);
     }
 
-    /**
-     * Verify that the CatalogFramework does not use the cache (i.e. the CatalogFramework 
-     * is called WITH the query request property mode=cache).
-     */
+    private Query getQueryRequest(String cql) throws CQLException {
+        Filter filter = ECQL.toFilter(cql);
+
+        return new QueryImpl(filter, 1, 200, new SortByImpl(Result.TEMPORAL, SortOrder.DESCENDING),
+                true, 30000);
+    }
+
     @Test
-    public void testExecuteQueryCacheEnabled() throws Exception {
-        // Setup
-        final String ID = "id";
+    public void testExecuteQueryCacheEnabledWithSingleSource() throws Exception {
         Set<String> srcIds = new HashSet<>(1);
-        srcIds.add(ID);
-        SearchRequest request = new SearchRequest(srcIds, mock(Query.class), ID);
+        srcIds.add("id");
+        List<String> modes = cacheQuery(srcIds, 2);
+
+        assertThat(modes.size(), is(2));
+        assertThat(modes, hasItems("cache", "update"));
+    }
+
+    @Test
+    public void testExecuteQueryCacheEnabledWithMultipleSources() throws Exception {
+        Set<String> srcIds = new HashSet<>(2);
+        srcIds.add("id1");
+        srcIds.add("id2");
+        List<String> modes = cacheQuery(srcIds, 3);
+
+        assertThat(modes.size(), is(3));
+        assertThat(modes, hasItems("cache", "update", "update"));
+    }
+
+    private List<String> cacheQuery(Set<String> srcIds, int queryRequestCount)
+            throws CQLException, UnsupportedQueryException, SourceUnavailableException,
+            FederationException {
+        SearchRequest request = new SearchRequest(srcIds, getQueryRequest("anyText LIKE '*'"), "queryId");
         BayeuxServer bayeuxServer = mock(BayeuxServer.class);
         ServerChannel channel = mock(ServerChannel.class);
         when(bayeuxServer.getChannel(any(String.class))).thenReturn(channel);
         ArgumentCaptor<QueryRequest> queryRequestCaptor = ArgumentCaptor
                 .forClass(QueryRequest.class);
-        // Disable Cache
         searchController.setCacheDisabled(false);
+        searchController.setNormalizationDisabled(false);
         searchController.setBayeuxServer(bayeuxServer);
 
         // Perform Test
         searchController.executeQuery(request, mockServerSession, null);
 
         // Verify
-        verify(framework, times(3)).query(queryRequestCaptor.capture());
+        verify(framework, times(queryRequestCount)).query(queryRequestCaptor.capture());
         List<QueryRequest> capturedQueryRequests = queryRequestCaptor.getAllValues();
 
-        List<String> modes = new ArrayList<>(3);
+        List<String> modes = new ArrayList<>(queryRequestCount);
         for (QueryRequest queryRequest : capturedQueryRequests) {
             for (String key : queryRequest.getProperties().keySet()) {
                 modes.add((String) queryRequest.getPropertyValue(key));
             }
         }
 
-        assertThat(modes, hasItems("cache", "index", "cache"));
+        return modes;
     }
 
     /**
@@ -238,7 +266,8 @@ public class SearchControllerTest {
             assertThat(types.get("ddf.metacard"), instanceOf(Map.class));
 
             @SuppressWarnings("unchecked")
-            Map<String, JSONObject> typeInfo = (Map<String, JSONObject>) types.get("ddf.metacard");
+            Map<String, Map<String, Object>> typeInfo = (Map<String, Map<String, Object>>) types
+                    .get("ddf.metacard");
 
             assertThat((String) typeInfo.get("effective").get("format"), is("DATE"));
             assertThat((String) typeInfo.get("modified").get("format"), is("DATE"));
@@ -341,8 +370,43 @@ public class SearchControllerTest {
         }
 
         @Override
-        public <T> Future<T> submit(Callable<T> task) {
-            return null;
+        public <T> Future<T> submit(final Callable<T> task) {
+            try {
+                return new Future<T>() {
+                    @Override
+                    public boolean cancel(boolean mayInterruptIfRunning) {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean isCancelled() {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean isDone() {
+                        return false;
+                    }
+
+                    @Override
+                    public T get() throws InterruptedException, ExecutionException {
+                        return null;
+                    }
+
+                    @Override
+                    public T get(long timeout, TimeUnit unit)
+                            throws InterruptedException, ExecutionException, TimeoutException {
+                        try {
+                            return task.call();
+                        } catch (Exception e) {
+                            fail(e.getMessage());
+                        }
+                        return null;
+                    }
+                };
+            } catch (Exception e) {
+                return null;
+            }
         }
 
         @Override
@@ -353,7 +417,33 @@ public class SearchControllerTest {
         @Override
         public Future<?> submit(Runnable task) {
             task.run();
-            return null;
+            return new Future<Object>() {
+                @Override
+                public boolean cancel(boolean mayInterruptIfRunning) {
+                    return false;
+                }
+
+                @Override
+                public boolean isCancelled() {
+                    return false;
+                }
+
+                @Override
+                public boolean isDone() {
+                    return false;
+                }
+
+                @Override
+                public Object get() throws InterruptedException, ExecutionException {
+                    return null;
+                }
+
+                @Override
+                public Object get(long timeout, TimeUnit unit)
+                        throws InterruptedException, ExecutionException, TimeoutException {
+                    return null;
+                }
+            };
         }
 
         @Override

@@ -48,6 +48,8 @@ import org.apache.solr.client.solrj.response.CoreAdminResponse;
 import org.apache.solr.common.SolrException;
 import org.apache.solr.core.CoreContainer;
 import org.apache.solr.core.CoreDescriptor;
+import org.apache.solr.core.DirectoryFactory;
+import org.apache.solr.core.PluginInfo;
 import org.apache.solr.core.SolrConfig;
 import org.apache.solr.core.SolrCore;
 import org.apache.solr.schema.IndexSchema;
@@ -286,9 +288,21 @@ public final class SolrServerFactory {
             CoreDescriptor coreDescriptor = new CoreDescriptor(container, CORE_NAME,
                     solrConfig.getResourceLoader().getInstanceDir());
 
-            File dataDir = configProxy.getDataDirectory();
-            LOGGER.debug("Using data directory [{}]", dataDir);
-            SolrCore core = new SolrCore(CORE_NAME, dataDir.getAbsolutePath(), solrConfig,
+            String dataDirPath = null;
+            if (!ConfigurationStore.getInstance().isInMemory()) {
+                File dataDir = configProxy.getDataDirectory();
+                if (dataDir != null) {
+                    LOGGER.debug("Using data directory [{}]", dataDir);
+                    dataDirPath = dataDir.getAbsolutePath();
+                }
+            } else {
+                PluginInfo info = solrConfig.getPluginInfo(DirectoryFactory.class.getName());
+                if (!"solr.RAMDirectoryFactory".equals(info.className)) {
+                    LOGGER.warn("Using in-memory configuration without RAMDirectoryFactory.");
+                }
+            }
+
+            SolrCore core = new SolrCore(CORE_NAME, dataDirPath, solrConfig,
                     indexSchema, coreDescriptor);
             container.register(CORE_NAME, core, false);
 

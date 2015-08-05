@@ -390,6 +390,8 @@ public class SolrCache implements SolrCacheMBean {
                 query = solrFilterDelegate.and(Lists.newArrayList(query, allSourcesQuery));
             }
 
+            removeOuterParenthesesIfFunctionPresent(query);
+
             return query;
         }
 
