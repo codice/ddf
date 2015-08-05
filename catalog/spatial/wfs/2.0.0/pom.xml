@@ -23,9 +23,7 @@
     </parent>
     <artifactId>wfs-v2.0.0</artifactId>
     <name>DDF :: Spatial :: WFS :: 2.0.0</name>
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
+
     <packaging>pom</packaging>
     <modules>
         <module>spatial-wfs-v2_0_0-schema-bindings</module>
