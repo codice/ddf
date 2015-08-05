@@ -31,6 +31,8 @@ public class ConfigurationStore {
 
     private boolean disableTextPath;
 
+    private boolean inMemory;
+
     private Double nearestNeighborDistanceLimit;
 
     private ConfigurationStore() {
@@ -85,6 +87,17 @@ public class ConfigurationStore {
      */
     public boolean isForceAutoCommit() {
         return forceAutoCommit;
+    }
+
+    /**
+     * @return true, if index stored in memory
+     */
+    public boolean isInMemory() {
+        return inMemory;
+    }
+
+    public void setInMemory(boolean isInMemory) {
+        inMemory = isInMemory;
     }
 
     /**

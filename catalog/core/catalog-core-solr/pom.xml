@@ -211,6 +211,17 @@
                                     <groupId>ddf.platform.solr</groupId>
                                     <artifactId>platform-solr-server-standalone</artifactId>
                                     <version>${project.version}</version>
+                                    <type>xml</type>
+                                    <classifier>solrconfig</classifier>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${project.build.directory}/classes/solr/conf
+                                    </outputDirectory>
+                                    <destFileName>solrconfig-inmemory.xml</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>ddf.platform.solr</groupId>
+                                    <artifactId>platform-solr-server-standalone</artifactId>
+                                    <version>${project.version}</version>
                                     <type>txt</type>
                                     <classifier>stopwords_en</classifier>
                                     <overWrite>true</overWrite>

@@ -90,11 +90,25 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
 
     protected static final String QUERY_MODE = "mode";
 
+    /**
+     * Query the cache
+     */
     protected static final String CACHE_QUERY_MODE = "cache";
 
+    /**
+     * Query without updating the cache
+     */
     protected static final String NATIVE_QUERY_MODE = "native";
 
+    /**
+     * Query and update the cache but block until done indexing
+     */
     protected static final String INDEX_QUERY_MODE = "index";
+
+    /**
+     * Query and update the cache without blocking
+     */
+    protected static final String UPDATE_QUERY_MODE = "update";
 
     private static final int DEFAULT_MAX_START_INDEX = 50000;
 
@@ -170,6 +184,7 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
             queryResponse.addResults(result.getResults(), true);
         } catch (UnsupportedQueryException e) {
             queryResponse.getProcessingDetails().add(new ProcessingDetailsImpl("cache", e));
+            queryResponse.closeResultQueue();
         }
         return queryResponse;
     }
@@ -479,7 +494,8 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
             if (INDEX_QUERY_MODE.equals(request.getPropertyValue(QUERY_MODE))) {
                 cacheCommitPhaser.add(sourceResponse.getResults());
             } else if (!NATIVE_QUERY_MODE.equals(request.getPropertyValue(QUERY_MODE))) {
-                if (isCachingEverything) {
+                if (isCachingEverything || UPDATE_QUERY_MODE
+                        .equals(request.getPropertyValue(QUERY_MODE))) {
                     cacheExecutorService.submit(new Runnable() {
                         @Override
                         public void run() {
@@ -599,23 +615,24 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
             }
             logger.debug("All sources finished returning results: {}", resultList.size());
 
+            returnResults.setHits(totalHits);
             if (INDEX_QUERY_MODE.equals(request.getPropertyValue(QUERY_MODE))) {
                 QueryResponse result = queryCache(request);
-                returnResults.setHits(totalHits);
                 returnResults.addResults(result.getResults(), true);
             } else {
-                Collections.sort(resultList, coreComparator);
-
-                returnResults.setHits(totalHits);
-                int maxResults = Integer.MAX_VALUE;
-                if (query.getPageSize() > 0) {
-                    maxResults = query.getPageSize();
-                }
-
-                returnResults.addResults(resultList.size() > maxResults ?
-                        resultList.subList(0, maxResults) :
-                        resultList, true);
+                returnResults.addResults(sortedResults(resultList, coreComparator), true);
             }
+        }
+
+        List<Result> sortedResults(List<Result> results, Comparator<? super Result> comparator) {
+            Collections.sort(results, comparator);
+
+            int maxResults = Integer.MAX_VALUE;
+            if (query.getPageSize() > 0) {
+                maxResults = query.getPageSize();
+            }
+
+            return results.size() > maxResults ? results.subList(0, maxResults) : results;
         }
 
         private void timeoutRemainingSources(Set<ProcessingDetails> processingDetails) {

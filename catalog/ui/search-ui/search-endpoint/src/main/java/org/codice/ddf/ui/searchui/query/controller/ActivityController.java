@@ -40,8 +40,6 @@ import org.osgi.service.event.EventConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.minidev.json.JSONObject;
-
 /**
  * The {@code ActivityController} handles the processing and routing of activities.
  */
@@ -128,19 +126,16 @@ public class ActivityController extends AbstractEventController {
         }
 
         if (null != recipient) {
-            JSONObject jsonPropMap = new JSONObject();
+            Map<String, Object> propMap = new HashMap<>();
 
             for (String key : event.getPropertyNames()) {
                 if (!EventConstants.EVENT_TOPIC.equals(key) && !ActivityEvent.USER_ID_KEY
                         .equals(key) && event.getProperty(key) != null) {
-                    jsonPropMap.put(key, event.getProperty(key));
+                    propMap.put(key, event.getProperty(key));
                 }
             }
 
-            LOGGER.debug("Sending the following property map \"{}\": ", jsonPropMap.toJSONString());
-
-            recipient.deliver(controllerServerSession, ACTIVITY_TOPIC_COMETD,
-                    jsonPropMap.toJSONString(), null);
+            recipient.deliver(controllerServerSession, ACTIVITY_TOPIC_COMETD, propMap, null);
 
         } else {
             LOGGER.debug(
@@ -257,7 +252,7 @@ public class ActivityController extends AbstractEventController {
                             throw new IllegalArgumentException("Metadata ID is null");
                         }
 
-                        JSONObject jsonPropMap = new JSONObject();
+                        Map<String, Object> jsonPropMap = new HashMap<>();
                         jsonPropMap.put(ActivityEvent.DOWNLOAD_ID_KEY, id);
 
                         Event event = new Event(ActivityEvent.EVENT_TOPIC_DOWNLOAD_CANCEL,

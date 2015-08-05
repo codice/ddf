@@ -72,13 +72,13 @@ public abstract class SolrProviderTestCase {
     @BeforeClass
     public static void setup() throws Exception {
         LOGGER.info("RUNNING one-time setup.");
-        ConfigurationStore.getInstance().setDataDirectoryPath("target/solr");
+        ConfigurationStore.getInstance().setInMemory(true);
         ConfigurationStore.getInstance().setForceAutoCommit(true);
         ConfigurationFileProxy configurationFileProxy = new ConfigurationFileProxy(
                 ConfigurationStore.getInstance());
 
         provider = new SolrCatalogProvider(SolrServerFactory
-                .getEmbeddedSolrServer("solrconfig.xml", "schema.xml", configurationFileProxy),
+                .getEmbeddedSolrServer("solrconfig-inmemory.xml", "schema.xml", configurationFileProxy),
                 new GeotoolsFilterAdapterImpl(), new SolrFilterDelegateFactoryImpl());
 
         // Mask the id, this is something that the CatalogFramework would

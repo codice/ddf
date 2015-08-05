@@ -23,6 +23,7 @@
     <reference id="persistentStore" interface="org.codice.ddf.persistence.PersistentStore"/>
     <reference id="catalog" interface="ddf.catalog.CatalogFramework"/>
     <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
+    <reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>
     <reference id="securityManager" interface="ddf.security.service.SecurityManager"
                availability="optional"/>
     <reference-list id="requestHandlerList" interface="ddf.security.service.TokenRequestHandler"
@@ -41,6 +42,7 @@
         <argument ref="comet"/>
         <argument ref="catalog"/>
         <argument ref="filterBuilder"/>
+        <argument ref="filterAdapter"/>
         <argument ref="persistentStore"/>
         <argument ref="blueprintBundleContext"/>
         <argument ref="eventAdmin"/>
