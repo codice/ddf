@@ -18,6 +18,7 @@ package org.codice.ddf.ui.searchui.geocoder.geonames;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.codice.ddf.spatial.geocoding.GeoCodingConstants;
 import org.codice.ddf.ui.searchui.geocoder.GeoResult;
 import org.geotools.geometry.jts.spatialschema.geometry.DirectPositionImpl;
 import org.geotools.geometry.jts.spatialschema.geometry.primitive.PointImpl;
@@ -25,27 +26,23 @@ import org.opengis.geometry.DirectPosition;
 import org.opengis.geometry.primitive.Point;
 
 final class GeoResultCreator {
-    private static final String ADMINISTRATIVE_LOCATION = "ADM";
-    private static final String POLITICAL_ENTITY = "PCL";
-    private static final String POPULATED_PLACE = "PPL";
-
     static GeoResult createGeoResult(final String name, final double latitude,
             final double longitude, final String featureCode, final double population) {
         double latitudeOffset = 0;
         double longitudeOffset = 0;
-        if (featureCode.startsWith(ADMINISTRATIVE_LOCATION)) {
-            if (featureCode.endsWith("1")) {
+        if (featureCode.startsWith(GeoCodingConstants.ADMINISTRATIVE_DIVISION)) {
+            if (featureCode.endsWith(GeoCodingConstants.DIVISION_FIRST_ORDER)) {
                 latitudeOffset = longitudeOffset = 5;
-            } else if (featureCode.endsWith("2")) {
+            } else if (featureCode.endsWith(GeoCodingConstants.DIVISION_SECOND_ORDER)) {
                 latitudeOffset = longitudeOffset = 4;
-            } else if (featureCode.endsWith("3")) {
+            } else if (featureCode.endsWith(GeoCodingConstants.DIVISION_THIRD_ORDER)) {
                 latitudeOffset = longitudeOffset = 3;
-            } else if (featureCode.endsWith("4")) {
+            } else if (featureCode.endsWith(GeoCodingConstants.DIVISION_FOURTH_ORDER)) {
                 latitudeOffset = longitudeOffset = 2;
-            } else if (featureCode.endsWith("5")) {
+            } else if (featureCode.endsWith(GeoCodingConstants.DIVISION_FIFTH_ORDER)) {
                 latitudeOffset = longitudeOffset = 1;
             }
-        } else if (featureCode.startsWith(POLITICAL_ENTITY)) {
+        } else if (featureCode.startsWith(GeoCodingConstants.POLITICAL_ENTITY)) {
             latitudeOffset = longitudeOffset = 6;
             if (population > 100000000) {
                 latitudeOffset *= 2;
@@ -60,7 +57,7 @@ final class GeoResultCreator {
                 latitudeOffset *= 0.5;
                 longitudeOffset *= 0.5;
             }
-        } else if (featureCode.startsWith(POPULATED_PLACE)) {
+        } else if (featureCode.startsWith(GeoCodingConstants.POPULATED_PLACE)) {
             latitudeOffset = longitudeOffset = 0.5;
             if (population > 10000000) {
                 latitudeOffset *= 1.5;

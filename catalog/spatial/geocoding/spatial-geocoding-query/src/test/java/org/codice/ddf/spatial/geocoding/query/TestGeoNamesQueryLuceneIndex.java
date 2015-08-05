@@ -43,6 +43,7 @@ import org.apache.lucene.store.RAMDirectory;
 import org.codice.ddf.spatial.geocoding.GeoEntry;
 import org.codice.ddf.spatial.geocoding.GeoEntryQueryException;
 import org.codice.ddf.spatial.geocoding.TestBase;
+import org.codice.ddf.spatial.geocoding.index.GeoNamesLuceneConstants;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -129,13 +130,20 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
     private Document createDocumentFromGeoEntry(final GeoEntry geoEntry) {
         final Document document = new Document();
 
-        document.add(new TextField("name", geoEntry.getName(), Field.Store.YES));
-        document.add(new DoubleField("latitude", geoEntry.getLatitude(), Field.Store.YES));
-        document.add(new DoubleField("longitude", geoEntry.getLongitude(), Field.Store.YES));
-        document.add(new StringField("feature_code", geoEntry.getFeatureCode(), Field.Store.YES));
-        document.add(new LongField("population", geoEntry.getPopulation(), Field.Store.YES));
-        document.add(new TextField("alternate_names", geoEntry.getAlternateNames(),
-                Field.Store.NO));
+        document.add(new TextField(GeoNamesLuceneConstants.NAME_FIELD, geoEntry.getName(),
+                Field.Store.YES));
+        document.add(new DoubleField(GeoNamesLuceneConstants.LATITUDE_FIELD, geoEntry.getLatitude(),
+                Field.Store.YES));
+        document.add(
+                new DoubleField(GeoNamesLuceneConstants.LONGITUDE_FIELD, geoEntry.getLongitude(),
+                        Field.Store.YES));
+        document.add(new StringField(GeoNamesLuceneConstants.FEATURE_CODE_FIELD,
+                geoEntry.getFeatureCode(), Field.Store.YES));
+        document.add(
+                new LongField(GeoNamesLuceneConstants.POPULATION_FIELD, geoEntry.getPopulation(),
+                        Field.Store.YES));
+        document.add(new TextField(GeoNamesLuceneConstants.ALTERNATE_NAMES_FIELD,
+                geoEntry.getAlternateNames(), Field.Store.NO));
 
         return document;
     }

@@ -35,6 +35,7 @@ import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.search.similarities.DefaultSimilarity;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.codice.ddf.spatial.geocoding.GeoCodingConstants;
 import org.codice.ddf.spatial.geocoding.GeoEntry;
 import org.codice.ddf.spatial.geocoding.GeoEntryExtractionException;
 import org.codice.ddf.spatial.geocoding.GeoEntryExtractor;
@@ -54,7 +55,7 @@ public class GeoNamesLuceneIndexer implements GeoEntryIndexer {
     public static final DefaultSimilarity SIMILARITY = new DefaultSimilarity() {
         @Override
         public float lengthNorm(final FieldInvertState fieldInvertState) {
-            if (fieldInvertState.getName().equals("alternate_names")) {
+            if (fieldInvertState.getName().equals(GeoNamesLuceneConstants.ALTERNATE_NAMES_FIELD)) {
                 return 1.0f;
             } else {
                 return super.lengthNorm(fieldInvertState) / (float) Math.sqrt(fieldInvertState.getLength());
@@ -174,16 +175,21 @@ public class GeoNamesLuceneIndexer implements GeoEntryIndexer {
     private void addDocument(final IndexWriter indexWriter, final GeoEntry geoEntry)
             throws IOException {
         final Document document = new Document();
-        document.add(new TextField("name", geoEntry.getName(), Field.Store.YES));
-        document.add(new DoubleField("latitude", geoEntry.getLatitude(), Field.Store.YES));
-        document.add(new DoubleField("longitude", geoEntry.getLongitude(), Field.Store.YES));
-        document.add(new StoredField("feature_code", geoEntry.getFeatureCode()));
-        document.add(new StoredField("population", geoEntry.getPopulation()));
-        document.add(
-                new TextField("alternate_names", geoEntry.getAlternateNames(), Field.Store.NO));
+        document.add(new TextField(GeoNamesLuceneConstants.NAME_FIELD, geoEntry.getName(),
+                Field.Store.YES));
+        document.add(new DoubleField(GeoNamesLuceneConstants.LATITUDE_FIELD, geoEntry.getLatitude(),
+                Field.Store.YES));
+        document.add(new DoubleField(GeoNamesLuceneConstants.LONGITUDE_FIELD,
+                geoEntry.getLongitude(), Field.Store.YES));
+        document.add(new StoredField(GeoNamesLuceneConstants.FEATURE_CODE_FIELD,
+                geoEntry.getFeatureCode()));
+        document.add(new StoredField(GeoNamesLuceneConstants.POPULATION_FIELD,
+                geoEntry.getPopulation()));
+        document.add(new TextField(GeoNamesLuceneConstants.ALTERNATE_NAMES_FIELD,
+                geoEntry.getAlternateNames(), Field.Store.NO));
 
         final float boost = calculateBoost(geoEntry);
-        document.add(new FloatDocValuesField("boost", boost));
+        document.add(new FloatDocValuesField(GeoNamesLuceneConstants.BOOST_FIELD, boost));
 
         indexWriter.addDocument(document);
     }
@@ -193,32 +199,32 @@ public class GeoNamesLuceneIndexer implements GeoEntryIndexer {
 
         float boost = 1.0f;
 
-        if (featureCode.startsWith("ADM")) {
+        if (featureCode.startsWith(GeoCodingConstants.ADMINISTRATIVE_DIVISION)) {
             boost += 0.4f;
-            if (featureCode.endsWith("1")) {
+            if (featureCode.endsWith(GeoCodingConstants.DIVISION_FIRST_ORDER)) {
                 boost += 1.2f;
-            } else if (featureCode.endsWith("2")) {
+            } else if (featureCode.endsWith(GeoCodingConstants.DIVISION_SECOND_ORDER)) {
                 boost += 0.6f;
-            } else if (featureCode.endsWith("3")) {
+            } else if (featureCode.endsWith(GeoCodingConstants.DIVISION_THIRD_ORDER)) {
                 boost += 0.4f;
-            } else if (featureCode.endsWith("4")) {
+            } else if (featureCode.endsWith(GeoCodingConstants.DIVISION_FOURTH_ORDER)) {
                 boost += 0.2f;
-            } else if (featureCode.endsWith("5")) {
+            } else if (featureCode.endsWith(GeoCodingConstants.DIVISION_FIFTH_ORDER)) {
                 boost += 0.0f;
             }
-        } else if (featureCode.startsWith("PCL")) {
+        } else if (featureCode.startsWith(GeoCodingConstants.POLITICAL_ENTITY)) {
             boost += 2.5f;
-        } else if (featureCode.startsWith("PPL")) {
+        } else if (featureCode.startsWith(GeoCodingConstants.POPULATED_PLACE)) {
             boost += 1.5f;
-            if (featureCode.endsWith("A")) {
+            if (featureCode.endsWith(GeoCodingConstants.SEAT_FIRST_ORDER)) {
                 boost += 0.5f;
-            } else if (featureCode.endsWith("A2")) {
+            } else if (featureCode.endsWith(GeoCodingConstants.SEAT_SECOND_ORDER)) {
                 boost += 0.4f;
-            } else if (featureCode.endsWith("A3")) {
+            } else if (featureCode.endsWith(GeoCodingConstants.SEAT_THIRD_ORDER)) {
                 boost += 0.3f;
-            } else if (featureCode.endsWith("A4")) {
+            } else if (featureCode.endsWith(GeoCodingConstants.SEAT_FOURTH_ORDER)) {
                 boost += 0.2f;
-            } else if (featureCode.endsWith("C")) {
+            } else if (featureCode.endsWith(GeoCodingConstants.CAPITAL)) {
                 boost += 0.8f;
             }
         }
@@ -226,7 +232,7 @@ public class GeoNamesLuceneIndexer implements GeoEntryIndexer {
         final long population = geoEntry.getPopulation();
         // Populated places get a small initial boost.
         boost += population > 0 ? 0.1f : 0;
-        // A population of 25000000 or more will give the max population boost.
+        // A population of 25,000,000 or more will give the max population boost.
         boost += Math.min(population / 25000000.0f, 1.0f) * 5.0f;
         return boost;
     }

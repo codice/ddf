@@ -113,12 +113,13 @@ public class TestGeoNamesLuceneIndexer extends TestBase {
 
     private GeoEntry createGeoEntryFromDocument(final Document document) {
         return new GeoEntry.Builder()
-                .name(document.get("name"))
-                .latitude(Double.parseDouble(document.get("latitude")))
-                .longitude(Double.parseDouble(document.get("longitude")))
-                .featureCode(document.get("feature_code"))
-                .population(Long.parseLong(document.get("population")))
-                .alternateNames(document.get("alternate_names"))
+                .name(document.get(GeoNamesLuceneConstants.NAME_FIELD))
+                .latitude(Double.parseDouble(document.get(GeoNamesLuceneConstants.LATITUDE_FIELD)))
+                .longitude(
+                        Double.parseDouble(document.get(GeoNamesLuceneConstants.LONGITUDE_FIELD)))
+                .featureCode(document.get(GeoNamesLuceneConstants.FEATURE_CODE_FIELD))
+                .population(Long.parseLong(document.get(GeoNamesLuceneConstants.POPULATION_FIELD)))
+                .alternateNames(document.get(GeoNamesLuceneConstants.ALTERNATE_NAMES_FIELD))
                 .build();
     }
 

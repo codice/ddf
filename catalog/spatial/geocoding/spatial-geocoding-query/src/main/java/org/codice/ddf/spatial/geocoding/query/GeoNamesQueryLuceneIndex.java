@@ -39,6 +39,7 @@ import org.apache.lucene.store.Directory;
 import org.codice.ddf.spatial.geocoding.GeoEntry;
 import org.codice.ddf.spatial.geocoding.GeoEntryQueryException;
 import org.codice.ddf.spatial.geocoding.GeoEntryQueryable;
+import org.codice.ddf.spatial.geocoding.index.GeoNamesLuceneConstants;
 
 public abstract class GeoNamesQueryLuceneIndex implements GeoEntryQueryable {
     protected abstract Directory createDirectory() throws IOException;
@@ -74,11 +75,14 @@ public abstract class GeoNamesQueryLuceneIndex implements GeoEntryQueryable {
                     // The alternate names aren't being stored (they are only used for queries),
                     // so we don't retrieve them here.
                     results.add(new GeoEntry.Builder()
-                            .name(document.get("name"))
-                            .latitude(Double.parseDouble(document.get("latitude")))
-                            .longitude(Double.parseDouble(document.get("longitude")))
-                            .featureCode(document.get("feature_code"))
-                            .population(Long.parseLong(document.get("population")))
+                            .name(document.get(GeoNamesLuceneConstants.NAME_FIELD))
+                            .latitude(Double.parseDouble(
+                                    document.get(GeoNamesLuceneConstants.LATITUDE_FIELD)))
+                            .longitude(Double.parseDouble(
+                                    document.get(GeoNamesLuceneConstants.LONGITUDE_FIELD)))
+                            .featureCode(document.get(GeoNamesLuceneConstants.FEATURE_CODE_FIELD))
+                            .population(Long.parseLong(
+                                    document.get(GeoNamesLuceneConstants.POPULATION_FIELD)))
                             .build());
                 }
                 return results;
@@ -93,22 +97,26 @@ public abstract class GeoNamesQueryLuceneIndex implements GeoEntryQueryable {
     }
 
     protected Query createQuery(final String queryString) throws ParseException {
-        final QueryParser nameQueryParser = new QueryParser("name", new StandardAnalyzer());
+        final StandardAnalyzer standardAnalyzer = new StandardAnalyzer();
+
+        final QueryParser nameQueryParser =
+                new QueryParser(GeoNamesLuceneConstants.NAME_FIELD, standardAnalyzer);
         nameQueryParser.setEnablePositionIncrements(false);
 
         // Surround with quotes so Lucene looks for the words in the query as a phrase.
         final Query nameQuery = nameQueryParser.parse("\"" + queryString + "\"");
         nameQuery.setBoost(3.2f);
 
-        final QueryParser alternateNamesQueryParser = new QueryParser("alternate_names",
-                new StandardAnalyzer());
+        final QueryParser alternateNamesQueryParser =
+                new QueryParser(GeoNamesLuceneConstants.ALTERNATE_NAMES_FIELD, standardAnalyzer);
         final Query alternateNamesQuery = alternateNamesQueryParser.parse(queryString);
 
         final List<Query> queryList = Arrays.asList(nameQuery, alternateNamesQuery);
 
-        final DisjunctionMaxQuery disjunctionMaxQuery =
-                new DisjunctionMaxQuery(queryList, 1.0f);
-        final FunctionQuery boostQuery = new FunctionQuery(new FloatFieldSource("boost"));
+        final DisjunctionMaxQuery disjunctionMaxQuery = new DisjunctionMaxQuery(queryList, 1.0f);
+        final FunctionQuery boostQuery =
+                new FunctionQuery(new FloatFieldSource(GeoNamesLuceneConstants.BOOST_FIELD));
+
         return new CustomScoreQuery(disjunctionMaxQuery, boostQuery);
     }
 }
