@@ -205,8 +205,8 @@ public class SearchService {
         try {
             // Hand off to the search controller for the actual query
             searchController.executeQuery(searchRequest, serverSession, subject);
-        } catch (RuntimeException re) {
-            LOGGER.warn("Exception while executing a query", re);
+        } catch (Exception e) {
+            LOGGER.warn("Exception while executing a query", e);
         }
 
     }

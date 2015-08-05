@@ -31,6 +31,9 @@ import ddf.catalog.data.Metacard;
 
 public class TestSolrFilterDelegate {
 
+    private static final String WHITESPACE_TOKENIZED_METADATA_FIELD =
+            Metacard.METADATA + SchemaFields.TEXT_SUFFIX + SchemaFields.WHITESPACE_TEXT_SUFFIX;
+
     private DynamicSchemaResolver mockResolver = mock(DynamicSchemaResolver.class);
 
     private SolrFilterDelegate toTest = new SolrFilterDelegate(mockResolver);
@@ -153,8 +156,13 @@ public class TestSolrFilterDelegate {
 
     @Test
     public void testPropertyIsLikeWildcard() {
+        stub(mockResolver.getField(Metacard.METADATA, AttributeFormat.STRING, true))
+                .toReturn("metadata_txt");
+        stub(mockResolver.getWhitespaceTokenizedField("metadata_txt"))
+                .toReturn("metadata_txt_ws");
+
         String searchPhrase = "abc-123*";
-        String expectedQuery = SolrFilterDelegate.WHITESPACE_TOKENIZED_METADATA_FIELD + ":(abc\\-123*)";
+        String expectedQuery = WHITESPACE_TOKENIZED_METADATA_FIELD + ":(abc\\-123*)";
         boolean isCaseSensitive = false;
 
         SolrQuery isLikeQuery = toTest.propertyIsLike(Metacard.ANY_TEXT, searchPhrase, isCaseSensitive);
@@ -165,8 +173,13 @@ public class TestSolrFilterDelegate {
 
     @Test
     public void testPropertyIsLikeWildcardNoTokens() {
+        stub(mockResolver.getField(Metacard.METADATA, AttributeFormat.STRING, true))
+                .toReturn("metadata_txt");
+        stub(mockResolver.getWhitespaceTokenizedField("metadata_txt"))
+                .toReturn("metadata_txt_ws");
+
         String searchPhrase = "title*";
-        String expectedQuery = SolrFilterDelegate.WHITESPACE_TOKENIZED_METADATA_FIELD + ":(title*)";
+        String expectedQuery = WHITESPACE_TOKENIZED_METADATA_FIELD + ":(title*)";
         boolean isCaseSensitive = false;
 
         SolrQuery isLikeQuery = toTest
@@ -178,8 +191,13 @@ public class TestSolrFilterDelegate {
 
     @Test
     public void testPropertyIsLikeMultipleTermsWithWildcard() {
+        stub(mockResolver.getField(Metacard.METADATA, AttributeFormat.STRING, true))
+                .toReturn("metadata_txt");
+        stub(mockResolver.getWhitespaceTokenizedField("metadata_txt"))
+                .toReturn("metadata_txt_ws");
+
         String searchPhrase = "abc 123*";
-        String expectedQuery = SolrFilterDelegate.WHITESPACE_TOKENIZED_METADATA_FIELD + ":(abc 123*)";
+        String expectedQuery = WHITESPACE_TOKENIZED_METADATA_FIELD + ":(abc 123*)";
 
         SolrQuery isLikeQuery = toTest.propertyIsLike(Metacard.ANY_TEXT, searchPhrase, false);
 
@@ -189,8 +207,15 @@ public class TestSolrFilterDelegate {
 
     @Test
     public void testPropertyIsLikeCaseSensitiveWildcard() {
+        stub(mockResolver.getField(Metacard.METADATA, AttributeFormat.STRING, true))
+                .toReturn("metadata_txt");
+        stub(mockResolver.getWhitespaceTokenizedField("metadata_txt"))
+                .toReturn("metadata_txt_ws");
+        stub(mockResolver.getCaseSensitiveField("metadata_txt_ws"))
+                .toReturn("metadata_txt_ws_has_case");
+
         String searchPhrase = "abc-123*";
-        String expectedQuery = SolrFilterDelegate.WHITESPACE_TOKENIZED_METADATA_FIELD + SchemaFields.HAS_CASE + ":(abc\\-123*)";
+        String expectedQuery = WHITESPACE_TOKENIZED_METADATA_FIELD + SchemaFields.HAS_CASE + ":(abc\\-123*)";
 
         SolrQuery isLikeQuery = toTest.propertyIsLike(Metacard.ANY_TEXT, searchPhrase, true);
 

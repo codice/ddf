@@ -63,6 +63,12 @@ Admin Console.
 |Disables use of cache.
 |no
 
+|Disable Normalization
+|normalizationDisabled
+|Boolean
+|Disables relevance and distance normalization.
+|no
+
 |===
 
 ==== Standard Search UI

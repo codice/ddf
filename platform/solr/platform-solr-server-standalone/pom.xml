@@ -348,6 +348,11 @@
                                     <classifier>solrconfig</classifier>
                                 </artifact>
                                 <artifact>
+                                    <file>target/classes/solr/conf/solrconfig-inmemory.xml</file>
+                                    <type>xml</type>
+                                    <classifier>solrconfig-inmemory</classifier>
+                                </artifact>
+                                <artifact>
                                     <file>target/classes/solr/conf/stopwords_en.txt</file>
                                     <type>txt</type>
                                     <classifier>stopwords_en</classifier>
