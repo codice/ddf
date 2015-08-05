@@ -74,6 +74,19 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
     private List<AdminModule> moduleList;
 
     /**
+     * Constructor for use in unit tests. Needed for testing listServices() and getService().
+     *
+     * @param configurationAdmin
+     *              instance of org.osgi.service.cm.ConfigurationAdmin service
+     * @param configurationAdminExt
+     *              mocked instance of ConfigurationAdminExt
+     */
+    public ConfigurationAdmin(org.osgi.service.cm.ConfigurationAdmin configurationAdmin,
+            ConfigurationAdminExt configurationAdminExt) {
+        this.configurationAdmin = configurationAdmin;
+        this.configurationAdminExt = configurationAdminExt;
+    }
+    /**
      * Constructs a ConfigurationAdmin implementation
      *
      * @param configurationAdmin
@@ -512,5 +525,12 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
         rval.put(NEW_PID, enabledConfiguration.getPid());
         rval.put(NEW_FACTORY_PID, enabledFactoryPid);
         return rval;
+    }
+
+    /**
+     * Setter method for mBeanServer. Needed for testing init() and destroy().
+     */
+    void setMBeanServer(MBeanServer server) {
+        mBeanServer = server;
     }
 }
