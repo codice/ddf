@@ -66,7 +66,7 @@ public class TestSolrCommands extends AbstractIntegrationTest {
     @Test
     public void testSolrBackupBadCoreName() {
         String coreName = "blah";
-        String command = BACKUP_COMMAND + " -coreName " + coreName;
+        String command = BACKUP_COMMAND + " -c " + coreName;
         String output = console.runCommand(command);
 
         assertThat(output, containsString(String.format(BACKUP_ERROR_MESSAGE_FORMAT, coreName)));
@@ -77,7 +77,7 @@ public class TestSolrCommands extends AbstractIntegrationTest {
         int numToKeep = 2;
         String coreName = "catalog";
 
-        String command = BACKUP_COMMAND + " -numToKeep " + numToKeep;
+        String command = BACKUP_COMMAND + " -n " + numToKeep;
         //run this three times to make sure only 2 are kept
         console.runCommand(command);
 
