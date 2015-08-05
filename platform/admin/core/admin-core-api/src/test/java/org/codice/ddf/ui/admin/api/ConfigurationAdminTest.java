@@ -250,8 +250,6 @@ public class ConfigurationAdminTest {
 
         List<Map<String, Object>> result = configAdmin.listServices();
 
-        System.out.println(result.toString());
-
         assertTrue("Should return an empty list.", result.isEmpty());
         verify(testConfigAdminExt).listServices(anyString(), anyString());
     }
