@@ -66,10 +66,6 @@
             <version>1.0</version>
         </dependency>
         <dependency>
-            <groupId>net.minidev</groupId>
-            <artifactId>json-smart</artifactId>
-        </dependency>
-        <dependency>
             <groupId>ddf.catalog.transformer</groupId>
             <artifactId>geojson-metacard-transformer</artifactId>
             <version>${project.version}</version>
@@ -113,6 +109,16 @@
             <groupId>org.geotools</groupId>
             <artifactId>gt-cql</artifactId>
             <version>13.0</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>gt-main</artifactId>
+                    <groupId>org.geotools</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jai_core</artifactId>
+                    <groupId>javax.media</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -121,11 +127,20 @@
         </dependency>
 
         <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>1.9.5</version>
-            <scope>test</scope>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-solr</artifactId>
+            <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>net.sf.saxon</groupId>
+            <artifactId>Saxon-HE</artifactId>
+            <version>${solr.saxon.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>filter-proxy</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-api</artifactId>
@@ -133,6 +148,31 @@
         <dependency>
             <groupId>ddf.action.core</groupId>
             <artifactId>action-core-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.spockframework</groupId>
+            <artifactId>spock-core</artifactId>
+            <version>1.0-groovy-2.4</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-all</artifactId>
+            <version>2.4.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>cglib</groupId>
+            <artifactId>cglib-nodep</artifactId>
+            <version>3.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.objenesis</groupId>
+            <artifactId>objenesis</artifactId>
+            <version>2.1</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -145,6 +185,42 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
+                            <!-- Start of Solr dependencies -->
+                            lux,
+                            solr-xpath,
+                            Saxon-HE,
+                            woodstox-core-asl,
+                            stax2-api,
+                            catalog-core-solr,
+                            commons-cli,
+                            commons-fileupload,
+                            commons-codec,
+                            spatial4j,
+                            solr-core,
+                            solr-solrj,
+                            solr-factory,
+                            commons-io,
+                            commons-lang,
+                            joda-time,
+                            lucene-core,
+                            lucene-analyzers-common,
+                            lucene-analyzers-morfologik,
+                            lucene-analyzers-phonetic,
+                            lucene-highlighter,
+                            lucene-memory,
+                            lucene-misc,
+                            lucene-queryparser,
+                            lucene-suggest,
+                            lucene-grouping,
+                            lucene-queries,
+                            lucene-spatial,
+                            httpclient,
+                            httpcore,
+                            httpmime,
+                            noggit,
+                            zookeeper,
+                            <!-- End of Solr dependencies -->
+
                             gt-cql,
                             bayeux-api,
                             catalog-core-api-impl,
@@ -155,10 +231,9 @@
                             activities,
                             jackson-mapper-asl,
                             jackson-core-asl,
-                            joda-time,
-                            json-smart,
                             guava
                         </Embed-Dependency>
+                        <Embed-Transitive>true</Embed-Transitive>
                         <Web-ContextPath>/search/cometd</Web-ContextPath>
                         <Spring-Context>*;wait-for-dependencies:=true;timeout:=604800
                         </Spring-Context>
@@ -172,10 +247,35 @@
                         <Import-Package>
                             org.joda.convert;resolution:=optional,
                             org.eclipse.jetty.*; version="[7.6.0,9.0.0)",
-                            *
+                            *;resolution:=optional
                         </Import-Package>
                     </instructions>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>unpack</id>
+                        <phase>process-test-resources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>ddf.platform.solr</groupId>
+                                    <artifactId>platform-solr-server-standalone</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>test-jar</type>
+                                    <excludes>META-INF/**</excludes>
+                                    <outputDirectory>${project.build.directory}/test-classes</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
@@ -216,6 +316,19 @@
                                 </rule>
                             </rules>
                         </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.gmavenplus</groupId>
+                <artifactId>gmavenplus-plugin</artifactId>
+                <version>1.4</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>compile</goal>
+                            <goal>testCompile</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>

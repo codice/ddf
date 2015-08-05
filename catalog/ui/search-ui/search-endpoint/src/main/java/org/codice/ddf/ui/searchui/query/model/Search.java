@@ -14,20 +14,36 @@
  **/
 package org.codice.ddf.ui.searchui.query.model;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections.Bag;
 import org.apache.commons.collections.bag.HashBag;
+import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.ui.searchui.query.model.QueryStatus.State;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ddf.action.Action;
+import ddf.action.ActionRegistry;
+import ddf.catalog.data.Attribute;
+import ddf.catalog.data.AttributeDescriptor;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.Result;
 import ddf.catalog.operation.ProcessingDetails;
 import ddf.catalog.operation.QueryResponse;
+import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.transform.CatalogTransformerException;
+import ddf.catalog.transformer.metacard.geojson.GeoJsonMetacardTransformer;
 
 /**
  * This class represents the cached asynchronous query response from all sources.
@@ -72,6 +88,15 @@ public class Search {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Search.class);
 
+    private static final DateTimeFormatter ISO_8601_DATE_FORMAT = DateTimeFormat
+            .forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ").withZoneUTC();
+
+    public static final String ATTRIBUTE_FORMAT = "format";
+
+    public static final String ATTRIBUTE_INDEXED = "indexed";
+
+    private ActionRegistry actionRegistry;
+
     private SearchRequest searchRequest;
 
     private QueryResponse compositeQueryResponse;
@@ -82,6 +107,27 @@ public class Search {
 
     private long responseNum = 0;
 
+    private Search() {
+
+    }
+
+    public Search(SearchRequest request, ActionRegistry registry) {
+        setSearchRequest(request);
+        actionRegistry = registry;
+    }
+
+    private void setSearchRequest(SearchRequest request) {
+        searchRequest = request;
+
+        for (String sourceId : searchRequest.getSourceIds()) {
+            queryStatus.put(sourceId, new QueryStatus(sourceId));
+        }
+    }
+
+    public synchronized void update(QueryResponse queryResponse) {
+        update(null, queryResponse);
+    }
+
     /**
      * Adds a query response to the cached set of results.
      *
@@ -89,18 +135,23 @@ public class Search {
      *
      * @throws InterruptedException
      */
-    public synchronized void addQueryResponse(QueryResponse queryResponse) throws
-            InterruptedException {
+    public synchronized void update(String sourceId, QueryResponse queryResponse) {
         if (queryResponse != null) {
             compositeQueryResponse = queryResponse;
             updateResultStatus(queryResponse.getResults());
+            updateStatus(sourceId, queryResponse);
         }
     }
 
-    public void updateStatus(String sourceId, QueryResponse queryResponse) {
+    private void updateStatus(String sourceId, QueryResponse queryResponse) {
+        if (StringUtils.isBlank(sourceId)) {
+            return;
+        }
+
         if (!queryStatus.containsKey(sourceId)) {
             queryStatus.put(sourceId, new QueryStatus(sourceId));
         }
+
         QueryStatus status = queryStatus.get(sourceId);
         status.setDetails(queryResponse.getProcessingDetails());
         status.setHits(queryResponse.getHits());
@@ -147,14 +198,6 @@ public class Search {
         return searchRequest;
     }
 
-    public void setSearchRequest(SearchRequest request) {
-        searchRequest = request;
-
-        for (String sourceId : searchRequest.getSourceIds()) {
-            queryStatus.put(sourceId, new QueryStatus(sourceId));
-        }
-    }
-
     public QueryResponse getCompositeQueryResponse() {
         return compositeQueryResponse;
     }
@@ -169,5 +212,164 @@ public class Search {
 
     public void setHits(long hits) {
         this.hits = hits;
+    }
+
+    private void addObject(Map<String, Object> obj, String name, Object value) {
+        if (value instanceof Number) {
+            if (value instanceof Double) {
+                if (((Double) value).isInfinite()) {
+                    obj.put(name, null);
+                } else {
+                    obj.put(name, value);
+                }
+            } else if (value instanceof Float) {
+                if (((Float) value).isInfinite()) {
+                    obj.put(name, null);
+                } else {
+                    obj.put(name, value);
+                }
+            } else {
+                obj.put(name, value);
+            }
+        } else if (value != null) {
+            obj.put(name, value);
+        }
+    }
+
+    public Map<String, Object> transform(String searchRequestId) throws
+            CatalogTransformerException {
+
+        SourceResponse upstreamResponse = this.getCompositeQueryResponse();
+        if (upstreamResponse == null) {
+            throw new CatalogTransformerException(
+                    "Cannot transform null " + SourceResponse.class.getName());
+        }
+
+        Map<String, Object> result = new HashMap<>();
+
+        addObject(result, HITS, this.getHits());
+        addObject(result, ID, searchRequestId);
+        addObject(result, RESULTS, getResultList(upstreamResponse.getResults()));
+        addObject(result, STATUS, getQueryStatus(this.getQueryStatus()));
+        addObject(result, METACARD_TYPES,
+                getMetacardTypes(getMetacardTypes(upstreamResponse.getResults())));
+
+        return result;
+    }
+
+    private Collection<MetacardType> getMetacardTypes(List<Result> results) {
+        Set<MetacardType> metacardTypes = new HashSet<>();
+        for (Result result : results) {
+            MetacardType type = result.getMetacard().getMetacardType();
+            if (type != null && !StringUtils.isBlank(type.getName())) {
+                metacardTypes.add(type);
+            }
+        }
+        return metacardTypes;
+    }
+
+    private List<Map<String, Object>> getQueryStatus(Map<String, QueryStatus> queryStatus) {
+        List<Map<String, Object>> statuses = new ArrayList<>();
+
+        for (QueryStatus status : queryStatus.values()) {
+            Map<String, Object> statusObject = new HashMap<>();
+
+            addObject(statusObject, ID, status.getSourceId());
+            if (status.isDone()) {
+                addObject(statusObject, RESULTS, status.getResultCount());
+                addObject(statusObject, HITS, status.getHits());
+                addObject(statusObject, ELAPSED, status.getElapsed());
+            }
+            addObject(statusObject, STATE, status.getState());
+
+            statuses.add(statusObject);
+        }
+
+        return statuses;
+    }
+
+    private List<Map<String, Object>> getResultList(List<Result> results)
+            throws CatalogTransformerException {
+        List<Map<String, Object>> resultsList = new ArrayList<>();
+        if (results != null) {
+            for (Result result : results) {
+                if (result == null) {
+                    throw new CatalogTransformerException(
+                            "Cannot transform null " + Result.class.getName());
+                }
+                Map<String, Object> resultItem = getResultItem(result);
+                if (resultItem != null) {
+                    resultsList.add(resultItem);
+                }
+            }
+        }
+        return resultsList;
+    }
+
+    private Map<String, Object> getResultItem(Result result) throws
+            CatalogTransformerException {
+        Map<String, Object> transformedResult = new HashMap<>();
+
+        addObject(transformedResult, DISTANCE, result.getDistanceInMeters());
+        addObject(transformedResult, RELEVANCE, result.getRelevanceScore());
+
+        @SuppressWarnings("unchecked")
+        Map<String, Object> metacard = (Map<String, Object>) GeoJsonMetacardTransformer
+                .convertToJSON(result.getMetacard());
+        metacard.put(ACTIONS, getActions(result.getMetacard()));
+
+        Attribute cachedDate = result.getMetacard().getAttribute(CACHED);
+        if (cachedDate != null && cachedDate.getValue() != null) {
+            metacard.put(CACHED,
+                    ISO_8601_DATE_FORMAT.print(new DateTime(cachedDate.getValue())));
+        } else {
+            metacard.put(CACHED, ISO_8601_DATE_FORMAT.print(new DateTime()));
+        }
+
+        addObject(transformedResult, METACARD, metacard);
+
+        return transformedResult;
+    }
+
+    private List<Map<String, Object>> getActions(Metacard metacard) {
+        List<Map<String, Object>> actionsJson = new ArrayList<>();
+
+        List<Action> actions = actionRegistry.list(metacard);
+        for (Action action : actions) {
+            Map<String, Object> actionJson = new HashMap<>();
+            actionJson.put(ACTIONS_ID, action.getId() + action.getTitle());
+            actionJson.put(ACTIONS_TITLE, action.getTitle());
+            actionJson.put(ACTIONS_DESCRIPTION, action.getDescription());
+            actionJson.put(ACTIONS_URL, action.getUrl());
+            actionsJson.add(actionJson);
+        }
+        return actionsJson;
+    }
+
+    private Map<String, Object> getMetacardTypes(Collection<MetacardType> types) throws
+            CatalogTransformerException {
+        Map<String, Object> typesObject = new HashMap<>();
+
+        for (MetacardType type : types) {
+            Map<String, Object> typeObj = getResultItem(type);
+            if (typeObj != null) {
+                typesObject.put(type.getName(), typeObj);
+            }
+        }
+
+        return typesObject;
+    }
+
+    private Map<String, Object> getResultItem(MetacardType metacardType) throws CatalogTransformerException {
+        Map<String, Object> fields = new HashMap<>();
+
+        for (AttributeDescriptor descriptor : metacardType.getAttributeDescriptors()) {
+            Map<String, Object> description = new HashMap<>();
+            description.put(ATTRIBUTE_FORMAT, descriptor.getType().getAttributeFormat().toString());
+            description.put(ATTRIBUTE_INDEXED, descriptor.isIndexed());
+
+            fields.put(descriptor.getName(), description);
+        }
+        return fields;
     }
 }

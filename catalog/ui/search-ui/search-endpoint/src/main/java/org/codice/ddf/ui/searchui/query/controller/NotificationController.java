@@ -37,8 +37,6 @@ import org.osgi.service.event.EventConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.minidev.json.JSONObject;
-
 /**
  * The {@code NotificationController} handles the processing and routing of notifications.
  */
@@ -123,20 +121,17 @@ public class NotificationController extends AbstractEventController {
         }
 
         if (null != recipient) {
-            JSONObject jsonPropMap = new JSONObject();
+            Map<String, Object> propMap = new HashMap<>();
 
             for (String key : event.getPropertyNames()) {
                 if (!EventConstants.EVENT_TOPIC.equals(key)
                         && !Notification.NOTIFICATION_KEY_USER_ID.equals(key)) {
-                    jsonPropMap.put(key, event.getProperty(key));
+                    propMap.put(key, event.getProperty(key));
                 }
             }
 
-            LOGGER.debug("Sending the following property map \"{}\": ", jsonPropMap.toJSONString());
-
-            recipient.deliver(controllerServerSession, NOTIFICATION_TOPIC_DOWNLOADS_COMETD,
-                    jsonPropMap.toJSONString(), null);
-
+            recipient.deliver(controllerServerSession, NOTIFICATION_TOPIC_DOWNLOADS_COMETD, propMap,
+                    null);
         } else {
             LOGGER.debug("Session with ID \"{}\" is not connected to the server. "
                     + "Ignnoring notification", sessionId);

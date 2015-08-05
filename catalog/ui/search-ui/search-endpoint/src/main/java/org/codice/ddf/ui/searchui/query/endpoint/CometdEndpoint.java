@@ -41,6 +41,7 @@ import org.slf4j.LoggerFactory;
 
 import ddf.action.ActionRegistry;
 import ddf.catalog.CatalogFramework;
+import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
 
 /**
@@ -86,12 +87,12 @@ public class CometdEndpoint {
      *            - FilterBuilder for the SearchService to use
      */
     public CometdEndpoint(CometdServlet cometdServlet, CatalogFramework framework,
-            FilterBuilder filterBuilder, PersistentStore persistentStore,
+            FilterBuilder filterBuilder, FilterAdapter filterAdapter, PersistentStore persistentStore,
             BundleContext bundleContext, EventAdmin eventAdmin, ActionRegistry actionRegistry) {
         this.bundleContext = bundleContext;
         this.cometdServlet = cometdServlet;
         this.filterBuilder = filterBuilder;
-        this.searchController = new SearchController(framework, actionRegistry);
+        this.searchController = new SearchController(framework, actionRegistry, filterAdapter);
         this.persistentStore = persistentStore;
         this.notificationController = new NotificationController(persistentStore, bundleContext,
                 eventAdmin);
@@ -174,5 +175,9 @@ public class CometdEndpoint {
 
     public void setCacheDisabled(Boolean cacheDisabled) {
         this.searchController.setCacheDisabled(cacheDisabled);
+    }
+
+    public void setNormalizationDisabled(Boolean normalizationDisabled) {
+        this.searchController.setNormalizationDisabled(normalizationDisabled);
     }
 }
