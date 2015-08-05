@@ -25,13 +25,6 @@
     <description>Implementation of ConfigurationWatcher Interface for use by bundles.</description>
     <packaging>bundle</packaging>
 
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-        <!-- Karaf-defined Properties -->
-        <org.slf4j.version>1.7.1</org.slf4j.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>ddf.platform</groupId>

@@ -23,9 +23,7 @@
     </parent>
     <artifactId>spatial-csw-common</artifactId>
     <name>DDF :: Spatial :: CSW :: Common</name>
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
+
     <build>
         <plugins>
             <plugin>

@@ -27,10 +27,6 @@
     <name>DDF :: Content :: Core :: Directory Monitor</name>
     <packaging>bundle</packaging>
 
-    <properties>
-        <camel.version>2.14.2</camel.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>commons-lang</groupId>
