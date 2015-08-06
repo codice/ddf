@@ -1576,7 +1576,7 @@ The private key, certificate need to be combined into a new structure that can b
  Although a single certificate can have only one issuer (cannot have more than one CA signature), different certificate chains can exist for the same target certificate because more than one certificate can exist containing the same subject and public key.
  ====
 
-* Concatenate the certificate from the issuer, from all intermediate certificate authorities, and the root authority into a text file.
+* Concatenate the certificate from the issuer, all intermediate certificate authorities, and the root authority into a text file.
 
 ----
 $>  cat <root CA PEM> <intermediate CA 1 PEM> <intermediate CA 2 PEM> > chain.txt
