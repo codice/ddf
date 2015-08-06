@@ -102,6 +102,7 @@
             <dependency>
                 <groupId>org.rrd4j</groupId>
                 <artifactId>rrd4j</artifactId>
+                <!-- See DDF-1397 for issues with the upgrade to 2.2.1-->
                 <version>2.2</version>
             </dependency>
         </dependencies>
