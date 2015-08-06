@@ -21,6 +21,7 @@ import org.codice.ddf.spatial.geocoding.GeoEntryQueryException;
 import org.codice.ddf.spatial.geocoding.GeoEntryQueryable;
 import org.codice.ddf.ui.searchui.geocoder.GeoCoder;
 import org.codice.ddf.ui.searchui.geocoder.GeoResult;
+import org.codice.ddf.ui.searchui.geocoder.GeoResultCreator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

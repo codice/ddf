@@ -23,6 +23,7 @@ import java.net.URLEncoder;
 
 import org.codice.ddf.ui.searchui.geocoder.GeoCoder;
 import org.codice.ddf.ui.searchui.geocoder.GeoResult;
+import org.codice.ddf.ui.searchui.geocoder.GeoResultCreator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,12 +35,6 @@ import net.minidev.json.parser.ParseException;
 public class GeoNamesWebService implements GeoCoder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GeoNamesWebService.class);
-
-    private static final String POPULATED_PLACE = "PPL";
-
-    private static final String ADMINISTRATIVE_LOCATION = "ADM";
-
-    private static final String POLITICAL_ENTITY = "PCL";
 
     //geonames requires an application username, this is the default name for DDF
     protected String username = "ddf_ui";
@@ -109,9 +104,9 @@ public class GeoNamesWebService implements GeoCoder {
                                 Long population = (Long) firstResult.get("population");
                                 String adminCode = (String) firstResult.get("fcode");
 
-                                geoResult = GeoResultCreator.createGeoResult(
-                                        (String) firstResult.get("name"), lat, lon, adminCode,
-                                        population);
+                                geoResult = GeoResultCreator
+                                        .createGeoResult((String) firstResult.get("name"), lat, lon,
+                                                adminCode, population);
                             }
                         }
                     }

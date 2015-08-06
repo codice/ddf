@@ -13,20 +13,19 @@
  *
  **/
 
-package org.codice.ddf.ui.searchui.geocoder.geonames;
+package org.codice.ddf.ui.searchui.geocoder;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.codice.ddf.spatial.geocoding.GeoCodingConstants;
-import org.codice.ddf.ui.searchui.geocoder.GeoResult;
 import org.geotools.geometry.jts.spatialschema.geometry.DirectPositionImpl;
 import org.geotools.geometry.jts.spatialschema.geometry.primitive.PointImpl;
 import org.opengis.geometry.DirectPosition;
 import org.opengis.geometry.primitive.Point;
 
-final class GeoResultCreator {
-    static GeoResult createGeoResult(final String name, final double latitude,
+public final class GeoResultCreator {
+    public static GeoResult createGeoResult(final String name, final double latitude,
             final double longitude, final String featureCode, final double population) {
         double latitudeOffset = 0;
         double longitudeOffset = 0;
@@ -53,7 +52,7 @@ final class GeoResultCreator {
             } else if (population > 1000000) {
                 latitudeOffset *= 0.8;
                 longitudeOffset *= 0.8;
-            } else if (population > 0){
+            } else if (population > 0) {
                 latitudeOffset *= 0.5;
                 longitudeOffset *= 0.5;
             }

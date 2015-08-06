@@ -11,13 +11,13 @@
  *
  **/
  -->
- 
+
 <features name="${project.artifactId}-${project.version}">
 
     <feature name="search-ui" install="manual" version="${project.version}" description="Search UI">
         <feature>camel-http</feature>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.javax-inject/${javax.inject.bundle.version}</bundle>
-        <bundle>mvn:ddf.ui.search/simple/${project.version}</bundle>  
+        <bundle>mvn:ddf.ui.search/simple/${project.version}</bundle>
         <bundle>mvn:ddf.ui.search/standard/${project.version}</bundle>
         <bundle>mvn:ddf.ui.search/search-redirect/${project.version}</bundle>
         <bundle>mvn:ddf.ui.search/search-htmltransformer/${project.version}</bundle>
@@ -30,10 +30,16 @@
         </config>
     </feature>
 
+    <feature name="offline-gazetteer" install="manual" version="${project.version}"
+             description="Offline gazetteer service utilizing a local GeoNames index">
+        <feature>spatial-commands</feature>
+        <bundle>mvn:ddf.ui.search/search-geonames-local/${project.version}</bundle>
+    </feature>
+
     <feature name="search-ui-app" install="auto" version="${project.version}"
              description="The DDF Standard Search UI is an application that not only provides results in a html format but also provides a convenient, simple querying user interface.\nThe left pane of the SearchUI contains basic fields to query the Catalog and other Sources. The right pane consists of a map.\nIt includes both standard (3d globe) and simple (text page) versions.::DDF Standard Search UI">
         <feature>catalog-app</feature>
         <feature>search-ui</feature>
     </feature>
-    
+
 </features>
