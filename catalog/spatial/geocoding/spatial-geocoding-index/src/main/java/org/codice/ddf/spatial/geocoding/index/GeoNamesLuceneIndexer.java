@@ -211,6 +211,15 @@ public class GeoNamesLuceneIndexer implements GeoEntryIndexer {
 
         float boost = 1.0f;
 
+        /*
+            The specific values used for boosting were obtained as a result of experimentation
+            (i.e. they're not based on a specific formula). The basic idea is that by evaluating a
+            place's feature code and population, we can roughly determine how significant it is.
+            Countries are given the biggest boost, and city and administrative division boosts are
+            hierarchical. As you go up the hierarchy, the boosts increase since those places are
+            probably more significant.
+         */
+
         if (featureCode.startsWith(GeoCodingConstants.ADMINISTRATIVE_DIVISION)) {
             // All administrative divisions get a boost, but higher-order divisions get bigger
             // boosts than lower-order divisions.
@@ -246,7 +255,9 @@ public class GeoNamesLuceneIndexer implements GeoEntryIndexer {
         }
 
         final long population = geoEntry.getPopulation();
-        // Populated places get a small initial boost.
+        // Populated places get a small initial boost. This is because we generally want populated
+        // places to score higher than non-populated places, but places with low populations will
+        // only get a minuscule boost from the formula below.
         boost += population > 0 ? 0.1f : 0;
         // A population of 25,000,000 or more will give the max population boost.
         boost += Math.min(population / 25000000.0f, 1.0f) * 5.0f;
