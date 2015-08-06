@@ -104,7 +104,7 @@ public class PolicyManagerTest {
 
     @Test
     public void testConfiguration() {
-        Map<String, Object> properties = new HashMap<String, Object>();
+        Map<String, Object> properties = new HashMap<>();
         properties.put("authenticationTypes",
                 "/=SAML|BASIC,/search=SAML|BASIC|ANON,/admin=SAML|BASIC,/foo=BASIC,/blah=ANON,/bleh=ANON,/unprotected=,/unprotected2=");
         properties.put("requiredAttributes",
@@ -115,7 +115,7 @@ public class PolicyManagerTest {
 
     @Test
     public void testMangledConfiguration() {
-        Map<String, Object> properties = new HashMap<String, Object>();
+        Map<String, Object> properties = new HashMap<>();
         properties.put("authenticationTypes", new String[] {
                 "/=SAML|BASIC,/search=SAML|BASIC|ANON,/admin=SAML|BASIC,/foo=BASIC,/blah=ANON",
                 "/unprotected=,/unprotected2=", "/bleh=ANON"});
@@ -123,6 +123,27 @@ public class PolicyManagerTest {
                 new String[] {"/={},/blah=,/search={role=user;control=foo|bar}",
                         "/admin={role=admin|supervisor}"});
         manager.setPolicies(properties);
+        testAllPolicies();
+    }
+
+    @Test
+    public void testConfigureAfterSettingIndividualPropertiesAsStrings() {
+        manager.setAuthenticationTypes(
+                "/=SAML|BASIC,/search=SAML|BASIC|ANON,/admin=SAML|BASIC,/foo=BASIC,/blah=ANON,/unprotected=,/unprotected2=,/bleh=ANON");
+        manager.setRequiredAttributes(
+                "/={},/blah=,/search={role=user;control=foo|bar},/admin={role=admin|supervisor}");
+        manager.configure();
+        testAllPolicies();
+    }
+
+    @Test
+    public void testSetPropertiesIgnoresNullMap() {
+        manager.setAuthenticationTypes(
+                "/=SAML|BASIC,/search=SAML|BASIC|ANON,/admin=SAML|BASIC,/foo=BASIC,/blah=ANON,/unprotected=,/unprotected2=,/bleh=ANON");
+        manager.setRequiredAttributes(
+                "/={},/blah=,/search={role=user;control=foo|bar},/admin={role=admin|supervisor}");
+        manager.configure();
+        manager.setPolicies(null);
         testAllPolicies();
     }
 
