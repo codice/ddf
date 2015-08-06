@@ -1357,7 +1357,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         }
     }
 
-    private boolean isPropertyQueryable(String propertyName) {
+    protected boolean isPropertyQueryable(String propertyName) {
         if (propertyName.equalsIgnoreCase(CswConstants.ANY_TEXT) || (
                 metacardType.getAttributeDescriptor(propertyName) != null
                         && metacardType.getAttributeDescriptor(propertyName)
