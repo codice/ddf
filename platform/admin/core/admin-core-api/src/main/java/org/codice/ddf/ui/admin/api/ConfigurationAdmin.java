@@ -15,9 +15,9 @@ package org.codice.ddf.ui.admin.api;
 
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -33,6 +33,7 @@ import javax.management.ObjectName;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.ui.admin.api.module.AdminModule;
+import org.codice.ddf.ui.admin.api.module.AdminModuleExt;
 import org.codice.ddf.ui.admin.api.plugin.ConfigurationAdminPlugin;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
@@ -57,7 +58,8 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
 
     private static final String SERVICE_FACTORYPID = "service.factoryPid";
 
-    private final XLogger logger = new XLogger(LoggerFactory.getLogger(ConfigurationAdmin.class));
+    private static final XLogger LOGGER = new XLogger(
+            LoggerFactory.getLogger(ConfigurationAdmin.class));
 
     private final org.osgi.service.cm.ConfigurationAdmin configurationAdmin;
 
@@ -76,8 +78,7 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
     /**
      * Constructs a ConfigurationAdmin implementation
      *
-     * @param configurationAdmin
-     *            instance of org.osgi.service.cm.ConfigurationAdmin service
+     * @param configurationAdmin instance of org.osgi.service.cm.ConfigurationAdmin service
      */
     public ConfigurationAdmin(org.osgi.service.cm.ConfigurationAdmin configurationAdmin) {
         this.configurationAdmin = configurationAdmin;
@@ -99,12 +100,12 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
                 mBeanServer.registerMBean(this, objectName);
             } catch (InstanceAlreadyExistsException iaee) {
                 // Try to remove and re-register
-                logger.info("Re-registering SchemaLookup MBean");
+                LOGGER.info("Re-registering SchemaLookup MBean");
                 mBeanServer.unregisterMBean(objectName);
                 mBeanServer.registerMBean(this, objectName);
             }
         } catch (Exception e) {
-            logger.warn("Exception during initialization: ", e);
+            LOGGER.warn("Exception during initialization: ", e);
             throw new RuntimeException(e);
         }
     }
@@ -118,7 +119,7 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
                 mBeanServer.unregisterMBean(objectName);
             }
         } catch (Exception e) {
-            logger.warn("Exception unregistering mbean: ", e);
+            LOGGER.warn("Exception unregistering mbean: ", e);
             throw new RuntimeException(e);
         }
     }
@@ -161,38 +162,18 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
     }
 
     public List<Map<String, Object>> listModules() {
-        List<AdminModule> adminModuleList = new ArrayList<AdminModule>();
-        adminModuleList.addAll(this.moduleList);
-        //just sort alphabetically and then make the first module the active one
-        Collections.sort(adminModuleList, new Comparator<AdminModule>() {
-            @Override
-            public int compare(AdminModule adminModule, AdminModule adminModule2) {
-                return adminModule.getName().compareTo(adminModule2.getName());
-            }
-        });
+        List<AdminModuleExt> adminModules = AdminModuleExt.wrap(moduleList);
+        Collections.sort(adminModules);
         List<Map<String, Object>> modules = new ArrayList<Map<String, Object>>();
-        HashMap<String, Object> module;
-        for (AdminModule adminModule : adminModuleList) {
-            module = new HashMap<String, Object>();
-            module.put("name", adminModule.getName());
-            module.put("id", adminModule.getId());
-            if (adminModule.getJSLocation() != null) {
-                module.put("jsLocation", adminModule.getJSLocation().toString());
+
+        for (AdminModuleExt module : adminModules) {
+            if (module.isValid()) {
+                modules.add(module.toHashMap());
             } else {
-                module.put("jsLocation", "");
+                LOGGER.warn("Couldn't add invalid module, {}", module.getName());
             }
-            if (adminModule.getCSSLocation() != null) {
-                module.put("cssLocation", adminModule.getCSSLocation().toString());
-            } else {
-                module.put("cssLocation", "");
-            }
-            if (adminModule.getIframeLocation() != null) {
-                module.put("iframeLocation", adminModule.getIframeLocation().toString());
-            } else {
-                module.put("iframeLocation", "");
-            }
-            modules.add(module);
         }
+
         if (modules.size() > 0) {
             modules.get(0).put("active", true);
         }
@@ -251,7 +232,7 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
 
     /**
      * @see ConfigurationAdminMBean#createFactoryConfigurationForLocation(java.lang.String,
-     *      java.lang.String)
+     * java.lang.String)
      */
     public String createFactoryConfigurationForLocation(String factoryPid, String location)
             throws IOException {
@@ -403,7 +384,7 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
 
     /**
      * @see ConfigurationAdminMBean#updateForLocation(java.lang.String, java.lang.String,
-     *      java.util.Map)
+     * java.util.Map)
      */
     public void updateForLocation(String pid, String location,
             Map<String, Object> configurationTable) throws IOException {
@@ -418,7 +399,8 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
         // null
         for (Entry<String, Object> curEntry : configurationTable.entrySet()) {
             Object value = curEntry.getValue();
-            if (value == null || (value instanceof ArrayList && CollectionUtils.sizeIsEmpty(value))) {
+            if (value == null || (value instanceof ArrayList && CollectionUtils
+                    .sizeIsEmpty(value))) {
                 curEntry.setValue("");
             }
         }
