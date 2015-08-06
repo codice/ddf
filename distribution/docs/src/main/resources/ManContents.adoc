@@ -1250,15 +1250,8 @@ TLS_RSA_WITH_AES_128_CBC_SHA
 
 |===
 
-=== Configuring {branding} with New Certificates
-{branding} ships with default certificates configured to identify the local machine as "localhost." This allows one to unzip {branding} and run immediately in a secure manner. However, in order to access the {branding} instance from another machine over HTTPS (now the default for many services) without receiving warnings or failures, the default certificates need to be replaced with a certificate reflecting the name of the host machine as reachable from other network nodes.
-
-{branding} uses public key infrastructure known as X.509 or PKIX. It is documented in the IEFT RFC 5280.
-
-[IMPORTANT]
-====
-It is important when configuring a new certificate that you follow in order the procedure outlined below. Failure to do so could result in locking everyone out of the {branding} instance.
-====
+=== Configure {branding} with New Certificates
+{branding} ships with a default security certificate configured to identify the {branding} instance machine as "localhost." This allows the {branding} distribution to be unzipped and run immediately in a secure manner. However, in order to access the {branding} instance from another machine over HTTPS (now the default for many services) the default certificates need to be replaced with a certificate that uses the fully qualified hostname of the server running the {branding} instance.
 
 ==== Important Terms
 
@@ -1277,17 +1270,29 @@ It is important when configuring a new certificate that you follow in order the 
 |The nickname given to a certificate within a keystore to make it easily identifiable. Normally the alias should be the {branding} instance's FQDN.
 |localhost
 
-|Certificate
-|A combination of an entity's identity information with the entity's public key. The entity can be a person, organization, or something else, but in this case the entity is a computer on the network. To be valid, a certificate must be digitally (cryptographically) signed by a certifcate authority. By signing a certificate, the CA attests that the public key truly belongs to the entity and no one else.
+|certificate
+|A combination of an entity's identity information with the entity's public key. The entity can be a person, organization, or something else, but in this case the entity is a computer on the network. To be valid, a certificate must be digitally (cryptographically) signed by a certifcate authority. By signing a certificate, the CA attests that the public key truly belongs to the entity and no one else. See also PKIX.
 |<FQDN>.crt
 
 |CN
 |Common Name - The FQDN of the {branding} instance as defined within the Certificate.
 |search.codice.org
 
+|certification path
+|A list of certificates, starting with the server's certificate and followed certificate of the CA who signed the server's CSR. The list of certificates continues, with each subsequent certificate belonging to the CA that signed the current CA's certificate. This chain continues until it reaches a trusted anchor, or root CA certificate. The chain establishes a link between the trust anchor and the server's certificate. See IETF RFC 4158 for details.
+|
+
+|chain of trust
+|See certification path.
+|
+
 |CSR
 |Certificate Signing Request. A certificate that has not yet been signed by a certificate auhority.
 |<FQDN>.csr
+
+|digital certificate
+|See *certificate*.
+|
 
 |FQDN
 |Fully Qualified Domain Name
@@ -1297,8 +1302,16 @@ It is important when configuring a new certificate that you follow in order the 
 |Hyper-Text Transfer Protocol Secure. An encrypted alternative to HTTP.  The HTTP connection is encrypted over TLS. See IETF RFC 2818 for more information.
 |https://
 
+|JKS
+|Java *keystore*. A dictionary of cryptographic objects (e.g. private keys, certificates) references by an *alias*. The JKS format is specific Java.
+|
+
+|keystore
+|Refers to either a JKS keystore or a PKCS#12 keystore. For the purposes of these instructions a keystore is always a file.
+|
+
 |keytool
-|The Java keytool is a key and certificate management utility.
+|The Java keytool is a key and certificate management command line utility.
 |
 
 |openssl
@@ -1309,9 +1322,17 @@ It is important when configuring a new certificate that you follow in order the 
 |Personal Information Exchange Syntax. A standard that allows certifcates, private keys, and optional attributes to be combined into a single file.  See IETF RFC 7292 for more information.
 |<FQDN>.p12
 
+|PKIX
+|A public key infrastructure also know  as X.509. It is documented in the IEFT RFC 5280 and defines what a *certificate* is.
+|
+
 |PORT
 |TCP Port of service
 |8993
+
+|security certificate
+|See *certificate*.
+|
 
 |TLS
 |Transport Layer Security protocol. Provides privacy and data integrity between client and server. See IETF RFC 5246 for more information.
@@ -1319,100 +1340,98 @@ It is important when configuring a new certificate that you follow in order the 
 
 |===
 
-==== Changing the URLs
+==== Update {branding} Configuration
 
-===== Updates via Web Configuration
-It is best to first change the URLs in {branding} before changing the certs. This allows {branding} to run in it's default state while everything gets updated. Once everything is updated, simply stop {branding}, update the keystores, and start it back up.
+===== Configure {branding} Web Service Providers
+By default Solr, STS server, STS client and platform global config settings point to *localhost* and not to the fully qualified domain name of the {branding} instance. Assuming the {branding} instance is providing these servcies, the configuration must be updated to use the {branding} instance's *fully qualified domain name*  as the service provider.
 
-. Start DDF
-+
-[source,bash]
-----
-$> cd <DDF_HOME>/bin
-$> ./ddf
-----
-+
-. Go to https://localhost:8993/admin and step through the installer setting the hostname to the actual hostname and the port to the desired port.
-. Login to the Felix webconsole (https://localhost:8993/system/console/configMgr) - when prompted using admin/admin as the username/password. +
-+
-. The next few steps will require you to open a configuration and edit the given properties. +
-+
+This can be done throught the *Admin UI* application, the *Felix console*, or from the {branding} console. The most common method is to use the *Admin UI*.
+
 [IMPORTANT]
 ====
-When updating the Solr URL's be sure to include "/solr" at the end of the URL.
+The process of changing the configuration can cause users to loose access to the {branding} instance via the Web. This includes losing access to the *Admin UI* and the *Felix console*. Without access to these bundles, it is not possible to configure the {branding} instance through a Web browser.
 ====
-+
-[cols="3" options="header"]
+
+[TIP]
+====
+Even if Web access is lost, the {branding} instance can still be configured using the {branding} command line console.
+====
+
+. Start the {branding} instance, if it is not already running.
+. Go to https://localhost:8993/admin and step through the installer setting the hostname to the instance's FQDN and the port to correct value.
+. Configure the following properties:
+
+[cols="4" options="header"]
 |===
 
+|Application Name
 |Configuration Name
 |Property Name
 |New Value
 
+|DDF Catalog
 |Catalog Federation Strategy
 |Solr URL
 |https://<FQDN>:<PORT>/solr
 
+|DDF Platform
 |Persistent Store
 |Solr URL
 |https://<FQDN>:<PORT>/solr
 
+|DDF Platform
 |Platform Global Config
 |Host
 |<FQDN>
 
-|Catalog External Solr Catalog Provider
-|HTTP URL
-|https://<FQDN>:<PORT>/solr
-
+|DDF Security
 |Security STS Client
 |STS WSDL Address
 |https://<FQDN>:<PORT>/services/SecurityTokenService?wsdl
 
+|DDF Security
 |Security STS Server
 |Token Issuer
 |<FQDN>
 
+|DDF Security
 |Security STS Server
 |Signature Username
 |<FQDN>
 
+|DDF Security
 |Security STS Server
 |Encryption Username
 |<FQDN>
+
+|DDF Solr Catalog
+|Catalog External Solr Catalog Provider
+|HTTP URL
+|https://<FQDN>:<PORT>/solr
 
 |===
 
 [NOTE]
 ====
-The Security STS Server Signature Username and Encryption Username are the keystore alias that points to the {branding} instance's private key entry. The alias used for this key is the instance's FQDN. That is why the <FQDN> is used as the configured value.
+The Security STS Server Signature Username and Encryption Username properties are the *alias* of the server's private key entry in the Java keystore. _The server's FQDN is used as the alias_. This is repeated in other palces where an alias is configured.
 ====
 
-Once the URLs have been changed, shut down the system.
+===== Configure Files in HOME Directory Hierarchy
 
-[source,bash]
+[IMPORTANT]
+====
+The passwords configured in this section reflect the passwords used decrypt Java keytstores; the passwords tied to the JKS files. Changing these values without also changing the passwords of the JKS causes undesirable behavior.
+====
+* In `<DDF_HOME>/etc/user.properties`, modify the line:
 ----
-## From the DDF Console
-ddf@local> shutdown -f
-----
-
-===== Update Files in {branding}_HOME
-
-Update the user properties.
-[source]
-----
-$> cd <DDF_HOME>/etc
-$> vi user.properties
-## Edit this line
 localhost=localhost,group,admin,manager,viewer,webconsole
-## To be:
+----
+To be:
+----
 <FQDN>=<FQDN>,group,admin,manager,viewer,webconsole
-## Save and close the user.properties
 ----
 
-In <{branding}_HOME>/etc/system.properties, modify the keystore and truststore paths and passwords as appropriate.
-
-.system.properties
+* Next ,configure `<DDF_HOME>/etc/system.properties`
 [source,bash]
 ----
 #START DDF SETTINGS
@@ -1424,9 +1443,7 @@ javax.net.ssl.trustStorePassword=<NewPassword>
 javax.net.ssl.keyStoreType=jks
 ----
 
-In <{branding}_HOME>/etc/ws-security/issuer, modify encryption.properties
-
-.encryption.properties
+* Configure `<DDF_HOME>/etc/ws-security/issuer/encryption.properties`
 [source,bash]
 ----
 #Property descriptions at http://ws.apache.org/wss4j/config.html
@@ -1437,9 +1454,7 @@ org.apache.ws.security.crypto.merlin.keystore.alias=<FQDN>
 org.apache.ws.security.crypto.merlin.keystore.file=etc/keystores/serverKeystore.jks
 ----
 
-In <{branding}_HOME>/etc/ws-security/issuer, modify signature.properties
-
-.signature.properties
+* Configure `<DDF_HOME>/etc/ws-security/issuer/signature.properties`
 [source,bash]
 ----
 #Property descriptions at http://ws.apache.org/wss4j/config.html
@@ -1450,23 +1465,7 @@ org.apache.ws.security.crypto.merlin.keystore.alias=<FQDN>
 org.apache.ws.security.crypto.merlin.keystore.file=etc/keystores/serverKeystore.jks
 ----
 
-In <{branding}_HOME>/etc/ws-security/server, modify encryption.properties
-
-.encryption.properties
-[source,bash]
-----
-#Property descriptions at http://ws.apache.org/wss4j/config.html
-org.apache.ws.security.crypto.provider=org.apache.ws.security.components.crypto.Merlin
-org.apache.ws.security.crypto.merlin.keystore.type=jks
-org.apache.ws.security.crypto.merlin.keystore.password=<NewPassword>
-org.apache.ws.security.crypto.merlin.keystore.private.password=<NewPassword>
-org.apache.ws.security.crypto.merlin.keystore.alias=<FQDN>
-org.apache.ws.security.crypto.merlin.keystore.file=etc/keystores/serverKeystore.jks
-----
-
-In <{branding}_HOME>/etc/ws-security/server, modify signature.properties
-
-.signature.properties
+* Configure `<{DDF_HOME>/etc/ws-security/server/encryption.properties`
 [source,bash]
 ----
 #Property descriptions at http://ws.apache.org/wss4j/config.html
@@ -1478,50 +1477,55 @@ org.apache.ws.security.crypto.merlin.keystore.alias=<FQDN>
 org.apache.ws.security.crypto.merlin.keystore.file=etc/keystores/serverKeystore.jks
 ----
 
-* If you already have a key pair and don't need to create them skip to <<Installing Certificates>>.
+* Configure `<DDFHOME>/etc/ws-security/ser/signature.properties`
+[source,bash]
+----
+#Property descriptions at http://ws.apache.org/wss4j/config.html
+org.apache.ws.security.crypto.provider=org.apache.ws.security.components.crypto.Merlin
+org.apache.ws.security.crypto.merlin.keystore.type=jks
+org.apache.ws.security.crypto.merlin.keystore.password=<NewPassword>
+org.apache.ws.security.crypto.merlin.keystore.private.password=<NewPassword>
+org.apache.ws.security.crypto.merlin.keystore.alias=<FQDN>
+org.apache.ws.security.crypto.merlin.keystore.file=etc/keystores/serverKeystore.jks
+----
 
 ==== Create Private Key and Certificate Signing Request
 
 [NOTE]
 ====
-These steps assume that openssl is installed on the machine as a command line utility.
+These steps assume that `openssl` is installed on the machine as a command line utility.
 ====
 
 Open a console or terminal and change directory
 
 [source,bash]
 ----
-$> cd <{branding}_HOME>/etc/certs
+$> cd <DDFHOME>/etc/certs
 ----
 
 Create a new RSA key pair (public and private keys) and use the public key to create a certificate signing request. This happens with a single command to `openssl`
 
-[source,bash]
 ----
 $> openssl req -newkey rsa:2048 -keyout <FQDN>.key -out <FQDN>.csr
 ----
 
-The command encrypts the private key to protect it. The command prompts for a pass phrase that will decrypt the private key:
+The command will encrypt the private key to protect it. The command prompts for a pass phrase that will decrypt the private key:
 
 ----
 writing new private key to '....key'
 Enter PEM pass phrase:
 ----
-Enter a pass phrase (the default is `changeit`).
+Enter a pass phrase (this documentation uses the pass phrase `changeit`).
 
-The command prompts for identity information:
+The command then prompts for identity information:
 
 * For country, use the same two-letter ISO code as the certificate authority. For the Demo CA, use "US".
 * For the "Common Name" or "CN" enter the Fully Qualified Domain Name (FQDN) of the system. An example of a FQDN would be "search.codice.org".
-* The passphrase must match the passphrase configured in the `.properties` files.  The default passphrase is `changeit`.
 
 This command creates two files:
 
-* <FDQN>.csr, the certificate signing request. The CSR includes the public key that matches the private key.
-* <FQDN>.key, a private key cryptogrpahically linked to the CSR
-
-//TODO:
-//If you want to create your own CA and sign your own request see the section on <<Certificate Management>>
+* `<FDQN>.csr`, the certificate signing request. The CSR includes the public key that matches the private key.
+* `<FQDN>.key`, a private key cryptogrpahically linked to the CSR
 
 ==== Sign the CSR to Create a Valid Certificate
 
@@ -1530,6 +1534,7 @@ This command creates two files:
 This step assume Demo CA signs the CSR. If the CSR is signed by a different CA, skip this step.
 ====
 
+[source,bash]
 ----
 $> openssl ca -config openssl-demo.cnf -policy policy_anything -passin "pass:secret" -in <FQDN>.csr -out <FQDN>.crt
 ----
@@ -1554,40 +1559,53 @@ Enter *y* and select return again.
     >Data Base Updated
 ----
 
-A new `.crt` file is writen to the current directory. y default, the certificate is valid for one year. This period can be changed using `openssl` command line options or by editing the opensll configuration file, `openssl-demo.cnf`.
+A new `.crt` file is writen to the current directory. y default, the certificate is valid for one year. This period can be changed using `openssl` command line options or by editing the `openssl` configuration file, `openssl-demo.cnf`.
 
 ==== Create PKCS#12 File
-The private key and certificate need to be combined into a new structure that can be imported into the keystore. A file that conforms to the PKCS#12 specification is created as an intermediary step in the process.
+The private key, certificate need to be combined into a new structure that can be imported into the keystore. A chain of trust file also needs to be created and combined with the other objects. A file that conforms to the PKCS#12 specification is created from these objects as an intermediary step in the process.
 
-=====Creating the Chain of Trust
+===== Creating the Chain of Trust
 
- * If the certificate was signed by the Demo CA, skip this step. It is necessary because `openssl` automatically adds the issuer's (signer's) certificate to the PKCS12 file to create the complete chain of trust.
+ * If the certificate was signed by the Demo CA, skip this step. It is not necessary in because `openssl` adds the issuer's (signer's) certificate to the PKCS12 file to create the complete chain of trust.
 
- //TODO: Ask Scott under what circumstances this step is not necessary
+ * Establasihing a *chain of trust* is imporant if a Root CA did not directly sign the CSR. It is  important for establishing a connection between different branches/orgganizations/departments.
+ +
 
- * Concatenate all the issuer's certificate, all intermediate certificates, and the root authority's certificate into a text file.
+ [NOTE]
+ ====
+ Although a single certificate can have only one issuer (cannot have more than one CA signature), different certificate chains can exist for the same target certificate because more than one certificate can exist containing the same subject and public key.
+ ====
+
+//TODO: Ask Scott under what circumstances this step is not necessary
+
+ * Concatenate the certificate from the issuer, from all intermediate certificate authorities, and the root authority into a text file.
 
 ----
-$>  cat <root CA PEM> <intermediate CA 1 PEM> <intermediate CA 2 PEM> > ca-chain.txt
+$>  cat <root CA PEM> <intermediate CA 1 PEM> <intermediate CA 2 PEM> > chain.txt
 ----
 
-[NOTE]
+This command created the file `chain.txt`. This file an intermediate file used to create the PKCS#12 file.
+
+[WARNING]
 ====
 If a certificate chain file was created, add the following options to the next command:
 ----
--chain -CAfile ca-chain.txt
+-chain -CAfile chain.txt
 ----
 ====
 
-Create the PKCS#12 file:
+Create the PKCS#12 file. The argument for `-passin` is the password that was used to encrypt the private key. The argument for `-passout` sets the password used to decrypt the PKCS#12 file.
 
 ----
 $> openssl pkcs12 -in <FQDN>.crt -inkey <FQDN>.key -certfile demoCA/cacert.pem -out <FQDN>.p12 -export -name <FQDN> -passin "pass:changeit" -passout "pass:changeit"
 ----
 
-[NOTE]
+[TIP]
 ====
-The argument for `-passin` is the password that was used to encrypt the private key. The argument for `-passout` sets the password used to decrypt the PKCS#12 file.
+Use `openssl` can verify a chain of trust for a certificate. For example:
+----
+openssl verify -CAfile ./demoCA/cacert.pem <FQDN>.crt
+----
 ====
 
 ==== Install Signed Certificate Into Key Store
@@ -1598,9 +1616,8 @@ Use the Java keytool to import the signed certificate into the server keystore f
 This example assumes the passwords are `changeit`. This example also assumes the server keystore is in the default location and has the default name,  `<DDF_HOME>/etc/keystores/serverKeystore.jks`
 ====
 
-[source,bash]
 ----
-keytool -importkeystore -srckeystore <FQDN>.p12 -srcstoretype pkcs12 -destkeystore <DDF_HOME>/etc/keystores/serverKeystore.jks -srcalias <FQDN> -deststorepass changeit -srcstorepass changeit
+$> keytool -importkeystore -srckeystore <FQDN>.p12 -srcstoretype pkcs12 -destkeystore <DDF_HOME>/etc/keystores/serverKeystore.jks -srcalias <FQDN> -deststorepass changeit -srcstorepass changeit
 ----
 
 [TIP]
@@ -1617,20 +1634,18 @@ Add `-v` to list the entire contents of the key store entries.
 keytool -list -v -keystore <{branding}_HOME>/etc/keystore/serverKeystore.jks
 ====
 
-==== Remove localhost Private Key Entry
+==== Remove localhost Key Entry
 The server key store comes configured with a key for localhost. It should be removed when a certificate with the server's FQDN certificate is installed.  If the localhost key exists, the Solr server uses the that key to sign messages. The browser and other client processes will halt when trying to connect to Solr because the client expects common name to be the Solr processes's <FQDN>. Use the keytool to remove the localhost entry:
 
 ----
 $> keytool -delete -keystore <{branding}_HOME>/etc/keystore/serverKeystore.jks -alias localhost
 ----
 
-==== Import CA Certificates into Key Store
+==== Import CA Certificates into the Keystore
 
 * The Demo CA certificate is already imported into the keystore file that is included in the {branding} distribution. If the FQDN certificate was signed by the Demo CA, skip this step.
 
-//TODO: Add command here.
-
-==== Import CA Certificates into Trust Store
+==== Import CA Certificates into the Trustsore
 
 * The Demo CA certificate is already imported into the truststore file that is included in the {branding} distribution. If the FQDN certificate was signed by the Demo CA, skip this step.
 * The truststore is created from the  CA certificates.  The CA should be the only entry needed in the trust store.
@@ -1644,21 +1659,26 @@ $> keytool -import -trustcacerts -alias <CA alias> -file <CA PEM> -keystore serv
 When federating with other {branding} instances that do not share the same CA, you will need to import the CA certs from the other federated instances and they will need to import yours.
 ====
 
-//TODO: I have a question out to Scott if this is still necessary.
-//==== Configure hostname mapping
-//In `/etc/hosts` add the following mapping:
-//
-//* 127.0.0.1       <FQDN>
+==== Restart and Test
+Finally, restart the {branding} instance. Browse the Admin UI at https://<FQDN>:8993/admin to test changes.
 
-==== Restart Server Porcesses
-Rstart the {branding} instance:
-[source,bash]
+[WARNING]
+====
+If the server's fully qualifiied domain name is not recognized, the name may need to be added to the netowrk's DNS server.
+====
+
+[TIP]
+====
+The {branding} instance can be tested even if there is no entry for the FQDN in the DNS. First, test if the FQDN is already recognized. Execute this command:
 ----
-$> cd <{branding}_HOME>/bin
-$> ./ddf
+ping <FQDN>
+----
+If the command responds with an error mesage such as unknown host, then modify the system's *hosts* file to point the server's FQDN to the loopback address. For example:
+----
+127.0.0.1    <FQDN>
 ----
 
-Now you should be able to hit the web interfaces of the newly-updated {branding} instance at: https://<FQDN>:8993/search
+====
 
 === Configuring a Java Keystore for Secure Communications
 
