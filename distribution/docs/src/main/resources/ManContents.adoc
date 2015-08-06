@@ -1250,7 +1250,7 @@ TLS_RSA_WITH_AES_128_CBC_SHA
 
 |===
 
-=== Configure {branding} with New Certificates
+=== Configuring {branding} with New Certificates
 {branding} ships with a default security certificate configured to identify the {branding} instance machine as "localhost." This allows the {branding} distribution to be unzipped and run immediately in a secure manner. However, in order to access the {branding} instance from another machine over HTTPS (now the default for many services) the default certificates need to be replaced with a certificate that uses the fully qualified hostname of the server running the {branding} instance.
 
 ==== Important Terms
@@ -1303,7 +1303,7 @@ TLS_RSA_WITH_AES_128_CBC_SHA
 |https://
 
 |JKS
-|Java *keystore*. A dictionary of cryptographic objects (e.g. private keys, certificates) references by an *alias*. The JKS format is specific Java.
+|Java *keystore*. A dictionary of cryptographic objects (e.g. private keys, certificates) referenced by an *alias*. The JKS format is specific Java.
 |
 
 |keystore
@@ -1349,7 +1349,7 @@ This can be done throught the *Admin UI* application, the *Felix console*, or fr
 
 [IMPORTANT]
 ====
-The process of changing the configuration can cause users to loose access to the {branding} instance via the Web. This includes losing access to the *Admin UI* and the *Felix console*. Without access to these bundles, it is not possible to configure the {branding} instance through a Web browser.
+The process of changing the configuration can cause users to loose access to the {branding} instance via the Web. This includes losing access to the *Admin UI* (https://localhost:8993/admin) and the *Felix console* (https://localhost:8993/system/console). Without access to these bundles, it is not possible to configure the {branding} instance through a Web browser.
 ====
 
 [TIP]
@@ -1428,7 +1428,7 @@ localhost=localhost,group,admin,manager,viewer,webconsole
 ----
 To be:
 ----
-<FQDN>=<FQDN>,group,admin,manager,viewer,webconsole
+<FQDN>=<PASSWORD>,group,admin,manager,viewer,webconsole
 ----
 
 * Next ,configure `<DDF_HOME>/etc/system.properties`
@@ -1477,7 +1477,7 @@ org.apache.ws.security.crypto.merlin.keystore.alias=<FQDN>
 org.apache.ws.security.crypto.merlin.keystore.file=etc/keystores/serverKeystore.jks
 ----
 
-* Configure `<DDFHOME>/etc/ws-security/ser/signature.properties`
+* Configure `<DDF_HOME>/etc/ws-security/ser/signature.properties`
 [source,bash]
 ----
 #Property descriptions at http://ws.apache.org/wss4j/config.html
@@ -1500,7 +1500,7 @@ Open a console or terminal and change directory
 
 [source,bash]
 ----
-$> cd <DDFHOME>/etc/certs
+$> cd <DDF_HOME>/etc/certs
 ----
 
 Create a new RSA key pair (public and private keys) and use the public key to create a certificate signing request. This happens with a single command to `openssl`
@@ -1559,26 +1559,24 @@ Enter *y* and select return again.
     >Data Base Updated
 ----
 
-A new `.crt` file is writen to the current directory. y default, the certificate is valid for one year. This period can be changed using `openssl` command line options or by editing the `openssl` configuration file, `openssl-demo.cnf`.
+A new `.crt` file is writen to the current directory. By default, the certificate is valid for one year. This period can be changed using `openssl` command line options or by editing the `openssl` configuration file, `openssl-demo.cnf`.
 
 ==== Create PKCS#12 File
 The private key, certificate need to be combined into a new structure that can be imported into the keystore. A chain of trust file also needs to be created and combined with the other objects. A file that conforms to the PKCS#12 specification is created from these objects as an intermediary step in the process.
 
 ===== Creating the Chain of Trust
 
- * If the certificate was signed by the Demo CA, skip this step. It is not necessary in because `openssl` adds the issuer's (signer's) certificate to the PKCS12 file to create the complete chain of trust.
+* If the certificate was signed by the Demo CA, skip this step. It is not necessary in because `openssl` adds the issuer's (signer's) certificate to the PKCS12 file to create the complete chain of trust.
 
- * Establasihing a *chain of trust* is imporant if a Root CA did not directly sign the CSR. It is  important for establishing a connection between different branches/orgganizations/departments.
- +
+* Establasihing a *chain of trust* is imporant if a root CA did not directly sign the CSR. It is  important for establishing a connection between different branches/orgganizations/departments.
+ 
 
- [NOTE]
+[NOTE]
  ====
  Although a single certificate can have only one issuer (cannot have more than one CA signature), different certificate chains can exist for the same target certificate because more than one certificate can exist containing the same subject and public key.
  ====
 
-//TODO: Ask Scott under what circumstances this step is not necessary
-
- * Concatenate the certificate from the issuer, from all intermediate certificate authorities, and the root authority into a text file.
+* Concatenate the certificate from the issuer, from all intermediate certificate authorities, and the root authority into a text file.
 
 ----
 $>  cat <root CA PEM> <intermediate CA 1 PEM> <intermediate CA 2 PEM> > chain.txt
