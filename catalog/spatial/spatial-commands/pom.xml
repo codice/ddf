@@ -26,7 +26,6 @@
     <artifactId>spatial-commands</artifactId>
     <name>DDF :: Spatial :: Commands</name>
     <packaging>bundle</packaging>
-    <version>2.8.0-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
