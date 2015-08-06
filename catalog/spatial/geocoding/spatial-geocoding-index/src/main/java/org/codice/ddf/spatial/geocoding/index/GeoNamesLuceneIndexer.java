@@ -56,10 +56,22 @@ public class GeoNamesLuceneIndexer implements GeoEntryIndexer {
         @Override
         public float lengthNorm(final FieldInvertState fieldInvertState) {
             if (fieldInvertState.getName().equals(GeoNamesLuceneConstants.ALTERNATE_NAMES_FIELD)) {
+                // The field containing a place's alternate names can vary greatly in length from
+                // entry to entry. By default, Lucene reduces scores for longer fields, but in the
+                // case of GeoNames data, more significant places tend to have more alternate names
+                // (and thus longer fields), and we don't want to reduce scores for more significant
+                // places. We return 1 so the alternate names field length doesn't impact the score.
                 return 1.0f;
-            } else {
-                return super.lengthNorm(fieldInvertState) / (float) Math.sqrt(fieldInvertState.getLength());
+            } else if (fieldInvertState.getName().equals(GeoNamesLuceneConstants.NAME_FIELD)) {
+                // Lucene's default implementation divides by the square root of the length of the
+                // field. We divide again by the same value to further reduce scores for places with
+                // longer names. This helps to prevent places that have names matching the query but
+                // containing extra terms from beating places whose names match the query exactly.
+                return super.lengthNorm(fieldInvertState) /
+                        (float) Math.sqrt(fieldInvertState.getLength());
             }
+
+            return super.lengthNorm(fieldInvertState);
         }
     };
 
@@ -200,6 +212,8 @@ public class GeoNamesLuceneIndexer implements GeoEntryIndexer {
         float boost = 1.0f;
 
         if (featureCode.startsWith(GeoCodingConstants.ADMINISTRATIVE_DIVISION)) {
+            // All administrative divisions get a boost, but higher-order divisions get bigger
+            // boosts than lower-order divisions.
             boost += 0.4f;
             if (featureCode.endsWith(GeoCodingConstants.DIVISION_FIRST_ORDER)) {
                 boost += 1.2f;
@@ -213,8 +227,10 @@ public class GeoNamesLuceneIndexer implements GeoEntryIndexer {
                 boost += 0.0f;
             }
         } else if (featureCode.startsWith(GeoCodingConstants.POLITICAL_ENTITY)) {
+            // Countries get the biggest boost.
             boost += 2.5f;
         } else if (featureCode.startsWith(GeoCodingConstants.POPULATED_PLACE)) {
+            // All cities get a boost, but regional seats and country capitals get extra boosts.
             boost += 1.5f;
             if (featureCode.endsWith(GeoCodingConstants.SEAT_FIRST_ORDER)) {
                 boost += 0.5f;

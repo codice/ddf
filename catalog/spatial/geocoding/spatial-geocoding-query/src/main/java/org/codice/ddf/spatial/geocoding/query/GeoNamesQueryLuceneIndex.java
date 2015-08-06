@@ -105,6 +105,12 @@ public abstract class GeoNamesQueryLuceneIndex implements GeoEntryQueryable {
 
         // Surround with quotes so Lucene looks for the words in the query as a phrase.
         final Query nameQuery = nameQueryParser.parse("\"" + queryString + "\"");
+        // We settled on the value 3.2 after some experimentation. It provides a boost to query
+        // matches on the name so that names matching the query will matter more to the overall
+        // score than any alternate names matching the query. Additionally, it helps ensure that
+        // places with names matching the query very well score higher than places with names that
+        // don't match the query as well but may have bigger boosts from their population or feature
+        // code.
         nameQuery.setBoost(3.2f);
 
         final QueryParser alternateNamesQueryParser =
