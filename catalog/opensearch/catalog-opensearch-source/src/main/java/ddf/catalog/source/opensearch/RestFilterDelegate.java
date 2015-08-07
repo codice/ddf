@@ -22,7 +22,6 @@ import ddf.catalog.filter.FilterDelegate;
  *
  * @author Ashraf Barakat
  * @author ddf.isgs@lmco.com
- *
  */
 public class RestFilterDelegate extends FilterDelegate<RestUrl> {
 
