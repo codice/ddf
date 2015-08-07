@@ -51,7 +51,7 @@ public class ApplicationUploadEndpoint {
 
     private static final String DEFAULT_FILE_NAME = "file.jar";
 
-    private static final String DEFAULT_FILE_LOCATION = "data/installer/uploads/";
+    private static String defaultFileLocation = "data/installer/uploads/";
 
     private static final String JAR_EXT = "jar";
 
@@ -200,7 +200,7 @@ public class ApplicationUploadEndpoint {
         if (filename.endsWith(JAR_EXT) || filename.endsWith(KAR_EXT)) {
             if (inputStream != null) {
                 try {
-                    File uploadDir = new File(DEFAULT_FILE_LOCATION);
+                    File uploadDir = new File(defaultFileLocation);
                     if (!uploadDir.exists()) {
                         uploadDir.mkdirs();
                     }
@@ -232,4 +232,13 @@ public class ApplicationUploadEndpoint {
         return newFile;
     }
 
+    /**
+     * Setter method for DEFAULT_FILE_LOCATION for testing purposes
+     *
+     * @param fileLocation
+     *            the desired fileLocation
+     */
+    void setDefaultFileLocation(String fileLocation) {
+        defaultFileLocation = fileLocation;
+    }
 }

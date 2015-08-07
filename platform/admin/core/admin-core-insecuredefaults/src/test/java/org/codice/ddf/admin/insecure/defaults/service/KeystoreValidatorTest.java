@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -14,6 +14,7 @@
 package org.codice.ddf.admin.insecure.defaults.service;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
 
@@ -63,6 +64,16 @@ public class KeystoreValidatorTest {
     private static final String DEFAULT_ALIAS = "localhost";
 
     private static final String DEFAULT_ROOT_CA = "ddf demo root ca";
+
+    private static final String KEYSTORE_NULL_PATH = "Unable to determine if keystore is using insecure defaults. No keystore path provided.";
+
+    private static final String BLACKLIST_NULL_PATH = "No Blacklist keystore path provided";
+
+    private static final String BLACKLIST_NULL_PASS = "Password for Blacklist keystore";
+
+    private static final String DEFAULT_KEY_NULL_PASS = "No key password provided";
+
+    private static final String KEYSTORE_NULL_PASS = "No keystore password provided";
 
     @Test
     public void testInvalidPasswordForBlacklistKeystore() throws Exception {
@@ -270,6 +281,124 @@ public class KeystoreValidatorTest {
 
         // Verify
         assertThat(alerts.size(), is(0));
+    }
+
+    /**
+     * Tests the {@link KeystoreValidator#validate()} method and its associated methods
+     * for the case where the path is not set
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testKeystoreNullPath() throws Exception {
+        KeystoreValidator keystoreValidator = new KeystoreValidator();
+        keystoreValidator
+                .setBlacklistKeystorePath(Paths.get(getClass().getResource(BLACK_LIST).toURI()));
+        keystoreValidator.setBlacklistKeystorePassword(DEFAULT_BLACKLIST_PASSWORD);
+        keystoreValidator.setKeystorePath(null);
+        keystoreValidator.setKeystorePassword(SECURE_KEYSTORE_PASSWORD);
+        keystoreValidator.setDefaultKeystorePassword(DEFAULT_KEYSTORE_PASSWORD);
+        keystoreValidator.setDefaultKeyPassword(DEFAULT_KEY_PASSWORD);
+
+        List<Alert> alerts = keystoreValidator.validate();
+
+        assertThat("Should report a warning about the keystore path.", alerts.get(0).getMessage(),
+                containsString(KEYSTORE_NULL_PATH));
+    }
+
+    /**
+     * Tests the {@link KeystoreValidator#validate()} method and its associated methods
+     * for the case where the blacklist path is not set
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testKeystoreNullBlacklistPath() throws Exception {
+        KeystoreValidator keystoreValidator = new KeystoreValidator();
+        keystoreValidator.setBlacklistKeystorePath(null);
+        keystoreValidator.setBlacklistKeystorePassword(DEFAULT_BLACKLIST_PASSWORD);
+        keystoreValidator
+                .setKeystorePath(Paths.get(getClass().getResource(SECURE_KEYSTORE).toURI()));
+        keystoreValidator.setKeystorePassword(SECURE_KEYSTORE_PASSWORD);
+        keystoreValidator.setDefaultKeystorePassword(DEFAULT_KEYSTORE_PASSWORD);
+        keystoreValidator.setDefaultKeyPassword(DEFAULT_KEY_PASSWORD);
+
+        List<Alert> alerts = keystoreValidator.validate();
+
+        assertThat("Should report a warning about the Blacklist Keystore path.",
+                alerts.get(0).getMessage(), containsString(BLACKLIST_NULL_PATH));
+    }
+
+    /**
+     * Tests the {@link KeystoreValidator#validate()} method and its associated methods
+     * for the case where the blacklist password is not set
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testKeystoreNullBlacklistPassword() throws Exception {
+        KeystoreValidator keystoreValidator = new KeystoreValidator();
+        keystoreValidator
+                .setBlacklistKeystorePath(Paths.get(getClass().getResource(BLACK_LIST).toURI()));
+        keystoreValidator.setBlacklistKeystorePassword(null);
+        keystoreValidator
+                .setKeystorePath(Paths.get(getClass().getResource(SECURE_KEYSTORE).toURI()));
+        keystoreValidator.setKeystorePassword(SECURE_KEYSTORE_PASSWORD);
+        keystoreValidator.setDefaultKeystorePassword(DEFAULT_KEYSTORE_PASSWORD);
+        keystoreValidator.setDefaultKeyPassword(DEFAULT_KEY_PASSWORD);
+
+        List<Alert> alerts = keystoreValidator.validate();
+
+        assertThat("Should report a warning about the Blacklist Keystore password.",
+                alerts.get(0).getMessage(), containsString(BLACKLIST_NULL_PASS));
+    }
+
+    /**
+     * Tests the {@link KeystoreValidator#validate()} method and its associated methods
+     * for the case where the default key password is not set
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testKeystoreNullDefaultKeyPassword() throws Exception {
+        KeystoreValidator keystoreValidator = new KeystoreValidator();
+        keystoreValidator
+                .setBlacklistKeystorePath(Paths.get(getClass().getResource(BLACK_LIST).toURI()));
+        keystoreValidator.setBlacklistKeystorePassword(DEFAULT_BLACKLIST_PASSWORD);
+        keystoreValidator
+                .setKeystorePath(Paths.get(getClass().getResource(SECURE_KEYSTORE).toURI()));
+        keystoreValidator.setKeystorePassword(SECURE_KEYSTORE_PASSWORD);
+        keystoreValidator.setDefaultKeystorePassword(DEFAULT_KEYSTORE_PASSWORD);
+        keystoreValidator.setDefaultKeyPassword(null);
+
+        List<Alert> alerts = keystoreValidator.validate();
+
+        assertThat("Should report a warning about the default key password.",
+                alerts.get(0).getMessage(), containsString(DEFAULT_KEY_NULL_PASS));
+    }
+
+    /**
+     * Tests the {@link KeystoreValidator#validate()} method and its associated methods
+     * for the case where the keystore password is not set
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testKeystoreNullKeystorePassword() throws Exception {
+        KeystoreValidator keystoreValidator = new KeystoreValidator();
+        keystoreValidator
+                .setBlacklistKeystorePath(Paths.get(getClass().getResource(BLACK_LIST).toURI()));
+        keystoreValidator.setBlacklistKeystorePassword(DEFAULT_BLACKLIST_PASSWORD);
+        keystoreValidator
+                .setKeystorePath(Paths.get(getClass().getResource(SECURE_KEYSTORE).toURI()));
+        keystoreValidator.setKeystorePassword(null);
+        keystoreValidator.setDefaultKeystorePassword(DEFAULT_KEYSTORE_PASSWORD);
+        keystoreValidator.setDefaultKeyPassword(DEFAULT_KEY_PASSWORD);
+
+        List<Alert> alerts = keystoreValidator.validate();
+
+        assertThat("Should report a warning about the keystore password.",
+                alerts.get(0).getMessage(), containsString(KEYSTORE_NULL_PASS));
     }
 
     private List<String> getActualAlertMessages(List<Alert> alerts) {
