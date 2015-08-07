@@ -35,8 +35,7 @@ public class QueryRequestImpl extends OperationImpl implements QueryRequest {
     /**
      * Instantiates a new QueryRequestImpl with a $(@link Query) query,
      *
-     * @param query
-     *            the query
+     * @param query the query
      */
     public QueryRequestImpl(Query query) {
         this(query, false, null, null);
@@ -45,10 +44,8 @@ public class QueryRequestImpl extends OperationImpl implements QueryRequest {
     /**
      * Instantiates a new QueryRequestImpl with a $(@link Query) and a ${@link Map} of properties
      *
-     * @param query
-     *            the query
-     * @param properties
-     *            a Map of properties
+     * @param query      the query
+     * @param properties a Map of properties
      */
     public QueryRequestImpl(Query query, Map<String, Serializable> properties) {
         this(query, false, null, properties);
@@ -58,10 +55,8 @@ public class QueryRequestImpl extends OperationImpl implements QueryRequest {
      * Instantiates a new QueryRequestImpl with a $(@link Query) and a ${@link Collection} of
      * sourceIDs
      *
-     * @param query
-     *            the query
-     * @param sourceIds
-     *            a Collection of sourceIDs
+     * @param query     the query
+     * @param sourceIds a Collection of sourceIDs
      */
     public QueryRequestImpl(Query query, Collection<String> sourceIds) {
         this(query, false, sourceIds, null);
@@ -71,10 +66,8 @@ public class QueryRequestImpl extends OperationImpl implements QueryRequest {
      * Instantiates a new QueryRequestImpl with a $(@link Query) and a boolean indicating if it is
      * an Enterprise QueryRequest.
      *
-     * @param query
-     *            the query
-     * @param isEnterprise
-     *            the enterprise indicator
+     * @param query        the query
+     * @param isEnterprise the enterprise indicator
      */
     public QueryRequestImpl(Query query, boolean isEnterprise) {
         this(query, isEnterprise, null, null);
@@ -84,14 +77,10 @@ public class QueryRequestImpl extends OperationImpl implements QueryRequest {
      * Instantiates a new QueryRequestImpl with a $(@link Query), a boolean indicating if it is an
      * Enterprise QueryRequest, a ${@link Collection} of siteNames, and a ${@link Map} of properties
      *
-     * @param query
-     *            the query
-     * @param isEnterprise
-     *            the enterprise indicator
-     * @param siteNames
-     *            a Collection of siteNames
-     * @param properties
-     *            the properties
+     * @param query        the query
+     * @param isEnterprise the enterprise indicator
+     * @param siteNames    a Collection of siteNames
+     * @param properties   the properties
      */
     public QueryRequestImpl(Query query, boolean isEnterprise, Collection<String> siteNames,
             Map<String, Serializable> properties) {

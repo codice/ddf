@@ -24,7 +24,6 @@ import java.net.URL;
  *
  * @author Ashraf Barakat
  * @author ddf.isgs@lmco.com
- *
  */
 public class RestUrl {
 
@@ -45,8 +44,7 @@ public class RestUrl {
      * <code> http://localhost:8181/services/catalog/query?q={searchTerms}&src={fs:routeTo?}&count={count?} </code>
      * .
      *
-     * @param urlTemplate
-     *            - endpoint url tempate
+     * @param urlTemplate - endpoint url tempate
      * @return
      * @throws URISyntaxException
      * @throws MalformedURLException

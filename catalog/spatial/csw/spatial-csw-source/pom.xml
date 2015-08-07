@@ -60,6 +60,11 @@
         </dependency>
 
         <dependency>
+            <groupId>ddf.platform.security</groupId>
+            <artifactId>security-rest-cxfwrapper</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
@@ -144,6 +149,11 @@
             <version>1.6</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>ddf.security</groupId>
+            <artifactId>ddf-security-common</artifactId>
+        </dependency>
+
 
     </dependencies>
 
@@ -182,6 +192,7 @@
                             commons-collections4,
                             gt-cql,
                             ogc-tools-gml-jts,
+                            security-rest-cxfwrapper,
                             ddf-security-common
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
