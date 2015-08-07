@@ -75,7 +75,7 @@ public class RemoteCsw extends TrustedRemoteSource implements Csw {
 
     protected Csw csw;
 
-    private CswJAXBElementProvider<GetRecordsType> getRecordsTypeProvider;
+    protected CswJAXBElementProvider<GetRecordsType> getRecordsTypeProvider;
 
     private List<String> jaxbElementClassNames = new ArrayList<String>();
 
