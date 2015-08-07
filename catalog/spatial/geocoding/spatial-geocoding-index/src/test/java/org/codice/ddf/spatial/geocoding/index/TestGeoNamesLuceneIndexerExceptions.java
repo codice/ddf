@@ -57,6 +57,7 @@ public class TestGeoNamesLuceneIndexerExceptions {
             .longitude(2)
             .featureCode("code")
             .population(3)
+            .alternateNames("")
             .build();
 
     @After

@@ -27,7 +27,8 @@ public class TestGeoNamesCreator extends TestBase {
                 "Candler,Candleris,Chandler,Chandlur\t33.30616\t-111.84125\tP\tPPL\tUS\tUS\tAZ\t" +
                 "013\t012\t011\t236123\t370\t368\tAmerica/Phoenix\t2011-05-14";
         final GeoEntry geoEntry = GEONAMES_CREATOR.createGeoEntry(geoNamesEntryStr);
-        verifyGeoEntry(geoEntry, "Chandler", 33.30616, -111.84125, "PPL", 236123);
+        verifyGeoEntry(geoEntry, "Chandler", 33.30616, -111.84125, "PPL", 236123,
+                "Candler,Candleris,Chandler,Chandlur");
     }
 
     @Test
@@ -36,7 +37,7 @@ public class TestGeoNamesCreator extends TestBase {
                 "-111.95083\tP\tPPL\tUS\t\tAZ\t013\t\t\t5015\t648\t649\tAmerica/Phoenix\t" +
                 "2011-05-14";
         final GeoEntry geoEntry = GEONAMES_CREATOR.createGeoEntry(geoNamesEntryStr);
-        verifyGeoEntry(geoEntry, "Cave Creek", 33.83333, -111.95083, "PPL", 5015);
+        verifyGeoEntry(geoEntry, "Cave Creek", 33.83333, -111.95083, "PPL", 5015, "");
     }
 
     @Test(expected = ArrayIndexOutOfBoundsException.class)

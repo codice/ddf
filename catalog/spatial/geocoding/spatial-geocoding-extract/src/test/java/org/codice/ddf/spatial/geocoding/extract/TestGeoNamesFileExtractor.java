@@ -64,9 +64,12 @@ public class TestGeoNamesFileExtractor extends TestBase {
     private void verifyGeoEntryList(final List<GeoEntry> geoEntryList) {
         assertEquals(3, geoEntryList.size());
 
-        verifyGeoEntry(geoEntryList.get(0), "Kingman", 35.18944, -114.05301, "PPLA2", 28068);
-        verifyGeoEntry(geoEntryList.get(1), "Lake Havasu City", 34.4839, -114.32245, "PPL", 52527);
-        verifyGeoEntry(geoEntryList.get(2), "Marana", 32.43674, -111.22538, "PPL", 34961);
+        verifyGeoEntry(geoEntryList.get(0), "Kingman", 35.18944, -114.05301, "PPLA2", 28068,
+                "IGM,Kingman,Kingmen,Kingmun");
+        verifyGeoEntry(geoEntryList.get(1), "Lake Havasu City", 34.4839, -114.32245, "PPL", 52527,
+                "HII,Lejk Khavasu Siti,Lejk-Gavasu-Siti");
+        verifyGeoEntry(geoEntryList.get(2), "Marana", 32.43674, -111.22538, "PPL", 34961,
+                "MZJ");
     }
 
     private void testFileExtractionAllAtOnce(final String fileLocation,

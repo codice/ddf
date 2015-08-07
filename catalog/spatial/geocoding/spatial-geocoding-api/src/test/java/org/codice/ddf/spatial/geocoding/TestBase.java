@@ -19,11 +19,13 @@ import static org.junit.Assert.assertEquals;
 public abstract class TestBase {
 
     protected void verifyGeoEntry(final GeoEntry geoEntry, final String name, final double latitude,
-            final double longitude, final String featureCode, final long population) {
+            final double longitude, final String featureCode, final long population,
+            final String alternateNames) {
         assertEquals(name, geoEntry.getName());
         assertEquals(latitude, geoEntry.getLatitude(), 0);
         assertEquals(longitude, geoEntry.getLongitude(), 0);
         assertEquals(featureCode, geoEntry.getFeatureCode());
         assertEquals(population, geoEntry.getPopulation());
+        assertEquals(alternateNames, geoEntry.getAlternateNames());
     }
 }

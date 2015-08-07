@@ -50,56 +50,50 @@ public class TestGeoNamesLuceneIndexer extends TestBase {
 
     private static final String INDEX_PATH = RESOURCE_PATH + "index";
 
-    private static final String NAME_1 = "Phoenix";
-    private static final String NAME_2 = "Tempe";
-    private static final String NAME_3 = "Glendale";
-
-    private static final double LAT_1 = 1.234;
-    private static final double LAT_2 = -12.34;
-    private static final double LAT_3 = -1.234;
-
-    private static final double LON_1 = 56.78;
-    private static final double LON_2 = 5.678;
-    private static final double LON_3 = -5.678;
-
-    private static final String FEATURE_CODE_1 = "PPL";
-    private static final String FEATURE_CODE_2 = "ADM";
-    private static final String FEATURE_CODE_3 = "PCL";
-
-    private static final long POP_1 = 1000000;
-    private static final long POP_2 = 10000000;
-    private static final long POP_3 = 100000000;
-
     private IndexWriter indexWriter;
     private GeoNamesLuceneIndexer geoNamesLuceneIndexer;
     private ArgumentCaptor<Document> documentArgumentCaptor;
 
-    private static final GeoEntry GEO_ENTRY_1 = new GeoEntry.Builder()
-            .name(NAME_1)
-            .latitude(LAT_1)
-            .longitude(LON_1)
-            .featureCode(FEATURE_CODE_1)
-            .population(POP_1)
-            .build();
+    private static final String[] NAMES = {"Phoenix", "Tempe", "Glendale", "Mesa", "Tucson",
+            "Flagstaff", "Scottsdale", "Gilbert", "Queen Creek"};
 
-    private static final GeoEntry GEO_ENTRY_2 = new GeoEntry.Builder()
-            .name(NAME_2)
-            .latitude(LAT_2)
-            .longitude(LON_2)
-            .featureCode(FEATURE_CODE_2)
-            .population(POP_2)
-            .build();
+    private static final double[] LATS = {1.2, -3.4, 5.6, -7.8, 9.1, -2.3, 4.5, -6.7, 8.9};
 
-    private static final GeoEntry GEO_ENTRY_3 = new GeoEntry.Builder()
-            .name(NAME_3)
-            .latitude(LAT_3)
-            .longitude(LON_3)
-            .featureCode(FEATURE_CODE_3)
-            .population(POP_3)
-            .build();
+    private static final double[] LONS = {-1.2, 3.4, -5.6, 7.8, -9.1, 2.3, -4.5, 6.7, -8.9};
+
+    private static final String[] FEATURE_CODES = {"PPL", "ADM", "PCL", "ADM1", "ADM2", "ADM3",
+            "PPLA", "PPLA2", "PPLC"};
+
+    private static final long[] POPS = {0, 10, 100, 1000, 10000, 100000, 1000000, 10000000,
+            100000000};
+
+    private static final String[] ALT_NAMES = {"alt1, alt2", "alt3", "", "alt4", "alt5,alt6,alt7",
+            "alt-8,alt-9", "alt-10", "alt 1.1, alt1.2", "alt2.1,alt3.4"};
+
+    private static final GeoEntry GEO_ENTRY_1 = createGeoEntry(0);
+    private static final GeoEntry GEO_ENTRY_2 = createGeoEntry(1);
+    private static final GeoEntry GEO_ENTRY_3 = createGeoEntry(2);
+    private static final GeoEntry GEO_ENTRY_4 = createGeoEntry(3);
+    private static final GeoEntry GEO_ENTRY_5 = createGeoEntry(4);
+    private static final GeoEntry GEO_ENTRY_6 = createGeoEntry(5);
+    private static final GeoEntry GEO_ENTRY_7 = createGeoEntry(6);
+    private static final GeoEntry GEO_ENTRY_8 = createGeoEntry(7);
+    private static final GeoEntry GEO_ENTRY_9 = createGeoEntry(8);
 
     private static final List<GeoEntry> GEO_ENTRY_LIST =
-            Arrays.asList(GEO_ENTRY_1, GEO_ENTRY_2, GEO_ENTRY_3);
+            Arrays.asList(GEO_ENTRY_1, GEO_ENTRY_2, GEO_ENTRY_3, GEO_ENTRY_4, GEO_ENTRY_5,
+                    GEO_ENTRY_6, GEO_ENTRY_7, GEO_ENTRY_8, GEO_ENTRY_9);
+
+    private static GeoEntry createGeoEntry(final int index) {
+        return new GeoEntry.Builder()
+                .name(NAMES[index])
+                .latitude(LATS[index])
+                .longitude(LONS[index])
+                .featureCode(FEATURE_CODES[index])
+                .population(POPS[index])
+                .alternateNames(ALT_NAMES[index])
+                .build();
+    }
 
     @After
     public void tearDown() {
@@ -119,23 +113,23 @@ public class TestGeoNamesLuceneIndexer extends TestBase {
 
     private GeoEntry createGeoEntryFromDocument(final Document document) {
         return new GeoEntry.Builder()
-                .name(document.get("name"))
-                .latitude(Double.parseDouble(document.get("latitude")))
-                .longitude(Double.parseDouble(document.get("longitude")))
-                .featureCode(document.get("feature_code"))
-                .population(Long.parseLong(document.get("population")))
+                .name(document.get(GeoNamesLuceneConstants.NAME_FIELD))
+                .latitude(Double.parseDouble(document.get(GeoNamesLuceneConstants.LATITUDE_FIELD)))
+                .longitude(
+                        Double.parseDouble(document.get(GeoNamesLuceneConstants.LONGITUDE_FIELD)))
+                .featureCode(document.get(GeoNamesLuceneConstants.FEATURE_CODE_FIELD))
+                .population(Long.parseLong(document.get(GeoNamesLuceneConstants.POPULATION_FIELD)))
+                .alternateNames(document.get(GeoNamesLuceneConstants.ALTERNATE_NAMES_FIELD))
                 .build();
     }
 
     private void verifyDocumentList(final List<Document> documentList) {
-        assertEquals(3, documentList.size());
+        assertEquals(GEO_ENTRY_LIST.size(), documentList.size());
 
-        verifyGeoEntry(createGeoEntryFromDocument(documentList.get(0)), NAME_1, LAT_1, LON_1,
-                FEATURE_CODE_1, POP_1);
-        verifyGeoEntry(createGeoEntryFromDocument(documentList.get(1)), NAME_2, LAT_2, LON_2,
-                FEATURE_CODE_2, POP_2);
-        verifyGeoEntry(createGeoEntryFromDocument(documentList.get(2)), NAME_3, LAT_3, LON_3,
-                FEATURE_CODE_3, POP_3);
+        for (int i = 0; i < documentList.size(); ++i) {
+            verifyGeoEntry(createGeoEntryFromDocument(documentList.get(i)), NAMES[i], LATS[i],
+                    LONS[i], FEATURE_CODES[i], POPS[i], ALT_NAMES[i]);
+        }
     }
 
     @Test
@@ -190,13 +184,19 @@ public class TestGeoNamesLuceneIndexer extends TestBase {
                         extractionCallback.extracted(GEO_ENTRY_1);
                         extractionCallback.extracted(GEO_ENTRY_2);
                         extractionCallback.extracted(GEO_ENTRY_3);
+                        extractionCallback.extracted(GEO_ENTRY_4);
+                        extractionCallback.extracted(GEO_ENTRY_5);
+                        extractionCallback.extracted(GEO_ENTRY_6);
+                        extractionCallback.extracted(GEO_ENTRY_7);
+                        extractionCallback.extracted(GEO_ENTRY_8);
+                        extractionCallback.extracted(GEO_ENTRY_9);
                         extractionCallback.updateProgress(100);
                     }
                 },
                 true,
                 progressCallback);
 
-        verify(indexWriter, times(3)).addDocument(documentArgumentCaptor.capture());
+        verify(indexWriter, times(9)).addDocument(documentArgumentCaptor.capture());
 
         final List<Document> documentList = documentArgumentCaptor.getAllValues();
 
