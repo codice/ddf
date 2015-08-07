@@ -26,10 +26,6 @@
     <packaging>pom</packaging>
     <name>DDF SDK</name>
 
-    <properties>
-        <cxf.version>3.0.4</cxf.version>
-    </properties>
-
     <modules>
         <module>sample-plugins</module>
         <module>sample-transformers</module>

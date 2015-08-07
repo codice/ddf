@@ -26,16 +26,6 @@
     <packaging>pom</packaging>
     <name>Codice DDF HTTP Proxy</name>
 
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <org.slf4j.version>1.7.1</org.slf4j.version>
-
-        <!-- Karaf-defined Properties -->
-        <karaf.version>2.4.3</karaf.version>
-        <camel.version>2.14.2</camel.version>
-
-    </properties>
-
     <dependencyManagement>
         <dependencies>
             <dependency>

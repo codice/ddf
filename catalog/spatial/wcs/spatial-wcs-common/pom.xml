@@ -26,10 +26,6 @@
     <artifactId>spatial-wcs-common</artifactId>
     <name>DDF :: Spatial :: WCS :: Common</name>
 
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
-
     <build>
         <plugins>
             <plugin>

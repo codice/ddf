@@ -26,7 +26,6 @@
     <artifactId>geocoding</artifactId>
     <name>DDF :: Spatial :: Geocoding</name>
     <packaging>pom</packaging>
-    <version>2.8.0-SNAPSHOT</version>
 
     <modules>
         <module>spatial-geocoding-api</module>

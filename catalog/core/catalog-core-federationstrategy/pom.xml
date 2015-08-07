@@ -27,10 +27,6 @@
     <name>DDF :: Catalog :: Core :: Federation Strategy</name>
     <packaging>bundle</packaging>
 
-    <properties>
-        <powermock.version>1.5.4</powermock.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>ddf.catalog.core</groupId>

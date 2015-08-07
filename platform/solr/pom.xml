@@ -39,7 +39,6 @@
           dependencies found in the dependencyManagement section should be removed.
       -->
       <restlet.version>2.1.4</restlet.version>
-      <lux.version>1.0.1</lux.version>
 	  <saxon.version>9.5.1-5</saxon.version>
   </properties>
   

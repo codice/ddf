@@ -23,9 +23,7 @@
     </parent>
     <artifactId>wfs</artifactId>
     <name>DDF :: Spatial :: WFS</name>
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
+
     <packaging>pom</packaging>
     <modules>
         <module>spatial-wfs-api</module>

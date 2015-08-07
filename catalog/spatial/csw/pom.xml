@@ -23,9 +23,7 @@
     </parent>
     <artifactId>csw</artifactId>
     <name>DDF :: Spatial :: CSW</name>
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
+
     <packaging>pom</packaging>
     <modules>
         <module>spatial-csw-schema-bindings</module>

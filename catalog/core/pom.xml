@@ -28,7 +28,6 @@
     <name>DDF Catalog Core</name>
 
     <properties>
-        <powermock.version>1.5.4</powermock.version>
         <powermock.agent>
             ${settings.localRepository}/org/powermock/powermock-module-javaagent/${powermock.version}/powermock-module-javaagent-${powermock.version}.jar
         </powermock.agent>
