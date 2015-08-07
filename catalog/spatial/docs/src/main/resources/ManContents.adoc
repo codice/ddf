@@ -110,7 +110,8 @@ geonames:update
 
 |`update`
 |Adds new entries to an existing local GeoNames index. Currently, `.txt` and `.zip` files from http://download.geonames.org/export/dump are supported. Pass the absolute path to the file on your computer as the argument to the command.
-The index location can be configured via the Admin Console or the Felix Web Console. By default, the index location is `data/geonames-index`.
+The index location can be configured via the Admin UI or the Felix Web Console. By default, the index location is `data/geonames-index`. If you specify a relative path, it is relative to the location of the unzipped
+DDF distribution. You may specify an absolute path if you want the index to be located somewhere else.
 
-The `-c` or `--create` flag can be added to create a new GeoNames index. This will overwrite any existing index at the location specified in the Admin Console or Felix Web Console. The new index will be filled with the entries in the file you pass to the command. You must create an index before you can add additional entries to it (i.e. running the command without the `-c` or `--create` flag).
+The `-c` or `--create` flag can be added to create a new GeoNames index. This will overwrite any existing index at the location specified in the Admin UI or Felix Web Console. The new index will be filled with the entries in the file you pass to the command. You must create an index before you can add additional entries to it (i.e. running the command without the `-c` or `--create` flag).
 |===
