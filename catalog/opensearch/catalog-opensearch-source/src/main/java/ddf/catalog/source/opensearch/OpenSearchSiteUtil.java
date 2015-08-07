@@ -39,7 +39,6 @@ import ddf.security.assertion.SecurityAssertion;
 
 /**
  * Utility helper class that performs much of the translation logic used in CddaOpenSearchSite.
- *
  */
 public final class OpenSearchSiteUtil {
 
@@ -118,8 +117,7 @@ public final class OpenSearchSiteUtil {
     /**
      * Populates general site information.
      *
-     * @param client
-     *            Initial StringBuilder url that is not filled in.
+     * @param client  Initial StringBuilder url that is not filled in.
      * @param query
      * @param subject
      */
@@ -230,10 +228,8 @@ public final class OpenSearchSiteUtil {
      * Fills in the opensearch query URL with temporal information (Start, End, and Name). Currently
      * name is empty due to incompatibility with endpoints.
      *
-     * @param client
-     *            OpenSearch URL to populate
-     * @param temporal
-     *            TemporalCriteria that contains temporal data
+     * @param client   OpenSearch URL to populate
+     * @param temporal TemporalCriteria that contains temporal data
      */
     public static void populateTemporal(WebClient client, TemporalFilter temporal,
             List<String> parameters) {
@@ -259,10 +255,8 @@ public final class OpenSearchSiteUtil {
     /**
      * Fills in the OpenSearch query URL with geospatial information (poly, lat, lon, and radius).
      *
-     * @param client
-     *            OpenSearch URL to populate
-     * @param spatial
-     *            SpatialCriteria that contains the spatial data
+     * @param client  OpenSearch URL to populate
+     * @param spatial SpatialCriteria that contains the spatial data
      */
     public static void populateGeospatial(WebClient client, SpatialDistanceFilter spatial,
             boolean shouldConvertToBBox, List<String> parameters) throws UnsupportedQueryException {
@@ -309,10 +303,8 @@ public final class OpenSearchSiteUtil {
     /**
      * Fills in the OpenSearch query URL with geospatial information (poly, lat, lon, and radius).
      *
-     * @param client
-     *            OpenSearch URL to populate
-     * @param spatial
-     *            SpatialCriteria that contains the spatial data
+     * @param client  OpenSearch URL to populate
+     * @param spatial SpatialCriteria that contains the spatial data
      */
     public static void populateGeospatial(WebClient client, SpatialFilter spatial,
             boolean shouldConvertToBBox, List<String> parameters) throws UnsupportedQueryException {
@@ -357,8 +349,7 @@ public final class OpenSearchSiteUtil {
     /**
      * Parses a WKT polygon string and returns a string array containing the lon and lat.
      *
-     * @param wkt
-     *            WKT String in the form of POLYGON((Lon Lat, Lon Lat...))
+     * @param wkt WKT String in the form of POLYGON((Lon Lat, Lon Lat...))
      * @return Lon on even # and Lat on odd #
      */
     public static String[] createPolyAryFromWKT(String wkt) {
@@ -369,8 +360,7 @@ public final class OpenSearchSiteUtil {
     /**
      * Parses a WKT Point string and returns a string array containing the lon and lat.
      *
-     * @param wkt
-     *            WKT String in the form of POINT( Lon Lat)
+     * @param wkt WKT String in the form of POINT( Lon Lat)
      * @return Lon at position 0, Lat at position 1
      */
     public static String[] createLatLonAryFromWKT(String wkt) {
@@ -381,13 +371,10 @@ public final class OpenSearchSiteUtil {
     /**
      * Checks the input and replaces the items inside of the url.
      *
-     * @param client
-     *            The URL to do the replacement on. <b>NOTE:</b> replacement is done directly on
-     *            this object.
-     * @param inputStr
-     *            Item to put into the URL.
-     * @param definition
-     *            Area inside of the URL to be replaced by.
+     * @param client     The URL to do the replacement on. <b>NOTE:</b> replacement is done directly on
+     *                   this object.
+     * @param inputStr   Item to put into the URL.
+     * @param definition Area inside of the URL to be replaced by.
      */
     private static void checkAndReplace(WebClient client, String inputStr, String definition,
             List<String> parameters) {
@@ -410,15 +397,12 @@ public final class OpenSearchSiteUtil {
     /**
      * Takes in a point radius search and converts it to a (rough approximation) bounding box.
      *
-     * @param lon
-     *            latitude in decimal degrees (WGS-84)
-     * @param lat
-     *            longitude in decimal degrees (WGS-84)
-     * @param radius
-     *            radius, in meters
+     * @param lon    latitude in decimal degrees (WGS-84)
+     * @param lat    longitude in decimal degrees (WGS-84)
+     * @param radius radius, in meters
      * @return Array of bounding box coordinates in the following order: West South East North. Also
-     *         described as minX, minY, maxX, maxY (where longitude is the X-axis, and latitude is
-     *         the Y-axis).
+     * described as minX, minY, maxX, maxY (where longitude is the X-axis, and latitude is
+     * the Y-axis).
      */
     public static double[] createBBoxFromPointRadius(double lon, double lat, double radius) {
         double minX;
@@ -450,15 +434,14 @@ public final class OpenSearchSiteUtil {
 
     /**
      * Takes in an array of coordinates and converts it to a (rough approximation) bounding box.
-     *
+     * <p/>
      * Note: Searches being performed where the polygon goes through the international date line may
      * return a bad bounding box.
      *
-     * @param polyAry
-     *            array of coordinates (lon,lat,lon,lat,lon,lat..etc)
+     * @param polyAry array of coordinates (lon,lat,lon,lat,lon,lat..etc)
      * @return Array of bounding box coordinates in the following order: West South East North. Also
-     *         described as minX, minY, maxX, maxY (where longitude is the X-axis, and latitude is
-     *         the Y-axis).
+     * described as minX, minY, maxX, maxY (where longitude is the X-axis, and latitude is
+     * the Y-axis).
      */
     public static double[] createBBoxFromPolygon(String[] polyAry) {
         double minX = Double.POSITIVE_INFINITY;

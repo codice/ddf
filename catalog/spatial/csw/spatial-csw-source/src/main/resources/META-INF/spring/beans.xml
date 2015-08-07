@@ -37,8 +37,6 @@
 
     <reference id="cswTransformProvider" interface="com.thoughtworks.xstream.converters.Converter"/>
 
-    <reference id="securitySettings" interface="ddf.security.settings.SecuritySettingsService"/>
-
     <reference id="securityManager" interface="ddf.security.service.SecurityManager"/>
 
      <osgix:managed-service-factory
@@ -84,7 +82,6 @@
             <beans:property name="forceSpatialFilter" value=""/>
             <beans:property name="connectionTimeout" value=""/>
             <beans:property name="receiveTimeout" value=""/>
-            <beans:property name="securitySettings" ref="securitySettings"/>
             <beans:property name="securityManager" ref="securityManager"/>
         </beans:bean>
     </osgix:managed-service-factory>
@@ -130,7 +127,6 @@
             <beans:property name="forceSpatialFilter" value=""/>
             <beans:property name="connectionTimeout" value=""/>
             <beans:property name="receiveTimeout" value=""/>
-            <beans:property name="securitySettings" ref="securitySettings"/>
             <beans:property name="securityManager" ref="securityManager"/>
         </beans:bean>
     </osgix:managed-service-factory>

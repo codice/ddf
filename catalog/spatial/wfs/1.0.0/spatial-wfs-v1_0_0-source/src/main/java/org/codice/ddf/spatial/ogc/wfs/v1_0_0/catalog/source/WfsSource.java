@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.source;
 
@@ -48,6 +47,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
 import org.apache.ws.commons.schema.XmlSchema;
+import org.codice.ddf.cxf.SecureCxfClientFactory;
 import org.codice.ddf.spatial.ogc.catalog.MetadataTransformer;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityCommand;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
@@ -60,8 +60,10 @@ import org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverter;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.GenericFeatureConverter;
 import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.DescribeFeatureTypeRequest;
 import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.GetCapabilitiesRequest;
+import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.Wfs;
 import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.Wfs10Constants;
 import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.converter.FeatureConverterFactory;
+import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.source.reader.FeatureCollectionMessageBodyReaderWfs10;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -95,6 +97,7 @@ import ddf.catalog.source.SourceMonitor;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.util.impl.MaskableImpl;
+import ddf.security.service.SecurityServiceException;
 import ddf.security.settings.SecuritySettingsService;
 import ogc.schema.opengis.filter.v_1_0_0.FilterType;
 import ogc.schema.opengis.wfs.v_1_0_0.GetFeatureType;
@@ -105,7 +108,6 @@ import ogc.schema.opengis.wfs_capabilities.v_1_0_0.WFSCapabilitiesType;
 
 /**
  * Provides a Federated and Connected source implementation for OGC WFS servers.
- *
  */
 public class WfsSource extends MaskableImpl implements FederatedSource, ConnectedSource,
         ConfiguredService {
@@ -173,8 +175,6 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
     private FilterAdapter filterAdapter;
 
-    private RemoteWfs remoteWfs;
-
     private BundleContext context;
 
     private Map<String, ServiceRegistration> metacardTypeServiceRegistrations = new HashMap<String, ServiceRegistration>();
@@ -203,14 +203,17 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
     private SecuritySettingsService securitySettingsService;
 
+    private SecureCxfClientFactory factory;
+    
     protected String configurationPid;
 
-    public WfsSource(RemoteWfs remoteWfs, FilterAdapter filterAdapter, BundleContext context,
-            AvailabilityTask task) {
-        this.remoteWfs = remoteWfs;
+    public WfsSource(FilterAdapter filterAdapter, BundleContext context, AvailabilityTask task,
+            SecureCxfClientFactory factory) {
+
         this.filterAdapter = filterAdapter;
         this.context = context;
         this.availabilityTask = task;
+        this.factory = factory;
         configureWfsFeatures();
     }
 
@@ -221,14 +224,18 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
     /**
      * Init is called when the bundle is initially configured.
-     *
-     * <p>
+     * <p/>
+     * <p/>
      * The init process creates a RemoteWfs object using the connection parameters from the
      * configuration.
-     *
      */
     public void init() {
         setupAvailabilityPoll();
+        try {
+            factory = new SecureCxfClientFactory(wfsUrl, Wfs.class);
+        } catch (SecurityServiceException sse) {
+            LOGGER.error("Could not create SecureCxfClientFactory", sse);
+        }
     }
 
     public void destroy() {
@@ -239,8 +246,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
     /**
      * Refresh is called if the bundle configuration is updated.
-     *
-     * <p>
+     * <p/>
      * If any of the connection related properties change, an attempt is made to re-connect.
      *
      * @param configuration
@@ -258,8 +264,6 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         setConnectionTimeout((Integer) configuration.get(CONNECTION_TIMEOUT_PROPERTY));
         setReceiveTimeout((Integer) configuration.get(RECEIVE_TIMEOUT_PROPERTY));
 
-        updateTimeouts();
-
         String[] nonQueryableProperties = (String[]) configuration
                 .get(NON_QUERYABLE_PROPS_PROPERTY);
 
@@ -270,14 +274,13 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
         // only attempt to re-connect on a refresh if not connected OR username,
         // password, or the URL changes
-        if (remoteWfs == null || hasWfsUrlChanged(wfsUrl) || hasPasswordChanged(password)
-                || hasUsernameChanged(username) || hasDisableCnCheck(disableCnCheckProp)) {
+        if (hasWfsUrlChanged(wfsUrl) || hasPasswordChanged(password) || hasUsernameChanged(username)
+                || hasDisableCnCheck(disableCnCheckProp)) {
             this.wfsUrl = wfsUrl;
             this.password = password;
             this.username = username;
             this.disableCnCheck = disableCnCheckProp;
 
-            connectToRemoteWfs();
             configureWfsFeatures();
         } else {
             // Only need to update the supportedGeos if we don't reconnect.
@@ -300,12 +303,6 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
             setPollInterval(newPollInterval);
             availabilityPollFuture.cancel(true);
             setupAvailabilityPoll();
-        }
-    }
-
-    public void updateTimeouts() {
-        if (remoteWfs != null) {
-            remoteWfs.setTimeouts(connectionTimeout, receiveTimeout);
         }
     }
 
@@ -350,28 +347,11 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
     }
 
-    private void connectToRemoteWfs() {
-        LOGGER.debug(
-                "WfsSource {}: Connecting to remote WFS Server {}. SSL cert verification disabled? {}",
-                getId(), wfsUrl, this.disableCnCheck);
-
-        try {
-            remoteWfs = new RemoteWfs(wfsUrl, username, password, disableCnCheck);
-            remoteWfs.setSecuritySettings(securitySettingsService);
-            remoteWfs.setTlsParameters();
-            remoteWfs.setTimeouts(connectionTimeout, receiveTimeout);
-        } catch (IllegalArgumentException iae) {
-            LOGGER.warn("Unable to create RemoteWfs.", iae);
-            remoteWfs = null;
-        }
-    }
-
     private void availabilityChanged(boolean isAvailable) {
         if (isAvailable) {
             LOGGER.info("WFS source {} is available.", getId());
         } else {
             LOGGER.info("WFS source {} is unavailable.", getId());
-            this.remoteWfs = null;
         }
 
         for (SourceMonitor monitor : this.sourceMonitors) {
@@ -388,14 +368,13 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
     private WFSCapabilitiesType getCapabilities() {
         WFSCapabilitiesType capabilities = null;
-        if (remoteWfs != null) {
-            try {
-                capabilities = remoteWfs.getCapabilities(new GetCapabilitiesRequest());
-            } catch (WfsException wfse) {
-                LOGGER.warn(WFS_ERROR_MESSAGE, wfse);
-            } catch (WebApplicationException wae) {
-                handleWebApplicationException(wae);
-            }
+        Wfs wfs = getNewClient();
+        try {
+            capabilities = wfs.getCapabilities(new GetCapabilitiesRequest());
+        } catch (WfsException wfse) {
+            LOGGER.warn(WFS_ERROR_MESSAGE, wfse);
+        } catch (WebApplicationException wae) {
+            handleWebApplicationException(wae);
         }
         return capabilities;
     }
@@ -440,6 +419,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         // Use local Map for metacardtype registrations and once they are populated with latest
         // MetacardTypes, then do actual registration
         Map<String, MetacardTypeRegistration> mcTypeRegs = new HashMap<String, MetacardTypeRegistration>();
+        Wfs wfs = getNewClient();
 
         for (FeatureTypeType featureTypeType : featureTypes) {
             String ftName = featureTypeType.getName().getLocalPart();
@@ -453,7 +433,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
             LOGGER.debug("ftName: {}", ftName);
             try {
-                XmlSchema schema = remoteWfs.describeFeatureType(
+                XmlSchema schema = wfs.describeFeatureType(
                         new DescribeFeatureTypeRequest(featureTypeType.getName()));
 
                 if ((schema != null)) {
@@ -505,7 +485,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
                     featureConverter.setWfsUrl(wfsUrl);
 
                     // Add the Feature Type name as an alias for xstream
-                    remoteWfs.getFeatureCollectionReader().registerConverter(featureConverter);
+                    getFeatureCollectionReader().registerConverter(featureConverter);
                 }
 
             } catch (WfsException wfse) {
@@ -564,6 +544,8 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
     @Override
     public SourceResponse query(QueryRequest request) throws UnsupportedQueryException {
 
+        Wfs wfs = getNewClient();
+
         Query query = request.getQuery();
         LOGGER.debug("WFS Source {}: Received query: \n{}", getId(), query);
 
@@ -618,7 +600,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
         try {
             LOGGER.debug("WFS Source {}: Sending query ...", getId());
-            WfsFeatureCollection featureCollection = remoteWfs.getFeature(getFeature);
+            WfsFeatureCollection featureCollection = wfs.getFeature(getFeature);
 
             if (featureCollection == null) {
                 throw new UnsupportedQueryException("Invalid results returned from server");
@@ -823,8 +805,8 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
     }
 
     @Override
-    public ResourceResponse retrieveResource(URI uri, Map<String, Serializable> arguments) throws
-            IOException, ResourceNotFoundException, ResourceNotSupportedException {
+    public ResourceResponse retrieveResource(URI uri, Map<String, Serializable> arguments)
+            throws IOException, ResourceNotFoundException, ResourceNotSupportedException {
         StringBuilder strBuilder = new StringBuilder();
         strBuilder.append("<html><script type=\"text/javascript\">window.location.replace(\"");
         strBuilder.append(uri);
@@ -876,16 +858,20 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         this.connectionTimeout = timeout;
     }
 
+    public int getConnectionTimeout() {
+        return this.connectionTimeout;
+    }
+
     public void setReceiveTimeout(Integer timeout) {
         this.receiveTimeout = timeout;
     }
 
-    public void setFilterAdapter(FilterAdapter filterAdapter) {
-        this.filterAdapter = filterAdapter;
+    public int getReceiveTimeout() {
+        return this.receiveTimeout;
     }
 
-    public void setRemoteWfs(RemoteWfs remoteWfs) {
-        this.remoteWfs = remoteWfs;
+    public void setFilterAdapter(FilterAdapter filterAdapter) {
+        this.filterAdapter = filterAdapter;
     }
 
     public void setFilterDelgates(Map<QName, WfsFilterDelegate> delegates) {
@@ -1021,13 +1007,12 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
     /**
      * Callback class to check the Availability of the WfsSource.
-     *
+     * <p/>
      * NOTE: Ideally, the framework would call isAvailable on the Source and the SourcePoller would
      * have an AvailabilityTask that cached each Source's availability. Until that is done, allow
      * the command to handle the logic of managing availability.
      *
      * @author kcwire
-     *
      */
     private class WfsSourceAvailabilityCommand implements AvailabilityCommand {
 
@@ -1039,13 +1024,8 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
             LOGGER.debug("Checking availability for source {} ", getId());
             boolean oldAvailability = WfsSource.this.isAvailable();
             boolean newAvailability = false;
-            // If the Remote object is null attempt to initialize it and
-            // configure
-            // all the capabilities.
-            if (remoteWfs == null) {
-                connectToRemoteWfs();
-            }
             // Simple "ping" to ensure the source is responding
+            getNewClient();
             newAvailability = (null != getCapabilities());
             if (oldAvailability != newAvailability) {
                 availabilityChanged(newAvailability);
@@ -1056,5 +1036,21 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
             }
             return newAvailability;
         }
+
+    }
+
+    private Wfs getNewClient() {
+        Wfs wfs = null;
+
+        try {
+            wfs = (Wfs) factory.getUnsecuredClient();
+        } catch (SecurityServiceException sse) {
+            LOGGER.error("Could not get new client.", sse);
+        }
+        return wfs;
+    }
+
+    public FeatureCollectionMessageBodyReaderWfs10 getFeatureCollectionReader() {
+        return new FeatureCollectionMessageBodyReaderWfs10();
     }
 }
