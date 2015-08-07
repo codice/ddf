@@ -2912,12 +2912,16 @@ _Similar to a Federated Source with the following exceptions:_
 ** _SiteService does not show this Source's information separate from DDF's._
 
 The procedure for implementing any of the source types follows a similar format:
-. Create a new class that implements the specified Source interface.
+. Create a new class that implements the specified Source interface and `ConfiguredService`.
 . Implement the required methods.
 . Create an OSGi descriptor file to communicate with the OSGi registry. (Refer to the OSGi Services  section.)
 .. Import DDF packages.
 .. Register source class as service to the OSGi registry.
 . Deploy to DDF. (Refer to the Working with OSGi - Bundles section.)
+[IMPORTANT]
+====
+The `factory-pid` property of the metatype must contain one of the following in the name: service, Service, source, Source
+====
 
 ===== Catalog Provider
 . Create a Java class that implements CatalogProvider. +
@@ -2943,9 +2947,9 @@ A code example of a Catalog Provider delivered with DDF is the Catalog Solr Embe
 ====
 
 ===== Federated Source
-. Create a Java class that implements `FederatedSource`. +
-`public class TestFederatedSource implements ddf.catalog.source.FederatedSource`
-. Implement the required methods of the `ddf.catalog.source.FederatedSource` interface.
+. Create a Java class that implements `FederatedSource` and `ConfiguredService`. +
+`public class TestFederatedSource implements ddf.catalog.source.FederatedSource, ddf.catalog.service.ConfiguredService`
+. Implement the required methods of the `ddf.catalog.source.FederatedSource` and `ddf.catalog.service.ConfiguredService` interfaces.
 . Import the DDF interface packages to the bundle manifest (in addition to any other required packages). +
 `Import-Package: ddf.catalog, ddf.catalog.source`
 . Export the service to the OSGi registry.
@@ -2962,9 +2966,9 @@ A code example of a Federated Source delivered with DDF can be found in `ddf.cat
 ====
 
 ===== Connected Source
-. Create a Java class that implements `ConnectedSource`. +
-`public class TestConnectedSource implements ddf.catalog.source.ConnectedSource`
-. Implement the required methods of the `ddf.catalog.source.ConnectedSource` interface.
+. Create a Java class that implements `ConnectedSource` and `ConfiguredService`. +
+`public class TestConnectedSource implements ddf.catalog.source.ConnectedSource, ddf.catalog.service.ConfiguredService`
+. Implement the required methods of the `ddf.catalog.source.ConnectedSource` and `ddf.catalog.service.ConfiguredService` interfaces.
 . Import the DDF interface packages to the bundle manifest (in addition to any other required packages). +
 `Import-Package: ddf.catalog, ddf.catalog.source`
 . Export the service to the OSGi registry.

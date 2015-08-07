@@ -244,7 +244,7 @@ public class AdminSourcePollerServiceBean implements AdminSourcePollerServiceBea
         protected List<Map<String, Object>> getMetatypes() {
             ConfigurationAdminExt configAdminExt = new ConfigurationAdminExt(configurationAdmin);
             return configAdminExt.addMetaTypeNamesToMap(configAdminExt.getFactoryPidObjectClasses(),
-                    "(|(service.factoryPid=*source)(service.factoryPid=*Source)(service.factoryPid=*service)(service.factoryPid=*Service))",
+                    "(|(service.factoryPid=*source*)(service.factoryPid=*Source*)(service.factoryPid=*service*)(service.factoryPid=*Service*))",
                     "service.factoryPid");
         }
 
