@@ -20,6 +20,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -45,8 +46,9 @@ import javax.ws.rs.core.Response;
 
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.util.ParameterParser;
-import org.apache.cxf.jaxrs.client.Client;
+import org.apache.commons.io.IOUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.codice.ddf.cxf.SecureCxfClientFactory;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
@@ -65,7 +67,6 @@ import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
-import ddf.catalog.operation.Query;
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.QueryImpl;
@@ -78,6 +79,9 @@ import ddf.catalog.resource.impl.ResourceImpl;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
+import ddf.security.SecurityConstants;
+import ddf.security.Subject;
+import ddf.security.service.SecurityServiceException;
 
 /**
  * Tests parts of the {@link OpenSearchSource}
@@ -261,7 +265,7 @@ public class TestOpenSearchSource {
                 + "                    <ns3:value>Example title</ns3:value>\r\n"
                 + "                </ns3:string>\r\n" + "            </ns3:metacard>\r\n";
 
-        return new ByteArrayInputStream(response.getBytes());
+        return IOUtils.toInputStream(response);
     }
 
     /**
@@ -273,28 +277,20 @@ public class TestOpenSearchSource {
      */
     @Test
     public void testQueryById() throws UnsupportedQueryException, IOException {
+        Response clientResponse = mock(Response.class);
         WebClient client = mock(WebClient.class);
 
-        Response clientResponse = mock(Response.class);
+        //ClientResponse
+        doReturn(clientResponse).when(client).get();
+        doReturn(Response.Status.OK.getStatusCode()).when(clientResponse).getStatus();
 
-        OpenSearchConnection openSearchConnection = mock(OpenSearchConnection.class);
+        //Client functions
+        doReturn(getSampleXmlStream()).when(clientResponse).getEntity();
+        when(clientResponse.getHeaderString(eq(OpenSearchSource.HEADER_ACCEPT_RANGES)))
+                .thenReturn(OpenSearchSource.BYTES);
+        when(client.replaceQueryParam(any(String.class), any(Object.class))).thenReturn(client);
 
-        when(openSearchConnection.getOpenSearchWebClient()).thenReturn(client);
-
-        when(client.get()).thenReturn(clientResponse);
-
-        when(clientResponse.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
-
-        Client proxy = mock(Client.class);
-
-        when(openSearchConnection
-                .newRestClient(any(String.class), any(Query.class), any(String.class),
-                        any(Boolean.class))).thenReturn(proxy);
-
-        when(openSearchConnection.getWebClientFromClient(proxy)).thenReturn(client);
-
-        when(clientResponse.getEntity())
-                .thenReturn(new BinaryContentImpl(getSampleXmlStream()).getInputStream());
+        SecureCxfClientFactory factory = getMockFactory(client);
 
         OverridenOpenSearchSource source = new OverridenOpenSearchSource(FILTER_ADAPTER);
         source.setInputTransformer(getMockInputTransformer());
@@ -302,8 +298,7 @@ public class TestOpenSearchSource {
         source.init();
         source.setParameters(
                 "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort");
-
-        source.openSearchConnection = openSearchConnection;
+        source.factory = factory;
 
         Filter filter = filterBuilder.attribute(Metacard.ID).equalTo().text(SAMPLE_ID);
 
@@ -341,20 +336,15 @@ public class TestOpenSearchSource {
     @Test
     public void testQueryBySearchPhrase()
             throws UnsupportedQueryException, URISyntaxException, IOException {
-        WebClient client = mock(WebClient.class);
 
         Response clientResponse = mock(Response.class);
+        when(clientResponse.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
+        when(clientResponse.getEntity()).thenReturn(getSampleAtomStream());
 
-        OpenSearchConnection openSearchConnection = mock(OpenSearchConnection.class);
-
-        when(openSearchConnection.getOpenSearchWebClient()).thenReturn(client);
-
+        WebClient client = mock(WebClient.class);
         when(client.get()).thenReturn(clientResponse);
 
-        when(clientResponse.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
-
-        when(clientResponse.getEntity())
-                .thenReturn(new BinaryContentImpl(getSampleAtomStream()).getInputStream());
+        SecureCxfClientFactory factory = getMockFactory(client);
 
         OverridenOpenSearchSource source = new OverridenOpenSearchSource(FILTER_ADAPTER);
         source.setInputTransformer(getMockInputTransformer());
@@ -362,14 +352,17 @@ public class TestOpenSearchSource {
         source.init();
         source.setParameters(
                 "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort");
-
-        source.openSearchConnection = openSearchConnection;
+        source.factory = factory;
 
         Filter filter = filterBuilder.attribute(Metacard.METADATA).like()
                 .text(SAMPLE_SEARCH_PHRASE);
 
         // when
-        SourceResponse response = source.query(new QueryRequestImpl(new QueryImpl(filter)));
+        QueryRequestImpl queryRequest = new QueryRequestImpl(new QueryImpl(filter));
+        Map<String, Serializable> properties = new HashMap<>();
+        properties.put(SecurityConstants.SECURITY_SUBJECT, mock(Subject.class));
+        queryRequest.setProperties(properties);
+        SourceResponse response = source.query(queryRequest);
 
         Assert.assertEquals(1, response.getHits());
         List<Result> results = response.getResults();
@@ -384,19 +377,12 @@ public class TestOpenSearchSource {
     public void testQueryBySearchPhraseRss()
             throws UnsupportedQueryException, URISyntaxException, IOException {
         WebClient client = mock(WebClient.class);
-
         Response clientResponse = mock(Response.class);
-
-        OpenSearchConnection openSearchConnection = mock(OpenSearchConnection.class);
-
-        when(openSearchConnection.getOpenSearchWebClient()).thenReturn(client);
-
         when(client.get()).thenReturn(clientResponse);
-
         when(clientResponse.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
+        when(clientResponse.getEntity()).thenReturn(getSampleRssStream());
 
-        when(clientResponse.getEntity())
-                .thenReturn(new BinaryContentImpl(getSampleRssStream()).getInputStream());
+        SecureCxfClientFactory factory = getMockFactory(client);
 
         OverridenOpenSearchSource source = new OverridenOpenSearchSource(FILTER_ADAPTER);
         source.setInputTransformer(getMockInputTransformer());
@@ -405,13 +391,17 @@ public class TestOpenSearchSource {
         source.setParameters(
                 "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort");
 
-        source.openSearchConnection = openSearchConnection;
+        source.factory = factory;
 
         Filter filter = filterBuilder.attribute(Metacard.METADATA).like()
                 .text(SAMPLE_SEARCH_PHRASE);
 
         // when
-        SourceResponse response = source.query(new QueryRequestImpl(new QueryImpl(filter)));
+        QueryRequestImpl queryRequest = new QueryRequestImpl(new QueryImpl(filter));
+        Map<String, Serializable> properties = new HashMap<>();
+        properties.put(SecurityConstants.SECURITY_SUBJECT, mock(Subject.class));
+        queryRequest.setProperties(properties);
+        SourceResponse response = source.query(queryRequest);
 
         Assert.assertEquals(1, response.getHits());
         List<Result> results = response.getResults();
@@ -426,19 +416,12 @@ public class TestOpenSearchSource {
     public void testQueryBySearchPhraseContentTypeSet()
             throws UnsupportedQueryException, URISyntaxException, IOException {
         WebClient client = mock(WebClient.class);
-
         Response clientResponse = mock(Response.class);
-
-        OpenSearchConnection openSearchConnection = mock(OpenSearchConnection.class);
-
-        when(openSearchConnection.getOpenSearchWebClient()).thenReturn(client);
-
         when(client.get()).thenReturn(clientResponse);
-
         when(clientResponse.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
+        when(clientResponse.getEntity()).thenReturn(getSampleAtomStream());
 
-        when(clientResponse.getEntity())
-                .thenReturn(new BinaryContentImpl(getSampleAtomStream()).getInputStream());
+        SecureCxfClientFactory factory = getMockFactory(client);
 
         OverridenOpenSearchSource source = new OverridenOpenSearchSource(FILTER_ADAPTER);
         InputTransformer inputTransformer = mock(InputTransformer.class);
@@ -463,7 +446,7 @@ public class TestOpenSearchSource {
         source.setParameters(
                 "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort");
 
-        source.openSearchConnection = openSearchConnection;
+        source.factory = factory;
 
         Filter filter = filterBuilder.attribute(Metacard.METADATA).like()
                 .text(SAMPLE_SEARCH_PHRASE);
@@ -482,19 +465,12 @@ public class TestOpenSearchSource {
     public void testQueryBySearchPhraseContentTypeSetRss()
             throws UnsupportedQueryException, URISyntaxException, IOException {
         WebClient client = mock(WebClient.class);
-
         Response clientResponse = mock(Response.class);
-
-        OpenSearchConnection openSearchConnection = mock(OpenSearchConnection.class);
-
-        when(openSearchConnection.getOpenSearchWebClient()).thenReturn(client);
-
         when(client.get()).thenReturn(clientResponse);
-
         when(clientResponse.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
+        when(clientResponse.getEntity()).thenReturn(getSampleRssStream());
 
-        when(clientResponse.getEntity())
-                .thenReturn(new BinaryContentImpl(getSampleRssStream()).getInputStream());
+        SecureCxfClientFactory factory = getMockFactory(client);
 
         OverridenOpenSearchSource source = new OverridenOpenSearchSource(FILTER_ADAPTER);
         InputTransformer inputTransformer = mock(InputTransformer.class);
@@ -519,7 +495,7 @@ public class TestOpenSearchSource {
         source.setParameters(
                 "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort");
 
-        source.openSearchConnection = openSearchConnection;
+        source.factory = factory;
 
         Filter filter = filterBuilder.attribute(Metacard.METADATA).like()
                 .text(SAMPLE_SEARCH_PHRASE);
@@ -537,17 +513,14 @@ public class TestOpenSearchSource {
     @Test
     public void testQueryAnyText()
             throws UnsupportedQueryException, URISyntaxException, IOException {
-        WebClient client = mock(WebClient.class);
-
         Response clientResponse = mock(Response.class);
+        doReturn(getSampleAtomStream()).when(clientResponse).getEntity();
 
-        when(clientResponse.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
+        WebClient client = mock(WebClient.class);
+        doReturn(Response.Status.OK.getStatusCode()).when(clientResponse).getStatus();
+        doReturn(clientResponse).when(client).get();
 
-        OpenSearchConnection openSearchConnection = mock(OpenSearchConnection.class);
-
-        when(openSearchConnection.getOpenSearchWebClient()).thenReturn(client);
-
-        when(client.get()).thenReturn(clientResponse);
+        SecureCxfClientFactory factory = getMockFactory(client);
 
         OverridenOpenSearchSource source = new OverridenOpenSearchSource(FILTER_ADAPTER);
         source.setInputTransformer(getMockInputTransformer());
@@ -555,33 +528,27 @@ public class TestOpenSearchSource {
         source.init();
         source.setParameters(
                 "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort");
-
-        source.openSearchConnection = openSearchConnection;
+        source.factory = factory;
 
         Filter filter = filterBuilder.attribute(Metacard.ANY_TEXT).like()
                 .text(SAMPLE_SEARCH_PHRASE);
 
         // when
         SourceResponse response = source.query(new QueryRequestImpl(new QueryImpl(filter)));
-
-        Assert.assertEquals(0, response.getHits());
-
+        Assert.assertEquals(1, response.getHits());
     }
 
     @Test(expected = UnsupportedQueryException.class)
     public void testQueryBadResponse() throws UnsupportedQueryException, IOException {
+        Response clientResponse = mock(Response.class);
         WebClient client = mock(WebClient.class);
 
-        Response clientResponse = mock(Response.class);
+        //ClientResponse
+        doReturn(clientResponse).when(client).get();
+        doReturn(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()).when(clientResponse)
+                .getStatus();
 
-        when(clientResponse.getStatus())
-                .thenReturn(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
-
-        OpenSearchConnection openSearchConnection = mock(OpenSearchConnection.class);
-
-        when(openSearchConnection.getOpenSearchWebClient()).thenReturn(client);
-
-        when(client.get()).thenReturn(clientResponse);
+        SecureCxfClientFactory factory = getMockFactory(client);
 
         OverridenOpenSearchSource source = new OverridenOpenSearchSource(FILTER_ADAPTER);
         source.setInputTransformer(getMockInputTransformer());
@@ -589,6 +556,7 @@ public class TestOpenSearchSource {
         source.init();
         source.setParameters(
                 "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort");
+        source.factory = factory;
 
         source.openSearchConnection = openSearchConnection;
 
@@ -633,20 +601,7 @@ public class TestOpenSearchSource {
      */
     @Test
     public void testRetrieveNullProduct() throws ResourceNotSupportedException, IOException {
-        WebClient client = mock(WebClient.class);
-
-        Response clientResponse = mock(Response.class);
-
-        OpenSearchConnection openSearchConnection = mock(OpenSearchConnection.class);
-
-        when(openSearchConnection.getOpenSearchWebClient()).thenReturn(client);
-
-        when(client.get()).thenReturn(clientResponse);
-
         OverridenOpenSearchSource source = new OverridenOpenSearchSource(FILTER_ADAPTER);
-
-        source.openSearchConnection = openSearchConnection;
-
         // when
         try {
             source.retrieveResource(null, null);
@@ -668,30 +623,15 @@ public class TestOpenSearchSource {
     // DDF-161
     @Test
     public void testQueryQueryByMetacardIdFollowedByAnyTextQuery() throws Exception {
-
         WebClient client = mock(WebClient.class);
-
         Response clientResponse = mock(Response.class);
-
         when(clientResponse.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
-
-        OpenSearchConnection openSearchConnection = mock(OpenSearchConnection.class);
-
-        when(openSearchConnection.getOpenSearchWebClient()).thenReturn(client);
-
         when(client.get()).thenReturn(clientResponse);
+        when(clientResponse.getEntity()).thenReturn(getSampleXmlStream())
+                .thenReturn(getSampleAtomStream());
 
-        Client proxy = mock(Client.class);
+        SecureCxfClientFactory factory = getMockFactory(client);
 
-        when(openSearchConnection
-                .newRestClient(any(String.class), any(Query.class), any(String.class),
-                        any(Boolean.class))).thenReturn(proxy);
-
-        when(openSearchConnection.getWebClientFromClient(proxy)).thenReturn(client);
-
-        when(clientResponse.getEntity())
-                .thenReturn(new BinaryContentImpl(getSampleXmlStream()).getInputStream())
-                .thenReturn(new BinaryContentImpl(getSampleAtomStream()).getInputStream());
         OverridenOpenSearchSource source = new OverridenOpenSearchSource(FILTER_ADAPTER);
         source.setLocalQueryOnly(true);
         source.setInputTransformer(getMockInputTransformer());
@@ -700,7 +640,7 @@ public class TestOpenSearchSource {
         source.setParameters(
                 "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort");
 
-        source.openSearchConnection = openSearchConnection;
+        source.factory = factory;
 
         // Metacard ID filter
         Filter idFilter = filterBuilder.attribute(Metacard.ID).equalTo().text(SAMPLE_ID);
@@ -725,30 +665,15 @@ public class TestOpenSearchSource {
     // DDF-161
     @Test
     public void testQueryQueryByMetacardIdFollowedByAnyTextQueryRss() throws Exception {
-
         WebClient client = mock(WebClient.class);
-
         Response clientResponse = mock(Response.class);
-
         when(clientResponse.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
-
-        OpenSearchConnection openSearchConnection = mock(OpenSearchConnection.class);
-
-        when(openSearchConnection.getOpenSearchWebClient()).thenReturn(client);
-
+        when(clientResponse.getEntity()).thenReturn(getSampleXmlStream())
+                .thenReturn(getSampleRssStream());
         when(client.get()).thenReturn(clientResponse);
 
-        Client proxy = mock(Client.class);
+        SecureCxfClientFactory factory = getMockFactory(client);
 
-        when(openSearchConnection
-                .newRestClient(any(String.class), any(Query.class), any(String.class),
-                        any(Boolean.class))).thenReturn(proxy);
-
-        when(openSearchConnection.getWebClientFromClient(proxy)).thenReturn(client);
-
-        when(clientResponse.getEntity())
-                .thenReturn(new BinaryContentImpl(getSampleXmlStream()).getInputStream())
-                .thenReturn(new BinaryContentImpl(getSampleRssStream()).getInputStream());
         OverridenOpenSearchSource source = new OverridenOpenSearchSource(FILTER_ADAPTER);
         source.setLocalQueryOnly(true);
         source.setInputTransformer(getMockInputTransformer());
@@ -757,7 +682,7 @@ public class TestOpenSearchSource {
         source.setParameters(
                 "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort");
 
-        source.openSearchConnection = openSearchConnection;
+        source.factory = factory;
 
         // Metacard ID filter
         Filter idFilter = filterBuilder.attribute(Metacard.ID).equalTo().text(SAMPLE_ID);
@@ -840,27 +765,13 @@ public class TestOpenSearchSource {
         WebClient client = mock(WebClient.class);
         ResourceReader mockReader = mock(ResourceReader.class);
 
-        OpenSearchConnection openSearchConnection = mock(OpenSearchConnection.class);
-
-        Client proxy = mock(Client.class);
-
-        when(openSearchConnection
-                .newRestClient(any(String.class), any(Query.class), any(String.class),
-                        any(Boolean.class))).thenReturn(proxy);
-
-        when(openSearchConnection.getWebClientFromClient(proxy)).thenReturn(client);
-
+        WebClient client = mock(WebClient.class);
         Response clientResponse = mock(Response.class);
-
-        when(client.get()).thenReturn(clientResponse);
-
-        when(mockReader.retrieveResource(any(URI.class), any(Map.class)))
-                .thenReturn(new ResourceResponseImpl(new ResourceImpl(getBinaryData(), "")));
-
+        when(clientResponse.getEntity()).thenReturn(getBinaryData());
         when(clientResponse.getHeaderString(eq(OpenSearchSource.HEADER_ACCEPT_RANGES)))
                 .thenReturn(OpenSearchSource.BYTES);
-
-        when(openSearchConnection.getOpenSearchWebClient()).thenReturn(client);
+        when(client.get()).thenReturn(clientResponse);
+        SecureCxfClientFactory factory = getMockFactory(client);
 
         MultivaluedMap<String, Object> headers = new MultivaluedHashMap<String, Object>();
         headers.put(HttpHeaders.CONTENT_TYPE, Arrays.<Object>asList("application/octet-stream"));
@@ -874,8 +785,7 @@ public class TestOpenSearchSource {
         source.init();
         source.setLocalQueryOnly(true);
         source.setInputTransformer(getMockInputTransformer());
-        source.openSearchConnection = openSearchConnection;
-        source.setResourceReader(mockReader);
+        source.factory = factory;
         return source;
     }
 
@@ -960,6 +870,33 @@ public class TestOpenSearchSource {
                 throws InvalidSyntaxException {
             return transformer;
         }
+
+        /*@Override
+        protected boolean setOpenSearchParameters(Query query, ddf.security.Subject subject,
+                WebClient client) {
+            if (client == null || subject == null) {
+                return false;
+            }
+            return true;
+        }*/
+
+        @Override
+        protected SecureCxfClientFactory tempFactory(String url, Class interfaceClass) {
+            return this.factory;
+        }
     }
 
+    protected SecureCxfClientFactory getMockFactory(WebClient client) {
+        SecureCxfClientFactory factory = mock(SecureCxfClientFactory.class);
+
+        try {
+            doReturn(client).when(factory)
+                    .getWebClientForSubject(any(org.apache.shiro.subject.Subject.class));
+            doReturn(client).when(factory).getUnsecuredWebClient();
+        } catch (SecurityServiceException sse) {
+            fail("Could not get client");
+        }
+
+        return factory;
+    }
 }

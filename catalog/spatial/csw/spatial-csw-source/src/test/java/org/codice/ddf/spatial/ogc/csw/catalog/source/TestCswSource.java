@@ -10,7 +10,7 @@
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- */
+ **/
 package org.codice.ddf.spatial.ogc.csw.catalog.source;
 
 import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
@@ -47,6 +47,9 @@ import javax.xml.bind.JAXBException;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.namespace.QName;
 
+import org.apache.shiro.subject.Subject;
+import org.codice.ddf.cxf.SecureCxfClientFactory;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.Csw;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
@@ -84,6 +87,7 @@ import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.UnsupportedQueryException;
+import ddf.security.service.SecurityServiceException;
 import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.QueryType;
@@ -100,7 +104,7 @@ public class TestCswSource extends TestCswSourceBase {
 
     @Test
     public void testParseCapabilities() throws CswException {
-        CswSource source = getCswSource(createRemoteCsw(), mockContext, new ArrayList<String>());
+        CswSource source = getCswSource(createMockCsw(), mockContext, new ArrayList<String>());
 
         assertTrue(source.isAvailable());
         assertEquals(10, source.getContentTypes().size());
@@ -112,7 +116,7 @@ public class TestCswSource extends TestCswSourceBase {
     @Test
     public void testInitialContentList() throws CswException {
 
-        CswSource source = getCswSource(createRemoteCsw(), mockContext, Arrays.asList("x", "y"));
+        CswSource source = getCswSource(createMockCsw(), mockContext, Arrays.asList("x", "y"));
 
         assertTrue(source.isAvailable());
         assertEquals(12, source.getContentTypes().size());
@@ -123,7 +127,7 @@ public class TestCswSource extends TestCswSourceBase {
 
     @Test
     public void testAddingContentTypesOnQueries() throws CswException, UnsupportedQueryException {
-        RemoteCsw remote = createRemoteCsw();
+        Csw mockCsw = createMockCsw();
 
         List<String> expectedNames = new LinkedList<String>(
                 Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h", "i", "j"));
@@ -139,7 +143,7 @@ public class TestCswSource extends TestCswSourceBase {
         doReturn(mockServiceReference).when(mockRegisteredMetacardType).getReference();
         when(mockServiceReference.getProperty(eq(Metacard.CONTENT_TYPE))).thenReturn(expectedNames);
 
-        CswSource source = getCswSource(remote, mockContext, new ArrayList<String>());
+        CswSource source = getCswSource(mockCsw, mockContext, new ArrayList<String>());
 
         assertEquals(10, source.getContentTypes().size());
 
@@ -148,7 +152,7 @@ public class TestCswSource extends TestCswSourceBase {
 
         CswRecordCollection collection = generateCswCollection("/getRecordsResponse.xml");
 
-        when(remote.getRecords(any(GetRecordsType.class))).thenReturn(collection);
+        when(mockCsw.getRecords(any(GetRecordsType.class))).thenReturn(collection);
 
         QueryImpl propertyIsLikeQuery = new QueryImpl(
                 builder.attribute(Metacard.ANY_TEXT).is().like().text("*"));
@@ -177,8 +181,7 @@ public class TestCswSource extends TestCswSourceBase {
         setupMockContextForMetacardTypeRegistrationAndUnregistration(getDefaultContentTypes());
 
         try {
-            configureMockRemoteCsw(numRecordsReturned, numRecordsMatched,
-                    CswConstants.VERSION_2_0_2);
+            configureMockCsw(numRecordsReturned, numRecordsMatched, CswConstants.VERSION_2_0_2);
         } catch (CswException e) {
             fail("Could not configure Mock Remote CSW: " + e.getMessage());
         }
@@ -227,8 +230,7 @@ public class TestCswSource extends TestCswSourceBase {
         setupMockContextForMetacardTypeRegistrationAndUnregistration(getDefaultContentTypes());
 
         try {
-            configureMockRemoteCsw(numRecordsReturned, numRecordsMatched,
-                    CswConstants.VERSION_2_0_2);
+            configureMockCsw(numRecordsReturned, numRecordsMatched, CswConstants.VERSION_2_0_2);
         } catch (CswException e) {
             fail("Could not configure Mock Remote CSW: " + e.getMessage());
         }
@@ -281,8 +283,7 @@ public class TestCswSource extends TestCswSourceBase {
         setupMockContextForMetacardTypeRegistrationAndUnregistration(getDefaultContentTypes());
 
         try {
-            configureMockRemoteCsw(numRecordsReturned, numRecordsMatched,
-                    CswConstants.VERSION_2_0_2);
+            configureMockCsw(numRecordsReturned, numRecordsMatched, CswConstants.VERSION_2_0_2);
         } catch (CswException e) {
             fail("Could not configure Mock Remote CSW: " + e.getMessage());
         }
@@ -329,8 +330,7 @@ public class TestCswSource extends TestCswSourceBase {
         setupMockContextForMetacardTypeRegistrationAndUnregistration(getDefaultContentTypes());
 
         try {
-            configureMockRemoteCsw(numRecordsReturned, numRecordsMatched,
-                    CswConstants.VERSION_2_0_2);
+            configureMockCsw(numRecordsReturned, numRecordsMatched, CswConstants.VERSION_2_0_2);
         } catch (CswException e) {
             fail("Could not configure Mock Remote CSW: " + e.getMessage());
         }
@@ -382,8 +382,7 @@ public class TestCswSource extends TestCswSourceBase {
         setupMockContextForMetacardTypeRegistrationAndUnregistration(getDefaultContentTypes());
 
         try {
-            configureMockRemoteCsw(numRecordsReturned, numRecordsMatched,
-                    CswConstants.VERSION_2_0_2);
+            configureMockCsw(numRecordsReturned, numRecordsMatched, CswConstants.VERSION_2_0_2);
         } catch (CswException e) {
             fail("Could not configure Mock Remote CSW: " + e.getMessage());
         }
@@ -440,8 +439,7 @@ public class TestCswSource extends TestCswSourceBase {
         setupMockContextForMetacardTypeRegistrationAndUnregistration(getDefaultContentTypes());
 
         try {
-            configureMockRemoteCsw(numRecordsReturned, numRecordsMatched,
-                    CswConstants.VERSION_2_0_2);
+            configureMockCsw(numRecordsReturned, numRecordsMatched, CswConstants.VERSION_2_0_2);
         } catch (CswException e) {
             fail("Could not configure Mock Remote CSW: " + e.getMessage());
         }
@@ -494,8 +492,7 @@ public class TestCswSource extends TestCswSourceBase {
         setupMockContextForMetacardTypeRegistrationAndUnregistration(getDefaultContentTypes());
 
         try {
-            configureMockRemoteCsw(numRecordsReturned, numRecordsMatched,
-                    CswConstants.VERSION_2_0_2);
+            configureMockCsw(numRecordsReturned, numRecordsMatched, CswConstants.VERSION_2_0_2);
         } catch (CswException e) {
             fail("Could not configure Mock Remote CSW: " + e.getMessage());
         }
@@ -562,8 +559,7 @@ public class TestCswSource extends TestCswSourceBase {
         setupMockContextForMetacardTypeRegistrationAndUnregistration(getDefaultContentTypes());
 
         try {
-            configureMockRemoteCsw(numRecordsReturned, numRecordsMatched,
-                    CswConstants.VERSION_2_0_2);
+            configureMockCsw(numRecordsReturned, numRecordsMatched, CswConstants.VERSION_2_0_2);
         } catch (CswException e) {
             fail("Could not configure Mock Remote CSW: " + e.getMessage());
         }
@@ -653,8 +649,7 @@ public class TestCswSource extends TestCswSourceBase {
         setupMockContextForMetacardTypeRegistrationAndUnregistration(getDefaultContentTypes());
 
         try {
-            configureMockRemoteCsw(numRecordsReturned, numRecordsMatched,
-                    CswConstants.VERSION_2_0_2);
+            configureMockCsw(numRecordsReturned, numRecordsMatched, CswConstants.VERSION_2_0_2);
         } catch (CswException e) {
             fail("Could not configure Mock Remote CSW: " + e.getMessage());
         }
@@ -736,8 +731,7 @@ public class TestCswSource extends TestCswSourceBase {
         setupMockContextForMetacardTypeRegistrationAndUnregistration(getDefaultContentTypes());
 
         try {
-            configureMockRemoteCsw(numRecordsReturned, numRecordsMatched,
-                    CswConstants.VERSION_2_0_2);
+            configureMockCsw(numRecordsReturned, numRecordsMatched, CswConstants.VERSION_2_0_2);
         } catch (CswException e) {
             fail("Could not configure Mock Remote CSW: " + e.getMessage());
         }
@@ -746,13 +740,14 @@ public class TestCswSource extends TestCswSourceBase {
         cswSource.setCswUrl(URL);
         cswSource.setId(ID);
 
-        cswSource.setConnectionTimeout(10000);
-        cswSource.setReceiveTimeout(10000);
+        HashMap<String, Object> configuration = new HashMap<String, Object>(10) {
+        };
+        configuration.put("connectionTimeout", 10000);
+        configuration.put("receiveTimeout", 10000);
+        cswSource.refresh(configuration);
 
-        // Perform test
-        cswSource.updateTimeouts();
-
-        verify(mockCsw, atLeastOnce()).setTimeouts(any(Integer.class), any(Integer.class));
+        assertEquals(cswSource.getConnectionTimeout(), 10000);
+        assertEquals(cswSource.getReceiveTimeout(), 10000);
     }
 
     @Test
@@ -781,8 +776,7 @@ public class TestCswSource extends TestCswSourceBase {
         setupMockContextForMetacardTypeRegistrationAndUnregistration(getDefaultContentTypes());
 
         try {
-            configureMockRemoteCsw(numRecordsReturned, numRecordsMatched,
-                    CswConstants.VERSION_2_0_2);
+            configureMockCsw(numRecordsReturned, numRecordsMatched, CswConstants.VERSION_2_0_2);
         } catch (CswException e) {
             fail("Could not configure Mock Remote CSW: " + e.getMessage());
         }
@@ -828,8 +822,7 @@ public class TestCswSource extends TestCswSourceBase {
         setupMockContextForMetacardTypeRegistrationAndUnregistration(getDefaultContentTypes());
 
         try {
-            configureMockRemoteCsw(numRecordsReturned, numRecordsMatched,
-                    CswConstants.VERSION_2_0_2);
+            configureMockCsw(numRecordsReturned, numRecordsMatched, CswConstants.VERSION_2_0_2);
         } catch (CswException e) {
             fail("Could not configure Mock Remote CSW: " + e.getMessage());
         }
@@ -911,20 +904,27 @@ public class TestCswSource extends TestCswSourceBase {
         return cswSourceConfiguration;
     }
 
-    private CswSource getCswSource(RemoteCsw remoteCsw, BundleContext context,
-            List<String> contentTypes) {
-        return getCswSource(remoteCsw, context, contentTypes, null);
+    private CswSource getCswSource(Csw csw, BundleContext context, List<String> contentTypes) {
+        return getCswSource(csw, context, contentTypes, null);
     }
 
-    private CswSource getCswSource(RemoteCsw remoteCsw, BundleContext context,
-            List<String> contentTypes, String contentMapping, String queryTypeQName,
-            String queryTypePrefix) {
+    private CswSource getCswSource(Csw csw, BundleContext context, List<String> contentTypes,
+            String contentMapping, String queryTypeQName, String queryTypePrefix) {
 
         CswSourceConfiguration cswSourceConfiguration = getStandardCswSourceConfiguration(
                 contentMapping, queryTypeQName, queryTypePrefix);
         cswSourceConfiguration.setContentTypeMapping(contentMapping);
-        CswSource cswSource = new CswSource(remoteCsw, mockContext, cswSourceConfiguration,
-                mockProvider);
+
+        SecureCxfClientFactory mockFactory = mock(SecureCxfClientFactory.class);
+        try {
+            doReturn(csw).when(mockFactory).getClientForSubject(any(Subject.class));
+            doReturn(csw).when(mockFactory).getUnsecuredClient();
+        } catch (SecurityServiceException sse) {
+            fail("Mock CSW from mockFactory failed");
+        }
+
+        CswSource cswSource = new CswSource(mockContext, cswSourceConfiguration, mockProvider,
+                mockFactory);
         cswSource.setFilterAdapter(new GeotoolsFilterAdapterImpl());
         cswSource.setFilterBuilder(builder);
         cswSource.setContext(context);
@@ -936,10 +936,10 @@ public class TestCswSource extends TestCswSourceBase {
         return cswSource;
     }
 
-    private CswSource getCswSource(RemoteCsw remoteCsw, BundleContext context,
-            List<String> contentTypes, String contentMapping) {
+    private CswSource getCswSource(Csw csw, BundleContext context, List<String> contentTypes,
+            String contentMapping) {
 
-        return getCswSource(remoteCsw, context, contentTypes, contentMapping, CSW_RECORD_QNAME,
+        return getCswSource(csw, context, contentTypes, contentMapping, CSW_RECORD_QNAME,
                 CswConstants.CSW_NAMESPACE_PREFIX);
     }
 
