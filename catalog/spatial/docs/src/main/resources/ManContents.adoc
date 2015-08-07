@@ -94,7 +94,7 @@ To upgrade an application, complete the following procedure.
 
 |DDF :: Spatial :: Commands
 |`geonames`
-|The `geonames` commands provide the ability to interact with a local GeoNames index.
+|The `geonames` commands provide the ability to interact with a local GeoNames index. The local GeoNames index is used by the offline gazetteer service, which is an optional feature available in the Search UI and is explained in the `Managing` documentation for the Search UI.
 |===
 
 === Commands
