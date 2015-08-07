@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.source;
 
@@ -21,7 +20,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -41,12 +39,14 @@ import javax.xml.transform.stream.StreamSource;
 
 import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
+import org.codice.ddf.cxf.SecureCxfClientFactory;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsFeatureCollection;
 import org.codice.ddf.spatial.ogc.wfs.catalog.source.WfsUriResolver;
 import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.DescribeFeatureTypeRequest;
 import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.GetCapabilitiesRequest;
+import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.Wfs;
 import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.Wfs10Constants;
 import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.source.reader.FeatureCollectionMessageBodyReaderWfs10;
 import org.junit.Test;
@@ -68,6 +68,7 @@ import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.UnsupportedQueryException;
+import ddf.security.service.SecurityServiceException;
 import ogc.schema.opengis.filter.v_1_0_0.BinaryLogicOpType;
 import ogc.schema.opengis.filter.v_1_0_0.LogicOpsType;
 import ogc.schema.opengis.filter.v_1_0_0.PropertyIsLikeType;
@@ -163,7 +164,7 @@ public class TestWfsSource {
 
     private final GeotoolsFilterBuilder builder = new GeotoolsFilterBuilder();
 
-    private RemoteWfs mockWfs = mock(RemoteWfs.class);
+    private Wfs mockWfs = mock(Wfs.class);
 
     private WFSCapabilitiesType mockCapabilites = new WFSCapabilitiesType();
 
@@ -180,10 +181,19 @@ public class TestWfsSource {
 
     private WfsSource source;
 
+    private SecureCxfClientFactory mockFactory;
+
     private AvailabilityTask mockAvailabilityTask = mock(AvailabilityTask.class);
 
     public void setUp(final String schema, final List<Object> supportedGeos, final String srsName,
             final Integer numFeatures, final Integer numResults) throws WfsException {
+
+        mockFactory = mock(SecureCxfClientFactory.class);
+        try {
+            when(mockFactory.getUnsecuredClient()).thenReturn(mockWfs);
+        } catch (SecurityServiceException sse) {
+
+        }
 
         // GetCapabilities Response
         when(mockWfs.getCapabilities(any(GetCapabilitiesRequest.class)))
@@ -234,8 +244,6 @@ public class TestWfsSource {
             }
         }
 
-        when(mockWfs.getFeatureCollectionReader()).thenReturn(mockReader);
-
         // GetFeature Response
         when(mockWfs.getFeature(any(GetFeatureType.class))).thenReturn(mockFeatureCollection);
 
@@ -260,8 +268,8 @@ public class TestWfsSource {
 
         when(mockAvailabilityTask.isAvailable()).thenReturn(true);
 
-        source = new WfsSource(mockWfs, new GeotoolsFilterAdapterImpl(), mockContext,
-                mockAvailabilityTask);
+        source = new WfsSource(new GeotoolsFilterAdapterImpl(), mockContext, mockAvailabilityTask,
+                mockFactory);
 
     }
 
@@ -368,8 +376,8 @@ public class TestWfsSource {
     }
 
     @Test
-    public void testTwoContentTypeAndNoPropertyQuery() throws UnsupportedQueryException,
-            WfsException {
+    public void testTwoContentTypeAndNoPropertyQuery()
+            throws UnsupportedQueryException, WfsException {
         setUp(NO_PROPERTY_SCHEMA, null, null, TWO_FEATURES, null);
 
         Filter contentTypeFilter = builder.attribute(Metacard.CONTENT_TYPE).is().like()
@@ -553,8 +561,8 @@ public class TestWfsSource {
      * @throws UnsupportedQueryException
      */
     @Test
-    public void testPagingStartIndexOne() throws WfsException, TransformerConfigurationException,
-            UnsupportedQueryException {
+    public void testPagingStartIndexOne()
+            throws WfsException, TransformerConfigurationException, UnsupportedQueryException {
 
         int pageSize = 4;
         int startIndex = 1;
@@ -580,8 +588,8 @@ public class TestWfsSource {
      * @throws UnsupportedQueryException
      */
     @Test
-    public void testPagingStartIndexTwo() throws WfsException, TransformerConfigurationException,
-            UnsupportedQueryException {
+    public void testPagingStartIndexTwo()
+            throws WfsException, TransformerConfigurationException, UnsupportedQueryException {
 
         int pageSize = 4;
         int startIndex = 2;
@@ -607,8 +615,8 @@ public class TestWfsSource {
      * @throws UnsupportedQueryException
      */
     @Test
-    public void testPagingStartIndexGreaterThanNumberOfFeatures() throws WfsException,
-            TransformerConfigurationException, UnsupportedQueryException {
+    public void testPagingStartIndexGreaterThanNumberOfFeatures()
+            throws WfsException, TransformerConfigurationException, UnsupportedQueryException {
 
         int pageSize = 4;
         int startIndex = 3;
@@ -627,8 +635,8 @@ public class TestWfsSource {
     // results to
     // view associated metacard in XML)
     @Test
-    public void testPaging() throws WfsException, TransformerConfigurationException,
-            UnsupportedQueryException {
+    public void testPaging()
+            throws WfsException, TransformerConfigurationException, UnsupportedQueryException {
 
         int pageSize = 4;
         int startIndex = 1;
@@ -653,8 +661,8 @@ public class TestWfsSource {
      * @throws UnsupportedQueryException
      */
     @Test
-    public void testPagingPageSizeExceedsFeatureCountStartIndexOne() throws WfsException,
-            TransformerConfigurationException, UnsupportedQueryException {
+    public void testPagingPageSizeExceedsFeatureCountStartIndexOne()
+            throws WfsException, TransformerConfigurationException, UnsupportedQueryException {
 
         int pageSize = 20;
         int startIndex = 1;
@@ -681,8 +689,8 @@ public class TestWfsSource {
      * @throws UnsupportedQueryException
      */
     @Test
-    public void testPagingPageSizeExceedsFeatureCountStartIndexTwo() throws WfsException,
-            TransformerConfigurationException, UnsupportedQueryException {
+    public void testPagingPageSizeExceedsFeatureCountStartIndexTwo()
+            throws WfsException, TransformerConfigurationException, UnsupportedQueryException {
 
         int pageSize = 20;
         int startIndex = 2;
@@ -708,8 +716,8 @@ public class TestWfsSource {
      * @throws UnsupportedQueryException
      */
     @Test(expected = UnsupportedQueryException.class)
-    public void testPagingStartIndexNegative() throws WfsException,
-            TransformerConfigurationException, UnsupportedQueryException {
+    public void testPagingStartIndexNegative()
+            throws WfsException, TransformerConfigurationException, UnsupportedQueryException {
 
         int pageSize = 4;
         int startIndex = -1;
@@ -728,8 +736,8 @@ public class TestWfsSource {
      * @throws UnsupportedQueryException
      */
     @Test(expected = UnsupportedQueryException.class)
-    public void testPagingStartIndexZero() throws WfsException, TransformerConfigurationException,
-            UnsupportedQueryException {
+    public void testPagingStartIndexZero()
+            throws WfsException, TransformerConfigurationException, UnsupportedQueryException {
         int pageSize = 4;
         int startIndex = 0;
 
@@ -747,8 +755,8 @@ public class TestWfsSource {
      * @throws UnsupportedQueryException
      */
     @Test
-    public void testPagingPageSizeNegative() throws WfsException, TransformerConfigurationException,
-            UnsupportedQueryException {
+    public void testPagingPageSizeNegative()
+            throws WfsException, TransformerConfigurationException, UnsupportedQueryException {
 
         int pageSize = -1;
         int startIndex = 1;
@@ -772,8 +780,8 @@ public class TestWfsSource {
      * @throws UnsupportedQueryException
      */
     @Test
-    public void testPagingPageSizeZero() throws WfsException, TransformerConfigurationException,
-            UnsupportedQueryException {
+    public void testPagingPageSizeZero()
+            throws WfsException, TransformerConfigurationException, UnsupportedQueryException {
 
         int pageSize = 0;
         int startIndex = 1;
@@ -798,8 +806,8 @@ public class TestWfsSource {
      * @throws UnsupportedQueryException
      */
     @Test
-    public void testPagingPageSizeExceedsMaxFeaturesThatCanBeReturned() throws WfsException,
-            TransformerConfigurationException, UnsupportedQueryException {
+    public void testPagingPageSizeExceedsMaxFeaturesThatCanBeReturned()
+            throws WfsException, TransformerConfigurationException, UnsupportedQueryException {
 
         int pageSize = WfsSource.WFS_MAX_FEATURES_RETURNED + 1;
         int startIndex = 1;
@@ -861,8 +869,8 @@ public class TestWfsSource {
     }
 
     @Test
-    public void testQueryTwoFeaturesWithMixedPropertyNames() throws UnsupportedQueryException,
-            WfsException {
+    public void testQueryTwoFeaturesWithMixedPropertyNames()
+            throws UnsupportedQueryException, WfsException {
         setUp(TWO_TEXT_PROPERTY_SCHEMA, null, null, TWO_FEATURES, null);
         Filter orderPersonFilter = builder
                 .attribute(sampleFeatures.get(0).getLocalPart() + "." + ORDER_PERSON).is().like()
@@ -994,13 +1002,12 @@ public class TestWfsSource {
         source.setConnectionTimeout(10000);
         source.setReceiveTimeout(10000);
         // Perform test
-        source.updateTimeouts();
-
-        verify(mockWfs, atLeastOnce()).setTimeouts(any(Integer.class), any(Integer.class));
+        assertEquals(source.getConnectionTimeout(), 10000);
+        assertEquals(source.getReceiveTimeout(), 10000);
     }
 
-    private SourceResponse executeQuery(int startIndex, int pageSize) throws
-            UnsupportedQueryException {
+    private SourceResponse executeQuery(int startIndex, int pageSize)
+            throws UnsupportedQueryException {
 
         Filter filter = builder.attribute(Metacard.ANY_TEXT).is().like().text(LITERAL);
 
