@@ -49,14 +49,14 @@ public class PolicyManager implements ContextPolicyManager {
 
     private static final String DEFAULT_REALM_CONTEXTS = "/=karaf";
 
-    private Map<String, ContextPolicy> policyStore = new HashMap<String, ContextPolicy>();
+    private Map<String, ContextPolicy> policyStore = new HashMap<>();
 
-    private List<String> whiteListContexts = new ArrayList<String>();
+    private List<String> whiteListContexts = new ArrayList<>();
 
     private ContextPolicy defaultPolicy = new Policy("/", DEFAULT_REALM, new ArrayList<String>(),
             new ArrayList<ContextAttributeMapping>());
 
-    private Map<String, Object> policyProperties = new HashMap<String, Object>();
+    private Map<String, Object> policyProperties = new HashMap<>();
 
     public PolicyManager() {
         policyStore.put("/", defaultPolicy);
@@ -104,7 +104,27 @@ public class PolicyManager implements ContextPolicyManager {
         policyStore.put(path, contextPolicy);
     }
 
+    /**
+     * Initializes the policy store. This method will be called every time the policy attributes
+     * change. This will happen after the component has been initialized (see {@link #configure()}
+     * and when an update is made to the {@code org.codice.ddf.security.policy.context.impl.PolicyManager}
+     * configuration pid.
+     * <br/>
+     * See https://osgi.org/javadoc/r6/cmpn/org/osgi/service/cm/ManagedService.html for more
+     * details on how and when this method may be called.
+     *
+     * @param properties map of properties to use to initialize the policy store.
+     *                   Since there is no configuration file bound to these properties by default,
+     *                   this map may be {@code null}.
+     */
     public void setPolicies(Map<String, Object> properties) {
+        if (properties == null) {
+            LOGGER.debug("setPolicies() called with null properties map. "
+                    + "Policy store should have already been initialized so ignoring.");
+            LOGGER.debug("Policy Store already contains {} items", policyStore.size());
+            return;
+        }
+
         LOGGER.debug("setPolicies called: {}", properties);
         policyStore.clear();
         policyStore.put("/", defaultPolicy);
@@ -144,9 +164,9 @@ public class PolicyManager implements ContextPolicyManager {
         }
         if (authTypesObj != null && reqAttrsObj != null) {
 
-            Map<String, String> contextToRealm = new HashMap<String, String>();
-            Map<String, List<String>> contextToAuth = new HashMap<String, List<String>>();
-            Map<String, List<ContextAttributeMapping>> contextToAttr = new HashMap<String, List<ContextAttributeMapping>>();
+            Map<String, String> contextToRealm = new HashMap<>();
+            Map<String, List<String>> contextToAuth = new HashMap<>();
+            Map<String, List<ContextAttributeMapping>> contextToAttr = new HashMap<>();
 
             List<String> realmContextList = expandStrings(realmContexts);
 
@@ -185,7 +205,7 @@ public class PolicyManager implements ContextPolicyManager {
                         }
                     }
                     String[] attributes = value.split(";");
-                    List<ContextAttributeMapping> attrMaps = new ArrayList<ContextAttributeMapping>();
+                    List<ContextAttributeMapping> attrMaps = new ArrayList<>();
                     for (String attribute : attributes) {
                         String[] parts = attribute.split("=");
                         if (parts.length == 2) {
@@ -208,6 +228,8 @@ public class PolicyManager implements ContextPolicyManager {
                                 context.getValue(), mappings));
             }
         }
+
+        LOGGER.debug("Policy store initialized, now contains {} entries", policyStore.size());
     }
 
     private List<String> expandStrings(String[] itemArr) {
@@ -215,7 +237,7 @@ public class PolicyManager implements ContextPolicyManager {
     }
 
     private List<String> expandStrings(List<String> itemArr) {
-        List<String> itemList = new ArrayList<String>();
+        List<String> itemList = new ArrayList<>();
         for (String item : itemArr) {
             if (item.contains(",")) {
                 String[] items = item.split(",");
@@ -289,15 +311,12 @@ public class PolicyManager implements ContextPolicyManager {
     }
 
     public boolean isWhiteListed(String contextPath) {
-        if (getContextPolicy(contextPath) == null) {
-            return true;
-        }
-        return false;
+        return (getContextPolicy(contextPath) == null);
     }
 
     /**
-     * Called by blueprint once all properties have been initialized. This isn't called by configuration manager - it
-     * calls the specified update-method (in this case setPolicies).
+     * Called by blueprint once all properties have been initialized. This isn't called by
+     * configuration manager - it calls the specified update-method (in this case setPolicies).
      */
     public void configure() {
         LOGGER.debug("configure called.");
