@@ -69,7 +69,15 @@ public class WebSSOFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("handlerList size is {}", handlerList.size());
 
+            for (AuthenticationHandler authenticationHandler : handlerList) {
+                LOGGER.debug("AuthenticationHandler info: {}, {}",
+                        authenticationHandler.getAuthenticationType(),
+                        authenticationHandler.getClass().getSimpleName());
+            }
+        }
     }
 
     /**
@@ -98,13 +106,16 @@ public class WebSSOFilter implements Filter {
         String path = StringUtils.isNotBlank(httpRequest.getContextPath()) ?
                 httpRequest.getContextPath() :
                 httpRequest.getServletPath() + StringUtils.defaultString(httpRequest.getPathInfo());
+
         if (StringUtils.isEmpty(path)) {
             path = httpRequest.getRequestURI();
         }
+
         LOGGER.debug("Handling request for path {}", path);
 
         String realm = BaseAuthenticationToken.DEFAULT_REALM;
         boolean isWhiteListed = false;
+
         if (contextPolicyManager != null) {
             ContextPolicy policy = contextPolicyManager.getContextPolicy(path);
             if (policy != null) {
@@ -138,10 +149,16 @@ public class WebSSOFilter implements Filter {
             FilterChain filterChain, List<AuthenticationHandler> handlers)
             throws IOException, ServletException {
 
-        // First pass, see if anyone can come up with proper security token from
-        // the git-go
+        if (handlers.size() == 0) {
+            LOGGER.warn("Handlers not ready. Returning status code 503, Service Unavailable.");
+            returnSimpleResponse(HttpServletResponse.SC_SERVICE_UNAVAILABLE, httpResponse);
+            return;
+        }
+
+        // First pass, see if anyone can come up with proper security token from the get-go
         HandlerResult result = null;
         LOGGER.debug("Checking for existing tokens in request.");
+
         for (AuthenticationHandler auth : handlers) {
             result = auth.getNormalizedToken(httpRequest, httpResponse, filterChain, false);
             if (result.getStatus() != HandlerResult.Status.NO_ACTION) {
@@ -154,8 +171,7 @@ public class WebSSOFilter implements Filter {
         // If we haven't received usable credentials yet, go get some
         if (result == null || result.getStatus() == HandlerResult.Status.NO_ACTION) {
             LOGGER.debug("First pass with no tokens found - requesting tokens");
-            // This pass, tell each handler to do whatever it takes to get a
-            // SecurityToken
+            // This pass, tell each handler to do whatever it takes to get a SecurityToken
             for (AuthenticationHandler auth : handlers) {
                 result = auth.getNormalizedToken(httpRequest, httpResponse, filterChain, true);
                 if (result.getStatus() != HandlerResult.Status.NO_ACTION) {
@@ -170,9 +186,11 @@ public class WebSSOFilter implements Filter {
                 httpRequest.getContextPath() :
                 httpRequest.getServletPath() + StringUtils.defaultString(httpRequest.getPathInfo());
         String ipAddress = httpRequest.getHeader("X-FORWARDED-FOR");
+
         if (ipAddress == null) {
             ipAddress = httpRequest.getRemoteAddr();
         }
+
         if (result != null) {
             switch (result.getStatus()) {
             case REDIRECTED:
