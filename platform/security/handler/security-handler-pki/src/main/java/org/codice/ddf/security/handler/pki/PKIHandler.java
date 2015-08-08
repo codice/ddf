@@ -45,6 +45,10 @@ public class PKIHandler implements AuthenticationHandler {
 
     protected PKIAuthenticationTokenFactory tokenFactory;
 
+    public PKIHandler() {
+        LOGGER.debug("Creating PKI handler.");
+    }
+
     @Override
     public String getAuthenticationType() {
         return AUTH_TYPE;
