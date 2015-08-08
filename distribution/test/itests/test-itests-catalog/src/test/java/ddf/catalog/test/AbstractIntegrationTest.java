@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Dictionary;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
@@ -71,6 +72,7 @@ import org.osgi.service.metatype.MetaTypeService;
 import org.osgi.service.metatype.ObjectClassDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.osgi.util.OsgiStringUtils;
 
 import com.jayway.restassured.response.Response;
 
@@ -93,10 +95,18 @@ public abstract class AbstractIntegrationTest {
     protected static final String LOGGER_PREFIX = "log4j.logger.";
 
     protected static final String KARAF_VERSION = "2.4.3";
-    
-    protected static final int ONE_MINUTE_MILLIS = 60000;
 
-    protected static final int FIVE_MINUTES_MILLIS = ONE_MINUTE_MILLIS * 5;
+    //    protected static final long REQUIRED_BUNDLES_TIMEOUT = TimeUnit.MINUTES.toMillis(10);
+    protected static final long REQUIRED_BUNDLES_TIMEOUT = 500;
+
+    //    protected static final long MANAGED_SERVICE_TIMEOUT = TimeUnit.MINUTES.toMillis(10);
+    protected static final long MANAGED_SERVICE_TIMEOUT = 500;
+
+    //    protected static final long CATALOG_PROVIDER_TIMEOUT = TimeUnit.MINUTES.toMillis(10);
+    protected static final long CATALOG_PROVIDER_TIMEOUT = 500;
+
+    //    protected static final long HTTP_ENDPOINT_TIMEOUT = TimeUnit.MINUTES.toMillis(10);
+    protected static final long HTTP_ENDPOINT_TIMEOUT = 500;
 
     // TODO: Use the Camel AvailablePortFinder.getNextAvailable() test method
     protected static final String HTTP_PORT = "9081";
@@ -186,9 +196,8 @@ public abstract class AbstractIntegrationTest {
     }
 
     protected Option[] configurePaxExam() {
-        return options(logLevel(LogLevelOption.LogLevel.INFO),
-                useOwnExamBundlesStartLevel(100),
-                // increase timeout for TravisCI
+        return options(logLevel(LogLevelOption.LogLevel.INFO), useOwnExamBundlesStartLevel(100),
+                // increase timeout for CI environment
                 systemTimeout(TimeUnit.MINUTES.toMillis(10)),
                 when(Boolean.getBoolean("keepRuntimeFolder")).useOptions(keepRuntimeFolder()));
     }
@@ -234,16 +243,17 @@ public abstract class AbstractIntegrationTest {
 
     protected Option[] configureMavenRepos() {
         return options(editConfigurationFilePut("etc/org.ops4j.pax.url.mvn.cfg",
-                "org.ops4j.pax.url.mvn.repositories", "http://repo1.maven.org/maven2@id=central,"
-                        + "http://oss.sonatype.org/content/repositories/snapshots@snapshots@noreleases@id=sonatype-snapshot,"
-                        + "http://oss.sonatype.org/content/repositories/ops4j-snapshots@snapshots@noreleases@id=ops4j-snapshot,"
-                        + "http://repository.apache.org/content/groups/snapshots-group@snapshots@noreleases@id=apache,"
-                        + "http://svn.apache.org/repos/asf/servicemix/m2-repo@id=servicemix,"
-                        + "http://repository.springsource.com/maven/bundles/release@id=springsource,"
-                        + "http://repository.springsource.com/maven/bundles/external@id=springsourceext,"
-                        + "http://oss.sonatype.org/content/repositories/releases/@id=sonatype"),
-                when(System.getProperty("maven.repo.local") != null)
-                        .useOptions(editConfigurationFilePut("etc/org.ops4j.pax.url.mvn.cfg",
+                        "org.ops4j.pax.url.mvn.repositories",
+                        "http://repo1.maven.org/maven2@id=central,"
+                                + "http://oss.sonatype.org/content/repositories/snapshots@snapshots@noreleases@id=sonatype-snapshot,"
+                                + "http://oss.sonatype.org/content/repositories/ops4j-snapshots@snapshots@noreleases@id=ops4j-snapshot,"
+                                + "http://repository.apache.org/content/groups/snapshots-group@snapshots@noreleases@id=apache,"
+                                + "http://svn.apache.org/repos/asf/servicemix/m2-repo@id=servicemix,"
+                                + "http://repository.springsource.com/maven/bundles/release@id=springsource,"
+                                + "http://repository.springsource.com/maven/bundles/external@id=springsourceext,"
+                                + "http://oss.sonatype.org/content/repositories/releases/@id=sonatype"),
+                when(System.getProperty("maven.repo.local") != null).useOptions(
+                        editConfigurationFilePut("etc/org.ops4j.pax.url.mvn.cfg",
                                 "org.ops4j.pax.url.mvn.localRepository",
                                 System.getProperty("maven.repo.local"))));
     }
@@ -329,7 +339,7 @@ public abstract class AbstractIntegrationTest {
         sourceConfig.update(new Hashtable<>(properties));
 
         long millis = 0;
-        while (!listener.isUpdated() && millis < TimeUnit.MINUTES.toMillis(10)) {
+        while (!listener.isUpdated() && millis < MANAGED_SERVICE_TIMEOUT) {
             try {
                 Thread.sleep(CONFIG_UPDATE_WAIT_INTERVAL);
                 millis += CONFIG_UPDATE_WAIT_INTERVAL;
@@ -341,7 +351,9 @@ public abstract class AbstractIntegrationTest {
         }
 
         if (!listener.isUpdated()) {
-            throw new RuntimeException("Service was not updated before timeout.");
+            throw new RuntimeException(
+                    String.format("Service was not updated within %d minute timeout.",
+                            TimeUnit.MILLISECONDS.toMinutes(MANAGED_SERVICE_TIMEOUT)));
         }
     }
 
@@ -362,10 +374,10 @@ public abstract class AbstractIntegrationTest {
     }
 
     protected void setFanout(boolean fanoutEnabled) throws IOException {
-        Configuration configuration = configAdmin.getConfiguration(
-                "ddf.catalog.CatalogFrameworkImpl", null);
+        Configuration configuration = configAdmin
+                .getConfiguration("ddf.catalog.CatalogFrameworkImpl", null);
 
-        Dictionary<String, Object> properties =  configuration.getProperties();
+        Dictionary<String, Object> properties = configuration.getProperties();
         if (properties == null) {
             properties = new Hashtable<String, Object>();
         }
@@ -390,7 +402,7 @@ public abstract class AbstractIntegrationTest {
                     blueprintListener, null);
         }
 
-        long timeoutLimit = System.currentTimeMillis() + FIVE_MINUTES_MILLIS;
+        long timeoutLimit = System.currentTimeMillis() + REQUIRED_BUNDLES_TIMEOUT;
         while (!ready) {
             List<Bundle> bundles = Arrays.asList(bundleCtx.getBundles());
 
@@ -420,7 +432,9 @@ public abstract class AbstractIntegrationTest {
 
             if (!ready) {
                 if (System.currentTimeMillis() > timeoutLimit) {
-                    fail("Bundles and blueprint did not start in time.");
+                    printInactiveBundles();
+                    fail(String.format("Bundles and blueprint did not start within %d minutes.",
+                            TimeUnit.MILLISECONDS.toMinutes(REQUIRED_BUNDLES_TIMEOUT)));
                 }
                 LOGGER.info("Bundles not up, sleeping...");
                 Thread.sleep(1000);
@@ -430,9 +444,10 @@ public abstract class AbstractIntegrationTest {
 
     protected CatalogProvider waitForCatalogProvider() throws InterruptedException {
         LOGGER.info("Waiting for CatalogProvider to become available.");
+        printInactiveBundles();
 
         CatalogProvider provider = null;
-        long timeoutLimit = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(5);
+        long timeoutLimit = System.currentTimeMillis() + CATALOG_PROVIDER_TIMEOUT;
         boolean available = false;
 
         while (!available) {
@@ -447,9 +462,13 @@ public abstract class AbstractIntegrationTest {
             if (provider != null) {
                 available = provider.isAvailable();
             }
+
             if (!available) {
                 if (System.currentTimeMillis() > timeoutLimit) {
-                    fail("Catalog provider timed out.");
+                    LOGGER.info("CatalogProvider.isAvailable = {}", available);
+                    printInactiveBundles();
+                    fail(String.format("Catalog provider timed out after %d minutes.",
+                            TimeUnit.MILLISECONDS.toMinutes(CATALOG_PROVIDER_TIMEOUT)));
                 }
                 Thread.sleep(100);
             }
@@ -457,6 +476,38 @@ public abstract class AbstractIntegrationTest {
 
         LOGGER.info("CatalogProvider is available.");
         return provider;
+    }
+
+    private void printInactiveBundles() {
+        LOGGER.info("Listing inactive bundles");
+
+        for (Bundle bundle : bundleCtx.getBundles()) {
+            if (bundle.getState() != Bundle.ACTIVE) {
+                StringBuffer headerString = new StringBuffer("[ ");
+                Dictionary<String, String> headers = bundle.getHeaders();
+                Enumeration<String> keys = headers.keys();
+
+                while (keys.hasMoreElements()) {
+                    String key = keys.nextElement();
+                    headerString.append(key).append("=").append(headers.get(key)).append(", ");
+                }
+
+                headerString.append(" ]");
+                LOGGER.info("{} | {} | {} | {}", bundle.getSymbolicName(),
+                        bundle.getVersion().toString(), OsgiStringUtils.bundleStateAsString(bundle),
+                        headerString.toString());
+            }
+        }
+
+        Map<Thread, StackTraceElement[]> stackTraces = Thread.getAllStackTraces();
+        for (Thread thread : stackTraces.keySet()) {
+            LOGGER.info(thread.toString());
+            StackTraceElement[] stackTrace = thread.getStackTrace();
+            for (StackTraceElement stackTraceElement : stackTrace) {
+                LOGGER.info("    {}", stackTraceElement.toString());
+            }
+            LOGGER.info("");
+        }
     }
 
     protected FederatedSource waitForFederatedSource(String id)
@@ -498,7 +549,7 @@ public abstract class AbstractIntegrationTest {
     protected void waitForHttpEndpoint(String path) throws InterruptedException {
         LOGGER.info("Waiting for {}", path);
 
-        long timeoutLimit = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(5);
+        long timeoutLimit = System.currentTimeMillis() + HTTP_ENDPOINT_TIMEOUT;
         boolean available = false;
 
         while (!available) {
@@ -506,7 +557,8 @@ public abstract class AbstractIntegrationTest {
             available = response.getStatusCode() == 200 && response.getBody().print().length() > 0;
             if (!available) {
                 if (System.currentTimeMillis() > timeoutLimit) {
-                    fail(path + " did not start in time.");
+                    fail(String.format("%s did not start within %d minutes.", path,
+                            TimeUnit.MILLISECONDS.toMinutes(HTTP_ENDPOINT_TIMEOUT)));
                 }
                 Thread.sleep(100);
             }
