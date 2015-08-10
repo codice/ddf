@@ -12,7 +12,7 @@
  *
  **/
 -->
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0" xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0">
 
 	<command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
 
@@ -22,9 +22,11 @@
 
 	</command-bundle>
 
-	<bean id="solrBackupCommand" class="org.codice.ddf.commands.solr.BackupCommand"/>
+	<reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
 
-	<service ref="solrBackupCommand" interface="org.codice.ddf.configuration.ConfigurationWatcher"/>
-
+	<bean id="solrBackupCommand" class="org.codice.ddf.commands.solr.BackupCommand">
+		<cm:managed-properties persistent-id="org.codice.ddf.commands.solr.BackupCommand.id" update-strategy="container-managed" />
+		<property name="configurationAdmin" ref="configurationAdmin"/>
+	</bean>
 
 </blueprint>
