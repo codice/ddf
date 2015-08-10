@@ -13,19 +13,16 @@
  **/
 package org.codice.ddf.commands.solr;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.IOException;
+import java.net.URI;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
+import org.codice.solr.factory.SolrServerFactory;
+import org.osgi.service.cm.Configuration;
 
 
 @Command(scope = SolrCommands.NAMESPACE, name = "backup", description = "Makes a backup of the selected Solr core.")
@@ -60,56 +57,64 @@ public class BackupCommand extends SolrCommands {
             uriBuilder.addParameter("numberToKeep", Integer.toString(numberToKeep));
         }
 
-        LOGGER.debug("Sending request to {}", uriBuilder.build().toString());
+        URI backupUri = uriBuilder.build();
+        LOGGER.debug("Sending request to {}", backupUri.toString());
 
-        HttpClient httpClient = getHttpClient();
-        HttpGet httpGet = new HttpGet(uriBuilder.build());
-        HttpResponse response = httpClient.execute(httpGet);
+        HttpWrapper httpClient = getHttpClient();
 
-        processResponse(httpGet, response);
+        processResponse(httpClient.execute(backupUri));
+
+
         return null;
     }
 
-    private void processResponse(HttpGet httpGet, HttpResponse response) throws Exception {
-        HttpEntity entity = response.getEntity();
-        if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-            StringBuilder body = new StringBuilder();
-            if (entity != null) {
-                InputStream inputStream = entity.getContent();
-                String line;
-                try {
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-                    while ((line = reader.readLine()) != null) {
-                        body.append(line);
-                    }
-                } catch (Exception e) {
-                    //do nothing
-                } finally {
-                    inputStream.close();
-                }
-            }
+    private void processResponse(ResponseWrapper responseWrapper) throws Exception {
+
+        if (responseWrapper.getStatusCode() == HttpStatus.SC_OK) {
+            printSuccessMessage(String.format("\nBackup of [%s] complete.\n", coreName));
+        } else {
             printErrorMessage(String.format("Error backing up Solr core: [%s]", coreName));
             printErrorMessage(String.format("Backup command failed due to: %d - %s \n Request: %s",
-                    response.getStatusLine().getStatusCode(),
-                    response.getStatusLine().getReasonPhrase(), httpGet.getURI().toString()));
-        } else {
-            printSuccessMessage(String.format("\nBackup of [%s] complete.\n", coreName));
+                    responseWrapper.getStatusCode(),
+                    responseWrapper.getStatusPhrase(), getBackupUrl(coreName)));
         }
     }
 
     private String getBackupUrl(String coreName) {
+        String backupUrl = SolrServerFactory.DEFAULT_HTTPS_ADDRESS;
 
-        String protocol = configurationMap.get("protocol");
-        String host = configurationMap.get("host");
-        String port = configurationMap.get("port");
-
-        //catch this to match the default certs
-        if (host.equals("0.0.0.0")) {
-            host = "localhost";
+        if (configurationAdmin != null) {
+            try {
+                Configuration solrConfig = configurationAdmin.getConfiguration(
+                        "(service.pid=ddf.catalog.solr.external.SolrHttpCatalogProvider)");
+                if (solrConfig != null) {
+                    if (solrConfig.getProperties() != null
+                            && solrConfig.getProperties().get("url") != null) {
+                        LOGGER.debug("Found url property in config, setting backup url");
+                        backupUrl = (String) solrConfig.getProperties().get("url");
+                    } else {
+                        LOGGER.info("No Solr config found, checking System settings");
+                        if (System.getProperty("host") != null
+                                && System.getProperty("jetty.port") != null
+                                && System.getProperty("hostContext") != null) {
+                            backupUrl = System.getProperty("urlScheme", "http") + "://" + System
+                                    .getProperty("host") +
+                                    ":" + System.getProperty("jetty.port") + "/" + StringUtils
+                                    .strip(System.getProperty("hostContext"), "/");
+                            LOGGER.info(
+                                    "Trying system configured URL instead: {}",
+                                    backupUrl);
+                        } else {
+                            LOGGER.info("No Solr url configured, defaulting to: {}",
+                                    SolrServerFactory.DEFAULT_HTTPS_ADDRESS);
+                        }
+                    }
+                }
+            } catch (IOException e) {
+                LOGGER.debug(
+                        "Unable to get Solr url from bundle config, will check system properties.");
+            }
         }
-        if (StringUtils.isNotBlank(port)) {
-            return protocol + host + ":" + port + "/solr/" + coreName + "/replication";
-        }
-        return protocol + host + "/solr/" + coreName + "/replication";
+        return backupUrl + "/" + coreName + "/replication";
     }
 }
