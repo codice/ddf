@@ -240,17 +240,11 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
             Object subjectObj = queryRequest.getProperties()
                     .get(SecurityConstants.SECURITY_SUBJECT);
             subject = (Subject) subjectObj;
-            try {
-                restWebClient = factory.getWebClientForSubject(subject);
-            } catch (SecurityServiceException sse) {
-                LOGGER.error("Could not get secure WebClient for Subject", sse);
-            }
-        } else {
-            try {
-                restWebClient = factory.getUnsecuredWebClient();
-            } catch (SecurityServiceException sse) {
-                LOGGER.error("Could not get unsecure WebClient for Subject", sse);
-            }
+        }
+        try {
+            restWebClient = getOpenSearchWebClient(endpointUrl, subject);
+        } catch (SecurityServiceException sse) {
+            LOGGER.error("Could not get restWebClient during query.", sse);
         }
 
         Query query = queryRequest.getQuery();
@@ -829,21 +823,12 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
                 url = restUrl.buildUrl();
             }
         }
-        WebClient client = null;
-        if (url != null) {
-            SecureCxfClientFactory tempFactory = tempFactory(url, OpenSearch.class);
-            if (subj != null) {
-                client = tempFactory.getWebClientForSubject(subj);
-            } else {
-                client = tempFactory.getUnsecuredWebClient();
-            }
-        }
-        return client;
+        return getOpenSearchWebClient(url, subj);
     }
 
-    protected SecureCxfClientFactory tempFactory(String url, Class interfaceClass) {
+    protected SecureCxfClientFactory tempFactory(String url) {
         try {
-            return new SecureCxfClientFactory(url, interfaceClass);
+            return new SecureCxfClientFactory(url, OpenSearch.class);
         } catch (SecurityServiceException sse) {
             LOGGER.error("Could ont create a temporary factory for the rest url.", sse);
         }
@@ -875,9 +860,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
             } catch (UnsupportedQueryException e) {
                 LOGGER.debug("Not a REST request.", e);
             }
-
         }
-
         return url;
     }
 
@@ -902,5 +885,21 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
             LOGGER.info("Bad url given for remote source", e);
         }
         return restUrl;
+    }
+
+    private WebClient getOpenSearchWebClient(String url, Subject subj)
+            throws SecurityServiceException {
+        SecureCxfClientFactory tempFactory = tempFactory(url);
+        WebClient client;
+        if (StringUtils.startsWithIgnoreCase(url, "https")) {
+            if (subj != null && username != null && password != null) {
+                client = tempFactory.getWebClientForSubject(subj);
+            } else {
+                client = tempFactory.getWebClientForBasicAuth(username, password);
+            }
+        } else {
+            client = tempFactory.getUnsecuredWebClient();
+        }
+        return client;
     }
 }
