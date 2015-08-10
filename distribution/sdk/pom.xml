@@ -33,6 +33,7 @@
         <module>sample-metrics</module>
         <module>sample-soap-endpoint</module>
         <module>sdk-app</module>
+        <module>sample-metacard-filter</module>
     </modules>
 
     <repositories>
