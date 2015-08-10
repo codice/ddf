@@ -264,7 +264,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
 
     private SecureCxfClientFactory factory;
 
-    private CswJAXBElementProvider<GetRecordsType> getRecordsTypeProvider;
+    protected CswJAXBElementProvider<GetRecordsType> getRecordsTypeProvider;
 
     private List<String> jaxbElementClassNames = new ArrayList<String>();
 

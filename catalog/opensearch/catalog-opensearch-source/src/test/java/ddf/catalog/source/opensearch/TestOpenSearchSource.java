@@ -961,15 +961,6 @@ public class TestOpenSearchSource {
             return transformer;
         }
 
-        /*@Override
-        protected boolean setOpenSearchParameters(Query query, ddf.security.Subject subject,
-                WebClient client) {
-            if (client == null || subject == null) {
-                return false;
-            }
-            return true;
-        }*/
-
         @Override
         protected SecureCxfClientFactory tempFactory(String url) {
             return this.factory;
