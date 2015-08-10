@@ -881,7 +881,7 @@ public class TestOpenSearchSource {
         }*/
 
         @Override
-        protected SecureCxfClientFactory tempFactory(String url, Class interfaceClass) {
+        protected SecureCxfClientFactory tempFactory(String url) {
             return this.factory;
         }
     }
