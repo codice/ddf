@@ -119,20 +119,18 @@ public class TestWfsSource {
     private SecureCxfClientFactory mockFactory = mock(SecureCxfClientFactory.class);
 
     public WfsSource getWfsSource(final String schema, final FilterCapabilities filterCapabilities,
-            final String srsName, final int numFeatures) throws WfsException {
+            final String srsName, final int numFeatures)
+            throws WfsException, SecurityServiceException {
 
         return getWfsSource(schema, filterCapabilities, srsName, numFeatures, false);
     }
 
     public WfsSource getWfsSource(final String schema, final FilterCapabilities filterCapabilities,
             final String srsName, final int numFeatures,
-            final boolean throwExceptionOnDescribeFeatureType) throws WfsException {
+            final boolean throwExceptionOnDescribeFeatureType)
+            throws WfsException, SecurityServiceException {
         mockFactory = mock(SecureCxfClientFactory.class);
-        try {
-            when(mockFactory.getUnsecuredClient()).thenReturn(mockWfs);
-        } catch (SecurityServiceException sse) {
-
-        }
+        when(mockFactory.getUnsecuredClient()).thenReturn(mockWfs);
 
         // GetCapabilities Response
         when(mockWfs.getCapabilities(any(GetCapabilitiesRequest.class)))
@@ -211,14 +209,10 @@ public class TestWfsSource {
     public WfsSource getWfsSource(final String schema, final FilterCapabilities filterCapabilities,
             final String srsName, final int numFeatures,
             final boolean throwExceptionOnDescribeFeatureType, boolean prefix, int numReturned)
-            throws WfsException {
+            throws WfsException, SecurityServiceException {
 
         mockFactory = mock(SecureCxfClientFactory.class);
-        try {
-            when(mockFactory.getUnsecuredClient()).thenReturn(mockWfs);
-        } catch (SecurityServiceException sse) {
-
-        }
+        when(mockFactory.getUnsecuredClient()).thenReturn(mockWfs);
 
         // GetCapabilities Response
         when(mockWfs.getCapabilities(any(GetCapabilitiesRequest.class)))
@@ -294,14 +288,14 @@ public class TestWfsSource {
     }
 
     @Test
-    public void testAvailability() throws WfsException {
+    public void testAvailability() throws WfsException, SecurityServiceException {
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
                 MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, 1);
         assertTrue(source.isAvailable());
     }
 
     @Test
-    public void testParseCapabilities() throws WfsException {
+    public void testParseCapabilities() throws WfsException, SecurityServiceException {
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
                 MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, 1);
 
@@ -313,7 +307,7 @@ public class TestWfsSource {
     }
 
     @Test
-    public void testParseCapabilitiesNoFeatures() throws WfsException {
+    public void testParseCapabilitiesNoFeatures() throws WfsException, SecurityServiceException {
         WfsSource source = getWfsSource("", MockWfsServer.getFilterCapabilities(),
                 Wfs20Constants.EPSG_4326_URN, 0);
 
@@ -322,7 +316,8 @@ public class TestWfsSource {
     }
 
     @Test
-    public void testParseCapabilitiesNoFilterCapabilities() throws WfsException {
+    public void testParseCapabilitiesNoFilterCapabilities()
+            throws WfsException, SecurityServiceException {
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA, null,
                 Wfs20Constants.EPSG_4326_URN, 1);
 
@@ -331,7 +326,7 @@ public class TestWfsSource {
     }
 
     @Test
-    public void testConfigureFeatureTypes() throws WfsException {
+    public void testConfigureFeatureTypes() throws WfsException, SecurityServiceException {
         ArgumentCaptor<DescribeFeatureTypeRequest> captor = ArgumentCaptor
                 .forClass(DescribeFeatureTypeRequest.class);
 
@@ -361,7 +356,8 @@ public class TestWfsSource {
     }
 
     @Test
-    public void testConfigureFeatureTypesDescribeFeatureException() throws WfsException {
+    public void testConfigureFeatureTypesDescribeFeatureException()
+            throws WfsException, SecurityServiceException {
         ArgumentCaptor<DescribeFeatureTypeRequest> captor = ArgumentCaptor
                 .forClass(DescribeFeatureTypeRequest.class);
 
@@ -384,7 +380,8 @@ public class TestWfsSource {
     }
 
     @Test
-    public void testTypeNameHasPrefix() throws WfsException, UnsupportedQueryException {
+    public void testTypeNameHasPrefix()
+            throws WfsException, SecurityServiceException, UnsupportedQueryException {
 
         //Setup
         final String TITLE = "title";
@@ -416,7 +413,8 @@ public class TestWfsSource {
     }
 
     @Test
-    public void testTypeNameHasNoPrefix() throws WfsException, UnsupportedQueryException {
+    public void testTypeNameHasNoPrefix()
+            throws WfsException, SecurityServiceException, UnsupportedQueryException {
 
         //Setup
         final String TITLE = "title";
@@ -451,13 +449,14 @@ public class TestWfsSource {
      * Given 10 features (and metacards) exist that match search criteria, since page size=4 and
      * startIndex=0, should get 4 results back - metacards 1 thru 4.
      *
-     * @throws WfsException
+     * @throws WfsException,                     SecurityServiceException
      * @throws TransformerConfigurationException
      * @throws UnsupportedQueryException
      */
     @Test
     public void testPagingStartIndexZero()
-            throws WfsException, TransformerConfigurationException, UnsupportedQueryException {
+            throws WfsException, SecurityServiceException, TransformerConfigurationException,
+            UnsupportedQueryException {
 
         //Setup
         int pageSize = 4;
@@ -482,13 +481,14 @@ public class TestWfsSource {
      * Verify that, per DDF Query API Javadoc, if the startIndex is negative, the WfsSource throws
      * an UnsupportedQueryException.
      *
-     * @throws WfsException
+     * @throws WfsException,                     SecurityServiceException
      * @throws TransformerConfigurationException
      * @throws UnsupportedQueryException
      */
     @Test(expected = UnsupportedQueryException.class)
     public void testPagingStartIndexNegative()
-            throws WfsException, TransformerConfigurationException, UnsupportedQueryException {
+            throws WfsException, SecurityServiceException, TransformerConfigurationException,
+            UnsupportedQueryException {
         //Setup
         int pageSize = 4;
         int startIndex = -1;
@@ -506,13 +506,14 @@ public class TestWfsSource {
      * Verify that, per DDF Query API Javadoc, if the startIndex is negative, the WfsSource throws
      * an UnsupportedQueryException.
      *
-     * @throws WfsException
+     * @throws WfsException,                     SecurityServiceException
      * @throws TransformerConfigurationException
      * @throws UnsupportedQueryException
      */
     @Test(expected = UnsupportedQueryException.class)
     public void testPagingPageSizeNegative()
-            throws WfsException, TransformerConfigurationException, UnsupportedQueryException {
+            throws WfsException, SecurityServiceException, TransformerConfigurationException,
+            UnsupportedQueryException {
         //Setup
         int pageSize = -4;
         int startIndex = 0;
@@ -528,7 +529,8 @@ public class TestWfsSource {
 
     @Test
     public void testResultNumReturnedNegative()
-            throws WfsException, TransformerConfigurationException, UnsupportedQueryException {
+            throws WfsException, SecurityServiceException, TransformerConfigurationException,
+            UnsupportedQueryException {
         //Setup
         final String TITLE = "title";
         final String searchPhrase = "*";
@@ -554,13 +556,14 @@ public class TestWfsSource {
      * If numberReturned is null, then query should return back size equivalent to the number of members in the
      * feature collection.
      *
-     * @throws WfsException
+     * @throws WfsException,                     SecurityServiceException
      * @throws TransformerConfigurationException
      * @throws UnsupportedQueryException
      */
     @Test
     public void testResultNumReturnedIsNull()
-            throws WfsException, TransformerConfigurationException, UnsupportedQueryException {
+            throws WfsException, SecurityServiceException, TransformerConfigurationException,
+            UnsupportedQueryException {
         //Setup
         final String TITLE = "title";
         final String searchPhrase = "*";
@@ -587,13 +590,14 @@ public class TestWfsSource {
      * If numberReturned is null, then query should return back size equivalent to the number of members in the
      * feature collection.
      *
-     * @throws WfsException
+     * @throws WfsException,                     SecurityServiceException
      * @throws TransformerConfigurationException
      * @throws UnsupportedQueryException
      */
     @Test
     public void testResultNumReturnedIsWrong()
-            throws WfsException, TransformerConfigurationException, UnsupportedQueryException {
+            throws WfsException, SecurityServiceException, TransformerConfigurationException,
+            UnsupportedQueryException {
         //Setup
         final String TITLE = "title";
         final String searchPhrase = "*";
@@ -618,7 +622,8 @@ public class TestWfsSource {
 
     @Test
     public void testResultNumReturnedIsZero()
-            throws WfsException, TransformerConfigurationException, UnsupportedQueryException {
+            throws WfsException, SecurityServiceException, TransformerConfigurationException,
+            UnsupportedQueryException {
         //Setup
         final String TITLE = "title";
         final String searchPhrase = "*";
@@ -885,7 +890,7 @@ public class TestWfsSource {
     }
 
     @Test
-    public void testTimeoutConfiguration() throws WfsException {
+    public void testTimeoutConfiguration() throws WfsException, SecurityServiceException {
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
                 MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, 1, false,
                 false, 0);

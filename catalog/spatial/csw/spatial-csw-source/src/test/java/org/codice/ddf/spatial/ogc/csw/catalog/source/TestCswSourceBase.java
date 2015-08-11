@@ -13,7 +13,6 @@
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.source;
 
-import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -94,7 +93,7 @@ public class TestCswSourceBase {
     /**
      * ISO 8601 date time format with milliseconds and colon between hours/minutes in time zone,
      * e.g., 2013-05-22T16:28:38.345-07:00
-     *
+     * <p/>
      * The ZZ gives the colon in the time zone.
      */
     protected static final String ISO_DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZZ";
@@ -222,17 +221,12 @@ public class TestCswSourceBase {
 
     protected Csw createMockCsw() throws CswException {
         Csw mockCsw = mock(Csw.class);
-        try {
-            InputStream stream = getClass().getResourceAsStream("/getCapabilities.xml");
-            CapabilitiesType capabilities = parseXml(stream);
-            when(mockCsw.getCapabilities(any(GetCapabilitiesRequest.class)))
-                    .thenReturn(capabilities);
+        InputStream stream = getClass().getResourceAsStream("/getCapabilities.xml");
+        CapabilitiesType capabilities = parseXml(stream);
+        when(mockCsw.getCapabilities(any(GetCapabilitiesRequest.class))).thenReturn(capabilities);
 
-            CswRecordCollection collection = generateCswCollection("/getBriefRecordsResponse.xml");
-            when(mockCsw.getRecords(any(GetRecordsType.class))).thenReturn(collection);
-        } catch (CswException ce) {
-            fail("Could not mock Csw properly.");
-        }
+        CswRecordCollection collection = generateCswCollection("/getBriefRecordsResponse.xml");
+        when(mockCsw.getRecords(any(GetRecordsType.class))).thenReturn(collection);
         return mockCsw;
     }
 

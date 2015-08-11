@@ -134,14 +134,12 @@ import net.opengis.ows.v_1_0_0.OperationsMetadata;
  * CswSource provides a DDF {@link FederatedSource} and {@link ConnectedSource} for CSW 2.0.2
  * services.
  */
-public class CswSource extends MaskableImpl implements FederatedSource, ConnectedSource,
-        ConfiguredService {
+public class CswSource extends MaskableImpl
+        implements FederatedSource, ConnectedSource, ConfiguredService {
 
     protected static final String CSW_SERVER_ERROR = "Error received from CSW server.";
 
     protected static final String CSWURL_PROPERTY = "cswUrl";
-
-    protected static final String ADDRESSING_NAMESPACE = "http://www.w3.org/2005/08/addressing";
 
     protected static final String ID_PROPERTY = "id";
 
@@ -198,10 +196,6 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
     private static final JAXBContext JAXB_CONTEXT = initJaxbContext();
 
     private static final String USE_POS_LIST_PROPERTY = "usePosList";
-
-    public static final Integer DEFAULT_CONNECTION_TIMEOUT = 30000;
-
-    public static final Integer DEFAULT_RECEIVE_TIMEOUT = 60000;
 
     private static Properties describableProperties = new Properties();
 
@@ -266,9 +260,9 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
 
     protected CswJAXBElementProvider<GetRecordsType> getRecordsTypeProvider;
 
-    private List<String> jaxbElementClassNames = new ArrayList<String>();
+    protected List<String> jaxbElementClassNames = new ArrayList<String>();
 
-    private Map<String, String> jaxbElementClassMap = new HashMap<String, String>();
+    protected Map<String, String> jaxbElementClassMap = new HashMap<String, String>();
 
     /**
      * Instantiates a CswSource. This constructor is for unit tests
@@ -359,10 +353,10 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         LOGGER.debug("{} expanded name: {}", CswConstants.GET_RECORDS, expandedName);
         jaxbElementClassMap.put(GetRecordsType.class.getName(), expandedName);
 
-        String getCapsEpandedName = new QName(CswConstants.CSW_OUTPUT_SCHEMA,
+        String getCapsExpandedName = new QName(CswConstants.CSW_OUTPUT_SCHEMA,
                 CswConstants.GET_CAPABILITIES).toString();
         LOGGER.debug("{} expanded name: {}", CswConstants.GET_CAPABILITIES, expandedName);
-        jaxbElementClassMap.put(GetCapabilitiesType.class.getName(), getCapsEpandedName);
+        jaxbElementClassMap.put(GetCapabilitiesType.class.getName(), getCapsExpandedName);
 
         String capsExpandedName = new QName(CswConstants.CSW_OUTPUT_SCHEMA,
                 CswConstants.CAPABILITIES).toString();
@@ -389,7 +383,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
      * @param configuration The configuration with which to connect to the server
      */
 
-    public void refresh(Map<String, Object> configuration) {
+    public void refresh(Map<String, Object> configuration) throws SecurityServiceException {
         LOGGER.debug("{}: Entering refresh()", cswSourceConfiguration.getId());
 
         if (configuration == null || configuration.isEmpty()) {
@@ -670,7 +664,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
 
             Subject subject = (Subject) queryRequest
                     .getPropertyValue(SecurityConstants.SECURITY_SUBJECT);
-            Csw csw = getNewClient(subject);
+            Csw csw = getClient(subject);
             CswRecordCollection cswRecordCollection = csw.getRecords(getRecordsType);
 
             if (cswRecordCollection == null) {
@@ -691,6 +685,8 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         } catch (WebApplicationException wae) {
             String msg = handleWebApplicationException(wae);
             throw new UnsupportedQueryException(msg, wae);
+        } catch (SecurityServiceException sse) {
+            LOGGER.error("Could not get client for the endpointURL and Security Subject.", sse);
         } catch (Exception ce) {
             String msg = handleClientException(ce);
             throw new UnsupportedQueryException(msg, ce);
@@ -1137,10 +1133,11 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         return writer.toString();
     }
 
-    protected CapabilitiesType getCapabilities() {
+    protected CapabilitiesType getCapabilities() throws SecurityServiceException {
         CapabilitiesType caps = null;
+        Csw csw = getClient(null);
+
         try {
-            Csw csw = getNewClient(null);
             LOGGER.debug("Doing getCapabilities() call for CSW");
             GetCapabilitiesRequest request = new GetCapabilitiesRequest(CswConstants.CSW);
             request.setAcceptVersions(
@@ -1157,7 +1154,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         return caps;
     }
 
-    protected void configureCswSource() {
+    public void configureCswSource() throws SecurityServiceException {
         detailLevels = EnumSet.noneOf(ElementSetType.class);
 
         capabilities = getCapabilities();
@@ -1568,6 +1565,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         this.configurationPid = configurationPid;
 
     }
+
     /**
      * Callback class to check the Availability of the CswSource.
      * <p/>
@@ -1582,39 +1580,47 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
             LOGGER.debug("Checking availability for source {} ", cswSourceConfiguration.getId());
             boolean oldAvailability = CswSource.this.isAvailable();
             boolean newAvailability = false;
-            // Simple "ping" to ensure the source is responding
-            newAvailability = (getCapabilities() != null);
-            if (oldAvailability != newAvailability) {
-                availabilityChanged(newAvailability);
-                // If the source becomes available, configure it.
-                if (newAvailability) {
-                    configureCswSource();
+            try {
+                // Simple "ping" to ensure the source is responding
+                newAvailability = (getCapabilities() != null);
+                if (oldAvailability != newAvailability) {
+                    availabilityChanged(newAvailability);
+                    // If the source becomes available, configure it.
+                    if (newAvailability) {
+                        configureCswSource();
+                    }
                 }
+            } catch (SecurityServiceException sse) {
+                LOGGER.error("Could not get client for the endpointURL.", sse);
             }
             return newAvailability;
         }
 
     }
 
-    private Csw getNewClient(Subject subj) {
-        Csw csw = null;
-        if (subj != null) {
-            try {
-                csw = (Csw) factory.getClientForSubject(subj);
-            } catch (SecurityServiceException sse) {
-                LOGGER.error("Could not get new client", sse);
-            }
+    /**
+     * Creates a new client using Basic Auth or a Security Subject. If it cannot, it
+     * will instead create an unsecure client, if possible.
+     *
+     * @param subj - the Security Subject
+     * @return a new Csw client
+     * @throws SecurityServiceException
+     */
+    protected Csw getClient(Subject subj) throws SecurityServiceException {
+        Csw csw;
+        String username = cswSourceConfiguration.getUsername();
+        String password = cswSourceConfiguration.getPassword();
+        if (StringUtils.isNotEmpty(username) && StringUtils.isNotEmpty(password)) {
+            csw = (Csw) factory.getClientForBasicAuth(username, password);
+        } else if (subj != null) {
+            csw = (Csw) factory.getClientForSubject(subj);
         } else {
-            try {
-                csw = (Csw) factory.getUnsecuredClient();
-            } catch (SecurityServiceException sse) {
-                LOGGER.error("Could not get new client.", sse);
-            }
+            csw = (Csw) factory.getUnsecuredClient();
         }
         return csw;
     }
 
-    /*
+    /**
      * Set the version to CSW 2.0.1. The schemas don't vary much between 2.0.2 and 2.0.1. The
      * largest difference is the namespace itself. This method tells CXF JAX-RS to transform
      * outgoing messages CSW namespaces to 2.0.1.
