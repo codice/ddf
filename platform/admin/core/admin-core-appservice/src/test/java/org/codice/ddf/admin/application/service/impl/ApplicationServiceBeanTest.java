@@ -37,6 +37,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
+
 import org.apache.commons.collections.ListUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.features.BundleInfo;
@@ -53,6 +57,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.metatype.MetaTypeInformation;
@@ -85,6 +91,8 @@ public class ApplicationServiceBeanTest {
     private Set<ApplicationNode> childrenSet;
 
     private BundleContext bundleContext;
+
+    private MBeanServer mBeanServer;
 
     private static final String TEST_FEATURE_DESCRIPTION = "Mock Feature for ApplicationServiceBean tests";
 
@@ -129,6 +137,7 @@ public class ApplicationServiceBeanTest {
                 getClass().getClassLoader().getResource("test-features-with-main-feature.xml")
                         .toURI());
         bundleContext = mock(BundleContext.class);
+        mBeanServer = mock(MBeanServer.class);
     }
 
     /**
@@ -175,11 +184,53 @@ public class ApplicationServiceBeanTest {
     public void testInit() throws Exception {
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
                 testConfigAdminExt);
+        serviceBean.setMBeanServer(mBeanServer);
         serviceBean.init();
 
-        //Do it again, should remove and re-init
+        verify(mBeanServer).registerMBean(any(Object.class), any(ObjectName.class));
+    }
+
+    /**
+     * Tests the {@link ApplicationServiceBean#init()} method for the case
+     * where the serviceBean has already been initialized
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testInitTwice() throws Exception {
+        ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
+                testConfigAdminExt);
+        serviceBean.setMBeanServer(mBeanServer);
+        when(mBeanServer.registerMBean(any(Object.class), any(ObjectName.class)))
+                .thenThrow(new InstanceAlreadyExistsException()).thenAnswer(new Answer() {
+            public Object answer(InvocationOnMock invocation) {
+                return null;
+            }
+        });
+
         serviceBean.init();
-        //If an exception is thrown, this test fails...
+
+        verify(mBeanServer).unregisterMBean(any(ObjectName.class));
+        verify(mBeanServer, times(2)).registerMBean(any(Object.class), any(ObjectName.class));
+    }
+
+    /**
+     * Tests the {@link ApplicationServiceBean#init()} method for the case
+     * where an exception other than the InstanceAlreadyExistsException is thrown
+     * by mBeanServer.registerMBean(....)
+     *
+     * @throws Exception
+     */
+    @Test(expected = ApplicationServiceException.class)
+    public void testInitException() throws Exception {
+        ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
+                testConfigAdminExt);
+        serviceBean.setMBeanServer(mBeanServer);
+
+        when(mBeanServer.registerMBean(any(Object.class), any(ObjectName.class)))
+                .thenThrow(new NullPointerException());
+
+        serviceBean.init();
     }
 
     /**
@@ -191,14 +242,17 @@ public class ApplicationServiceBeanTest {
     public void testDestroy() throws Exception {
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
                 testConfigAdminExt);
-        serviceBean.init();
+
+        serviceBean.setMBeanServer(mBeanServer);
+
         serviceBean.destroy();
-        //If an exception is thrown, this test fails...
+
+        verify(mBeanServer).unregisterMBean(any(ObjectName.class));
     }
 
     /**
      * Tests the {@link ApplicationServiceBean#destroy()} method
-     * for the case where destroy is called before init, which should cause an exception
+     * for the case where an exception is thrown by mBeanServer.unregisterMBean(...)
      *
      * @throws Exception
      */
@@ -206,6 +260,12 @@ public class ApplicationServiceBeanTest {
     public void testDestroyException() throws Exception {
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
                 testConfigAdminExt);
+
+        serviceBean.setMBeanServer(mBeanServer);
+
+        doThrow(new NullPointerException()).when(mBeanServer)
+                .unregisterMBean(any(ObjectName.class));
+
         serviceBean.destroy();
     }
 

@@ -570,4 +570,14 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
     void setServiceTracker(ServiceTracker serviceTracker) {
         this.serviceTracker = serviceTracker;
     }
+
+    /**
+     * mBeanServer setter method. Needed for use in unit tests.
+     *
+     * @param mBean
+     *             the desired mBean instance
+     */
+    void setMBeanServer(MBeanServer mBean) {
+        this.mBeanServer = mBean;
+    }
 }
