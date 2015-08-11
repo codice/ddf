@@ -189,11 +189,20 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
         if (!lastAvailable || (lastAvailableDate
                 .before(new Date(System.currentTimeMillis() - AVAILABLE_TIMEOUT_CHECK)))) {
 
-            WebClient client = null;
+            if (factory == null) {
+                return false;
+            }
+
+            WebClient client;
             try {
-                client = factory.getUnsecuredWebClient();
+                if (StringUtils.isNotEmpty(username) && StringUtils.isNotEmpty(password)) {
+                    client = factory.getWebClientForBasicAuth(username, password);
+                } else {
+                    client = factory.getUnsecuredWebClient();
+                }
             } catch (SecurityServiceException sse) {
-                LOGGER.error("Could not get WebClient from factory", sse);
+                LOGGER.error("Could not connect to endpoint.", sse);
+                return false;
             }
 
             Response response = null;
@@ -244,7 +253,8 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
         try {
             restWebClient = getOpenSearchWebClient(endpointUrl, subject);
         } catch (SecurityServiceException sse) {
-            LOGGER.error("Could not get restWebClient during query.", sse);
+            LOGGER.error(
+                    "Failed to get OpenSearchWebClient using endpointUrl and Security Subject.");
         }
 
         Query query = queryRequest.getQuery();
@@ -276,7 +286,8 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
                 restWebClient = newRestClient(endpointUrl, queryRequest.getQuery(),
                         (String) metacardId, false, subject);
             } catch (SecurityServiceException e) {
-                throw new UnsupportedQueryException("Error occured creating REST Client", e);
+                throw new UnsupportedQueryException(
+                        "Unable to create REST Client for query using endpointURL.", e);
             }
 
             if (restWebClient != null) {
@@ -578,12 +589,10 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     public void setEndpointUrl(String endpointUrl) {
         this.endpointUrl = endpointUrl;
 
-        if (isInitialized) {
-            try {
-                factory = new SecureCxfClientFactory(endpointUrl, OpenSearch.class);
-            } catch (SecurityServiceException sse) {
-                LOGGER.error("Could not refresh SecureClientFactory with new endpointUrl.", sse);
-            }
+        try {
+            factory = new SecureCxfClientFactory(endpointUrl, OpenSearch.class);
+        } catch (SecurityServiceException sse) {
+            LOGGER.warn("Could not refresh SecureClientFactory with new endpointUrl.", sse);
         }
     }
 
@@ -830,7 +839,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
         try {
             return new SecureCxfClientFactory(url, OpenSearch.class);
         } catch (SecurityServiceException sse) {
-            LOGGER.error("Could ont create a temporary factory for the rest url.", sse);
+            LOGGER.warn("Could not create a temporary factory from provided url.", sse);
         }
         return null;
     }
@@ -879,24 +888,28 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
         try {
             restUrl = RestUrl.newInstance(url);
             restUrl.setRetrieveResource(true);
-        } catch (MalformedURLException e) {
-            LOGGER.info("Bad url given for remote source", e);
-        } catch (URISyntaxException e) {
+        } catch (MalformedURLException | URISyntaxException e) {
             LOGGER.info("Bad url given for remote source", e);
         }
         return restUrl;
     }
 
+    /**
+     * Creates a new webClient based off a url and, if BasicAuth is not used, a Security Subject
+     *
+     * @param url  - the endpoint url
+     * @param subj - the Security Subject, if applicable
+     * @return A webclient for the endpoint URL either using BasicAuth, using the Security Subject, or an insecure client.
+     * @throws SecurityServiceException
+     */
     private WebClient getOpenSearchWebClient(String url, Subject subj)
             throws SecurityServiceException {
         SecureCxfClientFactory tempFactory = tempFactory(url);
         WebClient client;
-        if (StringUtils.startsWithIgnoreCase(url, "https")) {
-            if (subj != null && username != null && password != null) {
-                client = tempFactory.getWebClientForSubject(subj);
-            } else {
-                client = tempFactory.getWebClientForBasicAuth(username, password);
-            }
+        if (StringUtils.isNotEmpty(username) && StringUtils.isNotEmpty(password)) {
+            client = tempFactory.getWebClientForBasicAuth(username, password);
+        } else if (subj != null) {
+            client = tempFactory.getWebClientForSubject(subj);
         } else {
             client = tempFactory.getUnsecuredWebClient();
         }
