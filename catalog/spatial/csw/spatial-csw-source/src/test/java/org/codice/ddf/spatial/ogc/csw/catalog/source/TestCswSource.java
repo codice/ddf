@@ -103,7 +103,7 @@ public class TestCswSource extends TestCswSourceBase {
             "{" + CswConstants.CSW_OUTPUT_SCHEMA + "}" + CswConstants.CSW_RECORD_LOCAL_NAME;
 
     @Test
-    public void testParseCapabilities() throws CswException {
+    public void testParseCapabilities() throws CswException, SecurityServiceException {
         CswSource source = getCswSource(createMockCsw(), mockContext, new ArrayList<String>());
 
         assertTrue(source.isAvailable());
@@ -114,7 +114,7 @@ public class TestCswSource extends TestCswSourceBase {
     }
 
     @Test
-    public void testInitialContentList() throws CswException {
+    public void testInitialContentList() throws CswException, SecurityServiceException {
 
         CswSource source = getCswSource(createMockCsw(), mockContext, Arrays.asList("x", "y"));
 
@@ -126,7 +126,8 @@ public class TestCswSource extends TestCswSourceBase {
     }
 
     @Test
-    public void testAddingContentTypesOnQueries() throws CswException, UnsupportedQueryException {
+    public void testAddingContentTypesOnQueries()
+            throws CswException, UnsupportedQueryException, SecurityServiceException {
         Csw mockCsw = createMockCsw();
 
         List<String> expectedNames = new LinkedList<String>(
@@ -170,7 +171,7 @@ public class TestCswSource extends TestCswSourceBase {
     @Test
     public void testPropertyIsLikeQuery()
             throws JAXBException, UnsupportedQueryException, DatatypeConfigurationException,
-            SAXException, IOException {
+            SAXException, IOException, SecurityServiceException {
 
         // Setup
         final String searchPhrase = "*th*e";
@@ -217,7 +218,7 @@ public class TestCswSource extends TestCswSourceBase {
     @Test
     public void testQueryWithSorting()
             throws JAXBException, UnsupportedQueryException, DatatypeConfigurationException,
-            SAXException, IOException {
+            SAXException, IOException, SecurityServiceException {
 
         final String TITLE = "title";
 
@@ -272,7 +273,7 @@ public class TestCswSource extends TestCswSourceBase {
     @Test
     public void testQueryWithSortByDistance()
             throws JAXBException, UnsupportedQueryException, DatatypeConfigurationException,
-            SAXException, IOException {
+            SAXException, IOException, SecurityServiceException {
 
         // Setup
         final String searchPhrase = "*";
@@ -320,7 +321,7 @@ public class TestCswSource extends TestCswSourceBase {
     @Test
     public void testQueryWithSortByRelevance()
             throws JAXBException, UnsupportedQueryException, DatatypeConfigurationException,
-            SAXException, IOException {
+            SAXException, IOException, SecurityServiceException {
         // Setup
         final String searchPhrase = "*";
         final int pageSize = 1;
@@ -372,7 +373,7 @@ public class TestCswSource extends TestCswSourceBase {
     @Test
     public void testQueryWithSortByTemporal()
             throws JAXBException, UnsupportedQueryException, DatatypeConfigurationException,
-            SAXException, IOException {
+            SAXException, IOException, SecurityServiceException {
         // Setup
         final String searchPhrase = "*";
         final int pageSize = 1;
@@ -428,7 +429,7 @@ public class TestCswSource extends TestCswSourceBase {
     @Test
     public void testPropertyIsEqualToQueryContentTypeIsMappedToFormat()
             throws JAXBException, UnsupportedQueryException, DatatypeConfigurationException,
-            SAXException, IOException {
+            SAXException, IOException, SecurityServiceException {
 
         // Setup
         int pageSize = 10;
@@ -480,7 +481,7 @@ public class TestCswSource extends TestCswSourceBase {
     @Test
     public void testPropertyIsLikeContentTypeVersion()
             throws JAXBException, UnsupportedQueryException, DatatypeConfigurationException,
-            SAXException, IOException {
+            SAXException, IOException, SecurityServiceException {
 
         // Setup
         int pageSize = 10;
@@ -533,7 +534,7 @@ public class TestCswSource extends TestCswSourceBase {
     @Test
     public void testAbsoluteTemporalSearchPropertyIsBetweenQuery()
             throws JAXBException, UnsupportedQueryException, DatatypeConfigurationException,
-            SAXException, IOException {
+            SAXException, IOException, SecurityServiceException {
 
         // Setup
         String expectedXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n"
@@ -605,7 +606,7 @@ public class TestCswSource extends TestCswSourceBase {
     @Test
     public void testAbsoluteTemporalSearchTwoRanges()
             throws JAXBException, UnsupportedQueryException, DatatypeConfigurationException,
-            SAXException, IOException {
+            SAXException, IOException, SecurityServiceException {
 
         // Setup
         String expectedXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n"
@@ -700,7 +701,8 @@ public class TestCswSource extends TestCswSourceBase {
     }
 
     @Test(expected = UnsupportedQueryException.class)
-    public void testCswSourceNoFilterCapabilities() throws CswException, UnsupportedQueryException {
+    public void testCswSourceNoFilterCapabilities()
+            throws CswException, UnsupportedQueryException, SecurityServiceException {
         // Setup
         CapabilitiesType mockCapabilitiesType = mock(CapabilitiesType.class);
         when(mockCsw.getCapabilities(any(GetCapabilitiesRequest.class)))
@@ -718,7 +720,7 @@ public class TestCswSource extends TestCswSourceBase {
     }
 
     @Test
-    public void testTimeoutConfiguration() {
+    public void testTimeoutConfiguration() throws SecurityServiceException {
 
         final String TITLE = "title";
 
@@ -751,7 +753,7 @@ public class TestCswSource extends TestCswSourceBase {
     }
 
     @Test
-    public void testRefresh() {
+    public void testRefresh() throws SecurityServiceException {
         CswSource cswSource = getCswSource(null, null, Collections.<String>emptyList());
 
         cswSource.refresh(null);
@@ -764,7 +766,7 @@ public class TestCswSource extends TestCswSourceBase {
     @Test
     public void testQueryWithAlternateQueryType()
             throws JAXBException, UnsupportedQueryException, DatatypeConfigurationException,
-            SAXException, IOException {
+            SAXException, IOException, SecurityServiceException {
 
         // Setup
         final QName expectedQname = new QName("http://example.com", "example", "abc");
@@ -811,7 +813,7 @@ public class TestCswSource extends TestCswSourceBase {
     @Test
     public void testQueryWithDefaultQueryType()
             throws JAXBException, UnsupportedQueryException, DatatypeConfigurationException,
-            SAXException, IOException {
+            SAXException, IOException, SecurityServiceException {
 
         // Setup
         final String searchPhrase = "*";
@@ -901,15 +903,19 @@ public class TestCswSource extends TestCswSourceBase {
         cswSourceConfiguration.setCswUrl(URL);
         cswSourceConfiguration.setModifiedDateMapping(Metacard.MODIFIED);
         cswSourceConfiguration.setIdentifierMapping(CswRecordMetacardType.CSW_IDENTIFIER);
+        cswSourceConfiguration.setUsername("user");
+        cswSourceConfiguration.setPassword("pass");
         return cswSourceConfiguration;
     }
 
-    private CswSource getCswSource(Csw csw, BundleContext context, List<String> contentTypes) {
+    private CswSource getCswSource(Csw csw, BundleContext context, List<String> contentTypes)
+            throws SecurityServiceException {
         return getCswSource(csw, context, contentTypes, null);
     }
 
     private CswSource getCswSource(Csw csw, BundleContext context, List<String> contentTypes,
-            String contentMapping, String queryTypeQName, String queryTypePrefix) {
+            String contentMapping, String queryTypeQName, String queryTypePrefix)
+            throws SecurityServiceException {
 
         CswSourceConfiguration cswSourceConfiguration = getStandardCswSourceConfiguration(
                 contentMapping, queryTypeQName, queryTypePrefix);
@@ -917,6 +923,8 @@ public class TestCswSource extends TestCswSourceBase {
 
         SecureCxfClientFactory mockFactory = mock(SecureCxfClientFactory.class);
         try {
+            doReturn(csw).when(mockFactory)
+                    .getClientForBasicAuth(any(String.class), any(String.class));
             doReturn(csw).when(mockFactory).getClientForSubject(any(Subject.class));
             doReturn(csw).when(mockFactory).getUnsecuredClient();
         } catch (SecurityServiceException sse) {
@@ -937,7 +945,7 @@ public class TestCswSource extends TestCswSourceBase {
     }
 
     private CswSource getCswSource(Csw csw, BundleContext context, List<String> contentTypes,
-            String contentMapping) {
+            String contentMapping) throws SecurityServiceException {
 
         return getCswSource(csw, context, contentTypes, contentMapping, CSW_RECORD_QNAME,
                 CswConstants.CSW_NAMESPACE_PREFIX);

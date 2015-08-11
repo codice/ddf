@@ -14,31 +14,16 @@
 package org.codice.ddf.cxf;
 
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Type;
-import java.util.List;
 import java.util.UUID;
 
 import javax.ws.rs.GET;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.ext.MessageBodyReader;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
-import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.apache.cxf.message.Message;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.shiro.mgt.DefaultSecurityManager;
 import org.apache.shiro.session.mgt.SimpleSession;
@@ -46,12 +31,9 @@ import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.shiro.subject.support.DelegatingSubject;
 import org.junit.Test;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 
 import ddf.security.Subject;
 import ddf.security.service.SecurityServiceException;
-import ddf.security.settings.SecuritySettingsService;
 
 public class SecureCxfClientFactoryTest {
 
@@ -124,74 +106,6 @@ public class SecureCxfClientFactoryTest {
         assertTrue(unsecured);
     }
 
-    /*@Test
-    public void testSecureClient() throws SecurityServiceException {
-        MockWrapper<IDummy> mockWrapper = new MockWrapper<>(secureEndpoint, IDummy.class);
-        // positive cases
-        boolean tests = true;
-        try { //should be able to get secure clients
-            validateConfig(mockWrapper, null, null,
-                    false); //should work with no (null) username and password
-            mockWrapper = new MockWrapper<>(secureEndpoint, IDummy.class);
-            validateConfig(mockWrapper, "foobar", "foobaz",
-                    false); //test with username and password
-            List<MockProvider> providers = Arrays.asList(new MockProvider()); //test with provider
-            mockWrapper = new MockWrapper<>(secureEndpoint, IDummy.class, providers, null, true);
-            validateConfig(mockWrapper, "bazfoo", "bazbar", true); //test with CN check disabled
-            Interceptor interceptor = mock(Interceptor.class);
-            mockWrapper = new MockWrapper<>(secureEndpoint, IDummy.class, providers, interceptor,
-                    true);
-            validateConfig(mockWrapper, "usr", "psw", true); //test with providers and interceptor
-        } catch (SecurityServiceException e) {
-            tests = false;
-        }
-        assertTrue(tests);
-
-        // negative case
-        boolean unsecured = false;
-        try { //should not be able to get unsecured client over https
-            mockWrapper.getUnsecuredClient();
-        } catch (SecurityServiceException e) {
-            unsecured = true;
-        }
-        assertTrue(unsecured);
-        boolean secured = true;
-        try { //should be able to get secured client from subject
-            mockWrapper.getClientForSubject(getSubject());
-        } catch (SecurityServiceException e) {
-            secured = false;
-        }
-        assertTrue(secured);
-        boolean badSubject = false;
-        try { //bad subject should not allow a secure client
-            mockWrapper.getClientForSubject(null);
-        } catch (SecurityServiceException e) {
-            badSubject = true;
-        }
-        assertTrue(badSubject);
-        boolean basicAuth = true;
-        try { //should be able to use basicAuth for secure client
-            mockWrapper.getClientForBasicAuth("username", "password");
-        } catch (SecurityServiceException e) {
-            basicAuth = false;
-        }
-        assertTrue(basicAuth);
-        basicAuth = true;
-        try { //testing blank strings with basicAuth
-            mockWrapper.getClientForBasicAuth("", "");
-        } catch (SecurityServiceException e) {
-            basicAuth = false;
-        }
-        assertTrue(basicAuth);
-        basicAuth = true;
-        try { //testing nulls with basicAuth
-            mockWrapper.getClientForBasicAuth(null, null);
-        } catch (SecurityServiceException e) {
-            basicAuth = false;
-        }
-        assertTrue(basicAuth);
-    }*/
-
     @Test
     public void testInsecureWebClient() throws SecurityServiceException {
         // positive case
@@ -222,54 +136,6 @@ public class SecureCxfClientFactoryTest {
         }
         assertTrue(unsecured);
     }
-
-    /*@Test
-    public void testSecureWebClient() throws SecurityServiceException {
-        MockWrapper<IDummy> mockWrapper = new MockWrapper<>(secureEndpoint, IDummy.class);
-        // negative case
-        boolean unsecured = false;
-        try { //should not be able to get unsecured client over https
-            mockWrapper.getUnsecuredWebClient();
-        } catch (SecurityServiceException e) {
-            unsecured = true;
-        }
-        assertTrue(unsecured);
-        boolean secured = true;
-        try { //should be able to get secured client from subject
-            mockWrapper.getWebClientForSubject(getSubject());
-        } catch (SecurityServiceException e) {
-            secured = false;
-        }
-        assertTrue(secured);
-        boolean badSubject = false;
-        try { //bad subject should not allow a secure client
-            mockWrapper.getWebClientForSubject(null);
-        } catch (SecurityServiceException e) {
-            badSubject = true;
-        }
-        assertTrue(badSubject);
-        boolean basicAuth = true;
-        try { //should be able to use basicAuth for secure client
-            mockWrapper.getWebClientForBasicAuth("username", "password");
-        } catch (SecurityServiceException e) {
-            basicAuth = false;
-        }
-        assertTrue(basicAuth);
-        basicAuth = true;
-        try { //testing blank strings with basicAuth
-            mockWrapper.getWebClientForBasicAuth("", "");
-        } catch (SecurityServiceException e) {
-            basicAuth = false;
-        }
-        assertTrue(basicAuth);
-        basicAuth = true;
-        try { //testing nulls with basicAuth
-            mockWrapper.getWebClientForBasicAuth(null, null);
-        } catch (SecurityServiceException e) {
-            basicAuth = false;
-        }
-        assertTrue(basicAuth);
-    }*/
 
     @Test
     public void testGetOSGI() throws SecurityServiceException {
@@ -323,41 +189,6 @@ public class SecureCxfClientFactoryTest {
         public MockWrapper(String endpointUrl, Class<T> interfaceClass)
                 throws SecurityServiceException {
             super(endpointUrl, interfaceClass);
-        }
-
-        public MockWrapper(String endpointUrl, Class<T> interfaceClass, List providers,
-                Interceptor<? extends Message> interceptor, boolean disableCnCheck)
-                throws SecurityServiceException {
-            super(endpointUrl, interfaceClass, providers, interceptor, disableCnCheck);
-        }
-
-        public BundleContext getBundleContext() {
-            BundleContext bundleContext = mock(BundleContext.class);
-            ServiceReference serviceReference = mock(ServiceReference.class);
-            SecuritySettingsService securitySettingsService = mock(SecuritySettingsService.class);
-
-            when(bundleContext.getServiceReference(SecuritySettingsService.class))
-                    .thenReturn(serviceReference);
-            when(bundleContext.getService(any(ServiceReference.class)))
-                    .thenReturn(securitySettingsService);
-            when(securitySettingsService.getTLSParameters()).thenReturn(new TLSClientParameters());
-            return bundleContext;
-        }
-    }
-
-    private class MockProvider implements MessageBodyReader {
-
-        @Override
-        public boolean isReadable(Class type, Type genericType, Annotation[] annotations,
-                MediaType mediaType) {
-            return false;
-        }
-
-        @Override
-        public Object readFrom(Class type, Type genericType, Annotation[] annotations,
-                MediaType mediaType, MultivaluedMap httpHeaders, InputStream entityStream)
-                throws IOException, WebApplicationException {
-            return null;
         }
     }
 
