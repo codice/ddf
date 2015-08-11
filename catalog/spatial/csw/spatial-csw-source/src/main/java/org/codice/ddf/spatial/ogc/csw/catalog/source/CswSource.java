@@ -134,14 +134,12 @@ import net.opengis.ows.v_1_0_0.OperationsMetadata;
  * CswSource provides a DDF {@link FederatedSource} and {@link ConnectedSource} for CSW 2.0.2
  * services.
  */
-public class CswSource extends MaskableImpl implements FederatedSource, ConnectedSource,
-        ConfiguredService {
+public class CswSource extends MaskableImpl
+        implements FederatedSource, ConnectedSource, ConfiguredService {
 
     protected static final String CSW_SERVER_ERROR = "Error received from CSW server.";
 
     protected static final String CSWURL_PROPERTY = "cswUrl";
-
-    protected static final String ADDRESSING_NAMESPACE = "http://www.w3.org/2005/08/addressing";
 
     protected static final String ID_PROPERTY = "id";
 
@@ -198,10 +196,6 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
     private static final JAXBContext JAXB_CONTEXT = initJaxbContext();
 
     private static final String USE_POS_LIST_PROPERTY = "usePosList";
-
-    public static final Integer DEFAULT_CONNECTION_TIMEOUT = 30000;
-
-    public static final Integer DEFAULT_RECEIVE_TIMEOUT = 60000;
 
     private static Properties describableProperties = new Properties();
 
@@ -266,9 +260,9 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
 
     protected CswJAXBElementProvider<GetRecordsType> getRecordsTypeProvider;
 
-    private List<String> jaxbElementClassNames = new ArrayList<String>();
+    protected List<String> jaxbElementClassNames = new ArrayList<String>();
 
-    private Map<String, String> jaxbElementClassMap = new HashMap<String, String>();
+    protected Map<String, String> jaxbElementClassMap = new HashMap<String, String>();
 
     /**
      * Instantiates a CswSource. This constructor is for unit tests
@@ -670,7 +664,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
 
             Subject subject = (Subject) queryRequest
                     .getPropertyValue(SecurityConstants.SECURITY_SUBJECT);
-            Csw csw = getNewClient(subject);
+            Csw csw = getClient(subject);
             CswRecordCollection cswRecordCollection = csw.getRecords(getRecordsType);
 
             if (cswRecordCollection == null) {
@@ -1140,7 +1134,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
     protected CapabilitiesType getCapabilities() {
         CapabilitiesType caps = null;
         try {
-            Csw csw = getNewClient(null);
+            Csw csw = getClient(null);
             LOGGER.debug("Doing getCapabilities() call for CSW");
             GetCapabilitiesRequest request = new GetCapabilitiesRequest(CswConstants.CSW);
             request.setAcceptVersions(
@@ -1568,6 +1562,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         this.configurationPid = configurationPid;
 
     }
+
     /**
      * Callback class to check the Availability of the CswSource.
      * <p/>
@@ -1596,20 +1591,16 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
 
     }
 
-    private Csw getNewClient(Subject subj) {
-        Csw csw = null;
-        if (subj != null) {
-            try {
-                csw = (Csw) factory.getClientForSubject(subj);
-            } catch (SecurityServiceException sse) {
-                LOGGER.error("Could not get new client", sse);
-            }
+    private Csw getClient(Subject subj) throws SecurityServiceException {
+        Csw csw;
+        String username = cswSourceConfiguration.getUsername();
+        String password = cswSourceConfiguration.getPassword();
+        if (StringUtils.isNotEmpty(username) && StringUtils.isNotEmpty(password)) {
+            csw = (Csw) factory.getClientForBasicAuth(username, password);
+        } else if (subj != null) {
+            csw = (Csw) factory.getClientForSubject(subj);
         } else {
-            try {
-                csw = (Csw) factory.getUnsecuredClient();
-            } catch (SecurityServiceException sse) {
-                LOGGER.error("Could not get new client.", sse);
-            }
+            csw = (Csw) factory.getUnsecuredClient();
         }
         return csw;
     }

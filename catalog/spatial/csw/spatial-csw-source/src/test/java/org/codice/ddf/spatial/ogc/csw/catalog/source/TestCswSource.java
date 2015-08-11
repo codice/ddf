@@ -865,6 +865,8 @@ public class TestCswSource extends TestCswSourceBase {
         cswSourceConfiguration.setCswUrl(URL);
         cswSourceConfiguration.setModifiedDateMapping(Metacard.MODIFIED);
         cswSourceConfiguration.setIdentifierMapping(CswRecordMetacardType.CSW_IDENTIFIER);
+        cswSourceConfiguration.setUsername("user");
+        cswSourceConfiguration.setPassword("pass");
         return cswSourceConfiguration;
     }
 
@@ -881,6 +883,8 @@ public class TestCswSource extends TestCswSourceBase {
 
         SecureCxfClientFactory mockFactory = mock(SecureCxfClientFactory.class);
         try {
+            doReturn(csw).when(mockFactory)
+                    .getClientForBasicAuth(any(String.class), any(String.class));
             doReturn(csw).when(mockFactory).getClientForSubject(any(Subject.class));
             doReturn(csw).when(mockFactory).getUnsecuredClient();
         } catch (SecurityServiceException sse) {
@@ -895,8 +899,6 @@ public class TestCswSource extends TestCswSourceBase {
         cswSource.setContentTypeNames(contentTypes);
         cswSource.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
         cswSource.setAvailabilityTask(mockAvailabilityTask);
-        //cswSource.factory = mockFactory;
-        //cswSource.csw = mockCsw;
         cswSource.configureCswSource();
 
         return cswSource;

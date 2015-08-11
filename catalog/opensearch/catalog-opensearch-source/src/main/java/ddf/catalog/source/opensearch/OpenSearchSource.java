@@ -178,12 +178,6 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
      * called for each property specified in the metatype.xml file.
      */
     public void init() {
-        isInitialized = true;
-        try {
-            factory = new SecureCxfClientFactory(endpointUrl, OpenSearch.class);
-        } catch (SecurityServiceException sse) {
-            LOGGER.error("Could not make SecureCxfClientFactory", sse);
-        }
         configureXmlInputFactory();
     }
 
@@ -204,6 +198,10 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
         boolean isAvailable = false;
         if (!lastAvailable || (lastAvailableDate
                 .before(new Date(System.currentTimeMillis() - AVAILABLE_TIMEOUT_CHECK)))) {
+
+            if (factory == null) {
+                return false;
+            }
 
             WebClient client = null;
             try {
@@ -602,12 +600,10 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     public void setEndpointUrl(String endpointUrl) {
         this.endpointUrl = endpointUrl;
 
-        if (isInitialized) {
-            try {
-                factory = new SecureCxfClientFactory(endpointUrl, OpenSearch.class);
-            } catch (SecurityServiceException sse) {
-                LOGGER.error("Could not refresh SecureClientFactory with new endpointUrl.", sse);
-            }
+        try {
+            factory = new SecureCxfClientFactory(endpointUrl, OpenSearch.class);
+        } catch (SecurityServiceException sse) {
+            LOGGER.error("Could not refresh SecureClientFactory with new endpointUrl.", sse);
         }
     }
 
@@ -790,8 +786,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
                     if (contentType != null) {
                         if (contentType instanceof String) {
                             content = (String) contentType;
-                            mimeType = new MimeType(
-                                    content); //TODO: changed to get rid of null pointer exception when contentType == null
+                            mimeType = new MimeType(content);
                         } else if (contentType instanceof Collection
                                 && ((Collection) contentType).size() > 0) {
                             content = (String) ((Collection) contentType).iterator().next();
@@ -932,7 +927,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
         try {
             return new SecureCxfClientFactory(url, OpenSearch.class);
         } catch (SecurityServiceException sse) {
-            LOGGER.error("Could ont create a temporary factory for the rest url.", sse);
+            LOGGER.error("Could not create a temporary factory for the rest url.", sse);
         }
         return null;
     }
@@ -989,12 +984,10 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
             throws SecurityServiceException {
         SecureCxfClientFactory tempFactory = tempFactory(url);
         WebClient client;
-        if (StringUtils.startsWithIgnoreCase(url, "https")) {
-            if (subj != null && username != null && password != null) {
-                client = tempFactory.getWebClientForSubject(subj);
-            } else {
-                client = tempFactory.getWebClientForBasicAuth(username, password);
-            }
+        if (StringUtils.isNotEmpty(username) && StringUtils.isNotEmpty(password)) {
+            client = tempFactory.getWebClientForBasicAuth(username, password);
+        } else if (subj != null) {
+            client = tempFactory.getWebClientForSubject(subj);
         } else {
             client = tempFactory.getUnsecuredWebClient();
         }
