@@ -29,14 +29,10 @@ import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.apache.shiro.subject.Subject;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.security.service.SecurityServiceException;
-import ddf.security.settings.SecuritySettingsService;
 
 public class SecureCxfClientFactory<T> {
 
@@ -202,10 +198,6 @@ public class SecureCxfClientFactory<T> {
      */
     public T getUnsecuredClient() throws SecurityServiceException {
         String asciiString = clientFactory.getAddress();
-        //        if (StringUtils.startsWithIgnoreCase(asciiString, "https")) {
-        //            throw new SecurityServiceException(
-        //                    "Cannot connect insecurely to https url " + asciiString);
-        //        }
         return getNewClient(null, null);
     }
 
@@ -237,40 +229,6 @@ public class SecureCxfClientFactory<T> {
         return clientImpl;
     }
 
-    private SecuritySettingsService getSecuritySettingsService() throws SecurityServiceException {
-        return getOsgiService(SecuritySettingsService.class);
-    }
-
-    /*
-     * package-private so unit tests can override
-     */
-    <S> S getOsgiService(Class<S> clazz) throws SecurityServiceException {
-        BundleContext bundleContext = null;
-        try {
-            bundleContext = getBundleContext();
-            ServiceReference<S> serviceReference = bundleContext.getServiceReference(clazz);
-            if (serviceReference != null) {
-                S service = bundleContext.getService(serviceReference);
-                if (service != null) {
-                    return service;
-                }
-            }
-        } catch (Exception e) {
-            LOGGER.error("Exception thrown when trying to get BundleContext or ServiceReference",
-                    e);
-        }
-        throw new SecurityServiceException("Could not get " + clazz);
-    }
-
-    /**
-     * Convenience method to get the BundleContext for the ClientFactory
-     *
-     * @return FrameworkUtil.getBundle(this.getClass()).getBundleContext()
-     */
-    public BundleContext getBundleContext() {
-        return FrameworkUtil.getBundle(this.getClass()).getBundleContext();
-    }
-
     /*
      * Add TLS and Basic Auth credentials to the underlying {@link org.apache.cxf.transport.http.HTTPConduit}
      * This includes two-way ssl assuming that the platform keystores are configured correctly
@@ -290,7 +248,6 @@ public class SecureCxfClientFactory<T> {
             }
         }
 
-        //        TLSClientParameters tlsParams = getSecuritySettingsService().getTLSParameters();
         if (disableCnCheck) {
             TLSClientParameters tlsParams = httpConduit.getTlsClientParameters();
             if (tlsParams == null) {
