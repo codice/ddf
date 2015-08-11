@@ -499,7 +499,6 @@ public class SearchController {
         for (Action action : actions) {
             JSONObject actionJson = new JSONObject();
             actionJson.put(Search.ACTIONS_ID, action.getId() + action.getTitle());
-            actionJson.put(Search.ACTIONS_ID, action.getId());
             actionJson.put(Search.ACTIONS_TITLE, action.getTitle());
             actionJson.put(Search.ACTIONS_DESCRIPTION, action.getDescription());
             actionJson.put(Search.ACTIONS_URL, action.getUrl());
