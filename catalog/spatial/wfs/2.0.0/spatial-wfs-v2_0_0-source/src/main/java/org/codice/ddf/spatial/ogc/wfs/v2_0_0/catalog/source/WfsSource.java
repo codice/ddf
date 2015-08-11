@@ -228,7 +228,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
     private FeatureCollectionMessageBodyReaderWfs20 featureCollectionReader;
 
     public WfsSource(FilterAdapter filterAdapter, BundleContext context, AvailabilityTask task,
-            SecureCxfClientFactory factory) {
+            SecureCxfClientFactory factory) throws SecurityServiceException {
         this.filterAdapter = filterAdapter;
         this.context = context;
         this.availabilityTask = task;
@@ -275,7 +275,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
      *
      * @param configuration
      */
-    public void refresh(Map<String, Object> configuration) {
+    public void refresh(Map<String, Object> configuration) throws SecurityServiceException {
         LOGGER.debug("WfsSource {}: Refresh called", getId());
         String wfsUrl = (String) configuration.get(WFSURL_PROPERTY);
         String password = (String) configuration.get(PASSWORD_PROPERTY);
@@ -359,9 +359,11 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         }
     }
 
-    private WFSCapabilitiesType getCapabilities() {
+    private WFSCapabilitiesType getCapabilities() throws SecurityServiceException {
         WFSCapabilitiesType capabilities = null;
-        Wfs wfs = getNewClient();
+        Wfs wfs = null;
+        wfs = getClient();
+
         try {
             capabilities = wfs.getCapabilities(new GetCapabilitiesRequest());
         } catch (WfsException wfse) {
@@ -372,7 +374,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         return capabilities;
     }
 
-    private void configureWfsFeatures() {
+    private void configureWfsFeatures() throws SecurityServiceException {
         WFSCapabilitiesType capabilities = getCapabilities();
 
         if (capabilities != null) {
@@ -413,8 +415,12 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
     private void buildFeatureFilters(List<FeatureTypeType> featureTypes,
             FilterCapabilities filterCapabilities) {
-        Wfs wfs = getNewClient();
-
+        Wfs wfs = null;
+        try {
+            wfs = getClient();
+        } catch (SecurityServiceException sse) {
+            LOGGER.error("Could not get client to connect to the endpoint.", sse);
+        }
         if (filterCapabilities == null) {
             return;
         }
@@ -605,8 +611,13 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
     @Override
     public SourceResponse query(QueryRequest request) throws UnsupportedQueryException {
-        Wfs wfs = getNewClient();
-
+        Wfs wfs;
+        try {
+            wfs = getClient();
+        } catch (SecurityServiceException sse) {
+            throw new UnsupportedQueryException(
+                    "Could not get a client for query from the endpointUrl.", sse);
+        }
         Query query = request.getQuery();
 
         if (query == null) {
@@ -1220,16 +1231,19 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
             LOGGER.debug("Checking availability for source {} ", getId());
             boolean oldAvailability = WfsSource.this.isAvailable();
             boolean newAvailability = false;
-            // Simple "ping" to ensure the source is responding
-            getNewClient();
-            newAvailability = (null != getCapabilities());
-            // If the source becomes available, configure it.
-            // When the source is available, we need to account for new feature converter factories being added
-            // while the system is running.
-            if (newAvailability) {
-                LOGGER.debug("WFS Source {} is available...configuring.", getId());
-                configureWfsFeatures();
-                newAvailability = !featureTypeFilters.isEmpty();
+            try {
+                // Simple "ping" to ensure the source is responding
+                newAvailability = (null != getCapabilities());
+                // If the source becomes available, configure it.
+                // When the source is available, we need to account for new feature converter factories being added
+                // while the system is running.
+                if (newAvailability) {
+                    LOGGER.debug("WFS Source {} is available...configuring.", getId());
+                    configureWfsFeatures();
+                    newAvailability = !featureTypeFilters.isEmpty();
+                }
+            } catch (SecurityServiceException sse) {
+                LOGGER.error("Unable to create Wfs client for provided enpoint.", sse);
             }
 
             if (oldAvailability != newAvailability) {
@@ -1240,13 +1254,19 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
     }
 
-    private Wfs getNewClient() {
-        Wfs wfs = null;
+    /**
+     * Creates a new WFS client using basic auth, if possible.
+     *
+     * @return a new secure WFS client form either basicAuth or an insecure client.
+     * @throws SecurityServiceException
+     */
+    private Wfs getClient() throws SecurityServiceException {
+        Wfs wfs;
 
-        try {
+        if (StringUtils.isNotEmpty(username) && StringUtils.isNotEmpty(password)) {
+            wfs = (Wfs) factory.getClientForBasicAuth(username, password);
+        } else {
             wfs = (Wfs) factory.getUnsecuredClient();
-        } catch (SecurityServiceException sse) {
-            LOGGER.error("Could not get new client.", sse);
         }
         return wfs;
     }
