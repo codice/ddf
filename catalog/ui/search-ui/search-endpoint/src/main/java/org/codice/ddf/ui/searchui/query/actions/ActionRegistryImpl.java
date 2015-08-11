@@ -37,7 +37,7 @@ public class ActionRegistryImpl implements ActionRegistry {
 
         for (ActionProvider provider : providers) {
             Action action = provider.getAction(metacard);
-            if (action != null) {
+            if (action != null && !actions.contains(action)) {
                 actions.add(action);
             }
         }
