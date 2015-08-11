@@ -94,7 +94,7 @@
             </plugin>
 
             <!--
-            Puts the features XML file for this SDK sample-plugins distribution
+            Puts the features XML file for this SDK sample metacard filter distribution
             into the maven repo, assigning it a repo URL of
                 mvn:ddf.sdk/sample-metacard-filter/${project.version}/xml/features
             -->
