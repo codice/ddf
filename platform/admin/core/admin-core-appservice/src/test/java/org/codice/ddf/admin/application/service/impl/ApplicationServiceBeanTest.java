@@ -21,6 +21,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.atMost;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -36,6 +37,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.InstanceNotFoundException;
+import javax.management.MBeanRegistrationException;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
 
 import org.apache.commons.collections.ListUtils;
 import org.apache.commons.lang.StringUtils;
@@ -86,6 +93,10 @@ public class ApplicationServiceBeanTest {
 
     private BundleContext bundleContext;
 
+    private MBeanServer mBeanServer;
+
+    private ObjectName objectName;
+
     private static final String TEST_FEATURE_DESCRIPTION = "Mock Feature for ApplicationServiceBean tests";
 
     private static final String TEST_FEATURE_DETAILS = "TestFeatureDetails";
@@ -129,6 +140,9 @@ public class ApplicationServiceBeanTest {
                 getClass().getClassLoader().getResource("test-features-with-main-feature.xml")
                         .toURI());
         bundleContext = mock(BundleContext.class);
+        mBeanServer = mock(MBeanServer.class);
+        objectName = new ObjectName(
+                ApplicationService.class.getName() + ":service=application-service");
     }
 
     /**
@@ -174,12 +188,47 @@ public class ApplicationServiceBeanTest {
     @Test
     public void testInit() throws Exception {
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt);
+                testConfigAdminExt, mBeanServer);
         serviceBean.init();
 
-        //Do it again, should remove and re-init
+        verify(mBeanServer).registerMBean(serviceBean, objectName);
+    }
+
+    /**
+     * Tests the {@link ApplicationServiceBean#init()} method for the case
+     * where the serviceBean has already been initialized
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testInitTwice() throws Exception {
+        ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
+                testConfigAdminExt, mBeanServer);
+        when(mBeanServer.registerMBean(any(Object.class), any(ObjectName.class)))
+                .thenThrow(new InstanceAlreadyExistsException()).thenReturn(null);
+
         serviceBean.init();
-        //If an exception is thrown, this test fails...
+
+        verify(mBeanServer, atMost(1)).unregisterMBean(objectName);
+        verify(mBeanServer, times(2)).registerMBean(serviceBean, objectName);
+    }
+
+    /**
+     * Tests the {@link ApplicationServiceBean#init()} method for the case
+     * where an exception other than the InstanceAlreadyExistsException is thrown
+     * by mBeanServer.registerMBean(....)
+     *
+     * @throws Exception
+     */
+    @Test(expected = ApplicationServiceException.class)
+    public void testInitWhenRegisterMBeanThrowsInstanceAlreadyExistsException() throws Exception {
+        ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
+                testConfigAdminExt, mBeanServer);
+
+        when(mBeanServer.registerMBean(any(Object.class), any(ObjectName.class)))
+                .thenThrow(new NullPointerException());
+
+        serviceBean.init();
     }
 
     /**
@@ -190,22 +239,44 @@ public class ApplicationServiceBeanTest {
     @Test
     public void testDestroy() throws Exception {
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt);
-        serviceBean.init();
+                testConfigAdminExt, mBeanServer);
+
         serviceBean.destroy();
-        //If an exception is thrown, this test fails...
+
+        verify(mBeanServer).unregisterMBean(objectName);
     }
 
     /**
      * Tests the {@link ApplicationServiceBean#destroy()} method
-     * for the case where destroy is called before init, which should cause an exception
+     * for the case where an InstanceNotFoundException is thrown by mBeanServer.unregisterMBean(...)
      *
      * @throws Exception
      */
     @Test(expected = ApplicationServiceException.class)
-    public void testDestroyException() throws Exception {
+    public void testDestroyWhenUnregisterMBeanThrowsInstanceNotFoundException() throws Exception {
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt);
+                testConfigAdminExt, mBeanServer);
+
+        doThrow(new InstanceNotFoundException()).when(mBeanServer).unregisterMBean(objectName);
+
+        serviceBean.destroy();
+    }
+
+    /**
+     * Tests the {@link ApplicationServiceBean#destroy()} method
+     * for the case where an MBeanRegistrationException is thrown
+     * by mBeanServer.unregisterMBean(...)
+     *
+     * @throws Exception
+     */
+    @Test(expected = ApplicationServiceException.class)
+    public void testDestroyWhenUnregisterMBeanThrowsMBeanRegistrationException() throws Exception {
+        ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
+                testConfigAdminExt, mBeanServer);
+
+        doThrow(new MBeanRegistrationException(new Exception())).when(mBeanServer)
+                .unregisterMBean(any(ObjectName.class));
+
         serviceBean.destroy();
     }
 
@@ -242,7 +313,7 @@ public class ApplicationServiceBeanTest {
         when(testAppService.getInstallationProfiles()).thenReturn(featureList);
 
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt);
+                testConfigAdminExt, mBeanServer);
 
         List<Map<String, Object>> result = serviceBean.getInstallationProfiles();
 
@@ -260,7 +331,7 @@ public class ApplicationServiceBeanTest {
     public void testGetApplicationTree() throws Exception {
         setUpTree();
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt);
+                testConfigAdminExt, mBeanServer);
         serviceBean.init();
         List<Map<String, Object>> result = serviceBean.getApplicationTree();
 
@@ -281,7 +352,7 @@ public class ApplicationServiceBeanTest {
     public void testGetApplications() throws Exception {
         setUpTree();
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt);
+                testConfigAdminExt, mBeanServer);
         serviceBean.init();
 
         List<Map<String, Object>> result = serviceBean.getApplications();
@@ -305,7 +376,7 @@ public class ApplicationServiceBeanTest {
     public void testGetApplicationsNoChildren() throws Exception {
         setUpTree();
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt);
+                testConfigAdminExt, mBeanServer);
         serviceBean.init();
 
         when(testNode1.getChildren()).thenReturn((new TreeSet<ApplicationNode>()));
@@ -329,7 +400,7 @@ public class ApplicationServiceBeanTest {
     public void testGetApplicationsChildDependencies() throws Exception {
         setUpTree();
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt);
+                testConfigAdminExt, mBeanServer);
         serviceBean.init();
 
         ApplicationNode testNode4 = mock(ApplicationNodeImpl.class);
@@ -356,7 +427,7 @@ public class ApplicationServiceBeanTest {
     public void testGetApplicationsMultiChildDependencies() throws Exception {
         setUpTree();
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt);
+                testConfigAdminExt, mBeanServer);
         serviceBean.init();
 
         ApplicationNode testNode4 = mock(ApplicationNodeImpl.class);
@@ -384,7 +455,7 @@ public class ApplicationServiceBeanTest {
     @Test
     public void testStartApplication() throws Exception {
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt);
+                testConfigAdminExt, mBeanServer);
 
         assertTrue(serviceBean.startApplication(TEST_APP_NAME));
 
@@ -400,7 +471,7 @@ public class ApplicationServiceBeanTest {
     @Test
     public void testStartApplicationException() throws Exception {
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt);
+                testConfigAdminExt, mBeanServer);
         doThrow(new ApplicationServiceException()).when(testAppService)
                 .startApplication(TEST_APP_NAME);
 
@@ -417,7 +488,7 @@ public class ApplicationServiceBeanTest {
     @Test
     public void testStopApplication() throws Exception {
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt);
+                testConfigAdminExt, mBeanServer);
 
         assertTrue(serviceBean.stopApplication(TEST_APP_NAME));
 
@@ -433,7 +504,7 @@ public class ApplicationServiceBeanTest {
     @Test
     public void testStopApplicationException() throws Exception {
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt);
+                testConfigAdminExt, mBeanServer);
         doThrow(new ApplicationServiceException()).when(testAppService)
                 .stopApplication(TEST_APP_NAME);
 
@@ -449,7 +520,7 @@ public class ApplicationServiceBeanTest {
     @Test
     public void testAddApplications() throws Exception {
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt);
+                testConfigAdminExt, mBeanServer);
         List<Map<String, Object>> testURLList = new ArrayList<>();
         Map<String, Object> testURLMap1 = mock(HashMap.class);
         when(testURLMap1.get("value")).thenReturn(TEST_URL);
@@ -473,7 +544,7 @@ public class ApplicationServiceBeanTest {
     @Test
     public void testAddApplicationsUSE() throws Exception {
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt);
+                testConfigAdminExt, mBeanServer);
         List<Map<String, Object>> testURLList = new ArrayList<>();
         Map<String, Object> testURLMap1 = mock(HashMap.class);
         when(testURLMap1.get("value")).thenReturn(BAD_URL);
@@ -499,7 +570,7 @@ public class ApplicationServiceBeanTest {
         root.setLevel(Level.ALL);
 
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt);
+                testConfigAdminExt, mBeanServer);
         List<Map<String, Object>> testURLList = new ArrayList<>();
         Map<String, Object> testURLMap1 = mock(HashMap.class);
         when(testURLMap1.get("value")).thenReturn(TEST_URL);
@@ -530,7 +601,7 @@ public class ApplicationServiceBeanTest {
     @Test
     public void testRemoveApplication() throws Exception {
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt);
+                testConfigAdminExt, mBeanServer);
 
         serviceBean.removeApplication(TEST_APP_NAME);
 
@@ -546,7 +617,7 @@ public class ApplicationServiceBeanTest {
     @Test
     public void testRemoveApplicationInvalidParam() throws Exception {
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt);
+                testConfigAdminExt, mBeanServer);
 
         serviceBean.removeApplication(StringUtils.EMPTY);
 
@@ -569,7 +640,7 @@ public class ApplicationServiceBeanTest {
         root.setLevel(Level.ALL);
 
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt);
+                testConfigAdminExt, mBeanServer);
 
         doThrow(new ApplicationServiceException()).when(testAppService)
                 .removeApplication(any(String.class));
@@ -592,7 +663,7 @@ public class ApplicationServiceBeanTest {
     @Test
     public void testGetServices() throws Exception {
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt) {
+                testConfigAdminExt, mBeanServer) {
             @Override
             protected BundleContext getContext() {
                 return bundleContext;
@@ -634,7 +705,7 @@ public class ApplicationServiceBeanTest {
     @Test
     public void testGetServicesNotContainsKey() throws Exception {
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt) {
+                testConfigAdminExt, mBeanServer) {
             @Override
             protected BundleContext getContext() {
                 return bundleContext;
@@ -678,7 +749,7 @@ public class ApplicationServiceBeanTest {
     @Test
     public void testGetServicesMetatypeInfo() throws Exception {
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt) {
+                testConfigAdminExt, mBeanServer) {
             @Override
             protected BundleContext getContext() {
                 return bundleContext;
@@ -752,7 +823,7 @@ public class ApplicationServiceBeanTest {
         root.setLevel(Level.ALL);
 
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt) {
+                testConfigAdminExt, mBeanServer) {
             @Override
             protected BundleContext getContext() {
                 return bundleContext;
@@ -790,7 +861,7 @@ public class ApplicationServiceBeanTest {
     @Test
     public void testGetSetApplicationPlugins() throws Exception {
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt);
+                testConfigAdminExt, mBeanServer);
         ApplicationPlugin testPlugin1 = mock(ApplicationPlugin.class);
         ApplicationPlugin testPlugin2 = mock(ApplicationPlugin.class);
         List<ApplicationPlugin> pluginList = new ArrayList<>();
@@ -810,7 +881,7 @@ public class ApplicationServiceBeanTest {
     @Test
     public void testGetAllFeatures() throws Exception {
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt);
+                testConfigAdminExt, mBeanServer);
         List<FeatureDetails> testFeatureDetailsList = new ArrayList<>();
         FeatureDetails testFeatureDetails1 = mock(FeatureDetails.class);
         testFeatureDetailsList.add(testFeatureDetails1);
@@ -835,7 +906,7 @@ public class ApplicationServiceBeanTest {
     @Test
     public void testFindApplicationFeatures() throws Exception {
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt);
+                testConfigAdminExt, mBeanServer);
 
         List<FeatureDetails> testFeatureDetailsList = new ArrayList<>();
         FeatureDetails testFeatureDetails1 = mock(FeatureDetails.class);
@@ -862,7 +933,7 @@ public class ApplicationServiceBeanTest {
     @Test
     public void testGetPluginsForApplication() throws Exception {
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt);
+                testConfigAdminExt, mBeanServer);
         ApplicationPlugin testPlugin1 = mock(ApplicationPlugin.class);
         ApplicationPlugin testPlugin2 = mock(ApplicationPlugin.class);
         List<ApplicationPlugin> pluginList = new ArrayList<>();
