@@ -21,6 +21,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.atMost;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -208,7 +209,7 @@ public class ApplicationServiceBeanTest {
 
         serviceBean.init();
 
-        verify(mBeanServer).unregisterMBean(objectName);
+        verify(mBeanServer, atMost(1)).unregisterMBean(objectName);
         verify(mBeanServer, times(2)).registerMBean(serviceBean, objectName);
     }
 
@@ -220,7 +221,7 @@ public class ApplicationServiceBeanTest {
      * @throws Exception
      */
     @Test(expected = ApplicationServiceException.class)
-    public void testInitException() throws Exception {
+    public void testInitWhenRegisterMBeanThrowsInstanceAlreadyExistsException() throws Exception {
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
                 testConfigAdminExt, mBeanServer);
 
@@ -252,12 +253,11 @@ public class ApplicationServiceBeanTest {
      * @throws Exception
      */
     @Test(expected = ApplicationServiceException.class)
-    public void testDestroyINFException() throws Exception {
+    public void testDestroyWhenUnregisterMBeanThrowsInstanceNotFoundException() throws Exception {
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
                 testConfigAdminExt, mBeanServer);
 
-        doThrow(new InstanceNotFoundException()).when(mBeanServer)
-                .unregisterMBean(any(ObjectName.class));
+        doThrow(new InstanceNotFoundException()).when(mBeanServer).unregisterMBean(objectName);
 
         serviceBean.destroy();
     }
@@ -270,7 +270,7 @@ public class ApplicationServiceBeanTest {
      * @throws Exception
      */
     @Test(expected = ApplicationServiceException.class)
-    public void testDestroyMBRException() throws Exception {
+    public void testDestroyWhenUnregisterMBeanThrowsMBeanRegistrationException() throws Exception {
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
                 testConfigAdminExt, mBeanServer);
 
