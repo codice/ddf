@@ -54,30 +54,30 @@ public final class GeoNamesUpdateCommand extends OsgiCommandSupport {
         this.geoEntryIndexer = geoEntryIndexer;
     }
 
-    private static final PrintStream CONSOLE = System.out;
-
     @Override
     protected Object doExecute() {
+        final PrintStream console = System.out;
+
         final ProgressCallback progressCallback = new ProgressCallback() {
             @Override
             public void updateProgress(final int progress) {
-                CONSOLE.printf("\r%d%%", progress);
-                CONSOLE.flush();
+                console.printf("\r%d%%", progress);
+                console.flush();
             }
         };
 
-        CONSOLE.println("Updating...");
+        console.println("Updating...");
 
         try {
             geoEntryIndexer.updateIndex(resource, geoEntryExtractor, create, progressCallback);
-            CONSOLE.println("\nDone.");
+            console.println("\nDone.");
         } catch (GeoEntryExtractionException e) {
             LOGGER.error("Error extracting GeoNames data from resource {}", resource, e);
-            CONSOLE.printf("Could not extract GeoNames data from resource %s.\n" + "Message: %s\n"
+            console.printf("Could not extract GeoNames data from resource %s.\n" + "Message: %s\n"
                     + "Check the logs for more details.\n", resource, e.getMessage());
         } catch (GeoEntryIndexingException e) {
             LOGGER.error("Error indexing GeoNames data", e);
-            CONSOLE.printf("Could not index the GeoNames data.\n" + "Message: %s\n"
+            console.printf("Could not index the GeoNames data.\n" + "Message: %s\n"
                     + "Check the logs for more details.\n", e.getMessage());
         }
 

@@ -371,7 +371,7 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
             } catch (Exception e) {
                 sslTimeout = CREATE_SSL_FACTORY_ARG_6;
             }
-            startTls = Boolean.parseBoolean((String) options.get(SSL_STARTTLS));
+            startTls = Boolean.parseBoolean(String.valueOf(options.get(SSL_STARTTLS)));
 
             if (ldapConnectionFactory != null) {
                 ldapConnectionFactory.close();
