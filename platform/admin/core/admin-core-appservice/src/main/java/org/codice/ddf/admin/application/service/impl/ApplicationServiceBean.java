@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -116,9 +116,11 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
      *             objects.
      */
     public ApplicationServiceBean(ApplicationService appService,
-            ConfigurationAdminExt configAdminExt) throws ApplicationServiceException {
+            ConfigurationAdminExt configAdminExt, MBeanServer mBeanServer)
+            throws ApplicationServiceException {
         this.appService = appService;
         this.configAdminExt = configAdminExt;
+        this.mBeanServer = mBeanServer;
         try {
             objectName = new ObjectName(
                     ApplicationService.class.getName() + ":service=application-service");
@@ -561,6 +563,7 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
 
         return returnValues;
     }
+
     /**
      * serviceTracker setter method. Needed for use in unit tests.
      *
@@ -569,15 +572,5 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
      */
     void setServiceTracker(ServiceTracker serviceTracker) {
         this.serviceTracker = serviceTracker;
-    }
-
-    /**
-     * mBeanServer setter method. Needed for use in unit tests.
-     *
-     * @param mBean
-     *             the desired mBean instance
-     */
-    void setMBeanServer(MBeanServer mBean) {
-        this.mBeanServer = mBean;
     }
 }
