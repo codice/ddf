@@ -48,6 +48,8 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     private static final String CSW_ENDPOINT = SERVICE_ROOT + "/csw";
 
+    private static final String METACARD_X_PATH = "/metacards/metacard[@id='%s']";
+
     public static void deleteMetacard(String id) {
         LOGGER.info("Deleting metacard {}", id);
         delete(REST_PATH + id).then().assertThat().statusCode(200).log().all();
@@ -92,17 +94,17 @@ public class TestCatalog extends AbstractIntegrationTest {
 
         // Test xml-format response for an all-query
         ValidatableResponse response = executeOpenSearch("xml", "q=*");
-        response.body(hasXPath("/metacards/metacard[@id='" + id1 + "']"))
-                .body(hasXPath("/metacards/metacard[@id='" + id2 + "']"))
-                .body(hasXPath("/metacards/metacard[@id='" + id3 + "']"))
-                .body(hasXPath("/metacards/metacard[@id='" + id4 + "']"));
+        response.body(hasXPath(String.format(METACARD_X_PATH, id1)))
+                .body(hasXPath(String.format(METACARD_X_PATH, id2)))
+                .body(hasXPath(String.format(METACARD_X_PATH, id3)))
+                .body(hasXPath(String.format(METACARD_X_PATH, id4)));
 
         // Execute a text search against a value in an indexed field (metadata)
         response = executeOpenSearch("xml", "q=dunder*");
-        response.body(hasXPath("/metacards/metacard[@id='" + id3 + "']"))
-                .body(not(hasXPath("/metacards/metacard[@id='" + id1 + "']")))
-                .body(not(hasXPath("/metacards/metacard[@id='" + id2 + "']")))
-                .body(not(hasXPath("/metacards/metacard[@id='" + id4 + "']")));
+        response.body(hasXPath(String.format(METACARD_X_PATH, id3)))
+                .body(not(hasXPath(String.format(METACARD_X_PATH, id1))))
+                .body(not(hasXPath(String.format(METACARD_X_PATH, id2))))
+                .body(not(hasXPath(String.format(METACARD_X_PATH, id4))));
 
         // Execute a text search against a value that isn't in any indexed fields
         response = executeOpenSearch("xml", "q=whatisthedealwithairlinefood");
@@ -110,17 +112,17 @@ public class TestCatalog extends AbstractIntegrationTest {
 
         // Execute a geo search that should match a point card
         response = executeOpenSearch("xml", "lat=40.689", "lon=-74.045", "radius=250");
-        response.body(hasXPath("/metacards/metacard[@id='" + id1 + "']"))
-                .body(not(hasXPath("/metacards/metacard[@id='" + id2 + "']")))
-                .body(not(hasXPath("/metacards/metacard[@id='" + id3 + "']")))
-                .body(not(hasXPath("/metacards/metacard[@id='" + id4 + "']")));
+        response.body(hasXPath(String.format(METACARD_X_PATH, id1)))
+                .body(not(hasXPath(String.format(METACARD_X_PATH, id2))))
+                .body(not(hasXPath(String.format(METACARD_X_PATH, id3))))
+                .body(not(hasXPath(String.format(METACARD_X_PATH, id4))));
 
         // Execute a geo search...this should match two cards, both polygons around the Space Needle
         response = executeOpenSearch("xml", "lat=47.62", "lon=-122.356", "radius=500");
-        response.body(hasXPath("/metacards/metacard[@id='" + id2 + "']"))
-                .body(hasXPath("/metacards/metacard[@id='" + id4 + "']"))
-                .body(not(hasXPath("/metacards/metacard[@id='" + id1 + "']")))
-                .body(not(hasXPath("/metacards/metacard[@id='" + id3 + "']")));
+        response.body(hasXPath(String.format(METACARD_X_PATH, id2)))
+                .body(hasXPath(String.format(METACARD_X_PATH, id4)))
+                .body(not(hasXPath(String.format(METACARD_X_PATH, id1))))
+                .body(not(hasXPath(String.format(METACARD_X_PATH, id3))));
 
         deleteMetacard(id1);
         deleteMetacard(id2);
@@ -145,10 +147,11 @@ public class TestCatalog extends AbstractIntegrationTest {
         try {
             // Ingest the metacard
             String id1 = ingestXmlFromResource("/metacard1.xml");
+            String xPath = String.format(METACARD_X_PATH, id1);
 
             // Test without filtering
             ValidatableResponse response = executeOpenSearch("xml", "q=*");
-            response.body(hasXPath("/metacards/metacard[@id='" + id1 + "']"));
+            response.body(hasXPath(xPath));
 
             startFeature(true, "sample-filter");
             startFeature(true, "filter-plugin");
@@ -165,13 +168,13 @@ public class TestCatalog extends AbstractIntegrationTest {
 
             // Test with filtering with out point-of-contact
             response = executeOpenSearch("xml", "q=*");
-            response.body(not(hasXPath("/metacards/metacard[@id='" + id1 + "']")));
+            response.body(not(hasXPath(xPath)));
 
             // Test filtering with point of contact
             configureRestForBasic();
 
             response = executeAdminOpenSearch("xml", "q=*");
-            response.body(hasXPath("/metacards/metacard[@id='" + id1 + "']"));
+            response.body(hasXPath(xPath));
 
             configureRestForAnon();
 
