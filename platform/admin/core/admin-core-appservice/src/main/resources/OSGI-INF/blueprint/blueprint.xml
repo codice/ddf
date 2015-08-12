@@ -77,12 +77,17 @@
         </command>
     </command-bundle>
 
+    <bean id="mBeanServer"
+          class="java.lang.management.ManagementFactory"
+          factory-method="getPlatformMBeanServer"/>
+
     <bean id="appServiceMBean"
           class="org.codice.ddf.admin.application.service.impl.ApplicationServiceBean"
           init-method="init"
           destroy-method="destroy">
         <argument ref="appService"/>
         <argument ref="configurationAdminExt"></argument>
+        <argument ref="mBeanServer"/>
         <property name="applicationPlugins" ref="applicationPluginList"/>
     </bean>
 
