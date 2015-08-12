@@ -29,6 +29,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Date;
+
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
@@ -242,15 +243,18 @@ public class CertificateManager {
             }
         }
 
-        @Override public AlgorithmIdentifier getAlgorithmIdentifier() {
+        @Override
+        public AlgorithmIdentifier getAlgorithmIdentifier() {
             return SHA_256_WITH_RSA_ID;
         }
 
-        @Override public OutputStream getOutputStream() {
+        @Override
+        public OutputStream getOutputStream() {
             return outputStream;
         }
 
-        @Override public byte[] getSignature() {
+        @Override
+        public byte[] getSignature() {
             try {
                 signature.update(outputStream.toByteArray());
                 return signature.sign();
