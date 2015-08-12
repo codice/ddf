@@ -16,6 +16,7 @@ package org.codice.ddf.certificate;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.net.URL;
 import java.security.InvalidKeyException;
@@ -33,6 +34,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.Enumeration;
+
 import org.bouncycastle.cert.X509v3CertificateBuilder;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -41,7 +43,8 @@ import org.slf4j.LoggerFactory;
 public class TestCertificateManagement {
     private static final Logger LOGGER = LoggerFactory.getLogger(TestCertificateManagement.class);
 
-    @Test public void testMultipleCertsAddedToKeyStore() {
+    @Test
+    public void testMultipleCertsAddedToKeyStore() {
         try {
             CertificateManager.registerBCSecurityProvider();
             KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
@@ -99,7 +102,8 @@ public class TestCertificateManagement {
         }
     }
 
-    @Test public void testDeleteFromKeyStore() {
+    @Test
+    public void testDeleteFromKeyStore() {
         try {
             CertificateManager.registerBCSecurityProvider();
             KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
@@ -166,7 +170,8 @@ public class TestCertificateManagement {
         }
     }
 
-    @Test public void testCreatingNewKeyStoreWithNewX509() {
+    @Test
+    public void testCreatingNewKeyStoreWithNewX509() {
         try {
             CertificateManager.registerBCSecurityProvider();
             KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
@@ -214,7 +219,8 @@ public class TestCertificateManagement {
         }
     }
 
-    @Test public void testGetKeyStore() {
+    @Test
+    public void testGetKeyStore() {
         try {
             JKSManager.createNewKeyStore("nameForKeyStore", "changeit");
             KeyStore jks = JKSManager.getKeyStore("nameForKeyStore", "changeit");
@@ -225,25 +231,29 @@ public class TestCertificateManagement {
         }
     }
 
-    @Test public void testLoadX509FromPEM() {
+    @Test
+    public void testLoadX509FromPEM() {
         URL pemURL = getClass().getResource("/TestLoadX509.pem");
         Object o = PEMManager.loadX509FromPEM(pemURL.getPath());
         assertTrue(o instanceof X509Certificate);
     }
 
-    @Test public void testLoadPrivateKeyInfoFromPEM() {
+    @Test
+    public void testLoadPrivateKeyInfoFromPEM() {
         URL pemURL = getClass().getResource("/TestPrivateKeyInfo.pem");
         Object o = PEMManager.getPrivateKeyFromPEMFile(pemURL.getPath(), "changeit");
         assertTrue(o instanceof PrivateKey);
     }
 
-    @Test public void testLoadPEMKeyPairFromPEM() {
+    @Test
+    public void testLoadPEMKeyPairFromPEM() {
         URL pemURL = getClass().getResource("/TestEncryptedKeyPair.pem");
         Object o = PEMManager.getPrivateKeyFromPEMFile(pemURL.getPath(), "changeit");
         assertTrue(o instanceof PrivateKey);
     }
 
-    @Test public void testLoadPEMEncryptedKeyPairFromPEM() {
+    @Test
+    public void testLoadPEMEncryptedKeyPairFromPEM() {
         URL pemURL = getClass().getResource("/TestPEMEncryptedKeyPair.pem");
         Object o = PEMManager.getPrivateKeyFromPEMFile(pemURL.getPath(), "changeit");
         assertTrue(o instanceof PrivateKey);
