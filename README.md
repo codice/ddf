@@ -56,13 +56,13 @@ set MAVEN_OPTS='-Xmx512m -XX:MaxPermSize=128m'
 
 
 ### How to build ###
-In order to run through a full build, be sure to have a clone for all repositories (NOTE: daily snapshots are deployed so downloading and building each repo may not be necessary since those artifacts will be retrieved.):
+In order to run through a full build, be sure to have a clone for the ddf repository and optionally the ddf-support repository (NOTE: daily snapshots are deployed so downloading and building each repo may not be necessary since those artifacts will be retrieved.):
 
 ```
 git clone git://github.com/codice/ddf.git
-git clone ddf-support  (https://github.com/codice/ddf-support.git)
+git clone git://github.com/codice/ddf-support.git (Optional)
 ```
-Change to the top level directory of DDF source distribution.
+Change to the root directory of the cloned ddf repository. Run the following command:
 
 ```
 mvn install
