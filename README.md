@@ -60,7 +60,7 @@ In order to run through a full build, be sure to have a clone for the ddf reposi
 
 ```
 git clone git://github.com/codice/ddf.git
-git clone https://github.com/codice/ddf-support.git (Optional)
+git clone git://github.com/codice/ddf-support.git (Optional)
 ```
 Change to the root directory of the newly installed ddf repository. Run the following command:
 
