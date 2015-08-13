@@ -44,10 +44,17 @@
 #config-form {
     background-color: rgba(255, 255, 255, 1);
 }
+#security-form {
+    background-color: rgba(255, 255, 255, 1);
+}
 .error-text {
     color: red;
     padding-bottom: 20px;
     display: block;
+}
+.error-text-table {
+    .error-text;
+    padding-bottom: 0px;
 }
 .progress-text {
     position:relative;
@@ -136,3 +143,64 @@ center {
 .profile-option h2 {
     text-transform: capitalize;
 }
+
+.claims-warning {
+    color: #ffbc1a;
+}
+.claim-column {
+    display:inline-block;
+    vertical-align: top;
+    padding: 5px;
+}
+
+.claim-warn-column, .claim-remove-column{
+    .claim-column;
+    width: 30px;
+}
+.claim-name-column, .claim-value-column{
+    .claim-column;
+    width: 42%;
+}
+.row-container-div {
+    width: 100%;
+}
+
+.claim-column-header {
+    padding-bottom: 0px;
+    padding-top: 0px;
+    text-align: center;
+}
+
+.editable-list-div {
+    position: relative;
+    display: flex;
+}
+
+.editable-list-div .editable-list-button {
+    border-style: solid;
+    border-color: @bs-btn-success-background-color;
+    color: white;
+    background-color: @bs-btn-success-background-color;
+    border-radius: 3px;
+    padding-left: 1px;
+    padding-right: 1px;
+}
+.editable-list {
+    position: absolute;
+    background-color: white;
+    list-style-type: none;
+    padding-left: 10px;
+    border: thin solid;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.175);
+    border-radius: 3px;
+    z-index: 1000;
+}
+.selected-list-item {
+    background-color: #2c3e50;
+    color: white;
+}
+.highlighted-list-item {
+    background-color: #95a5a6;
+    color: white;
+}
+
