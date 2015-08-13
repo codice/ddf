@@ -1,23 +1,21 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.converter;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
@@ -56,24 +54,17 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
 import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-import org.xmlpull.v1.XmlPullParserFactory;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.XStreamException;
-import com.thoughtworks.xstream.converters.ConversionException;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.core.TreeMarshaller;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
-import com.thoughtworks.xstream.io.naming.NoNameCoder;
-import com.thoughtworks.xstream.io.xml.CompactWriter;
 import com.thoughtworks.xstream.io.xml.PrettyPrintWriter;
 import com.thoughtworks.xstream.io.xml.Xpp3Driver;
-import com.thoughtworks.xstream.io.xml.XppReader;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
@@ -128,10 +119,6 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
         }
         XSD_FACTORY = factory;
     }
-
-    protected XStreamAttributeCopier copier = new XStreamAttributeCopier();
-
-    protected NoNameCoder noNameCoder = new NoNameCoder();
 
     private XStream xstream;
 
@@ -288,7 +275,7 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
                 && metacard.getEffectiveDate() != null && metacard.getExpirationDate() != null) {
             StringBuilder sb = new StringBuilder();
             sb.append(ISODateTimeFormat.dateTime()
-                            .print(((Date) metacard.getEffectiveDate()).getTime())).append(" to ")
+                    .print(((Date) metacard.getEffectiveDate()).getTime())).append(" to ")
                     .append(ISODateTimeFormat.dateTime()
                             .print(((Date) metacard.getExpirationDate()).getTime()));
             writeValue(writer, context, null, CswRecordMetacardType.CSW_TEMPORAL_QNAME,
@@ -547,36 +534,13 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
         return object instanceof String;
     }
 
-    protected HierarchicalStreamReader copyXml(HierarchicalStreamReader hreader,
-            StringWriter writer, Map<String, String> attributeMap) {
-        copier.copyAttributes(hreader, new CompactWriter(writer, noNameCoder), attributeMap);
-
-        XmlPullParser parser = null;
-        try {
-            parser = XmlPullParserFactory.newInstance().newPullParser();
-        } catch (XmlPullParserException e) {
-            throw new ConversionException("Unable to create XmlPullParser, cannot parse XML.", e);
-        }
-
-        try {
-            // NOTE: must specify encoding here, otherwise the platform default
-            // encoding will be used which will not always work
-            return new XppReader(
-                    new InputStreamReader(IOUtils.toInputStream(writer.toString(), UTF8_ENCODING)),
-                    parser);
-        } catch (IOException e) {
-            LOGGER.warn("Unable create reader with UTF-8 encoding, Exception {}", e);
-            return new XppReader(new InputStreamReader(IOUtils.toInputStream(writer.toString())),
-                    parser);
-        }
-    }
-
     protected MetacardImpl createMetacardFromCswRecord(HierarchicalStreamReader hreader,
             Map<String, String> cswToMetacardAttributeNames, String resourceUriMapping,
             String thumbnailMapping, boolean isLatLonOrder, Map<String, String> namespaceMap) {
 
         StringWriter metadataWriter = new StringWriter();
-        HierarchicalStreamReader reader = copyXml(hreader, metadataWriter, namespaceMap);
+        HierarchicalStreamReader reader = XStreamAttributeCopier
+                .copyXml(hreader, metadataWriter, namespaceMap);
 
         MetacardImpl mc = new MetacardImpl(CSW_METACARD_TYPE);
         Map<String, Attribute> attributes = new TreeMap<>();
@@ -804,14 +768,14 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
     }
 
     @Override
-    public Metacard transform(InputStream inputStream) throws IOException,
-            CatalogTransformerException {
+    public Metacard transform(InputStream inputStream)
+            throws IOException, CatalogTransformerException {
         return transform(inputStream, null);
     }
 
     @Override
-    public Metacard transform(InputStream inputStream, String id) throws IOException,
-            CatalogTransformerException {
+    public Metacard transform(InputStream inputStream, String id)
+            throws IOException, CatalogTransformerException {
         Metacard metacard = null;
         try {
             metacard = (Metacard) xstream.fromXML(inputStream);
@@ -834,8 +798,8 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
     }
 
     @Override
-    public BinaryContent transform(Metacard metacard, Map<String, Serializable> arguments) throws
-            CatalogTransformerException {
+    public BinaryContent transform(Metacard metacard, Map<String, Serializable> arguments)
+            throws CatalogTransformerException {
         StringWriter stringWriter = new StringWriter();
         Boolean omitXmlDec = (Boolean) arguments.get(CswConstants.OMIT_XML_DECLARATION);
         if (omitXmlDec == null || !omitXmlDec) {

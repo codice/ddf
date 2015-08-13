@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.converter;
 
@@ -42,8 +41,6 @@ import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import com.thoughtworks.xstream.io.copy.HierarchicalStreamCopier;
-import com.thoughtworks.xstream.io.naming.NoNameCoder;
-import com.thoughtworks.xstream.io.xml.CompactWriter;
 import com.thoughtworks.xstream.io.xml.XppReader;
 import com.thoughtworks.xstream.io.xml.xppdom.XppFactory;
 
@@ -173,9 +170,11 @@ public class CswTransformProvider implements Converter {
         try (InputStream is = readXml(reader, context)) {
             InputStream inputStream = is;
             if (LOGGER.isDebugEnabled()) {
-                String originalInputStream = IOUtils.toString(inputStream, StandardCharsets.UTF_8.name());
+                String originalInputStream = IOUtils
+                        .toString(inputStream, StandardCharsets.UTF_8.name());
                 LOGGER.debug("About to transform\n{}", originalInputStream);
-                inputStream = new ByteArrayInputStream(originalInputStream.getBytes(StandardCharsets.UTF_8.name()));
+                inputStream = new ByteArrayInputStream(
+                        originalInputStream.getBytes(StandardCharsets.UTF_8.name()));
             }
             metacard = transformer.transform(inputStream);
         } catch (IOException | CatalogTransformerException e) {
@@ -195,11 +194,8 @@ public class CswTransformProvider implements Converter {
         }
 
         StringWriter writer = new StringWriter();
-        XStreamAttributeCopier copier = new XStreamAttributeCopier();
-        NoNameCoder noNameCoder = new NoNameCoder();
-        copier.copyAttributes(reader, new CompactWriter(writer, noNameCoder), namespaces);
+        XStreamAttributeCopier.copyXml(reader, writer, namespaces);
         return IOUtils.toInputStream(writer.toString(), StandardCharsets.UTF_8.name());
-
     }
 
     @Override
