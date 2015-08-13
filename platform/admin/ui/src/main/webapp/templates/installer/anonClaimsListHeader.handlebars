@@ -1,0 +1,52 @@
+{{!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ --}}
+ <div class='control-group'>
+     <div id="warning-div" style="display: none">
+         <ul class="fa-ul">
+             {{#each warnings}}
+                 <li> <i class="fa fa-exclamation-triangle fa-lg"></i> {{this.message}}</li>
+             {{/each}}
+         </ul>
+     </div>
+
+     <div class="header-container-div">
+         <div class="claim-info-column"/>
+         <div class="claim-name-column claim-column-header">
+             <label class='control-label claim-column-label'>Attribute Name</label>
+         </div>
+         <div class="claim-value-column claim-column-header">
+             <label class='control-label claim-column-label'>Attribute Value</label>
+         </div>
+         <div class="claim-remove-column"/>
+     </div>
+
+     <div id='listItems'>
+
+     </div>
+
+     <div class="footer-container-div">
+         <div class="claim-info-column"/>
+         <div class="claim-name-column"/>
+         <div class="claim-value-column"/>
+         <div class="claim-remove-column">
+             <div class="claim-bottom">
+                 <div class="btn-group">
+                     <a class="claim-add-attribute">Add Attribute</a>
+                 </div>
+             </div>
+         </div>
+     </div>
+
+
+</div>

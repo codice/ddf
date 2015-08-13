@@ -60,15 +60,15 @@ define([
             AppModule.installerMainController.fetchInstallProfiles().then(function(profiles){
                 if(profiles.isEmpty()){
                     installerModel.set('showInstallProfileStep', false);
-                    installerModel.setTotalSteps(3);
+                    installerModel.setTotalSteps(4);
                 } else {
                     installerModel.set('showInstallProfileStep', true);
-                    installerModel.setTotalSteps(4);
+                    installerModel.setTotalSteps(5);
                 }
             }).fail(function(error){
                 // fallback: just don't show the install profile steps.
                 installerModel.set('showInstallProfileStep', false);
-                installerModel.setTotalSteps(3);
+                installerModel.setTotalSteps(4);
                 if(console){
                     console.log(error);
                 }
