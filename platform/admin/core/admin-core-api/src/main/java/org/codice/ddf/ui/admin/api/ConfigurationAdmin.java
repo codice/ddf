@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -64,6 +64,8 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
 
     private final ConfigurationAdminExt configurationAdminExt;
 
+    private AnonClaimsHandlerExt anonClaimsHandlerExt;
+
     private ObjectName objectName;
 
     private MBeanServer mBeanServer;
@@ -77,16 +79,15 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
     /**
      * Constructor for use in unit tests. Needed for testing listServices() and getService().
      *
-     * @param configurationAdmin
-     *              instance of org.osgi.service.cm.ConfigurationAdmin service
-     * @param configurationAdminExt
-     *              mocked instance of ConfigurationAdminExt
+     * @param configurationAdmin    instance of org.osgi.service.cm.ConfigurationAdmin service
+     * @param configurationAdminExt mocked instance of ConfigurationAdminExt
      */
     public ConfigurationAdmin(org.osgi.service.cm.ConfigurationAdmin configurationAdmin,
             ConfigurationAdminExt configurationAdminExt) {
         this.configurationAdmin = configurationAdmin;
         this.configurationAdminExt = configurationAdminExt;
     }
+
     /**
      * Constructs a ConfigurationAdmin implementation
      *
@@ -471,6 +472,16 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
         return rval;
     }
 
+    @Override
+    public Map<String, Object> getClaimsConfiguration(String filter) {
+        Map<String, Object> config = this.getService(filter);
+        if (config != null && anonClaimsHandlerExt != null) {
+            config.put("claims", anonClaimsHandlerExt.getClaims());
+            config.put("profiles", anonClaimsHandlerExt.getClaimsProfiles());
+        }
+        return config;
+    }
+
     public Map<String, Object> enableConfiguration(String servicePid) throws IOException {
         if (StringUtils.isEmpty(servicePid)) {
             throw new IOException(
@@ -513,5 +524,9 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
      */
     void setMBeanServer(MBeanServer server) {
         mBeanServer = server;
+    }
+
+    public void setAnonClaimsHandlerExt(AnonClaimsHandlerExt anonClaimsHandlerExt) {
+        this.anonClaimsHandlerExt = anonClaimsHandlerExt;
     }
 }

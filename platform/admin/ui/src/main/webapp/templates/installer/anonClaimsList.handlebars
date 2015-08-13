@@ -1,0 +1,43 @@
+{{!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ --}}
+<div class="claim-info-column">
+    {{#if showInfo}}
+        <a href='#' class='claims-info'>
+            <i class="fa fa-info-circle fa-lg"></i>
+        </a>
+    {{/if}}
+</div>
+<div class="claim-name-column">
+    <div class="editable-list-div">
+        <input type='text' name='claimName' class="form-control editable-input editable-list-input" value='{{claimName}}'>
+        <a  href='#' class="editable-list-button"><i class="fa fa-caret-down"></i></a>
+        <ul class="editable-list" style="display: none">
+            {{#each availableClaims}}
+                <li class="editable-list-item {{#is this ../claimName}}selected-list-item{{/is}}" value="{{this}}">{{this}}</li>
+            {{/each}}
+        </ul>
+    </div>
+    <span class="error-text-table" name="{{claimNameId}}Error" style="display: none"></span>
+</div>
+<div class="claim-value-column">
+    <input type='text' name='claimValue' class="form-control editable-input" value='{{claimValue}}'>
+    <span class="error-text-table" name="{{claimValueId}}Error" style="display: none"></span>
+</div>
+<div class="claim-remove-column">
+    <a href="#" class="fa fa-minus-square fa-lg minus-button"></a>
+</div>
+
+
+
+

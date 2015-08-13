@@ -44,10 +44,17 @@
 #config-form {
     background-color: rgba(255, 255, 255, 1);
 }
+#security-form {
+    background-color: rgba(255, 255, 255, 1);
+}
 .error-text {
     color: red;
     padding-bottom: 20px;
     display: block;
+}
+.error-text-table {
+    .error-text;
+    padding-bottom: 0px;
 }
 .progress-text {
     position:relative;
@@ -136,3 +143,123 @@ center {
 .profile-option h2 {
     text-transform: capitalize;
 }
+
+.claims-info {
+    color: @bs-btn-success-background-color;
+}
+.claim-column {
+    display:inline-block;
+    vertical-align: top;
+    padding: 5px;
+}
+
+.claim-info-column, .claim-remove-column{
+    .claim-column;
+    width: 30px;
+}
+.claim-name-column, .claim-value-column{
+    .claim-column;
+    width: 42%;
+    min-width: 100px;
+}
+.row-container-div, .header-container-div, .footer-container-div{
+    width: 100%;
+    white-space: nowrap;
+    min-width: 250px;
+}
+
+.footer-container-div .claim-remove-column {
+    padding-right: 2px;
+}
+
+.claim-column-header {
+    padding-bottom: 0px;
+    padding-top: 0px;
+    text-align: center;
+}
+
+.editable-list-div {
+    position: relative;
+}
+
+.editable-list-div .editable-list-button {
+    border-style: solid;
+    border-color: @bs-btn-success-background-color;
+    color: white;
+    background-color: @bs-btn-success-background-color;
+    border-radius: 3px;
+    padding-left: 1px;
+    padding-right: 1px;
+    right: 0px;
+    position: absolute;
+}
+.editable-input {
+    padding: 1px;
+    display: inline-block;
+    height: 27px;
+}
+.editable-list-input {
+    .editable-input;
+    padding-right: 20px;
+}
+.editable-list {
+    position: absolute;
+    background-color: white;
+    list-style-type: none;
+    padding-left: 10px;
+    border: thin solid;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.175);
+    border-radius: 3px;
+    z-index: 1000;
+    max-height: 150px;
+    overflow-x: auto;
+    white-space: nowrap;
+}
+.selected-list-item {
+    background-color: #2c3e50;
+    color: white;
+}
+.highlighted-list-item {
+    background-color: #95a5a6;
+    color: white;
+}
+.claim-bottom {
+    float: right;
+}
+.claim-add-button(@mainColor) {
+    cursor: pointer;
+    background-color: @mainColor;
+    &:hover {
+        color: white;
+        text-decoration: none;
+        background-color: darken(@mainColor,15%);
+    }
+}
+.claim-add-attribute {
+    .claim-add-button(@bs-btn-success-background-color);
+    border: 1px solid transparent;
+    border-radius: 15px;
+    color: white;
+    padding: 5px 15px 5px 15px;
+    text-decoration: none;
+}
+#warning-div {
+    font-size: 12px;
+    font-weight: bold;
+    border-radius: 3px;
+    background-color: #ffbc1a;
+    margin: 10px;
+    padding-top: 5px;
+    padding-bottom: 1px;
+    overflow-x: hidden;
+    i {
+        color: white;
+        padding-right: 10px;
+    }
+    li {
+        padding-bottom: 10px;
+    }
+}
+
+
+
