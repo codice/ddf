@@ -13,6 +13,33 @@
  */
 package ddf.catalog.source.solr;
 
+import ddf.catalog.data.AttributeType.AttributeFormat;
+import ddf.catalog.data.ContentType;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardCreationException;
+import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.impl.ContentTypeImpl;
+import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.filter.FilterAdapter;
+import ddf.catalog.operation.CreateRequest;
+import ddf.catalog.operation.CreateResponse;
+import ddf.catalog.operation.DeleteRequest;
+import ddf.catalog.operation.DeleteResponse;
+import ddf.catalog.operation.QueryRequest;
+import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.operation.Update;
+import ddf.catalog.operation.UpdateRequest;
+import ddf.catalog.operation.UpdateResponse;
+import ddf.catalog.operation.impl.CreateResponseImpl;
+import ddf.catalog.operation.impl.DeleteResponseImpl;
+import ddf.catalog.operation.impl.UpdateImpl;
+import ddf.catalog.operation.impl.UpdateResponseImpl;
+import ddf.catalog.source.CatalogProvider;
+import ddf.catalog.source.IngestException;
+import ddf.catalog.source.SourceMonitor;
+import ddf.catalog.source.UnsupportedQueryException;
+import ddf.catalog.util.impl.MaskableImpl;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -43,33 +70,6 @@ import org.codice.solr.factory.ConfigurationStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.catalog.data.AttributeType.AttributeFormat;
-import ddf.catalog.data.ContentType;
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.MetacardCreationException;
-import ddf.catalog.data.impl.AttributeImpl;
-import ddf.catalog.data.impl.ContentTypeImpl;
-import ddf.catalog.data.impl.MetacardImpl;
-import ddf.catalog.filter.FilterAdapter;
-import ddf.catalog.operation.CreateRequest;
-import ddf.catalog.operation.CreateResponse;
-import ddf.catalog.operation.DeleteRequest;
-import ddf.catalog.operation.DeleteResponse;
-import ddf.catalog.operation.QueryRequest;
-import ddf.catalog.operation.SourceResponse;
-import ddf.catalog.operation.Update;
-import ddf.catalog.operation.UpdateRequest;
-import ddf.catalog.operation.UpdateResponse;
-import ddf.catalog.operation.impl.CreateResponseImpl;
-import ddf.catalog.operation.impl.DeleteResponseImpl;
-import ddf.catalog.operation.impl.UpdateImpl;
-import ddf.catalog.operation.impl.UpdateResponseImpl;
-import ddf.catalog.source.CatalogProvider;
-import ddf.catalog.source.IngestException;
-import ddf.catalog.source.SourceMonitor;
-import ddf.catalog.source.UnsupportedQueryException;
-import ddf.catalog.util.impl.MaskableImpl;
-
 /**
  * {@link CatalogProvider} implementation using Apache Solr 4+
  *
@@ -87,6 +87,8 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
     private static final String REQUEST_MUST_NOT_BE_NULL_MESSAGE = "Request must not be null";
 
     private static final double HASHMAP_DEFAULT_LOAD_FACTOR = 0.75;
+
+    private static final int DEFAULT_PAGING_SIZE = 1000;
 
     private static Properties describableProperties = new Properties();
 
@@ -460,6 +462,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
 
     @Override
     public DeleteResponse delete(DeleteRequest deleteRequest) throws IngestException {
+
         if (deleteRequest == null) {
             throw new IngestException(REQUEST_MUST_NOT_BE_NULL_MESSAGE);
         }
@@ -479,11 +482,12 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
             return new DeleteResponseImpl(deleteRequest, null, deletedMetacards);
         }
 
-        /* 1. Query first for the records */
+        if(identifiers.size() <= DEFAULT_PAGING_SIZE) {
+            LOGGER.error("identifiers.size() is less than default paging size");
         String fieldName = attributeName + SchemaFields.TEXT_SUFFIX;
         SolrQuery query = new SolrQuery(client.getIdentifierQuery(fieldName, identifiers));
         query.setRows(identifiers.size());
-
+        //TODO check what is in query...
         QueryResponse solrResponse;
         try {
             solrResponse = server.query(query, METHOD.POST);
@@ -492,7 +496,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
             throw new IngestException(COULD_NOT_COMPLETE_DELETE_REQUEST_MESSAGE);
         }
 
-        SolrDocumentList docs = solrResponse.getResults();
+        SolrDocumentList docs =  solrResponse.getResults();;
 
         for (SolrDocument doc : docs) {
             if (LOGGER.isDebugEnabled()) {
@@ -509,17 +513,102 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
 
         }
 
-        /* 2. Delete */
-        try {
-            // the assumption is if something was deleted, it should be gone
-            // right away, such as expired data, etc.
-            // so we force the commit
-            client.deleteByIds(fieldName, identifiers, true);
-        } catch (SolrServerException | IOException e) {
-            throw new IngestException(COULD_NOT_COMPLETE_DELETE_REQUEST_MESSAGE);
-        }
+            try {
+                // the assumption is if something was deleted, it should be gone
+                // right away, such as expired data, etc.
+                // so we force the commit
+                client.deleteByIds(fieldName, identifiers, true);
+            } catch (SolrServerException | IOException e) {
+                throw new IngestException(COULD_NOT_COMPLETE_DELETE_REQUEST_MESSAGE);
+            }
+        }else {
+            double deleteSize = 0;
+            List<? extends Serializable> identifierPaged = null;
+            int i=0;
+            for ( i = DEFAULT_PAGING_SIZE; i < identifiers.size(); i += DEFAULT_PAGING_SIZE) {
+                identifierPaged = identifiers.subList(i - DEFAULT_PAGING_SIZE, i);
 
+                String fieldName = attributeName + SchemaFields.TEXT_SUFFIX;
+                SolrQuery query = new SolrQuery(client.getIdentifierQuery(fieldName, identifierPaged));
+                query.setRows(identifierPaged.size());
+
+                QueryResponse solrResponse;
+                try {
+                    solrResponse = server.query(query, METHOD.POST);
+                } catch (SolrServerException e) {
+                    LOGGER.info("SOLR server exception deleting request message", e);
+                    throw new IngestException(COULD_NOT_COMPLETE_DELETE_REQUEST_MESSAGE);
+                }
+
+                SolrDocumentList docs =  solrResponse.getResults();;
+
+                for (SolrDocument doc : docs) {
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("SOLR DOC: {}",
+                                doc.getFieldValue(Metacard.ID + SchemaFields.TEXT_SUFFIX));
+                    }
+
+                    try {
+                        deletedMetacards.add(client.createMetacard(doc));
+                    } catch (MetacardCreationException e) {
+                        LOGGER.info("Metacard creation exception creating metacards during delete", e);
+                        throw new IngestException("Could not create metacard(s).");
+                    }
+
+                }
+
+
+                try {
+                    // the assumption is if something was deleted, it should be gone
+                    // right away, such as expired data, etc.
+                    // so we force the commit
+                    client.deleteByIds(fieldName, identifierPaged, true);
+                } catch (SolrServerException | IOException e) {
+                    throw new IngestException(COULD_NOT_COMPLETE_DELETE_REQUEST_MESSAGE);
+                }
+            }
+
+            identifierPaged = identifiers.subList(i - DEFAULT_PAGING_SIZE, identifiers.size());
+            String fieldName = attributeName + SchemaFields.TEXT_SUFFIX;
+            SolrQuery query = new SolrQuery(client.getIdentifierQuery(fieldName, identifierPaged));
+            query.setRows(identifierPaged.size());
+
+            QueryResponse solrResponse;
+            try {
+                solrResponse = server.query(query, METHOD.POST);
+            } catch (SolrServerException e) {
+                LOGGER.info("SOLR server exception deleting request message", e);
+                throw new IngestException(COULD_NOT_COMPLETE_DELETE_REQUEST_MESSAGE);
+            }
+
+            SolrDocumentList docs =  solrResponse.getResults();;
+
+            for (SolrDocument doc : docs) {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("SOLR DOC: {}",
+                            doc.getFieldValue(Metacard.ID + SchemaFields.TEXT_SUFFIX));
+                }
+
+                try {
+                    deletedMetacards.add(client.createMetacard(doc));
+                } catch (MetacardCreationException e) {
+                    LOGGER.info("Metacard creation exception creating metacards during delete", e);
+                    throw new IngestException("Could not create metacard(s).");
+                }
+
+            }
+
+            try {
+                // the assumption is if something was deleted, it should be gone
+                // right away, such as expired data, etc.
+                // so we force the commit
+                client.deleteByIds(fieldName, identifierPaged, true);
+            } catch (SolrServerException | IOException e) {
+                throw new IngestException(COULD_NOT_COMPLETE_DELETE_REQUEST_MESSAGE);
+            }
+        }
         return new DeleteResponseImpl(deleteRequest, null, deletedMetacards);
+
     }
 
     private void prepareForUpdate(Date now, String keyId, MetacardImpl newMetacard,
