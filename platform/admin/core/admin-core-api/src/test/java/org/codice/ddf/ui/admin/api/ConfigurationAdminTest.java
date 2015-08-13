@@ -731,9 +731,24 @@ public class ConfigurationAdminTest {
     public void testUpdate() throws Exception {
         org.osgi.service.cm.ConfigurationAdmin testConfigAdmin = mock(
                 org.osgi.service.cm.ConfigurationAdmin.class);
-        ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin);
+        ConfigurationAdminExt testConfigAdminExt = mock(ConfigurationAdminExt.class);
+        ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin, testConfigAdminExt);
+        List<Map<String, Object>> services = new ArrayList<>();
+        List<Map<String, Object>> metatype = new ArrayList<>();
+        Map<String, Object> service = new HashMap<>();
+        Map<String, Object> attributes = new HashMap<>();
+        service.put("metatype", metatype);
+        service.put("factory", false);
+        service.put("id", TEST_PID);
+        services.add(service);
+        attributes.put("id", TEST_KEY);
+        attributes.put("cardinality", 0);
+        attributes.put("type", 1);
+        metatype.add(attributes);
+        when(testConfigAdminExt.listServices(anyString(), anyString())).thenReturn(services);
 
         Configuration testConfig = mock(Configuration.class);
+        when(testConfig.getPid()).thenReturn(TEST_PID);
         Map<String, Object> testConfigTable = new Hashtable<>();
         testConfigTable.put(TEST_KEY, TEST_VALUE);
 
@@ -793,9 +808,24 @@ public class ConfigurationAdminTest {
     public void testUpdateNullValue() throws Exception {
         org.osgi.service.cm.ConfigurationAdmin testConfigAdmin = mock(
                 org.osgi.service.cm.ConfigurationAdmin.class);
-        ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin);
+        ConfigurationAdminExt testConfigAdminExt = mock(ConfigurationAdminExt.class);
+        ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin, testConfigAdminExt);
+        List<Map<String, Object>> services = new ArrayList<>();
+        List<Map<String, Object>> metatype = new ArrayList<>();
+        Map<String, Object> service = new HashMap<>();
+        Map<String, Object> attributes = new HashMap<>();
+        service.put("metatype", metatype);
+        service.put("factory", false);
+        service.put("id", TEST_PID);
+        services.add(service);
+        attributes.put("id", TEST_KEY);
+        attributes.put("cardinality", 0);
+        attributes.put("type", 1);
+        metatype.add(attributes);
+        when(testConfigAdminExt.listServices(anyString(), anyString())).thenReturn(services);
 
         Configuration testConfig = mock(Configuration.class);
+        when(testConfig.getPid()).thenReturn(TEST_PID);
         Map<String, Object> testConfigTable = new HashMap<>();
         testConfigTable.put(TEST_KEY, null);
 

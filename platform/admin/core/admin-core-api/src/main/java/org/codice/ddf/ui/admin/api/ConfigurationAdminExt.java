@@ -58,7 +58,7 @@ public class ConfigurationAdminExt {
 
     private static final String DISABLED_SERVICE_ID = "_disabled";
 
-    private static final String MAP_ENTRY_ID = "id";
+    public static final String MAP_ENTRY_ID = "id";
 
     private static final String MAP_ENTRY_FPID = "fpid";
 
@@ -72,21 +72,21 @@ public class ConfigurationAdminExt {
 
     private static final String MAP_ENTRY_PROPERTIES = "properties";
 
-    private static final String MAP_ENTRY_METATYPE = "metatype";
+    public static final String MAP_ENTRY_METATYPE = "metatype";
 
-    private static final String MAP_ENTRY_CARDINALITY = "cardinality";
+    public static final String MAP_ENTRY_CARDINALITY = "cardinality";
 
     private static final String MAP_ENTRY_DEFAULT_VALUE = "defaultValue";
 
     private static final String MAP_ENTRY_DESCRIPTION = "description";
 
-    private static final String MAP_ENTRY_TYPE = "type";
+    public static final String MAP_ENTRY_TYPE = "type";
 
     private static final String MAP_ENTRY_OPTION_LABELS = "optionLabels";
 
     private static final String MAP_ENTRY_OPTION_VALUES = "optionValues";
 
-    private static final String MAP_FACTORY = "factory";
+    public static final String MAP_FACTORY = "factory";
 
     /**
      * The implementation of the {@link IdGetter} interface returning the PIDs listed in the meta
