@@ -19,9 +19,10 @@ define([
         'js/model/Metacard',
         'usngs',
         'js/model/Filter',
+        'wreqr',
         'backboneassociations'
     ],
-    function (Backbone, _, properties, moment, Metacard, usngs, Filter) {
+    function (Backbone, _, properties, moment, Metacard, usngs, Filter, wreqr) {
         "use strict";
         var Query = {};
 
@@ -70,6 +71,7 @@ define([
                 this.listenTo(this, 'change:usng', this.setRadiusUsng);
                 this.listenTo(this, 'EndExtent', this.notDrawing);
                 this.listenTo(this, 'BeginExtent', this.drawingOn);
+                this.listenTo(wreqr.vent, 'query:clearFilters', this.clearFilters);
 
                 this.filters = new Filter.Collection();
 
@@ -429,10 +431,15 @@ define([
                 this.trigger('searchCleared');
             },
 
+            clearFilters: function() {
+                this.filters.reset(this.toFilters());
+            },
 
             buildSearchData: function(){
                 var data = this.toJSON();
-                this.filters.reset(this.toFilters()); // init filters from search parameters.
+                if(this.filters.length === 0){
+                    this.clearFilters(); // init filters from search parameters.
+                }
                 // this overrides the cql generation with the filters cql.
                 data.cql = this.filters.toCQL();
 
