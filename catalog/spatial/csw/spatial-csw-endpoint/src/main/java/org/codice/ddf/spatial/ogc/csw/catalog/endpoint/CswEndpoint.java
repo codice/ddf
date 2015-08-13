@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.endpoint;
 
@@ -63,6 +62,8 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordByIdRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordsRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequest;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.DeleteTransaction;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.InsertTransaction;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.DefaultCswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings.CswRecordMapperFilterVisitor;
 import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;
@@ -96,9 +97,11 @@ import ddf.catalog.filter.FilterDelegate;
 import ddf.catalog.filter.impl.SortByImpl;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
+import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.impl.CreateRequestImpl;
+import ddf.catalog.operation.impl.DeleteRequestImpl;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.IngestException;
@@ -114,6 +117,7 @@ import net.opengis.cat.csw.v_2_0_2.GetRecordByIdType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.InsertResultType;
 import net.opengis.cat.csw.v_2_0_2.ObjectFactory;
+import net.opengis.cat.csw.v_2_0_2.QueryConstraintType;
 import net.opengis.cat.csw.v_2_0_2.QueryType;
 import net.opengis.cat.csw.v_2_0_2.ResultType;
 import net.opengis.cat.csw.v_2_0_2.SchemaComponentType;
@@ -246,8 +250,8 @@ public class CswEndpoint implements Csw {
 
     @Override
     @GET
-    @Consumes({"text/xml", "application/xml"})
-    @Produces({"text/xml", "application/xml"})
+    @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
+    @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
     public CapabilitiesType getCapabilities(@QueryParam("") GetCapabilitiesRequest request)
             throws CswException {
 
@@ -268,8 +272,8 @@ public class CswEndpoint implements Csw {
 
     @Override
     @POST
-    @Consumes({"text/xml", "application/xml"})
-    @Produces({"text/xml", "application/xml"})
+    @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
+    @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
     public CapabilitiesType getCapabilities(GetCapabilitiesType request) throws CswException {
         capabilitiesType = buildCapabilitiesType();
 
@@ -287,8 +291,8 @@ public class CswEndpoint implements Csw {
 
     @Override
     @GET
-    @Consumes({"text/xml", "application/xml"})
-    @Produces({"text/xml", "application/xml"})
+    @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
+    @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
     public DescribeRecordResponseType describeRecord(@QueryParam("") DescribeRecordRequest request)
             throws CswException {
 
@@ -317,8 +321,8 @@ public class CswEndpoint implements Csw {
 
     @Override
     @POST
-    @Consumes({"text/xml", "application/xml"})
-    @Produces({"text/xml", "application/xml"})
+    @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
+    @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
     public DescribeRecordResponseType describeRecord(DescribeRecordType request)
             throws CswException {
 
@@ -386,8 +390,8 @@ public class CswEndpoint implements Csw {
 
     @Override
     @GET
-    @Consumes({"text/xml", "application/xml"})
-    @Produces({"text/xml", "application/xml"})
+    @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
+    @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
     public CswRecordCollection getRecordById(@QueryParam("") GetRecordByIdRequest request)
             throws CswException {
         if (request == null) {
@@ -417,8 +421,8 @@ public class CswEndpoint implements Csw {
 
     @Override
     @POST
-    @Consumes({"text/xml", "application/xml"})
-    @Produces({"text/xml", "application/xml"})
+    @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
+    @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
     public CswRecordCollection getRecordById(GetRecordByIdType request) throws CswException {
         if (request == null) {
             throw new CswException("GetRecordByIdRequest request is null");
@@ -445,11 +449,11 @@ public class CswEndpoint implements Csw {
 
     @Override
     @POST
-    @Consumes({"text/xml", "application/xml"})
-    @Produces({"text/xml", "application/xml"})
+    @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
+    @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
     public TransactionResponseType transaction(CswTransactionRequest request) throws CswException {
         if (request == null) {
-            throw new CswException("DescribeRecordRequest request is null");
+            throw new CswException("TransactionRequest request is null");
         }
 
         TransactionResponseType response = new TransactionResponseType();
@@ -458,21 +462,35 @@ public class CswEndpoint implements Csw {
         summary.setTotalUpdated(BigInteger.valueOf(0));
         summary.setTotalDeleted(BigInteger.valueOf(0));
         response.setTransactionSummary(summary);
-        if (request.getInsertTransaction() != null) {
-            CreateRequest createRequest = new CreateRequestImpl(
-                    request.getInsertTransaction().getRecords());
+        response.setVersion(CswConstants.VERSION_2_0_2);
+
+        int numInserted = 0;
+        for (InsertTransaction insertTransaction : request.getInsertTransactions()) {
+            CreateRequest createRequest = new CreateRequestImpl(insertTransaction.getRecords());
             try {
                 CreateResponse createResponse = framework.create(createRequest);
                 if (request.isVerbose()) {
                     response.getInsertResult().add(getInsertResultFromResponse(createResponse));
                 }
-                response.setVersion(CswConstants.VERSION_2_0_2);
-                summary.setTotalInserted(
-                        BigInteger.valueOf(createResponse.getCreatedMetacards().size()));
+
+                numInserted += createResponse.getCreatedMetacards().size();
             } catch (IngestException | SourceUnavailableException e) {
                 LOGGER.error("Unable to ingest records", e);
             }
         }
+        response.getTransactionSummary().setTotalInserted(BigInteger.valueOf(numInserted));
+
+        int numDeleted = 0;
+        for (DeleteTransaction deleteTransaction : request.getDeleteTransactions()) {
+            try {
+                numDeleted += deleteRecords(deleteTransaction);
+            } catch (FederationException | IngestException | SourceUnavailableException |
+                    UnsupportedQueryException e) {
+                LOGGER.error("Unable to delete records", e);
+            }
+        }
+        response.getTransactionSummary().setTotalDeleted(BigInteger.valueOf(numDeleted));
+
         return response;
     }
 
@@ -521,9 +539,41 @@ public class CswEndpoint implements Csw {
         return result;
     }
 
+    private int deleteRecords(DeleteTransaction deleteTransaction)
+            throws CswException, FederationException, IngestException, SourceUnavailableException,
+            UnsupportedQueryException {
+        List<QName> qNames = typeStringToQNames(deleteTransaction.getTypeName(),
+                deleteTransaction.getPrefixToUriMappings());
+        Filter filter = buildFilter(deleteTransaction.getConstraint(), qNames).getVisitedFilter();
+        QueryImpl query = new QueryImpl(filter);
+        query.setPageSize(-1);
+
+        QueryRequest queryRequest = new QueryRequestImpl(query);
+        QueryResponse response = framework.query(queryRequest);
+
+        List<String> ids = new ArrayList<>();
+
+        for (Result result : response.getResults()) {
+            if (result != null && result.getMetacard() != null) {
+                ids.add(result.getMetacard().getId());
+            }
+        }
+
+        if (ids.size() > 0) {
+            DeleteRequestImpl deleteRequest = new DeleteRequestImpl(
+                    ids.toArray(new String[ids.size()]));
+
+            DeleteResponse deleteResponse = framework.delete(deleteRequest);
+
+            return deleteResponse.getDeletedMetacards().size();
+        }
+
+        return 0;
+    }
+
     @GET
-    @Consumes({"text/xml", "application/xml"})
-    @Produces({"text/xml", "application/xml"})
+    @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
+    @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
     public void unknownService(@QueryParam("") CswRequest request) throws CswException {
         if (request.getService() == null) {
             throw new CswException("Missing service value", CswConstants.MISSING_PARAMETER_VALUE,
@@ -534,23 +584,23 @@ public class CswEndpoint implements Csw {
     }
 
     @POST
-    @Consumes({"text/xml", "application/xml"})
-    @Produces({"text/xml", "application/xml"})
+    @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
+    @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
     public void unknownService() throws CswException {
         throw new CswException("Unknown Service", CswConstants.INVALID_PARAMETER_VALUE, "service");
     }
 
     @GET
-    @Consumes({"text/xml", "application/xml"})
-    @Produces({"text/xml", "application/xml"})
+    @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
+    @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
     public void unknownOperation(@QueryParam("") CswRequest request) throws CswException {
         throw new CswException("No such operation: " + request.getRequest(),
                 CswConstants.OPERATION_NOT_SUPPORTED, request.getRequest());
     }
 
     @POST
-    @Consumes({"text/xml", "application/xml"})
-    @Produces({"text/xml", "application/xml"})
+    @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
+    @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
     public void unknownOperation() throws CswException {
         throw new CswException("No such operation", CswConstants.OPERATION_NOT_SUPPORTED, null);
     }
@@ -715,7 +765,8 @@ public class CswEndpoint implements Csw {
 
         if (ResultType.HITS.equals(request.getResultType()) || ResultType.RESULTS
                 .equals(request.getResultType())) {
-            CswRecordMapperFilterVisitor filterVisitor = buildFilter(query);
+            CswRecordMapperFilterVisitor filterVisitor = buildFilter(query.getConstraint(),
+                    query.getTypeNames());
             QueryImpl frameworkQuery = new QueryImpl(filterVisitor.getVisitedFilter());
             frameworkQuery.setSortBy(buildSort(query.getSortBy()));
 
@@ -757,18 +808,19 @@ public class CswEndpoint implements Csw {
         return response;
     }
 
-    private CswRecordMapperFilterVisitor buildFilter(QueryType query) throws CswException {
+    private CswRecordMapperFilterVisitor buildFilter(QueryConstraintType constraint,
+            List<QName> typeNames) throws CswException {
         CswRecordMapperFilterVisitor visitor = new CswRecordMapperFilterVisitor();
         Filter filter = null;
-        if (query.getConstraint() != null) {
-            if (query.getConstraint().isSetCqlText()) {
+        if (constraint != null) {
+            if (constraint.isSetCqlText()) {
                 try {
-                    filter = CQL.toFilter(query.getConstraint().getCqlText());
+                    filter = CQL.toFilter(constraint.getCqlText());
                 } catch (CQLException e) {
                     throw new CswException("Unable to parse CQL Constraint: " + e.getMessage(), e);
                 }
-            } else if (query.getConstraint().isSetFilter()) {
-                FilterType constraintFilter = query.getConstraint().getFilter();
+            } else if (constraint.isSetFilter()) {
+                FilterType constraintFilter = constraint.getFilter();
                 filter = parseFilter(constraintFilter);
             }
         } else {
@@ -782,7 +834,7 @@ public class CswEndpoint implements Csw {
                     null);
         }
         visitor.setVisitedFilter(filter);
-        if (query.getTypeNames().contains(
+        if (typeNames.contains(
                 new QName(CswConstants.CSW_OUTPUT_SCHEMA, CswConstants.CSW_RECORD_LOCAL_NAME,
                         CswConstants.CSW_NAMESPACE_PREFIX))) {
 

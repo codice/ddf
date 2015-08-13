@@ -1,23 +1,19 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.converter;
 
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.measure.converter.ConversionException;
@@ -202,7 +198,7 @@ public class GetRecordsResponseConverter implements Converter {
         CswRecordCollection cswRecords = new CswRecordCollection();
         List<Metacard> metacards = cswRecords.getCswRecords();
 
-        parseXmlNamespaceDeclarations(reader, context);
+        XStreamAttributeCopier.copyXmlNamespaceDeclarationsIntoContext(reader, context);
         while (reader.hasMoreChildren()) {
             reader.moveDown();
 
@@ -246,22 +242,6 @@ public class GetRecordsResponseConverter implements Converter {
         }
 
         return cswRecords;
-    }
-
-    private void parseXmlNamespaceDeclarations(HierarchicalStreamReader reader,
-            UnmarshallingContext context) {
-        Map<String, String> namespaces = new HashMap<>();
-        Iterator<String> attributeNames = reader.getAttributeNames();
-        while (attributeNames.hasNext()) {
-            String name = attributeNames.next();
-            if (StringUtils.startsWith(name, CswConstants.XMLNS)) {
-                String attributeValue = reader.getAttribute(name);
-                namespaces.put(name, attributeValue);
-            }
-        }
-        if (!namespaces.isEmpty()) {
-            context.put(CswConstants.WRITE_NAMESPACES, namespaces);
-        }
     }
 
     private void setSearchResults(HierarchicalStreamReader reader, CswRecordCollection cswRecords) {

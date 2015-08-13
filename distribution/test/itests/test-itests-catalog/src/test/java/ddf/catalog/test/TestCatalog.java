@@ -27,6 +27,8 @@ import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
 
+import javax.ws.rs.core.MediaType;
+
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -130,16 +132,77 @@ public class TestCatalog extends AbstractIntegrationTest {
         deleteMetacard(id4);
     }
 
+    private ValidatableResponse ingestCswRecord() {
+        return given().header("Content-Type", MediaType.APPLICATION_XML)
+                .body(Library.getCswIngest()).post(CSW_ENDPOINT).then();
+    }
+
     @Test
     public void testCswIngest() {
-        ValidatableResponse response = given().header("Content-Type", "application/xml")
-                .body(Library.getCswIngest()).post(CSW_ENDPOINT).then();
+        ValidatableResponse response = ingestCswRecord();
+
         response.body(hasXPath("//TransactionResponse/TransactionSummary/totalInserted", is("1")),
                 hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("0")),
                 hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("0")),
                 hasXPath("//TransactionResponse/InsertResult/BriefRecord/title",
                         is("Aliquam fermentum purus quis arcu")),
                 hasXPath("//TransactionResponse/InsertResult/BriefRecord/BoundingBox"));
+    }
+
+    @Test
+    public void testCswDeleteOneWithFilter() {
+        ingestCswRecord();
+
+        ValidatableResponse response = given().header("Content-Type", MediaType.APPLICATION_XML)
+                .body(Library.getCswFilterDelete()).post(CSW_ENDPOINT).then();
+        response.body(hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("1")),
+                hasXPath("//TransactionResponse/TransactionSummary/totalInserted", is("0")),
+                hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("0")));
+    }
+
+    @Test
+    public void testCswDeleteOneWithCQL() {
+        ingestCswRecord();
+
+        ValidatableResponse response = given().header("Content-Type", MediaType.APPLICATION_XML)
+                .body(Library.getCswCqlDelete()).post(CSW_ENDPOINT).then();
+        response.body(hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("1")),
+                hasXPath("//TransactionResponse/TransactionSummary/totalInserted", is("0")),
+                hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("0")));
+    }
+
+    @Test
+    public void testCswDeleteNone() {
+        ingestCswRecord();
+
+        ValidatableResponse response = given().header("Content-Type", MediaType.APPLICATION_XML)
+                .body(Library.getCswCqlDeleteNone()).post(CSW_ENDPOINT).then();
+        response.body(hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("0")),
+                hasXPath("//TransactionResponse/TransactionSummary/totalInserted", is("0")),
+                hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("0")));
+    }
+
+    @Test
+    public void testCombinedCswIngestAndDelete() {
+        ingestCswRecord();
+
+        ValidatableResponse response = given().header("Content-Type", MediaType.APPLICATION_XML)
+                .body(Library.getCombinedCswInsertAndDelete()).post(CSW_ENDPOINT).then();
+        response.body(hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("1")),
+                hasXPath("//TransactionResponse/TransactionSummary/totalInserted", is("1")),
+                hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("0")));
+    }
+
+    @Test
+    public void testCswDeleteMultiple() {
+        ingestCswRecord();
+        ingestCswRecord();
+
+        ValidatableResponse response = given().header("Content-Type", MediaType.APPLICATION_XML)
+                .body(Library.getCswFilterDelete()).post(CSW_ENDPOINT).then();
+        response.body(hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("2")),
+                hasXPath("//TransactionResponse/TransactionSummary/totalInserted", is("0")),
+                hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("0")));
     }
 
     @Test
