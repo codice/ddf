@@ -69,6 +69,8 @@ public class SolrMetacardClient {
 
     private final DynamicSchemaResolver resolver;
 
+    private static final int DEFAULT_PAGING_SIZE = 1000;
+
     public SolrMetacardClient(SolrServer solrServer, FilterAdapter catalogFilterAdapter,
             SolrFilterDelegateFactory solrFilterDelegateFactory,
             DynamicSchemaResolver dynamicSchemaResolver) {
@@ -152,7 +154,7 @@ public class SolrMetacardClient {
     }
 
     protected SolrQuery getSolrQuery(QueryRequest request, SolrFilterDelegate solrFilterDelegate)
-        throws UnsupportedQueryException {
+            throws UnsupportedQueryException {
         solrFilterDelegate.setSortPolicy(request.getQuery().getSortBy());
         SolrQuery query = filterAdapter.adapt(request.getQuery(), solrFilterDelegate);
 
@@ -227,7 +229,7 @@ public class SolrMetacardClient {
     }
 
     private ResultImpl createResult(SolrDocument doc, String sortProperty)
-        throws MetacardCreationException {
+            throws MetacardCreationException {
         ResultImpl result = new ResultImpl(createMetacard(doc));
 
         if (doc.get(RELEVANCE_SORT_FIELD) != null) {
@@ -271,7 +273,7 @@ public class SolrMetacardClient {
     }
 
     public List<SolrInputDocument> add(List<Metacard> metacards, boolean forceAutoCommit)
-        throws IOException, SolrServerException, MetacardCreationException {
+            throws IOException, SolrServerException, MetacardCreationException {
         if (metacards == null || metacards.size() == 0) {
             return null;
         }
@@ -291,7 +293,7 @@ public class SolrMetacardClient {
     }
 
     protected SolrInputDocument getSolrInputDocument(Metacard metacard)
-        throws MetacardCreationException {
+            throws MetacardCreationException {
         SolrInputDocument solrInputDocument = new SolrInputDocument();
 
         resolver.addFields(metacard, solrInputDocument);
@@ -314,7 +316,17 @@ public class SolrMetacardClient {
             });
             server.deleteById((List<String>) identifiers);
         } else {
-            server.deleteByQuery(getIdentifierQuery(fieldName, identifiers));
+            if (identifiers.size() < DEFAULT_PAGING_SIZE) {
+                server.deleteByQuery(getIdentifierQuery(fieldName, identifiers));
+            } else {
+                int i = 0;
+                for (i = DEFAULT_PAGING_SIZE; i < identifiers.size(); i += DEFAULT_PAGING_SIZE) {
+                    server.deleteByQuery(getIdentifierQuery(fieldName,
+                            identifiers.subList(i - DEFAULT_PAGING_SIZE, i)));
+                }
+                server.deleteByQuery(getIdentifierQuery(fieldName,
+                        identifiers.subList(i - DEFAULT_PAGING_SIZE, identifiers.size())));
+            }
         }
 
         if (forceCommit) {
