@@ -116,7 +116,8 @@ public class XStreamAttributeCopier {
     /**
      * Copies the namespace declarations on the XML element {@code reader} is currently at into
      * {@code context}. The namespace declarations will be available in {@code context} at the key
-     * {@link CswConstants#WRITE_NAMESPACES}.
+     * {@link CswConstants#WRITE_NAMESPACES}. The new namespace declarations will be added to any
+     * existing ones already in {@code context}.
      *
      * @param reader  the reader currently at the XML element with namespace declarations you want
      *                to copy
@@ -125,7 +126,14 @@ public class XStreamAttributeCopier {
      */
     public static void copyXmlNamespaceDeclarationsIntoContext(HierarchicalStreamReader reader,
             UnmarshallingContext context) {
-        Map<String, String> namespaces = new HashMap<>();
+        @SuppressWarnings("unchecked")
+        Map<String, String> namespaces = (Map<String, String>) context
+                .get(CswConstants.WRITE_NAMESPACES);
+
+        if (namespaces == null) {
+            namespaces = new HashMap<>();
+        }
+
         @SuppressWarnings("unchecked")
         Iterator<String> attributeNames = reader.getAttributeNames();
         while (attributeNames.hasNext()) {

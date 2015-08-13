@@ -534,6 +534,58 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
         return object instanceof String;
     }
 
+    /**
+     * Converts an attribute name to the csw:Record attribute it corresponds to.
+     *
+     * @param attributeName  the name of the attribute
+     * @return the name of the csw:Record attribute that this attribute name corresponds to
+     */
+    public static String getCswAttributeFromAttributeName(String attributeName) {
+        // Remove the prefix if it exists
+        if (StringUtils.contains(attributeName, CswConstants.NAMESPACE_DELIMITER)) {
+            attributeName = StringUtils.split(attributeName, CswConstants.NAMESPACE_DELIMITER)[1];
+        }
+
+        // Some attribute names overlap with basic Metacard attribute names,
+        // e.g., "title".
+        // So if this is one of those attribute names, get the CSW
+        // attribute for the name to be looked up.
+        return convertToCswField(attributeName);
+    }
+
+    /**
+     * Takes a CSW attribute as a name and value and returns an {@link Attribute} whose value is
+     * {@code cswAttributeValue} converted to the type of the attribute
+     * {@code metacardAttributeName} in a {@link Metacard}.
+     *
+     * @param cswAttributeName  the name of the CSW attribute
+     * @param cswAttributeValue  the value of the CSW attribute
+     * @param metacardAttributeName  the name of the {@code Metacard} attribute whose type
+     *                               {@code cswAttributeValue} will be converted to
+     * @return an {@code Attribute} with the name {@code metacardAttributeName} and the value
+     *         {@code cswAttributeValue} converted to the type of the attribute
+     *         {@code metacardAttributeName} in a {@code Metacard}.
+     */
+    public static Attribute getMetacardAttributeFromCswAttribute(String cswAttributeName,
+            Serializable cswAttributeValue, String metacardAttributeName) {
+        AttributeFormat cswAttributeFormat = CSW_METACARD_TYPE
+                .getAttributeDescriptor(cswAttributeName).getType().getAttributeFormat();
+        AttributeDescriptor metacardAttributeDescriptor = CSW_METACARD_TYPE
+                .getAttributeDescriptor(metacardAttributeName);
+        AttributeFormat metacardAttrFormat = metacardAttributeDescriptor.getType()
+                .getAttributeFormat();
+        LOGGER.debug("Setting overlapping Metacard attribute [{}] to value in "
+                        + "CSW attribute [{}] that has value [{}] and format {}",
+                metacardAttributeName, cswAttributeName, cswAttributeValue, metacardAttrFormat);
+        if (cswAttributeFormat.equals(metacardAttrFormat)) {
+            return new AttributeImpl(metacardAttributeName, cswAttributeValue);
+        } else {
+            Serializable value = convertStringValueToMetacardValue(metacardAttrFormat,
+                    cswAttributeValue.toString());
+            return new AttributeImpl(metacardAttributeName, value);
+        }
+    }
+
     protected MetacardImpl createMetacardFromCswRecord(HierarchicalStreamReader hreader,
             Map<String, String> cswToMetacardAttributeNames, String resourceUriMapping,
             String thumbnailMapping, boolean isLatLonOrder, Map<String, String> namespaceMap) {
@@ -551,17 +603,7 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
             String nodeName = reader.getNodeName();
             LOGGER.debug("node name: {}.", nodeName);
 
-            // Remove the prefix if it exists
-            String name = nodeName;
-            if (StringUtils.contains(nodeName, CswConstants.NAMESPACE_DELIMITER)) {
-                name = StringUtils.split(nodeName, CswConstants.NAMESPACE_DELIMITER)[1];
-            }
-
-            // Some attribute names overlap with basic Metacard attribute names,
-            // e.g., "title".
-            // So if this is one of those attribute names, get the CSW
-            // attribute for the name to be looked up.
-            name = convertToCswField(name);
+            String name = getCswAttributeFromAttributeName(nodeName);
 
             LOGGER.debug("Processing node {}", name);
             AttributeDescriptor attributeDescriptor = CSW_METACARD_TYPE
@@ -614,22 +656,9 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
             if (cswToMetacardAttributeNames.containsKey(attrName)) {
                 String metacardAttrName = cswToMetacardAttributeNames.get(attrName);
                 if (mc.getAttribute(metacardAttrName) == null) {
-                    AttributeFormat cswAttributeFormat = CSW_METACARD_TYPE
-                            .getAttributeDescriptor(attrName).getType().getAttributeFormat();
-                    AttributeDescriptor metacardAttributeDescriptor = CSW_METACARD_TYPE
-                            .getAttributeDescriptor(metacardAttrName);
-                    AttributeFormat metacardAttrFormat = metacardAttributeDescriptor.getType()
-                            .getAttributeFormat();
-                    LOGGER.debug("Setting overlapping Metacard attribute [{}] to value in "
-                                    + "CSW attribute [{}] that has value [{}] and format {}",
-                            metacardAttrName, attrName, attr.getValue(), metacardAttrFormat);
-                    if (cswAttributeFormat.equals(metacardAttrFormat)) {
-                        mc.setAttribute(metacardAttrName, attr.getValue());
-                    } else {
-                        Serializable value = convertStringValueToMetacardValue(metacardAttrFormat,
-                                attr.getValue().toString());
-                        mc.setAttribute(metacardAttrName, value);
-                    }
+                    Attribute metacardAttr = getMetacardAttributeFromCswAttribute(attrName,
+                            attr.getValue(), metacardAttrName);
+                    mc.setAttribute(metacardAttr);
                 }
             }
         }
@@ -703,7 +732,7 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
         return mc;
     }
 
-    private String convertToCswField(String name) {
+    private static String convertToCswField(String name) {
         if (CSW_OVERLAPPING_ATTRIBUTE_NAMES.contains(name)) {
             return CswRecordMetacardType.CSW_ATTRIBUTE_PREFIX + name;
         }
@@ -711,14 +740,20 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
     }
 
     /**
-     * Converts the CSW record property to the specified Metacard attribute format.
+     * Converts the CSW record property {@code reader} is currently at to the specified Metacard
+     * attribute format.
      *
-     * @param attributeFormat
-     * @param reader
-     * @return
+     * @param attributeFormat  the {@link AttributeFormat} corresponding to the type that the value
+     *                         in {@code reader} should be converted to
+     * @param reader  the reader at the element whose value you want to convert
+     * @param isLonLatOrder  whether the coordinates in the XML being read by {@code reader} are in
+     *                       (longitude, latitude) order
+     * @return the value that was extracted from {@code reader} and is of the type described by
+     *         {@code attributeFormat}
      */
-    protected Serializable convertRecordPropertyToMetacardAttribute(AttributeFormat attributeFormat,
-            HierarchicalStreamReader reader, boolean isLonLatOrder) {
+    public static Serializable convertRecordPropertyToMetacardAttribute(
+            AttributeFormat attributeFormat, HierarchicalStreamReader reader,
+            boolean isLonLatOrder) {
         LOGGER.debug("converting csw record property {}", reader.getValue());
         Serializable ser = null;
         switch (attributeFormat) {

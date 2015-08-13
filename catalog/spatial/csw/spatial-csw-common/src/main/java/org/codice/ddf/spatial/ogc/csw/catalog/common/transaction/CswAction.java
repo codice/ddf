@@ -24,19 +24,16 @@ public abstract class CswAction {
     // This gets used in case of exception
     protected String handle;
 
+    public CswAction(String typeName, String handle) {
+        this.typeName = typeName;
+        this.handle = handle;
+    }
+
     public String getTypeName() {
         return typeName;
     }
 
-    public void setTypeName(String typeName) {
-        this.typeName = typeName;
-    }
-
     public String getHandle() {
         return handle;
-    }
-
-    public void setHandle(String handle) {
-        this.handle = handle;
     }
 }
