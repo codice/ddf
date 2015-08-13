@@ -17,6 +17,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.math.BigInteger;
@@ -29,6 +30,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.ws.rs.Consumes;
@@ -64,6 +66,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordsRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.DeleteAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.InsertAction;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.UpdateAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.DefaultCswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings.CswRecordMapperFilterVisitor;
 import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;
@@ -89,8 +92,10 @@ import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 
 import ddf.catalog.CatalogFramework;
+import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.FilterDelegate;
@@ -100,10 +105,13 @@ import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
+import ddf.catalog.operation.UpdateRequest;
+import ddf.catalog.operation.UpdateResponse;
 import ddf.catalog.operation.impl.CreateRequestImpl;
 import ddf.catalog.operation.impl.DeleteRequestImpl;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
+import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
@@ -475,18 +483,29 @@ public class CswEndpoint implements Csw {
 
                 numInserted += createResponse.getCreatedMetacards().size();
             } catch (IngestException | SourceUnavailableException e) {
-                LOGGER.error("Unable to ingest records", e);
+                LOGGER.error("Unable to ingest records.", e);
             }
         }
         response.getTransactionSummary().setTotalInserted(BigInteger.valueOf(numInserted));
+
+        int numUpdated = 0;
+        for (UpdateAction updateAction : request.getUpdateActions()) {
+            try {
+                numUpdated += updateRecords(updateAction);
+            } catch (CswException | FederationException | IngestException |
+                    SourceUnavailableException | UnsupportedQueryException e) {
+                LOGGER.error("Unable to update records.", e);
+            }
+        }
+        response.getTransactionSummary().setTotalUpdated(BigInteger.valueOf(numUpdated));
 
         int numDeleted = 0;
         for (DeleteAction deleteAction : request.getDeleteActions()) {
             try {
                 numDeleted += deleteRecords(deleteAction);
-            } catch (FederationException | IngestException | SourceUnavailableException |
-                    UnsupportedQueryException e) {
-                LOGGER.error("Unable to delete records", e);
+            } catch (CswException | FederationException | IngestException |
+                    SourceUnavailableException | UnsupportedQueryException e) {
+                LOGGER.error("Unable to delete records.", e);
             }
         }
         response.getTransactionSummary().setTotalDeleted(BigInteger.valueOf(numDeleted));
@@ -566,6 +585,59 @@ public class CswEndpoint implements Csw {
             DeleteResponse deleteResponse = framework.delete(deleteRequest);
 
             return deleteResponse.getDeletedMetacards().size();
+        }
+
+        return 0;
+    }
+
+    private int updateRecords(UpdateAction updateAction)
+            throws CswException, FederationException, IngestException, SourceUnavailableException,
+            UnsupportedQueryException {
+        if (updateAction.getMetacard() != null) {
+            Metacard newRecord = updateAction.getMetacard();
+
+            if (newRecord.getId() != null) {
+                UpdateRequest updateRequest = new UpdateRequestImpl(newRecord.getId(), newRecord);
+                UpdateResponse updateResponse = framework.update(updateRequest);
+                return updateResponse.getUpdatedMetacards().size();
+            } // What if there's no ID? Error message?
+        } else if (updateAction.getConstraint() != null) {
+            QueryConstraintType constraint = updateAction.getConstraint();
+            Filter filter = buildFilter(constraint, typeStringToQNames(updateAction.getTypeName(),
+                    updateAction.getPrefixToUriMappings())).getVisitedFilter();
+
+            QueryImpl query = new QueryImpl(filter);
+            query.setPageSize(-1);
+
+            QueryRequest queryRequest = new QueryRequestImpl(query);
+            QueryResponse response = framework.query(queryRequest);
+
+            Map<String, Serializable> recordProperties = updateAction.getRecordProperties();
+
+            List<String> updatedMetacardIdsList = new ArrayList<>();
+            List<Metacard> updatedMetacards = new ArrayList<>();
+
+            for (Result result : response.getResults()) {
+                Metacard metacard = result.getMetacard();
+
+                if (metacard != null) {
+                    for (Entry<String, Serializable> recordProperty : recordProperties.entrySet()) {
+                        Attribute attribute = new AttributeImpl(recordProperty.getKey(),
+                                recordProperty.getValue());
+                        metacard.setAttribute(attribute);
+                    }
+                    updatedMetacardIdsList.add(metacard.getId());
+                    updatedMetacards.add(metacard);
+                }
+            }
+
+            String[] updatedMetacardIds = updatedMetacardIdsList
+                    .toArray(new String[updatedMetacardIdsList.size()]);
+            UpdateRequest updateRequest = new UpdateRequestImpl(updatedMetacardIds,
+                    updatedMetacards);
+
+            UpdateResponse updateResponse = framework.update(updateRequest);
+            return updateResponse.getUpdatedMetacards().size();
         }
 
         return 0;

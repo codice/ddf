@@ -29,8 +29,11 @@ import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.Serializable;
 import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -39,9 +42,11 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
@@ -63,6 +68,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordsRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.DeleteAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.InsertAction;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.UpdateAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.DefaultCswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;
 import org.geotools.filter.AttributeExpressionImpl;
@@ -122,10 +128,15 @@ import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
+import ddf.catalog.operation.Update;
+import ddf.catalog.operation.UpdateRequest;
+import ddf.catalog.operation.UpdateResponse;
 import ddf.catalog.operation.impl.CreateResponseImpl;
 import ddf.catalog.operation.impl.DeleteResponseImpl;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryResponseImpl;
+import ddf.catalog.operation.impl.UpdateImpl;
+import ddf.catalog.operation.impl.UpdateResponseImpl;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
@@ -2107,6 +2118,139 @@ public class TestCswEndpoint {
         verifyMarshalResponse(response,
                 "net.opengis.cat.csw.v_2_0_2:net.opengis.filter.v_1_1_0:net.opengis.gml.v_3_1_1",
                 new QName(CswConstants.CSW_OUTPUT_SCHEMA));
+    }
+
+    @Test
+    public void testUpdateTransactionWithNewRecord()
+            throws CswException, FederationException, IngestException, SourceUnavailableException,
+            UnsupportedQueryException {
+        CatalogFramework framework = mock(CatalogFramework.class);
+
+        List<Update> updatedMetacards = new ArrayList<>();
+        updatedMetacards.add(new UpdateImpl(new MetacardImpl(), new MetacardImpl()));
+
+        UpdateResponse updateResponse = new UpdateResponseImpl(null, null, updatedMetacards);
+        doReturn(updateResponse).when(framework).update(any(UpdateRequest.class));
+
+        MetacardImpl updatedMetacard = new MetacardImpl();
+        updatedMetacard.setId("123");
+        UpdateAction updateAction = new UpdateAction(updatedMetacard, CswConstants.CSW_RECORD, "");
+
+        CswTransactionRequest transactionRequest = new CswTransactionRequest();
+        transactionRequest.getUpdateActions().add(updateAction);
+        transactionRequest.setVersion(CswConstants.VERSION_2_0_2);
+        transactionRequest.setService(CswConstants.CSW);
+        transactionRequest.setVerbose(false);
+
+        CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
+                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
+
+        TransactionResponseType response = cswEndpoint.transaction(transactionRequest);
+        assertThat(response, notNullValue());
+
+        TransactionSummaryType summary = response.getTransactionSummary();
+        assertThat(summary, notNullValue());
+
+        assertThat(summary.getTotalDeleted().intValue(), is(0));
+        assertThat(summary.getTotalInserted().intValue(), is(0));
+        assertThat(summary.getTotalUpdated().intValue(), is(1));
+
+        verifyMarshalResponse(response,
+                "net.opengis.cat.csw.v_2_0_2:net.opengis.filter.v_1_1_0:net.opengis.gml.v_3_1_1",
+                new QName(CswConstants.CSW_OUTPUT_SCHEMA));
+
+        ArgumentCaptor<UpdateRequest> updateRequestArgumentCaptor = ArgumentCaptor
+                .forClass(UpdateRequest.class);
+
+        verify(framework, times(1)).update(updateRequestArgumentCaptor.capture());
+
+        UpdateRequest actualUpdateRequest = updateRequestArgumentCaptor.getValue();
+        assertThat(actualUpdateRequest.getUpdates().size(), is(1));
+        assertThat(actualUpdateRequest.getUpdates().get(0).getValue().getId(), is("123"));
+    }
+
+    @Test
+    public void testUpdateTransactionWithConstraint()
+            throws CswException, FederationException, IngestException, SourceUnavailableException,
+            UnsupportedQueryException {
+        CatalogFramework framework = mock(CatalogFramework.class);
+
+        List<Result> results = new ArrayList<>();
+
+        MetacardImpl firstResult = new MetacardImpl();
+        firstResult.setId("123");
+        firstResult.setTitle("Title one");
+        firstResult.setAttribute("subject", "Subject one");
+        results.add(new ResultImpl(firstResult));
+
+        MetacardImpl secondResult = new MetacardImpl();
+        secondResult.setId("789");
+        secondResult.setTitle("Title two");
+        secondResult.setAttribute("subject", "Subject two");
+        results.add(new ResultImpl(secondResult));
+
+        QueryResponse queryResponse = new QueryResponseImpl(null, results, results.size());
+        doReturn(queryResponse).when(framework).query(any(QueryRequest.class));
+
+        List<Update> updatedMetacards = new ArrayList<>();
+        updatedMetacards.add(new UpdateImpl(new MetacardImpl(), new MetacardImpl()));
+        updatedMetacards.add(new UpdateImpl(new MetacardImpl(), new MetacardImpl()));
+
+        UpdateResponse updateResponse = new UpdateResponseImpl(null, null, updatedMetacards);
+        doReturn(updateResponse).when(framework).update(any(UpdateRequest.class));
+
+        Map<String, Serializable> recordProperties = new HashMap<>();
+        recordProperties.put("title", "foo");
+        recordProperties.put("subject", "bar");
+
+        QueryConstraintType constraint = new QueryConstraintType();
+        constraint.setCqlText("title = 'fake'");
+
+        UpdateAction updateAction = new UpdateAction(recordProperties, CswConstants.CSW_RECORD, "",
+                constraint, DefaultCswRecordMap.getDefaultCswRecordMap().getPrefixToUriMapping());
+
+        CswTransactionRequest updateRequest = new CswTransactionRequest();
+        updateRequest.getUpdateActions().add(updateAction);
+        updateRequest.setVersion(CswConstants.VERSION_2_0_2);
+        updateRequest.setService(CswConstants.CSW);
+        updateRequest.setVerbose(false);
+
+        CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
+                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
+
+        TransactionResponseType response = cswEndpoint.transaction(updateRequest);
+        assertThat(response, notNullValue());
+
+        TransactionSummaryType summary = response.getTransactionSummary();
+        assertThat(summary, notNullValue());
+
+        assertThat(summary.getTotalDeleted().intValue(), is(0));
+        assertThat(summary.getTotalInserted().intValue(), is(0));
+        assertThat(summary.getTotalUpdated().intValue(), is(2));
+
+        verifyMarshalResponse(response,
+                "net.opengis.cat.csw.v_2_0_2:net.opengis.filter.v_1_1_0:net.opengis.gml.v_3_1_1",
+                new QName(CswConstants.CSW_OUTPUT_SCHEMA));
+
+        ArgumentCaptor<UpdateRequest> updateRequestArgumentCaptor = ArgumentCaptor
+                .forClass(UpdateRequest.class);
+
+        verify(framework, times(1)).update(updateRequestArgumentCaptor.capture());
+
+        UpdateRequest actualUpdateRequest = updateRequestArgumentCaptor.getValue();
+
+        List<Map.Entry<Serializable, Metacard>> updates = actualUpdateRequest.getUpdates();
+        assertThat(updates.size(), is(2));
+
+        Metacard firstUpdate = updates.get(0).getValue();
+        assertThat(firstUpdate.getId(), is("123"));
+        assertThat(firstUpdate.getTitle(), is("foo"));
+        assertThat((String) firstUpdate.getAttribute("subject").getValue(), is("bar"));
+
+        Metacard secondUpdate = updates.get(1).getValue();
+        assertThat(secondUpdate.getId(), is("789"));
+        assertThat(secondUpdate.getTitle(), is("foo"));
+        assertThat((String) secondUpdate.getAttribute("subject").getValue(), is("bar"));
     }
 
     /**
