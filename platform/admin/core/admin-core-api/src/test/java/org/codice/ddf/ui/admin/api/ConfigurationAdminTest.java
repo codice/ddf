@@ -17,6 +17,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.any;
@@ -121,8 +122,8 @@ public class ConfigurationAdminTest {
         ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin);
 
         configAdmin.setMBeanServer(testServer);
-        when(testServer.registerMBean(any(Object.class), any(ObjectName.class))).thenThrow(
-                new InstanceAlreadyExistsException()).thenReturn(null);
+        when(testServer.registerMBean(any(Object.class), any(ObjectName.class)))
+                .thenThrow(new InstanceAlreadyExistsException()).thenReturn(null);
 
         configAdmin.init();
 
@@ -246,7 +247,8 @@ public class ConfigurationAdminTest {
         org.osgi.service.cm.ConfigurationAdmin testConfigAdmin = mock(
                 org.osgi.service.cm.ConfigurationAdmin.class);
         ConfigurationAdminExt testConfigAdminExt = mock(ConfigurationAdminExt.class);
-        ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin, testConfigAdminExt);
+        ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin,
+                testConfigAdminExt);
 
         List<Map<String, Object>> result = configAdmin.listServices();
 
@@ -265,7 +267,8 @@ public class ConfigurationAdminTest {
         org.osgi.service.cm.ConfigurationAdmin testConfigAdmin = mock(
                 org.osgi.service.cm.ConfigurationAdmin.class);
         ConfigurationAdminExt testConfigAdminExt = mock(ConfigurationAdminExt.class);
-        ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin, testConfigAdminExt);
+        ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin,
+                testConfigAdminExt);
 
         List<String> filterList = new ArrayList<>();
         filterList.add(TEST_FILTER_1);
@@ -354,7 +357,8 @@ public class ConfigurationAdminTest {
         org.osgi.service.cm.ConfigurationAdmin testConfigAdmin = mock(
                 org.osgi.service.cm.ConfigurationAdmin.class);
         ConfigurationAdminExt testConfigAdminExt = mock(ConfigurationAdminExt.class);
-        ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin, testConfigAdminExt);
+        ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin,
+                testConfigAdminExt);
 
         List<Map<String, Object>> serviceList = new ArrayList<>();
         Map<String, Object> testService = new HashMap<>();
@@ -362,7 +366,8 @@ public class ConfigurationAdminTest {
         serviceList.add(testService);
         when(testConfigAdminExt.listServices(TEST_FILTER_1, TEST_FILTER_1)).thenReturn(serviceList);
 
-        assertEquals(testService.get(TEST_KEY), configAdmin.getService(TEST_FILTER_1).get(TEST_KEY));
+        assertEquals(testService.get(TEST_KEY),
+                configAdmin.getService(TEST_FILTER_1).get(TEST_KEY));
         verify(testConfigAdminExt).listServices(TEST_FILTER_1, TEST_FILTER_1);
     }
 
@@ -1014,5 +1019,35 @@ public class ConfigurationAdminTest {
 
         when(testConfigAdmin.listConfigurations(anyString())).thenReturn(null);
         configAdmin.enableConfiguration(TEST_PID);
+    }
+
+    @Test
+    public void testGetClaimsConfiguration() {
+        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin = mock(
+                org.osgi.service.cm.ConfigurationAdmin.class);
+        ConfigurationAdminExt testConfigAdminExt = mock(ConfigurationAdminExt.class);
+        ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin,
+                testConfigAdminExt);
+
+        List<Map<String, Object>> serviceList = new ArrayList<>();
+        Map<String, Object> testService = new HashMap<>();
+        testService.put(TEST_KEY, TEST_VALUE);
+        serviceList.add(testService);
+        when(testConfigAdminExt.listServices(TEST_FILTER_1, TEST_FILTER_1)).thenReturn(serviceList);
+
+        //check call before setting handler
+        assertNotNull(configAdmin.getClaimsConfiguration(TEST_FILTER_1));
+
+        AnonClaimsHandlerExt ache = new AnonClaimsHandlerExt();
+        ache.setAvailableClaimsFile("/this/path/is/a/file");
+        ache.setProfileDir("/this/path/is/a/dir");
+        ache.setImmutableClaims("testClaim1,testClaim2");
+        ache.init();
+        configAdmin.setAnonClaimsHandlerExt(ache);
+
+        assertNotNull(configAdmin.getClaimsConfiguration(TEST_FILTER_1));
+
+        //check with bad filter
+        assertNull(configAdmin.getClaimsConfiguration("bad_filter"));
     }
 }
