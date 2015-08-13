@@ -54,6 +54,20 @@ describe('Contextual', function () {
                 .takeScreenshot().saveScreenshot(shared.getPathForScreenshot('results-filters.png'));
         });
 
+        it("should allow for filtered search", function() {
+            return this.browser
+                .waitForElementByCssSelector('div.value-input-group input[name="stringValue1"]', shared.timeout)
+                .elementByCssSelector('input[name="stringValue1"]').clear().type('notfound')
+                .elementByCssSelector('.apply').click()
+                .waitForElementsByCssSelector('.fa-circle-o-notch', shared.timeout)
+                .waitForElementsByCssSelector('.hit-count', shared.timeout)
+                .waitForElementByCssSelector('.result-count i', asserters.textInclude('0'), shared.timeout)
+                .takeScreenshot().saveScreenshot(shared.getPathForScreenshot('result-notfound.png'))
+                .elementByCssSelector('input[name="stringValue1"]').clear().type('*')
+                .elementByCssSelector('.apply').click()
+                .waitForElementByCssSelector('.result-count i', asserters.textInclude('11'), shared.timeout);
+        });
+
         it("should be able to display uncached metacard summary", function () {
             return this.browser
                 .waitForElementByCssSelector('a.metacard-link').click()

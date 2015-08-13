@@ -256,6 +256,7 @@ define([
                         break;
                     case 'results':
                         if(id === 'Workspace') {
+                            wreqr.vent.trigger('query:clearFilters');
                             wreqr.vent.trigger('workspace:show', dir.backward);
                         }
                         if(id === 'Save') {
