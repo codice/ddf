@@ -498,7 +498,7 @@ define([
                 if(!queryName) {
                     return;
                 }
-                wreqr.vent.trigger('query:clearFilters');
+                wreqr.vent.trigger('search:clearfilters');
                 if (_.isUndefined(this.model.get('src'))) {
                     this.model.setSources(this.sources);
                 }
