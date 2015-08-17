@@ -439,8 +439,8 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
         List<Map<String, Object>> tempMetatype = null;
         for (Map<String, Object> service : services) {
             String id = (String) service.get(ConfigurationAdminExt.MAP_ENTRY_ID);
-            if (id.equals(config.getPid()) || (id.equals(config.getFactoryPid())
-                    && (boolean) service.get(ConfigurationAdminExt.MAP_FACTORY))) {
+            if (id.equals(config.getPid()) || (id.equals(config.getFactoryPid()) && Boolean
+                    .valueOf(String.valueOf(service.get(ConfigurationAdminExt.MAP_FACTORY))))) {
                 tempMetatype = (List<Map<String, Object>>) service
                         .get(ConfigurationAdminExt.MAP_ENTRY_METATYPE);
             }
@@ -568,23 +568,32 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
         // the method signature precludes a safer parameter type
         @SuppressWarnings("unchecked")
         public Object transform(Object input) {
+            if (!(input instanceof Map.Entry)) {
+                throw new IllegalArgumentException("Cannot transform " + input);
+            }
             Map.Entry<String, Object> entry = (Map.Entry<String, Object>) input;
-            if (entry.getKey().equals(SERVICE_PID)) {
-                return entry;
+            String attrId = entry.getKey();
+            if (attrId == null) {
+                throw new IllegalArgumentException("Found null key for " + pid);
             }
             Integer cardinality = null;
             Integer type = null;
-            for (Map<String, Object> property : metatype) {
-                if (entry.getKey().equals(property.get(ConfigurationAdminExt.MAP_ENTRY_ID))) {
-                    cardinality = (Integer) property
-                            .get(ConfigurationAdminExt.MAP_ENTRY_CARDINALITY);
-                    type = (Integer) property.get(ConfigurationAdminExt.MAP_ENTRY_TYPE);
+            // the PIDs have no metatype, but they should be strings
+            if (attrId.equals(SERVICE_PID) || attrId.equals(SERVICE_FACTORYPID)) {
+                cardinality = 0;
+                type = TYPE.STRING.getType();
+            } else {
+                for (Map<String, Object> property : metatype) {
+                    if (attrId.equals(property.get(ConfigurationAdminExt.MAP_ENTRY_ID))) {
+                        cardinality = (Integer) property
+                                .get(ConfigurationAdminExt.MAP_ENTRY_CARDINALITY);
+                        type = (Integer) property.get(ConfigurationAdminExt.MAP_ENTRY_TYPE);
+                    }
                 }
             }
             if (cardinality == null || type == null) {
                 throw new IllegalArgumentException(
-                        "Could not find property " + entry.getKey() + " in metatype for config "
-                                + pid);
+                        "Could not find property " + attrId + " in metatype for config " + pid);
             }
             Object value = entry.getValue();
 
@@ -614,9 +623,8 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
                     if (value.getClass().isArray() || value instanceof Collection) {
                         if (CollectionUtils.size(value) != 1) {
                             throw new IllegalArgumentException(
-                                    "Attempt on 0-cardinality property " + entry.getKey()
-                                            + " in config " + pid + " to set multiple values:"
-                                            + value);
+                                    "Attempt on 0-cardinality property " + attrId + " in config "
+                                            + pid + " to set multiple values:" + value);
                         }
                         value = CollectionUtils.get(value, 0);
                     }
