@@ -71,7 +71,7 @@ define([
                 this.listenTo(this, 'change:usng', this.setRadiusUsng);
                 this.listenTo(this, 'EndExtent', this.notDrawing);
                 this.listenTo(this, 'BeginExtent', this.drawingOn);
-                this.listenTo(wreqr.vent, 'query:clearFilters', this.clearFilters);
+                this.listenTo(wreqr.vent, 'search:clearfilters', this.clearFilters);
 
                 this.filters = new Filter.Collection();
 

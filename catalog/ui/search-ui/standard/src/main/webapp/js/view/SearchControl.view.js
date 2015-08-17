@@ -150,7 +150,7 @@ define([
                         break;
                     case 'results':
                         if(id === 'Search') {
-                            wreqr.vent.trigger('query:clearFilters');
+                            wreqr.vent.trigger('search:clearfilters');
                             wreqr.vent.trigger('search:show', dir.backward);
                         }
                         if(id === 'Save') {
