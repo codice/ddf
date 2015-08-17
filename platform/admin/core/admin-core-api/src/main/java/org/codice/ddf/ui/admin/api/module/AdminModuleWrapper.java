@@ -17,19 +17,30 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class AdminModuleExt implements AdminModule, Comparable {
+/**
+ * AdminModuleWrapper - wraps the {@link AdminModule} interface and adds useful methods such as
+ * validation, comparison, and conversion to maps.
+ * NOTE: a valid admin module cannot have any absolute urls.
+ */
+public class AdminModuleWrapper implements AdminModule, Comparable {
 
     private AdminModule module;
 
-    AdminModuleExt(AdminModule module) {
+    AdminModuleWrapper(AdminModule module) {
         this.module = module;
     }
 
-    public static List<AdminModuleExt> wrap(List<AdminModule> adminList) {
-        List<AdminModuleExt> list = new ArrayList<>();
+    /**
+     * Wraps a list of {@link List<AdminModule>}.
+     * @param adminList
+     * @return
+     */
+    public static List<AdminModuleWrapper> wrap(List<AdminModule> adminList) {
+        List<AdminModuleWrapper> list = new ArrayList<>();
         for (AdminModule module : adminList) {
-            list.add(new AdminModuleExt(module));
+            list.add(new AdminModuleWrapper(module));
         }
         return list;
     }
@@ -58,22 +69,43 @@ public class AdminModuleExt implements AdminModule, Comparable {
         return uri == null || (uri.toString().charAt(0) != '/' && !uri.isAbsolute());
     }
 
+    /**
+     * Determine if an {@link AdminModule} is valid.
+     * NOTE: a valid module cannot contain absolute URIs.
+     * @return
+     */
     public boolean isValid() {
         return isValidURI(getJSLocation()) && isValidURI(getCSSLocation()) && isValidURI(
                 getIframeLocation());
     }
 
+    /**
+     * Define an ordering for {@link AdminModule}. The are alphabetically sorted by module name.
+     * @param o
+     * @return
+     */
     public int compareTo(Object o) {
         return getName().compareTo(((AdminModule) o).getName());
     }
 
-    public HashMap<String, Object> toHashMap() {
-        HashMap<String, Object> map = new HashMap<String, Object>();
+    private String uriToString(URI uri) {
+        if (uri == null) {
+            return "";
+        }
+        return uri.toString();
+    }
+
+    /**
+     * Serialize a {@link AdminModule} as a {@link Map}.
+     * NOTE: any null URIs get returned as empty strings.
+     */
+    public Map<String, Object> toMap() {
+        Map<String, Object> map = new HashMap<>();
         map.put("name", getName());
         map.put("id", getId());
-        map.put("jsLocation", getJSLocation());
-        map.put("cssLocation", getCSSLocation());
-        map.put("iframeLocation", getIframeLocation());
+        map.put("jsLocation", uriToString(getJSLocation()));
+        map.put("cssLocation", uriToString(getCSSLocation()));
+        map.put("iframeLocation", uriToString(getIframeLocation()));
         return map;
     }
 

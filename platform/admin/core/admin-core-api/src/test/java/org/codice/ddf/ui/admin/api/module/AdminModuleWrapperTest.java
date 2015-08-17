@@ -28,7 +28,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
-public class AdminModuleExtTest {
+public class AdminModuleWrapperTest {
 
     @Mock
     private AdminModule module;
@@ -42,7 +42,7 @@ public class AdminModuleExtTest {
     public void testAdminModuleExt() {
         doReturn("test").when(module).getName();
         doReturn("0").when(module).getId();
-        AdminModuleExt proxy = new AdminModuleExt(module);
+        AdminModuleWrapper proxy = new AdminModuleWrapper(module);
         assertThat("values are proxied correctly", proxy.getName(), is(module.getName()));
         assertThat("values are proxied correctly", proxy.getId(), is(module.getId()));
     }
@@ -50,14 +50,14 @@ public class AdminModuleExtTest {
     @Test
     public void testValidAdminModule() throws URISyntaxException {
         doReturn(new URI("js/app.js")).when(module).getJSLocation();
-        AdminModuleExt proxy = new AdminModuleExt(module);
+        AdminModuleWrapper proxy = new AdminModuleWrapper(module);
         assertThat("relative paths are valid", proxy.isValid(), is(true));
     }
 
     @Test
     public void testInvalidAdminModule() throws URISyntaxException {
         doReturn(new URI("http://test/js/app.js")).when(module).getJSLocation();
-        AdminModuleExt proxy = new AdminModuleExt(module);
+        AdminModuleWrapper proxy = new AdminModuleWrapper(module);
         assertThat("absolute paths are not valid", proxy.isValid(), is(false));
     }
 
@@ -65,22 +65,22 @@ public class AdminModuleExtTest {
     public void testPartialInvalidAdminModule() throws URISyntaxException {
         doReturn(new URI("js/app.js")).when(module).getJSLocation();
         doReturn(new URI("/css/styles.css")).when(module).getCSSLocation();
-        AdminModuleExt proxy = new AdminModuleExt(module);
+        AdminModuleWrapper proxy = new AdminModuleWrapper(module);
         assertThat("any absolute paths are not valid", proxy.isValid(), is(false));
     }
 
     @Test
-    public void testToHashMap() {
+    public void testToMap() {
         doReturn("test").when(module).getName();
-        AdminModuleExt proxy = new AdminModuleExt(module);
-        String name = (String) proxy.toHashMap().get("name");
+        AdminModuleWrapper proxy = new AdminModuleWrapper(module);
+        String name = (String) proxy.toMap().get("name");
         assertThat("hash map gets constructed correctly", name, is("test"));
     }
 
     @Test
     public void testCompareTo() {
         doReturn("test").when(module).getName();
-        AdminModuleExt proxy = new AdminModuleExt(module);
+        AdminModuleWrapper proxy = new AdminModuleWrapper(module);
         assertThat("modules are the same if the have the same name", proxy.compareTo(module),
                 is(0));
     }
@@ -96,7 +96,7 @@ public class AdminModuleExtTest {
         list.add(world);
         list.add(hello);
 
-        List<AdminModuleExt> modules = AdminModuleExt.wrap(list);
+        List<AdminModuleWrapper> modules = AdminModuleWrapper.wrap(list);
         Collections.sort(modules);
 
         assertThat("modules are sorted lexographically by name", modules.get(0).getName(),
