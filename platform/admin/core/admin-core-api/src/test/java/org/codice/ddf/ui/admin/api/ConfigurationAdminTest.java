@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -34,12 +34,9 @@ import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanServer;
@@ -48,16 +45,24 @@ import javax.management.ObjectName;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.ui.admin.api.module.AdminModule;
 import org.codice.ddf.ui.admin.api.plugin.ConfigurationAdminPlugin;
+import org.junit.Before;
 import org.junit.Test;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
+import org.osgi.service.metatype.AttributeDefinition;
+import org.osgi.service.metatype.MetaTypeInformation;
+import org.osgi.service.metatype.MetaTypeService;
+import org.osgi.service.metatype.ObjectClassDefinition;
 
 public class ConfigurationAdminTest {
 
     private static final String TEST_PID = "TestPID";
 
-    private static final String TEST_FACT_PID = "TestFactoryPID";
+    private static final String TEST_FACTORY_PID = "TestFactoryPID";
 
     private static final String TEST_FACT_PID_DISABLED = "TestFactoryPID_disabled";
 
@@ -82,6 +87,20 @@ public class ConfigurationAdminTest {
     private static final String LIST_SERV_PARAM_1 = "(|(service.factoryPid=TestFilter1)(service.factoryPid=TestFilter2))";
 
     private static final String LIST_SERV_PARAM_2 = "(|(service.pid=TestFilter1*)(service.pid=TestFilter2*))";
+
+    private static final String TEST_OCD = "TestOCD";
+
+    private static final String TEST_BUNDLE_NAME = "TestBundle";
+
+    public static final org.osgi.service.cm.ConfigurationAdmin CONFIGURATION_ADMIN = mock(
+            org.osgi.service.cm.ConfigurationAdmin.class);
+
+    public static Configuration TEST_CONFIG;
+
+    @Before
+    public void setupMethod() {
+        TEST_CONFIG = mock(Configuration.class);
+    }
 
     /**
      * Tests the {@link ConfigurationAdmin#ConfigurationAdmin(org.osgi.service.cm.ConfigurationAdmin)}
@@ -121,8 +140,8 @@ public class ConfigurationAdminTest {
         ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin);
 
         configAdmin.setMBeanServer(testServer);
-        when(testServer.registerMBean(any(Object.class), any(ObjectName.class))).thenThrow(
-                new InstanceAlreadyExistsException()).thenReturn(null);
+        when(testServer.registerMBean(any(Object.class), any(ObjectName.class)))
+                .thenThrow(new InstanceAlreadyExistsException()).thenReturn(null);
 
         configAdmin.init();
 
@@ -246,7 +265,8 @@ public class ConfigurationAdminTest {
         org.osgi.service.cm.ConfigurationAdmin testConfigAdmin = mock(
                 org.osgi.service.cm.ConfigurationAdmin.class);
         ConfigurationAdminExt testConfigAdminExt = mock(ConfigurationAdminExt.class);
-        ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin, testConfigAdminExt);
+        ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin,
+                testConfigAdminExt);
 
         List<Map<String, Object>> result = configAdmin.listServices();
 
@@ -265,7 +285,8 @@ public class ConfigurationAdminTest {
         org.osgi.service.cm.ConfigurationAdmin testConfigAdmin = mock(
                 org.osgi.service.cm.ConfigurationAdmin.class);
         ConfigurationAdminExt testConfigAdminExt = mock(ConfigurationAdminExt.class);
-        ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin, testConfigAdminExt);
+        ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin,
+                testConfigAdminExt);
 
         List<String> filterList = new ArrayList<>();
         filterList.add(TEST_FILTER_1);
@@ -354,7 +375,8 @@ public class ConfigurationAdminTest {
         org.osgi.service.cm.ConfigurationAdmin testConfigAdmin = mock(
                 org.osgi.service.cm.ConfigurationAdmin.class);
         ConfigurationAdminExt testConfigAdminExt = mock(ConfigurationAdminExt.class);
-        ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin, testConfigAdminExt);
+        ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin,
+                testConfigAdminExt);
 
         List<Map<String, Object>> serviceList = new ArrayList<>();
         Map<String, Object> testService = new HashMap<>();
@@ -362,7 +384,8 @@ public class ConfigurationAdminTest {
         serviceList.add(testService);
         when(testConfigAdminExt.listServices(TEST_FILTER_1, TEST_FILTER_1)).thenReturn(serviceList);
 
-        assertEquals(testService.get(TEST_KEY), configAdmin.getService(TEST_FILTER_1).get(TEST_KEY));
+        assertEquals(testService.get(TEST_KEY),
+                configAdmin.getService(TEST_FILTER_1).get(TEST_KEY));
         verify(testConfigAdminExt).listServices(TEST_FILTER_1, TEST_FILTER_1);
     }
 
@@ -622,12 +645,12 @@ public class ConfigurationAdminTest {
         ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin);
 
         Configuration testConfig = mock(Configuration.class);
-        when(testConfig.getFactoryPid()).thenReturn(TEST_FACT_PID);
+        when(testConfig.getFactoryPid()).thenReturn(TEST_FACTORY_PID);
 
         when(testConfigAdmin.getConfiguration(TEST_PID, null)).thenReturn(testConfig);
         String pid = configAdmin.getFactoryPid(TEST_PID);
 
-        assertEquals(TEST_FACT_PID, pid);
+        assertEquals(TEST_FACTORY_PID, pid);
     }
 
     /**
@@ -729,39 +752,12 @@ public class ConfigurationAdminTest {
      */
     @Test
     public void testUpdate() throws Exception {
-        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin = mock(
-                org.osgi.service.cm.ConfigurationAdmin.class);
-        ConfigurationAdminExt testConfigAdminExt = mock(ConfigurationAdminExt.class);
-        ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin, testConfigAdminExt);
-        List<Map<String, Object>> services = new ArrayList<>();
-        List<Map<String, Object>> metatype = new ArrayList<>();
-        Map<String, Object> service = new HashMap<>();
-        Map<String, Object> attributes = new HashMap<>();
-        service.put("metatype", metatype);
-        service.put("factory", false);
-        service.put("id", TEST_PID);
-        services.add(service);
-        attributes.put("id", TEST_KEY);
-        attributes.put("cardinality", 0);
-        attributes.put("type", 1);
-        metatype.add(attributes);
-        when(testConfigAdminExt.listServices(anyString(), anyString())).thenReturn(services);
-
-        Configuration testConfig = mock(Configuration.class);
-        when(testConfig.getPid()).thenReturn(TEST_PID);
+        ConfigurationAdmin configAdmin = getConfigAdmin();
         Map<String, Object> testConfigTable = new Hashtable<>();
-        testConfigTable.put(TEST_KEY, TEST_VALUE);
-
-        Set<Entry<String, Object>> testEntrySet = new HashSet<>();
-        Entry<String, Object> testEntry1 = mock(Entry.class);
-        testEntrySet.add(testEntry1);
-
-        when(testEntry1.getValue()).thenReturn(TEST_VALUE);
-
-        when(testConfigAdmin.getConfiguration(TEST_PID, null)).thenReturn(testConfig);
+        testConfigTable.put(getKey(0, ConfigurationAdmin.TYPE.STRING), TEST_VALUE);
 
         configAdmin.update(TEST_PID, testConfigTable);
-        verify(testConfig).update(any(Dictionary.class));
+        verify(TEST_CONFIG).update(any(Dictionary.class));
     }
 
     /**
@@ -806,39 +802,12 @@ public class ConfigurationAdminTest {
      */
     @Test
     public void testUpdateNullValue() throws Exception {
-        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin = mock(
-                org.osgi.service.cm.ConfigurationAdmin.class);
-        ConfigurationAdminExt testConfigAdminExt = mock(ConfigurationAdminExt.class);
-        ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin, testConfigAdminExt);
-        List<Map<String, Object>> services = new ArrayList<>();
-        List<Map<String, Object>> metatype = new ArrayList<>();
-        Map<String, Object> service = new HashMap<>();
-        Map<String, Object> attributes = new HashMap<>();
-        service.put("metatype", metatype);
-        service.put("factory", false);
-        service.put("id", TEST_PID);
-        services.add(service);
-        attributes.put("id", TEST_KEY);
-        attributes.put("cardinality", 0);
-        attributes.put("type", 1);
-        metatype.add(attributes);
-        when(testConfigAdminExt.listServices(anyString(), anyString())).thenReturn(services);
-
-        Configuration testConfig = mock(Configuration.class);
-        when(testConfig.getPid()).thenReturn(TEST_PID);
+        ConfigurationAdmin configAdmin = getConfigAdmin();
         Map<String, Object> testConfigTable = new HashMap<>();
-        testConfigTable.put(TEST_KEY, null);
-
-        Set<Entry<String, Object>> testEntrySet = new HashSet<>();
-        Entry<String, Object> testEntry1 = mock(Entry.class);
-        testEntrySet.add(testEntry1);
-
-        when(testEntry1.getValue()).thenReturn(TEST_VALUE);
-
-        when(testConfigAdmin.getConfiguration(TEST_PID, null)).thenReturn(testConfig);
+        testConfigTable.put(getKey(0, ConfigurationAdmin.TYPE.STRING), null);
 
         configAdmin.update(TEST_PID, testConfigTable);
-        verify(testConfig).update(any(Dictionary.class));
+        verify(TEST_CONFIG).update(any(Dictionary.class));
     }
 
     /**
@@ -876,7 +845,7 @@ public class ConfigurationAdminTest {
         Dictionary<String, Object> testProperties = new Hashtable<>();
 
         testProperties
-                .put(org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID, TEST_FACT_PID);
+                .put(org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID, TEST_FACTORY_PID);
 
         when(testConfigAdmin.listConfigurations('(' + Constants.SERVICE_PID + '=' + TEST_PID + ')'))
                 .thenReturn(new Configuration[] {testConfig});
@@ -890,7 +859,7 @@ public class ConfigurationAdminTest {
         assertThat("Should show the pid in a disabled state.", (String) result.get("newFactoryPid"),
                 is(TEST_FACT_PID_DISABLED));
         assertThat("Should return the given original pid.",
-                (String) result.get("originalFactoryPid"), is(TEST_FACT_PID));
+                (String) result.get("originalFactoryPid"), is(TEST_FACTORY_PID));
 
         verify(testConfig).delete();
         verify(testFactoryConfig).update(testProperties);
@@ -974,14 +943,14 @@ public class ConfigurationAdminTest {
         when(testConfigAdmin.listConfigurations('(' + Constants.SERVICE_PID + '=' + TEST_PID + ')'))
                 .thenReturn(new Configuration[] {testConfig});
         when(testConfig.getProperties()).thenReturn(testProperties);
-        when(testFactoryConfig.getPid()).thenReturn(TEST_FACT_PID);
-        when(testConfigAdmin.createFactoryConfiguration(TEST_FACT_PID, null))
+        when(testFactoryConfig.getPid()).thenReturn(TEST_FACTORY_PID);
+        when(testConfigAdmin.createFactoryConfiguration(TEST_FACTORY_PID, null))
                 .thenReturn(testFactoryConfig);
 
         Map<String, Object> result = configAdmin.enableConfiguration(TEST_PID);
 
         assertThat("Should show the pid in an enabled state.", (String) result.get("newFactoryPid"),
-                is(TEST_FACT_PID));
+                is(TEST_FACTORY_PID));
         assertThat("Should show the original disabled pid.",
                 (String) result.get("originalFactoryPid"), is(TEST_FACT_PID_DISABLED));
     }
@@ -1017,13 +986,13 @@ public class ConfigurationAdminTest {
         Dictionary<String, Object> testProperties = new Hashtable<>();
 
         testProperties
-                .put(org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID, TEST_FACT_PID);
+                .put(org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID, TEST_FACTORY_PID);
 
         when(testConfigAdmin.listConfigurations('(' + Constants.SERVICE_PID + '=' + TEST_PID + ')'))
                 .thenReturn(new Configuration[] {testConfig});
         when(testConfig.getProperties()).thenReturn(testProperties);
-        when(testFactoryConfig.getPid()).thenReturn(TEST_FACT_PID);
-        when(testConfigAdmin.createFactoryConfiguration(TEST_FACT_PID, null))
+        when(testFactoryConfig.getPid()).thenReturn(TEST_FACTORY_PID);
+        when(testConfigAdmin.createFactoryConfiguration(TEST_FACTORY_PID, null))
                 .thenReturn(testFactoryConfig);
 
         configAdmin.enableConfiguration(TEST_PID);
@@ -1044,5 +1013,88 @@ public class ConfigurationAdminTest {
 
         when(testConfigAdmin.listConfigurations(anyString())).thenReturn(null);
         configAdmin.enableConfiguration(TEST_PID);
+    }
+
+    private ConfigurationAdmin getConfigAdmin() throws IOException, InvalidSyntaxException {
+        final BundleContext testBundleContext = mock(BundleContext.class);
+        final MetaTypeService testMTS = mock(MetaTypeService.class);
+
+        ConfigurationAdminExt configurationAdminExt = new ConfigurationAdminExt(
+                CONFIGURATION_ADMIN) {
+            @Override
+            BundleContext getBundleContext() {
+                return testBundleContext;
+            }
+
+            @Override
+            MetaTypeService getMetaTypeService() {
+                return testMTS;
+            }
+        };
+
+        ConfigurationAdmin configurationAdmin = new ConfigurationAdmin(CONFIGURATION_ADMIN,
+                configurationAdminExt);
+
+        Dictionary<String, Object> testProp = new Hashtable<>();
+        testProp.put(TEST_KEY, TEST_VALUE);
+
+        when(TEST_CONFIG.getPid()).thenReturn(TEST_PID);
+        when(TEST_CONFIG.getFactoryPid()).thenReturn(TEST_FACTORY_PID);
+        when(TEST_CONFIG.getBundleLocation()).thenReturn(TEST_LOCATION);
+        when(TEST_CONFIG.getProperties()).thenReturn(testProp);
+
+        Bundle testBundle = mock(Bundle.class);
+        Dictionary bundleHeaders = mock(Dictionary.class);
+        MetaTypeInformation testMTI = mock(MetaTypeInformation.class);
+        ObjectClassDefinition testOCD = mock(ObjectClassDefinition.class);
+        ServiceReference testRef1 = mock(ServiceReference.class);
+        ServiceReference[] testServRefs = {testRef1};
+
+        ArrayList<AttributeDefinition> attDefs = new ArrayList<>();
+        for (int cardinality : new int[] {-100, 0, 100}) {
+            for (ConfigurationAdmin.TYPE type : ConfigurationAdmin.TYPE.values()) {
+                AttributeDefinition testAttDef = mock(AttributeDefinition.class);
+                when(testAttDef.getCardinality()).thenReturn(cardinality);
+                when(testAttDef.getType()).thenReturn(type.getType());
+                when(testAttDef.getID()).thenReturn(getKey(cardinality, type));
+                attDefs.add(testAttDef);
+            }
+        }
+
+        when(testRef1.getProperty(Constants.SERVICE_PID)).thenReturn(TEST_PID);
+        when(testRef1.getBundle()).thenReturn(testBundle);
+
+        when(testBundle.getLocation()).thenReturn(TEST_LOCATION);
+        when(testBundle.getHeaders(anyString())).thenReturn(bundleHeaders);
+        when(bundleHeaders.get(Constants.BUNDLE_NAME)).thenReturn(TEST_BUNDLE_NAME);
+
+        when(testOCD.getName()).thenReturn(TEST_OCD);
+        when(testOCD.getAttributeDefinitions(ObjectClassDefinition.ALL))
+                .thenReturn(attDefs.toArray(new AttributeDefinition[attDefs.size()]));
+
+        when(testMTI.getBundle()).thenReturn(testBundle);
+        when(testMTI.getFactoryPids()).thenReturn(new String[] {TEST_FACTORY_PID});
+        when(testMTI.getPids()).thenReturn(new String[] {TEST_PID});
+        when(testMTI.getObjectClassDefinition(anyString(), anyString())).thenReturn(testOCD);
+
+        when(testMTS.getMetaTypeInformation(testBundle)).thenReturn(testMTI);
+
+        when(testBundleContext.getBundles()).thenReturn(new Bundle[] {testBundle});
+
+        when(CONFIGURATION_ADMIN.listConfigurations(anyString()))
+                .thenReturn(new Configuration[] {TEST_CONFIG});
+        when(CONFIGURATION_ADMIN.getConfiguration(anyString(), anyString()))
+                .thenReturn(TEST_CONFIG);
+
+        when(testBundleContext.getAllServiceReferences(anyString(), anyString()))
+                .thenReturn(testServRefs);
+        when(testBundleContext.getAllServiceReferences(anyString(), anyString()))
+                .thenReturn(testServRefs);
+
+        return configurationAdmin;
+    }
+
+    private String getKey(int cardinality, ConfigurationAdmin.TYPE type) {
+        return TEST_KEY + "_" + cardinality + "_" + type.getType();
     }
 }
