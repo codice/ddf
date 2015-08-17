@@ -87,7 +87,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
 
     private static final double HASHMAP_DEFAULT_LOAD_FACTOR = 0.75;
 
-    private static final int DEFAULT_PAGING_SIZE = 1000;
+    private static final int MAX_BOOLEAN_CLAUSES = 1000;
 
     private static Properties describableProperties = new Properties();
 
@@ -481,19 +481,19 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
             return new DeleteResponseImpl(deleteRequest, null, deletedMetacards);
         }
 
-        if (identifiers.size() <= DEFAULT_PAGING_SIZE) {
+        if (identifiers.size() <=  MAX_BOOLEAN_CLAUSES) {
             deleteListOfMetacards(deletedMetacards, identifiers, attributeName);
         } else {
             List<? extends Serializable> identifierPaged = null;
             int currPagingSize = 0;
 
-            for (currPagingSize = DEFAULT_PAGING_SIZE; currPagingSize < identifiers.size(); currPagingSize += DEFAULT_PAGING_SIZE) {
+            for (currPagingSize = MAX_BOOLEAN_CLAUSES; currPagingSize < identifiers.size(); currPagingSize += MAX_BOOLEAN_CLAUSES) {
                 identifierPaged = identifiers
-                        .subList(currPagingSize - DEFAULT_PAGING_SIZE, currPagingSize);
+                        .subList(currPagingSize - MAX_BOOLEAN_CLAUSES, currPagingSize);
                 deleteListOfMetacards(deletedMetacards, identifierPaged, attributeName);
             }
             identifierPaged = identifiers
-                    .subList(currPagingSize - DEFAULT_PAGING_SIZE, identifiers.size());
+                    .subList(currPagingSize - MAX_BOOLEAN_CLAUSES, identifiers.size());
             deleteListOfMetacards(deletedMetacards, identifierPaged, attributeName);
         }
         return new DeleteResponseImpl(deleteRequest, null, deletedMetacards);
@@ -503,8 +503,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
     private void deleteListOfMetacards(List<Metacard> deletedMetacards,
             List<? extends Serializable> identifiers, String attributeName) throws IngestException {
         String fieldName = attributeName + SchemaFields.TEXT_SUFFIX;
-        QueryResponse solrResponse = getQueryResponse(identifiers, fieldName);
-        SolrDocumentList docs = solrResponse.getResults();
+        SolrDocumentList docs = getSolrDocumentList(identifiers, fieldName);
         createListOfDeletedMetacards(deletedMetacards, docs);
 
         try {
@@ -536,7 +535,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
         }
     }
 
-    private QueryResponse getQueryResponse(List<? extends Serializable> identifierPaged,
+    private SolrDocumentList getSolrDocumentList(List<? extends Serializable> identifierPaged,
             String fieldName) throws IngestException {
         SolrQuery query = new SolrQuery(client.getIdentifierQuery(fieldName, identifierPaged));
         query.setRows(identifierPaged.size());
@@ -548,7 +547,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
             LOGGER.info("SOLR server exception deleting request message", e);
             throw new IngestException(COULD_NOT_COMPLETE_DELETE_REQUEST_MESSAGE);
         }
-        return solrResponse;
+        return solrResponse.getResults();
     }
 
     private void prepareForUpdate(Date now, String keyId, MetacardImpl newMetacard,
@@ -623,9 +622,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
         @Override
         public MetacardImpl createMetacard(SolrDocument doc) throws MetacardCreationException {
             MetacardImpl metacard = super.createMetacard(doc);
-
             metacard.setSourceId(getId());
-
             return metacard;
         }
     }
