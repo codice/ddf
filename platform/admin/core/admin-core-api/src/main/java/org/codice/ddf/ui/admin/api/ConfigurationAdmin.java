@@ -197,7 +197,7 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
         return modules;
     }
 
-    private String getDefaultFactoryLdapFilter() {
+    String getDefaultFactoryLdapFilter() {
         if (CollectionUtils.isNotEmpty(filterList)) {
             StringBuilder ldapFilter = new StringBuilder();
             ldapFilter.append("(");
@@ -218,7 +218,7 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
         return "(" + SERVICE_FACTORYPID + "=" + "*)";
     }
 
-    private String getDefaultLdapFilter() {
+    String getDefaultLdapFilter() {
         if (CollectionUtils.isNotEmpty(filterList)) {
             StringBuilder ldapFilter = new StringBuilder();
             ldapFilter.append("(");
@@ -629,7 +629,7 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
 
     // felix won't take Object[] or Vector<Object>, so here we
     // map all the osgi constants to strongly typed arrays/vectors
-    private enum TYPE {
+    enum TYPE {
         STRING(AttributeDefinition.STRING) {
             @Override
             public Object toTypedArray(Object[] array) {
