@@ -87,7 +87,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
 
     private static final double HASHMAP_DEFAULT_LOAD_FACTOR = 0.75;
 
-    private static final int MAX_BOOLEAN_CLAUSES = 1000;
+    public static final int MAX_BOOLEAN_CLAUSES = 1024;
 
     private static Properties describableProperties = new Properties();
 

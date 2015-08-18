@@ -69,8 +69,6 @@ public class SolrMetacardClient {
 
     private final DynamicSchemaResolver resolver;
 
-    private static final int DEFAULT_PAGING_SIZE = 1000;
-
     public SolrMetacardClient(SolrServer solrServer, FilterAdapter catalogFilterAdapter,
             SolrFilterDelegateFactory solrFilterDelegateFactory,
             DynamicSchemaResolver dynamicSchemaResolver) {
@@ -316,16 +314,16 @@ public class SolrMetacardClient {
             });
             server.deleteById((List<String>) identifiers);
         } else {
-            if (identifiers.size() < DEFAULT_PAGING_SIZE) {
+            if (identifiers.size() < SolrCatalogProvider.MAX_BOOLEAN_CLAUSES) {
                 server.deleteByQuery(getIdentifierQuery(fieldName, identifiers));
             } else {
                 int i = 0;
-                for (i = DEFAULT_PAGING_SIZE; i < identifiers.size(); i += DEFAULT_PAGING_SIZE) {
+                for (i = SolrCatalogProvider.MAX_BOOLEAN_CLAUSES; i < identifiers.size(); i += SolrCatalogProvider.MAX_BOOLEAN_CLAUSES) {
                     server.deleteByQuery(getIdentifierQuery(fieldName,
-                            identifiers.subList(i - DEFAULT_PAGING_SIZE, i)));
+                            identifiers.subList(i - SolrCatalogProvider.MAX_BOOLEAN_CLAUSES, i)));
                 }
                 server.deleteByQuery(getIdentifierQuery(fieldName,
-                        identifiers.subList(i - DEFAULT_PAGING_SIZE, identifiers.size())));
+                        identifiers.subList(i - SolrCatalogProvider.MAX_BOOLEAN_CLAUSES, identifiers.size())));
             }
         }
 
