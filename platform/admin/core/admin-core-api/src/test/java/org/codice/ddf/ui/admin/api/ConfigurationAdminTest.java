@@ -29,6 +29,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Dictionary;
@@ -37,12 +39,14 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.ui.admin.api.ConfigurationAdmin.TYPE;
 import org.codice.ddf.ui.admin.api.module.AdminModule;
 import org.codice.ddf.ui.admin.api.plugin.ConfigurationAdminPlugin;
 import org.junit.Before;
@@ -95,11 +99,22 @@ public class ConfigurationAdminTest {
     public static final org.osgi.service.cm.ConfigurationAdmin CONFIGURATION_ADMIN = mock(
             org.osgi.service.cm.ConfigurationAdmin.class);
 
-    public static Configuration TEST_CONFIG;
+    public static final int CARDINALITY_ARRAY = 100;
+
+    public static final int CARDINALITY_VECTOR = -100;
+
+    public static final int CARDINALITY_STRING = 0;
+
+    public static final int[] CARDINALITIES = new int[] {CARDINALITY_VECTOR, CARDINALITY_STRING,
+            CARDINALITY_ARRAY};
+
+    public static final int TEST_INT = 42;
+
+    public static Configuration testConfig;
 
     @Before
     public void setupMethod() {
-        TEST_CONFIG = mock(Configuration.class);
+        testConfig = mock(Configuration.class);
     }
 
     /**
@@ -753,11 +768,70 @@ public class ConfigurationAdminTest {
     @Test
     public void testUpdate() throws Exception {
         ConfigurationAdmin configAdmin = getConfigAdmin();
-        Map<String, Object> testConfigTable = new Hashtable<>();
-        testConfigTable.put(getKey(0, ConfigurationAdmin.TYPE.STRING), TEST_VALUE);
+        // test every typed cardinality<->cardinality mapping
+        for (int i = 0; i < CARDINALITIES.length; i++) {
+            int cardinality = CARDINALITIES[i];
+            Map<String, Object> testConfigTable = new Hashtable<>();
+            for (TYPE type : TYPE.values()) {
+                for (int keyCardinality : CARDINALITIES) {
+                    testConfigTable.put(getKey(keyCardinality, type), getValue(cardinality, type));
+                }
+            }
+            configAdmin.update(TEST_PID, testConfigTable);
+            verify(testConfig, times(i + 1)).update(any(Dictionary.class));
+        }
+    }
 
-        configAdmin.update(TEST_PID, testConfigTable);
-        verify(TEST_CONFIG).update(any(Dictionary.class));
+    private Object getValue(int cardinality, TYPE type) {
+        Object value = null;
+        switch (type) {
+        case PASSWORD:
+        case STRING:
+            value = TEST_VALUE;
+            break;
+        case BIGDECIMAL:
+            value = BigDecimal.valueOf(TEST_INT);
+            break;
+        case BIGINTEGER:
+            value = BigInteger.valueOf(TEST_INT);
+            break;
+        case BOOLEAN:
+            value = true;
+            break;
+        case BYTE:
+            value = (byte) TEST_INT;
+            break;
+        case CHARACTER:
+            value = 'c';
+            break;
+        case DOUBLE:
+            value = (double) TEST_INT;
+            break;
+        case FLOAT:
+            value = (float) TEST_INT;
+            break;
+        case INTEGER:
+            value = TEST_INT;
+            break;
+        case LONG:
+            value = (long) TEST_INT;
+            break;
+        case SHORT:
+            value = (short) TEST_INT;
+            break;
+        }
+        switch (cardinality) {
+        case CARDINALITY_VECTOR:
+            Vector<Object> vector = new Vector<>();
+            vector.add(value);
+            return vector;
+        case CARDINALITY_STRING:
+            return value;
+        case CARDINALITY_ARRAY:
+            return new Object[] {value};
+        }
+
+        return null;
     }
 
     /**
@@ -804,10 +878,10 @@ public class ConfigurationAdminTest {
     public void testUpdateNullValue() throws Exception {
         ConfigurationAdmin configAdmin = getConfigAdmin();
         Map<String, Object> testConfigTable = new HashMap<>();
-        testConfigTable.put(getKey(0, ConfigurationAdmin.TYPE.STRING), null);
+        testConfigTable.put(getKey(CARDINALITY_STRING, TYPE.STRING), null);
 
         configAdmin.update(TEST_PID, testConfigTable);
-        verify(TEST_CONFIG).update(any(Dictionary.class));
+        verify(testConfig).update(any(Dictionary.class));
     }
 
     /**
@@ -1038,10 +1112,10 @@ public class ConfigurationAdminTest {
         Dictionary<String, Object> testProp = new Hashtable<>();
         testProp.put(TEST_KEY, TEST_VALUE);
 
-        when(TEST_CONFIG.getPid()).thenReturn(TEST_PID);
-        when(TEST_CONFIG.getFactoryPid()).thenReturn(TEST_FACTORY_PID);
-        when(TEST_CONFIG.getBundleLocation()).thenReturn(TEST_LOCATION);
-        when(TEST_CONFIG.getProperties()).thenReturn(testProp);
+        when(testConfig.getPid()).thenReturn(TEST_PID);
+        when(testConfig.getFactoryPid()).thenReturn(TEST_FACTORY_PID);
+        when(testConfig.getBundleLocation()).thenReturn(TEST_LOCATION);
+        when(testConfig.getProperties()).thenReturn(testProp);
 
         Bundle testBundle = mock(Bundle.class);
         Dictionary bundleHeaders = mock(Dictionary.class);
@@ -1051,8 +1125,8 @@ public class ConfigurationAdminTest {
         ServiceReference[] testServRefs = {testRef1};
 
         ArrayList<AttributeDefinition> attDefs = new ArrayList<>();
-        for (int cardinality : new int[] {-100, 0, 100}) {
-            for (ConfigurationAdmin.TYPE type : ConfigurationAdmin.TYPE.values()) {
+        for (int cardinality : CARDINALITIES) {
+            for (TYPE type : TYPE.values()) {
                 AttributeDefinition testAttDef = mock(AttributeDefinition.class);
                 when(testAttDef.getCardinality()).thenReturn(cardinality);
                 when(testAttDef.getType()).thenReturn(type.getType());
@@ -1082,9 +1156,8 @@ public class ConfigurationAdminTest {
         when(testBundleContext.getBundles()).thenReturn(new Bundle[] {testBundle});
 
         when(CONFIGURATION_ADMIN.listConfigurations(anyString()))
-                .thenReturn(new Configuration[] {TEST_CONFIG});
-        when(CONFIGURATION_ADMIN.getConfiguration(anyString(), anyString()))
-                .thenReturn(TEST_CONFIG);
+                .thenReturn(new Configuration[] {testConfig});
+        when(CONFIGURATION_ADMIN.getConfiguration(anyString(), anyString())).thenReturn(testConfig);
 
         when(testBundleContext.getAllServiceReferences(anyString(), anyString()))
                 .thenReturn(testServRefs);
@@ -1094,7 +1167,7 @@ public class ConfigurationAdminTest {
         return configurationAdmin;
     }
 
-    private String getKey(int cardinality, ConfigurationAdmin.TYPE type) {
+    private String getKey(int cardinality, TYPE type) {
         return TEST_KEY + "_" + cardinality + "_" + type.getType();
     }
 }
