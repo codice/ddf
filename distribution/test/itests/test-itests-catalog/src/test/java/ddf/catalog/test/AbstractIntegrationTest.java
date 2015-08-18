@@ -346,9 +346,10 @@ public abstract class AbstractIntegrationTest {
         }
 
         if (!listener.isUpdated()) {
-            throw new RuntimeException(
-                    String.format("Service was not updated within %d minute timeout.",
-                            TimeUnit.MILLISECONDS.toMinutes(MANAGED_SERVICE_TIMEOUT)));
+            throw new RuntimeException(String.format(
+                    "Service configuration {} was not updated within %d minute timeout.",
+                    sourceConfig.getPid(),
+                    TimeUnit.MILLISECONDS.toMinutes(MANAGED_SERVICE_TIMEOUT)));
         }
     }
 
