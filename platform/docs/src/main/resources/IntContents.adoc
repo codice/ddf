@@ -88,7 +88,7 @@ Configuration can be performed using the processes described in the Configuring 
 |Required
 
 |Enable System Usage Message
-|systemUsageTitle
+|systemUsageEnabled
 |Boolean
 |Turns on a system usage message, which is shown when the Search Application is opened
 |
