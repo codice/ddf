@@ -580,7 +580,7 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
 
             // ensure we don't allow any empty values
             if (value == null || StringUtils.isEmpty(String.valueOf(value)) || (
-                    value.getClass().isArray() || value instanceof Collection && CollectionUtils
+                    (value.getClass().isArray() || value instanceof Collection) && CollectionUtils
                             .sizeIsEmpty(value))) {
                 value = "";
             } else {
@@ -599,6 +599,8 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
                             newValue.add(value);
                         }
                         value = currentType.toTypedVector(newValue);
+                    } else {
+                        value = currentType.toTypedVector((Vector<Object>) value);
                     }
                 } else if (cardinality == 0) {
                     if (value.getClass().isArray() || value instanceof Collection) {
@@ -617,6 +619,8 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
                             value = currentType
                                     .toTypedArray((Collections.singletonList(value)).toArray());
                         }
+                    } else {
+                        value = currentType.toTypedArray((Object[]) value);
                     }
                 }
             }
