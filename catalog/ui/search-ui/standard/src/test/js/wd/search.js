@@ -46,8 +46,31 @@ describe('Contextual', function () {
                 .takeScreenshot().saveScreenshot(shared.getPathForScreenshot('results-list.png'));
         });
 
-        it("should display source status and filter options", function () {
+        it("should return different results after editing search keyword", function () {
             return this.browser
+                .waitForElementByClassName('backNavText').click()
+                .waitForConditionInBrowser('document.querySelector("#searchButton").getBoundingClientRect().left > 0')
+                .waitForElementByCssSelector('form#searchForm input[name="q"]', shared.timeout)
+                .elementByCssSelector('input[name="q"]').clear().type('notfound')
+                .safeExecute('document.querySelectorAll("#searchButton")[0].scrollIntoView(true)')
+                .elementById('searchButton').click()
+                .waitForElementsByCssSelector('div#progressRegion:empty', shared.timeout)
+                .waitForElementByCssSelector('.result-count i', asserters.textInclude('results'), shared.timeout)
+                .waitForConditionInBrowser('document.querySelectorAll("a.metacard-link").length === 0', shared.timeout)
+                .waitForElementByClassName('backNavText').click()
+                .waitForConditionInBrowser('document.querySelector("#searchButton").getBoundingClientRect().left > 0')
+                .waitForElementByCssSelector('form#searchForm input[name="q"]', shared.timeout)
+                .elementByCssSelector('input[name="q"]').clear().type('*')
+                .safeExecute('document.querySelectorAll("#searchButton")[0].scrollIntoView(true)')
+                .elementById('searchButton').click()
+                .waitForElementsByCssSelector('div#progressRegion:empty', shared.timeout)
+                .waitForElementByCssSelector('.result-count i', asserters.textInclude('results'), shared.timeout)
+                .waitForElementsByCssSelector('a.metacard-link', shared.timeout)
+                .waitForConditionInBrowser('document.querySelectorAll("a.metacard-link").length >= 10', shared.timeout);
+        });
+
+        it("should display source status and filter options", function () {
+             return this.browser
                 .waitForElementById('status-icon', shared.timeout).click()
                 .waitForElementById('status-table', asserters.isDisplayed, shared.timeout)
                 .waitForElementByCssSelector('.filter-view.active', asserters.isDisplayed, shared.timeout)
@@ -59,13 +82,11 @@ describe('Contextual', function () {
                 .waitForElementByCssSelector('div.value-input-group input[name="stringValue1"]', shared.timeout)
                 .elementByCssSelector('input[name="stringValue1"]').clear().type('notfound')
                 .elementByCssSelector('.apply').click()
-                .waitForElementsByCssSelector('.fa-circle-o-notch', shared.timeout)
-                .waitForElementsByCssSelector('.hit-count', shared.timeout)
                 .waitForElementByCssSelector('.result-count i', asserters.textInclude('0'), shared.timeout)
                 .takeScreenshot().saveScreenshot(shared.getPathForScreenshot('result-notfound.png'))
                 .elementByCssSelector('input[name="stringValue1"]').clear().type('*')
                 .elementByCssSelector('.apply').click()
-                .waitForElementByCssSelector('.result-count i', asserters.textInclude('11'), shared.timeout);
+                .waitForConditionInBrowser('document.querySelectorAll("a.metacard-link").length >= 10', shared.timeout);
         });
 
         it("should be able to display uncached metacard summary", function () {
