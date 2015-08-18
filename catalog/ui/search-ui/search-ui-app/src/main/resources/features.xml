@@ -22,6 +22,8 @@
         <bundle>mvn:ddf.ui.search/search-redirect/${project.version}</bundle>
         <bundle>mvn:ddf.ui.search/search-htmltransformer/${project.version}</bundle>
         <bundle>mvn:ddf.ui.search/search-endpoint/${project.version}</bundle>
+        <!-- search-geocoder requires spatial-geocoding -->
+        <feature>spatial-geocoding</feature>
         <bundle>mvn:ddf.ui.search/search-geocoder/${project.version}</bundle>
         <bundle>mvn:ddf.ui.search/search-geonames/${project.version}</bundle>
 
