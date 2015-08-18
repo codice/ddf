@@ -23,6 +23,16 @@
         <bundle>mvn:ddf.distribution/sample-soap-endpoint/${project.version}</bundle>
     </feature>
 
+    <feature name="sample-filter" version="${project.version}" install="manual"
+             description="SDK sample metacard filter">
+        <bundle>mvn:ddf.distribution/sample-metacard-filter/${project.version}</bundle>
+    </feature>
+
+    <feature name="filter-plugin" version="${project.version}" install="manual"
+             description="Catalog Filter Plugin for DDF">
+        <bundle>mvn:ddf.catalog.security/catalog-security-filter/${project.version}</bundle>
+    </feature>
+
     <feature name="sdk-app" version="${project.version}" description="SDK app.">
         <feature>security-expansion</feature>
         <feature>security-pep-serviceauthz</feature>
