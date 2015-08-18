@@ -32,7 +32,7 @@ import javax.management.ObjectName;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.ui.admin.api.module.AdminModule;
-import org.codice.ddf.ui.admin.api.module.AdminModuleWrapper;
+import org.codice.ddf.ui.admin.api.module.AdminModuleDecorator;
 import org.codice.ddf.ui.admin.api.plugin.ConfigurationAdminPlugin;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
@@ -161,11 +161,11 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
     }
 
     public List<Map<String, Object>> listModules() {
-        List<AdminModuleWrapper> adminModules = AdminModuleWrapper.wrap(moduleList);
+        List<AdminModuleDecorator> adminModules = AdminModuleDecorator.wrap(moduleList);
         Collections.sort(adminModules);
         List<Map<String, Object>> modules = new ArrayList<Map<String, Object>>();
 
-        for (AdminModuleWrapper module : adminModules) {
+        for (AdminModuleDecorator module : adminModules) {
             if (module.isValid()) {
                 modules.add(module.toMap());
             } else {

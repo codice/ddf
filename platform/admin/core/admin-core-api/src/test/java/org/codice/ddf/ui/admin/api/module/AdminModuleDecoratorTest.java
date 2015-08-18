@@ -25,12 +25,10 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 
-public class AdminModuleWrapperTest {
+public class AdminModuleDecoratorTest {
 
-    @Mock
     private AdminModule module;
 
     @Before
@@ -39,10 +37,10 @@ public class AdminModuleWrapperTest {
     }
 
     @Test
-    public void testAdminModuleExt() {
+    public void testAdminModuleAdminModuleDecorator() {
         doReturn("test").when(module).getName();
         doReturn("0").when(module).getId();
-        AdminModuleWrapper proxy = new AdminModuleWrapper(module);
+        AdminModuleDecorator proxy = new AdminModuleDecorator(module);
         assertThat("values are proxied correctly", proxy.getName(), is(module.getName()));
         assertThat("values are proxied correctly", proxy.getId(), is(module.getId()));
     }
@@ -50,14 +48,14 @@ public class AdminModuleWrapperTest {
     @Test
     public void testValidAdminModule() throws URISyntaxException {
         doReturn(new URI("js/app.js")).when(module).getJSLocation();
-        AdminModuleWrapper proxy = new AdminModuleWrapper(module);
+        AdminModuleDecorator proxy = new AdminModuleDecorator(module);
         assertThat("relative paths are valid", proxy.isValid(), is(true));
     }
 
     @Test
     public void testInvalidAdminModule() throws URISyntaxException {
         doReturn(new URI("http://test/js/app.js")).when(module).getJSLocation();
-        AdminModuleWrapper proxy = new AdminModuleWrapper(module);
+        AdminModuleDecorator proxy = new AdminModuleDecorator(module);
         assertThat("absolute paths are not valid", proxy.isValid(), is(false));
     }
 
@@ -65,22 +63,38 @@ public class AdminModuleWrapperTest {
     public void testPartialInvalidAdminModule() throws URISyntaxException {
         doReturn(new URI("js/app.js")).when(module).getJSLocation();
         doReturn(new URI("/css/styles.css")).when(module).getCSSLocation();
-        AdminModuleWrapper proxy = new AdminModuleWrapper(module);
+        AdminModuleDecorator proxy = new AdminModuleDecorator(module);
         assertThat("any absolute paths are not valid", proxy.isValid(), is(false));
     }
 
     @Test
     public void testToMap() {
         doReturn("test").when(module).getName();
-        AdminModuleWrapper proxy = new AdminModuleWrapper(module);
+        AdminModuleDecorator proxy = new AdminModuleDecorator(module);
         String name = (String) proxy.toMap().get("name");
         assertThat("hash map gets constructed correctly", name, is("test"));
     }
 
     @Test
+    public void testURLToMap() throws URISyntaxException {
+        String uri = "js/app.js";
+        doReturn(new URI(uri)).when(module).getJSLocation();
+        AdminModuleDecorator proxy = new AdminModuleDecorator(module);
+        String jsLocation = (String) proxy.toMap().get("jsLocation");
+        assertThat("URLs get mapped to strings", jsLocation, is(uri));
+    }
+
+    @Test
+    public void testNullURLToMap() {
+        AdminModuleDecorator proxy = new AdminModuleDecorator(module);
+        String jsLocation = (String) proxy.toMap().get("jsLocation");
+        assertThat("null URLs get mapped to empty strings", jsLocation, is(""));
+    }
+
+    @Test
     public void testCompareTo() {
         doReturn("test").when(module).getName();
-        AdminModuleWrapper proxy = new AdminModuleWrapper(module);
+        AdminModuleDecorator proxy = new AdminModuleDecorator(module);
         assertThat("modules are the same if the have the same name", proxy.compareTo(module),
                 is(0));
     }
@@ -96,7 +110,7 @@ public class AdminModuleWrapperTest {
         list.add(world);
         list.add(hello);
 
-        List<AdminModuleWrapper> modules = AdminModuleWrapper.wrap(list);
+        List<AdminModuleDecorator> modules = AdminModuleDecorator.wrap(list);
         Collections.sort(modules);
 
         assertThat("modules are sorted lexographically by name", modules.get(0).getName(),

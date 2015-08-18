@@ -20,15 +20,15 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * AdminModuleWrapper - wraps the {@link AdminModule} interface and adds useful methods such as
+ * AdminModuleDecorator - wraps the {@link AdminModule} interface and adds useful methods such as
  * validation, comparison, and conversion to maps.
  * NOTE: a valid admin module cannot have any absolute urls.
  */
-public class AdminModuleWrapper implements AdminModule, Comparable {
+public class AdminModuleDecorator implements AdminModule, Comparable {
 
     private AdminModule module;
 
-    AdminModuleWrapper(AdminModule module) {
+    AdminModuleDecorator(AdminModule module) {
         this.module = module;
     }
 
@@ -37,10 +37,10 @@ public class AdminModuleWrapper implements AdminModule, Comparable {
      * @param adminList
      * @return
      */
-    public static List<AdminModuleWrapper> wrap(List<AdminModule> adminList) {
-        List<AdminModuleWrapper> list = new ArrayList<>();
+    public static List<AdminModuleDecorator> wrap(List<AdminModule> adminList) {
+        List<AdminModuleDecorator> list = new ArrayList<>();
         for (AdminModule module : adminList) {
-            list.add(new AdminModuleWrapper(module));
+            list.add(new AdminModuleDecorator(module));
         }
         return list;
     }
