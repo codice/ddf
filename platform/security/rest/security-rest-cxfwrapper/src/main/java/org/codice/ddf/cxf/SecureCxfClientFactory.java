@@ -158,7 +158,7 @@ public class SecureCxfClientFactory<T> {
      * @see #getClientForSubject(Subject subject)
      */
     public WebClient getWebClientForSubject(Subject subject) throws SecurityServiceException {
-        return WebClient.create((WebClient.client(getClientForSubject(subject))).getCurrentURI());
+        return WebClient.fromClientObject(getClientForSubject(subject));
     }
 
     /**
@@ -186,8 +186,7 @@ public class SecureCxfClientFactory<T> {
      */
     public WebClient getWebClientForBasicAuth(String username, String password)
             throws SecurityServiceException {
-        return WebClient.create((WebClient.client(getClientForBasicAuth(username, password)))
-                .getCurrentURI());
+        return WebClient.fromClientObject(getClientForBasicAuth(username, password));
 
     }
 
@@ -197,7 +196,6 @@ public class SecureCxfClientFactory<T> {
      * Since there is no security information to expire, this client may be reused.
      */
     public T getUnsecuredClient() throws SecurityServiceException {
-        String asciiString = clientFactory.getAddress();
         return getNewClient(null, null);
     }
 
@@ -207,7 +205,7 @@ public class SecureCxfClientFactory<T> {
      * @see #getUnsecuredClient()
      */
     public WebClient getUnsecuredWebClient() throws SecurityServiceException {
-        return WebClient.create((WebClient.client(getUnsecuredClient())).getCurrentURI());
+        return WebClient.fromClientObject(getUnsecuredClient());
     }
 
     private T getNewClient(String username, String password) throws SecurityServiceException {
