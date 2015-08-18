@@ -152,7 +152,7 @@ public class SolrMetacardClient {
     }
 
     protected SolrQuery getSolrQuery(QueryRequest request, SolrFilterDelegate solrFilterDelegate)
-        throws UnsupportedQueryException {
+            throws UnsupportedQueryException {
         solrFilterDelegate.setSortPolicy(request.getQuery().getSortBy());
         SolrQuery query = filterAdapter.adapt(request.getQuery(), solrFilterDelegate);
 
@@ -227,7 +227,7 @@ public class SolrMetacardClient {
     }
 
     private ResultImpl createResult(SolrDocument doc, String sortProperty)
-        throws MetacardCreationException {
+            throws MetacardCreationException {
         ResultImpl result = new ResultImpl(createMetacard(doc));
 
         if (doc.get(RELEVANCE_SORT_FIELD) != null) {
@@ -271,7 +271,7 @@ public class SolrMetacardClient {
     }
 
     public List<SolrInputDocument> add(List<Metacard> metacards, boolean forceAutoCommit)
-        throws IOException, SolrServerException, MetacardCreationException {
+            throws IOException, SolrServerException, MetacardCreationException {
         if (metacards == null || metacards.size() == 0) {
             return null;
         }
@@ -291,7 +291,7 @@ public class SolrMetacardClient {
     }
 
     protected SolrInputDocument getSolrInputDocument(Metacard metacard)
-        throws MetacardCreationException {
+            throws MetacardCreationException {
         SolrInputDocument solrInputDocument = new SolrInputDocument();
 
         resolver.addFields(metacard, solrInputDocument);
@@ -314,7 +314,17 @@ public class SolrMetacardClient {
             });
             server.deleteById((List<String>) identifiers);
         } else {
-            server.deleteByQuery(getIdentifierQuery(fieldName, identifiers));
+            if (identifiers.size() < SolrCatalogProvider.MAX_BOOLEAN_CLAUSES) {
+                server.deleteByQuery(getIdentifierQuery(fieldName, identifiers));
+            } else {
+                int i = 0;
+                for (i = SolrCatalogProvider.MAX_BOOLEAN_CLAUSES; i < identifiers.size(); i += SolrCatalogProvider.MAX_BOOLEAN_CLAUSES) {
+                    server.deleteByQuery(getIdentifierQuery(fieldName,
+                            identifiers.subList(i - SolrCatalogProvider.MAX_BOOLEAN_CLAUSES, i)));
+                }
+                server.deleteByQuery(getIdentifierQuery(fieldName,
+                        identifiers.subList(i - SolrCatalogProvider.MAX_BOOLEAN_CLAUSES, identifiers.size())));
+            }
         }
 
         if (forceCommit) {

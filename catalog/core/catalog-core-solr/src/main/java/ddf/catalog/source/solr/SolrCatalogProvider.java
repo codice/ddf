@@ -72,7 +72,6 @@ import ddf.catalog.util.impl.MaskableImpl;
 
 /**
  * {@link CatalogProvider} implementation using Apache Solr 4+
- *
  */
 public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider {
 
@@ -87,6 +86,8 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
     private static final String REQUEST_MUST_NOT_BE_NULL_MESSAGE = "Request must not be null";
 
     private static final double HASHMAP_DEFAULT_LOAD_FACTOR = 0.75;
+
+    public static final int MAX_BOOLEAN_CLAUSES = 1024;
 
     private static Properties describableProperties = new Properties();
 
@@ -108,9 +109,9 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
     /**
      * Constructor that creates a new instance and allows for a custom {@link DynamicSchemaResolver}
      *
-     * @param server    Solr server
-     * @param adapter   injected implementation of FilterAdapter
-     * @param resolver  Solr schema resolver
+     * @param server   Solr server
+     * @param adapter  injected implementation of FilterAdapter
+     * @param resolver Solr schema resolver
      */
     public SolrCatalogProvider(SolrServer server, FilterAdapter adapter,
             SolrFilterDelegateFactory solrFilterDelegateFactory, DynamicSchemaResolver resolver) {
@@ -132,8 +133,8 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
     /**
      * Convenience constructor that creates a new ddf.catalog.source.solr.DynamicSchemaResolver
      *
-     * @param server    Solr server
-     * @param adapter   injected implementation of FilterAdapter
+     * @param server  Solr server
+     * @param adapter injected implementation of FilterAdapter
      */
     public SolrCatalogProvider(SolrServer server, FilterAdapter adapter,
             SolrFilterDelegateFactory solrFilterDelegateFactory) {
@@ -460,6 +461,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
 
     @Override
     public DeleteResponse delete(DeleteRequest deleteRequest) throws IngestException {
+
         if (deleteRequest == null) {
             throw new IngestException(REQUEST_MUST_NOT_BE_NULL_MESSAGE);
         }
@@ -479,20 +481,43 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
             return new DeleteResponseImpl(deleteRequest, null, deletedMetacards);
         }
 
-        /* 1. Query first for the records */
-        String fieldName = attributeName + SchemaFields.TEXT_SUFFIX;
-        SolrQuery query = new SolrQuery(client.getIdentifierQuery(fieldName, identifiers));
-        query.setRows(identifiers.size());
+        if (identifiers.size() <=  MAX_BOOLEAN_CLAUSES) {
+            deleteListOfMetacards(deletedMetacards, identifiers, attributeName);
+        } else {
+            List<? extends Serializable> identifierPaged = null;
+            int currPagingSize = 0;
 
-        QueryResponse solrResponse;
+            for (currPagingSize = MAX_BOOLEAN_CLAUSES; currPagingSize < identifiers.size(); currPagingSize += MAX_BOOLEAN_CLAUSES) {
+                identifierPaged = identifiers
+                        .subList(currPagingSize - MAX_BOOLEAN_CLAUSES, currPagingSize);
+                deleteListOfMetacards(deletedMetacards, identifierPaged, attributeName);
+            }
+            identifierPaged = identifiers
+                    .subList(currPagingSize - MAX_BOOLEAN_CLAUSES, identifiers.size());
+            deleteListOfMetacards(deletedMetacards, identifierPaged, attributeName);
+        }
+        return new DeleteResponseImpl(deleteRequest, null, deletedMetacards);
+
+    }
+
+    private void deleteListOfMetacards(List<Metacard> deletedMetacards,
+            List<? extends Serializable> identifiers, String attributeName) throws IngestException {
+        String fieldName = attributeName + SchemaFields.TEXT_SUFFIX;
+        SolrDocumentList docs = getSolrDocumentList(identifiers, fieldName);
+        createListOfDeletedMetacards(deletedMetacards, docs);
+
         try {
-            solrResponse = server.query(query, METHOD.POST);
-        } catch (SolrServerException e) {
-            LOGGER.info("SOLR server exception deleting request message", e);
+            // the assumption is if something was deleted, it should be gone
+            // right away, such as expired data, etc.
+            // so we force the commit
+            client.deleteByIds(fieldName, identifiers, true);
+        } catch (SolrServerException | IOException e) {
             throw new IngestException(COULD_NOT_COMPLETE_DELETE_REQUEST_MESSAGE);
         }
+    }
 
-        SolrDocumentList docs = solrResponse.getResults();
+    private void createListOfDeletedMetacards(List<Metacard> deletedMetacards,
+            SolrDocumentList docs) throws IngestException {
 
         for (SolrDocument doc : docs) {
             if (LOGGER.isDebugEnabled()) {
@@ -508,18 +533,21 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
             }
 
         }
+    }
 
-        /* 2. Delete */
+    private SolrDocumentList getSolrDocumentList(List<? extends Serializable> identifierPaged,
+            String fieldName) throws IngestException {
+        SolrQuery query = new SolrQuery(client.getIdentifierQuery(fieldName, identifierPaged));
+        query.setRows(identifierPaged.size());
+
+        QueryResponse solrResponse;
         try {
-            // the assumption is if something was deleted, it should be gone
-            // right away, such as expired data, etc.
-            // so we force the commit
-            client.deleteByIds(fieldName, identifiers, true);
-        } catch (SolrServerException | IOException e) {
+            solrResponse = server.query(query, METHOD.POST);
+        } catch (SolrServerException e) {
+            LOGGER.info("SOLR server exception deleting request message", e);
             throw new IngestException(COULD_NOT_COMPLETE_DELETE_REQUEST_MESSAGE);
         }
-
-        return new DeleteResponseImpl(deleteRequest, null, deletedMetacards);
+        return solrResponse.getResults();
     }
 
     private void prepareForUpdate(Date now, String keyId, MetacardImpl newMetacard,
@@ -594,9 +622,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
         @Override
         public MetacardImpl createMetacard(SolrDocument doc) throws MetacardCreationException {
             MetacardImpl metacard = super.createMetacard(doc);
-
             metacard.setSourceId(getId());
-
             return metacard;
         }
     }
