@@ -218,8 +218,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                 .append(format);
 
         for (String term : query) {
-            buffer.append("&");
-            buffer.append(term);
+            buffer.append("&").append(term);
         }
 
         String url = buffer.toString();
@@ -233,8 +232,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                 .append(format);
 
         for (String term : query) {
-            buffer.append("&");
-            buffer.append(term);
+            buffer.append("&").append(term);
         }
 
         String url = buffer.toString();
