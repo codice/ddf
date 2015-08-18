@@ -194,22 +194,14 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
             }
 
             WebClient client;
-            try {
-                if (StringUtils.isNotEmpty(username) && StringUtils.isNotEmpty(password)) {
-                    client = factory.getWebClientForBasicAuth(username, password);
-                } else {
-                    client = factory.getUnsecuredWebClient();
-                }
-            } catch (SecurityServiceException sse) {
-                LOGGER.error("Could not connect to endpoint.", sse);
-                return false;
-            }
+            Response response;
 
-            Response response = null;
             try {
+                client = newOpenSearchClient(endpointUrl, null);
                 response = client.head();
             } catch (Exception e) {
                 LOGGER.warn("Web Client was unable to connect to endpoint.", e);
+                return false;
             }
 
             if (response != null && !(response.getStatus() >= 404 || response.getStatus() == 400
@@ -251,7 +243,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
             subject = (Subject) subjectObj;
         }
         try {
-            restWebClient = getOpenSearchWebClient(endpointUrl, subject);
+            restWebClient = newOpenSearchClient(endpointUrl, subject);
         } catch (SecurityServiceException sse) {
             LOGGER.error(
                     "Failed to get OpenSearchWebClient using endpointUrl and Security Subject.");
@@ -275,19 +267,12 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
                 response = processResponse(responseStream, queryRequest);
             }
         } else {
-            subject = null;
-            if (queryRequest.hasProperties()) {
-                Object subjectObj = queryRequest.getProperties()
-                        .get(SecurityConstants.SECURITY_SUBJECT);
-                subject = (Subject) subjectObj;
-            }
 
             try {
-                restWebClient = newRestClient(endpointUrl, queryRequest.getQuery(),
-                        (String) metacardId, false, subject);
-            } catch (SecurityServiceException e) {
-                throw new UnsupportedQueryException(
-                        "Unable to create REST Client for query using endpointURL.", e);
+                restWebClient = newRestClient(endpointUrl, query, (String) metacardId, false,
+                        subject);
+            } catch (SecurityServiceException sse) {
+                LOGGER.error("Failed to get client using either BasicAuth or Security Subject.");
             }
 
             if (restWebClient != null) {
@@ -832,7 +817,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
                 url = restUrl.buildUrl();
             }
         }
-        return getOpenSearchWebClient(url, subj);
+        return newOpenSearchClient(url, subj);
     }
 
     protected SecureCxfClientFactory tempFactory(String url) {
@@ -902,7 +887,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
      * @return A webclient for the endpoint URL either using BasicAuth, using the Security Subject, or an insecure client.
      * @throws SecurityServiceException
      */
-    private WebClient getOpenSearchWebClient(String url, Subject subj)
+    private WebClient newOpenSearchClient(String url, Subject subj)
             throws SecurityServiceException {
         SecureCxfClientFactory tempFactory = tempFactory(url);
         WebClient client;
