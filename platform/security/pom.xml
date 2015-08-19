@@ -206,8 +206,8 @@
         <module>servlet</module>
         <module>interceptor</module>
         <module>security-admin-module</module>
-        <module>docs</module>
         <module>certificate</module>
+        <module>docs</module>
     </modules>
 
 </project>
