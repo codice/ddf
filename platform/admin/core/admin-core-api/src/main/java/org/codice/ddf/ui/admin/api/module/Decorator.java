@@ -14,35 +14,19 @@
 package org.codice.ddf.ui.admin.api.module;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
- * AdminModuleDecorator - wraps the {@link AdminModule} interface and adds useful methods such as
- * validation, comparison, and conversion to maps.
- * NOTE: a valid admin module cannot have any absolute urls.
+ * Decorator - wraps the {@link AdminModule} interface and adds useful methods such as
+ * comparison and conversion to maps.
  */
-public class AdminModuleDecorator implements AdminModule, Comparable {
+public abstract class Decorator implements AdminModule, Comparable {
 
     private AdminModule module;
 
-    AdminModuleDecorator(AdminModule module) {
+    Decorator(AdminModule module) {
         this.module = module;
-    }
-
-    /**
-     * Wraps a list of {@link List<AdminModule>}.
-     * @param adminList
-     * @return
-     */
-    public static List<AdminModuleDecorator> wrap(List<AdminModule> adminList) {
-        List<AdminModuleDecorator> list = new ArrayList<>();
-        for (AdminModule module : adminList) {
-            list.add(new AdminModuleDecorator(module));
-        }
-        return list;
     }
 
     public String getName() {
@@ -63,20 +47,6 @@ public class AdminModuleDecorator implements AdminModule, Comparable {
 
     public URI getIframeLocation() {
         return module.getIframeLocation();
-    }
-
-    private boolean isValidURI(URI uri) {
-        return uri == null || (uri.toString().charAt(0) != '/' && !uri.isAbsolute());
-    }
-
-    /**
-     * Determine if an {@link AdminModule} is valid.
-     * NOTE: a valid module cannot contain absolute URIs.
-     * @return
-     */
-    public boolean isValid() {
-        return isValidURI(getJSLocation()) && isValidURI(getCSSLocation()) && isValidURI(
-                getIframeLocation());
     }
 
     /**
