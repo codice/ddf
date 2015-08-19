@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.certificate;
+package ddf.security.certificate.generator;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -52,8 +52,8 @@ import org.slf4j.LoggerFactory;
      ||
      |+-----------------------------------------------------------------------
      ||
-     ||      Constants:  MILLIS_IN_DAY - Number of milliseconds in a day
-     ||                  MILLIS_IN_YEAR - Number of milliseconds in a year
+     ||      Constants:  MILLIS_IN_DAY - Number of mi lliseconds in a day
+     ||                  MILLIS_IN_YEAR - Number of mi lliseconds in a year
      ||
      |+-----------------------------------------------------------------------
      ||
@@ -140,11 +140,11 @@ public class CertificateManager {
      * ---------------------------------------------------------------------
      * Method: signX509Certificate
      * <p/>
-     * Purpose:  Signs and returns a X509Certificate given a signing request and privateKey
+     * Purpose:  Signs and returns a X509Certificate given a signing request and getPrivateKey
      * <p/>
      * Pre-condition:  The X509v3CertificateBuilder has been initialized with subject, issuer, and data information.
      * <p/>
-     * Post-condition: The X509 returned is signed using the privateKey privKey
+     * Post-condition: The X509 returned is signed using the getPrivateKey privKey
      *
      * @param signingRequest an initialized signing request
      * @param privKey        the PrivateKey used to sign the certificate
