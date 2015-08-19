@@ -14,6 +14,7 @@
 package org.codice.ddf.ui.admin.api;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -51,6 +52,7 @@ import org.codice.ddf.ui.admin.api.module.AdminModule;
 import org.codice.ddf.ui.admin.api.plugin.ConfigurationAdminPlugin;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -780,6 +782,14 @@ public class ConfigurationAdminTest {
             configAdmin.update(TEST_PID, testConfigTable);
             verify(testConfig, times(i + 1)).update(any(Dictionary.class));
         }
+        Hashtable<String, Object> values = new Hashtable<>();
+        String key = getKey(CARDINALITY_ARRAY, TYPE.STRING);
+        String value = "[\"foo\",\"bar\",\"baz\"]";
+        values.put(key, value);
+        configAdmin.update(TEST_PID, values);
+        ArgumentCaptor<Dictionary> captor = ArgumentCaptor.forClass(Dictionary.class);
+        verify(testConfig, times(4)).update(captor.capture());
+        assertThat(((String[]) captor.getValue().get(key)).length, equalTo(3));
     }
 
     private Object getValue(int cardinality, TYPE type) {
