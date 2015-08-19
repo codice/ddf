@@ -39,6 +39,8 @@ import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.ui.admin.api.module.AdminModule;
 import org.codice.ddf.ui.admin.api.module.ValidationDecorator;
 import org.codice.ddf.ui.admin.api.plugin.ConfigurationAdminPlugin;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.metatype.AttributeDefinition;
@@ -535,7 +537,7 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
         mBeanServer = server;
     }
 
-    private static class CardinalityTransformer implements Transformer {
+    private class CardinalityTransformer implements Transformer {
         private final List<Map<String, Object>> metatype;
 
         private final String pid;
@@ -586,6 +588,13 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
             } else {
                 // negative cardinality means a vector, 0 is a string, and positive is an array
                 TYPE currentType = TYPE.forType(type);
+                if (value instanceof String && cardinality != 0) {
+                    try {
+                        value = new JSONParser().parse(String.valueOf(value));
+                    } catch (ParseException e) {
+                        logger.debug("{} is not a JSON array.", value, e);
+                    }
+                }
                 if (cardinality < 0) {
                     if (!(value instanceof Vector)) {
                         Vector<Object> newValue = new Vector<>();
