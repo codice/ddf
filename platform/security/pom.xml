@@ -209,6 +209,10 @@
         <module>interceptor</module>
         <module>certificate</module>
         <module>security-admin-module</module>
+<<<<<<< HEAD
+=======
+        <module>certificate</module>
+>>>>>>> DDF-1363
         <module>docs</module>
     </modules>
 
