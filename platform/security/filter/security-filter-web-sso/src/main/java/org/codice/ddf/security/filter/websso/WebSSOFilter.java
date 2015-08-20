@@ -53,8 +53,6 @@ public class WebSSOFilter implements Filter {
 
     private static final String SAML_COOKIE_REF = "org.codice.websso.saml.ref";
 
-    private static final String DDF_SECURITY_TOKEN = "ddf.security.securityToken";
-
     private static final String DDF_AUTHENTICATION_TOKEN = "ddf.security.token";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WebSSOFilter.class);
@@ -63,7 +61,7 @@ public class WebSSOFilter implements Filter {
      * Dynamic list of handlers that are registered to provide authentication
      * services.
      */
-    List<AuthenticationHandler> handlerList = new ArrayList<AuthenticationHandler>();
+    List<AuthenticationHandler> handlerList = new ArrayList<>();
 
     ContextPolicyManager contextPolicyManager;
 
@@ -73,7 +71,7 @@ public class WebSSOFilter implements Filter {
             LOGGER.debug("handlerList size is {}", handlerList.size());
 
             for (AuthenticationHandler authenticationHandler : handlerList) {
-                LOGGER.debug("AuthenticationHandler info: {}, {}",
+                LOGGER.debug("AuthenticationHandler type: {}, class: {}",
                         authenticationHandler.getAuthenticationType(),
                         authenticationHandler.getClass().getSimpleName());
             }
@@ -270,7 +268,7 @@ public class WebSSOFilter implements Filter {
     }
 
     private List<AuthenticationHandler> getHandlerList(String path) {
-        List<AuthenticationHandler> handlers = new ArrayList<AuthenticationHandler>();
+        List<AuthenticationHandler> handlers = new ArrayList<>();
         String handlerAuthMethod;
         if (contextPolicyManager != null) {
             ContextPolicy policy = contextPolicyManager.getContextPolicy(path);

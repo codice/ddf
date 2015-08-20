@@ -24,9 +24,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.Collections;
 
 import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -39,14 +40,31 @@ import org.codice.ddf.security.handler.api.HandlerResult.Status;
 import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.codice.ddf.security.policy.context.ContextPolicyManager;
 import org.junit.Test;
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 
 public class WebSSOFilterTest {
-
-    private static final String DDF_SECURITY_TOKEN = "ddf.security.securityToken";
 
     private static final String DDF_AUTHENTICATION_TOKEN = "ddf.security.token";
 
     private static final String MOCK_CONTEXT = "/test";
+
+    @Test
+    public void testInit() throws ServletException {
+        Logger logger = (Logger) LoggerFactory.getLogger(WebSSOFilter.class);
+        logger.setLevel(Level.DEBUG);
+
+        AuthenticationHandler handler = mock(AuthenticationHandler.class);
+        when(handler.getAuthenticationType()).thenReturn("basic");
+
+        WebSSOFilter webSSOFilter = new WebSSOFilter();
+        webSSOFilter.setHandlerList(Collections.singletonList(handler));
+        webSSOFilter.init(mock(FilterConfig.class));
+
+        logger.setLevel(Level.OFF);
+    }
 
     @Test
     public void testDoFilterWhiteListed() throws IOException, ServletException {
@@ -69,7 +87,7 @@ public class WebSSOFilterTest {
         when(handler1.getNormalizedToken(any(ServletRequest.class), any(ServletResponse.class),
                 any(FilterChain.class), eq(false))).thenReturn(noActionResult);
 
-        filter.setHandlerList(Arrays.asList(handler1));
+        filter.setHandlerList(Collections.singletonList(handler1));
         filter.setContextPolicyManager(policyManager);
 
         FilterChain filterChain = mock(FilterChain.class);
@@ -109,7 +127,7 @@ public class WebSSOFilterTest {
         when(handler1.getNormalizedToken(any(ServletRequest.class), any(ServletResponse.class),
                 any(FilterChain.class), eq(false))).thenReturn(noActionResult);
 
-        filter.setHandlerList(Arrays.asList(handler1));
+        filter.setHandlerList(Collections.singletonList(handler1));
 
         FilterChain filterChain = mock(FilterChain.class);
         HttpServletRequest request = mock(HttpServletRequest.class);
@@ -149,7 +167,7 @@ public class WebSSOFilterTest {
         when(handler1.getNormalizedToken(any(ServletRequest.class), any(ServletResponse.class),
                 any(FilterChain.class), eq(true))).thenReturn(redirectedResult);
 
-        filter.setHandlerList(Arrays.asList(handler1));
+        filter.setHandlerList(Collections.singletonList(handler1));
 
         FilterChain filterChain = mock(FilterChain.class);
         HttpServletRequest request = mock(HttpServletRequest.class);
@@ -165,16 +183,16 @@ public class WebSSOFilterTest {
     }
 
     @Test
-    public void testDoFilterForbidden() throws IOException, ServletException {
+    public void testDoFilterReturnsStatusCode503WhenNoHandlersRegistered()
+            throws IOException, ServletException {
         WebSSOFilter filter = new WebSSOFilter();
         FilterChain filterChain = mock(FilterChain.class);
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
         filter.doFilter(request, response, filterChain);
 
-        verify(response).setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        verify(response).setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
         verify(response).flushBuffer();
         verify(filterChain, never()).doFilter(request, response);
     }
-
 }
