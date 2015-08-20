@@ -125,6 +125,8 @@ public abstract class AbstractIntegrationTest {
 
     protected static final String DEFAULT_LOG_LEVEL = "TRACE";
 
+    public static final String CATALOG_FRAMEWORK_PID = "ddf.catalog.CatalogFrameworkImpl";
+
     protected String logLevel = "";
 
     public static final String TEST_LOGLEVEL_PROPERTY = "org.codice.test.defaultLoglevel";
@@ -156,6 +158,10 @@ public abstract class AbstractIntegrationTest {
             System.setProperty("org.ops4j.pax.url.mvn.localRepository",
                     System.getProperty("maven.repo.local"));
         }
+    }
+
+    public org.codice.ddf.ui.admin.api.ConfigurationAdmin getDdfConfigAdmin() {
+        return new org.codice.ddf.ui.admin.api.ConfigurationAdmin(configAdmin);
     }
 
     /**
@@ -307,7 +313,7 @@ public abstract class AbstractIntegrationTest {
     }
 
     /**
-     * Starts a Managed Service. Waits for the asynchronous call that the properties have bee
+     * Starts a Managed Service. Waits for the asynchronous call that the properties have been
      * updated and the service can be used.
      * <p/>
      * For Managed Services created from a Managed Service Factory, use
@@ -319,7 +325,7 @@ public abstract class AbstractIntegrationTest {
      */
     public void startManagedService(String servicePid, Map<String, Object> properties)
             throws IOException {
-        Configuration sourceConfig = configAdmin.getConfiguration(servicePid);
+        Configuration sourceConfig = configAdmin.getConfiguration(servicePid, null);
 
         startManagedService(sourceConfig, properties);
     }
@@ -331,7 +337,7 @@ public abstract class AbstractIntegrationTest {
 
         bundleCtx.registerService(ConfigurationListener.class.getName(), listener, null);
 
-        sourceConfig.update(new Hashtable<>(properties));
+        getDdfConfigAdmin().update(sourceConfig.getPid(), properties);
 
         long millis = 0;
         while (!listener.isUpdated() && millis < TimeUnit.MINUTES.toMillis(10)) {
@@ -367,10 +373,7 @@ public abstract class AbstractIntegrationTest {
     }
 
     protected void setFanout(boolean fanoutEnabled) throws IOException {
-        Configuration configuration = configAdmin
-                .getConfiguration("ddf.catalog.CatalogFrameworkImpl", null);
-
-        Dictionary<String, Object> properties = configuration.getProperties();
+        Map<String, Object> properties = getDdfConfigAdmin().getProperties(CATALOG_FRAMEWORK_PID);
         if (properties == null) {
             properties = new Hashtable<String, Object>();
         }
@@ -380,7 +383,7 @@ public abstract class AbstractIntegrationTest {
             properties.put("fanoutEnabled", "False");
         }
 
-        configuration.update(properties);
+        startManagedService(CATALOG_FRAMEWORK_PID, properties);
     }
 
     protected void waitForAllBundles() throws InterruptedException {

@@ -581,9 +581,7 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
             Object value = entry.getValue();
 
             // ensure we don't allow any empty values
-            if (value == null || StringUtils.isEmpty(String.valueOf(value)) || (
-                    (value.getClass().isArray() || value instanceof Collection) && CollectionUtils
-                            .sizeIsEmpty(value))) {
+            if (value == null || StringUtils.isEmpty(String.valueOf(value))) {
                 value = "";
             } else {
                 // negative cardinality means a vector, 0 is a string, and positive is an array
@@ -592,7 +590,7 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
                     try {
                         value = new JSONParser().parse(String.valueOf(value));
                     } catch (ParseException e) {
-                        logger.debug("{} is not a JSON array.", value, e);
+                        LOGGER.debug("{} is not a JSON array.", value, e);
                     }
                 }
                 if (cardinality < 0) {
