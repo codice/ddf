@@ -1,0 +1,102 @@
+@activeColor: #18BC9C;
+@highlightColor : lighten(@activeColor, 35);
+
+.delete {
+  text-decoration: none !important;
+}
+
+table.align-middle{
+  td {
+    vertical-align: middle !important;
+  }
+}
+
+.drop-zone {
+  border-radius: 4px;
+  text-align: center;
+  border: dashed 2px darken(#ecf0f1, 20%);
+  padding-top: 15px;
+  padding-bottom: 15px;
+  background: #ecf0f1;
+  .title {
+    font-size: 32px;
+    color: darken(#ecf0f1, 45%);
+  }
+  .padding {
+    padding-top: 20px;
+    padding-bottom: 20px;
+  }
+}
+
+.store-table {
+  td {
+    border-top: solid 1px #E2E2E2 !important;
+  }
+  th {
+    border-bottom: solid 2px #E2E2E2 !important;
+  }
+}
+
+.modal-filename-column {
+  max-width: 400px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.modal-filesize-column {
+  max-width: 125px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.file-edit-region {
+  padding: 10px;
+  input {
+    width: 400px;
+  }
+  label {
+    display: block;
+  }
+  input {
+    display: block;
+  }
+}
+
+.IframeModalDOM {
+  padding-top: 30px;
+  padding-bottom: 30px
+}
+
+.btn.status {
+  padding: 4px;
+  font-size: 8px;
+  float: right;
+}
+
+.newLink {
+  text-decoration: none!important;
+  width: 100%;
+  font-weight: 700;
+}
+
+.card-style-toggle .btn {
+  color: #fff;
+  background-color: #95a5a6;
+  border-color: #95a5a6;
+  padding: 7px 6px 4px;
+}
+
+.delete-modal-body {
+  min-height: 400px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.no-results {
+  height: 100px;
+  display: table;
+  .message {
+    display: table-cell;
+    vertical-align: middle;
+  }
+}
