@@ -223,6 +223,13 @@
         <bundle>mvn:ddf.security.interceptor/security-interceptor-anonymous-wrapper/${project.version}</bundle>
     </feature>
 
+    <feature name="security-certificate" install="manual"
+             version="${project.version}"
+             description="Keystore editor MBean and associated web application.">
+        <bundle>mvn:ddf.security.certificate/security-certificate-keystoreeditor/${project.version}</bundle>
+        <bundle>mvn:ddf.security.certificate/security-certificate-adminmodule/${project.version}</bundle>
+    </feature>
+
     <feature name="security-anonymous" install="manual" version="${project.version}"
              description="Contains all of the anonymous security features.">
         <feature>security-handler-anonymous</feature>
