@@ -205,6 +205,7 @@
         <module>filter</module>
         <module>servlet</module>
         <module>interceptor</module>
+        <module>certificate</module>
         <module>security-admin-module</module>
         <module>docs</module>
     </modules>
