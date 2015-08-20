@@ -18,8 +18,13 @@ import org.junit.Test;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.security.cert.CertificateException;
 
 public class TestPemFile {
+
+    public static final String CERTIFICATE = "certificate-demoCA.pem";
+    public static final String PRIVATE_KEY = "private-key-3des-encypted-password_changeit.pem";
+    public static final char[] PASSWORD = "changeit".toCharArray();
 
     private String getPathTo(String path) {
         return getClass().getClassLoader().getResource(path).getPath();
@@ -32,21 +37,33 @@ public class TestPemFile {
     @Test
     public void testEncryptedPrivateKeyNullPassword() throws FileNotFoundException {
 
-        PemFile.get(getPathTo("private-key-3des-encypted-password_changeit.pem"), null);
+        PemFile.get(getPathTo(PRIVATE_KEY), null);
     }
 
-    @Test
+    @Test(expected = IOException.class)
     public void testEncryptedPrivateKeyWrongPassword() throws IOException {
 
-        PemFile pf = PemFile.get(getPathTo("private-key-3des-encypted-password_changeit.pem"), "ThisIsNotPassword".toCharArray());
+        PemFile pf = PemFile.get(getPathTo(PRIVATE_KEY), "ThisIsNotPassword".toCharArray());
         pf.getPrivateKey();
     }
 
     @Test
-       public void testEncryptedPrivateKey() throws IOException {
+    public void testEncryptedPrivateKey() throws IOException {
+        PemFile pemFile = PemFile.get(getPathTo(PRIVATE_KEY), PASSWORD);
+        pemFile.getPrivateKey();
+    }
 
-        PemFile pf = PemFile.get(getPathTo("private-key-3des-encypted-password_changeit.pem"), "changeit".toCharArray());
-        pf.getPrivateKey();
+    @Test(expected = IOException.class)
+    public void testWrongPemObject() throws IOException {
+        PemFile pemFile = PemFile.get(getPathTo(CERTIFICATE));
+        pemFile.getPrivateKey();
+
+    }
+
+    @Test
+    public void testCertificate() throws IOException, CertificateException {
+        PemFile pemFile = PemFile.get(getPathTo(CERTIFICATE));
+        pemFile.getCertificate();
     }
 }
 

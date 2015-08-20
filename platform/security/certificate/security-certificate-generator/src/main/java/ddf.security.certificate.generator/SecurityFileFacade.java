@@ -13,6 +13,7 @@
  */
 package ddf.security.certificate.generator;
 
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +21,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
+import java.security.Security;
 
 /**
  * Common superclass that loosely groups the classes that wrap security-related files. The common behavior is
@@ -29,6 +31,9 @@ public abstract class SecurityFileFacade {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SecurityFileFacade.class);
 
+    protected static void registerBCSecurityProvider() {
+        Security.addProvider(new BouncyCastleProvider());
+    }
 
     protected static char[] formatPassword(char[] password) {
         return password == null ? new char[0] : password;
