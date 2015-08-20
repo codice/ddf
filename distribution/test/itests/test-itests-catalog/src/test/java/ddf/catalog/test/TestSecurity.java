@@ -22,9 +22,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Dictionary;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.TimeZone;
 
 import org.hamcrest.xml.HasXPath;
@@ -139,26 +137,26 @@ public class TestSecurity extends AbstractIntegrationTest {
     private void configureRestForAnonymous() throws IOException, InterruptedException {
         PolicyProperties policyProperties = new PolicyProperties();
         policyProperties.put("authenticationTypes",
-                "/=SAML|ANON,/admin=SAML|basic,/jolokia=SAML|basic,/system=SAML|basic,/solr=SAML|PKI|basic");
+                new String[] {"/=SAML|ANON", "/admin=SAML|basic", "/jolokia=SAML|basic",
+                        "/system=SAML|basic", "/solr=SAML|PKI|basic"});
         policyProperties.put("whiteListContexts",
-                "/services/SecurityTokenService,/services/internal,/proxy," + SERVICE_ROOT
-                        + "/sdk/SoapService");
+                new String[] {"/services/SecurityTokenService", "/services/internal", "/proxy",
+                        SERVICE_ROOT + "/sdk/SoapService"});
         Configuration config = configAdmin.getConfiguration(PolicyProperties.FACTORY_PID, null);
-        Dictionary<String, ?> configProps = new Hashtable<>(policyProperties);
-        config.update(configProps);
+        startManagedService(config.getPid(), policyProperties);
         waitForAllBundles();
     }
 
     private void configureRestForBasic() throws IOException, InterruptedException {
         PolicyProperties policyProperties = new PolicyProperties();
         policyProperties.put("authenticationTypes",
-                "/=SAML|basic,/admin=SAML|basic,/jolokia=SAML|basic,/system=SAML|basic,/solr=SAML|PKI|basic");
+                new String[] {"/=SAML|basic", "/admin=SAML|basic", "/jolokia=SAML|basic",
+                        "/system=SAML|basic", "/solr=SAML|PKI|basic"});
         policyProperties.put("whiteListContexts",
-                "/services/SecurityTokenService,/services/internal,/proxy," + SERVICE_ROOT
-                        + "/sdk/SoapService");
+                new String[] {"/services/SecurityTokenService", "/services/internal", "/proxy",
+                        SERVICE_ROOT + "/sdk/SoapService"});
         Configuration config = configAdmin.getConfiguration(PolicyProperties.FACTORY_PID, null);
-        Dictionary<String, ?> configProps = new Hashtable<>(policyProperties);
-        config.update(configProps);
+        startManagedService(config.getPid(), policyProperties);
         waitForAllBundles();
     }
 

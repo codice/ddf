@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package ddf.catalog.test;
 
@@ -93,7 +92,7 @@ public abstract class AbstractIntegrationTest {
     protected static final String LOGGER_PREFIX = "log4j.logger.";
 
     protected static final String KARAF_VERSION = "2.4.3";
-    
+
     protected static final int ONE_MINUTE_MILLIS = 60000;
 
     protected static final int FIVE_MINUTES_MILLIS = ONE_MINUTE_MILLIS * 5;
@@ -119,6 +118,8 @@ public abstract class AbstractIntegrationTest {
     protected static final String OPENSEARCH_PATH = REST_PATH + "query";
 
     protected static final String DEFAULT_LOG_LEVEL = "TRACE";
+
+    public static final String CATALOG_FRAMEWORK_PID = "ddf.catalog.CatalogFrameworkImpl";
 
     protected String logLevel = "";
 
@@ -151,6 +152,10 @@ public abstract class AbstractIntegrationTest {
             System.setProperty("org.ops4j.pax.url.mvn.localRepository",
                     System.getProperty("maven.repo.local"));
         }
+    }
+
+    public org.codice.ddf.ui.admin.api.ConfigurationAdmin getDdfConfigAdmin() {
+        return new org.codice.ddf.ui.admin.api.ConfigurationAdmin(configAdmin);
     }
 
     /**
@@ -186,8 +191,7 @@ public abstract class AbstractIntegrationTest {
     }
 
     protected Option[] configurePaxExam() {
-        return options(logLevel(LogLevelOption.LogLevel.INFO),
-                useOwnExamBundlesStartLevel(100),
+        return options(logLevel(LogLevelOption.LogLevel.INFO), useOwnExamBundlesStartLevel(100),
                 // increase timeout for TravisCI
                 systemTimeout(TimeUnit.MINUTES.toMillis(10)),
                 when(Boolean.getBoolean("keepRuntimeFolder")).useOptions(keepRuntimeFolder()));
@@ -234,16 +238,17 @@ public abstract class AbstractIntegrationTest {
 
     protected Option[] configureMavenRepos() {
         return options(editConfigurationFilePut("etc/org.ops4j.pax.url.mvn.cfg",
-                "org.ops4j.pax.url.mvn.repositories", "http://repo1.maven.org/maven2@id=central,"
-                        + "http://oss.sonatype.org/content/repositories/snapshots@snapshots@noreleases@id=sonatype-snapshot,"
-                        + "http://oss.sonatype.org/content/repositories/ops4j-snapshots@snapshots@noreleases@id=ops4j-snapshot,"
-                        + "http://repository.apache.org/content/groups/snapshots-group@snapshots@noreleases@id=apache,"
-                        + "http://svn.apache.org/repos/asf/servicemix/m2-repo@id=servicemix,"
-                        + "http://repository.springsource.com/maven/bundles/release@id=springsource,"
-                        + "http://repository.springsource.com/maven/bundles/external@id=springsourceext,"
-                        + "http://oss.sonatype.org/content/repositories/releases/@id=sonatype"),
-                when(System.getProperty("maven.repo.local") != null)
-                        .useOptions(editConfigurationFilePut("etc/org.ops4j.pax.url.mvn.cfg",
+                        "org.ops4j.pax.url.mvn.repositories",
+                        "http://repo1.maven.org/maven2@id=central,"
+                                + "http://oss.sonatype.org/content/repositories/snapshots@snapshots@noreleases@id=sonatype-snapshot,"
+                                + "http://oss.sonatype.org/content/repositories/ops4j-snapshots@snapshots@noreleases@id=ops4j-snapshot,"
+                                + "http://repository.apache.org/content/groups/snapshots-group@snapshots@noreleases@id=apache,"
+                                + "http://svn.apache.org/repos/asf/servicemix/m2-repo@id=servicemix,"
+                                + "http://repository.springsource.com/maven/bundles/release@id=springsource,"
+                                + "http://repository.springsource.com/maven/bundles/external@id=springsourceext,"
+                                + "http://oss.sonatype.org/content/repositories/releases/@id=sonatype"),
+                when(System.getProperty("maven.repo.local") != null).useOptions(
+                        editConfigurationFilePut("etc/org.ops4j.pax.url.mvn.cfg",
                                 "org.ops4j.pax.url.mvn.localRepository",
                                 System.getProperty("maven.repo.local"))));
     }
@@ -302,7 +307,7 @@ public abstract class AbstractIntegrationTest {
     }
 
     /**
-     * Starts a Managed Service. Waits for the asynchronous call that the properties have bee
+     * Starts a Managed Service. Waits for the asynchronous call that the properties have been
      * updated and the service can be used.
      * <p/>
      * For Managed Services created from a Managed Service Factory, use
@@ -314,7 +319,7 @@ public abstract class AbstractIntegrationTest {
      */
     public void startManagedService(String servicePid, Map<String, Object> properties)
             throws IOException {
-        Configuration sourceConfig = configAdmin.getConfiguration(servicePid);
+        Configuration sourceConfig = configAdmin.getConfiguration(servicePid, null);
 
         startManagedService(sourceConfig, properties);
     }
@@ -326,7 +331,7 @@ public abstract class AbstractIntegrationTest {
 
         bundleCtx.registerService(ConfigurationListener.class.getName(), listener, null);
 
-        sourceConfig.update(new Hashtable<>(properties));
+        getDdfConfigAdmin().update(sourceConfig.getPid(), properties);
 
         long millis = 0;
         while (!listener.isUpdated() && millis < TimeUnit.MINUTES.toMillis(10)) {
@@ -362,10 +367,7 @@ public abstract class AbstractIntegrationTest {
     }
 
     protected void setFanout(boolean fanoutEnabled) throws IOException {
-        Configuration configuration = configAdmin.getConfiguration(
-                "ddf.catalog.CatalogFrameworkImpl", null);
-
-        Dictionary<String, Object> properties =  configuration.getProperties();
+        Map<String, Object> properties = getDdfConfigAdmin().getProperties(CATALOG_FRAMEWORK_PID);
         if (properties == null) {
             properties = new Hashtable<String, Object>();
         }
@@ -375,7 +377,7 @@ public abstract class AbstractIntegrationTest {
             properties.put("fanoutEnabled", "False");
         }
 
-        configuration.update(properties);
+        startManagedService(CATALOG_FRAMEWORK_PID, properties);
     }
 
     protected void waitForAllBundles() throws InterruptedException {
