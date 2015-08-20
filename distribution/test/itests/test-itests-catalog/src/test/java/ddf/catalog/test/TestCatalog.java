@@ -23,9 +23,14 @@ import static com.jayway.restassured.RestAssured.when;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
@@ -185,6 +190,39 @@ public class TestCatalog extends AbstractIntegrationTest {
         } catch (Exception e) {
             LOGGER.error("Couldn't start filter plugin");
         }
+    }
+
+    @Test
+    public void testContentDirectoryMonitor() throws Exception {
+        startFeature(true, "content-core-directorymonitor");
+        final String TMP_PREFIX = "tcdm_";
+        Path tmpDir = Files.createTempDirectory(TMP_PREFIX);
+        tmpDir.toFile().deleteOnExit();
+        Path tmpFile = Files.createTempFile(tmpDir, TMP_PREFIX, "_tmp.xml");
+        tmpFile.toFile().deleteOnExit();
+        Files.copy(this.getClass().getClassLoader().getResourceAsStream("metacard5.xml"), tmpFile,
+                StandardCopyOption.REPLACE_EXISTING);
+
+        Map<String, Object> cdmProperties = new HashMap<>();
+        cdmProperties.putAll(getMetatypeDefaults("content-core-directorymonitor",
+                "ddf.content.core.directorymonitor.ContentDirectoryMonitor"));
+        cdmProperties.put("monitoredDirectoryPath", tmpDir.toString() + "/"); // Must end with /
+        cdmProperties.put("directive", "STORE_AND_PROCESS");
+        createManagedService("ddf.content.core.directorymonitor.ContentDirectoryMonitor",
+                cdmProperties);
+
+        long startTime = System.nanoTime();
+        ValidatableResponse response = null;
+        do {
+            response = executeOpenSearch("xml", "q=*SysAdmin*");
+            if (response.extract().xmlPath().getList("metacards.metacard").size() == 1) {
+                break;
+            }
+            try {
+                TimeUnit.MILLISECONDS.sleep(50);
+            } catch (InterruptedException e ) {}
+        } while (TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime) < ONE_MINUTE_MILLIS);
+        response.body("metcards.metacard.size()", equalTo(1));
     }
 
     private void configureRestForBasic() throws IOException, InterruptedException {
