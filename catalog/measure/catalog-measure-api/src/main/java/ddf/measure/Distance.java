@@ -15,6 +15,10 @@
 package ddf.measure;
 
 import static javax.measure.unit.NonSI.MILE;
+import static org.apache.commons.lang.Validate.notNull;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
@@ -32,11 +36,8 @@ public final class Distance {
     private double distanceInMeters = 0.0;
 
     /**
-     *
-     * @param distance
-     *            scalar value
-     * @param unitOfMeasure
-     *            the units of measure of the scalar distance
+     * @param distance      scalar value
+     * @param unitOfMeasure the units of measure of the scalar distance
      */
     public Distance(double distance, LinearUnit unitOfMeasure) {
 
@@ -124,10 +125,52 @@ public final class Distance {
     }
 
     /**
-     * The Enum LinearUnit for the distance in meters
+     * Enumeration for the linear units supported by DDF.
      */
     public enum LinearUnit {
-        METER, KILOMETER, NAUTICAL_MILE, MILE, FOOT_U_S, YARD
-    }
+        METER, KILOMETER, NAUTICAL_MILE, MILE, FOOT_U_S, YARD;
 
+        static Map<String, LinearUnit> stringsToValues = new HashMap<>();
+
+        static {
+            for (LinearUnit linearUnit : LinearUnit.values()) {
+                stringsToValues.put(linearUnit.name().toUpperCase(), linearUnit);
+            }
+
+            stringsToValues.put("NAUTICALMILE", NAUTICAL_MILE);
+            stringsToValues.put("FOOT", FOOT_U_S);
+        }
+
+        /**
+         * Returns the {@link ddf.measure.Distance.LinearUnit} enumeration value corresponding to
+         * the string provided. It should be used as a replacement for the default
+         * {@code valueOf()} method.
+         * <p>
+         * This method can map all values supported by the default {@code valueOf()} method in
+         * addition to the following:
+         * <ul>
+         * <li><i>foot</i> (for {@link ddf.measure.Distance.LinearUnit#FOOT_U_S})</li>
+         * <li><i>nauticalmile</i> (for {@link ddf.measure.Distance.LinearUnit#NAUTICAL_MILE})</li>
+         * </ul>
+         * </p>
+         * As opposed to {@code valueOf()}, this method is case-insensitive and will for instance
+         * work with <i>nauticalmile</i>, <i>NAUTICALMILE</i> and <i>nauticalMile</i>.
+         *
+         * @param enumValueString string representing the enumeration value to return.
+         *                        Cannot be {@code null} or empty.
+         * @return enumeration value corresponding to the string provided
+         * @throws IllegalArgumentException thrown if the string provided doesn't map to any
+         *                                  enumeration value, is {@code null} or empty
+         */
+        public static LinearUnit fromString(String enumValueString) {
+            notNull(enumValueString, "Enumeration string cannot be null");
+
+            LinearUnit linearUnit = stringsToValues.get(enumValueString.toUpperCase());
+
+            notNull(linearUnit,
+                    "Invalid enumeration string provided for LinearUnit: " + enumValueString);
+
+            return linearUnit;
+        }
+    }
 }
