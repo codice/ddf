@@ -32,8 +32,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequest;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.DeleteTransaction;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.InsertTransaction;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.DeleteAction;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.InsertAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.DefaultCswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.XStreamAttributeCopier;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswEndpoint;
@@ -98,8 +98,8 @@ public class TransactionRequestConverter implements Converter {
                     // move back up to the <SearchResults> parent of the <csw:Record> tags
                     reader.moveUp();
                 }
-                cswTransactionRequest
-                        .addInsertTransaction(new InsertTransaction(typeName, handle, metacards));
+                cswTransactionRequest.getInsertActions()
+                        .add(new InsertAction(typeName, handle, metacards));
             } else if (reader.getNodeName().contains("Delete")) {
                 Map<String, String> xmlnsAttributeToUriMappings = null;
                 Map<String, String> prefixToUriMappings;
@@ -141,8 +141,8 @@ public class TransactionRequestConverter implements Converter {
                 }
 
                 DeleteType deleteType = root.getValue();
-                cswTransactionRequest.addDeleteTransaction(
-                        new DeleteTransaction(deleteType, prefixToUriMappings));
+                cswTransactionRequest.getDeleteActions()
+                        .add(new DeleteAction(deleteType, prefixToUriMappings));
             }
             reader.moveUp();
         }

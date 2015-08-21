@@ -62,8 +62,8 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordByIdRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordsRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequest;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.DeleteTransaction;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.InsertTransaction;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.DeleteAction;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.InsertAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.DefaultCswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings.CswRecordMapperFilterVisitor;
 import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;
@@ -465,8 +465,8 @@ public class CswEndpoint implements Csw {
         response.setVersion(CswConstants.VERSION_2_0_2);
 
         int numInserted = 0;
-        for (InsertTransaction insertTransaction : request.getInsertTransactions()) {
-            CreateRequest createRequest = new CreateRequestImpl(insertTransaction.getRecords());
+        for (InsertAction insertAction : request.getInsertActions()) {
+            CreateRequest createRequest = new CreateRequestImpl(insertAction.getRecords());
             try {
                 CreateResponse createResponse = framework.create(createRequest);
                 if (request.isVerbose()) {
@@ -481,9 +481,9 @@ public class CswEndpoint implements Csw {
         response.getTransactionSummary().setTotalInserted(BigInteger.valueOf(numInserted));
 
         int numDeleted = 0;
-        for (DeleteTransaction deleteTransaction : request.getDeleteTransactions()) {
+        for (DeleteAction deleteAction : request.getDeleteActions()) {
             try {
-                numDeleted += deleteRecords(deleteTransaction);
+                numDeleted += deleteRecords(deleteAction);
             } catch (FederationException | IngestException | SourceUnavailableException |
                     UnsupportedQueryException e) {
                 LOGGER.error("Unable to delete records", e);
@@ -539,12 +539,12 @@ public class CswEndpoint implements Csw {
         return result;
     }
 
-    private int deleteRecords(DeleteTransaction deleteTransaction)
+    private int deleteRecords(DeleteAction deleteAction)
             throws CswException, FederationException, IngestException, SourceUnavailableException,
             UnsupportedQueryException {
-        List<QName> qNames = typeStringToQNames(deleteTransaction.getTypeName(),
-                deleteTransaction.getPrefixToUriMappings());
-        Filter filter = buildFilter(deleteTransaction.getConstraint(), qNames).getVisitedFilter();
+        List<QName> qNames = typeStringToQNames(deleteAction.getTypeName(),
+                deleteAction.getPrefixToUriMappings());
+        Filter filter = buildFilter(deleteAction.getConstraint(), qNames).getVisitedFilter();
         QueryImpl query = new QueryImpl(filter);
         query.setPageSize(-1);
 

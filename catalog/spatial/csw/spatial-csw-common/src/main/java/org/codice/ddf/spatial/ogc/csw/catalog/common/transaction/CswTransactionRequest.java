@@ -17,8 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Represents a single CSW transaction request that can contain multiple inserts, updates, and
- * deletes.
+ * Represents a single CSW transaction request that can contain multiple insert, update, and delete
+ * actions.
  */
 public class CswTransactionRequest {
 
@@ -28,9 +28,9 @@ public class CswTransactionRequest {
 
     private boolean verbose;
 
-    private final List<InsertTransaction> insertTransactions = new ArrayList<>();
+    private final List<InsertAction> insertActions = new ArrayList<>();
 
-    private final List<DeleteTransaction> deleteTransactions = new ArrayList<>();
+    private final List<DeleteAction> deleteActions = new ArrayList<>();
 
     public String getVersion() {
         return version;
@@ -56,19 +56,11 @@ public class CswTransactionRequest {
         this.verbose = verbose;
     }
 
-    public List<InsertTransaction> getInsertTransactions() {
-        return insertTransactions;
+    public List<InsertAction> getInsertActions() {
+        return insertActions;
     }
 
-    public void addInsertTransaction(InsertTransaction insertTransaction) {
-        insertTransactions.add(insertTransaction);
-    }
-
-    public List<DeleteTransaction> getDeleteTransactions() {
-        return deleteTransactions;
-    }
-
-    public void addDeleteTransaction(DeleteTransaction deleteTransaction) {
-        deleteTransactions.add(deleteTransaction);
+    public List<DeleteAction> getDeleteActions() {
+        return deleteActions;
     }
 }

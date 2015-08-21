@@ -61,8 +61,8 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.DescribeRecordRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordsRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequest;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.DeleteTransaction;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.InsertTransaction;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.DeleteAction;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.InsertAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.DefaultCswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;
 import org.geotools.filter.AttributeExpressionImpl;
@@ -1995,7 +1995,7 @@ public class TestCswEndpoint {
     public void testIngestTransaction()
             throws CswException, SourceUnavailableException, FederationException, IngestException {
         CswTransactionRequest request = new CswTransactionRequest();
-        request.addInsertTransaction(new InsertTransaction(CswConstants.CSW_TYPE, null,
+        request.getInsertActions().add(new InsertAction(CswConstants.CSW_TYPE, null,
                 Arrays.<Metacard>asList(new MetacardImpl())));
 
         CatalogFramework framework = mock(CatalogFramework.class);
@@ -2024,7 +2024,7 @@ public class TestCswEndpoint {
     public void testIngestVerboseTransaction()
             throws CswException, SourceUnavailableException, FederationException, IngestException {
         CswTransactionRequest request = new CswTransactionRequest();
-        request.addInsertTransaction(new InsertTransaction(CswConstants.CSW_TYPE, null,
+        request.getInsertActions().add(new InsertAction(CswConstants.CSW_TYPE, null,
                 Arrays.<Metacard>asList(new MetacardImpl())));
         request.setVerbose(true);
 
@@ -2082,11 +2082,11 @@ public class TestCswEndpoint {
         DeleteResponse deleteResponse = new DeleteResponseImpl(null, null, deletedMetacards);
         doReturn(deleteResponse).when(framework).delete(any(DeleteRequest.class));
 
-        DeleteTransaction deleteTransaction = new DeleteTransaction(deleteType,
+        DeleteAction deleteAction = new DeleteAction(deleteType,
                 DefaultCswRecordMap.getDefaultCswRecordMap().getPrefixToUriMapping());
 
         CswTransactionRequest deleteRequest = new CswTransactionRequest();
-        deleteRequest.addDeleteTransaction(deleteTransaction);
+        deleteRequest.getDeleteActions().add(deleteAction);
         deleteRequest.setVersion(CswConstants.VERSION_2_0_2);
         deleteRequest.setService(CswConstants.CSW);
         deleteRequest.setVerbose(false);

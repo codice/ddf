@@ -26,8 +26,8 @@ import java.io.IOException;
 import org.apache.commons.io.IOUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequest;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.DeleteTransaction;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.InsertTransaction;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.DeleteAction;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.InsertAction;
 import org.junit.Test;
 
 import com.thoughtworks.xstream.converters.Converter;
@@ -146,12 +146,12 @@ public class TestTransactionMessageBodyReader {
                 .readFrom(CswTransactionRequest.class, null, null, null, null,
                         IOUtils.toInputStream(getInsertRequest(COUNT)));
         assertThat(request, notNullValue());
-        assertThat(request.getInsertTransactions().size(), is(1));
-        assertThat(request.getDeleteTransactions().size(), is(0));
+        assertThat(request.getInsertActions().size(), is(1));
+        assertThat(request.getDeleteActions().size(), is(0));
 
-        InsertTransaction insertTransaction = request.getInsertTransactions().get(0);
-        assertThat(insertTransaction, notNullValue());
-        assertThat(insertTransaction.getRecords().size(), is(COUNT));
+        InsertAction insertAction = request.getInsertActions().get(0);
+        assertThat(insertAction, notNullValue());
+        assertThat(insertAction.getRecords().size(), is(COUNT));
         assertThat(request.getService(), is(CswConstants.CSW));
         assertThat(request.getVersion(), is(CswConstants.VERSION_2_0_2));
         assertThat(request.isVerbose(), is(true));
@@ -165,15 +165,15 @@ public class TestTransactionMessageBodyReader {
                 .readFrom(CswTransactionRequest.class, null, null, null, null,
                         IOUtils.toInputStream(DELETE_REQUEST_FILTER_XML));
         assertThat(request, notNullValue());
-        assertThat(request.getDeleteTransactions().size(), is(1));
-        assertThat(request.getInsertTransactions().size(), is(0));
+        assertThat(request.getDeleteActions().size(), is(1));
+        assertThat(request.getInsertActions().size(), is(0));
 
-        DeleteTransaction deleteTransaction = request.getDeleteTransactions().get(0);
-        assertThat(deleteTransaction, notNullValue());
-        assertThat(deleteTransaction.getTypeName(), is(CswConstants.CSW_RECORD));
-        assertThat(deleteTransaction.getHandle(), is("something"));
-        assertThat(deleteTransaction.getConstraint(), notNullValue());
-        assertThat(deleteTransaction.getConstraint().getFilter(), notNullValue());
+        DeleteAction deleteAction = request.getDeleteActions().get(0);
+        assertThat(deleteAction, notNullValue());
+        assertThat(deleteAction.getTypeName(), is(CswConstants.CSW_RECORD));
+        assertThat(deleteAction.getHandle(), is("something"));
+        assertThat(deleteAction.getConstraint(), notNullValue());
+        assertThat(deleteAction.getConstraint().getFilter(), notNullValue());
         assertThat(request.getService(), is(CswConstants.CSW));
         assertThat(request.getVersion(), is(CswConstants.VERSION_2_0_2));
         assertThat(request.isVerbose(), is(false));
@@ -187,15 +187,15 @@ public class TestTransactionMessageBodyReader {
                 .readFrom(CswTransactionRequest.class, null, null, null, null,
                         IOUtils.toInputStream(DELETE_REQUEST_CQL_XML));
         assertThat(request, notNullValue());
-        assertThat(request.getDeleteTransactions().size(), is(1));
-        assertThat(request.getInsertTransactions().size(), is(0));
+        assertThat(request.getDeleteActions().size(), is(1));
+        assertThat(request.getInsertActions().size(), is(0));
 
-        DeleteTransaction deleteTransaction = request.getDeleteTransactions().get(0);
-        assertThat(deleteTransaction, notNullValue());
-        assertThat(deleteTransaction.getTypeName(), is(CswConstants.CSW_RECORD));
-        assertThat(deleteTransaction.getHandle(), is("something"));
-        assertThat(deleteTransaction.getConstraint(), notNullValue());
-        assertThat(deleteTransaction.getConstraint().getCqlText().trim(), is("title = 'foo'"));
+        DeleteAction deleteAction = request.getDeleteActions().get(0);
+        assertThat(deleteAction, notNullValue());
+        assertThat(deleteAction.getTypeName(), is(CswConstants.CSW_RECORD));
+        assertThat(deleteAction.getHandle(), is("something"));
+        assertThat(deleteAction.getConstraint(), notNullValue());
+        assertThat(deleteAction.getConstraint().getCqlText().trim(), is("title = 'foo'"));
         assertThat(request.getService(), is(CswConstants.CSW));
         assertThat(request.getVersion(), is(CswConstants.VERSION_2_0_2));
         assertThat(request.isVerbose(), is(false));
@@ -215,19 +215,19 @@ public class TestTransactionMessageBodyReader {
                 .readFrom(CswTransactionRequest.class, null, null, null, null,
                         IOUtils.toInputStream(INSERT_AND_DELETE_REQUEST_XML));
         assertThat(request, notNullValue());
-        assertThat(request.getDeleteTransactions().size(), is(1));
-        assertThat(request.getInsertTransactions().size(), is(1));
+        assertThat(request.getDeleteActions().size(), is(1));
+        assertThat(request.getInsertActions().size(), is(1));
 
-        DeleteTransaction deleteTransaction = request.getDeleteTransactions().get(0);
-        assertThat(deleteTransaction, notNullValue());
-        assertThat(deleteTransaction.getTypeName(), is(CswConstants.CSW_RECORD));
-        assertThat(deleteTransaction.getHandle(), is("something"));
-        assertThat(deleteTransaction.getConstraint(), notNullValue());
-        assertThat(deleteTransaction.getConstraint().getCqlText().trim(), is("title = 'foo'"));
+        DeleteAction deleteAction = request.getDeleteActions().get(0);
+        assertThat(deleteAction, notNullValue());
+        assertThat(deleteAction.getTypeName(), is(CswConstants.CSW_RECORD));
+        assertThat(deleteAction.getHandle(), is("something"));
+        assertThat(deleteAction.getConstraint(), notNullValue());
+        assertThat(deleteAction.getConstraint().getCqlText().trim(), is("title = 'foo'"));
 
-        InsertTransaction insertTransaction = request.getInsertTransactions().get(0);
-        assertThat(insertTransaction, notNullValue());
-        assertThat(insertTransaction.getRecords().size(), is(1));
+        InsertAction insertAction = request.getInsertActions().get(0);
+        assertThat(insertAction, notNullValue());
+        assertThat(insertAction.getRecords().size(), is(1));
 
         assertThat(request.getService(), is(CswConstants.CSW));
         assertThat(request.getVersion(), is(CswConstants.VERSION_2_0_2));
