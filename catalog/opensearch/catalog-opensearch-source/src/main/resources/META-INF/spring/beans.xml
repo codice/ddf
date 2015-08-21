@@ -26,11 +26,14 @@
        	http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 
-
     <osgi:reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>
 
     <osgi:reference id="securitySettings"
                     interface="ddf.security.settings.SecuritySettingsService"/>
+
+    <reference id="resourceReader" interface="ddf.catalog.resource.ResourceReader"
+               filter="(shortname=URLResourceReader)"/>
+
 
     <osgix:managed-service-factory id="DDFfederationPrototypeServiceFactory"
                                    factory-pid="OpenSearchSource"
@@ -55,6 +58,7 @@
             <beans:property name="securitySettings" ref="securitySettings"/>
             <beans:property name="parameters"
                             value="q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"/>
+            <beans:property name="resourceReader" ref="resourceReader" />
             <beans:constructor-arg ref="filterAdapter"/>
         </beans:bean>
 

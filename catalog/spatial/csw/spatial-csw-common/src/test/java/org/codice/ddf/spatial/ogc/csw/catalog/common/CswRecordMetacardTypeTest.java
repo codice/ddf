@@ -240,16 +240,16 @@ public class CswRecordMetacardTypeTest {
     }
 
     @Test
-    public void testCswMetacardHasBasicMetacardDescriptorsAsIsStoredFalse() {
+    public void testCswMetacardHasBasicMetacardDescriptorsAsIsStoredTrue() {
         MetacardType cswMetacard = new CswRecordMetacardType();
-        assertThat(cswMetacard.getAttributeDescriptor(Metacard.ID).isStored(), is(false));
-        assertThat(cswMetacard.getAttributeDescriptor(Metacard.TITLE).isStored(), is(false));
-        assertThat(cswMetacard.getAttributeDescriptor(Metacard.METADATA).isStored(), is(false));
-        assertThat(cswMetacard.getAttributeDescriptor(Metacard.EFFECTIVE).isStored(), is(false));
-        assertThat(cswMetacard.getAttributeDescriptor(Metacard.MODIFIED).isStored(), is(false));
-        assertThat(cswMetacard.getAttributeDescriptor(Metacard.CREATED).isStored(), is(false));
-        assertThat(cswMetacard.getAttributeDescriptor(Metacard.RESOURCE_URI).isStored(), is(false));
-        assertThat(cswMetacard.getAttributeDescriptor(Metacard.CONTENT_TYPE).isStored(), is(false));
+        assertThat(cswMetacard.getAttributeDescriptor(Metacard.ID).isStored(), is(true));
+        assertThat(cswMetacard.getAttributeDescriptor(Metacard.TITLE).isStored(), is(true));
+        assertThat(cswMetacard.getAttributeDescriptor(Metacard.METADATA).isStored(), is(true));
+        assertThat(cswMetacard.getAttributeDescriptor(Metacard.EFFECTIVE).isStored(), is(true));
+        assertThat(cswMetacard.getAttributeDescriptor(Metacard.MODIFIED).isStored(), is(true));
+        assertThat(cswMetacard.getAttributeDescriptor(Metacard.CREATED).isStored(), is(true));
+        assertThat(cswMetacard.getAttributeDescriptor(Metacard.RESOURCE_URI).isStored(), is(true));
+        assertThat(cswMetacard.getAttributeDescriptor(Metacard.CONTENT_TYPE).isStored(), is(true));
     }
 
 }

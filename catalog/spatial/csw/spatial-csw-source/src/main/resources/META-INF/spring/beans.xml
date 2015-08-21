@@ -29,11 +29,8 @@
 
     <reference id="mimeTypeMapper" interface="ddf.mime.MimeTypeMapper"/>
 
-    <!--
-    The list of registered ResourceReaders, e.g., URLResourceReader, that are selected based
-    upon their support for a specific scheme.
-    -->
-    <list id="resourceReaders" interface="ddf.catalog.resource.ResourceReader"/>
+    <reference id="resourceReader" interface="ddf.catalog.resource.ResourceReader"
+               filter="(shortname=URLResourceReader)"/>
 
     <reference id="cswTransformProvider" interface="com.thoughtworks.xstream.converters.Converter"/>
 
@@ -75,7 +72,7 @@
                 <beans:list></beans:list>
             </beans:property>
             <beans:property name="pollInterval" value=""/>
-            <beans:property name="resourceReaders" ref="resourceReaders"/>
+            <beans:property name="resourceReader" ref="resourceReader"/>
             <beans:property name="outputSchema" value=""/>
             <beans:property name="queryTypeQName" value=""/>
             <beans:property name="queryTypePrefix" value=""/>
@@ -121,7 +118,7 @@
                 <beans:list></beans:list>
             </beans:property>
             <beans:property name="pollInterval" value=""/>
-            <beans:property name="resourceReaders" ref="resourceReaders"/>
+            <beans:property name="resourceReader" ref="resourceReader"/>
             <beans:property name="outputSchema" value=""/>
             <beans:property name="queryTypeQName" value=""/>
             <beans:property name="queryTypePrefix" value=""/>

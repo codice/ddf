@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.spatial.ogc.csw.catalog.converter;
 
 import java.util.HashMap;
@@ -40,6 +39,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
+
 import net.opengis.cat.csw.v_2_0_2.ResultType;
 
 /**
@@ -71,8 +71,6 @@ public class GetRecordsResponseConverter implements Converter {
 
     private Converter transformProvider;
 
-    private DefaultCswRecordMap defaultCswRecordMap = new DefaultCswRecordMap();
-
     private String outputSchema = CswConstants.CSW_OUTPUT_SCHEMA;
 
     /**
@@ -102,7 +100,7 @@ public class GetRecordsResponseConverter implements Converter {
         }
         CswRecordCollection cswRecordCollection = (CswRecordCollection) source;
 
-        for (Entry<String, String> entry : defaultCswRecordMap.getPrefixToUriMapping().entrySet()) {
+        for (Entry<String, String> entry : DefaultCswRecordMap.getPrefixToUriMapping().entrySet()) {
             writer.addAttribute(
                     XMLConstants.XMLNS_ATTRIBUTE + CswConstants.NAMESPACE_DELIMITER + entry
                             .getKey(), entry.getValue());
