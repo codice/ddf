@@ -10,7 +10,6 @@ This page describes:
 * How to verify if the DDF Standard Search UI was successfully installed.
 * How to uninstall the DDF Standard Search UI.
 * How to upgrade the DDF Standard Search UI.
-* Optional features available in the DDF Standard Search UI.
 
 == Prerequisites
 
@@ -241,15 +240,6 @@ To upgrade an application, complete the following procedure.
 `features:install admin-app`
 . Start the application.
 . Complete the steps in the Verify section above to determine if the upgrade was successful.
-
-== Optional Features
-
-=== Offline Gazetteer Service
-
-In the Admin UI, you have the option to install a feature called `offline-gazetteer`. This feature enables you to use an offline index of GeoNames data (as an alternative to the GeoNames Web service) to perform searches
-via the gazetteer search box in the Search UI.
-
-To use the offline gazetteer, you will need to create an index. To do so, you'll need to use the `geonames:update` command which is explained in the `Managing` documentation for DDF Spatial.
 
 == Troubleshooting {branding} Standard Search UI
 
