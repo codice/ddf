@@ -105,9 +105,9 @@ public class ConfigurationAdminTest {
 
     public static final int CARDINALITY_VECTOR = -100;
 
-    public static final int CARDINALITY_STRING = 0;
+    public static final int CARDINALITY_PRIMITIVE = 0;
 
-    public static final int[] CARDINALITIES = new int[] {CARDINALITY_VECTOR, CARDINALITY_STRING,
+    public static final int[] CARDINALITIES = new int[] {CARDINALITY_VECTOR, CARDINALITY_PRIMITIVE,
             CARDINALITY_ARRAY};
 
     public static final int TEST_INT = 42;
@@ -784,12 +784,16 @@ public class ConfigurationAdminTest {
         }
         Hashtable<String, Object> values = new Hashtable<>();
         String key = getKey(CARDINALITY_ARRAY, TYPE.STRING);
-        String value = "[\"foo\",\"bar\",\"baz\"]";
-        values.put(key, value);
+        values.put(key, "[\"foo\",\"bar\",\"baz\"]");
         configAdmin.update(TEST_PID, values);
         ArgumentCaptor<Dictionary> captor = ArgumentCaptor.forClass(Dictionary.class);
         verify(testConfig, times(4)).update(captor.capture());
         assertThat(((String[]) captor.getValue().get(key)).length, equalTo(3));
+        key = getKey(CARDINALITY_PRIMITIVE, TYPE.BOOLEAN);
+        values.put(key, "true");
+        configAdmin.update(TEST_PID, values);
+        verify(testConfig, times(5)).update(captor.capture());
+        assertThat((Boolean) captor.getValue().get(key), equalTo(true));
     }
 
     private Object getValue(int cardinality, TYPE type) {
@@ -835,7 +839,7 @@ public class ConfigurationAdminTest {
             Vector<Object> vector = new Vector<>();
             vector.add(value);
             return vector;
-        case CARDINALITY_STRING:
+        case CARDINALITY_PRIMITIVE:
             return value;
         case CARDINALITY_ARRAY:
             return new Object[] {value};
@@ -888,7 +892,7 @@ public class ConfigurationAdminTest {
     public void testUpdateNullValue() throws Exception {
         ConfigurationAdmin configAdmin = getConfigAdmin();
         Map<String, Object> testConfigTable = new HashMap<>();
-        testConfigTable.put(getKey(CARDINALITY_STRING, TYPE.STRING), null);
+        testConfigTable.put(getKey(CARDINALITY_PRIMITIVE, TYPE.STRING), null);
 
         configAdmin.update(TEST_PID, testConfigTable);
         verify(testConfig).update(any(Dictionary.class));

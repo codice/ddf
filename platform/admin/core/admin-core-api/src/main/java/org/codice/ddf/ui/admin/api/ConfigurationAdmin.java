@@ -47,6 +47,8 @@ import org.osgi.service.metatype.AttributeDefinition;
 import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
+import com.github.drapostolos.typeparser.TypeParser;
+
 /**
  * @author Scott Tustison
  */
@@ -405,35 +407,22 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
      * @see ConfigurationAdminMBean#updateForLocation(java.lang.String, java.lang.String,
      * java.util.Map)
      */
-    // unfortunately listServices returns a bunch of nested untyped objects
-    @SuppressWarnings("unchecked")
     public void updateForLocation(final String pid, String location,
             Map<String, Object> configurationTable) throws IOException {
         if (pid == null || pid.length() < 1) {
-            throw new IOException("Argument pid cannot be null or empty");
+            throw loggedException("Argument pid cannot be null or empty");
         }
         if (configurationTable == null) {
-            throw new IOException("Argument configurationTable cannot be null");
+            throw loggedException("Argument configurationTable cannot be null");
         }
 
-        // find the config's metatype so we can check cardinality
         Configuration config = configurationAdmin.getConfiguration(pid, location);
-        List<Map<String, Object>> services = listServices();
-        List<Map<String, Object>> tempMetatype = null;
-        for (Map<String, Object> service : services) {
-            String id = (String) service.get(ConfigurationAdminExt.MAP_ENTRY_ID);
-            if (id.equals(config.getPid()) || (id.equals(config.getFactoryPid()) && Boolean
-                    .valueOf(String.valueOf(service.get(ConfigurationAdminExt.MAP_FACTORY))))) {
-                tempMetatype = (List<Map<String, Object>>) service
-                        .get(ConfigurationAdminExt.MAP_ENTRY_METATYPE);
-            }
-        }
 
-        final List<Map<String, Object>> metatype = tempMetatype;
+        final List<Map<String, Object>> metatype = findMetatypeForConfig(config);
         List<Map.Entry<String, Object>> configEntries = new ArrayList<>();
         configEntries.addAll(configurationTable.entrySet());
         if (metatype == null) {
-            throw new IllegalArgumentException("Could not find metatype for " + pid);
+            throw loggedException("Could not find metatype for " + pid);
         }
         // now we have to filter each property based on its cardinality
         CollectionUtils.transform(configEntries, new CardinalityTransformer(metatype, pid));
@@ -443,6 +432,22 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
             configurationProperties.put(configEntry.getKey(), configEntry.getValue());
         }
         config.update(configurationProperties);
+    }
+
+    // unfortunately listServices returns a bunch of nested untyped objects
+    @SuppressWarnings("unchecked")
+    private List<Map<String, Object>> findMetatypeForConfig(Configuration config) {
+        List<Map<String, Object>> services = listServices();
+        List<Map<String, Object>> tempMetatype = null;
+        for (Map<String, Object> service : services) {
+            String id = String.valueOf(service.get(ConfigurationAdminExt.MAP_ENTRY_ID));
+            if (id.equals(config.getPid()) || (id.equals(config.getFactoryPid()) && Boolean
+                    .valueOf(String.valueOf(service.get(ConfigurationAdminExt.MAP_FACTORY))))) {
+                tempMetatype = (List<Map<String, Object>>) service
+                        .get(ConfigurationAdminExt.MAP_ENTRY_METATYPE);
+            }
+        }
+        return tempMetatype;
     }
 
     public List<String> getFilterList() {
@@ -552,31 +557,26 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
         @SuppressWarnings("unchecked")
         public Object transform(Object input) {
             if (!(input instanceof Map.Entry)) {
-                throw new IllegalArgumentException("Cannot transform " + input);
+                throw loggedException("Cannot transform " + input);
             }
             Map.Entry<String, Object> entry = (Map.Entry<String, Object>) input;
             String attrId = entry.getKey();
             if (attrId == null) {
-                throw new IllegalArgumentException("Found null key for " + pid);
+                throw loggedException("Found null key for " + pid);
             }
             Integer cardinality = null;
             Integer type = null;
-            // the PIDs have no metatype, but they should be strings
-            if (attrId.equals(SERVICE_PID) || attrId.equals(SERVICE_FACTORYPID)) {
-                cardinality = 0;
-                type = TYPE.STRING.getType();
-            } else {
-                for (Map<String, Object> property : metatype) {
-                    if (attrId.equals(property.get(ConfigurationAdminExt.MAP_ENTRY_ID))) {
-                        cardinality = (Integer) property
-                                .get(ConfigurationAdminExt.MAP_ENTRY_CARDINALITY);
-                        type = (Integer) property.get(ConfigurationAdminExt.MAP_ENTRY_TYPE);
-                    }
+            for (Map<String, Object> property : metatype) {
+                if (attrId.equals(property.get(ConfigurationAdminExt.MAP_ENTRY_ID))) {
+                    cardinality = Integer.valueOf(String.valueOf(
+                            property.get(ConfigurationAdminExt.MAP_ENTRY_CARDINALITY)));
+                    type = (Integer) property.get(ConfigurationAdminExt.MAP_ENTRY_TYPE);
                 }
             }
             if (cardinality == null || type == null) {
-                throw new IllegalArgumentException(
-                        "Could not find property " + attrId + " in metatype for config " + pid);
+                LOGGER.debug("Could not find property {} in metatype for config {}", attrId, pid);
+                cardinality = 0;
+                type = TYPE.STRING.getType();
             }
             Object value = entry.getValue();
 
@@ -585,7 +585,8 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
                 value = "";
             } else {
                 // negative cardinality means a vector, 0 is a string, and positive is an array
-                TYPE currentType = TYPE.forType(type);
+                CardinalityEnforcer cardinalityEnforcer = TYPE.forType(type)
+                        .getCardinalityEnforcer();
                 if (value instanceof String && cardinality != 0) {
                     try {
                         value = new JSONParser().parse(String.valueOf(value));
@@ -594,41 +595,11 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
                     }
                 }
                 if (cardinality < 0) {
-                    if (!(value instanceof Vector)) {
-                        Vector<Object> newValue = new Vector<>();
-                        if (value.getClass().isArray()) {
-                            for (int i = 0; i < Array.getLength(value); i++) {
-                                newValue.add(Array.get(value, i));
-                            }
-                        } else if (value instanceof Collection) {
-                            newValue.addAll((Collection) value);
-                        } else {
-                            newValue.add(value);
-                        }
-                        value = currentType.toTypedVector(newValue);
-                    } else {
-                        value = currentType.toTypedVector((Vector<Object>) value);
-                    }
+                    value = cardinalityEnforcer.negativeCardinality(value);
                 } else if (cardinality == 0) {
-                    if (value.getClass().isArray() || value instanceof Collection) {
-                        if (CollectionUtils.size(value) != 1) {
-                            throw new IllegalArgumentException(
-                                    "Attempt on 0-cardinality property " + attrId + " in config "
-                                            + pid + " to set multiple values:" + value);
-                        }
-                        value = CollectionUtils.get(value, 0);
-                    }
+                    value = cardinalityEnforcer.zerothCardinality(value);
                 } else if (cardinality > 0) {
-                    if (!value.getClass().isArray()) {
-                        if (value instanceof Collection) {
-                            value = currentType.toTypedArray(((Collection) (value)).toArray());
-                        } else {
-                            value = currentType
-                                    .toTypedArray((Collections.singletonList(value)).toArray());
-                        }
-                    } else {
-                        value = currentType.toTypedArray((Object[]) value);
-                    }
+                    value = cardinalityEnforcer.positiveCardinality(value);
                 }
             }
 
@@ -638,223 +609,84 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
         }
     }
 
+    private static class CardinalityEnforcer<T> {
+        private final Class<T> clazz;
+
+        public CardinalityEnforcer(Class<T> clazz) {
+            this.clazz = clazz;
+        }
+
+        @SuppressWarnings("unchecked")
+        public T[] positiveCardinality(Object value) {
+            Vector<T> vector = negativeCardinality(value);
+            return vector.toArray((T[]) Array.newInstance(clazz, vector.size()));
+        }
+
+        public Vector<T> negativeCardinality(Object value) {
+            if (!(value.getClass().isArray() || value instanceof Collection)) {
+                value = new Object[] {value};
+            }
+            Vector<T> ret = new Vector<>();
+            for (int i = 0; i < CollectionUtils.size(value); i++) {
+                Object currentValue = CollectionUtils.get(value, i);
+                ret.add(zerothCardinality(currentValue));
+            }
+            return ret;
+        }
+
+        public T zerothCardinality(Object value) {
+            if (value.getClass().isArray() || value instanceof Collection) {
+                if (CollectionUtils.size(value) != 1) {
+                    throw loggedException(
+                            "Attempt on 0-cardinality property to set multiple values:" + value);
+                }
+                value = CollectionUtils.get(value, 0);
+            }
+            if (value instanceof String) {
+                value = TypeParser.newBuilder().build().parse(String.valueOf(value), clazz);
+            }
+            if (clazz.isInstance(value)) {
+                return clazz.cast(value);
+            }
+            throw loggedException("Failed to parse " + value + " as " + clazz);
+        }
+    }
+
+    private static IllegalArgumentException loggedException(String message) {
+        IllegalArgumentException exception = new IllegalArgumentException(message);
+        LOGGER.error(message, exception);
+        return exception;
+    }
+
     // felix won't take Object[] or Vector<Object>, so here we
     // map all the osgi constants to strongly typed arrays/vectors
     enum TYPE {
-        STRING(AttributeDefinition.STRING) {
-            @Override
-            public Object toTypedArray(Object[] array) {
-                String[] ret = new String[array.length];
-                for (int i = 0; i < array.length; i++) {
-                    ret[i] = String.valueOf(array[i]);
-                }
-                return ret;
-            }
-
-            @Override
-            public Object toTypedVector(Vector<Object> vector) {
-                Vector<String> ret = new Vector<>();
-                for (Object o : vector) {
-                    ret.add(String.valueOf(o));
-                }
-                return ret;
-            }
-        }, LONG(AttributeDefinition.LONG) {
-            @Override
-            public Object toTypedArray(Object[] array) {
-                Long[] ret = new Long[array.length];
-                for (int i = 0; i < array.length; i++) {
-                    ret[i] = (Long) array[i];
-                }
-                return ret;
-            }
-
-            @Override
-            public Object toTypedVector(Vector<Object> vector) {
-                Vector<Long> ret = new Vector<>();
-                for (Object o : vector) {
-                    ret.add((Long) o);
-                }
-                return ret;
-            }
-        }, INTEGER(AttributeDefinition.INTEGER) {
-            @Override
-            public Object toTypedArray(Object[] array) {
-                Integer[] ret = new Integer[array.length];
-                for (int i = 0; i < array.length; i++) {
-                    ret[i] = (Integer) array[i];
-                }
-                return ret;
-            }
-
-            @Override
-            public Object toTypedVector(Vector<Object> vector) {
-                Vector<Integer> ret = new Vector<>();
-                for (Object o : vector) {
-                    ret.add((Integer) o);
-                }
-                return ret;
-            }
-        }, SHORT(AttributeDefinition.SHORT) {
-            @Override
-            public Object toTypedArray(Object[] array) {
-                Short[] ret = new Short[array.length];
-                for (int i = 0; i < array.length; i++) {
-                    ret[i] = (Short) array[i];
-                }
-                return ret;
-            }
-
-            @Override
-            public Object toTypedVector(Vector<Object> vector) {
-                Vector<Short> ret = new Vector<>();
-                for (Object o : vector) {
-                    ret.add((Short) o);
-                }
-                return ret;
-            }
-        }, CHARACTER(AttributeDefinition.CHARACTER) {
-            @Override
-            public Object toTypedArray(Object[] array) {
-                Character[] ret = new Character[array.length];
-                for (int i = 0; i < array.length; i++) {
-                    ret[i] = (Character) array[i];
-                }
-                return ret;
-            }
-
-            @Override
-            public Object toTypedVector(Vector<Object> vector) {
-                Vector<Character> ret = new Vector<>();
-                for (Object o : vector) {
-                    ret.add((Character) o);
-                }
-                return ret;
-            }
-        }, BYTE(AttributeDefinition.BYTE) {
-            @Override
-            public Object toTypedArray(Object[] array) {
-                Byte[] ret = new Byte[array.length];
-                for (int i = 0; i < array.length; i++) {
-                    ret[i] = (Byte) array[i];
-                }
-                return ret;
-            }
-
-            @Override
-            public Object toTypedVector(Vector<Object> vector) {
-                Vector<Byte> ret = new Vector<>();
-                for (Object o : vector) {
-                    ret.add((Byte) o);
-                }
-                return ret;
-            }
-        }, DOUBLE(AttributeDefinition.DOUBLE) {
-            @Override
-            public Object toTypedArray(Object[] array) {
-                Double[] ret = new Double[array.length];
-                for (int i = 0; i < array.length; i++) {
-                    ret[i] = (Double) array[i];
-                }
-                return ret;
-            }
-
-            @Override
-            public Object toTypedVector(Vector<Object> vector) {
-                Vector<Double> ret = new Vector<>();
-                for (Object o : vector) {
-                    ret.add((Double) o);
-                }
-                return ret;
-            }
-        }, FLOAT(AttributeDefinition.FLOAT) {
-            @Override
-            public Object toTypedArray(Object[] array) {
-                Float[] ret = new Float[array.length];
-                for (int i = 0; i < array.length; i++) {
-                    ret[i] = (Float) array[i];
-                }
-                return ret;
-            }
-
-            @Override
-            public Object toTypedVector(Vector<Object> vector) {
-                Vector<Float> ret = new Vector<>();
-                for (Object o : vector) {
-                    ret.add((Float) o);
-                }
-                return ret;
-            }
-        }, BIGINTEGER(AttributeDefinition.BIGINTEGER) {
-            @Override
-            public Object toTypedArray(Object[] array) {
-                BigInteger[] ret = new BigInteger[array.length];
-                for (int i = 0; i < array.length; i++) {
-                    ret[i] = (BigInteger) array[i];
-                }
-                return ret;
-            }
-
-            @Override
-            public Object toTypedVector(Vector<Object> vector) {
-                Vector<BigInteger> ret = new Vector<>();
-                for (Object o : vector) {
-                    ret.add((BigInteger) o);
-                }
-                return ret;
-            }
-        }, BIGDECIMAL(AttributeDefinition.BIGDECIMAL) {
-            @Override
-            public Object toTypedArray(Object[] array) {
-                BigDecimal[] ret = new BigDecimal[array.length];
-                for (int i = 0; i < array.length; i++) {
-                    ret[i] = (BigDecimal) array[i];
-                }
-                return ret;
-            }
-
-            @Override
-            public Object toTypedVector(Vector<Object> vector) {
-                Vector<BigDecimal> ret = new Vector<>();
-                for (Object o : vector) {
-                    ret.add((BigDecimal) o);
-                }
-                return ret;
-            }
-        }, BOOLEAN(AttributeDefinition.BOOLEAN) {
-            @Override
-            public Object toTypedArray(Object[] array) {
-                Boolean[] ret = new Boolean[array.length];
-                for (int i = 0; i < array.length; i++) {
-                    ret[i] = (Boolean) array[i];
-                }
-                return ret;
-            }
-
-            @Override
-            public Object toTypedVector(Vector<Object> vector) {
-                Vector<Boolean> ret = new Vector<>();
-                for (Object o : vector) {
-                    ret.add((Boolean) o);
-                }
-                return ret;
-            }
-        }, PASSWORD(AttributeDefinition.PASSWORD) {
-            @Override
-            public Object toTypedArray(Object[] array) {
-                return STRING.toTypedArray(array);
-            }
-
-            @Override
-            public Object toTypedVector(Vector<Object> vector) {
-                return STRING.toTypedVector(vector);
-            }
+        STRING(AttributeDefinition.STRING, String.class) {
+        }, LONG(AttributeDefinition.LONG, Long.class) {
+        }, INTEGER(AttributeDefinition.INTEGER, Integer.class) {
+        }, SHORT(AttributeDefinition.SHORT, Short.class) {
+        }, CHARACTER(AttributeDefinition.CHARACTER, Character.class) {
+        }, BYTE(AttributeDefinition.BYTE, Byte.class) {
+        }, DOUBLE(AttributeDefinition.DOUBLE, Double.class) {
+        }, FLOAT(AttributeDefinition.FLOAT, Float.class) {
+        }, BIGINTEGER(AttributeDefinition.BIGINTEGER, BigInteger.class) {
+        }, BIGDECIMAL(AttributeDefinition.BIGDECIMAL, BigDecimal.class) {
+        }, BOOLEAN(AttributeDefinition.BOOLEAN, Boolean.class) {
+        }, PASSWORD(AttributeDefinition.PASSWORD, String.class) {
         };
 
         private final int type;
 
-        TYPE(int type) {
+        private final Class clazz;
+
+        TYPE(int type, Class clazz) {
             this.type = type;
+            this.clazz = clazz;
+        }
+
+        @SuppressWarnings("unchecked")
+        public CardinalityEnforcer getCardinalityEnforcer() {
+            return new CardinalityEnforcer(clazz);
         }
 
         public int getType() {
@@ -869,9 +701,5 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
             }
             return STRING;
         }
-
-        public abstract Object toTypedArray(Object[] array);
-
-        public abstract Object toTypedVector(Vector<Object> array);
     }
 }
