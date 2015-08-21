@@ -22,12 +22,28 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import net.opengis.cat.csw.v_2_0_2.DeleteType;
 import net.opengis.cat.csw.v_2_0_2.QueryConstraintType;
 
-public class DeleteTransaction extends CswTransaction {
+/**
+ * A DeleteAction represents a single delete action within a CSW transaction.
+ */
+public class DeleteAction extends CswAction {
     private QueryConstraintType queryConstraintType;
 
     private Map<String, String> prefixToUriMappings;
 
-    public DeleteTransaction(DeleteType deleteType, Map<String, String> prefixToUriMappings) {
+    /**
+     * Constructs a DeleteAction with a {@link DeleteType} and a map of XML namespace prefixes to
+     * their respective URIs. The map should contain the prefix to URI mappings declared in the
+     * transaction request XML.
+     * <p>
+     * If an error occurs while processing this delete action, {@link DeleteType#handle} will be
+     * included in the exception report response so the specific action within the transaction that
+     * caused the error can be identified.
+     *
+     * @param deleteType  the {@code DeleteType} representing the delete action
+     * @param prefixToUriMappings  the map that contains the XML namespace prefix to URI mappings
+     *                             declared in the transaction request XML
+     */
+    public DeleteAction(DeleteType deleteType, Map<String, String> prefixToUriMappings) {
         typeName = StringUtils.defaultIfEmpty(deleteType.getTypeName(), CswConstants.CSW_RECORD);
         handle = StringUtils.defaultIfEmpty(deleteType.getHandle(), "");
         queryConstraintType = deleteType.getConstraint();
