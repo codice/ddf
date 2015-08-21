@@ -216,16 +216,12 @@ public class IngestCommand extends CatalogCommands {
                 if ((fileCount.get() - ingestCount.get() - ignoreCount.get()) >= 1) {
                     String failedAmount = Integer.toString(fileCount.get() - ingestCount.get() - ignoreCount.get());
                     printErrorMessage(failedAmount + " file(s) failed to be ingested.  See the ingest log for more details.");
-                    if (INGEST_LOGGER.isWarnEnabled()) {
-                        INGEST_LOGGER.warn("{} files(s) failed to be ingested.", failedAmount);
-                    }
+                    INGEST_LOGGER.warn("{} files(s) failed to be ingested.", failedAmount);
                 }
                 if (ignoreList != null) {
                     String ignoredAmount = Integer.toString(ignoreCount.get());
                     printColor(Ansi.Color.YELLOW, ignoredAmount + " file(s) ignored.  See the ingest log for more details.");
-                    if (INGEST_LOGGER.isWarnEnabled()) {
-                        INGEST_LOGGER.warn("{} files(s) were ignored.", ignoredAmount);
-                    }
+                    INGEST_LOGGER.warn("{} files(s) were ignored.", ignoredAmount);
                 }
             }
 
