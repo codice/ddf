@@ -38,7 +38,7 @@ import org.junit.runners.Parameterized;
 @RunWith(Parameterized.class)
 public class LinearUnitFromStringParametrizedTest {
 
-    @Parameters
+    @Parameters(name = "fromString({0})")
     public static Iterable<Object[]> data() {
         return Arrays.asList(new Object[][] {{"FOOT_U_S", FOOT_U_S}, {"foot_u_s", FOOT_U_S},
                 {"foot", FOOT_U_S}, {"FOOT", FOOT_U_S}, {"meter", METER}, {"METER", METER},

@@ -14,11 +14,11 @@
 
 package ddf.measure;
 
-import static javax.measure.unit.NonSI.MILE;
 import static org.apache.commons.lang.Validate.notNull;
+import static javax.measure.unit.NonSI.MILE;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
@@ -47,14 +47,14 @@ public final class Distance {
 
     private double getAsMeters(double distance, LinearUnit unitOfMeasure) {
 
-        double convertedDistance = 0.0;
+        double convertedDistance;
 
         if (unitOfMeasure == null) {
-            return Double.valueOf(distance);
+            return distance;
         }
 
         if (distance <= 0) {
-            return Double.valueOf(0);
+            return 0.0;
         }
 
         switch (unitOfMeasure) {
@@ -80,19 +80,20 @@ public final class Distance {
             throw new IllegalArgumentException(
                     "Invalid " + LinearUnit.class.getSimpleName() + " for conversion.");
         }
+
         return convertedDistance;
     }
 
     public double getAs(LinearUnit unitOfMeasure) {
 
-        double result = distanceInMeters;
+        double result;
 
         if (unitOfMeasure == null) {
-            return Double.valueOf(distanceInMeters);
+            return distanceInMeters;
         }
 
         if (distanceInMeters <= 0) {
-            return Double.valueOf(0);
+            return 0.0;
         }
 
         switch (unitOfMeasure) {
@@ -128,49 +129,61 @@ public final class Distance {
      * Enumeration for the linear units supported by DDF.
      */
     public enum LinearUnit {
-        METER, KILOMETER, NAUTICAL_MILE, MILE, FOOT_U_S, YARD;
+        METER("meter"), KILOMETER("kilometer"), NAUTICAL_MILE("nautical_mile",
+                "nauticalmile"), MILE("mile"), FOOT_U_S("foot", "foot_u_s"), YARD("yard");
 
-        static Map<String, LinearUnit> stringsToValues = new HashMap<>();
+        private Set<String> stringRepresentationSet;
 
-        static {
-            for (LinearUnit linearUnit : LinearUnit.values()) {
-                stringsToValues.put(linearUnit.name().toUpperCase(), linearUnit);
+        /**
+         * Initializes the enum constants with the list a strings that can be used when
+         * calling {@link #fromString(String)}.
+         *
+         * @param stringRepresentations list of valid string representation for this enum constant.
+         *                              At least one string representation must be provided when
+         *                              defining {@link ddf.measure.Distance.LinearUnit} constant.
+         *                              The strings are case insensitive.
+         */
+        LinearUnit(String... stringRepresentations) {
+            if (stringRepresentations == null || stringRepresentations.length == 0) {
+                throw new IllegalArgumentException("LinearUnit enumeration " + name()
+                        + " must be defined with at least one valid string representation");
             }
 
-            stringsToValues.put("NAUTICALMILE", NAUTICAL_MILE);
-            stringsToValues.put("FOOT", FOOT_U_S);
+            this.stringRepresentationSet = new HashSet<>();
+
+            for (String stringRepresentation : stringRepresentations) {
+                this.stringRepresentationSet.add(stringRepresentation.toLowerCase());
+            }
         }
 
         /**
-         * Returns the {@link ddf.measure.Distance.LinearUnit} enumeration value corresponding to
+         * Returns the {@link ddf.measure.Distance.LinearUnit} enum constant corresponding to
          * the string provided. It should be used as a replacement for the default
          * {@code valueOf()} method.
          * <p>
-         * This method can map all values supported by the default {@code valueOf()} method in
-         * addition to the following:
-         * <ul>
-         * <li><i>foot</i> (for {@link ddf.measure.Distance.LinearUnit#FOOT_U_S})</li>
-         * <li><i>nauticalmile</i> (for {@link ddf.measure.Distance.LinearUnit#NAUTICAL_MILE})</li>
-         * </ul>
+         * This method supports all the string representations provided when the enum constants
+         * are created.
          * </p>
          * As opposed to {@code valueOf()}, this method is case-insensitive and will for instance
          * work with <i>nauticalmile</i>, <i>NAUTICALMILE</i> and <i>nauticalMile</i>.
          *
-         * @param enumValueString string representing the enumeration value to return.
-         *                        Cannot be {@code null} or empty.
-         * @return enumeration value corresponding to the string provided
+         * @param enumValueString string representing the enum constant to return. Cannot be
+         *                        {@code null} or empty.
+         * @return enum constant corresponding to the string representation provided
          * @throws IllegalArgumentException thrown if the string provided doesn't map to any
-         *                                  enumeration value, is {@code null} or empty
+         *                                  enum constant, is {@code null} or empty
          */
         public static LinearUnit fromString(String enumValueString) {
             notNull(enumValueString, "Enumeration string cannot be null");
 
-            LinearUnit linearUnit = stringsToValues.get(enumValueString.toUpperCase());
+            for (LinearUnit linearUnit : values()) {
+                if (linearUnit.stringRepresentationSet.contains(enumValueString.toLowerCase())) {
+                    return linearUnit;
+                }
+            }
 
-            notNull(linearUnit,
+            throw new IllegalArgumentException(
                     "Invalid enumeration string provided for LinearUnit: " + enumValueString);
-
-            return linearUnit;
         }
     }
 }
