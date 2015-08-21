@@ -21,6 +21,7 @@ import java.util.ArrayList;
 
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.codice.ddf.commands.catalog.facade.Framework;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -36,6 +37,23 @@ public class TestIngestCommand extends AbstractCommandTest {
     @Rule
     public TemporaryFolder testFolder = new TemporaryFolder();
 
+    ConsoleOutput consoleOutput;
+    IngestCommand command;
+    CatalogFramework catalogFramework;
+
+    @Before
+    public void init() throws Exception {
+        consoleOutput = new ConsoleOutput();
+        consoleOutput.interceptSystemOut();
+        catalogFramework = givenCatalogFramework(getResultList("id1", "id2"));
+        command = new IngestCommand() {
+            @Override
+            protected CatalogFacade getCatalog() throws InterruptedException {
+                return new Framework(catalogFramework);
+            }
+        };
+        command.filePath = testFolder.getRoot().getAbsolutePath();
+    }
 
     /**
      * Test empty folder
@@ -44,22 +62,6 @@ public class TestIngestCommand extends AbstractCommandTest {
      */
     @Test
     public void testNoFiles() throws Exception {
-
-        ConsoleOutput consoleOutput = new ConsoleOutput();
-        consoleOutput.interceptSystemOut();
-
-        // given
-        final CatalogFramework catalogFramework = givenCatalogFramework(
-                getResultList("id1", "id2"));
-
-        IngestCommand command = new IngestCommand() {
-            @Override
-            protected CatalogFacade getCatalog() throws InterruptedException {
-                return new Framework(catalogFramework);
-            }
-        };
-
-        command.filePath = testFolder.getRoot().getAbsolutePath();
 
         // when
         command.doExecute();
@@ -84,27 +86,12 @@ public class TestIngestCommand extends AbstractCommandTest {
      */
     @Test
     public void testExpectedCounts() throws Exception {
-
-        ConsoleOutput consoleOutput = new ConsoleOutput();
-        consoleOutput.interceptSystemOut();
-
-        // given
-        final CatalogFramework catalogFramework = givenCatalogFramework(
-                getResultList("id1", "id2"));
-
-        IngestCommand command = new IngestCommand() {
-            @Override
-            protected CatalogFacade getCatalog() throws InterruptedException {
-                return new Framework(catalogFramework);
-            }
-        };
-
+        
         testFolder.newFile("somefile1.txt");
         testFolder.newFile("somefile2.jpg");
         testFolder.newFile("somefile3.txt");
         testFolder.newFile("somefile4.jpg");
         testFolder.newFile("somefile5.txt");
-        command.filePath = testFolder.getRoot().getAbsolutePath();
 
         // when
         command.doExecute();
@@ -132,31 +119,15 @@ public class TestIngestCommand extends AbstractCommandTest {
     @Test
     public void testExpectedCountsWithIgnore() throws Exception {
 
-        ConsoleOutput consoleOutput = new ConsoleOutput();
-        consoleOutput.interceptSystemOut();
-
-        // given
-        final CatalogFramework catalogFramework = givenCatalogFramework(
-                getResultList("id1", "id2"));
-
-        IngestCommand command = new IngestCommand() {
-            @Override
-            protected CatalogFacade getCatalog() throws InterruptedException {
-                return new Framework(catalogFramework);
-            }
-        };
-
         testFolder.newFile("somefile1.txt");
         testFolder.newFile("somefile2.jpg");
         testFolder.newFile("somefile3.txt");
         testFolder.newFile("somefile4.jpg");
         testFolder.newFile("somefile5.txt");
-        command.filePath = testFolder.getRoot().getAbsolutePath();
 
         ArrayList<String> ignoreList = new ArrayList<>();
         ignoreList.add(".txt");
         command.ignoreList = ignoreList;
-
 
         // when
         command.doExecute();
@@ -186,26 +157,11 @@ public class TestIngestCommand extends AbstractCommandTest {
     @Test
     public void testIgnoreHiddenFiles() throws Exception {
 
-        ConsoleOutput consoleOutput = new ConsoleOutput();
-        consoleOutput.interceptSystemOut();
-
-        // given
-        final CatalogFramework catalogFramework = givenCatalogFramework(
-                getResultList("id1", "id2"));
-
-        IngestCommand command = new IngestCommand() {
-            @Override
-            protected CatalogFacade getCatalog() throws InterruptedException {
-                return new Framework(catalogFramework);
-            }
-        };
-
         testFolder.newFile(".somefile1");
         testFolder.newFile(".somefile2");
         testFolder.newFile(".somefile3");
         testFolder.newFile(".somefile4");
         testFolder.newFile("somefile5");
-        command.filePath = testFolder.getRoot().getAbsolutePath();
 
         // when
         command.doExecute();
