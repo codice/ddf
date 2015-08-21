@@ -40,6 +40,7 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.codice.ddf.platform.util.Exceptions;
+import org.fusesource.jansi.Ansi;
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
@@ -204,19 +205,28 @@ public class IngestCommand extends CatalogCommands {
             console.println();
             String elapsedTime = timeFormatter.print(new Period(start, end).withMillis(0));
             console.printf(" %d file(s) ingested in %s", ingestCount.get(), elapsedTime);
+
             LOGGER.info("{} file(s) ingested in {} [{} records/sec]", ingestCount.get(),
                     elapsedTime, calculateRecordsPerSecond(ingestCount.get(), start, end));
             INGEST_LOGGER.info("{} file(s) ingested in {} [{} records/sec]", ingestCount.get(),
                     elapsedTime, calculateRecordsPerSecond(ingestCount.get(), start, end));
-            if (INGEST_LOGGER.isWarnEnabled() && fileCount.get() != ingestCount.get()) {
-                console.println();
-                String failedAmount = Integer.toString(fileCount.get() - ingestCount.get() - ignoreCount.get());
-                String ignoredAmount = Integer.toString(ignoreCount.get());
-                printErrorMessage(failedAmount
-                        + " file(s) failed to be ingested.\n" + ignoredAmount
-                        + " file(s) ignored.\nSee the ingest log for more details.");
-                INGEST_LOGGER.warn("{} files(s) failed to be ingested. {} files(s) were ignored.", failedAmount, ignoredAmount);
 
+            if (fileCount.get() != ingestCount.get()) {
+                console.println();
+                if ((fileCount.get() - ingestCount.get() - ignoreCount.get()) >= 1) {
+                    String failedAmount = Integer.toString(fileCount.get() - ingestCount.get() - ignoreCount.get());
+                    printErrorMessage(failedAmount + " file(s) failed to be ingested.  See the ingest log for more details.");
+                    if (INGEST_LOGGER.isWarnEnabled()) {
+                        INGEST_LOGGER.warn("{} files(s) failed to be ingested.", failedAmount);
+                    }
+                }
+                if (ignoreList != null) {
+                    String ignoredAmount = Integer.toString(ignoreCount.get());
+                    printColor(Ansi.Color.YELLOW, ignoredAmount + " file(s) ignored.  See the ingest log for more details.");
+                    if (INGEST_LOGGER.isWarnEnabled()) {
+                        INGEST_LOGGER.warn("{} files(s) were ignored.", ignoredAmount);
+                    }
+                }
             }
 
             return null;
@@ -533,7 +543,7 @@ public class IngestCommand extends CatalogCommands {
                 extension = extension.substring(x);
             }
 
-            if(file.isHidden() ||(ignoreList != null &&  (ignoreList.contains(extension) || ignoreList.contains(file.getName())))) {
+            if (file.isHidden() || (ignoreList != null &&  (ignoreList.contains(extension) || ignoreList.contains(file.getName())))) {
                 ignoreCount.incrementAndGet();
                 printProgressAndFlush(start, fileCount.get(), ingestCount.get() + ignoreCount.get());
                 return FileVisitResult.CONTINUE;
