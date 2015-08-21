@@ -10,7 +10,7 @@
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- **/
+ */
 package ddf.catalog.test;
 
 import static org.hamcrest.Matchers.containsString;
@@ -42,6 +42,7 @@ import org.slf4j.ext.XLogger;
 
 import com.jayway.restassured.http.ContentType;
 
+import ddf.catalog.data.Metacard;
 import ddf.common.test.BeforeExam;
 
 /**
@@ -199,6 +200,16 @@ public class TestFederation extends AbstractIntegrationTest {
                 .body(is(SAMPLE_DATA));
     }
 
+    @Test
+    public void testFederatedRetrieveExistingProductCsw() throws Exception {
+        String restUrl =
+                REST_PATH + "sources/" + CSW_SOURCE_ID + "/" + metacardIds[XML_RECORD_INDEX]
+                        + "?transform=resource";
+
+        when().get(restUrl).then().log().all().assertThat().contentType("text/plain")
+                .body(is(SAMPLE_DATA));
+    }
+
     /**
      * Tests Source can retrieve nonexistent product.
      *
@@ -208,6 +219,14 @@ public class TestFederation extends AbstractIntegrationTest {
     public void testFederatedRetrieveNoProduct() throws Exception {
         String restUrl = REST_PATH + "sources/" + OPENSEARCH_SOURCE_ID + "/"
                 + metacardIds[GEOJSON_RECORD_INDEX] + "?transform=resource";
+        when().get(restUrl).then().log().all().assertThat().statusCode(equalTo(500));
+    }
+
+    @Test
+    public void testFederatedRetrieveNoProductCsw() throws Exception {
+        String restUrl =
+                REST_PATH + "sources/" + CSW_SOURCE_ID + "/" + metacardIds[GEOJSON_RECORD_INDEX]
+                        + "?transform=resource";
         when().get(restUrl).then().log().all().assertThat().statusCode(equalTo(500));
     }
 
@@ -222,7 +241,9 @@ public class TestFederation extends AbstractIntegrationTest {
                         hasXPath("/GetRecordsResponse/SearchResults/Record/identifier[text()='" +
                                 metacardIds[XML_RECORD_INDEX] + "']"),
                         hasXPath("/GetRecordsResponse/SearchResults/@numberOfRecordsReturned",
-                                is("2")));
+                                is("2")),
+                        hasXPath("/GetRecordsResponse/SearchResults/Record/relation",
+                                containsString("/services/catalog/sources/")));
     }
 
     @Test
@@ -292,7 +313,10 @@ public class TestFederation extends AbstractIntegrationTest {
                 OPENSEARCH_PATH + "?q=" + DEFAULT_KEYWORD + "&format=xml&src=" + CSW_SOURCE_ID;
 
         when().get(queryUrl).then().log().all().assertThat()
-                .body(containsString(RECORD_TITLE_1), containsString(RECORD_TITLE_2));
+                .body(containsString(RECORD_TITLE_1), containsString(RECORD_TITLE_2), hasXPath(
+                        "/metacards/metacard/string[@name='" + Metacard.RESOURCE_DOWNLOAD_URL
+                                + "']",
+                        containsString("/services/catalog/sources/" + CSW_SOURCE_ID)));
     }
 
     @Test
@@ -302,7 +326,10 @@ public class TestFederation extends AbstractIntegrationTest {
                 + CSW_SOURCE_WITH_METACARD_XML_ID;
 
         when().get(queryUrl).then().log().all().assertThat()
-                .body(containsString(RECORD_TITLE_1), containsString(RECORD_TITLE_2));
+                .body(containsString(RECORD_TITLE_1), containsString(RECORD_TITLE_2), hasXPath(
+                        "/metacards/metacard/string[@name='" + Metacard.RESOURCE_DOWNLOAD_URL
+                                + "']",
+                        containsString("/services/catalog/sources/" + CSW_SOURCE_ID)));
     }
 
     @Test
