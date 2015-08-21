@@ -27,7 +27,6 @@ import static com.jayway.restassured.path.json.JsonPath.with;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -61,17 +60,11 @@ public class TestFederation extends AbstractIntegrationTest {
 
     private static final int GEOJSON_RECORD_INDEX = 0;
 
-    private static final String CSW_PATH = SERVICE_ROOT + "/csw";
-
     private static final String DEFAULT_KEYWORD = "text";
 
     private static final String RECORD_TITLE_1 = "myTitle";
 
     private static final String RECORD_TITLE_2 = "myXmlTitle";
-
-    private static final String OPENSEARCH_SOURCE_ID = "openSearchSource";
-
-    private static final String CSW_SOURCE_ID = "cswSource";
 
     private static final String CONNECTED_SOURCE_ID = "cswConnectedSource";
 
@@ -370,50 +363,4 @@ public class TestFederation extends AbstractIntegrationTest {
         createManagedService(CswConnectedSourceProperties.FACTORY_PID, connectedSourceProperties);
     }
 
-    public class OpenSearchSourceProperties extends HashMap<String, Object> {
-
-        public static final String SYMBOLIC_NAME = "catalog-opensearch-source";
-
-        public static final String FACTORY_PID = "OpenSearchSource";
-
-        public OpenSearchSourceProperties(String sourceId) {
-            this.putAll(getMetatypeDefaults(SYMBOLIC_NAME, FACTORY_PID));
-
-            this.put("shortname", sourceId);
-            this.put("endpointUrl", OPENSEARCH_PATH);
-        }
-
-    }
-
-    public class CswSourceProperties extends HashMap<String, Object> {
-
-        public static final String SYMBOLIC_NAME = "spatial-csw-source";
-
-        public static final String FACTORY_PID = "Csw_Federated_Source";
-
-        public CswSourceProperties(String sourceId) {
-            this.putAll(getMetatypeDefaults(SYMBOLIC_NAME, FACTORY_PID));
-
-            this.put("id", sourceId);
-            this.put("cswUrl", CSW_PATH);
-            this.put("pollInterval", 1);
-        }
-
-    }
-
-    public class CswConnectedSourceProperties extends HashMap<String, Object> {
-
-        public static final String SYMBOLIC_NAME = "spatial-csw-source";
-
-        public static final String FACTORY_PID = "Csw_Connected_Source";
-
-        public CswConnectedSourceProperties(String sourceId) {
-            this.putAll(getMetatypeDefaults(SYMBOLIC_NAME, FACTORY_PID));
-
-            this.put("id", sourceId);
-            this.put("cswUrl", CSW_PATH);
-            this.put("pollInterval", 1);
-        }
-
-    }
 }

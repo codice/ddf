@@ -136,6 +136,75 @@ public class TestSecurity extends AbstractIntegrationTest {
                 .then().log().all().assertThat().statusCode(equalTo(200));
     }
 
+    @Test
+    public void testBasicFederatedAuth() throws Exception {
+        String recordId = TestCatalog.ingest(Library.getSimpleGeoJson(), "application/json");
+        configureRestForBasic();
+
+        //Positive tests
+        OpenSearchSourceProperties openSearchProperties = new OpenSearchSourceProperties(
+                OPENSEARCH_SOURCE_ID);
+        openSearchProperties.put("username", "admin");
+        openSearchProperties.put("password", "admin");
+        createManagedService(OpenSearchSourceProperties.FACTORY_PID, openSearchProperties);
+
+        CswSourceProperties cswProperties = new CswSourceProperties(CSW_SOURCE_ID);
+        cswProperties.put("username", "admin");
+        cswProperties.put("password", "admin");
+        createManagedService(CswSourceProperties.FACTORY_PID, cswProperties);
+
+        waitForFederatedSource(OPENSEARCH_SOURCE_ID);
+        waitForFederatedSource(CSW_SOURCE_ID);
+
+        String openSearchQuery = SERVICE_ROOT + "/catalog/query?q=*&src=" + OPENSEARCH_SOURCE_ID;
+        given().auth().basic("admin", "admin").when().get(openSearchQuery).then().log().all()
+                .assertThat().statusCode(equalTo(200)).assertThat().body(containsString("myTitle"));
+
+        String cswQuery = SERVICE_ROOT + "/catalog/query?q=*&src=" + CSW_SOURCE_ID;
+        given().auth().basic("admin", "admin").when().get(cswQuery).then().log().all().assertThat()
+                .statusCode(equalTo(200)).assertThat().body(containsString("myTitle"));
+
+        //Negative tests
+        String unavailableCswSourceId = "Unavailable Csw";
+        cswProperties = new CswSourceProperties(unavailableCswSourceId);
+        cswProperties.put("username", "bad");
+        cswProperties.put("password", "auth");
+        createManagedService(CswSourceProperties.FACTORY_PID, cswProperties);
+
+        String cswQueryUnavail = SERVICE_ROOT + "/catalog/query?q=*&src=" + unavailableCswSourceId;
+        given().auth().basic("admin", "admin").when().get(cswQueryUnavail).then().log().all()
+                .assertThat().statusCode(equalTo(500));
+
+        /*
+        //Negative tests TODO: DDF-1444 Negative OpenSearchSource BasicAuth tests currently do not work
+        String unavailableOpenSourceId = "Unavailable OpenSearchSource";
+
+        OpenSearchSourceProperties openSearchUnavailProp = new OpenSearchSourceProperties(
+                unavailableOpenSourceId);
+        openSearchUnavailProp.put("username", "bad");
+        openSearchUnavailProp.put("password", "auth");
+        createManagedService(OpenSearchSourceProperties.FACTORY_PID, openSearchUnavailProp);
+        waitForFederatedSource(unavailableOpenSourceId);
+
+        String unavailableOpenSearchQuery =
+                SERVICE_ROOT + "/catalog/query?q=*&src=" + unavailableOpenSourceId;
+
+        given().auth().basic("admin", "admin").when().get(unavailableOpenSearchQuery).then().log()
+                .all().assertThat().statusCode(equalTo(200)).assertThat()
+                .body(not(containsString("myTitle")));
+
+        String unavailableCswQuery = SERVICE_ROOT + "/catalog/query?q=*&src=" + unavailableCswSourceId;
+        */
+
+        configureRestForAnonymous();
+        /*
+        DDF-1442: Sleeps for a small time so that the web context policy can be updated and make authentication not be
+        required for the deletion of the metacard.
+         */
+        Thread.sleep(CONFIG_UPDATE_WAIT_INTERVAL);
+        TestCatalog.deleteMetacard(recordId);
+    }
+
     private void configureRestForAnonymous() throws IOException, InterruptedException {
         PolicyProperties policyProperties = new PolicyProperties();
         policyProperties.put("authenticationTypes",

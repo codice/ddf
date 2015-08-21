@@ -50,6 +50,8 @@
             <beans:property name="shortname" value="DDF-OS"/>
             <beans:property name="endpointUrl"
                             value="http://localhost:8181/services/catalog/query"/>
+            <beans:property name="username" value=""/>
+            <beans:property name="password" value=""/>
             <beans:property name="localQueryOnly" value="false"/>
             <beans:property name="shouldConvertToBBox" value="true"/>
             <beans:property name="securitySettings" ref="securitySettings"/>
