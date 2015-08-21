@@ -20,9 +20,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeSet;
@@ -77,8 +75,6 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
     private static final String INTERSECTS_OPERATION = "Intersects";
 
-    private static final String SPATIAL_INDEX = "_geo_index";
-
     private static final double NEAREST_NEIGHBOR_DISTANCE_LIMIT = metersToDegrees(
             new Distance(1000, LinearUnit.NAUTICAL_MILE).getAs(LinearUnit.METER));
 
@@ -115,27 +111,11 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
     private static final String SOLR_EXCLUSIVE_END = " } ";
 
-    private static final Map<String, String> FIELD_MAP;
-
-    private static final String TOKENIZED = "_tokenized";
-
-    public static final String TOKENIZED_METADATA_FIELD = Metacard.METADATA + "_txt" + TOKENIZED;
-
-    public static final String WHITESPACE_TOKENIZED_METADATA_FIELD =
-            Metacard.METADATA + SchemaFields.TEXT_SUFFIX + SchemaFields.WHITESPACE_TEXT_SUFFIX;
-
     private static final double DEFAULT_ERROR_IN_METERS = 1;
 
     private static final double DEFAULT_ERROR_IN_DEGREES = metersToDegrees(DEFAULT_ERROR_IN_METERS);
 
     private static TimeZone utcTimeZone = TimeZone.getTimeZone("UTC");
-
-    static {
-        Map<String, String> tempMap = new HashMap<>();
-        tempMap.put(Metacard.ANY_TEXT, TOKENIZED_METADATA_FIELD);
-        tempMap.put(Metacard.ANY_GEO, Metacard.GEOGRAPHY + SPATIAL_INDEX);
-        FIELD_MAP = Collections.unmodifiableMap(tempMap);
-    }
 
     private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 
@@ -255,12 +235,15 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
             return new SolrQuery(mappedPropertyName + ":" + searchPhrase);
         } else {
             if (Metacard.ANY_TEXT.equals(propertyName)) {
+                String whitespaceTokenizedMetadataField = resolver.getWhitespaceTokenizedField(
+                        resolver.getField(Metacard.METADATA, AttributeFormat.STRING, true));
                 if (isCaseSensitive) {
                     return new SolrQuery(
-                            WHITESPACE_TOKENIZED_METADATA_FIELD + SchemaFields.HAS_CASE + ":(" + searchPhrase + ")");
+                            resolver.getCaseSensitiveField(whitespaceTokenizedMetadataField) + ":("
+                                    + searchPhrase + ")");
                 } else {
                     return new SolrQuery(
-                            WHITESPACE_TOKENIZED_METADATA_FIELD + ":(" + searchPhrase + ")");
+                            whitespaceTokenizedMetadataField + ":(" + searchPhrase + ")");
                 }
             } else {
                 return new SolrQuery(mappedPropertyName + ":(" + searchPhrase + ")");
@@ -656,7 +639,8 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
                 phrase = phrase.toLowerCase();
             }
             xpath = xpath + "[contains(" + result + ", '" + phrase + "')]";
-            query = TOKENIZED_METADATA_FIELD + ":\"" + searchPhrase.replaceAll("\"", "\\\\") + "\"";
+            query = resolver.getField(Metacard.METADATA, AttributeFormat.STRING, false) + ":\""
+                    + searchPhrase.replaceAll("\"", "\\\\") + "\"";
         }
 
         SolrQuery solrQuery = new SolrQuery(query);
@@ -762,10 +746,6 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
             boolean isSearchedAsExactString) {
         if (propertyName == null) {
             throw new UnsupportedOperationException("Property name should not be null.");
-        }
-        String specialField = FIELD_MAP.get(propertyName);
-        if (specialField != null) {
-            return specialField;
         }
 
         return resolver.getField(propertyName, format, isSearchedAsExactString);
@@ -877,7 +857,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     private SolrQuery operationOnIndexToQuery(String operation, String indexName, String wkt) {
         if (StringUtils.isNotEmpty(wkt)) {
             String geoQuery = indexName + ":\"" + operation + "(" + wkt + ")\"";
-            return new SolrQuery(geoQuery);
+            return getSolrQueryWithSort(geoQuery);
         } else {
             throw new UnsupportedOperationException("Wkt should not be null or empty.");
         }

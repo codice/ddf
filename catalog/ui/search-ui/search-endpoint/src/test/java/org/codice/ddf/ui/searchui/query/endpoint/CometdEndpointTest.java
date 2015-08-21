@@ -49,6 +49,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.catalog.CatalogFramework;
+import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
 
 public class CometdEndpointTest {
@@ -132,8 +133,9 @@ public class CometdEndpointTest {
 
         // Create the CometdEndpoint, passing in the mocked CometdServlet
         cometdEndpoint = new CometdEndpoint(cometdServlet, mock(CatalogFramework.class),
-                mock(FilterBuilder.class), mock(PersistentStore.class), mock(BundleContext.class),
-                mock(EventAdmin.class), new ActionRegistryImpl(Collections.EMPTY_LIST));
+                mock(FilterBuilder.class), mock(FilterAdapter.class), mock(PersistentStore.class),
+                mock(BundleContext.class), mock(EventAdmin.class),
+                new ActionRegistryImpl(Collections.EMPTY_LIST));
     }
 
     /**

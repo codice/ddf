@@ -20,6 +20,9 @@
         <AD description="Disables use of cache." name="Disable Cache" id="cacheDisabled"
             required="false" type="Boolean" default="false"/>
 
+        <AD description="Disables relevance and distance normalization." name="Disable Normalization"
+            id="normalizationDisabled" required="false" type="Boolean" default="false"/>
+
     </OCD>
 
     <Designate pid="org.codice.ddf.ui.search.standard.endpoint">

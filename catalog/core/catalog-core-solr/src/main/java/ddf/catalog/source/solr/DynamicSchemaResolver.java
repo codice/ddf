@@ -49,6 +49,8 @@ import org.codice.solr.factory.ConfigurationStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableMap;
+
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.AttributeType.AttributeFormat;
@@ -87,7 +89,13 @@ public class DynamicSchemaResolver {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DynamicSchemaResolver.class);
 
+    // Mapping between Metacard any* attributes to Solr index fields
+    private static final Map<String, String> ANY_FIELD_MAP;
+
     static {
+        ANY_FIELD_MAP = ImmutableMap.of(Metacard.ANY_TEXT, Metacard.METADATA + "_txt_tokenized",
+                Metacard.ANY_GEO, Metacard.GEOGRAPHY + "_geo_index");
+
         ClassLoader tccl = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread()
@@ -198,7 +206,7 @@ public class DynamicSchemaResolver {
                         solrInputDocument.addField(specialStringIndexName, parsedText);
 
                         // text case sensitive
-                        solrInputDocument.addField(getCaseSensitiveField(specialStringIndexName),
+                        solrInputDocument.addField(specialStringIndexName + SchemaFields.HAS_CASE,
                                 parsedText);
                     } else if (AttributeFormat.GEOMETRY.equals(format)) {
                         solrInputDocument.addField(formatIndexName, attributeValue);
@@ -362,6 +370,10 @@ public class DynamicSchemaResolver {
     public String getField(String propertyName, AttributeFormat format,
             boolean isSearchedAsExactValue) {
 
+        if (ANY_FIELD_MAP.containsKey(propertyName)) {
+            return ANY_FIELD_MAP.get(propertyName);
+        }
+
         String fieldName = propertyName + schemaFields.getFieldSuffix(format) + (
                 isSearchedAsExactValue ?
                         "" :
@@ -437,6 +449,10 @@ public class DynamicSchemaResolver {
     public String getCaseSensitiveField(String mappedPropertyName) {
         // TODO We can check if this field really does exist
         return mappedPropertyName + SchemaFields.HAS_CASE;
+    }
+
+    public String getWhitespaceTokenizedField(String mappedPropertyName) {
+        return mappedPropertyName + SchemaFields.WHITESPACE_TEXT_SUFFIX;
     }
 
     protected String getSpecialIndexSuffix(AttributeFormat format) {
