@@ -83,7 +83,7 @@ import ddf.common.test.PaxExamRule;
  */
 public abstract class AbstractIntegrationTest {
 
-    private static final int CONFIG_UPDATE_WAIT_INTERVAL = 5;
+    protected static final int CONFIG_UPDATE_WAIT_INTERVAL = 5;
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(AbstractIntegrationTest.class);
 

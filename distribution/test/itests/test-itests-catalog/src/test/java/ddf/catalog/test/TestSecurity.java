@@ -197,6 +197,11 @@ public class TestSecurity extends AbstractIntegrationTest {
         */
 
         configureRestForAnonymous();
+        /*
+        DDF-1442: Sleeps for a small time so that the web context policy can be updated and make authentication not be
+        required for the deletion of the metacard.
+         */
+        Thread.sleep(CONFIG_UPDATE_WAIT_INTERVAL);
         TestCatalog.deleteMetacard(recordId);
     }
 
