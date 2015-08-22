@@ -222,7 +222,8 @@ public class TestCatalog extends AbstractIntegrationTest {
                 TimeUnit.MILLISECONDS.sleep(50);
             } catch (InterruptedException e) {
             }
-        } while (TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime) < ONE_MINUTE_MILLIS);
+        } while (TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime) < TimeUnit.MINUTES
+                .toMillis(1));
         response.body("metcards.metacard.size()", equalTo(1));
     }
 
