@@ -28,6 +28,7 @@ import java.util.Hashtable;
 import java.util.TimeZone;
 
 import org.hamcrest.xml.HasXPath;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.PaxExam;
@@ -87,6 +88,11 @@ public class TestSecurity extends AbstractIntegrationTest {
     }
 
     public void configurePDP() throws Exception {
+    }
+
+    @Before
+    public void before() throws Exception {
+        configureRestForAnonymous();
     }
 
     @Test
@@ -201,7 +207,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         DDF-1442: Sleeps for a small time so that the web context policy can be updated and make authentication not be
         required for the deletion of the metacard.
          */
-        Thread.sleep(CONFIG_UPDATE_WAIT_INTERVAL);
+        Thread.sleep(2000);
         TestCatalog.deleteMetacard(recordId);
     }
 
