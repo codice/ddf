@@ -16,26 +16,25 @@ package ddf.security.certificate.generator;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
-import org.bouncycastle.openssl.PEMEncryptedKeyPair;
-import org.bouncycastle.openssl.PEMException;
-import org.bouncycastle.openssl.PEMKeyPair;
-import org.bouncycastle.openssl.PEMParser;
+import org.bouncycastle.openssl.*;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
+import org.bouncycastle.openssl.jcajce.JceOpenSSLPKCS8DecryptorProviderBuilder;
 import org.bouncycastle.openssl.jcajce.JcePEMDecryptorProviderBuilder;
+import org.bouncycastle.operator.InputDecryptorProvider;
+import org.bouncycastle.operator.OperatorCreationException;
+import org.bouncycastle.pkcs.PKCS8EncryptedPrivateKeyInfo;
+import org.bouncycastle.pkcs.PKCSException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
 /**
- * Facade wrapper for the Bouncy Castle PEMParser. PEM typically supports DES/TripleDES.
+ * Facade wrapper for the Bouncy Castle PEMParser. PEM encryption typically supports DES/TripleDES.
  * AES and Blowfish were added later on but not supported by all implementations.
  */
 public class PemFile extends SecurityFileFacade {
@@ -45,12 +44,13 @@ public class PemFile extends SecurityFileFacade {
     //Declare member attributes
     protected PEMParser pem;
 
-    //Declare password private so that a malicious subclass cannot gain access to it.
+    //Declare password private so a malicious subclass cannot gain access to it.
     private char[] password;
 
-    //Do not use constructor. Use get method to instantiate this class.
-    protected PemFile() {
-
+    //Do not use constructor publicly. Use getInstance method to instantiate this class.
+    public PemFile(Reader reader, char[] password) {
+        this.pem = new PEMParser(reader);
+        this.password = password;
     }
 
     /**
@@ -64,13 +64,9 @@ public class PemFile extends SecurityFileFacade {
      * @return fully formed instance of the class
      * @throws FileNotFoundException
      */
-    public static PemFile get(String filePath, char[] password) throws FileNotFoundException {
+    public static PemFile getInstance(String filePath, char[] password) throws FileNotFoundException {
         File file = createFileObject(filePath);
-        PemFile facade = new PemFile();
-        facade.password = formatPassword(password);
-        facade.pem = new PEMParser(new FileReader(file));
-        registerBCSecurityProvider();
-        return facade;
+        return new PemFile(new FileReader(file), password);
     }
 
     /**
@@ -80,8 +76,8 @@ public class PemFile extends SecurityFileFacade {
      * @return fully formed instance of the class
      * @throws FileNotFoundException
      */
-    public static PemFile get(String filePath) throws FileNotFoundException {
-        return get(filePath, null);
+    public static PemFile getInstance(String filePath) throws FileNotFoundException {
+        return getInstance(filePath, null);
     }
 
     /**
@@ -119,43 +115,67 @@ public class PemFile extends SecurityFileFacade {
             return extractPrivateKey((PEMKeyPair) pemObject);
         if (pemObject instanceof PrivateKeyInfo)
             return extractPrivateKey((PrivateKeyInfo) pemObject);
+        if (pemObject instanceof PKCS8EncryptedPrivateKeyInfo)
+            return extractPrivateKey((PKCS8EncryptedPrivateKeyInfo) pemObject);
 
         //If the method has not returned, the type of PEM object read from the file is not yet supported.
         //Keep adding more if..instanceof... statements to support more PEM object types.
         throw new IOException(String.format("The PEM object type %s is not recognized as a private key", pemObject.getClass()));
     }
 
-    protected JcaX509CertificateConverter certificateConverter() {
-        return new JcaX509CertificateConverter()
-                .setProvider("BC");
-    }
-
-
-    protected JcaPEMKeyConverter keyConverter() {
-        return new JcaPEMKeyConverter().setProvider("BC");
-    }
-
-    protected PEMKeyPair decrypt(PEMEncryptedKeyPair kp) throws IOException {
-        return kp.decryptKeyPair(new JcePEMDecryptorProviderBuilder().build(password));
-    }
-
-    protected PrivateKey extractPrivateKey(PEMEncryptedKeyPair kp) throws IOException {
+    protected PrivateKey extractPrivateKey(PKCS8EncryptedPrivateKeyInfo kp) throws IOException {
         return extractPrivateKey(decrypt(kp));
     }
 
-    protected PrivateKey extractPrivateKey(PEMKeyPair kp) throws PEMException {
-        return extractKeyPair(kp).getPrivate();
+    protected PrivateKey extractPrivateKey(PEMEncryptedKeyPair keyPair) throws IOException {
+        return extractPrivateKey(decrypt(keyPair));
     }
 
-    protected PrivateKey extractPrivateKey(PrivateKeyInfo kp) throws PEMException {
-        return keyConverter().getPrivateKey(kp);
+    protected PrivateKey extractPrivateKey(PEMKeyPair keyPair) throws PEMException {
+        return extractKeyPair(keyPair).getPrivate();
     }
 
-    protected KeyPair extractKeyPair(PEMKeyPair kp) throws PEMException {
-        return keyConverter().getKeyPair(kp);
+    protected PrivateKey extractPrivateKey(PrivateKeyInfo keyInfo) throws PEMException {
+        return pemKeyConverter().getPrivateKey(keyInfo);
+    }
+
+
+    protected KeyPair extractKeyPair(PEMKeyPair keyPair) throws PEMException {
+        return pemKeyConverter().getKeyPair(keyPair);
     }
 
     protected Object readObject() throws IOException {
         return pem.readObject();
+    }
+
+    protected PEMKeyPair decrypt(PEMEncryptedKeyPair keyPair) throws IOException {
+        return keyPair.decryptKeyPair(pemDecryptor());
+    }
+
+    protected PrivateKeyInfo decrypt(PKCS8EncryptedPrivateKeyInfo keyInfo) throws IOException {
+
+        try {
+            return keyInfo.decryptPrivateKeyInfo(pkcs8Decryptor());
+        } catch (PKCSException e) {
+            throw new IOException("Cannot decrypt private key", e);
+        } catch (OperatorCreationException e) {
+            throw new IOException("Cannot decrypt private key", e);
+        }
+    }
+
+    private InputDecryptorProvider pkcs8Decryptor() throws OperatorCreationException {
+        return new JceOpenSSLPKCS8DecryptorProviderBuilder().setProvider(BC).build(password);
+    }
+
+    private PEMDecryptorProvider pemDecryptor() {
+        return new JcePEMDecryptorProviderBuilder().setProvider(BC).build(password);
+    }
+
+    protected JcaX509CertificateConverter certificateConverter() {
+        return new JcaX509CertificateConverter().setProvider(BC);
+    }
+
+    protected JcaPEMKeyConverter pemKeyConverter() {
+        return new JcaPEMKeyConverter().setProvider(BC);
     }
 }
