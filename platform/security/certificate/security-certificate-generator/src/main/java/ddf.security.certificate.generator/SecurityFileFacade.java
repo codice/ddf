@@ -14,13 +14,9 @@
 package ddf.security.certificate.generator;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
 import java.security.Security;
 
 /**
@@ -29,20 +25,25 @@ import java.security.Security;
  */
 public abstract class SecurityFileFacade {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SecurityFileFacade.class);
-
-    protected static void registerBCSecurityProvider() {
+    static {
         Security.addProvider(new BouncyCastleProvider());
     }
 
+    protected String BC = BouncyCastleProvider.PROVIDER_NAME;
+
+    //Helper method
     protected static char[] formatPassword(char[] password) {
         return password == null ? new char[0] : password;
     }
 
+    //Helper method
     protected static File createFileObject(String filePath) throws FileNotFoundException {
-        File file;//Check for null here or risk NPE
+
+        File file;
+
+        //Check for null here or risk NPE
         if (filePath == null) {
-            throw new FileNotFoundException("File path to keystore is null");
+            throw new FileNotFoundException("File path to security file is null");
         }
 
         // Create a file object from the given file path
@@ -50,7 +51,7 @@ public abstract class SecurityFileFacade {
 
         // Verify the file exists.
         if (!file.exists()) {
-            throw new FileNotFoundException("Cannot find keystore file at " + file.getAbsolutePath());
+            throw new FileNotFoundException("Cannot find security file at " + file.getAbsolutePath());
         }
 
         // Verify the file can be read. E.g. possible permission problem or the given path points to a directory.
@@ -61,25 +62,5 @@ public abstract class SecurityFileFacade {
         }
 
         return file;
-    }
-
-    //Create a new instance of a KeyStore object.
-    protected static KeyStore createSecurityObject() throws KeyStoreException {
-
-        //Attempt to find the proper keystore type
-        String type = System.getProperty("javax.net.ssl.keyStoreType");
-
-        //If the keystore type is not set, log a warning and use the default keystore type.
-        if (type == null) {
-            type = KeyStore.getDefaultType();
-            getLOGGER().warn("System property javax.net.ssl.keyStoreType not set. Using default keystore type " + type);
-        }
-
-        return KeyStore.getInstance(type);
-    }
-
-    //Implemented to so that logger from the proper subclass is used.
-    protected static Logger getLOGGER() {
-        return LOGGER;
     }
 }

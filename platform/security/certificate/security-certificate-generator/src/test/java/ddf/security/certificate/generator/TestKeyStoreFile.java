@@ -23,45 +23,45 @@ public class TestKeyStoreFile {
         return getClass().getClassLoader().getResource(path).getPath();
     }
 
-    //Test constructor. Null path to keystore file.
+    //Test constructor. Null path to keyStore file.
     @Test(expected = FileNotFoundException.class)
     public void testConstructorNullPath() throws Exception {
-        KeyStoreFile.get(null, null);
+        KeyStoreFile.getInstance(null, null);
     }
 
-    //Test constructor. Invalid path to keystore file.
+    //Test constructor. Invalid path to keyStore file.
     @Test(expected = FileNotFoundException.class)
     public void testConstructorInvalidPath() throws Exception {
-        KeyStoreFile.get("", null);
+        KeyStoreFile.getInstance("", null);
     }
 
     //Test Constructor. Path is a directory, not a file.
     @Test(expected = FileNotFoundException.class)
     public void testConstructorPathIsDirectory() throws Exception {
         String anyDirectory = getPathTo("");
-        KeyStoreFile.get(anyDirectory, null);
+        KeyStoreFile.getInstance(anyDirectory, null);
     }
 
     //Test Constructor. No read permissions on file.
     //I tested this one manually and it threw the correct exception with the correct message.
     //Not sure how to test it automated testing, and probably not worth the effort anyway.
 
-    //Test Constructor. File is not keystore.
+    //Test Constructor. File is not keyStore.
     @Test(expected = IOException.class)
     public void testConstructorFileNotKeyStore() throws Exception {
-        KeyStoreFile.get(getPathTo("NotKeyStore.jks"), null);
+        KeyStoreFile.getInstance(getPathTo("NotKeyStore.jks"), null);
     }
 
     //Test Constructor. Password is null.
     @Test(expected = IOException.class)
     public void testConstructorNullPassword() throws Exception {
-        KeyStoreFile.get(getPathTo("ValidKeyStore.jks"), null);
+        KeyStoreFile.getInstance(getPathTo("ValidKeyStore.jks"), null);
     }
 
     //Test Constructor. Password is wrong.
     @Test(expected = IOException.class)
     public void testConstructorWrongPassword() throws Exception {
-        KeyStoreFile.get(getPathTo("ValidKeyStore.jks"), "ThisIsNotThePassword".toCharArray());
+        KeyStoreFile.getInstance(getPathTo("ValidKeyStore.jks"), "ThisIsNotThePassword".toCharArray());
     }
 
     //Test Constructor. Valid file, valid password.
@@ -70,6 +70,6 @@ public class TestKeyStoreFile {
         //SYSTEM PROPERTIES NOT AVAILABLE UNTIL KARAF'S BOOT PROCESS IS COMPLETE
         //System.getProperty("javax.net.ssl.keyStorePassword")
 
-        KeyStoreFile.get(getPathTo("ValidKeyStore.jks"), "changeit".toCharArray());
+        KeyStoreFile.getInstance(getPathTo("ValidKeyStore.jks"), "changeit".toCharArray());
     }
 }
