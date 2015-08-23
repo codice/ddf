@@ -37,32 +37,32 @@ public class TestPemFile {
     @Test
     public void testEncryptedPrivateKeyNullPassword() throws FileNotFoundException {
 
-        PemFile.get(getPathTo(PRIVATE_KEY), null);
+        PemFile.getInstance(getPathTo(PRIVATE_KEY), null);
     }
 
     @Test(expected = IOException.class)
     public void testEncryptedPrivateKeyWrongPassword() throws IOException {
 
-        PemFile pf = PemFile.get(getPathTo(PRIVATE_KEY), "ThisIsNotPassword".toCharArray());
+        PemFile pf = PemFile.getInstance(getPathTo(PRIVATE_KEY), "ThisIsNotPassword".toCharArray());
         pf.getPrivateKey();
     }
 
     @Test
     public void testEncryptedPrivateKey() throws IOException {
-        PemFile pemFile = PemFile.get(getPathTo(PRIVATE_KEY), PASSWORD);
+        PemFile pemFile = PemFile.getInstance(getPathTo(PRIVATE_KEY), PASSWORD);
         pemFile.getPrivateKey();
     }
 
     @Test(expected = IOException.class)
     public void testWrongPemObject() throws IOException {
-        PemFile pemFile = PemFile.get(getPathTo(CERTIFICATE));
+        PemFile pemFile = PemFile.getInstance(getPathTo(CERTIFICATE));
         pemFile.getPrivateKey();
 
     }
 
     @Test
     public void testCertificate() throws IOException, CertificateException {
-        PemFile pemFile = PemFile.get(getPathTo(CERTIFICATE));
+        PemFile pemFile = PemFile.getInstance(getPathTo(CERTIFICATE));
         pemFile.getCertificate();
     }
 }
