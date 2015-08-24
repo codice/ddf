@@ -22,7 +22,7 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
 
 public class TestCertificateGeneration {
 
