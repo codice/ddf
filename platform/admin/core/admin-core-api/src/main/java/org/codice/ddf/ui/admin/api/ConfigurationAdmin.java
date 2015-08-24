@@ -584,24 +584,22 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
             // ensure we don't allow any empty values
             if (value == null || StringUtils.isEmpty(String.valueOf(value))) {
                 value = "";
-            } else {
-                // negative cardinality means a vector, 0 is a string, and positive is an array
-                CardinalityEnforcer cardinalityEnforcer = TYPE.forType(type)
-                        .getCardinalityEnforcer();
-                if (value instanceof String && cardinality != 0) {
-                    try {
-                        value = new JSONParser().parse(String.valueOf(value));
-                    } catch (ParseException e) {
-                        LOGGER.debug("{} is not a JSON array.", value, e);
-                    }
+            }
+            // negative cardinality means a vector, 0 is a string, and positive is an array
+            CardinalityEnforcer cardinalityEnforcer = TYPE.forType(type).getCardinalityEnforcer();
+            if (value instanceof String && cardinality != 0) {
+                try {
+                    value = new JSONParser().parse(String.valueOf(value));
+                } catch (ParseException e) {
+                    LOGGER.debug("{} is not a JSON array.", value, e);
                 }
-                if (cardinality < 0) {
-                    value = cardinalityEnforcer.negativeCardinality(value);
-                } else if (cardinality == 0) {
-                    value = cardinalityEnforcer.zerothCardinality(value);
-                } else if (cardinality > 0) {
-                    value = cardinalityEnforcer.positiveCardinality(value);
-                }
+            }
+            if (cardinality < 0) {
+                value = cardinalityEnforcer.negativeCardinality(value);
+            } else if (cardinality == 0) {
+                value = cardinalityEnforcer.zerothCardinality(value);
+            } else if (cardinality > 0) {
+                value = cardinalityEnforcer.positiveCardinality(value);
             }
 
             entry.setValue(value);
@@ -625,7 +623,11 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
 
         public Vector<T> negativeCardinality(Object value) {
             if (!(value.getClass().isArray() || value instanceof Collection)) {
-                value = new Object[] {value};
+                if (String.valueOf(value).isEmpty()) {
+                    value = new Object[] {};
+                } else {
+                    value = new Object[] {value};
+                }
             }
             Vector<T> ret = new Vector<>();
             for (int i = 0; i < CollectionUtils.size(value); i++) {
@@ -643,7 +645,7 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
                 }
                 value = CollectionUtils.get(value, 0);
             }
-            if (value instanceof String) {
+            if (!clazz.isInstance(value)) {
                 value = TypeParser.newBuilder().build().parse(String.valueOf(value), clazz);
             }
             if (clazz.isInstance(value)) {

@@ -783,17 +783,25 @@ public class ConfigurationAdminTest {
             verify(testConfig, times(i + 1)).update(any(Dictionary.class));
         }
         Hashtable<String, Object> values = new Hashtable<>();
-        String key = getKey(CARDINALITY_ARRAY, TYPE.STRING);
-        values.put(key, "[\"foo\",\"bar\",\"baz\"]");
-        configAdmin.update(TEST_PID, values);
+        String arrayString = getKey(CARDINALITY_ARRAY, TYPE.STRING);
         ArgumentCaptor<Dictionary> captor = ArgumentCaptor.forClass(Dictionary.class);
-        verify(testConfig, times(4)).update(captor.capture());
-        assertThat(((String[]) captor.getValue().get(key)).length, equalTo(3));
-        key = getKey(CARDINALITY_PRIMITIVE, TYPE.BOOLEAN);
-        values.put(key, "true");
+        // test string jsonarray parsing
+        values.put(arrayString, "[\"foo\",\"bar\",\"baz\"]");
+        String primitiveBoolean = getKey(CARDINALITY_PRIMITIVE, TYPE.BOOLEAN);
+        // test string valueof parsing
+        values.put(primitiveBoolean, "true");
+        String primitiveInteger = getKey(CARDINALITY_PRIMITIVE, TYPE.INTEGER);
+        // test string valueof parsing for non-strings
+        values.put(primitiveInteger, (long) TEST_INT);
+        String arrayInteger = getKey(CARDINALITY_ARRAY, TYPE.INTEGER);
+        // test empty  array substitution
+        values.put(arrayInteger, "");
         configAdmin.update(TEST_PID, values);
-        verify(testConfig, times(5)).update(captor.capture());
-        assertThat((Boolean) captor.getValue().get(key), equalTo(true));
+        verify(testConfig, times(4)).update(captor.capture());
+        assertThat(((String[]) captor.getValue().get(arrayString)).length, equalTo(3));
+        assertThat((Boolean) captor.getValue().get(primitiveBoolean), equalTo(true));
+        assertThat((int) captor.getValue().get(primitiveInteger), equalTo(TEST_INT));
+        assertThat(((Integer[]) captor.getValue().get(arrayInteger)).length, equalTo(0));
     }
 
     private Object getValue(int cardinality, TYPE type) {
