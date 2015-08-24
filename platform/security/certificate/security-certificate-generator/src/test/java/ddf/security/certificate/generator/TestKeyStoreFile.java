@@ -14,8 +14,11 @@
 package ddf.security.certificate.generator;
 
 import org.junit.Test;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
+
+import static org.junit.Assert.assertNotNull;
 
 public class TestKeyStoreFile {
 
@@ -49,19 +52,19 @@ public class TestKeyStoreFile {
     //Test Constructor. File is not keyStore.
     @Test(expected = IOException.class)
     public void testConstructorFileNotKeyStore() throws Exception {
-        KeyStoreFile.getInstance(getPathTo("NotKeyStore.jks"), null);
+        KeyStoreFile.getInstance(getPathTo("not_keystore.jks"), null);
     }
 
     //Test Constructor. Password is null.
     @Test(expected = IOException.class)
     public void testConstructorNullPassword() throws Exception {
-        KeyStoreFile.getInstance(getPathTo("ValidKeyStore.jks"), null);
+        KeyStoreFile.getInstance(getPathTo("keystore-password_changeit.jks"), null);
     }
 
     //Test Constructor. Password is wrong.
     @Test(expected = IOException.class)
     public void testConstructorWrongPassword() throws Exception {
-        KeyStoreFile.getInstance(getPathTo("ValidKeyStore.jks"), "ThisIsNotThePassword".toCharArray());
+        KeyStoreFile.getInstance(getPathTo("keystore-password_changeit.jks"), "ThisIsNotThePassword".toCharArray());
     }
 
     //Test Constructor. Valid file, valid password.
@@ -70,6 +73,8 @@ public class TestKeyStoreFile {
         //SYSTEM PROPERTIES NOT AVAILABLE UNTIL KARAF'S BOOT PROCESS IS COMPLETE
         //System.getProperty("javax.net.ssl.keyStorePassword")
 
-        KeyStoreFile.getInstance(getPathTo("ValidKeyStore.jks"), "changeit".toCharArray());
+        KeyStoreFile keyStore = KeyStoreFile.getInstance(getPathTo("keystore-password_changeit.jks"), "changeit".toCharArray());
+        assertNotNull(keyStore.aliases());
+        assertNotNull(keyStore.getCertificate("ddf demo root ca"));
     }
 }
