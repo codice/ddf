@@ -64,6 +64,7 @@ public class TestPemFile {
     public void testCertificate() throws IOException, CertificateException {
         PemFile pemFile = PemFile.getInstance(getPathTo(CERTIFICATE));
         pemFile.getCertificate();
+
     }
 }
 

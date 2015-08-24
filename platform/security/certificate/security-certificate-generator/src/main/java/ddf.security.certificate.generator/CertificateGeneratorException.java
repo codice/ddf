@@ -22,9 +22,17 @@ public class CertificateGeneratorException extends CertificateException {
         super(msg);
     }
 
+    public CertificateGeneratorException(String msg, Throwable cause) {
+        super(msg, cause);
+    }
+
     public static class InvalidIssuer extends CertificateGeneratorException {
         public InvalidIssuer(String msg) {
             super(msg);
+        }
+
+        public InvalidIssuer(String msg, Throwable cause) {
+            super(msg, cause);
         }
     }
 
@@ -37,6 +45,47 @@ public class CertificateGeneratorException extends CertificateException {
     public static class InvalidSubject extends CertificateGeneratorException {
         public InvalidSubject(String msg) {
             super(msg);
+        }
+    }
+
+    public static class InvalidKey extends CertificateGeneratorException {
+        public InvalidKey(String msg) {
+            super(msg);
+        }
+
+        public InvalidKey(String msg, Throwable cause) {
+            super(msg, cause);
+        }
+
+    }
+
+    public static class CannotSignCertificate extends CertificateGeneratorException {
+        public CannotSignCertificate(String msg) {
+            super(msg);
+        }
+
+        public CannotSignCertificate(String msg, Throwable cause) {
+            super(msg, cause);
+        }
+    }
+
+    public static class CannotGenerateKeyPair extends CertificateGeneratorException {
+        public CannotGenerateKeyPair(String msg) {
+            super(msg);
+        }
+
+        public CannotGenerateKeyPair(String msg, Throwable cause) {
+            super(msg, cause);
+        }
+    }
+
+    public static class InvalidCertificateAuthority extends CertificateGeneratorException {
+        public InvalidCertificateAuthority(String msg) {
+            super(msg);
+        }
+
+        public InvalidCertificateAuthority(String msg, Throwable cause) {
+            super(msg, cause);
         }
     }
 }
