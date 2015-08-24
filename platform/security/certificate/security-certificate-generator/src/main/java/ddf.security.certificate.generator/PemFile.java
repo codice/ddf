@@ -39,8 +39,6 @@ import java.security.cert.X509Certificate;
  */
 public class PemFile extends SecurityFileFacade {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PemFile.class);
-
     //Declare member attributes
     protected PEMParser pem;
 
