@@ -31,7 +31,7 @@
   changed to kernel.
   -->
   <artifactId>kernel</artifactId>
-  <groupId>ddf.distribution</groupId>
+  <groupId>org.codice.ddf</groupId>
   <name>DDF :: Distribution :: Kernel</name>
   <packaging>pom</packaging>
 
