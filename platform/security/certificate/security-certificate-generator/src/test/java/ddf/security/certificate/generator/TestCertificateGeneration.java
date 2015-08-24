@@ -16,8 +16,13 @@ package ddf.security.certificate.generator;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
+import java.net.UnknownHostException;
 import java.security.PrivateKey;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+
+import static org.junit.Assert.*;
 
 public class TestCertificateGeneration {
 
@@ -28,6 +33,11 @@ public class TestCertificateGeneration {
         return getClass().getClassLoader().getResource(path).getPath();
     }
 
+
+    @Test(expected = CertificateGeneratorException.InvalidSerialNumber.class)
+    public void serialNumberIsNegative() throws Exception {
+        new CertificateSigningRequest().setSerialNumber(-1);
+    }
 
     //Test building incomplete instance
     @Test(expected = CertificateGeneratorException.InvalidDate.class)
@@ -52,29 +62,37 @@ public class TestCertificateGeneration {
         csr.build();
     }
 
-
-    //Test building incomplete instance
-    @Test(expected = CertificateGeneratorException.InvalidSubject.class)
-    public void subjectNameIsMissing() throws Exception {
-        CertificateSigningRequest csr = new CertificateSigningRequest();
-        csr.setNotAfter(THE_FUTURE);
-        csr.generateNewKeys();
-        csr.build();
-    }
-
     //Test building incomplete instance
     @Test(expected = CertificateGeneratorException.InvalidCertificateAuthority.class)
     public void certificateAuthorityIsMissing() throws Exception {
         CertificateSigningRequest csr = new CertificateSigningRequest();
         csr.setNotAfter(THE_FUTURE);
-        csr.generateNewKeys();
         csr.setSubjectNameToHostname();
         csr.build();
     }
 
+    //Happy path!
     @Test
     public void createSignedCertificate() throws Exception {
+        getCsr().getSignedCertificate();
+    }
 
+    //Add newly created private key and certificate (chain) to a keystore
+    @Test
+    public void installCertificate() throws Exception {
+        CertificateSigningRequest csr = getCsr();
+        PrivateKey subjectPrivateKey = csr.getPrivateKey();
+        X509Certificate chain[] = csr.getCertificateChain();
+        KeyStoreFile keyStore = KeyStoreFile.getInstance(getPathTo("keystore-password_changeit.jks"), "changeit".toCharArray());
+        keyStore.addEntry("alias", subjectPrivateKey, chain);
+        PrivateKey key = keyStore.getPrivateKey("alias");
+        assertNotNull(key);
+        Certificate[] certs = keyStore.getCertificateChain("alias");
+        assertNotNull(certs);
+        keyStore.save();
+    }
+
+    protected CertificateSigningRequest getCsr() throws CertificateException, UnknownHostException {
         //Instantiate DDF Demo CA's certificate
         X509Certificate cert = CertificateGeneratorUtilities.stringToCertificate(CertificateAuthority.certificatePem);
 
@@ -91,10 +109,10 @@ public class TestCertificateGeneration {
         csr.setSubjectNameToHostname();
         csr.setCertificateAuthority(ca);
         csr.build();
-
-        X509Certificate signedCert = csr.getSignedCertificate();
-        signedCert.checkValidity();
+        return csr;
     }
+
+
 }
 
 
