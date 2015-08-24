@@ -445,6 +445,7 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
                     .valueOf(String.valueOf(service.get(ConfigurationAdminExt.MAP_FACTORY))))) {
                 tempMetatype = (List<Map<String, Object>>) service
                         .get(ConfigurationAdminExt.MAP_ENTRY_METATYPE);
+                break;
             }
         }
         return tempMetatype;

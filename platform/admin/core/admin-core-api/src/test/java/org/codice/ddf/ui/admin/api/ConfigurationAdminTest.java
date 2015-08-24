@@ -853,7 +853,7 @@ public class ConfigurationAdminTest {
      * {@link ConfigurationAdmin#updateForLocation(String, String, Map)} methods
      * for the case where the pid argument is null
      */
-    @Test(expected = IOException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testUpdateNullPid() throws Exception {
         org.osgi.service.cm.ConfigurationAdmin testConfigAdmin = mock(
                 org.osgi.service.cm.ConfigurationAdmin.class);
@@ -872,7 +872,7 @@ public class ConfigurationAdminTest {
      *
      * @throws Exception
      */
-    @Test(expected = IOException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testUpdateNullConfigTable() throws Exception {
         org.osgi.service.cm.ConfigurationAdmin testConfigAdmin = mock(
                 org.osgi.service.cm.ConfigurationAdmin.class);
