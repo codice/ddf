@@ -11,32 +11,38 @@
  *
  **/
  --}}
-<div class="claim-info-column">
+<td>
     {{#if showInfo}}
         <a href='#' class='claims-info'>
             <i class="fa fa-info-circle fa-lg"></i>
         </a>
     {{/if}}
-</div>
-<div class="claim-name-column">
-    <div class="editable-list-div">
-        <input type='text' name='claimName' class="form-control editable-input editable-list-input" value='{{claimName}}'>
-        <a  href='#' class="editable-list-button"><i class="fa fa-caret-down"></i></a>
-        <ul class="editable-list" style="display: none">
-            {{#each availableClaims}}
-                <li class="editable-list-item {{#is this ../claimName}}selected-list-item{{/is}}" value="{{this}}">{{this}}</li>
-            {{/each}}
-        </ul>
+</td>
+<td class="attribute-name">
+    <div class="input-group">
+        <input type='text' name='claimName' class="claim-input form-control" value='{{claimName}}'/>
+        <div class="input-group-btn">
+            <div class="btn-group">
+                <button  class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fa fa-caret-down"></i>
+                </button>
+                <ul class="dropdown-menu">
+                    {{#each availableClaims}}
+                        <li class="available-claims {{#is this ../claimName}}selected-list-item{{/is}}" value="{{this}}">{{this}}</li>
+                    {{/each}}
+                </ul>
+            </div>
+        </div>
     </div>
     <span class="error-text-table" name="{{claimNameId}}Error" style="display: none"></span>
-</div>
-<div class="claim-value-column">
-    <input type='text' name='claimValue' class="form-control editable-input" value='{{claimValue}}'>
+</td>
+<td>
+    <input type='text' name='claimValue' class="form-control" value='{{claimValue}}'/>
     <span class="error-text-table" name="{{claimValueId}}Error" style="display: none"></span>
-</div>
-<div class="claim-remove-column">
+</td>
+<td>
     <a href="#" class="fa fa-minus-square fa-lg minus-button"></a>
-</div>
+</td>
 
 
 
