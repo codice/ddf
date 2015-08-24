@@ -14,8 +14,6 @@
 package ddf.security.certificate.generator;
 
 import org.bouncycastle.asn1.x500.X500Name;
-import org.bouncycastle.asn1.x500.X500NameBuilder;
-import org.bouncycastle.asn1.x500.style.RFC4519Style;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.X509v3CertificateBuilder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
@@ -34,6 +32,10 @@ import java.security.Security;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
+/**
+ * Model of a X509 certificate signing request. See RFC 5280,  Internet X.509 Public Key Infrastructure Certificate
+ * and Certificate Revocation List (CRL) Profile for more information.
+ */
 public class CertificateSigningRequest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CertificateSigningRequest.class);
@@ -63,9 +65,9 @@ public class CertificateSigningRequest {
         keyPairLength = 1024;
         serialNumber = BigInteger.valueOf(System.currentTimeMillis());
         notBefore = DateTime.now().minusDays(1);
-        useNewKeys = false;
+        useNewKeys = true;
 
-        //TODO: It might not be a good idea to pick the end effective date for the user.
+        //TODO: It might not be a good idea to pick the end expiration date for the user. Force user to set expiration date.
         // notAfter = DateTime.now().plusYears(5);
     }
 
@@ -81,6 +83,13 @@ public class CertificateSigningRequest {
         return signedCertificate;
     }
 
+    /**
+     * Create a signed certificate. After this method executes, use {@link #getSignedCertificate()}
+     * to retrieve the retrieve the generated certificate. If a new keypair was created for the subject, use
+     * {@link #getPrivateKey()} to retrieve the private key.
+     *
+     * @throws CertificateGeneratorException
+     */
     public void build()
             throws CertificateGeneratorException {
 
@@ -104,11 +113,9 @@ public class CertificateSigningRequest {
         }
 
         if (subjectKeyPair == null) {
-            // Only the subject's PUBLIC KEY  is required to generate a certificate signing
-            // request. However, the typical use case is to generate both the public and
-            // private keys within this class.
-            throw new CertificateGeneratorException.InvalidSubject(
-                    "Subject key pair is null. Set subject key pair.");
+            //Typical use case is to generate both the public and private keys within this class.
+            //ASSUME that if the keypair has not been set, the user's intention is to generate a new keypair.
+            generateNewKeys();
         }
 
         if (subjectDistinguishedName == null || subjectDistinguishedName.toString().isEmpty()) {
@@ -142,11 +149,12 @@ public class CertificateSigningRequest {
         }
     }
 
+    //TODO: This functionality is not unique to certificate signing requests. But it is not so involved that it needs its own class. Where does it belong? Static method on CertificateGenerationUtilities?
     protected void generateNewKeys() throws CertificateGeneratorException.CannotGenerateKeyPair {
 
         KeyPairGenerator keyGen = null;
         try {
-            keyGen = KeyPairGenerator.getInstance("RSA", BC);
+            keyGen = KeyPairGenerator.getInstance("RSA", CertificateGeneratorUtilities.BC);
         } catch (Exception e) {
             throw new CertificateGeneratorException.CannotGenerateKeyPair("Failed to generate new public/private key pair.", e);
         }
@@ -154,62 +162,88 @@ public class CertificateSigningRequest {
         useSubjectKeyPair(keyGen.generateKeyPair());
     }
 
-    // For a Subject, the common name should be the server's DNS name.
+    /**
+     * Create a distinguished name for the certificate's subject. Currently, only the common name (sub-attribute of
+     * the distinguished name) is supported. The common name should be the <b>fully qualified domain name</b> of the
+     * certificate's subject (i.e. the server). For example, <i>server.subdomain.domain.tld</i>.
+     *
+     * @param name subject's common name attribute (
+     */
     public void setSubjectDistinguishedName(String name) {
-        subjectDistinguishedName = makeDistinguishedName(name);
+        subjectDistinguishedName = CertificateGeneratorUtilities.makeDistinguishedName(name);
 
     }
 
+    /**
+     * Use hostname of the network node running the JBM as the subject's common name.
+     * The most common use case is the use case is DNS entry name of the server is the X509 common name.
+     * SSL/TLS uses the common name as part of the secure connection handshake and if the name is wrong, TLS will
+     * not trust the connection. There is no guarantee that the {@link CertificateGeneratorUtilities#getHostName()}
+     * returns the correct result in all cases. Use {@link #setSubjectDistinguishedName(String)} to manually set
+     * the common name for the certificate's subject.
+     *
+     * @throws UnknownHostException
+     */
     public void setSubjectNameToHostname() throws UnknownHostException {
         setSubjectDistinguishedName(CertificateGeneratorUtilities.getHostName());
     }
 
+    /**
+     * Set the subject's public and private keypair. Only the public key is used. However, the the most common use
+     * case is to generate a new keypair when creating a certificate. The client code will need to retrieve the
+     * the private key for later use. This method is provided for situations when an existing  keypair
+     * should be used to generate the certificate.
+     *
+     * @param keyPair
+     */
     public void useSubjectKeyPair(KeyPair keyPair) {
         subjectKeyPair = keyPair;
     }
 
+    /**
+     * The validity period for a certificate is the period of time from notBefore through notAfter, inclusive.
+     *
+     * @param date
+     */
     public void setNotBefore(DateTime date) {
         notBefore = date;
     }
 
+    /**
+     * The validity period for a certificate is the period of time from notBefore through notAfter, inclusive.
+     *
+     * @param date
+     */
     public void setNotAfter(DateTime date) {
         notAfter = date;
     }
 
-    public void setSerialNumber(long number) {
+    /**
+     * Set the serial number of the certificate. The serial number is arbitrary, but should not be negative.
+     *
+     * @param number
+     */
+    public void setSerialNumber(long number) throws CertificateGeneratorException.InvalidSerialNumber {
+
+        if(number < 0) {
+            throw new CertificateGeneratorException.InvalidSerialNumber("Serial number for X.509 certificate should not be negative");
+        }
         serialNumber = BigInteger.valueOf(number);
-    }
-
-    // Currently only uses the common name attribute.
-    protected X500Name makeDistinguishedName(String commonName) {
-        // The attributes of a distinguished name that a TLS implementation must be ready to support.
-        //    RFC 4514 LDAP
-        //    Implementations MUST recognize AttributeType name strings (descriptors) listed in the following table,
-        //    but MAY recognize other name strings.
-        //
-        //    String  X.500 AttributeType
-        //    ------  --------------------------------------------
-        //    CN      commonName (2.5.4.3)
-        //    L       localityName (2.5.4.7)
-        //    ST      stateOrProvinceName (2.5.4.8)
-        //    O       organizationName (2.5.4.10)
-        //    OU      organizationalUnitName (2.5.4.11)
-        //    C       countryName (2.5.4.6)
-        //    STREET  streetAddress (2.5.4.9)
-        //    DC      domainComponent (0.9.2342.19200300.100.1.25)
-        //    UID     userId (0.9.2342.19200300.100.1.1)
-        //Build distinguished name for subject or issuer
-
-        X500NameBuilder nameBuilder = new X500NameBuilder(RFC4519Style.INSTANCE);
-
-        //Add more nameBuilder.addRDN(....) statements to support more X500 attributes.
-        nameBuilder.addRDN(RFC4519Style.cn, commonName);
-
-        //Turn the crank
-        return nameBuilder.build();
     }
 
     protected JcaX509CertificateConverter getCertificateConverter() {
         return new JcaX509CertificateConverter().setProvider(BC);
+    }
+
+    /**
+     * The subject and issuers' certificates
+     *
+     * @return the certificate chain to be used in the keystore entry
+     */
+    public X509Certificate[] getCertificateChain() {
+        X509Certificate[] chain = new X509Certificate[2];
+        chain[0] = getSignedCertificate();
+        chain[1] = certificateAuthority.getCertificate();
+        return chain;
     }
 }
