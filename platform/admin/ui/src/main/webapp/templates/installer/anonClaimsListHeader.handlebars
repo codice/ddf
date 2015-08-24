@@ -15,38 +15,12 @@
      <div id="warning-div" style="display: none">
          <ul class="fa-ul">
              {{#each warnings}}
-                 <li> <i class="fa fa-exclamation-triangle fa-lg"></i> {{this.message}}</li>
+                 <li> <i class="fa-li fa fa-exclamation-triangle fa-lg"></i> {{this.message}}</li>
              {{/each}}
          </ul>
      </div>
-
-     <div class="header-container-div">
-         <div class="claim-info-column"/>
-         <div class="claim-name-column claim-column-header">
-             <label class='control-label claim-column-label'>Attribute Name</label>
-         </div>
-         <div class="claim-value-column claim-column-header">
-             <label class='control-label claim-column-label'>Attribute Value</label>
-         </div>
-         <div class="claim-remove-column"/>
+     <div id="listItems"></div>
+     <div class="center">
+        <a class="claim-add-attribute">Add Attribute</a>
      </div>
-
-     <div id='listItems'>
-
-     </div>
-
-     <div class="footer-container-div">
-         <div class="claim-info-column"/>
-         <div class="claim-name-column"/>
-         <div class="claim-value-column"/>
-         <div class="claim-remove-column">
-             <div class="claim-bottom">
-                 <div class="btn-group">
-                     <a class="claim-add-attribute">Add Attribute</a>
-                 </div>
-             </div>
-         </div>
-     </div>
-
-
 </div>

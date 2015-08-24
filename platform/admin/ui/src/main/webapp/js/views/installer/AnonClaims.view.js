@@ -27,14 +27,16 @@ define([
     'text!templates/installer/anonClaimProfiles.handlebars',
     'text!templates/installer/anonClaimsListHeader.handlebars',
     'text!templates/installer/anonClaimsList.handlebars',
-    'text!templates/installer/anonWarningModal.handlebars'
-], function (Marionette, ich, _, Backbone, Service, wreqr, $, Modal, anonClaimsTemplate, anonClaimProfiles, anonClaimsListHeader, anonClaimsList, anonWarningModal) {
+    'text!templates/installer/anonWarningModal.handlebars',
+    'text!templates/installer/anonClaimsTable.handlebars'
+], function (Marionette, ich, _, Backbone, Service, wreqr, $, Modal, anonClaimsTemplate, anonClaimProfiles, anonClaimsListHeader, anonClaimsList, anonWarningModal, anonClaimsHanlderTable) {
 
     ich.addTemplate('anonClaimsTemplate', anonClaimsTemplate);
     ich.addTemplate('anonClaimProfiles', anonClaimProfiles);
     ich.addTemplate('anonClaimsListHeader', anonClaimsListHeader);
     ich.addTemplate('anonClaimsList', anonClaimsList);
     ich.addTemplate('anonWarningModal', anonWarningModal);
+    ich.addTemplate('anonClaimsTable', anonClaimsHanlderTable);
 
     var serviceModelResponse = new Service.Response();
 
@@ -77,11 +79,6 @@ define([
                 this.valObj.get("claims").availableClaims = this.valObj.get("claims").availableClaims.sort();
                 this.valObj.get("claims").availableClaims.push("Add Custom Attribute...");
             }
-
-            //close all dropdowns
-            $('html').click(function () {
-                $('.editable-list').hide();
-            });
 
             Backbone.ModelBinder.SetOptions({modelSetOptions: {validate: true}});
         },
@@ -190,7 +187,7 @@ define([
 
     var AnonClaimsMultiValuedEntry = Marionette.ItemView.extend({
         template: 'anonClaimsList',
-        tagName: 'div',
+        tagName: 'tr',
         className: 'row-container-div',
         initialize: function () {
             this.modelBinder = new Backbone.ModelBinder();
@@ -198,9 +195,7 @@ define([
         },
         events: {
             "click .minus-button": "minusButton",
-            "click .editable-list-button": "showList",
-            "click .editable-list-item": "selectItem",
-            "mouseover .editable-list-item": "highlightItem"
+            "click .available-claims": "selectClaim"
         },
         modelEvents: {
             "change": "render"
@@ -214,54 +209,57 @@ define([
             this.modelBinder.bind(this.model, this.$el, bindings);
             this.model.set('showInfo', _.contains(this.model.get('immutableClaims'), this.model.get('claimName')));
             this.checkValues();
+            this.setupPopOvers();
         },
         onClose: function () {
             this.remove();
             this.unbind();
         },
-        showList: function (e) {
-            e.stopPropagation();
-            var list = this.$('.editable-list');
-            var input = this.$('.editable-list-input');
-            list.css({'top': input.outerHeight(), 'left': '0px', 'min-width': input.outerWidth()});
-            list.toggle();
-        },
-        selectItem: function (e) {
+        selectClaim: function (e) {
 
             var newValue = this.$(e.target).text();
             if (newValue === 'Add Custom Attribute...') {
                 newValue = '';
             }
-            this.$('.editable-list-input').val(newValue);
-            this.$('.editable-list-item').removeClass('selected-list-item');
             this.$(e.target).addClass('selected-list-item');
             this.model.set('claimName', newValue);
-            this.$('.editable-list').hide();
-            this.$('.editable-list-input').focus();
-        },
-        highlightItem: function (e) {
-            this.$('.editable-list-item').removeClass('highlighted-list-item');
-            this.$(e.target).addClass('highlighted-list-item');
+            this.$('.claim-input').focus();
         },
         checkValues: function () {
             wreqr.vent.trigger('entriesChanged');
+        },
+        setupPopOvers: function () {
+            var view = this;
+
+            var options, selector = ".claims-info";
+            options = {
+                title: "Claims Info",
+                content: "This is a required claim attribute that should not be removed or edited",
+                trigger: 'hover'
+            };
+            view.$(selector).popover(options);
+
         }
     });
 
-    var AnonClaimsMultiValueCollection = Marionette.CollectionView.extend({
+    var AnonClaimsMultiValueCollection = Marionette.CompositeView.extend({
         itemView: AnonClaimsMultiValuedEntry,
-        tagName: 'div'
+        template: 'anonClaimsTable',
+        tagName: 'table',
+        className: 'claim-table',
+        appendHtml: function(collectionView, itemView){
+            collectionView.$("tbody").append(itemView.el);
+        }
     });
 
     var AnonClaimsMultiValuedLayout = Marionette.Layout.extend({
         template: 'anonClaimsListHeader',
-        itemView: AnonClaimsMultiValueCollection,
         tagName: 'div',
         regions: {
             listItems: '#listItems'
         },
         events: {
-            "click .claim-add-attribute": "plusButton"
+            "click .claim-add-attribute": 'plusButton'
         },
         modelEvents: {
             "change": 'render'
@@ -292,7 +290,6 @@ define([
                 }
             }
             this.checkWarnings();
-            this.setupPopOvers();
         },
         saveValues: function () {
             var values = [];
@@ -308,7 +305,6 @@ define([
             this.listItems.show(new AnonClaimsMultiValueCollection({
                 collection: this.collectionArray
             }));
-            this.setupPopOvers();
         },
         addItem: function (value) {
             var claimName = value, claimValue = '';
@@ -405,21 +401,6 @@ define([
          */
         plusButton: function () {
             this.addItem('');
-        },
-        /**
-         * Set up the popovers based on if the selector has a description.
-         */
-        setupPopOvers: function () {
-            var view = this;
-
-            var options, selector = ".claims-info";
-            options = {
-                title: "Claims Info",
-                content: "This is a required claim attribute that should not be removed or edited",
-                trigger: 'hover'
-            };
-            view.$(selector).popover(options);
-
         }
     });
 

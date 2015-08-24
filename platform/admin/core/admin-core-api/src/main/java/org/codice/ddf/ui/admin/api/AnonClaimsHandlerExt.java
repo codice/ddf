@@ -26,14 +26,13 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
 
 public class AnonClaimsHandlerExt {
     public static final String PROFILE_NAME_KEY = "profileName";
 
-    private final XLogger logger = new XLogger(
-            LoggerFactory.getLogger(ConfigurationAdminExt.class));
+    private static final Logger LOGGER = LoggerFactory.getLogger(AnonClaimsHandlerExt.class);
 
     private Map<String, Object> claimsProfiles;
 
@@ -79,8 +78,8 @@ public class AnonClaimsHandlerExt {
 
     private List<String> convertMapToList(Map<String, String> map) {
         List<String> list = new ArrayList<>();
-        for (String key : map.keySet()) {
-            list.add(key + "=" + map.get(key));
+        for (Map.Entry<String, String> entry : map.entrySet()) {
+            list.add(entry.getKey() + "=" + entry.getValue());
         }
         return list;
     }
@@ -103,7 +102,7 @@ public class AnonClaimsHandlerExt {
             try (InputStream inputStream = new FileInputStream(propFile)) {
                 properties.load(inputStream);
             } catch (IOException e) {
-                logger.error("Error loading property file {}", propFile.getAbsolutePath(), e);
+                LOGGER.error("Error loading property file {}", propFile.getAbsolutePath(), e);
             }
             for (String name : properties.stringPropertyNames()) {
                 propertyMap.put(name, properties.getProperty(name));
