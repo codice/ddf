@@ -192,7 +192,7 @@ public abstract class AbstractIntegrationTest {
 
     protected Option[] configureDistribution() {
         return options(karafDistributionConfiguration(
-                maven().groupId("ddf.distribution").artifactId("ddf").type("zip")
+                maven().groupId("org.codice.ddf").artifactId("ddf").type("zip")
                         .versionAsInProject().getURL(), "ddf", KARAF_VERSION)
                 .unpackDirectory(new File("target/exam")).useDeployFolder(false));
 
