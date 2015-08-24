@@ -12,5 +12,5 @@ target/
 bin/
 atlassian-ide-plugin.xml
 *.sonar-ide.properties
-*/webapp/css/styles.css
+**/webapp/css/styles.css
 platform/solr/**/overlays

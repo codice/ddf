@@ -10,7 +10,8 @@
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- */
+ *
+ **/
 package ddf.catalog.test;
 
 import static org.junit.Assert.fail;
@@ -85,7 +86,7 @@ import ddf.common.test.PaxExamRule;
  */
 public abstract class AbstractIntegrationTest {
 
-    private static final int CONFIG_UPDATE_WAIT_INTERVAL = 5;
+    protected static final int CONFIG_UPDATE_WAIT_INTERVAL = 5;
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(AbstractIntegrationTest.class);
 
@@ -94,6 +95,8 @@ public abstract class AbstractIntegrationTest {
     protected static final String LOGGER_PREFIX = "log4j.logger.";
 
     protected static final String KARAF_VERSION = "2.4.3";
+    
+    protected static final int ONE_MINUTE_MILLIS = 60000;
 
     protected static final long REQUIRED_BUNDLES_TIMEOUT = TimeUnit.MINUTES.toMillis(10);
 
@@ -122,6 +125,12 @@ public abstract class AbstractIntegrationTest {
     protected static final String REST_PATH = SERVICE_ROOT + "/catalog/";
 
     protected static final String OPENSEARCH_PATH = REST_PATH + "query";
+
+    protected static final String CSW_PATH = SERVICE_ROOT + "/csw";
+
+    protected static final String OPENSEARCH_SOURCE_ID = "openSearchSource";
+
+    protected static final String CSW_SOURCE_ID = "cswSource";
 
     protected static final String DEFAULT_LOG_LEVEL = "TRACE";
 
@@ -720,6 +729,53 @@ public abstract class AbstractIntegrationTest {
         public boolean isUpdated() {
             return updated;
         }
+    }
+
+    public class OpenSearchSourceProperties extends HashMap<String, Object> {
+
+        public static final String SYMBOLIC_NAME = "catalog-opensearch-source";
+
+        public static final String FACTORY_PID = "OpenSearchSource";
+
+        public OpenSearchSourceProperties(String sourceId) {
+            this.putAll(getMetatypeDefaults(SYMBOLIC_NAME, FACTORY_PID));
+
+            this.put("shortname", sourceId);
+            this.put("endpointUrl", OPENSEARCH_PATH);
+        }
+
+    }
+
+    public class CswSourceProperties extends HashMap<String, Object> {
+
+        public static final String SYMBOLIC_NAME = "spatial-csw-source";
+
+        public static final String FACTORY_PID = "Csw_Federated_Source";
+
+        public CswSourceProperties(String sourceId) {
+            this.putAll(getMetatypeDefaults(SYMBOLIC_NAME, FACTORY_PID));
+
+            this.put("id", sourceId);
+            this.put("cswUrl", CSW_PATH);
+            this.put("pollInterval", 1);
+        }
+
+    }
+
+    public class CswConnectedSourceProperties extends HashMap<String, Object> {
+
+        public static final String SYMBOLIC_NAME = "spatial-csw-source";
+
+        public static final String FACTORY_PID = "Csw_Connected_Source";
+
+        public CswConnectedSourceProperties(String sourceId) {
+            this.putAll(getMetatypeDefaults(SYMBOLIC_NAME, FACTORY_PID));
+
+            this.put("id", sourceId);
+            this.put("cswUrl", CSW_PATH);
+            this.put("pollInterval", 1);
+        }
+
     }
 
 }
