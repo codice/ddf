@@ -26,12 +26,9 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.security.cert.CertificateException;
-
 
 
 /**
@@ -53,6 +50,19 @@ public class KeyStoreFile extends SecurityFileFacade {
 
     }
 
+    /**
+     * Load instance of a keystore file from local storage and return a fully initialized instance of the class.
+     * Use a factory method to allow for future possibility of creating an instance of the class that is not already
+     * a file.
+     *
+     * @param filePath
+     * @param password
+     * @return instance of KeyStoreFile
+     * @throws IOException
+     * @throws KeyStoreException
+     * @throws CertificateException
+     * @throws NoSuchAlgorithmException
+     */
     public static KeyStoreFile getInstance(String filePath, char[] password) throws IOException, KeyStoreException, CertificateException, NoSuchAlgorithmException {
 
         //Declare working variables. After initialization, add them to created instance's state.
@@ -103,18 +113,20 @@ public class KeyStoreFile extends SecurityFileFacade {
     }
 
     /**
-     * Return the aliases of the items in the key store.
+     * Return the aliases of the items in the key store. Return null if there is an error.
      *
-     * @return
+     * @return List of aliases in keystore or null
      */
     public List<String> aliases() {
+        ArrayList<String> aliases = null;
         try {
-            return Collections.list(keyStore.aliases());
+            aliases = Collections.list(keyStore.aliases());
+            return aliases;
         } catch (KeyStoreException e) {
-            LOGGER.warn("Could not read aliases empty keystore.");
+            LOGGER.warn("Could not read keystore aliases.");
         }
 
-        return new ArrayList<String>();
+        return aliases;
     }
 
     /**
@@ -125,31 +137,32 @@ public class KeyStoreFile extends SecurityFileFacade {
      * public key.<p>
      * NOTE: The private key will be encrypted with THE SAME PASSWORD THAT DECRYPTS THE KEYSTORE.
      *
-     * @param alias
-     * @param chain
-     * @param privateKey
+     * @param alias      of entry
+     * @param chain      list of certificates from the end entity to the anchor certificate
+     * @param privateKey of end entity
      */
     public void addEntry(String alias, PrivateKey privateKey, Certificate[] chain) throws KeyStoreException {
 
         keyStore.setKeyEntry(alias, privateKey, password, chain);
-
     }
 
-    //TODO: Add test to check null input
-    public X509Certificate getCertificate(String alias) throws CertificateException {
+    /**
+     * Return the certificate associated with this alias. if the certificate cannot retrieved, return null
+     *
+     * @param alias
+     * @return Certificate or null
+     */
+    public Certificate getCertificate(String alias) {
+
         Certificate cert = null;
+
         try {
-             cert = keyStore.getCertificate(alias);
+            cert = keyStore.getCertificate(alias);
         } catch (KeyStoreException e) {
-            LOGGER.warn(String.format("Could get certificate named %s", alias));
-            return null;
+            LOGGER.warn(String.format("Could get retrieve certificate named %s", alias));
         }
 
-        if (!X509Certificate.class.isInstance(cert)                ) {
-            throw new CertificateException(String.format("Class %s expected instance of %s", this.getClass(), X509Certificate.class));
-        }
-
-        return (X509Certificate) cert;
+        return cert;
     }
 
     /**
@@ -181,5 +194,40 @@ public class KeyStoreFile extends SecurityFileFacade {
         } catch (KeyStoreException e) {
             LOGGER.info(String.format("Attempted to remove key named '%s' from keyStore. No such such key ", alias), e);
         }
+    }
+
+    /**
+     * Attempt to recover a private key from the keystore.
+     * ASSUMES the key is encrypted with the same password that encrypts the key store.
+     * If key cannot be recovered (key is missing, password is incorrect, encryption is too strong, or other),
+     * return null
+     *
+     * @param alias
+     * @return instance of PrivateKey or null
+     */
+    public PrivateKey getPrivateKey(String alias) {
+        try {
+            return (PrivateKey) keyStore.getKey(alias, password);
+        } catch (Exception e) {
+            LOGGER.warn(String.format("Failed to recover key named '%s'", alias));
+
+        }
+        return null;
+    }
+
+    /**
+     * @param alias
+     * @return
+     */
+    public Certificate[] getCertificateChain(String alias) {
+        Certificate[] chain = null;
+        try {
+            chain = keyStore.getCertificateChain(alias);
+
+        } catch (KeyStoreException e) {
+            LOGGER.warn(String.format("Failed to recover certificate chain with alias '%s'", alias));
+        }
+
+        return chain;
     }
 }
