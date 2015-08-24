@@ -217,7 +217,7 @@
               	common assembly descriptor (common-bin.xml)
               	-->
               	<artifactItem>
-                  <groupId>ddf.distribution</groupId>
+                  <groupId>org.codice.ddf</groupId>
                   <artifactId>ddf-common</artifactId>
                   <version>${project.version}</version>
                   <type>jar</type>
