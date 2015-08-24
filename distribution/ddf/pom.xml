@@ -19,7 +19,7 @@
 
     <parent>
         <artifactId>kernel</artifactId>
-        <groupId>ddf.distribution</groupId>
+        <groupId>org.codice.ddf</groupId>
         <version>2.8.0-SNAPSHOT</version>
         <relativePath>../kernel/pom.xml</relativePath>
     </parent>
@@ -78,7 +78,7 @@
                             <inherited>false</inherited>
                             <descriptors>
                                 <descriptor>
-                                    mvn:ddf.distribution/kernel/${project.version}/xml/features
+                                    mvn:org.codice.ddf/kernel/${project.version}/xml/features
                                 </descriptor>
                                 <descriptor>
                                     mvn:ddf.platform/platform-app/${project.version}/xml/features

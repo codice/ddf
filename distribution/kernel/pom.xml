@@ -31,7 +31,7 @@
   changed to kernel.
   -->
   <artifactId>kernel</artifactId>
-  <groupId>ddf.distribution</groupId>
+  <groupId>org.codice.ddf</groupId>
   <name>DDF :: Distribution :: Kernel</name>
   <packaging>pom</packaging>
 
@@ -217,7 +217,7 @@
               	common assembly descriptor (common-bin.xml)
               	-->
               	<artifactItem>
-                  <groupId>ddf.distribution</groupId>
+                  <groupId>org.codice.ddf</groupId>
                   <artifactId>ddf-common</artifactId>
                   <version>${project.version}</version>
                   <type>jar</type>
