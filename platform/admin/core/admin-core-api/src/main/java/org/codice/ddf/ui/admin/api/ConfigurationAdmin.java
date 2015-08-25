@@ -15,7 +15,11 @@ package org.codice.ddf.ui.admin.api;
 
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
+import java.lang.reflect.Array;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Enumeration;
@@ -23,24 +27,31 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Vector;
 
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Transformer;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.ui.admin.api.module.AdminModule;
 import org.codice.ddf.ui.admin.api.module.ValidationDecorator;
 import org.codice.ddf.ui.admin.api.plugin.ConfigurationAdminPlugin;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
+import org.osgi.service.metatype.AttributeDefinition;
 import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
+import com.github.drapostolos.typeparser.TypeParser;
+
 /**
- * @author Scott Tustison
+ * This class provides convenience methods for interacting with
+ * OSGi/Felix ConfigurationAdmin services.
  */
 public class ConfigurationAdmin implements ConfigurationAdminMBean {
     private static final String NEW_FACTORY_PID = "newFactoryPid";
@@ -77,16 +88,15 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
     /**
      * Constructor for use in unit tests. Needed for testing listServices() and getService().
      *
-     * @param configurationAdmin
-     *              instance of org.osgi.service.cm.ConfigurationAdmin service
-     * @param configurationAdminExt
-     *              mocked instance of ConfigurationAdminExt
+     * @param configurationAdmin    instance of org.osgi.service.cm.ConfigurationAdmin service
+     * @param configurationAdminExt mocked instance of ConfigurationAdminExt
      */
     public ConfigurationAdmin(org.osgi.service.cm.ConfigurationAdmin configurationAdmin,
             ConfigurationAdminExt configurationAdminExt) {
         this.configurationAdmin = configurationAdmin;
         this.configurationAdminExt = configurationAdminExt;
     }
+
     /**
      * Constructs a ConfigurationAdmin implementation
      *
@@ -315,7 +325,7 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
         if (filter == null || filter.length() < 1) {
             throw new IOException("Argument filter cannot be null or empty");
         }
-        List<String[]> result = new ArrayList<String[]>();
+        List<String[]> result = new ArrayList<>();
         Configuration[] configurations;
         try {
             configurations = configurationAdmin.listConfigurations(filter);
@@ -363,7 +373,7 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
         if (pid == null || pid.length() < 1) {
             throw new IOException("Argument pid cannot be null or empty");
         }
-        Map<String, Object> propertiesTable = new HashMap<String, Object>();
+        Map<String, Object> propertiesTable = new HashMap<>();
         Configuration config = configurationAdmin.getConfiguration(pid, location);
         Dictionary<String, Object> properties = config.getProperties();
         if (properties != null) {
@@ -398,29 +408,49 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
      * @see ConfigurationAdminMBean#updateForLocation(java.lang.String, java.lang.String,
      * java.util.Map)
      */
-    public void updateForLocation(String pid, String location,
+    public void updateForLocation(final String pid, String location,
             Map<String, Object> configurationTable) throws IOException {
         if (pid == null || pid.length() < 1) {
-            throw new IOException("Argument pid cannot be null or empty");
+            throw loggedException("Argument pid cannot be null or empty");
         }
         if (configurationTable == null) {
-            throw new IOException("Argument configurationTable cannot be null");
+            throw loggedException("Argument configurationTable cannot be null");
         }
 
-        // sanity check to make sure no values are
-        // null
-        for (Entry<String, Object> curEntry : configurationTable.entrySet()) {
-            Object value = curEntry.getValue();
-            if (value == null || (value instanceof ArrayList && CollectionUtils
-                    .sizeIsEmpty(value))) {
-                curEntry.setValue("");
+        Configuration config = configurationAdmin.getConfiguration(pid, location);
+
+        final List<Map<String, Object>> metatype = findMetatypeForConfig(config);
+        List<Map.Entry<String, Object>> configEntries = new ArrayList<>();
+        configEntries.addAll(configurationTable.entrySet());
+        if (metatype == null) {
+            throw loggedException("Could not find metatype for " + pid);
+        }
+        // now we have to filter each property based on its cardinality
+        CollectionUtils.transform(configEntries, new CardinalityTransformer(metatype, pid));
+
+        Dictionary<String, Object> configurationProperties = new Hashtable<>();
+        for (Map.Entry<String, Object> configEntry : configEntries) {
+            configurationProperties.put(configEntry.getKey(), configEntry.getValue());
+        }
+        config.update(configurationProperties);
+    }
+
+    // unfortunately listServices returns a bunch of nested untyped objects
+    private List<Map<String, Object>> findMetatypeForConfig(Configuration config) {
+        List<Map<String, Object>> services = listServices();
+        List<Map<String, Object>> tempMetatype = null;
+        for (Map<String, Object> service : services) {
+            String id = String.valueOf(service.get(ConfigurationAdminExt.MAP_ENTRY_ID));
+            if (id.equals(config.getPid()) || (id.equals(config.getFactoryPid()) && Boolean
+                    .valueOf(String.valueOf(service.get(ConfigurationAdminExt.MAP_FACTORY))))) {
+                @SuppressWarnings("unchecked")
+                List<Map<String, Object>> mapList = (List<Map<String, Object>>) service
+                        .get(ConfigurationAdminExt.MAP_ENTRY_METATYPE);
+                tempMetatype = mapList;
+                break;
             }
         }
-
-        Dictionary<String, Object> configurationProperties = new Hashtable<String, Object>(
-                configurationTable);
-        Configuration config = configurationAdmin.getConfiguration(pid, location);
-        config.update(configurationProperties);
+        return tempMetatype;
     }
 
     public List<String> getFilterList() {
@@ -463,7 +493,7 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
         // remove original configuration
         originalConfig.delete();
 
-        Map<String, Object> rval = new HashMap<String, Object>();
+        Map<String, Object> rval = new HashMap<>();
         rval.put(ORIGINAL_PID, servicePid);
         rval.put(ORIGINAL_FACTORY_PID, originalFactoryPid);
         rval.put(NEW_PID, disabledConfig.getPid());
@@ -500,7 +530,7 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
 
         disabledConfig.delete();
 
-        Map<String, Object> rval = new HashMap<String, Object>();
+        Map<String, Object> rval = new HashMap<>();
         rval.put(ORIGINAL_PID, servicePid);
         rval.put(ORIGINAL_FACTORY_PID, disabledFactoryPid);
         rval.put(NEW_PID, enabledConfiguration.getPid());
@@ -513,5 +543,168 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
      */
     void setMBeanServer(MBeanServer server) {
         mBeanServer = server;
+    }
+
+    private class CardinalityTransformer implements Transformer {
+        private final List<Map<String, Object>> metatype;
+
+        private final String pid;
+
+        public CardinalityTransformer(List<Map<String, Object>> metatype, String pid) {
+            this.metatype = metatype;
+            this.pid = pid;
+        }
+
+        @Override
+        // the method signature precludes a safer parameter type
+        public Object transform(Object input) {
+            if (!(input instanceof Map.Entry)) {
+                throw loggedException("Cannot transform " + input);
+            }
+            @SuppressWarnings("unchecked")
+            Map.Entry<String, Object> entry = (Map.Entry<String, Object>) input;
+            String attrId = entry.getKey();
+            if (attrId == null) {
+                throw loggedException("Found null key for " + pid);
+            }
+            Integer cardinality = null;
+            Integer type = null;
+            for (Map<String, Object> property : metatype) {
+                if (attrId.equals(property.get(ConfigurationAdminExt.MAP_ENTRY_ID))) {
+                    cardinality = Integer.valueOf(String.valueOf(
+                            property.get(ConfigurationAdminExt.MAP_ENTRY_CARDINALITY)));
+                    type = (Integer) property.get(ConfigurationAdminExt.MAP_ENTRY_TYPE);
+                }
+            }
+            if (cardinality == null || type == null) {
+                LOGGER.debug("Could not find property {} in metatype for config {}", attrId, pid);
+                cardinality = 0;
+                type = TYPE.STRING.getType();
+            }
+            Object value = entry.getValue();
+
+            // ensure we don't allow any empty values
+            if (value == null || StringUtils.isEmpty(String.valueOf(value))) {
+                value = "";
+            }
+            // negative cardinality means a vector, 0 is a string, and positive is an array
+            CardinalityEnforcer cardinalityEnforcer = TYPE.forType(type).getCardinalityEnforcer();
+            if (value instanceof String && cardinality != 0) {
+                try {
+                    value = new JSONParser().parse(String.valueOf(value));
+                } catch (ParseException e) {
+                    LOGGER.debug("{} is not a JSON array.", value, e);
+                }
+            }
+            if (cardinality < 0) {
+                value = cardinalityEnforcer.negativeCardinality(value);
+            } else if (cardinality == 0) {
+                value = cardinalityEnforcer.zerothCardinality(value);
+            } else if (cardinality > 0) {
+                value = cardinalityEnforcer.positiveCardinality(value);
+            }
+
+            entry.setValue(value);
+
+            return entry;
+        }
+    }
+
+    private static class CardinalityEnforcer<T> {
+        private final Class<T> clazz;
+
+        public CardinalityEnforcer(Class<T> clazz) {
+            this.clazz = clazz;
+        }
+
+        @SuppressWarnings("unchecked")
+        public T[] positiveCardinality(Object value) {
+            Vector<T> vector = negativeCardinality(value);
+            return vector.toArray((T[]) Array.newInstance(clazz, vector.size()));
+        }
+
+        public Vector<T> negativeCardinality(Object value) {
+            if (!(value.getClass().isArray() || value instanceof Collection)) {
+                if (String.valueOf(value).isEmpty()) {
+                    value = new Object[] {};
+                } else {
+                    value = new Object[] {value};
+                }
+            }
+            Vector<T> ret = new Vector<>();
+            for (int i = 0; i < CollectionUtils.size(value); i++) {
+                Object currentValue = CollectionUtils.get(value, i);
+                ret.add(zerothCardinality(currentValue));
+            }
+            return ret;
+        }
+
+        public T zerothCardinality(Object value) {
+            if (value.getClass().isArray() || value instanceof Collection) {
+                if (CollectionUtils.size(value) != 1) {
+                    throw loggedException(
+                            "Attempt on 0-cardinality property to set multiple values:" + value);
+                }
+                value = CollectionUtils.get(value, 0);
+            }
+            if (!clazz.isInstance(value)) {
+                value = TypeParser.newBuilder().build().parse(String.valueOf(value), clazz);
+            }
+            if (clazz.isInstance(value)) {
+                return clazz.cast(value);
+            }
+            throw loggedException("Failed to parse " + value + " as " + clazz);
+        }
+    }
+
+    private static IllegalArgumentException loggedException(String message) {
+        IllegalArgumentException exception = new IllegalArgumentException(message);
+        LOGGER.error(message, exception);
+        return exception;
+    }
+
+    // felix won't take Object[] or Vector<Object>, so here we
+    // map all the osgi constants to strongly typed arrays/vectors
+    enum TYPE {
+        STRING(AttributeDefinition.STRING, String.class) {
+        }, LONG(AttributeDefinition.LONG, Long.class) {
+        }, INTEGER(AttributeDefinition.INTEGER, Integer.class) {
+        }, SHORT(AttributeDefinition.SHORT, Short.class) {
+        }, CHARACTER(AttributeDefinition.CHARACTER, Character.class) {
+        }, BYTE(AttributeDefinition.BYTE, Byte.class) {
+        }, DOUBLE(AttributeDefinition.DOUBLE, Double.class) {
+        }, FLOAT(AttributeDefinition.FLOAT, Float.class) {
+        }, BIGINTEGER(AttributeDefinition.BIGINTEGER, BigInteger.class) {
+        }, BIGDECIMAL(AttributeDefinition.BIGDECIMAL, BigDecimal.class) {
+        }, BOOLEAN(AttributeDefinition.BOOLEAN, Boolean.class) {
+        }, PASSWORD(AttributeDefinition.PASSWORD, String.class) {
+        };
+
+        private final int type;
+
+        private final Class clazz;
+
+        TYPE(int type, Class clazz) {
+            this.type = type;
+            this.clazz = clazz;
+        }
+
+        @SuppressWarnings("unchecked")
+        public CardinalityEnforcer getCardinalityEnforcer() {
+            return new CardinalityEnforcer(clazz);
+        }
+
+        public int getType() {
+            return type;
+        }
+
+        public static TYPE forType(int type) {
+            for (TYPE theType : TYPE.values()) {
+                if (theType.getType() == type) {
+                    return theType;
+                }
+            }
+            return STRING;
+        }
     }
 }

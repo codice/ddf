@@ -145,7 +145,7 @@ public class ConfigurationAdminExtTest {
                 .thenReturn(new AttributeDefinition[] {testAttDef});
 
         when(testMTI.getBundle()).thenReturn(testBundle);
-        when(testMTI.getFactoryPids()).thenReturn(new String[] {TEST_PID});
+        when(testMTI.getFactoryPids()).thenReturn(new String[] {TEST_FACTORY_PID});
         when(testMTI.getPids()).thenReturn(new String[] {TEST_PID});
         when(testMTI.getObjectClassDefinition(anyString(), anyString())).thenReturn(testOCD);
 
