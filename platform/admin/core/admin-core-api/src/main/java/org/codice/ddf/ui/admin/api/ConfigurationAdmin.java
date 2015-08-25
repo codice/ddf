@@ -436,7 +436,6 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
     }
 
     // unfortunately listServices returns a bunch of nested untyped objects
-    @SuppressWarnings("unchecked")
     private List<Map<String, Object>> findMetatypeForConfig(Configuration config) {
         List<Map<String, Object>> services = listServices();
         List<Map<String, Object>> tempMetatype = null;
@@ -444,8 +443,10 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
             String id = String.valueOf(service.get(ConfigurationAdminExt.MAP_ENTRY_ID));
             if (id.equals(config.getPid()) || (id.equals(config.getFactoryPid()) && Boolean
                     .valueOf(String.valueOf(service.get(ConfigurationAdminExt.MAP_FACTORY))))) {
-                tempMetatype = (List<Map<String, Object>>) service
+                @SuppressWarnings("unchecked")
+                List<Map<String, Object>> mapList = (List<Map<String, Object>>) service
                         .get(ConfigurationAdminExt.MAP_ENTRY_METATYPE);
+                tempMetatype = mapList;
                 break;
             }
         }
@@ -556,11 +557,11 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
 
         @Override
         // the method signature precludes a safer parameter type
-        @SuppressWarnings("unchecked")
         public Object transform(Object input) {
             if (!(input instanceof Map.Entry)) {
                 throw loggedException("Cannot transform " + input);
             }
+            @SuppressWarnings("unchecked")
             Map.Entry<String, Object> entry = (Map.Entry<String, Object>) input;
             String attrId = entry.getKey();
             if (attrId == null) {
