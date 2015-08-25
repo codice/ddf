@@ -60,6 +60,10 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SAMLAssertionHandler.class);
 
+    public SAMLAssertionHandler() {
+        LOGGER.debug("Creating SAML Assertion handler.");
+    }
+
     @Override
     public String getAuthenticationType() {
         return AUTH_TYPE;
