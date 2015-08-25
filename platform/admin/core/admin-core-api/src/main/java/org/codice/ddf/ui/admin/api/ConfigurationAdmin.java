@@ -50,7 +50,8 @@ import org.slf4j.ext.XLogger;
 import com.github.drapostolos.typeparser.TypeParser;
 
 /**
- * @author Scott Tustison
+ * This class provides convenience methods for interacting with
+ * OSGi/Felix ConfigurationAdmin services.
  */
 public class ConfigurationAdmin implements ConfigurationAdminMBean {
     private static final String NEW_FACTORY_PID = "newFactoryPid";
@@ -201,7 +202,7 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
         return modules;
     }
 
-    String getDefaultFactoryLdapFilter() {
+    private String getDefaultFactoryLdapFilter() {
         if (CollectionUtils.isNotEmpty(filterList)) {
             StringBuilder ldapFilter = new StringBuilder();
             ldapFilter.append("(");
@@ -222,7 +223,7 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
         return "(" + SERVICE_FACTORYPID + "=" + "*)";
     }
 
-    String getDefaultLdapFilter() {
+    private String getDefaultLdapFilter() {
         if (CollectionUtils.isNotEmpty(filterList)) {
             StringBuilder ldapFilter = new StringBuilder();
             ldapFilter.append("(");
