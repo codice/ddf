@@ -18,9 +18,6 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -69,7 +66,9 @@ public final class SolrServerFactory {
 
     public static final String DEFAULT_HTTPS_ADDRESS = "https://localhost:8993/solr";
 
-    public static final String CORE_NAME = "core1";
+    public static final String DEFAULT_EMBEDDED_CORE_NAME = "embedded";
+
+    public static final String DEFAULT_CORE_NAME = "core1";
 
     public static final String[] DEFAULT_PROTOCOLS = new String[] {"TLSv1.1", "TLSv1.2"};
 
@@ -77,11 +76,13 @@ public final class SolrServerFactory {
             "TLS_DHE_RSA_WITH_AES_128_CBC_SHA", "TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
             "TLS_DHE_DSS_WITH_AES_128_CBC_SHA", "TLS_RSA_WITH_AES_128_CBC_SHA"};
 
-    private static final String DEFAULT_SCHEMA_XML = "schema.xml";
+    public static final String DEFAULT_SCHEMA_XML = "schema.xml";
 
-    private static final String DEFAULT_SOLRCONFIG_XML = "solrconfig.xml";
+    public static final String DEFAULT_SOLRCONFIG_XML = "solrconfig.xml";
 
-    private static final String DEFAULT_SOLR_XML = "solr.xml";
+    public static final String IMMEMORY_SOLRCONFIG_XML = "solrconfig-inmemory.xml";
+
+    public static final String DEFAULT_SOLR_XML = "solr.xml";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SolrServerFactory.class);
 
@@ -113,7 +114,7 @@ public final class SolrServerFactory {
     }
 
     public static SolrServer getHttpSolrServer(String url) {
-        return getHttpSolrServer(url, CORE_NAME, null);
+        return getHttpSolrServer(url, DEFAULT_CORE_NAME, null);
     }
 
     public static SolrServer getHttpSolrServer(String url, String coreName) {
@@ -285,7 +286,8 @@ public final class SolrServerFactory {
             CoreContainer container = CoreContainer
                     .createAndLoad(solrConfigHome.getAbsolutePath(), solrFile);
 
-            CoreDescriptor coreDescriptor = new CoreDescriptor(container, CORE_NAME,
+            CoreDescriptor coreDescriptor = new CoreDescriptor(container,
+                    DEFAULT_EMBEDDED_CORE_NAME,
                     solrConfig.getResourceLoader().getInstanceDir());
 
             String dataDirPath = null;
@@ -302,11 +304,11 @@ public final class SolrServerFactory {
                 }
             }
 
-            SolrCore core = new SolrCore(CORE_NAME, dataDirPath, solrConfig,
+            SolrCore core = new SolrCore(DEFAULT_EMBEDDED_CORE_NAME, dataDirPath, solrConfig,
                     indexSchema, coreDescriptor);
-            container.register(CORE_NAME, core, false);
+            container.register(DEFAULT_EMBEDDED_CORE_NAME, core, false);
 
-            return new EmbeddedSolrServer(container, CORE_NAME);
+            return new EmbeddedSolrServer(container, DEFAULT_EMBEDDED_CORE_NAME);
         } catch (ParserConfigurationException | IOException | SAXException e) {
             throw new IllegalArgumentException(
                     "Unable to parse Solr configuration file: " + solrConfigFileName, e);
@@ -315,14 +317,8 @@ public final class SolrServerFactory {
         }
     }
 
-    private static File getConfigFile(String configFileName, ConfigurationFileProxy configProxy) {
-        try {
-            URL url = configProxy.getResource(configFileName);
-            return new File(new URI(url.toString()).getPath());
-        } catch (URISyntaxException e) {
-            throw new IllegalArgumentException(
-                    "Unable to locate Solr configuration file: " + configFileName, e);
-        }
+    public static File getConfigFile(String configFileName, ConfigurationFileProxy configProxy) {
+        return FileUtils.toFile(configProxy.getResource(configFileName));
     }
 
     private static void createSolrCore(String url, String coreName, String configFileName,

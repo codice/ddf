@@ -14,12 +14,30 @@
  **/
 package org.codice.ddf.ui.searchui.query.solr;
 
+import static org.codice.solr.factory.SolrServerFactory.DEFAULT_SCHEMA_XML;
+import static org.codice.solr.factory.SolrServerFactory.DEFAULT_SOLR_XML;
+import static org.codice.solr.factory.SolrServerFactory.IMMEMORY_SOLRCONFIG_XML;
+import static org.codice.solr.factory.SolrServerFactory.getConfigFile;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
+import org.apache.solr.core.CoreContainer;
+import org.apache.solr.core.CoreDescriptor;
+import org.apache.solr.core.SolrConfig;
+import org.apache.solr.core.SolrCore;
+import org.apache.solr.schema.IndexSchema;
 import org.codice.solr.factory.ConfigurationFileProxy;
 import org.codice.solr.factory.ConfigurationStore;
 import org.codice.solr.factory.SolrServerFactory;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -36,9 +54,7 @@ import ddf.catalog.source.solr.SolrFilterDelegateFactoryImpl;
 
 public class FilteringSolrIndex {
 
-    public static final String SOLR_CONFIG_FILENAME = "solrconfig-inmemory.xml";
-
-    public static final String SOLR_SCHEMA_FILENAME = "schema.xml";
+    private static IndexSchema indexSchema;
 
     private SolrCatalogProvider provider;
 
@@ -46,11 +62,12 @@ public class FilteringSolrIndex {
         this.provider = provider;
     }
 
-    public FilteringSolrIndex(FilterAdapter filterAdapter, QueryRequest request) {
-        this(createInMemorySolrProvider(filterAdapter, request));
+    public FilteringSolrIndex(String queryId, FilterAdapter filterAdapter, QueryRequest request) {
+        this(createInMemorySolrProvider(queryId, filterAdapter, request));
     }
 
-    private static SolrCatalogProvider createInMemorySolrProvider(FilterAdapter filterAdapter, QueryRequest request) {
+    private static SolrCatalogProvider createInMemorySolrProvider(String queryId,
+            FilterAdapter filterAdapter, QueryRequest request) {
         ConfigurationStore.getInstance().setInMemory(true);
         ConfigurationStore.getInstance().setForceAutoCommit(true);
         ConfigurationFileProxy configurationFileProxy = new ConfigurationFileProxy(
@@ -58,11 +75,49 @@ public class FilteringSolrIndex {
 
         SolrFilterDelegateFactory solrFilterDelegateFactory = new SolrFilterDelegateFactoryImpl();
 
-        return new SolrCatalogProvider(SolrServerFactory
-                .getEmbeddedSolrServer(SOLR_CONFIG_FILENAME, SOLR_SCHEMA_FILENAME,
-                        configurationFileProxy), filterAdapter, solrFilterDelegateFactory,
-                new FilteringDynamicSchemaResolver(filterAdapter,
-                        solrFilterDelegateFactory, request));
+        return new SolrCatalogProvider(
+                createSolrServer(queryId, configurationFileProxy),
+                filterAdapter, solrFilterDelegateFactory,
+                new FilteringDynamicSchemaResolver(filterAdapter, solrFilterDelegateFactory,
+                        request));
+    }
+
+    private static EmbeddedSolrServer createSolrServer(String coreName,
+            ConfigurationFileProxy configProxy) {
+
+        File solrFile = getConfigFile(DEFAULT_SOLR_XML, configProxy);
+        File configFile = getConfigFile(IMMEMORY_SOLRCONFIG_XML, configProxy);
+        File schemaFile = getConfigFile(DEFAULT_SCHEMA_XML, configProxy);
+        File solrConfigHome = new File(configFile.getParent());
+
+        ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+        try {
+            Thread.currentThread().setContextClassLoader(SolrServerFactory.class.getClassLoader());
+
+            SolrConfig solrConfig = new SolrConfig(solrConfigHome.getParent(),
+                    IMMEMORY_SOLRCONFIG_XML,
+                    new InputSource(FileUtils.openInputStream(configFile)));
+
+            if (indexSchema == null) {
+                indexSchema = new IndexSchema(solrConfig, DEFAULT_SCHEMA_XML,
+                        new InputSource(FileUtils.openInputStream(schemaFile)));
+            }
+
+            CoreContainer container = CoreContainer
+                    .createAndLoad(solrConfigHome.getAbsolutePath(), solrFile);
+
+            CoreDescriptor coreDescriptor = new CoreDescriptor(container, coreName,
+                    solrConfig.getResourceLoader().getInstanceDir());
+
+            SolrCore core = new SolrCore(coreName, null, solrConfig, indexSchema, coreDescriptor);
+            container.register(coreName, core, false);
+
+            return new EmbeddedSolrServer(container, coreName);
+        } catch (ParserConfigurationException | SAXException | IOException e) {
+            throw new IllegalArgumentException("Unable to parse Solr configuration file", e);
+        } finally {
+            Thread.currentThread().setContextClassLoader(tccl);
+        }
     }
 
     /**

@@ -34,6 +34,7 @@ public class FilteringSolrIndexCallable implements Callable<FilteringSolrIndex> 
 
     @Override
     public FilteringSolrIndex call() throws Exception {
-        return new FilteringSolrIndex(filterAdapter, new QueryRequestImpl(request.getQuery()));
+        return new FilteringSolrIndex(request.getId(), filterAdapter,
+                new QueryRequestImpl(request.getQuery()));
     }
 }

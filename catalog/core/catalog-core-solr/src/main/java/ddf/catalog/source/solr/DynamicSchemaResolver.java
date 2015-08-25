@@ -394,7 +394,7 @@ public class DynamicSchemaResolver {
             break;
         }
 
-        LOGGER.info(
+        LOGGER.debug(
                 "Could not find exact schema field name for [{}], attempting to search with [{}]",
                 propertyName, fieldName);
 
@@ -536,7 +536,7 @@ public class DynamicSchemaResolver {
             return propertyName + SchemaFields.SHORT_SUFFIX;
         }
 
-        LOGGER.info(
+        LOGGER.debug(
                 "Did not find any numerical schema fields for property [{}]. Replacing with property [{}]",
                 propertyName, propertyName + SchemaFields.INTEGER_SUFFIX);
         return propertyName + SchemaFields.INTEGER_SUFFIX;

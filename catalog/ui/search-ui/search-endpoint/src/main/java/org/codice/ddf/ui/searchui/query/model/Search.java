@@ -15,9 +15,7 @@
 package org.codice.ddf.ui.searchui.query.model;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -251,21 +249,9 @@ public class Search {
         addObject(result, ID, searchRequestId);
         addObject(result, RESULTS, getResultList(upstreamResponse.getResults()));
         addObject(result, STATUS, getQueryStatus(this.getQueryStatus()));
-        addObject(result, METACARD_TYPES,
-                getMetacardTypes(getMetacardTypes(upstreamResponse.getResults())));
+        addObject(result, METACARD_TYPES, getMetacardTypes(upstreamResponse.getResults()));
 
         return result;
-    }
-
-    private Collection<MetacardType> getMetacardTypes(List<Result> results) {
-        Set<MetacardType> metacardTypes = new HashSet<>();
-        for (Result result : results) {
-            MetacardType type = result.getMetacard().getMetacardType();
-            if (type != null && !StringUtils.isBlank(type.getName())) {
-                metacardTypes.add(type);
-            }
-        }
-        return metacardTypes;
     }
 
     private List<Map<String, Object>> getQueryStatus(Map<String, QueryStatus> queryStatus) {
@@ -346,21 +332,24 @@ public class Search {
         return actionsJson;
     }
 
-    private Map<String, Object> getMetacardTypes(Collection<MetacardType> types) throws
-            CatalogTransformerException {
+    private Map<String, Object> getMetacardTypes(List<Result> results)
+            throws CatalogTransformerException {
         Map<String, Object> typesObject = new HashMap<>();
 
-        for (MetacardType type : types) {
-            Map<String, Object> typeObj = getResultItem(type);
-            if (typeObj != null) {
-                typesObject.put(type.getName(), typeObj);
+        for (Result result : results) {
+            MetacardType type = result.getMetacard().getMetacardType();
+            if (type != null && !StringUtils.isBlank(type.getName()) && !typesObject
+                    .containsKey(type.getName())) {
+                Map<String, Object> typeObj = getType(type);
+                if (typeObj != null) {
+                    typesObject.put(type.getName(), typeObj);
+                }
             }
         }
-
         return typesObject;
     }
 
-    private Map<String, Object> getResultItem(MetacardType metacardType) throws CatalogTransformerException {
+    private Map<String, Object> getType(MetacardType metacardType) throws CatalogTransformerException {
         Map<String, Object> fields = new HashMap<>();
 
         for (AttributeDescriptor descriptor : metacardType.getAttributeDescriptors()) {

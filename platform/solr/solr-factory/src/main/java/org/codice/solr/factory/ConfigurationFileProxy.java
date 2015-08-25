@@ -59,10 +59,10 @@ public class ConfigurationFileProxy {
 
         if (isNotBlank(storedDataDirectoryPath)) {
             this.dataDirectory = new File(storedDataDirectoryPath);
-            LOGGER.info("1. dataDirectory set to [{}]", storedDataDirectoryPath);
+            LOGGER.debug("1. dataDirectory set to [{}]", storedDataDirectoryPath);
         } else {
             this.dataDirectory = new File(DEFAULT_SOLR_DATA_PARENT_DIR);
-            LOGGER.info("2. dataDirectory set to [{}]", this.dataDirectory.getAbsolutePath());
+            LOGGER.debug("2. dataDirectory set to [{}]", this.dataDirectory.getAbsolutePath());
         }
     }
 
@@ -84,7 +84,7 @@ public class ConfigurationFileProxy {
         BundleContext bundleContext = getContext();
         if (bundleContext != null && configDir != null) {
             boolean directoriesMade = configDir.mkdirs();
-            LOGGER.info("Solr Config directories made?  {}", directoriesMade);
+            LOGGER.debug("Solr Config directories made?  {}", directoriesMade);
 
             @SuppressWarnings("rawtypes")
             Enumeration entries = bundleContext.getBundle()
