@@ -13,8 +13,11 @@
  **/
 package ddf.common.test;
 
+import static org.junit.Assert.fail;
+
 import java.io.IOException;
 import java.util.Dictionary;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
 import org.osgi.framework.InvalidSyntaxException;
@@ -29,6 +32,10 @@ public class AdminConfig {
     public static final String DEFAULT_LOG_LEVEL = "TRACE";
 
     public static final String TEST_LOGLEVEL_PROPERTY = "org.codice.test.defaultLoglevel";
+
+    private static final long CONFIG_UPDATE_MAX_WAIT_MILLIS = TimeUnit.MINUTES.toMillis(1);
+
+    private static final int LOOP_SLEEP_MILLIS = 5;
 
     private final ConfigurationAdmin configAdmin;
 
@@ -73,5 +80,35 @@ public class AdminConfig {
         }
 
         logConfig.update(properties);
+    }
+
+    public void updateConfig(ConfigWaitable configWaitable) throws IOException, InterruptedException {
+        Configuration config = configAdmin
+                .getConfiguration(configWaitable.getPid(), configWaitable.getLocation());
+        config.update(configWaitable.getConfigProps());
+
+        long timeoutLimit = System.currentTimeMillis() + CONFIG_UPDATE_MAX_WAIT_MILLIS;
+        while (true) {
+            if (configWaitable.isConfigured()) {
+                break;
+            } else {
+                if (System.currentTimeMillis() > timeoutLimit) {
+                    fail(String.format("Configuration change for %s not completed",
+                            configWaitable.getPid()));
+                } else {
+                    Thread.sleep(LOOP_SLEEP_MILLIS);
+                }
+            }
+        }
+    }
+
+    public interface ConfigWaitable {
+        String getPid();
+
+        String getLocation();
+
+        Dictionary<String, ?> getConfigProps();
+
+        boolean isConfigured();
     }
 }
