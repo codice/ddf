@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -18,11 +18,12 @@ import static org.hamcrest.Matchers.equalTo;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
 
-import java.io.IOException;
+import static ddf.catalog.test.SecurityPolicyConfigurator.configureRestForAnonymous;
+import static ddf.catalog.test.SecurityPolicyConfigurator.configureRestForBasic;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.TimeZone;
 
 import org.hamcrest.xml.HasXPath;
@@ -32,7 +33,6 @@ import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
-import org.osgi.service.cm.Configuration;
 
 import ddf.common.test.BeforeExam;
 
@@ -90,15 +90,12 @@ public class TestSecurity extends AbstractIntegrationTest {
 
     @Before
     public void before() throws Exception {
-        configureRestForAnonymous();
-        Thread.sleep(2000);
+        configureRestForAnonymous(getAdminConfig(), getServiceManager(), SERVICE_ROOT);
     }
 
     @Test
     public void testAnonymousRestAccess() throws Exception {
         String url = SERVICE_ROOT + "/catalog/query?q=*";
-
-        configureRestForAnonymous();
 
         //test that anonymous works and check that we get an sso token
         String cookie = when().get(url).then().log().all().assertThat().statusCode(equalTo(200))
@@ -118,7 +115,7 @@ public class TestSecurity extends AbstractIntegrationTest {
     public void testBasicRestAccess() throws Exception {
         String url = SERVICE_ROOT + "/catalog/query?q=*";
 
-        configureRestForBasic();
+        configureRestForBasic(getAdminConfig(), getServiceManager(), SERVICE_ROOT);
 
         //test that we get a 401 if no credentials are specified
         when().get(url).then().log().all().assertThat().statusCode(equalTo(401));
@@ -144,7 +141,7 @@ public class TestSecurity extends AbstractIntegrationTest {
     @Test
     public void testBasicFederatedAuth() throws Exception {
         String recordId = TestCatalog.ingest(Library.getSimpleGeoJson(), "application/json");
-        configureRestForBasic();
+        configureRestForBasic(getAdminConfig(), getServiceManager(), SERVICE_ROOT);
 
         //Positive tests
         OpenSearchSourceProperties openSearchProperties = new OpenSearchSourceProperties(
@@ -201,45 +198,12 @@ public class TestSecurity extends AbstractIntegrationTest {
         String unavailableCswQuery = SERVICE_ROOT + "/catalog/query?q=*&src=" + unavailableCswSourceId;
         */
 
-        configureRestForAnonymous();
-        /*
-        DDF-1442: Sleeps for a small time so that the web context policy can be updated and make authentication not be
-        required for the deletion of the metacard.
-         */
-        Thread.sleep(2000);
+        configureRestForAnonymous(getAdminConfig(), getServiceManager(), SERVICE_ROOT);
         TestCatalog.deleteMetacard(recordId);
-    }
-
-    private void configureRestForAnonymous() throws IOException, InterruptedException {
-        PolicyProperties policyProperties = new PolicyProperties();
-        policyProperties.put("authenticationTypes",
-                new String[] {"/=SAML|ANON", "/admin=SAML|basic", "/jolokia=SAML|basic",
-                        "/system=SAML|basic", "/solr=SAML|PKI|basic"});
-        policyProperties.put("whiteListContexts",
-                new String[] {"/services/SecurityTokenService", "/services/internal", "/proxy",
-                        SERVICE_ROOT + "/sdk/SoapService"});
-        Configuration config = configAdmin.getConfiguration(PolicyProperties.FACTORY_PID, null);
-        startManagedService(config.getPid(), policyProperties);
-        waitForAllBundles();
-    }
-
-    private void configureRestForBasic() throws IOException, InterruptedException {
-        PolicyProperties policyProperties = new PolicyProperties();
-        policyProperties.put("authenticationTypes",
-                new String[] {"/=SAML|basic", "/admin=SAML|basic", "/jolokia=SAML|basic",
-                        "/system=SAML|basic", "/solr=SAML|PKI|basic"});
-        policyProperties.put("whiteListContexts",
-                new String[] {"/services/SecurityTokenService", "/services/internal", "/proxy",
-                        SERVICE_ROOT + "/sdk/SoapService"});
-        Configuration config = configAdmin.getConfiguration(PolicyProperties.FACTORY_PID, null);
-        startManagedService(config.getPid(), policyProperties);
-        waitForAllBundles();
     }
 
     @Test
     public void testAnonymousSoapAccess() throws Exception {
-        configureRestForAnonymous();
-
         String body =
                 "<soapenv:Envelope xmlns:hel=\"http://ddf.sdk/soap/hello\" xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\">\n"
                         + "   <soapenv:Header>\n" + "   </soapenv:Header>\n" + "   <soapenv:Body>\n"
@@ -255,8 +219,6 @@ public class TestSecurity extends AbstractIntegrationTest {
 
     @Test
     public void testAnonymousSoapAccessHttp() throws Exception {
-        configureRestForAnonymous();
-
         startFeature(true, "platform-http-proxy");
 
         String body =
@@ -387,17 +349,5 @@ public class TestSecurity extends AbstractIntegrationTest {
         body = body.replace("CREATED", created);
         body = body.replace("EXPIRES", expires);
         return body;
-    }
-
-    public class PolicyProperties extends HashMap<String, Object> {
-
-        public static final String SYMBOLIC_NAME = "security-policy-context";
-
-        public static final String FACTORY_PID = "org.codice.ddf.security.policy.context.impl.PolicyManager";
-
-        public PolicyProperties() {
-            this.putAll(getMetatypeDefaults(SYMBOLIC_NAME, FACTORY_PID));
-        }
-
     }
 }
