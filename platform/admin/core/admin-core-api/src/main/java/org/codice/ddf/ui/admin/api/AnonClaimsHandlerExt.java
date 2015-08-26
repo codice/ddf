@@ -29,6 +29,11 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * AnonClaimsHandlerExt is an extension for the ConfigurationAdminMBean
+ * that adds capabilities to read/handle claim and profiles for the
+ * anonymous claims handler.
+ */
 public class AnonClaimsHandlerExt {
     public static final String PROFILE_NAME_KEY = "profileName";
 
@@ -38,7 +43,7 @@ public class AnonClaimsHandlerExt {
 
     private List<String> availableClaims;
 
-    //holds it name of claims that if modified would cause anonymous login failures
+    //holds names of claims that if modified would cause anonymous login failures
     private List<String> immutableClaims;
 
     private String profileDir;
