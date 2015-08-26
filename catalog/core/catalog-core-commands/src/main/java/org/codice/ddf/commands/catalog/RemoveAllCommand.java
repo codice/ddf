@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -45,7 +45,6 @@ import ddf.catalog.source.UnsupportedQueryException;
 
 /**
  * Command used to remove all or a subset of records (in bulk) from the Catalog.
- *
  */
 @Command(scope = CatalogCommands.NAMESPACE, name = "removeall", description = "Attempts to delete all records from the catalog.")
 public class RemoveAllCommand extends CatalogCommands {
@@ -78,19 +77,45 @@ public class RemoveAllCommand extends CatalogCommands {
             "--force"}, multiValued = false, description = "Force the removal without a confirmation message.")
     boolean force = false;
 
+    @Option(name = "--cache", aliases = {}, required = false, multiValued = false, description = "Use cache.")
+    boolean cache = false;
+
     @Override
     protected Object doExecute() throws Exception {
-
         if (batchSize < PAGE_SIZE_LOWER_LIMIT) {
             printErrorMessage(String.format(BATCH_SIZE_ERROR_MESSAGE_FORMAT, batchSize));
             return null;
         }
 
-        CatalogFacade catalog = this.getCatalog();
-
         if (isAccidentalRemoval(console)) {
             return null;
         }
+
+        if (this.cache) {
+            return executeRemoveAllFromCache();
+
+        } else {
+            return executeRemoveAllFromStore();
+        }
+
+    }
+
+    private Object executeRemoveAllFromCache() throws Exception {
+
+        long start = System.currentTimeMillis();
+
+        getCacheProxy().removeAll();
+
+        long end = System.currentTimeMillis();
+
+        console.println();
+        console.printf("Cache cleared in %3.3f seconds%n", (end - start) / MILLISECONDS_PER_SECOND);
+
+        return null;
+    }
+
+    private Object executeRemoveAllFromStore() throws Exception {
+        CatalogFacade catalog = this.getCatalog();
 
         FilterBuilder filterBuilder = getFilterBuilder();
 
@@ -165,7 +190,6 @@ public class RemoveAllCommand extends CatalogCommands {
                 (end - start) / MILLISECONDS_PER_SECOND);
 
         return null;
-
     }
 
     private boolean needsAlternateQueryAndResponse(SourceResponse response) {

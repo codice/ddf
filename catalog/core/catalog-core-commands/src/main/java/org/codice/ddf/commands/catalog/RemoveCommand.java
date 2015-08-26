@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -15,6 +15,7 @@ package org.codice.ddf.commands.catalog;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,9 +52,37 @@ public class RemoveCommand extends CatalogCommands {
                     + "\tComplex:   search --cql \"title like 'some text' AND modified before 2012-09-01T12:30:00Z\"")
     String cqlFilter = null;
 
+    @Option(name = "--cache", aliases = {}, required = false, multiValued = false, description = "Use cache.")
+    boolean cache = false;
+
     @Override
     protected Object doExecute() throws Exception {
+        if (ids == null) {
+            printErrorMessage("Nothing to remove.");
+            return null;
 
+        }
+
+        if (this.cache) {
+            return executeRemoveFromCache();
+        } else {
+            return executeRemoveFromStore();
+        }
+
+    }
+
+    private Object executeRemoveFromCache() throws Exception {
+
+        String[] idsArray = new String[ids.size()];
+        idsArray = ids.toArray(idsArray);
+        getCacheProxy().removeById(idsArray);
+
+        printSuccessMessage(Arrays.asList(ids) + " successfully removed from cache.");
+
+        return null;
+    }
+
+    private Object executeRemoveFromStore() throws Exception {
         CatalogFacade catalogProvider = getCatalog();
 
         if (cqlFilter != null) {
@@ -84,11 +113,6 @@ public class RemoveCommand extends CatalogCommands {
 
         }
 
-        if (ids == null) {
-            printErrorMessage("Nothing to remove.");
-            return null;
-        }
-
         DeleteRequestImpl request = new DeleteRequestImpl(ids.toArray(new String[0]));
 
         DeleteResponse response = catalogProvider.delete(request);
@@ -100,6 +124,5 @@ public class RemoveCommand extends CatalogCommands {
         }
 
         return null;
-
     }
 }

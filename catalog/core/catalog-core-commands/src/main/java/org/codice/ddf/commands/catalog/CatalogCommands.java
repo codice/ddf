@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -13,7 +13,15 @@
  */
 package org.codice.ddf.commands.catalog;
 
+import java.io.IOException;
 import java.io.PrintStream;
+import java.lang.management.ManagementFactory;
+
+import javax.management.InstanceNotFoundException;
+import javax.management.MBeanServer;
+import javax.management.MBeanServerInvocationHandler;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.felix.gogo.commands.Option;
@@ -27,6 +35,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import ddf.catalog.CatalogFramework;
+import ddf.catalog.cache.SolrCacheMBean;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.source.CatalogProvider;
 
@@ -36,7 +45,6 @@ import ddf.catalog.source.CatalogProvider;
  *
  * @author Ashraf Barakat
  * @author ddf.isgs@lmco.com
- *
  */
 public class CatalogCommands extends OsgiCommandSupport {
 
@@ -79,6 +87,17 @@ public class CatalogCommands extends OsgiCommandSupport {
     @Override
     protected Object doExecute() throws Exception {
         return null;
+    }
+
+    protected SolrCacheMBean getCacheProxy()
+            throws IOException, MalformedObjectNameException, InstanceNotFoundException {
+
+        ObjectName solrCacheObjectName = new ObjectName(SolrCacheMBean.OBJECTNAME);
+        MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
+
+        return MBeanServerInvocationHandler
+                .newProxyInstance(mBeanServer, solrCacheObjectName, SolrCacheMBean.class, false);
+
     }
 
     protected CatalogFacade getCatalog() throws InterruptedException {

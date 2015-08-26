@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.commands.catalog;
 
+import java.util.List;
+
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
@@ -20,6 +22,7 @@ import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.fusesource.jansi.Ansi;
 import org.geotools.filter.text.cql2.CQL;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.opengis.filter.Filter;
 
 import ddf.catalog.data.Metacard;
@@ -63,13 +66,12 @@ public class SearchCommand extends CatalogCommands {
                     + "\tComplex:   search --cql \"title like 'some text' AND modified before 2012-09-01T12:30:00Z\"")
     String cqlFilter = null;
 
+    @Option(name= "--cache", aliases = {}, required = false, multiValued = false, description = "Use cache.")
+
+    boolean cache = false;
+
     @Override
     protected Object doExecute() throws Exception {
-
-        String formatString =
-                "%1$-33s %2$-26s %3$-" + TITLE_MAX_LENGTH + "s %4$-" + EXCERPT_MAX_LENGTH + "s%n";
-
-        CatalogFacade catalogProvider = getCatalog();
 
         Filter filter = null;
         if (cqlFilter != null) {
@@ -86,6 +88,20 @@ public class SearchCommand extends CatalogCommands {
                         .text(searchPhrase);
             }
         }
+
+        if(this.cache){
+            return  executeSearchCache(filter);
+        }else {
+            return  executeSearchStore(filter);
+        }
+
+    }
+
+    private  Object executeSearchStore(Filter filter)  throws Exception{
+        String formatString =
+                "%1$-33s %2$-26s %3$-" + TITLE_MAX_LENGTH + "s %4$-" + EXCERPT_MAX_LENGTH + "s%n";
+
+        CatalogFacade catalogProvider = getCatalog();
 
         QueryImpl query = new QueryImpl(filter);
 
@@ -163,6 +179,37 @@ public class SearchCommand extends CatalogCommands {
 
             console.printf(formatString, metacard.getId(), modifiedDate,
                     title.substring(0, Math.min(title.length(), TITLE_MAX_LENGTH)), excerpt);
+        }
+
+        return null;
+    }
+
+    private  Object executeSearchCache(Filter filter) throws Exception{
+        String formatString = "%1$-33s %2$-26s %3$-" + TITLE_MAX_LENGTH + "s %n";
+
+        long start = System.currentTimeMillis();
+
+        List<Metacard> results = getCacheProxy().query(filter);
+
+        long end = System.currentTimeMillis();
+
+        console.println();
+        console.printf(" %d result(s) in %3.3f seconds", (results.size()),
+                (end - start) / MILLISECONDS_PER_SECOND);
+        console.printf(formatString, "", "", "");
+        printHeaderMessage(String.format(formatString, ID, DATE, TITLE));
+
+        for (Metacard metacard : results) {
+            String title = (metacard.getTitle() != null ? metacard.getTitle() : "N/A");
+            String modifiedDate = "";
+
+            if (metacard.getModifiedDate() != null) {
+                DateTime dt = new DateTime(DateTimeZone.UTC);
+                modifiedDate = dt.toString(DATETIME_FORMATTER);
+            }
+
+            console.printf(formatString, metacard.getId(), modifiedDate,
+                    title.substring(0, Math.min(title.length(), TITLE_MAX_LENGTH)));
         }
 
         return null;
