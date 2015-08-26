@@ -48,7 +48,6 @@ public class CatalogBundle {
         this.adminConfig = adminConfig;
     }
 
-
     public CatalogProvider waitForCatalogProvider() throws InterruptedException {
         LOGGER.info("Waiting for CatalogProvider to become available.");
         serviceManager.printInactiveBundles();
@@ -136,8 +135,8 @@ public class CatalogBundle {
     }
 
     public void setFanout(boolean fanoutEnabled) throws IOException {
-        Map<String, Object> properties = adminConfig.getDdfConfigAdmin().getProperties(
-                CATALOG_FRAMEWORK_PID);
+        Map<String, Object> properties = adminConfig.getDdfConfigAdmin()
+                .getProperties(CATALOG_FRAMEWORK_PID);
         if (properties == null) {
             properties = new Hashtable<>();
         }

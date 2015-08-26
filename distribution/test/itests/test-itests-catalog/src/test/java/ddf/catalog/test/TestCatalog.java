@@ -21,6 +21,9 @@ import static com.jayway.restassured.RestAssured.delete;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
 
+import static ddf.catalog.test.SecurityPolicyConfigurator.configureRestForAnonymous;
+import static ddf.catalog.test.SecurityPolicyConfigurator.configureRestForBasic;
+
 import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.file.Files;
@@ -176,12 +179,12 @@ public class TestCatalog extends AbstractIntegrationTest {
             response.body(not(hasXPath(xPath)));
 
             // Test filtering with point of contact
-            configureRestForBasic();
+            configureRestForBasic(getAdminConfig(), getServiceManager(), SERVICE_ROOT);
 
             response = executeAdminOpenSearch("xml", "q=*");
             response.body(hasXPath(xPath));
 
-            configureRestForAnon();
+            configureRestForAnonymous(getAdminConfig(), getServiceManager(), SERVICE_ROOT);
 
             stopFeature(true, "sample-filter");
             stopFeature(true, "filter-plugin");
@@ -227,32 +230,6 @@ public class TestCatalog extends AbstractIntegrationTest {
         response.body("metcards.metacard.size()", equalTo(1));
     }
 
-    private void configureRestForBasic() throws IOException, InterruptedException {
-        PolicyProperties policyProperties = new PolicyProperties();
-        policyProperties.put("authenticationTypes",
-                "/=SAML|basic,/admin=SAML|basic,/jolokia=SAML|basic,/system=SAML|basic,/solr=SAML|PKI|basic");
-        policyProperties.put("whiteListContexts",
-                "/services/SecurityTokenService,/services/internal,/proxy," + SERVICE_ROOT
-                        + "/sdk/SoapService");
-        Configuration config = configAdmin.getConfiguration(PolicyProperties.FACTORY_PID, null);
-        Dictionary<String, ?> configProps = new Hashtable<>(policyProperties);
-        config.update(configProps);
-        waitForAllBundles();
-    }
-
-    private void configureRestForAnon() throws IOException, InterruptedException {
-        PolicyProperties policyProperties = new PolicyProperties();
-        policyProperties.put("authenticationTypes",
-                "/=SAML|anon,/admin=SAML|anon,/jolokia=SAML|anon,/system=SAML|anon,/solr=SAML|PKI|anon");
-        policyProperties.put("whiteListContexts",
-                "/services/SecurityTokenService,/services/internal,/proxy," + SERVICE_ROOT
-                        + "/sdk/SoapService");
-        Configuration config = configAdmin.getConfiguration(PolicyProperties.FACTORY_PID, null);
-        Dictionary<String, ?> configProps = new Hashtable<>(policyProperties);
-        config.update(configProps);
-        waitForAllBundles();
-    }
-
     private ValidatableResponse executeOpenSearch(String format, String... query) {
         StringBuilder buffer = new StringBuilder(OPENSEARCH_PATH).append("?").append("format=")
                 .append(format);
@@ -294,18 +271,6 @@ public class TestCatalog extends AbstractIntegrationTest {
         public static final String FACTORY_PID = "ddf.security.pdp.realm.SimpleAuthzRealm";
 
         public PdpProperties() {
-            this.putAll(getMetatypeDefaults(SYMBOLIC_NAME, FACTORY_PID));
-        }
-
-    }
-
-    public class PolicyProperties extends HashMap<String, Object> {
-
-        public static final String SYMBOLIC_NAME = "security-policy-context";
-
-        public static final String FACTORY_PID = "org.codice.ddf.security.policy.context.impl.PolicyManager";
-
-        public PolicyProperties() {
             this.putAll(getMetatypeDefaults(SYMBOLIC_NAME, FACTORY_PID));
         }
 
