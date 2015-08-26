@@ -383,6 +383,10 @@ public class ServiceManager {
         return bundleCtx.getService(serviceReference);
     }
 
+    public <S> S getService(Class<S> aClass) {
+        return bundleCtx.getService(bundleCtx.getServiceReference(aClass));
+    }
+
     private class ServiceConfigurationListener implements ConfigurationListener {
 
         private boolean updated = false;
