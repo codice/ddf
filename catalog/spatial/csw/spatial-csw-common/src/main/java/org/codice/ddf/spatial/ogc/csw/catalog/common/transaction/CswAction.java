@@ -14,18 +14,29 @@
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.common.transaction;
 
-import java.util.List;
-
-import ddf.catalog.data.Metacard;
-
 /**
+ * Contains attributes shared by the concrete CSW transaction action classes.
  */
-public class InsertTransaction extends CswTransaction {
+public abstract class CswAction {
 
-    public InsertTransaction(String type, String inHandle, List<Metacard> records) {
-        this.typeName = type;
-        this.handle = inHandle;
-        this.records = records;
+    protected String typeName;
+
+    // This gets used in case of exception
+    protected String handle;
+
+    public String getTypeName() {
+        return typeName;
     }
 
+    public void setTypeName(String typeName) {
+        this.typeName = typeName;
+    }
+
+    public String getHandle() {
+        return handle;
+    }
+
+    public void setHandle(String handle) {
+        this.handle = handle;
+    }
 }

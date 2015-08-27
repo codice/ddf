@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.common;
 
@@ -47,6 +46,8 @@ public interface CswConstants {
 
     String VERSION = "version";
 
+    String VERBOSE_RESPONSE = "verboseResponse";
+
     String VERSION_2_0_2 = "2.0.2";
 
     String VERSION_2_0_1 = "2.0.1";
@@ -64,12 +65,14 @@ public interface CswConstants {
      * getRecords. However, throughout the csw 2.0.2 specification, in particular in section 10.8,
      * the use of typeName vs typeNames is inconsistent. Therefore, when parsing getCapabilities for
      * getRecords, both are accepted.
-     * 
+     *
      * TODO: If this proves to be a continuing problem amongst supported services, getRecordsRequest
      * may need to support typeName as well.
      */ String TYPE_NAME_PARAMETER = "typeName";
 
     String TYPE_NAMES_PARAMETER = "typeNames";
+
+    String HANDLE_PARAMETER = "handle";
 
     String OUTPUT_SCHEMA_PARAMETER = "OutputSchema";
 
@@ -110,7 +113,7 @@ public interface CswConstants {
 
     public static final String EQUALS = "=";
 
-    // NOTE: "csw:" prefix is not needed for AnyText queries 
+    // NOTE: "csw:" prefix is not needed for AnyText queries
     String ANY_TEXT = "AnyText";
 
     String XML_SCHEMA_NAMESPACE_PREFIX = "xs";
