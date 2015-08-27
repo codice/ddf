@@ -13,17 +13,22 @@
  */
 package org.codice.ddf.security.common.jaxrs;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.UUID;
+import java.util.zip.Inflater;
+import java.util.zip.InflaterInputStream;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -31,7 +36,9 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.helpers.DOMUtils;
+import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.cxf.rs.security.saml.DeflateEncoderDecoder;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.junit.Test;
@@ -98,6 +105,24 @@ public class RestSecurityTest {
         WebClient client = WebClient.create("http://example.org");
         RestSecurity.setSubjectOnClient(subject, client);
         assertNull(client.getHeaders().get("Cookie"));
+    }
+
+    @Test
+    public void testInflateDeflateWithTokenDuplication() throws Exception {
+        String token = "valid_grant valid_grant valid_grant valid_grant valid_grant valid_grant";
+
+        DeflateEncoderDecoder deflateEncoderDecoder = new DeflateEncoderDecoder();
+        byte[] deflatedToken = deflateEncoderDecoder.deflateToken(token.getBytes());
+
+        String cxfInflatedToken = IOUtils
+                .toString(deflateEncoderDecoder.inflateToken(deflatedToken));
+
+        String streamInflatedToken = IOUtils.toString(
+                new InflaterInputStream(new ByteArrayInputStream(deflatedToken),
+                        new Inflater(true)));
+
+        assertNotSame(cxfInflatedToken, token);
+        assertEquals(streamInflatedToken, token);
     }
 
     /**
