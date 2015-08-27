@@ -17,6 +17,7 @@ import org.joda.time.DateTime;
 import org.junit.Test;
 
 import java.net.UnknownHostException;
+import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
@@ -67,14 +68,18 @@ public class TestCertificateGeneration {
     public void certificateAuthorityIsMissing() throws Exception {
         CertificateSigningRequest csr = new CertificateSigningRequest();
         csr.setNotAfter(THE_FUTURE);
-        csr.setSubjectNameToHostname();
+        csr.setCommonNameToHostname();
         csr.build();
     }
 
-    //Happy path!
-    @Test
-    public void createSignedCertificate() throws Exception {
-        getCsr().getSignedCertificate();
+
+    @Test(expected = CertificateGeneratorException.InvalidDate.class)
+    public void effectiveDateIsWrong() throws Exception {
+        CertificateSigningRequest csr = new CertificateSigningRequest();
+        csr.setNotAfter(THE_FUTURE);
+        csr.setCommonNameToHostname();
+        csr.setNotBefore(THE_FUTURE.plusDays(1));
+        csr.build();
     }
 
     //Add newly created private key and certificate (chain) to a keystore
@@ -92,12 +97,12 @@ public class TestCertificateGeneration {
         keyStore.save();
     }
 
-    protected CertificateSigningRequest getCsr() throws CertificateException, UnknownHostException {
+    private CertificateSigningRequest getCsr() throws CertificateException, UnknownHostException {
         //Instantiate DDF Demo CA's certificate
-        X509Certificate cert = CertificateGeneratorUtilities.stringToCertificate(CertificateAuthority.certificatePem);
+        X509Certificate cert = PkiTools.stringToCertificate(CertificateAuthority.certificatePem);
 
         //Instantiate DDF DEmo CA's private key
-        PrivateKey privateKey = CertificateGeneratorUtilities.stringToPrivateKey(CertificateAuthority.privateKeyPem);
+        PrivateKey privateKey = PkiTools.stringToPrivateKey(CertificateAuthority.privateKeyPem);
 
         //Instantiate DDF Demo CA
         CertificateAuthority ca = new CertificateAuthority(cert, privateKey);
@@ -105,11 +110,17 @@ public class TestCertificateGeneration {
         //Create new signing request and let DDF Demo CA sign it
         CertificateSigningRequest csr = new CertificateSigningRequest();
         csr.setNotAfter(THE_FUTURE);
-        csr.generateNewKeys();
-        csr.setSubjectNameToHostname();
+
+        KeyPair keyPair = PkiTools.generateRsaKeyPair();
+        csr.useSubjectKeyPair(keyPair);
+        csr.setCommonNameToHostname();
         csr.setCertificateAuthority(ca);
         csr.build();
         return csr;
+    }
+
+    private void createSignedCertificate() throws Exception {
+        getCsr().getSignedCertificate();
     }
 
 

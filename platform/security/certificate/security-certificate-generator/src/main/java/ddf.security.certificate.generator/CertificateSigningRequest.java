@@ -20,26 +20,31 @@ import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
 import java.net.UnknownHostException;
 import java.security.KeyPair;
-import java.security.KeyPairGenerator;
 import java.security.PrivateKey;
 import java.security.Security;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
 /**
- * Model of a X509 certificate signing request. See RFC 5280,  Internet X.509 Public Key Infrastructure Certificate
- * and Certificate Revocation List (CRL) Profile for more information.
+ * Model of a X509 certificate signing request. These values must be set:
+ * <p><ul>
+ *     <li>notAfter - certificate expiration date</li>
+ *     <li>subjectName - typically a server's FQDN. Use {@link #setCommonNameToHostname } to automatically set this attribute to the server's FQDN</li>
+ *     <li>certificateAuthority - instance of {@link ddf.security.certificate.generator.CertificateAuthority} who will signed this request</li>
+ * </ul><p>
+ *     These values may be optionally set:
+ *     <p><ul>
+ *         <li>keyPairLength - RSA public/private key pair length. Defaults to 2048 bits</li>
+ *         <li>serialNumber - </li>
+ *         </ul>
+ *
+ * @see <a href="https://www.ietf.org/rfc/rfc4514.txt">RFC 5280,  Internet X.509 Public Key Infrastructure Certificat</a>
  */
 public class CertificateSigningRequest {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(CertificateSigningRequest.class);
-    private static String BC = BouncyCastleProvider.PROVIDER_NAME;
 
     static {
 
@@ -49,10 +54,9 @@ public class CertificateSigningRequest {
     protected DateTime notBefore;
     protected DateTime notAfter;
     protected int keyPairLength;
-    protected X500Name subjectDistinguishedName;
+    protected X500Name subjectName;
     protected KeyPair subjectKeyPair;
     protected BigInteger serialNumber;
-    protected Boolean useNewKeys;
     protected CertificateAuthority certificateAuthority;
     protected X509Certificate signedCertificate;
 
@@ -62,13 +66,9 @@ public class CertificateSigningRequest {
 
     //Set reasonable defaults
     protected void initialize() {
-        keyPairLength = 1024;
+        keyPairLength = 2048;
         serialNumber = BigInteger.valueOf(System.currentTimeMillis());
         notBefore = DateTime.now().minusDays(1);
-        useNewKeys = true;
-
-        //TODO: It might not be a good idea to pick the end expiration date for the user. Force user to set expiration date.
-        // notAfter = DateTime.now().plusYears(5);
     }
 
     public PrivateKey getPrivateKey() {
@@ -115,10 +115,11 @@ public class CertificateSigningRequest {
         if (subjectKeyPair == null) {
             //Typical use case is to generate both the public and private keys within this class.
             //ASSUME that if the keypair has not been set, the user's intention is to generate a new keypair.
-            generateNewKeys();
+            KeyPair keyPair = PkiTools.generateRsaKeyPair();
+            useSubjectKeyPair(keyPair);
         }
 
-        if (subjectDistinguishedName == null || subjectDistinguishedName.toString().isEmpty()) {
+        if (subjectName == null || subjectName.toString().isEmpty()) {
             throw new CertificateGeneratorException.InvalidSubject(
                     "Subject distinguished name is null or empty. " +
                             "Set subject to host name or or set subject distinguished name");
@@ -128,39 +129,24 @@ public class CertificateSigningRequest {
             throw new CertificateGeneratorException.InvalidCertificateAuthority("Certificate authority is null");
         }
 
-        //'Case the builder needs a builder?
         X509v3CertificateBuilder certificateBuilder = new JcaX509v3CertificateBuilder(
                 certificateAuthority.getCertificate(),
                 serialNumber,
                 notBefore.toDate(),
                 notAfter.toDate(),
-                subjectDistinguishedName,
+                subjectName,
                 subjectKeyPair.getPublic());
 
-        //What's a certificate without a certificate holder?
         X509CertificateHolder holder =
                 certificateBuilder.build(certificateAuthority.getContentSigner());
 
         try {
-            //Sign the certificate
             signedCertificate = getCertificateConverter().getCertificate(holder);
         } catch (CertificateException e) {
             throw new CertificateGeneratorException("Could not create signed certificate.", e.getCause());
         }
     }
 
-    //TODO: This functionality is not unique to certificate signing requests. But it is not so involved that it needs its own class. Where does it belong? Static method on CertificateGenerationUtilities?
-    protected void generateNewKeys() throws CertificateGeneratorException.CannotGenerateKeyPair {
-
-        KeyPairGenerator keyGen = null;
-        try {
-            keyGen = KeyPairGenerator.getInstance("RSA", CertificateGeneratorUtilities.BC);
-        } catch (Exception e) {
-            throw new CertificateGeneratorException.CannotGenerateKeyPair("Failed to generate new public/private key pair.", e);
-        }
-        keyGen.initialize(keyPairLength);
-        useSubjectKeyPair(keyGen.generateKeyPair());
-    }
 
     /**
      * Create a distinguished name for the certificate's subject. Currently, only the common name (sub-attribute of
@@ -169,23 +155,23 @@ public class CertificateSigningRequest {
      *
      * @param name subject's common name attribute (
      */
-    public void setSubjectDistinguishedName(String name) {
-        subjectDistinguishedName = CertificateGeneratorUtilities.makeDistinguishedName(name);
+    public void setCommonName(String name) {
+        subjectName = PkiTools.makeDistinguishedName(name);
 
     }
 
     /**
      * Use hostname of the network node running the JBM as the subject's common name.
-     * The most common use case is the use case is DNS entry name of the server is the X509 common name.
+     * The most common use case is the DNS name of the server is the X509 common name.
      * SSL/TLS uses the common name as part of the secure connection handshake and if the name is wrong, TLS will
-     * not trust the connection. There is no guarantee that the {@link CertificateGeneratorUtilities#getHostName()}
-     * returns the correct result in all cases. Use {@link #setSubjectDistinguishedName(String)} to manually set
+     * not trust the connection. There is no guarantee that the {@link PkiTools#getHostName()}
+     * returns the correct result in all cases. Use {@link #setCommonName(String)} to manually set
      * the common name for the certificate's subject.
      *
      * @throws UnknownHostException
      */
-    public void setSubjectNameToHostname() throws UnknownHostException {
-        setSubjectDistinguishedName(CertificateGeneratorUtilities.getHostName());
+    public void setCommonNameToHostname() throws UnknownHostException {
+        setCommonName(PkiTools.getHostName());
     }
 
     /**
@@ -194,7 +180,7 @@ public class CertificateSigningRequest {
      * the private key for later use. This method is provided for situations when an existing  keypair
      * should be used to generate the certificate.
      *
-     * @param keyPair
+     * @param keyPair RSA public/private keys
      */
     public void useSubjectKeyPair(KeyPair keyPair) {
         subjectKeyPair = keyPair;
@@ -203,7 +189,7 @@ public class CertificateSigningRequest {
     /**
      * The validity period for a certificate is the period of time from notBefore through notAfter, inclusive.
      *
-     * @param date
+     * @param date expiration date of the certificate
      */
     public void setNotBefore(DateTime date) {
         notBefore = date;
@@ -212,7 +198,7 @@ public class CertificateSigningRequest {
     /**
      * The validity period for a certificate is the period of time from notBefore through notAfter, inclusive.
      *
-     * @param date
+     * @param date effective date
      */
     public void setNotAfter(DateTime date) {
         notAfter = date;
@@ -221,7 +207,7 @@ public class CertificateSigningRequest {
     /**
      * Set the serial number of the certificate. The serial number is arbitrary, but should not be negative.
      *
-     * @param number
+     * @param number arbitrary serial number
      */
     public void setSerialNumber(long number) throws CertificateGeneratorException.InvalidSerialNumber {
 
@@ -232,7 +218,7 @@ public class CertificateSigningRequest {
     }
 
     protected JcaX509CertificateConverter getCertificateConverter() {
-        return new JcaX509CertificateConverter().setProvider(BC);
+        return new JcaX509CertificateConverter().setProvider(BouncyCastleProvider.PROVIDER_NAME);
     }
 
     /**
