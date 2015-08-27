@@ -14,31 +14,16 @@
 package org.codice.ddf.cxf;
 
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Type;
-import java.util.Arrays;
-import java.util.List;
 import java.util.UUID;
 
 import javax.ws.rs.GET;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.ext.MessageBodyReader;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
-import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.apache.cxf.message.Message;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.shiro.mgt.DefaultSecurityManager;
 import org.apache.shiro.session.mgt.SimpleSession;
@@ -49,7 +34,6 @@ import org.junit.Test;
 
 import ddf.security.Subject;
 import ddf.security.service.SecurityServiceException;
-import ddf.security.settings.SecuritySettingsService;
 
 public class SecureCxfClientFactoryTest {
 
@@ -58,7 +42,41 @@ public class SecureCxfClientFactoryTest {
     private String secureEndpoint = "https://some.url.com/query";
 
     @Test
-    public void testInsecure() throws SecurityServiceException {
+    public void testConstructor() throws SecurityServiceException {
+        //negative tests
+        SecureCxfClientFactory<IDummy> secureCxfClientFactory;
+        boolean invalid = false;
+        try { //test empty string for url
+            secureCxfClientFactory = new SecureCxfClientFactory<>("", IDummy.class);
+        } catch (IllegalArgumentException e) {
+            invalid = true;
+        }
+        assertTrue(invalid);
+        invalid = false;
+        try { //null for url
+            secureCxfClientFactory = new SecureCxfClientFactory<>(null, IDummy.class);
+        } catch (IllegalArgumentException e) {
+            invalid = true;
+        }
+        assertTrue(invalid);
+        invalid = false;
+        try { //null for url and class
+            secureCxfClientFactory = new SecureCxfClientFactory<>(null, null);
+        } catch (IllegalArgumentException e) {
+            invalid = true;
+        }
+        assertTrue(invalid);
+        invalid = false;
+        try { //null for class
+            secureCxfClientFactory = new SecureCxfClientFactory<>(insecureEndpoint, null);
+        } catch (IllegalArgumentException e) {
+            invalid = true;
+        }
+        assertTrue(invalid);
+    }
+
+    @Test
+    public void testInsecureClient() throws SecurityServiceException {
         // positive case
         SecureCxfClientFactory<IDummy> secureCxfClientFactory = new SecureCxfClientFactory<>(
                 insecureEndpoint, IDummy.class);
@@ -66,39 +84,63 @@ public class SecureCxfClientFactoryTest {
         assertTrue(unsecuredClient.getBaseURI().toASCIIString().equals(insecureEndpoint));
         // negative cases
         boolean subject = false;
-        try {
+        try { //can't get secure client from insecure endpoint
             secureCxfClientFactory.getClientForSubject(getSubject());
         } catch (SecurityServiceException e) {
             subject = true;
         }
         assertTrue(subject);
         boolean system = false;
-        try {
-            secureCxfClientFactory.getClientForBasicAuth(null, null);
+        try { //can't get secure client from insecure endpoint
+            secureCxfClientFactory.getClientForBasicAuth("username", "password");
         } catch (SecurityServiceException e) {
             system = true;
         }
         assertTrue(system);
+        boolean unsecured = true;
+        try { //should be able to get an unsecured client
+            secureCxfClientFactory.getUnsecuredClient();
+        } catch (SecurityServiceException e) {
+            unsecured = false;
+        }
+        assertTrue(unsecured);
     }
 
     @Test
-    public void testSecure() throws SecurityServiceException {
-        // positive cases
-        MockWrapper<IDummy> mockWrapper = new MockWrapper<>(secureEndpoint, IDummy.class);
-        validateConfig(mockWrapper, null, null, false);
-        mockWrapper = new MockWrapper<>(secureEndpoint, IDummy.class);
-        validateConfig(mockWrapper, "foobar", "foobaz", false);
-        List<MockProvider> providers = Arrays.asList(new MockProvider());
-        mockWrapper = new MockWrapper<>(secureEndpoint, IDummy.class, providers, null, true);
-        validateConfig(mockWrapper, "bazfoo", "bazbar", true);
-        // negative case
-        boolean unsecured = false;
-        try {
-            mockWrapper.getUnsecuredClient();
+    public void testInsecureWebClient() throws SecurityServiceException {
+        // positive case
+        SecureCxfClientFactory<IDummy> secureCxfClientFactory = new SecureCxfClientFactory<>(
+                insecureEndpoint, IDummy.class);
+        Client unsecuredClient = WebClient.client(secureCxfClientFactory.getUnsecuredClient());
+        assertTrue(unsecuredClient.getBaseURI().toASCIIString().equals(insecureEndpoint));
+        // negative cases
+        boolean subject = false;
+        try { //can't get secure client from insecure endpoint
+            secureCxfClientFactory.getWebClientForSubject(getSubject());
         } catch (SecurityServiceException e) {
-            unsecured = true;
+            subject = true;
+        }
+        assertTrue(subject);
+        boolean system = false;
+        try { //can't get secure client from insecure endpoint
+            secureCxfClientFactory.getWebClientForBasicAuth("username", "password");
+        } catch (SecurityServiceException e) {
+            system = true;
+        }
+        assertTrue(system);
+        boolean unsecured = true;
+        try { //should be able to get an unsecured client
+            secureCxfClientFactory.getUnsecuredWebClient();
+        } catch (SecurityServiceException e) {
+            unsecured = false;
         }
         assertTrue(unsecured);
+    }
+
+    @Test
+    public void testGetOSGI() throws SecurityServiceException {
+        MockWrapper<IDummy> mockWrapper = new MockWrapper<>(secureEndpoint, IDummy.class);
+        //mockWrapper.getOsgiService((mock(SecuritySettingsService.class)).getClass());
     }
 
     private void validateConfig(MockWrapper<IDummy> factory, String username, String password,
@@ -147,40 +189,6 @@ public class SecureCxfClientFactoryTest {
         public MockWrapper(String endpointUrl, Class<T> interfaceClass)
                 throws SecurityServiceException {
             super(endpointUrl, interfaceClass);
-        }
-
-        public MockWrapper(String endpointUrl, Class<T> interfaceClass, List providers,
-                Interceptor<? extends Message> interceptor, boolean disableCnCheck)
-                throws SecurityServiceException {
-            super(endpointUrl, interfaceClass, providers, interceptor, disableCnCheck);
-        }
-
-        @Override
-        <S> S getOsgiService(Class<S> clazz) throws SecurityServiceException {
-            if (clazz.getName().equals(SecuritySettingsService.class.getName())) {
-                SecuritySettingsService securitySettingsService = mock(
-                        SecuritySettingsService.class);
-                when(securitySettingsService.getTLSParameters())
-                        .thenReturn(new TLSClientParameters());
-                return (S) securitySettingsService;
-            }
-            return null;
-        }
-    }
-
-    private class MockProvider implements MessageBodyReader {
-
-        @Override
-        public boolean isReadable(Class type, Type genericType, Annotation[] annotations,
-                MediaType mediaType) {
-            return false;
-        }
-
-        @Override
-        public Object readFrom(Class type, Type genericType, Annotation[] annotations,
-                MediaType mediaType, MultivaluedMap httpHeaders, InputStream entityStream)
-                throws IOException, WebApplicationException {
-            return null;
         }
     }
 

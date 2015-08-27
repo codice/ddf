@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.source;
 
@@ -46,6 +45,9 @@ import javax.xml.bind.JAXBException;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.namespace.QName;
 
+import org.apache.shiro.subject.Subject;
+import org.codice.ddf.cxf.SecureCxfClientFactory;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.Csw;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
@@ -82,6 +84,7 @@ import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.UnsupportedQueryException;
+import ddf.security.service.SecurityServiceException;
 import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.QueryType;
@@ -97,8 +100,8 @@ public class TestCswSource extends TestCswSourceBase {
             "{" + CswConstants.CSW_OUTPUT_SCHEMA + "}" + CswConstants.CSW_RECORD_LOCAL_NAME;
 
     @Test
-    public void testParseCapabilities() throws CswException {
-        CswSource source = getCswSource(createRemoteCsw(), mockContext, new ArrayList<String>());
+    public void testParseCapabilities() throws CswException, SecurityServiceException {
+        CswSource source = getCswSource(createMockCsw(), mockContext, new ArrayList<String>());
 
         assertTrue(source.isAvailable());
         assertEquals(10, source.getContentTypes().size());
@@ -108,9 +111,9 @@ public class TestCswSource extends TestCswSourceBase {
     }
 
     @Test
-    public void testInitialContentList() throws CswException {
+    public void testInitialContentList() throws CswException, SecurityServiceException {
 
-        CswSource source = getCswSource(createRemoteCsw(), mockContext, Arrays.asList("x", "y"));
+        CswSource source = getCswSource(createMockCsw(), mockContext, Arrays.asList("x", "y"));
 
         assertTrue(source.isAvailable());
         assertEquals(12, source.getContentTypes().size());
@@ -120,8 +123,9 @@ public class TestCswSource extends TestCswSourceBase {
     }
 
     @Test
-    public void testAddingContentTypesOnQueries() throws CswException, UnsupportedQueryException {
-        RemoteCsw remote = createRemoteCsw();
+    public void testAddingContentTypesOnQueries()
+            throws CswException, UnsupportedQueryException, SecurityServiceException {
+        Csw mockCsw = createMockCsw();
 
         List<String> expectedNames = new LinkedList<String>(
                 Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h", "i", "j"));
@@ -137,7 +141,7 @@ public class TestCswSource extends TestCswSourceBase {
         doReturn(mockServiceReference).when(mockRegisteredMetacardType).getReference();
         when(mockServiceReference.getProperty(eq(Metacard.CONTENT_TYPE))).thenReturn(expectedNames);
 
-        CswSource source = getCswSource(remote, mockContext, new ArrayList<String>());
+        CswSource source = getCswSource(mockCsw, mockContext, new ArrayList<String>());
 
         assertEquals(10, source.getContentTypes().size());
 
@@ -146,7 +150,7 @@ public class TestCswSource extends TestCswSourceBase {
 
         CswRecordCollection collection = generateCswCollection("/getRecordsResponse.xml");
 
-        when(remote.getRecords(any(GetRecordsType.class))).thenReturn(collection);
+        when(mockCsw.getRecords(any(GetRecordsType.class))).thenReturn(collection);
 
         QueryImpl propertyIsLikeQuery = new QueryImpl(
                 builder.attribute(Metacard.ANY_TEXT).is().like().text("*"));
@@ -162,8 +166,9 @@ public class TestCswSource extends TestCswSourceBase {
     }
 
     @Test
-    public void testPropertyIsLikeQuery() throws JAXBException, UnsupportedQueryException,
-            DatatypeConfigurationException, SAXException, IOException {
+    public void testPropertyIsLikeQuery()
+            throws JAXBException, UnsupportedQueryException, DatatypeConfigurationException,
+            SAXException, IOException, SecurityServiceException {
 
         // Setup
         final String searchPhrase = "*th*e";
@@ -174,8 +179,7 @@ public class TestCswSource extends TestCswSourceBase {
         setupMockContextForMetacardTypeRegistrationAndUnregistration(getDefaultContentTypes());
 
         try {
-            configureMockRemoteCsw(numRecordsReturned, numRecordsMatched,
-                    CswConstants.VERSION_2_0_2);
+            configureMockCsw(numRecordsReturned, numRecordsMatched, CswConstants.VERSION_2_0_2);
         } catch (CswException e) {
             fail("Could not configure Mock Remote CSW: " + e.getMessage());
         }
@@ -209,8 +213,9 @@ public class TestCswSource extends TestCswSourceBase {
     }
 
     @Test
-    public void testQueryWithSorting() throws JAXBException, UnsupportedQueryException,
-            DatatypeConfigurationException, SAXException, IOException {
+    public void testQueryWithSorting()
+            throws JAXBException, UnsupportedQueryException, DatatypeConfigurationException,
+            SAXException, IOException, SecurityServiceException {
 
         final String TITLE = "title";
 
@@ -223,8 +228,7 @@ public class TestCswSource extends TestCswSourceBase {
         setupMockContextForMetacardTypeRegistrationAndUnregistration(getDefaultContentTypes());
 
         try {
-            configureMockRemoteCsw(numRecordsReturned, numRecordsMatched,
-                    CswConstants.VERSION_2_0_2);
+            configureMockCsw(numRecordsReturned, numRecordsMatched, CswConstants.VERSION_2_0_2);
         } catch (CswException e) {
             fail("Could not configure Mock Remote CSW: " + e.getMessage());
         }
@@ -264,8 +268,9 @@ public class TestCswSource extends TestCswSourceBase {
     }
 
     @Test
-    public void testQueryWithSortByDistance() throws JAXBException, UnsupportedQueryException,
-            DatatypeConfigurationException, SAXException, IOException {
+    public void testQueryWithSortByDistance()
+            throws JAXBException, UnsupportedQueryException, DatatypeConfigurationException,
+            SAXException, IOException, SecurityServiceException {
 
         // Setup
         final String searchPhrase = "*";
@@ -276,8 +281,7 @@ public class TestCswSource extends TestCswSourceBase {
         setupMockContextForMetacardTypeRegistrationAndUnregistration(getDefaultContentTypes());
 
         try {
-            configureMockRemoteCsw(numRecordsReturned, numRecordsMatched,
-                    CswConstants.VERSION_2_0_2);
+            configureMockCsw(numRecordsReturned, numRecordsMatched, CswConstants.VERSION_2_0_2);
         } catch (CswException e) {
             fail("Could not configure Mock Remote CSW: " + e.getMessage());
         }
@@ -312,8 +316,9 @@ public class TestCswSource extends TestCswSourceBase {
     }
 
     @Test
-    public void testQueryWithSortByRelevance() throws JAXBException, UnsupportedQueryException,
-            DatatypeConfigurationException, SAXException, IOException {
+    public void testQueryWithSortByRelevance()
+            throws JAXBException, UnsupportedQueryException, DatatypeConfigurationException,
+            SAXException, IOException, SecurityServiceException {
         // Setup
         final String searchPhrase = "*";
         final int pageSize = 1;
@@ -323,8 +328,7 @@ public class TestCswSource extends TestCswSourceBase {
         setupMockContextForMetacardTypeRegistrationAndUnregistration(getDefaultContentTypes());
 
         try {
-            configureMockRemoteCsw(numRecordsReturned, numRecordsMatched,
-                    CswConstants.VERSION_2_0_2);
+            configureMockCsw(numRecordsReturned, numRecordsMatched, CswConstants.VERSION_2_0_2);
         } catch (CswException e) {
             fail("Could not configure Mock Remote CSW: " + e.getMessage());
         }
@@ -364,8 +368,9 @@ public class TestCswSource extends TestCswSourceBase {
     }
 
     @Test
-    public void testQueryWithSortByTemporal() throws JAXBException, UnsupportedQueryException,
-            DatatypeConfigurationException, SAXException, IOException {
+    public void testQueryWithSortByTemporal()
+            throws JAXBException, UnsupportedQueryException, DatatypeConfigurationException,
+            SAXException, IOException, SecurityServiceException {
         // Setup
         final String searchPhrase = "*";
         final int pageSize = 1;
@@ -375,8 +380,7 @@ public class TestCswSource extends TestCswSourceBase {
         setupMockContextForMetacardTypeRegistrationAndUnregistration(getDefaultContentTypes());
 
         try {
-            configureMockRemoteCsw(numRecordsReturned, numRecordsMatched,
-                    CswConstants.VERSION_2_0_2);
+            configureMockCsw(numRecordsReturned, numRecordsMatched, CswConstants.VERSION_2_0_2);
         } catch (CswException e) {
             fail("Could not configure Mock Remote CSW: " + e.getMessage());
         }
@@ -420,8 +424,9 @@ public class TestCswSource extends TestCswSourceBase {
      * The CSW Source should be able to map a csw:Record field to Content Type.
      */
     @Test
-    public void testPropertyIsEqualToQueryContentTypeIsMappedToFormat() throws JAXBException,
-            UnsupportedQueryException, DatatypeConfigurationException, SAXException, IOException {
+    public void testPropertyIsEqualToQueryContentTypeIsMappedToFormat()
+            throws JAXBException, UnsupportedQueryException, DatatypeConfigurationException,
+            SAXException, IOException, SecurityServiceException {
 
         // Setup
         int pageSize = 10;
@@ -432,8 +437,7 @@ public class TestCswSource extends TestCswSourceBase {
         setupMockContextForMetacardTypeRegistrationAndUnregistration(getDefaultContentTypes());
 
         try {
-            configureMockRemoteCsw(numRecordsReturned, numRecordsMatched,
-                    CswConstants.VERSION_2_0_2);
+            configureMockCsw(numRecordsReturned, numRecordsMatched, CswConstants.VERSION_2_0_2);
         } catch (CswException e) {
             fail("Could not configure Mock Remote CSW: " + e.getMessage());
         }
@@ -472,8 +476,9 @@ public class TestCswSource extends TestCswSourceBase {
      * a csw:Record field to Content Type.
      */
     @Test
-    public void testPropertyIsLikeContentTypeVersion() throws JAXBException,
-            UnsupportedQueryException, DatatypeConfigurationException, SAXException, IOException {
+    public void testPropertyIsLikeContentTypeVersion()
+            throws JAXBException, UnsupportedQueryException, DatatypeConfigurationException,
+            SAXException, IOException, SecurityServiceException {
 
         // Setup
         int pageSize = 10;
@@ -485,8 +490,7 @@ public class TestCswSource extends TestCswSourceBase {
         setupMockContextForMetacardTypeRegistrationAndUnregistration(getDefaultContentTypes());
 
         try {
-            configureMockRemoteCsw(numRecordsReturned, numRecordsMatched,
-                    CswConstants.VERSION_2_0_2);
+            configureMockCsw(numRecordsReturned, numRecordsMatched, CswConstants.VERSION_2_0_2);
         } catch (CswException e) {
             fail("Could not configure Mock Remote CSW: " + e.getMessage());
         }
@@ -525,8 +529,9 @@ public class TestCswSource extends TestCswSourceBase {
     }
 
     @Test
-    public void testAbsoluteTemporalSearchPropertyIsBetweenQuery() throws JAXBException,
-            UnsupportedQueryException, DatatypeConfigurationException, SAXException, IOException {
+    public void testAbsoluteTemporalSearchPropertyIsBetweenQuery()
+            throws JAXBException, UnsupportedQueryException, DatatypeConfigurationException,
+            SAXException, IOException, SecurityServiceException {
 
         // Setup
         String expectedXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n"
@@ -552,8 +557,7 @@ public class TestCswSource extends TestCswSourceBase {
         setupMockContextForMetacardTypeRegistrationAndUnregistration(getDefaultContentTypes());
 
         try {
-            configureMockRemoteCsw(numRecordsReturned, numRecordsMatched,
-                    CswConstants.VERSION_2_0_2);
+            configureMockCsw(numRecordsReturned, numRecordsMatched, CswConstants.VERSION_2_0_2);
         } catch (CswException e) {
             fail("Could not configure Mock Remote CSW: " + e.getMessage());
         }
@@ -597,8 +601,9 @@ public class TestCswSource extends TestCswSourceBase {
     }
 
     @Test
-    public void testAbsoluteTemporalSearchTwoRanges() throws JAXBException,
-            UnsupportedQueryException, DatatypeConfigurationException, SAXException, IOException {
+    public void testAbsoluteTemporalSearchTwoRanges()
+            throws JAXBException, UnsupportedQueryException, DatatypeConfigurationException,
+            SAXException, IOException, SecurityServiceException {
 
         // Setup
         String expectedXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n"
@@ -642,8 +647,7 @@ public class TestCswSource extends TestCswSourceBase {
         setupMockContextForMetacardTypeRegistrationAndUnregistration(getDefaultContentTypes());
 
         try {
-            configureMockRemoteCsw(numRecordsReturned, numRecordsMatched,
-                    CswConstants.VERSION_2_0_2);
+            configureMockCsw(numRecordsReturned, numRecordsMatched, CswConstants.VERSION_2_0_2);
         } catch (CswException e) {
             fail("Could not configure Mock Remote CSW: " + e.getMessage());
         }
@@ -694,7 +698,8 @@ public class TestCswSource extends TestCswSourceBase {
     }
 
     @Test(expected = UnsupportedQueryException.class)
-    public void testCswSourceNoFilterCapabilities() throws CswException, UnsupportedQueryException {
+    public void testCswSourceNoFilterCapabilities()
+            throws CswException, UnsupportedQueryException, SecurityServiceException {
         // Setup
         CapabilitiesType mockCapabilitiesType = mock(CapabilitiesType.class);
         when(mockCsw.getCapabilities(any(GetCapabilitiesRequest.class)))
@@ -712,7 +717,7 @@ public class TestCswSource extends TestCswSourceBase {
     }
 
     @Test
-    public void testTimeoutConfiguration() {
+    public void testTimeoutConfiguration() throws SecurityServiceException {
 
         final String TITLE = "title";
 
@@ -725,8 +730,7 @@ public class TestCswSource extends TestCswSourceBase {
         setupMockContextForMetacardTypeRegistrationAndUnregistration(getDefaultContentTypes());
 
         try {
-            configureMockRemoteCsw(numRecordsReturned, numRecordsMatched,
-                    CswConstants.VERSION_2_0_2);
+            configureMockCsw(numRecordsReturned, numRecordsMatched, CswConstants.VERSION_2_0_2);
         } catch (CswException e) {
             fail("Could not configure Mock Remote CSW: " + e.getMessage());
         }
@@ -735,17 +739,18 @@ public class TestCswSource extends TestCswSourceBase {
         cswSource.setCswUrl(URL);
         cswSource.setId(ID);
 
-        cswSource.setConnectionTimeout(10000);
-        cswSource.setReceiveTimeout(10000);
+        HashMap<String, Object> configuration = new HashMap<String, Object>(10) {
+        };
+        configuration.put("connectionTimeout", 10000);
+        configuration.put("receiveTimeout", 10000);
+        cswSource.refresh(configuration);
 
-        // Perform test
-        cswSource.updateTimeouts();
-
-        verify(mockCsw, atLeastOnce()).setTimeouts(any(Integer.class), any(Integer.class));
+        assertEquals(cswSource.getConnectionTimeout(), 10000);
+        assertEquals(cswSource.getReceiveTimeout(), 10000);
     }
 
     @Test
-    public void testRefresh() {
+    public void testRefresh() throws SecurityServiceException {
         CswSource cswSource = getCswSource(null, null, Collections.<String>emptyList());
 
         cswSource.refresh(null);
@@ -758,7 +763,7 @@ public class TestCswSource extends TestCswSourceBase {
     @Test
     public void testQueryWithAlternateQueryType()
             throws JAXBException, UnsupportedQueryException, DatatypeConfigurationException,
-            SAXException, IOException {
+            SAXException, IOException, SecurityServiceException {
 
         // Setup
         final QName expectedQname = new QName("http://example.com", "example", "abc");
@@ -770,8 +775,7 @@ public class TestCswSource extends TestCswSourceBase {
         setupMockContextForMetacardTypeRegistrationAndUnregistration(getDefaultContentTypes());
 
         try {
-            configureMockRemoteCsw(numRecordsReturned, numRecordsMatched,
-                    CswConstants.VERSION_2_0_2);
+            configureMockCsw(numRecordsReturned, numRecordsMatched, CswConstants.VERSION_2_0_2);
         } catch (CswException e) {
             fail("Could not configure Mock Remote CSW: " + e.getMessage());
         }
@@ -806,7 +810,7 @@ public class TestCswSource extends TestCswSourceBase {
     @Test
     public void testQueryWithDefaultQueryType()
             throws JAXBException, UnsupportedQueryException, DatatypeConfigurationException,
-            SAXException, IOException {
+            SAXException, IOException, SecurityServiceException {
 
         // Setup
         final String searchPhrase = "*";
@@ -817,8 +821,7 @@ public class TestCswSource extends TestCswSourceBase {
         setupMockContextForMetacardTypeRegistrationAndUnregistration(getDefaultContentTypes());
 
         try {
-            configureMockRemoteCsw(numRecordsReturned, numRecordsMatched,
-                    CswConstants.VERSION_2_0_2);
+            configureMockCsw(numRecordsReturned, numRecordsMatched, CswConstants.VERSION_2_0_2);
         } catch (CswException e) {
             fail("Could not configure Mock Remote CSW: " + e.getMessage());
         }
@@ -864,23 +867,36 @@ public class TestCswSource extends TestCswSourceBase {
         cswSourceConfiguration.setCswUrl(URL);
         cswSourceConfiguration.setModifiedDateMapping(Metacard.MODIFIED);
         cswSourceConfiguration.setIdentifierMapping(CswRecordMetacardType.CSW_IDENTIFIER);
+        cswSourceConfiguration.setUsername("user");
+        cswSourceConfiguration.setPassword("pass");
         return cswSourceConfiguration;
     }
 
-    private CswSource getCswSource(RemoteCsw remoteCsw, BundleContext context,
-            List<String> contentTypes) {
-        return getCswSource(remoteCsw, context, contentTypes, null);
+    private CswSource getCswSource(Csw csw, BundleContext context, List<String> contentTypes)
+            throws SecurityServiceException {
+        return getCswSource(csw, context, contentTypes, null);
     }
 
-    private CswSource getCswSource(RemoteCsw remoteCsw, BundleContext context,
-            List<String> contentTypes, String contentMapping, String queryTypeQName,
-            String queryTypePrefix) {
+    private CswSource getCswSource(Csw csw, BundleContext context, List<String> contentTypes,
+            String contentMapping, String queryTypeQName, String queryTypePrefix)
+            throws SecurityServiceException {
 
         CswSourceConfiguration cswSourceConfiguration = getStandardCswSourceConfiguration(
                 contentMapping, queryTypeQName, queryTypePrefix);
         cswSourceConfiguration.setContentTypeMapping(contentMapping);
-        CswSource cswSource = new CswSource(remoteCsw, mockContext, cswSourceConfiguration,
-                mockProvider);
+
+        SecureCxfClientFactory mockFactory = mock(SecureCxfClientFactory.class);
+        try {
+            doReturn(csw).when(mockFactory)
+                    .getClientForBasicAuth(any(String.class), any(String.class));
+            doReturn(csw).when(mockFactory).getClientForSubject(any(Subject.class));
+            doReturn(csw).when(mockFactory).getUnsecuredClient();
+        } catch (SecurityServiceException sse) {
+            fail("Mock CSW from mockFactory failed");
+        }
+
+        CswSource cswSource = new CswSource(mockContext, cswSourceConfiguration, mockProvider,
+                mockFactory);
         cswSource.setFilterAdapter(new GeotoolsFilterAdapterImpl());
         cswSource.setFilterBuilder(builder);
         cswSource.setContext(context);
@@ -892,10 +908,10 @@ public class TestCswSource extends TestCswSourceBase {
         return cswSource;
     }
 
-    private CswSource getCswSource(RemoteCsw remoteCsw, BundleContext context,
-            List<String> contentTypes, String contentMapping) {
+    private CswSource getCswSource(Csw csw, BundleContext context, List<String> contentTypes,
+            String contentMapping) throws SecurityServiceException {
 
-        return getCswSource(remoteCsw, context, contentTypes, contentMapping, CSW_RECORD_QNAME,
+        return getCswSource(csw, context, contentTypes, contentMapping, CSW_RECORD_QNAME,
                 CswConstants.CSW_NAMESPACE_PREFIX);
     }
 

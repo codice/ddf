@@ -54,6 +54,11 @@
         </dependency>
 
         <dependency>
+            <groupId>ddf.platform.security</groupId>
+            <artifactId>security-rest-cxfwrapper</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.codice.ddf.spatial</groupId>
             <artifactId>spatial-wfs-common</artifactId>
         </dependency>
@@ -143,6 +148,11 @@
             <artifactId>commons-collections</artifactId>
             <version>3.2.1</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.security</groupId>
+            <artifactId>ddf-security-common</artifactId>
+        </dependency>
+
 
     </dependencies>
     <build>
@@ -175,7 +185,9 @@
                             catalog-core-api-impl,
                             jaxb2-basics-runtime,
                             gml-v_3_2_1-schema,
-                            guava
+                            guava,
+                            security-rest-cxfwrapper,
+                            ddf-security-common
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                     </instructions>
