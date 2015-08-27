@@ -29,8 +29,6 @@ public abstract class SecurityFileFacade {
         Security.addProvider(new BouncyCastleProvider());
     }
 
-    protected String BC = BouncyCastleProvider.PROVIDER_NAME;
-
     //Helper method
     protected static char[] formatPassword(char[] password) {
         return password == null ? new char[0] : password;

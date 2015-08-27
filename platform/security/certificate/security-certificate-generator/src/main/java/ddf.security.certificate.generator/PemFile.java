@@ -16,6 +16,7 @@ package ddf.security.certificate.generator;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openssl.*;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.bouncycastle.openssl.jcajce.JceOpenSSLPKCS8DecryptorProviderBuilder;
@@ -24,8 +25,6 @@ import org.bouncycastle.operator.InputDecryptorProvider;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.pkcs.PKCS8EncryptedPrivateKeyInfo;
 import org.bouncycastle.pkcs.PKCSException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.security.KeyPair;
@@ -40,13 +39,13 @@ import java.security.cert.X509Certificate;
 public class PemFile extends SecurityFileFacade {
 
     //Declare member attributes
-    protected PEMParser pem;
+    private PEMParser pem;
 
     //Declare password private so a malicious subclass cannot gain access to it.
     private char[] password;
 
     //Do not use constructor publicly. Use getInstance method to instantiate this class.
-    public PemFile(Reader reader, char[] password) {
+    protected PemFile(Reader reader, char[] password) {
         this.pem = new PEMParser(reader);
         this.password = password;
     }
@@ -80,7 +79,7 @@ public class PemFile extends SecurityFileFacade {
 
     /**
      * Extract an X509 certificate from the PEM file. This implementation assumes the certificate is the first object
-     * in the PEM file. hrow an exception if a certificate cannot be extracted from the object.
+     * in the PEM file. Throw an exception if a certificate cannot be extracted from the object.
      *
      * @return X509Certificate
      * @throws IOException
@@ -154,26 +153,24 @@ public class PemFile extends SecurityFileFacade {
 
         try {
             return keyInfo.decryptPrivateKeyInfo(pkcs8Decryptor());
-        } catch (PKCSException e) {
-            throw new IOException("Cannot decrypt private key", e);
-        } catch (OperatorCreationException e) {
+        } catch (OperatorCreationException | PKCSException e) {
             throw new IOException("Cannot decrypt private key", e);
         }
     }
 
     private InputDecryptorProvider pkcs8Decryptor() throws OperatorCreationException {
-        return new JceOpenSSLPKCS8DecryptorProviderBuilder().setProvider(BC).build(password);
+        return new JceOpenSSLPKCS8DecryptorProviderBuilder().setProvider(BouncyCastleProvider.PROVIDER_NAME).build(password);
     }
 
     private PEMDecryptorProvider pemDecryptor() {
-        return new JcePEMDecryptorProviderBuilder().setProvider(BC).build(password);
+        return new JcePEMDecryptorProviderBuilder().setProvider(BouncyCastleProvider.PROVIDER_NAME).build(password);
     }
 
     protected JcaX509CertificateConverter certificateConverter() {
-        return new JcaX509CertificateConverter().setProvider(BC);
+        return new JcaX509CertificateConverter().setProvider(BouncyCastleProvider.PROVIDER_NAME);
     }
 
     protected JcaPEMKeyConverter pemKeyConverter() {
-        return new JcaPEMKeyConverter().setProvider(BC);
+        return new JcaPEMKeyConverter().setProvider(BouncyCastleProvider.PROVIDER_NAME);
     }
 }

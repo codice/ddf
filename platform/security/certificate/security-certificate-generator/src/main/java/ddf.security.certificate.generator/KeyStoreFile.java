@@ -26,7 +26,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -55,8 +54,8 @@ public class KeyStoreFile extends SecurityFileFacade {
      * Use a factory method to allow for future possibility of creating an instance of the class that is not already
      * a file.
      *
-     * @param filePath
-     * @param password
+     * @param filePath path to the keystore file
+     * @param password password to unlock the keystore file
      * @return instance of KeyStoreFile
      * @throws IOException
      * @throws KeyStoreException
@@ -106,7 +105,7 @@ public class KeyStoreFile extends SecurityFileFacade {
         //If the keyStore type is not set, log a warning and use the default keyStore type.
         if (type == null) {
             type = KeyStore.getDefaultType();
-            LOGGER.warn("System property javax.net.ssl.keyStoreType not set. Using default keyStore type " + type);
+            LOGGER.info("System property javax.net.ssl.keyStoreType not set. Using default keyStore type " + type);
         }
 
         return KeyStore.getInstance(type);
@@ -117,16 +116,9 @@ public class KeyStoreFile extends SecurityFileFacade {
      *
      * @return List of aliases in keystore or null
      */
-    public List<String> aliases() {
-        ArrayList<String> aliases = null;
-        try {
-            aliases = Collections.list(keyStore.aliases());
-            return aliases;
-        } catch (KeyStoreException e) {
-            LOGGER.warn("Could not read keystore aliases.");
-        }
+    public List<String> aliases() throws KeyStoreException {
 
-        return aliases;
+        return Collections.list(keyStore.aliases());
     }
 
     /**
@@ -149,7 +141,7 @@ public class KeyStoreFile extends SecurityFileFacade {
     /**
      * Return the certificate associated with this alias. if the certificate cannot retrieved, return null
      *
-     * @param alias
+     * @param alias the name of entry in the keystore
      * @return Certificate or null
      */
     public Certificate getCertificate(String alias) {
@@ -159,7 +151,7 @@ public class KeyStoreFile extends SecurityFileFacade {
         try {
             cert = keyStore.getCertificate(alias);
         } catch (KeyStoreException e) {
-            LOGGER.warn(String.format("Could get retrieve certificate named %s", alias));
+            LOGGER.warn("Could get retrieve certificate named {}", alias);
         }
 
         return cert;
@@ -186,13 +178,13 @@ public class KeyStoreFile extends SecurityFileFacade {
     /**
      * Remove the key store entry at the given alias. If the alias does not exist, log that it does not exist.
      *
-     * @param alias
+     * @param alias the name of the entry in the keystore
      */
     public void removeEntry(String alias) {
         try {
             keyStore.deleteEntry(alias);
         } catch (KeyStoreException e) {
-            LOGGER.info(String.format("Attempted to remove key named '%s' from keyStore. No such such key ", alias), e);
+            LOGGER.info("Attempted to remove key named '{}' from keyStore. No such such key ", alias);
         }
     }
 
@@ -202,14 +194,14 @@ public class KeyStoreFile extends SecurityFileFacade {
      * If key cannot be recovered (key is missing, password is incorrect, encryption is too strong, or other),
      * return null
      *
-     * @param alias
+     * @param alias the name of the entry in the keystore
      * @return instance of PrivateKey or null
      */
     public PrivateKey getPrivateKey(String alias) {
         try {
             return (PrivateKey) keyStore.getKey(alias, password);
         } catch (Exception e) {
-            LOGGER.warn(String.format("Failed to recover key named '%s'", alias));
+            LOGGER.warn("Failed to recover key named '{}'", alias);
 
         }
         return null;
@@ -217,7 +209,7 @@ public class KeyStoreFile extends SecurityFileFacade {
 
     /**
      * @param alias
-     * @return
+     * @return array of certificates
      */
     public Certificate[] getCertificateChain(String alias) {
         Certificate[] chain = null;
