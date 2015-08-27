@@ -29,12 +29,10 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.cxf.common.util.Base64Utility;
 import org.apache.cxf.helpers.DOMUtils;
-import org.apache.cxf.rs.security.saml.DeflateEncoderDecoder;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
-import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.common.saml.SamlAssertionWrapper;
+import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.junit.Test;
 import org.w3c.dom.Document;
@@ -80,8 +78,10 @@ public class SAMLAssertionHandlerTest {
         Element assertion = readDocument("/saml.xml").getDocumentElement();
         String assertionId = assertion.getAttributeNodeNS(null, "ID").getNodeValue();
         SecurityToken samlToken = new SecurityToken(assertionId, assertion, null);
+        SamlAssertionWrapper wrappedAssertion = new SamlAssertionWrapper(samlToken.getToken());
+        String saml = wrappedAssertion.assertionToString();
         Cookie cookie = new Cookie(SecurityConstants.SAML_COOKIE_NAME,
-                encodeSaml(samlToken.getToken()));
+                RestSecurity.encodeSaml(saml));
         when(request.getCookies()).thenReturn(new Cookie[] {cookie});
 
         HandlerResult result = handler.getNormalizedToken(request, response, chain, true);
@@ -119,20 +119,5 @@ public class SAMLAssertionHandlerTest {
             throws SAXException, IOException, ParserConfigurationException {
         InputStream inStream = getClass().getResourceAsStream(name);
         return readXml(inStream);
-    }
-
-    /**
-     * Encodes the SAML assertion as a deflated Base64 String so that it can be used as a Cookie.
-     *
-     * @param token
-     * @return String
-     * @throws WSSecurityException
-     */
-    private String encodeSaml(org.w3c.dom.Element token) throws WSSecurityException {
-        SamlAssertionWrapper assertion = new SamlAssertionWrapper(token);
-        String samlStr = assertion.assertionToString();
-        DeflateEncoderDecoder deflateEncoderDecoder = new DeflateEncoderDecoder();
-        byte[] deflatedToken = deflateEncoderDecoder.deflateToken(samlStr.getBytes());
-        return Base64Utility.encode(deflatedToken);
     }
 }

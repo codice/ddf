@@ -13,16 +13,25 @@
  */
 package org.codice.ddf.security.common.jaxrs;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.zip.Deflater;
+import java.util.zip.DeflaterOutputStream;
+import java.util.zip.Inflater;
+import java.util.zip.InflaterInputStream;
 
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.NewCookie;
 
-import org.apache.cxf.common.util.Base64Utility;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.IOUtils;
 import org.apache.cxf.jaxrs.client.Client;
-import org.apache.cxf.rs.security.saml.DeflateEncoderDecoder;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.common.saml.SamlAssertionWrapper;
@@ -107,7 +116,9 @@ public final class RestSecurity {
                 } else {
                     maxAge = new BigDecimal((expires.getTime() - new Date().getTime()) / 1000);
                 }
-                cookie = new NewCookie(new Cookie(SECURITY_COOKIE_NAME, encodeSaml(samlToken)), "",
+                SamlAssertionWrapper assertion = new SamlAssertionWrapper(samlToken);
+                String saml = assertion.assertionToString();
+                cookie = new NewCookie(new Cookie(SECURITY_COOKIE_NAME, encodeSaml(saml)), "",
                         // gives us a checked exception for the cast
                         maxAge.intValueExact(), secure).toCookie();
             }
@@ -124,13 +135,25 @@ public final class RestSecurity {
      * @return String
      * @throws WSSecurityException if the assertion in the token cannot be converted
      */
-    public static String encodeSaml(org.w3c.dom.Element token) throws WSSecurityException {
-        SamlAssertionWrapper assertion = new SamlAssertionWrapper(token);
-        String samlStr = assertion.assertionToString();
-        DeflateEncoderDecoder deflateEncoderDecoder = new DeflateEncoderDecoder();
-        byte[] deflatedToken = deflateEncoderDecoder
-                .deflateToken(samlStr.getBytes(StandardCharsets.UTF_8));
-        return Base64Utility.encode(deflatedToken);
+    public static String encodeSaml(String token) throws WSSecurityException {
+        ByteArrayOutputStream tokenBytes = new ByteArrayOutputStream();
+        try (OutputStream tokenStream = new DeflaterOutputStream(tokenBytes,
+                new Deflater(Deflater.DEFAULT_COMPRESSION, false))) {
+            IOUtils.copy(new ByteArrayInputStream(token.getBytes(StandardCharsets.UTF_8)),
+                    tokenStream);
+            tokenStream.close();
+
+            return new String(Base64.encodeBase64(tokenBytes.toByteArray()));
+        } catch (IOException e) {
+            throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, e);
+        }
+    }
+
+    public static String decodeSaml(String encodedToken) throws IOException {
+        byte[] deflatedToken = Base64.decodeBase64(encodedToken);
+        InputStream is = new InflaterInputStream(new ByteArrayInputStream(deflatedToken),
+                new Inflater(false));
+        return IOUtils.toString(is, "UTF-8");
     }
 
 }
