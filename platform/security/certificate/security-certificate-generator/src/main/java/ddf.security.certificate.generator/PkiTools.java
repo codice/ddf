@@ -40,9 +40,7 @@ import java.util.Base64;
 //  are already too many classes and too many wrappers. Ultimately, I couldn't justify the
 //    added complexity of that approach.
 
-public class CertificateGeneratorUtilities {
-
-    public static String BC = BouncyCastleProvider.PROVIDER_NAME;
+public class PkiTools {
 
     /**
      * Convert a byte array to a Java String.
@@ -74,10 +72,17 @@ public class CertificateGeneratorUtilities {
      */
     public static String getHostName() throws UnknownHostException {
 
-        return InetAddress.getLocalHost().getHostName();
+        return InetAddress.getLocalHost().getCanonicalHostName();
 
     }
 
+    /**
+     * Given an X509 certificate, return a PEM encoded string representation of the certificate.
+     *
+     * @param cert certificate
+     * @return PEM encoded String
+     * @throws CertificateEncodingException
+     */
     public static String certificateToString(X509Certificate cert) throws CertificateEncodingException {
         return bytesToString(cert.getEncoded());
     }
@@ -85,8 +90,7 @@ public class CertificateGeneratorUtilities {
     public static X509Certificate stringToCertificate(String certString) throws CertificateException {
         CertificateFactory cf = new CertificateFactory();
         ByteArrayInputStream in = new ByteArrayInputStream(stringToBytes(certString));
-        X509Certificate cert = (X509Certificate) cf.engineGenerateCertificate(in);
-        return cert;
+        return (X509Certificate) cf.engineGenerateCertificate(in);
     }
 
     /**
@@ -104,46 +108,61 @@ public class CertificateGeneratorUtilities {
         }
     }
 
-    //DDF uses RSA asymmetric keys
-    protected static KeyFactory getRsaKeyFactory() throws NoSuchProviderException, NoSuchAlgorithmException {
-        return KeyFactory.getInstance("RSA", BC);
-    }
-
     /**
-     * Create an X500 name object from simple strings. Currently only uses the common name attribute.
+     * Create an X500 name with a single populated attribute, the "common name". An X500 name object details the
+     * identity of a machine, person, or organization. The name object is used as the "subject" of a certificate.
+     * SSL/TLS typically uses a subject's common name as the DNS name for a machine and this name must be correct
+     * or SSl/TLS will not trust the machine's certificate.
+     * <p>
+     * TLS can use a different set of attributes to, the Subject Alternative Names. SANs are extensions to the
+     * X509 specification and can include IP addresses, DNS names and other machine information. This package does
+     * not use SANs.
+     *
+     * @param commonName the fully qualified host name of the end entity
+     * @return X500 name object with common name attribute set
+     * @see <a href="https://www.ietf.org/rfc/rfc4514.txt">RFC 4514, section 'LDAP: Distinguished Names'</a>
+     * @see <a href="https://tools.ietf.org/html/rfc4519">RFC 4519 details the exact construction of distinguished names</a>
+     * @see <a href="https://en.wikipedia.org/wiki/SubjectAltName">Subject Alternative Names on Wikipedia'</a>
      */
     public static X500Name makeDistinguishedName(String commonName) {
-        // The attributes of a distinguished name that a TLS implementation must be ready to support.
-        //    RFC 4514 LDAP
-        //    Implementations MUST recognize AttributeType name strings (descriptors) listed in the following table,
-        //    but MAY recognize other name strings.
-        //
-        //    String  X.500 AttributeType
-        //    ------  --------------------------------------------
-        //    CN      commonName (2.5.4.3)
-        //    L       localityName (2.5.4.7)
-        //    ST      stateOrProvinceName (2.5.4.8)
-        //    O       organizationName (2.5.4.10)
-        //    OU      organizationalUnitName (2.5.4.11)
-        //    C       countryName (2.5.4.6)
-        //    STREET  streetAddress (2.5.4.9)
-        //    DC      domainComponent (0.9.2342.19200300.100.1.25)
-        //    UID     userId (0.9.2342.19200300.100.1.1)
-        //Build distinguished name for subject or issuer
 
         X500NameBuilder nameBuilder = new X500NameBuilder(RFC4519Style.INSTANCE);
 
         //Add more nameBuilder.addRDN(....) statements to support more X500 attributes.
         nameBuilder.addRDN(RFC4519Style.cn, commonName);
 
-        //Turn the crank
         return nameBuilder.build();
     }
 
+
     /**
-     * Convert an instance of Key to a (PEM-encoded) instance of Java String.
+     * @param key object
+     * @return PEM encoded string represents the bytes of the key
      */
-    public String keyToString(Key key) {
+    public static String keyToString(Key key) {
         return bytesToString(key.getEncoded());
     }
+
+    /**
+     * Generate new RSA public/private key pair with 2048 bit key
+     *
+     * @return new generated key pair
+     * @throws CertificateGeneratorException.CannotGenerateKeyPair
+     */
+    public static KeyPair generateRsaKeyPair() throws CertificateGeneratorException.CannotGenerateKeyPair {
+        KeyPairGenerator keyGen;
+        try {
+            keyGen = KeyPairGenerator.getInstance("RSA", BouncyCastleProvider.PROVIDER_NAME);
+        } catch (Exception e) {
+            throw new CertificateGeneratorException.CannotGenerateKeyPair("Failed to generate new public/private key pair.", e);
+        }
+        keyGen.initialize(2048);
+        return keyGen.generateKeyPair();
+    }
+
+
+    private static KeyFactory getRsaKeyFactory() throws GeneralSecurityException {
+        return KeyFactory.getInstance("RSA", BouncyCastleProvider.PROVIDER_NAME);
+    }
+
 }
