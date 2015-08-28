@@ -1,21 +1,18 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.source;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -61,6 +58,7 @@ import com.vividsolutions.jts.io.WKTWriter;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.filter.FilterDelegate;
+
 import net.opengis.filter.v_2_0_0.AbstractIdType;
 import net.opengis.filter.v_2_0_0.BBOXType;
 import net.opengis.filter.v_2_0_0.BinaryComparisonOpType;
@@ -432,14 +430,12 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
     }
 
     protected List<FilterType> applyTemporalFallbacks(List<FilterType> filters) {
-
         if (null == filters || filters.isEmpty()) {
             return filters;
         }
         String startDate = "";
         String endDate = "";
         String property = "";
-
         List<FilterType> newFilters = new ArrayList<>();
 
         for (FilterType filterType : filters) {
@@ -466,19 +462,77 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
                 newFilters.add(filterType);
             }
         }
+
         if (isTemporalOpSupported(TEMPORAL_OPERATORS.During) && (StringUtils
                 .isNotEmpty(startDate))) {
             if (StringUtils.isEmpty(endDate)) {
-                DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-                Date now = new Date();
-                endDate = dateFormat.format(now);
+                endDate = convertDateToIso8601Format(new Date());
             }
+
             FilterType duringFilter = buildDuringFilterType(
                     featureMetacardType.getFeatureType().getLocalPart() + "." + property, startDate,
                     endDate);
             newFilters.add(duringFilter);
+        } else if (isTemporalOpSupported(TEMPORAL_OPERATORS.During) && (
+                StringUtils.isEmpty(startDate) && StringUtils.isNotEmpty(endDate))) {
+
+            for (FilterType filterType : filters) {
+                if (!filterType.isSetTemporalOps()) {
+                    BinaryLogicOpType binaryLogicOpType = (BinaryLogicOpType) filterType
+                            .getLogicOps().getValue();
+                    List<JAXBElement<?>> list = binaryLogicOpType
+                            .getComparisonOpsOrSpatialOpsOrTemporalOps();
+                    for (JAXBElement<?> element : list) {
+
+                        if (StringUtils.contains(element.getDeclaredType().toString(),
+                                ("BinaryTemporalOpType"))) {
+
+                            BinaryTemporalOpType binTemp = (BinaryTemporalOpType) element
+                                    .getValue();
+                            JAXBElement xp = binTemp.getExpression();
+                            TimePeriodType obj = (TimePeriodType) xp.getValue();
+                            TimePositionType timeEndPosition = obj.getEndPosition();
+                            List<String> newValue = new ArrayList<String>();
+                            newValue.add(endDate);
+                            timeEndPosition.unsetValue();
+                            timeEndPosition.setValue(newValue);
+                            obj.setEndPosition(timeEndPosition);
+
+                        }
+                    }
+
+                } else if (filterType.isSetTemporalOps() && (
+                        !isTemporalOpSupported(TEMPORAL_OPERATORS.Before) && !isTemporalOpSupported(
+                                TEMPORAL_OPERATORS.After)) && isDuringFilter(filterType)) {
+                    BinaryTemporalOpType binaryTemporalOpType = (BinaryTemporalOpType) filterType
+                            .getTemporalOps().getValue();
+                    property = binaryTemporalOpType.getValueReference();
+                    JAXBElement xp = binaryTemporalOpType.getExpression();
+                    TimePeriodType obj = (TimePeriodType) xp.getValue();
+                    TimePositionType timeEndPosition = obj.getEndPosition();
+                    List<String> newValue = new ArrayList<String>();
+                    newValue.add(endDate);
+                    timeEndPosition.unsetValue();
+                    timeEndPosition.setValue(newValue);
+                    obj.setEndPosition(timeEndPosition);
+                }
+            }
         }
         return newFilters;
+    }
+
+    private boolean containsTemporalOpDuring(List<FilterType> filterList) {
+        if (filterList == null) {
+            return false;
+        }
+        for (FilterType filter : filterList) {
+            if (filter == null) {
+                continue;
+            } else if (filter.isSetTemporalOps()) {
+                return isDuringFilter(filter);
+            }
+        }
+        return false;
     }
 
     private void removeEmptyFilters(List<FilterType> filters) {
@@ -978,6 +1032,14 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
         } else {
             return null;
         }
+
+        if (!isTemporalOpSupported(TEMPORAL_OPERATORS.After)) {
+            if (isTemporalOpSupported(TEMPORAL_OPERATORS.During)) {
+                return buildDuringFilterType(propertyName, date,
+                        convertDateToIso8601Format(new Date()));
+            }
+        }
+
         return filter;
 
     }
