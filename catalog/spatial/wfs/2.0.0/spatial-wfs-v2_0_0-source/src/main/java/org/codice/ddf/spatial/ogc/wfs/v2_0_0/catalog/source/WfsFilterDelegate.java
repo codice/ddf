@@ -506,7 +506,6 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
                                 TEMPORAL_OPERATORS.After)) && isDuringFilter(filterType)) {
                     BinaryTemporalOpType binaryTemporalOpType = (BinaryTemporalOpType) filterType
                             .getTemporalOps().getValue();
-                    property = binaryTemporalOpType.getValueReference();
                     JAXBElement xp = binaryTemporalOpType.getExpression();
                     TimePeriodType obj = (TimePeriodType) xp.getValue();
                     TimePositionType timeEndPosition = obj.getEndPosition();
@@ -519,20 +518,6 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
             }
         }
         return newFilters;
-    }
-
-    private boolean containsTemporalOpDuring(List<FilterType> filterList) {
-        if (filterList == null) {
-            return false;
-        }
-        for (FilterType filter : filterList) {
-            if (filter == null) {
-                continue;
-            } else if (filter.isSetTemporalOps()) {
-                return isDuringFilter(filter);
-            }
-        }
-        return false;
     }
 
     private void removeEmptyFilters(List<FilterType> filters) {
