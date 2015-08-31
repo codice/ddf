@@ -82,6 +82,12 @@
             <artifactId>gt-cql</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-standardframework</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
     </dependencies>
 
     <build>

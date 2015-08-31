@@ -11,8 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-
-package org.codice.ddf.commands.cache;
+package org.codice.ddf.commands.catalog;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -28,15 +27,21 @@ import ddf.catalog.cache.SolrCacheMBean;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
 
+/**
+ * Tests the {@link RemoveCommand} output.
+ *
+ * @author Eric Irwin
+ *
+ */
 public class TestRemoveCommand {
-
     List<Metacard> metacardList = getMetacardList(5);
-
     @Test
     public void testdoExecute() throws Exception {
         final SolrCacheMBean mbean = mock(SolrCacheMBean.class);
 
-        String[] ids = {metacardList.get(0).getId()};
+
+        List<String> ids = new ArrayList();
+        ids.add(metacardList.get(0).getId());
 
         RemoveCommand removeCommand = new RemoveCommand() {
             @Override
@@ -47,9 +52,13 @@ public class TestRemoveCommand {
 
         removeCommand.ids = ids;
 
+        removeCommand.cache = true;
+
         removeCommand.doExecute();
 
-        verify(mbean, times(1)).removeById(ids);
+        String[] idsArray = new String[ids.size()];
+        idsArray = ids.toArray(idsArray);
+        verify(mbean, times(1)).removeById(idsArray);
     }
 
     private java.util.List<Metacard> getMetacardList(int amount) {
@@ -68,5 +77,6 @@ public class TestRemoveCommand {
 
         return metacards;
     }
+
 
 }
