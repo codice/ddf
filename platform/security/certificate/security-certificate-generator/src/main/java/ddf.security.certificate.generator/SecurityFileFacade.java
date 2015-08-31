@@ -17,6 +17,7 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.security.Security;
 
 /**
@@ -29,34 +30,35 @@ public abstract class SecurityFileFacade {
         Security.addProvider(new BouncyCastleProvider());
     }
 
-    //Helper method
-    protected static char[] formatPassword(char[] password) {
+    /**
+     * If input is a character array, return the character array. If input is null, return a zero length
+     * character array
+     *
+     * @param password character array
+     * @return character array
+     */
+    static char[] formatPassword(char[] password) {
         return password == null ? new char[0] : password;
     }
 
-    //Helper method
-    protected static File createFileObject(String filePath) throws FileNotFoundException {
+    protected static File createFileObject(String filePath) throws IOException {
 
         File file;
 
-        //Check for null here or risk NPE
         if (filePath == null) {
-            throw new FileNotFoundException("File path to security file is null");
+            throw new IllegalArgumentException("File path to security file is null");
         }
 
-        // Create a file object from the given file path
         file = new File(filePath);
 
-        // Verify the file exists.
         if (!file.exists()) {
             throw new FileNotFoundException("Cannot find security file at " + file.getAbsolutePath());
         }
 
-        // Verify the file can be read. E.g. possible permission problem or the given path points to a directory.
         if (!file.canRead()) {
-            String msg = String.format("Cannot read security file (possible file permission problem) %s",
+            String msg = String.format("Cannot read security file (possible file permission problem)  or %s is a directory",
                     file.getAbsolutePath());
-            throw new FileNotFoundException(msg);
+            throw new IOException(msg);
         }
 
         return file;

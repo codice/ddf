@@ -47,16 +47,16 @@ public class CertificateAuthority {
      *
      * @param cert       certificate authority's X509 certificate
      * @param privateKey certificate authority's private RSA key
-     * @throws CertificateGeneratorException.InvalidIssuer
+     * @throws CertificateGeneratorException
      */
-    public CertificateAuthority(X509Certificate cert, PrivateKey privateKey) throws CertificateGeneratorException.InvalidIssuer {
+    public CertificateAuthority(X509Certificate cert, PrivateKey privateKey) throws CertificateGeneratorException {
 
         if (cert == null) {
-            throw new CertificateGeneratorException.InvalidIssuer("The issuer's certificate cannot be null");
+            throw new IllegalArgumentException("The issuer's certificate cannot be null");
         }
 
         if (privateKey == null) {
-            throw new CertificateGeneratorException.InvalidIssuer("The issuer's private key cannot be null.");
+            throw new IllegalArgumentException("The issuer's private key cannot be null.");
         }
 
         issuerPrivateKey = privateKey;
@@ -65,7 +65,7 @@ public class CertificateAuthority {
         try {
             contentSigner = new JcaContentSignerBuilder("SHA256WithRSAEncryption").setProvider(BouncyCastleProvider.PROVIDER_NAME).build(getPrivateKey());
         } catch (Exception e) {
-            throw new CertificateGeneratorException.InvalidIssuer("Cannot create content signer for certificate authority", e);
+            throw new CertificateGeneratorException("Cannot create content signer for certificate authority", e);
         }
     }
 

@@ -32,15 +32,14 @@ import java.security.cert.X509Certificate;
 /**
  * Model of a X509 certificate signing request. These values must be set:
  * <p><ul>
- *     <li>notAfter - certificate expiration date</li>
- *     <li>subjectName - typically a server's FQDN. Use {@link #setCommonNameToHostname } to automatically set this attribute to the server's FQDN</li>
- *     <li>certificateAuthority - instance of {@link ddf.security.certificate.generator.CertificateAuthority} who will signed this request</li>
+ * <li>notAfter - certificate expiration date</li>
+ * <li>subjectName - typically a server's FQDN. Use {@link #setCommonNameToHostname } to automatically set this attribute to the server's FQDN</li>
+ * <li>certificateAuthority - instance of {@link ddf.security.certificate.generator.CertificateAuthority} who will signed this request</li>
  * </ul><p>
- *     These values may be optionally set:
- *     <p><ul>
- *         <li>keyPairLength - RSA public/private key pair length. Defaults to 2048 bits</li>
- *         <li>serialNumber - </li>
- *         </ul>
+ * These values may be optionally set:
+ * <p><ul>
+ * <li>serialNumber - arbitrary serial number</li>
+ * </ul>
  *
  * @see <a href="https://www.ietf.org/rfc/rfc4514.txt">RFC 5280,  Internet X.509 Public Key Infrastructure Certificat</a>
  */
@@ -53,7 +52,6 @@ public class CertificateSigningRequest {
 
     protected DateTime notBefore;
     protected DateTime notAfter;
-    protected int keyPairLength;
     protected X500Name subjectName;
     protected KeyPair subjectKeyPair;
     protected BigInteger serialNumber;
@@ -66,7 +64,6 @@ public class CertificateSigningRequest {
 
     //Set reasonable defaults
     protected void initialize() {
-        keyPairLength = 2048;
         serialNumber = BigInteger.valueOf(System.currentTimeMillis());
         notBefore = DateTime.now().minusDays(1);
     }
@@ -95,20 +92,20 @@ public class CertificateSigningRequest {
 
         //If effective date is not set, this will end badly
         if (notAfter == null) {
-            throw new CertificateGeneratorException.InvalidDate(
+            throw new CertificateGeneratorException(
                     "Missing certificate validity date. " +
                             "Set the Not After attribute to specify certificate's expiration date");
         }
 
         //This can only happen if client code explicitly sets the value to null because the attribute is initialized at creation time.
         if (notBefore == null) {
-            throw new CertificateGeneratorException.InvalidDate(
+            throw new CertificateGeneratorException(
                     "Missing certificate validity date. " +
                             "Set the Not After attribute to specify certificate's expiration date");
         }
 
         if (notAfter.isBefore(notBefore)) {
-            throw new CertificateGeneratorException.InvalidDate(
+            throw new CertificateGeneratorException(
                     String.format("Certificate 'Not After' (expiration) of %s must be later than 'Not Before' (effective) of %s", notBefore, notAfter));
         }
 
@@ -120,13 +117,13 @@ public class CertificateSigningRequest {
         }
 
         if (subjectName == null || subjectName.toString().isEmpty()) {
-            throw new CertificateGeneratorException.InvalidSubject(
+            throw new CertificateGeneratorException(
                     "Subject distinguished name is null or empty. " +
                             "Set subject to host name or or set subject distinguished name");
         }
 
         if (certificateAuthority == null) {
-            throw new CertificateGeneratorException.InvalidCertificateAuthority("Certificate authority is null");
+            throw new CertificateGeneratorException("Certificate authority is null");
         }
 
         X509v3CertificateBuilder certificateBuilder = new JcaX509v3CertificateBuilder(
@@ -209,10 +206,10 @@ public class CertificateSigningRequest {
      *
      * @param number arbitrary serial number
      */
-    public void setSerialNumber(long number) throws CertificateGeneratorException.InvalidSerialNumber {
+    public void setSerialNumber(long number) throws CertificateGeneratorException {
 
-        if(number < 0) {
-            throw new CertificateGeneratorException.InvalidSerialNumber("Serial number for X.509 certificate should not be negative");
+        if (number < 0) {
+            throw new IllegalArgumentException("Serial number for X.509 certificate should not be negative");
         }
         serialNumber = BigInteger.valueOf(number);
     }

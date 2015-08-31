@@ -61,7 +61,7 @@ public class PemFile extends SecurityFileFacade {
      * @return fully formed instance of the class
      * @throws FileNotFoundException
      */
-    public static PemFile getInstance(String filePath, char[] password) throws FileNotFoundException {
+    public static PemFile getInstance(String filePath, char[] password) throws IOException {
         File file = createFileObject(filePath);
         return new PemFile(new FileReader(file), password);
     }
@@ -73,7 +73,7 @@ public class PemFile extends SecurityFileFacade {
      * @return fully formed instance of the class
      * @throws FileNotFoundException
      */
-    public static PemFile getInstance(String filePath) throws FileNotFoundException {
+    public static PemFile getInstance(String filePath) throws IOException {
         return getInstance(filePath, null);
     }
 

@@ -35,20 +35,20 @@ public class TestCertificateGeneration {
     }
 
 
-    @Test(expected = CertificateGeneratorException.InvalidSerialNumber.class)
+    @Test(expected = IllegalArgumentException.class)
     public void serialNumberIsNegative() throws Exception {
         new CertificateSigningRequest().setSerialNumber(-1);
     }
 
     //Test building incomplete instance
-    @Test(expected = CertificateGeneratorException.InvalidDate.class)
+    @Test(expected = CertificateGeneratorException.class)
     public void notAfterDateIsNull() throws Exception {
         CertificateSigningRequest csr = new CertificateSigningRequest();
         csr.build();
     }
 
     //Test building incomplete instance
-    @Test(expected = CertificateGeneratorException.InvalidDate.class)
+    @Test(expected = CertificateGeneratorException.class)
     public void notAfterDateIsInThePast() throws Exception {
         CertificateSigningRequest csr = new CertificateSigningRequest();
         csr.setNotAfter(THE_PAST);
@@ -56,7 +56,7 @@ public class TestCertificateGeneration {
     }
 
     //Test building incomplete instance
-    @Test(expected = CertificateGeneratorException.InvalidSubject.class)
+    @Test(expected = CertificateGeneratorException.class)
     public void subjectKeysAreNull() throws Exception {
         CertificateSigningRequest csr = new CertificateSigningRequest();
         csr.setNotAfter(THE_FUTURE);
@@ -64,7 +64,7 @@ public class TestCertificateGeneration {
     }
 
     //Test building incomplete instance
-    @Test(expected = CertificateGeneratorException.InvalidCertificateAuthority.class)
+    @Test(expected = CertificateGeneratorException.class)
     public void certificateAuthorityIsMissing() throws Exception {
         CertificateSigningRequest csr = new CertificateSigningRequest();
         csr.setNotAfter(THE_FUTURE);
@@ -73,7 +73,7 @@ public class TestCertificateGeneration {
     }
 
 
-    @Test(expected = CertificateGeneratorException.InvalidDate.class)
+    @Test(expected = CertificateGeneratorException.class)
     public void effectiveDateIsWrong() throws Exception {
         CertificateSigningRequest csr = new CertificateSigningRequest();
         csr.setNotAfter(THE_FUTURE);
@@ -122,7 +122,6 @@ public class TestCertificateGeneration {
     private void createSignedCertificate() throws Exception {
         getCsr().getSignedCertificate();
     }
-
 
 }
 
