@@ -18,6 +18,13 @@
 
     <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
 
+    <bean id="anonClaimsHandlerExt" class="org.codice.ddf.ui.admin.api.AnonClaimsHandlerExt"
+          init-method="init">
+        <property name="availableClaimsFile" value="etc/ws-security/attributeMap.properties"/>
+        <property name="profileDir" value="etc/ws-security/profiles/"/>
+        <property name="immutableClaims" value="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role"/>
+    </bean>
+
     <bean id="configAdminMbean" class="org.codice.ddf.ui.admin.api.ConfigurationAdmin"
           init-method="init" destroy-method="destroy">
         <cm:managed-properties persistent-id="ddf.ui.admin.api"
@@ -25,6 +32,7 @@
         <argument ref="configurationAdmin"/>
         <property name="configurationAdminPluginList" ref="configurationAdminPluginList"/>
         <property name="moduleList" ref="moduleList"/>
+        <property name="anonClaimsHandlerExt" ref="anonClaimsHandlerExt"/>
     </bean>
 
     <reference-list id="configurationAdminPluginList"
