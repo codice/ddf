@@ -37,14 +37,10 @@ import java.util.List;
 public class KeyStoreFile extends SecurityFileFacade {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KeyStoreFile.class);
-    //The object under the facade
     protected KeyStore keyStore;
-    //The file representing the object under the facade
     protected File file;
-    //Declare password private so that a malicious subclass cannot gain access to it.
     private char[] password;
 
-    //Use getInstance method to create an instance, not constructor
     protected KeyStoreFile() {
 
     }
@@ -64,45 +60,30 @@ public class KeyStoreFile extends SecurityFileFacade {
      */
     public static KeyStoreFile getInstance(String filePath, char[] password) throws IOException, KeyStoreException, CertificateException, NoSuchAlgorithmException {
 
-        //Declare working variables. After initialization, add them to created instance's state.
         KeyStoreFile facade = new KeyStoreFile();
         File file;
         KeyStore keyStore;
 
-        //Run the gauntlet of validation!
         file = createFileObject(filePath);
 
-        // Store state in class members and
-        // convert null password to zero-length character array
         char[] pw = formatPassword(password);
 
-        // Create new keyStore object and store it
         keyStore = createSecurityObject();
 
-        // Attempt to load the keyStore to validate password.
-        // Case 1: File is readable, but is not a valid keyStore file.
-        //  The cause of exception will be "Invalid keyStore format"
-        // Case 2: File is valid keyStore, but password is not valid.
-        // The cause of the exception will be UnrecoverableKeyException.
         try (FileInputStream resource = new FileInputStream(file)) {
             keyStore.load(resource, pw);
         }
 
-        // The keyStore should now be successfully loaded from a file.
-        // Return initialized instance.
         facade.file = file;
         facade.keyStore = keyStore;
         facade.password = pw;
         return facade;
     }
 
-    //Create a new instance of a KeyStore object.
     protected static KeyStore createSecurityObject() throws KeyStoreException {
 
-        //Attempt to find the proper keyStore type
         String type = System.getProperty("javax.net.ssl.keyStoreType");
 
-        //If the keyStore type is not set, log a warning and use the default keyStore type.
         if (type == null) {
             type = KeyStore.getDefaultType();
             LOGGER.info("System property javax.net.ssl.keyStoreType not set. Using default keyStore type " + type);
@@ -170,8 +151,6 @@ public class KeyStoreFile extends SecurityFileFacade {
         //Use the try-with-resources statement. If an exception is raised, rethrow the exception.
         try (FileOutputStream fd = new FileOutputStream(file)) {
             keyStore.store(fd, password);
-        } catch (Exception e) {
-            throw e;
         }
     }
 
@@ -208,7 +187,9 @@ public class KeyStoreFile extends SecurityFileFacade {
     }
 
     /**
-     * @param alias
+     * Return the certificate chain at the given alias. Caller is responsible for verifying the alias is correct.
+     *
+     * @param alias name of entry in keystore
      * @return array of certificates
      */
     public Certificate[] getCertificateChain(String alias) {

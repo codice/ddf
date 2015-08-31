@@ -35,7 +35,7 @@ public class TestPemFile {
 
 
     @Test
-    public void testEncryptedPrivateKeyNullPassword() throws FileNotFoundException {
+    public void testEncryptedPrivateKeyNullPassword() throws IOException {
 
         PemFile.getInstance(getPathTo(PRIVATE_KEY), null);
     }

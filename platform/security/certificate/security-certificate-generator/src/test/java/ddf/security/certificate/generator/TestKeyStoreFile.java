@@ -27,7 +27,7 @@ public class TestKeyStoreFile {
     }
 
     //Test constructor. Null path to keyStore file.
-    @Test(expected = FileNotFoundException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testConstructorNullPath() throws Exception {
         KeyStoreFile.getInstance(null, null);
     }

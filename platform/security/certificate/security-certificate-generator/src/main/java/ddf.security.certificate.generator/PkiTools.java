@@ -19,6 +19,8 @@ import org.bouncycastle.asn1.x500.X500NameBuilder;
 import org.bouncycastle.asn1.x500.style.RFC4519Style;
 import org.bouncycastle.jcajce.provider.asymmetric.x509.CertificateFactory;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.net.InetAddress;
@@ -42,13 +44,17 @@ import java.util.Base64;
 
 public class PkiTools {
 
+    public static final int RSA_KEY_LENGTH = 2048;
+    public static final String ALGORITHM = "RSA";
+    private static final Logger LOGGER = LoggerFactory.getLogger(KeyStoreFile.class);
+
     /**
      * Convert a byte array to a Java String.
      *
      * @param bytes DER encoded bytes
      * @return PEM encoded bytes
      */
-    public static String bytesToString(byte[] bytes) {
+    public static String bytesToBase64String(byte[] bytes) {
         return Base64.getEncoder().encodeToString(bytes);
     }
 
@@ -58,7 +64,7 @@ public class PkiTools {
      * @param string PEM encoded bytes
      * @return DER encoded bytes
      */
-    public static byte[] stringToBytes(String string) {
+    public static byte[] base64StringToBytes(String string) {
         return Base64.getDecoder().decode(string);
     }
 
@@ -84,12 +90,12 @@ public class PkiTools {
      * @throws CertificateEncodingException
      */
     public static String certificateToString(X509Certificate cert) throws CertificateEncodingException {
-        return bytesToString(cert.getEncoded());
+        return bytesToBase64String(cert.getEncoded());
     }
 
     public static X509Certificate stringToCertificate(String certString) throws CertificateException {
         CertificateFactory cf = new CertificateFactory();
-        ByteArrayInputStream in = new ByteArrayInputStream(stringToBytes(certString));
+        ByteArrayInputStream in = new ByteArrayInputStream(base64StringToBytes(certString));
         return (X509Certificate) cf.engineGenerateCertificate(in);
     }
 
@@ -102,9 +108,9 @@ public class PkiTools {
      */
     public static PrivateKey stringToPrivateKey(String keyString) throws CertificateGeneratorException {
         try {
-            return getRsaKeyFactory().generatePrivate(new PKCS8EncodedKeySpec(stringToBytes(keyString)));
+            return getRsaKeyFactory().generatePrivate(new PKCS8EncodedKeySpec(base64StringToBytes(keyString)));
         } catch (Exception e) {
-            throw new CertificateGeneratorException.InvalidKey("Could not convert String to Private Key", e.getCause());
+            throw new CertificateGeneratorException("Could not convert String to Private Key", e.getCause());
         }
     }
 
@@ -126,6 +132,14 @@ public class PkiTools {
      */
     public static X500Name makeDistinguishedName(String commonName) {
 
+        if (commonName == null) {
+            throw new IllegalArgumentException("Certificate common name cannot be null");
+        }
+
+        if (commonName.isEmpty()) {
+            LOGGER.warn("Setting certificate common name to empty string. This could result in an unusable TLS certificate.");
+        }
+
         X500NameBuilder nameBuilder = new X500NameBuilder(RFC4519Style.INSTANCE);
 
         //Add more nameBuilder.addRDN(....) statements to support more X500 attributes.
@@ -140,23 +154,23 @@ public class PkiTools {
      * @return PEM encoded string represents the bytes of the key
      */
     public static String keyToString(Key key) {
-        return bytesToString(key.getEncoded());
+        return bytesToBase64String(key.getEncoded());
     }
 
     /**
      * Generate new RSA public/private key pair with 2048 bit key
      *
      * @return new generated key pair
-     * @throws CertificateGeneratorException.CannotGenerateKeyPair
+     * @throws CertificateGeneratorException
      */
-    public static KeyPair generateRsaKeyPair() throws CertificateGeneratorException.CannotGenerateKeyPair {
+    public static KeyPair generateRsaKeyPair() throws CertificateGeneratorException {
         KeyPairGenerator keyGen;
         try {
-            keyGen = KeyPairGenerator.getInstance("RSA", BouncyCastleProvider.PROVIDER_NAME);
+            keyGen = KeyPairGenerator.getInstance(ALGORITHM, BouncyCastleProvider.PROVIDER_NAME);
         } catch (Exception e) {
-            throw new CertificateGeneratorException.CannotGenerateKeyPair("Failed to generate new public/private key pair.", e);
+            throw new CertificateGeneratorException("Failed to generate new public/private key pair.", e);
         }
-        keyGen.initialize(2048);
+        keyGen.initialize(RSA_KEY_LENGTH);
         return keyGen.generateKeyPair();
     }
 
