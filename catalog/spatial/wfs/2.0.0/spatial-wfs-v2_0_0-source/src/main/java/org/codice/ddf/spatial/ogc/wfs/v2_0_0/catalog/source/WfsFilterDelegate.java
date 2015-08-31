@@ -448,9 +448,9 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
                 BinaryTemporalOpType binaryTemporalOpType = (BinaryTemporalOpType) filterType
                         .getTemporalOps().getValue();
                 property = binaryTemporalOpType.getValueReference();
-                JAXBElement xp = binaryTemporalOpType.getExpression();
-                TimeInstantType obj = (TimeInstantType) xp.getValue();
-                TimePositionType timePositionType = obj.getTimePosition();
+                JAXBElement temporalExpression = binaryTemporalOpType.getExpression();
+                TimeInstantType timeInstant = (TimeInstantType) temporalExpression.getValue();
+                TimePositionType timePositionType = timeInstant.getTimePosition();
                 List<String> value = timePositionType.getValue();
 
                 if (isAfterFilter(filterType)) {
