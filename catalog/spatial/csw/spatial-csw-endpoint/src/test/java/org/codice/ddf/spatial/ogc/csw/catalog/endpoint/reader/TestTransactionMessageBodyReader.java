@@ -114,7 +114,6 @@ public class TestTransactionMessageBodyReader {
             + "    xmlns:ogc=\"http://www.opengis.net/ogc\">\n"
             + "    <csw:Insert typeName=\"csw:Record\">\n" + "        <csw:Record\n"
             + "            xmlns:ows=\"http://www.opengis.net/ows\"\n"
-            + "            xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\"\n"
             + "            xmlns:dc=\"http://purl.org/dc/elements/1.1/\"\n"
             + "            xmlns:dct=\"http://purl.org/dc/terms/\"\n"
             + "            xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\n"
@@ -141,12 +140,10 @@ public class TestTransactionMessageBodyReader {
 
     private static final String UPDATE_REQUEST_BY_RECORD_XML =
             "<csw:Transaction\n" + "    service=\"CSW\"\n" + "    version=\"2.0.2\"\n"
-                    + "    verboseResponse=\"true\"\n"
                     + "    xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\">\n"
                     + "    <csw:Update>\n"
                     + "        <csw:Record\n"
                     + "            xmlns:ows=\"http://www.opengis.net/ows\"\n"
-                    + "            xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\"\n"
                     + "            xmlns:dc=\"http://purl.org/dc/elements/1.1/\"\n"
                     + "            xmlns:dct=\"http://purl.org/dc/terms/\"\n"
                     + "            xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\n"
@@ -167,7 +164,6 @@ public class TestTransactionMessageBodyReader {
 
     private static final String UPDATE_REQUEST_BY_CONSTRAINT_XML =
             "<csw:Transaction\n" + "    service=\"CSW\"\n" + "    version=\"2.0.2\"\n"
-                    + "    verboseResponse=\"true\"\n"
                     + "    xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\">\n"
                     + "    <csw:Update xmlns:ogc=\"http://www.opengis.net/ogc\">\n"
                     + "      <csw:RecordProperty>\n"
@@ -201,6 +197,42 @@ public class TestTransactionMessageBodyReader {
                     + "    </csw:Update>\n"
                     + "</csw:Transaction>";
 
+    private static final String MULTIPLE_UPDATES_REQUEST_XML =
+            "<csw:Transaction\n" + "    service=\"CSW\"\n" + "    version=\"2.0.2\"\n"
+                    + "    xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\"\n"
+                    + "    xmlns:ogc=\"http://www.opengis.net/ogc\">\n"
+                    + "    <csw:Update handle=\"handle1\">\n"
+                    + "        <csw:Record\n"
+                    + "            xmlns:ows=\"http://www.opengis.net/ows\"\n"
+                    + "            xmlns:dc=\"http://purl.org/dc/elements/1.1/\"\n"
+                    + "            xmlns:dct=\"http://purl.org/dc/terms/\"\n"
+                    + "            xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\n"
+                    + "            <dc:identifier>123</dc:identifier>\n"
+                    + "            <dc:title>Aliquam fermentum purus quis arcu</dc:title>\n"
+                    + "            <dc:type>http://purl.org/dc/dcmitype/Text</dc:type>\n"
+                    + "            <dc:subject>Hydrography--Dictionaries</dc:subject>\n"
+                    + "            <dc:format>application/pdf</dc:format>\n"
+                    + "            <dc:date>2008-08-10</dc:date>\n"
+                    + "            <dct:abstract>Vestibulum quis ipsum sit amet metus imperdiet vehicula. Nulla scelerisque cursus mi.</dct:abstract>\n"
+                    + "            <ows:BoundingBox crs=\"urn:x-ogc:def:crs:EPSG:6.11:4326\">\n"
+                    + "                <ows:LowerCorner>1.0 2.0</ows:LowerCorner>\n"
+                    + "                <ows:UpperCorner>3.0 4.0</ows:UpperCorner>\n"
+                    + "            </ows:BoundingBox>\n"
+                    + "        </csw:Record>\n"
+                    + "    </csw:Update>\n"
+                    + "    <csw:Update handle=\"handle2\" typeName=\"csw:Record\">\n"
+                    + "      <csw:RecordProperty>\n"
+                    + "        <csw:Name>subject</csw:Name>\n"
+                    + "        <csw:Value>foo</csw:Value>\n"
+                    + "      </csw:RecordProperty>\n"
+                    + "      <csw:Constraint version=\"2.0.0\">\n"
+                    + "        <ogc:CqlText>\n"
+                    + "          title = 'bar'\n"
+                    + "        </ogc:CqlText>\n"
+                    + "      </csw:Constraint>\n"
+                    + "    </csw:Update>\n"
+                    + "</csw:Transaction>";
+
     @Test
     public void testIsReadable() throws Exception {
         TransactionMessageBodyReader reader = new TransactionMessageBodyReader(
@@ -223,6 +255,7 @@ public class TestTransactionMessageBodyReader {
         assertThat(request, notNullValue());
         assertThat(request.getInsertActions().size(), is(1));
         assertThat(request.getDeleteActions().size(), is(0));
+        assertThat(request.getUpdateActions().size(), is(0));
 
         InsertAction insertAction = request.getInsertActions().get(0);
         assertThat(insertAction, notNullValue());
@@ -242,6 +275,7 @@ public class TestTransactionMessageBodyReader {
         assertThat(request, notNullValue());
         assertThat(request.getDeleteActions().size(), is(1));
         assertThat(request.getInsertActions().size(), is(0));
+        assertThat(request.getUpdateActions().size(), is(0));
 
         DeleteAction deleteAction = request.getDeleteActions().get(0);
         assertThat(deleteAction, notNullValue());
@@ -264,6 +298,7 @@ public class TestTransactionMessageBodyReader {
         assertThat(request, notNullValue());
         assertThat(request.getDeleteActions().size(), is(1));
         assertThat(request.getInsertActions().size(), is(0));
+        assertThat(request.getUpdateActions().size(), is(0));
 
         DeleteAction deleteAction = request.getDeleteActions().get(0);
         assertThat(deleteAction, notNullValue());
@@ -292,6 +327,7 @@ public class TestTransactionMessageBodyReader {
         assertThat(request, notNullValue());
         assertThat(request.getDeleteActions().size(), is(1));
         assertThat(request.getInsertActions().size(), is(1));
+        assertThat(request.getUpdateActions().size(), is(0));
 
         DeleteAction deleteAction = request.getDeleteActions().get(0);
         assertThat(deleteAction, notNullValue());
@@ -342,7 +378,7 @@ public class TestTransactionMessageBodyReader {
 
         assertThat(request.getService(), is(CswConstants.CSW));
         assertThat(request.getVersion(), is(CswConstants.VERSION_2_0_2));
-        assertThat(request.isVerbose(), is(true));
+        assertThat(request.isVerbose(), is(false));
     }
 
     @Test
@@ -401,7 +437,64 @@ public class TestTransactionMessageBodyReader {
 
         assertThat(request.getService(), is(CswConstants.CSW));
         assertThat(request.getVersion(), is(CswConstants.VERSION_2_0_2));
-        assertThat(request.isVerbose(), is(true));
+        assertThat(request.isVerbose(), is(false));
+    }
+
+    @Test
+    public void testReadMultipleUpdatesFrom() throws IOException, ParseException {
+        TransactionMessageBodyReader reader = new TransactionMessageBodyReader(
+                new CswRecordConverter());
+        CswTransactionRequest request = reader
+                .readFrom(CswTransactionRequest.class, null, null, null, null,
+                        IOUtils.toInputStream(MULTIPLE_UPDATES_REQUEST_XML));
+        assertThat(request, notNullValue());
+        assertThat(request.getInsertActions().size(), is(0));
+        assertThat(request.getDeleteActions().size(), is(0));
+        assertThat(request.getUpdateActions().size(), is(2));
+
+        UpdateAction firstUpdateAction = request.getUpdateActions().get(0);
+        assertThat(firstUpdateAction, notNullValue());
+        assertThat(firstUpdateAction.getMetacard(), notNullValue());
+
+        Metacard metacard = firstUpdateAction.getMetacard();
+        assertThat(metacard.getId(), is("123"));
+        assertThat(metacard.getTitle(), is("Aliquam fermentum purus quis arcu"));
+
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        Date date = simpleDateFormat.parse("2008-08-10");
+
+        assertThat((Date) metacard.getAttribute("date").getValue(), is(date));
+
+        // A csw:Record "date" maps to a basic metacard's "modified".
+        assertThat(metacard.getModifiedDate(), is(date));
+
+        assertThat(metacard.getLocation(),
+                is("POLYGON((2.0 1.0, 4.0 1.0, 4.0 3.0, 2.0 3.0, 2.0 1.0))"));
+
+        assertThat(firstUpdateAction.getHandle(), is("handle1"));
+        assertThat(firstUpdateAction.getTypeName(), is(CswConstants.CSW_RECORD));
+
+        UpdateAction secondUpdateAction = request.getUpdateActions().get(1);
+        assertThat(secondUpdateAction, notNullValue());
+        assertThat(secondUpdateAction.getMetacard(), nullValue());
+
+        Map<String, Serializable> recordProperties = secondUpdateAction.getRecordProperties();
+        assertThat(recordProperties, notNullValue());
+        assertThat(recordProperties.size(), is(1));
+
+        Serializable newSubject = recordProperties.get("subject");
+        assertThat((String) newSubject, is("foo"));
+
+        QueryConstraintType constraint = secondUpdateAction.getConstraint();
+        assertThat(constraint, notNullValue());
+        assertThat(constraint.getCqlText().trim(), is("title = 'bar'"));
+
+        assertThat(secondUpdateAction.getHandle(), is("handle2"));
+        assertThat(secondUpdateAction.getTypeName(), is(CswConstants.CSW_RECORD));
+
+        assertThat(request.getService(), is(CswConstants.CSW));
+        assertThat(request.getVersion(), is(CswConstants.VERSION_2_0_2));
+        assertThat(request.isVerbose(), is(false));
     }
 
     private String getInsertRequest(int count) {
