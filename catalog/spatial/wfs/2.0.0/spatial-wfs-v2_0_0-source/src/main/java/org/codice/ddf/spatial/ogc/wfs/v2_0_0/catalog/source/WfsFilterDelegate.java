@@ -489,31 +489,30 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
 
                             BinaryTemporalOpType binTemp = (BinaryTemporalOpType) element
                                     .getValue();
-                            JAXBElement xp = binTemp.getExpression();
-                            TimePeriodType obj = (TimePeriodType) xp.getValue();
-                            TimePositionType timeEndPosition = obj.getEndPosition();
+                            JAXBElement temporalExpression = binTemp.getExpression();
+                            TimePeriodType timePeriod = (TimePeriodType) temporalExpression.getValue();
+                            TimePositionType timeEndPosition = timePeriod.getEndPosition();
                             List<String> newValue = new ArrayList<String>();
                             newValue.add(endDate);
                             timeEndPosition.unsetValue();
                             timeEndPosition.setValue(newValue);
-                            obj.setEndPosition(timeEndPosition);
+                            timePeriod.setEndPosition(timeEndPosition);
 
                         }
                     }
 
-                } else if (filterType.isSetTemporalOps() && (
-                        !isTemporalOpSupported(TEMPORAL_OPERATORS.Before) && !isTemporalOpSupported(
+                } else if ((!isTemporalOpSupported(TEMPORAL_OPERATORS.Before) && !isTemporalOpSupported(
                                 TEMPORAL_OPERATORS.After)) && isDuringFilter(filterType)) {
                     BinaryTemporalOpType binaryTemporalOpType = (BinaryTemporalOpType) filterType
                             .getTemporalOps().getValue();
-                    JAXBElement xp = binaryTemporalOpType.getExpression();
-                    TimePeriodType obj = (TimePeriodType) xp.getValue();
-                    TimePositionType timeEndPosition = obj.getEndPosition();
+                    JAXBElement temporalExpression = binaryTemporalOpType.getExpression();
+                    TimePeriodType timePeriod = (TimePeriodType) temporalExpression.getValue();
+                    TimePositionType timeEndPosition = timePeriod.getEndPosition();
                     List<String> newValue = new ArrayList<String>();
                     newValue.add(endDate);
                     timeEndPosition.unsetValue();
                     timeEndPosition.setValue(newValue);
-                    obj.setEndPosition(timeEndPosition);
+                    timePeriod.setEndPosition(timeEndPosition);
                 }
             }
         }
