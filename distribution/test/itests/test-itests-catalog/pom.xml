@@ -45,11 +45,6 @@
 			<type>test-jar</type>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>ddf.admin.core</groupId>
-			<artifactId>admin-core-api</artifactId>
-			<version>${project.version}</version>
-		</dependency>
 	</dependencies>
 
     <build>

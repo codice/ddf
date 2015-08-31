@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package ddf.common.test;
 
@@ -84,17 +83,25 @@ public class PaxExamRule implements TestRule {
             fail(EXAM_SETUP_FAILED_MESSAGE);
         }
 
+        TestClass testClass = new TestClass(description.getTestClass());
+        try {
+            runAnnotations(PostTestConstruct.class, testClass);
+        } catch (Throwable throwable) {
+            setupFailed = true;
+            fail(String.format(BEFORE_EXAM_FAILURE_MESSAGE, testClassName, throwable.getMessage()));
+        }
+
         if (firstRun) {
             LOGGER.info("Starting test(s) for {}", testClassName);
             firstRun = false;
 
-            TestClass testClass = new TestClass(description.getTestClass());
             testCount = getTestCount(testClass);
             try {
                 runAnnotations(BeforeExam.class, testClass);
             } catch (Throwable throwable) {
                 setupFailed = true;
-                fail(String.format(BEFORE_EXAM_FAILURE_MESSAGE, testClassName, throwable.getMessage()));
+                fail(String.format(BEFORE_EXAM_FAILURE_MESSAGE, testClassName,
+                        throwable.getMessage()));
             }
         }
 
@@ -111,7 +118,8 @@ public class PaxExamRule implements TestRule {
             try {
                 runAnnotations(AfterExam.class, new TestClass(description.getTestClass()));
             } catch (Throwable throwable) {
-                fail(String.format(AFTER_EXAM_FAILURE_MESSAGE, testClassName, throwable.getMessage()));
+                fail(String
+                        .format(AFTER_EXAM_FAILURE_MESSAGE, testClassName, throwable.getMessage()));
             }
             LOGGER.info("Finished test(s) for {}", testClassName);
         }

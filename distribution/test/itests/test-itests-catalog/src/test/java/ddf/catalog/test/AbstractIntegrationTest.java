@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -13,7 +13,6 @@
  **/
 package ddf.catalog.test;
 
-import static org.junit.Assert.fail;
 import static org.ops4j.pax.exam.CoreOptions.junitBundles;
 import static org.ops4j.pax.exam.CoreOptions.maven;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
@@ -30,80 +29,52 @@ import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.keepRunti
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.logLevel;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.replaceConfigurationFile;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.useOwnExamBundlesStartLevel;
-import static com.jayway.restassured.RestAssured.get;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Dictionary;
-import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.features.FeaturesService;
-import org.apache.karaf.shell.osgi.BlueprintListener;
-import org.apache.karaf.shell.osgi.BlueprintListener.BlueprintState;
 import org.junit.Rule;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.karaf.options.LogLevelOption;
-import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
-import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
-import org.osgi.service.cm.ConfigurationEvent;
-import org.osgi.service.cm.ConfigurationListener;
-import org.osgi.service.metatype.AttributeDefinition;
-import org.osgi.service.metatype.MetaTypeInformation;
 import org.osgi.service.metatype.MetaTypeService;
-import org.osgi.service.metatype.ObjectClassDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.osgi.util.OsgiStringUtils;
-
-import com.jayway.restassured.response.Response;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.FederatedSource;
+import ddf.common.test.AdminConfig;
 import ddf.common.test.PaxExamRule;
+import ddf.common.test.PostTestConstruct;
+import ddf.common.test.ServiceManager;
 
 /**
  * Abstract integration test with helper methods and configuration at the container level.
  */
 public abstract class AbstractIntegrationTest {
 
-    protected static final int CONFIG_UPDATE_WAIT_INTERVAL = 5;
-
     protected static final Logger LOGGER = LoggerFactory.getLogger(AbstractIntegrationTest.class);
 
-    protected static final String LOG_CONFIG_PID = "org.ops4j.pax.logging";
+    protected static final String LOG_CONFIG_PID = AdminConfig.LOG_CONFIG_PID;
 
-    protected static final String LOGGER_PREFIX = "log4j.logger.";
+    protected static final String LOGGER_PREFIX = AdminConfig.LOGGER_PREFIX;
+
+    protected static final String DEFAULT_LOG_LEVEL = AdminConfig.DEFAULT_LOG_LEVEL;
 
     protected static final String KARAF_VERSION = "2.4.3";
-    
-    protected static final int ONE_MINUTE_MILLIS = 60000;
-
-    protected static final long REQUIRED_BUNDLES_TIMEOUT = TimeUnit.MINUTES.toMillis(10);
-
-    protected static final long MANAGED_SERVICE_TIMEOUT = TimeUnit.MINUTES.toMillis(10);
-
-    protected static final long CATALOG_PROVIDER_TIMEOUT = TimeUnit.MINUTES.toMillis(10);
-
-    protected static final long HTTP_ENDPOINT_TIMEOUT = TimeUnit.MINUTES.toMillis(10);
 
     // TODO: Use the Camel AvailablePortFinder.getNextAvailable() test method
     protected static final String HTTP_PORT = "9081";
@@ -131,10 +102,6 @@ public abstract class AbstractIntegrationTest {
 
     protected static final String CSW_SOURCE_ID = "cswSource";
 
-    protected static final String DEFAULT_LOG_LEVEL = "TRACE";
-
-    public static final String CATALOG_FRAMEWORK_PID = "ddf.catalog.CatalogFrameworkImpl";
-
     protected String logLevel = "";
 
     public static final String TEST_LOGLEVEL_PROPERTY = "org.codice.test.defaultLoglevel";
@@ -145,8 +112,6 @@ public abstract class AbstractIntegrationTest {
     @Inject
     protected BundleContext bundleCtx;
 
-    private BlueprintListener blueprintListener;
-
     @Inject
     protected ConfigurationAdmin configAdmin;
 
@@ -156,9 +121,11 @@ public abstract class AbstractIntegrationTest {
     @Inject
     protected MetaTypeService metatype;
 
-    // Fields used across all test methods must be static.
-    // PAX-EXAM wipes away field information before each test method.
-    protected static CatalogProvider catalogProvider;
+    private AdminConfig adminConfig;
+
+    private ServiceManager serviceManager;
+
+    private CatalogBundle catalogBundle;
 
     static {
         // Make Pax URL use the maven.repo.local setting if present
@@ -168,8 +135,11 @@ public abstract class AbstractIntegrationTest {
         }
     }
 
-    public org.codice.ddf.ui.admin.api.ConfigurationAdmin getDdfConfigAdmin() {
-        return new org.codice.ddf.ui.admin.api.ConfigurationAdmin(configAdmin);
+    @PostTestConstruct
+    public void initFacades() {
+        adminConfig = new AdminConfig(configAdmin);
+        serviceManager = new ServiceManager(bundleCtx, metatype, adminConfig);
+        catalogBundle = new CatalogBundle(serviceManager, adminConfig);
     }
 
     /**
@@ -182,6 +152,18 @@ public abstract class AbstractIntegrationTest {
         return combineOptions(configureCustom(), configureDistribution(), configurePaxExam(),
                 configureAdditionalBundles(), configureConfigurationPorts(), configureMavenRepos(),
                 configureSystemSettings(), configureVmOptions(), configureStartScript());
+    }
+
+    protected AdminConfig getAdminConfig() {
+        return adminConfig;
+    }
+
+    protected ServiceManager getServiceManager() {
+        return serviceManager;
+    }
+
+    protected CatalogBundle getCatalogBundle() {
+        return catalogBundle;
     }
 
     private Option[] combineOptions(Option[]... options) {
@@ -198,7 +180,7 @@ public abstract class AbstractIntegrationTest {
 
     protected Option[] configureDistribution() {
         return options(karafDistributionConfiguration(
-                maven().groupId("ddf.distribution").artifactId("ddf").type("zip")
+                maven().groupId("org.codice.ddf").artifactId("ddf").type("zip")
                         .versionAsInProject().getURL(), "ddf", KARAF_VERSION)
                 .unpackDirectory(new File("target/exam")).useDeployFolder(false));
 
@@ -302,435 +284,151 @@ public abstract class AbstractIntegrationTest {
     }
 
     /**
-     * Creates a Managed Service that is created from a Managed Service Factory. Waits for the
-     * asynchronous call that the properties have been updated and the service can be used.
-     * <p/>
-     * For Managed Services not created from a Managed Service Factory, use
-     * {@link #startManagedService(String, Map)} instead.
-     *
-     * @param factoryPid the factory pid of the Managed Service Factory
-     * @param properties the service properties for the Managed Service
-     * @throws IOException if access to persistent storage fails
+     * @param path
+     * @throws InterruptedException
+     * @deprecated since 2.8.0 see {@link ServiceManager#waitForHttpEndpoint(String)}
      */
-    public void createManagedService(String factoryPid, Map<String, Object> properties)
-            throws IOException {
-
-        final Configuration sourceConfig = configAdmin.createFactoryConfiguration(factoryPid, null);
-
-        startManagedService(sourceConfig, properties);
+    @Deprecated
+    protected void waitForHttpEndpoint(String path) throws InterruptedException {
+        serviceManager.waitForHttpEndpoint(path);
     }
 
     /**
-     * Starts a Managed Service. Waits for the asynchronous call that the properties have been
-     * updated and the service can be used.
-     * <p/>
-     * For Managed Services created from a Managed Service Factory, use
-     * {@link #createManagedService(String, Map)} instead.
-     *
-     * @param servicePid persistent identifier of the Managed Service to start
-     * @param properties service configuration properties
-     * @throws IOException thrown if if access to persistent storage fails
+     * @param wait
+     * @param featureNames
+     * @throws Exception
+     * @deprecated since 2.8.0 see {@link ServiceManager#stopFeature(boolean, String...)}
      */
-    public void startManagedService(String servicePid, Map<String, Object> properties)
-            throws IOException {
-        Configuration sourceConfig = configAdmin.getConfiguration(servicePid, null);
-
-        startManagedService(sourceConfig, properties);
+    @Deprecated
+    protected void stopFeature(boolean wait, String... featureNames) throws Exception {
+        serviceManager.stopFeature(wait, featureNames);
     }
 
-    private void startManagedService(Configuration sourceConfig, Map<String, Object> properties)
-            throws IOException {
-        ServiceConfigurationListener listener = new ServiceConfigurationListener(
-                sourceConfig.getPid());
-
-        bundleCtx.registerService(ConfigurationListener.class.getName(), listener, null);
-
-        getDdfConfigAdmin().update(sourceConfig.getPid(), properties);
-
-        long millis = 0;
-        while (!listener.isUpdated() && millis < MANAGED_SERVICE_TIMEOUT) {
-            try {
-                Thread.sleep(CONFIG_UPDATE_WAIT_INTERVAL);
-                millis += CONFIG_UPDATE_WAIT_INTERVAL;
-            } catch (InterruptedException e) {
-                LOGGER.info("Interrupted exception while trying to sleep for configuration update",
-                        e);
-            }
-            LOGGER.info("Waiting for configuration to be updated...{}ms", millis);
-        }
-
-        if (!listener.isUpdated()) {
-            throw new RuntimeException(String.format(
-                    "Service configuration {} was not updated within %d minute timeout.",
-                    sourceConfig.getPid(),
-                    TimeUnit.MILLISECONDS.toMinutes(MANAGED_SERVICE_TIMEOUT)));
-        }
-    }
-
+    /**
+     * @throws IOException
+     * @deprecated since 2.8.0 see {@link AdminConfig#setLogLevels()}
+     */
+    @Deprecated
     protected void setLogLevels() throws IOException {
-
-        logLevel = System.getProperty(TEST_LOGLEVEL_PROPERTY);
-
-        Configuration logConfig = configAdmin.getConfiguration(LOG_CONFIG_PID, null);
-        Dictionary<String, Object> properties = logConfig.getProperties();
-        if (StringUtils.isEmpty(logLevel)) {
-            properties.put(LOGGER_PREFIX + "ddf", DEFAULT_LOG_LEVEL);
-            properties.put(LOGGER_PREFIX + "org.codice", DEFAULT_LOG_LEVEL);
-        } else {
-            properties.put(LOGGER_PREFIX + "*", logLevel);
-        }
-
-        logConfig.update(properties);
+        adminConfig.setLogLevels();
     }
 
+    /**
+     * @param wait
+     * @param featureNames
+     * @throws Exception
+     * @deprecated since 2.8.0 see {@link ServiceManager#startFeature(boolean, String...)}
+     */
+    @Deprecated
+    protected void startFeature(boolean wait, String... featureNames) throws Exception {
+        serviceManager.startFeature(wait, featureNames);
+    }
+
+    /**
+     * @param factoryPid
+     * @param properties
+     * @throws IOException
+     * @deprecated since 2.8.0 see {@link ServiceManager#createManagedService(String, Map)}
+     */
+    @Deprecated
+    protected void createManagedService(String factoryPid, Map<String, Object> properties)
+            throws IOException {
+        serviceManager.createManagedService(factoryPid, properties);
+    }
+
+    /**
+     * @param fanoutEnabled
+     * @throws IOException
+     * @deprecated since 2.8.0 see {@link CatalogBundle#setFanout(boolean)}
+     */
+    @Deprecated
     protected void setFanout(boolean fanoutEnabled) throws IOException {
-        Map<String, Object> properties = getDdfConfigAdmin().getProperties(CATALOG_FRAMEWORK_PID);
-        if (properties == null) {
-            properties = new Hashtable<String, Object>();
-        }
-        if (fanoutEnabled) {
-            properties.put("fanoutEnabled", "True");
-        } else {
-            properties.put("fanoutEnabled", "False");
-        }
-
-        startManagedService(CATALOG_FRAMEWORK_PID, properties);
+        catalogBundle.setFanout(fanoutEnabled);
     }
 
-    protected void waitForAllBundles() throws InterruptedException {
-        waitForRequiredBundles("");
-    }
-
+    /**
+     * @param symbolicNamePrefix
+     * @throws InterruptedException
+     * @deprecated since 2.8.0 see {@link ServiceManager#waitForRequiredBundles(String)}
+     */
+    @Deprecated
     protected void waitForRequiredBundles(String symbolicNamePrefix) throws InterruptedException {
-        boolean ready = false;
-        if (blueprintListener == null) {
-            blueprintListener = new BlueprintListener();
-            bundleCtx.registerService("org.osgi.service.blueprint.container.BlueprintListener",
-                    blueprintListener, null);
-        }
-
-        long timeoutLimit = System.currentTimeMillis() + REQUIRED_BUNDLES_TIMEOUT;
-        while (!ready) {
-            List<Bundle> bundles = Arrays.asList(bundleCtx.getBundles());
-
-            ready = true;
-            for (Bundle bundle : bundles) {
-                if (bundle.getSymbolicName().startsWith(symbolicNamePrefix)) {
-                    String bundleName = bundle.getHeaders().get(Constants.BUNDLE_NAME);
-                    String blueprintState = blueprintListener.getState(bundle);
-                    if (blueprintState != null) {
-                        if (BlueprintState.Failure.toString().equals(blueprintState)) {
-                            fail("The blueprint for " + bundleName + " failed.");
-                        } else if (!BlueprintState.Created.toString().equals(blueprintState)) {
-                            LOGGER.info("{} blueprint not ready with state {}", bundleName,
-                                    blueprintState);
-                            ready = false;
-                        }
-                    }
-
-                    if (!((bundle.getHeaders().get("Fragment-Host") != null
-                            && bundle.getState() == Bundle.RESOLVED)
-                            || bundle.getState() == Bundle.ACTIVE)) {
-                        LOGGER.info("{} bundle not ready yet", bundleName);
-                        ready = false;
-                    }
-                }
-            }
-
-            if (!ready) {
-                if (System.currentTimeMillis() > timeoutLimit) {
-                    printInactiveBundles();
-                    fail(String.format("Bundles and blueprint did not start within %d minutes.",
-                            TimeUnit.MILLISECONDS.toMinutes(REQUIRED_BUNDLES_TIMEOUT)));
-                }
-                LOGGER.info("Bundles not up, sleeping...");
-                Thread.sleep(1000);
-            }
-        }
+        serviceManager.waitForRequiredBundles(symbolicNamePrefix);
     }
 
-    protected CatalogProvider waitForCatalogProvider() throws InterruptedException {
-        LOGGER.info("Waiting for CatalogProvider to become available.");
-        printInactiveBundles();
-
-        CatalogProvider provider = null;
-        long timeoutLimit = System.currentTimeMillis() + CATALOG_PROVIDER_TIMEOUT;
-        boolean available = false;
-
-        while (!available) {
-            if (provider == null) {
-                ServiceReference<CatalogProvider> providerRef = bundleCtx
-                        .getServiceReference(CatalogProvider.class);
-                if (providerRef != null) {
-                    provider = bundleCtx.getService(providerRef);
-                }
-            }
-
-            if (provider != null) {
-                available = provider.isAvailable();
-            }
-
-            if (!available) {
-                if (System.currentTimeMillis() > timeoutLimit) {
-                    LOGGER.info("CatalogProvider.isAvailable = {}", available);
-                    printInactiveBundles();
-                    fail(String.format("Catalog provider timed out after %d minutes.",
-                            TimeUnit.MILLISECONDS.toMinutes(CATALOG_PROVIDER_TIMEOUT)));
-                }
-                Thread.sleep(100);
-            }
-        }
-
-        LOGGER.info("CatalogProvider is available.");
-        return provider;
+    /**
+     * @param sources
+     * @throws InterruptedException
+     * @deprecated since 2.8.0 see {@link ServiceManager#waitForSourcesToBeAvailable(String, String...)}
+     */
+    @Deprecated
+    protected void waitForSourcesToBeAvailable(String... sources) throws InterruptedException {
+        serviceManager.waitForSourcesToBeAvailable(REST_PATH, sources);
     }
 
-    private void printInactiveBundles() {
-        LOGGER.info("Listing inactive bundles");
-
-        for (Bundle bundle : bundleCtx.getBundles()) {
-            if (bundle.getState() != Bundle.ACTIVE) {
-                StringBuffer headerString = new StringBuffer("[ ");
-                Dictionary<String, String> headers = bundle.getHeaders();
-                Enumeration<String> keys = headers.keys();
-
-                while (keys.hasMoreElements()) {
-                    String key = keys.nextElement();
-                    headerString.append(key).append("=").append(headers.get(key)).append(", ");
-                }
-
-                headerString.append(" ]");
-                LOGGER.info("{} | {} | {} | {}", bundle.getSymbolicName(),
-                        bundle.getVersion().toString(), OsgiStringUtils.bundleStateAsString(bundle),
-                        headerString.toString());
-            }
-        }
-    }
-
+    /**
+     * @param id
+     * @return
+     * @throws InterruptedException
+     * @throws InvalidSyntaxException
+     * @deprecated since 2.8.0 see {@link CatalogBundle#waitForFederatedSource(String)}
+     */
+    @Deprecated
     protected FederatedSource waitForFederatedSource(String id)
             throws InterruptedException, InvalidSyntaxException {
-        LOGGER.info("Waiting for FederatedSource {} to become available.", id);
-
-        FederatedSource source = null;
-        long timeoutLimit = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(5);
-        boolean available = false;
-
-        while (!available) {
-            if (source == null) {
-                Collection<ServiceReference<FederatedSource>> srcRefs = bundleCtx
-                        .getServiceReferences(FederatedSource.class, null);
-                for (ServiceReference<FederatedSource> srcRef : srcRefs) {
-                    FederatedSource src = bundleCtx.getService(srcRef);
-                    if (id.equals(src.getId())) {
-                        source = src;
-                    }
-                }
-            }
-
-            if (source != null) {
-                available = source.isAvailable();
-            }
-
-            if (!available) {
-                if (System.currentTimeMillis() > timeoutLimit) {
-                    fail("Federated Source was not created in a timely manner.");
-                }
-                Thread.sleep(100);
-            }
-        }
-
-        LOGGER.info("FederatedSource {} is available.", id);
-        return source;
+        return catalogBundle.waitForFederatedSource(id);
     }
 
-    protected void waitForHttpEndpoint(String path) throws InterruptedException {
-        LOGGER.info("Waiting for {}", path);
-
-        long timeoutLimit = System.currentTimeMillis() + HTTP_ENDPOINT_TIMEOUT;
-        boolean available = false;
-
-        while (!available) {
-            Response response = get(path);
-            available = response.getStatusCode() == 200 && response.getBody().print().length() > 0;
-            if (!available) {
-                if (System.currentTimeMillis() > timeoutLimit) {
-                    fail(String.format("%s did not start within %d minutes.", path,
-                            TimeUnit.MILLISECONDS.toMinutes(HTTP_ENDPOINT_TIMEOUT)));
-                }
-                Thread.sleep(100);
-            }
-        }
-
-        LOGGER.info("{} ready.", path);
+    /**
+     * @return
+     * @throws InterruptedException
+     * @deprecated since 2.8.0 see {@link CatalogBundle#waitForCatalogProvider()}
+     */
+    @Deprecated
+    protected CatalogProvider waitForCatalogProvider() throws InterruptedException {
+        return catalogBundle.waitForCatalogProvider();
     }
 
-    protected void waitForSourcesToBeAvailable(String... sources) throws InterruptedException {
-        String path = REST_PATH + "sources";
-        LOGGER.info("Waiting for sources at {}", path);
-
-        long timeoutLimit = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(5);
-        boolean available = false;
-
-        while (!available) {
-            Response response = get(path);
-            String body = response.getBody().asString();
-            if (StringUtils.isNotBlank(body)) {
-                available = response.getStatusCode() == 200 && body.length() > 0 && !body
-                        .contains("false") && response.getBody().jsonPath().getList("id") != null;
-                if (available) {
-                    List<Object> ids = response.getBody().jsonPath().getList("id");
-                    for (String source : sources) {
-                        if (!ids.contains(source)) {
-                            available = false;
-                        }
-                    }
-                }
-            }
-            if (!available) {
-                if (System.currentTimeMillis() > timeoutLimit) {
-                    response.prettyPrint();
-                    fail("Sources at " + path + " did not start in time.");
-                }
-                Thread.sleep(1000);
-            }
-        }
-
-        LOGGER.info("Sources at {} ready.", path);
-    }
-
+    /**
+     * @return
+     * @throws InterruptedException
+     * @deprecated since 2.8.0 see {@link CatalogBundle#getCatalogFramework()}
+     */
+    @Deprecated
     protected CatalogFramework getCatalogFramework() throws InterruptedException {
-        LOGGER.info("getting framework");
-
-        CatalogFramework catalogFramework = null;
-
-        ServiceReference<CatalogFramework> providerRef = bundleCtx
-                .getServiceReference(CatalogFramework.class);
-        if (providerRef != null) {
-            catalogFramework = bundleCtx.getService(providerRef);
-        }
-
-        return catalogFramework;
+        return catalogBundle.getCatalogFramework();
     }
 
+    /**
+     * @param symbolicName
+     * @param factoryPid
+     * @return
+     * @deprecated since 2.8.0 see {@link ServiceManager#getMetatypeDefaults(String, String)}
+     */
+    @Deprecated
     protected Map<String, Object> getMetatypeDefaults(String symbolicName, String factoryPid) {
-        Map<String, Object> properties = new HashMap<>();
-        ObjectClassDefinition bundleMetatype = getObjectClassDefinition(symbolicName, factoryPid);
-
-        for (AttributeDefinition attributeDef : bundleMetatype
-                .getAttributeDefinitions(ObjectClassDefinition.ALL)) {
-            if (attributeDef.getID() != null) {
-                if (attributeDef.getDefaultValue() != null) {
-                    if (attributeDef.getCardinality() == 0) {
-                        properties.put(attributeDef.getID(),
-                                getAttributeValue(attributeDef.getDefaultValue()[0],
-                                        attributeDef.getType()));
-                    } else {
-                        properties.put(attributeDef.getID(), attributeDef.getDefaultValue());
-                    }
-                } else if (attributeDef.getCardinality() != 0) {
-                    properties.put(attributeDef.getID(), new String[0]);
-                }
-            }
-        }
-
-        return properties;
+        return serviceManager.getMetatypeDefaults(symbolicName, factoryPid);
     }
 
-    private Object getAttributeValue(String value, int type) {
-        switch (type) {
-        case AttributeDefinition.BOOLEAN:
-            return Boolean.valueOf(value);
-        case AttributeDefinition.BYTE:
-            return Byte.valueOf(value);
-        case AttributeDefinition.DOUBLE:
-            return Double.valueOf(value);
-        case AttributeDefinition.CHARACTER:
-            return Character.valueOf(value.toCharArray()[0]);
-        case AttributeDefinition.FLOAT:
-            return Float.valueOf(value);
-        case AttributeDefinition.INTEGER:
-            return Integer.valueOf(value);
-        case AttributeDefinition.LONG:
-            return Long.valueOf(value);
-        case AttributeDefinition.SHORT:
-            return Short.valueOf(value);
-        case AttributeDefinition.PASSWORD:
-        case AttributeDefinition.STRING:
-        default:
-            return value;
-        }
+    /**
+     * @param servicePid
+     * @param properties
+     * @throws IOException
+     * @deprecated since 2.8.0 see {@link ServiceManager#startManagedService(String, Map)}
+     */
+    @Deprecated
+    protected void startManagedService(String servicePid, Map<String, Object> properties)
+            throws IOException {
+        serviceManager.startManagedService(servicePid, properties);
     }
 
-    private ObjectClassDefinition getObjectClassDefinition(String symbolicName, String pid) {
-        Bundle[] bundles = bundleCtx.getBundles();
-        for (Bundle bundle : bundles) {
-            if (symbolicName.equals(bundle.getSymbolicName())) {
-                try {
-                    MetaTypeInformation mti = metatype.getMetaTypeInformation(bundle);
-                    if (mti != null) {
-                        try {
-                            ObjectClassDefinition ocd = mti
-                                    .getObjectClassDefinition(pid, Locale.getDefault().toString());
-                            if (ocd != null) {
-                                return ocd;
-                            }
-                        } catch (IllegalArgumentException e) {
-                            // ignoring
-                        }
-                    }
-                } catch (IllegalArgumentException iae) {
-                    // ignoring
-                }
-            }
-        }
-        return null;
-    }
-
-    public void startFeature(boolean wait, String... featureNames) throws Exception {
-        ServiceReference<FeaturesService> featuresServiceRef = bundleCtx
-                .getServiceReference(FeaturesService.class);
-        FeaturesService featuresService = bundleCtx.getService(featuresServiceRef);
-        for (String featureName : featureNames) {
-            featuresService.installFeature(featureName);
-        }
-        if (wait) {
-            waitForAllBundles();
-        }
-    }
-
-    public void stopFeature(boolean wait, String... featureNames) throws Exception {
-        ServiceReference<FeaturesService> featuresServiceRef = bundleCtx
-                .getServiceReference(FeaturesService.class);
-        FeaturesService featuresService = bundleCtx.getService(featuresServiceRef);
-        for (String featureName : featureNames) {
-            featuresService.uninstallFeature(featureName);
-        }
-        if (wait) {
-            waitForAllBundles();
-        }
-    }
-
-    private class ServiceConfigurationListener implements ConfigurationListener {
-
-        private boolean updated = false;
-
-        private String pid;
-
-        public ServiceConfigurationListener(String pid) {
-            this.pid = pid;
-        }
-
-        @Override
-        public void configurationEvent(ConfigurationEvent event) {
-            LOGGER.info("Configuration event received: {}", event);
-            if (event.getPid().equals(pid) && ConfigurationEvent.CM_UPDATED == event.getType()) {
-                updated = true;
-            }
-        }
-
-        public boolean isUpdated() {
-            return updated;
-        }
+    /**
+     * @throws InterruptedException
+     * @deprecated since 2.8.0 see {@link ServiceManager#waitForAllBundles()}
+     */
+    @Deprecated
+    protected void waitForAllBundles() throws InterruptedException {
+        serviceManager.waitForAllBundles();
     }
 
     public class OpenSearchSourceProperties extends HashMap<String, Object> {
@@ -779,5 +477,4 @@ public abstract class AbstractIntegrationTest {
         }
 
     }
-
 }

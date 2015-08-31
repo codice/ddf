@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -27,6 +27,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -60,7 +61,9 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.DescribeRecordRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordsRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequest;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.InsertTransaction;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.DeleteAction;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.InsertAction;
+import org.codice.ddf.spatial.ogc.csw.catalog.converter.DefaultCswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;
 import org.geotools.filter.AttributeExpressionImpl;
 import org.geotools.filter.LiteralExpressionImpl;
@@ -115,8 +118,12 @@ import ddf.catalog.filter.ContextualExpressionBuilder;
 import ddf.catalog.filter.ExpressionBuilder;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.CreateRequest;
+import ddf.catalog.operation.DeleteRequest;
+import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.QueryRequest;
+import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.impl.CreateResponseImpl;
+import ddf.catalog.operation.impl.DeleteResponseImpl;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryResponseImpl;
 import ddf.catalog.source.IngestException;
@@ -124,6 +131,7 @@ import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.QueryResponseTransformer;
 import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
+import net.opengis.cat.csw.v_2_0_2.DeleteType;
 import net.opengis.cat.csw.v_2_0_2.DescribeRecordResponseType;
 import net.opengis.cat.csw.v_2_0_2.DescribeRecordType;
 import net.opengis.cat.csw.v_2_0_2.DistributedSearchType;
@@ -837,8 +845,8 @@ public class TestCswEndpoint {
         drr.setTypeName(VALID_PREFIX_LOCAL_TYPE + "," + VALID_PREFIX + ":" + BAD_TYPE);
         DescribeRecordResponseType response = csw.describeRecord(drr);
 
-        // spec does not say specifically it should throw an exception, 
-        // and NSG interoperability tests require to skip the unknown ones, and 
+        // spec does not say specifically it should throw an exception,
+        // and NSG interoperability tests require to skip the unknown ones, and
         // potentially return an empty list if none are known
         assertThat(response.getSchemaComponent().size(), is(1));
     }
@@ -1961,11 +1969,33 @@ public class TestCswEndpoint {
 
     }
 
+    private void verifyMarshalResponse(TransactionResponseType response, String contextPath,
+            QName qName) {
+        // Verify the response will marshal
+        try {
+            JAXBContext context = JAXBContext.newInstance(contextPath);
+            Marshaller marshaller = context.createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            marshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
+            StringWriter sw = new StringWriter();
+
+            JAXBElement<TransactionResponseType> wrappedResponse = new JAXBElement<>(qName,
+                    TransactionResponseType.class, response);
+
+            marshaller.marshal(wrappedResponse, sw);
+
+            LOGGER.info("\nResponse\n" + sw.toString() + "\n\n");
+
+        } catch (JAXBException e) {
+            fail("Could not marshal message, Error: " + e.getMessage());
+        }
+    }
+
     @Test
     public void testIngestTransaction()
             throws CswException, SourceUnavailableException, FederationException, IngestException {
         CswTransactionRequest request = new CswTransactionRequest();
-        request.setInsertTransaction(new InsertTransaction(CswConstants.CSW_TYPE, null,
+        request.getInsertActions().add(new InsertAction(CswConstants.CSW_TYPE, null,
                 Arrays.<Metacard>asList(new MetacardImpl())));
 
         CatalogFramework framework = mock(CatalogFramework.class);
@@ -1984,35 +2014,17 @@ public class TestCswEndpoint {
         assertThat(summary.getTotalDeleted().intValue(), is(0));
         assertThat(summary.getTotalUpdated().intValue(), is(0));
         assertThat(summary.getTotalInserted().intValue(), is(1));
-        // Verify the response will marshal
-        JAXBContext context;
-        try {
 
-            context = JAXBContext.newInstance(
-                    "net.opengis.cat.csw.v_2_0_2:net.opengis.filter.v_1_1_0:net.opengis.gml.v_3_1_1");
-            Marshaller marshaller = context.createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            marshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
-            StringWriter sw = new StringWriter();
-
-            JAXBElement<TransactionResponseType> wrappedResponse = new JAXBElement<>(
-                    new QName("http://www.opengis.net/cat/csw/2.0.2"),
-                    TransactionResponseType.class, response);
-
-            marshaller.marshal(wrappedResponse, sw);
-
-            LOGGER.info("\nResponse\n" + sw.toString() + "\n\n");
-
-        } catch (JAXBException e) {
-            fail("Could not marshall message, Error: " + e.getMessage());
-        }
+        verifyMarshalResponse(response,
+                "net.opengis.cat.csw.v_2_0_2:net.opengis.filter.v_1_1_0:net.opengis.gml.v_3_1_1",
+                new QName(CswConstants.CSW_OUTPUT_SCHEMA));
     }
 
     @Test
     public void testIngestVerboseTransaction()
             throws CswException, SourceUnavailableException, FederationException, IngestException {
         CswTransactionRequest request = new CswTransactionRequest();
-        request.setInsertTransaction(new InsertTransaction(CswConstants.CSW_TYPE, null,
+        request.getInsertActions().add(new InsertAction(CswConstants.CSW_TYPE, null,
                 Arrays.<Metacard>asList(new MetacardImpl())));
         request.setVerbose(true);
 
@@ -2032,30 +2044,69 @@ public class TestCswEndpoint {
         assertThat(summary.getTotalDeleted().intValue(), is(0));
         assertThat(summary.getTotalUpdated().intValue(), is(0));
         assertThat(summary.getTotalInserted().intValue(), is(1));
-        // Verify the response will marshal
-        JAXBContext context;
-        try {
 
-            String contextPath = StringUtils.join(new String[] {CswConstants.OGC_CSW_PACKAGE,
-                    CswConstants.OGC_FILTER_PACKAGE, CswConstants.OGC_GML_PACKAGE,
-                    CswConstants.OGC_OWS_PACKAGE}, ":");
-            context = JAXBContext.newInstance(contextPath);
-            Marshaller marshaller = context.createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            marshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
-            StringWriter sw = new StringWriter();
+        String contextPath = StringUtils
+                .join(new String[] {CswConstants.OGC_CSW_PACKAGE, CswConstants.OGC_FILTER_PACKAGE,
+                        CswConstants.OGC_GML_PACKAGE, CswConstants.OGC_OWS_PACKAGE}, ":");
+        verifyMarshalResponse(response, contextPath,
+                new QName(CswConstants.CSW_OUTPUT_SCHEMA, CswConstants.TRANSACTION));
+    }
 
-            JAXBElement<TransactionResponseType> wrappedResponse = new JAXBElement<>(
-                    new QName("http://www.opengis.net/cat/csw/2.0.2", "Transaction"),
-                    TransactionResponseType.class, response);
+    @Test
+    public void testDeleteTransaction()
+            throws CswException, UnsupportedQueryException, SourceUnavailableException,
+            FederationException, IngestException {
+        DeleteType deleteType = mock(DeleteType.class);
 
-            marshaller.marshal(wrappedResponse, sw);
+        doReturn(CswConstants.CSW_RECORD).when(deleteType).getTypeName();
+        doReturn("").when(deleteType).getHandle();
 
-            LOGGER.info("\nResponse\n" + sw.toString() + "\n\n");
+        QueryConstraintType queryConstraintType = new QueryConstraintType();
+        queryConstraintType.setCqlText("title = \"foo\"");
+        doReturn(queryConstraintType).when(deleteType).getConstraint();
 
-        } catch (JAXBException e) {
-            fail("Could not marshall message, Error: " + e.getMessage());
-        }
+        List<Result> results = new ArrayList<>();
+        results.add(new ResultImpl(new MetacardImpl()));
+        results.add(new ResultImpl(new MetacardImpl()));
+
+        QueryResponse queryResponse = new QueryResponseImpl(null, results, results.size());
+
+        CatalogFramework framework = mock(CatalogFramework.class);
+
+        doReturn(queryResponse).when(framework).query(any(QueryRequest.class));
+
+        List<Metacard> deletedMetacards = new ArrayList<>();
+        deletedMetacards.add(new MetacardImpl());
+        deletedMetacards.add(new MetacardImpl());
+
+        DeleteResponse deleteResponse = new DeleteResponseImpl(null, null, deletedMetacards);
+        doReturn(deleteResponse).when(framework).delete(any(DeleteRequest.class));
+
+        DeleteAction deleteAction = new DeleteAction(deleteType,
+                DefaultCswRecordMap.getDefaultCswRecordMap().getPrefixToUriMapping());
+
+        CswTransactionRequest deleteRequest = new CswTransactionRequest();
+        deleteRequest.getDeleteActions().add(deleteAction);
+        deleteRequest.setVersion(CswConstants.VERSION_2_0_2);
+        deleteRequest.setService(CswConstants.CSW);
+        deleteRequest.setVerbose(false);
+
+        CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
+                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
+
+        TransactionResponseType response = cswEndpoint.transaction(deleteRequest);
+        assertThat(response, notNullValue());
+
+        TransactionSummaryType summary = response.getTransactionSummary();
+        assertThat(summary, notNullValue());
+
+        assertThat(summary.getTotalDeleted().intValue(), is(2));
+        assertThat(summary.getTotalInserted().intValue(), is(0));
+        assertThat(summary.getTotalUpdated().intValue(), is(0));
+
+        verifyMarshalResponse(response,
+                "net.opengis.cat.csw.v_2_0_2:net.opengis.filter.v_1_1_0:net.opengis.gml.v_3_1_1",
+                new QName(CswConstants.CSW_OUTPUT_SCHEMA));
     }
 
     /**

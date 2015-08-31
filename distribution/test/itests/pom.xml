@@ -87,7 +87,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>ddf.distribution</groupId>
+            <groupId>org.codice.ddf</groupId>
             <artifactId>ddf</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
