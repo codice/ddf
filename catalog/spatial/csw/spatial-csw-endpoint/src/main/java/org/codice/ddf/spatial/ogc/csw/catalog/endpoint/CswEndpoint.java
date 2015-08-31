@@ -612,32 +612,35 @@ public class CswEndpoint implements Csw {
             QueryRequest queryRequest = new QueryRequestImpl(query);
             QueryResponse response = framework.query(queryRequest);
 
-            Map<String, Serializable> recordProperties = updateAction.getRecordProperties();
+            if (response.getHits() > 0) {
+                Map<String, Serializable> recordProperties = updateAction.getRecordProperties();
 
-            List<String> updatedMetacardIdsList = new ArrayList<>();
-            List<Metacard> updatedMetacards = new ArrayList<>();
+                List<String> updatedMetacardIdsList = new ArrayList<>();
+                List<Metacard> updatedMetacards = new ArrayList<>();
 
-            for (Result result : response.getResults()) {
-                Metacard metacard = result.getMetacard();
+                for (Result result : response.getResults()) {
+                    Metacard metacard = result.getMetacard();
 
-                if (metacard != null) {
-                    for (Entry<String, Serializable> recordProperty : recordProperties.entrySet()) {
-                        Attribute attribute = new AttributeImpl(recordProperty.getKey(),
-                                recordProperty.getValue());
-                        metacard.setAttribute(attribute);
+                    if (metacard != null) {
+                        for (Entry<String, Serializable> recordProperty : recordProperties
+                                .entrySet()) {
+                            Attribute attribute = new AttributeImpl(recordProperty.getKey(),
+                                    recordProperty.getValue());
+                            metacard.setAttribute(attribute);
+                        }
+                        updatedMetacardIdsList.add(metacard.getId());
+                        updatedMetacards.add(metacard);
                     }
-                    updatedMetacardIdsList.add(metacard.getId());
-                    updatedMetacards.add(metacard);
                 }
+
+                String[] updatedMetacardIds = updatedMetacardIdsList
+                        .toArray(new String[updatedMetacardIdsList.size()]);
+                UpdateRequest updateRequest = new UpdateRequestImpl(updatedMetacardIds,
+                        updatedMetacards);
+
+                UpdateResponse updateResponse = framework.update(updateRequest);
+                return updateResponse.getUpdatedMetacards().size();
             }
-
-            String[] updatedMetacardIds = updatedMetacardIdsList
-                    .toArray(new String[updatedMetacardIdsList.size()]);
-            UpdateRequest updateRequest = new UpdateRequestImpl(updatedMetacardIds,
-                    updatedMetacards);
-
-            UpdateResponse updateResponse = framework.update(updateRequest);
-            return updateResponse.getUpdatedMetacards().size();
         }
 
         return 0;
