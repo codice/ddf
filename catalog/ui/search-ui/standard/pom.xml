@@ -108,7 +108,7 @@
                         </goals>
                         <phase>test</phase>
                         <configuration>
-                            <arguments>test</arguments>
+                            <arguments>test --force</arguments>
                         </configuration>
                     </execution>
                 </executions>
