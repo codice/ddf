@@ -201,6 +201,12 @@
       <outputDirectory>/security</outputDirectory>
       <fileMode>0644</fileMode>
     </fileSet>
+
+    <fileSet>
+      <directory>${setup.folder}/data</directory>
+      <outputDirectory>/data</outputDirectory>
+      <directoryMode>0775</directoryMode>
+    </fileSet>
     
   </fileSets>
   

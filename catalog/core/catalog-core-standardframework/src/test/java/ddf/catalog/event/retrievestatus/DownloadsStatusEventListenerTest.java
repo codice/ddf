@@ -19,8 +19,10 @@ import static org.mockito.Mockito.mock;
 import java.io.File;
 import java.io.Serializable;
 import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet; 
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -89,8 +91,10 @@ public class DownloadsStatusEventListenerTest {
         testMetacard.setResourceURI(downloadFile.toURI());
         testMetacard.setResourceSize("125");
         testMetacard.setType(BasicTypes.BASIC_METACARD);
+        URLResourceReader testURLResourceReader = new URLResourceReader();
+        testURLResourceReader.setRootResourceDirectories(new HashSet<String>(Arrays.asList(new String[] {System.getProperty("user.dir")})));
         List<ResourceReader> testResourceReaderList = Collections
-                .singletonList((ResourceReader) new URLResourceReader());
+                .singletonList((ResourceReader) testURLResourceReader);
         Map<String, Serializable> tmpMap = Collections.emptyMap();
         Map<String, Integer> idToBytes = new HashMap<String, Integer>();
         testGetDownloadStatusHelper(null, null, null);
