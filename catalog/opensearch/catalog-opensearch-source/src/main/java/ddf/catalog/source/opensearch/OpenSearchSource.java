@@ -573,12 +573,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
      */
     public void setEndpointUrl(String endpointUrl) {
         this.endpointUrl = endpointUrl;
-
-        try {
-            factory = new SecureCxfClientFactory(endpointUrl, OpenSearch.class);
-        } catch (SecurityServiceException sse) {
-            LOGGER.warn("Could not refresh SecureClientFactory with new endpointUrl.", sse);
-        }
+        factory = new SecureCxfClientFactory(endpointUrl, OpenSearch.class);
     }
 
     @Override
@@ -821,12 +816,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     }
 
     protected SecureCxfClientFactory tempFactory(String url) {
-        try {
-            return new SecureCxfClientFactory(url, OpenSearch.class);
-        } catch (SecurityServiceException sse) {
-            LOGGER.warn("Could not create a temporary factory from provided url.", sse);
-        }
-        return null;
+        return new SecureCxfClientFactory(url, OpenSearch.class);
     }
 
     /**

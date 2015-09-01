@@ -10,7 +10,7 @@
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- **/
+ */
 package org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.source;
 
 import java.io.IOException;
@@ -48,6 +48,7 @@ import javax.xml.namespace.QName;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.cxf.jaxrs.provider.JAXBElementProvider;
 import org.apache.ws.commons.schema.XmlSchema;
 import org.codice.ddf.cxf.SecureCxfClientFactory;
 import org.codice.ddf.spatial.ogc.catalog.MetadataTransformer;
@@ -60,14 +61,17 @@ import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverter;
 import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper;
+import org.codice.ddf.spatial.ogc.wfs.catalog.source.MarkableStreamInterceptor;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.DescribeFeatureTypeRequest;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.GetCapabilitiesRequest;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20FeatureCollection;
+import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20JaxbElementProvider;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.converter.FeatureConverterFactory;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.converter.impl.GenericFeatureConverterWfs20;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.source.reader.FeatureCollectionMessageBodyReaderWfs20;
+import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.source.reader.XmlSchemaMessageBodyReaderWfs20;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
 import org.osgi.framework.BundleContext;
@@ -232,7 +236,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         this.metacardToFeatureMappers = Collections.emptyList();
         this.disableSorting = false;
         this.factory = factory;
-        this.featureCollectionReader = new FeatureCollectionMessageBodyReaderWfs20();
+        initProviders();
         configureWfsFeatures();
     }
 
@@ -250,6 +254,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
      * configuration.
      */
     public void init() {
+        createClientFactory();
         setupAvailabilityPoll();
     }
 
@@ -296,7 +301,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         this.coordinateOrder = coordinateOrder;
         this.disableSorting = disableSorting;
         this.forceSpatialFilter = (String) configuration.get(SPATIAL_FILTER_PROPERTY);
-
+        createClientFactory();
         configureWfsFeatures();
 
         if (!pollInterval.equals(newPollInterval)) {
@@ -305,6 +310,31 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
             availabilityPollFuture.cancel(true);
             setupAvailabilityPoll();
         }
+    }
+
+    private List<? extends Object> initProviders() {
+        // We need to tell the JAXBElementProvider to marshal the GetFeatureType
+        // class as an element
+        // because it is missing the @XmlRootElement Annotation
+        JAXBElementProvider<GetFeatureType> provider = new Wfs20JaxbElementProvider<>();
+        Map<String, String> jaxbClassMap = new HashMap<String, String>();
+
+        // Ensure a namespace is used when the GetFeature request is generated
+        String expandedName = new QName(Wfs20Constants.WFS_2_0_NAMESPACE,
+                Wfs20Constants.GET_FEATURE).toString();
+        jaxbClassMap.put(GetFeatureType.class.getName(), expandedName);
+        provider.setJaxbElementClassMap(jaxbClassMap);
+        provider.setMarshallAsJaxbElement(true);
+
+        featureCollectionReader = new FeatureCollectionMessageBodyReaderWfs20();
+        return Arrays
+                .asList(provider, new XmlSchemaMessageBodyReaderWfs20(), featureCollectionReader);
+    }
+
+    /* This method should only be called after all properties have been set. */
+    private void createClientFactory() {
+        factory = new SecureCxfClientFactory(wfsUrl, Wfs.class, initProviders(),
+                new MarkableStreamInterceptor(), this.disableCnCheck);
     }
 
     private void setupAvailabilityPoll() {

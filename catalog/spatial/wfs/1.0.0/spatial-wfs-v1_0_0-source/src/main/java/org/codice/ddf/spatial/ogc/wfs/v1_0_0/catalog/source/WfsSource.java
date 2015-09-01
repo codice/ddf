@@ -10,7 +10,7 @@
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- **/
+ */
 package org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.source;
 
 import java.io.IOException;
@@ -46,6 +46,7 @@ import javax.xml.namespace.QName;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
+import org.apache.cxf.jaxrs.provider.JAXBElementProvider;
 import org.apache.ws.commons.schema.XmlSchema;
 import org.codice.ddf.cxf.SecureCxfClientFactory;
 import org.codice.ddf.spatial.ogc.catalog.MetadataTransformer;
@@ -58,12 +59,14 @@ import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsFeatureCollection;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverter;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.GenericFeatureConverter;
+import org.codice.ddf.spatial.ogc.wfs.catalog.source.MarkableStreamInterceptor;
 import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.DescribeFeatureTypeRequest;
 import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.GetCapabilitiesRequest;
 import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.Wfs;
 import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.Wfs10Constants;
 import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.converter.FeatureConverterFactory;
 import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.source.reader.FeatureCollectionMessageBodyReaderWfs10;
+import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.source.reader.XmlSchemaMessageBodyReaderWfs10;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -204,6 +207,8 @@ public class WfsSource extends MaskableImpl
 
     protected String configurationPid;
 
+    private FeatureCollectionMessageBodyReaderWfs10 featureCollectionReader;
+
     public WfsSource(FilterAdapter filterAdapter, BundleContext context, AvailabilityTask task,
             SecureCxfClientFactory factory) throws SecurityServiceException {
 
@@ -211,6 +216,7 @@ public class WfsSource extends MaskableImpl
         this.context = context;
         this.availabilityTask = task;
         this.factory = factory;
+        initProviders();
         configureWfsFeatures();
     }
 
@@ -227,6 +233,7 @@ public class WfsSource extends MaskableImpl
      * configuration.
      */
     public void init() {
+        createClientFactory();
         setupAvailabilityPoll();
     }
 
@@ -264,15 +271,12 @@ public class WfsSource extends MaskableImpl
         Integer newPollInterval = (Integer) configuration.get(POLL_INTERVAL_PROPERTY);
         super.setId(id);
 
-        // only attempt to re-connect on a refresh if not connected OR username,
-        // password, or the URL changes
-        if (hasWfsUrlChanged(wfsUrl) || hasPasswordChanged(password) || hasUsernameChanged(username)
-                || hasDisableCnCheck(disableCnCheckProp)) {
+        if (hasWfsUrlChanged(wfsUrl) || hasDisableCnCheck(disableCnCheckProp)) {
             this.wfsUrl = wfsUrl;
             this.password = password;
             this.username = username;
             this.disableCnCheck = disableCnCheckProp;
-
+            createClientFactory();
             configureWfsFeatures();
         } else {
             // Only need to update the supportedGeos if we don't reconnect.
@@ -296,6 +300,32 @@ public class WfsSource extends MaskableImpl
             availabilityPollFuture.cancel(true);
             setupAvailabilityPoll();
         }
+    }
+
+    /* This method should only be called after all properties have been set. */
+    private void createClientFactory() {
+        factory = new SecureCxfClientFactory(wfsUrl, Wfs.class, initProviders(),
+                new MarkableStreamInterceptor(), this.disableCnCheck);
+    }
+
+    private List<? extends Object> initProviders() {
+        // We need to tell the JAXBElementProvider to marshal the GetFeatureType
+        // class as an element
+        // because it is are missing the @XmlRootElement Annotation
+        JAXBElementProvider<GetFeatureType> provider = new JAXBElementProvider<GetFeatureType>();
+        Map<String, String> jaxbClassMap = new HashMap<String, String>();
+
+        // Ensure a namespace is used when the GetFeature request is generated
+        String expandedName = new QName(Wfs10Constants.WFS_NAMESPACE, Wfs10Constants.GET_FEATURE)
+                .toString();
+        jaxbClassMap.put(GetFeatureType.class.getName(), expandedName);
+        provider.setJaxbElementClassMap(jaxbClassMap);
+        provider.setMarshallAsJaxbElement(true);
+
+        featureCollectionReader = new FeatureCollectionMessageBodyReaderWfs10();
+
+        return Arrays.asList(provider, new WfsResponseExceptionMapper(),
+                new XmlSchemaMessageBodyReaderWfs10(), featureCollectionReader);
     }
 
     private boolean hasWfsUrlChanged(String wfsUrl) {
@@ -479,7 +509,7 @@ public class WfsSource extends MaskableImpl
                     featureConverter.setWfsUrl(wfsUrl);
 
                     // Add the Feature Type name as an alias for xstream
-                    getFeatureCollectionReader().registerConverter(featureConverter);
+                    featureCollectionReader.registerConverter(featureConverter);
                 }
 
             } catch (WfsException wfse) {
@@ -833,9 +863,8 @@ public class WfsSource extends MaskableImpl
         return wfsUrl;
     }
 
-    public void setWfsUrl(String wfsUrl) throws SecurityServiceException {
+    public void setWfsUrl(String wfsUrl) {
         this.wfsUrl = wfsUrl;
-        factory = new SecureCxfClientFactory(wfsUrl, Wfs.class);
     }
 
     public void setUsername(String username) {
@@ -1053,9 +1082,5 @@ public class WfsSource extends MaskableImpl
             wfs = (Wfs) factory.getUnsecuredClient();
         }
         return wfs;
-    }
-
-    public FeatureCollectionMessageBodyReaderWfs10 getFeatureCollectionReader() {
-        return new FeatureCollectionMessageBodyReaderWfs10();
     }
 }

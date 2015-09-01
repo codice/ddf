@@ -55,8 +55,7 @@ public class SecureCxfClientFactory<T> {
     /**
      * @see #SecureCxfClientFactory(String, Class, java.util.List, Interceptor, boolean)
      */
-    public SecureCxfClientFactory(String endpointUrl, Class<T> interfaceClass)
-            throws SecurityServiceException {
+    public SecureCxfClientFactory(String endpointUrl, Class<T> interfaceClass) {
         this(endpointUrl, interfaceClass, null, null, false);
     }
 
@@ -73,8 +72,7 @@ public class SecureCxfClientFactory<T> {
      * @param disableCnCheck disable ssl check for common name / host name match
      */
     public SecureCxfClientFactory(String endpointUrl, Class<T> interfaceClass, List<?> providers,
-            Interceptor<? extends Message> interceptor, boolean disableCnCheck)
-            throws SecurityServiceException {
+            Interceptor<? extends Message> interceptor, boolean disableCnCheck) {
         if (StringUtils.isEmpty(endpointUrl) || interfaceClass == null) {
             throw new IllegalArgumentException(
                     "Called without a valid URL, will not be able to connect.");
@@ -117,7 +115,7 @@ public class SecureCxfClientFactory<T> {
      */
     public SecureCxfClientFactory(String endpointUrl, Class<T> interfaceClass, List<?> providers,
             Interceptor<? extends Message> interceptor, boolean disableCnCheck,
-            Integer connectionTimeout, Integer receiveTimeout) throws SecurityServiceException {
+            Integer connectionTimeout, Integer receiveTimeout) {
 
         this(endpointUrl, interfaceClass, providers, interceptor, disableCnCheck);
 
@@ -136,17 +134,16 @@ public class SecureCxfClientFactory<T> {
      */
     public T getClientForSubject(Subject subject) throws SecurityServiceException {
         String asciiString = clientFactory.getAddress();
-        if (!StringUtils.startsWithIgnoreCase(asciiString, "https")) {
-            throw new SecurityServiceException("Cannot secure non-https connection " + asciiString);
-        }
 
         T newClient = getNewClient(null, null);
 
-        if (subject instanceof ddf.security.Subject) {
-            RestSecurity.setSubjectOnClient((ddf.security.Subject) subject,
-                    WebClient.client(newClient));
-        } else {
-            throw new SecurityServiceException("Not a ddf subject " + subject);
+        if (StringUtils.startsWithIgnoreCase(asciiString, "https")) {
+            if (subject instanceof ddf.security.Subject) {
+                RestSecurity.setSubjectOnClient((ddf.security.Subject) subject,
+                        WebClient.client(newClient));
+            } else {
+                throw new SecurityServiceException("Not a ddf subject " + subject);
+            }
         }
 
         return newClient;
@@ -171,11 +168,6 @@ public class SecureCxfClientFactory<T> {
      */
     public T getClientForBasicAuth(String username, String password)
             throws SecurityServiceException {
-        String asciiString = clientFactory.getAddress();
-        if (!StringUtils.startsWithIgnoreCase(asciiString, "https")) {
-            throw new SecurityServiceException("Cannot secure non-https connection " + asciiString);
-        }
-
         return getNewClient(username, password);
     }
 
@@ -187,7 +179,6 @@ public class SecureCxfClientFactory<T> {
     public WebClient getWebClientForBasicAuth(String username, String password)
             throws SecurityServiceException {
         return WebClient.fromClientObject(getClientForBasicAuth(username, password));
-
     }
 
     /**

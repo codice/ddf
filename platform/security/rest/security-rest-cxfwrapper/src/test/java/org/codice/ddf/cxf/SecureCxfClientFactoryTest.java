@@ -37,9 +37,9 @@ import ddf.security.service.SecurityServiceException;
 
 public class SecureCxfClientFactoryTest {
 
-    private String insecureEndpoint = "http://some.url.com/query";
+    private static final String INSECURE_ENDPOINT = "http://some.url.com/query";
 
-    private String secureEndpoint = "https://some.url.com/query";
+    private static final String SECURE_ENDPOINT = "https://some.url.com/query";
 
     @Test
     public void testConstructor() throws SecurityServiceException {
@@ -68,7 +68,7 @@ public class SecureCxfClientFactoryTest {
         assertTrue(invalid);
         invalid = false;
         try { //null for class
-            secureCxfClientFactory = new SecureCxfClientFactory<>(insecureEndpoint, null);
+            secureCxfClientFactory = new SecureCxfClientFactory<>(INSECURE_ENDPOINT, null);
         } catch (IllegalArgumentException e) {
             invalid = true;
         }
@@ -79,22 +79,22 @@ public class SecureCxfClientFactoryTest {
     public void testInsecureClient() throws SecurityServiceException {
         // positive case
         SecureCxfClientFactory<IDummy> secureCxfClientFactory = new SecureCxfClientFactory<>(
-                insecureEndpoint, IDummy.class);
+                INSECURE_ENDPOINT, IDummy.class);
         Client unsecuredClient = WebClient.client(secureCxfClientFactory.getUnsecuredClient());
-        assertTrue(unsecuredClient.getBaseURI().toASCIIString().equals(insecureEndpoint));
+        assertTrue(unsecuredClient.getBaseURI().toASCIIString().equals(INSECURE_ENDPOINT));
         // negative cases
-        boolean subject = false;
+        boolean subject = true;
         try { //can't get secure client from insecure endpoint
             secureCxfClientFactory.getClientForSubject(getSubject());
         } catch (SecurityServiceException e) {
-            subject = true;
+            subject = false;
         }
         assertTrue(subject);
-        boolean system = false;
+        boolean system = true;
         try { //can't get secure client from insecure endpoint
             secureCxfClientFactory.getClientForBasicAuth("username", "password");
         } catch (SecurityServiceException e) {
-            system = true;
+            system = false;
         }
         assertTrue(system);
         boolean unsecured = true;
@@ -110,22 +110,22 @@ public class SecureCxfClientFactoryTest {
     public void testInsecureWebClient() throws SecurityServiceException {
         // positive case
         SecureCxfClientFactory<IDummy> secureCxfClientFactory = new SecureCxfClientFactory<>(
-                insecureEndpoint, IDummy.class);
+                INSECURE_ENDPOINT, IDummy.class);
         Client unsecuredClient = WebClient.client(secureCxfClientFactory.getUnsecuredClient());
-        assertTrue(unsecuredClient.getBaseURI().toASCIIString().equals(insecureEndpoint));
+        assertTrue(unsecuredClient.getBaseURI().toASCIIString().equals(INSECURE_ENDPOINT));
         // negative cases
-        boolean subject = false;
+        boolean subject = true;
         try { //can't get secure client from insecure endpoint
             secureCxfClientFactory.getWebClientForSubject(getSubject());
         } catch (SecurityServiceException e) {
-            subject = true;
+            subject = false;
         }
         assertTrue(subject);
-        boolean system = false;
+        boolean system = true;
         try { //can't get secure client from insecure endpoint
             secureCxfClientFactory.getWebClientForBasicAuth("username", "password");
         } catch (SecurityServiceException e) {
-            system = true;
+            system = false;
         }
         assertTrue(system);
         boolean unsecured = true;
@@ -138,10 +138,67 @@ public class SecureCxfClientFactoryTest {
     }
 
     @Test
-    public void testGetOSGI() throws SecurityServiceException {
-        MockWrapper<IDummy> mockWrapper = new MockWrapper<>(secureEndpoint, IDummy.class);
-        //mockWrapper.getOsgiService((mock(SecuritySettingsService.class)).getClass());
+    public void testHttpsClient() throws SecurityServiceException {
+        // positive case
+        SecureCxfClientFactory<IDummy> secureCxfClientFactory = new SecureCxfClientFactory<>(
+                SECURE_ENDPOINT, IDummy.class);
+        Client unsecuredClient = WebClient.client(secureCxfClientFactory.getUnsecuredClient());
+        assertTrue(unsecuredClient.getBaseURI().toASCIIString().equals(SECURE_ENDPOINT));
+        // negative cases
+        boolean subject = true;
+        try { //can't get secure client from insecure endpoint
+            secureCxfClientFactory.getClientForSubject(getSubject());
+        } catch (SecurityServiceException e) {
+            subject = false;
+        }
+        assertTrue(subject);
+        boolean system = true;
+        try { //can't get secure client from insecure endpoint
+            secureCxfClientFactory.getClientForBasicAuth("username", "password");
+        } catch (SecurityServiceException e) {
+            system = false;
+        }
+        assertTrue(system);
+        boolean unsecured = true;
+        try { //should be able to get an unsecured client
+            secureCxfClientFactory.getUnsecuredClient();
+        } catch (SecurityServiceException e) {
+            unsecured = false;
+        }
+        assertTrue(unsecured);
     }
+
+    @Test
+    public void testHttpsWebClient() throws SecurityServiceException {
+        // positive case
+        SecureCxfClientFactory<IDummy> secureCxfClientFactory = new SecureCxfClientFactory<>(
+                SECURE_ENDPOINT, IDummy.class);
+        Client unsecuredClient = WebClient.client(secureCxfClientFactory.getUnsecuredClient());
+        assertTrue(unsecuredClient.getBaseURI().toASCIIString().equals(SECURE_ENDPOINT));
+        // negative cases
+        boolean subject = true;
+        try { //can't get secure client from insecure endpoint
+            secureCxfClientFactory.getWebClientForSubject(getSubject());
+        } catch (SecurityServiceException e) {
+            subject = false;
+        }
+        assertTrue(subject);
+        boolean system = true;
+        try { //can't get secure client from insecure endpoint
+            secureCxfClientFactory.getWebClientForBasicAuth("username", "password");
+        } catch (SecurityServiceException e) {
+            system = false;
+        }
+        assertTrue(system);
+        boolean unsecured = true;
+        try { //should be able to get an unsecured client
+            secureCxfClientFactory.getUnsecuredWebClient();
+        } catch (SecurityServiceException e) {
+            unsecured = false;
+        }
+        assertTrue(unsecured);
+    }
+
 
     private void validateConfig(MockWrapper<IDummy> factory, String username, String password,
             boolean disableCnCheck) throws SecurityServiceException {
