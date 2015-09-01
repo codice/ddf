@@ -600,7 +600,9 @@ public class CswEndpoint implements Csw {
                 UpdateRequest updateRequest = new UpdateRequestImpl(newRecord.getId(), newRecord);
                 UpdateResponse updateResponse = framework.update(updateRequest);
                 return updateResponse.getUpdatedMetacards().size();
-            } // What if there's no ID? Error message?
+            } else {
+                LOGGER.warn("No ID was specified in the replacement record: nothing to update.");
+            }
         } else if (updateAction.getConstraint() != null) {
             QueryConstraintType constraint = updateAction.getConstraint();
             Filter filter = buildFilter(constraint, typeStringToQNames(updateAction.getTypeName(),
@@ -633,13 +635,15 @@ public class CswEndpoint implements Csw {
                     }
                 }
 
-                String[] updatedMetacardIds = updatedMetacardIdsList
-                        .toArray(new String[updatedMetacardIdsList.size()]);
-                UpdateRequest updateRequest = new UpdateRequestImpl(updatedMetacardIds,
-                        updatedMetacards);
+                if (updatedMetacardIdsList.size() > 0) {
+                    String[] updatedMetacardIds = updatedMetacardIdsList
+                            .toArray(new String[updatedMetacardIdsList.size()]);
+                    UpdateRequest updateRequest = new UpdateRequestImpl(updatedMetacardIds,
+                            updatedMetacards);
 
-                UpdateResponse updateResponse = framework.update(updateRequest);
-                return updateResponse.getUpdatedMetacards().size();
+                    UpdateResponse updateResponse = framework.update(updateRequest);
+                    return updateResponse.getUpdatedMetacards().size();
+                }
             }
         }
 

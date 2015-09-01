@@ -235,8 +235,6 @@ public class TransactionRequestConverter implements Converter {
                             cswRecordPropertiesWithMetacardAttributes
                                     .put(metacardAttrName, metacardAttr.getValue());
                         }
-                        // Otherwise, a new value has already been specified for this attribute. What
-                        // to do here?
                     }
                 }
 
