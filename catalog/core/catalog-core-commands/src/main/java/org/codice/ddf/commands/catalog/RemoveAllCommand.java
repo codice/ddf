@@ -30,7 +30,10 @@ import org.apache.felix.gogo.commands.Option;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.joda.time.DateTime;
 import org.opengis.filter.Filter;
+import org.opensaml.xml.parse.LoggingErrorHandler;
+import org.slf4j.LoggerFactory;
 
+import ddf.catalog.Constants;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.filter.FilterBuilder;
@@ -43,11 +46,15 @@ import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.UnsupportedQueryException;
 
+import net.sf.saxon.lib.Logger;
+
 /**
  * Command used to remove all or a subset of records (in bulk) from the Catalog.
  */
 @Command(scope = CatalogCommands.NAMESPACE, name = "removeall", description = "Attempts to delete all records from the catalog.")
 public class RemoveAllCommand extends CatalogCommands {
+
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(RemoveAllCommand.class);
 
     static final int PAGE_SIZE_LOWER_LIMIT = 1;
 
@@ -77,7 +84,7 @@ public class RemoveAllCommand extends CatalogCommands {
             "--force"}, multiValued = false, description = "Force the removal without a confirmation message.")
     boolean force = false;
 
-    @Option(name = "--cache", aliases = {}, required = false, multiValued = false, description = "Use cache.")
+    @Option(name = "--cache", aliases = {}, required = false, multiValued = false, description = "Only remove cached entries.")
     boolean cache = false;
 
     @Override
@@ -108,8 +115,14 @@ public class RemoveAllCommand extends CatalogCommands {
 
         long end = System.currentTimeMillis();
 
+        String info = String.format("Cache cleared in %3.3f seconds%n",
+                (end - start) / MILLISECONDS_PER_SECOND);
+
+        LOGGER.info(info);
+        LOGGER.info("Cache cleared by catalog:removeAll with --cache option");
+
         console.println();
-        console.printf("Cache cleared in %3.3f seconds%n", (end - start) / MILLISECONDS_PER_SECOND);
+        console.print(info);
 
         return null;
     }
@@ -184,10 +197,14 @@ public class RemoveAllCommand extends CatalogCommands {
 
         long end = System.currentTimeMillis();
 
-        console.println();
-
-        console.printf(" %d file(s) removed in %3.3f seconds%n", totalAmountDeleted,
+        String info = String.format(" %d file(s) removed in %3.3f seconds%n", totalAmountDeleted,
                 (end - start) / MILLISECONDS_PER_SECOND);
+
+        LOGGER.info(info);
+        LOGGER.info(totalAmountDeleted + " files remove using cache:removeAll command");
+
+        console.println();
+        console.print(info);
 
         return null;
     }
