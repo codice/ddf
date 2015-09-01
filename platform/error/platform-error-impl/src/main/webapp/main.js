@@ -15,30 +15,88 @@
 (function () {
     'use strict';
 
-    require(['/error/config.js'], function () {
-        require([
-            'backbone',
-            'marionette',
-            'icanhaz',
-            'js/application',
-            'js/HandlebarsHelpers'
+    require.config({
 
-        ], function (Backbone, Marionette, ich, Application) {
+        baseUrl: "/error",
 
-            var app = Application.App;
+        paths: {
+            q: 'lib/q/q',
 
-            Marionette.Renderer.render = function (template, data) {
-                if(!template){return '';}
-                return ich[template](data);
-            };
+            // backbone
+            backbone: 'lib/components-backbone/backbone-min',
+            underscore: 'lib/lodash/dist/lodash.underscore.min',
+            marionette: 'lib/marionette/lib/backbone.marionette.min',
 
-            if(window){
-                // make ddf object available on window.  Makes debugging in chrome console much easier
-                window.app = app;
+            // jquery
+            jquery: 'lib/jquery/jquery.min',
+
+            // handlebars
+            handlebars: 'lib/handlebars/handlebars.min',
+            icanhaz: 'lib/icanhandlebarz/ICanHandlebarz',
+
+            // require plugins
+            text: 'lib/requirejs-plugins/lib/text',
+
+            // default login ui
+            app: 'js/application'
+        },
+
+
+        shim: {
+
+            backbone: {
+                deps: ['underscore', 'jquery'],
+                exports: 'Backbone'
+            },
+            marionette: {
+                deps: ['jquery', 'underscore', 'backbone'],
+                exports: 'Marionette'
+            },
+            underscore: {
+                exports: '_'
+            },
+            handlebars: {
+                exports: 'Handlebars'
+            },
+            icanhaz: {
+                deps: ['jquery', 'handlebars'],
+                exports: 'ich'
+            },
+            bootstrap: {
+                deps: ['jquery']
             }
 
-            // Actually start up the application.
-            app.start();
-        });
+        },
+
+        waitSeconds: 200
     });
+
+
+    require([
+        'backbone',
+        'marionette',
+        'icanhaz',
+        'js/application',
+        'js/HandlebarsHelpers'
+
+    ], function (Backbone, Marionette, ich, Application) {
+
+        var app = Application.App;
+
+        Marionette.Renderer.render = function (template, data) {
+            if (!template) {
+                return '';
+            }
+            return ich[template](data);
+        };
+
+        if (window) {
+            // make ddf object available on window.  Makes debugging in chrome console much easier
+            window.app = app;
+        }
+
+        // Actually start up the application.
+        app.start();
+    });
+
 }());

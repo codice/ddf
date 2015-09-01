@@ -36,7 +36,7 @@ module.exports = function (grunt) {
             }
         },
         jshint: {
-            files: ['Gruntfile.js', 'src/main/webapp/js/**/*.js', 'src/main/webapp/config.js', 'src/main/webapp/main.js', 'src/main/webapp/properties.js'],
+            files: ['Gruntfile.js', 'src/main/webapp/js/**/*.js', 'src/main/webapp/main.js', 'src/main/webapp/properties.js'],
             options: {
                 bitwise: true,        // Prohibits the use of bitwise operators such as ^ (XOR), | (OR) and others.
                 forin: true,          // Requires all for in loops to filter object's items.
