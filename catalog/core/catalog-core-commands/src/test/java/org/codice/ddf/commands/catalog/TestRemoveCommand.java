@@ -45,7 +45,7 @@ public class TestRemoveCommand {
     private static ConsoleOutput consoleOutput;
 
     @Before
-    public void setup(){
+    public void setup() {
         metacardList = getMetacardList(5);
 
         consoleOutput = new ConsoleOutput();

@@ -30,10 +30,8 @@ import org.apache.felix.gogo.commands.Option;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.joda.time.DateTime;
 import org.opengis.filter.Filter;
-import org.opensaml.xml.parse.LoggingErrorHandler;
 import org.slf4j.LoggerFactory;
 
-import ddf.catalog.Constants;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.filter.FilterBuilder;
@@ -46,7 +44,6 @@ import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.UnsupportedQueryException;
 
-import net.sf.saxon.lib.Logger;
 
 /**
  * Command used to remove all or a subset of records (in bulk) from the Catalog.

@@ -70,7 +70,7 @@ public class SearchCommand extends CatalogCommands {
                     + "\tComplex:   search --cql \"title like 'some text' AND modified before 2012-09-01T12:30:00Z\"")
     String cqlFilter = null;
 
-    @Option(name= "--cache", aliases = {}, required = false, multiValued = false, description = "Only search cached entries.")
+    @Option(name = "--cache", aliases = {}, required = false, multiValued = false, description = "Only search cached entries.")
 
     boolean cache = false;
 
@@ -93,15 +93,15 @@ public class SearchCommand extends CatalogCommands {
             }
         }
 
-        if(this.cache){
+        if(this.cache) {
             return  executeSearchCache(filter);
-        }else {
+        } else {
             return  executeSearchStore(filter);
         }
 
     }
 
-    private  Object executeSearchStore(Filter filter)  throws Exception{
+    private  Object executeSearchStore(Filter filter)  throws Exception {
         String formatString =
                 "%1$-33s %2$-26s %3$-" + TITLE_MAX_LENGTH + "s %4$-" + EXCERPT_MAX_LENGTH + "s%n";
 
@@ -188,7 +188,7 @@ public class SearchCommand extends CatalogCommands {
         return null;
     }
 
-    private  Object executeSearchCache(Filter filter) throws Exception{
+    private  Object executeSearchCache(Filter filter) throws Exception {
         String formatString = "%1$-33s %2$-26s %3$-" + TITLE_MAX_LENGTH + "s %n";
 
         long start = System.currentTimeMillis();
