@@ -45,7 +45,7 @@ public class TestRemoveCommand {
     private static ConsoleOutput consoleOutput;
 
     @Before
-    public void setUp(){
+    public void setup(){
         metacardList = getMetacardList(5);
 
         consoleOutput = new ConsoleOutput();
@@ -53,7 +53,7 @@ public class TestRemoveCommand {
     }
 
     @AfterClass
-    public static void cleanUp() throws IOException {
+    public static void tearDownClass() throws IOException {
         consoleOutput.resetSystemOut();
         consoleOutput.closeBuffer();
     }
