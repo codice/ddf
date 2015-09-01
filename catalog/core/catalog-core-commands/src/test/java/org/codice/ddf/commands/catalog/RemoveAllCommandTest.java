@@ -53,7 +53,7 @@ import ddf.catalog.operation.QueryResponse;
  * @author ddf.isgs@lmco.com
  *
  */
-public class TestRemoveAllCommand {
+public class RemoveAllCommandTest {
 
     static final String DEFAULT_CONSOLE_COLOR = Ansi.ansi().reset().toString();
 

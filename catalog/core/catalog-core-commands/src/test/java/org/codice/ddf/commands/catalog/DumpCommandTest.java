@@ -34,7 +34,7 @@ import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
  * Tests the {@link DumpCommand} output.
  *
  */
-public class TestDumpCommand extends AbstractCommandTest {
+public class DumpCommandTest extends AbstractCommandTest {
 
     static final String DEFAULT_CONSOLE_COLOR = Ansi.ansi().reset().toString();
 

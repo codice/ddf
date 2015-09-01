@@ -38,7 +38,7 @@ import ddf.catalog.data.impl.MetacardImpl;
  * @author Eric Irwin
  *
  */
-public class TestRemoveCommand {
+public class RemoveCommandTest {
 
     private List<Metacard> metacardList = getMetacardList(5);
 
