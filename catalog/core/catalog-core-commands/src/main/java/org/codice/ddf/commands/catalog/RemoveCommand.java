@@ -26,6 +26,7 @@ import org.apache.felix.gogo.commands.Option;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.geotools.filter.text.cql2.CQL;
 import org.opengis.filter.Filter;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Result;
 import ddf.catalog.operation.DeleteResponse;
@@ -41,6 +42,9 @@ import ddf.catalog.operation.impl.QueryRequestImpl;
 @Command(scope = CatalogCommands.NAMESPACE, name = "remove", description = "Deletes a record from the Catalog.")
 public class RemoveCommand extends CatalogCommands {
 
+    private static final org.slf4j.Logger LOGGER = LoggerFactory
+            .getLogger(RemoveCommand.class);
+
     @Argument(name = "IDs", description = "The id(s) of the document(s) (space delimited) to be deleted.", index = 0, multiValued = true, required = false)
     List<String> ids = null;
 
@@ -52,15 +56,14 @@ public class RemoveCommand extends CatalogCommands {
                     + "\tComplex:   search --cql \"title like 'some text' AND modified before 2012-09-01T12:30:00Z\"")
     String cqlFilter = null;
 
-    @Option(name = "--cache", aliases = {}, required = false, multiValued = false, description = "Use cache.")
+    @Option(name = "--cache", aliases = {}, required = false, multiValued = false, description = "Only remove cached entries.")
     boolean cache = false;
 
     @Override
     protected Object doExecute() throws Exception {
-        if (ids == null) {
+        if (ids == null || ids.isEmpty()) {
             printErrorMessage("Nothing to remove.");
             return null;
-
         }
 
         if (this.cache) {
@@ -77,7 +80,11 @@ public class RemoveCommand extends CatalogCommands {
         idsArray = ids.toArray(idsArray);
         getCacheProxy().removeById(idsArray);
 
-        printSuccessMessage(Arrays.asList(ids) + " successfully removed from cache.");
+        List idsList = Arrays.asList(ids);
+
+        printSuccessMessage(idsList + " successfully removed from cache.");
+
+        LOGGER.info(idsList + " removed from cache using catalog:remove command");
 
         return null;
     }
@@ -119,8 +126,10 @@ public class RemoveCommand extends CatalogCommands {
 
         if (response.getDeletedMetacards().size() > 0) {
             printSuccessMessage(ids + " successfully deleted.");
+            LOGGER.info(ids + " removed using catalog:remove command");
         } else {
             printErrorMessage(ids + " could not be deleted.");
+            LOGGER.info(ids + " could not be deleted using catalog:remove command");
         }
 
         return null;
