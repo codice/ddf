@@ -40,6 +40,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.thoughtworks.xstream.converters.ConversionException;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
@@ -230,6 +231,35 @@ public class TestTransactionMessageBodyReader {
                     + "          title = 'bar'\n"
                     + "        </ogc:CqlText>\n"
                     + "      </csw:Constraint>\n"
+                    + "    </csw:Update>\n"
+                    + "</csw:Transaction>";
+
+    private static final String UPDATE_REQUEST_NO_RECORDPROPERTY_NAME_XML =
+            "<csw:Transaction\n" + "    service=\"CSW\"\n" + "    version=\"2.0.2\"\n"
+                    + "    xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\">\n"
+                    + "    <csw:Update xmlns:ogc=\"http://www.opengis.net/ogc\">\n"
+                    + "      <csw:RecordProperty>\n"
+                    + "        <csw:Value>Foo</csw:Value>\n"
+                    + "      </csw:RecordProperty>\n"
+                    + "      <csw:Constraint version=\"2.0.0\">\n"
+                    + "        <ogc:Filter>\n"
+                    + "          <ogc:PropertyIsEqualTo>\n"
+                    + "            <ogc:PropertyName>format</ogc:PropertyName>\n"
+                    + "            <ogc:Literal>application/pdf</ogc:Literal>\n"
+                    + "          </ogc:PropertyIsEqualTo>\n"
+                    + "        </ogc:Filter>\n"
+                    + "      </csw:Constraint>\n"
+                    + "    </csw:Update>\n"
+                    + "</csw:Transaction>";
+
+    private static final String UPDATE_REQUEST_NO_CONSTRAINT_XML =
+            "<csw:Transaction\n" + "    service=\"CSW\"\n" + "    version=\"2.0.2\"\n"
+                    + "    xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\">\n"
+                    + "    <csw:Update>\n"
+                    + "      <csw:RecordProperty>\n"
+                    + "        <csw:Name>subject</csw:Name>\n"
+                    + "        <csw:Value>Foo</csw:Value>\n"
+                    + "      </csw:RecordProperty>\n"
                     + "    </csw:Update>\n"
                     + "</csw:Transaction>";
 
@@ -495,6 +525,22 @@ public class TestTransactionMessageBodyReader {
         assertThat(request.getService(), is(CswConstants.CSW));
         assertThat(request.getVersion(), is(CswConstants.VERSION_2_0_2));
         assertThat(request.isVerbose(), is(false));
+    }
+
+    @Test(expected = ConversionException.class)
+    public void testConversionExceptionWhenNoNameInUpdateRecordProperty() throws IOException {
+        TransactionMessageBodyReader reader = new TransactionMessageBodyReader(
+                mock(Converter.class));
+        reader.readFrom(CswTransactionRequest.class, null, null, null, null,
+                IOUtils.toInputStream(UPDATE_REQUEST_NO_RECORDPROPERTY_NAME_XML));
+    }
+
+    @Test(expected = ConversionException.class)
+    public void testConversionExceptionWhenNoConstraintInUpdate() throws IOException {
+        TransactionMessageBodyReader reader = new TransactionMessageBodyReader(
+                mock(Converter.class));
+        reader.readFrom(CswTransactionRequest.class, null, null, null, null,
+                IOUtils.toInputStream(UPDATE_REQUEST_NO_CONSTRAINT_XML));
     }
 
     private String getInsertRequest(int count) {
