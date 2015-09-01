@@ -41,10 +41,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
@@ -659,6 +661,20 @@ public abstract class AbstractIntegrationTest {
         if (wait) {
             waitForAllBundles();
         }
+    }
+    
+    protected void setUrlResourceReaderRootDirs(String... rootResourceDirs) throws IOException {
+        Configuration configuration = configAdmin.getConfiguration(
+                "ddf.catalog.resource.impl.URLResourceReader", null);
+        Dictionary<String, Object> properties = new Hashtable<String, Object>();       
+        Set<String> rootResourceDirectories = new HashSet<>();       
+        for (String rootResourceDir : rootResourceDirs) {
+            rootResourceDirectories.add(rootResourceDir);
+        }
+
+        properties.put("rootResourceDirectories", rootResourceDirectories);
+        configuration.update(properties);
+        LOGGER.info("URLResourceReader props after update: {}", configuration.getProperties().toString());
     }
 
     private class ServiceConfigurationListener implements ConfigurationListener {
