@@ -42,7 +42,7 @@ public class TestIngestCommand extends AbstractCommandTest {
     CatalogFramework catalogFramework;
 
     @Before
-    public void init() throws Exception {
+    public void setup() throws Exception {
         consoleOutput = new ConsoleOutput();
         consoleOutput.interceptSystemOut();
         catalogFramework = givenCatalogFramework(getResultList("id1", "id2"));
