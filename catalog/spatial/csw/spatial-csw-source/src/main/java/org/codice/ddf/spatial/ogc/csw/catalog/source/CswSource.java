@@ -10,7 +10,7 @@
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- **/
+ */
 package org.codice.ddf.spatial.ogc.csw.catalog.source;
 
 import java.io.IOException;
@@ -309,15 +309,11 @@ public class CswSource extends MaskableImpl
 
     public void init() {
         LOGGER.debug("{}: Entering init()", cswSourceConfiguration.getId());
-        try {
-            factory = new SecureCxfClientFactory(cswSourceConfiguration.getCswUrl(), Csw.class,
-                    initProviders(cswTransformProvider, cswSourceConfiguration), null,
-                    cswSourceConfiguration.getDisableCnCheck(),
-                    cswSourceConfiguration.getConnectionTimeout(),
-                    cswSourceConfiguration.getReceiveTimeout());
-        } catch (SecurityServiceException sse) {
-            LOGGER.error("Unable to make SecureClientFactory.", sse);
-        }
+        factory = new SecureCxfClientFactory(cswSourceConfiguration.getCswUrl(), Csw.class,
+                initProviders(cswTransformProvider, cswSourceConfiguration), null,
+                cswSourceConfiguration.getDisableCnCheck(),
+                cswSourceConfiguration.getConnectionTimeout(),
+                cswSourceConfiguration.getReceiveTimeout());
         setupAvailabilityPoll();
     }
 
@@ -637,11 +633,19 @@ public class CswSource extends MaskableImpl
 
     @Override
     public SourceResponse query(QueryRequest queryRequest) throws UnsupportedQueryException {
-        return query(queryRequest, ElementSetType.FULL, null);
+        try {
+            Subject subject = (Subject) queryRequest
+                    .getPropertyValue(SecurityConstants.SECURITY_SUBJECT);
+            Csw csw = getClient(subject);
+            return query(queryRequest, ElementSetType.FULL, null, csw);
+        } catch (SecurityServiceException e) {
+            throw new UnsupportedQueryException("Could not get client for CSW Source: " + getId(),
+                    e);
+        }
     }
 
-    private SourceResponse query(QueryRequest queryRequest, ElementSetType elementSetName,
-            List<QName> elementNames) throws UnsupportedQueryException {
+    protected SourceResponse query(QueryRequest queryRequest, ElementSetType elementSetName,
+            List<QName> elementNames, Csw csw) throws UnsupportedQueryException {
 
         Query query = queryRequest.getQuery();
         LOGGER.debug("{}: Received query:\n{}", cswSourceConfiguration.getId(), query);
@@ -662,9 +666,6 @@ public class CswSource extends MaskableImpl
 
         try {
 
-            Subject subject = (Subject) queryRequest
-                    .getPropertyValue(SecurityConstants.SECURITY_SUBJECT);
-            Csw csw = getClient(subject);
             CswRecordCollection cswRecordCollection = csw.getRecords(getRecordsType);
 
             if (cswRecordCollection == null) {
@@ -685,8 +686,6 @@ public class CswSource extends MaskableImpl
         } catch (WebApplicationException wae) {
             String msg = handleWebApplicationException(wae);
             throw new UnsupportedQueryException(msg, wae);
-        } catch (SecurityServiceException sse) {
-            LOGGER.error("Could not get client for the endpointURL and Security Subject.", sse);
         } catch (Exception ce) {
             String msg = handleClientException(ce);
             throw new UnsupportedQueryException(msg, ce);
