@@ -36,8 +36,11 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
@@ -459,9 +462,33 @@ public abstract class AbstractIntegrationTest {
 
     }
 
-    public class CswConnectedSourceProperties extends HashMap<String, Object> {
+    public void stopFeature(boolean wait, String... featureNames) throws Exception {
+        ServiceReference<FeaturesService> featuresServiceRef = bundleCtx
+                .getServiceReference(FeaturesService.class);
+        FeaturesService featuresService = bundleCtx.getService(featuresServiceRef);
+        for (String featureName : featureNames) {
+            featuresService.uninstallFeature(featureName);
+        }
+        if (wait) {
+            waitForAllBundles();
+        }
+    }
 
-        public static final String SYMBOLIC_NAME = "spatial-csw-source";
+    protected void setUrlResourceReaderRootDirs(String... rootResourceDirs) throws IOException {
+        Configuration configuration = configAdmin.getConfiguration(
+                "ddf.catalog.resource.impl.URLResourceReader", null);
+        Dictionary<String, Object> properties = new Hashtable<String, Object>();       
+        Set<String> rootResourceDirectories = new HashSet<>();       
+        for (String rootResourceDir : rootResourceDirs) {
+            rootResourceDirectories.add(rootResourceDir);
+        }
+
+        properties.put("rootResourceDirectories", rootResourceDirectories);
+        configuration.update(properties);
+        LOGGER.info("URLResourceReader props after update: {}", configuration.getProperties().toString());
+    }
+
+    private class ServiceConfigurationListener implements ConfigurationListener {
 
         public static final String FACTORY_PID = "Csw_Connected_Source";
 

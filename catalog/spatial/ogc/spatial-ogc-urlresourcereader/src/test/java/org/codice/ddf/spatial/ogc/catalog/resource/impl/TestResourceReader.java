@@ -14,79 +14,54 @@
  **/
 package org.codice.ddf.spatial.ogc.catalog.resource.impl;
 
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.Serializable;
 import java.io.StringWriter;
-import java.net.InetSocketAddress;
 import java.net.URI;
-import java.util.ArrayList;
+import java.net.URL;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.activation.MimeType;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedHashMap;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
 
 import org.apache.commons.io.IOUtils;
-import org.junit.Before;
+import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.tika.Tika;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.MethodRule;
 import org.junit.rules.TestWatchman;
 import org.junit.runners.model.FrameworkMethod;
+import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
-import com.sun.net.httpserver.HttpServer;
-
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.resource.Resource;
-import ddf.catalog.resource.ResourceNotFoundException;
-import ddf.mime.MimeTypeMapper;
-import ddf.mime.MimeTypeResolver;
-import ddf.mime.custom.CustomMimeTypeResolver;
-import ddf.mime.mapper.MimeTypeMapperImpl;
-import ddf.mime.tika.TikaMimeTypeResolver;
+import ddf.catalog.resource.impl.URLResourceReader;
 
 public class TestResourceReader {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestResourceReader.class);
-
-    private static final String TEST_PATH = "/src/test/resources/data/";
-
-    private static final String DEFAULT_MIME_TYPE = "application/octet-stream";
-
-    private static final String JPEG_MIME_TYPE = "image/jpeg";
-
-    private static final String VIDEO_MIME_TYPE = "video/mpeg";
-
-    private static final String MP4_MIME_TYPE = "video/mp4";
-
-    private static final String CUSTOM_MIME_TYPE = "image/xyz";
-
-    private static final String CUSTOM_FILE_EXTENSION = "xyz";
-
-    private static final String JPEG_FILE_NAME_1 = "flower.jpg";
-
-    private static final String MPEG_FILE_NAME_1 = "test.mpeg";
-
-    private static final String MP4_FILE_NAME_1 = "sample.mp4";
-
-    private static final String PPT_FILE_NAME_1 = "MissionPlan.ppt";
-
-    private static final String PPTX_FILE_NAME_1 = "MissionPlan.pptx";
+    
+    private WebClient mockWebClient = mock(WebClient.class);
+    
+    private Tika mockTika = mock(Tika.class);
 
     private static final String HTTP_SCHEME_PLUS_SEP = "http://";
-
-    private static final String ABSOLUTE_PATH = new File(".").getAbsolutePath();
 
     private static final int MOCK_HTTP_SERVER_PORT = 29992;
 
@@ -94,11 +69,7 @@ public class TestResourceReader {
 
     private static final String MOCK_HTTP_SERVER_PATH = "/mock/http/path";
 
-    private static final int MOCK_HTTP_SERVER_STOP_DELAY = 1;
-
     private static final String MOCK_HTTP_SERVER_ENCODING = "UTF-8";
-
-    private static final int HTTP_SUCCESS_CODE = 200;
 
     @Rule
     public MethodRule watchman = new TestWatchman() {
@@ -114,135 +85,74 @@ public class TestResourceReader {
         }
     };
 
-    private MimeTypeMapper mimeTypeMapper;
-
-    private CustomMimeTypeResolver customResolver;
-
-    private static String getStringFromInputStream(InputStream inputStream) {
-        BufferedReader bufferedReader = null;
-        StringBuilder stringBuilder = new StringBuilder();
-        String line;
-        try {
-            bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-            while ((line = bufferedReader.readLine()) != null) {
-                stringBuilder.append(line + "\n");
+    @Test
+    public void testRetrieveResourceTextHtmlDetectedByTika() throws Exception {    
+        // Setup
+        Response mockResponse = mock(Response.class);
+        when(mockWebClient.get()).thenReturn(mockResponse);
+        MultivaluedMap<String, Object> map = new MultivaluedHashMap<>();
+        when(mockResponse.getHeaders()).thenReturn(map);
+        InputStream mockInputStream = mock(InputStream.class);
+        when(mockResponse.getEntity()).thenReturn(mockInputStream);
+        when(mockResponse.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
+        when(mockTika.detect(Mockito.any(URL.class))).thenReturn(MediaType.TEXT_HTML);
+        
+        URLResourceReader urlResourceReader = new URLResourceReader(null) {
+            @Override
+            protected WebClient getWebClient(String uri) {
+                return mockWebClient;
             }
-        } catch (IOException e) {
-            LOGGER.error("IOException on reading input stream: " + e.getMessage());
-            fail(e.getMessage());
-        } finally {
-            if (bufferedReader != null) {
-                try {
-                    bufferedReader.close();
-                } catch (IOException e) {
-                    LOGGER.error("Error closing bufferedReader in test");
-                }
-            }
-        }
-        return stringBuilder.toString();
-    }
+        };
+        
+        OgcUrlResourceReader resourceReader = new OgcUrlResourceReader(urlResourceReader, mockTika);
 
-    @Before
-    public void setUp() {
-        MimeTypeResolver tikaResolver = new TikaMimeTypeResolver();
-        this.customResolver = new CustomMimeTypeResolver();
-        List<MimeTypeResolver> resolvers = new ArrayList<MimeTypeResolver>();
-        resolvers.add(tikaResolver);
-        resolvers.add(this.customResolver);
-        this.mimeTypeMapper = new MimeTypeMapperImpl(resolvers);
-    }
+        String httpUriStr =
+                HTTP_SCHEME_PLUS_SEP + MOCK_HTTP_SERVER_HOST + ":" + MOCK_HTTP_SERVER_PORT
+                        + MOCK_HTTP_SERVER_PATH;
 
+        URI uri = new URI(httpUriStr);
+        HashMap<String, Serializable> arguments = new HashMap<String, Serializable>();
+        
+        // Perform Test
+        ResourceResponse resourceResponse = resourceReader.retrieveResource(uri, arguments);
+
+        // Verify
+        StringWriter writer = new StringWriter();
+        IOUtils.copy(resourceResponse.getResource().getInputStream(), writer,
+                MOCK_HTTP_SERVER_ENCODING);
+        String responseString = writer.toString();
+
+        LOGGER.info("Response " + responseString);
+        
+        assertThat(responseString,
+                is("<html><script type=\"text/javascript\">window.location.replace(\"" + httpUriStr
+                        + "\");</script></html>"));
+    }
+    
+    /**
+     * Tests the case in which the Resource in the ResourceResponse returned by the URLResourceReader has
+     * a null mime type.
+     */
     @Test
-    public void testReadJPGFile() {
-        String filePath = ABSOLUTE_PATH + TEST_PATH + JPEG_FILE_NAME_1;
-        verifyFile(filePath, JPEG_FILE_NAME_1, JPEG_MIME_TYPE);
-    }
-
-    @Test
-    public void testReadMPEGFile() {
-        String filePath = ABSOLUTE_PATH + TEST_PATH + MPEG_FILE_NAME_1;
-        verifyFile(filePath, MPEG_FILE_NAME_1, VIDEO_MIME_TYPE);
-    }
-
-    @Test
-    public void testReadMP4File() {
-        String filePath = ABSOLUTE_PATH + TEST_PATH + MP4_FILE_NAME_1;
-        verifyFile(filePath, MP4_FILE_NAME_1, MP4_MIME_TYPE);
-    }
-
-    @Test
-    public void testReadPPTFile() {
-        String filePath = ABSOLUTE_PATH + TEST_PATH + PPT_FILE_NAME_1;
-        verifyFile(filePath, PPT_FILE_NAME_1, "application/vnd.ms-powerpoint");
-    }
-
-    @Test
-    public void testReadPPTXFile() {
-        String filePath = ABSOLUTE_PATH + TEST_PATH + PPTX_FILE_NAME_1;
-        verifyFile(filePath, PPTX_FILE_NAME_1,
-                "application/vnd.openxmlformats-officedocument.presentationml.presentation");
-    }
-
-    @Test
-    public void testReadFileWithUnknownExtension() {
-        String filePath = ABSOLUTE_PATH + TEST_PATH + "UnknownExtension.hugh";
-        verifyFile(filePath, "UnknownExtension.hugh", DEFAULT_MIME_TYPE);
-    }
-
-    @Test
-    public void testReadFileWithNoExtension() {
-        String filePath = ABSOLUTE_PATH + TEST_PATH + "JpegWithoutExtension";
-        verifyFile(filePath, "JpegWithoutExtension", JPEG_MIME_TYPE);
-    }
-
-    @Test
-    public void testReadFileWithCustomExtension() {
-        // Add custom file extension to mime type mapping to custom mime type
-        // resolver
-        this.customResolver
-                .setCustomMimeTypes(new String[] {CUSTOM_FILE_EXTENSION + "=" + CUSTOM_MIME_TYPE});
-
-        String filePath = ABSOLUTE_PATH + TEST_PATH + "CustomExtension.xyz";
-        verifyFile(filePath, "CustomExtension.xyz", CUSTOM_MIME_TYPE);
-    }
-
-    @Test
-    public void testJpegWithUnknownExtension() {
-        String filePath = ABSOLUTE_PATH + TEST_PATH + "JpegWithUnknownExtension.hugh";
-        verifyFile(filePath, "JpegWithUnknownExtension.hugh", JPEG_MIME_TYPE);
-    }
-
-    @Test
-    public void testJpegWithCustomExtension() {
-        // Add custom file extension to mime type mapping to custom mime type
-        // resolver
-        this.customResolver
-                .setCustomMimeTypes(new String[] {CUSTOM_FILE_EXTENSION + "=" + CUSTOM_MIME_TYPE});
-
-        String filePath = ABSOLUTE_PATH + TEST_PATH + "JpegWithCustomExtension.xyz";
-        verifyFile(filePath, "JpegWithCustomExtension.xyz", CUSTOM_MIME_TYPE);
-    }
-
-    @Test
-    public void testJpegWithOverriddenExtension() {
-        // Override/redefine .jpg file extension to custom mime type mapping of
-        // "image/xyz"
-        this.customResolver.setCustomMimeTypes(new String[] {"jpg=" + CUSTOM_MIME_TYPE});
-
-        String filePath = ABSOLUTE_PATH + TEST_PATH + JPEG_FILE_NAME_1;
-        verifyFile(filePath, JPEG_FILE_NAME_1, CUSTOM_MIME_TYPE);
-    }
-
-    @Test
-    public void testOgcUrlResourceReaderHtmlContent() throws Exception {
-        OgcUrlResourceReader resourceReader = new OgcUrlResourceReader(mimeTypeMapper);
-
-        HttpServer mockHttpServer = HttpServer
-                .create(new InetSocketAddress(MOCK_HTTP_SERVER_PORT), 0);
-        mockHttpServer.createContext(MOCK_HTTP_SERVER_PATH,
-                new MockHttpServerSuccessResponse(MOCK_HTTP_SERVER_HOST, MOCK_HTTP_SERVER_PORT));
-        mockHttpServer.setExecutor(null);
-        mockHttpServer.start();
+    public void testRetrieveResourceNullResourceMimeType() throws Exception {
+        Response mockResponse = mock(Response.class);
+        when(mockWebClient.get()).thenReturn(mockResponse);
+        MultivaluedMap<String, Object> map = new MultivaluedHashMap<>();
+        when(mockResponse.getHeaders()).thenReturn(map);
+        InputStream mockInputStream = mock(InputStream.class);
+        when(mockResponse.getEntity()).thenReturn(mockInputStream);
+        when(mockResponse.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
+        when(mockTika.detect(Mockito.any(URL.class))).thenReturn(MediaType.TEXT_HTML);
+        
+        Resource mockResource = mock(Resource.class);
+        when(mockResource.getMimeType()).thenReturn(null);
+        
+        ResourceResponse mockResourceResponse = mock(ResourceResponse.class);
+        when(mockResourceResponse.getResource()).thenReturn(mockResource);
+        
+        URLResourceReader mockUrlResourceReader = mock(URLResourceReader.class);
+        when(mockUrlResourceReader.retrieveResource(any(URI.class), any(Map.class))).thenReturn(mockResourceResponse);
+        OgcUrlResourceReader resourceReader = new OgcUrlResourceReader(mockUrlResourceReader, mockTika);
 
         String httpUriStr =
                 HTTP_SCHEME_PLUS_SEP + MOCK_HTTP_SERVER_HOST + ":" + MOCK_HTTP_SERVER_PORT
@@ -252,76 +162,242 @@ public class TestResourceReader {
         HashMap<String, Serializable> arguments = new HashMap<String, Serializable>();
         ResourceResponse resourceResponse = resourceReader.retrieveResource(uri, arguments);
 
+        assertThat(resourceResponse, is(mockResourceResponse));
+    }
+    
+    /**
+     * Tests the case in which the Resource in the ResourceResponse returned by the URLResourceReader has
+     * a text/html mime type.
+     */
+    @Test
+    public void testRetrieveResourceMimeTypeTextHtml() throws Exception {
+        // Setup
+        Response mockResponse = mock(Response.class);
+        when(mockWebClient.get()).thenReturn(mockResponse);
+        MultivaluedMap<String, Object> map = new MultivaluedHashMap<>();
+        when(mockResponse.getHeaders()).thenReturn(map);
+        InputStream mockInputStream = mock(InputStream.class);
+        when(mockResponse.getEntity()).thenReturn(mockInputStream);
+        when(mockResponse.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
+        when(mockTika.detect(Mockito.any(URL.class))).thenReturn(null);
+        
+        Resource mockResource = mock(Resource.class);
+        when(mockResource.getMimeType()).thenReturn(new MimeType(MediaType.TEXT_HTML));
+        
+        ResourceResponse mockResourceResponse = mock(ResourceResponse.class);
+        when(mockResourceResponse.getResource()).thenReturn(mockResource);
+        
+        URLResourceReader mockUrlResourceReader = mock(URLResourceReader.class);
+        when(mockUrlResourceReader.retrieveResource(any(URI.class), any(Map.class))).thenReturn(mockResourceResponse);
+        OgcUrlResourceReader resourceReader = new OgcUrlResourceReader(mockUrlResourceReader, mockTika);
+
+        String httpUriStr =
+                HTTP_SCHEME_PLUS_SEP + MOCK_HTTP_SERVER_HOST + ":" + MOCK_HTTP_SERVER_PORT
+                        + MOCK_HTTP_SERVER_PATH;
+
+        URI uri = new URI(httpUriStr);
+        HashMap<String, Serializable> arguments = new HashMap<String, Serializable>();
+        
+        // Perform Test
+        ResourceResponse resourceResponse = resourceReader.retrieveResource(uri, arguments);
+        
+        // Verify
         StringWriter writer = new StringWriter();
         IOUtils.copy(resourceResponse.getResource().getInputStream(), writer,
                 MOCK_HTTP_SERVER_ENCODING);
         String responseString = writer.toString();
 
         LOGGER.info("Response " + responseString);
-        assertEquals(responseString,
-                "<html><script type=\"text/javascript\">window.location.replace(\"" + httpUriStr
-                        + "\");</script></html>");
-
-        mockHttpServer.stop(MOCK_HTTP_SERVER_STOP_DELAY);
+        
+        assertThat(responseString,
+                is("<html><script type=\"text/javascript\">window.location.replace(\"" + httpUriStr
+                        + "\");</script></html>"));
     }
+    
+    /**
+     * Tests the case in which the Resource in the ResourceResponse returned by the URLResourceReader has
+     * an application/unknown mime type.
+     */
+    @Test
+    public void testRetrieveResourceApplicationUnknownResourceMimeType() throws Exception {
+        // Setup
+        Response mockResponse = mock(Response.class);
+        when(mockWebClient.get()).thenReturn(mockResponse);
+        MultivaluedMap<String, Object> map = new MultivaluedHashMap<>();
+        when(mockResponse.getHeaders()).thenReturn(map);
+        InputStream mockInputStream = mock(InputStream.class);
+        when(mockResponse.getEntity()).thenReturn(mockInputStream);
+        when(mockResponse.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
+        when(mockTika.detect(Mockito.any(URL.class))).thenReturn(MediaType.TEXT_HTML);
+        
+        Resource mockResource = mock(Resource.class);
+        when(mockResource.getMimeType()).thenReturn(new MimeType("application/unknown"));
+        
+        ResourceResponse mockResourceResponse = mock(ResourceResponse.class);
+        when(mockResourceResponse.getResource()).thenReturn(mockResource);
+        
+        URLResourceReader mockUrlResourceReader = mock(URLResourceReader.class);
+        when(mockUrlResourceReader.retrieveResource(any(URI.class), any(Map.class))).thenReturn(mockResourceResponse);
+        OgcUrlResourceReader resourceReader = new OgcUrlResourceReader(mockUrlResourceReader, mockTika);
 
-    private void verifyFile(String filePath, String filename, String expectedMimeType) {
-        OgcUrlResourceReader resourceReader = new OgcUrlResourceReader(mimeTypeMapper);
+        String httpUriStr =
+                HTTP_SCHEME_PLUS_SEP + MOCK_HTTP_SERVER_HOST + ":" + MOCK_HTTP_SERVER_PORT
+                        + MOCK_HTTP_SERVER_PATH;
 
-        HashMap<String, Serializable> arguments = new HashMap<>();
+        URI uri = new URI(httpUriStr);
+        HashMap<String, Serializable> arguments = new HashMap<String, Serializable>();
+        
+        // Perform Test
+        ResourceResponse resourceResponse = resourceReader.retrieveResource(uri, arguments);
 
-        try {
-            LOGGER.info("Getting resource: " + filePath);
+        // Verify
+        StringWriter writer = new StringWriter();
+        IOUtils.copy(resourceResponse.getResource().getInputStream(), writer,
+                MOCK_HTTP_SERVER_ENCODING);
+        String responseString = writer.toString();
 
-            // Test using the URL ResourceReader
-            File file = new File(filePath);
-
-            URI uri = file.toURI();
-            LOGGER.info("URI: " + uri.toString());
-
-            ResourceResponse resourceResponse = resourceReader.retrieveResource(uri, arguments);
-
-            Resource resource = resourceResponse.getResource();
-            assert (resource != null);
-
-            LOGGER.info("MimeType: " + resource.getMimeType());
-            LOGGER.info("Got resource: " + resource.getName());
-            String name = resource.getName();
-            assertNotNull(name);
-            assertTrue(name.equals(filename));
-            assertTrue(resource.getMimeType().toString().contains(expectedMimeType));
-
-        } catch (IOException e) {
-            LOGGER.info("Caught unexpected IOException");
-            fail();
-        } catch (ResourceNotFoundException e) {
-            LOGGER.info("Caught unexpected ResourceNotFoundException");
-            fail();
-        }
+        LOGGER.info("Response " + responseString);
+        
+        assertThat(responseString,
+                is("<html><script type=\"text/javascript\">window.location.replace(\"" + httpUriStr
+                        + "\");</script></html>"));
     }
+    
+    /**
+     * Tests the case in which the Resource in the ResourceResponse returned by the URLResourceReader has
+     * an application/octet-stream mime type.
+     */
+    @Test
+    public void testRetrieveResourceApplicationOctetStreamResourceMimeType() throws Exception {
+        // Setup
+        Response mockResponse = mock(Response.class);
+        when(mockWebClient.get()).thenReturn(mockResponse);
+        MultivaluedMap<String, Object> map = new MultivaluedHashMap<>();
+        when(mockResponse.getHeaders()).thenReturn(map);
+        InputStream mockInputStream = mock(InputStream.class);
+        when(mockResponse.getEntity()).thenReturn(mockInputStream);
+        when(mockResponse.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
+        when(mockTika.detect(Mockito.any(URL.class))).thenReturn(MediaType.TEXT_HTML);
+        
+        Resource mockResource = mock(Resource.class);
+        when(mockResource.getMimeType()).thenReturn(new MimeType("application/octet-stream"));
+        
+        ResourceResponse mockResourceResponse = mock(ResourceResponse.class);
+        when(mockResourceResponse.getResource()).thenReturn(mockResource);
+        
+        URLResourceReader mockUrlResourceReader = mock(URLResourceReader.class);
+        when(mockUrlResourceReader.retrieveResource(any(URI.class), any(Map.class))).thenReturn(mockResourceResponse);
+        OgcUrlResourceReader resourceReader = new OgcUrlResourceReader(mockUrlResourceReader, mockTika);
 
-    static class MockHttpServerSuccessResponse implements HttpHandler {
+        String httpUriStr =
+                HTTP_SCHEME_PLUS_SEP + MOCK_HTTP_SERVER_HOST + ":" + MOCK_HTTP_SERVER_PORT
+                        + MOCK_HTTP_SERVER_PATH;
 
-        private String mockHost;
+        URI uri = new URI(httpUriStr);
+        HashMap<String, Serializable> arguments = new HashMap<String, Serializable>();
+        
+        // Perform Test
+        ResourceResponse resourceResponse = resourceReader.retrieveResource(uri, arguments);
 
-        private int mockPort;
+        // Verify
+        StringWriter writer = new StringWriter();
+        IOUtils.copy(resourceResponse.getResource().getInputStream(), writer,
+                MOCK_HTTP_SERVER_ENCODING);
+        String responseString = writer.toString();
 
-        public MockHttpServerSuccessResponse(String mockHost, int mockPort) {
-            this.mockHost = mockHost;
-            this.mockPort = mockPort;
-        }
-
-        @Override
-        public void handle(HttpExchange httpExchange) throws IOException {
-            String response = "<!DOCTYPE HTML><html><head><title>dummy</title></head><body>dummy</body></html>";
-            InputStream inputStream = httpExchange.getRequestBody();
-            LOGGER.info("request was '{}'", getStringFromInputStream(inputStream));
-            //TODO assert
-            httpExchange.sendResponseHeaders(HTTP_SUCCESS_CODE, response.length());
-            OutputStream outputStream = httpExchange.getResponseBody();
-            outputStream.write(response.getBytes());
-            outputStream.close();
-        }
+        LOGGER.info("Response " + responseString);
+        
+        assertThat(responseString,
+                is("<html><script type=\"text/javascript\">window.location.replace(\"" + httpUriStr
+                        + "\");</script></html>"));
     }
+    
+    /**
+     * Tests the case in which the Resource in the ResourceResponse returned by the URLResourceReader has
+     * a null mime type and tika can't detect the mime type.
+     */
+    @Test
+    public void testRetrieveResourceCantDetectMimeType() throws Exception {
+        // Setup
+        Response mockResponse = mock(Response.class);
+        when(mockWebClient.get()).thenReturn(mockResponse);
+        MultivaluedMap<String, Object> map = new MultivaluedHashMap<>();
+        when(mockResponse.getHeaders()).thenReturn(map);
+        InputStream mockInputStream = mock(InputStream.class);
+        when(mockResponse.getEntity()).thenReturn(mockInputStream);
+        when(mockResponse.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
+        when(mockTika.detect(Mockito.any(URL.class))).thenReturn(null);
+        
+        Resource mockResource = mock(Resource.class);
+        when(mockResource.getMimeType()).thenReturn(null);
+        
+        ResourceResponse mockResourceResponse = mock(ResourceResponse.class);
+        when(mockResourceResponse.getResource()).thenReturn(mockResource);
+        
+        URLResourceReader mockUrlResourceReader = mock(URLResourceReader.class);
+        when(mockUrlResourceReader.retrieveResource(any(URI.class), any(Map.class))).thenReturn(mockResourceResponse);
+        OgcUrlResourceReader resourceReader = new OgcUrlResourceReader(mockUrlResourceReader, mockTika);
 
+        String httpUriStr =
+                HTTP_SCHEME_PLUS_SEP + MOCK_HTTP_SERVER_HOST + ":" + MOCK_HTTP_SERVER_PORT
+                        + MOCK_HTTP_SERVER_PATH;
+
+        URI uri = new URI(httpUriStr);
+        HashMap<String, Serializable> arguments = new HashMap<String, Serializable>();
+        
+        // Perform Test
+        ResourceResponse resourceResponse = resourceReader.retrieveResource(uri, arguments);
+
+        // Verify
+        assertThat(resourceResponse, is(mockResourceResponse));
+    }
+    
+    /**
+     * The OgcUrlResourceReader only supports http and https.
+     */
+    @Test
+    public void testGetSupportedSchemes() throws Exception {
+        OgcUrlResourceReader resourceReader = new OgcUrlResourceReader(null, null);
+        Set<String> supportedSchemes = resourceReader.getSupportedSchemes();
+        assertThat(supportedSchemes.size(), is(2));
+        assertThat(supportedSchemes, hasItems("http", "https"));
+        
+    }
+    
+    @Test
+    public void testOptions() throws Exception {
+        OgcUrlResourceReader resourceReader = new OgcUrlResourceReader(null, null);
+        Set<String> options = resourceReader.getOptions(null);
+        assertThat(options.size(), is(0));        
+    }
+    
+    @Test
+    public void testGetDescription() {
+        OgcUrlResourceReader resourceReader = new OgcUrlResourceReader(null, null);
+        assertNotNull(resourceReader.getDescription());
+    }
+    
+    @Test
+    public void testGetId() {
+        OgcUrlResourceReader resourceReader = new OgcUrlResourceReader(null, null);
+        assertNotNull(resourceReader.getId());
+    }
+    
+    @Test
+    public void testGetOrganization() {
+        OgcUrlResourceReader resourceReader = new OgcUrlResourceReader(null, null);
+        assertNotNull(resourceReader.getOrganization());
+    }
+    
+    @Test
+    public void testGetTitle() {
+        OgcUrlResourceReader resourceReader = new OgcUrlResourceReader(null, null);
+        assertNotNull(resourceReader.getTitle());
+    }
+    
+    @Test
+    public void testGetVersion() {
+        OgcUrlResourceReader resourceReader = new OgcUrlResourceReader(null, null);
+        assertNotNull(resourceReader.getVersion());
+    }
 }

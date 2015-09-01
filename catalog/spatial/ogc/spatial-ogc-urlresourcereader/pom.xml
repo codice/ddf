@@ -106,8 +106,11 @@
                             ${project.artifactId};blueprint.graceperiod:=true;blueprint.timeout:=604800000
                         </Bundle-SymbolicName>
                         <Private-Package>
+                            ddf.catalog.data.impl,
                             ddf.catalog.operation.impl,
-                            ddf.catalog.util.impl
+                            ddf.catalog.resource.impl,
+                            ddf.catalog.util.impl,
+                            org.codice.ddf.security.common.jaxrs
                         </Private-Package>
                         <Export-Package>
                             org.codice.ddf.spatial.ogc.catalog.resource.impl;version="${project.version}"
