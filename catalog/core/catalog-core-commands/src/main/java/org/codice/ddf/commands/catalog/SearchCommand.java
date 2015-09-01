@@ -24,6 +24,7 @@ import org.geotools.filter.text.cql2.CQL;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.opengis.filter.Filter;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -34,6 +35,9 @@ import ddf.util.XPathHelper;
 
 @Command(scope = CatalogCommands.NAMESPACE, name = "search", description = "Searches records in the catalog provider.")
 public class SearchCommand extends CatalogCommands {
+
+    private static final org.slf4j.Logger LOGGER = LoggerFactory
+            .getLogger(RemoveCommand.class);
 
     private static final String ID = "ID ";
 
@@ -66,7 +70,7 @@ public class SearchCommand extends CatalogCommands {
                     + "\tComplex:   search --cql \"title like 'some text' AND modified before 2012-09-01T12:30:00Z\"")
     String cqlFilter = null;
 
-    @Option(name= "--cache", aliases = {}, required = false, multiValued = false, description = "Use cache.")
+    @Option(name= "--cache", aliases = {}, required = false, multiValued = false, description = "Only search cached entries.")
 
     boolean cache = false;
 
