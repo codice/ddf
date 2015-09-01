@@ -77,7 +77,7 @@ public class RemoveAllCommand extends CatalogCommands {
             "--force"}, multiValued = false, description = "Force the removal without a confirmation message.")
     boolean force = false;
 
-    @Option(name = "--cache", aliases = {}, required = false, multiValued = false, description = "Use cache.")
+    @Option(name = "--cache", aliases = {}, required = false, multiValued = false, description = "Only remove cached entries.")
     boolean cache = false;
 
     @Override
