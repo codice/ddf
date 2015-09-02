@@ -61,8 +61,11 @@ public class RemoveAllCommand extends CatalogCommands {
 
     static final String BATCH_SIZE_ERROR_MESSAGE_FORMAT = "Improper batch size [%1$s]. For help with usage: removeall --help";
 
-    static final String WARNING_MESSAGE_FORMAT = "WARNING: This will permanently remove all %1$s"
+    static final String WARNING_MESSAGE_FORMAT_CATALOG_REMOVAL = "WARNING: This will permanently remove all %1$s"
             + "records from the Catalog. Do you want to proceed? (yes/no): ";
+
+    static final String WARNING_MESSAGE_FORMAT_CACHE_REMOVAL = "WARNING: This will permanently remove all %1$s"
+            + "records from the cache. Do you want to proceed? (yes/no): ";
 
     private static final int DEFAULT_BATCH_SIZE = 100;
 
@@ -234,7 +237,12 @@ public class RemoveAllCommand extends CatalogCommands {
     boolean isAccidentalRemoval(PrintStream console) throws IOException {
         if (!force) {
             StringBuffer buffer = new StringBuffer();
-            System.err.println(String.format(WARNING_MESSAGE_FORMAT, (expired ? "expired " : "")));
+
+            //use a message specific to whether they
+            //are removing from cache or the catalog
+            String warning = (this.cache ? WARNING_MESSAGE_FORMAT_CACHE_REMOVAL :
+                                           WARNING_MESSAGE_FORMAT_CATALOG_REMOVAL);
+            System.err.println(String.format(warning, (expired ? "expired " : "")));
             System.err.flush();
             while (true) {
                 int byteOfData = session.getKeyboard().read();
