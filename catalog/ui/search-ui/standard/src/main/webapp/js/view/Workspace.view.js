@@ -121,14 +121,7 @@ define([
                 'change': 'render',
                 'change:result': 'render'
             },
-            editing: false,
             initialize: function() {
-                if(this.model.collection.parents[0] && this.model.collection.parents[0].get('editing')) {
-                    this.editing = true;
-                }
-                this.listenTo(wreqr.vent, 'workspace:edit', this.editMode);
-                this.listenTo(wreqr.vent, 'workspace:searcheditcancel', this.doneMode);
-                this.listenTo(wreqr.vent, 'workspace:save', this.doneMode);
                 if(this.model.get('result')) {
                     this.listenTo(this.model.get('result'), 'change', this.render);
                 }
@@ -152,20 +145,12 @@ define([
                         });
                     }
                 }
-                return _.extend(this.model.toJSON(), {working: working, editing: this.editing, initiated: initiated, hits: hits});
+                return _.extend(this.model.toJSON(), {working: working, initiated: initiated, hits: hits});
             },
             update: function() {
-                if(! this.editing) {
+                if(! this.model.get('editing')) {
                     this.render();
                 }
-            },
-            editMode: function() {
-                this.editing = true;
-                this.render();
-            },
-            doneMode: function() {
-                this.editing = false;
-                this.render();
             },
             editSearch: function() {
                 wreqr.vent.trigger('workspace:editcancel');
@@ -176,7 +161,7 @@ define([
                 this.model.collection.remove(this.model);
             },
             showSearch: function() {
-                if(!this.editing) {
+                if(!this.model.get('editing')) {
                     var progressFunction = function (value, model) {
                         model.mergeLatest();
                         wreqr.vent.trigger('map:clear');
@@ -239,6 +224,13 @@ define([
                 wreqr.vent.trigger('workspace:results', dir.forward, this.model.get('metacards'));
             },
             onRender: function() {
+                var searches = this.model.get('searches');
+                var editing = this.model.get('editing');
+                if (searches && searches.length) {
+                    _.each(searches.models, function(search) {
+                        search.set('editing', editing);
+                    });
+                }
                 this.workspaceSearchPanelRegion.show(new WorkspaceView.SearchList({collection: this.model.get('searches')}));
             },
             editMode: function() {
