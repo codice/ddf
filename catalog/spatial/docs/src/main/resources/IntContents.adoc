@@ -941,6 +941,129 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
 |===
 
+
+===== Transaction Operation
+Transactions define the operations for creating, modifying, and deleting catalog records. The supported sub-operations for the Transaction operation are Insert, Update, and Delete.
+
+The CSW endpoint supports `HTTP POST` requests for the Transaction operation.
+
+===== Transaction Insert Sub-Operation `HTTP POST`
+
+The Insert sub-operation is a method for one or more records to be inserted into the catalog. The schema of the record needs to conform to the schema of the information model that the catalog supports as described using the DescribeRecord operation.
+
+The following example shows a new record inserted into the MapInfo Spatial Server core schema.
+
+.Sample XML Transaction Insert Request
+[source,xml,linenums]
+----
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<csw:Transaction
+    service="CSW"
+    version="2.0.2"
+    verboseResponse="true"
+    xmlns:csw="http://www.opengis.net/cat/csw/2.0.2">
+    <csw:Insert typeName="csw:Record">
+        <csw:Record
+            xmlns:ows="http://www.opengis.net/ows"
+            xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+            xmlns:dc="http://purl.org/dc/elements/1.1/"
+            xmlns:dct="http://purl.org/dc/terms/"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+            <dc:identifier></dc:identifier>
+            <dc:title>Aliquam fermentum purus quis arcu</dc:title>
+            <dc:type>http://purl.org/dc/dcmitype/Text</dc:type>
+            <dc:subject>Hydrography--Dictionaries</dc:subject>
+            <dc:format>application/pdf</dc:format>
+            <dc:date>2006-05-12</dc:date>
+            <dct:abstract>Vestibulum quis ipsum sit amet metus imperdiet vehicula. Nulla scelerisque cursus mi.</dct:abstract>
+            <ows:BoundingBox crs="urn:x-ogc:def:crs:EPSG:6.11:4326">
+                <ows:LowerCorner>44.792 -6.171</ows:LowerCorner>
+                <ows:UpperCorner>51.126 -2.228</ows:UpperCorner>
+            </ows:BoundingBox>
+        </csw:Record>
+    </csw:Insert>
+</csw:Transaction>
+----
+
+===== Transaction Insert Response
+
+The following is an example of an application/xml response to the Transaction Insert sub-operation:
+
+===== Transaction Update Sub-Operation `HTTP POST`
+
+The Update sub-operation is a method to specify values used to change existing information in the catalog. The MapInfo Spatial Server Update operation follows the Replace methodology. The values in the Update will completely replace those that are already in the record. Any values that are missing will be removed from the record. If individual record property values are specified in the Update element, using the RecordProperty element, then those individual property values of a catalog record are replaced. The RecordProperty contains a Name and Value element. The Name element is used to specify the name of the record property to be updated. The Value element contains the value that will be used to update the record in the catalog.
+
+The number of records affected by an Update operation is determined by the contents of the Constraint element, that contains a filter for limiting the update to a specific record or group of records.
+
+The following example shows the how the newly inserted record could be updated to modify the date field.
+
+.Sample XML Transaction Update Request
+[source,xml,linenums]
+----
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<csw:Transaction
+    service="CSW"
+    version="2.0.2"
+    verboseResponse="true"
+    xmlns:csw="http://www.opengis.net/cat/csw/2.0.2">
+    <csw:Update>
+        <csw:Record
+            xmlns:ows="http://www.opengis.net/ows"
+            xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+            xmlns:dc="http://purl.org/dc/elements/1.1/"
+            xmlns:dct="http://purl.org/dc/terms/"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+            <dc:identifier></dc:identifier>
+            <dc:title>Aliquam fermentum purus quis arcu</dc:title>
+            <dc:type>http://purl.org/dc/dcmitype/Text</dc:type>
+            <dc:subject>Hydrography--Dictionaries</dc:subject>
+            <dc:format>application/pdf</dc:format>
+            <dc:date>2008-08-10</dc:date>
+            <dct:abstract>Vestibulum quis ipsum sit amet metus imperdiet vehicula. Nulla scelerisque cursus mi.</dct:abstract>
+            <ows:BoundingBox crs="urn:x-ogc:def:crs:EPSG:6.11:4326">
+                <ows:LowerCorner>44.792 -6.171</ows:LowerCorner>
+                <ows:UpperCorner>51.126 -2.228</ows:UpperCorner>
+            </ows:BoundingBox>
+        </csw:Record>
+    </csw:Update>
+</csw:Transaction>
+----
+
+===== Transaction Update Response
+
+The following is an example of an application/xml response to the Transaction Insert sub-operation:
+
+===== Transaction Delete Sub-Operation `HTTP POST`
+
+The Delete sub-operation is a method to identify a set of records to be deleted from the catalog.
+
+The following example shows a delete operation that is deleting all records in the core MapInfo Spatial Server schema with a SRS name equal to wgs84.
+
+.Sample XML Transaction Delete Request without Constraint
+[source,xml,linenums]
+----
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<csw:Transaction service="CSW" version="2.0.2"
+    xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+    xmlns:gml="http://www.opengis.net/gml"
+    xmlns:ogc="http://www.opengis.net/ogc">
+    <csw:Delete typeName="csw:Record" handle="something">
+        <csw:Constraint version="2.0.0">
+            <ogc:Filter>
+            <ogc:PropertyIsLessThanOrEqualTo>
+               <ogc:PropertyName>SpatialReferenceSystem</ogc:PropertyName>
+               <ogc:Literal>wgs84</ogc:Literal>
+            </ogc:PropertyIsLessThanOrEqualTo>
+            </ogc:Filter>
+        </csw:Constraint>
+    </csw:Delete>
+</csw:Transaction>
+----
+
+===== Transaction Delete Response
+
+The following is an example of an application/xml response to the Transaction Insert sub-operation:
+
 ==== Install and Uninstall
 The CSW endpoint can be installed and uninstalled using the normal processes described in the Configuration section. 
 
