@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.spatial.ogc.csw.catalog.source;
 
 import java.io.IOException;
@@ -28,7 +27,6 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -79,6 +77,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.ContentTypeImpl;
+import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
@@ -130,8 +129,8 @@ import net.opengis.ows.v_1_0_0.OperationsMetadata;
  * CswSource provides a DDF {@link FederatedSource} and {@link ConnectedSource} for CSW 2.0.2
  * services.
  */
-public class CswSource extends MaskableImpl implements FederatedSource, ConnectedSource,
-        ConfiguredService {
+public class CswSource extends MaskableImpl
+        implements FederatedSource, ConnectedSource, ConfiguredService {
 
     protected static final String CSW_SERVER_ERROR = "Error received from CSW server.";
 
@@ -232,7 +231,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
 
     private Map<String, ContentType> contentTypes;
 
-    private List<ResourceReader> resourceReaders;
+    private ResourceReader resourceReader;
 
     private DomainType supportedOutputSchemas;
 
@@ -560,12 +559,12 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         }
     }
 
-    public List<ResourceReader> getResourceReaders() {
-        return resourceReaders;
+    public ResourceReader getResourceReader() {
+        return resourceReader;
     }
 
-    public void setResourceReaders(List<ResourceReader> resourceReaders) {
-        this.resourceReaders = resourceReaders;
+    public void setResourceReader(ResourceReader resourceReader) {
+        this.resourceReader = resourceReader;
     }
 
     public void setOutputSchema(String outputSchema) {
@@ -733,59 +732,10 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
 
     @Override
     public ResourceResponse retrieveResource(URI resourceUri,
-            Map<String, Serializable> properties) throws IOException, ResourceNotFoundException,
-            ResourceNotSupportedException {
-
+            Map<String, Serializable> requestProperties)
+            throws IOException, ResourceNotFoundException, ResourceNotSupportedException {
         LOGGER.debug("retrieving resource at : {}", resourceUri);
-
-        ResourceResponse resource = null;
-
-        if (resourceUri == null) {
-            throw new ResourceNotFoundException("Unable to find resource due to null URI");
-        }
-
-        String scheme = resourceUri.getScheme();
-        LOGGER.debug("Searching for ResourceReader that supports scheme = " + scheme);
-
-        LOGGER.debug("resourceReaders.size() = {}", resourceReaders.size());
-        Iterator<ResourceReader> iterator = resourceReaders.iterator();
-        while (iterator.hasNext() && resource == null) {
-            ResourceReader reader = iterator.next();
-            if (reader.getSupportedSchemes() != null && reader.getSupportedSchemes()
-                    .contains(scheme)) {
-                try {
-                    LOGGER.debug("Found an acceptable resource reader ({}) for URI {}",
-                            reader.getId(), resourceUri.toASCIIString());
-                    resource = reader.retrieveResource(resourceUri, properties);
-                    if (resource == null) {
-                        LOGGER.info(
-                                "Resource returned from ResourceReader {} was null. Checking other readers for URI: {}",
-                                reader.getId(), resourceUri);
-                    }
-                } catch (ResourceNotFoundException e) {
-                    LOGGER.debug(
-                            "Enterprise Search: Product not found using resource reader with name {}",
-                            reader.getId(), e);
-                } catch (ResourceNotSupportedException e) {
-                    LOGGER.debug(
-                            "Enterprise Search: Product not found using resource reader with name {}",
-                            reader.getId(), e);
-                } catch (IOException ioe) {
-                    LOGGER.debug(
-                            "Enterprise Search: Product not found using resource reader with name {}",
-                            reader.getId(), ioe);
-                }
-            }
-        }
-
-        if (resource == null) {
-            throw new ResourceNotFoundException(
-                    "Resource Readers could not find resource (or returned null resource) for URI: "
-                            + resourceUri);
-        }
-        LOGGER.debug("Received resource, sending back: {}", resource.getResource().getName());
-
-        return resource;
+        return resourceReader.retrieveResource(resourceUri, requestProperties);
     }
 
     public void setCswUrl(String cswUrl) {
@@ -977,8 +927,8 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         return sortBy;
     }
 
-    private QueryConstraintType createQueryConstraint(Query query) throws
-            UnsupportedQueryException {
+    private QueryConstraintType createQueryConstraint(Query query)
+            throws UnsupportedQueryException {
         FilterType filter = createFilter(query);
         if (null == filter) {
             return null;
@@ -1021,11 +971,19 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         MetadataTransformer transformer = lookupMetadataTransformer(transformerId);
 
         for (Metacard metacard : cswRecordCollection.getCswRecords()) {
-            metacard.setSourceId(getId());
-            if (transformer != null) {
-                metacard = transform(metacard, transformer);
+            MetacardImpl wrappedMetacard = new MetacardImpl(metacard);
+            wrappedMetacard.setSourceId(getId());
+            if (wrappedMetacard.getAttribute(Metacard.RESOURCE_DOWNLOAD_URL) != null
+                    && wrappedMetacard.getAttribute(Metacard.RESOURCE_DOWNLOAD_URL).getValue()
+                    != null) {
+                wrappedMetacard.setAttribute(Metacard.RESOURCE_URI,
+                        wrappedMetacard.getAttribute(Metacard.RESOURCE_DOWNLOAD_URL).getValue());
             }
-            Result result = new ResultImpl(metacard);
+            Metacard tranformedMetacard = wrappedMetacard;
+            if (transformer != null) {
+                tranformedMetacard = transform(metacard, transformer);
+            }
+            Result result = new ResultImpl(tranformedMetacard);
             results.add(result);
         }
 
@@ -1212,8 +1170,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
      *   </ows:Operation>
      * </pre>
      *
-     * @param capabilitiesType
-     *            The capabilities the org.codice.ddf.spatial.ogc.csw.catalog.common.Csw Server supports
+     * @param capabilitiesType The capabilities the org.codice.ddf.spatial.ogc.csw.catalog.common.Csw Server supports
      */
     private void readGetRecordsOperation(CapabilitiesType capabilitiesType) {
         OperationsMetadata operationsMetadata = capabilitiesType.getOperationsMetadata();
@@ -1559,7 +1516,6 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
      * NOTE: Ideally, the framework would call isAvailable on the Source and the SourcePoller would
      * have an AvailabilityTask that cached each Source's availability. Until that is done, allow
      * the command to handle the logic of managing availability.
-     *
      */
     private class CswSourceAvailabilityCommand implements AvailabilityCommand {
 
