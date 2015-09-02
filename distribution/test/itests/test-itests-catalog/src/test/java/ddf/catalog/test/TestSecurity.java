@@ -18,9 +18,6 @@ import static org.hamcrest.Matchers.equalTo;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
 
-import static ddf.catalog.test.SecurityPolicyConfigurator.configureRestForAnonymous;
-import static ddf.catalog.test.SecurityPolicyConfigurator.configureRestForBasic;
-
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -77,6 +74,8 @@ public class TestSecurity extends AbstractIntegrationTest {
                     + "        </wst:RequestSecurityToken>\n" + "    </soap:Body>\n"
                     + "</soap:Envelope>";
 
+    protected static final String SDK_SOAP_CONTEXT = "/services/sdk/SoapService";
+
     @BeforeExam
     public void beforeTest() throws Exception {
         setLogLevels();
@@ -90,7 +89,15 @@ public class TestSecurity extends AbstractIntegrationTest {
 
     @Before
     public void before() throws Exception {
-        configureRestForAnonymous(getAdminConfig(), getServiceManager(), SERVICE_ROOT);
+        configureRestForAnonymous();
+    }
+
+    private void configureRestForAnonymous() throws Exception {
+        getSecurityPolicy().configureRestForAnonymous(SDK_SOAP_CONTEXT);
+    }
+
+    private void configureRestForBasic() throws Exception {
+        getSecurityPolicy().configureRestForBasic(SDK_SOAP_CONTEXT);
     }
 
     @Test
@@ -99,8 +106,7 @@ public class TestSecurity extends AbstractIntegrationTest {
 
         //test that anonymous works and check that we get an sso token
         String cookie = when().get(url).then().log().all().assertThat().statusCode(equalTo(200))
-                .assertThat().header("Set-Cookie", containsString("JSESSIONID")).extract()
-                .cookie("JSESSIONID");
+                .assertThat().header("Set-Cookie", containsString("JSESSIONID")).extract().cookie("JSESSIONID");
 
         //try again with the sso token
         given().cookie("JSESSIONID", cookie).when().get(url).then().log().all().assertThat()
@@ -115,7 +121,7 @@ public class TestSecurity extends AbstractIntegrationTest {
     public void testBasicRestAccess() throws Exception {
         String url = SERVICE_ROOT + "/catalog/query?q=*";
 
-        configureRestForBasic(getAdminConfig(), getServiceManager(), SERVICE_ROOT);
+        configureRestForBasic();
 
         //test that we get a 401 if no credentials are specified
         when().get(url).then().log().all().assertThat().statusCode(equalTo(401));
@@ -141,7 +147,7 @@ public class TestSecurity extends AbstractIntegrationTest {
     @Test
     public void testBasicFederatedAuth() throws Exception {
         String recordId = TestCatalog.ingest(Library.getSimpleGeoJson(), "application/json");
-        configureRestForBasic(getAdminConfig(), getServiceManager(), SERVICE_ROOT);
+        configureRestForBasic();
 
         //Positive tests
         OpenSearchSourceProperties openSearchProperties = new OpenSearchSourceProperties(
@@ -198,7 +204,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         String unavailableCswQuery = SERVICE_ROOT + "/catalog/query?q=*&src=" + unavailableCswSourceId;
         */
 
-        configureRestForAnonymous(getAdminConfig(), getServiceManager(), SERVICE_ROOT);
+        configureRestForAnonymous();
         TestCatalog.deleteMetacard(recordId);
     }
 

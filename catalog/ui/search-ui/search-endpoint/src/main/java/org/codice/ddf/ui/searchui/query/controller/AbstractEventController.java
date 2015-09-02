@@ -252,7 +252,7 @@ public abstract class AbstractEventController implements EventHandler {
 
     protected String getUserId(ServerSession serverSession, Subject subject) {
         String userId = null;
-        if (subject != null) {
+        if (subject != null && subject.getPrincipals() != null) {
             PrincipalCollection principalCollection = subject.getPrincipals();
             for (Object principal : principalCollection.asList()) {
                 if (principal instanceof SecurityAssertion) {

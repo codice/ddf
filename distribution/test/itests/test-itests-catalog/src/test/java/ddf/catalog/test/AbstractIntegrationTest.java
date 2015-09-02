@@ -125,6 +125,8 @@ public abstract class AbstractIntegrationTest {
 
     private ServiceManager serviceManager;
 
+    private SecurityPolicyConfigurator securityPolicy;
+
     private CatalogBundle catalogBundle;
 
     static {
@@ -140,6 +142,7 @@ public abstract class AbstractIntegrationTest {
         adminConfig = new AdminConfig(configAdmin);
         serviceManager = new ServiceManager(bundleCtx, metatype, adminConfig);
         catalogBundle = new CatalogBundle(serviceManager, adminConfig);
+        securityPolicy = new SecurityPolicyConfigurator(serviceManager, configAdmin);
     }
 
     /**
@@ -164,6 +167,10 @@ public abstract class AbstractIntegrationTest {
 
     protected CatalogBundle getCatalogBundle() {
         return catalogBundle;
+    }
+
+    protected SecurityPolicyConfigurator getSecurityPolicy() {
+        return securityPolicy;
     }
 
     private Option[] combineOptions(Option[]... options) {

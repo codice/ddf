@@ -13,75 +13,110 @@
  **/
 package ddf.catalog.test;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
+import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.codice.ddf.security.policy.context.ContextPolicyManager;
+import org.codice.ddf.security.policy.context.impl.PolicyManager;
+import org.osgi.service.cm.ConfigurationAdmin;
 
-import ddf.common.test.AdminConfig;
 import ddf.common.test.ServiceManager;
 import ddf.common.test.SynchronizedConfiguration;
 
 public class SecurityPolicyConfigurator {
+
     private static final String SYMBOLIC_NAME = "security-policy-context";
 
     private static final String FACTORY_PID = "org.codice.ddf.security.policy.context.impl.PolicyManager";
 
-    private static final String[] AUTH_TYPES = {"/=SAML|%s", "/admin=SAML|basic",
-            "/jolokia=SAML|basic", "/system=SAML|basic", "/solr=SAML|PKI|basic"};
+    public static final String BASIC_AUTH_TYPES = "/=SAML|basic,/solr=SAML|PKI|basic";
 
-    public static void configureRestForAnonymous(AdminConfig adminConfig,
-            ServiceManager serviceManager, String serviceRoot) throws Exception {
-        configure(adminConfig, serviceManager, serviceRoot, "ANON");
+    public static final String ANON_AUTH_TYPES = "/=SAML|ANON,/admin=SAML|basic,/jolokia=SAML|basic,/system=SAML|basic,/solr=SAML|PKI|basic";
+
+    public static final String DEFAULT_WHITELIST = "/services/SecurityTokenService,/services/internal,/proxy";
+
+    private ServiceManager services;
+
+    private ConfigurationAdmin configAdmin;
+
+    public SecurityPolicyConfigurator(ServiceManager services, ConfigurationAdmin configAdmin) {
+        this.services = services;
+        this.configAdmin = configAdmin;
     }
 
-    public static void configureRestForBasic(AdminConfig adminConfig, ServiceManager serviceManager,
-            String serviceRoot) throws Exception {
-        configure(adminConfig, serviceManager, serviceRoot, "basic");
+    public void configureRestForAnonymous() throws Exception {
+        configureRestForAnonymous(null);
     }
 
-    private static void configure(AdminConfig adminConfig, ServiceManager serviceManager,
-            String serviceRoot, String policyType) throws Exception {
-        ContextPolicyManager ctxPolicyMgr = serviceManager.getService(ContextPolicyManager.class);
-
-        new SynchronizedConfiguration(FACTORY_PID, null,
-                getConfigProps(serviceManager, serviceRoot, policyType),
-                createChecker(policyType, ctxPolicyMgr)).updateConfig(adminConfig);
-
+    public void configureRestForAnonymous(String whitelist) throws Exception {
+        configureWebContextPolicy(null, null, null, createWhitelist(whitelist));
     }
 
-    private static Callable<Boolean> createChecker(final String policyType,
-            final ContextPolicyManager ctxPolicyMgr) {
+    public void configureRestForBasic() throws Exception {
+        configureRestForBasic(null);
+    }
+
+    public void configureRestForBasic(String whitelist) throws Exception {
+        configureWebContextPolicy(null, BASIC_AUTH_TYPES, null, createWhitelist(whitelist));
+    }
+
+    public static String createWhitelist(String whitelist) {
+        return DEFAULT_WHITELIST + (StringUtils.isNotBlank(whitelist) ? "," + whitelist : "");
+    }
+
+    public void configureWebContextPolicy(String realms, String authTypes,
+            String requiredAttributes, String whitelist) throws Exception {
+
+        Map<String, Object> policyProperties = services
+                .getMetatypeDefaults(SYMBOLIC_NAME, FACTORY_PID);
+
+        putPolicyValues(policyProperties, "realms", realms);
+        putPolicyValues(policyProperties, "authenticationTypes", authTypes);
+        putPolicyValues(policyProperties, "requiredAttributes", requiredAttributes);
+        putPolicyValues(policyProperties, "whiteListContexts", whitelist);
+
+        new SynchronizedConfiguration(FACTORY_PID, null, policyProperties,
+                createChecker(policyProperties), configAdmin).updateConfig();
+
+        services.waitForAllBundles();
+    }
+
+    private void putPolicyValues(Map<String, Object> properties, String key, String value) {
+        if (StringUtils.isNotBlank(value)) {
+            properties.put(key, StringUtils.split(value, ","));
+        }
+    }
+
+    private Callable<Boolean> createChecker(final Map<String, Object> policyProperties) {
+
+        final ContextPolicyManager ctxPolicyMgr = services.getService(ContextPolicyManager.class);
+
+        final PolicyManager targetPolicies = new PolicyManager();
+        targetPolicies.setPolicies(policyProperties);
+
         return new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
-                ContextPolicy contextPolicy = ctxPolicyMgr.getContextPolicy("/");
+                for (ContextPolicy policy : ctxPolicyMgr.getAllContextPolicies()) {
+                    ContextPolicy targetPolicy = targetPolicies
+                            .getContextPolicy(policy.getContextPath());
 
-                return contextPolicy.getAuthenticationMethods().contains(policyType);
+                    if (targetPolicy == null || !targetPolicy.getContextPath()
+                            .equals(policy.getContextPath()) || (targetPolicy.getRealm() != null
+                            && !targetPolicy.getRealm().equals(policy.getRealm())) || !targetPolicy
+                            .getAuthenticationMethods()
+                            .containsAll(policy.getAuthenticationMethods()) || !targetPolicy
+                            .getAllowedAttributeNames()
+                            .containsAll(policy.getAllowedAttributeNames())) {
+                        return false;
+                    }
+                }
+
+                return true;
             }
         };
     }
 
-    private static Map<String, Object> getConfigProps(ServiceManager serviceManager,
-            String serviceRoot, String policyType) {
-        Map<String, Object> map = new HashMap<>();
-        map.putAll(serviceManager.getMetatypeDefaults(SYMBOLIC_NAME, FACTORY_PID));
-        map.put("whiteListContexts",
-                "/services/SecurityTokenService,/services/internal,/proxy," + serviceRoot
-                        + "/sdk/SoapService");
-        map.put("authenticationTypes", getAuthTypes(policyType));
-        return map;
-
-    }
-
-    private static String[] getAuthTypes(String policyType) {
-        String[] subbedAuths = new String[AUTH_TYPES.length];
-        for (int i = 0; i < AUTH_TYPES.length; i++) {
-            subbedAuths[i] = String.format(AUTH_TYPES[i], policyType);
-        }
-
-        return subbedAuths;
-    }
 }
