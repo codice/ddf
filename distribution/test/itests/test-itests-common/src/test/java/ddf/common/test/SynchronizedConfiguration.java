@@ -1,0 +1,59 @@
+/**
+ * Copyright (c) Codice Foundation
+ * <p>
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * <p>
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ **/
+package ddf.common.test;
+
+import static org.junit.Assert.fail;
+
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
+
+public class SynchronizedConfiguration {
+    private static final long CONFIG_UPDATE_MAX_WAIT_MILLIS = TimeUnit.MINUTES.toMillis(1);
+
+    private static final int LOOP_SLEEP_MILLIS = 5;
+
+    private final String pid;
+
+    private final String location;
+
+    private final Map<String, Object> configProps;
+
+    private final Callable<Boolean> configCallable;
+
+    public SynchronizedConfiguration(String pid, String location, Map<String, Object> configProps,
+            Callable<Boolean> configCallable) {
+        this.pid = pid;
+        this.location = location;
+        this.configProps = configProps;
+        this.configCallable = configCallable;
+    }
+
+    public final void updateConfig(AdminConfig adminConfig) throws Exception {
+        adminConfig.getDdfConfigAdmin().update(pid, configProps);
+
+        long timeoutLimit = System.currentTimeMillis() + CONFIG_UPDATE_MAX_WAIT_MILLIS;
+        while (true) {
+            if (configCallable.call()) {
+                break;
+            } else {
+                if (System.currentTimeMillis() > timeoutLimit) {
+                    fail(String.format("Timed out waiting for configuration change for %s", pid));
+                } else {
+                    Thread.sleep(LOOP_SLEEP_MILLIS);
+                }
+            }
+        }
+    }
+}
