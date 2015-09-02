@@ -1766,12 +1766,12 @@ public class TestWfsFilterDelegate {
                 .getTemporalOps().getValue();
         assertThat(binaryTemporalOpType.isSetValueReference(), is(true));
         assertThat(binaryTemporalOpType.isSetExpression(), is(true));
-        TimePeriodType timePeriodTpe = (TimePeriodType) binaryTemporalOpType.getExpression()
+        TimePeriodType timePeriodType = (TimePeriodType) binaryTemporalOpType.getExpression()
                 .getValue();
 
-        beginPositionType = timePeriodTpe.getBeginPosition();
+        beginPositionType = timePeriodType.getBeginPosition();
         Date beginDate = timePositionTypeToDate(beginPositionType);
-        endPositionType = timePeriodTpe.getEndPosition();
+        endPositionType = timePeriodType.getEndPosition();
         Date endDate = timePositionTypeToDate(endPositionType);
         // Verify Date range is created correctly
         assertThat(endDate.after(beginDate), is(true));
@@ -1832,9 +1832,9 @@ public class TestWfsFilterDelegate {
                 .getTemporalOps().getValue();
         assertThat(binaryTemporalOpType.isSetValueReference(), is(true));
         assertThat(binaryTemporalOpType.isSetExpression(), is(true));
-        TimeInstantType timePeriodTpe = (TimeInstantType) binaryTemporalOpType.getExpression()
+        TimeInstantType timePeriodType = (TimeInstantType) binaryTemporalOpType.getExpression()
                 .getValue();
-        beginPositionType = timePeriodTpe.getTimePosition();
+        beginPositionType = timePeriodType.getTimePosition();
         Date beginDate = timePositionTypeToDate(beginPositionType);
 
         // Get Resulting Before Filter Date
@@ -1842,9 +1842,9 @@ public class TestWfsFilterDelegate {
                 .getTemporalOps().getValue();
         assertThat(binaryTemporalOpType.isSetValueReference(), is(true));
         assertThat(binaryTemporalOpType.isSetExpression(), is(true));
-        timePeriodTpe = (TimeInstantType) binaryTemporalOpType.getExpression()
+        timePeriodType = (TimeInstantType) binaryTemporalOpType.getExpression()
                 .getValue();
-        endPositionType = timePeriodTpe.getTimePosition();
+        endPositionType = timePeriodType.getTimePosition();
         Date endDate = timePositionTypeToDate(endPositionType);
 
         // Verify Date range is created correctly
