@@ -56,7 +56,7 @@ public class RemoveCommand extends CatalogCommands {
                     + "\tComplex:   search --cql \"title like 'some text' AND modified before 2012-09-01T12:30:00Z\"")
     String cqlFilter = null;
 
-    @Option(name = "--cache", aliases = {}, required = false, multiValued = false, description = "Only remove cached entries.")
+    @Option(name = "--cache", required = false, multiValued = false, description = "Only remove cached entries.")
     boolean cache = false;
 
     @Override

@@ -46,13 +46,6 @@ import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
 
-/**
- * Tests the {@link RemoveAllCommand} output.
- *
- * @author Ashraf Barakat
- * @author ddf.isgs@lmco.com
- *
- */
 public class RemoveAllCommandTest {
 
     static final String DEFAULT_CONSOLE_COLOR = Ansi.ansi().reset().toString();
