@@ -11,12 +11,42 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
+
 package ddf.security.certificate.generator;
 
-import java.security.PrivateKey;
-import java.security.cert.X509Certificate;
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public interface CertificateGeneratorBean {
-    CertificateAuthority getCertificateAuthority(X509Certificate cert, PrivateKey privateKey);
-//    CertificateSigningRequest()
+import java.net.UnknownHostException;
+import java.security.cert.CertificateException;
+import java.util.Hashtable;
+import java.util.Map;
+
+public class CertificateGeneratorBean implements CertificateGeneratorInterface {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CertificateGeneratorBean.class);
+
+    private PkiTools pkiTools = new PkiTools();
+
+    public Map<String, byte[]> getCertificate() throws CertificateException {
+
+        Map<String, byte[]> table = new Hashtable<>();
+        CertificateAuthority ca = new CertificateAuthority();
+        CertificateSigningRequest csr = new CertificateSigningRequest();
+        DateTime notAfter = DateTime.now().plusYears(100);
+        csr.setNotAfter(notAfter);
+        csr.setCertificateAuthority(ca);
+        try {
+            csr.setCommonNameToHostname();
+        } catch (UnknownHostException e) {
+            csr.setCommonName("UNKNOWN HOST");
+            LOGGER.warn("Could not determine host name when creating X509 certificate");
+        }
+        csr.build();
+        table.put("endEntityCertificate", csr.getSignedCertificate().getEncoded());
+        table.put("endEntityPublicKey", pkiTools.keyToDer(csr.getPublicKey()));
+        table.put("endEntityPrivateKey", pkiTools.keyToDer(csr.getPrivateKey()));
+        table.put("rootCertificate", ca.getCertificate().getEncoded());
+        return table;
+    }
 }

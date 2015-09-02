@@ -46,7 +46,7 @@ public class PkiTools {
 
     public static final int RSA_KEY_LENGTH = 2048;
     public static final String ALGORITHM = "RSA";
-    private static final Logger LOGGER = LoggerFactory.getLogger(KeyStoreFile.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PkiTools.class);
 
     /**
      * Convert a byte array to a Java String.
@@ -54,7 +54,7 @@ public class PkiTools {
      * @param bytes DER encoded bytes
      * @return PEM encoded bytes
      */
-    public static String bytesToBase64String(byte[] bytes) {
+    public static String derToPem(byte[] bytes) {
         return Base64.getEncoder().encodeToString(bytes);
     }
 
@@ -64,7 +64,7 @@ public class PkiTools {
      * @param string PEM encoded bytes
      * @return DER encoded bytes
      */
-    public static byte[] base64StringToBytes(String string) {
+    public byte[] pemToDer(String string) {
         return Base64.getDecoder().decode(string);
     }
 
@@ -76,7 +76,7 @@ public class PkiTools {
      * @return Hostname of this machine. Hostname should be the same as the machine's DNS name.
      * @throws UnknownHostException
      */
-    public static String getHostName() throws UnknownHostException {
+    public String getHostName() throws UnknownHostException {
 
         return InetAddress.getLocalHost().getCanonicalHostName();
 
@@ -89,13 +89,13 @@ public class PkiTools {
      * @return PEM encoded String
      * @throws CertificateEncodingException
      */
-    public static String certificateToString(X509Certificate cert) throws CertificateEncodingException {
-        return bytesToBase64String(cert.getEncoded());
+    public String certificateToPem(X509Certificate cert) throws CertificateEncodingException {
+        return derToPem(cert.getEncoded());
     }
 
-    public static X509Certificate stringToCertificate(String certString) throws CertificateException {
+    public X509Certificate pemToCertificate(String certString) throws CertificateException {
         CertificateFactory cf = new CertificateFactory();
-        ByteArrayInputStream in = new ByteArrayInputStream(base64StringToBytes(certString));
+        ByteArrayInputStream in = new ByteArrayInputStream(pemToDer(certString));
         return (X509Certificate) cf.engineGenerateCertificate(in);
     }
 
@@ -106,9 +106,9 @@ public class PkiTools {
      * @return Instance of PrivateKey
      * @throws CertificateGeneratorException Raise exception if conversion was not successful
      */
-    public static PrivateKey stringToPrivateKey(String keyString) throws CertificateGeneratorException {
+    public PrivateKey pemToPrivateKey(String keyString) throws CertificateGeneratorException {
         try {
-            return getRsaKeyFactory().generatePrivate(new PKCS8EncodedKeySpec(base64StringToBytes(keyString)));
+            return getRsaKeyFactory().generatePrivate(new PKCS8EncodedKeySpec(pemToDer(keyString)));
         } catch (Exception e) {
             throw new CertificateGeneratorException("Could not convert String to Private Key", e.getCause());
         }
@@ -130,7 +130,7 @@ public class PkiTools {
      * @see <a href="https://tools.ietf.org/html/rfc4519">RFC 4519 details the exact construction of distinguished names</a>
      * @see <a href="https://en.wikipedia.org/wiki/SubjectAltName">Subject Alternative Names on Wikipedia'</a>
      */
-    public static X500Name makeDistinguishedName(String commonName) {
+    public X500Name makeDistinguishedName(String commonName) {
 
         if (commonName == null) {
             throw new IllegalArgumentException("Certificate common name cannot be null");
@@ -153,8 +153,8 @@ public class PkiTools {
      * @param key object
      * @return PEM encoded string represents the bytes of the key
      */
-    public static String keyToString(Key key) {
-        return bytesToBase64String(key.getEncoded());
+    public String keyToPem(Key key) {
+        return derToPem(key.getEncoded());
     }
 
     /**
@@ -163,20 +163,30 @@ public class PkiTools {
      * @return new generated key pair
      * @throws CertificateGeneratorException
      */
-    public static KeyPair generateRsaKeyPair() throws CertificateGeneratorException {
-        KeyPairGenerator keyGen;
+    public KeyPair generateRsaKeyPair() throws CertificateGeneratorException {
         try {
-            keyGen = KeyPairGenerator.getInstance(ALGORITHM, BouncyCastleProvider.PROVIDER_NAME);
+            KeyPairGenerator keyGen = KeyPairGenerator.getInstance(ALGORITHM, BouncyCastleProvider.PROVIDER_NAME);
+            keyGen.initialize(RSA_KEY_LENGTH);
+            return keyGen.generateKeyPair();
         } catch (Exception e) {
             throw new CertificateGeneratorException("Failed to generate new public/private key pair.", e);
         }
-        keyGen.initialize(RSA_KEY_LENGTH);
-        return keyGen.generateKeyPair();
+
     }
 
-
-    private static KeyFactory getRsaKeyFactory() throws GeneralSecurityException {
-        return KeyFactory.getInstance("RSA", BouncyCastleProvider.PROVIDER_NAME);
+    private KeyFactory getRsaKeyFactory() throws GeneralSecurityException {
+        return KeyFactory.getInstance(ALGORITHM, BouncyCastleProvider.PROVIDER_NAME);
     }
 
+    public X509Certificate derToCertificate(byte[] certDer) throws CertificateException {
+        return pemToCertificate(derToPem(certDer));
+    }
+
+    public PrivateKey derToPrivateKey(byte[] privateKeyDer) {
+        return pemToPrivateKey(derToPem(privateKeyDer));
+    }
+
+    public byte[] keyToDer(Key key) {
+        return pemToDer(keyToPem(key));
+    }
 }

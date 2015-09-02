@@ -25,9 +25,11 @@ import java.math.BigInteger;
 import java.net.UnknownHostException;
 import java.security.KeyPair;
 import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.Security;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.Date;
 
 /**
  * Model of a X509 certificate signing request. These values must be set:
@@ -57,6 +59,7 @@ public class CertificateSigningRequest {
     protected BigInteger serialNumber;
     protected CertificateAuthority certificateAuthority;
     protected X509Certificate signedCertificate;
+    private PkiTools pkiTools = new PkiTools();
 
     public CertificateSigningRequest() {
         initialize();
@@ -112,7 +115,8 @@ public class CertificateSigningRequest {
         if (subjectKeyPair == null) {
             //Typical use case is to generate both the public and private keys within this class.
             //ASSUME that if the keypair has not been set, the user's intention is to generate a new keypair.
-            KeyPair keyPair = PkiTools.generateRsaKeyPair();
+
+            KeyPair keyPair = pkiTools.generateRsaKeyPair();
             useSubjectKeyPair(keyPair);
         }
 
@@ -126,13 +130,7 @@ public class CertificateSigningRequest {
             throw new CertificateGeneratorException("Certificate authority is null");
         }
 
-        X509v3CertificateBuilder certificateBuilder = new JcaX509v3CertificateBuilder(
-                certificateAuthority.getCertificate(),
-                serialNumber,
-                notBefore.toDate(),
-                notAfter.toDate(),
-                subjectName,
-                subjectKeyPair.getPublic());
+        X509v3CertificateBuilder certificateBuilder = getCertificateBuilder(certificateAuthority.getCertificate(), serialNumber, notBefore.toDate(), notAfter.toDate(), subjectName, subjectKeyPair.getPublic());
 
         X509CertificateHolder holder =
                 certificateBuilder.build(certificateAuthority.getContentSigner());
@@ -144,6 +142,16 @@ public class CertificateSigningRequest {
         }
     }
 
+    JcaX509v3CertificateBuilder getCertificateBuilder(X509Certificate certificate, BigInteger serialNumber, Date notBefore, Date notAfter, X500Name subjectName, PublicKey key) {
+        return new JcaX509v3CertificateBuilder(
+                certificate,
+                serialNumber,
+                notBefore,
+                notAfter,
+                subjectName,
+                key);
+    }
+
 
     /**
      * Create a distinguished name for the certificate's subject. Currently, only the common name (sub-attribute of
@@ -153,7 +161,7 @@ public class CertificateSigningRequest {
      * @param name subject's common name attribute (
      */
     public void setCommonName(String name) {
-        subjectName = PkiTools.makeDistinguishedName(name);
+        subjectName = pkiTools.makeDistinguishedName(name);
 
     }
 
@@ -168,7 +176,7 @@ public class CertificateSigningRequest {
      * @throws UnknownHostException
      */
     public void setCommonNameToHostname() throws UnknownHostException {
-        setCommonName(PkiTools.getHostName());
+        setCommonName(pkiTools.getHostName());
     }
 
     /**
@@ -214,7 +222,7 @@ public class CertificateSigningRequest {
         serialNumber = BigInteger.valueOf(number);
     }
 
-    protected JcaX509CertificateConverter getCertificateConverter() {
+    JcaX509CertificateConverter getCertificateConverter() {
         return new JcaX509CertificateConverter().setProvider(BouncyCastleProvider.PROVIDER_NAME);
     }
 
@@ -228,5 +236,9 @@ public class CertificateSigningRequest {
         chain[0] = getSignedCertificate();
         chain[1] = certificateAuthority.getCertificate();
         return chain;
+    }
+
+    public PublicKey getPublicKey() {
+        return subjectKeyPair.getPublic();
     }
 }

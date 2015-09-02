@@ -44,7 +44,7 @@ public class PemFile extends SecurityFileFacade {
     //Declare password private so a malicious subclass cannot gain access to it.
     private char[] password;
 
-    //Do not use constructor publicly. Use getInstance method to instantiate this class.
+    //Do not use constructor publicly. Use newInstance method to instantiate this class.
     protected PemFile(Reader reader, char[] password) {
         this.pem = new PEMParser(reader);
         this.password = password;
@@ -61,7 +61,7 @@ public class PemFile extends SecurityFileFacade {
      * @return fully formed instance of the class
      * @throws FileNotFoundException
      */
-    public static PemFile getInstance(String filePath, char[] password) throws IOException {
+    public static PemFile newInstance(String filePath, char[] password) throws IOException {
         File file = createFileObject(filePath);
         return new PemFile(new FileReader(file), password);
     }
@@ -73,8 +73,8 @@ public class PemFile extends SecurityFileFacade {
      * @return fully formed instance of the class
      * @throws FileNotFoundException
      */
-    public static PemFile getInstance(String filePath) throws IOException {
-        return getInstance(filePath, null);
+    public static PemFile newInstance(String filePath) throws IOException {
+        return newInstance(filePath, null);
     }
 
     /**

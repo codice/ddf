@@ -18,9 +18,18 @@ import org.junit.Test;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.Matchers.hasItem;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 
-public class TestKeyStoreFile {
+public class KeyStoreFileTest {
+
+    public static final String BOGUS_FILENAME = "not_keystore.jks";
+    public static final String KEYSTORE_FILENAME = "keystore-password_changeit.jks";
+    public static final String ALIAS = "ddf demo root ca";
+    public static final char[] PASSWORD = "changeit".toCharArray();
+    public static final char[] BOGUS_PASSWORD = "ThisIsNotThePassword".toCharArray();
 
     private String getPathTo(String path) {
         return getClass().getClassLoader().getResource(path).getPath();
@@ -28,21 +37,21 @@ public class TestKeyStoreFile {
 
     //Test constructor. Null path to keyStore file.
     @Test(expected = IllegalArgumentException.class)
-    public void testConstructorNullPath() throws Exception {
-        KeyStoreFile.getInstance(null, null);
+    public void constructorNullPath() throws Exception {
+        KeyStoreFile.newInstance(null, null);
     }
 
     //Test constructor. Invalid path to keyStore file.
     @Test(expected = FileNotFoundException.class)
-    public void testConstructorInvalidPath() throws Exception {
-        KeyStoreFile.getInstance("", null);
+    public void constructorInvalidPath() throws Exception {
+        KeyStoreFile.newInstance("", null);
     }
 
     //Test Constructor. Path is a directory, not a file.
     @Test(expected = FileNotFoundException.class)
-    public void testConstructorPathIsDirectory() throws Exception {
+    public void constructorPathIsDirectory() throws Exception {
         String anyDirectory = getPathTo("");
-        KeyStoreFile.getInstance(anyDirectory, null);
+        KeyStoreFile.newInstance(anyDirectory, null);
     }
 
     //Test Constructor. No read permissions on file.
@@ -51,30 +60,35 @@ public class TestKeyStoreFile {
 
     //Test Constructor. File is not keyStore.
     @Test(expected = IOException.class)
-    public void testConstructorFileNotKeyStore() throws Exception {
-        KeyStoreFile.getInstance(getPathTo("not_keystore.jks"), null);
+    public void constructorFileNotKeyStore() throws Exception {
+        KeyStoreFile.newInstance(getPathTo(BOGUS_FILENAME), null);
     }
 
     //Test Constructor. Password is null.
     @Test(expected = IOException.class)
-    public void testConstructorNullPassword() throws Exception {
-        KeyStoreFile.getInstance(getPathTo("keystore-password_changeit.jks"), null);
+    public void constructorNullPassword() throws Exception {
+        KeyStoreFile.newInstance(getPathTo(KEYSTORE_FILENAME), null);
     }
 
     //Test Constructor. Password is wrong.
     @Test(expected = IOException.class)
-    public void testConstructorWrongPassword() throws Exception {
-        KeyStoreFile.getInstance(getPathTo("keystore-password_changeit.jks"), "ThisIsNotThePassword".toCharArray());
+    public void constructorWrongPassword() throws Exception {
+        KeyStoreFile.newInstance(getPathTo(KEYSTORE_FILENAME), BOGUS_PASSWORD);
     }
 
     //Test Constructor. Valid file, valid password.
     @Test
     public void testConstructor() throws Exception {
-        //SYSTEM PROPERTIES NOT AVAILABLE UNTIL KARAF'S BOOT PROCESS IS COMPLETE
-        //System.getProperty("javax.net.ssl.keyStorePassword")
 
-        KeyStoreFile keyStore = KeyStoreFile.getInstance(getPathTo("keystore-password_changeit.jks"), "changeit".toCharArray());
+        KeyStoreFile keyStore = KeyStoreFile.newInstance(getPathTo(KEYSTORE_FILENAME), PASSWORD);
         assertNotNull(keyStore.aliases());
-        assertNotNull(keyStore.getCertificate("ddf demo root ca"));
+        assertNotNull(keyStore.getCertificate(ALIAS));
+    }
+
+    @Test
+    public void removeEntryFromKeystore() throws Exception {
+        KeyStoreFile keyStore = KeyStoreFile.newInstance(getPathTo(KEYSTORE_FILENAME), PASSWORD);
+        keyStore.removeEntry(ALIAS);
+        assertThat(keyStore.aliases(), not(hasItem(ALIAS)));
     }
 }

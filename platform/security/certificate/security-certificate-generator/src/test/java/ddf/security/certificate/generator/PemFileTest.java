@@ -16,11 +16,10 @@ package ddf.security.certificate.generator;
 
 import org.junit.Test;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.cert.CertificateException;
 
-public class TestPemFile {
+public class PemFileTest {
 
     public static final String CERTIFICATE = "certificate-demoCA.pem";
     public static final String PRIVATE_KEY = "private-key-3des-encypted-password_changeit.pem";
@@ -35,39 +34,35 @@ public class TestPemFile {
 
 
     @Test
-    public void testEncryptedPrivateKeyNullPassword() throws IOException {
+    public void encryptedPrivateKeyNullPassword() throws IOException {
 
-        PemFile.getInstance(getPathTo(PRIVATE_KEY), null);
+        PemFile.newInstance(getPathTo(PRIVATE_KEY), null);
     }
 
     @Test(expected = IOException.class)
-    public void testEncryptedPrivateKeyWrongPassword() throws IOException {
+    public void encryptedPrivateKeyWrongPassword() throws IOException {
 
-        PemFile pf = PemFile.getInstance(getPathTo(PRIVATE_KEY), "ThisIsNotPassword".toCharArray());
+        PemFile pf = PemFile.newInstance(getPathTo(PRIVATE_KEY), "ThisIsNotThePassword".toCharArray());
         pf.getPrivateKey();
     }
 
     @Test
-    public void testEncryptedPrivateKey() throws IOException {
-        PemFile pemFile = PemFile.getInstance(getPathTo(PRIVATE_KEY), PASSWORD);
+    public void encryptedPrivateKey() throws IOException {
+        PemFile pemFile = PemFile.newInstance(getPathTo(PRIVATE_KEY), PASSWORD);
         pemFile.getPrivateKey();
     }
 
     @Test(expected = IOException.class)
-    public void testWrongPemObject() throws IOException {
-        PemFile pemFile = PemFile.getInstance(getPathTo(CERTIFICATE));
+    public void wrongPemObject() throws IOException {
+        PemFile pemFile = PemFile.newInstance(getPathTo(CERTIFICATE));
         pemFile.getPrivateKey();
 
     }
 
     @Test
     public void testCertificate() throws IOException, CertificateException {
-        PemFile pemFile = PemFile.getInstance(getPathTo(CERTIFICATE));
+        PemFile pemFile = PemFile.newInstance(getPathTo(CERTIFICATE));
         pemFile.getCertificate();
 
     }
 }
-
-
-
-

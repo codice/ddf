@@ -20,12 +20,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
+import java.security.*;
 import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
 import java.util.Collections;
 import java.util.List;
 
@@ -53,22 +49,18 @@ public class KeyStoreFile extends SecurityFileFacade {
      * @param filePath path to the keystore file
      * @param password password to unlock the keystore file
      * @return instance of KeyStoreFile
+     * @throws GeneralSecurityException
      * @throws IOException
-     * @throws KeyStoreException
-     * @throws CertificateException
-     * @throws NoSuchAlgorithmException
      */
-    public static KeyStoreFile getInstance(String filePath, char[] password) throws IOException, KeyStoreException, CertificateException, NoSuchAlgorithmException {
+        public static KeyStoreFile newInstance(String filePath, char[] password) throws IOException, GeneralSecurityException {
 
         KeyStoreFile facade = new KeyStoreFile();
         File file;
-        KeyStore keyStore;
+        KeyStore keyStore = newKeyStore();
 
         file = createFileObject(filePath);
 
         char[] pw = formatPassword(password);
-
-        keyStore = createSecurityObject();
 
         try (FileInputStream resource = new FileInputStream(file)) {
             keyStore.load(resource, pw);
@@ -80,7 +72,7 @@ public class KeyStoreFile extends SecurityFileFacade {
         return facade;
     }
 
-    protected static KeyStore createSecurityObject() throws KeyStoreException {
+    protected static KeyStore newKeyStore() throws KeyStoreException {
 
         String type = System.getProperty("javax.net.ssl.keyStoreType");
 
@@ -141,12 +133,10 @@ public class KeyStoreFile extends SecurityFileFacade {
     /**
      * Save the keyStore to the original file and encrypt it with the original password.
      *
-     * @throws CertificateException     a certificates included in the keyStore data could not be stored
-     * @throws NoSuchAlgorithmException the appropriate data integrity algorithm could not be found
-     * @throws KeyStoreException        the keyStore has not been initialized (loaded)
-     * @throws IOException              here was an I/O problem with data
+     * @throws GeneralSecurityException
+     * @throws IOException
      */
-    public void save() throws CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException {
+    public void save() throws GeneralSecurityException, IOException {
 
         //Use the try-with-resources statement. If an exception is raised, rethrow the exception.
         try (FileOutputStream fd = new FileOutputStream(file)) {
