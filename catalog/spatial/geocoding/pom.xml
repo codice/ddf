@@ -31,8 +31,11 @@
         <module>spatial-geocoding-api</module>
         <module>spatial-geocoding-create</module>
         <module>spatial-geocoding-extract</module>
+        <module>spatial-geocoding-geocoder</module>
         <module>spatial-geocoding-index</module>
+        <module>spatial-geocoding-localsearch</module>
         <module>spatial-geocoding-query</module>
+        <module>spatial-geocoding-websearch</module>
     </modules>
 
 </project>

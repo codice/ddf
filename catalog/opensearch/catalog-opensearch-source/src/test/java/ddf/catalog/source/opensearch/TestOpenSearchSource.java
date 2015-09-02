@@ -70,8 +70,11 @@ import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
+import ddf.catalog.operation.impl.ResourceResponseImpl;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
+import ddf.catalog.resource.ResourceReader;
+import ddf.catalog.resource.impl.ResourceImpl;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
@@ -81,7 +84,6 @@ import ddf.catalog.transform.InputTransformer;
  *
  * @author Ashraf Barakat
  * @author ddf.isgs@lmco.com
- *
  */
 public class TestOpenSearchSource {
 
@@ -316,7 +318,8 @@ public class TestOpenSearchSource {
     @Ignore
     // Ignored because Content Type support has yet to be added.
     public void testQueryByContentType()
-            throws UnsupportedQueryException, IOException, URISyntaxException {
+            throws UnsupportedQueryException, IOException, URISyntaxException,
+            ResourceNotFoundException, ResourceNotSupportedException {
 
         // given
         FirstArgumentCapture answer = new FirstArgumentCapture(getSampleAtomStream());
@@ -622,27 +625,6 @@ public class TestOpenSearchSource {
         Assert.assertEquals(3, response.getResource().getByteArray().length);
     }
 
-    @Test
-    public void testRetrieveResourceWithBytesToSkip()
-            throws ResourceNotSupportedException, IOException, ResourceNotFoundException {
-
-        // given
-        FirstArgumentCapture answer = new FirstArgumentCapture(getBinaryData());
-
-        OpenSearchSource source = givenSource(answer);
-
-        Map<String, Serializable> requestProperties = new HashMap<String, Serializable>();
-
-        requestProperties.put(Metacard.ID, SAMPLE_ID);
-
-        requestProperties.put(OpenSearchSource.BYTES_TO_SKIP, Long.valueOf(2));
-
-        // when
-        ResourceResponse response = source.retrieveResource(null, requestProperties);
-
-        //DDF-643 Assert.assertEquals(1, response.getResource().getByteArray().length);
-        Assert.assertTrue((Boolean) response.getPropertyValue(OpenSearchSource.BYTES_SKIPPED));
-    }
 
     /**
      * Given all null params, nothing will be returned, expect an exception.
@@ -679,86 +661,6 @@ public class TestOpenSearchSource {
             assertThat(e.getMessage(),
                     containsString(OpenSearchSource.COULD_NOT_RETRIEVE_RESOURCE_MESSAGE));
             assertThat(e.getMessage(), containsString("null"));
-        }
-
-    }
-
-    @Test
-    public void testRetrieveProductUriSyntaxException()
-            throws ResourceNotSupportedException, IOException {
-        WebClient client = mock(WebClient.class);
-
-        Response clientResponse = mock(Response.class);
-
-        OpenSearchConnection openSearchConnection = mock(OpenSearchConnection.class);
-
-        when(openSearchConnection.getOpenSearchWebClient()).thenReturn(client);
-
-        when(client.get()).thenReturn(clientResponse);
-
-        OverridenOpenSearchSource source = new OverridenOpenSearchSource(FILTER_ADAPTER);
-
-        source.openSearchConnection = openSearchConnection;
-
-        source.setEndpointUrl("http://example.com/q?s=^LMT");
-
-        Map<String, Serializable> requestProperties = new HashMap<String, Serializable>();
-
-        requestProperties.put(Metacard.ID, SAMPLE_ID);
-
-        // when
-        try {
-            source.retrieveResource(null, requestProperties);
-
-            // then
-            fail("Should have thrown " + ResourceNotFoundException.class.getName()
-                    + " because of null uri.");
-        } catch (ResourceNotFoundException e) {
-            /*
-             * this exception should have been thrown.
-             */
-            assertThat(e.getMessage(),
-                    containsString(OpenSearchSource.COULD_NOT_RETRIEVE_RESOURCE_MESSAGE));
-        }
-
-    }
-
-    @Test
-    public void testRetrieveProductMalformedUrlException()
-            throws ResourceNotSupportedException, IOException {
-        WebClient client = mock(WebClient.class);
-
-        Response clientResponse = mock(Response.class);
-
-        OpenSearchConnection openSearchConnection = mock(OpenSearchConnection.class);
-
-        when(openSearchConnection.getOpenSearchWebClient()).thenReturn(client);
-
-        when(client.get()).thenReturn(clientResponse);
-
-        OverridenOpenSearchSource source = new OverridenOpenSearchSource(FILTER_ADAPTER);
-
-        source.openSearchConnection = openSearchConnection;
-
-        source.setEndpointUrl("unknownProtocol://localhost:8181/services/catalog/query");
-
-        Map<String, Serializable> requestProperties = new HashMap<String, Serializable>();
-
-        requestProperties.put(Metacard.ID, SAMPLE_ID);
-
-        // when
-        try {
-            source.retrieveResource(null, requestProperties);
-
-            // then
-            fail("Should have thrown " + ResourceNotFoundException.class.getName()
-                    + " because of null uri.");
-        } catch (ResourceNotFoundException e) {
-            /*
-             * this exception should have been thrown.
-             */
-            assertThat(e.getMessage(),
-                    containsString(OpenSearchSource.COULD_NOT_RETRIEVE_RESOURCE_MESSAGE));
         }
 
     }
@@ -933,8 +835,10 @@ public class TestOpenSearchSource {
         return map;
     }
 
-    private OpenSearchSource givenSource(Answer<BinaryContent> answer) throws IOException {
+    private OpenSearchSource givenSource(Answer<BinaryContent> answer)
+            throws IOException, ResourceNotFoundException, ResourceNotSupportedException {
         WebClient client = mock(WebClient.class);
+        ResourceReader mockReader = mock(ResourceReader.class);
 
         OpenSearchConnection openSearchConnection = mock(OpenSearchConnection.class);
 
@@ -950,7 +854,8 @@ public class TestOpenSearchSource {
 
         when(client.get()).thenReturn(clientResponse);
 
-        when(clientResponse.getEntity()).thenReturn(getBinaryData());
+        when(mockReader.retrieveResource(any(URI.class), any(Map.class)))
+                .thenReturn(new ResourceResponseImpl(new ResourceImpl(getBinaryData(), "")));
 
         when(clientResponse.getHeaderString(eq(OpenSearchSource.HEADER_ACCEPT_RANGES)))
                 .thenReturn(OpenSearchSource.BYTES);
@@ -970,6 +875,7 @@ public class TestOpenSearchSource {
         source.setLocalQueryOnly(true);
         source.setInputTransformer(getMockInputTransformer());
         source.openSearchConnection = openSearchConnection;
+        source.setResourceReader(mockReader);
         return source;
     }
 
@@ -1038,8 +944,8 @@ public class TestOpenSearchSource {
          * Creates an OpenSearch Site instance. Sets an initial default endpointUrl that can be
          * overwritten using the setter methods.
          *
-         * @throws UnsupportedQueryException
          * @param filterAdapter
+         * @throws UnsupportedQueryException
          */
         public OverridenOpenSearchSource(FilterAdapter filterAdapter) {
             super(filterAdapter);

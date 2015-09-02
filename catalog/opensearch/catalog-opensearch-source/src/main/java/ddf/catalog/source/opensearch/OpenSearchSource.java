@@ -25,14 +25,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
@@ -77,11 +73,10 @@ import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.operation.SourceResponse;
-import ddf.catalog.operation.impl.ResourceResponseImpl;
 import ddf.catalog.operation.impl.SourceResponseImpl;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
-import ddf.catalog.resource.impl.ResourceImpl;
+import ddf.catalog.resource.ResourceReader;
 import ddf.catalog.service.ConfiguredService;
 import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.SourceMonitor;
@@ -95,17 +90,10 @@ import ddf.security.settings.SecuritySettingsService;
 /**
  * Federated site that talks via OpenSearch to the DDF platform. Communication is usually performed
  * via https which requires a keystore and trust store to be provided.
- *
  */
 public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
     public static final String NAME = "name";
-
-    public static final String BYTES_TO_SKIP = "BytesToSkip";
-
-    public static final String BYTES_SKIPPED = "BytesSkipped";
-
-    static final String BAD_URL_MESSAGE = "Bad url given for remote source";
 
     static final String COULD_NOT_RETRIEVE_RESOURCE_MESSAGE = "Could not retrieve resource";
 
@@ -124,10 +112,6 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     private static final String URL_SRC_PARAMETER = "src";
 
     private static final String LOCAL_SEARCH_PARAMETER = "local";
-
-    private static final String HEADER_RANGE = "Range";
-
-    private static final String BYTES_EQUAL = "bytes=";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenSearchSource.class);
 
@@ -163,6 +147,8 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     private long receiveTimeout = 0;
 
     private XMLInputFactory xmlInputFactory;
+
+    private ResourceReader resourceReader;
 
     /**
      * Creates an OpenSearch Site instance. Sets an initial default endpointUrl that can be
@@ -478,8 +464,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
      * Creates a single response from input parameters. Performs XPath operations on the document to
      * retrieve data not passed in.
      *
-     * @param entry
-     *            a single Atom entry
+     * @param entry a single Atom entry
      * @return single response
      * @throws ddf.catalog.source.UnsupportedQueryException
      */
@@ -547,14 +532,6 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
         return metacard;
     }
 
-    // Update the WebClient with a Range header instructing the endpoint to skip bytesToSkip bytes.
-    private void constructRangeHeader(WebClient webClient, Long bytesToSkip) {
-        StringBuilder headerValue = new StringBuilder(BYTES_EQUAL);
-        headerValue.append(bytesToSkip.toString());
-        headerValue.append("-");
-
-        webClient.header(HEADER_RANGE, headerValue.toString());
-    }
 
     private Metacard parseContent(String content, String id) {
         if (content != null) {
@@ -589,8 +566,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     /**
      * Set URL of the endpoint.
      *
-     * @param endpointUrl
-     *            Full url of the endpoint.
+     * @param endpointUrl Full url of the endpoint.
      */
     public void setEndpointUrl(String endpointUrl) {
         this.endpointUrl = endpointUrl;
@@ -619,8 +595,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
      * Sets the shortname for this site. This shortname is used to identify the site when performing
      * federated queries.
      *
-     * @param shortname
-     *            Name of this site.
+     * @param shortname Name of this site.
      */
     public void setShortname(String shortname) {
         this.shortname = shortname;
@@ -695,8 +670,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
      * Sets the boolean flag that indicates all queries executed should be to its local source only,
      * i.e., no federated or enterprise queries.
      *
-     * @param localQueryOnly
-     *            true indicates only local queries, false indicates enterprise query
+     * @param localQueryOnly true indicates only local queries, false indicates enterprise query
      */
     public void setLocalQueryOnly(boolean localQueryOnly) {
         LOGGER.trace("Setting localQueryOnly = {}", localQueryOnly);
@@ -727,7 +701,6 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     public ResourceResponse retrieveResource(URI uri, Map<String, Serializable> requestProperties)
             throws ResourceNotFoundException, ResourceNotSupportedException, IOException {
 
-        Long bytesToSkip = Long.valueOf(0);
         final String methodName = "retrieveResource";
         LOGGER.trace("ENTRY: {}", methodName);
 
@@ -738,92 +711,11 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
         Serializable serializableId = requestProperties.get(Metacard.ID);
 
-        Subject subject = (Subject) requestProperties.get(SecurityConstants.SECURITY_SUBJECT);
-
         if (serializableId != null) {
             String metacardId = serializableId.toString();
             Client restClient = openSearchConnection
                     .newRestClient(endpointUrl, null, metacardId, true);
-
-            if (restClient != null) {
-                Object binaryContent = null;
-                MimeType mimeType = null;
-
-                WebClient webClient = openSearchConnection.getWebClientFromClient(restClient);
-
-                // If a bytesToSkip property is present add range header
-                Map<String, Serializable> responseProperties = new HashMap<String, Serializable>();
-                if (requestProperties.containsKey(BYTES_TO_SKIP)) {
-                    bytesToSkip = (Long) requestProperties.get(BYTES_TO_SKIP);
-                    LOGGER.debug("Setting Range header with bytes to skip: {}", bytesToSkip);
-                    constructRangeHeader(webClient, bytesToSkip);
-                }
-
-                if (subject != null) {
-                    RestSecurity.setSubjectOnClient(subject, webClient);
-                }
-
-                Response clientResponse = null;
-                try {
-                    clientResponse = webClient.get();
-                } catch (Exception e) {
-                    LOGGER.warn("Error while trying to retreiveResource from OpenSearch Source", e);
-                    throw new ResourceNotFoundException(COULD_NOT_RETRIEVE_RESOURCE_MESSAGE);
-                }
-
-                if (clientResponse == null) {
-                    LOGGER.warn("Error while trying to retreiveResource from OpenSearch Source");
-                    throw new ResourceNotFoundException(COULD_NOT_RETRIEVE_RESOURCE_MESSAGE);
-                }
-
-                Object contentType = clientResponse.getHeaders().get(HttpHeaders.CONTENT_TYPE);
-                try {
-                    mimeType = new MimeType("application/octet-stream");
-                    String content = null;
-                    if (contentType != null) {
-                        if (contentType instanceof String) {
-                            content = (String) contentType;
-                        } else if (contentType instanceof Collection
-                                && ((Collection) contentType).size() > 0) {
-                            content = (String) ((Collection) contentType).iterator().next();
-                        }
-                    }
-                    mimeType = new MimeType(content);
-                } catch (MimeTypeParseException e) {
-                    LOGGER.debug("Error creating mime type with input [{}] defaulting to {}",
-                            contentType, "application/octet-stream");
-                }
-
-                binaryContent = clientResponse.getEntity();
-
-                if (binaryContent != null) {
-
-                    if (requestProperties.containsKey(BYTES_TO_SKIP)) {
-
-                        // Since we sent a range header an accept-ranges header should be returned if the
-                        // remote endpoint support it.  If is not present, the inputStream hasn't skipped ahead
-                        // by the given number of bytes, so we need to take care of it here.
-                        String rangeHeader = clientResponse.getHeaderString(HEADER_ACCEPT_RANGES);
-
-                        //DDF-643: Set response property indicating remote JSON Source did the byte skipping
-                        // so that Catalog Framework's download manager will not try to also skip bytes.
-                        if ((rangeHeader != null) && (rangeHeader.equals(BYTES))) {
-                            LOGGER.info("Adding {} to response properties with value = {}",
-                                    BYTES_SKIPPED, true);
-                            responseProperties.put(BYTES_SKIPPED, true);
-                        }
-                    }
-
-                    LOGGER.trace("EXIT: {}", methodName);
-
-                    //DDF-643
-                    ResourceResponseImpl resourceResponse = new ResourceResponseImpl(
-                            new ResourceImpl((InputStream) binaryContent, mimeType,
-                                    getId() + "_Resource_Retrieval:" + System.currentTimeMillis()));
-                    resourceResponse.setProperties(responseProperties);
-                    return resourceResponse;
-                }
-            }
+            return resourceReader.retrieveResource(restClient.getCurrentURI(), requestProperties);
         }
 
         LOGGER.trace("EXIT: {}", methodName);
@@ -912,5 +804,9 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
     public void setSecuritySettings(SecuritySettingsService settingsService) {
         this.securitySettingsService = settingsService;
+    }
+
+    public void setResourceReader(ResourceReader reader) {
+        this.resourceReader = reader;
     }
 }

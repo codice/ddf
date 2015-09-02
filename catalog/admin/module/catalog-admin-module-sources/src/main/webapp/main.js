@@ -15,47 +15,139 @@
 (function () {
     'use strict';
 
-    require(['config'], function () {
-        require([
-            'jquery',
-            'backbone',
-            'marionette',
-            'icanhaz',
-            'js/application',
-            '../admin/js/HandlebarsHelpers',
-            'modelbinder',
-            'bootstrap'
-        ], function ($, Backbone, Marionette, ich, Application) {
+    require.config({
 
-        	
-        	var app = Application.App;
-            // Once the application has been initialized (i.e. all initializers have completed), start up
-            // Backbone.history.
-            app.on('initialize:after', function() {
-                Backbone.history.start();
-                //bootstrap call for tabs
-                $('tabs').tab();
-            });
+        paths: {
 
-            if(window){
-                // make ddf object available on window.  Makes debugging in chrome console much easier
-                window.app = app;
-                if(!window.console){
-                    window.console = {
-                        log: function(){
-                            // no op
-                        }
-                    };
-                }
-            }
+            bootstrap: '../admin/lib/components-bootstrap/js/bootstrap.min',
+            spin: '../admin/lib/spin.js/spin',
+            q: '../admin/lib/q/q',
 
-            // Actually start up the application.
-            app.start();
-            
-            require(['js/module'], function(){
-            	
-            });
-            
+            // backbone
+            backbone: '../admin/lib/components-backbone/backbone-min',
+            backbonerelational: '../admin/lib/backbone-relational/backbone-relational',
+            backboneassociation: '../admin/lib/backbone-associations/backbone-associations-min',
+            underscore: '../admin/lib/lodash/dist/lodash.underscore.min',
+            marionette: '../admin/lib/marionette/lib/backbone.marionette.min',
+            // TODO test combining
+            modelbinder: '../admin/lib/backbone.modelbinder/Backbone.ModelBinder.min',
+            collectionbinder: '../admin/lib/backbone.modelbinder/Backbone.CollectionBinder.min',
+            poller: '../admin/lib/backbone-poller/backbone.poller',
+            iframeresizer: '../admin/lib/iframe-resizer/js/iframeResizer.min',
+
+            // ddf
+            spinnerConfig: 'js/spinnerConfig',
+
+            // jquery
+            jquery: '../admin/lib/jquery/jquery.min',
+            jqueryui: '../admin/lib/jquery-ui/ui/minified/jquery-ui.min',
+            'jquery.ui.widget': '../admin/lib/jquery-ui/ui/minified/jquery.ui.widget.min',
+            multiselect: '../admin/lib/bootstrap-multiselect/js/bootstrap-multiselect',
+            perfectscrollbar: '../admin/lib/perfect-scrollbar/min/perfect-scrollbar-0.4.8.with-mousewheel.min',
+            fileupload: '../admin/lib/jquery-file-upload/js/jquery.fileupload',
+            fileuploadiframe: '../admin/lib/jquery-file-upload/js/jquery.iframe-transport',
+
+            // handlebars
+            handlebars: '../admin/lib/handlebars/handlebars.min',
+            icanhaz: '../admin/lib/icanhandlebarz/ICanHandlebarz',
+
+            // require plugins
+            text: '../admin/lib/requirejs-plugins/lib/text',
+            css: '../admin/lib/require-css/css',
+
+            // default admin ui
+            app: '../admin/js/application',
+
+            // datatables
+            datatables: '../admin/lib/datatables/media/js/jquery.dataTables'
+        },
+
+
+        shim: {
+
+            backbone: {
+                deps: ['underscore', 'jquery'],
+                exports: 'Backbone'
+            },
+            modelbinder: {
+                deps: ['underscore', 'jquery', 'backbone']
+            },
+            collectionbinder: {
+                deps: ['modelbinder']
+            },
+            poller: {
+                deps: ['underscore', 'backbone']
+            },
+            backbonerelational: ['backbone'],
+            backboneassociation: ['backbone'],
+            marionette: {
+                deps: ['jquery', 'underscore', 'backbone'],
+                exports: 'Marionette'
+            },
+            underscore: {
+                exports: '_'
+            },
+            handlebars: {
+                exports: 'Handlebars'
+            },
+            icanhaz: {
+                deps: ['handlebars', 'jquery'],
+                exports: 'ich'
+            },
+
+            perfectscrollbar: ['jquery'],
+
+            multiselect: ['jquery'],
+            fileupload: ['jquery', 'jquery.ui.widget'],
+
+            jqueryui: ['jquery'],
+            bootstrap: ['jqueryui']
+
+        },
+
+        waitSeconds: 200
+    });
+
+
+    require([
+        'jquery',
+        'backbone',
+        'marionette',
+        'icanhaz',
+        'js/application',
+        '../admin/js/HandlebarsHelpers',
+        'modelbinder',
+        'bootstrap'
+    ], function ($, Backbone, Marionette, ich, Application) {
+
+
+        var app = Application.App;
+        // Once the application has been initialized (i.e. all initializers have completed), start up
+        // Backbone.history.
+        app.on('initialize:after', function () {
+            Backbone.history.start();
+            //bootstrap call for tabs
+            $('tabs').tab();
         });
+
+        if (window) {
+            // make ddf object available on window.  Makes debugging in chrome console much easier
+            window.app = app;
+            if (!window.console) {
+                window.console = {
+                    log: function () {
+                        // no op
+                    }
+                };
+            }
+        }
+
+        // Actually start up the application.
+        app.start();
+
+        require(['js/module'], function () {
+
+        });
+
     });
 }());

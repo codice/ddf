@@ -40,6 +40,7 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.codice.ddf.platform.util.Exceptions;
+import org.fusesource.jansi.Ansi;
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
@@ -81,7 +82,7 @@ public class IngestCommand extends CatalogCommands {
             .appendSuffix(" second", " seconds").toFormatter();
 
     private final AtomicInteger ingestCount = new AtomicInteger();
-
+    private final AtomicInteger ignoreCount = new AtomicInteger();
     private final AtomicInteger fileCount = new AtomicInteger(Integer.MAX_VALUE);
 
     @Argument(name = "File path or Directory path", description =
@@ -111,6 +112,10 @@ public class IngestCommand extends CatalogCommands {
     @Option(name = "--batchsize", required = false, aliases = {
             "-b"}, multiValued = false, description = "Number of Metacards to ingest at a time. Change this argument based on system memory and catalog provider limits.")
     int batchSize = DEFAULT_BATCH_SIZE;
+
+    @Option(name = "--ignore", required = false, aliases = {
+            "-i"}, multiValued = true, description = "File extension(s) or file name(s) to ignore during ingestion (-i '.txt' -i 'image.jpg' -i 'file' )")
+    List<String> ignoreList;
 
     File failedIngestDirectory = null;
 
@@ -174,9 +179,10 @@ public class IngestCommand extends CatalogCommands {
                 }
             });
 
-            printProgressAndFlush(start, fileCount.get(), ingestCount.get());
+            printProgressAndFlush(start, fileCount.get(), ingestCount.get() + ignoreCount.get());
 
-            IngestVisitor visitor = new IngestVisitor(start, catalog, executorService);
+            IngestVisitor visitor = new IngestVisitor(start, catalog, executorService, ignoreList);
+
             try {
                 Files.walkFileTree(Paths.get(filePath), visitor);
                 visitor.done();
@@ -192,23 +198,31 @@ public class IngestCommand extends CatalogCommands {
                 }
             }
 
-            printProgressAndFlush(start, fileCount.get(), ingestCount.get());
+            printProgressAndFlush(start, fileCount.get(), ingestCount.get() + ignoreCount.get());
 
             long end = System.currentTimeMillis();
 
             console.println();
             String elapsedTime = timeFormatter.print(new Period(start, end).withMillis(0));
             console.printf(" %d file(s) ingested in %s", ingestCount.get(), elapsedTime);
+
             LOGGER.info("{} file(s) ingested in {} [{} records/sec]", ingestCount.get(),
                     elapsedTime, calculateRecordsPerSecond(ingestCount.get(), start, end));
             INGEST_LOGGER.info("{} file(s) ingested in {} [{} records/sec]", ingestCount.get(),
                     elapsedTime, calculateRecordsPerSecond(ingestCount.get(), start, end));
-            if (INGEST_LOGGER.isWarnEnabled() && fileCount.get() != ingestCount.get()) {
+
+            if (fileCount.get() != ingestCount.get()) {
                 console.println();
-                String failedAmount = Integer.toString(fileCount.get() - ingestCount.get());
-                printErrorMessage(failedAmount
-                        + " file(s) failed to be ingested.  See the ingest log for more details.");
-                INGEST_LOGGER.warn("{} files(s) failed to be ingested.", failedAmount);
+                if ((fileCount.get() - ingestCount.get() - ignoreCount.get()) >= 1) {
+                    String failedAmount = Integer.toString(fileCount.get() - ingestCount.get() - ignoreCount.get());
+                    printErrorMessage(failedAmount + " file(s) failed to be ingested.  See the ingest log for more details.");
+                    INGEST_LOGGER.warn("{} files(s) failed to be ingested.", failedAmount);
+                }
+                if (ignoreList != null) {
+                    String ignoredAmount = Integer.toString(ignoreCount.get());
+                    printColor(Ansi.Color.YELLOW, ignoredAmount + " file(s) ignored.  See the ingest log for more details.");
+                    INGEST_LOGGER.warn("{} files(s) were ignored.", ignoredAmount);
+                }
             }
 
             return null;
@@ -465,7 +479,7 @@ public class IngestCommand extends CatalogCommands {
     }
 
     private boolean processBatch(CatalogFacade catalog, ArrayList<Metacard> metacards,
-            File inputFile) throws SourceUnavailableException {
+                                 File inputFile) throws SourceUnavailableException {
         boolean success = false;
 
         if (!processBatch(catalog, metacards)) {
@@ -504,10 +518,13 @@ public class IngestCommand extends CatalogCommands {
 
         private ArrayList<Metacard> metacards = new ArrayList<Metacard>(batchSize);
 
-        public IngestVisitor(long start, CatalogFacade catalog, ExecutorService executorService) {
+        private List<String> ignoreList;
+
+        public IngestVisitor(long start, CatalogFacade catalog, ExecutorService executorService, List<String> ignoreList) {
             this.start = start;
             this.catalog = catalog;
             this.executorService = executorService;
+            this.ignoreList = ignoreList;
         }
 
         @Override
@@ -515,7 +532,18 @@ public class IngestCommand extends CatalogCommands {
 
             final File file = path.toFile();
 
-            if (multithreaded > 1) {
+            String extension = file.getName();
+
+            if (extension.contains(".")) {
+                int x = extension.indexOf('.');
+                extension = extension.substring(x);
+            }
+
+            if (file.isHidden() || (ignoreList != null &&  (ignoreList.contains(extension) || ignoreList.contains(file.getName())))) {
+                ignoreCount.incrementAndGet();
+                printProgressAndFlush(start, fileCount.get(), ingestCount.get() + ignoreCount.get());
+                return FileVisitResult.CONTINUE;
+            } else if (multithreaded > 1) {
                 executorService.submit(new Runnable() {
                     @Override
                     public void run() {
@@ -557,7 +585,7 @@ public class IngestCommand extends CatalogCommands {
                             ingestCount.getAndAdd(createResponse.getCreatedMetacards().size());
                         }
 
-                        printProgressAndFlush(start, fileCount.get(), ingestCount.get());
+                        printProgressAndFlush(start, fileCount.get(), ingestCount.get() + ignoreCount.get());
                     }
                 });
             } else {
@@ -594,7 +622,7 @@ public class IngestCommand extends CatalogCommands {
                     return FileVisitResult.TERMINATE;
                 }
 
-                printProgressAndFlush(start, fileCount.get(), ingestCount.get());
+                printProgressAndFlush(start, fileCount.get(), ingestCount.get() + ignoreCount.get());
             }
 
             return FileVisitResult.CONTINUE;

@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.spatial.ogc.csw.catalog.common;
 
 import java.util.Arrays;
@@ -19,7 +18,6 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
-import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardTypeImpl;
@@ -384,67 +382,7 @@ public class CswRecordMetacardType extends MetacardTypeImpl {
     }
 
     private void addDdfMetacardAttributes() {
-        // Single unique ID required by DDF Metacard
-        descriptors.add(new AttributeDescriptorImpl(Metacard.ID, NON_QUERYABLE /* indexed */, false /* stored */,
-                false /* tokenized */, false /* multivalued */, BasicTypes.STRING_TYPE));
-
-        // Single/primary metacard title required by DDF Metacard
-        descriptors.add(new AttributeDescriptorImpl(Metacard.TITLE, QUERYABLE /* indexed */, false /* stored */,
-                false /* tokenized */, false /* multivalued */, BasicTypes.STRING_TYPE));
-
-        // Original metadata
-        descriptors.add(new AttributeDescriptorImpl(Metacard.METADATA, NON_QUERYABLE /* indexed */,
-                false /* stored */, false /* tokenized */, false /* multivalued */,
-                BasicTypes.STRING_TYPE));
-
-        // Single/primary effective date
-        descriptors.add(new AttributeDescriptorImpl(Metacard.EFFECTIVE, NON_QUERYABLE /* indexed */,
-                false /* stored */, false /* tokenized */, false /* multivalued */,
-                BasicTypes.DATE_TYPE));
-
-        // Single/primary modified date
-        descriptors
-                .add(new AttributeDescriptorImpl(Metacard.MODIFIED, QUERYABLE /* indexed */, false /* stored */,
-                        false /* tokenized */, false /* multivalued */, BasicTypes.DATE_TYPE));
-
-        // Single/primary created date
-        descriptors.add(new AttributeDescriptorImpl(Metacard.CREATED, QUERYABLE /* indexed */, false /* stored */,
-                false /* tokenized */, false /* multivalued */, BasicTypes.DATE_TYPE));
-
-        // URI where Metacard's resource is located
-        descriptors
-                .add(new AttributeDescriptorImpl(Metacard.RESOURCE_URI, NON_QUERYABLE /* indexed */,
-                        false /* stored */, false /* tokenized */, false /* multivalued */,
-                        BasicTypes.STRING_TYPE));
-
-        descriptors.add(new AttributeDescriptorImpl(Metacard.CONTENT_TYPE, QUERYABLE /* indexed */,
-                false /* stored */, false /* tokenized */, false /* multivalued */,
-                BasicTypes.STRING_TYPE));
-
-        descriptors.add(new AttributeDescriptorImpl(Metacard.THUMBNAIL, NON_QUERYABLE /* indexed */,
-                false /* stored */, false /* tokenized */, false /* multivalued */,
-                BasicTypes.BINARY_TYPE));
-
-        descriptors
-                .add(new AttributeDescriptorImpl(Metacard.GEOGRAPHY, QUERYABLE /* indexed */, true /* stored */,
-                        false /* tokenized */, false /* multivalued */, BasicTypes.GEO_TYPE));
-
-        descriptors
-                .add(new AttributeDescriptorImpl(Metacard.EXPIRATION, QUERYABLE /* indexed */, true /* stored */,
-                        false /* tokenized */, false /* multivalued */, BasicTypes.DATE_TYPE));
-
-        descriptors.add(new AttributeDescriptorImpl(Metacard.CONTENT_TYPE_VERSION, NON_QUERYABLE /* indexed */,
-                true /* stored */, false /* tokenized */, false /* multivalued */,
-                BasicTypes.STRING_TYPE));
-
-        descriptors
-                .add(new AttributeDescriptorImpl(Metacard.TARGET_NAMESPACE, QUERYABLE /* indexed */,
-                        true /* stored */, false /* tokenized */, false /* multivalued */,
-                        BasicTypes.STRING_TYPE));
-
-        descriptors.add(new AttributeDescriptorImpl(Metacard.RESOURCE_SIZE, NON_QUERYABLE /* indexed */,
-                true /* stored */, false /* tokenized */, false /* multivalued */,
-                BasicTypes.STRING_TYPE));
+        descriptors.addAll(BasicTypes.BASIC_METACARD.getAttributeDescriptors());
     }
 
     private void addCswBriefRecordAttributes() {

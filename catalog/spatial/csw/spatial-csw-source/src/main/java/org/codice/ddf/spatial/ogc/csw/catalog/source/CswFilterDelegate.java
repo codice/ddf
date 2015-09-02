@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 
 package org.codice.ddf.spatial.ogc.csw.catalog.source;
 
@@ -40,6 +39,7 @@ import com.vividsolutions.jts.io.WKTWriter;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
+
 import net.opengis.filter.v_1_1_0.ComparisonOperatorType;
 import net.opengis.filter.v_1_1_0.ComparisonOperatorsType;
 import net.opengis.filter.v_1_1_0.FilterCapabilities;
@@ -1121,7 +1121,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
     }
 
     protected String mapPropertyName(String propertyName) {
-        if (isAnyText(propertyName)) {
+        if (isAnyText(propertyName) || isMetadata(propertyName)) {
             propertyName = CswConstants.ANY_TEXT;
         } else if (isId(propertyName)) {
             propertyName = cswSourceConfiguration.getIdentifierMapping();
@@ -1135,8 +1135,9 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
             propertyName = cswSourceConfiguration.getModifiedDateMapping();
         } else if (isCreatedDate(propertyName)) {
             propertyName = cswSourceConfiguration.getCreatedDateMapping();
+        } else if (isContentTypeVersion(propertyName)) {
+            propertyName = null;
         }
-
         return propertyName;
     }
 
@@ -1154,6 +1155,14 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
 
     protected boolean isContentType(String propertyName) {
         return Metacard.CONTENT_TYPE.equalsIgnoreCase(propertyName);
+    }
+
+    protected boolean isContentTypeVersion(String propertyName) {
+        return Metacard.CONTENT_TYPE_VERSION.equalsIgnoreCase(propertyName);
+    }
+
+    protected boolean isMetadata(String propertyName) {
+        return Metacard.METADATA.equalsIgnoreCase(propertyName);
     }
 
     private boolean isSpatialOperationSupported(SpatialOperatorNameType operation) {
@@ -1358,10 +1367,9 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
     }
 
     protected boolean isPropertyQueryable(String propertyName) {
-        if (propertyName.equalsIgnoreCase(CswConstants.ANY_TEXT) || (
-                metacardType.getAttributeDescriptor(propertyName) != null
-                        && metacardType.getAttributeDescriptor(propertyName)
-                        .isIndexed())) {
+        if (propertyName != null && (propertyName.equalsIgnoreCase(CswConstants.ANY_TEXT) || (
+                metacardType.getAttributeDescriptor(propertyName) != null && metacardType
+                        .getAttributeDescriptor(propertyName).isIndexed()))) {
             LOGGER.debug("Property [{}] is queryable.", propertyName);
             return true;
         }
