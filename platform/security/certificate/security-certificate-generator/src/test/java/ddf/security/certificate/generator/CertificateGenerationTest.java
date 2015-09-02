@@ -13,22 +13,52 @@
  */
 package ddf.security.certificate.generator;
 
+import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.cert.X509CertificateHolder;
+import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
+import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
 import org.joda.time.DateTime;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
+import java.math.BigInteger;
 import java.net.UnknownHostException;
 import java.security.KeyPair;
 import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.Date;
 
+import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-public class TestCertificateGeneration {
+@RunWith(MockitoJUnitRunner.class)
+
+public class CertificateGenerationTest {
 
     public static final DateTime THE_FUTURE = DateTime.now().plusYears(1);
     public static final DateTime THE_PAST = DateTime.now().minusYears(1);
+
+    private PkiTools tools = new PkiTools();
+
+    @Mock
+    private JcaX509v3CertificateBuilder certificateBuilder;
+
+    @Mock
+    private X509CertificateHolder certificateHolder;
+
+    @Mock
+    private JcaX509CertificateConverter certificateConverter;
+
+    @Mock
+    private X509Certificate mockCertificate;
 
     protected String getPathTo(String path) {
         return getClass().getClassLoader().getResource(path).getPath();
@@ -63,16 +93,6 @@ public class TestCertificateGeneration {
         csr.build();
     }
 
-    //Test building incomplete instance
-    @Test(expected = CertificateGeneratorException.class)
-    public void certificateAuthorityIsMissing() throws Exception {
-        CertificateSigningRequest csr = new CertificateSigningRequest();
-        csr.setNotAfter(THE_FUTURE);
-        csr.setCommonNameToHostname();
-        csr.build();
-    }
-
-
     @Test(expected = CertificateGeneratorException.class)
     public void effectiveDateIsWrong() throws Exception {
         CertificateSigningRequest csr = new CertificateSigningRequest();
@@ -82,27 +102,71 @@ public class TestCertificateGeneration {
         csr.build();
     }
 
+
+    //Test building incomplete instance.
+    @Test(expected = CertificateGeneratorException.class)
+    public void certificateAuthorityIsMissing() throws Exception {
+        CertificateSigningRequest csr = new CertificateSigningRequest();
+        csr.setNotAfter(THE_FUTURE);
+        csr.setCommonNameToHostname();
+        csr.build();
+    }
+
     //Add newly created private key and certificate (chain) to a keystore
     @Test
     public void installCertificate() throws Exception {
-        CertificateSigningRequest csr = getCsr();
+
+        //Instantiate DDF Demo CA's certificate
+        final X509Certificate cert = tools.pemToCertificate(CertificateAuthority.pemDemoCaCertificate);
+
+        //Instantiate DDF DEmo CA's private key
+        PrivateKey privateKey = tools.pemToPrivateKey(CertificateAuthority.pemDemoCaPrivateKey);
+
+        //Instantiate DDF Demo CA
+        CertificateAuthority ca = new CertificateAuthority(cert, privateKey);
+
+        //Create new signing request and let DDF Demo CA sign it
+        CertificateSigningRequest csr1 = new CertificateSigningRequest() {
+            JcaX509v3CertificateBuilder getCertificateBuilder(X509Certificate certificate, BigInteger serialNumber, Date notBefore, Date notAfter, X500Name subjectName, PublicKey key) {
+                assertThat(certificate, sameInstance(cert));
+                return certificateBuilder;
+            }
+
+            JcaX509CertificateConverter getCertificateConverter() {
+                return certificateConverter;
+            }
+
+        };
+        csr1.setNotAfter(THE_FUTURE);
+
+        KeyPair keyPair = tools.generateRsaKeyPair();
+        csr1.useSubjectKeyPair(keyPair);
+        csr1.setCommonNameToHostname();
+        csr1.setCertificateAuthority(ca);
+
+        when(certificateBuilder.build(ca.getContentSigner())).thenReturn(certificateHolder);
+        when(certificateConverter.getCertificate(certificateHolder)).thenReturn(mockCertificate);
+        csr1.build();
+        verify(certificateBuilder).build(ca.getContentSigner());
+
+        CertificateSigningRequest csr = csr1;
         PrivateKey subjectPrivateKey = csr.getPrivateKey();
         X509Certificate chain[] = csr.getCertificateChain();
-        KeyStoreFile keyStore = KeyStoreFile.getInstance(getPathTo("keystore-password_changeit.jks"), "changeit".toCharArray());
-        keyStore.addEntry("alias", subjectPrivateKey, chain);
-        PrivateKey key = keyStore.getPrivateKey("alias");
+        KeyStoreFile keyStoreFile = KeyStoreFile.newInstance(getPathTo("keystore-password_changeit.jks"), "changeit".toCharArray());
+        keyStoreFile.addEntry("alias", subjectPrivateKey, chain);
+        PrivateKey key = keyStoreFile.getPrivateKey("alias");
         assertNotNull(key);
-        Certificate[] certs = keyStore.getCertificateChain("alias");
+        Certificate[] certs = keyStoreFile.getCertificateChain("alias");
         assertNotNull(certs);
-        keyStore.save();
+        keyStoreFile.save();
     }
 
     private CertificateSigningRequest getCsr() throws CertificateException, UnknownHostException {
         //Instantiate DDF Demo CA's certificate
-        X509Certificate cert = PkiTools.stringToCertificate(CertificateAuthority.certificatePem);
+        X509Certificate cert = tools.pemToCertificate(CertificateAuthority.pemDemoCaCertificate);
 
         //Instantiate DDF DEmo CA's private key
-        PrivateKey privateKey = PkiTools.stringToPrivateKey(CertificateAuthority.privateKeyPem);
+        PrivateKey privateKey = tools.pemToPrivateKey(CertificateAuthority.pemDemoCaPrivateKey);
 
         //Instantiate DDF Demo CA
         CertificateAuthority ca = new CertificateAuthority(cert, privateKey);
@@ -111,7 +175,7 @@ public class TestCertificateGeneration {
         CertificateSigningRequest csr = new CertificateSigningRequest();
         csr.setNotAfter(THE_FUTURE);
 
-        KeyPair keyPair = PkiTools.generateRsaKeyPair();
+        KeyPair keyPair = tools.generateRsaKeyPair();
         csr.useSubjectKeyPair(keyPair);
         csr.setCommonNameToHostname();
         csr.setCertificateAuthority(ca);
