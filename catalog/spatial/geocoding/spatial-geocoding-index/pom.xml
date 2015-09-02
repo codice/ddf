@@ -42,6 +42,22 @@
             <artifactId>lucene-analyzers-common</artifactId>
             <version>${lucene.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-spatial</artifactId>
+            <version>${lucene.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-queries</artifactId>
+            <version>${lucene.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.spatial4j</groupId>
+            <artifactId>spatial4j</artifactId>
+            <version>0.4.1</version>
+        </dependency>
 
         <!-- Test dependencies -->
         <dependency>
@@ -69,7 +85,10 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Export-Package>org.codice.ddf.spatial.geocoding.index</Export-Package>
                         <Embed-Dependency>
-                            lucene-analyzers-common
+                            lucene-analyzers-common,
+                            lucene-spatial,
+                            lucene-queries,
+                            spatial4j
                         </Embed-Dependency>
                     </instructions>
                 </configuration>

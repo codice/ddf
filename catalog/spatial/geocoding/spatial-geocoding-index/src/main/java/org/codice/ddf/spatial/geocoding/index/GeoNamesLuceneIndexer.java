@@ -27,12 +27,19 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.document.DoubleField;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FloatDocValuesField;
+import org.apache.lucene.document.NumericDocValuesField;
 import org.apache.lucene.document.StoredField;
+import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.FieldInvertState;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.search.similarities.DefaultSimilarity;
+import org.apache.lucene.spatial.SpatialStrategy;
+import org.apache.lucene.spatial.prefix.RecursivePrefixTreeStrategy;
+import org.apache.lucene.spatial.prefix.tree.GeohashPrefixTree;
+import org.apache.lucene.spatial.prefix.tree.SpatialPrefixTree;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.codice.ddf.spatial.geocoding.GeoCodingConstants;
@@ -43,6 +50,9 @@ import org.codice.ddf.spatial.geocoding.GeoEntryIndexer;
 import org.codice.ddf.spatial.geocoding.GeoEntryIndexingException;
 import org.codice.ddf.spatial.geocoding.ProgressCallback;
 
+import com.spatial4j.core.context.SpatialContext;
+import com.spatial4j.core.shape.Shape;
+
 public class GeoNamesLuceneIndexer implements GeoEntryIndexer {
     private static final Analyzer ANALYZER = new StandardAnalyzer();
 
@@ -51,6 +61,8 @@ public class GeoNamesLuceneIndexer implements GeoEntryIndexer {
     public void setIndexLocation(final String indexLocation) {
         this.indexLocation = indexLocation;
     }
+
+    private static final SpatialContext SPATIAL_CONTEXT = SpatialContext.GEO;
 
     public static final DefaultSimilarity SIMILARITY = new DefaultSimilarity() {
         @Override
@@ -95,11 +107,17 @@ public class GeoNamesLuceneIndexer implements GeoEntryIndexer {
 
         // Try-with-resources to ensure the IndexWriter always gets closed.
         try (final IndexWriter indexWriter = createIndexWriter(create, directory)) {
+            final SpatialPrefixTree grid = new GeohashPrefixTree(SPATIAL_CONTEXT,
+                    GeoNamesLuceneConstants.GEOHASH_LEVELS);
+
+            final SpatialStrategy strategy = new RecursivePrefixTreeStrategy(grid,
+                    GeoNamesLuceneConstants.GEO_FIELD);
+
             final ExtractionCallback extractionCallback = new ExtractionCallback() {
                 @Override
                 public void extracted(final GeoEntry newEntry) {
                     try {
-                        addDocument(indexWriter, newEntry);
+                        addDocument(indexWriter, newEntry, strategy);
                     } catch (IOException e) {
                         throw new GeoEntryIndexingException("Error writing to the index.", e);
                     }
@@ -165,8 +183,15 @@ public class GeoNamesLuceneIndexer implements GeoEntryIndexer {
         int progress = 0;
         int currentEntry = 0;
         final int numGeoEntries = geoEntryList.size();
+
+        final SpatialPrefixTree grid = new GeohashPrefixTree(SPATIAL_CONTEXT,
+                GeoNamesLuceneConstants.GEOHASH_LEVELS);
+
+        final SpatialStrategy strategy = new RecursivePrefixTreeStrategy(grid,
+                GeoNamesLuceneConstants.GEO_FIELD);
+
         for (GeoEntry geoEntry : geoEntryList) {
-            addDocument(indexWriter, geoEntry);
+            addDocument(indexWriter, geoEntry, strategy);
             if (currentEntry == (int) (numGeoEntries * (progress / 100.0f))) {
                 if (progressCallback != null) {
                     progressCallback.updateProgress(progress);
@@ -184,21 +209,35 @@ public class GeoNamesLuceneIndexer implements GeoEntryIndexer {
         }
     }
 
-    private void addDocument(final IndexWriter indexWriter, final GeoEntry geoEntry)
-            throws IOException {
+    private void addDocument(final IndexWriter indexWriter, final GeoEntry geoEntry,
+            final SpatialStrategy strategy) throws IOException {
         final Document document = new Document();
         document.add(new TextField(GeoNamesLuceneConstants.NAME_FIELD, geoEntry.getName(),
                 Field.Store.YES));
+
         document.add(new DoubleField(GeoNamesLuceneConstants.LATITUDE_FIELD, geoEntry.getLatitude(),
                 Field.Store.YES));
         document.add(new DoubleField(GeoNamesLuceneConstants.LONGITUDE_FIELD,
                 geoEntry.getLongitude(), Field.Store.YES));
-        document.add(new StoredField(GeoNamesLuceneConstants.FEATURE_CODE_FIELD,
-                geoEntry.getFeatureCode()));
+
+        document.add(new StringField(GeoNamesLuceneConstants.FEATURE_CODE_FIELD,
+                geoEntry.getFeatureCode(), Field.Store.YES));
+
         document.add(new StoredField(GeoNamesLuceneConstants.POPULATION_FIELD,
                 geoEntry.getPopulation()));
+        // This DocValues field is used for sorting by population.
+        document.add(new NumericDocValuesField(GeoNamesLuceneConstants.POPULATION_DOCVALUES_FIELD,
+                geoEntry.getPopulation()));
+
         document.add(new TextField(GeoNamesLuceneConstants.ALTERNATE_NAMES_FIELD,
                 geoEntry.getAlternateNames(), Field.Store.NO));
+
+        // Add each entry's spatial information for fast spatial filtering.
+        final Shape point = SPATIAL_CONTEXT
+                .makePoint(geoEntry.getLongitude(), geoEntry.getLatitude());
+        for (IndexableField field : strategy.createIndexableFields(point)) {
+            document.add(field);
+        }
 
         final float boost = calculateBoost(geoEntry);
         document.add(new FloatDocValuesField(GeoNamesLuceneConstants.BOOST_FIELD, boost));

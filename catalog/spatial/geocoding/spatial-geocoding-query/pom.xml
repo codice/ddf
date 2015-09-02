@@ -26,6 +26,10 @@
 
     <dependencies>
         <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.codice.ddf.spatial</groupId>
             <artifactId>spatial-geocoding-api</artifactId>
             <version>${project.version}</version>
@@ -57,6 +61,7 @@
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-sandbox</artifactId>
             <version>${lucene.version}</version>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.lucene</groupId>
@@ -64,9 +69,14 @@
             <version>${lucene.version}</version>
         </dependency>
         <dependency>
-            <groupId>jakarta-regexp</groupId>
-            <artifactId>jakarta-regexp</artifactId>
-            <version>1.4</version>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-spatial</artifactId>
+            <version>${lucene.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.spatial4j</groupId>
+            <artifactId>spatial4j</artifactId>
+            <version>0.4.1</version>
         </dependency>
 
         <!-- Test dependencies -->
@@ -75,6 +85,11 @@
             <artifactId>spatial-geocoding-api</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-api-impl</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -93,12 +108,16 @@
                             org.apache.lucene.search,
                             *
                         </Import-Package>
+                        <Private-Package>
+                            org.codice.ddf.spatial.geocoding.query,
+                            org.apache.lucene.sandbox.queries
+                        </Private-Package>
                         <Embed-Dependency>
                             lucene-analyzers-common,
                             lucene-queries,
                             lucene-queryparser,
-                            lucene-sandbox,
-                            jakarta-regexp
+                            lucene-spatial,
+                            spatial4j
                         </Embed-Dependency>
                     </instructions>
                 </configuration>
@@ -117,20 +136,30 @@
                             <rules>
                                 <rule>
                                     <element>BUNDLE</element>
-                                    <!-- The limits had to be lowered because the code being tested
+                                    <!-- Some limits had to be lowered because the code being tested
                                          uses try-with-resources, which generates branches that
                                          can't be fully tested yet are included in JaCoCo's branch
                                          count. See https://github.com/jacoco/jacoco/issues/82 -->
                                     <limits>
                                         <limit>
+                                            <counter>INSTRUCTION</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.88</minimum>
+                                        </limit>
+                                        <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.72</minimum>
+                                            <minimum>0.73</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.66</minimum>
+                                            <minimum>0.67</minimum>
+                                        </limit>
+                                        <limit>
+                                            <counter>LINE</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.96</minimum>
                                         </limit>
                                     </limits>
                                 </rule>

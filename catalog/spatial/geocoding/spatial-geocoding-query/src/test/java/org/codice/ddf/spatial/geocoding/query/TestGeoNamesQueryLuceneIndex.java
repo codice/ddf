@@ -33,11 +33,17 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.document.DoubleField;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.LongField;
+import org.apache.lucene.document.NumericDocValuesField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.spatial.SpatialStrategy;
+import org.apache.lucene.spatial.prefix.RecursivePrefixTreeStrategy;
+import org.apache.lucene.spatial.prefix.tree.GeohashPrefixTree;
+import org.apache.lucene.spatial.prefix.tree.SpatialPrefixTree;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
 import org.codice.ddf.spatial.geocoding.GeoEntry;
@@ -46,6 +52,11 @@ import org.codice.ddf.spatial.geocoding.TestBase;
 import org.codice.ddf.spatial.geocoding.index.GeoNamesLuceneConstants;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.spatial4j.core.context.SpatialContext;
+import com.spatial4j.core.shape.Shape;
+
+import ddf.catalog.data.impl.MetacardImpl;
 
 public class TestGeoNamesQueryLuceneIndex extends TestBase {
     private Directory directory;
@@ -56,24 +67,28 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
     private static final String NAME_3 = "Glendale";
 
     private static final double LAT_1 = 1.234;
-    private static final double LAT_2 = -12.34;
-    private static final double LAT_3 = -1.234;
+    private static final double LAT_2 = 1.25;
+    private static final double LAT_3 = 1;
 
     private static final double LON_1 = 56.78;
-    private static final double LON_2 = 5.678;
-    private static final double LON_3 = -5.678;
+    private static final double LON_2 = 56.5;
+    private static final double LON_3 = 57;
 
     private static final String FEATURE_CODE_1 = "PPL";
-    private static final String FEATURE_CODE_2 = "ADM";
-    private static final String FEATURE_CODE_3 = "PCL";
+    private static final String FEATURE_CODE_2 = "AIRP";
+    private static final String FEATURE_CODE_3 = "PPLC";
 
-    private static final long POP_1 = 1000000;
+    private static final long POP_1 = 100000000;
     private static final long POP_2 = 10000000;
-    private static final long POP_3 = 100000000;
+    private static final long POP_3 = 1000000;
 
     private static final String ALT_NAMES_1 = "alt1,alt2";
     private static final String ALT_NAMES_2 = "alt3";
     private static final String ALT_NAMES_3 = "";
+
+    private static final SpatialContext SPATIAL_CONTEXT = SpatialContext.GEO;
+
+    private SpatialStrategy strategy;
 
     private static final GeoEntry GEO_ENTRY_1 = new GeoEntry.Builder()
             .name(NAME_1)
@@ -122,6 +137,11 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
         directoryIndex = spy(new GeoNamesQueryLuceneDirectoryIndex());
         directoryIndex.setIndexLocation(null);
 
+        final SpatialPrefixTree grid = new GeohashPrefixTree(SPATIAL_CONTEXT,
+                GeoNamesLuceneConstants.GEOHASH_LEVELS);
+
+        strategy = new RecursivePrefixTreeStrategy(grid, GeoNamesLuceneConstants.GEO_FIELD);
+
         initializeIndex();
 
         doReturn(directory).when(directoryIndex).createDirectory();
@@ -142,8 +162,17 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
         document.add(
                 new LongField(GeoNamesLuceneConstants.POPULATION_FIELD, geoEntry.getPopulation(),
                         Field.Store.YES));
+        document.add(new NumericDocValuesField(GeoNamesLuceneConstants.POPULATION_DOCVALUES_FIELD,
+                geoEntry.getPopulation()));
+
         document.add(new TextField(GeoNamesLuceneConstants.ALTERNATE_NAMES_FIELD,
                 geoEntry.getAlternateNames(), Field.Store.NO));
+
+        final Shape point = SPATIAL_CONTEXT
+                .makePoint(geoEntry.getLongitude(), geoEntry.getLatitude());
+        for (IndexableField field : strategy.createIndexableFields(point)) {
+            document.add(field);
+        }
 
         return document;
     }
@@ -202,17 +231,17 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testZeroMaxResults() {
+    public void testQueryZeroMaxResults() {
         directoryIndex.query("phoenix", 0);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testNegativeMaxResults() {
+    public void testQueryNegativeMaxResults() {
         directoryIndex.query("phoenix", -1);
     }
 
     @Test(expected = GeoEntryQueryException.class)
-    public void testNoExistingIndex() throws IOException {
+    public void testQueryNoExistingIndex() throws IOException {
         doReturn(false).when(directoryIndex).indexExists(directory);
         directoryIndex.query("phoenix", 1);
     }
@@ -257,5 +286,106 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
             assertThat("The GeoEntryQueryException was not caused by a ParseException.",
                     e.getCause(), instanceOf(ParseException.class));
         }
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testNearestCitiesNullMetacard() {
+        directoryIndex.getNearestCities(null, 1, 1);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testNearestCitiesNegativeRadius() {
+        directoryIndex.getNearestCities(new MetacardImpl(), -1, 1);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testNearestCitiesNegativeMaxResults() {
+        directoryIndex.getNearestCities(new MetacardImpl(), 1, -1);
+    }
+
+    @Test
+    public void testNearestCitiesWithMaxResults() {
+        final MetacardImpl metacard = new MetacardImpl();
+        metacard.setLocation("POINT (56.78 1)");
+
+        final int requestedMaxResults = 2;
+
+        final List<String> nearestCities = directoryIndex
+                .getNearestCities(metacard, 50, requestedMaxResults);
+        assertThat(nearestCities.size(), is(requestedMaxResults));
+
+        /* These distances values were obtained from
+           http://www.movable-type.co.uk/scripts/latlong.html
+
+           Phoenix is first because it has a higher population.
+           Additionally, "Phoenix Airport" (GEO_ENTRY_2) is within 50 km of (56.78, 1), but it
+           should not be included in the results because its feature code is AIRP (not a city).
+        */
+        assertThat(nearestCities.get(0), is("26.02 km S of Phoenix"));
+        assertThat(nearestCities.get(1), is("24.46 km W of Glendale"));
+    }
+
+    @Test
+    public void testNearestCitiesWithLessThanMaxResults() {
+        final MetacardImpl metacard = new MetacardImpl();
+        metacard.setLocation("POINT (56.78 1.5)");
+
+        final int requestedMaxResults = 2;
+        final int actualResults = 1;
+
+        final List<String> nearestCities = directoryIndex
+                .getNearestCities(metacard, 50, requestedMaxResults);
+        assertThat(nearestCities.size(), is(actualResults));
+
+        /* This distance value was obtained from http://www.movable-type.co.uk/scripts/latlong.html
+
+           Additionally, "Phoenix Airport" (GEO_ENTRY_2) is within 50 km of (56.78, 1.5), but it
+           should not be included in the results because its feature code is AIRP (not a city).
+        */
+        assertThat(nearestCities.get(0), is("29.58 km N of Phoenix"));
+    }
+
+    @Test
+    public void testNearestCitiesWithNoResults() {
+        final MetacardImpl metacard = new MetacardImpl();
+        metacard.setLocation("POINT (0 1)");
+
+        final int requestedMaxResults = 2;
+        final int actualResults = 0;
+
+        final List<String> nearestCities = directoryIndex
+                .getNearestCities(metacard, 50, requestedMaxResults);
+        assertThat(nearestCities.size(), is(actualResults));
+    }
+
+    @Test
+    public void testNearestCitiesWithBadWKT() {
+        final MetacardImpl metacard = new MetacardImpl();
+        metacard.setLocation("POINT 56.78 1.5)");
+
+        final int requestedMaxResults = 2;
+        final int actualResults = 0;
+
+        final List<String> nearestCities = directoryIndex
+                .getNearestCities(metacard, 50, requestedMaxResults);
+        assertThat(nearestCities.size(), is(actualResults));
+    }
+
+    @Test
+    public void testNearestCitiesWithBlankWKT() {
+        final MetacardImpl metacard = new MetacardImpl();
+
+        final int requestedMaxResults = 2;
+        final int actualResults = 0;
+
+        final List<String> nearestCities = directoryIndex
+                .getNearestCities(metacard, 50, requestedMaxResults);
+        assertThat(nearestCities.size(), is(actualResults));
+    }
+
+    @Test(expected = GeoEntryQueryException.class)
+    public void testNearestCitiesNoExistingIndex() throws IOException {
+        doReturn(false).when(directoryIndex).indexExists(directory);
+        directoryIndex.getNearestCities(new MetacardImpl(), 5, 5);
     }
 }
