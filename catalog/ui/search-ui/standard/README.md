@@ -24,7 +24,7 @@ npm install
 ```
 grunt
 ```
-* Open http://localhost:8282 to test and debug
+* Open http://localhost:8282/ to test and debug. The trailing slash is necessary to ensure proper grunt behavior.
 
 ###Testing
 Automated tests are executed as part of the maven build but it is also possible to manually run 
