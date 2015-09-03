@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -122,6 +122,11 @@ public class ReplicationCommandTest {
                 }
                 return service;
             }
+
+            @Override
+            protected Object doExecute() throws Exception {
+                return executeWithSubject();
+            }
         };
 
         when(mockSession.getKeyboard()).thenReturn(mockIS);
@@ -129,15 +134,14 @@ public class ReplicationCommandTest {
         when(catalogFramework.getSourceIds()).thenReturn(SOURCE_IDS);
         when(catalogFramework.query(isA(QueryRequest.class)))
                 .thenAnswer(new Answer<QueryResponse>() {
-                            @Override
-                            public QueryResponse answer(InvocationOnMock invocation)
-                                    throws Throwable {
-                                Object[] args = invocation.getArguments();
-                                QueryRequest request = (QueryRequest) args[0];
-                                pageSize = request.getQuery().getPageSize();
-                                return mockQueryResponse;
-                            }
-                        });
+                    @Override
+                    public QueryResponse answer(InvocationOnMock invocation) throws Throwable {
+                        Object[] args = invocation.getArguments();
+                        QueryRequest request = (QueryRequest) args[0];
+                        pageSize = request.getQuery().getPageSize();
+                        return mockQueryResponse;
+                    }
+                });
 
         when(mockQueryResponse.getHits()).thenReturn(Long.valueOf(HITS));
         when(mockQueryResponse.getResults()).thenAnswer(new Answer<List<Result>>() {
@@ -148,16 +152,15 @@ public class ReplicationCommandTest {
         });
         when(catalogFramework.create(isA(CreateRequest.class)))
                 .thenAnswer(new Answer<CreateResponse>() {
-                            @Override
-                            public CreateResponse answer(InvocationOnMock invocation)
-                                    throws Throwable {
-                                Object[] args = invocation.getArguments();
-                                CreateRequest request = (CreateRequest) args[0];
-                                when(mockCreateResponse.getCreatedMetacards())
-                                        .thenReturn(request.getMetacards());
-                                return mockCreateResponse;
-                            }
-                        });
+                    @Override
+                    public CreateResponse answer(InvocationOnMock invocation) throws Throwable {
+                        Object[] args = invocation.getArguments();
+                        CreateRequest request = (CreateRequest) args[0];
+                        when(mockCreateResponse.getCreatedMetacards())
+                                .thenReturn(request.getMetacards());
+                        return mockCreateResponse;
+                    }
+                });
 
     }
 
@@ -279,17 +282,16 @@ public class ReplicationCommandTest {
 
         when(catalogFramework.create(isA(CreateRequest.class)))
                 .thenAnswer(new Answer<CreateResponse>() {
-                            @Override
-                            public CreateResponse answer(InvocationOnMock invocation)
-                                    throws Throwable {
-                                Object[] args = invocation.getArguments();
-                                CreateRequest request = (CreateRequest) args[0];
-                                when(mockCreateResponse.getCreatedMetacards()).thenReturn(
-                                        request.getMetacards()
-                                                .subList(0, request.getMetacards().size() / 2));
-                                return mockCreateResponse;
-                            }
-                        });
+                    @Override
+                    public CreateResponse answer(InvocationOnMock invocation) throws Throwable {
+                        Object[] args = invocation.getArguments();
+                        CreateRequest request = (CreateRequest) args[0];
+                        when(mockCreateResponse.getCreatedMetacards()).thenReturn(
+                                request.getMetacards()
+                                        .subList(0, request.getMetacards().size() / 2));
+                        return mockCreateResponse;
+                    }
+                });
 
         replicationCmd.isProvider = true;
         replicationCmd.isUseTemporal = false;

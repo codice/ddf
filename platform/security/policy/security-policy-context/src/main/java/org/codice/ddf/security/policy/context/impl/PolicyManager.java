@@ -209,7 +209,7 @@ public class PolicyManager implements ContextPolicyManager {
                     for (String attribute : attributes) {
                         String[] parts = attribute.split("=");
                         if (parts.length == 2) {
-                            attrMaps.add(new DefaultContextAttributeMapping(parts[0], parts[1]));
+                            attrMaps.add(new DefaultContextAttributeMapping(context, parts[0], parts[1]));
                         }
                     }
                     contextToAttr.put(context, attrMaps);

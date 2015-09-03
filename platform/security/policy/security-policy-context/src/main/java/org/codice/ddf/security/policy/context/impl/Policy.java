@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -21,6 +21,8 @@ import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.codice.ddf.security.policy.context.attributes.ContextAttributeMapping;
 
 import ddf.security.permission.CollectionPermission;
+import ddf.security.permission.KeyValueCollectionPermission;
+import ddf.security.permission.KeyValuePermission;
 
 /**
  * Implementation of ContextPolicy for the Policy Manager in this package.
@@ -59,11 +61,14 @@ public class Policy implements ContextPolicy {
     }
 
     @Override
-    public Collection<CollectionPermission> getAllowedAttributePermissions() {
-        List<CollectionPermission> permissions = new ArrayList<CollectionPermission>();
+    public CollectionPermission getAllowedAttributePermissions() {
+        List<KeyValuePermission> perms = new ArrayList<>();
         for (ContextAttributeMapping mapping : attributeMappings) {
-            permissions.add(mapping.getAttributePermission());
+            perms.add(mapping.getAttributePermission());
         }
+        KeyValueCollectionPermission permissions = new KeyValueCollectionPermission(
+                getContextPath());
+        permissions.addAll(perms);
         return permissions;
     }
 

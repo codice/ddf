@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -13,23 +13,19 @@
  */
 package org.codice.ddf.security.filter.authorization;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.Principal;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -49,16 +45,98 @@ import org.apache.shiro.util.ThreadContext;
 import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.codice.ddf.security.policy.context.ContextPolicyManager;
 import org.codice.ddf.security.policy.context.attributes.ContextAttributeMapping;
+import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
-import ddf.security.permission.ActionPermission;
 import ddf.security.permission.CollectionPermission;
+import ddf.security.permission.KeyValueCollectionPermission;
 import ddf.security.permission.KeyValuePermission;
 
 public class AuthorizationFilterTest {
+    private boolean sucess = false;
+
+    @Before
+    public void setup() {
+        sucess = false;
+    }
+
+    @Test
+    public void testAuthorizedSubject() {
+        FilterConfig filterConfig = mock(FilterConfig.class);
+        ContextPolicyManager contextPolicyManager = new TestPolicyManager();
+        contextPolicyManager.setContextPolicy("/path", new TestContextPolicy());
+        AuthorizationFilter loginFilter = new AuthorizationFilter(contextPolicyManager);
+        try {
+            loginFilter.init(filterConfig);
+        } catch (ServletException e) {
+            fail(e.getMessage());
+        }
+
+        Subject subject = mock(Subject.class);
+        when(subject.isPermitted(any(CollectionPermission.class))).thenReturn(true);
+        ThreadContext.bind(subject);
+
+        HttpServletRequest servletRequest = new TestHttpServletRequest();
+        HttpServletResponse servletResponse = mock(HttpServletResponse.class);
+
+        FilterChain filterChain = new FilterChain() {
+            @Override
+            public void doFilter(ServletRequest request, ServletResponse response)
+                    throws IOException, ServletException {
+                sucess = true;
+            }
+        };
+
+        try {
+            loginFilter.doFilter(servletRequest, servletResponse, filterChain);
+            if (!sucess) {
+                fail("Should have called doFilter with a valid Subject");
+            }
+        } catch (IOException e) {
+            fail(e.getMessage());
+        } catch (ServletException e) {
+            fail(e.getMessage());
+        }
+        ThreadContext.unbindSubject();
+    }
+
+    @Test
+    public void testUnAuthorizedSubject() {
+        FilterConfig filterConfig = mock(FilterConfig.class);
+        ContextPolicyManager contextPolicyManager = new TestPolicyManager();
+        contextPolicyManager.setContextPolicy("/path", new TestContextPolicy());
+        AuthorizationFilter loginFilter = new AuthorizationFilter(contextPolicyManager);
+        try {
+            loginFilter.init(filterConfig);
+        } catch (ServletException e) {
+            fail(e.getMessage());
+        }
+
+        Subject subject = mock(Subject.class);
+        when(subject.isPermitted(any(CollectionPermission.class))).thenReturn(false);
+        ThreadContext.bind(subject);
+
+        HttpServletRequest servletRequest = new TestHttpServletRequest();
+        HttpServletResponse servletResponse = mock(HttpServletResponse.class);
+        FilterChain filterChain = new FilterChain() {
+            @Override
+            public void doFilter(ServletRequest request, ServletResponse response)
+                    throws IOException, ServletException {
+                fail("Should not have called doFilter without a valid Subject");
+            }
+        };
+
+        try {
+            loginFilter.doFilter(servletRequest, servletResponse, filterChain);
+        } catch (IOException e) {
+            fail(e.getMessage());
+        } catch (ServletException e) {
+            fail(e.getMessage());
+        }
+        ThreadContext.unbindSubject();
+    }
 
     @Test
     public void testNoSubject() {
@@ -123,31 +201,6 @@ public class AuthorizationFilterTest {
         }
     }
 
-    @Test
-    public void testActionAuthorization() throws Exception {
-        String serviceURI = "/services/catalog/query";
-        FilterChain filterChain = mock(FilterChain.class);
-        ContextPolicyManager contextPolicyManager = mock(ContextPolicyManager.class);
-        AuthorizationFilter authorizationFilter = new AuthorizationFilter(contextPolicyManager);
-        authorizationFilter.setShouldActionAuthorize(true);
-
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        when(request.getRequestURI()).thenReturn(serviceURI);
-        HttpServletResponse response = mock(HttpServletResponse.class);
-
-        Subject subject = mock(Subject.class);
-        when(subject.isPermitted(any(ActionPermission.class))).thenReturn(true);
-
-        ThreadContext.bind(subject);
-
-        authorizationFilter.doFilter(request, response, filterChain);
-
-        ArgumentCaptor<ActionPermission> permission = ArgumentCaptor
-                .forClass(ActionPermission.class);
-        verify(subject).isPermitted(permission.capture());
-        assertEquals(serviceURI, permission.getValue().getAction());
-    }
-
     private class TestContextPolicy implements ContextPolicy {
 
         @Override
@@ -161,11 +214,10 @@ public class AuthorizationFilterTest {
         }
 
         @Override
-        public Collection<CollectionPermission> getAllowedAttributePermissions() {
-            List<CollectionPermission> permissions = new ArrayList<CollectionPermission>();
-            permissions.add(new CollectionPermission(
-                    new KeyValuePermission("test", Arrays.asList("permission"))));
-            return permissions;
+        public CollectionPermission getAllowedAttributePermissions() {
+
+            return new KeyValueCollectionPermission(getContextPath(),
+                    new KeyValuePermission(getContextPath(), Arrays.asList("permission")));
         }
 
         @Override

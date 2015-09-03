@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -28,7 +28,6 @@ import org.mockito.Mockito;
 import junit.framework.Assert;
 
 import ddf.security.pdp.realm.SimpleAuthzRealm;
-import ddf.security.permission.ActionPermission;
 import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
 import ddf.security.permission.KeyValuePermission;
@@ -79,7 +78,7 @@ public class SimpleAuthzRealmTest {
     @Test
     public void testIsPermitted() {
         permissionList.clear();
-        KeyValueCollectionPermission kvcp = new KeyValueCollectionPermission(security);
+        KeyValueCollectionPermission kvcp = new KeyValueCollectionPermission("action", security);
         permissionList.add(kvcp);
         PrincipalCollection mockSubjectPrincipal = Mockito.mock(PrincipalCollection.class);
 
@@ -107,7 +106,8 @@ public class SimpleAuthzRealmTest {
     @Test
     public void testIsPermittedOneSingle() {
         permissionList.clear();
-        KeyValuePermission kvp = new KeyValuePermission("country", Arrays.asList("AUS", "CAN", "GBR"));
+        KeyValuePermission kvp = new KeyValuePermission("country",
+                Arrays.asList("AUS", "CAN", "GBR"));
         permissionList.add(kvp);
         PrincipalCollection mockSubjectPrincipal = Mockito.mock(PrincipalCollection.class);
 
@@ -121,7 +121,8 @@ public class SimpleAuthzRealmTest {
     @Test
     public void testIsPermittedOneMultiple() {
         permissionList.clear();
-        KeyValuePermission kvp = new KeyValuePermission("country", Arrays.asList("AUS", "CAN", "GBR"));
+        KeyValuePermission kvp = new KeyValuePermission("country",
+                Arrays.asList("AUS", "CAN", "GBR"));
         permissionList.add(kvp);
 
         String ruleClaim = "FineAccessControls";
@@ -155,33 +156,6 @@ public class SimpleAuthzRealmTest {
     }
 
     @Test
-    public void testIsActionPermitted() {
-        permissionList.clear();
-        ActionPermission actionPermission = new ActionPermission("action");
-        testRealm.setOpenAccessActionList(Arrays.asList("action"));
-        permissionList.add(actionPermission);
-        PrincipalCollection mockSubjectPrincipal = Mockito.mock(PrincipalCollection.class);
-        boolean[] permittedArray = testRealm.isPermitted(mockSubjectPrincipal, permissionList);
-        for (boolean permitted : permittedArray) {
-            Assert.assertEquals(true, permitted);
-        }
-    }
-
-    @Test
-    public void testIsRolePermitted() {
-        permissionList.clear();
-        ActionPermission actionPermission = new ActionPermission("action");
-        testRealm.setOpenAccessActionList(Arrays.asList("otherAction"));
-        testRealm.setAccessRoleList(Arrays.asList("admin"));
-        permissionList.add(actionPermission);
-        PrincipalCollection mockSubjectPrincipal = Mockito.mock(PrincipalCollection.class);
-        boolean[] permittedArray = testRealm.isPermitted(mockSubjectPrincipal, permissionList);
-        for (boolean permitted : permittedArray) {
-            Assert.assertEquals(true, permitted);
-        }
-    }
-
-    @Test
     public void testIsNotPermitted() {
 
         HashMap<String, List<String>> security = new HashMap<String, List<String>>();
@@ -189,7 +163,7 @@ public class SimpleAuthzRealmTest {
         security.put("country2", Arrays.asList("CAN", "GBR"));
         security.put("rule", Arrays.asList("A", "B"));
         security.put("rule2", Arrays.asList("A", "B", "C"));
-        KeyValueCollectionPermission kvcp = new KeyValueCollectionPermission(security);
+        KeyValueCollectionPermission kvcp = new KeyValueCollectionPermission("action", security);
         permissionList.clear();
         permissionList.add(kvcp);
         PrincipalCollection mockSubjectPrincipal = Mockito.mock(PrincipalCollection.class);
@@ -204,19 +178,22 @@ public class SimpleAuthzRealmTest {
     @Test
     public void testBadPolicyExtension() {
         permissionList.clear();
-        KeyValuePermission kvp = new KeyValuePermission("country", Arrays.asList("AUS", "CAN", "GBR"));
+        KeyValuePermission kvp = new KeyValuePermission("country",
+                Arrays.asList("AUS", "CAN", "GBR"));
         permissionList.add(kvp);
         PrincipalCollection mockSubjectPrincipal = Mockito.mock(PrincipalCollection.class);
 
         testRealm.addPolicyExtension(new PolicyExtension() {
             @Override
-            public KeyValueCollectionPermission isPermittedMatchAll(CollectionPermission subjectAllCollection,
+            public KeyValueCollectionPermission isPermittedMatchAll(
+                    CollectionPermission subjectAllCollection,
                     KeyValueCollectionPermission matchAllCollection) {
                 throw new NullPointerException();
             }
 
             @Override
-            public KeyValueCollectionPermission isPermittedMatchOne(CollectionPermission subjectAllCollection,
+            public KeyValueCollectionPermission isPermittedMatchOne(
+                    CollectionPermission subjectAllCollection,
                     KeyValueCollectionPermission matchOneCollection) {
                 throw new NullPointerException();
             }

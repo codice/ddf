@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -44,23 +44,23 @@ public class DefaultContextAttributeMappingTest {
     @Before
     public void setup() {
         List<KeyValuePermission> userPerms = new ArrayList<KeyValuePermission>();
-        userPerms.add(new KeyValuePermission("role", Arrays.asList("admin", "supervisor")));
+        userPerms.add(new KeyValuePermission("role", Arrays.asList("admin")));
         userPerms.add(new KeyValuePermission("controls", Arrays.asList("Foo", "Bar")));
         userPerms.add(new KeyValuePermission("control", Arrays.asList("Foo")));
-        userPermissions = new KeyValueCollectionPermission(userPerms);
+        userPermissions = new KeyValueCollectionPermission("context", userPerms);
 
-        roleMapping = new DefaultContextAttributeMapping("role", "admin|importantguy");
-        roleMapping2 = new DefaultContextAttributeMapping("role", "charlie|brown");
+        roleMapping = new DefaultContextAttributeMapping("context", "role", "admin");
+        roleMapping2 = new DefaultContextAttributeMapping("context", "role", "charlie");
 
-        controlsMapping = new DefaultContextAttributeMapping("controls", "Foo|Bar");
-        controlMapping = new DefaultContextAttributeMapping("control", "Foo|Bar");
+        controlsMapping = new DefaultContextAttributeMapping("context", "controls", "Foo");
+        controlMapping = new DefaultContextAttributeMapping("context", "control", "Bar");
     }
 
     @Test
     public void testIsPermitted() {
-        boolean roleImply = roleMapping.getAttributePermission().implies(userPermissions);
+        boolean roleImply = userPermissions.implies(roleMapping.getAttributePermission());
 
-        boolean roleImply2 = roleMapping2.getAttributePermission().implies(userPermissions);
+        boolean roleImply2 = userPermissions.implies(roleMapping2.getAttributePermission());
 
         boolean controlsImply = userPermissions.implies(controlsMapping.getAttributePermission());
 

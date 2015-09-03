@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -58,13 +58,12 @@ public interface ContextPolicy {
     public Collection<String> getAuthenticationMethods();
 
     /**
-     * Returns a {@link java.util.Collection} of
-     * {@link ddf.security.permission.CollectionPermission} objects built from
+     * Returns a {@link ddf.security.permission.CollectionPermission} object built from
      * the attribute mappings.
      *
      * @return permissions
      */
-    public Collection<CollectionPermission> getAllowedAttributePermissions();
+    public CollectionPermission getAllowedAttributePermissions();
 
     /**
      * Returns a {@link java.util.Collection} of attribute names.

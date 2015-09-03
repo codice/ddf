@@ -120,7 +120,7 @@ public class IngestCommand extends CatalogCommands {
     File failedIngestDirectory = null;
 
     @Override
-    protected Object doExecute() throws Exception {
+    protected Object executeWithSubject() throws Exception {
 
         final CatalogFacade catalog = getCatalog();
         final File inputFile = new File(filePath);
@@ -224,6 +224,7 @@ public class IngestCommand extends CatalogCommands {
                     INGEST_LOGGER.warn("{} files(s) were ignored.", ignoredAmount);
                 }
             }
+            console.println();
 
             return null;
         } else if (inputFile.isFile()) {

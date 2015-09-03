@@ -37,7 +37,7 @@ public class InspectCommand extends CatalogCommands {
     String id = null;
 
     @Override
-    protected Object doExecute() throws Exception {
+    protected Object executeWithSubject() throws Exception {
 
         if (id == null) {
             return null;

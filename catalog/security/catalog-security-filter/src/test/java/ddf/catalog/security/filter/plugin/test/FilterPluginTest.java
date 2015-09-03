@@ -65,6 +65,7 @@ import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.security.filter.plugin.FilterPlugin;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
+import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
 
 /**
@@ -129,7 +130,7 @@ public class FilterPluginTest {
         testRoleMap.put("Roles", testRoles);
 
         final KeyValueCollectionPermission testUserPermission = new KeyValueCollectionPermission(
-                testRoleMap);
+                CollectionPermission.READ_ACTION, testRoleMap);
 
         return new Answer<Boolean>() {
             @Override

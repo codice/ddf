@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -11,18 +10,20 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- -->
+-->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-    <OCD name="Security Authorization Filter"
-         id="org.codice.ddf.security.filter.authorization.AuthorizationFilter">
-        <AD name="Use Action Permissions" id="shouldActionAuthorize" required="true" type="Boolean"
-            description="Checks authorization using action-based permissions for the service being called"
-            default="false"/>
+    <OCD description="Ingest Security Plugin"
+         name="Ingest Security Plugin"
+         id="ddf.catalog.security.ingest.IngestPlugin">
+
+        <AD description="Roles/attributes required for ingest operations (create, update and delete). Example: {role=role1;type=type1}"
+            name="Required Attributes" id="permissionStrings" required="true" type="String" cardinality="1000"
+            default="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=anonymous"/>
     </OCD>
 
-    <Designate pid="org.codice.ddf.security.filter.authorization.AuthorizationFilter">
-        <Object ocdref="org.codice.ddf.security.filter.authorization.AuthorizationFilter"/>
+    <Designate pid="ddf.catalog.security.ingest.IngestPlugin">
+        <Object ocdref="ddf.catalog.security.ingest.IngestPlugin"/>
     </Designate>
 
 </metatype:MetaData>
