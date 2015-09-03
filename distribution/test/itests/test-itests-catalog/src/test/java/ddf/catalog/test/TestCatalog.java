@@ -495,6 +495,44 @@ public class TestCatalog extends AbstractIntegrationTest {
     }
 
     @Test
+    public void testIngestPlugin() throws Exception {
+
+        //ingest a data set to make sure we don't have any issues initially
+        String id1 = ingestGeoJson(Library.getSimpleGeoJson());
+        String xPath1 = String.format(METACARD_X_PATH, id1);
+
+        //verify ingest by querying
+        ValidatableResponse response = executeOpenSearch("xml", "q=*");
+        response.body(hasXPath(xPath1));
+
+        //change ingest plugin role to ingest
+        IngestProperties ingestProperties = new IngestProperties();
+        ingestProperties.put("permissionsString",
+                "{http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=ingest}");
+        Configuration config = configAdmin
+                .getConfiguration("ddf.catalog.security.ingest.IngestPlugin", null);
+        Dictionary<String, Object> configProps = new Hashtable<>(ingestProperties);
+        config.update(configProps);
+        waitForAllBundles();
+
+        //try ingesting again - it should fail this time
+        given().body(Library.getSimpleGeoJson()).header("Content-Type", "application/json").expect().log().all()
+                .statusCode(500).when().post(REST_PATH);
+
+        //verify query for first id works
+        response = executeOpenSearch("xml", "q=*");
+        response.body(hasXPath(xPath1));
+
+        //revert to original configuration
+        configProps.put("permissionsString",
+                "{http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=anonymous}");
+        config.update(configProps);
+        waitForAllBundles();
+
+        deleteMetacard(id1);
+    }
+
+    @Test
     public void testContentDirectoryMonitor() throws Exception {
         startFeature(true, "content-core-directorymonitor");
         final String TMP_PREFIX = "tcdm_";
@@ -573,5 +611,15 @@ public class TestCatalog extends AbstractIntegrationTest {
             this.putAll(getMetatypeDefaults(SYMBOLIC_NAME, FACTORY_PID));
         }
 
+    }
+
+    public class IngestProperties extends HashMap<String, Object> {
+        public static final String SYMBOLIC_NAME = "catalog-security-ingestplugin";
+
+        public static final String FACTORY_PID = "ddf.catalog.security.ingest.IngestPlugin";
+
+        public IngestProperties() {
+            this.putAll(getMetatypeDefaults(SYMBOLIC_NAME, FACTORY_PID));
+        }
     }
 }

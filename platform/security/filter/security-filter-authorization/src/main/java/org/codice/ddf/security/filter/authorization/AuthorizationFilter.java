@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -28,14 +28,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.util.CollectionUtils;
 import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.codice.ddf.security.policy.context.ContextPolicyManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.security.permission.ActionPermission;
 import ddf.security.permission.CollectionPermission;
+import ddf.security.permission.KeyValueCollectionPermission;
 
 /**
  * Handler that implements authorization checking for contexts.
@@ -63,6 +62,7 @@ public class AuthorizationFilter implements Filter {
         LOGGER.debug("Starting AuthZ filter.");
     }
 
+    @SuppressWarnings("PackageAccessibility")
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
@@ -83,9 +83,9 @@ public class AuthorizationFilter implements Filter {
 
             boolean permitted = true;
             if (shouldActionAuthorize) {
-                ActionPermission actionPermission = new ActionPermission(
+                KeyValueCollectionPermission permission = new KeyValueCollectionPermission(
                         httpRequest.getRequestURI());
-                permitted = (subject != null) && subject.isPermitted(actionPermission);
+                permitted = (subject != null) && subject.isPermitted(permission);
             } else {
                 String path = StringUtils.isNotBlank(httpRequest.getContextPath()) ?
                         httpRequest.getContextPath() :
@@ -94,19 +94,16 @@ public class AuthorizationFilter implements Filter {
                 if (StringUtils.isEmpty(path)) {
                     path = httpRequest.getRequestURI();
                 }
-                ActionPermission actionPermission = new ActionPermission(path);
+
                 ContextPolicy policy = contextPolicyManager.getContextPolicy(path);
 
-                if (policy != null) {
+                if (policy != null && subject != null) {
                     Collection<CollectionPermission> permissions = policy
                             .getAllowedAttributePermissions();
-                    if (!CollectionUtils.isEmpty(permissions)) {
-                        permissions.add(new CollectionPermission(actionPermission));
-                        for (CollectionPermission permission : permissions) {
-                            if (subject == null || !subject
-                                    .isPermittedAll(permission.getPermissionList())) {
-                                permitted = false;
-                            }
+                    for (CollectionPermission permission : permissions) {
+                        if (!subject.isPermitted(permission)) {
+                            permitted = false;
+                            break;
                         }
                     }
                 } else {

@@ -44,7 +44,7 @@ public class KeyValueCollectionPermissionTest {
         map.put(CAR_PERM, carPermissions);
         map.put(BIKE_PERM, bicyclePermissions);
 
-        KeyValueCollectionPermission kvcp = new KeyValueCollectionPermission(map);
+        KeyValueCollectionPermission kvcp = new KeyValueCollectionPermission("", map);
 
         List<KeyValuePermission> permissions = kvcp.getKeyValuePermissionList();
         for (KeyValuePermission curPerm : permissions) {

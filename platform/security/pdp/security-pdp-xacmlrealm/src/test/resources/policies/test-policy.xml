@@ -22,7 +22,7 @@
     <AnyOf>
       <AllOf>
         <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">filter</AttributeValue>
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">read</AttributeValue>
           <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id"
                                Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action"
                                DataType="http://www.w3.org/2001/XMLSchema#string"
@@ -56,7 +56,7 @@
         <AllOf>
           <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
             <AttributeValue
-                    DataType="http://www.w3.org/2001/XMLSchema#string">filter</AttributeValue>
+                    DataType="http://www.w3.org/2001/XMLSchema#string">read</AttributeValue>
             <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id"
                                  Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action"
                                  DataType="http://www.w3.org/2001/XMLSchema#string"
