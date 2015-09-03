@@ -1,20 +1,21 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.spatial.ogc.csw.catalog.source;
 
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -42,6 +43,7 @@ import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.source.UnsupportedQueryException;
+
 import net.opengis.filter.v_1_1_0.ComparisonOperatorType;
 import net.opengis.filter.v_1_1_0.ComparisonOperatorsType;
 import net.opengis.filter.v_1_1_0.FilterCapabilities;
@@ -694,16 +696,17 @@ public class TestCswCqlFilter {
         assertEquals(durationCompare, compareXml);
     }
 
-    @Test(expected = UnsupportedQueryException.class)
-    public void testPropertyIsEqualToStringLiteralNonQueryableProperty() throws
-            UnsupportedQueryException {
+    @Test
+    public void testPropertyIsEqualToStringLiteralNonQueryableProperty()
+            throws UnsupportedQueryException {
         /**
          * See CswRecordMetacardType.java for queryable and non-queryable properties.
          */
         String nonQueryableProperty = Metacard.METADATA;
         FilterType filterType = cswFilterDelegate
                 .propertyIsEqualTo(nonQueryableProperty, stringLiteral, isCaseSensitive);
-        CswCqlTextFilter.getInstance().getCqlText(filterType);
+        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        assertThat(cqlText, equalTo(propertyIsEqualToAnyText));
     }
 
     @Test
@@ -885,8 +888,8 @@ public class TestCswCqlFilter {
     }
 
     @Test
-    public void testPropertyIsGreaterThanOrEqualToStringLiteralAnyText() throws
-            UnsupportedQueryException {
+    public void testPropertyIsGreaterThanOrEqualToStringLiteralAnyText()
+            throws UnsupportedQueryException {
         FilterType filterType = cswFilterDelegate
                 .propertyIsGreaterThanOrEqualTo(propertyNameAnyText, stringLiteral);
         String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
@@ -999,8 +1002,8 @@ public class TestCswCqlFilter {
     }
 
     @Test
-    public void testPropertyIsLessThanOrEqualToStringLiteralAnyText() throws
-            UnsupportedQueryException {
+    public void testPropertyIsLessThanOrEqualToStringLiteralAnyText()
+            throws UnsupportedQueryException {
         FilterType filterType = cswFilterDelegate
                 .propertyIsLessThanOrEqualTo(propertyNameAnyText, stringLiteral);
         String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
@@ -1261,8 +1264,8 @@ public class TestCswCqlFilter {
     }
 
     @Test
-    public void testIntersectsPolygonLonLatIsConvertedToLatLon() throws UnsupportedQueryException,
-            com.vividsolutions.jts.io.ParseException {
+    public void testIntersectsPolygonLonLatIsConvertedToLatLon()
+            throws UnsupportedQueryException, com.vividsolutions.jts.io.ParseException {
         String propName = CswConstants.BBOX_PROP;
         FilterType filterType = cswFilterDelegate.intersects(propName, polygonWkt);
         String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
@@ -1278,8 +1281,8 @@ public class TestCswCqlFilter {
     }
 
     @Test
-    public void testIntersectsPropertyOwsBoundingBoxMultiPolygon() throws
-            UnsupportedQueryException {
+    public void testIntersectsPropertyOwsBoundingBoxMultiPolygon()
+            throws UnsupportedQueryException {
         String propName = CswConstants.BBOX_PROP;
         FilterType filterType = cswFilterDelegate.intersects(propName, multiPolygonWkt);
         String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
@@ -1295,8 +1298,8 @@ public class TestCswCqlFilter {
     }
 
     @Test
-    public void testIntersectsPropertyOwsBoundingBoxMultiLineString() throws
-            UnsupportedQueryException {
+    public void testIntersectsPropertyOwsBoundingBoxMultiLineString()
+            throws UnsupportedQueryException {
         String propName = CswConstants.BBOX_PROP;
         FilterType filterType = cswFilterDelegate.intersects(propName, multiLineStringWkt);
         String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
@@ -1312,8 +1315,8 @@ public class TestCswCqlFilter {
     }
 
     @Test
-    public void testWithinPropertyOwsBoundingBoxPolygon() throws UnsupportedQueryException,
-            com.vividsolutions.jts.io.ParseException {
+    public void testWithinPropertyOwsBoundingBoxPolygon()
+            throws UnsupportedQueryException, com.vividsolutions.jts.io.ParseException {
         String propName = CswConstants.BBOX_PROP;
         FilterType filterType = cswFilterDelegate.within(propName, polygonWkt);
         String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);

@@ -22,20 +22,11 @@
         <bundle>mvn:ddf.ui.search/search-redirect/${project.version}</bundle>
         <bundle>mvn:ddf.ui.search/search-htmltransformer/${project.version}</bundle>
         <bundle>mvn:ddf.ui.search/search-endpoint/${project.version}</bundle>
-        <!-- search-geocoder requires spatial-geocoding -->
-        <feature>spatial-geocoding</feature>
-        <bundle>mvn:ddf.ui.search/search-geocoder/${project.version}</bundle>
-        <bundle>mvn:ddf.ui.search/search-geonames/${project.version}</bundle>
+        <feature>webservice-gazetteer</feature>
 
         <config name="org.codice.ddf.ui.searchui.filter.RedirectServlet">
             defaultUri=/search/standard
         </config>
-    </feature>
-
-    <feature name="offline-gazetteer" install="manual" version="${project.version}"
-             description="Offline gazetteer service utilizing a local GeoNames index">
-        <feature>spatial-commands</feature>
-        <bundle>mvn:ddf.ui.search/search-geonames-local/${project.version}</bundle>
     </feature>
 
     <feature name="search-ui-app" install="auto" version="${project.version}"

@@ -32,12 +32,6 @@ import ddf.catalog.cache.SolrCacheMBean;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
 
-/**
- * Tests the {@link RemoveCommand} output.
- *
- * @author Eric Irwin
- *
- */
 public class RemoveCommandTest {
 
     private List<Metacard> metacardList = getMetacardList(5);

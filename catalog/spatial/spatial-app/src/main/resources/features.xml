@@ -69,20 +69,24 @@
         <bundle>mvn:org.codice.ddf.spatial/spatial-csw-endpoint/${project.version}</bundle>
     </feature>
 
-    <feature name="spatial-geocoding" install="manual" version="${project.version}"
-             description="Contains the API and implementations for working with GeoNames resources">
+    <feature name="webservice-gazetteer" install="manual" version="${project.version}"
+             description="Gazetteer service utilizing the Geonames.org web service.">
+        <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-api/${project.version}</bundle>
+        <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-geocoder/${project.version}</bundle>
+        <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-websearch/${project.version}</bundle>
+    </feature>
+
+    <feature name="offline-gazetteer" install="manual" version="${project.version}"
+             description="Offline gazetteer service utilizing a local GeoNames index.">
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.lucene/${lucene.bundle.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-api/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-create/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-extract/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-index/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-query/${project.version}</bundle>
-    </feature>
-
-    <feature name="spatial-commands" install="manual" version="${project.version}"
-             description="OSGi commands">
-        <feature>spatial-geocoding</feature>
         <bundle>mvn:org.codice.ddf.spatial/spatial-commands/${project.version}</bundle>
+        <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-geocoder/${project.version}</bundle>
+        <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-localsearch/${project.version}</bundle>
     </feature>
 
     <feature name="spatial-app" install="auto" version="${project.version}"
@@ -95,8 +99,6 @@
         <feature>spatial-wfs-v1_0_0</feature>
         <feature>spatial-wfs-v2_0_0</feature>
         <feature>spatial-csw</feature>
-        <feature>spatial-geocoding</feature>
-        <feature>spatial-commands</feature>
     </feature>
 
 </features>

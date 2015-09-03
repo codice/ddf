@@ -32,6 +32,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.features.FeaturesService;
 import org.apache.karaf.shell.osgi.BlueprintListener;
+import org.codice.ddf.ui.admin.api.ConfigurationAdminExt;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -96,7 +97,7 @@ public class ServiceManager {
     }
 
     /**
-     * Starts a Managed Service. Waits for the asynchronous call that the properties have bee
+     * Starts a Managed Service. Waits for the asynchronous call that the properties have been
      * updated and the service can be used.
      * <p>
      * For Managed Services created from a Managed Service Factory, use
@@ -120,6 +121,8 @@ public class ServiceManager {
 
         bundleCtx.registerService(ConfigurationListener.class.getName(), listener, null);
 
+        waitForService(sourceConfig);
+
         adminConfig.getDdfConfigAdmin().update(sourceConfig.getPid(), properties);
 
         long millis = 0;
@@ -140,6 +143,37 @@ public class ServiceManager {
                     sourceConfig.getPid(),
                     TimeUnit.MILLISECONDS.toMinutes(MANAGED_SERVICE_TIMEOUT)));
         }
+    }
+
+    private void waitForService(Configuration sourceConfig) {
+        long waitForService = 0;
+        boolean serviceStarted = false;
+        List<Map<String, Object>> servicesList;
+        do {
+            try {
+                Thread.sleep(CONFIG_UPDATE_WAIT_INTERVAL_MILLIS);
+                waitForService += CONFIG_UPDATE_WAIT_INTERVAL_MILLIS;
+            } catch (InterruptedException e) {
+                LOGGER.info("Interrupted waiting for service to init");
+            }
+
+            if (waitForService >= MANAGED_SERVICE_TIMEOUT) {
+                throw new RuntimeException(
+                        String.format("Service %s not initialized within %d minute timeout",
+                                sourceConfig.getPid(),
+                                TimeUnit.MILLISECONDS.toMinutes(MANAGED_SERVICE_TIMEOUT)));
+            }
+
+            servicesList = adminConfig.getDdfConfigAdmin().listServices();
+            for (Map<String, Object> service : servicesList) {
+                String id = String.valueOf(service.get(ConfigurationAdminExt.MAP_ENTRY_ID));
+                if (id.equals(sourceConfig.getPid()) || id.equals(sourceConfig.getFactoryPid())) {
+                    serviceStarted = true;
+                    break;
+                }
+            }
+
+        } while (!serviceStarted);
     }
 
     public void startFeature(boolean wait, String... featureNames) throws Exception {
@@ -381,6 +415,10 @@ public class ServiceManager {
 
     public <S> S getService(ServiceReference<S> serviceReference) {
         return bundleCtx.getService(serviceReference);
+    }
+
+    public <S> S getService(Class<S> aClass) {
+        return bundleCtx.getService(bundleCtx.getServiceReference(aClass));
     }
 
     private class ServiceConfigurationListener implements ConfigurationListener {

@@ -9,6 +9,7 @@ This page describes:
 * how to verify if the application was successfully installed.
 * how to uninstall the application.
 * how to upgrade the application.
+* the optional features available in the application.
 * the console commands that come with the application.
 
 == Prerequisites
@@ -84,6 +85,14 @@ To upgrade an application, complete the following procedure.
 . Start the application.
 . Complete the steps in the Verify section above to determine if the upgrade was successful.
 
+== Optional Features
+
+=== Offline Gazetteer Service
+
+In the Spatial Application, you have the option to install a feature called `offline-gazetteer`. This feature enables you to use an offline index of GeoNames data (as an alternative to the GeoNames Web service enabled by the `webservice-gazetteer` feature) to perform searches via the gazetteer search box in the Search UI.
+
+To use the offline gazetteer, you will need to create an index. To do so, you'll need to use the `geonames:update` command which is explained in the next section.
+
 == Console Commands
 === GeoNames Commands
 [cols="2,2,6" options="header"]
@@ -94,7 +103,7 @@ To upgrade an application, complete the following procedure.
 
 |DDF :: Spatial :: Commands
 |`geonames`
-|The `geonames` commands provide the ability to interact with a local GeoNames index. The local GeoNames index is used by the offline gazetteer service, which is an optional feature available in the Search UI and is explained in the `Managing` documentation for the Search UI.
+|The `geonames` commands provide the ability to interact with a local GeoNames index. The local GeoNames index is used by the `offline-gazetteer` feature, which is an optional feature available in this application and is explained above. Note that these commands are only available if the `offline-gazetteer` feature is installed.
 |===
 
 === Commands

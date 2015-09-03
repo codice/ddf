@@ -1,23 +1,23 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.spatial.ogc.csw.catalog.source;
 
 import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -32,6 +32,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -76,6 +77,7 @@ import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.Result;
+import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.filter.impl.SortByImpl;
 import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
 import ddf.catalog.operation.SourceResponse;
@@ -162,8 +164,9 @@ public class TestCswSource extends TestCswSourceBase {
     }
 
     @Test
-    public void testPropertyIsLikeQuery() throws JAXBException, UnsupportedQueryException,
-            DatatypeConfigurationException, SAXException, IOException {
+    public void testPropertyIsLikeQuery()
+            throws JAXBException, UnsupportedQueryException, DatatypeConfigurationException,
+            SAXException, IOException {
 
         // Setup
         final String searchPhrase = "*th*e";
@@ -209,8 +212,9 @@ public class TestCswSource extends TestCswSourceBase {
     }
 
     @Test
-    public void testQueryWithSorting() throws JAXBException, UnsupportedQueryException,
-            DatatypeConfigurationException, SAXException, IOException {
+    public void testQueryWithSorting()
+            throws JAXBException, UnsupportedQueryException, DatatypeConfigurationException,
+            SAXException, IOException {
 
         final String TITLE = "title";
 
@@ -264,8 +268,9 @@ public class TestCswSource extends TestCswSourceBase {
     }
 
     @Test
-    public void testQueryWithSortByDistance() throws JAXBException, UnsupportedQueryException,
-            DatatypeConfigurationException, SAXException, IOException {
+    public void testQueryWithSortByDistance()
+            throws JAXBException, UnsupportedQueryException, DatatypeConfigurationException,
+            SAXException, IOException {
 
         // Setup
         final String searchPhrase = "*";
@@ -312,8 +317,9 @@ public class TestCswSource extends TestCswSourceBase {
     }
 
     @Test
-    public void testQueryWithSortByRelevance() throws JAXBException, UnsupportedQueryException,
-            DatatypeConfigurationException, SAXException, IOException {
+    public void testQueryWithSortByRelevance()
+            throws JAXBException, UnsupportedQueryException, DatatypeConfigurationException,
+            SAXException, IOException {
         // Setup
         final String searchPhrase = "*";
         final int pageSize = 1;
@@ -364,8 +370,9 @@ public class TestCswSource extends TestCswSourceBase {
     }
 
     @Test
-    public void testQueryWithSortByTemporal() throws JAXBException, UnsupportedQueryException,
-            DatatypeConfigurationException, SAXException, IOException {
+    public void testQueryWithSortByTemporal()
+            throws JAXBException, UnsupportedQueryException, DatatypeConfigurationException,
+            SAXException, IOException {
         // Setup
         final String searchPhrase = "*";
         final int pageSize = 1;
@@ -420,8 +427,9 @@ public class TestCswSource extends TestCswSourceBase {
      * The CSW Source should be able to map a csw:Record field to Content Type.
      */
     @Test
-    public void testPropertyIsEqualToQueryContentTypeIsMappedToFormat() throws JAXBException,
-            UnsupportedQueryException, DatatypeConfigurationException, SAXException, IOException {
+    public void testPropertyIsEqualToQueryContentTypeIsMappedToFormat()
+            throws JAXBException, UnsupportedQueryException, DatatypeConfigurationException,
+            SAXException, IOException {
 
         // Setup
         int pageSize = 10;
@@ -472,8 +480,9 @@ public class TestCswSource extends TestCswSourceBase {
      * a csw:Record field to Content Type.
      */
     @Test
-    public void testPropertyIsLikeContentTypeVersion() throws JAXBException,
-            UnsupportedQueryException, DatatypeConfigurationException, SAXException, IOException {
+    public void testPropertyIsLikeContentTypeVersion()
+            throws JAXBException, UnsupportedQueryException, DatatypeConfigurationException,
+            SAXException, IOException {
 
         // Setup
         int pageSize = 10;
@@ -525,8 +534,9 @@ public class TestCswSource extends TestCswSourceBase {
     }
 
     @Test
-    public void testAbsoluteTemporalSearchPropertyIsBetweenQuery() throws JAXBException,
-            UnsupportedQueryException, DatatypeConfigurationException, SAXException, IOException {
+    public void testAbsoluteTemporalSearchPropertyIsBetweenQuery()
+            throws JAXBException, UnsupportedQueryException, DatatypeConfigurationException,
+            SAXException, IOException {
 
         // Setup
         String expectedXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n"
@@ -597,8 +607,9 @@ public class TestCswSource extends TestCswSourceBase {
     }
 
     @Test
-    public void testAbsoluteTemporalSearchTwoRanges() throws JAXBException,
-            UnsupportedQueryException, DatatypeConfigurationException, SAXException, IOException {
+    public void testAbsoluteTemporalSearchTwoRanges()
+            throws JAXBException, UnsupportedQueryException, DatatypeConfigurationException,
+            SAXException, IOException {
 
         // Setup
         String expectedXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n"
@@ -848,6 +859,39 @@ public class TestCswSource extends TestCswSourceBase {
 
         assertThat(cswQuery.getTypeNames().size(), is(1));
         assertThat(cswQuery.getTypeNames().get(0).toString(), is(CSW_RECORD_QNAME));
+    }
+
+    @Test
+    public void testCreateResults() {
+        CswSource cswSource = getCswSource(mockCsw, mockContext, new LinkedList<String>(), null,
+                null, null);
+        CswRecordCollection recordCollection = new CswRecordCollection();
+        final int total = 2;
+        List<Metacard> metacards = new ArrayList<Metacard>(total);
+        for (int i = 0; i <= total; i++) {
+            String id = "ID_" + String.valueOf(i);
+            MetacardImpl metacard = new MetacardImpl();
+            metacard.setId(id);
+            metacard.setContentTypeName("myContentType");
+            metacard.setResourceURI(URI.create("http://example.com/resource"));
+            if (i == 1) {
+                metacard.setAttribute(Metacard.RESOURCE_DOWNLOAD_URL,
+                        "http://example.com/SECOND/RESOURCE");
+            }
+            metacards.add(metacard);
+        }
+        recordCollection.getCswRecords().addAll(metacards);
+        List<Result> results = cswSource.createResults(recordCollection);
+
+        assertThat(results, notNullValue());
+        assertThat(results.size(), is(recordCollection.getCswRecords().size()));
+        assertThat(results.get(0).getMetacard().getResourceURI(),
+                is(recordCollection.getCswRecords().get(0).getResourceURI()));
+        assertThat(results.get(1).getMetacard().getResourceURI(), is(URI.create(
+                        recordCollection.getCswRecords().get(1)
+                                .getAttribute(Metacard.RESOURCE_DOWNLOAD_URL).getValue()
+                                .toString())));
+
     }
 
     private CswSourceConfiguration getStandardCswSourceConfiguration(String contentTypeMapping,

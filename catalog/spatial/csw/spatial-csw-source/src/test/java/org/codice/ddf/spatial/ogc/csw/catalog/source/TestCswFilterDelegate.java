@@ -1362,7 +1362,7 @@ public class TestCswFilterDelegate {
     }
 
     @Test
-    public void testPropertyIsEqualToStringLiteralNonQueryableProperty() throws JAXBException,
+    public void testPropertyIsEqualToMetadata() throws JAXBException,
             SAXException, IOException {
 
         /**
@@ -1371,7 +1371,7 @@ public class TestCswFilterDelegate {
         String nonQueryableProperty = Metacard.METADATA;
         FilterType filterType = cswFilterDelegateLatLon
                 .propertyIsEqualTo(nonQueryableProperty, stringLiteral, isCaseSensitive);
-        assertXMLEqual(emptyFilterXml, getXmlFromMarshaller(filterType));
+        assertXMLEqual(propertyIsEqualToXmlAnyText, getXmlFromMarshaller(filterType));
     }
 
     @Test

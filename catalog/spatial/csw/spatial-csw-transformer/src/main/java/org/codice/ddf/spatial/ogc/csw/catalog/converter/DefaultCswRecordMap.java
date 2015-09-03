@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.spatial.ogc.csw.catalog.converter;
 
 import java.util.Arrays;
@@ -35,7 +34,6 @@ import ddf.catalog.data.Metacard;
  * provides functions to retrieve the mapped values in either direction, and to retrieve metacard
  * fields for a CSW field as a {@link QName} or just a local name as a {@link String}. If a mapped
  * value isn't found, then the input value is used as the mapped value.
- *
  */
 public class DefaultCswRecordMap {
     private static final Map<QName, String> CSW_RECORD_QNAME_MAPPING;
@@ -69,6 +67,10 @@ public class DefaultCswRecordMap {
         localNameMap.put(CswRecordMetacardType.CSW_DATE_ACCEPTED, Metacard.EFFECTIVE);
         localNameMap.put(CswRecordMetacardType.CSW_DATE_COPYRIGHTED, Metacard.EFFECTIVE);
         localNameMap.put(CswRecordMetacardType.CSW_VALID, Metacard.EXPIRATION);
+        localNameMap.put(CswRecordMetacardType.CSW_PUBLISHER, Metacard.POINT_OF_CONTACT);
+        localNameMap.put(CswRecordMetacardType.CSW_CONTRIBUTOR, Metacard.POINT_OF_CONTACT);
+        localNameMap.put(CswRecordMetacardType.CSW_CREATOR, Metacard.POINT_OF_CONTACT);
+        localNameMap.put(CswRecordMetacardType.CSW_RELATION, Metacard.RESOURCE_DOWNLOAD_URL);
 
         CSW_RECORD_LOCAL_NAME_MAPPING = Collections.unmodifiableMap(localNameMap);
 
@@ -88,6 +90,10 @@ public class DefaultCswRecordMap {
         qNameMap.put(CswRecordMetacardType.CSW_DATE_SUBMITTED_QNAME, Metacard.MODIFIED);
         qNameMap.put(CswRecordMetacardType.CSW_ISSUED_QNAME, Metacard.MODIFIED);
         qNameMap.put(CswRecordMetacardType.CSW_VALID_QNAME, Metacard.EXPIRATION);
+        qNameMap.put(CswRecordMetacardType.CSW_PUBLISHER_QNAME, Metacard.POINT_OF_CONTACT);
+        qNameMap.put(CswRecordMetacardType.CSW_CONTRIBUTOR_QNAME, Metacard.POINT_OF_CONTACT);
+        qNameMap.put(CswRecordMetacardType.CSW_CREATOR_QNAME, Metacard.POINT_OF_CONTACT);
+        qNameMap.put(CswRecordMetacardType.CSW_RELATION_QNAME, Metacard.RESOURCE_DOWNLOAD_URL);
 
         CSW_RECORD_QNAME_MAPPING = Collections.unmodifiableMap(qNameMap);
 
@@ -110,6 +116,12 @@ public class DefaultCswRecordMap {
         metacardMap.put(Metacard.EXPIRATION, Arrays.asList(CswRecordMetacardType.CSW_VALID_QNAME));
         metacardMap
                 .put(Metacard.RESOURCE_URI, Arrays.asList(CswRecordMetacardType.CSW_SOURCE_QNAME));
+        metacardMap.put(Metacard.POINT_OF_CONTACT,
+                Arrays.asList(CswRecordMetacardType.CSW_PUBLISHER_QNAME,
+                        CswRecordMetacardType.CSW_CONTRIBUTOR_QNAME,
+                        CswRecordMetacardType.CSW_CREATED_QNAME));
+        metacardMap.put(Metacard.RESOURCE_DOWNLOAD_URL,
+                Arrays.asList(CswRecordMetacardType.CSW_RELATION_QNAME));
 
         METACARD_MAPPING = Collections.unmodifiableMap(metacardMap);
 
@@ -132,6 +144,9 @@ public class DefaultCswRecordMap {
         MAPPING = new DefaultCswRecordMap();
     }
 
+    private DefaultCswRecordMap(){
+    }
+
     public static DefaultCswRecordMap getDefaultCswRecordMap() {
         return MAPPING;
     }
@@ -139,11 +154,11 @@ public class DefaultCswRecordMap {
     /**
      * NOTE: This is a {@link CaseInsensitiveMap}.
      */
-    public Map<String, String> getCswToMetacardAttributeNames() {
+    public static Map<String, String> getCswToMetacardAttributeNames() {
         return CSW_RECORD_LOCAL_NAME_MAPPING;
     }
 
-    public String getDefaultMetacardFieldFor(QName cswField) {
+    public static String getDefaultMetacardFieldFor(QName cswField) {
         if (CSW_RECORD_QNAME_MAPPING.containsKey(cswField)) {
             return CSW_RECORD_QNAME_MAPPING.get(cswField);
         }
@@ -151,15 +166,15 @@ public class DefaultCswRecordMap {
         return getDefaultMetacardFieldFor(cswField.getLocalPart());
     }
 
-    public boolean hasDefaultMetacardFieldFor(QName cswField) {
+    public static boolean hasDefaultMetacardFieldFor(QName cswField) {
         return CSW_RECORD_QNAME_MAPPING.containsKey(cswField);
     }
 
-    public boolean hasDefaultMetacardFieldFor(String cswField) {
+    public static boolean hasDefaultMetacardFieldFor(String cswField) {
         return CSW_RECORD_LOCAL_NAME_MAPPING.containsKey(cswField);
     }
 
-    public String getDefaultMetacardFieldFor(String cswField) {
+    public static String getDefaultMetacardFieldFor(String cswField) {
         if (CSW_RECORD_LOCAL_NAME_MAPPING.containsKey(cswField)) {
             return CSW_RECORD_LOCAL_NAME_MAPPING.get(cswField);
         }
@@ -167,11 +182,11 @@ public class DefaultCswRecordMap {
         return cswField;
     }
 
-    public boolean hasDefaultMetacardFieldForPrefixedString(String name) {
+    public static boolean hasDefaultMetacardFieldForPrefixedString(String name) {
         return hasDefaultMetacardFieldForPrefixedString(name, null);
     }
 
-    public boolean hasDefaultMetacardFieldForPrefixedString(String propertyName,
+    public static boolean hasDefaultMetacardFieldForPrefixedString(String propertyName,
             NamespaceSupport namespaceSupport) {
         if (propertyName.contains(":")) {
             String prefix = propertyName.substring(0, propertyName.indexOf(":"));
@@ -188,11 +203,11 @@ public class DefaultCswRecordMap {
         }
     }
 
-    public String getDefaultMetacardFieldForPrefixedString(String name) {
+    public static String getDefaultMetacardFieldForPrefixedString(String name) {
         return getDefaultMetacardFieldForPrefixedString(name, null);
     }
 
-    public String getDefaultMetacardFieldForPrefixedString(String propertyName,
+    public static String getDefaultMetacardFieldForPrefixedString(String propertyName,
             NamespaceSupport namespaceSupport) {
         String name;
         if (propertyName.contains(":")) {
@@ -211,14 +226,14 @@ public class DefaultCswRecordMap {
         return name;
     }
 
-    public List<QName> getCswFieldsFor(String metacardField) {
+    public static List<QName> getCswFieldsFor(String metacardField) {
         if (METACARD_MAPPING.containsKey(metacardField)) {
             return METACARD_MAPPING.get(metacardField);
         }
         return Arrays.asList(new QName(metacardField));
     }
 
-    public Map<String, String> getPrefixToUriMapping() {
+    public static Map<String, String> getPrefixToUriMapping() {
         return PREFIX_TO_URI_MAPPING;
     }
 }
