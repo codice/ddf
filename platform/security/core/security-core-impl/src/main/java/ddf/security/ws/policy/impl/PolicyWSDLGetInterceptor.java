@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -14,6 +14,11 @@
 package ddf.security.ws.policy.impl;
 
 import java.util.Map;
+
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.common.util.UrlUtils;
@@ -26,6 +31,9 @@ import org.apache.cxf.interceptor.OutgoingChainInterceptor;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.model.EndpointInfo;
+import org.codice.ddf.configuration.ConfigurationManager;
+import org.codice.ddf.configuration.ConfigurationWatcher;
+import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -38,11 +46,21 @@ import ddf.security.ws.policy.PolicyLoader;
 /**
  * Extension of the WSDLGetInterceptor that adds in the policy to the WSDL for clients to see.
  */
-public class PolicyWSDLGetInterceptor extends WSDLGetInterceptor {
+public class PolicyWSDLGetInterceptor extends WSDLGetInterceptor implements ConfigurationWatcher {
 
     private static final String XML_ENC = "utf-8";
 
-    private Logger logger = LoggerFactory.getLogger(PolicyWSDLGetInterceptor.class);
+    /*This is used to match a substring in an xpath but also used as a regex, so if changed
+    take care not to put characters that could make the regex match more than it should*/
+    private static final String DEFAULT_ADDRESS = "https://localhost:8993";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PolicyWSDLGetInterceptor.class);
+
+    private String protocol = "https://";
+
+    private String host = "localhost";
+
+    private String port = "8993";
 
     private PolicyLoader loader;
 
@@ -50,6 +68,8 @@ public class PolicyWSDLGetInterceptor extends WSDLGetInterceptor {
         super();
         getBefore().add(WSDLGetInterceptor.class.getName());
         this.loader = loader;
+        FrameworkUtil.getBundle(PolicyWSDLGetInterceptor.class).getBundleContext()
+                .registerService(ConfigurationWatcher.class, this, null);
     }
 
     // Majority of this method is from the WSDLGetInterceptor, in-line comments
@@ -74,6 +94,7 @@ public class PolicyWSDLGetInterceptor extends WSDLGetInterceptor {
             // DDF- start ADDED code
             if (map.containsKey("wsdl")) {
                 doc = addPolicyToWSDL(doc, loader.getPolicy());
+                doc = configureAddress(doc);
             }
             // DDF- end of ADDED code
 
@@ -100,6 +121,52 @@ public class PolicyWSDLGetInterceptor extends WSDLGetInterceptor {
             message.getInterceptorChain()
                     .doInterceptStartingAt(message, OutgoingChainInterceptor.class.getName());
         }
+    }
+
+    private Document configureAddress(Document doc) {
+        Element de = doc.getDocumentElement();
+        XPath xPath = XPathFactory.newInstance().newXPath();
+        String xPathString = String
+                .format("//@*[starts-with(.,\"%s\")] | //text()[starts-with(.,\"%s\")]",
+                        DEFAULT_ADDRESS, DEFAULT_ADDRESS);
+        NodeList nodes;
+        try {
+            nodes = (NodeList) xPath.evaluate(xPathString, de, XPathConstants.NODESET);
+        } catch (XPathExpressionException e) {
+            LOGGER.error("Could not evaulate the xPath expression: {}", xPathString, e);
+            return doc;
+        }
+        for (int i = 0; i < nodes.getLength(); i++) {
+            Node node = nodes.item(i);
+            node.setNodeValue(node.getNodeValue().replaceAll(DEFAULT_ADDRESS, getAddress()));
+        }
+        return de.getOwnerDocument();
+    }
+
+    private String getAddress() {
+        return String.format("%s%s:%s", protocol, host, port);
+    }
+
+    @Override
+    public synchronized void configurationUpdateCallback(Map<String, String> properties) {
+        LOGGER.debug("Updating configuration from: {}", getAddress());
+        if (properties != null && !properties.isEmpty()) {
+            String protocol = properties.get(ConfigurationManager.PROTOCOL);
+            if (protocol != null && !protocol.isEmpty()) {
+                this.protocol = protocol;
+            }
+
+            String host = properties.get(ConfigurationManager.HOST);
+            if (host != null && !host.isEmpty()) {
+                this.host = host;
+            }
+
+            String port = properties.get(ConfigurationManager.PORT);
+            if (port != null && !port.isEmpty()) {
+                this.port = port;
+            }
+        }
+        LOGGER.debug("Updated configuration to: {}", getAddress());
     }
 
     /**
@@ -149,5 +216,4 @@ public class PolicyWSDLGetInterceptor extends WSDLGetInterceptor {
         }
         return false;
     }
-
 }
