@@ -26,11 +26,8 @@ import java.util.zip.DeflaterOutputStream;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
 
-import javax.ws.rs.core.Cookie;
-import javax.ws.rs.core.NewCookie;
-
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.IOUtils;
+import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.wss4j.common.ext.WSSecurityException;
@@ -46,8 +43,7 @@ import ddf.security.assertion.SecurityAssertion;
  */
 public final class RestSecurity {
 
-    // SAML_COOKIE_NAME is not available in SecurityConstants 2.4.0
-    public static final String SECURITY_COOKIE_NAME = "org.codice.websso.saml.token";
+    public static final String SAML_HEADER_PREFIX = "SAML ";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RestSecurity.class);
 
@@ -61,42 +57,23 @@ public final class RestSecurity {
     public static void setSubjectOnClient(Subject subject, Client client) {
         if (client != null && subject != null && "https"
                 .equalsIgnoreCase(client.getCurrentURI().getScheme())) {
-            javax.ws.rs.core.Cookie cookie = createSamlCookie(subject, true);
-            if (cookie == null) {
-                LOGGER.debug("SAML Cookie was null. Unable to set the cookie for the client.");
+            String encodedSamlHeader = createSamlHeader(subject);
+            if (encodedSamlHeader == null) {
+                LOGGER.debug("SAML Header was null. Unable to set the header for the client.");
                 return;
             }
-            client.cookie(cookie);
+            client.header("Authorization", encodedSamlHeader);
         }
     }
 
     /**
-     * Sets a saml cookie without requiring ssl on the underlying client. This method
-     * only exists for compatibility with legacy or misconfigured systems, and is not
-     * recommended for use otherwise.
+     * Creates an authorization header to be returned to the browser if the token was successfully
+     * exchanged for a SAML assertion
      *
-     * @see #setSubjectOnClient(ddf.security.Subject, org.apache.cxf.jaxrs.client.Client)
+     * @param subject - {@link ddf.security.Subject} to create the header from
      */
-    public static void setUnsecuredSubjectOnClient(Subject subject, Client client) {
-        if (client != null && subject != null) {
-            javax.ws.rs.core.Cookie cookie = createSamlCookie(subject, false);
-            if (cookie == null) {
-                LOGGER.debug("SAML Cookie was null. Unable to set the cookie for the client.");
-                return;
-            }
-            client.cookie(cookie);
-        }
-    }
-
-    /**
-     * Creates a cookie to be returned to the browser if the token was successfully exchanged for
-     * a SAML assertion.
-     *
-     * @param subject - {@link ddf.security.Subject} to create the cookie from
-     * @param secure  - whether or not to require SSL for this cookie
-     */
-    private static Cookie createSamlCookie(Subject subject, boolean secure) {
-        Cookie cookie = null;
+    private static String createSamlHeader(Subject subject) {
+        String encodedSamlHeader = null;
         org.w3c.dom.Element samlToken = null;
         Date expires = null;
         try {
@@ -118,14 +95,12 @@ public final class RestSecurity {
                 }
                 SamlAssertionWrapper assertion = new SamlAssertionWrapper(samlToken);
                 String saml = assertion.assertionToString();
-                cookie = new NewCookie(new Cookie(SECURITY_COOKIE_NAME, encodeSaml(saml)), "",
-                        // gives us a checked exception for the cast
-                        maxAge.intValueExact(), secure).toCookie();
+                encodedSamlHeader = SAML_HEADER_PREFIX + encodeSaml(saml);
             }
         } catch (WSSecurityException | ArithmeticException e) {
             LOGGER.error("Unable to parse SAML assertion from subject.", e);
         }
-        return cookie;
+        return encodedSamlHeader;
     }
 
     /**

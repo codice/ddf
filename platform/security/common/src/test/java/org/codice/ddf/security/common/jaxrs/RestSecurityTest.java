@@ -84,11 +84,11 @@ public class RestSecurityTest {
         when(subject.getPrincipals()).thenReturn(new SimplePrincipalCollection(assertion, "sts"));
         WebClient client = WebClient.create("https://example.org");
         RestSecurity.setSubjectOnClient(subject, client);
-        assertNotNull(client.getHeaders().get("Cookie"));
-        ArrayList cookies = (ArrayList) client.getHeaders().get("Cookie");
+        assertNotNull(client.getHeaders().get("Authorization"));
+        ArrayList headers = (ArrayList) client.getHeaders().get("Authorization");
         boolean containsSaml = false;
-        for (Object cookie : cookies) {
-            if (StringUtils.contains(cookie.toString(), RestSecurity.SECURITY_COOKIE_NAME)) {
+        for (Object header : headers) {
+            if (StringUtils.contains(header.toString(), RestSecurity.SAML_HEADER_PREFIX)) {
                 containsSaml = true;
             }
         }
@@ -106,7 +106,7 @@ public class RestSecurityTest {
         when(subject.getPrincipals()).thenReturn(new SimplePrincipalCollection(assertion, "sts"));
         WebClient client = WebClient.create("http://example.org");
         RestSecurity.setSubjectOnClient(subject, client);
-        assertNull(client.getHeaders().get("Cookie"));
+        assertNull(client.getHeaders().get("Authorization"));
     }
 
     @Test
