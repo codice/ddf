@@ -857,7 +857,7 @@ public class TestCswSource extends TestCswSourceBase {
     }
 
     @Test
-    public void testCreateResults() {
+    public void testCreateResults() throws SecurityServiceException {
         CswSource cswSource = getCswSource(mockCsw, mockContext, new LinkedList<String>(), null,
                 null, null);
         CswRecordCollection recordCollection = new CswRecordCollection();

@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.ws.rs.client.Client;
 import javax.ws.rs.core.Response;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
@@ -535,7 +534,6 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
         return metacard;
     }
 
-
     private Metacard parseContent(String content, String id) {
         if (content != null) {
             InputTransformer inputTransformer = getInputTransformer(
@@ -851,7 +849,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     public void setResourceReader(ResourceReader reader) {
         this.resourceReader = reader;
     }
-    
+
     /**
      * Creates a new RestUrl object based on an OpenSearch URL
      *

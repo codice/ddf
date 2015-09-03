@@ -557,7 +557,7 @@ public class TestOpenSearchSource {
         source.setParameters(
                 "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort");
         source.factory = factory;
-        
+
         Filter filter = filterBuilder.attribute(Metacard.ANY_TEXT).like()
                 .text(SAMPLE_SEARCH_PHRASE);
 
@@ -590,7 +590,6 @@ public class TestOpenSearchSource {
 
         Assert.assertEquals(3, response.getResource().getByteArray().length);
     }
-
 
     /**
      * Given all null params, nothing will be returned, expect an exception.
@@ -763,13 +762,14 @@ public class TestOpenSearchSource {
         WebClient client = mock(WebClient.class);
         ResourceReader mockReader = mock(ResourceReader.class);
 
-        WebClient client = mock(WebClient.class);
         Response clientResponse = mock(Response.class);
         when(clientResponse.getEntity()).thenReturn(getBinaryData());
         when(clientResponse.getHeaderString(eq(OpenSearchSource.HEADER_ACCEPT_RANGES)))
                 .thenReturn(OpenSearchSource.BYTES);
         when(client.get()).thenReturn(clientResponse);
         SecureCxfClientFactory factory = getMockFactory(client);
+        when(mockReader.retrieveResource(any(URI.class), any(Map.class)))
+                .thenReturn(new ResourceResponseImpl(new ResourceImpl(getBinaryData(), "")));
 
         MultivaluedMap<String, Object> headers = new MultivaluedHashMap<String, Object>();
         headers.put(HttpHeaders.CONTENT_TYPE, Arrays.<Object>asList("application/octet-stream"));
@@ -784,6 +784,8 @@ public class TestOpenSearchSource {
         source.setLocalQueryOnly(true);
         source.setInputTransformer(getMockInputTransformer());
         source.factory = factory;
+        source.setResourceReader(mockReader);
+
         return source;
     }
 
@@ -885,7 +887,8 @@ public class TestOpenSearchSource {
         SecureCxfClientFactory factory = mock(SecureCxfClientFactory.class);
 
         try {
-            doReturn(client).when(factory).getClientForBasicAuth(any(String.class), any(String.class));
+            doReturn(client).when(factory)
+                    .getClientForBasicAuth(any(String.class), any(String.class));
             doReturn(client).when(factory)
                     .getWebClientForSubject(any(org.apache.shiro.subject.Subject.class));
             doReturn(client).when(factory).getUnsecuredWebClient();
