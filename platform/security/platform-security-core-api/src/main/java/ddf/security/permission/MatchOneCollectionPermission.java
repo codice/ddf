@@ -26,7 +26,7 @@ import ddf.security.common.audit.SecurityLogger;
  */
 public class MatchOneCollectionPermission extends CollectionPermission {
     public MatchOneCollectionPermission(Collection<Permission> permissions) {
-        super(permissions);
+        super(null, permissions);
     }
 
     /**

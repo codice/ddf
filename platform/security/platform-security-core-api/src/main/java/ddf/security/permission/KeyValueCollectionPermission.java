@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -30,14 +30,24 @@ public class KeyValueCollectionPermission extends CollectionPermission {
     }
 
     /**
+     * Creates an empty collection with an associated action
+     * @param action
+     */
+    public KeyValueCollectionPermission(String action) {
+        super(action);
+    }
+
+    /**
      * Creates a new collection of KeyValuePermission objects and adds the provided permissions to
      * the newly created collection.
      *
+     * @param action
+     *            Action associated with this collection of permissions
      * @param permissions
      *            KeyValuePermission objects to be added to the newly created collection
      */
-    public KeyValueCollectionPermission(KeyValuePermission... permissions) {
-        super(permissions);
+    public KeyValueCollectionPermission(String action, KeyValuePermission... permissions) {
+        super(action, permissions);
     }
 
     /**
@@ -45,11 +55,14 @@ public class KeyValueCollectionPermission extends CollectionPermission {
      * values. Each key and associated list of values is turned into a KeyValuePermission and added
      * to the newly created collection.
      *
+     * @param action
+     *            Action associated with this collection of permissions
      * @param map
      *            collection of keys and their associated list of values to be added to the newly
      *            created collection
      */
-    public KeyValueCollectionPermission(Map<String, List<String>> map) {
+    public KeyValueCollectionPermission(String action, Map<String, List<String>> map) {
+        super(action);
         addAll(map);
     }
 
@@ -58,11 +71,13 @@ public class KeyValueCollectionPermission extends CollectionPermission {
      * KeyValuePermission objects. All KeyValuePermission objects in the provided collection are
      * added to the newly created collection.
      *
+     *  @param action
+     *            Action associated with this collection of permissions
      * @param permissions
      *            existing collection of KeyValuePermission objects
      */
-    public KeyValueCollectionPermission(Collection<KeyValuePermission> permissions) {
-        super(permissions);
+    public KeyValueCollectionPermission(String action, Collection<KeyValuePermission> permissions) {
+        super(action, permissions);
     }
 
     /**

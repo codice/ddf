@@ -19,12 +19,6 @@
         <cm:managed-properties persistent-id="ddf.security.pdp.realm.SimpleAuthzRealm"
                                update-strategy="container-managed"/>
         <property name="expansionServiceList" ref="userAttributeExpansionList"/>
-        <property name="accessRoleList">
-            <list>
-                <value>admin</value>
-                <value>anonymous</value>
-            </list>
-        </property>
     </bean>
 
     <reference-list id="userAttributeExpansionList" interface="ddf.security.expansion.Expansion"
