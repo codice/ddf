@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -30,6 +30,7 @@ import org.apache.felix.gogo.commands.Option;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.joda.time.DateTime;
 import org.opengis.filter.Filter;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -43,12 +44,14 @@ import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.UnsupportedQueryException;
 
+
 /**
  * Command used to remove all or a subset of records (in bulk) from the Catalog.
- *
  */
 @Command(scope = CatalogCommands.NAMESPACE, name = "removeall", description = "Attempts to delete all records from the catalog.")
 public class RemoveAllCommand extends CatalogCommands {
+
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(RemoveAllCommand.class);
 
     static final int PAGE_SIZE_LOWER_LIMIT = 1;
 
@@ -58,8 +61,11 @@ public class RemoveAllCommand extends CatalogCommands {
 
     static final String BATCH_SIZE_ERROR_MESSAGE_FORMAT = "Improper batch size [%1$s]. For help with usage: removeall --help";
 
-    static final String WARNING_MESSAGE_FORMAT = "WARNING: This will permanently remove all %1$s"
+    static final String WARNING_MESSAGE_FORMAT_CATALOG_REMOVAL = "WARNING: This will permanently remove all %1$s"
             + "records from the Catalog. Do you want to proceed? (yes/no): ";
+
+    static final String WARNING_MESSAGE_FORMAT_CACHE_REMOVAL = "WARNING: This will permanently remove all %1$s"
+            + "records from the cache. Do you want to proceed? (yes/no): ";
 
     private static final int DEFAULT_BATCH_SIZE = 100;
 
@@ -78,19 +84,51 @@ public class RemoveAllCommand extends CatalogCommands {
             "--force"}, multiValued = false, description = "Force the removal without a confirmation message.")
     boolean force = false;
 
+    @Option(name = "--cache", required = false, multiValued = false, description = "Only remove cached entries.")
+    boolean cache = false;
+
     @Override
     protected Object doExecute() throws Exception {
-
         if (batchSize < PAGE_SIZE_LOWER_LIMIT) {
             printErrorMessage(String.format(BATCH_SIZE_ERROR_MESSAGE_FORMAT, batchSize));
             return null;
         }
 
-        CatalogFacade catalog = this.getCatalog();
-
         if (isAccidentalRemoval(console)) {
             return null;
         }
+
+        if (this.cache) {
+            return executeRemoveAllFromCache();
+
+        } else {
+            return executeRemoveAllFromStore();
+        }
+
+    }
+
+    private Object executeRemoveAllFromCache() throws Exception {
+
+        long start = System.currentTimeMillis();
+
+        getCacheProxy().removeAll();
+
+        long end = System.currentTimeMillis();
+
+        String info = String.format("Cache cleared in %3.3f seconds%n",
+                (end - start) / MILLISECONDS_PER_SECOND);
+
+        LOGGER.info(info);
+        LOGGER.info("Cache cleared by catalog:removeAll with --cache option");
+
+        console.println();
+        console.print(info);
+
+        return null;
+    }
+
+    private Object executeRemoveAllFromStore() throws Exception {
+        CatalogFacade catalog = this.getCatalog();
 
         FilterBuilder filterBuilder = getFilterBuilder();
 
@@ -159,13 +197,16 @@ public class RemoveAllCommand extends CatalogCommands {
 
         long end = System.currentTimeMillis();
 
-        console.println();
-
-        console.printf(" %d file(s) removed in %3.3f seconds%n", totalAmountDeleted,
+        String info = String.format(" %d file(s) removed in %3.3f seconds%n", totalAmountDeleted,
                 (end - start) / MILLISECONDS_PER_SECOND);
 
-        return null;
+        LOGGER.info(info);
+        LOGGER.info(totalAmountDeleted + " files remove using cache:removeAll command");
 
+        console.println();
+        console.print(info);
+
+        return null;
     }
 
     private boolean needsAlternateQueryAndResponse(SourceResponse response) {
@@ -196,7 +237,12 @@ public class RemoveAllCommand extends CatalogCommands {
     boolean isAccidentalRemoval(PrintStream console) throws IOException {
         if (!force) {
             StringBuffer buffer = new StringBuffer();
-            System.err.println(String.format(WARNING_MESSAGE_FORMAT, (expired ? "expired " : "")));
+
+            //use a message specific to whether they
+            //are removing from cache or the catalog
+            String warning = (this.cache ? WARNING_MESSAGE_FORMAT_CACHE_REMOVAL :
+                                           WARNING_MESSAGE_FORMAT_CATALOG_REMOVAL);
+            System.err.println(String.format(warning, (expired ? "expired " : "")));
             System.err.flush();
             while (true) {
                 int byteOfData = session.getKeyboard().read();

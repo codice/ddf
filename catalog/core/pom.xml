@@ -99,7 +99,6 @@
         <module>catalog-core-api-impl</module>
         <module>catalog-core-commons</module>
         <module>catalog-core-commands</module>
-        <module>catalog-core-cachecommands</module>
         <module>catalog-core-urlresourcereader</module>
         <module>catalog-core-camelcomponent</module>
         <module>catalog-core-federationstrategy</module>

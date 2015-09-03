@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -15,6 +15,7 @@ package org.codice.ddf.commands.catalog;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +26,7 @@ import org.apache.felix.gogo.commands.Option;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.geotools.filter.text.cql2.CQL;
 import org.opengis.filter.Filter;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Result;
 import ddf.catalog.operation.DeleteResponse;
@@ -40,6 +42,9 @@ import ddf.catalog.operation.impl.QueryRequestImpl;
 @Command(scope = CatalogCommands.NAMESPACE, name = "remove", description = "Deletes a record from the Catalog.")
 public class RemoveCommand extends CatalogCommands {
 
+    private static final org.slf4j.Logger LOGGER = LoggerFactory
+            .getLogger(RemoveCommand.class);
+
     @Argument(name = "IDs", description = "The id(s) of the document(s) (space delimited) to be deleted.", index = 0, multiValued = true, required = false)
     List<String> ids = null;
 
@@ -51,9 +56,40 @@ public class RemoveCommand extends CatalogCommands {
                     + "\tComplex:   search --cql \"title like 'some text' AND modified before 2012-09-01T12:30:00Z\"")
     String cqlFilter = null;
 
+    @Option(name = "--cache", required = false, multiValued = false, description = "Only remove cached entries.")
+    boolean cache = false;
+
     @Override
     protected Object doExecute() throws Exception {
+        if (ids == null || ids.isEmpty()) {
+            printErrorMessage("Nothing to remove.");
+            return null;
+        }
 
+        if (this.cache) {
+            return executeRemoveFromCache();
+        } else {
+            return executeRemoveFromStore();
+        }
+
+    }
+
+    private Object executeRemoveFromCache() throws Exception {
+
+        String[] idsArray = new String[ids.size()];
+        idsArray = ids.toArray(idsArray);
+        getCacheProxy().removeById(idsArray);
+
+        List idsList = Arrays.asList(ids);
+
+        printSuccessMessage(idsList + " successfully removed from cache.");
+
+        LOGGER.info(idsList + " removed from cache using catalog:remove command");
+
+        return null;
+    }
+
+    private Object executeRemoveFromStore() throws Exception {
         CatalogFacade catalogProvider = getCatalog();
 
         if (cqlFilter != null) {
@@ -84,22 +120,18 @@ public class RemoveCommand extends CatalogCommands {
 
         }
 
-        if (ids == null) {
-            printErrorMessage("Nothing to remove.");
-            return null;
-        }
-
         DeleteRequestImpl request = new DeleteRequestImpl(ids.toArray(new String[0]));
 
         DeleteResponse response = catalogProvider.delete(request);
 
         if (response.getDeletedMetacards().size() > 0) {
             printSuccessMessage(ids + " successfully deleted.");
+            LOGGER.info(ids + " removed using catalog:remove command");
         } else {
             printErrorMessage(ids + " could not be deleted.");
+            LOGGER.error(ids + " could not be deleted using catalog:remove command");
         }
 
         return null;
-
     }
 }

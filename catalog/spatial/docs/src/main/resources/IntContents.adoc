@@ -941,6 +941,301 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
 |===
 
+
+===== Transaction Operation
+Transactions define the operations for creating, modifying, and deleting catalog records. The supported sub-operations for the Transaction operation are Insert, Update, and Delete.
+
+The CSW endpoint supports `HTTP POST` requests for the Transaction operation.
+
+===== Transaction Insert Sub-Operation `HTTP POST`
+
+The Insert sub-operation is a method for one or more records to be inserted into the catalog. The schema of the record needs to conform to the schema of the information model that the catalog supports as described using the DescribeRecord operation.
+
+The following example shows a request for a record to be inserted.
+
+.Sample XML Transaction Insert Request
+[source,xml,linenums]
+----
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<csw:Transaction
+    service="CSW"
+    version="2.0.2"
+    verboseResponse="true"
+    xmlns:csw="http://www.opengis.net/cat/csw/2.0.2">
+    <csw:Insert typeName="csw:Record">
+        <csw:Record
+            xmlns:ows="http://www.opengis.net/ows"
+            xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+            xmlns:dc="http://purl.org/dc/elements/1.1/"
+            xmlns:dct="http://purl.org/dc/terms/"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+            <dc:identifier></dc:identifier>
+            <dc:title>Aliquam fermentum purus quis arcu</dc:title>
+            <dc:type>http://purl.org/dc/dcmitype/Text</dc:type>
+            <dc:subject>Hydrography--Dictionaries</dc:subject>
+            <dc:format>application/pdf</dc:format>
+            <dc:date>2006-05-12</dc:date>
+            <dct:abstract>Vestibulum quis ipsum sit amet metus imperdiet vehicula. Nulla scelerisque cursus mi.</dct:abstract>
+            <ows:BoundingBox crs="urn:x-ogc:def:crs:EPSG:6.11:4326">
+                <ows:LowerCorner>44.792 -6.171</ows:LowerCorner>
+                <ows:UpperCorner>51.126 -2.228</ows:UpperCorner>
+            </ows:BoundingBox>
+        </csw:Record>
+    </csw:Insert>
+</csw:Transaction>
+----
+
+===== Transaction Insert Response
+
+The following is an example of an application/xml response to the Transaction Insert sub-operation:
+
+.Sample XML Transaction Insert Response
+[source,xml,linenums]
+----
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<csw:TransactionResponse xmlns:ogc="http://www.opengis.net/ogc"
+                         xmlns:gml="http://www.opengis.net/gml"
+                         xmlns:ns3="http://www.w3.org/1999/xlink"
+                         xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+                         xmlns:ns5="http://www.w3.org/2001/SMIL20/"
+                         xmlns:dc="http://purl.org/dc/elements/1.1/"
+                         xmlns:ows="http://www.opengis.net/ows"
+                         xmlns:dct="http://purl.org/dc/terms/"
+                         xmlns:ns9="http://www.w3.org/2001/SMIL20/Language"
+                         xmlns:ns10="http://www.w3.org/2001/XMLSchema-instance"
+                         version="2.0.2"
+                         ns10:schemaLocation="http://www.opengis.net/csw /ogc/csw/2.0.2/CSW-publication.xsd">
+    <csw:TransactionSummary>
+        <csw:totalInserted>1</csw:totalInserted>
+        <csw:totalUpdated>0</csw:totalUpdated>
+        <csw:totalDeleted>0</csw:totalDeleted>
+    </csw:TransactionSummary>
+    <csw:InsertResult>
+        <csw:BriefRecord>
+            <dc:identifier>2dbcfba3f3e24e3e8f68c50f5a98a4d1</dc:identifier>
+            <dc:title>Aliquam fermentum purus quis arcu</dc:title>
+            <dc:type>http://purl.org/dc/dcmitype/Text</dc:type>
+            <ows:BoundingBox crs="EPSG:4326">
+                <ows:LowerCorner>-6.171 44.792</ows:LowerCorner>
+                <ows:UpperCorner>-2.228 51.126</ows:UpperCorner>
+            </ows:BoundingBox>
+        </csw:BriefRecord>
+    </csw:InsertResult>
+</csw:TransactionResponse>
+----
+
+===== Transaction Update Sub-Operation `HTTP POST`
+
+The Update sub-operation is a method to specify values used to change existing information in the catalog. The values in the Update will completely replace those that are already in the record. Any values that are missing will be removed from the record. If individual record property values are specified in the Update element, using the RecordProperty element, then those individual property values of a catalog record are replaced. The RecordProperty contains a Name and Value element. The Name element is used to specify the name of the record property to be updated. The Value element contains the value that will be used to update the record in the catalog.
+
+The number of records affected by an Update operation is determined by the contents of the Constraint element, that contains a filter for limiting the update to a specific record or group of records.
+
+The following example shows how the newly inserted record could be updated to modify the date field.
+
+.Sample XML Transaction Update Request
+[source,xml,linenums]
+----
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<csw:Transaction
+    service="CSW"
+    version="2.0.2"
+    verboseResponse="true"
+    xmlns:csw="http://www.opengis.net/cat/csw/2.0.2">
+    <csw:Update>
+        <csw:Record
+            xmlns:ows="http://www.opengis.net/ows"
+            xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+            xmlns:dc="http://purl.org/dc/elements/1.1/"
+            xmlns:dct="http://purl.org/dc/terms/"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+            <dc:identifier></dc:identifier>
+            <dc:title>Aliquam fermentum purus quis arcu</dc:title>
+            <dc:type>http://purl.org/dc/dcmitype/Text</dc:type>
+            <dc:subject>Hydrography--Dictionaries</dc:subject>
+            <dc:format>application/pdf</dc:format>
+            <dc:date>2008-08-10</dc:date>
+            <dct:abstract>Vestibulum quis ipsum sit amet metus imperdiet vehicula. Nulla scelerisque cursus mi.</dct:abstract>
+            <ows:BoundingBox crs="urn:x-ogc:def:crs:EPSG:6.11:4326">
+                <ows:LowerCorner>44.792 -6.171</ows:LowerCorner>
+                <ows:UpperCorner>51.126 -2.228</ows:UpperCorner>
+            </ows:BoundingBox>
+        </csw:Record>
+    </csw:Update>
+</csw:Transaction>
+----
+
+The following example shows how the newly inserted record could be updated to modify the date field while using a filter constraint with title equal to `Aliquam fermentum purus quis arcu`.
+
+.Sample XML Transaction Update Request with filter constraint
+[source,xml,linenums]
+----
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<csw:Transaction
+    service="CSW"
+    version="2.0.2"
+    verboseResponse="true"
+    xmlns:csw="http://www.opengis.net/cat/csw/2.0.2">
+    <csw:Update>
+        <csw:RecordProperty>
+            <csw:Name>title</csw:Name>
+            <csw:Value>Updated Title</csw:Value>
+        </csw:RecordProperty>
+        <csw:RecordProperty>
+            <csw:Name>date</csw:Name>
+            <csw:Value>2015-08-25</csw:Value>
+        </csw:RecordProperty>
+        <csw:RecordProperty>
+            <csw:Name>format</csw:Name>
+            <csw:Value></csw:Value>
+        </csw:RecordProperty>
+        <csw:Constraint version="2.0.0">
+            <ogc:Filter>
+                <ogc:PropertyIsEqualTo>
+                    <ogc:PropertyName>title</ogc:PropertyName>
+                    <ogc:Literal>Aliquam fermentum purus quis arcu</ogc:Literal>
+                </ogc:PropertyIsEqualTo>
+            </ogc:Filter>
+        </csw:Constraint>
+    </csw:Update>
+</csw:Transaction>
+----
+
+The following example shows how the newly inserted record could be updated to modify the date field while using a CQL filter constraint with title equal to `Aliquam fermentum purus quis arcu`.
+
+.Sample XML Transaction Update Request with CQL filter constraint
+[source,xml,linenums]
+----
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<csw:Transaction
+    service="CSW"
+    version="2.0.2"
+    verboseResponse="true"
+    xmlns:csw="http://www.opengis.net/cat/csw/2.0.2">
+    <csw:Update>
+        <csw:RecordProperty>
+            <csw:Name>title</csw:Name>
+            <csw:Value>Updated Title</csw:Value>
+        </csw:RecordProperty>
+        <csw:RecordProperty>
+            <csw:Name>date</csw:Name>
+            <csw:Value>2015-08-25</csw:Value>
+        </csw:RecordProperty>
+        <csw:RecordProperty>
+            <csw:Name>format</csw:Name>
+            <csw:Value></csw:Value>
+        </csw:RecordProperty>
+        <csw:Constraint version="2.0.0">
+            <ogc:CqlText>
+                title = 'Aliquam fermentum purus quis arcu'
+            </ogc:CqlText>
+        </csw:Constraint>
+    </csw:Update>
+</csw:Transaction>
+----
+
+===== Transaction Update Response
+
+The following is an example of an application/xml response to the Transaction Update sub-operation:
+
+.Sample XML Transaction Update Response
+[source,xml,linenums]
+----
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<csw:TransactionResponse xmlns:ogc="http://www.opengis.net/ogc"
+                         xmlns:gml="http://www.opengis.net/gml"
+                         xmlns:ns3="http://www.w3.org/1999/xlink"
+                         xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+                         xmlns:ns5="http://www.w3.org/2001/SMIL20/"
+                         xmlns:dc="http://purl.org/dc/elements/1.1/"
+                         xmlns:ows="http://www.opengis.net/ows"
+                         xmlns:dct="http://purl.org/dc/terms/"
+                         xmlns:ns9="http://www.w3.org/2001/SMIL20/Language"
+                         xmlns:ns10="http://www.w3.org/2001/XMLSchema-instance"
+                         ns10:schemaLocation="http://www.opengis.net/csw /ogc/csw/2.0.2/CSW-publication.xsd"
+                         version="2.0.2">
+    <csw:TransactionSummary>
+        <csw:totalInserted>0</csw:totalInserted>
+        <csw:totalUpdated>1</csw:totalUpdated>
+        <csw:totalDeleted>0</csw:totalDeleted>
+    </csw:TransactionSummary>
+</csw:TransactionResponse>
+----
+
+===== Transaction Delete Sub-Operation `HTTP POST`
+
+The Delete sub-operation is a method to identify a set of records to be deleted from the catalog.
+
+The following example shows a delete operation that is deleting all records with a SpatialReferenceSystem name equal to `wgs81`.
+
+.Sample XML Transaction Delete Request with filter constraint
+[source,xml,linenums]
+----
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<csw:Transaction service="CSW" version="2.0.2"
+    xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+    xmlns:gml="http://www.opengis.net/gml"
+    xmlns:ogc="http://www.opengis.net/ogc">
+    <csw:Delete typeName="csw:Record" handle="something">
+        <csw:Constraint version="2.0.0">
+            <ogc:Filter>
+                <ogc:PropertyIsLessThanOrEqualTo>
+                   <ogc:PropertyName>SpatialReferenceSystem</ogc:PropertyName>
+                   <ogc:Literal>wgs84</ogc:Literal>
+                </ogc:PropertyIsLessThanOrEqualTo>
+            </ogc:Filter>
+        </csw:Constraint>
+    </csw:Delete>
+</csw:Transaction>
+----
+
+The following example shows a delete operation specifying a CQL constraint to delete all records with title equal to `Aliquam fermentum purus quis arcu`
+
+.Sample XML Transaction Delete Request with CQL filter constraint
+[source,xml,linenums]
+----
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<csw:Transaction service="CSW" version="2.0.2"
+    xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+    xmlns:gml="http://www.opengis.net/gml"
+    xmlns:ogc="http://www.opengis.net/ogc">
+    <csw:Delete typeName="csw:Record" handle="something">
+        <csw:Constraint version="2.0.0">
+            <ogc:CqlText>
+                 title = 'Aliquam fermentum purus quis arcu'
+            </ogc:CqlText>
+        </csw:Constraint>
+    </csw:Delete>
+</csw:Transaction>
+----
+
+===== Transaction Delete Response
+
+The following is an example of an application/xml response to the Transaction Delete sub-operation:
+
+.Sample XML Transaction Delete Response
+[source,xml,linenums]
+----
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<csw:TransactionResponse xmlns:ogc="http://www.opengis.net/ogc"
+                         xmlns:gml="http://www.opengis.net/gml"
+                         xmlns:ns3="http://www.w3.org/1999/xlink"
+                         xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+                         xmlns:ns5="http://www.w3.org/2001/SMIL20/"
+                         xmlns:dc="http://purl.org/dc/elements/1.1/"
+                         xmlns:ows="http://www.opengis.net/ows"
+                         xmlns:dct="http://purl.org/dc/terms/"
+                         xmlns:ns9="http://www.w3.org/2001/SMIL20/Language"
+                         xmlns:ns10="http://www.w3.org/2001/XMLSchema-instance"
+                         ns10:schemaLocation="http://www.opengis.net/csw /ogc/csw/2.0.2/CSW-publication.xsd"
+                         version="2.0.2">
+    <csw:TransactionSummary>
+        <csw:totalInserted>0</csw:totalInserted>
+        <csw:totalUpdated>0</csw:totalUpdated>
+        <csw:totalDeleted>1</csw:totalDeleted>
+    </csw:TransactionSummary>
+</csw:TransactionResponse>
+----
+
 ==== Install and Uninstall
 The CSW endpoint can be installed and uninstalled using the normal processes described in the Configuration section. 
 

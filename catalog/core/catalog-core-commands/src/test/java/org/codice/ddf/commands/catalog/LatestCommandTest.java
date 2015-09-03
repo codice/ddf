@@ -24,7 +24,7 @@ import ddf.catalog.CatalogFramework;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 
-public class TestLatestCommand extends AbstractCommandTest {
+public class LatestCommandTest extends AbstractCommandTest {
 
     /**
      * When no title is provided, output should still be displayed.
