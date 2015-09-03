@@ -14,7 +14,6 @@
 package org.codice.ddf.commands.catalog;
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.lang.management.ManagementFactory;
 
 import javax.management.InstanceNotFoundException;
@@ -23,14 +22,10 @@ import javax.management.MBeanServerInvocationHandler;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.felix.gogo.commands.Option;
-import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.codice.ddf.commands.catalog.facade.Framework;
 import org.codice.ddf.commands.catalog.facade.Provider;
-import org.fusesource.jansi.Ansi;
-import org.fusesource.jansi.Ansi.Color;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -41,12 +36,13 @@ import ddf.catalog.source.CatalogProvider;
 
 /**
  * Parent object to all Catalog Commands. Provides common methods and instance variables as well as
- * the extension of {@link OsgiCommandSupport} that Catalog Commands can use.
+ * the extension of {@link org.apache.karaf.shell.console.OsgiCommandSupport}  and
+ * {@link SubjectCommands} that Catalog Commands can use.
  *
  * @author Ashraf Barakat
  * @author ddf.isgs@lmco.com
  */
-public class CatalogCommands extends OsgiCommandSupport {
+public abstract class CatalogCommands extends SubjectCommands {
 
     public static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormat
             .forPattern("yyyy-MM-dd'T'HH:mm:ssZZ");
@@ -61,33 +57,12 @@ public class CatalogCommands extends OsgiCommandSupport {
 
     protected static final String WILDCARD = "*";
 
-    protected static final double MILLISECONDS_PER_SECOND = 1000.0;
-
-    protected static final int ONE_SECOND = 1000;
-
-    protected static final double PERCENTAGE_MULTIPLIER = 100.0;
-
-    protected static final int PROGESS_BAR_NOTCH_LENGTH = 50;
-
     protected static final String DEFAULT_TRANSFORMER_ID = "ser";
-
-    private static final Color ERROR_COLOUR = Ansi.Color.RED;
-
-    private static final Color HEADER_COLOUR = Ansi.Color.CYAN;
-
-    private static final Color SUCCESS_COLOUR = Ansi.Color.GREEN;
-
-    protected PrintStream console = System.out;
 
     // DDF-535: remove "-provider" alias in DDF 3.0
     @Option(name = "--provider", required = false, aliases = {"-p",
             "-provider"}, multiValued = false, description = "Interacts with the provider directly instead of the framework.")
     boolean isProvider = false;
-
-    @Override
-    protected Object doExecute() throws Exception {
-        return null;
-    }
 
     protected SolrCacheMBean getCacheProxy()
             throws IOException, MalformedObjectNameException, InstanceNotFoundException {
@@ -114,73 +89,4 @@ public class CatalogCommands extends OsgiCommandSupport {
         return getService(FilterBuilder.class);
     }
 
-    protected String dash(int length) {
-        StringBuilder sBuilder = new StringBuilder();
-
-        for (int i = 0; i < length; i++) {
-            sBuilder.append("-");
-        }
-        return sBuilder.toString();
-    }
-
-    protected void printColor(Color color, String message) {
-        String colorString;
-        if (color == null || color.equals(Ansi.Color.DEFAULT)) {
-            colorString = Ansi.ansi().reset().toString();
-        } else {
-            colorString = Ansi.ansi().fg(color).toString();
-        }
-        console.print(colorString);
-        console.print(message);
-        console.println(Ansi.ansi().reset().toString());
-    }
-
-    protected void printErrorMessage(String message) {
-        printColor(ERROR_COLOUR, message);
-    }
-
-    protected void printHeaderMessage(String message) {
-        printColor(HEADER_COLOUR, message);
-    }
-
-    protected void printSuccessMessage(String message) {
-        printColor(SUCCESS_COLOUR, message);
-    }
-
-    protected void printProgressAndFlush(long start, long totalCount, long currentCount) {
-        console.print(getProgressBar(currentCount, totalCount, start, System.currentTimeMillis()));
-        console.flush();
-    }
-
-    private String getProgressBar(long currentCount, long totalPossible, long start, long end) {
-
-        int notches = calculateNotches(currentCount, totalPossible);
-
-        int progressPercentage = calculateProgressPercentage(currentCount, totalPossible);
-
-        int rate = calculateRecordsPerSecond(currentCount, start, end);
-
-        String progressArrow = ">";
-
-        // /r is required, it allows for the update in place
-        String progressBarFormat = "%1$4s%% [=%2$-50s] %3$5s records/sec\t\r";
-
-        return String.format(progressBarFormat, progressPercentage,
-                StringUtils.repeat("=", notches) + progressArrow, rate);
-    }
-
-    private int calculateNotches(long currentCount, long totalPossible) {
-        return (int) ((Double.valueOf(currentCount) / Double.valueOf(totalPossible))
-                * PROGESS_BAR_NOTCH_LENGTH);
-    }
-
-    private int calculateProgressPercentage(long currentCount, long totalPossible) {
-        return (int) ((Double.valueOf(currentCount) / Double.valueOf(totalPossible))
-                * PERCENTAGE_MULTIPLIER);
-    }
-
-    protected int calculateRecordsPerSecond(long currentCount, long start, long end) {
-        return (int) (Double.valueOf(currentCount) / (Double.valueOf(end - start)
-                / MILLISECONDS_PER_SECOND));
-    }
 }

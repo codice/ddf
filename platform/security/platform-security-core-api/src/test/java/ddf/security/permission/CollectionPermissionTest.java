@@ -19,6 +19,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.shiro.authz.Permission;
@@ -28,14 +29,14 @@ public class CollectionPermissionTest {
 
     @Test
     public void testCreateCollectionFromList() {
-        ArrayList<ActionPermission> permissionList = new ArrayList<ActionPermission>();
-        ActionPermission perm1 = new ActionPermission(ActionPermission.CREATE_ACTION);
-        ActionPermission perm2 = new ActionPermission(ActionPermission.QUERY_ACTION);
+        ArrayList<KeyValuePermission> permissionList = new ArrayList<KeyValuePermission>();
+        KeyValuePermission perm1 = new KeyValuePermission("key1", Arrays.asList("val1"));
+        KeyValuePermission perm2 = new KeyValuePermission("key2", Arrays.asList("val2"));
 
         permissionList.add(perm1);
         permissionList.add(perm2);
 
-        CollectionPermission collection = new CollectionPermission(permissionList);
+        CollectionPermission collection = new CollectionPermission("", permissionList);
 
         List<Permission> incomingList = collection.getPermissionList();
         assertFalse(incomingList.isEmpty());
@@ -46,10 +47,10 @@ public class CollectionPermissionTest {
 
     @Test
     public void testCreateCollectionFromArray() {
-        ActionPermission perm1 = new ActionPermission(ActionPermission.CREATE_ACTION);
-        ActionPermission perm2 = new ActionPermission(ActionPermission.QUERY_ACTION);
+        KeyValuePermission perm1 = new KeyValuePermission("key1", Arrays.asList("val1"));
+        KeyValuePermission perm2 = new KeyValuePermission("key2", Arrays.asList("val2"));
 
-        CollectionPermission collection = new CollectionPermission(perm1, perm2);
+        CollectionPermission collection = new CollectionPermission("", perm1, perm2);
 
         List<Permission> incomingList = collection.getPermissionList();
         assertFalse(incomingList.isEmpty());
@@ -64,29 +65,29 @@ public class CollectionPermissionTest {
     @Test
     public void testCollectionImplies() {
         // Permissions of the user
-        ArrayList<ActionPermission> permissionList = new ArrayList<ActionPermission>();
-        permissionList.add(new ActionPermission(ActionPermission.CREATE_ACTION));
-        permissionList.add(new ActionPermission(ActionPermission.QUERY_ACTION));
-        permissionList.add(new ActionPermission(ActionPermission.UPDATE_ACTION));
+        ArrayList<KeyValuePermission> permissionList = new ArrayList<KeyValuePermission>();
+        permissionList.add(new KeyValuePermission("key1", Arrays.asList("val1")));
+        permissionList.add(new KeyValuePermission("key2", Arrays.asList("val2")));
+        permissionList.add(new KeyValuePermission("key3", Arrays.asList("val3")));
 
-        CollectionPermission userPermission = new CollectionPermission(permissionList);
+        CollectionPermission userPermission = new CollectionPermission("", permissionList);
 
         // user can create
-        assertTrue(userPermission.implies(new ActionPermission(ActionPermission.CREATE_ACTION)));
+        assertTrue(userPermission.implies(new KeyValuePermission("key1", Arrays.asList("val1"))));
 
         // user cannot delete
-        assertFalse(userPermission.implies(new ActionPermission(ActionPermission.DELETE_ACTION)));
+        assertFalse(userPermission.implies(new KeyValuePermission("key2", Arrays.asList("somevalue"))));
 
         // user can create and query
-        CollectionPermission task1Permission = new CollectionPermission(
-                new ActionPermission(ActionPermission.CREATE_ACTION),
-                new ActionPermission(ActionPermission.QUERY_ACTION));
+        CollectionPermission task1Permission = new CollectionPermission("",
+                new KeyValuePermission("key1", Arrays.asList("val1")),
+                new KeyValuePermission("key2", Arrays.asList("val2")));
         assertTrue(userPermission.implies(task1Permission));
 
         // user cannot create AND delete
-        CollectionPermission task2Permission = new CollectionPermission(
-                new ActionPermission(ActionPermission.CREATE_ACTION),
-                new ActionPermission(ActionPermission.DELETE_ACTION));
+        CollectionPermission task2Permission = new CollectionPermission("",
+                new KeyValuePermission("key1", Arrays.asList("val1")),
+                new KeyValuePermission("somekey", Arrays.asList("somevalue")));
         assertFalse(userPermission.implies(task2Permission));
 
         // test empty collection (should always return false)
@@ -98,17 +99,17 @@ public class CollectionPermissionTest {
      */
     @Test
     public void testCollectionToString() {
-        ArrayList<ActionPermission> permissionList = new ArrayList<ActionPermission>();
-        permissionList.add(new ActionPermission(ActionPermission.CREATE_ACTION));
-        permissionList.add(new ActionPermission(ActionPermission.QUERY_ACTION));
+        ArrayList<KeyValuePermission> permissionList = new ArrayList<KeyValuePermission>();
+        permissionList.add(new KeyValuePermission("key1", Arrays.asList("val1")));
+        permissionList.add(new KeyValuePermission("key2", Arrays.asList("val2")));
 
-        CollectionPermission collection = new CollectionPermission(permissionList);
+        CollectionPermission collection = new CollectionPermission("", permissionList);
 
         // String outputs the correct collection permissions.
-        assertTrue(collection.toString().indexOf(ActionPermission.CREATE_ACTION) != -1);
+        assertTrue(collection.toString().indexOf("key2") != -1);
 
         // String does not output extra permissions
-        assertFalse(collection.toString().indexOf(ActionPermission.DELETE_ACTION) != -1);
+        assertFalse(collection.toString().indexOf("key3") != -1);
     }
 
     /**
@@ -116,10 +117,10 @@ public class CollectionPermissionTest {
      */
     @Test
     public void testGetPermissionList() {
-        ArrayList<ActionPermission> permissionList = new ArrayList<ActionPermission>();
-        permissionList.add(new ActionPermission(ActionPermission.CREATE_ACTION));
-        permissionList.add(new ActionPermission(ActionPermission.QUERY_ACTION));
-        CollectionPermission collection = new CollectionPermission(permissionList);
+        ArrayList<KeyValuePermission> permissionList = new ArrayList<KeyValuePermission>();
+        permissionList.add(new KeyValuePermission("key1", Arrays.asList("val1")));
+        permissionList.add(new KeyValuePermission("key2", Arrays.asList("val2")));
+        CollectionPermission collection = new CollectionPermission("", permissionList);
 
         assertEquals(permissionList, collection.getPermissionList());
     }
@@ -129,10 +130,10 @@ public class CollectionPermissionTest {
      */
     @Test(expected = UnsupportedOperationException.class)
     public void testModifyPermissionList() {
-        ArrayList<ActionPermission> permissionList = new ArrayList<ActionPermission>();
-        permissionList.add(new ActionPermission(ActionPermission.CREATE_ACTION));
-        permissionList.add(new ActionPermission(ActionPermission.QUERY_ACTION));
-        CollectionPermission collection = new CollectionPermission(permissionList);
+        ArrayList<KeyValuePermission> permissionList = new ArrayList<KeyValuePermission>();
+        permissionList.add(new KeyValuePermission("key1", Arrays.asList("val1")));
+        permissionList.add(new KeyValuePermission("key2", Arrays.asList("val2")));
+        CollectionPermission collection = new CollectionPermission("", permissionList);
 
         collection.getPermissionList().clear();
         fail("Returned list should not be able to modify.");
@@ -143,10 +144,10 @@ public class CollectionPermissionTest {
      */
     @Test
     public void testClearCollection() {
-        ArrayList<ActionPermission> permissionList = new ArrayList<ActionPermission>();
-        permissionList.add(new ActionPermission(ActionPermission.CREATE_ACTION));
-        permissionList.add(new ActionPermission(ActionPermission.QUERY_ACTION));
-        CollectionPermission collection = new CollectionPermission(permissionList);
+        ArrayList<KeyValuePermission> permissionList = new ArrayList<KeyValuePermission>();
+        permissionList.add(new KeyValuePermission("key1", Arrays.asList("val1")));
+        permissionList.add(new KeyValuePermission("key2", Arrays.asList("val2")));
+        CollectionPermission collection = new CollectionPermission("", permissionList);
         collection.clear();
         assertTrue(collection.getPermissionList().isEmpty());
     }
@@ -160,9 +161,9 @@ public class CollectionPermissionTest {
 
         assertTrue(collection.getPermissionList().isEmpty());
 
-        ArrayList<ActionPermission> permissionList = new ArrayList<ActionPermission>();
-        permissionList.add(new ActionPermission(ActionPermission.CREATE_ACTION));
-        permissionList.add(new ActionPermission(ActionPermission.QUERY_ACTION));
+        ArrayList<KeyValuePermission> permissionList = new ArrayList<KeyValuePermission>();
+        permissionList.add(new KeyValuePermission("key1", Arrays.asList("val1")));
+        permissionList.add(new KeyValuePermission("key2", Arrays.asList("val2")));
 
         collection.addAll(permissionList);
 

@@ -29,7 +29,7 @@
             type="String"
             default="/=SAML|ANON,/admin=SAML|basic,/jolokia=SAML|basic,/system=basic,/solr=SAML|PKI|basic,/sources=SAML|basic,/security-config=SAML|basic"/>
 
-        <AD description="List of attributes required for each Web Context. Example: /context={role=role1|role2;type=type1}"
+        <AD description="List of attributes required for each Web Context. Example: /context={role=role1;type=type1}"
             name="Required Attributes" id="requiredAttributes" required="true" cardinality="100"
             type="String"
             default="/=,/admin={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin},/solr={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin},/jolokia={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin},/system={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin},/sources={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin},/security-config={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin}"/>

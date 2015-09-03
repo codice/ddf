@@ -30,6 +30,7 @@ import ddf.catalog.plugin.PostQueryPlugin;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.security.SecurityConstants;
 import ddf.security.common.audit.SecurityLogger;
+import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
 
 /**
@@ -78,7 +79,8 @@ public class FilterPlugin implements PostQueryPlugin {
         List<Result> results = input.getResults();
         List<Result> newResults = new ArrayList<Result>(results.size());
         Metacard metacard;
-        KeyValueCollectionPermission securityPermission = new KeyValueCollectionPermission();
+        KeyValueCollectionPermission securityPermission = new KeyValueCollectionPermission(
+                CollectionPermission.READ_ACTION);
         for (Result result : results) {
             metacard = result.getMetacard();
             Attribute attr = metacard.getAttribute(Metacard.SECURITY);

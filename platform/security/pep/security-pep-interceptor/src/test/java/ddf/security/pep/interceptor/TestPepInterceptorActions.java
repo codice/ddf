@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -42,7 +42,7 @@ import org.powermock.modules.junit4.rule.PowerMockRule;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
 import ddf.security.common.audit.SecurityLogger;
-import ddf.security.permission.ActionPermission;
+import ddf.security.permission.CollectionPermission;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
 import ddf.security.service.impl.SecurityAssertionStore;
@@ -90,11 +90,11 @@ public class TestPepInterceptorActions {
         doAnswer(new Answer<Boolean>() {
             @Override
             public Boolean answer(InvocationOnMock invocation) throws Throwable {
-                ActionPermission perm = (ActionPermission) invocation.getArguments()[0];
+                CollectionPermission perm = (CollectionPermission) invocation.getArguments()[0];
                 assertEquals("urn:catalog:query:query-port:searchRequest", perm.getAction());
                 return true;
             }
-        }).when(mockSubject).isPermitted(isA(ActionPermission.class));
+        }).when(mockSubject).isPermitted(isA(CollectionPermission.class));
 
         // This should work.
         interceptor.handleMessage(messageWithAction);
@@ -139,11 +139,11 @@ public class TestPepInterceptorActions {
         doAnswer(new Answer<Boolean>() {
             @Override
             public Boolean answer(InvocationOnMock invocation) throws Throwable {
-                ActionPermission perm = (ActionPermission) invocation.getArguments()[0];
+                CollectionPermission perm = (CollectionPermission) invocation.getArguments()[0];
                 assertEquals("http://catalog/query/QueryPort/SearchRequest", perm.getAction());
                 return true;
             }
-        }).when(mockSubject).isPermitted(isA(ActionPermission.class));
+        }).when(mockSubject).isPermitted(isA(CollectionPermission.class));
 
         // This should work.
         interceptor.handleMessage(messageWithAction);
@@ -183,11 +183,11 @@ public class TestPepInterceptorActions {
         doAnswer(new Answer<Boolean>() {
             @Override
             public Boolean answer(InvocationOnMock invocation) throws Throwable {
-                ActionPermission perm = (ActionPermission) invocation.getArguments()[0];
+                CollectionPermission perm = (CollectionPermission) invocation.getArguments()[0];
                 assertEquals("urn:catalog:query:query-port:search", perm.getAction());
                 return true;
             }
-        }).when(mockSubject).isPermitted(isA(ActionPermission.class));
+        }).when(mockSubject).isPermitted(isA(CollectionPermission.class));
 
         // This should work.
         interceptor.handleMessage(messageWithAction);
@@ -229,11 +229,11 @@ public class TestPepInterceptorActions {
         doAnswer(new Answer<Boolean>() {
             @Override
             public Boolean answer(InvocationOnMock invocation) throws Throwable {
-                ActionPermission perm = (ActionPermission) invocation.getArguments()[0];
+                CollectionPermission perm = (CollectionPermission) invocation.getArguments()[0];
                 assertEquals("urn:catalog:query:query-port:search", perm.getAction());
                 return true;
             }
-        }).when(mockSubject).isPermitted(isA(ActionPermission.class));
+        }).when(mockSubject).isPermitted(isA(CollectionPermission.class));
 
         // This should work.
         interceptor.handleMessage(messageWithAction);
@@ -270,7 +270,7 @@ public class TestPepInterceptorActions {
         when(mockExchange.get(BindingOperationInfo.class)).thenReturn(mockBOI);
         when(mockBOI.getExtensor(SoapOperationInfo.class)).thenReturn(null);
 
-        when(mockSubject.isPermitted(isA(ActionPermission.class))).thenReturn(false);
+        when(mockSubject.isPermitted(isA(CollectionPermission.class))).thenReturn(false);
 
         // This should throw an exception.
         interceptor.handleMessage(messageWithoutAction);
