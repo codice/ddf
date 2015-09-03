@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -15,8 +15,10 @@ package org.codice.security.policy.context;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
+import org.apache.shiro.authz.Permission;
 import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.codice.ddf.security.policy.context.impl.Policy;
 import org.codice.ddf.security.policy.context.impl.PolicyManager;
@@ -24,8 +26,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import junit.framework.Assert;
-
-import ddf.security.permission.CollectionPermission;
 
 /**
  * Test for PolicyManager
@@ -108,7 +108,7 @@ public class PolicyManagerTest {
         properties.put("authenticationTypes",
                 "/=SAML|BASIC,/search=SAML|BASIC|ANON,/admin=SAML|BASIC,/foo=BASIC,/blah=ANON,/bleh=ANON,/unprotected=,/unprotected2=");
         properties.put("requiredAttributes",
-                "/={},/blah=,/search={role=user;control=foo|bar},/admin={role=admin|supervisor}");
+                "/={},/blah=,/search={role=user;control=foo;control=bar},/admin={role=admin}");
         manager.setPolicies(properties);
         testAllPolicies();
     }
@@ -120,7 +120,7 @@ public class PolicyManagerTest {
                 "/=SAML|BASIC,/search=SAML|BASIC|ANON,/admin=SAML|BASIC,/foo=BASIC,/blah=ANON",
                 "/unprotected=,/unprotected2=", "/bleh=ANON"});
         properties.put("requiredAttributes",
-                new String[] {"/={},/blah=,/search={role=user;control=foo|bar}",
+                new String[] {"/={},/blah=,/search={role=user;control=foo;control=bar}",
                         "/admin={role=admin|supervisor}"});
         manager.setPolicies(properties);
         testAllPolicies();
@@ -131,7 +131,7 @@ public class PolicyManagerTest {
         manager.setAuthenticationTypes(
                 "/=SAML|BASIC,/search=SAML|BASIC|ANON,/admin=SAML|BASIC,/foo=BASIC,/blah=ANON,/unprotected=,/unprotected2=,/bleh=ANON");
         manager.setRequiredAttributes(
-                "/={},/blah=,/search={role=user;control=foo|bar},/admin={role=admin|supervisor}");
+                "/={},/blah=,/search={role=user;control=foo;control=bar},/admin={role=admin|supervisor}");
         manager.configure();
         testAllPolicies();
     }
@@ -141,7 +141,7 @@ public class PolicyManagerTest {
         manager.setAuthenticationTypes(
                 "/=SAML|BASIC,/search=SAML|BASIC|ANON,/admin=SAML|BASIC,/foo=BASIC,/blah=ANON,/unprotected=,/unprotected2=,/bleh=ANON");
         manager.setRequiredAttributes(
-                "/={},/blah=,/search={role=user;control=foo|bar},/admin={role=admin|supervisor}");
+                "/={},/blah=,/search={role=user;control=foo;control=bar},/admin={role=admin|supervisor}");
         manager.configure();
         manager.setPolicies(null);
         testAllPolicies();
@@ -165,22 +165,11 @@ public class PolicyManagerTest {
             i++;
         }
 
-        Iterator<CollectionPermission> permIter = policy.getAllowedAttributePermissions()
-                .iterator();
-        i = 0;
-        while (authIter.hasNext()) {
-            if (i == 0) {
-                Assert.assertEquals("role : user",
-                        permIter.next().getPermissionList().get(0).toString());
-            } else if (i == 1) {
-                Assert.assertEquals("control : foo",
-                        permIter.next().getPermissionList().get(0).toString());
-                Assert.assertEquals("control : bar",
-                        permIter.next().getPermissionList().get(1).toString());
-            }
-
-            i++;
-        }
+        List<Permission> permissionList = policy.getAllowedAttributePermissions()
+                .getPermissionList();
+        Assert.assertEquals("role : user", permissionList.get(0).toString());
+        Assert.assertEquals("control : foo", permissionList.get(1).toString());
+        Assert.assertEquals("control : bar", permissionList.get(2).toString());
 
         //check admin policy
         policy = manager.getContextPolicy("/admin");

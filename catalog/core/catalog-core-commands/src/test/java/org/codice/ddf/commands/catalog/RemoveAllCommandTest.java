@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -65,7 +65,12 @@ public class RemoveAllCommandTest {
         consoleOutput.interceptSystemOut();
 
         // given
-        RemoveAllCommand command = new RemoveAllCommand();
+        RemoveAllCommand command = new RemoveAllCommand() {
+            @Override
+            protected Object doExecute() throws Exception {
+                return executeWithSubject();
+            }
+        };
 
         command.batchSize = 0;
 
@@ -118,6 +123,11 @@ public class RemoveAllCommandTest {
             protected FilterBuilder getFilterBuilder() throws InterruptedException {
                 return new GeotoolsFilterBuilder();
             }
+
+            @Override
+            protected Object doExecute() throws Exception {
+                return executeWithSubject();
+            }
         };
 
         removeAllCommand.batchSize = 11;
@@ -136,13 +146,18 @@ public class RemoveAllCommandTest {
      * @throws Exception
      */
     @Test
-    public  void  testdoExecuteWithCache() throws Exception {
+    public void testdoExecuteWithCache() throws Exception {
         final SolrCacheMBean mbean = mock(SolrCacheMBean.class);
 
         RemoveAllCommand removeAllCommand = new RemoveAllCommand() {
             @Override
             protected SolrCacheMBean getCacheProxy() {
                 return mbean;
+            }
+
+            @Override
+            protected Object doExecute() throws Exception {
+                return executeWithSubject();
             }
         };
 
@@ -155,7 +170,6 @@ public class RemoveAllCommandTest {
         verify(mbean, times(1)).removeAll();
 
     }
-
 
     private java.util.List<Result> getResultList(int amount) {
 

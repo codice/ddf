@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -13,7 +13,7 @@
  */
 package org.codice.ddf.security.policy.context.attributes;
 
-import ddf.security.permission.CollectionPermission;
+import ddf.security.permission.KeyValuePermission;
 
 /**
  * Mapping between an attribute name and the String permission value for that attribute.
@@ -52,10 +52,10 @@ public interface ContextAttributeMapping {
     public void setAttributeValue(String value);
 
     /**
-     * Returns a {@link ddf.security.permission.CollectionPermission} object that has been created
+     * Returns a {@link ddf.security.permission.KeyValuePermission} object that has been created
      * from the parsed attribute value.
      *
      * @return permission
      */
-    public CollectionPermission getAttributePermission();
+    public KeyValuePermission getAttributePermission();
 }

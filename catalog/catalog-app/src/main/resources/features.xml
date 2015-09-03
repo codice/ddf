@@ -216,6 +216,11 @@
              description="DDF Security Audit Plugins">
         <bundle>mvn:ddf.catalog.security/catalog-security-auditplugin/${project.version}</bundle>
     </feature>
+
+    <feature name="catalog-security-ingestplugin" install="manual" version="${project.version}"
+             description="DDF Security Ingest Plugins">
+        <bundle>mvn:ddf.catalog.security/catalog-security-ingestplugin/${project.version}</bundle>
+    </feature>
     
     <feature name="catalog-admin-module-sources" install="manual" vrsion="${project.version}"
              description="DDF Admin Module">
@@ -241,6 +246,7 @@
         <feature>catalog-transformer-xml</feature>
         <feature>catalog-transformer-tika</feature>
         <feature>catalog-security-plugin</feature>
+        <feature>catalog-security-ingestplugin</feature>
         <feature>catalog-admin-module-sources</feature>
         <feature>catalog-core-backupplugin</feature>
         <feature>catalog-plugin-jpeg2000</feature>

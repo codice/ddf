@@ -50,6 +50,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>ddf.security.core</groupId>
+            <artifactId>security-core-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
         </dependency>
@@ -88,7 +93,8 @@
                             ddf.catalog.data.impl,
                             ddf.catalog.resource.impl,
                             ddf.catalog.operation.impl,
-                            ddf.catalog.util.impl
+                            ddf.catalog.util.impl,
+                            ddf.security.common.util
                         </Private-Package>
                         <Export-Package>
                             ddf.content.plugin.cataloger;version=${project.version}

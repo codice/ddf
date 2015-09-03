@@ -60,7 +60,7 @@ public class RemoveCommand extends CatalogCommands {
     boolean cache = false;
 
     @Override
-    protected Object doExecute() throws Exception {
+    protected Object executeWithSubject() throws Exception {
         if (ids == null || ids.isEmpty()) {
             printErrorMessage("Nothing to remove.");
             return null;

@@ -66,7 +66,7 @@ public class MigrateCommand extends DuplicateCommands {
     private AtomicInteger ingestCount = new AtomicInteger(0);
 
     @Override
-    protected Object doExecute() throws Exception {
+    protected Object executeWithSubject() throws Exception {
 
         List<CatalogProvider> providers = getCatalogProviders();
 
@@ -163,7 +163,7 @@ public class MigrateCommand extends DuplicateCommands {
         String completed = String
                 .format(" %d record(s) replicated; %d record(s) failed; completed in %3.3f seconds.",
                         ingestCount.get(), failedCount.get(),
-                        (end - start) / MILLISECONDS_PER_SECOND);
+                        (end - start) / MS_PER_SECOND);
         LOGGER.info("Replication Complete: {}", completed);
         console.println(completed);
 

@@ -88,7 +88,8 @@ public class RemoveAllCommand extends CatalogCommands {
     boolean cache = false;
 
     @Override
-    protected Object doExecute() throws Exception {
+    protected Object executeWithSubject() throws Exception {
+
         if (batchSize < PAGE_SIZE_LOWER_LIMIT) {
             printErrorMessage(String.format(BATCH_SIZE_ERROR_MESSAGE_FORMAT, batchSize));
             return null;
@@ -116,7 +117,7 @@ public class RemoveAllCommand extends CatalogCommands {
         long end = System.currentTimeMillis();
 
         String info = String.format("Cache cleared in %3.3f seconds%n",
-                (end - start) / MILLISECONDS_PER_SECOND);
+                (end - start) / MS_PER_SECOND);
 
         LOGGER.info(info);
         LOGGER.info("Cache cleared by catalog:removeAll with --cache option");
@@ -198,7 +199,7 @@ public class RemoveAllCommand extends CatalogCommands {
         long end = System.currentTimeMillis();
 
         String info = String.format(" %d file(s) removed in %3.3f seconds%n", totalAmountDeleted,
-                (end - start) / MILLISECONDS_PER_SECOND);
+                (end - start) / MS_PER_SECOND);
 
         LOGGER.info(info);
         LOGGER.info(totalAmountDeleted + " files removed using cache:removeAll command");

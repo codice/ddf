@@ -49,7 +49,7 @@ public class LatestCommand extends CatalogCommands {
     int numberOfItems = DEFAULT_NUMBER_OF_ITEMS;
 
     @Override
-    protected Object doExecute() throws Exception {
+    protected Object executeWithSubject() throws Exception {
 
         String formatString = "%1$-7s %2$-33s %3$-26s %4$-" + MAX_LENGTH + "s%n";
 

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -27,7 +27,6 @@ import ddf.security.assertion.SecurityAssertion;
 
 /**
  * Utility class used to perform operations on Subjects.
- *
  */
 public final class SubjectUtils {
 
@@ -40,10 +39,9 @@ public final class SubjectUtils {
     /**
      * Retrieves the user name from a given subject.
      *
-     * @param subject
-     *            Subject to get the user name from.
+     * @param subject Subject to get the user name from.
      * @return String representation of the user name if available or null if no
-     *         user name could be found.
+     * user name could be found.
      */
     public static String getName(org.apache.shiro.subject.Subject subject) {
         return getName(subject, null);
@@ -52,13 +50,11 @@ public final class SubjectUtils {
     /**
      * Retrieves the user name from a given subject.
      *
-     * @param subject
-     *            Subject to get the user name from.
-     * @param defaultName
-     *            Name to send back if no user name was found.
+     * @param subject     Subject to get the user name from.
+     * @param defaultName Name to send back if no user name was found.
      * @return String representation of the user name if available or
-     *         defaultName if no user name could be found or incoming subject
-     *         was null.
+     * defaultName if no user name could be found or incoming subject
+     * was null.
      */
     public static String getName(org.apache.shiro.subject.Subject subject, String defaultName) {
         String name = defaultName;
@@ -110,5 +106,4 @@ public final class SubjectUtils {
         LOGGER.debug("Sending back name {}.", name);
         return name;
     }
-
 }
