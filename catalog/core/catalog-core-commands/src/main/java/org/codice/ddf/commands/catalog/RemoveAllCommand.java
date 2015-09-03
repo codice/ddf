@@ -201,7 +201,7 @@ public class RemoveAllCommand extends CatalogCommands {
                 (end - start) / MILLISECONDS_PER_SECOND);
 
         LOGGER.info(info);
-        LOGGER.info(totalAmountDeleted + " files remove using cache:removeAll command");
+        LOGGER.info(totalAmountDeleted + " files removed using cache:removeAll command");
 
         console.println();
         console.print(info);
