@@ -60,7 +60,7 @@ import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 
-public class TestReplicationCommand {
+public class ReplicationCommandTest {
 
     private static final Set<String> SOURCE_IDS = new HashSet<String>(
             Arrays.asList("sourceId1", "sourceId2"));
