@@ -40,6 +40,12 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+			<groupId>ddf.security.policy</groupId>
+			<artifactId>security-policy-context</artifactId>
+			<version>${project.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
             <version>2.4</version>

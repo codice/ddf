@@ -36,6 +36,7 @@ import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.ws.addressing.JAXWSAConstants;
 import org.apache.cxf.ws.addressing.Names;
+import org.apache.shiro.util.ThreadContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -128,6 +129,7 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
                     SecurityLogger.logInfo(
                             "Is user [" + user.getPrincipal() + "] permitted: " + isPermitted);
                     // store the subject so the DDF framework can use it later
+                    ThreadContext.bind(user);
                     message.put(SecurityConstants.SAML_ASSERTION, user);
                     logger.debug("Added assertion information to message at key {}",
                             SecurityConstants.SAML_ASSERTION);

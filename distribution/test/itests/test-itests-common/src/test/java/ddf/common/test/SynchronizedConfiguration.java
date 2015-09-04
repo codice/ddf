@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -15,11 +15,16 @@ package ddf.common.test;
 
 import static org.junit.Assert.fail;
 
+import java.util.Hashtable;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
+
 public class SynchronizedConfiguration {
+
     private static final long CONFIG_UPDATE_MAX_WAIT_MILLIS = TimeUnit.MINUTES.toMillis(1);
 
     private static final int LOOP_SLEEP_MILLIS = 5;
@@ -32,16 +37,20 @@ public class SynchronizedConfiguration {
 
     private final Callable<Boolean> configCallable;
 
+    private ConfigurationAdmin configAdmin;
+
     public SynchronizedConfiguration(String pid, String location, Map<String, Object> configProps,
-            Callable<Boolean> configCallable) {
+            Callable<Boolean> configCallable, ConfigurationAdmin configAdmin) {
         this.pid = pid;
         this.location = location;
         this.configProps = configProps;
         this.configCallable = configCallable;
+        this.configAdmin = configAdmin;
     }
 
-    public final void updateConfig(AdminConfig adminConfig) throws Exception {
-        adminConfig.getDdfConfigAdmin().update(pid, configProps);
+    public final void updateConfig() throws Exception {
+        Configuration config = configAdmin.getConfiguration(pid, location);
+        config.update(new Hashtable<>(configProps));
 
         long timeoutLimit = System.currentTimeMillis() + CONFIG_UPDATE_MAX_WAIT_MILLIS;
         while (true) {
@@ -56,4 +65,5 @@ public class SynchronizedConfiguration {
             }
         }
     }
+
 }
