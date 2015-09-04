@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.cxf;
 
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.util.UUID;
@@ -20,7 +22,6 @@ import java.util.UUID;
 import javax.ws.rs.GET;
 import javax.ws.rs.core.Response;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.jaxrs.client.WebClient;
@@ -40,6 +41,10 @@ public class SecureCxfClientFactoryTest {
     private static final String INSECURE_ENDPOINT = "http://some.url.com/query";
 
     private static final String SECURE_ENDPOINT = "https://some.url.com/query";
+
+    private static final String USERNAME = "username";
+
+    private static final String PASSWORD = "password";
 
     @Test
     public void testConstructor() throws SecurityServiceException {
@@ -92,7 +97,7 @@ public class SecureCxfClientFactoryTest {
         assertTrue(subject);
         boolean system = true;
         try { //can't get secure client from insecure endpoint
-            secureCxfClientFactory.getClientForBasicAuth("username", "password");
+            secureCxfClientFactory.getClientForBasicAuth(USERNAME, PASSWORD);
         } catch (SecurityServiceException e) {
             system = false;
         }
@@ -123,7 +128,7 @@ public class SecureCxfClientFactoryTest {
         assertTrue(subject);
         boolean system = true;
         try { //can't get secure client from insecure endpoint
-            secureCxfClientFactory.getWebClientForBasicAuth("username", "password");
+            secureCxfClientFactory.getWebClientForBasicAuth(USERNAME, PASSWORD);
         } catch (SecurityServiceException e) {
             system = false;
         }
@@ -154,7 +159,7 @@ public class SecureCxfClientFactoryTest {
         assertTrue(subject);
         boolean system = true;
         try { //can't get secure client from insecure endpoint
-            secureCxfClientFactory.getClientForBasicAuth("username", "password");
+            secureCxfClientFactory.getClientForBasicAuth(USERNAME, PASSWORD);
         } catch (SecurityServiceException e) {
             system = false;
         }
@@ -185,7 +190,7 @@ public class SecureCxfClientFactoryTest {
         assertTrue(subject);
         boolean system = true;
         try { //can't get secure client from insecure endpoint
-            secureCxfClientFactory.getWebClientForBasicAuth("username", "password");
+            secureCxfClientFactory.getWebClientForBasicAuth(USERNAME, PASSWORD);
         } catch (SecurityServiceException e) {
             system = false;
         }
@@ -199,16 +204,16 @@ public class SecureCxfClientFactoryTest {
         assertTrue(unsecured);
     }
 
-
-    private void validateConfig(MockWrapper<IDummy> factory, String username, String password,
-            boolean disableCnCheck) throws SecurityServiceException {
-        IDummy clientForSubject = factory.getClientForBasicAuth(username, password);
+    @Test
+    public void validateConduit() throws SecurityServiceException {
+        IDummy clientForSubject = new SecureCxfClientFactory<>(SECURE_ENDPOINT, IDummy.class, null,
+                null, true).getClientForBasicAuth(USERNAME, PASSWORD);
         HTTPConduit httpConduit = WebClient.getConfig(WebClient.client(clientForSubject))
                 .getHttpConduit();
         AuthorizationPolicy authorization = httpConduit.getAuthorization();
-        assertTrue(StringUtils.equals(authorization.getUserName(), (username)));
-        assertTrue(StringUtils.equals(authorization.getPassword(), (password)));
-        assertTrue(disableCnCheck == httpConduit.getTlsClientParameters().isDisableCNCheck());
+        assertThat(authorization.getUserName(), is(USERNAME));
+        assertThat(authorization.getPassword(), is(PASSWORD));
+        assertThat(httpConduit.getTlsClientParameters().isDisableCNCheck(), is(true));
     }
 
     private DummySubject getSubject() {

@@ -267,7 +267,10 @@ public class CswSource extends MaskableImpl
     /**
      * Instantiates a CswSource. This constructor is for unit tests
      *
-     * @param context The {@link BundleContext} from the OSGi Framework
+     * @param context                The {@link BundleContext} from the OSGi Framework
+     * @param cswSourceConfiguration the configuration of this source
+     * @param provider               transform provider to transform results
+     * @param factory                client factory already configured for this source
      */
     public CswSource(BundleContext context, CswSourceConfiguration cswSourceConfiguration,
             CswTransformProvider provider, SecureCxfClientFactory factory) {

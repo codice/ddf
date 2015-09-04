@@ -742,8 +742,7 @@ public class TestCswSource extends TestCswSourceBase {
         cswSource.setCswUrl(URL);
         cswSource.setId(ID);
 
-        HashMap<String, Object> configuration = new HashMap<String, Object>(10) {
-        };
+        HashMap<String, Object> configuration = new HashMap<>();
         configuration.put("connectionTimeout", 10000);
         configuration.put("receiveTimeout", 10000);
         cswSource.refresh(configuration);

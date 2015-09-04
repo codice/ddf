@@ -123,7 +123,7 @@
             <dependency>
                 <groupId>ddf.platform</groupId>
                 <artifactId>security</artifactId>
-                <version>${product.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>xml-apis</groupId>
