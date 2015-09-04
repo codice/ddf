@@ -14,12 +14,10 @@
 package org.codice.ddf.security.handler.saml;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
-import java.util.zip.DataFormatException;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -31,13 +29,10 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.xml.stream.XMLStreamException;
 
-import org.apache.cxf.common.util.Base64Exception;
-import org.apache.cxf.common.util.Base64Utility;
-import org.apache.cxf.helpers.IOUtils;
-import org.apache.cxf.rs.security.saml.DeflateEncoderDecoder;
 import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.codice.ddf.security.common.HttpUtils;
+import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.api.SAMLAuthenticationToken;
@@ -85,10 +80,7 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
             String cookieValue = samlCookie.getValue();
             LOGGER.trace("Cookie retrieved");
             try {
-                byte[] cv = Base64Utility.decode(cookieValue);
-                DeflateEncoderDecoder decoder = new DeflateEncoderDecoder();
-                InputStream is = decoder.inflateToken(cv);
-                String tokenString = IOUtils.toString(is, "UTF-8");
+                String tokenString = RestSecurity.decodeSaml(cookieValue);
                 LOGGER.trace("Cookie value: {}", tokenString);
                 securityToken = new SecurityToken();
                 Element thisToken = StaxUtils.read(new StringReader(tokenString))
@@ -98,14 +90,6 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
                         realm);
                 handlerResult.setToken(samlToken);
                 handlerResult.setStatus(HandlerResult.Status.COMPLETED);
-            } catch (DataFormatException e) {
-                LOGGER.warn(
-                        "Unexpected error deflating cookie value - proceeding without SAML token.",
-                        e);
-            } catch (Base64Exception e) {
-                LOGGER.warn(
-                        "Unexpected error un-encoding the cookie value - proceeding without SAML token.",
-                        e);
             } catch (IOException e) {
                 LOGGER.warn(
                         "Unexpected error converting cookie value to string - proceeding without SAML token.",
