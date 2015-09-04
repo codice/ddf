@@ -56,7 +56,7 @@ public class KeyStoreFileTest {
 
     //Test Constructor. No read permissions on file.
     //I tested this one manually and it threw the correct exception with the correct message.
-    //Not sure how to test it automated testing, and probably not worth the effort anyway.
+    //Not sure how to createAndAccess it automated testing, and probably not worth the effort anyway.
 
     //Test Constructor. File is not keyStore.
     @Test(expected = IOException.class)

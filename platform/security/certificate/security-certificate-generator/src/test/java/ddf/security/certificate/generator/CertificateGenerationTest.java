@@ -23,8 +23,10 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.net.UnknownHostException;
+import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -43,7 +45,7 @@ import static org.mockito.Mockito.when;
 
 public class CertificateGenerationTest {
 
-    public static final DateTime THE_FUTURE = DateTime.now().plusYears(1);
+  /*  public static final DateTime THE_FUTURE = DateTime.now().plusYears(1);
     public static final DateTime THE_PAST = DateTime.now().minusYears(1);
 
     private PkiTools tools = new PkiTools();
@@ -113,14 +115,13 @@ public class CertificateGenerationTest {
     }
 
     //Add newly created private key and certificate (chain) to a keystore
-    @Test
     public void installCertificate() throws Exception {
 
         //Instantiate DDF Demo CA's certificate
-        final X509Certificate cert = tools.pemToCertificate(CertificateAuthority.pemDemoCaCertificate);
+        final X509Certificate cert = tools.pemToCertificate(DemoCertificateAuthority.pemDemoCaCertificate);
 
         //Instantiate DDF DEmo CA's private key
-        PrivateKey privateKey = tools.pemToPrivateKey(CertificateAuthority.pemDemoCaPrivateKey);
+        PrivateKey privateKey = tools.pemToPrivateKey(DemoCertificateAuthority.pemDemoCaPrivateKey);
 
         //Instantiate DDF Demo CA
         CertificateAuthority ca = new CertificateAuthority(cert, privateKey);
@@ -140,7 +141,7 @@ public class CertificateGenerationTest {
         csr1.setNotAfter(THE_FUTURE);
 
         KeyPair keyPair = tools.generateRsaKeyPair();
-        csr1.useSubjectKeyPair(keyPair);
+        csr1.setSubjectKeyPair(keyPair);
         csr1.setCommonNameToHostname();
         csr1.setCertificateAuthority(ca);
 
@@ -150,9 +151,9 @@ public class CertificateGenerationTest {
         verify(certificateBuilder).build(ca.getContentSigner());
 
         CertificateSigningRequest csr = csr1;
-        PrivateKey subjectPrivateKey = csr.getPrivateKey();
+        PrivateKey subjectPrivateKey = csr.getSubjectPrivateKey();
         X509Certificate chain[] = csr.getCertificateChain();
-        KeyStoreFile keyStoreFile = KeyStoreFile.newInstance(getPathTo("keystore-password_changeit.jks"), "changeit".toCharArray());
+        KeyStoreFile keyStoreFile = KeyStoreFile.newInstance(getPathTo("/Users/aaronhoffer/Downloads/dib-enterprise-suite-4.3.0-SNAPSHOT//etc/keystores/serverKeystore.jks"), "changeit".toCharArray());
         keyStoreFile.addEntry("alias", subjectPrivateKey, chain);
         PrivateKey key = keyStoreFile.getPrivateKey("alias");
         assertNotNull(key);
@@ -161,12 +162,13 @@ public class CertificateGenerationTest {
         keyStoreFile.save();
     }
 
-    private CertificateSigningRequest getCsr() throws CertificateException, UnknownHostException {
+    @Test
+    public void makeHarrisonsKeyStore() throws GeneralSecurityException, IOException {
         //Instantiate DDF Demo CA's certificate
-        X509Certificate cert = tools.pemToCertificate(CertificateAuthority.pemDemoCaCertificate);
+        X509Certificate cert = tools.pemToCertificate(DemoCertificateAuthority.pemDemoCaCertificate);
 
         //Instantiate DDF DEmo CA's private key
-        PrivateKey privateKey = tools.pemToPrivateKey(CertificateAuthority.pemDemoCaPrivateKey);
+        PrivateKey privateKey = tools.pemToPrivateKey(DemoCertificateAuthority.pemDemoCaPrivateKey);
 
         //Instantiate DDF Demo CA
         CertificateAuthority ca = new CertificateAuthority(cert, privateKey);
@@ -176,7 +178,55 @@ public class CertificateGenerationTest {
         csr.setNotAfter(THE_FUTURE);
 
         KeyPair keyPair = tools.generateRsaKeyPair();
-        csr.useSubjectKeyPair(keyPair);
+        csr.setSubjectKeyPair(keyPair);
+        csr.setCommonName("Harrisons-MacBook-Pro.local");
+        csr.setCertificateAuthority(ca);
+        csr.build();
+        KeyStoreFile keyStoreFile = KeyStoreFile.newInstance("/Users/aaronhoffer/Downloads/dib-enterprise-suite-4.3.0-SNAPSHOT//etc/keystores/serverKeystore.jks", "changeit".toCharArray());
+        keyStoreFile.addEntry("Harrisons-MacBook-Pro.local", csr.getSubjectPrivateKey(), csr.getCertificateChain());
+        keyStoreFile.save();
+    }
+
+
+    @Test
+    public void makeAaronKeyStore() throws GeneralSecurityException, IOException {
+        //Instantiate DDF Demo CA's certificate
+        X509Certificate cert = tools.pemToCertificate(DemoCertificateAuthority.pemDemoCaCertificate);
+
+        //Instantiate DDF DEmo CA's private key
+        PrivateKey privateKey = tools.pemToPrivateKey(DemoCertificateAuthority.pemDemoCaPrivateKey);
+
+        //Instantiate DDF Demo CA
+        CertificateAuthority ca = new CertificateAuthority(cert, privateKey);
+
+        //Create new signing request and let DDF Demo CA sign it
+        CertificateSigningRequest csr = new CertificateSigningRequest();
+        csr.setNotAfter(THE_FUTURE);
+
+        csr.setCommonNameToHostname();
+        csr.setCertificateAuthority(ca);
+        csr.build();
+        KeyStoreFile keyStoreFile = KeyStoreFile.newInstance("/Users/aaronhoffer/Downloads/dib-enterprise-suite-4.3.0-SNAPSHOT/etc/keystores/serverKeystore.jks", "changeit".toCharArray());
+        keyStoreFile.addEntry("Aarons-MacBook-Pro.local", csr.getSubjectPrivateKey(), csr.getCertificateChain());
+        keyStoreFile.save();
+    }
+
+    private CertificateSigningRequest getCsr() throws CertificateException, UnknownHostException {
+        //Instantiate DDF Demo CA's certificate
+        X509Certificate cert = tools.pemToCertificate(DemoCertificateAuthority.pemDemoCaCertificate);
+
+        //Instantiate DDF DEmo CA's private key
+        PrivateKey privateKey = tools.pemToPrivateKey(DemoCertificateAuthority.pemDemoCaPrivateKey);
+
+        //Instantiate DDF Demo CA
+        CertificateAuthority ca = new CertificateAuthority(cert, privateKey);
+
+        //Create new signing request and let DDF Demo CA sign it
+        CertificateSigningRequest csr = new CertificateSigningRequest();
+        csr.setNotAfter(THE_FUTURE);
+
+        KeyPair keyPair = tools.generateRsaKeyPair();
+        csr.setSubjectKeyPair(keyPair);
         csr.setCommonNameToHostname();
         csr.setCertificateAuthority(ca);
         csr.build();
@@ -185,7 +235,7 @@ public class CertificateGenerationTest {
 
     private void createSignedCertificate() throws Exception {
         getCsr().getSignedCertificate();
-    }
+    }*/
 
 }
 

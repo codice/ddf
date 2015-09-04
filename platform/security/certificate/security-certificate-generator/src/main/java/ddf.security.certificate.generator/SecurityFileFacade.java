@@ -41,7 +41,7 @@ public abstract class SecurityFileFacade {
         return password == null ? new char[0] : password;
     }
 
-    protected static File createFileObject(String filePath) throws IOException {
+    static File createFileObject(String filePath) throws IOException {
 
         File file;
 

@@ -13,23 +13,20 @@
  */
 package ddf.security.certificate.generator;
 
+import org.apache.commons.lang3.Validate;
 import org.bouncycastle.asn1.x500.X500Name;
-import org.bouncycastle.cert.X509CertificateHolder;
-import org.bouncycastle.cert.X509v3CertificateBuilder;
-import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
-import java.net.UnknownHostException;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Security;
-import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.util.Date;
 
 /**
  * Model of a X509 certificate signing request. These values must be set:
@@ -47,8 +44,10 @@ import java.util.Date;
  */
 public class CertificateSigningRequest {
 
-    static {
+    public static final int VALID_YEARS = 100;
+    private static final Logger LOGGER = LoggerFactory.getLogger(CertificateSigningRequest.class);
 
+    static {
         Security.addProvider(new BouncyCastleProvider());
     }
 
@@ -57,99 +56,18 @@ public class CertificateSigningRequest {
     protected X500Name subjectName;
     protected KeyPair subjectKeyPair;
     protected BigInteger serialNumber;
-    protected CertificateAuthority certificateAuthority;
-    protected X509Certificate signedCertificate;
-    private PkiTools pkiTools = new PkiTools();
+    PkiTools pkiTools = new PkiTools();
 
     public CertificateSigningRequest() {
         initialize();
     }
 
-    //Set reasonable defaults
-    protected void initialize() {
-        serialNumber = BigInteger.valueOf(System.currentTimeMillis());
-        notBefore = DateTime.now().minusDays(1);
-    }
-
-    public PrivateKey getPrivateKey() {
+    public PrivateKey getSubjectPrivateKey() {
         return subjectKeyPair.getPrivate();
     }
 
-    public void setCertificateAuthority(CertificateAuthority certificateAuthority) {
-        this.certificateAuthority = certificateAuthority;
-    }
-
-    public X509Certificate getSignedCertificate() {
-        return signedCertificate;
-    }
-
-    /**
-     * Create a signed certificate. After this method executes, use {@link #getSignedCertificate()}
-     * to retrieve the retrieve the generated certificate. If a new keypair was created for the subject, use
-     * {@link #getPrivateKey()} to retrieve the private key.
-     *
-     * @throws CertificateGeneratorException
-     */
-    public void build()
-            throws CertificateGeneratorException {
-
-        //If effective date is not set, this will end badly
-        if (notAfter == null) {
-            throw new CertificateGeneratorException(
-                    "Missing certificate validity date. " +
-                            "Set the Not After attribute to specify certificate's expiration date");
-        }
-
-        //This can only happen if client code explicitly sets the value to null because the attribute is initialized at creation time.
-        if (notBefore == null) {
-            throw new CertificateGeneratorException(
-                    "Missing certificate validity date. " +
-                            "Set the Not After attribute to specify certificate's expiration date");
-        }
-
-        if (notAfter.isBefore(notBefore)) {
-            throw new CertificateGeneratorException(
-                    String.format("Certificate 'Not After' (expiration) of %s must be later than 'Not Before' (effective) of %s", notBefore, notAfter));
-        }
-
-        if (subjectKeyPair == null) {
-            //Typical use case is to generate both the public and private keys within this class.
-            //ASSUME that if the keypair has not been set, the user's intention is to generate a new keypair.
-
-            KeyPair keyPair = pkiTools.generateRsaKeyPair();
-            useSubjectKeyPair(keyPair);
-        }
-
-        if (subjectName == null || subjectName.toString().isEmpty()) {
-            throw new CertificateGeneratorException(
-                    "Subject distinguished name is null or empty. " +
-                            "Set subject to host name or or set subject distinguished name");
-        }
-
-        if (certificateAuthority == null) {
-            throw new CertificateGeneratorException("Certificate authority is null");
-        }
-
-        X509v3CertificateBuilder certificateBuilder = getCertificateBuilder(certificateAuthority.getCertificate(), serialNumber, notBefore.toDate(), notAfter.toDate(), subjectName, subjectKeyPair.getPublic());
-
-        X509CertificateHolder holder =
-                certificateBuilder.build(certificateAuthority.getContentSigner());
-
-        try {
-            signedCertificate = getCertificateConverter().getCertificate(holder);
-        } catch (CertificateException e) {
-            throw new CertificateGeneratorException("Could not create signed certificate.", e.getCause());
-        }
-    }
-
-    JcaX509v3CertificateBuilder getCertificateBuilder(X509Certificate certificate, BigInteger serialNumber, Date notBefore, Date notAfter, X500Name subjectName, PublicKey key) {
-        return new JcaX509v3CertificateBuilder(
-                certificate,
-                serialNumber,
-                notBefore,
-                notAfter,
-                subjectName,
-                key);
+    public PublicKey getSubjectPublicKey() {
+        return subjectKeyPair.getPublic();
     }
 
 
@@ -161,8 +79,8 @@ public class CertificateSigningRequest {
      * @param name subject's common name attribute (
      */
     public void setCommonName(String name) {
+        Validate.notNull("Subject common name of certificate signing request cannot be null");
         subjectName = pkiTools.makeDistinguishedName(name);
-
     }
 
     /**
@@ -172,11 +90,43 @@ public class CertificateSigningRequest {
      * not trust the connection. There is no guarantee that the {@link PkiTools#getHostName()}
      * returns the correct result in all cases. Use {@link #setCommonName(String)} to manually set
      * the common name for the certificate's subject.
-     *
-     * @throws UnknownHostException
      */
-    public void setCommonNameToHostname() throws UnknownHostException {
+    public void setCommonNameToHostname() {
+        String hname = pkiTools.getHostName();
+        LOGGER.info("Creating X509 certificate CN=%s", hname);
         setCommonName(pkiTools.getHostName());
+    }
+
+    /**
+     * The validity period for a certificate is the period of time from notBefore through notAfter, inclusive.
+     *
+     * @param date expiration date of the certificate
+     */
+    public void setNotBefore(DateTime date) {
+        Validate.notNull(date, "Certificate 'not before' date cannot be null");
+        Validate.isTrue(date.isBefore(notAfter), "Certificate 'not after' date must come after 'not before' date");
+        notBefore = date;
+    }
+
+    /**
+     * The validity period for a certificate is the period of time from notBefore through notAfter, inclusive.
+     *
+     * @param date effective date
+     */
+    public void setNotAfter(DateTime date) {
+        Validate.notNull(date, "Certificate 'not after' date cannot be null");
+        Validate.isTrue(date.isAfter(notBefore), "Certificate 'not after' date must come after 'not before' date");
+        notAfter = date;
+    }
+
+    /**
+     * Set the serial number of the certificate. The serial number is arbitrary, but should not be negative.
+     *
+     * @param number arbitrary serial number
+     */
+    public void setSerialNumber(long number) {
+        Validate.isTrue(number > 0, "Serial number for X509 certificate should not be negative");
+        serialNumber = BigInteger.valueOf(number);
     }
 
     /**
@@ -187,58 +137,26 @@ public class CertificateSigningRequest {
      *
      * @param keyPair RSA public/private keys
      */
-    public void useSubjectKeyPair(KeyPair keyPair) {
+    public void setSubjectKeyPair(KeyPair keyPair) {
+        Validate.notNull(keyPair, "Subject public/private keypair cannot be null");
         subjectKeyPair = keyPair;
     }
 
-    /**
-     * The validity period for a certificate is the period of time from notBefore through notAfter, inclusive.
-     *
-     * @param date expiration date of the certificate
-     */
-    public void setNotBefore(DateTime date) {
-        notBefore = date;
+    JcaX509v3CertificateBuilder getCertificateBuilder(X509Certificate certificate) {
+        return new JcaX509v3CertificateBuilder(
+                certificate,
+                serialNumber,
+                notBefore.toDate(),
+                notAfter.toDate(),
+                subjectName,
+                getSubjectPublicKey());
     }
 
-    /**
-     * The validity period for a certificate is the period of time from notBefore through notAfter, inclusive.
-     *
-     * @param date effective date
-     */
-    public void setNotAfter(DateTime date) {
-        notAfter = date;
-    }
-
-    /**
-     * Set the serial number of the certificate. The serial number is arbitrary, but should not be negative.
-     *
-     * @param number arbitrary serial number
-     */
-    public void setSerialNumber(long number) throws CertificateGeneratorException {
-
-        if (number < 0) {
-            throw new IllegalArgumentException("Serial number for X.509 certificate should not be negative");
-        }
-        serialNumber = BigInteger.valueOf(number);
-    }
-
-    JcaX509CertificateConverter getCertificateConverter() {
-        return new JcaX509CertificateConverter().setProvider(BouncyCastleProvider.PROVIDER_NAME);
-    }
-
-    /**
-     * The subject and issuers' certificates
-     *
-     * @return the certificate chain to be used in the keystore entry
-     */
-    public X509Certificate[] getCertificateChain() {
-        X509Certificate[] chain = new X509Certificate[2];
-        chain[0] = getSignedCertificate();
-        chain[1] = certificateAuthority.getCertificate();
-        return chain;
-    }
-
-    public PublicKey getPublicKey() {
-        return subjectKeyPair.getPublic();
+    //Set reasonable defaults
+    void initialize() {
+        serialNumber = BigInteger.valueOf(System.currentTimeMillis());
+        notBefore = DateTime.now().minusDays(1);
+        notAfter = notBefore.plusYears(VALID_YEARS);
+        subjectKeyPair = pkiTools.generateRsaKeyPair();
     }
 }

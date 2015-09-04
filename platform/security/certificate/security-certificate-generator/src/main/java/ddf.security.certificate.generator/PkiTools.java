@@ -14,6 +14,7 @@
 
 package ddf.security.certificate.generator;
 
+import org.apache.commons.lang3.Validate;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
 import org.bouncycastle.asn1.x500.style.RFC4519Style;
@@ -35,13 +36,6 @@ import java.util.Base64;
 /**
  * This class is a home for helper functions that were did not belong to other classes.
  */
-
-
-// Considered making more wrapper classes-- for example, KeyWrapper that would add methods like
-//  "asString" or static method "fromString" to create new instances. But there
-//  are already too many classes and too many wrappers. Ultimately, I couldn't justify the
-//    added complexity of that approach.
-
 public class PkiTools {
 
     public static final int RSA_KEY_LENGTH = 2048;
@@ -59,59 +53,79 @@ public class PkiTools {
     }
 
     /**
-     * Convert a Java String to a byte array
-     *
-     * @param string PEM encoded bytes
-     * @return DER encoded bytes
-     */
-    public byte[] pemToDer(String string) {
-        return Base64.getDecoder().decode(string);
-    }
-
-    /**
-     * Get the host name or DNS name that Java thinks is associated with the server running the application. This
-     * method is public so client code can easily check the name and decide if it should be used in the generated
-     * certificate.
-     *
-     * @return Hostname of this machine. Hostname should be the same as the machine's DNS name.
-     * @throws UnknownHostException
-     */
-    public String getHostName() throws UnknownHostException {
-
-        return InetAddress.getLocalHost().getCanonicalHostName();
-
-    }
-
-    /**
      * Given an X509 certificate, return a PEM encoded string representation of the certificate.
      *
      * @param cert certificate
      * @return PEM encoded String
-     * @throws CertificateEncodingException
      */
     public String certificateToPem(X509Certificate cert) throws CertificateEncodingException {
         return derToPem(cert.getEncoded());
     }
 
-    public X509Certificate pemToCertificate(String certString) throws CertificateException {
-        CertificateFactory cf = new CertificateFactory();
-        ByteArrayInputStream in = new ByteArrayInputStream(pemToDer(certString));
-        return (X509Certificate) cf.engineGenerateCertificate(in);
+    /**
+     * Given a byte array that represents a DER encoded X509 certificate, return the certificate object
+     *
+     * @param certDer byte array representing a DER encoded X509 certificate
+     * @return instance of X509 certificate
+     */
+    public X509Certificate derToCertificate(byte[] certDer) {
+        return pemToCertificate(derToPem(certDer));
     }
 
     /**
-     * Convert a Java String to an  private key
+     * Given a byte array that represents a DER encoded private key, return the private key object
      *
-     * @param keyString encoded RSA private key. Assume PKCS#8 format
-     * @return Instance of PrivateKey
-     * @throws CertificateGeneratorException Raise exception if conversion was not successful
+     * @param privateKeyDer byte array representing a DER encoded private key
+     * @return instance of private key
      */
-    public PrivateKey pemToPrivateKey(String keyString) throws CertificateGeneratorException {
+    public PrivateKey derToPrivateKey(byte[] privateKeyDer) {
+        return pemToPrivateKey(derToPem(privateKeyDer));
+    }
+
+    /**
+     * Get the host name or DNS name associated with the machine running the JVM. This
+     * method is public so client code can easily check the name and decide if it should be used in the generated
+     * certificate.
+     *
+     * @return Hostname of this machine. Hostname should be the same as the machine's DNS name.
+     */
+    public String getHostName() {
+        //getCannonicalHostName returns the IP address. getHostName is the closet Java method to getting
+        // the FQDN.
         try {
-            return getRsaKeyFactory().generatePrivate(new PKCS8EncodedKeySpec(pemToDer(keyString)));
-        } catch (Exception e) {
-            throw new CertificateGeneratorException("Could not convert String to Private Key", e.getCause());
+            return InetAddress.getLocalHost().getHostName();
+        } catch (UnknownHostException e) {
+            throw new CertificateGeneratorException("Cannot get this machine's host name", e);
         }
+    }
+
+    /**
+     * Generate new RSA public/private key pair with 2048 bit key
+     *
+     * @return new generated key pair
+     * @throws CertificateGeneratorException
+     */
+    public KeyPair generateRsaKeyPair() {
+        try {
+            KeyPairGenerator keyGen = KeyPairGenerator.getInstance(ALGORITHM, BouncyCastleProvider.PROVIDER_NAME);
+            keyGen.initialize(RSA_KEY_LENGTH);
+            return keyGen.generateKeyPair();
+        } catch (Exception e) {
+            throw new CertificateGeneratorException("Failed to generate new public/private key pair.", e);
+        }
+    }
+
+    public byte[] keyToDer(Key key) {
+        return pemToDer(keyToPem(key));
+    }
+
+
+    /**
+     * @param key object
+     * @return PEM encoded string represents the bytes of the key
+     */
+    public String keyToPem(Key key) {
+        return derToPem(key.getEncoded());
     }
 
     /**
@@ -131,10 +145,7 @@ public class PkiTools {
      * @see <a href="https://en.wikipedia.org/wiki/SubjectAltName">Subject Alternative Names on Wikipedia'</a>
      */
     public X500Name makeDistinguishedName(String commonName) {
-
-        if (commonName == null) {
-            throw new IllegalArgumentException("Certificate common name cannot be null");
-        }
+        Validate.isTrue(commonName != null, "Certificate common name cannot be null");
 
         if (commonName.isEmpty()) {
             LOGGER.warn("Setting certificate common name to empty string. This could result in an unusable TLS certificate.");
@@ -148,45 +159,47 @@ public class PkiTools {
         return nameBuilder.build();
     }
 
-
     /**
-     * @param key object
-     * @return PEM encoded string represents the bytes of the key
+     * Given a PEM encoded X509 certificate, return an object representation of the certificate
+     *
+     * @param certString PEM encoded X509 certificate
+     * @return instance of X509 certificate
      */
-    public String keyToPem(Key key) {
-        return derToPem(key.getEncoded());
+    public X509Certificate pemToCertificate(String certString) {
+        CertificateFactory cf = new CertificateFactory();
+        ByteArrayInputStream in = new ByteArrayInputStream(pemToDer(certString));
+        try {
+            return (X509Certificate) cf.engineGenerateCertificate(in);
+        } catch (CertificateException e) {
+            throw new CertificateGeneratorException("Cannot convert this PEM/DER object to X509 certificate", e);
+        }
     }
 
     /**
-     * Generate new RSA public/private key pair with 2048 bit key
+     * Convert a Java String to a byte array
      *
-     * @return new generated key pair
-     * @throws CertificateGeneratorException
+     * @param string PEM encoded bytes
+     * @return DER encoded bytes
      */
-    public KeyPair generateRsaKeyPair() throws CertificateGeneratorException {
-        try {
-            KeyPairGenerator keyGen = KeyPairGenerator.getInstance(ALGORITHM, BouncyCastleProvider.PROVIDER_NAME);
-            keyGen.initialize(RSA_KEY_LENGTH);
-            return keyGen.generateKeyPair();
-        } catch (Exception e) {
-            throw new CertificateGeneratorException("Failed to generate new public/private key pair.", e);
-        }
+    public byte[] pemToDer(String string) {
+        return Base64.getDecoder().decode(string);
+    }
 
+    /**
+     * Convert a Java String to an  private key
+     *
+     * @param keyString encoded RSA private key. Assume PKCS#8 format
+     * @return Instance of PrivateKey
+     */
+    public PrivateKey pemToPrivateKey(String keyString) {
+        try {
+            return getRsaKeyFactory().generatePrivate(new PKCS8EncodedKeySpec(pemToDer(keyString)));
+        } catch (Exception e) {
+            throw new CertificateGeneratorException("Could not convert String to Private Key", e.getCause());
+        }
     }
 
     private KeyFactory getRsaKeyFactory() throws GeneralSecurityException {
         return KeyFactory.getInstance(ALGORITHM, BouncyCastleProvider.PROVIDER_NAME);
-    }
-
-    public X509Certificate derToCertificate(byte[] certDer) throws CertificateException {
-        return pemToCertificate(derToPem(certDer));
-    }
-
-    public PrivateKey derToPrivateKey(byte[] privateKeyDer) {
-        return pemToPrivateKey(derToPem(privateKeyDer));
-    }
-
-    public byte[] keyToDer(Key key) {
-        return pemToDer(keyToPem(key));
     }
 }
