@@ -209,11 +209,10 @@ public class SecureCxfClientFactory<T> {
 
         String endpointUrl = clientFactory.getAddress();
         if (!StringUtils.startsWithIgnoreCase(endpointUrl, "https")) {
-            LOGGER.warn("Cannot secure non-https connection " + endpointUrl
-                    + ", only unsecured clients will be created");
-        } else {
-            initSecurity(clientConfig, username, password);
+            LOGGER.warn("CAUTION: Passing username & password on an un-encrypted protocol [{}]."
+                    + " This is a security issue. ", endpointUrl);
         }
+        initSecurity(clientConfig, username, password);
         configureTimeouts(clientConfig, connectionTimeout, receiveTimeout);
         return clientImpl;
     }
@@ -243,6 +242,7 @@ public class SecureCxfClientFactory<T> {
                 tlsParams = new TLSClientParameters();
             }
             tlsParams.setDisableCNCheck(true);
+            httpConduit.setTlsClientParameters(tlsParams);
         }
     }
 

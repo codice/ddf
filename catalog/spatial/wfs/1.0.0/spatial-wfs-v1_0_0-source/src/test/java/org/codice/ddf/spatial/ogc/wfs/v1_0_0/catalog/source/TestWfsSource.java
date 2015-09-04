@@ -10,7 +10,7 @@
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- **/
+ */
 package org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.source;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -565,7 +565,8 @@ public class TestWfsSource {
      * Given 10 features (and metacards) exist that match search criteria, since page size=4 and
      * startIndex=1, should get 4 results back - metacards 1 thru 4.
      *
-     * @throws WfsException,                     SecurityServiceException
+     * @throws WfsException
+     * @throws SecurityServiceException
      * @throws TransformerConfigurationException
      * @throws UnsupportedQueryException
      */

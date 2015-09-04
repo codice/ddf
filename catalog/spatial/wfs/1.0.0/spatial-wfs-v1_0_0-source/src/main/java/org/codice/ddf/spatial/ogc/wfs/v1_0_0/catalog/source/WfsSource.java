@@ -310,8 +310,7 @@ public class WfsSource extends MaskableImpl
 
     private List<? extends Object> initProviders() {
         // We need to tell the JAXBElementProvider to marshal the GetFeatureType
-        // class as an element
-        // because it is are missing the @XmlRootElement Annotation
+        // class as an element because it is missing the @XmlRootElement Annotation
         JAXBElementProvider<GetFeatureType> provider = new JAXBElementProvider<GetFeatureType>();
         Map<String, String> jaxbClassMap = new HashMap<String, String>();
 
@@ -390,8 +389,7 @@ public class WfsSource extends MaskableImpl
 
     private WFSCapabilitiesType getCapabilities() throws SecurityServiceException {
         WFSCapabilitiesType capabilities = null;
-        Wfs wfs;
-        wfs = getClient();
+        Wfs wfs = getClient();
         try {
             capabilities = wfs.getCapabilities(new GetCapabilitiesRequest());
         } catch (WfsException wfse) {
@@ -442,8 +440,7 @@ public class WfsSource extends MaskableImpl
         // Use local Map for metacardtype registrations and once they are populated with latest
         // MetacardTypes, then do actual registration
         Map<String, MetacardTypeRegistration> mcTypeRegs = new HashMap<String, MetacardTypeRegistration>();
-        Wfs wfs = null;
-        wfs = getClient();
+        Wfs wfs = getClient();
 
         for (FeatureTypeType featureTypeType : featureTypes) {
             String ftName = featureTypeType.getName().getLocalPart();
@@ -572,7 +569,8 @@ public class WfsSource extends MaskableImpl
         try {
             wfs = getClient();
         } catch (SecurityServiceException sse) {
-            LOGGER.error("Could not get a client to connect to the endpointUrl.", sse);
+            throw new UnsupportedQueryException(
+                    "Could not get a client to connect to the endpointUrl.", sse);
         }
 
         Query query = request.getQuery();

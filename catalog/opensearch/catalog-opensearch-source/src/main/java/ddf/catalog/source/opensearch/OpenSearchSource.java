@@ -785,16 +785,6 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
         this.password = password;
     }
 
-    /**
-     * Creates a new DDF REST {@link org.apache.cxf.jaxrs.client.Client} based on an OpenSearch
-     * String URL.
-     *
-     * @param url              - OpenSearch URL
-     * @param query            - Query to be performed
-     * @param metacardId       - MetacardId to search for
-     * @param retrieveResource - true if this is a resource request
-     * @return {@link org.apache.cxf.jaxrs.client.Client}
-     */
     private WebClient newRestClient(String url, Query query, String metacardId,
             boolean retrieveResource, Subject subj) throws SecurityServiceException {
         if (query != null) {
@@ -817,13 +807,6 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
         return new SecureCxfClientFactory(url, OpenSearch.class);
     }
 
-    /**
-     * Generates a DDF REST URL from an OpenSearch URL
-     *
-     * @param query
-     * @param endpointUrl
-     * @return URL in String format
-     */
     private String createRestUrl(Query query, String endpointUrl, boolean retrieveResource) {
 
         String url = null;

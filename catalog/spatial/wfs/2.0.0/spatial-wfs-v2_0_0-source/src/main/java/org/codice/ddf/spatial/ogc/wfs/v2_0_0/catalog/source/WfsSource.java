@@ -383,8 +383,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
     private WFSCapabilitiesType getCapabilities() throws SecurityServiceException {
         WFSCapabilitiesType capabilities = null;
-        Wfs wfs = null;
-        wfs = getClient();
+        Wfs wfs = getClient();
 
         try {
             capabilities = wfs.getCapabilities(new GetCapabilitiesRequest());
@@ -436,13 +435,8 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
     }
 
     private void buildFeatureFilters(List<FeatureTypeType> featureTypes,
-            FilterCapabilities filterCapabilities) {
-        Wfs wfs = null;
-        try {
-            wfs = getClient();
-        } catch (SecurityServiceException sse) {
-            LOGGER.error("Could not get client to connect to the endpoint.", sse);
-        }
+            FilterCapabilities filterCapabilities) throws SecurityServiceException {
+        Wfs wfs = getClient();
         if (filterCapabilities == null) {
             return;
         }
