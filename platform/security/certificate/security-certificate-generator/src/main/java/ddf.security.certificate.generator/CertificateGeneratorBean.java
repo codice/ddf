@@ -14,12 +14,9 @@
 
 package ddf.security.certificate.generator;
 
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.UnknownHostException;
-import java.security.cert.CertificateException;
 import java.util.Hashtable;
 import java.util.Map;
 
@@ -28,25 +25,16 @@ public class CertificateGeneratorBean implements CertificateGeneratorInterface {
 
     private PkiTools pkiTools = new PkiTools();
 
-    public Map<String, byte[]> getCertificate() throws CertificateException {
+    public Map<String, byte[]> getCertificate(String commonnName) {
 
         Map<String, byte[]> table = new Hashtable<>();
         CertificateAuthority ca = new CertificateAuthority();
         CertificateSigningRequest csr = new CertificateSigningRequest();
-        DateTime notAfter = DateTime.now().plusYears(100);
-        csr.setNotAfter(notAfter);
-        csr.setCertificateAuthority(ca);
-        try {
-            csr.setCommonNameToHostname();
-        } catch (UnknownHostException e) {
-            csr.setCommonName("UNKNOWN HOST");
-            LOGGER.warn("Could not determine host name when creating X509 certificate");
-        }
-        csr.build();
-        table.put("endEntityCertificate", csr.getSignedCertificate().getEncoded());
-        table.put("endEntityPublicKey", pkiTools.keyToDer(csr.getPublicKey()));
-        table.put("endEntityPrivateKey", pkiTools.keyToDer(csr.getPrivateKey()));
-        table.put("rootCertificate", ca.getCertificate().getEncoded());
+
+//        table.put("endEntityCertificate", csr.getSignedCertificate().getEncoded());
+//        table.put("endEntityPublicKey", pkiTools.keyToDer(csr.getSubjectPublicKey()));
+//        table.put("endEntityPrivateKey", pkiTools.keyToDer(csr.getSubjectPrivateKey()));
+//        table.put("rootCertificate", ca.getCertificate().getEncoded());
         return table;
     }
 }

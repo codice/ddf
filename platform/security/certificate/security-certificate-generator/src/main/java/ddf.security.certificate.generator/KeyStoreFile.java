@@ -20,7 +20,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.security.*;
+import java.security.GeneralSecurityException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.PrivateKey;
 import java.security.cert.Certificate;
 import java.util.Collections;
 import java.util.List;
@@ -37,10 +40,6 @@ public class KeyStoreFile extends SecurityFileFacade {
     protected File file;
     private char[] password;
 
-    protected KeyStoreFile() {
-
-    }
-
     /**
      * Load instance of a keystore file from local storage and return a fully initialized instance of the class.
      * Use a factory method to allow for future possibility of creating an instance of the class that is not already
@@ -52,7 +51,7 @@ public class KeyStoreFile extends SecurityFileFacade {
      * @throws GeneralSecurityException
      * @throws IOException
      */
-        public static KeyStoreFile newInstance(String filePath, char[] password) throws IOException, GeneralSecurityException {
+    public static KeyStoreFile newInstance(String filePath, char[] password) throws IOException, GeneralSecurityException {
 
         KeyStoreFile facade = new KeyStoreFile();
         File file;
@@ -72,7 +71,7 @@ public class KeyStoreFile extends SecurityFileFacade {
         return facade;
     }
 
-    protected static KeyStore newKeyStore() throws KeyStoreException {
+    static KeyStore newKeyStore() throws KeyStoreException {
 
         String type = System.getProperty("javax.net.ssl.keyStoreType");
 
@@ -85,6 +84,22 @@ public class KeyStoreFile extends SecurityFileFacade {
     }
 
     /**
+     * Create an instance of private key entry class and add it to the keyStore.
+     * Oracle's Java documentation describes a private key entry:
+     * This type of entry holds a cryptographic PrivateKey, which is optionally stored in a protected format
+     * to prevent unauthorized access. It is also accompanied by a certificate chain for the corresponding
+     * public key.<p>
+     * NOTE: The private key will be encrypted with THE SAME PASSWORD THAT DECRYPTS THE KEYSTORE.
+     */
+    public void addEntry(String alias, PrivateKeyEntry pkEntry) {
+        try {
+            addEntry(alias, pkEntry.getSubjectPrivateKey(), pkEntry.getCertificateChain());
+        } catch (KeyStoreException e) {
+            throw new CertificateGeneratorException("Failed to store entry in keystore", e);
+        }
+    }
+
+    /**
      * Return the aliases of the items in the key store. Return null if there is an error.
      *
      * @return List of aliases in keystore or null
@@ -92,23 +107,6 @@ public class KeyStoreFile extends SecurityFileFacade {
     public List<String> aliases() throws KeyStoreException {
 
         return Collections.list(keyStore.aliases());
-    }
-
-    /**
-     * Create an instance of private key entry class and add it to the keyStore.
-     * Oracle's Java documentation describes a private key entry:
-     * This type of entry holds a cryptographic PrivateKey, which is optionally stored in a protected format
-     * to prevent unauthorized access. It is also accompanied by a certificate chain for the corresponding
-     * public key.<p>
-     * NOTE: The private key will be encrypted with THE SAME PASSWORD THAT DECRYPTS THE KEYSTORE.
-     *
-     * @param alias      of entry
-     * @param chain      list of certificates from the end entity to the anchor certificate
-     * @param privateKey of end entity
-     */
-    public void addEntry(String alias, PrivateKey privateKey, Certificate[] chain) throws KeyStoreException {
-
-        keyStore.setKeyEntry(alias, privateKey, password, chain);
     }
 
     /**
@@ -131,30 +129,21 @@ public class KeyStoreFile extends SecurityFileFacade {
     }
 
     /**
-     * Save the keyStore to the original file and encrypt it with the original password.
+     * Return the certificate chain at the given alias. Caller is responsible for verifying the alias is correct.
      *
-     * @throws GeneralSecurityException
-     * @throws IOException
+     * @param alias name of entry in keystore
+     * @return array of certificates
      */
-    public void save() throws GeneralSecurityException, IOException {
-
-        //Use the try-with-resources statement. If an exception is raised, rethrow the exception.
-        try (FileOutputStream fd = new FileOutputStream(file)) {
-            keyStore.store(fd, password);
-        }
-    }
-
-    /**
-     * Remove the key store entry at the given alias. If the alias does not exist, log that it does not exist.
-     *
-     * @param alias the name of the entry in the keystore
-     */
-    public void removeEntry(String alias) {
+    public Certificate[] getCertificateChain(String alias) {
+        Certificate[] chain = null;
         try {
-            keyStore.deleteEntry(alias);
+            chain = keyStore.getCertificateChain(alias);
+
         } catch (KeyStoreException e) {
-            LOGGER.info("Attempted to remove key named '{}' from keyStore. No such such key ", alias);
+            LOGGER.warn(String.format("Failed to recover certificate chain with alias '%s'", alias));
         }
+
+        return chain;
     }
 
     /**
@@ -177,20 +166,34 @@ public class KeyStoreFile extends SecurityFileFacade {
     }
 
     /**
-     * Return the certificate chain at the given alias. Caller is responsible for verifying the alias is correct.
+     * Remove the key store entry at the given alias. If the alias does not exist, log that it does not exist.
      *
-     * @param alias name of entry in keystore
-     * @return array of certificates
+     * @param alias the name of the entry in the keystore
      */
-    public Certificate[] getCertificateChain(String alias) {
-        Certificate[] chain = null;
+    public void removeEntry(String alias) {
         try {
-            chain = keyStore.getCertificateChain(alias);
-
+            keyStore.deleteEntry(alias);
         } catch (KeyStoreException e) {
-            LOGGER.warn(String.format("Failed to recover certificate chain with alias '%s'", alias));
+            LOGGER.info("Attempted to remove key named '{}' from keyStore. No such such key ", alias);
         }
+    }
 
-        return chain;
+    /**
+     * Save the keyStore to the original file and encrypt it with the original password.
+     *
+     * @throws GeneralSecurityException
+     * @throws IOException
+     */
+    public void save() throws GeneralSecurityException, IOException {
+
+        //Use the try-with-resources statement. If an exception is raised, rethrow the exception.
+        try (FileOutputStream fd = new FileOutputStream(file)) {
+            keyStore.store(fd, password);
+        }
+    }
+
+    void addEntry(String alias, PrivateKey privateKey, Certificate[] chain) throws KeyStoreException {
+
+        keyStore.setKeyEntry(alias, privateKey, password, chain);
     }
 }

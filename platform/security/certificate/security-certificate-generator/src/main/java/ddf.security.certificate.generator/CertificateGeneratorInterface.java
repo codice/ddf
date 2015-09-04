@@ -13,10 +13,9 @@
  */
 package ddf.security.certificate.generator;
 
-import java.security.cert.CertificateException;
 import java.util.Map;
 
 public interface CertificateGeneratorInterface {
 
-    public Map<String, byte[]> getCertificate() throws CertificateException;
+    public Map<String, byte[]> getCertificate(String commonName);
 }

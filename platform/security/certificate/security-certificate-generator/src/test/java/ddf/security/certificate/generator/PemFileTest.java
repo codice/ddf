@@ -29,8 +29,8 @@ public class PemFileTest {
         return getClass().getClassLoader().getResource(path).getPath();
     }
     // The basic file I/O is tested in TestKeyStoreFile.
-    // Test constructor. No test to ensure PEM objects are in the file. Would have to try and
-    // Read an object, test if it was null, and if it is not, reset the stream.
+    // Test constructor. No createAndAccess to ensure PEM objects are in the file. Would have to try and
+    // Read an object, createAndAccess if it was null, and if it is not, reset the stream.
 
 
     @Test
