@@ -34,6 +34,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 import ddf.catalog.CatalogFramework;
+import ddf.catalog.cache.SolrCacheMBean;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
@@ -45,14 +46,7 @@ import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
 
-/**
- * Tests the {@link RemoveAllCommand} output.
- *
- * @author Ashraf Barakat
- * @author ddf.isgs@lmco.com
- *
- */
-public class TestRemoveAllCommand {
+public class RemoveAllCommandTest {
 
     static final String DEFAULT_CONSOLE_COLOR = Ansi.ansi().reset().toString();
 
@@ -135,6 +129,33 @@ public class TestRemoveAllCommand {
         verify(catalogFramework, times(1)).delete(isA(DeleteRequest.class));
 
     }
+
+    /**
+     * Checks the forced (-f) generic case with (--cache) option
+     *
+     * @throws Exception
+     */
+    @Test
+    public  void  testdoExecuteWithCache() throws Exception {
+        final SolrCacheMBean mbean = mock(SolrCacheMBean.class);
+
+        RemoveAllCommand removeAllCommand = new RemoveAllCommand() {
+            @Override
+            protected SolrCacheMBean getCacheProxy() {
+                return mbean;
+            }
+        };
+
+        removeAllCommand.force = true;
+
+        removeAllCommand.cache = true;
+
+        removeAllCommand.doExecute();
+
+        verify(mbean, times(1)).removeAll();
+
+    }
+
 
     private java.util.List<Result> getResultList(int amount) {
 

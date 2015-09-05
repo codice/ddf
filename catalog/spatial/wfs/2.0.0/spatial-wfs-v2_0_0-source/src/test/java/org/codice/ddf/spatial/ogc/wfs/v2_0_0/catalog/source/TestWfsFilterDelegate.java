@@ -1633,7 +1633,225 @@ public class TestWfsFilterDelegate {
         // Test is after filter type
         assertThat(afterDelegate.isAfterFilter(afterFilter), is(true));
         assertThat(afterDelegate.isAfterFilter(beforeFilter), is(false));
-        assertThat(afterDelegate.isBeforeFilter(duringFilter), is(false));
+        assertThat(afterDelegate.isAfterFilter(duringFilter), is(false));
+    }
+
+    /**
+     * If the WFS server does not support an 'After' temporal query and supports a
+     * 'During' temporal query, the query should be translated into a 'During <date> to <now>'
+     *
+     */
+
+    @Test
+    public void testRelativeTemporalOnlyQueryAfterUnsupported() {
+
+        setupMockMetacardType();
+        FilterType afterFilter = setupAfterFilterType();
+
+        FilterCapabilities duringFilterCapabilities = setupFilterCapabilities();
+        WfsFilterDelegate duringDelegate = new WfsFilterDelegate(mockFeatureMetacardType,
+                duringFilterCapabilities, Wfs20Constants.EPSG_4326_URN, mockMapper,
+                WfsConstants.LAT_LON_ORDER);
+
+
+        List<FilterType> testFilters = new ArrayList<>();
+        testFilters.add(afterFilter);
+
+        List<FilterType> convertedFilters = duringDelegate
+                    .applyTemporalFallbacks(testFilters);
+        FilterType duringFilter = convertedFilters.get(0);
+
+
+        assertThat(duringFilter.getTemporalOps().getName().toString(),
+                is("{http://www.opengis.net/fes/2.0}During"));
+
+        BinaryTemporalOpType binaryTemporalOpType = (BinaryTemporalOpType) duringFilter
+                .getTemporalOps().getValue();
+        assertThat(binaryTemporalOpType.isSetValueReference(), is(true));
+        assertThat(binaryTemporalOpType.isSetExpression(), is(true));
+        TimePeriodType timePeriod = (TimePeriodType) binaryTemporalOpType.getExpression()
+                .getValue();
+
+        TimePositionType beginPositionType = timePeriod.getBeginPosition();
+        Date beginDate = timePositionTypeToDate(beginPositionType);
+        TimePositionType endPositionType = timePeriod.getEndPosition();
+        Date endDate = timePositionTypeToDate(endPositionType);
+        // Verify Date range is created correctly
+        assertThat(endDate.after(beginDate), is(true));
+
+    }
+
+    /**
+     * If the WFS server does support an 'After' temporal query and supports a
+     * 'During' temporal query, the query should remain an 'After' query
+     *
+     */
+
+    @Test
+    public void testRelativeTemporalOnlyQueryAfterSupported() {
+
+        setupMockMetacardType();
+        FilterType afterFilter = setupAfterFilterType();
+
+        assertThat(afterFilter.getTemporalOps().getName().toString(),
+                is("{http://www.opengis.net/fes/2.0}After"));
+
+        BinaryTemporalOpType binaryTemporalOpType = (BinaryTemporalOpType) afterFilter
+                .getTemporalOps().getValue();
+        assertThat(binaryTemporalOpType.isSetValueReference(), is(true));
+        assertThat(binaryTemporalOpType.isSetExpression(), is(true));
+        TimeInstantType timePeriod = (TimeInstantType) binaryTemporalOpType.getExpression()
+                .getValue();
+
+        TimePositionType beginPositionType = timePeriod.getTimePosition();
+        Date beginDate = timePositionTypeToDate(beginPositionType);
+        Date endDate = new Date();
+        // Verify Date range is created correctly
+        assertThat(endDate.after(beginDate), is(true));
+
+    }
+
+       /**
+     * If the WFS server does not support an 'After' and 'Before' temporal query,
+     *  and supports a 'During' temporal query, the query should be translated
+     *  into 'During <after> to <before>'
+     *
+     */
+    @Test
+    public void testAbsoluteTemporalOnlyQueryDuringSupported() {
+
+        setupMockMetacardType();
+        FilterType afterFilter = setupAfterFilterType();
+        FilterType beforeFilter = setupBeforeFilterType();
+
+        FilterCapabilities duringFilterCapabilities = setupFilterCapabilities();
+        WfsFilterDelegate duringDelegate = new WfsFilterDelegate(mockFeatureMetacardType,
+                duringFilterCapabilities, Wfs20Constants.EPSG_4326_URN, mockMapper,
+                WfsConstants.LAT_LON_ORDER);
+
+        // Get After Filter Date
+        BinaryTemporalOpType binaryTemporalOpType = (BinaryTemporalOpType) afterFilter
+                .getTemporalOps().getValue();
+        assertThat(binaryTemporalOpType.isSetValueReference(), is(true));
+        assertThat(binaryTemporalOpType.isSetExpression(), is(true));
+        TimeInstantType timePeriod = (TimeInstantType) binaryTemporalOpType.getExpression()
+                .getValue();
+        TimePositionType beginPositionType = timePeriod.getTimePosition();
+        Date afterDate = timePositionTypeToDate(beginPositionType);
+
+        // Get Before Filter Date
+        binaryTemporalOpType = (BinaryTemporalOpType) beforeFilter
+                .getTemporalOps().getValue();
+        assertThat(binaryTemporalOpType.isSetValueReference(), is(true));
+        assertThat(binaryTemporalOpType.isSetExpression(), is(true));
+        timePeriod = (TimeInstantType) binaryTemporalOpType.getExpression()
+                .getValue();
+        TimePositionType endPositionType = timePeriod.getTimePosition();
+        Date beforeDate = timePositionTypeToDate(endPositionType);
+
+
+        List<FilterType> testFilters = new ArrayList<>();
+        testFilters.add(afterFilter);
+        testFilters.add(beforeFilter);
+
+        List<FilterType> convertedFilters = duringDelegate
+                .applyTemporalFallbacks(testFilters);
+        FilterType duringFilter = convertedFilters.get(0);
+
+
+        assertThat(duringFilter.getTemporalOps().getName().toString(),
+                is("{http://www.opengis.net/fes/2.0}During"));
+
+        binaryTemporalOpType = (BinaryTemporalOpType) duringFilter
+                .getTemporalOps().getValue();
+        assertThat(binaryTemporalOpType.isSetValueReference(), is(true));
+        assertThat(binaryTemporalOpType.isSetExpression(), is(true));
+        TimePeriodType timePeriodType = (TimePeriodType) binaryTemporalOpType.getExpression()
+                .getValue();
+
+        beginPositionType = timePeriodType.getBeginPosition();
+        Date beginDate = timePositionTypeToDate(beginPositionType);
+        endPositionType = timePeriodType.getEndPosition();
+        Date endDate = timePositionTypeToDate(endPositionType);
+        // Verify Date range is created correctly
+        assertThat(endDate.after(beginDate), is(true));
+        assertThat(endDate.equals(beforeDate), is(true));
+        assertThat(beginDate.equals(afterDate), is(true));
+    }
+
+    /**
+     * If the WFS server does not support an 'After' and 'Before' temporal query,
+     *  and supports a 'During' temporal query, the query should be translated
+     *  into 'During <after> to <before>'
+     *
+     */
+    @Test
+    public void testAbsoluteTemporalOnlyQueryDuringUnSupported() {
+
+        setupMockMetacardType();
+        FilterType afterFilter = setupAfterFilterType();
+        FilterType beforeFilter = setupBeforeFilterType();
+        WfsFilterDelegate delegate = setupTemporalFilterDelegate();
+
+        // Get After Filter Date
+        BinaryTemporalOpType binaryTemporalOpType = (BinaryTemporalOpType) afterFilter
+                .getTemporalOps().getValue();
+        assertThat(binaryTemporalOpType.isSetValueReference(), is(true));
+        assertThat(binaryTemporalOpType.isSetExpression(), is(true));
+        TimeInstantType timePeriod = (TimeInstantType) binaryTemporalOpType.getExpression()
+                .getValue();
+        TimePositionType beginPositionType = timePeriod.getTimePosition();
+        Date afterDate = timePositionTypeToDate(beginPositionType);
+
+        // Get Before Filter Date
+        binaryTemporalOpType = (BinaryTemporalOpType) beforeFilter
+                .getTemporalOps().getValue();
+        assertThat(binaryTemporalOpType.isSetValueReference(), is(true));
+        assertThat(binaryTemporalOpType.isSetExpression(), is(true));
+        timePeriod = (TimeInstantType) binaryTemporalOpType.getExpression()
+                .getValue();
+        TimePositionType endPositionType = timePeriod.getTimePosition();
+        Date beforeDate = timePositionTypeToDate(endPositionType);
+
+        List<FilterType> testFilters = new ArrayList<>();
+        testFilters.add(afterFilter);
+        testFilters.add(beforeFilter);
+
+        List<FilterType> convertedFilters = delegate
+                .applyTemporalFallbacks(testFilters);
+        FilterType resultAfterFilter = convertedFilters.get(0);
+        FilterType resultBeforeFilter = convertedFilters.get(1);
+
+        assertThat(resultAfterFilter.getTemporalOps().getName().toString(),
+                is("{http://www.opengis.net/fes/2.0}After"));
+        assertThat(resultBeforeFilter.getTemporalOps().getName().toString(),
+                is("{http://www.opengis.net/fes/2.0}Before"));
+
+        // Get Resulting After Filter Date
+        binaryTemporalOpType = (BinaryTemporalOpType) resultAfterFilter
+                .getTemporalOps().getValue();
+        assertThat(binaryTemporalOpType.isSetValueReference(), is(true));
+        assertThat(binaryTemporalOpType.isSetExpression(), is(true));
+        TimeInstantType timePeriodType = (TimeInstantType) binaryTemporalOpType.getExpression()
+                .getValue();
+        beginPositionType = timePeriodType.getTimePosition();
+        Date beginDate = timePositionTypeToDate(beginPositionType);
+
+        // Get Resulting Before Filter Date
+        binaryTemporalOpType = (BinaryTemporalOpType) resultBeforeFilter
+                .getTemporalOps().getValue();
+        assertThat(binaryTemporalOpType.isSetValueReference(), is(true));
+        assertThat(binaryTemporalOpType.isSetExpression(), is(true));
+        timePeriodType = (TimeInstantType) binaryTemporalOpType.getExpression()
+                .getValue();
+        endPositionType = timePeriodType.getTimePosition();
+        Date endDate = timePositionTypeToDate(endPositionType);
+
+        // Verify Date range is created correctly
+        assertThat(endDate.after(beginDate), is(true));
+        assertThat(endDate.equals(beforeDate), is(true));
+        assertThat(beginDate.equals(afterDate), is(true));
+
     }
 
     private WfsFilterDelegate setupTemporalFilterDelegate() {

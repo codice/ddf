@@ -16,14 +16,12 @@ package ddf.catalog.test;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.xml.HasXPath.hasXPath;
 import static org.junit.Assert.fail;
 import static com.jayway.restassured.RestAssured.delete;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
-
-import static ddf.catalog.test.SecurityPolicyConfigurator.configureRestForAnonymous;
-import static ddf.catalog.test.SecurityPolicyConfigurator.configureRestForBasic;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -62,9 +60,6 @@ import ddf.common.test.BeforeExam;
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
 public class TestCatalog extends AbstractIntegrationTest {
-
-    private static final String CSW_ENDPOINT = SERVICE_ROOT + "/csw";
-
     private static final String METACARD_X_PATH = "/metacards/metacard[@id='%s']";
 
     public static void deleteMetacard(String id) {
@@ -149,15 +144,20 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     private Response ingestCswRecord() {
         return given().header("Content-Type", MediaType.APPLICATION_XML)
-                .body(Library.getCswIngest()).post(CSW_ENDPOINT);
+                .body(Library.getCswIngest()).post(CSW_PATH);
     }
 
-    private void deleteMetacard(Response response) throws IOException, XPathExpressionException {
+    private String getMetacardIdFromCswInsertResponse(Response response)
+            throws IOException, XPathExpressionException {
         XPath xPath = XPathFactory.newInstance().newXPath();
         String idPath = "//*[local-name()='identifier']/text()";
         InputSource xml = new InputSource(IOUtils.toInputStream(response.getBody().asString(),
                 StandardCharsets.UTF_8.name()));
-        String id = xPath.compile(idPath).evaluate(xml);
+        return xPath.compile(idPath).evaluate(xml);
+    }
+
+    private void deleteMetacard(Response response) throws IOException, XPathExpressionException {
+        String id = getMetacardIdFromCswInsertResponse(response);
         deleteMetacard(id);
     }
 
@@ -186,7 +186,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         ingestCswRecord();
 
         ValidatableResponse response = given().header("Content-Type", MediaType.APPLICATION_XML)
-                .body(Library.getCswFilterDelete()).post(CSW_ENDPOINT).then();
+                .body(Library.getCswFilterDelete()).post(CSW_PATH).then();
         response.body(hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("1")),
                 hasXPath("//TransactionResponse/TransactionSummary/totalInserted", is("0")),
                 hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("0")));
@@ -197,7 +197,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         ingestCswRecord();
 
         ValidatableResponse response = given().header("Content-Type", MediaType.APPLICATION_XML)
-                .body(Library.getCswCqlDelete()).post(CSW_ENDPOINT).then();
+                .body(Library.getCswCqlDelete()).post(CSW_PATH).then();
         response.body(hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("1")),
                 hasXPath("//TransactionResponse/TransactionSummary/totalInserted", is("0")),
                 hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("0")));
@@ -209,7 +209,7 @@ public class TestCatalog extends AbstractIntegrationTest {
 
         ValidatableResponse validatableResponse = given()
                 .header("Content-Type", MediaType.APPLICATION_XML)
-                .body(Library.getCswCqlDeleteNone()).post(CSW_ENDPOINT).then();
+                .body(Library.getCswCqlDeleteNone()).post(CSW_PATH).then();
         validatableResponse
                 .body(hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("0")),
                         hasXPath("//TransactionResponse/TransactionSummary/totalInserted", is("0")),
@@ -230,7 +230,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         // The record being inserted in this transaction request will be deleted at the end of the
         // test.
         Response response = given().header("Content-Type", MediaType.APPLICATION_XML)
-                .body(Library.getCombinedCswInsertAndDelete()).post(CSW_ENDPOINT);
+                .body(Library.getCombinedCswInsertAndDelete()).post(CSW_PATH);
         ValidatableResponse validatableResponse = response.then();
         validatableResponse
                 .body(hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("1")),
@@ -250,10 +250,203 @@ public class TestCatalog extends AbstractIntegrationTest {
         ingestCswRecord();
 
         ValidatableResponse response = given().header("Content-Type", MediaType.APPLICATION_XML)
-                .body(Library.getCswFilterDelete()).post(CSW_ENDPOINT).then();
+                .body(Library.getCswFilterDelete()).post(CSW_PATH).then();
         response.body(hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("2")),
                 hasXPath("//TransactionResponse/TransactionSummary/totalInserted", is("0")),
                 hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("0")));
+    }
+
+    @Test
+    public void testCswUpdateByNewRecord() {
+        Response response = ingestCswRecord();
+
+        String requestXml = Library.getCswUpdateByNewRecord();
+
+        String id;
+
+        try {
+            id = getMetacardIdFromCswInsertResponse(response);
+        } catch (IOException | XPathExpressionException e) {
+            fail("Could not retrieve the ingested record's ID from the response.");
+            return;
+        }
+
+        requestXml = requestXml.replace("identifier placeholder", id);
+
+        ValidatableResponse validatableResponse = given()
+                .header("Content-Type", MediaType.APPLICATION_XML).body(requestXml).post(CSW_PATH)
+                .then();
+        validatableResponse
+                .body(hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("0")),
+                        hasXPath("//TransactionResponse/TransactionSummary/totalInserted", is("0")),
+                        hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("1")));
+
+        String url = REST_PATH + id;
+        when().get(url).then().log().all().assertThat()
+                .body(hasXPath("//metacard/dateTime[@name='date']/value", startsWith("2015-08-10")),
+                        hasXPath("//metacard/string[@name='title']/value", is("Updated Title")),
+                        hasXPath("//metacard/string[@name='subject']/value", is("Updated Subject")),
+                        hasXPath("(//metacard/geometry[@name='location']/value/Polygon/exterior/LinearRing/pos)[1]",
+                                is("2.0 1.0")),
+                        hasXPath("(//metacard/geometry[@name='location']/value/Polygon/exterior/LinearRing/pos)[2]",
+                                is("4.0 1.0")),
+                        hasXPath("(//metacard/geometry[@name='location']/value/Polygon/exterior/LinearRing/pos)[3]",
+                                is("4.0 3.0")),
+                        hasXPath("(//metacard/geometry[@name='location']/value/Polygon/exterior/LinearRing/pos)[4]",
+                                is("2.0 3.0")),
+                        hasXPath("(//metacard/geometry[@name='location']/value/Polygon/exterior/LinearRing/pos)[5]",
+                                is("2.0 1.0")));
+
+        deleteMetacard(id);
+    }
+
+    @Test
+    public void testCswUpdateByNewRecordNoExistingMetacards() {
+        ValidatableResponse response = given().header("Content-Type", MediaType.APPLICATION_XML)
+                .body(Library.getCswUpdateByNewRecord()).post(CSW_PATH).then();
+        response.body(hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("0")),
+                hasXPath("//TransactionResponse/TransactionSummary/totalInserted", is("0")),
+                hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("0")));
+    }
+
+    @Test
+    public void testCswUpdateByNewRecordNoMetacardFound() {
+        Response response = ingestCswRecord();
+
+        ValidatableResponse validatableResponse = given()
+                .header("Content-Type", MediaType.APPLICATION_XML)
+                .body(Library.getCswUpdateByNewRecord()).post(CSW_PATH).then();
+        validatableResponse
+                .body(hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("0")),
+                        hasXPath("//TransactionResponse/TransactionSummary/totalInserted", is("0")),
+                        hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("0")));
+
+        try {
+            deleteMetacard(response);
+        } catch (IOException | XPathExpressionException e) {
+            fail("Could not retrieve the ingested record's ID from the response.");
+        }
+    }
+
+    @Test
+    public void testCswUpdateByFilterConstraint() {
+        Response firstResponse = ingestCswRecord();
+        Response secondResponse = ingestCswRecord();
+
+        ValidatableResponse validatableResponse = given()
+                .header("Content-Type", MediaType.APPLICATION_XML)
+                .body(Library.getCswUpdateByFilterConstraint()).post(CSW_PATH).then();
+        validatableResponse
+                .body(hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("0")),
+                        hasXPath("//TransactionResponse/TransactionSummary/totalInserted", is("0")),
+                        hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("2")));
+
+        String firstId;
+        String secondId;
+
+        try {
+            firstId = getMetacardIdFromCswInsertResponse(firstResponse);
+            secondId = getMetacardIdFromCswInsertResponse(secondResponse);
+        } catch (IOException | XPathExpressionException e) {
+            fail("Could not retrieve the ingested record's ID from the response.");
+            return;
+        }
+
+        String firstUrl = REST_PATH + firstId;
+        when().get(firstUrl).then().log().all().assertThat()
+                // Check that the updated attributes were changed.
+                .body(hasXPath("//metacard/dateTime[@name='date']/value", startsWith("2015-08-25")),
+                        hasXPath("//metacard/string[@name='title']/value", is("Updated Title")),
+                        hasXPath("//metacard/string[@name='format']/value", is("")),
+                        // Check that an attribute that was not updated was not changed.
+                        hasXPath("//metacard/string[@name='subject']/value",
+                                is("Hydrography--Dictionaries")));
+
+        String secondUrl = REST_PATH + secondId;
+        when().get(secondUrl).then().log().all().assertThat()
+                // Check that the updated attributes were changed.
+                .body(hasXPath("//metacard/dateTime[@name='date']/value", startsWith("2015-08-25")),
+                        hasXPath("//metacard/string[@name='title']/value", is("Updated Title")),
+                        hasXPath("//metacard/string[@name='format']/value", is("")),
+                        // Check that an attribute that was not updated was not changed.
+                        hasXPath("//metacard/string[@name='subject']/value",
+                                is("Hydrography--Dictionaries")));
+
+        deleteMetacard(firstId);
+        deleteMetacard(secondId);
+    }
+
+    @Test
+    public void testCswUpdateByFilterConstraintNoExistingMetacards() {
+        ValidatableResponse response = given().header("Content-Type", MediaType.APPLICATION_XML)
+                .body(Library.getCswUpdateByFilterConstraint()).post(CSW_PATH).then();
+        response.body(hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("0")),
+                hasXPath("//TransactionResponse/TransactionSummary/totalInserted", is("0")),
+                hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("0")));
+    }
+
+    @Test
+    public void testCswUpdateByFilterConstraintNoMetacardsFound() {
+        Response response = ingestCswRecord();
+
+        String updateRequest = Library.getCswUpdateByFilterConstraint();
+
+        // Change the <Filter> property being searched for so no results will be found.
+        updateRequest = updateRequest.replace("title", "subject");
+
+        ValidatableResponse validatableResponse = given()
+                .header("Content-Type", MediaType.APPLICATION_XML).body(updateRequest)
+                .post(CSW_PATH).then();
+        validatableResponse
+                .body(hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("0")),
+                        hasXPath("//TransactionResponse/TransactionSummary/totalInserted", is("0")),
+                        hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("0")));
+
+        try {
+            deleteMetacard(response);
+        } catch (IOException | XPathExpressionException e) {
+            fail("Could not retrieve the ingested record's ID from the response.");
+        }
+    }
+
+    @Test
+    public void testCswUpdateRemoveAttributesByCqlConstraint() {
+        Response response = ingestCswRecord();
+
+        String id;
+
+        try {
+            id = getMetacardIdFromCswInsertResponse(response);
+        } catch (IOException | XPathExpressionException e) {
+            fail("Could not retrieve the ingested record's ID from the response.");
+            return;
+        }
+
+        String url = REST_PATH + id;
+        when().get(url).then().log().all().assertThat()
+                // Check that the attributes about to be removed in the update are present.
+                .body(hasXPath("//metacard/dateTime[@name='date']"),
+                        hasXPath("//metacard/string[@name='title']"),
+                        hasXPath("//metacard/geometry[@name='location']"));
+
+        ValidatableResponse validatableResponse = given()
+                .header("Content-Type", MediaType.APPLICATION_XML)
+                .body(Library.getCswUpdateRemoveAttributesByCqlConstraint()).post(CSW_PATH).then();
+        validatableResponse
+                .body(hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("0")),
+                        hasXPath("//TransactionResponse/TransactionSummary/totalInserted", is("0")),
+                        hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("1")));
+
+        when().get(url).then().log().all().assertThat()
+                // Check that the updated attributes were removed.
+                .body(not(hasXPath("//metacard/dateTime[@name='date']")),
+                        not(hasXPath("//metacard/string[@name='title']")),
+                        not(hasXPath("//metacard/geometry[@name='location']")),
+                        // Check that an attribute that was not updated was not changed.
+                        hasXPath("//metacard/string[@name='subject']/value",
+                                is("Hydrography--Dictionaries")));
+
+        deleteMetacard(id);
     }
 
     @Test
@@ -285,12 +478,12 @@ public class TestCatalog extends AbstractIntegrationTest {
             response.body(not(hasXPath(xPath)));
 
             // Test filtering with point of contact
-            configureRestForBasic(getAdminConfig(), getServiceManager(), SERVICE_ROOT);
+            getSecurityPolicy().configureRestForBasic();
 
             response = executeAdminOpenSearch("xml", "q=*");
             response.body(hasXPath(xPath));
 
-            configureRestForAnonymous(getAdminConfig(), getServiceManager(), SERVICE_ROOT);
+            getSecurityPolicy().configureRestForAnonymous();
 
             stopFeature(true, "sample-filter");
             stopFeature(true, "filter-plugin");

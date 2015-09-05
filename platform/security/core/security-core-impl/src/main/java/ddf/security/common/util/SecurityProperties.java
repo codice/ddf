@@ -36,6 +36,8 @@ public class SecurityProperties extends HashMap<String, Serializable> {
      *
      * @param message
      *            Incoming CXF message that may contain a subject
+     *
+     * @deprecated use SecurityUtils.getSubject()
      */
     public SecurityProperties(Message message) {
         if (message != null) {
