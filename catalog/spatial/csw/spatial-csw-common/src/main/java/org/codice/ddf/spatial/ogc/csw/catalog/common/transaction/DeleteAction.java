@@ -44,8 +44,8 @@ public class DeleteAction extends CswAction {
      *                             declared in the transaction request XML
      */
     public DeleteAction(DeleteType deleteType, Map<String, String> prefixToUriMappings) {
-        typeName = StringUtils.defaultIfEmpty(deleteType.getTypeName(), CswConstants.CSW_RECORD);
-        handle = StringUtils.defaultIfEmpty(deleteType.getHandle(), "");
+        super(StringUtils.defaultIfEmpty(deleteType.getTypeName(), CswConstants.CSW_RECORD),
+                StringUtils.defaultIfEmpty(deleteType.getHandle(), ""));
         queryConstraintType = deleteType.getConstraint();
         this.prefixToUriMappings = prefixToUriMappings;
     }

@@ -32,6 +32,8 @@ public class CswTransactionRequest {
 
     private final List<DeleteAction> deleteActions = new ArrayList<>();
 
+    private final List<UpdateAction> updateActions = new ArrayList<>();
+
     public String getVersion() {
         return version;
     }
@@ -62,5 +64,9 @@ public class CswTransactionRequest {
 
     public List<DeleteAction> getDeleteActions() {
         return deleteActions;
+    }
+
+    public List<UpdateAction> getUpdateActions() {
+        return updateActions;
     }
 }

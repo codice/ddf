@@ -37,8 +37,7 @@ public class InsertAction extends CswAction {
      * @param records  the records to insert
      */
     public InsertAction(String typeName, String handle, List<Metacard> records) {
-        this.typeName = typeName;
-        this.handle = handle;
+        super(typeName, handle);
         this.records = records;
     }
 
