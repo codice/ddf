@@ -13,32 +13,18 @@
  */
 package org.codice.ddf.cxf;
 
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Type;
-import java.util.Arrays;
-import java.util.List;
 import java.util.UUID;
 
 import javax.ws.rs.GET;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.ext.MessageBodyReader;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
-import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.apache.cxf.message.Message;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.shiro.mgt.DefaultSecurityManager;
 import org.apache.shiro.session.mgt.SimpleSession;
@@ -49,67 +35,185 @@ import org.junit.Test;
 
 import ddf.security.Subject;
 import ddf.security.service.SecurityServiceException;
-import ddf.security.settings.SecuritySettingsService;
 
 public class SecureCxfClientFactoryTest {
 
-    private String insecureEndpoint = "http://some.url.com/query";
+    private static final String INSECURE_ENDPOINT = "http://some.url.com/query";
 
-    private String secureEndpoint = "https://some.url.com/query";
+    private static final String SECURE_ENDPOINT = "https://some.url.com/query";
+
+    private static final String USERNAME = "username";
+
+    private static final String PASSWORD = "password";
 
     @Test
-    public void testInsecure() throws SecurityServiceException {
-        // positive case
-        SecureCxfClientFactory<IDummy> secureCxfClientFactory = new SecureCxfClientFactory<>(
-                insecureEndpoint, IDummy.class);
-        Client unsecuredClient = WebClient.client(secureCxfClientFactory.getUnsecuredClient());
-        assertTrue(unsecuredClient.getBaseURI().toASCIIString().equals(insecureEndpoint));
-        // negative cases
-        boolean subject = false;
-        try {
-            secureCxfClientFactory.getClientForSubject(getSubject());
-        } catch (SecurityServiceException e) {
-            subject = true;
+    public void testConstructor() throws SecurityServiceException {
+        //negative tests
+        SecureCxfClientFactory<IDummy> secureCxfClientFactory;
+        boolean invalid = false;
+        try { //test empty string for url
+            secureCxfClientFactory = new SecureCxfClientFactory<>("", IDummy.class);
+        } catch (IllegalArgumentException e) {
+            invalid = true;
         }
-        assertTrue(subject);
-        boolean system = false;
-        try {
-            secureCxfClientFactory.getClientForBasicAuth(null, null);
-        } catch (SecurityServiceException e) {
-            system = true;
+        assertTrue(invalid);
+        invalid = false;
+        try { //null for url
+            secureCxfClientFactory = new SecureCxfClientFactory<>(null, IDummy.class);
+        } catch (IllegalArgumentException e) {
+            invalid = true;
         }
-        assertTrue(system);
+        assertTrue(invalid);
+        invalid = false;
+        try { //null for url and class
+            secureCxfClientFactory = new SecureCxfClientFactory<>(null, null);
+        } catch (IllegalArgumentException e) {
+            invalid = true;
+        }
+        assertTrue(invalid);
+        invalid = false;
+        try { //null for class
+            secureCxfClientFactory = new SecureCxfClientFactory<>(INSECURE_ENDPOINT, null);
+        } catch (IllegalArgumentException e) {
+            invalid = true;
+        }
+        assertTrue(invalid);
     }
 
     @Test
-    public void testSecure() throws SecurityServiceException {
-        // positive cases
-        MockWrapper<IDummy> mockWrapper = new MockWrapper<>(secureEndpoint, IDummy.class);
-        validateConfig(mockWrapper, null, null, false);
-        mockWrapper = new MockWrapper<>(secureEndpoint, IDummy.class);
-        validateConfig(mockWrapper, "foobar", "foobaz", false);
-        List<MockProvider> providers = Arrays.asList(new MockProvider());
-        mockWrapper = new MockWrapper<>(secureEndpoint, IDummy.class, providers, null, true);
-        validateConfig(mockWrapper, "bazfoo", "bazbar", true);
-        // negative case
-        boolean unsecured = false;
-        try {
-            mockWrapper.getUnsecuredClient();
+    public void testInsecureClient() throws SecurityServiceException {
+        // positive case
+        SecureCxfClientFactory<IDummy> secureCxfClientFactory = new SecureCxfClientFactory<>(
+                INSECURE_ENDPOINT, IDummy.class);
+        Client unsecuredClient = WebClient.client(secureCxfClientFactory.getUnsecuredClient());
+        assertTrue(unsecuredClient.getBaseURI().toASCIIString().equals(INSECURE_ENDPOINT));
+        // negative cases
+        boolean subject = true;
+        try { //can't get secure client from insecure endpoint
+            secureCxfClientFactory.getClientForSubject(getSubject());
         } catch (SecurityServiceException e) {
-            unsecured = true;
+            subject = false;
+        }
+        assertTrue(subject);
+        boolean system = true;
+        try { //can't get secure client from insecure endpoint
+            secureCxfClientFactory.getClientForBasicAuth(USERNAME, PASSWORD);
+        } catch (SecurityServiceException e) {
+            system = false;
+        }
+        assertTrue(system);
+        boolean unsecured = true;
+        try { //should be able to get an unsecured client
+            secureCxfClientFactory.getUnsecuredClient();
+        } catch (SecurityServiceException e) {
+            unsecured = false;
         }
         assertTrue(unsecured);
     }
 
-    private void validateConfig(MockWrapper<IDummy> factory, String username, String password,
-            boolean disableCnCheck) throws SecurityServiceException {
-        IDummy clientForSubject = factory.getClientForBasicAuth(username, password);
+    @Test
+    public void testInsecureWebClient() throws SecurityServiceException {
+        // positive case
+        SecureCxfClientFactory<IDummy> secureCxfClientFactory = new SecureCxfClientFactory<>(
+                INSECURE_ENDPOINT, IDummy.class);
+        Client unsecuredClient = WebClient.client(secureCxfClientFactory.getUnsecuredClient());
+        assertTrue(unsecuredClient.getBaseURI().toASCIIString().equals(INSECURE_ENDPOINT));
+        // negative cases
+        boolean subject = true;
+        try { //can't get secure client from insecure endpoint
+            secureCxfClientFactory.getWebClientForSubject(getSubject());
+        } catch (SecurityServiceException e) {
+            subject = false;
+        }
+        assertTrue(subject);
+        boolean system = true;
+        try { //can't get secure client from insecure endpoint
+            secureCxfClientFactory.getWebClientForBasicAuth(USERNAME, PASSWORD);
+        } catch (SecurityServiceException e) {
+            system = false;
+        }
+        assertTrue(system);
+        boolean unsecured = true;
+        try { //should be able to get an unsecured client
+            secureCxfClientFactory.getUnsecuredWebClient();
+        } catch (SecurityServiceException e) {
+            unsecured = false;
+        }
+        assertTrue(unsecured);
+    }
+
+    @Test
+    public void testHttpsClient() throws SecurityServiceException {
+        // positive case
+        SecureCxfClientFactory<IDummy> secureCxfClientFactory = new SecureCxfClientFactory<>(
+                SECURE_ENDPOINT, IDummy.class);
+        Client unsecuredClient = WebClient.client(secureCxfClientFactory.getUnsecuredClient());
+        assertTrue(unsecuredClient.getBaseURI().toASCIIString().equals(SECURE_ENDPOINT));
+        // negative cases
+        boolean subject = true;
+        try { //can't get secure client from insecure endpoint
+            secureCxfClientFactory.getClientForSubject(getSubject());
+        } catch (SecurityServiceException e) {
+            subject = false;
+        }
+        assertTrue(subject);
+        boolean system = true;
+        try { //can't get secure client from insecure endpoint
+            secureCxfClientFactory.getClientForBasicAuth(USERNAME, PASSWORD);
+        } catch (SecurityServiceException e) {
+            system = false;
+        }
+        assertTrue(system);
+        boolean unsecured = true;
+        try { //should be able to get an unsecured client
+            secureCxfClientFactory.getUnsecuredClient();
+        } catch (SecurityServiceException e) {
+            unsecured = false;
+        }
+        assertTrue(unsecured);
+    }
+
+    @Test
+    public void testHttpsWebClient() throws SecurityServiceException {
+        // positive case
+        SecureCxfClientFactory<IDummy> secureCxfClientFactory = new SecureCxfClientFactory<>(
+                SECURE_ENDPOINT, IDummy.class);
+        Client unsecuredClient = WebClient.client(secureCxfClientFactory.getUnsecuredClient());
+        assertTrue(unsecuredClient.getBaseURI().toASCIIString().equals(SECURE_ENDPOINT));
+        // negative cases
+        boolean subject = true;
+        try { //can't get secure client from insecure endpoint
+            secureCxfClientFactory.getWebClientForSubject(getSubject());
+        } catch (SecurityServiceException e) {
+            subject = false;
+        }
+        assertTrue(subject);
+        boolean system = true;
+        try { //can't get secure client from insecure endpoint
+            secureCxfClientFactory.getWebClientForBasicAuth(USERNAME, PASSWORD);
+        } catch (SecurityServiceException e) {
+            system = false;
+        }
+        assertTrue(system);
+        boolean unsecured = true;
+        try { //should be able to get an unsecured client
+            secureCxfClientFactory.getUnsecuredWebClient();
+        } catch (SecurityServiceException e) {
+            unsecured = false;
+        }
+        assertTrue(unsecured);
+    }
+
+    @Test
+    public void validateConduit() throws SecurityServiceException {
+        IDummy clientForSubject = new SecureCxfClientFactory<>(SECURE_ENDPOINT, IDummy.class, null,
+                null, true).getClientForBasicAuth(USERNAME, PASSWORD);
         HTTPConduit httpConduit = WebClient.getConfig(WebClient.client(clientForSubject))
                 .getHttpConduit();
         AuthorizationPolicy authorization = httpConduit.getAuthorization();
-        assertTrue(StringUtils.equals(authorization.getUserName(), (username)));
-        assertTrue(StringUtils.equals(authorization.getPassword(), (password)));
-        assertTrue(disableCnCheck == httpConduit.getTlsClientParameters().isDisableCNCheck());
+        assertThat(authorization.getUserName(), is(USERNAME));
+        assertThat(authorization.getPassword(), is(PASSWORD));
+        assertThat(httpConduit.getTlsClientParameters().isDisableCNCheck(), is(true));
     }
 
     private DummySubject getSubject() {
@@ -147,40 +251,6 @@ public class SecureCxfClientFactoryTest {
         public MockWrapper(String endpointUrl, Class<T> interfaceClass)
                 throws SecurityServiceException {
             super(endpointUrl, interfaceClass);
-        }
-
-        public MockWrapper(String endpointUrl, Class<T> interfaceClass, List providers,
-                Interceptor<? extends Message> interceptor, boolean disableCnCheck)
-                throws SecurityServiceException {
-            super(endpointUrl, interfaceClass, providers, interceptor, disableCnCheck);
-        }
-
-        @Override
-        <S> S getOsgiService(Class<S> clazz) throws SecurityServiceException {
-            if (clazz.getName().equals(SecuritySettingsService.class.getName())) {
-                SecuritySettingsService securitySettingsService = mock(
-                        SecuritySettingsService.class);
-                when(securitySettingsService.getTLSParameters())
-                        .thenReturn(new TLSClientParameters());
-                return (S) securitySettingsService;
-            }
-            return null;
-        }
-    }
-
-    private class MockProvider implements MessageBodyReader {
-
-        @Override
-        public boolean isReadable(Class type, Type genericType, Annotation[] annotations,
-                MediaType mediaType) {
-            return false;
-        }
-
-        @Override
-        public Object readFrom(Class type, Type genericType, Annotation[] annotations,
-                MediaType mediaType, MultivaluedMap httpHeaders, InputStream entityStream)
-                throws IOException, WebApplicationException {
-            return null;
         }
     }
 

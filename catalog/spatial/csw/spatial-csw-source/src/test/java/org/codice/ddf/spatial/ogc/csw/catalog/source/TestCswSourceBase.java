@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.source;
 
@@ -43,6 +42,7 @@ import javax.xml.namespace.QName;
 import org.apache.commons.collections.CollectionUtils;
 import org.codice.ddf.spatial.ogc.catalog.MetadataTransformer;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.Csw;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
@@ -93,7 +93,7 @@ public class TestCswSourceBase {
     /**
      * ISO 8601 date time format with milliseconds and colon between hours/minutes in time zone,
      * e.g., 2013-05-22T16:28:38.345-07:00
-     *
+     * <p/>
      * The ZZ gives the colon in the time zone.
      */
     protected static final String ISO_DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZZ";
@@ -106,7 +106,7 @@ public class TestCswSourceBase {
 
     protected final GeotoolsFilterBuilder builder = new GeotoolsFilterBuilder();
 
-    protected RemoteCsw mockCsw = mock(RemoteCsw.class);
+    protected Csw mockCsw = mock(Csw.class);
 
     protected BundleContext mockContext = mock(BundleContext.class);
 
@@ -219,16 +219,15 @@ public class TestCswSourceBase {
         return contentTypes;
     }
 
-    protected RemoteCsw createRemoteCsw() throws CswException {
-        RemoteCsw mockRemoteCsw = mock(RemoteCsw.class);
+    protected Csw createMockCsw() throws CswException {
+        Csw mockCsw = mock(Csw.class);
         InputStream stream = getClass().getResourceAsStream("/getCapabilities.xml");
         CapabilitiesType capabilities = parseXml(stream);
-        when(mockRemoteCsw.getCapabilities(any(GetCapabilitiesRequest.class)))
-                .thenReturn(capabilities);
+        when(mockCsw.getCapabilities(any(GetCapabilitiesRequest.class))).thenReturn(capabilities);
 
         CswRecordCollection collection = generateCswCollection("/getBriefRecordsResponse.xml");
-        when(mockRemoteCsw.getRecords(any(GetRecordsType.class))).thenReturn(collection);
-        return mockRemoteCsw;
+        when(mockCsw.getRecords(any(GetRecordsType.class))).thenReturn(collection);
+        return mockCsw;
     }
 
     protected CswRecordCollection generateCswCollection(String file) {
@@ -324,11 +323,11 @@ public class TestCswSourceBase {
 
     // //////////////////////////////////////////////////////////////////////////////////////////////////
 
-    protected void configureMockRemoteCsw() throws CswException {
-        configureMockRemoteCsw(0, 0L, CswConstants.VERSION_2_0_2);
+    protected void configureMockCsw() throws CswException {
+        configureMockCsw(0, 0L, CswConstants.VERSION_2_0_2);
     }
 
-    protected void configureMockRemoteCsw(int numRecordsReturned, long numRecordsMatched,
+    protected void configureMockCsw(int numRecordsReturned, long numRecordsMatched,
             String cswVersion) throws CswException {
 
         ServiceIdentification mockServiceIdentification = mock(ServiceIdentification.class);

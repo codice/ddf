@@ -151,6 +151,13 @@
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-rs-security-xml</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>ddf.platform.security</groupId>
+            <artifactId>security-rest-cxfwrapper</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-rs-security-sso-saml</artifactId>
@@ -194,7 +201,9 @@
                             rome,
                             rome-utils,
                             guava,
-                            jdom
+                            jdom,
+                            security-rest-cxfwrapper,
+                            ddf-security-common
                         </Embed-Dependency>
                         <Import-Package>
                             <!-- To avoid ClassNotFoundException for FOMFactory -->
@@ -217,8 +226,7 @@
                             ddf.catalog.source.opensearch,
                             ddf.catalog.data.impl,
                             ddf.catalog.operation.impl,
-                            ddf.catalog.util.impl,
-                            org.codice.ddf.security.common.jaxrs
+                            ddf.catalog.util.impl
                         </Private-Package>
                         <Export-Package/>
                     </instructions>

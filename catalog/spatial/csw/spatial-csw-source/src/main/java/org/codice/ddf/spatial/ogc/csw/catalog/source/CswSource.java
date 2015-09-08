@@ -47,17 +47,21 @@ import javax.xml.namespace.QName;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
+import org.codice.ddf.cxf.SecureCxfClientFactory;
 import org.codice.ddf.spatial.ogc.catalog.MetadataTransformer;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityCommand;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
 import org.codice.ddf.spatial.ogc.catalog.common.TrustedRemoteSource;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.Csw;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswJAXBElementProvider;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswTransformProvider;
+import org.codice.ddf.spatial.ogc.csw.catalog.source.reader.GetRecordsMessageBodyReader;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortOrder;
 import org.osgi.framework.BundleContext;
@@ -101,11 +105,12 @@ import ddf.catalog.util.impl.MaskableImpl;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.service.SecurityManager;
-import ddf.security.settings.SecuritySettingsService;
-import ddf.security.sts.client.configuration.STSClientConfiguration;
+import ddf.security.service.SecurityServiceException;
 import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
 import net.opengis.cat.csw.v_2_0_2.ElementSetNameType;
 import net.opengis.cat.csw.v_2_0_2.ElementSetType;
+import net.opengis.cat.csw.v_2_0_2.GetCapabilitiesType;
+import net.opengis.cat.csw.v_2_0_2.GetRecordsResponseType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.ObjectFactory;
 import net.opengis.cat.csw.v_2_0_2.QueryConstraintType;
@@ -209,8 +214,6 @@ public class CswSource extends MaskableImpl
 
     protected CswFilterDelegate cswFilterDelegate;
 
-    protected RemoteCsw remoteCsw;
-
     protected boolean contentTypeMappingUpdated;
 
     protected Converter cswTransformProvider;
@@ -218,8 +221,6 @@ public class CswSource extends MaskableImpl
     protected String forceSpatialFilter = NO_FORCE_SPATIAL_FILTER;
 
     protected ScheduledFuture<?> availabilityPollFuture;
-
-    protected SecuritySettingsService securitySettingsService;
 
     protected SecurityManager securityManager;
 
@@ -255,19 +256,29 @@ public class CswSource extends MaskableImpl
 
     private boolean isConstraintCql;
 
+    private SecureCxfClientFactory factory;
+
+    protected CswJAXBElementProvider<GetRecordsType> getRecordsTypeProvider;
+
+    protected List<String> jaxbElementClassNames = new ArrayList<String>();
+
+    protected Map<String, String> jaxbElementClassMap = new HashMap<String, String>();
+
     /**
      * Instantiates a CswSource. This constructor is for unit tests
      *
-     * @param remoteCsw The JAXRS connection to a {@link org.codice.ddf.spatial.ogc.csw.catalog.common.Csw}
-     * @param context   The {@link BundleContext} from the OSGi Framework
+     * @param context                The {@link BundleContext} from the OSGi Framework
+     * @param cswSourceConfiguration the configuration of this source
+     * @param provider               transform provider to transform results
+     * @param factory                client factory already configured for this source
      */
-    public CswSource(RemoteCsw remoteCsw, BundleContext context,
-            CswSourceConfiguration cswSourceConfiguration, CswTransformProvider provider) {
-        this.remoteCsw = remoteCsw;
+    public CswSource(BundleContext context, CswSourceConfiguration cswSourceConfiguration,
+            CswTransformProvider provider, SecureCxfClientFactory factory) {
         this.context = context;
         this.cswSourceConfiguration = cswSourceConfiguration;
         this.cswTransformProvider = provider;
         scheduler = Executors.newSingleThreadScheduledExecutor();
+        this.factory = factory;
     }
 
     /**
@@ -301,7 +312,11 @@ public class CswSource extends MaskableImpl
 
     public void init() {
         LOGGER.debug("{}: Entering init()", cswSourceConfiguration.getId());
-
+        factory = new SecureCxfClientFactory(cswSourceConfiguration.getCswUrl(), Csw.class,
+                initProviders(cswTransformProvider, cswSourceConfiguration), null,
+                cswSourceConfiguration.getDisableCnCheck(),
+                cswSourceConfiguration.getConnectionTimeout(),
+                cswSourceConfiguration.getReceiveTimeout());
         setupAvailabilityPoll();
     }
 
@@ -316,6 +331,50 @@ public class CswSource extends MaskableImpl
         scheduler.shutdownNow();
     }
 
+    protected List<? extends Object> initProviders(Converter cswTransformProvider,
+            CswSourceConfiguration cswSourceConfiguration) {
+        getRecordsTypeProvider = new CswJAXBElementProvider<GetRecordsType>();
+        getRecordsTypeProvider.setMarshallAsJaxbElement(true);
+
+        // Adding class names that need to be marshalled/unmarshalled to
+        // jaxbElementClassNames list
+        jaxbElementClassNames.add(GetRecordsType.class.getName());
+        jaxbElementClassNames.add(CapabilitiesType.class.getName());
+        jaxbElementClassNames.add(GetCapabilitiesType.class.getName());
+        jaxbElementClassNames.add(GetRecordsResponseType.class.getName());
+
+        getRecordsTypeProvider.setJaxbElementClassNames(jaxbElementClassNames);
+
+        // Adding map entry of <Class Name>,<Qualified Name> to
+        // jaxbElementClassMap
+        String expandedName = new QName(CswConstants.CSW_OUTPUT_SCHEMA, CswConstants.GET_RECORDS)
+                .toString();
+        LOGGER.debug("{} expanded name: {}", CswConstants.GET_RECORDS, expandedName);
+        jaxbElementClassMap.put(GetRecordsType.class.getName(), expandedName);
+
+        String getCapsExpandedName = new QName(CswConstants.CSW_OUTPUT_SCHEMA,
+                CswConstants.GET_CAPABILITIES).toString();
+        LOGGER.debug("{} expanded name: {}", CswConstants.GET_CAPABILITIES, expandedName);
+        jaxbElementClassMap.put(GetCapabilitiesType.class.getName(), getCapsExpandedName);
+
+        String capsExpandedName = new QName(CswConstants.CSW_OUTPUT_SCHEMA,
+                CswConstants.CAPABILITIES).toString();
+        LOGGER.debug("{} expanded name: {}", CswConstants.CAPABILITIES, capsExpandedName);
+        jaxbElementClassMap.put(CapabilitiesType.class.getName(), capsExpandedName);
+
+        String caps201ExpandedName = new QName("http://www.opengis.net/cat/csw",
+                CswConstants.CAPABILITIES).toString();
+        LOGGER.debug("{} expanded name: {}", CswConstants.CAPABILITIES, caps201ExpandedName);
+        jaxbElementClassMap.put(CapabilitiesType.class.getName(), caps201ExpandedName);
+
+        getRecordsTypeProvider.setJaxbElementClassMap(jaxbElementClassMap);
+
+        GetRecordsMessageBodyReader grmbr = new GetRecordsMessageBodyReader(cswTransformProvider,
+                cswSourceConfiguration);
+        return Arrays.asList(getRecordsTypeProvider, new CswResponseExceptionMapper(), grmbr);
+
+    }
+
     /**
      * Reinitializes the CswSource when there is a configuration change. Otherwise, it checks with
      * the server to see if any capabilities have changed.
@@ -323,7 +382,7 @@ public class CswSource extends MaskableImpl
      * @param configuration The configuration with which to connect to the server
      */
 
-    public void refresh(Map<String, Object> configuration) {
+    public void refresh(Map<String, Object> configuration) throws SecurityServiceException {
         LOGGER.debug("{}: Entering refresh()", cswSourceConfiguration.getId());
 
         if (configuration == null || configuration.isEmpty()) {
@@ -361,8 +420,6 @@ public class CswSource extends MaskableImpl
         if (newRecTimeout != null) {
             cswSourceConfiguration.setReceiveTimeout(newRecTimeout);
         }
-
-        updateTimeouts();
 
         String schemaProp = (String) configuration.get(OUTPUT_SCHEMA_PROPERTY);
         if (StringUtils.isNotBlank(schemaProp)) {
@@ -463,7 +520,6 @@ public class CswSource extends MaskableImpl
         LOGGER.debug("{}: Current content type mapping: {}.", cswSourceConfiguration.getId(),
                 currentContentTypeMapping);
 
-        connectToRemoteCsw();
         configureCswSource();
 
         Integer newPollInterval = (Integer) configuration.get(POLL_INTERVAL_PROPERTY);
@@ -507,35 +563,20 @@ public class CswSource extends MaskableImpl
 
     }
 
-    protected void connectToRemoteCsw() {
-        LOGGER.debug("Connecting to remote CSW Server " + cswSourceConfiguration.getCswUrl());
-
-        try {
-            remoteCsw = new RemoteCsw(cswTransformProvider, cswSourceConfiguration);
-            remoteCsw.setSecuritySettings(securitySettingsService);
-            remoteCsw.setSecurityManager(securityManager);
-            remoteCsw.setTlsParameters();
-            remoteCsw.setTimeouts(cswSourceConfiguration.getConnectionTimeout(),
-                    cswSourceConfiguration.getReceiveTimeout());
-        } catch (IllegalArgumentException iae) {
-            LOGGER.error("Unable to create RemoteCsw.", iae);
-            remoteCsw = null;
-        }
-    }
-
     public void setConnectionTimeout(Integer timeout) {
         this.cswSourceConfiguration.setConnectionTimeout(timeout);
+    }
+
+    public int getConnectionTimeout() {
+        return this.cswSourceConfiguration.getConnectionTimeout();
     }
 
     public void setReceiveTimeout(Integer timeout) {
         this.cswSourceConfiguration.setReceiveTimeout(timeout);
     }
 
-    public void updateTimeouts() {
-        if (remoteCsw != null) {
-            remoteCsw.setTimeouts(cswSourceConfiguration.getConnectionTimeout(),
-                    cswSourceConfiguration.getReceiveTimeout());
-        }
+    public int getReceiveTimeout() {
+        return this.cswSourceConfiguration.getReceiveTimeout();
     }
 
     public void setContext(BundleContext context) {
@@ -595,11 +636,19 @@ public class CswSource extends MaskableImpl
 
     @Override
     public SourceResponse query(QueryRequest queryRequest) throws UnsupportedQueryException {
-        return query(queryRequest, ElementSetType.FULL, null);
+        try {
+            Subject subject = (Subject) queryRequest
+                    .getPropertyValue(SecurityConstants.SECURITY_SUBJECT);
+            Csw csw = getClient(subject);
+            return query(queryRequest, ElementSetType.FULL, null, csw);
+        } catch (SecurityServiceException e) {
+            throw new UnsupportedQueryException("Could not get client for CSW Source: " + getId(),
+                    e);
+        }
     }
 
-    private SourceResponse query(QueryRequest queryRequest, ElementSetType elementSetName,
-            List<QName> elementNames) throws UnsupportedQueryException {
+    protected SourceResponse query(QueryRequest queryRequest, ElementSetType elementSetName,
+            List<QName> elementNames, Csw csw) throws UnsupportedQueryException {
 
         Query query = queryRequest.getQuery();
         LOGGER.debug("{}: Received query:\n{}", cswSourceConfiguration.getId(), query);
@@ -620,16 +669,7 @@ public class CswSource extends MaskableImpl
 
         try {
 
-            Subject subject = (Subject) queryRequest
-                    .getPropertyValue(SecurityConstants.SECURITY_SUBJECT);
-            if (subject != null) {
-                LOGGER.debug("Setting user credentials on outgoing CSW request.");
-                remoteCsw.setSubject(subject);
-            } else {
-                LOGGER.debug(
-                        "No user credentials found, sending CSW request with no user information.");
-            }
-            CswRecordCollection cswRecordCollection = this.remoteCsw.getRecords(getRecordsType);
+            CswRecordCollection cswRecordCollection = csw.getRecords(getRecordsType);
 
             if (cswRecordCollection == null) {
                 throw new UnsupportedQueryException("Invalid results returned from server");
@@ -734,6 +774,7 @@ public class CswSource extends MaskableImpl
     public ResourceResponse retrieveResource(URI resourceUri,
             Map<String, Serializable> requestProperties)
             throws IOException, ResourceNotFoundException, ResourceNotSupportedException {
+
         LOGGER.debug("retrieving resource at : {}", resourceUri);
         return resourceReader.retrieveResource(resourceUri, requestProperties);
     }
@@ -1055,34 +1096,16 @@ public class CswSource extends MaskableImpl
         return writer.toString();
     }
 
-    protected CapabilitiesType getCapabilities() {
+    protected CapabilitiesType getCapabilities() throws SecurityServiceException {
         CapabilitiesType caps = null;
+        Csw csw = getClient(null);
+
         try {
-            if (remoteCsw != null) {
-                LOGGER.debug("Doing getCapabilities() call for CSW");
-                GetCapabilitiesRequest request = new GetCapabilitiesRequest(CswConstants.CSW);
-                request.setAcceptVersions(
-                        CswConstants.VERSION_2_0_2 + "," + CswConstants.VERSION_2_0_1);
-
-                if (context != null) {
-                    LOGGER.debug("Checking if STSClientConfiguration is in OSGi registry");
-                    ServiceReference ref = context
-                            .getServiceReference(STSClientConfiguration.class.getName());
-
-                    if (ref != null) {
-                        STSClientConfiguration stsClientConfig = (STSClientConfiguration) context
-                                .getService(ref);
-                        if (stsClientConfig != null) {
-                            LOGGER.debug("stsClientConfig is not null - setting SAML assertion");
-                            remoteCsw.setSAMLAssertion(stsClientConfig);
-                        } else {
-                            LOGGER.debug("stsClientConfig = null, so no security configured");
-                        }
-                    }
-                }
-
-                caps = remoteCsw.getCapabilities(request);
-            }
+            LOGGER.debug("Doing getCapabilities() call for CSW");
+            GetCapabilitiesRequest request = new GetCapabilitiesRequest(CswConstants.CSW);
+            request.setAcceptVersions(
+                    CswConstants.VERSION_2_0_2 + "," + CswConstants.VERSION_2_0_1);
+            caps = csw.getCapabilities(request);
         } catch (CswException cswe) {
             LOGGER.error(CSW_SERVER_ERROR, cswe);
         } catch (WebApplicationException wae) {
@@ -1094,7 +1117,7 @@ public class CswSource extends MaskableImpl
         return caps;
     }
 
-    protected void configureCswSource() {
+    public void configureCswSource() throws SecurityServiceException {
         detailLevels = EnumSet.noneOf(ElementSetType.class);
 
         capabilities = getCapabilities();
@@ -1102,7 +1125,7 @@ public class CswSource extends MaskableImpl
         if (null != capabilities) {
             cswVersion = capabilities.getVersion();
             if (CswConstants.VERSION_2_0_1.equals(cswVersion)) {
-                remoteCsw.setCsw201();
+                setCsw201();
             }
             if (capabilities.getFilterCapabilities() == null) {
                 return;
@@ -1426,7 +1449,6 @@ public class CswSource extends MaskableImpl
             LOGGER.info("CSW source {} is available.", cswSourceConfiguration.getId());
         } else {
             LOGGER.info("CSW source {} is unavailable.", cswSourceConfiguration.getId());
-            this.remoteCsw = null;
         }
 
         for (SourceMonitor monitor : this.sourceMonitors) {
@@ -1492,10 +1514,6 @@ public class CswSource extends MaskableImpl
         this.availabilityTask = availabilityTask;
     }
 
-    public void setSecuritySettings(SecuritySettingsService securitySettings) {
-        this.securitySettingsService = securitySettings;
-    }
-
     public void setSecurityManager(SecurityManager securityManager) {
         this.securityManager = securityManager;
     }
@@ -1508,6 +1526,7 @@ public class CswSource extends MaskableImpl
     @Override
     public void setConfigurationPid(String configurationPid) {
         this.configurationPid = configurationPid;
+
     }
 
     /**
@@ -1524,23 +1543,55 @@ public class CswSource extends MaskableImpl
             LOGGER.debug("Checking availability for source {} ", cswSourceConfiguration.getId());
             boolean oldAvailability = CswSource.this.isAvailable();
             boolean newAvailability = false;
-            // If the Remote object is null attempt to initialize it and
-            // configure
-            // all the capabilities.
-            if (remoteCsw == null) {
-                connectToRemoteCsw();
-            }
-            // Simple "ping" to ensure the source is responding
-            newAvailability = (getCapabilities() != null);
-            if (oldAvailability != newAvailability) {
-                availabilityChanged(newAvailability);
-                // If the source becomes available, configure it.
-                if (newAvailability) {
-                    configureCswSource();
+            try {
+                // Simple "ping" to ensure the source is responding
+                newAvailability = (getCapabilities() != null);
+                if (oldAvailability != newAvailability) {
+                    availabilityChanged(newAvailability);
+                    // If the source becomes available, configure it.
+                    if (newAvailability) {
+                        configureCswSource();
+                    }
                 }
+            } catch (SecurityServiceException sse) {
+                LOGGER.error("Could not get client for the endpointURL.", sse);
             }
             return newAvailability;
         }
 
+    }
+
+    /**
+     * Creates a new client using Basic Auth or a Security Subject. If it cannot, it
+     * will instead create an unsecure client, if possible.
+     *
+     * @param subj - the Security Subject
+     * @return a new Csw client
+     * @throws SecurityServiceException
+     */
+    protected Csw getClient(Subject subj) throws SecurityServiceException {
+        Csw csw;
+        String username = cswSourceConfiguration.getUsername();
+        String password = cswSourceConfiguration.getPassword();
+        if (StringUtils.isNotEmpty(username) && StringUtils.isNotEmpty(password)) {
+            csw = (Csw) factory.getClientForBasicAuth(username, password);
+        } else if (subj != null) {
+            csw = (Csw) factory.getClientForSubject(subj);
+        } else {
+            csw = (Csw) factory.getUnsecuredClient();
+        }
+        return csw;
+    }
+
+    /**
+     * Set the version to CSW 2.0.1. The schemas don't vary much between 2.0.2 and 2.0.1. The
+     * largest difference is the namespace itself. This method tells CXF JAX-RS to transform
+     * outgoing messages CSW namespaces to 2.0.1.
+     */
+    public void setCsw201() {
+        Map<String, String> outTransformElements = new HashMap<String, String>();
+        outTransformElements.put("{" + CswConstants.CSW_OUTPUT_SCHEMA + "}*",
+                "{http://www.opengis.net/cat/csw}*");
+        getRecordsTypeProvider.setOutTransformElements(outTransformElements);
     }
 }

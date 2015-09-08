@@ -13,15 +13,6 @@
  */
 package org.codice.ddf.cxf;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -35,21 +26,13 @@ import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.transport.http.HTTPConduit;
+import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.apache.shiro.subject.Subject;
-import org.apache.ws.security.WSSecurityException;
-import org.apache.ws.security.components.crypto.CredentialException;
-import org.apache.ws.security.components.crypto.Merlin;
-import org.codice.ddf.security.common.PropertiesLoader;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
-import org.codice.ddf.security.handler.api.PKIAuthenticationToken;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.security.service.SecurityServiceException;
-import ddf.security.settings.SecuritySettingsService;
 
 public class SecureCxfClientFactory<T> {
 
@@ -61,11 +44,18 @@ public class SecureCxfClientFactory<T> {
 
     private final Class<T> interfaceClass;
 
+    private static final Integer DEFAULT_CONNECTION_TIMEOUT = 30000;
+
+    private static final Integer DEFAULT_RECEIVE_TIMEOUT = 60000;
+
+    private Integer connectionTimeout;
+
+    private Integer receiveTimeout;
+
     /**
      * @see #SecureCxfClientFactory(String, Class, java.util.List, Interceptor, boolean)
      */
-    public SecureCxfClientFactory(String endpointUrl, Class<T> interfaceClass)
-            throws SecurityServiceException {
+    public SecureCxfClientFactory(String endpointUrl, Class<T> interfaceClass) {
         this(endpointUrl, interfaceClass, null, null, false);
     }
 
@@ -82,8 +72,7 @@ public class SecureCxfClientFactory<T> {
      * @param disableCnCheck disable ssl check for common name / host name match
      */
     public SecureCxfClientFactory(String endpointUrl, Class<T> interfaceClass, List<?> providers,
-            Interceptor<? extends Message> interceptor, boolean disableCnCheck)
-            throws SecurityServiceException {
+            Interceptor<? extends Message> interceptor, boolean disableCnCheck) {
         if (StringUtils.isEmpty(endpointUrl) || interfaceClass == null) {
             throw new IllegalArgumentException(
                     "Called without a valid URL, will not be able to connect.");
@@ -111,6 +100,31 @@ public class SecureCxfClientFactory<T> {
     }
 
     /**
+     * Constructs a factory that will return security-aware cxf clients. Once constructed,
+     * use the getClient* methods to retrieve a fresh client  with the same configuration.
+     * <p/>
+     * This factory can and should be cached. The clients it constructs should not be.
+     *
+     * @param endpointUrl       the remote url to connect to
+     * @param interfaceClass    an interface representing the resource at the remote url
+     * @param providers         optional list of providers to further configure the client
+     * @param interceptor       optional message interceptor for the client
+     * @param disableCnCheck    disable ssl check for common name / host name match
+     * @param connectionTimeout timeout for the connection
+     * @param receiveTimeout    timeout for receiving responses
+     */
+    public SecureCxfClientFactory(String endpointUrl, Class<T> interfaceClass, List<?> providers,
+            Interceptor<? extends Message> interceptor, boolean disableCnCheck,
+            Integer connectionTimeout, Integer receiveTimeout) {
+
+        this(endpointUrl, interfaceClass, providers, interceptor, disableCnCheck);
+
+        this.connectionTimeout = connectionTimeout;
+
+        this.receiveTimeout = receiveTimeout;
+    }
+
+    /**
      * Clients produced by this method will be secured with two-way ssl
      * and the provided security subject.
      * <p/>
@@ -120,17 +134,16 @@ public class SecureCxfClientFactory<T> {
      */
     public T getClientForSubject(Subject subject) throws SecurityServiceException {
         String asciiString = clientFactory.getAddress();
-        if (!StringUtils.startsWithIgnoreCase(asciiString, "https")) {
-            throw new SecurityServiceException("Cannot secure non-https connection " + asciiString);
-        }
 
         T newClient = getNewClient(null, null);
 
-        if (subject instanceof ddf.security.Subject) {
-            RestSecurity.setSubjectOnClient((ddf.security.Subject) subject,
-                    WebClient.client(newClient));
-        } else {
-            throw new SecurityServiceException("Not a ddf subject " + subject);
+        if (StringUtils.startsWithIgnoreCase(asciiString, "https")) {
+            if (subject instanceof ddf.security.Subject) {
+                RestSecurity.setSubjectOnClient((ddf.security.Subject) subject,
+                        WebClient.client(newClient));
+            } else {
+                throw new SecurityServiceException("Not a ddf subject " + subject);
+            }
         }
 
         return newClient;
@@ -142,7 +155,7 @@ public class SecureCxfClientFactory<T> {
      * @see #getClientForSubject(Subject subject)
      */
     public WebClient getWebClientForSubject(Subject subject) throws SecurityServiceException {
-        return WebClient.fromClient(WebClient.client(getClientForSubject(subject)));
+        return WebClient.fromClientObject(getClientForSubject(subject));
     }
 
     /**
@@ -155,11 +168,6 @@ public class SecureCxfClientFactory<T> {
      */
     public T getClientForBasicAuth(String username, String password)
             throws SecurityServiceException {
-        String asciiString = clientFactory.getAddress();
-        if (!StringUtils.startsWithIgnoreCase(asciiString, "https")) {
-            throw new SecurityServiceException("Cannot secure non-https connection " + asciiString);
-        }
-
         return getNewClient(username, password);
     }
 
@@ -170,59 +178,7 @@ public class SecureCxfClientFactory<T> {
      */
     public WebClient getWebClientForBasicAuth(String username, String password)
             throws SecurityServiceException {
-        return WebClient.fromClient(WebClient.client(getClientForBasicAuth(username, password)));
-    }
-
-    /**
-     * Clients produced by this method will be secured with basic authentication
-     * (if a username and password were provided), two-way ssl,
-     * and the system security token (x509 cert).
-     * <p/>
-     * The system security token does expire, so the returned client should not
-     * be cached. Acquire a new client instead by calling this method again.
-     */
-    private T getClientForSystem() throws SecurityServiceException {
-        String asciiString = clientFactory.getAddress();
-        if (!StringUtils.startsWithIgnoreCase(asciiString, "https")) {
-            throw new SecurityServiceException("Cannot secure non-https connection " + asciiString);
-        }
-        // In order to get the system x509 user subject, we need to:
-        // A. Load the keystore from the filesystem.
-        // B. Figure out which private key to use, normally there's only one.
-        // C. Use Merlin to convert the private cert chain to bytes.
-        // D. Construct a pki token and request a subject for it.
-        try (FileInputStream storeStream = new FileInputStream(
-                System.getProperty("javax.net.ssl.keyStore"))) {
-            KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-            keyStore.load(storeStream,
-                    System.getProperty("javax.net.ssl.keyStorePassword").toCharArray());
-            Merlin merlin = new Merlin(
-                    PropertiesLoader.loadProperties("etc/ws-security/server/signature.properties"));
-            // Assuming there is exactly one private key in the keystore...
-            // TODO: what if there are multiple keys?
-            Certificate[] certificateChain = keyStore
-                    .getCertificateChain(keyStore.aliases().nextElement());
-            X509Certificate[] x509Certificates = Arrays
-                    .copyOf(certificateChain, certificateChain.length, X509Certificate[].class);
-            PKIAuthenticationToken pkiAuthenticationToken = new PKIAuthenticationToken(
-                    x509Certificates[0].getSubjectDN(),
-                    merlin.getBytesFromCertificates(x509Certificates),
-                    PKIAuthenticationToken.DEFAULT_REALM);
-            ddf.security.Subject subject = getSecurityManager().getSubject(pkiAuthenticationToken);
-            return getClientForSubject(subject);
-        } catch (CertificateException | IOException
-                | NoSuchAlgorithmException | KeyStoreException | WSSecurityException | CredentialException e) {
-            throw new SecurityServiceException(e);
-        }
-    }
-
-    /**
-     * Convenience method to get a {@link WebClient} instead of a {@link org.apache.cxf.jaxrs.client.ClientProxyImpl ClientProxyImpl}.
-     *
-     * @see #getClientForSystem()
-     */
-    private WebClient getWebClientForSystem() throws SecurityServiceException {
-        return WebClient.fromClient(WebClient.client(getClientForSystem()));
+        return WebClient.fromClientObject(getClientForBasicAuth(username, password));
     }
 
     /**
@@ -231,11 +187,6 @@ public class SecureCxfClientFactory<T> {
      * Since there is no security information to expire, this client may be reused.
      */
     public T getUnsecuredClient() throws SecurityServiceException {
-        String asciiString = clientFactory.getAddress();
-        if (StringUtils.startsWithIgnoreCase(asciiString, "https")) {
-            throw new SecurityServiceException(
-                    "Cannot connect insecurely to https url " + asciiString);
-        }
         return getNewClient(null, null);
     }
 
@@ -245,7 +196,7 @@ public class SecureCxfClientFactory<T> {
      * @see #getUnsecuredClient()
      */
     public WebClient getUnsecuredWebClient() throws SecurityServiceException {
-        return WebClient.fromClient(WebClient.client(getUnsecuredClient()));
+        return WebClient.fromClientObject(getUnsecuredClient());
     }
 
     private T getNewClient(String username, String password) throws SecurityServiceException {
@@ -258,37 +209,12 @@ public class SecureCxfClientFactory<T> {
 
         String endpointUrl = clientFactory.getAddress();
         if (!StringUtils.startsWithIgnoreCase(endpointUrl, "https")) {
-            LOGGER.warn("Cannot secure non-https connection " + endpointUrl
-                    + ", only unsecured clients will be created");
-        } else {
-            initSecurity(clientConfig, username, password);
+            LOGGER.warn("CAUTION: Passing username & password on an un-encrypted protocol [{}]."
+                    + " This is a security issue. ", endpointUrl);
         }
+        initSecurity(clientConfig, username, password);
+        configureTimeouts(clientConfig, connectionTimeout, receiveTimeout);
         return clientImpl;
-    }
-
-    private SecuritySettingsService getSecuritySettingsService() throws SecurityServiceException {
-        return getOsgiService(SecuritySettingsService.class);
-    }
-
-    private SecurityManager getSecurityManager() throws SecurityServiceException {
-        return getOsgiService(SecurityManager.class);
-    }
-
-    /*
-     * package-private so unit tests can override
-     */
-    <S> S getOsgiService(Class<S> clazz) throws SecurityServiceException {
-        BundleContext bundleContext = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
-        if (bundleContext != null) {
-            ServiceReference<S> serviceReference = bundleContext.getServiceReference(clazz);
-            if (serviceReference != null) {
-                S service = bundleContext.getService(serviceReference);
-                if (service != null) {
-                    return service;
-                }
-            }
-        }
-        throw new SecurityServiceException("Could not get " + clazz);
     }
 
     /*
@@ -310,11 +236,62 @@ public class SecureCxfClientFactory<T> {
             }
         }
 
-        TLSClientParameters tlsParams = getSecuritySettingsService().getTLSParameters();
         if (disableCnCheck) {
+            TLSClientParameters tlsParams = httpConduit.getTlsClientParameters();
+            if (tlsParams == null) {
+                tlsParams = new TLSClientParameters();
+            }
             tlsParams.setDisableCNCheck(true);
+            httpConduit.setTlsClientParameters(tlsParams);
         }
-        httpConduit.setTlsClientParameters(tlsParams);
+    }
+
+    /**
+     * Configures the connection and receive timeouts. If any of the parameters are null, the timeouts
+     * will be set to the system default.
+     *
+     * @param clientConfiguration Client configuration used for outgoing requests.
+     * @param connectionTimeout   Connection timeout in milliseconds.
+     * @param receiveTimeout      Receive timeout in milliseconds.
+     */
+    protected void configureTimeouts(ClientConfiguration clientConfiguration,
+            Integer connectionTimeout, Integer receiveTimeout) {
+
+        HTTPConduit httpConduit = clientConfiguration.getHttpConduit();
+        if (httpConduit == null) {
+            LOGGER.info("HTTPConduit was null for {}. Unable to configure timeouts", this);
+            return;
+        }
+        HTTPClientPolicy httpClientPolicy = httpConduit.getClient();
+
+        if (httpClientPolicy == null) {
+            httpClientPolicy = new HTTPClientPolicy();
+        }
+
+        if (connectionTimeout != null) {
+            httpClientPolicy.setConnectionTimeout(connectionTimeout);
+        } else {
+            httpClientPolicy.setConnectionTimeout(DEFAULT_CONNECTION_TIMEOUT);
+        }
+
+        if (receiveTimeout != null) {
+            httpClientPolicy.setReceiveTimeout(receiveTimeout);
+        } else {
+            httpClientPolicy.setReceiveTimeout(DEFAULT_RECEIVE_TIMEOUT);
+        }
+
+        if (httpClientPolicy.isSetConnectionTimeout()) {
+            LOGGER.debug("Connection timeout has been set.");
+        } else {
+            LOGGER.error("Connection timeout has NOT been set.");
+        }
+        if (httpClientPolicy.isSetReceiveTimeout()) {
+            LOGGER.debug("Receive timeout has been set.");
+        } else {
+            LOGGER.error("Receive timeout has NOT been set.");
+        }
+
+        httpConduit.setClient(httpClientPolicy);
     }
 
 }

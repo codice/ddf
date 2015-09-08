@@ -73,6 +73,11 @@
         </dependency>
 
         <dependency>
+            <groupId>ddf.platform.security</groupId>
+            <artifactId>security-rest-cxfwrapper</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>filter-proxy</artifactId>
             <scope>test</scope>
@@ -113,6 +118,10 @@
             <artifactId>guava</artifactId>
             <version>17.0</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.security</groupId>
+            <artifactId>ddf-security-common</artifactId>
+        </dependency>
 
     </dependencies>
     <build>
@@ -140,7 +149,9 @@
                             spatial-wfs-converter;scope=compile|runtime,
                             spatial-wfs-v1_0_0-converter;scope=compile|runtime,
                             catalog-core-api-impl,
-                            guava
+                            guava,
+                            security-rest-cxfwrapper,
+                            ddf-security-common
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                     </instructions>

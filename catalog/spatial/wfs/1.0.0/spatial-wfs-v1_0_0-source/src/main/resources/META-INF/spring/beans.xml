@@ -30,8 +30,6 @@
           interface="org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.converter.FeatureConverterFactory"
           cardinality="0..N"/>
 
-    <reference id="securitySettings" interface="ddf.security.settings.SecuritySettingsService"/>
-
     <osgix:managed-service-factory
             id="org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.source.WfsFederatedSource.id"
             factory-pid="Wfs_v1_0_0_Federated_Source"
@@ -59,7 +57,6 @@
             <beans:property name="forceSpatialFilter" value=""/>
             <beans:property name="connectionTimeout" value=""/>
             <beans:property name="receiveTimeout" value=""/>
-            <beans:property name="securitySettings" ref="securitySettings"/>
         </beans:bean>
     </osgix:managed-service-factory>
 
@@ -90,7 +87,6 @@
             <beans:property name="forceSpatialFilter" value=""/>
             <beans:property name="connectionTimeout" value=""/>
             <beans:property name="receiveTimeout" value=""/>
-            <beans:property name="securitySettings" ref="securitySettings"/>
         </beans:bean>
     </osgix:managed-service-factory>
 </beans:beans>

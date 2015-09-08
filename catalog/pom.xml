@@ -116,6 +116,16 @@
                 <scope>import</scope>
             </dependency>
             <dependency>
+                <groupId>ddf.platform.security</groupId>
+                <artifactId>security-rest-cxfwrapper</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ddf.platform</groupId>
+                <artifactId>security</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>xml-apis</groupId>
                 <artifactId>xml-apis</artifactId>
                 <version>1.4.01</version>
