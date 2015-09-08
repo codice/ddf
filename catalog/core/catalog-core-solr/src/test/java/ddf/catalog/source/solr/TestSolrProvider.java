@@ -1314,10 +1314,11 @@ public class TestSolrProvider extends SolrProviderTestCase {
         }
 
         DeleteResponse deleteResponse = delete(ids.toArray(new String[metacardCount]));
-        assertThat(deleteResponse.getDeletedMetacards().size(), is(metacards.size()));
+        List<Metacard> deletedMetacards = deleteResponse.getDeletedMetacards();
+        assertThat(deletedMetacards.size(), is(metacards.size()));
 
         for (int i = 0; i < metacardCount; i++) {
-            assertThat(deleteResponse.getDeletedMetacards().get(i).getId(), is(ids.get(i)));
+            assertThat(ids.contains(deletedMetacards.get(i).getId()), is(true));
         }
     }
 
