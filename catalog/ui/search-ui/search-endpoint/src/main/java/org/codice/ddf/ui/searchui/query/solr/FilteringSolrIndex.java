@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.ui.searchui.query.solr;
 
 import static org.codice.solr.factory.SolrServerFactory.DEFAULT_SCHEMA_XML;
@@ -28,13 +27,14 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
-import org.apache.solr.core.CoreContainer;
 import org.apache.solr.core.CoreDescriptor;
 import org.apache.solr.core.SolrConfig;
 import org.apache.solr.core.SolrCore;
+import org.apache.solr.core.SolrResourceLoader;
 import org.apache.solr.schema.IndexSchema;
 import org.codice.solr.factory.ConfigurationFileProxy;
 import org.codice.solr.factory.ConfigurationStore;
+import org.codice.solr.factory.SolrCoreContainer;
 import org.codice.solr.factory.SolrServerFactory;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -75,8 +75,7 @@ public class FilteringSolrIndex {
 
         SolrFilterDelegateFactory solrFilterDelegateFactory = new SolrFilterDelegateFactoryImpl();
 
-        return new SolrCatalogProvider(
-                createSolrServer(queryId, configurationFileProxy),
+        return new SolrCatalogProvider(createSolrServer(queryId, configurationFileProxy),
                 filterAdapter, solrFilterDelegateFactory,
                 new FilteringDynamicSchemaResolver(filterAdapter, solrFilterDelegateFactory,
                         request));
@@ -102,9 +101,8 @@ public class FilteringSolrIndex {
                 indexSchema = new IndexSchema(solrConfig, DEFAULT_SCHEMA_XML,
                         new InputSource(FileUtils.openInputStream(schemaFile)));
             }
-
-            CoreContainer container = CoreContainer
-                    .createAndLoad(solrConfigHome.getAbsolutePath(), solrFile);
+            SolrResourceLoader loader = new SolrResourceLoader(solrConfigHome.getAbsolutePath());
+            SolrCoreContainer container = new SolrCoreContainer(loader, solrFile);
 
             CoreDescriptor coreDescriptor = new CoreDescriptor(container, coreName,
                     solrConfig.getResourceLoader().getInstanceDir());
@@ -147,5 +145,4 @@ public class FilteringSolrIndex {
 
         return metacards;
     }
-
 }
