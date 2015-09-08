@@ -250,7 +250,13 @@ define([
                     };
                 }
             });
-            this.modelBinder.bind(this.model.get('properties'), this.$el, bindings);
+
+            var propertyModel = this.model.get('properties');
+            this.modelBinder.bind(propertyModel, this.el, bindings);
+            if(propertyModel.get("coordinateOrder") === null) {
+                propertyModel.set("coordinateOrder","LAT_LON");
+            }
+
         },
         /**
          * Submit to the backend.
