@@ -58,10 +58,10 @@ define([
                 //ensure that the values are numeric
                 //so that the openlayer projections
                 //do not fail
-                var north  = parseInt(model.get('north'));
-                var south = parseInt(model.get('south'));
-                var east = parseInt(model.get('east'));
-                var west = parseInt(model.get('west'));
+                var north  = parseFloat(model.get('north'));
+                var south = parseFloat(model.get('south'));
+                var east = parseFloat(model.get('east'));
+                var west = parseFloat(model.get('west'));
 
                 var northWest = ol.proj.transform([west,north], 'EPSG:4326', properties.projection);
                 var northEast = ol.proj.transform([east,north], 'EPSG:4326', properties.projection);
