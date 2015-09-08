@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -26,11 +26,12 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest.METHOD;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.core.CoreContainer;
 import org.apache.solr.core.CoreDescriptor;
 import org.apache.solr.core.SolrConfig;
 import org.apache.solr.core.SolrCore;
+import org.apache.solr.core.SolrResourceLoader;
 import org.apache.solr.schema.IndexSchema;
+import org.codice.solr.factory.SolrCoreContainer;
 import org.geotools.filter.text.ecql.ECQL;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -69,7 +70,8 @@ public class SolrQueryFilterVisitorTest {
 
         SolrConfig solrConfig = null;
         IndexSchema indexSchema = null;
-        CoreContainer container = null;
+        SolrResourceLoader resourceLoader = null;
+        SolrCoreContainer container = null;
 
         try {
             // NamedSPILoader uses the thread context classloader to lookup
@@ -80,7 +82,9 @@ public class SolrQueryFilterVisitorTest {
             indexSchema = new IndexSchema(solrConfig, "schema.xml",
                     new InputSource(FileUtils.openInputStream(solrSchemaFile)));
             assertNotNull(indexSchema);
-            container = CoreContainer.createAndLoad(solrConfigHome.getAbsolutePath(), solrFile);
+            resourceLoader = new SolrResourceLoader(solrConfigHome.getAbsolutePath());
+            assertNotNull(resourceLoader);
+            container = new SolrCoreContainer(resourceLoader, solrFile);
             assertNotNull(container);
             CoreDescriptor coreDescriptor = new CoreDescriptor(container, CORE_NAME,
                     solrConfig.getResourceLoader().getInstanceDir());
@@ -88,10 +92,11 @@ public class SolrQueryFilterVisitorTest {
 
             File dataDir = new File(workingDir + "data");  //configProxy.getDataDirectory();
             LOGGER.debug("Using data directory [{}]", dataDir);
-            SolrCore core = new SolrCore(CORE_NAME, dataDir.getAbsolutePath(), solrConfig, indexSchema,
-                    coreDescriptor);
-            assertNotNull(core);
+
+            SolrCore core = new SolrCore(CORE_NAME, dataDir.getAbsolutePath(), solrConfig,
+                    indexSchema, coreDescriptor);
             container.register(CORE_NAME, core, false);
+            assertNotNull(core);
 
             EmbeddedSolrServer solrServer = new EmbeddedSolrServer(container, CORE_NAME);
 
