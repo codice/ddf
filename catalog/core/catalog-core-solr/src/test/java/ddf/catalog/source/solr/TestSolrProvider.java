@@ -15,16 +15,17 @@ package ddf.catalog.source.solr;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anyOf;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.isIn;
+import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.collection.IsCollectionContaining.hasItem;
-import static org.hamcrest.number.OrderingComparisons.greaterThanOrEqualTo;
-import static org.hamcrest.number.OrderingComparisons.lessThanOrEqualTo;
-import static org.hamcrest.text.StringContains.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -1318,7 +1319,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
         assertThat(deletedMetacards.size(), is(metacards.size()));
 
         for (int i = 0; i < metacardCount; i++) {
-            assertThat(ids.contains(deletedMetacards.get(i).getId()), is(true));
+            assertThat(deletedMetacards.get(i).getId(), isIn(ids));
         }
     }
 
