@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -43,12 +43,12 @@ import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.request.CoreAdminRequest;
 import org.apache.solr.client.solrj.response.CoreAdminResponse;
 import org.apache.solr.common.SolrException;
-import org.apache.solr.core.CoreContainer;
 import org.apache.solr.core.CoreDescriptor;
 import org.apache.solr.core.DirectoryFactory;
 import org.apache.solr.core.PluginInfo;
 import org.apache.solr.core.SolrConfig;
 import org.apache.solr.core.SolrCore;
+import org.apache.solr.core.SolrResourceLoader;
 import org.apache.solr.schema.IndexSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +58,6 @@ import org.xml.sax.SAXException;
 /**
  * Factory that creates {@link org.apache.solr.client.solrj.SolrServer} instances. Currently will create a
  * {@link EmbeddedSolrServer} instance.
- *
  */
 public final class SolrServerFactory {
 
@@ -86,7 +85,9 @@ public final class SolrServerFactory {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SolrServerFactory.class);
 
-    /** Hiding constructor **/
+    /**
+     * Hiding constructor
+     */
     private SolrServerFactory() {
 
     }
@@ -235,13 +236,10 @@ public final class SolrServerFactory {
      * configuration file. If an instance already exists, it cannot be overwritten with a new
      * configuration.
      *
-     * @param solrConfigXml
-     *            the name of the solr configuration filename such as solrconfig.xml
-     * @param schemaXml
-     *            filename of the schema such as schema.xml
-     * @param givenConfigFileProxy
-     *            a ConfigurationFileProxy instance. If instance is <code>null</code>, a new
-     *            {@link ConfigurationFileProxy} is used instead.
+     * @param solrConfigXml        the name of the solr configuration filename such as solrconfig.xml
+     * @param schemaXml            filename of the schema such as schema.xml
+     * @param givenConfigFileProxy a ConfigurationFileProxy instance. If instance is <code>null</code>, a new
+     *                             {@link ConfigurationFileProxy} is used instead.
      * @return {@link org.apache.solr.client.solrj.SolrServer} instance
      */
     public static EmbeddedSolrServer getEmbeddedSolrServer(String solrConfigXml, String schemaXml,
@@ -283,12 +281,8 @@ public final class SolrServerFactory {
                     new InputSource(FileUtils.openInputStream(solrConfigFile)));
             IndexSchema indexSchema = new IndexSchema(solrConfig, schemaFileName,
                     new InputSource(FileUtils.openInputStream(solrSchemaFile)));
-            CoreContainer container = CoreContainer
-                    .createAndLoad(solrConfigHome.getAbsolutePath(), solrFile);
-
-            CoreDescriptor coreDescriptor = new CoreDescriptor(container,
-                    DEFAULT_EMBEDDED_CORE_NAME,
-                    solrConfig.getResourceLoader().getInstanceDir());
+            SolrResourceLoader loader = new SolrResourceLoader(solrConfigHome.getAbsolutePath());
+            SolrCoreContainer container = new SolrCoreContainer(loader, solrFile);
 
             String dataDirPath = null;
             if (!ConfigurationStore.getInstance().isInMemory()) {
@@ -303,6 +297,8 @@ public final class SolrServerFactory {
                     LOGGER.warn("Using in-memory configuration without RAMDirectoryFactory.");
                 }
             }
+            CoreDescriptor coreDescriptor = new CoreDescriptor(container,
+                    DEFAULT_EMBEDDED_CORE_NAME, solrConfig.getResourceLoader().getInstanceDir());
 
             SolrCore core = new SolrCore(DEFAULT_EMBEDDED_CORE_NAME, dataDirPath, solrConfig,
                     indexSchema, coreDescriptor);
@@ -368,5 +364,4 @@ public final class SolrServerFactory {
             return false;
         }
     }
-
 }

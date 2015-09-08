@@ -138,6 +138,11 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>ddf.platform.solr</groupId>
+            <artifactId>solr-factory</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>xerces</groupId>
             <artifactId>xercesImpl</artifactId>
             <version>${xerces.version}</version>
