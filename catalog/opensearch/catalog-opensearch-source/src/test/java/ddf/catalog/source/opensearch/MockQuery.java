@@ -250,12 +250,12 @@ public class MockQuery implements Query {
         if (filters.size() > 1) {
             return FILTER_FACTORY.and(filters);
 
-        // If only one filter, then just return it
-        // (AND'ing it would create an erroneous </ogc:and> closing tag)
+            // If only one filter, then just return it
+            // (AND'ing it would create an erroneous </ogc:and> closing tag)
         } else if (filters.size() == 1) {
             return (Filter) filters.get(0);
 
-        // Otherwise, no filters
+            // Otherwise, no filters
         } else {
             return null;
         }

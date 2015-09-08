@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.source;
 
@@ -24,7 +23,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -42,12 +40,14 @@ import javax.xml.transform.stream.StreamSource;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
+import org.codice.ddf.cxf.SecureCxfClientFactory;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
 import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper;
 import org.codice.ddf.spatial.ogc.wfs.catalog.source.WfsUriResolver;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.DescribeFeatureTypeRequest;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.GetCapabilitiesRequest;
+import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20FeatureCollection;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.source.reader.FeatureCollectionMessageBodyReaderWfs20;
@@ -72,6 +72,7 @@ import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.UnsupportedQueryException;
+import ddf.security.service.SecurityServiceException;
 import net.opengis.filter.v_2_0_0.ConformanceType;
 import net.opengis.filter.v_2_0_0.FilterCapabilities;
 import net.opengis.filter.v_2_0_0.SortByType;
@@ -102,7 +103,7 @@ public class TestWfsSource {
 
     private final GeotoolsFilterBuilder builder = new GeotoolsFilterBuilder();
 
-    private RemoteWfs mockWfs = mock(RemoteWfs.class);
+    private Wfs mockWfs = mock(Wfs.class);
 
     private WFSCapabilitiesType mockCapabilites = new WFSCapabilitiesType();
 
@@ -115,15 +116,21 @@ public class TestWfsSource {
 
     private Wfs20FeatureCollection mockFeatureCollection = mock(Wfs20FeatureCollection.class);
 
+    private SecureCxfClientFactory mockFactory = mock(SecureCxfClientFactory.class);
+
     public WfsSource getWfsSource(final String schema, final FilterCapabilities filterCapabilities,
-            final String srsName, final int numFeatures) throws WfsException {
+            final String srsName, final int numFeatures)
+            throws WfsException, SecurityServiceException {
 
         return getWfsSource(schema, filterCapabilities, srsName, numFeatures, false);
     }
 
     public WfsSource getWfsSource(final String schema, final FilterCapabilities filterCapabilities,
             final String srsName, final int numFeatures,
-            final boolean throwExceptionOnDescribeFeatureType) throws WfsException {
+            final boolean throwExceptionOnDescribeFeatureType)
+            throws WfsException, SecurityServiceException {
+        mockFactory = mock(SecureCxfClientFactory.class);
+        when(mockFactory.getUnsecuredClient()).thenReturn(mockWfs);
 
         // GetCapabilities Response
         when(mockWfs.getCapabilities(any(GetCapabilitiesRequest.class)))
@@ -166,7 +173,7 @@ public class TestWfsSource {
             when(mockWfs.describeFeatureType(any(DescribeFeatureTypeRequest.class)))
                     .thenReturn(xmlSchema);
         }
-        when(mockWfs.getFeatureCollectionReader()).thenReturn(mockReader);
+        //when(mockWfs.getFeatureCollectionReader()).thenReturn(mockReader);
 
         // GetFeature Response
         when(mockWfs.getFeature(any(GetFeatureType.class))).thenReturn(mockFeatureCollection);
@@ -192,8 +199,8 @@ public class TestWfsSource {
         List<MetacardMapper> mappers = new ArrayList<MetacardMapper>(1);
         mappers.add(mockMapper);
 
-        WfsSource source = new WfsSource(mockWfs, new GeotoolsFilterAdapterImpl(), mockContext,
-                mockAvailabilityTask);
+        WfsSource source = new WfsSource(new GeotoolsFilterAdapterImpl(), mockContext,
+                mockAvailabilityTask, mockFactory);
 
         source.setMetacardToFeatureMapper(mappers);
         return source;
@@ -201,8 +208,11 @@ public class TestWfsSource {
 
     public WfsSource getWfsSource(final String schema, final FilterCapabilities filterCapabilities,
             final String srsName, final int numFeatures,
-            final boolean throwExceptionOnDescribeFeatureType, boolean prefix,
-            int numReturned) throws WfsException {
+            final boolean throwExceptionOnDescribeFeatureType, boolean prefix, int numReturned)
+            throws WfsException, SecurityServiceException {
+
+        mockFactory = mock(SecureCxfClientFactory.class);
+        when(mockFactory.getUnsecuredClient()).thenReturn(mockWfs);
 
         // GetCapabilities Response
         when(mockWfs.getCapabilities(any(GetCapabilitiesRequest.class)))
@@ -268,21 +278,24 @@ public class TestWfsSource {
             when(mockWfs.describeFeatureType(any(DescribeFeatureTypeRequest.class)))
                     .thenReturn(xmlSchema);
         }
-        when(mockWfs.getFeatureCollectionReader()).thenReturn(mockReader);
 
-        return new WfsSource(mockWfs, new GeotoolsFilterAdapterImpl(), mockContext,
-                mockAvailabilityTask);
+        WfsSource wfsSource = new WfsSource(new GeotoolsFilterAdapterImpl(), mockContext,
+                mockAvailabilityTask, mockFactory);
+
+        wfsSource.setFeatureCollectionReader(mockReader);
+
+        return wfsSource;
     }
 
     @Test
-    public void testAvailability() throws WfsException {
+    public void testAvailability() throws WfsException, SecurityServiceException {
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
                 MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, 1);
         assertTrue(source.isAvailable());
     }
 
     @Test
-    public void testParseCapabilities() throws WfsException {
+    public void testParseCapabilities() throws WfsException, SecurityServiceException {
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
                 MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, 1);
 
@@ -294,7 +307,7 @@ public class TestWfsSource {
     }
 
     @Test
-    public void testParseCapabilitiesNoFeatures() throws WfsException {
+    public void testParseCapabilitiesNoFeatures() throws WfsException, SecurityServiceException {
         WfsSource source = getWfsSource("", MockWfsServer.getFilterCapabilities(),
                 Wfs20Constants.EPSG_4326_URN, 0);
 
@@ -303,7 +316,8 @@ public class TestWfsSource {
     }
 
     @Test
-    public void testParseCapabilitiesNoFilterCapabilities() throws WfsException {
+    public void testParseCapabilitiesNoFilterCapabilities()
+            throws WfsException, SecurityServiceException {
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA, null,
                 Wfs20Constants.EPSG_4326_URN, 1);
 
@@ -312,7 +326,7 @@ public class TestWfsSource {
     }
 
     @Test
-    public void testConfigureFeatureTypes() throws WfsException {
+    public void testConfigureFeatureTypes() throws WfsException, SecurityServiceException {
         ArgumentCaptor<DescribeFeatureTypeRequest> captor = ArgumentCaptor
                 .forClass(DescribeFeatureTypeRequest.class);
 
@@ -342,7 +356,8 @@ public class TestWfsSource {
     }
 
     @Test
-    public void testConfigureFeatureTypesDescribeFeatureException() throws WfsException {
+    public void testConfigureFeatureTypesDescribeFeatureException()
+            throws WfsException, SecurityServiceException {
         ArgumentCaptor<DescribeFeatureTypeRequest> captor = ArgumentCaptor
                 .forClass(DescribeFeatureTypeRequest.class);
 
@@ -365,7 +380,8 @@ public class TestWfsSource {
     }
 
     @Test
-    public void testTypeNameHasPrefix() throws WfsException, UnsupportedQueryException {
+    public void testTypeNameHasPrefix()
+            throws WfsException, SecurityServiceException, UnsupportedQueryException {
 
         //Setup
         final String TITLE = "title";
@@ -397,7 +413,8 @@ public class TestWfsSource {
     }
 
     @Test
-    public void testTypeNameHasNoPrefix() throws WfsException, UnsupportedQueryException {
+    public void testTypeNameHasNoPrefix()
+            throws WfsException, SecurityServiceException, UnsupportedQueryException {
 
         //Setup
         final String TITLE = "title";
@@ -432,12 +449,13 @@ public class TestWfsSource {
      * Given 10 features (and metacards) exist that match search criteria, since page size=4 and
      * startIndex=0, should get 4 results back - metacards 1 thru 4.
      *
-     * @throws WfsException
+     * @throws WfsException,                     SecurityServiceException
      * @throws TransformerConfigurationException
      * @throws UnsupportedQueryException
      */
     @Test
-    public void testPagingStartIndexZero() throws WfsException, TransformerConfigurationException,
+    public void testPagingStartIndexZero()
+            throws WfsException, SecurityServiceException, TransformerConfigurationException,
             UnsupportedQueryException {
 
         //Setup
@@ -463,13 +481,14 @@ public class TestWfsSource {
      * Verify that, per DDF Query API Javadoc, if the startIndex is negative, the WfsSource throws
      * an UnsupportedQueryException.
      *
-     * @throws WfsException
+     * @throws WfsException,                     SecurityServiceException
      * @throws TransformerConfigurationException
      * @throws UnsupportedQueryException
      */
     @Test(expected = UnsupportedQueryException.class)
-    public void testPagingStartIndexNegative() throws WfsException,
-            TransformerConfigurationException, UnsupportedQueryException {
+    public void testPagingStartIndexNegative()
+            throws WfsException, SecurityServiceException, TransformerConfigurationException,
+            UnsupportedQueryException {
         //Setup
         int pageSize = 4;
         int startIndex = -1;
@@ -487,12 +506,13 @@ public class TestWfsSource {
      * Verify that, per DDF Query API Javadoc, if the startIndex is negative, the WfsSource throws
      * an UnsupportedQueryException.
      *
-     * @throws WfsException
+     * @throws WfsException,                     SecurityServiceException
      * @throws TransformerConfigurationException
      * @throws UnsupportedQueryException
      */
     @Test(expected = UnsupportedQueryException.class)
-    public void testPagingPageSizeNegative() throws WfsException, TransformerConfigurationException,
+    public void testPagingPageSizeNegative()
+            throws WfsException, SecurityServiceException, TransformerConfigurationException,
             UnsupportedQueryException {
         //Setup
         int pageSize = -4;
@@ -508,8 +528,9 @@ public class TestWfsSource {
     }
 
     @Test
-    public void testResultNumReturnedNegative() throws WfsException,
-            TransformerConfigurationException, UnsupportedQueryException {
+    public void testResultNumReturnedNegative()
+            throws WfsException, SecurityServiceException, TransformerConfigurationException,
+            UnsupportedQueryException {
         //Setup
         final String TITLE = "title";
         final String searchPhrase = "*";
@@ -535,13 +556,14 @@ public class TestWfsSource {
      * If numberReturned is null, then query should return back size equivalent to the number of members in the
      * feature collection.
      *
-     * @throws WfsException
+     * @throws WfsException,                     SecurityServiceException
      * @throws TransformerConfigurationException
      * @throws UnsupportedQueryException
      */
     @Test
-    public void testResultNumReturnedIsNull() throws WfsException,
-            TransformerConfigurationException, UnsupportedQueryException {
+    public void testResultNumReturnedIsNull()
+            throws WfsException, SecurityServiceException, TransformerConfigurationException,
+            UnsupportedQueryException {
         //Setup
         final String TITLE = "title";
         final String searchPhrase = "*";
@@ -568,13 +590,14 @@ public class TestWfsSource {
      * If numberReturned is null, then query should return back size equivalent to the number of members in the
      * feature collection.
      *
-     * @throws WfsException
+     * @throws WfsException,                     SecurityServiceException
      * @throws TransformerConfigurationException
      * @throws UnsupportedQueryException
      */
     @Test
-    public void testResultNumReturnedIsWrong() throws WfsException,
-            TransformerConfigurationException, UnsupportedQueryException {
+    public void testResultNumReturnedIsWrong()
+            throws WfsException, SecurityServiceException, TransformerConfigurationException,
+            UnsupportedQueryException {
         //Setup
         final String TITLE = "title";
         final String searchPhrase = "*";
@@ -598,8 +621,9 @@ public class TestWfsSource {
     }
 
     @Test
-    public void testResultNumReturnedIsZero() throws WfsException,
-            TransformerConfigurationException, UnsupportedQueryException {
+    public void testResultNumReturnedIsZero()
+            throws WfsException, SecurityServiceException, TransformerConfigurationException,
+            UnsupportedQueryException {
         //Setup
         final String TITLE = "title";
         final String searchPhrase = "*";
@@ -625,23 +649,23 @@ public class TestWfsSource {
     /**
      * Verify that the SortBy is set with the mapped Feature Property and a ASC sort order.  In this case, the incoming sort property of TEMPORAL is mapped to
      * myTemporalFeatureProperty.
-     *
+     * <p/>
      * <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
      * <ns5:GetFeature startIndex="1" count="1" service="WFS" version="2.0.0" xmlns:ns2="http://www.opengis.net/ows/1.1" xmlns="http://www.opengis.net/fes/2.0" xmlns:ns4="http://www.opengis.net/gml" xmlns:ns3="http://www.w3.org/1999/xlink" xmlns:ns5="http://www.opengis.net/wfs/2.0">
-     *    <ns5:Query typeNames="SampleFeature0" handle="SampleFeature0">
-     *        <Filter>
-     *            <PropertyIsLike wildCard="*" singleChar="?" escapeChar="!">
-     *                <Literal>*</Literal>
-     *                <ValueReference>title</ValueReference>
-     *            </PropertyIsLike>
-     *        </Filter>
-     *        <SortBy>
-     *            <SortProperty>
-     *                <ValueReference>myTemporalFeatureProperty</ValueReference>
-     *                <SortOrder>ASC</SortOrder>
-     *            </SortProperty>
-     *        </SortBy>
-     *    </ns5:Query>
+     * <ns5:Query typeNames="SampleFeature0" handle="SampleFeature0">
+     * <Filter>
+     * <PropertyIsLike wildCard="*" singleChar="?" escapeChar="!">
+     * <Literal>*</Literal>
+     * <ValueReference>title</ValueReference>
+     * </PropertyIsLike>
+     * </Filter>
+     * <SortBy>
+     * <SortProperty>
+     * <ValueReference>myTemporalFeatureProperty</ValueReference>
+     * <SortOrder>ASC</SortOrder>
+     * </SortProperty>
+     * </SortBy>
+     * </ns5:Query>
      * </ns5:GetFeature>
      */
     @Test
@@ -736,17 +760,17 @@ public class TestWfsSource {
 
     /**
      * Verify that the SortBy is NOT set.  In this case, there is no mapping for the incoming sort property of TEMPORAL so no SortBy should be set.
-     *
+     * <p/>
      * <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
      * <ns5:GetFeature startIndex="1" count="1" service="WFS" version="2.0.0" xmlns:ns2="http://www.opengis.net/ows/1.1" xmlns="http://www.opengis.net/fes/2.0" xmlns:ns4="http://www.opengis.net/gml" xmlns:ns3="http://www.w3.org/1999/xlink" xmlns:ns5="http://www.opengis.net/wfs/2.0">
-     *    <ns5:Query typeNames="SampleFeature0" handle="SampleFeature0">
-     *        <Filter>
-     *            <PropertyIsLike wildCard="*" singleChar="?" escapeChar="!">
-     *                <Literal>*</Literal>
-     *                <ValueReference>title</ValueReference>
-     *            </PropertyIsLike>
-     *        </Filter>
-     *    </ns5:Query>
+     * <ns5:Query typeNames="SampleFeature0" handle="SampleFeature0">
+     * <Filter>
+     * <PropertyIsLike wildCard="*" singleChar="?" escapeChar="!">
+     * <Literal>*</Literal>
+     * <ValueReference>title</ValueReference>
+     * </PropertyIsLike>
+     * </Filter>
+     * </ns5:Query>
      * </ns5:GetFeature>
      */
     @Test
@@ -784,23 +808,23 @@ public class TestWfsSource {
     /**
      * Verify that the SortBy is set with the mapped Feature Property and a DESC sort order.  In this case, the incoming sort property of TEMPORAL is mapped to
      * myTemporalFeatureProperty.
-     *
+     * <p/>
      * <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
      * <ns5:GetFeature startIndex="1" count="1" service="WFS" version="2.0.0" xmlns:ns2="http://www.opengis.net/ows/1.1" xmlns="http://www.opengis.net/fes/2.0" xmlns:ns4="http://www.opengis.net/gml" xmlns:ns3="http://www.w3.org/1999/xlink" xmlns:ns5="http://www.opengis.net/wfs/2.0">
-     *    <ns5:Query typeNames="SampleFeature0" handle="SampleFeature0">
-     *        <Filter>
-     *            <PropertyIsLike wildCard="*" singleChar="?" escapeChar="!">
-     *                <Literal>*</Literal>
-     *                <ValueReference>title</ValueReference>
-     *            </PropertyIsLike>
-     *        </Filter>
-     *        <SortBy>
-     *            <SortProperty>
-     *                <ValueReference>myTemporalFeatureProperty</ValueReference>
-     *                <SortOrder>DESC</SortOrder>
-     *            </SortProperty>
-     *        </SortBy>
-     *    </ns5:Query>
+     * <ns5:Query typeNames="SampleFeature0" handle="SampleFeature0">
+     * <Filter>
+     * <PropertyIsLike wildCard="*" singleChar="?" escapeChar="!">
+     * <Literal>*</Literal>
+     * <ValueReference>title</ValueReference>
+     * </PropertyIsLike>
+     * </Filter>
+     * <SortBy>
+     * <SortProperty>
+     * <ValueReference>myTemporalFeatureProperty</ValueReference>
+     * <SortOrder>DESC</SortOrder>
+     * </SortProperty>
+     * </SortBy>
+     * </ns5:Query>
      * </ns5:GetFeature>
      */
     @Test
@@ -866,7 +890,7 @@ public class TestWfsSource {
     }
 
     @Test
-    public void testTimeoutConfiguration() throws WfsException {
+    public void testTimeoutConfiguration() throws WfsException, SecurityServiceException {
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
                 MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, 1, false,
                 false, 0);
@@ -875,9 +899,8 @@ public class TestWfsSource {
         source.setReceiveTimeout(10000);
 
         // Perform test
-        source.updateTimeouts();
-
-        verify(mockWfs, atLeastOnce()).setTimeouts(any(Integer.class), any(Integer.class));
+        assertEquals(source.getConnectionTimeout(), 10000);
+        assertEquals(source.getReceiveTimeout(), 10000);
     }
 
     @Test

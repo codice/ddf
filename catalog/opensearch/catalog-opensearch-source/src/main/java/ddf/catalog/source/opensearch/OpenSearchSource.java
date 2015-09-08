@@ -18,7 +18,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Serializable;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,10 +40,10 @@ import javax.xml.transform.TransformerException;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.codehaus.stax2.XMLInputFactory2;
-import org.codice.ddf.security.common.jaxrs.RestSecurity;
+import org.codice.ddf.cxf.SecureCxfClientFactory;
+import org.codice.ddf.endpoints.OpenSearch;
 import org.geotools.filter.FilterTransformer;
 import org.jdom2.Element;
 import org.osgi.framework.Bundle;
@@ -85,7 +87,7 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
-import ddf.security.settings.SecuritySettingsService;
+import ddf.security.service.SecurityServiceException;
 
 /**
  * Federated site that talks via OpenSearch to the DDF platform. Communication is usually performed
@@ -115,8 +117,6 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenSearchSource.class);
 
-    protected OpenSearchConnection openSearchConnection;
-
     private boolean isInitialized = false;
 
     // service properties
@@ -136,8 +136,6 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
     private String configurationPid;
 
-    private SecuritySettingsService securitySettingsService;
-
     private List<String> parameters;
 
     private String username;
@@ -147,6 +145,8 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     private long receiveTimeout = 0;
 
     private XMLInputFactory xmlInputFactory;
+
+    protected SecureCxfClientFactory factory;
 
     private ResourceReader resourceReader;
 
@@ -166,7 +166,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
      */
     public void init() {
         isInitialized = true;
-        configureClient();
+        factory = new SecureCxfClientFactory(endpointUrl, OpenSearch.class);
         configureXmlInputFactory();
     }
 
@@ -182,24 +182,25 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
         LOGGER.info("Nothing to destroy.");
     }
 
-    protected void configureClient() {
-        openSearchConnection = new OpenSearchConnection(endpointUrl, filterAdapter,
-                securitySettingsService, username, password);
-    }
-
     @Override
     public boolean isAvailable() {
         boolean isAvailable = false;
         if (!lastAvailable || (lastAvailableDate
                 .before(new Date(System.currentTimeMillis() - AVAILABLE_TIMEOUT_CHECK)))) {
 
-            WebClient client = openSearchConnection.getOpenSearchWebClient();
+            if (factory == null) {
+                return false;
+            }
 
-            Response response = null;
+            WebClient client;
+            Response response;
+
             try {
+                client = newOpenSearchClient(endpointUrl, null);
                 response = client.head();
             } catch (Exception e) {
                 LOGGER.warn("Web Client was unable to connect to endpoint.", e);
+                return false;
             }
 
             if (response != null && !(response.getStatus() >= 404 || response.getStatus() == 400
@@ -233,14 +234,18 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
         Serializable metacardId = queryRequest.getPropertyValue(Metacard.ID);
         SourceResponseImpl response = null;
 
-        WebClient openSearchWebClient = openSearchConnection.getOpenSearchWebClient();
-
         Subject subject = null;
+        WebClient restWebClient = null;
         if (queryRequest.hasProperties()) {
             Object subjectObj = queryRequest.getProperties()
                     .get(SecurityConstants.SECURITY_SUBJECT);
             subject = (Subject) subjectObj;
-            RestSecurity.setSubjectOnClient(subject, openSearchWebClient);
+        }
+        try {
+            restWebClient = newOpenSearchClient(endpointUrl, subject);
+        } catch (SecurityServiceException sse) {
+            LOGGER.error(
+                    "Failed to get OpenSearchWebClient using endpointUrl and Security Subject.");
         }
 
         Query query = queryRequest.getQuery();
@@ -249,11 +254,11 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
             LOGGER.debug("Received query: " + query);
         }
 
-        boolean canDoOpenSearch = setOpenSearchParameters(query, subject, openSearchWebClient);
+        boolean canDoOpenSearch = setOpenSearchParameters(query, subject, restWebClient);
 
         if (canDoOpenSearch) {
 
-            InputStream responseStream = performRequest(openSearchWebClient);
+            InputStream responseStream = performRequest(restWebClient);
 
             response = new SourceResponseImpl(queryRequest, new ArrayList<Result>());
 
@@ -261,19 +266,15 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
                 response = processResponse(responseStream, queryRequest);
             }
         } else {
-            Client restClient = openSearchConnection
-                    .newRestClient(endpointUrl, queryRequest.getQuery(), (String) metacardId,
-                            false);
 
-            if (restClient != null) {
-                WebClient restWebClient = openSearchConnection.getWebClientFromClient(restClient);
+            try {
+                restWebClient = newRestClient(endpointUrl, query, (String) metacardId, false,
+                        subject);
+            } catch (SecurityServiceException sse) {
+                LOGGER.error("Failed to get client using either BasicAuth or Security Subject.");
+            }
 
-                if (queryRequest.hasProperties()) {
-                    Object subjectObj = queryRequest.getProperties()
-                            .get(SecurityConstants.SECURITY_SUBJECT);
-                    subject = (Subject) subjectObj;
-                    RestSecurity.setSubjectOnClient(subject, restWebClient);
-                }
+            if (restWebClient != null) {
 
                 InputStream responseStream = performRequest(restWebClient);
 
@@ -306,6 +307,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
                     resultQueue.add(result);
                     response = new SourceResponseImpl(queryRequest, resultQueue);
                     response.setHits(resultQueue.size());
+
                 }
             }
         }
@@ -532,7 +534,6 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
         return metacard;
     }
 
-
     private Metacard parseContent(String content, String id) {
         if (content != null) {
             InputTransformer inputTransformer = getInputTransformer(
@@ -570,10 +571,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
      */
     public void setEndpointUrl(String endpointUrl) {
         this.endpointUrl = endpointUrl;
-
-        if (isInitialized) {
-            configureClient();
-        }
+        factory = new SecureCxfClientFactory(endpointUrl, OpenSearch.class);
     }
 
     @Override
@@ -713,8 +711,12 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
         if (serializableId != null) {
             String metacardId = serializableId.toString();
-            Client restClient = openSearchConnection
-                    .newRestClient(endpointUrl, null, metacardId, true);
+            WebClient restClient = null;
+            try {
+                restClient = newRestClient(endpointUrl, null, metacardId, true, null);
+            } catch (SecurityServiceException e) {
+                throw new ResourceNotSupportedException(e);
+            }
             return resourceReader.retrieveResource(restClient.getCurrentURI(), requestProperties);
         }
 
@@ -783,30 +785,90 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
         this.password = password;
     }
 
-    /**
-     * Gets the receive timeout that is being used for current messages.
-     *
-     * @return the timeout in milliseconds.
-     */
-    public long getReceiveTimeout() {
-        return this.receiveTimeout;
+    private WebClient newRestClient(String url, Query query, String metacardId,
+            boolean retrieveResource, Subject subj) throws SecurityServiceException {
+        if (query != null) {
+            url = createRestUrl(query, url, retrieveResource);
+        } else {
+            RestUrl restUrl = newRestUrl(url);
+
+            if (restUrl != null) {
+                if (StringUtils.isNotEmpty(metacardId)) {
+                    restUrl.setId(metacardId);
+                }
+                restUrl.setRetrieveResource(retrieveResource);
+                url = restUrl.buildUrl();
+            }
+        }
+        return newOpenSearchClient(url, subj);
     }
 
-    /**
-     * Sets the receive timeout for messages sent from this provider.
-     *
-     * @param receiveTimeout timeout in milliseconds. 0 sets it to NOT timeout.
-     */
-    public void setReceiveTimeout(long receiveTimeout) {
-        LOGGER.debug("Setting timeout to {}", receiveTimeout);
-        this.receiveTimeout = receiveTimeout;
+    protected SecureCxfClientFactory tempFactory(String url) {
+        return new SecureCxfClientFactory(url, OpenSearch.class);
     }
 
-    public void setSecuritySettings(SecuritySettingsService settingsService) {
-        this.securitySettingsService = settingsService;
+    private String createRestUrl(Query query, String endpointUrl, boolean retrieveResource) {
+
+        String url = null;
+        RestFilterDelegate delegate = null;
+        RestUrl restUrl = newRestUrl(endpointUrl);
+        restUrl.setRetrieveResource(retrieveResource);
+
+        if (restUrl != null) {
+            delegate = new RestFilterDelegate(restUrl);
+        }
+
+        if (delegate != null) {
+            try {
+                filterAdapter.adapt(query, delegate);
+                url = delegate.getRestUrl().buildUrl();
+            } catch (UnsupportedQueryException e) {
+                LOGGER.debug("Not a REST request.", e);
+            }
+        }
+        return url;
     }
 
     public void setResourceReader(ResourceReader reader) {
         this.resourceReader = reader;
+    }
+
+    /**
+     * Creates a new RestUrl object based on an OpenSearch URL
+     *
+     * @param url
+     * @return RestUrl object for a DDF REST endpoint
+     */
+    private RestUrl newRestUrl(String url) {
+        RestUrl restUrl = null;
+        try {
+            restUrl = RestUrl.newInstance(url);
+            restUrl.setRetrieveResource(true);
+        } catch (MalformedURLException | URISyntaxException e) {
+            LOGGER.info("Bad url given for remote source", e);
+        }
+        return restUrl;
+    }
+
+    /**
+     * Creates a new webClient based off a url and, if BasicAuth is not used, a Security Subject
+     *
+     * @param url  - the endpoint url
+     * @param subj - the Security Subject, if applicable
+     * @return A webclient for the endpoint URL either using BasicAuth, using the Security Subject, or an insecure client.
+     * @throws SecurityServiceException
+     */
+    private WebClient newOpenSearchClient(String url, Subject subj)
+            throws SecurityServiceException {
+        SecureCxfClientFactory tempFactory = tempFactory(url);
+        WebClient client;
+        if (StringUtils.isNotEmpty(username) && StringUtils.isNotEmpty(password)) {
+            client = tempFactory.getWebClientForBasicAuth(username, password);
+        } else if (subj != null) {
+            client = tempFactory.getWebClientForSubject(subj);
+        } else {
+            client = tempFactory.getUnsecuredWebClient();
+        }
+        return client;
     }
 }
