@@ -1,0 +1,74 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number:
+            8c:dc:e0:56:2b:22:9f:68
+        Signature Algorithm: sha1WithRSAEncryption
+        Issuer: C=US, ST=AZ, O=DDF, OU=Dev, CN=DDF Demo Root CA/emailAddress=ddfrootca@example.org
+        Validity
+            Not Before: Aug 21 17:32:30 2015 GMT
+            Not After : Aug 20 17:32:30 2016 GMT
+        Subject: C=US, ST=Arizona, L=Phoenix, O=Example, CN=asdf/emailAddress=asdf@example.com
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+            RSA Public Key: (2048 bit)
+                Modulus (2048 bit):
+                    00:b9:d3:67:8c:d5:6d:d4:17:8a:06:01:bb:29:7a:
+                    d9:9f:05:13:b0:59:d3:30:97:31:0a:e5:c7:cc:22:
+                    a2:ca:e7:11:66:92:3e:6b:28:52:65:95:4e:0b:16:
+                    99:51:6b:38:74:65:90:9f:a7:4e:03:20:7a:0a:a2:
+                    43:06:de:e1:1a:b1:dd:50:ba:b4:c8:c8:37:0e:cb:
+                    c6:71:c0:a1:97:e6:96:94:94:57:ad:be:0b:cd:fa:
+                    b7:16:be:b7:90:f7:2b:27:67:11:78:74:83:e7:43:
+                    2e:e4:0a:f4:2f:6d:7b:fa:e4:69:19:0f:73:51:3f:
+                    f3:bb:00:d4:fa:f4:e7:f6:f1:ee:b1:a4:68:cb:59:
+                    17:67:4c:53:f4:2e:59:50:ca:db:8f:5b:2c:7a:da:
+                    e7:a0:f6:72:11:61:54:ad:48:85:0b:d0:4c:70:3e:
+                    06:94:25:bb:a4:7e:c4:2d:ae:3e:de:7d:1e:ea:3c:
+                    2c:23:b0:ea:a8:19:2e:93:df:db:1b:e2:f9:5b:3e:
+                    ee:b4:9d:9d:e1:54:86:26:e5:f3:0e:0e:f7:d2:2f:
+                    b1:a4:c7:86:5a:da:1c:33:b8:72:48:32:48:a1:13:
+                    9e:0f:3c:9a:30:e4:dd:dd:5c:82:6f:13:ca:f8:9e:
+                    21:99:8c:ea:f3:3f:9a:c1:1a:aa:7e:55:97:d2:1c:
+                    03:2f
+                Exponent: 65537 (0x10001)
+        X509v3 extensions:
+            X509v3 Basic Constraints: 
+                CA:FALSE
+            Netscape Comment: 
+                OpenSSL Generated Certificate
+            X509v3 Subject Key Identifier: 
+                76:59:FA:8B:F1:A7:73:F4:6D:3E:F3:E4:E4:D5:D0:50:B7:93:0B:30
+            X509v3 Authority Key Identifier: 
+                keyid:E1:54:C7:97:DF:0A:C2:BF:A9:5F:78:5E:3B:0B:2B:E4:48:17:BD:C6
+
+    Signature Algorithm: sha1WithRSAEncryption
+        aa:a0:af:2a:a9:a5:e3:09:0d:11:35:71:92:b4:b0:d9:fc:95:
+        d0:4c:80:02:49:4f:34:34:39:bd:70:5f:10:42:7c:ba:f1:4a:
+        9d:82:29:af:54:42:6c:48:b2:61:c6:f8:8e:f7:c6:ba:1c:da:
+        e5:d8:d5:c1:e5:33:df:4b:0a:ac:ff:22:d5:b1:46:9c:b5:e4:
+        36:fa:89:58:c8:91:a3:45:74:d2:0c:9a:16:50:1d:d1:29:91:
+        fc:bc:86:8b:18:81:89:84:a7:24:a7:58:79:fd:41:7f:96:ce:
+        93:e9:57:bd:73:41:59:12:48:66:f9:63:29:c5:29:39:2a:45:
+        0a:36
+-----BEGIN CERTIFICATE-----
+MIIDZzCCAtCgAwIBAgIJAIzc4FYrIp9oMA0GCSqGSIb3DQEBBQUAMHcxCzAJBgNV
+BAYTAlVTMQswCQYDVQQIDAJBWjEMMAoGA1UECgwDRERGMQwwCgYDVQQLDANEZXYx
+GTAXBgNVBAMMEERERiBEZW1vIFJvb3QgQ0ExJDAiBgkqhkiG9w0BCQEWFWRkZnJv
+b3RjYUBleGFtcGxlLm9yZzAeFw0xNTA4MjExNzMyMzBaFw0xNjA4MjAxNzMyMzBa
+MHMxCzAJBgNVBAYTAlVTMRAwDgYDVQQIEwdBcml6b25hMRAwDgYDVQQHEwdQaG9l
+bml4MRAwDgYDVQQKEwdFeGFtcGxlMQ0wCwYDVQQDEwRhc2RmMR8wHQYJKoZIhvcN
+AQkBFhBhc2RmQGV4YW1wbGUuY29tMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIB
+CgKCAQEAudNnjNVt1BeKBgG7KXrZnwUTsFnTMJcxCuXHzCKiyucRZpI+ayhSZZVO
+CxaZUWs4dGWQn6dOAyB6CqJDBt7hGrHdULq0yMg3DsvGccChl+aWlJRXrb4Lzfq3
+Fr63kPcrJ2cReHSD50Mu5Ar0L217+uRpGQ9zUT/zuwDU+vTn9vHusaRoy1kXZ0xT
+9C5ZUMrbj1ssetrnoPZyEWFUrUiFC9BMcD4GlCW7pH7ELa4+3n0e6jwsI7DqqBku
+k9/bG+L5Wz7utJ2d4VSGJuXzDg730i+xpMeGWtocM7hySDJIoROeDzyaMOTd3VyC
+bxPK+J4hmYzq8z+awRqqflWX0hwDLwIDAQABo3sweTAJBgNVHRMEAjAAMCwGCWCG
+SAGG+EIBDQQfFh1PcGVuU1NMIEdlbmVyYXRlZCBDZXJ0aWZpY2F0ZTAdBgNVHQ4E
+FgQUdln6i/Gnc/RtPvPk5NXQULeTCzAwHwYDVR0jBBgwFoAU4VTHl98Kwr+pX3he
+Owsr5EgXvcYwDQYJKoZIhvcNAQEFBQADgYEAqqCvKqml4wkNETVxkrSw2fyV0EyA
+AklPNDQ5vXBfEEJ8uvFKnYIpr1RCbEiyYcb4jvfGuhza5djVweUz30sKrP8i1bFG
+nLXkNvqJWMiRo0V00gyaFlAd0SmR/LyGixiBiYSnJKdYef1Bf5bOk+lXvXNBWRJI
+ZvljKcUpOSpFCjY=
+-----END CERTIFICATE-----
