@@ -45,6 +45,8 @@ public final class RestSecurity {
 
     public static final String SAML_HEADER_PREFIX = "SAML ";
 
+    public static final String SAML_HEADER_NAME = "Authorization";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(RestSecurity.class);
 
     /**
@@ -62,7 +64,7 @@ public final class RestSecurity {
                 LOGGER.debug("SAML Header was null. Unable to set the header for the client.");
                 return;
             }
-            client.header("Authorization", encodedSamlHeader);
+            client.header(SAML_HEADER_NAME, encodedSamlHeader);
         }
     }
 
