@@ -124,6 +124,15 @@ describe('Installation', function () {
                 .waitForElementById('nextStep', shared.timeout).click();
         });
 
+        it('should show warnings for duplicate attributes', function() {
+            return this.browser
+                .waitForElementByLinkText('Add Attribute', shared.timeout).click()
+                .waitForElementsByName('claimName', shared.timeout).last().type('http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier')
+                .waitForElementById('anonClaims', shared.timeout).click()
+                .waitForElementById('warning-div', asserters.isDisplayed, shared.timeout)
+                .waitForElementsByClassName('minus-button', shared.timeout).last().click();
+        });
+
         it('should contain next button', function () {
             return this.browser
                 .waitForElementById('nextStep', shared.timeout).click();
