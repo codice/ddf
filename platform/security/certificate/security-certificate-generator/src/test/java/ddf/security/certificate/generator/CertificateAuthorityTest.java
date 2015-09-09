@@ -19,6 +19,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
+import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
@@ -33,7 +34,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-
 public class CertificateAuthorityTest {
 
     @Mock
@@ -50,9 +50,6 @@ public class CertificateAuthorityTest {
 
     @Mock
     X509Certificate mockCert;
-
-    @Mock
-    X509Certificate mockSignedCert;
 
     @Mock
     PrivateKey mockPrivateKey;
@@ -77,15 +74,21 @@ public class CertificateAuthorityTest {
             }
         };
 
+        X509Certificate mockSignedCert = demoCa.getCertificate();
+        X509Certificate mockIssuerCert = demoCa.getCertificate();
+
         when(csr.newCertificateBuilder(any(X509Certificate.class))).thenReturn(mockBuilder);
         when(mockBuilder.build(any(ContentSigner.class))).thenReturn(mockHolder);
         when(mockConverter.getCertificate(any(X509CertificateHolder.class)))
                 .thenReturn(mockSignedCert);
         when(csr.getSubjectPrivateKey()).thenReturn(mockPrivateKey);
         when(csr.getSubjectPublicKey()).thenReturn(mockPublicKey);
+        when(mockPrivateKey.getAlgorithm()).thenReturn("RSA");
+        when(mockPublicKey.getAlgorithm()).thenReturn("RSA");
 
-        PrivateKeyEntry newObject = demoCa.sign(csr);
-        assertNotNull(newObject);
+        KeyStore.PrivateKeyEntry newObject = demoCa.sign(csr);
+        assertThat("Expected instance of a different class", newObject,
+                instanceOf(KeyStore.PrivateKeyEntry.class));
     }
 
     @Test
