@@ -945,7 +945,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 ===== Transaction Operation
 Transactions define the operations for creating, modifying, and deleting catalog records. The supported sub-operations for the Transaction operation are Insert, Update, and Delete.
 
-The CSW Transactions endpoint only supports `HTTP POST` requests since there is no KVP operations.
+The CSW Transactions endpoint only supports `HTTP POST` requests since there are no KVP operations.
 
 ===== Transaction Insert Sub-Operation `HTTP POST`
 
@@ -1165,7 +1165,7 @@ The following is an example of an application/xml response to the Transaction Up
 
 The Delete sub-operation is a method to identify a set of records to be deleted from the catalog.
 
-The following example shows a delete operation that is deleting all records with a SpatialReferenceSystem name equal to `wgs84`.
+The following example shows a delete operation that is deleting all records with a SpatialReferenceSystem name equal to `84`.
 
 .Sample XML Transaction Delete Request with filter constraint
 [source,xml,linenums]
@@ -1180,7 +1180,7 @@ The following example shows a delete operation that is deleting all records with
             <ogc:Filter>
                 <ogc:PropertyIsLessThanOrEqualTo>
                    <ogc:PropertyName>SpatialReferenceSystem</ogc:PropertyName>
-                   <ogc:Literal>wgs84</ogc:Literal>
+                   <ogc:Literal>84</ogc:Literal>
                 </ogc:PropertyIsLessThanOrEqualTo>
             </ogc:Filter>
         </csw:Constraint>
