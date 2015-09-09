@@ -18,12 +18,12 @@ import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
+import java.util.zip.DataFormatException;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -66,19 +66,18 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
 
     @Override
     public HandlerResult getNormalizedToken(ServletRequest request, ServletResponse response,
-            FilterChain chain, boolean resolve) {
+                                               FilterChain chain, boolean resolve) {
         HandlerResult handlerResult = new HandlerResult();
         String realm = (String) request.getAttribute(ContextPolicy.ACTIVE_REALM);
 
         SecurityToken securityToken;
         HttpServletRequest httpRequest = (HttpServletRequest) request;
-        Map<String, Cookie> cookies = HttpUtils.getCookieMap(httpRequest);
+        String authorizationHeader = ((HttpServletRequest) request).getHeader(SecurityConstants.SAML_HEADER_NAME);
 
         // check for full SAML assertions coming in (federated requests, etc.)
-        Cookie samlCookie = cookies.get(SecurityConstants.SAML_COOKIE_NAME);
-        if (samlCookie != null) {
-            String cookieValue = samlCookie.getValue();
-            LOGGER.trace("Cookie retrieved");
+        if(authorizationHeader != null) {
+            String encodedSamlAssertion = authorizationHeader.substring(RestSecurity.SAML_HEADER_PREFIX.length());
+            LOGGER.trace("Header retrieved");
             try {
                 String tokenString = RestSecurity.decodeSaml(cookieValue);
                 LOGGER.trace("Cookie value: {}", tokenString);
@@ -92,9 +91,9 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
                 handlerResult.setStatus(HandlerResult.Status.COMPLETED);
             } catch (IOException e) {
                 LOGGER.warn(
-                        "Unexpected error converting cookie value to string - proceeding without SAML token.",
+                        "Unexpected error converting header value to string",
                         e);
-            } catch (XMLStreamException e) {
+            } catch(XMLStreamException e){
                 LOGGER.warn(
                         "Unexpected error converting XML string to element - proceeding without SAML token.",
                         e);
@@ -131,8 +130,8 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
      * If an error occured during the processing of the request, this method will get called. Since
      * SAML handling is typically processed first, then we can assume that there was an error with
      * the presented SAML assertion - either it was invalid, or the reference didn't match a
-     * cached assertion, etc. In order not to get stuck in a processing loop, we will remove the
-     * existing SAML assertion cookies - that will allow handling to progress moving forward.
+     * cached assertion, etc. In order not to get stuck in a processing loop, we will return a 401
+     * status code.
      *
      * @param servletRequest  http servlet request
      * @param servletResponse http servlet response
@@ -155,33 +154,17 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
             return result;
         }
 
-        LOGGER.debug("In error handler for saml - clearing cookies and returning no action taken.");
+        LOGGER.debug("In error handler for saml - setting status code to 401 and returning status REDIRECTED.");
 
         // we tried to process an invalid or missing SAML assertion
-        deleteCookie(SecurityConstants.SAML_COOKIE_NAME, httpRequest, httpResponse);
-        deleteCookie(SecurityConstants.SAML_COOKIE_REF, httpRequest, httpResponse);
-
-        result.setStatus(HandlerResult.Status.NO_ACTION);
+        try {
+            httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            httpResponse.flushBuffer();
+        } catch (IOException e) {
+            LOGGER.debug("Failed to send auth response", e);
+        }
+        result.setStatus(HandlerResult.Status.REDIRECTED);
         return result;
     }
-
-    public void deleteCookie(String cookieName, HttpServletRequest request,
-            HttpServletResponse response) {
-        //remove session cookie
-        try {
-            LOGGER.debug("Removing cookie {}", cookieName);
-            response.setContentType("text/html");
-            Cookie cookie = new Cookie(cookieName, "");
-            URL url = null;
-            url = new URL(request.getRequestURL().toString());
-            cookie.setDomain(url.getHost());
-            cookie.setMaxAge(0);
-            cookie.setPath("/");
-            cookie.setComment("EXPIRING COOKIE at " + System.currentTimeMillis());
-            response.addCookie(cookie);
-        } catch (MalformedURLException e) {
-            LOGGER.warn("Unable to delete cookie {}", cookieName, e);
-        }
-    }
-
 }
