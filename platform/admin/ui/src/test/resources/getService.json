@@ -1,0 +1,116 @@
+{
+  "request": {
+    "mbean": "org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0",
+    "arguments": [
+      "(service.pid=ddf.platform.config)"
+    ],
+    "type": "exec",
+    "operation": "getService"
+  },
+  "value": {
+    "factory": false,
+    "configurations": [
+      {
+        "bundle_location": "mvn:ddf.platform/platform-configuration/2.8.0-SNAPSHOT",
+        "name": "Platform Global Configuration",
+        "id": "ddf.platform.config",
+        "bundle_name": "DDF :: Platform :: Configuration",
+        "bundle": 197,
+        "properties": {
+          "protocol": "https://",
+          "port": "8993",
+          "contact": "",
+          "organization": "Codice Foundation",
+          "host": "localhost",
+          "felix.fileinstall.filename": "file:ddf-2.8.0-SNAPSHOT/etc/ddf.platform.config.cfg",
+          "id": "ddf.distribution",
+          "version": "2.8.0-SNAPSHOT",
+          "service.pid": "ddf.platform.config"
+        },
+        "enabled": true
+      }
+    ],
+    "name": "Platform Global Configuration",
+    "metatype": [
+      {
+        "defaultValue": null,
+        "optionLabels": [
+          "http",
+          "https"
+        ],
+        "name": "Protocol",
+        "description": "The protocol used to advertise the system. When selecting the protocol, be sure to enter the port number corresponding to that protocol.",
+        "id": "protocol",
+        "type": 1,
+        "cardinality": 0,
+        "optionValues": [
+          "http://",
+          "https://"
+        ]
+      },
+      {
+        "defaultValue": null,
+        "optionLabels": [],
+        "name": "Host",
+        "description": "The host name or IP address used to advertise the system. Possibilities include the address of a single node of that of a load balancer in a multi-node deployment. NOTE: Does not change the address the system runs on.",
+        "id": "host",
+        "type": 1,
+        "cardinality": 0,
+        "optionValues": []
+      },
+      {
+        "defaultValue": null,
+        "optionLabels": [],
+        "name": "Port",
+        "description": "The port used to advertise the system. Possibilities include the port of a single node of that of a load balancer in a multi-node deployment. NOTE: Does not change the port the system runs on.",
+        "id": "port",
+        "type": 1,
+        "cardinality": 0,
+        "optionValues": []
+      },
+      {
+        "defaultValue": null,
+        "optionLabels": [],
+        "name": "Site Name",
+        "description": "The unique name of this instance. This name will be provided via web services that ask for the name.",
+        "id": "id",
+        "type": 1,
+        "cardinality": 0,
+        "optionValues": []
+      },
+      {
+        "defaultValue": null,
+        "optionLabels": [],
+        "name": "Version",
+        "description": "The version of this instance.",
+        "id": "version",
+        "type": 1,
+        "cardinality": 0,
+        "optionValues": []
+      },
+      {
+        "defaultValue": null,
+        "optionLabels": [],
+        "name": "Organization",
+        "description": "The name of the organization that runs this instance.",
+        "id": "organization",
+        "type": 1,
+        "cardinality": 0,
+        "optionValues": []
+      },
+      {
+        "defaultValue": null,
+        "optionLabels": [],
+        "name": "Site contact",
+        "description": "The email address of the site contact",
+        "id": "contact",
+        "type": 1,
+        "cardinality": 0,
+        "optionValues": []
+      }
+    ],
+    "id": "ddf.platform.config"
+  },
+  "timestamp": 1441313086,
+  "status": 200
+}
