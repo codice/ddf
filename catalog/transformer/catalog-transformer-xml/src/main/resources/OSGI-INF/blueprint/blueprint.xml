@@ -41,7 +41,7 @@
             <entry key="schema" value="urn:catalog:metacard"/>
         </service-properties>
         <bean class="ddf.catalog.transformer.xml.XmlMetacardTransformer">
-            <argument ref="xmlParser"/>
+            <argument ref="mcMarshaller"/>
         </bean>
     </service>
 
@@ -52,6 +52,9 @@
                 update-strategy="container-managed"/>
         <argument ref="xmlParser"/>
         <argument ref="fjp"/>
+        <argument ref="writerProvider"/>
+        <argument ref="mcMarshaller"/>
+        <argument ref="mimeType"/>
         <property name="threshold" value="50"/>
     </bean>
 
@@ -64,6 +67,27 @@
             <entry key="shortname" value="xml"/>
             <entry key="mime-type" value="text/xml"/>
             <entry key="schema" value="urn:catalog:metacard"/>
+        </service-properties>
+    </service>
+
+    <bean id="writerProvider" class="ddf.catalog.transformer.xml.PrintWriterProviderImpl"/>
+
+    <service ref="writerProvider" interface="ddf.catalog.transformer.api.PrintWriterProvider">
+        <service-properties>
+            <entry key="id" value="print.writer.provider"/>
+        </service-properties>
+    </service>
+
+    <bean id="mcMarshaller" class="ddf.catalog.transformer.xml.MetacardMarshallerImpl">
+        <argument ref="xmlParser"/>
+        <argument ref="writerProvider"/>
+    </bean>
+
+    <bean id="mimeType" class="javax.activation.MimeType"/>
+
+    <service ref="mcMarshaller" interface="ddf.catalog.transformer.api.MetacardMarshaller">
+        <service-properties>
+            <entry key="id" value="metacard.marshaller"/>
         </service-properties>
     </service>
 

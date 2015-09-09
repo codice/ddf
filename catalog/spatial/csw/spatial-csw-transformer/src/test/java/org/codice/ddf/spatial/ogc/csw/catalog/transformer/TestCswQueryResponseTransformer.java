@@ -1,26 +1,26 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.transformer;
 
+import static java.util.Collections.EMPTY_MAP;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.Matchers.any;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
@@ -38,18 +38,15 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.parser.Parser;
+import org.codice.ddf.parser.xml.XmlParser;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswJAXBElementProvider;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
-import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswTransformProvider;
-import org.codice.ddf.spatial.ogc.csw.catalog.converter.GetRecordsResponseConverter;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.opengis.filter.Filter;
-
-import com.thoughtworks.xstream.converters.MarshallingContext;
-import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Result;
@@ -60,32 +57,49 @@ import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.SourceResponseImpl;
 import ddf.catalog.transform.CatalogTransformerException;
+import ddf.catalog.transform.MetacardTransformer;
+import ddf.catalog.transformer.api.MetacardMarshaller;
+import ddf.catalog.transformer.api.PrintWriterProvider;
+import ddf.catalog.transformer.xml.MetacardMarshallerImpl;
+import ddf.catalog.transformer.xml.PrintWriterProviderImpl;
+import ddf.catalog.transformer.xml.XmlMetacardTransformer;
+
 import net.opengis.cat.csw.v_2_0_2.AcknowledgementType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.ResultType;
 
 public class TestCswQueryResponseTransformer {
 
+    private static final Logger LOGGER = LoggerFactory
+            .getLogger(TestCswQueryResponseTransformer.class);
+
     private CswQueryResponseTransformer transformer;
-
-    private GetRecordsResponseConverter mockConverter;
-
-    private CswTransformProvider mockTransformProvider;
 
     private Filter filter = mock(Filter.class);
 
+    private TransformerManager mockTransformerManager;
+
+    private PrintWriterProvider mockPrintWriterProvider;
+
     @Before
     public void before() {
-        mockConverter = mock(GetRecordsResponseConverter.class);
-        mockTransformProvider = mock(CswTransformProvider.class);
-        transformer = new CswQueryResponseTransformer(mockConverter);
-        when(mockConverter.canConvert(any(Class.class))).thenReturn(true);
-        when(mockTransformProvider.canConvert(any(Class.class))).thenReturn(true);
+        mockTransformerManager = mock(TransformerManager.class);
+        mockPrintWriterProvider = mock(PrintWriterProvider.class);
+        transformer = new CswQueryResponseTransformer(mockTransformerManager,
+                mockPrintWriterProvider);
     }
 
     @Test
-    public void testMarshalRecordCollection() throws WebApplicationException, IOException,
-            JAXBException, CatalogTransformerException {
+    public void testMarshalNullSourceResponseResultList() throws CatalogTransformerException {
+        SourceResponseImpl sourceResponse = new SourceResponseImpl(null, null);
+        BinaryContent bc = transformer.transform(sourceResponse, EMPTY_MAP);
+        assertNull(bc);
+    }
+
+    @Test
+    public void testMarshalRecordCollectionNotNull()
+            throws WebApplicationException, IOException, JAXBException,
+            CatalogTransformerException {
 
         GetRecordsType query = new GetRecordsType();
         query.setResultType(ResultType.RESULTS);
@@ -97,29 +111,32 @@ public class TestCswQueryResponseTransformer {
         args.put(CswConstants.OUTPUT_SCHEMA_PARAMETER, CswConstants.CSW_OUTPUT_SCHEMA);
         args.put(CswConstants.RESULT_TYPE_PARAMETER, ResultType.RESULTS);
 
-        ArgumentCaptor<CswRecordCollection> captor = ArgumentCaptor
-                .forClass(CswRecordCollection.class);
+        TransformerManager mockTransformerManager = mock(TransformerManager.class);
+        Parser parser = new XmlParser();
+        PrintWriterProvider printWriterProvider = new PrintWriterProviderImpl();
+        MetacardMarshaller metacardMarshaller = new MetacardMarshallerImpl(parser,
+                printWriterProvider);
+        MetacardTransformer metacardTransformer = new XmlMetacardTransformer(metacardMarshaller);
+        when(mockTransformerManager.getTransformerBySchema(anyString()))
+                .thenReturn(metacardTransformer);
 
-        BinaryContent content = transformer.transform(sourceResponse, args);
+        CswQueryResponseTransformer transformer = new CswQueryResponseTransformer(
+                mockTransformerManager, printWriterProvider);
+        transformer.init();
 
-        verify(mockConverter, times(1))
-                .marshal(captor.capture(), any(HierarchicalStreamWriter.class),
-                        any(MarshallingContext.class));
+        BinaryContent bc = transformer.transform(sourceResponse, args);
 
-        CswRecordCollection collection = captor.getValue();
+        assertNotNull("CswQueryResponseTransformer output null binary content.", bc);
+        //String outputXml = new String(bc.getByteArray());
+        //LOGGER.info(outputXml);
 
-        assertThat(collection.getResultType(), is(ResultType.RESULTS));
-        assertThat(collection.getOutputSchema(), is(CswConstants.CSW_OUTPUT_SCHEMA));
-        assertThat(collection.getStartPosition(), is(4));
-        assertThat(collection.isById(), is(false));
-        assertThat(collection.getNumberOfRecordsMatched(), is(22L));
-        assertThat(collection.getNumberOfRecordsReturned(), is(6L));
-        assertThat(collection.getCswRecords().isEmpty(), is(false));
+        transformer.destroy();
     }
 
     @Test
-    public void testMarshalAcknowledgement() throws WebApplicationException, IOException,
-            JAXBException, CatalogTransformerException {
+    public void testMarshalAcknowledgement()
+            throws WebApplicationException, IOException, JAXBException,
+            CatalogTransformerException {
 
         GetRecordsType query = new GetRecordsType();
         query.setResultType(ResultType.VALIDATE);
@@ -143,27 +160,6 @@ public class TestCswQueryResponseTransformer {
         assertThat(response.getEchoedRequest().getAny(), is(instanceOf(JAXBElement.class)));
         JAXBElement<?> jaxB = (JAXBElement<?>) response.getEchoedRequest().getAny();
         assertThat(jaxB.getValue(), is(instanceOf(GetRecordsType.class)));
-    }
-
-    @Test
-    public void testMarshalRecordCollectionByIdRequest() throws WebApplicationException,
-            IOException, JAXBException, CatalogTransformerException {
-        SourceResponse sourceResponse = createSourceResponse(null, 2);
-
-        Map<String, Serializable> args = new HashMap<String, Serializable>();
-        args.put(CswConstants.IS_BY_ID_QUERY, true);
-        ArgumentCaptor<CswRecordCollection> captor = ArgumentCaptor
-                .forClass(CswRecordCollection.class);
-
-        BinaryContent content = transformer.transform(sourceResponse, args);
-
-        verify(mockConverter, times(1))
-                .marshal(captor.capture(), any(HierarchicalStreamWriter.class),
-                        any(MarshallingContext.class));
-
-        CswRecordCollection collection = captor.getValue();
-
-        assertThat(collection.isById(), is(true));
     }
 
     private SourceResponse createSourceResponse(GetRecordsType request, int resultCount) {

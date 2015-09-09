@@ -88,6 +88,11 @@
             <groupId>ddf.action.core</groupId>
             <artifactId>action-core-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>ddf.catalog.transformer</groupId>
+            <artifactId>catalog-transformer-xml</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

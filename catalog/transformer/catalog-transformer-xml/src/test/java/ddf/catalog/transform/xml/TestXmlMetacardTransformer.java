@@ -16,6 +16,8 @@ package ddf.catalog.transform.xml;
 import static org.custommonkey.xmlunit.XMLAssert.assertXpathEvaluatesTo;
 import static org.custommonkey.xmlunit.XMLAssert.assertXpathExists;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -25,23 +27,32 @@ import java.io.InputStreamReader;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.codice.ddf.parser.Parser;
 import org.codice.ddf.parser.xml.XmlParser;
 import org.custommonkey.xmlunit.NamespaceContext;
 import org.custommonkey.xmlunit.SimpleNamespaceContext;
 import org.custommonkey.xmlunit.XMLUnit;
+import org.custommonkey.xmlunit.exceptions.XpathException;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 
+import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.transform.CatalogTransformerException;
+import ddf.catalog.transformer.api.MetacardMarshaller;
+import ddf.catalog.transformer.xml.MetacardMarshallerImpl;
+import ddf.catalog.transformer.xml.PrintWriterProviderImpl;
 import ddf.catalog.transformer.xml.XmlMetacardTransformer;
 
 public class TestXmlMetacardTransformer {
@@ -52,7 +63,61 @@ public class TestXmlMetacardTransformer {
 
     @Before
     public void setup() {
-        transformer = new XmlMetacardTransformer(new XmlParser());
+        Parser parser = new XmlParser();
+        MetacardMarshaller metacardMarshaller = new MetacardMarshallerImpl(parser, new PrintWriterProviderImpl());
+        transformer = new XmlMetacardTransformer(metacardMarshaller);
+    }
+
+    /*
+    */
+    @Test
+    public void testMetacardTypeNameEmpty()
+            throws CatalogTransformerException, IOException, XpathException, SAXException {
+        Metacard mc = mock(Metacard.class);
+
+        MetacardType mct = mock(MetacardType.class);
+        when(mct.getName()).thenReturn("");
+        when(mct.getAttributeDescriptors()).thenReturn(Collections.<AttributeDescriptor>emptySet());
+
+        when(mc.getMetacardType()).thenReturn(mct);
+        when(mc.getId()).thenReturn(null);
+        when(mc.getSourceId()).thenReturn(null);
+
+        BinaryContent bc = transformer.transform(mc, null);
+        String outputXml = new String(bc.getByteArray());
+        //LOGGER.info(outputXml);
+        Map<String, String> m = new HashMap<>();
+        m.put("m", "urn:catalog:metacard");
+        NamespaceContext ctx = new SimpleNamespaceContext(m);
+        XMLUnit.setXpathNamespaceContext(ctx);
+        assertXpathEvaluatesTo(MetacardType.DEFAULT_METACARD_TYPE_NAME, "/m:metacard/m:type",
+                outputXml);
+    }
+
+    /*
+    */
+    @Test
+    public void testMetacardTypeNameNull()
+            throws CatalogTransformerException, SAXException, IOException, XpathException {
+        Metacard mc = mock(Metacard.class);
+
+        MetacardType mct = mock(MetacardType.class);
+        when(mct.getName()).thenReturn(null);
+        when(mct.getAttributeDescriptors()).thenReturn(Collections.<AttributeDescriptor>emptySet());
+
+        when(mc.getMetacardType()).thenReturn(mct);
+        when(mc.getId()).thenReturn(null);
+        when(mc.getSourceId()).thenReturn(null);
+
+        BinaryContent bc = transformer.transform(mc, null);
+        String outputXml = new String(bc.getByteArray());
+        //LOGGER.info(outputXml);
+        Map<String, String> m = new HashMap<>();
+        m.put("m", "urn:catalog:metacard");
+        NamespaceContext ctx = new SimpleNamespaceContext(m);
+        XMLUnit.setXpathNamespaceContext(ctx);
+        assertXpathEvaluatesTo(MetacardType.DEFAULT_METACARD_TYPE_NAME, "/m:metacard/m:type",
+                outputXml);
     }
 
     @Test

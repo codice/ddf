@@ -29,6 +29,9 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.catalog.transform.MetacardTransformer;
+import ddf.catalog.transformer.api.MetacardMarshaller;
+import ddf.catalog.transformer.xml.MetacardMarshallerImpl;
+import ddf.catalog.transformer.xml.PrintWriterProviderImpl;
 import ddf.catalog.transformer.xml.XmlInputTransformer;
 import ddf.catalog.transformer.xml.XmlMetacardTransformer;
 
@@ -41,7 +44,9 @@ public class IntegrationTest {
         Parser parser = new XmlParser();
 
         InputTransformer inputTransformer = new XmlInputTransformer(parser);
-        MetacardTransformer outputTransformer = new XmlMetacardTransformer(parser);
+
+        MetacardMarshaller metacardMarshaller = new MetacardMarshallerImpl(parser, new PrintWriterProviderImpl());
+        MetacardTransformer outputTransformer = new XmlMetacardTransformer(metacardMarshaller);
 
         InputStream input = getClass().getResourceAsStream("/extensibleMetacard.xml");
         Metacard metacard = inputTransformer.transform(input);
