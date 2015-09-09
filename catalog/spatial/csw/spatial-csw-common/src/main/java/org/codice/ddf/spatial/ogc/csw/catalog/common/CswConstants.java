@@ -107,11 +107,11 @@ public interface CswConstants {
 
     String WILD_CARD = "*";
 
-    public static final String COMMA = ",";
+    String COMMA = ",";
 
-    public static final String NAMESPACE_DELIMITER = ":";
+    String NAMESPACE_DELIMITER = ":";
 
-    public static final String EQUALS = "=";
+    String EQUALS = "=";
 
     // NOTE: "csw:" prefix is not needed for AnyText queries
     String ANY_TEXT = "AnyText";
@@ -211,27 +211,28 @@ public interface CswConstants {
     double EARTH_MEAN_RADIUS_METERS = 6371008.7714;
 
     // Exception Codes
-    static final String VERSION_NEGOTIATION_FAILED = "VersionNegotiationFailed";
-    static final String MISSING_PARAMETER_VALUE = "MissingParameterValue";
-    static final String INVALID_PARAMETER_VALUE = "InvalidParameterValue";
-    static final String NONEXISTENT_TYPE = "NonexistentType";
-    static final String OPERATION_NOT_SUPPORTED = "OperationNotSupported";
-    static final String NO_APPLICABLE_CODE = "NoApplicableCode";
+    String VERSION_NEGOTIATION_FAILED = "VersionNegotiationFailed";
+    String MISSING_PARAMETER_VALUE = "MissingParameterValue";
+    String INVALID_PARAMETER_VALUE = "InvalidParameterValue";
+    String NONEXISTENT_TYPE = "NonexistentType";
+    String OPERATION_NOT_SUPPORTED = "OperationNotSupported";
+    String NO_APPLICABLE_CODE = "NoApplicableCode";
 
-    public static final String OUTPUT_FORMAT_XML = MediaType.APPLICATION_XML;
+    String OUTPUT_FORMAT_XML = MediaType.APPLICATION_XML;
 
-    public static final String SCHEMA_LANGUAGE_X_SCHEMA_2001 = "http://www.w3.org/2001/XMLSchema";
-    public static final String SCHEMA_LANGUAGE_X_SCHEMA = "http://www.w3.org/XMLSchema";
-    public static final String SCHEMA_LANGUAGE_XML_SCHEMA = "http://www.w3.org/XML/Schema";
-    public static final String SCHEMA_LANGUAGE_XML_TR = "http://www.w3.org/TR/xmlschema-1/";
+    String SCHEMA_LANGUAGE_X_SCHEMA_2001 = "http://www.w3.org/2001/XMLSchema";
+    String SCHEMA_LANGUAGE_X_SCHEMA = "http://www.w3.org/XMLSchema";
+    String SCHEMA_LANGUAGE_XML_SCHEMA = "http://www.w3.org/XML/Schema";
+    String SCHEMA_LANGUAGE_XML_TR = "http://www.w3.org/TR/xmlschema-1/";
 
-    public static final List<String> VALID_SCHEMA_LANGUAGES = new ArrayList<String>(
+    List<String> VALID_SCHEMA_LANGUAGES = new ArrayList<String>(
             Arrays.asList(SCHEMA_LANGUAGE_X_SCHEMA, SCHEMA_LANGUAGE_XML_SCHEMA,
                     SCHEMA_LANGUAGE_X_SCHEMA_2001, SCHEMA_LANGUAGE_XML_TR));
     String ELEMENT_SET_TYPE = "ELEMENT_SET_TYPE";
     String ELEMENT_NAMES = "ELEMENT_NAMES";
     String IS_BY_ID_QUERY = "IS_BY_ID_QUERY";
     String WRITE_NAMESPACES = "WRITE_NAMESPACES";
+    String NAMESPACE_DECLARATIONS = "NAMESPACE_DECLARATIONS";
     String ROOT_NODE_NAME = "ROOT_NODE_NAME";
     String CSW_MAPPING = "CSW_MAPPING";
     String PRODUCT_RETRIEVAL_METHOD = "PRODUCT_RETRIEVAL_METHOD";

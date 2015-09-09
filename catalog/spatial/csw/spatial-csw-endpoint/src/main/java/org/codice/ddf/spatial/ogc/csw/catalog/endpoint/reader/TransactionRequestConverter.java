@@ -306,7 +306,7 @@ public class TransactionRequestConverter implements Converter {
 
     private Map<String, String> getXmlnsAttributeToUriMappingsFromContext(
             UnmarshallingContext context) {
-        Object namespaceObj = context.get(CswConstants.WRITE_NAMESPACES);
+        Object namespaceObj = context.get(CswConstants.NAMESPACE_DECLARATIONS);
         if (namespaceObj instanceof Map<?, ?>) {
             return (Map<String, String>) namespaceObj;
         }
