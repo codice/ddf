@@ -173,7 +173,16 @@ public abstract class AbstractIntegrationTest {
         return securityPolicy;
     }
 
-    private Option[] combineOptions(Option[]... options) {
+    /**
+     * Combines all the {@link Option} objects contained in multiple {@link Option} arrays.
+     *
+     * @param options arrays of {@link Option} objects to combine. Arrays can be {@code null} or
+     *                empty.
+     * @return array that combines all the {@code Option} objects from the arrays provided.
+     * {@code null} and empty arrays will be ignored, but {@code null} {@link Option} objects will
+     * be added to the result.
+     */
+    protected Option[] combineOptions(Option[]... options) {
         List<Option> optionList = new ArrayList<>();
         for (Option[] array : options) {
             if (array != null && array.length > 0) {
@@ -187,9 +196,9 @@ public abstract class AbstractIntegrationTest {
 
     protected Option[] configureDistribution() {
         return options(karafDistributionConfiguration(
-                maven().groupId("org.codice.ddf").artifactId("ddf").type("zip")
-                        .versionAsInProject().getURL(), "ddf", KARAF_VERSION)
-                .unpackDirectory(new File("target/exam")).useDeployFolder(false));
+                maven().groupId("org.codice.ddf").artifactId("ddf").type("zip").versionAsInProject()
+                        .getURL(), "ddf", KARAF_VERSION).unpackDirectory(new File("target/exam"))
+                .useDeployFolder(false));
 
     }
 
@@ -291,9 +300,8 @@ public abstract class AbstractIntegrationTest {
     }
 
     /**
-     * @param path
-     * @throws InterruptedException
-     * @deprecated since 2.8.0 see {@link ServiceManager#waitForHttpEndpoint(String)}
+     * @deprecated since 2.8.0. Use {@link ServiceManager#waitForHttpEndpoint(String)
+     * getServiceManager().waitForHttpEndpoint()} instead.
      */
     @Deprecated
     protected void waitForHttpEndpoint(String path) throws InterruptedException {
@@ -301,10 +309,8 @@ public abstract class AbstractIntegrationTest {
     }
 
     /**
-     * @param wait
-     * @param featureNames
-     * @throws Exception
-     * @deprecated since 2.8.0 see {@link ServiceManager#stopFeature(boolean, String...)}
+     * @deprecated since 2.8.0. Use {@link ServiceManager#stopFeature(boolean, String...)
+     * getServiceManager().stopFeature()} instead.
      */
     @Deprecated
     protected void stopFeature(boolean wait, String... featureNames) throws Exception {
@@ -312,8 +318,8 @@ public abstract class AbstractIntegrationTest {
     }
 
     /**
-     * @throws IOException
-     * @deprecated since 2.8.0 see {@link AdminConfig#setLogLevels()}
+     * @deprecated since 2.8.0. Use {@link AdminConfig#setLogLevels()
+     * getAdminConfig().setLogLevels()} instead.
      */
     @Deprecated
     protected void setLogLevels() throws IOException {
@@ -321,10 +327,8 @@ public abstract class AbstractIntegrationTest {
     }
 
     /**
-     * @param wait
-     * @param featureNames
-     * @throws Exception
-     * @deprecated since 2.8.0 see {@link ServiceManager#startFeature(boolean, String...)}
+     * @deprecated since 2.8.0. Use {@link ServiceManager#startFeature(boolean, String...)
+     * getServiceManager().startFeature()} instead.
      */
     @Deprecated
     protected void startFeature(boolean wait, String... featureNames) throws Exception {
@@ -332,10 +336,8 @@ public abstract class AbstractIntegrationTest {
     }
 
     /**
-     * @param factoryPid
-     * @param properties
-     * @throws IOException
-     * @deprecated since 2.8.0 see {@link ServiceManager#createManagedService(String, Map)}
+     * @deprecated since 2.8.0. Use {@link ServiceManager#createManagedService(String, Map)
+     * getServiceManager.createManagedService()} instead.
      */
     @Deprecated
     protected void createManagedService(String factoryPid, Map<String, Object> properties)
@@ -344,9 +346,8 @@ public abstract class AbstractIntegrationTest {
     }
 
     /**
-     * @param fanoutEnabled
-     * @throws IOException
-     * @deprecated since 2.8.0 see {@link CatalogBundle#setFanout(boolean)}
+     * @deprecated since 2.8.0. Use {@link CatalogBundle#setFanout(boolean)
+     * getCatalogBundle().setFanout()} instead.
      */
     @Deprecated
     protected void setFanout(boolean fanoutEnabled) throws IOException {
@@ -354,9 +355,8 @@ public abstract class AbstractIntegrationTest {
     }
 
     /**
-     * @param symbolicNamePrefix
-     * @throws InterruptedException
-     * @deprecated since 2.8.0 see {@link ServiceManager#waitForRequiredBundles(String)}
+     * @deprecated since 2.8.0. Use {@link ServiceManager#waitForRequiredBundles(String)
+     * getServiceManager.waitForRequiredBundles()} instead.
      */
     @Deprecated
     protected void waitForRequiredBundles(String symbolicNamePrefix) throws InterruptedException {
@@ -364,9 +364,8 @@ public abstract class AbstractIntegrationTest {
     }
 
     /**
-     * @param sources
-     * @throws InterruptedException
-     * @deprecated since 2.8.0 see {@link ServiceManager#waitForSourcesToBeAvailable(String, String...)}
+     * @deprecated since 2.8.0. Use {@link ServiceManager#waitForSourcesToBeAvailable(String, String...)
+     * getServiceManager.waitForSourcesToBeAvailable()} instead.
      */
     @Deprecated
     protected void waitForSourcesToBeAvailable(String... sources) throws InterruptedException {
@@ -374,11 +373,8 @@ public abstract class AbstractIntegrationTest {
     }
 
     /**
-     * @param id
-     * @return
-     * @throws InterruptedException
-     * @throws InvalidSyntaxException
-     * @deprecated since 2.8.0 see {@link CatalogBundle#waitForFederatedSource(String)}
+     * @deprecated since 2.8.0. Use {@link CatalogBundle#waitForFederatedSource(String)
+     * getCatalogBundle.waitForFederatedSource()} instead.
      */
     @Deprecated
     protected FederatedSource waitForFederatedSource(String id)
@@ -387,9 +383,8 @@ public abstract class AbstractIntegrationTest {
     }
 
     /**
-     * @return
-     * @throws InterruptedException
-     * @deprecated since 2.8.0 see {@link CatalogBundle#waitForCatalogProvider()}
+     * @deprecated since 2.8.0. Use {@link CatalogBundle#waitForCatalogProvider()
+     * getCatalogBundle.waitForCatalogProvider()} instead.
      */
     @Deprecated
     protected CatalogProvider waitForCatalogProvider() throws InterruptedException {
@@ -397,9 +392,8 @@ public abstract class AbstractIntegrationTest {
     }
 
     /**
-     * @return
-     * @throws InterruptedException
-     * @deprecated since 2.8.0 see {@link CatalogBundle#getCatalogFramework()}
+     * @deprecated since 2.8.0. Use {@link CatalogBundle#getCatalogFramework()
+     * getCatalogBundle.getCatalogFramework()} instead.
      */
     @Deprecated
     protected CatalogFramework getCatalogFramework() throws InterruptedException {
@@ -407,10 +401,8 @@ public abstract class AbstractIntegrationTest {
     }
 
     /**
-     * @param symbolicName
-     * @param factoryPid
-     * @return
-     * @deprecated since 2.8.0 see {@link ServiceManager#getMetatypeDefaults(String, String)}
+     * @deprecated since 2.8.0. Use {@link ServiceManager#getMetatypeDefaults(String, String)
+     * getServiceManager.getMetatypeDefaults()} instead.
      */
     @Deprecated
     protected Map<String, Object> getMetatypeDefaults(String symbolicName, String factoryPid) {
@@ -418,10 +410,8 @@ public abstract class AbstractIntegrationTest {
     }
 
     /**
-     * @param servicePid
-     * @param properties
-     * @throws IOException
-     * @deprecated since 2.8.0 see {@link ServiceManager#startManagedService(String, Map)}
+     * @deprecated since 2.8.0. Use {@link ServiceManager#startManagedService(String, Map)
+     * getServiceManager.startManagedService()} instead.
      */
     @Deprecated
     protected void startManagedService(String servicePid, Map<String, Object> properties)
@@ -430,8 +420,8 @@ public abstract class AbstractIntegrationTest {
     }
 
     /**
-     * @throws InterruptedException
-     * @deprecated since 2.8.0 see {@link ServiceManager#waitForAllBundles()}
+     * @deprecated since 2.8.0. Use {@link ServiceManager#waitForAllBundles()
+     * getServiceManager.waitForAllBundles()} instead.
      */
     @Deprecated
     protected void waitForAllBundles() throws InterruptedException {
