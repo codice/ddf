@@ -14,9 +14,10 @@
 
 package ddf.security.certificate.generator;
 
+import java.io.IOException;
 import java.lang.management.ManagementFactory;
-import java.util.Hashtable;
-import java.util.Map;
+import java.security.GeneralSecurityException;
+import java.security.KeyStore;
 
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanServer;
@@ -69,6 +70,26 @@ public class CertificateGenerator implements CertificateGeneratorMBean {
         objectName = objName;
     }
 
+    public boolean installCertificate(String commonName) {
+        CertificateAuthority demoCa = new DemoCertificateAuthority();
+        CertificateSigningRequest csr = new CertificateSigningRequest();
+        csr.setCommonName(commonName);
+        KeyStore.PrivateKeyEntry pkEntry = demoCa.sign(csr);
+        KeyStoreFile ksFile = null;
+        try {
+            ksFile = KeyStoreFile.openFile(System.getProperty("javax.net.ssl.keyStore"),
+                    System.getProperty("javax.net.ssl.keyStorePassword").toCharArray());
+            //Ask Eric or someone about what to do here. Hide the checked errors behind unchecked errors?
+        } catch (IOException e) {
+            return false;
+        } catch (GeneralSecurityException e) {
+            return false;
+        }
+        ksFile.setEntry(commonName, pkEntry);
+        ksFile.save();
+        return true;
+    }
+
     public void init() {
         try {
             try {
@@ -91,18 +112,5 @@ public class CertificateGenerator implements CertificateGeneratorMBean {
         } catch (Exception e) {
             LOGGER.warn("Exception unregistering MBean: ", e);
         }
-    }
-
-    public Map<String, byte[]> getCertificate(String commonnName) {
-
-        Map<String, byte[]> table = new Hashtable<>();
-        CertificateAuthority ca = new CertificateAuthority();
-        CertificateSigningRequest csr = new CertificateSigningRequest();
-
-        //        table.put("endEntityCertificate", csr.getSignedCertificate().getEncoded());
-        //        table.put("endEntityPublicKey", pkiTools.keyToDer(csr.getSubjectPublicKey()));
-        //        table.put("endEntityPrivateKey", pkiTools.keyToDer(csr.getSubjectPrivateKey()));
-        //        table.put("rootCertificate", ca.getCertificate().getEncoded());
-        return table;
     }
 }

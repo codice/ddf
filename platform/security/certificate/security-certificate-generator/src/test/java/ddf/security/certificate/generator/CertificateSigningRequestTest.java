@@ -36,7 +36,7 @@ public class CertificateSigningRequestTest {
     CertificateSigningRequest csr;
 
     @Before
-    public void setup() {
+    public void setUp() {
         csr = new CertificateSigningRequest();
     }
 

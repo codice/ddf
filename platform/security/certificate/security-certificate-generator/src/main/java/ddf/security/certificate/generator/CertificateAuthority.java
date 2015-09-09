@@ -13,6 +13,7 @@
  */
 package ddf.security.certificate.generator;
 
+import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.Security;
 import java.security.cert.CertificateException;
@@ -58,7 +59,7 @@ public class CertificateAuthority {
     CertificateAuthority() {
     }
 
-    public PrivateKeyEntry sign(CertificateSigningRequest csr) {
+    public KeyStore.PrivateKeyEntry sign(CertificateSigningRequest csr) {
         //Converters, holders, and builders! Oh my!
         JcaX509v3CertificateBuilder builder = csr.newCertificateBuilder(getCertificate());
         X509CertificateHolder holder = builder.build(getContentSigner());
@@ -71,7 +72,11 @@ public class CertificateAuthority {
                     e.getCause());
         }
 
-        return new PrivateKeyEntry(signedCert, csr.getSubjectPrivateKey(), getCertificate());
+        X509Certificate[] chain = new X509Certificate[2];
+        chain[0] = signedCert;
+        chain[1] = getCertificate();
+
+        return new KeyStore.PrivateKeyEntry(csr.getSubjectPrivateKey(), chain);
     }
 
     JcaX509CertificateConverter newCertConverter() {

@@ -13,9 +13,7 @@
  */
 package ddf.security.certificate.generator;
 
-import java.util.Map;
-
 public interface CertificateGeneratorMBean {
 
-    public Map<String, byte[]> getCertificate(String commonName);
+    public boolean installCertificate(String commonName);
 }
