@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -14,56 +14,62 @@
 package ddf.catalog.transformer.xml;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Map;
 
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.helpers.DefaultValidationEventHandler;
+import javax.activation.MimeType;
+import javax.activation.MimeTypeParseException;
 
-import org.codice.ddf.parser.Parser;
-import org.codice.ddf.parser.ParserConfigurator;
-import org.codice.ddf.parser.ParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xmlpull.v1.XmlPullParserException;
 
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.BinaryContentImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
-import ddf.catalog.transformer.xml.adapter.AdaptedMetacard;
-import ddf.catalog.transformer.xml.adapter.AttributeAdapter;
+import ddf.catalog.transformer.api.MetacardMarshaller;
 
-public class XmlMetacardTransformer extends AbstractXmlTransformer implements MetacardTransformer {
+public class XmlMetacardTransformer implements MetacardTransformer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(XmlMetacardTransformer.class);
 
-    public XmlMetacardTransformer(Parser parser) {
-        super(parser);
+    private MetacardMarshaller metacardMarshaller;
+
+    public static final MimeType MIME_TYPE = new MimeType();
+
+    static {
+        try {
+            MIME_TYPE.setPrimaryType("text");
+            MIME_TYPE.setSubType("xml");
+        } catch (MimeTypeParseException e) {
+            LOGGER.info("Failure creating MIME type", e);
+            throw new ExceptionInInitializerError(e);
+        }
+    }
+
+    public XmlMetacardTransformer(MetacardMarshaller metacardMarshaller) {
+        this.metacardMarshaller = metacardMarshaller;
     }
 
     @Override
     public BinaryContent transform(Metacard metacard, Map<String, Serializable> arguments)
             throws CatalogTransformerException {
+
         if (metacard == null) {
             LOGGER.debug("Attempted to transform null metacard");
             throw new CatalogTransformerException("Unable to transform null metacard");
         }
 
-        ParserConfigurator parserConfigurator = getParserConfigurator()
-                .setAdapter(new AttributeAdapter(metacard.getMetacardType()))
-                .setHandler(new DefaultValidationEventHandler())
-                .addProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-
         try {
-            ByteArrayOutputStream os = new ByteArrayOutputStream();
-            getParser().marshal(parserConfigurator, new AdaptedMetacard(metacard), os);
-
-            ByteArrayInputStream bais = new ByteArrayInputStream(os.toByteArray());
+            String xmlString = metacardMarshaller.marshal(metacard, arguments);
+            ByteArrayInputStream bais = new ByteArrayInputStream(xmlString.getBytes());
             return new BinaryContentImpl(bais, MIME_TYPE);
-        } catch (ParserException e) {
-            throw new CatalogTransformerException("Failed XML Transformation", e);
+        } catch (XmlPullParserException | IOException e) {
+            throw new CatalogTransformerException(e);
         }
     }
+
 }

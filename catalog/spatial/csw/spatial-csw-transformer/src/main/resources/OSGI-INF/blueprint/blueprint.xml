@@ -17,17 +17,11 @@
     <reference id="resourceActionProvider" interface="ddf.action.ActionProvider"
                filter="id=catalog.data.metacard.resource"/>
 
+    <reference id="writerProvider" interface="ddf.catalog.transformer.api.PrintWriterProvider"
+               filter="(id=print.writer.provider)"/>
+
     <!-- Register the Transformers -->
     <service interface="ddf.catalog.transform.InputTransformer">
-		<service-properties>
-			<entry key="id" value="csw"/>
-			<entry key="mime-type" value="text/xml"/>
-            <entry key="schema" value="http://www.opengis.net/cat/csw/2.0.2"/>
-		</service-properties>
-		<bean class="org.codice.ddf.spatial.ogc.csw.catalog.converter.CswRecordConverter"/>
-	</service>
-
-    <service interface="ddf.catalog.transform.MetacardTransformer">
         <service-properties>
             <entry key="id" value="csw"/>
             <entry key="mime-type" value="text/xml"/>
@@ -36,15 +30,13 @@
         <bean class="org.codice.ddf.spatial.ogc.csw.catalog.converter.CswRecordConverter"/>
     </service>
 
-    <service interface="ddf.catalog.transform.QueryResponseTransformer">
+    <service interface="ddf.catalog.transform.MetacardTransformer">
         <service-properties>
             <entry key="id" value="csw"/>
             <entry key="mime-type" value="text/xml"/>
             <entry key="schema" value="http://www.opengis.net/cat/csw/2.0.2"/>
         </service-properties>
-        <bean class="org.codice.ddf.spatial.ogc.csw.catalog.transformer.CswQueryResponseTransformer">
-            <argument ref="getRecordsResponseConverter"/>
-        </bean>
+        <bean class="org.codice.ddf.spatial.ogc.csw.catalog.converter.CswRecordConverter"/>
     </service>
 
     <bean id="getRecordsResponseConverter"
@@ -92,5 +84,22 @@
 
     <service ref="cswTransformProvider" id="CswTransformProvider"
              interface="com.thoughtworks.xstream.converters.Converter"/>
+
+    <service ref="CswQueryResponseTransformer"
+             interface="ddf.catalog.transform.QueryResponseTransformer">
+        <service-properties>
+            <entry key="id" value="csw"/>
+            <entry key="mime-type" value="text/xml"/>
+            <entry key="schema" value="http://www.opengis.net/cat/csw/2.0.2"/>
+        </service-properties>
+    </service>
+
+    <bean id="CswQueryResponseTransformer"
+          class="org.codice.ddf.spatial.ogc.csw.catalog.transformer.CswQueryResponseTransformer"
+          init-method="init" destroy-method="destroy">
+        <argument ref="metacardTransformerManager"/>
+        <argument ref="writerProvider"/>
+    </bean>
+
 
 </blueprint>
