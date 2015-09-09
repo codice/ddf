@@ -15,14 +15,13 @@ package org.codice.ddf.security.handler.saml;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.io.InputStream;
 
 import javax.servlet.FilterChain;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilder;
@@ -84,6 +83,9 @@ public class SAMLAssertionHandlerTest {
                 RestSecurity.encodeSaml(saml));
         when(request.getCookies()).thenReturn(new Cookie[] {cookie});
 
+        doReturn("SAML " + encodeSaml(samlToken.getToken())).when(request)
+                .getHeader(SecurityConstants.SAML_HEADER_NAME);
+
         HandlerResult result = handler.getNormalizedToken(request, response, chain, true);
 
         assertNotNull(result);
@@ -102,7 +104,7 @@ public class SAMLAssertionHandlerTest {
         HttpServletResponse response = mock(HttpServletResponse.class);
         FilterChain chain = mock(FilterChain.class);
 
-        when(request.getCookies()).thenReturn(null);
+        doReturn(null).when(request).getHeader(SecurityConstants.SAML_HEADER_NAME);
 
         HandlerResult result = handler.getNormalizedToken(request, response, chain, true);
 
