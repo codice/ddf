@@ -89,6 +89,11 @@
             <groupId>ddf.security</groupId>
             <artifactId>ddf-security-common</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.google.collections</groupId>
+            <artifactId>google-collections</artifactId>
+            <version>1.0</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -108,6 +113,7 @@
                             ddf.catalog.util.impl,
                             org.codice.ddf.security.common.jaxrs
                         </Private-Package>
+                        <Embed-Dependency>google-collections</Embed-Dependency>
                         <Export-Package>
                             ddf.catalog.resource.impl;version="${project.version}"
                         </Export-Package>

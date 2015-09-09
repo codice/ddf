@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -88,7 +90,13 @@ public class TestFederation extends AbstractIntegrationTest {
     private static String[] metacardIds = new String[2];
 
     private String localSourceID = "";
-    
+
+    private List<String> metacardsToDelete = new ArrayList<>();
+
+    private List<String> resourcesToDelete = new ArrayList<>();
+
+    private UrlResourceReaderConfigurator urlResourceReaderConfigurator;
+
     @Rule 
     public TestName testName = new TestName();
     
@@ -127,6 +135,31 @@ public class TestFederation extends AbstractIntegrationTest {
         metacardIds[XML_RECORD_INDEX] = ingestXmlWithProduct(DEFAULT_SAMPLE_PRODUCT_FILE_NAME);
 
         LOGGER.info("Source status: \n{}", get(REST_PATH + "sources").body());
+    }
+
+    @Before
+    public void setup() {
+        urlResourceReaderConfigurator = getUrlResourceReaderConfigurator();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        if (metacardsToDelete != null) {
+            for (String metacardId : metacardsToDelete) {
+                TestCatalog.deleteMetacard(metacardId);
+            }
+            metacardsToDelete.clear();
+        }
+        urlResourceReaderConfigurator
+                .setUrlResourceReaderRootDirs(new String[] {DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS});
+
+        if (resourcesToDelete != null) {
+            for (String resource : resourcesToDelete) {
+                FileUtils.deleteQuietly(new File(resource));
+            }
+
+            resourcesToDelete.clear();
+        }
     }
 
     /**
@@ -201,8 +234,9 @@ public class TestFederation extends AbstractIntegrationTest {
          */
         String fileName = testName.getMethodName() + ".txt";
         String metacardId = ingestXmlWithProduct(fileName);
+        metacardsToDelete.add(metacardId);
         String productDirectory = new File(fileName).getAbsoluteFile().getParent();
-        setUrlResourceReaderRootDirs(new String[] {DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS, productDirectory});
+        urlResourceReaderConfigurator.setUrlResourceReaderRootDirs(new String[] {DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS, productDirectory});
         
         String restUrl =
                 REST_PATH + "sources/" + OPENSEARCH_SOURCE_ID + "/" + metacardId
@@ -211,10 +245,6 @@ public class TestFederation extends AbstractIntegrationTest {
         // Perform Test and Verify
         when().get(restUrl).then().log().all().assertThat().contentType("text/plain")
                 .body(is(SAMPLE_DATA));
-        
-        // Cleanup
-        setUrlResourceReaderRootDirs(new String[] {DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS});
-        TestCatalog.deleteMetacard(metacardId);
     }
         
     /**
@@ -228,20 +258,16 @@ public class TestFederation extends AbstractIntegrationTest {
         // Setup
         String fileName = testName.getMethodName() + ".txt";
         String metacardId = ingestXmlWithProduct(fileName);
-   
-        setUrlResourceReaderRootDirs(new String[] {DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS});
-        
-        String restUrl =
-                REST_PATH + "sources/" + OPENSEARCH_SOURCE_ID + "/" + metacardId
-                        + "?transform=resource";
-        
-        // Perform Test and Verify
-        when().get(restUrl).then().log().all().assertThat().contentType("text/html").statusCode(equalTo(200)).body(containsString("Unable to transform Metacard."));
-        
-        // Cleanup
-        setUrlResourceReaderRootDirs(new String[] {DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS});
-        TestCatalog.deleteMetacard(metacardId);
+        metacardsToDelete.add(metacardId);
+        urlResourceReaderConfigurator
+                .setUrlResourceReaderRootDirs(new String[] {DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS});
 
+        String restUrl = REST_PATH + "sources/" + OPENSEARCH_SOURCE_ID + "/" + metacardId
+                + "?transform=resource";
+
+        // Perform Test and Verify
+        when().get(restUrl).then().log().all().assertThat().contentType("text/html")
+                .statusCode(equalTo(500)).body(containsString("Unable to transform Metacard."));
     }
     
     /**
@@ -250,16 +276,16 @@ public class TestFederation extends AbstractIntegrationTest {
      * 
      * For example: 
      * The resource uri in the metacard is:
-     * file:/Users/danielfigliola/projects/ddf-projects/ddf/distribution/test/itests/test-itests-catalog/target/exam/e59b02bf-5774-489f-8aa9-53cf99c25d25/../../testFederatedRetrieveProductInvalidResourceUrlWithBackReferences.txt
+     * file:/Users/andrewreynolds/projects/ddf-projects/ddf/distribution/test/itests/test-itests-catalog/target/exam/e59b02bf-5774-489f-8aa9-53cf99c25d25/../../testFederatedRetrieveProductInvalidResourceUrlWithBackReferences.txt
      * which really means: 
-     * file:/Users/danielfigliola/projects/ddf-projects/ddf/distribution/test/itests/test-itests-catalog/target/testFederatedRetrieveProductInvalidResourceUrlWithBackReferences.txt
+     * file:/Users/andrewreynolds/projects/ddf-projects/ddf/distribution/test/itests/test-itests-catalog/target/testFederatedRetrieveProductInvalidResourceUrlWithBackReferences.txt
      * 
      * The URLResourceReader's root resource directories are: 
      * <ddf.home>/data/products 
      * and 
-     * /Users/danielfigliola/projects/ddf-projects/ddf/distribution/test/itests/test-itests-catalog/target/exam/e59b02bf-5774-489f-8aa9-53cf99c25d25
+     * /Users/andrewreynolds/projects/ddf-projects/ddf/distribution/test/itests/test-itests-catalog/target/exam/e59b02bf-5774-489f-8aa9-53cf99c25d25
      *
-     * So the product (/Users/danielfigliola/projects/ddf-projects/ddf/distribution/test/itests/test-itests-catalog/target/testFederatedRetrieveProductInvalidResourceUrlWithBackReferences.txt) is 
+     * So the product (/Users/andrewreynolds/projects/ddf-projects/ddf/distribution/test/itests/test-itests-catalog/target/testFederatedRetrieveProductInvalidResourceUrlWithBackReferences.txt) is 
      * not located under either of the URLResourceReader's root resource directories.
      *  
      * @throws Exception
@@ -269,28 +295,26 @@ public class TestFederation extends AbstractIntegrationTest {
         // Setup
         String fileName = testName.getMethodName() + ".txt";
         String fileNameWithBackReferences = ".." + File.separator + ".." + File.separator + fileName;
+        resourcesToDelete.add(fileNameWithBackReferences);
         // Add back references to file name
         String metacardId = ingestXmlWithProduct(fileNameWithBackReferences);
+        metacardsToDelete.add(metacardId);
         String productDirectory = new File(fileName).getAbsoluteFile().getParent();
-        setUrlResourceReaderRootDirs(new String[] {DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS, productDirectory});
+        urlResourceReaderConfigurator.setUrlResourceReaderRootDirs(new String[] {DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS, productDirectory});
            
         String restUrl =
                 REST_PATH + "sources/" + OPENSEARCH_SOURCE_ID + "/" + metacardId
                         + "?transform=resource";
 
         // Perform Test and Verify
-        when().get(restUrl).then().log().all().assertThat().contentType("text/html").statusCode(equalTo(200)).body(containsString("Unable to transform Metacard."));
-        
-        // Cleanup
-        setUrlResourceReaderRootDirs(new String[] {DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS});
-        TestCatalog.deleteMetacard(metacardId);
-        FileUtils.deleteQuietly(new File(fileNameWithBackReferences));
-        
-
+        when().get(restUrl).then().log().all().assertThat().contentType("text/html").statusCode(equalTo(500)).body(containsString("Unable to transform Metacard."));
     }
 
     @Test
     public void testFederatedRetrieveExistingProductCsw() throws Exception {
+        String productDirectory = new File(DEFAULT_SAMPLE_PRODUCT_FILE_NAME).getAbsoluteFile().getParent();
+        urlResourceReaderConfigurator.setUrlResourceReaderRootDirs(new String[] {DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS, productDirectory});
+
         String restUrl =
                 REST_PATH + "sources/" + CSW_SOURCE_ID + "/" + metacardIds[XML_RECORD_INDEX]
                         + "?transform=resource";
@@ -307,20 +331,19 @@ public class TestFederation extends AbstractIntegrationTest {
     @Test
     public void testFederatedRetrieveNoProduct() throws Exception {
         // Setup 
-        setUrlResourceReaderRootDirs(new String[] {DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS});
-        
+        urlResourceReaderConfigurator.setUrlResourceReaderRootDirs(new String[] {DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS});        
         String restUrl = REST_PATH + "sources/" + OPENSEARCH_SOURCE_ID + "/"
                 + metacardIds[GEOJSON_RECORD_INDEX] + "?transform=resource";
         
         // Perform Test and Verify
         when().get(restUrl).then().log().all().assertThat().statusCode(equalTo(500));
-        
-        // Cleanup
-        setUrlResourceReaderRootDirs(new String[] {DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS});
     }
 
     @Test
     public void testFederatedRetrieveNoProductCsw() throws Exception {
+        File[] rootDirectories = File.listRoots();        
+        String rootDir = rootDirectories[0].getCanonicalPath();
+        urlResourceReaderConfigurator.setUrlResourceReaderRootDirs(new String[] {rootDir});
         String restUrl =
                 REST_PATH + "sources/" + CSW_SOURCE_ID + "/" + metacardIds[GEOJSON_RECORD_INDEX]
                         + "?transform=resource";

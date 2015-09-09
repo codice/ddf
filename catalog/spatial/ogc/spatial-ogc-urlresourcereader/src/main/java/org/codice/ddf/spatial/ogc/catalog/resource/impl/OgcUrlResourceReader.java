@@ -20,7 +20,6 @@ import java.io.Serializable;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,6 +31,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.tika.Tika;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.ImmutableSet;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.ResourceResponse;
@@ -47,62 +48,61 @@ import ddf.catalog.resource.impl.ResourceImpl;
  */
 public class OgcUrlResourceReader implements ResourceReader {
     private static final Logger LOGGER = LoggerFactory.getLogger(OgcUrlResourceReader.class);
-    
-    private static final String VERSION = "1.0";
 
-    private static final String SHORTNAME = OgcUrlResourceReader.class.getSimpleName();
+    public static final String VERSION = "1.0";
 
-    private static final String TITLE = "OGC URL ddf.catalog.resource.Resource Reader";
+    public static final String SHORTNAME = OgcUrlResourceReader.class.getSimpleName();
 
-    private static final String DESCRIPTION = "Resource Reader which provide redirection when a product has a mime type of text/html";
+    public static final String TITLE = "OGC URL ddf.catalog.resource.Resource Reader";
 
-    private static final String ORGANIZATION = "OGC";
+    public static final String DESCRIPTION = "Resource Reader which provide redirection when a product has a mime type of text/html";
 
-    private static final List<String> UNKNOWN_MIME_TYPES = Collections
-            .unmodifiableList(Arrays.asList("application/unknown", "application/octet-stream"));
-    
+    public static final String ORGANIZATION = "OGC";
+
+    private static final List<String> UNKNOWN_MIME_TYPES = Collections.unmodifiableList(Arrays
+            .asList("application/unknown", "application/octet-stream"));
+
     private static final String URL_HTTP_SCHEME = "http";
 
     private static final String URL_HTTPS_SCHEME = "https";
-    
-    private final Set<String> qualifierSet = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(new String[] {URL_HTTP_SCHEME, URL_HTTPS_SCHEME})));
-    
+
+    private static final Set<String> QUALIFIER_SET = ImmutableSet.of(URL_HTTP_SCHEME,
+            URL_HTTPS_SCHEME);
+
     private Tika tika;
-    
+
     private ResourceReader urlResourceReader;
-    
-    public OgcUrlResourceReader() {
-    }
-    
+
     public OgcUrlResourceReader(ResourceReader urlResourceReader, Tika tika) {
         this.tika = tika;
         this.urlResourceReader = urlResourceReader;
+        LOGGER.debug("Supported Schemes for {}: {}", OgcUrlResourceReader.class.getSimpleName(),
+                QUALIFIER_SET.toString());
     }
-    
-    public void setTika(Tika tika) {
-        this.tika = tika;
-    }
-    
-    public void setResourceReader(ResourceReader urlResourceReader) {
-        this.urlResourceReader = urlResourceReader;
-    }
-    
+
     public Set<String> getSupportedSchemes() {
-        LOGGER.debug("Supported Schemes for {}: {}", OgcUrlResourceReader.class.getSimpleName(), qualifierSet.toString());
-        return qualifierSet;
+        return QUALIFIER_SET;
     }
 
     /**
-     * Calls {@link URLResourceReader}, if the mime-type is "text/html" it will inject a simple
-     * script to redirect to the resourceURI instead of attempting to download it.
-     *
-     * @param resourceURI A {@link URI} that defines what {@link Resource} to retrieve and how to do it.
-     * @param properties  Any additional arguments that should be passed to the {@link ddf.catalog.resource.ResourceReader}.
+     * Retrieves a {@link ddf.catalog.resource.Resource} based on a {@link URI} and provided
+     * arguments. A connection is made to the {@link URI} to obtain the
+     * {@link ddf.catalog.resource.Resource}'s {@link InputStream} and build a
+     * {@link ResourceResponse} from that. The {@link ddf.catalog.resource.Resource}'s name gets set
+     * to the {@link URI} passed in. Calls {@link URLResourceReader}, if the mime-type is
+     * "text/html" it will inject a simple script to redirect to the resourceURI instead of
+     * attempting to download it.
+     * 
+     * @param resourceURI
+     *            A {@link URI} that defines what {@link Resource} to retrieve and how to do it.
+     * @param properties
+     *            Any additional arguments that should be passed to the
+     *            {@link ddf.catalog.resource.ResourceReader}.
      * @return A {@link ResourceResponse} containing the retrieved {@link Resource}.
-     * @throws ResourceNotSupportedException 
+     * @throws ResourceNotSupportedException
      */
-    public ResourceResponse retrieveResource(URI resourceURI,
-            Map<String, Serializable> properties) throws IOException, ResourceNotFoundException, ResourceNotSupportedException {
+    public ResourceResponse retrieveResource(URI resourceURI, Map<String, Serializable> properties)
+        throws IOException, ResourceNotFoundException, ResourceNotSupportedException {
         LOGGER.debug("Calling URLResourceReader.retrieveResource()");
         ResourceResponse response = urlResourceReader.retrieveResource(resourceURI, properties);
         Resource resource = response.getResource();
@@ -114,17 +114,16 @@ public class OgcUrlResourceReader implements ResourceReader {
             if (UNKNOWN_MIME_TYPES.contains(mimeTypeStr)) {
                 detectedMimeType = tika.detect(resourceURI.toURL());
             }
-            if (StringUtils.contains(detectedMimeType, MediaType.TEXT_HTML) || StringUtils
-                    .contains(mimeTypeStr, MediaType.TEXT_HTML)) {
+            if (StringUtils.contains(detectedMimeType, MediaType.TEXT_HTML)
+                    || StringUtils.contains(mimeTypeStr, MediaType.TEXT_HTML)) {
                 LOGGER.debug("Detected \"text\\html\". Building redirect script");
                 StringBuilder strBuilder = new StringBuilder();
                 strBuilder
                         .append("<html><script type=\"text/javascript\">window.location.replace(\"");
                 strBuilder.append(resourceURI);
                 strBuilder.append("\");</script></html>");
-                return new ResourceResponseImpl(
-                        new ResourceImpl(new ByteArrayInputStream(strBuilder.toString().getBytes()),
-                                detectedMimeType, resource.getName()));
+                return new ResourceResponseImpl(new ResourceImpl(new ByteArrayInputStream(
+                        strBuilder.toString().getBytes()), detectedMimeType, resource.getName()));
             }
         }
         return response;
@@ -154,7 +153,7 @@ public class OgcUrlResourceReader implements ResourceReader {
     public String getOrganization() {
         return ORGANIZATION;
     }
-    
+
     @Override
     public Set<String> getOptions(Metacard metacard) {
         LOGGER.debug("OgcUrlResourceReader getOptions doesn't support options, returning empty set.");

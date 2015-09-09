@@ -86,12 +86,16 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
-
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>0.9.24</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.collections</groupId>
+            <artifactId>google-collections</artifactId>
+            <version>1.0</version>
         </dependency>
     </dependencies>
 
@@ -112,6 +116,7 @@
                             ddf.catalog.util.impl,
                             org.codice.ddf.security.common.jaxrs
                         </Private-Package>
+                        <Embed-Dependency>google-collections</Embed-Dependency>
                         <Export-Package>
                             org.codice.ddf.spatial.ogc.catalog.resource.impl;version="${project.version}"
                         </Export-Package>

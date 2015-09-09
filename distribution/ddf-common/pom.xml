@@ -62,7 +62,7 @@
             <includes>
               <include>**/*</include>
                 </includes>
-     	        <excludes>
+                <excludes>
                   <exclude>data/products/README.txt</exclude>
                   <exclude>version/Version.txt</exclude>
                   <exclude>bin/ddf</exclude>

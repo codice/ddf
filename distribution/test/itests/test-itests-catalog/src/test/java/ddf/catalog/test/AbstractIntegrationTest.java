@@ -36,11 +36,8 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
@@ -132,6 +129,8 @@ public abstract class AbstractIntegrationTest {
 
     private CatalogBundle catalogBundle;
 
+    private UrlResourceReaderConfigurator urlResourceReaderConfigurator;
+
     static {
         // Make Pax URL use the maven.repo.local setting if present
         if (System.getProperty("maven.repo.local") != null) {
@@ -146,6 +145,7 @@ public abstract class AbstractIntegrationTest {
         serviceManager = new ServiceManager(bundleCtx, metatype, adminConfig);
         catalogBundle = new CatalogBundle(serviceManager, adminConfig);
         securityPolicy = new SecurityPolicyConfigurator(serviceManager, configAdmin);
+        urlResourceReaderConfigurator = new UrlResourceReaderConfigurator(configAdmin);
     }
 
     /**
@@ -174,6 +174,10 @@ public abstract class AbstractIntegrationTest {
 
     protected SecurityPolicyConfigurator getSecurityPolicy() {
         return securityPolicy;
+    }
+
+    protected UrlResourceReaderConfigurator getUrlResourceReaderConfigurator() {
+        return urlResourceReaderConfigurator;
     }
 
     private Option[] combineOptions(Option[]... options) {
@@ -213,7 +217,9 @@ public abstract class AbstractIntegrationTest {
                                 .versionAsInProject()), wrappedBundle(
                         mavenBundle("ddf.test.itests", "test-itests-common").classifier("tests")
                                 .versionAsInProject()).bundleSymbolicName("test-itests-common"),
-                mavenBundle("ddf.test.thirdparty", "rest-assured").versionAsInProject());
+                mavenBundle("ddf.test.thirdparty", "rest-assured").versionAsInProject(),
+                wrappedBundle(mavenBundle("com.google.collections", "google-collections").versionAsInProject())
+                .exports("*;version=1.0"));
     }
 
     protected Option[] configureConfigurationPorts() throws URISyntaxException {
@@ -472,33 +478,9 @@ public abstract class AbstractIntegrationTest {
 
     }
 
-    public void stopFeature(boolean wait, String... featureNames) throws Exception {
-        ServiceReference<FeaturesService> featuresServiceRef = bundleCtx
-                .getServiceReference(FeaturesService.class);
-        FeaturesService featuresService = bundleCtx.getService(featuresServiceRef);
-        for (String featureName : featureNames) {
-            featuresService.uninstallFeature(featureName);
-        }
-        if (wait) {
-            waitForAllBundles();
-        }
-    }
+    public class CswConnectedSourceProperties extends HashMap<String, Object> {
 
-    protected void setUrlResourceReaderRootDirs(String... rootResourceDirs) throws IOException {
-        Configuration configuration = configAdmin.getConfiguration(
-                "ddf.catalog.resource.impl.URLResourceReader", null);
-        Dictionary<String, Object> properties = new Hashtable<String, Object>();       
-        Set<String> rootResourceDirectories = new HashSet<>();       
-        for (String rootResourceDir : rootResourceDirs) {
-            rootResourceDirectories.add(rootResourceDir);
-        }
-
-        properties.put("rootResourceDirectories", rootResourceDirectories);
-        configuration.update(properties);
-        LOGGER.info("URLResourceReader props after update: {}", configuration.getProperties().toString());
-    }
-
-    private class ServiceConfigurationListener implements ConfigurationListener {
+        public static final String SYMBOLIC_NAME = "spatial-csw-source";
 
         public static final String FACTORY_PID = "Csw_Connected_Source";
 
