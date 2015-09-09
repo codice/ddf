@@ -13,22 +13,26 @@
  */
 package ddf.security.certificate.generator;
 
-import org.junit.Test;
-
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.hasItem;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
+import org.junit.Test;
+
 public class KeyStoreFileTest {
 
     public static final String BOGUS_FILENAME = "not_keystore.jks";
+
     public static final String KEYSTORE_FILENAME = "keystore-password_changeit.jks";
+
     public static final String ALIAS = "ddf demo root ca";
+
     public static final char[] PASSWORD = "changeit".toCharArray();
+
     public static final char[] BOGUS_PASSWORD = "ThisIsNotThePassword".toCharArray();
 
     private String getPathTo(String path) {

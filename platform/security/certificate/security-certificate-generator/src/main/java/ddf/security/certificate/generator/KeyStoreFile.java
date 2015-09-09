@@ -13,9 +13,6 @@
  */
 package ddf.security.certificate.generator;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -28,16 +25,21 @@ import java.security.cert.Certificate;
 import java.util.Collections;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Facade class for a Java Keystore (JKS) file. Exposes a few high-level behaviors to abstract away the
  * complexity of JCA/JCE, as well as file I/O operations.
  **/
-public class KeyStoreFile extends SecurityFileFacade {
+public class KeyStoreFile {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KeyStoreFile.class);
+
     protected KeyStore keyStore;
+
     protected File file;
+
     private char[] password;
 
     /**
@@ -51,15 +53,15 @@ public class KeyStoreFile extends SecurityFileFacade {
      * @throws GeneralSecurityException
      * @throws IOException
      */
-    public static KeyStoreFile newInstance(String filePath, char[] password) throws IOException, GeneralSecurityException {
+    public static KeyStoreFile newInstance(String filePath, char[] password)
+            throws IOException, GeneralSecurityException {
 
         KeyStoreFile facade = new KeyStoreFile();
         File file;
         KeyStore keyStore = newKeyStore();
-
-        file = createFileObject(filePath);
-
-        char[] pw = formatPassword(password);
+        PkiTools tools = new PkiTools();
+        file = tools.createFileObject(filePath);
+        char[] pw = tools.formatPassword(password);
 
         try (FileInputStream resource = new FileInputStream(file)) {
             keyStore.load(resource, pw);
@@ -77,7 +79,9 @@ public class KeyStoreFile extends SecurityFileFacade {
 
         if (type == null) {
             type = KeyStore.getDefaultType();
-            LOGGER.info("System property javax.net.ssl.keyStoreType not set. Using default keyStore type " + type);
+            LOGGER.info(
+                    "System property javax.net.ssl.keyStoreType not set. Using default keyStore type "
+                            + type);
         }
 
         return KeyStore.getInstance(type);
@@ -140,7 +144,8 @@ public class KeyStoreFile extends SecurityFileFacade {
             chain = keyStore.getCertificateChain(alias);
 
         } catch (KeyStoreException e) {
-            LOGGER.warn(String.format("Failed to recover certificate chain with alias '%s'", alias));
+            LOGGER.warn(
+                    String.format("Failed to recover certificate chain with alias '%s'", alias));
         }
 
         return chain;
@@ -174,7 +179,8 @@ public class KeyStoreFile extends SecurityFileFacade {
         try {
             keyStore.deleteEntry(alias);
         } catch (KeyStoreException e) {
-            LOGGER.info("Attempted to remove key named '{}' from keyStore. No such such key ", alias);
+            LOGGER.info("Attempted to remove key named '{}' from keyStore. No such such key ",
+                    alias);
         }
     }
 
@@ -192,7 +198,8 @@ public class KeyStoreFile extends SecurityFileFacade {
         }
     }
 
-    void addEntry(String alias, PrivateKey privateKey, Certificate[] chain) throws KeyStoreException {
+    void addEntry(String alias, PrivateKey privateKey, Certificate[] chain)
+            throws KeyStoreException {
 
         keyStore.setKeyEntry(alias, privateKey, password, chain);
     }
