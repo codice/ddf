@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -17,11 +17,14 @@ import static org.custommonkey.xmlunit.XMLAssert.assertXpathEvaluatesTo;
 import static org.custommonkey.xmlunit.XMLAssert.assertXpathExists;
 import static org.custommonkey.xmlunit.XMLAssert.assertXpathNotExists;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static junit.framework.Assert.assertEquals;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,12 +34,17 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ForkJoinPool;
+
+import javax.activation.MimeType;
+import javax.activation.MimeTypeParseException;
 
 import org.codice.ddf.parser.Parser;
 import org.codice.ddf.parser.xml.XmlParser;
@@ -51,6 +59,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
+import org.xmlpull.v1.XmlPullParserException;
 
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.BinaryContent;
@@ -63,6 +72,10 @@ import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.SourceResponseImpl;
 import ddf.catalog.transform.CatalogTransformerException;
+import ddf.catalog.transformer.api.MetacardMarshaller;
+import ddf.catalog.transformer.api.PrintWriterProvider;
+import ddf.catalog.transformer.xml.MetacardMarshallerImpl;
+import ddf.catalog.transformer.xml.PrintWriterProviderImpl;
 import ddf.catalog.transformer.xml.XmlResponseQueueTransformer;
 
 /**
@@ -97,6 +110,8 @@ public class TestXmlResponseQueueTransformer {
 
     private XmlResponseQueueTransformer transformer;
 
+    private MimeType mimeType;
+
     private Parser parser;
 
     @BeforeClass
@@ -112,9 +127,35 @@ public class TestXmlResponseQueueTransformer {
     }
 
     @Before
-    public void setup() {
+    public void setup() throws MimeTypeParseException {
         parser = new XmlParser();
-        transformer = new XmlResponseQueueTransformer(parser, FJP);
+        PrintWriterProvider printWriterProvider = new PrintWriterProviderImpl();
+        MetacardMarshaller metacardMarshaller = new MetacardMarshallerImpl(parser,
+                printWriterProvider);
+        mimeType = getMimeType();
+        transformer = new XmlResponseQueueTransformer(parser, FJP, printWriterProvider,
+                metacardMarshaller, mimeType);
+    }
+
+    /**
+     * @throws CatalogTransformerException
+     */
+    @Test
+    public void testEmptySourceResponse()
+            throws CatalogTransformerException, IOException, XpathException, SAXException {
+
+        // given
+        transformer.setThreshold(-1);
+
+        SourceResponse response = new SourceResponseImpl(null, Collections.<Result>emptyList());
+
+        // when
+        BinaryContent binaryContent = transformer.transform(response, null);
+
+        // then
+        String output = new String(binaryContent.getByteArray());
+        LOGGER.info(output);
+        assertXpathEvaluatesTo("", "/mc:metacards", output);
     }
 
     /**
@@ -157,7 +198,7 @@ public class TestXmlResponseQueueTransformer {
         BinaryContent binaryContent = transformer.transform(response, null);
 
         // then
-        assertThat(binaryContent.getMimeType(), is(XmlResponseQueueTransformer.MIME_TYPE));
+        assertThat(binaryContent.getMimeType(), is(mimeType));
 
         byte[] bytes = binaryContent.getByteArray();
 
@@ -190,7 +231,7 @@ public class TestXmlResponseQueueTransformer {
         BinaryContent binaryContent = transformer.transform(response, null);
 
         // then
-        assertThat(binaryContent.getMimeType(), is(XmlResponseQueueTransformer.MIME_TYPE));
+        assertThat(binaryContent.getMimeType(), is(mimeType));
 
         byte[] bytes = binaryContent.getByteArray();
 
@@ -215,7 +256,7 @@ public class TestXmlResponseQueueTransformer {
         BinaryContent binaryContent = transformer.transform(response, null);
 
         // then
-        assertThat(binaryContent.getMimeType(), is(XmlResponseQueueTransformer.MIME_TYPE));
+        assertThat(binaryContent.getMimeType(), is(mimeType));
 
         byte[] bytes = binaryContent.getByteArray();
 
@@ -243,7 +284,7 @@ public class TestXmlResponseQueueTransformer {
         BinaryContent binaryContent = transformer.transform(response, null);
 
         // then
-        assertThat(binaryContent.getMimeType(), is(XmlResponseQueueTransformer.MIME_TYPE));
+        assertThat(binaryContent.getMimeType(), is(mimeType));
 
         byte[] bytes = binaryContent.getByteArray();
 
@@ -271,7 +312,7 @@ public class TestXmlResponseQueueTransformer {
         BinaryContent binaryContent = transformer.transform(response, null);
 
         // then
-        assertThat(binaryContent.getMimeType(), is(XmlResponseQueueTransformer.MIME_TYPE));
+        assertThat(binaryContent.getMimeType(), is(mimeType));
 
         byte[] bytes = binaryContent.getByteArray();
 
@@ -299,7 +340,7 @@ public class TestXmlResponseQueueTransformer {
         BinaryContent binaryContent = transformer.transform(response, null);
 
         // then
-        assertThat(binaryContent.getMimeType(), is(XmlResponseQueueTransformer.MIME_TYPE));
+        assertThat(binaryContent.getMimeType(), is(mimeType));
 
         byte[] bytes = binaryContent.getByteArray();
 
@@ -327,16 +368,22 @@ public class TestXmlResponseQueueTransformer {
     }
 
     @Test
-    public void testCompareSerialToFork() throws IOException, CatalogTransformerException {
+    public void testCompareSerialToFork()
+            throws IOException, CatalogTransformerException, MimeTypeParseException {
         SourceResponse response = givenSourceResponse(new MetacardStub("source1", "id1"),
                 new MetacardStub("source2", "id2"), new MetacardStub("source3", "id3"),
                 new MetacardStub("source4", "id4"));
 
-        XmlResponseQueueTransformer serialXform = new XmlResponseQueueTransformer(parser, FJP);
-        serialXform.setThreshold(2);
-        XmlResponseQueueTransformer forkXForm = new XmlResponseQueueTransformer(parser, FJP);
-        forkXForm.setThreshold(10);
+        PrintWriterProvider pwp = new PrintWriterProviderImpl();
+        MetacardMarshaller mcm = new MetacardMarshallerImpl(parser, pwp);
 
+        XmlResponseQueueTransformer serialXform = new XmlResponseQueueTransformer(parser, FJP, pwp,
+                mcm, getMimeType());
+        serialXform.setThreshold(2);
+
+        XmlResponseQueueTransformer forkXForm = new XmlResponseQueueTransformer(parser, FJP, pwp,
+                mcm, getMimeType());
+        forkXForm.setThreshold(10);
 
         BinaryContent serialBc = serialXform.transform(response, null);
         BinaryContent forkBc = forkXForm.transform(response, null);
@@ -417,6 +464,49 @@ public class TestXmlResponseQueueTransformer {
 
     }
 
+    @Test(expected = ExceptionInInitializerError.class)
+    public void testMimeTypeInitException()
+            throws IOException, CatalogTransformerException, XmlPullParserException,
+            MimeTypeParseException {
+        SourceResponse response = givenSourceResponse(new MetacardStub("source1", "id1"));
+
+        PrintWriterProvider pwp = new PrintWriterProviderImpl();
+        MetacardMarshaller mockMetacardMarshaller = mock(MetacardMarshaller.class);
+
+        MimeType mockMimeType = mock(MimeType.class);
+
+        doThrow(new MimeTypeParseException("")).when(mockMimeType).setSubType(anyString());
+
+        XmlResponseQueueTransformer xrqt = new XmlResponseQueueTransformer(parser, FJP, pwp,
+                mockMetacardMarshaller, mockMimeType);
+        xrqt.setThreshold(2);
+
+        BinaryContent bc = xrqt.transform(response, null);
+
+        // then exception
+    }
+
+    @Test(expected = CatalogTransformerException.class)
+    public void testMetacardMarshallThrowsXmlPullParserException()
+            throws IOException, CatalogTransformerException, XmlPullParserException,
+            MimeTypeParseException {
+        SourceResponse response = givenSourceResponse(new MetacardStub("source1", "id1"));
+
+        PrintWriterProvider pwp = new PrintWriterProviderImpl();
+        MetacardMarshaller mockMetacardMarshaller = mock(MetacardMarshaller.class);
+
+        when(mockMetacardMarshaller.marshal(any(Metacard.class), any(Map.class)))
+                .thenThrow(new XmlPullParserException(""));
+
+        XmlResponseQueueTransformer xrqt = new XmlResponseQueueTransformer(parser, FJP, pwp,
+                mockMetacardMarshaller, getMimeType());
+        xrqt.setThreshold(2);
+
+        BinaryContent bc = xrqt.transform(response, null);
+
+        // then exception
+    }
+
     /**
      * @return
      */
@@ -488,6 +578,13 @@ public class TestXmlResponseQueueTransformer {
         if (inFull) {
             LOGGER.debug(output);
         }
+    }
+
+    private MimeType getMimeType() throws MimeTypeParseException {
+        MimeType mimeType = new MimeType();
+        mimeType.setPrimaryType("text");
+        mimeType.setSubType("xml");
+        return mimeType;
     }
 
     class MetacardStub extends MetacardImpl {
