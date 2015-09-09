@@ -129,4 +129,32 @@ server.mockConnect = function (req, res) {
     mockTestResource('connect.json', res);
 }
 
+server.mockRequest = function (req, res) {
+    var filename = _.last(URL.parse(req.url).pathname.split('/')) + '.json';
+    if (!filename)
+        filename = 'InstallationProfiles.js';
+    else
+        mockTestResource(filename, res);
+}
+
+server.mockInstallationProfiles = function(req, res) {
+    mockTestResource('InstallationProfiles.json', res);
+}
+
+server.mockGetService = function(req, res) {
+    mockTestResource('getService.json', res);
+}
+
+server.mockClaims = function(req, res) {
+    mockTestResource('getClaimsConfiguration.json', res);
+}
+
+server.mockAppTree = function(req, res) {
+    mockTestResource('applicationTree.json', res);
+}
+
+server.mockStart = function(req, res) {
+    mockTestResource('startApp.json', res);
+}
+
 module.exports = server;
