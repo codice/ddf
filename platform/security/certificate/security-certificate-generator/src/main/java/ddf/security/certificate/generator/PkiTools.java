@@ -14,6 +14,23 @@
 
 package ddf.security.certificate.generator;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.security.GeneralSecurityException;
+import java.security.Key;
+import java.security.KeyFactory;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.Base64;
+
 import org.apache.commons.lang3.Validate;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
@@ -23,23 +40,15 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayInputStream;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.security.*;
-import java.security.cert.CertificateEncodingException;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.util.Base64;
-
 /**
  * This class is a home for helper functions that were did not belong to other classes.
  */
 public class PkiTools {
 
     public static final int RSA_KEY_LENGTH = 2048;
+
     public static final String ALGORITHM = "RSA";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(PkiTools.class);
 
     /**
@@ -48,8 +57,50 @@ public class PkiTools {
      * @param bytes DER encoded bytes
      * @return PEM encoded bytes
      */
-    public static String derToPem(byte[] bytes) {
+    public String derToPem(byte[] bytes) {
+        Validate.isTrue(bytes != null, "Argument bytes cannot be null");
         return Base64.getEncoder().encodeToString(bytes);
+    }
+
+    /**
+     * If input is a character array, return the character array. If input is null, return a zero length
+     * character array
+     *
+     * @param password character array
+     * @return character array
+     */
+    char[] formatPassword(char[] password) {
+        return password == null ? new char[0] : password;
+    }
+
+    /**
+     * @param filePath path to local file
+     * @return instance of File
+     * @throws IOException
+     */
+    File createFileObject(String filePath) throws IOException {
+
+        File file;
+
+        if (filePath == null) {
+            throw new IllegalArgumentException("File path to security file is null");
+        }
+
+        file = new File(filePath);
+
+        if (!file.exists()) {
+            throw new FileNotFoundException(
+                    "Cannot find security file at " + file.getAbsolutePath());
+        }
+
+        if (!file.canRead()) {
+            String msg = String
+                    .format("Cannot read security file (possible file permission problem)  or %s is a directory",
+                            file.getAbsolutePath());
+            throw new IOException(msg);
+        }
+
+        return file;
     }
 
     /**
@@ -58,8 +109,14 @@ public class PkiTools {
      * @param cert certificate
      * @return PEM encoded String
      */
-    public String certificateToPem(X509Certificate cert) throws CertificateEncodingException {
-        return derToPem(cert.getEncoded());
+    public String certificateToPem(X509Certificate cert) {
+        Validate.isTrue(cert != null, "Certificate cannot be null");
+        try {
+            return derToPem(cert.getEncoded());
+        } catch (Exception e) {
+            throw new CertificateGeneratorException(
+                    "Unable to convert the certificate to a PEM object", e);
+        }
     }
 
     /**
@@ -107,24 +164,27 @@ public class PkiTools {
      */
     public KeyPair generateRsaKeyPair() {
         try {
-            KeyPairGenerator keyGen = KeyPairGenerator.getInstance(ALGORITHM, BouncyCastleProvider.PROVIDER_NAME);
+            KeyPairGenerator keyGen = KeyPairGenerator
+                    .getInstance(ALGORITHM, BouncyCastleProvider.PROVIDER_NAME);
             keyGen.initialize(RSA_KEY_LENGTH);
             return keyGen.generateKeyPair();
         } catch (Exception e) {
-            throw new CertificateGeneratorException("Failed to generate new public/private key pair.", e);
+            throw new CertificateGeneratorException(
+                    "Failed to generate new public/private key pair.", e);
         }
     }
 
     public byte[] keyToDer(Key key) {
+        Validate.isTrue(key != null, "Key cannot be null");
         return pemToDer(keyToPem(key));
     }
-
 
     /**
      * @param key object
      * @return PEM encoded string represents the bytes of the key
      */
     public String keyToPem(Key key) {
+        Validate.isTrue(key != null, "Key cannot be null");
         return derToPem(key.getEncoded());
     }
 
@@ -148,7 +208,8 @@ public class PkiTools {
         Validate.isTrue(commonName != null, "Certificate common name cannot be null");
 
         if (commonName.isEmpty()) {
-            LOGGER.warn("Setting certificate common name to empty string. This could result in an unusable TLS certificate.");
+            LOGGER.warn(
+                    "Setting certificate common name to empty string. This could result in an unusable TLS certificate.");
         }
 
         X500NameBuilder nameBuilder = new X500NameBuilder(RFC4519Style.INSTANCE);
@@ -168,11 +229,18 @@ public class PkiTools {
     public X509Certificate pemToCertificate(String certString) {
         CertificateFactory cf = new CertificateFactory();
         ByteArrayInputStream in = new ByteArrayInputStream(pemToDer(certString));
+        X509Certificate cert = null;
         try {
-            return (X509Certificate) cf.engineGenerateCertificate(in);
+            cert = (X509Certificate) cf.engineGenerateCertificate(in);
         } catch (CertificateException e) {
-            throw new CertificateGeneratorException("Cannot convert this PEM/DER object to X509 certificate", e);
+            throw new CertificateGeneratorException(
+                    "Cannot convert this PEM object to X509 certificate", e);
         }
+        if (cert == null) {
+            throw new CertificateGeneratorException(
+                    "Cannot convert this PEM object to X509 certificate");
+        }
+        return cert;
     }
 
     /**
@@ -182,6 +250,7 @@ public class PkiTools {
      * @return DER encoded bytes
      */
     public byte[] pemToDer(String string) {
+        Validate.isTrue(string != null, "PEM string cannot be null");
         return Base64.getDecoder().decode(string);
     }
 
@@ -195,7 +264,8 @@ public class PkiTools {
         try {
             return getRsaKeyFactory().generatePrivate(new PKCS8EncodedKeySpec(pemToDer(keyString)));
         } catch (Exception e) {
-            throw new CertificateGeneratorException("Could not convert String to Private Key", e.getCause());
+            throw new CertificateGeneratorException("Could not convert String to Private Key",
+                    e.getCause());
         }
     }
 

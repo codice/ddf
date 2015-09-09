@@ -13,6 +13,13 @@
  */
 package ddf.security.certificate.generator;
 
+import java.math.BigInteger;
+import java.security.KeyPair;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.Security;
+import java.security.cert.X509Certificate;
+
 import org.apache.commons.lang3.Validate;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
@@ -21,18 +28,11 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.math.BigInteger;
-import java.security.KeyPair;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.Security;
-import java.security.cert.X509Certificate;
-
 /**
  * Model of a X509 certificate signing request. These values must be set:
  * <p><ul>
  * <li>notAfter - certificate expiration date</li>
- * <li>subjectName - typically a server's FQDN. Use {@link #setCommonNameToHostname } to automatically set this attribute to the server's FQDN</li>
+ * <li>subjectName - typically a server's FQDN.
  * <li>certificateAuthority - instance of {@link ddf.security.certificate.generator.CertificateAuthority} who will signed this request</li>
  * </ul><p>
  * These values may be optionally set:
@@ -45,6 +45,7 @@ import java.security.cert.X509Certificate;
 public class CertificateSigningRequest {
 
     public static final int VALID_YEARS = 100;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(CertificateSigningRequest.class);
 
     static {
@@ -52,11 +53,16 @@ public class CertificateSigningRequest {
     }
 
     protected DateTime notBefore;
+
     protected DateTime notAfter;
-    protected X500Name subjectName;
+
     protected KeyPair subjectKeyPair;
+
     protected BigInteger serialNumber;
+
     PkiTools pkiTools = new PkiTools();
+
+    private X500Name subjectName;
 
     public CertificateSigningRequest() {
         initialize();
@@ -70,7 +76,6 @@ public class CertificateSigningRequest {
         return subjectKeyPair.getPublic();
     }
 
-
     /**
      * Create a distinguished name for the certificate's subject. Currently, only the common name (sub-attribute of
      * the distinguished name) is supported. The common name should be the <b>fully qualified domain name</b> of the
@@ -81,42 +86,6 @@ public class CertificateSigningRequest {
     public void setCommonName(String name) {
         Validate.notNull("Subject common name of certificate signing request cannot be null");
         subjectName = pkiTools.makeDistinguishedName(name);
-    }
-
-    /**
-     * Use hostname of the network node running the JBM as the subject's common name.
-     * The most common use case is the DNS name of the server is the X509 common name.
-     * SSL/TLS uses the common name as part of the secure connection handshake and if the name is wrong, TLS will
-     * not trust the connection. There is no guarantee that the {@link PkiTools#getHostName()}
-     * returns the correct result in all cases. Use {@link #setCommonName(String)} to manually set
-     * the common name for the certificate's subject.
-     */
-    public void setCommonNameToHostname() {
-        String hname = pkiTools.getHostName();
-        LOGGER.info("Creating X509 certificate CN=%s", hname);
-        setCommonName(pkiTools.getHostName());
-    }
-
-    /**
-     * The validity period for a certificate is the period of time from notBefore through notAfter, inclusive.
-     *
-     * @param date expiration date of the certificate
-     */
-    public void setNotBefore(DateTime date) {
-        Validate.notNull(date, "Certificate 'not before' date cannot be null");
-        Validate.isTrue(date.isBefore(notAfter), "Certificate 'not after' date must come after 'not before' date");
-        notBefore = date;
-    }
-
-    /**
-     * The validity period for a certificate is the period of time from notBefore through notAfter, inclusive.
-     *
-     * @param date effective date
-     */
-    public void setNotAfter(DateTime date) {
-        Validate.notNull(date, "Certificate 'not after' date cannot be null");
-        Validate.isTrue(date.isAfter(notBefore), "Certificate 'not after' date must come after 'not before' date");
-        notAfter = date;
     }
 
     /**
@@ -142,21 +111,65 @@ public class CertificateSigningRequest {
         subjectKeyPair = keyPair;
     }
 
-    JcaX509v3CertificateBuilder getCertificateBuilder(X509Certificate certificate) {
-        return new JcaX509v3CertificateBuilder(
-                certificate,
-                serialNumber,
-                notBefore.toDate(),
-                notAfter.toDate(),
-                subjectName,
-                getSubjectPublicKey());
+    JcaX509v3CertificateBuilder newCertificateBuilder(X509Certificate certificate) {
+        return new JcaX509v3CertificateBuilder(certificate, serialNumber, notBefore.toDate(),
+                notAfter.toDate(), subjectName, getSubjectPublicKey());
     }
 
     //Set reasonable defaults
     void initialize() {
-        serialNumber = BigInteger.valueOf(System.currentTimeMillis());
-        notBefore = DateTime.now().minusDays(1);
-        notAfter = notBefore.plusYears(VALID_YEARS);
-        subjectKeyPair = pkiTools.generateRsaKeyPair();
+        setSerialNumber(System.currentTimeMillis());
+        setNotBefore(DateTime.now().minusDays(1));
+        setNotAfter(getNotBefore().plusYears(VALID_YEARS));
+        setCommonName(pkiTools.getHostName());
+        setSubjectKeyPair(pkiTools.generateRsaKeyPair());
+    }
+
+    public DateTime getNotBefore() {
+        return notBefore;
+    }
+
+    /**
+     * The validity period for a certificate is the period of time from notBefore through notAfter, inclusive.
+     *
+     * @param date expiration date of the certificate
+     */
+    public void setNotBefore(DateTime date) {
+        Validate.notNull(date, "Certificate 'not before' date cannot be null");
+        Validate.isTrue(date.isBefore(notAfter),
+                "Certificate 'not after' date must come after 'not before' date");
+        notBefore = date;
+    }
+
+    public DateTime getNotAfter() {
+        return notAfter;
+    }
+
+    /**
+     * The validity period for a certificate is the period of time from notBefore through notAfter, inclusive.
+     *
+     * @param date effective date
+     */
+    public void setNotAfter(DateTime date) {
+        Validate.notNull(date, "Certificate 'not after' date cannot be null");
+        Validate.isTrue(date.isAfter(notBefore),
+                "Certificate 'not after' date must come after 'not before' date");
+        notAfter = date;
+    }
+
+    public X500Name getSubjectName() {
+        return subjectName;
+    }
+
+    public void setSubjectName(X500Name subjectName) {
+        this.subjectName = subjectName;
+    }
+
+    public long getSerialNumber() {
+        return serialNumber.longValue();
+    }
+
+    public void setSerialNumber(BigInteger serialNumber) {
+        this.serialNumber = serialNumber;
     }
 }

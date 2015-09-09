@@ -13,17 +13,20 @@
  */
 package ddf.security.certificate.generator;
 
-import org.apache.commons.lang3.Validate;
-
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 
+import org.apache.commons.lang3.Validate;
+
 public class PrivateKeyEntry {
     X509Certificate issuerCertificate;
+
     X509Certificate subjectCertificate;
+
     PrivateKey subjectPrivateKey;
 
-    public PrivateKeyEntry(X509Certificate subjectCertificate, PrivateKey subjectPrivateKey, X509Certificate issuerCertificate) {
+    public PrivateKeyEntry(X509Certificate subjectCertificate, PrivateKey subjectPrivateKey,
+            X509Certificate issuerCertificate) {
         Validate.isTrue(subjectCertificate != null, "Subject certificate cannot be null");
         Validate.isTrue(subjectPrivateKey != null, "Subject private key cannot be null");
         Validate.isTrue(issuerCertificate != null, "Issuer certificate cannot be null");
