@@ -1165,7 +1165,7 @@ The following is an example of an application/xml response to the Transaction Up
 
 The Delete sub-operation is a method to identify a set of records to be deleted from the catalog.
 
-The following example shows a delete operation that is deleting all records with a SpatialReferenceSystem name equal to `84`.
+The following example shows a delete operation that is deleting all records with a SpatialReferenceSystem name equal to `WGS-84`.
 
 .Sample XML Transaction Delete Request with filter constraint
 [source,xml,linenums]
@@ -1178,10 +1178,10 @@ The following example shows a delete operation that is deleting all records with
     <csw:Delete typeName="csw:Record" handle="something">
         <csw:Constraint version="2.0.0">
             <ogc:Filter>
-                <ogc:PropertyIsLessThanOrEqualTo>
+                <ogc:PropertyIsEqualTo>
                    <ogc:PropertyName>SpatialReferenceSystem</ogc:PropertyName>
-                   <ogc:Literal>84</ogc:Literal>
-                </ogc:PropertyIsLessThanOrEqualTo>
+                   <ogc:Literal>WGS-84</ogc:Literal>
+                </ogc:PropertyIsEqualTo>
             </ogc:Filter>
         </csw:Constraint>
     </csw:Delete>
