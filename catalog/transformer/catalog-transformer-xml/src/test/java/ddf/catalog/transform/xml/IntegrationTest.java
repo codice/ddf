@@ -13,8 +13,12 @@
  */
 package ddf.catalog.transform.xml;
 
+import static org.mockito.Mockito.mock;
+
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
+import java.util.Map;
 
 import org.codice.ddf.parser.Parser;
 import org.codice.ddf.parser.xml.XmlParser;
@@ -29,6 +33,9 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.catalog.transform.MetacardTransformer;
+import ddf.catalog.transformer.api.MetacardMarshaller;
+import ddf.catalog.transformer.xml.MetacardMarshallerImpl;
+import ddf.catalog.transformer.xml.PrintWriterProviderImpl;
 import ddf.catalog.transformer.xml.XmlInputTransformer;
 import ddf.catalog.transformer.xml.XmlMetacardTransformer;
 
@@ -36,12 +43,16 @@ public class IntegrationTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IntegrationTest.class);
 
+    private Map<String, Serializable> mockArguments = mock(Map.class);
+
     @Test
     public void testInputAndOutput() throws CatalogTransformerException, IOException {
         Parser parser = new XmlParser();
 
         InputTransformer inputTransformer = new XmlInputTransformer(parser);
-        MetacardTransformer outputTransformer = new XmlMetacardTransformer(parser);
+
+        MetacardMarshaller metacardMarshaller = new MetacardMarshallerImpl(parser, new PrintWriterProviderImpl());
+        MetacardTransformer outputTransformer = new XmlMetacardTransformer(metacardMarshaller);
 
         InputStream input = getClass().getResourceAsStream("/extensibleMetacard.xml");
         Metacard metacard = inputTransformer.transform(input);
@@ -55,7 +66,7 @@ public class IntegrationTest {
                     attribute.getValue()));
         }
 
-        BinaryContent output = outputTransformer.transform(metacard, null);
+        BinaryContent output = outputTransformer.transform(metacard, mockArguments);
         String outputString = new String(output.getByteArray());
 
         // TODO test equivalence with XMLUnit.
