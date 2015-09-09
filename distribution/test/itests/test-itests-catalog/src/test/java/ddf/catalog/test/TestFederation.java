@@ -157,6 +157,18 @@ public class TestFederation extends AbstractIntegrationTest {
     }
 
     /**
+     * Tests Source can retrieve based on a pure spatial query
+     * @throws Exception
+     */
+    @Test
+    public void testFederatedSpatial() throws Exception {
+        String queryUrl = OPENSEARCH_PATH + "?lat=10.0&lon=30.0&radius=250000&spatialType=POINT_RADIUS" + "&format=xml&src="
+                + OPENSEARCH_SOURCE_ID;
+        when().get(queryUrl).then().log().all().assertThat()
+                .body(containsString(RECORD_TITLE_1), containsString(RECORD_TITLE_2));
+    }
+
+    /**
      * Tests that given a bad test phrase, no records should have been returned.
      *
      * @throws Exception
