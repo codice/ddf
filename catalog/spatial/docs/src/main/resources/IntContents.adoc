@@ -989,6 +989,8 @@ The following example shows a request for a record to be inserted.
 
 The following is an example of an application/xml response to the Transaction Insert sub-operation:
 
+Note that you will only receive the `InsertResult` element if you specify `verboseResponse=true`.
+
 .Sample XML Transaction Insert Response
 [source,xml,linenums]
 ----
