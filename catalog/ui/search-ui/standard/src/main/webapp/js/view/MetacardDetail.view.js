@@ -37,7 +37,7 @@ define([
         });
 
         Metacard.MetacardDetailView = Marionette.ItemView.extend({
-            className : 'slide-animate',
+            className : 'slide-animate height-full',
             template: 'metacardTemplate',
             events: {
                 'click .location-link': 'viewLocation',
@@ -45,6 +45,9 @@ define([
                 'click #prevRecord' : 'previousRecord',
                 'click #nextRecord' : 'nextRecord',
                 'click .metacard-action-link' : 'metacardActionModal'
+            },
+            attributes:{
+                "allowScroll":false
             },
             modelEvents: {
                 'change': 'render'
@@ -72,6 +75,14 @@ define([
             },
             onRender: function () {
                 this.updateIterationControls();
+
+                var view = this;
+                _.defer(function () {
+                     view.$('.tab-content').perfectScrollbar({
+                           suppressScrollX:true
+                      });
+                });
+
             },
             serializeData: function() {
                 var type;
@@ -92,6 +103,12 @@ define([
                 }
             },
             updateScrollbar: function () {
+
+
+                this.$('.tab-content').perfectScrollbar({
+                    suppressScrollX:true
+                });
+
                 var view = this;
                 // defer seems to be necessary for this to update correctly
                 _.defer(function () {
@@ -99,6 +116,7 @@ define([
                 });
             },
             onTabClick : function(e){
+
                 this.updateScrollbar();
                 this.hash = e.target.hash;
             },
