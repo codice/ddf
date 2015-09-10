@@ -90,9 +90,9 @@
             <artifactId>ddf-security-common</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.google.collections</groupId>
-            <artifactId>google-collections</artifactId>
-            <version>1.0</version>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>18.0</version>
         </dependency>
     </dependencies>
 
@@ -113,7 +113,7 @@
                             ddf.catalog.util.impl,
                             org.codice.ddf.security.common.jaxrs
                         </Private-Package>
-                        <Embed-Dependency>google-collections</Embed-Dependency>
+                        <Embed-Dependency>guava</Embed-Dependency>
                         <Export-Package>
                             ddf.catalog.resource.impl;version="${project.version}"
                         </Export-Package>
