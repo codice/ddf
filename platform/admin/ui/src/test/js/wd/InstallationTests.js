@@ -17,10 +17,10 @@ describe('Installation', function () {
         it('should contain insecure defaults', function () {
             return this.browser
                 .waitForElementById('accordion', shared.timeout)
-                .waitForElementById('details', shared.timeout).click()
-                .waitForElementByCssSelector('.panel-collapse.collapse.in', asserters.isDisplayed, shared.timeout)
-                .waitForElementById('details', shared.timeout).click()
-                .waitForElementByCssSelector('.panel-collapse.collapse', shared.timeout)
+                .waitForElementById('details', asserters.textInclude('Show details'), shared.timeout).click()
+                .waitForElementById('collapseAlerts', asserters.isDisplayed, shared.timeout)
+                .waitForElementById('details', asserters.textInclude('Hide details'), shared.timeout).click()
+                .waitForElementById('collapseAlerts', shared.timeout)
         });
 
         it('should contain start button', function () {
