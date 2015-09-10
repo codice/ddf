@@ -60,6 +60,8 @@ public class KeystoreEditorTest {
 
     File p7bFile = null;
 
+    File badFile = null;
+
     @Before
     public void setup() throws IOException {
         keyStoreFile = temporaryFolder.newFile("keystore.jks");
@@ -115,6 +117,11 @@ public class KeystoreEditorTest {
         InputStream derStream = KeystoreEditor.class.getResourceAsStream("/asdf.der");
         IOUtils.copy(derStream, derOutStream);
 
+        badFile = temporaryFolder.newFile("badfile.pem");
+        FileOutputStream badOutStream = new FileOutputStream(badFile);
+        InputStream badStream = KeystoreEditor.class.getResourceAsStream("/badfile.pem");
+        IOUtils.copy(badStream, badOutStream);
+
         IOUtils.closeQuietly(p12OutStream);
         IOUtils.closeQuietly(p12Stream);
         IOUtils.closeQuietly(crtOutStream);
@@ -135,6 +142,8 @@ public class KeystoreEditorTest {
         IOUtils.closeQuietly(pemOutStream);
         IOUtils.closeQuietly(derStream);
         IOUtils.closeQuietly(derOutStream);
+        IOUtils.closeQuietly(badStream);
+        IOUtils.closeQuietly(badOutStream);
 
         System.setProperty("javax.net.ssl.keyStoreType", "jks");
         System.setProperty("ddf.home", "");
@@ -441,5 +450,16 @@ public class KeystoreEditorTest {
         keystoreEditor
                 .addPrivateKey("", "changeit", "blah", new String(Base64.encode(keyBytes)), "",
                         pkcs12StoreFile.toString());
+    }
+
+    @Test(expected = KeystoreEditor.KeystoreEditorException.class)
+    public void testBadFile() throws KeystoreEditor.KeystoreEditorException, IOException {
+        KeystoreEditor keystoreEditor = new KeystoreEditor();
+        FileInputStream fileInputStream = new FileInputStream(badFile);
+        byte[] keyBytes = IOUtils.toByteArray(fileInputStream);
+        IOUtils.closeQuietly(fileInputStream);
+        keystoreEditor
+                .addPrivateKey("", "changeit", "blah", new String(Base64.encode(keyBytes)), "",
+                        badFile.toString());
     }
 }

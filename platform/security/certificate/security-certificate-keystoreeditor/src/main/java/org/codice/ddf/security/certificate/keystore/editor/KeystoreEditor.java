@@ -217,10 +217,13 @@ public class KeystoreEditor implements KeystoreEditorMBean {
             String type, String fileName) throws KeystoreEditorException {
         LOGGER.info("Adding alias {} to private key", alias);
         LOGGER.trace("Received data {}", data);
-        String keyStorePath = System.getProperty("ddf.home") + File.separator + System
-                .getProperty("javax.net.ssl.keyStore");
+        Path keyStoreFile = Paths.get(System.getProperty("javax.net.ssl.keyStore"));
+        if (!keyStoreFile.isAbsolute()) {
+            Path ddfHomePath = Paths.get(System.getProperty("ddf.home"));
+            keyStoreFile = Paths.get(ddfHomePath.toString(), keyStoreFile.toString());
+        }
         String keyStorePassword = System.getProperty("javax.net.ssl.keyStorePassword");
-        addToStore(alias, keyPassword, storePassword, data, type, fileName, keyStorePath,
+        addToStore(alias, keyPassword, storePassword, data, type, fileName, keyStoreFile.toString(),
                 keyStorePassword, keyStore);
     }
 
@@ -229,14 +232,17 @@ public class KeystoreEditor implements KeystoreEditorMBean {
             String data, String type, String fileName) throws KeystoreEditorException {
         LOGGER.info("Adding alias {} to trust store", alias);
         LOGGER.trace("Received data {}", data);
-        String trustStorePath = System.getProperty("ddf.home") + File.separator + System
-                .getProperty("javax.net.ssl.trustStore");
+        Path trustStoreFile = Paths.get(System.getProperty("javax.net.ssl.trustStore"));
+        if (!trustStoreFile.isAbsolute()) {
+            Path ddfHomePath = Paths.get(System.getProperty("ddf.home"));
+            trustStoreFile = Paths.get(ddfHomePath.toString(), trustStoreFile.toString());
+        }
         String trustStorePassword = System.getProperty("javax.net.ssl.trustStorePassword");
-        addToStore(alias, keyPassword, storePassword, data, type, fileName, trustStorePath,
+        addToStore(alias, keyPassword, storePassword, data, type, fileName, trustStoreFile.toString(),
                 trustStorePassword, trustStore);
     }
 
-    private void addToStore(String alias, String keyPassword, String storePassword, String data,
+    private synchronized void addToStore(String alias, String keyPassword, String storePassword, String data,
             String type, String fileName, String path, String storepass, KeyStore store)
             throws KeystoreEditorException {
         OutputStream fos = null;
@@ -484,22 +490,28 @@ public class KeystoreEditor implements KeystoreEditorMBean {
     @Override
     public void deletePrivateKey(String alias) {
         LOGGER.info("Removing {} from System keystore.", alias);
-        String keyStorePath = System.getProperty("ddf.home") + File.separator + System
-                .getProperty("javax.net.ssl.keyStore");
+        Path keyStoreFile = Paths.get(System.getProperty("javax.net.ssl.keyStore"));
+        if (!keyStoreFile.isAbsolute()) {
+            Path ddfHomePath = Paths.get(System.getProperty("ddf.home"));
+            keyStoreFile = Paths.get(ddfHomePath.toString(), keyStoreFile.toString());
+        }
         String keyStorePassword = System.getProperty("javax.net.ssl.keyStorePassword");
-        deleteFromStore(alias, keyStorePath, keyStorePassword, keyStore);
+        deleteFromStore(alias, keyStoreFile.toString(), keyStorePassword, keyStore);
     }
 
     @Override
     public void deleteTrustedCertificate(String alias) {
         LOGGER.info("Removing {} from System truststore.", alias);
-        String trustStorePath = System.getProperty("ddf.home") + File.separator + System
-                .getProperty("javax.net.ssl.trustStore");
+        Path trustStoreFile = Paths.get(System.getProperty("javax.net.ssl.trustStore"));
+        if (!trustStoreFile.isAbsolute()) {
+            Path ddfHomePath = Paths.get(System.getProperty("ddf.home"));
+            trustStoreFile = Paths.get(ddfHomePath.toString(), trustStoreFile.toString());
+        }
         String trustStorePassword = System.getProperty("javax.net.ssl.trustStorePassword");
-        deleteFromStore(alias, trustStorePath, trustStorePassword, trustStore);
+        deleteFromStore(alias, trustStoreFile.toString(), trustStorePassword, trustStore);
     }
 
-    private void deleteFromStore(String alias, String path, String pass, KeyStore store) {
+    private synchronized void deleteFromStore(String alias, String path, String pass, KeyStore store) {
         if (alias == null) {
             throw new IllegalArgumentException("Alias cannot be null.");
         }
