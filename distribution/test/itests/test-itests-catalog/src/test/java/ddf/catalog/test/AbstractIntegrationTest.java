@@ -218,8 +218,8 @@ public abstract class AbstractIntegrationTest {
                         mavenBundle("ddf.test.itests", "test-itests-common").classifier("tests")
                                 .versionAsInProject()).bundleSymbolicName("test-itests-common"),
                 mavenBundle("ddf.test.thirdparty", "rest-assured").versionAsInProject(),
-                wrappedBundle(mavenBundle("com.google.collections", "google-collections").versionAsInProject())
-                .exports("*;version=1.0"));
+                wrappedBundle(mavenBundle("com.google.guava", "guava").versionAsInProject())
+                .exports("*;version=18.0"));
     }
 
     protected Option[] configureConfigurationPorts() throws URISyntaxException {
