@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -59,8 +59,7 @@ public class WebSSOFilter implements Filter {
 
     ContextPolicyManager contextPolicyManager;
 
-    @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
+    @Override public void init(FilterConfig filterConfig) throws ServletException {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("handlerList size is {}", handlerList.size());
 
@@ -88,8 +87,7 @@ public class WebSSOFilter implements Filter {
      * @throws IOException
      * @throws ServletException
      */
-    @Override
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse,
+    @Override public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse,
             FilterChain filterChain) throws IOException, ServletException {
         LOGGER.debug("Performing doFilter() on WebSSOFilter");
         HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
@@ -306,13 +304,11 @@ public class WebSSOFilter implements Filter {
         }
     }
 
-    @Override
-    public void destroy() {
+    @Override public void destroy() {
 
     }
 
-    @Override
-    public String toString() {
+    @Override public String toString() {
         return WebSSOFilter.class.getName();
     }
 
