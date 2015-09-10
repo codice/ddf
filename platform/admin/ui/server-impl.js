@@ -131,10 +131,7 @@ server.mockConnect = function (req, res) {
 
 server.mockRequest = function (req, res) {
     var filename = _.last(URL.parse(req.url).pathname.split('/')) + '.json';
-    if (!filename)
-        filename = 'InstallationProfiles.js';
-    else
-        mockTestResource(filename, res);
+    mockTestResource(filename, res);
 }
 
 server.mockInstallationProfiles = function(req, res) {
