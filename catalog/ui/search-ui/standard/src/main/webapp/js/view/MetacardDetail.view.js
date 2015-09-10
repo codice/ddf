@@ -46,6 +46,9 @@ define([
                 'click #nextRecord' : 'nextRecord',
                 'click .metacard-action-link' : 'metacardActionModal'
             },
+            attributes:{
+                "allowScroll":false
+            },
             modelEvents: {
                 'change': 'render'
             },
@@ -72,6 +75,15 @@ define([
             },
             onRender: function () {
                 this.updateIterationControls();
+                this.$el.addClass('height-full');
+
+                var view = this.$el;
+                _.defer(function () {
+                     $('.tab-content',view).perfectScrollbar({
+                          suppressScrollX:true
+                     });
+                });
+
             },
             serializeData: function() {
                 var type;
@@ -92,6 +104,11 @@ define([
                 }
             },
             updateScrollbar: function () {
+
+               $('.tab-content',this.$el).perfectScrollbar({
+                    suppressScrollX:true
+               });
+
                 var view = this;
                 // defer seems to be necessary for this to update correctly
                 _.defer(function () {
@@ -99,6 +116,7 @@ define([
                 });
             },
             onTabClick : function(e){
+
                 this.updateScrollbar();
                 this.hash = e.target.hash;
             },
