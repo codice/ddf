@@ -21,7 +21,6 @@ import static com.jayway.restassured.RestAssured.when;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -83,8 +82,6 @@ public class TestSecurity extends AbstractIntegrationTest {
 
     private static final String CERT_GEN_PATH = "https://localhost:" + HTTPS_PORT
             + "/jolokia/exec/org.codice.ddf.security.certificate.generator.CertificateGenerator:service=demo-certificate-generation-service";
-
-    Path backupFile;
 
     @BeforeExam
 
@@ -377,8 +374,7 @@ public class TestSecurity extends AbstractIntegrationTest {
     }
 
     void backupKeystoreFile() throws IOException {
-        backupFile = Files
-                .copy(Paths.get(getFilename()), Paths.get(getBackupFilename()), REPLACE_EXISTING);
+        Files.copy(Paths.get(getFilename()), Paths.get(getBackupFilename()), REPLACE_EXISTING);
     }
 
     void restoreKeystoreFile() throws IOException {

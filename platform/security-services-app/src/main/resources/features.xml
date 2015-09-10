@@ -236,8 +236,11 @@
     <feature name="security-certificate" install="manual"
              version="${project.version}"
              description="Keystore editor MBean and associated web application.">
-        <bundle>mvn:ddf.security.certificate/security-certificate-keystoreeditor/${project.version}</bundle>
-        <bundle>mvn:ddf.security.certificate/security-certificate-adminmodule/${project.version}</bundle>
+        <bundle>
+            mvn:ddf.security.certificate/security-certificate-keystoreeditor/${project.version}
+        </bundle>
+        <bundle>mvn:ddf.security.certificate/security-certificate-adminmodule/${project.version}
+        </bundle>
     </feature>
 
     <feature name="security-anonymous" install="manual" version="${project.version}"
@@ -255,7 +258,8 @@
 
     <feature name="demo-certificate-generation" install="auto" version="${project.version}"
              description="Generate certificate">
-        <bundle>mvn:ddf.security.certificate/security-certificate-generator/${project.version}</bundle>
+        <bundle>mvn:ddf.security.certificate/security-certificate-generator/${project.version}
+        </bundle>
     </feature>
 
 </features>
