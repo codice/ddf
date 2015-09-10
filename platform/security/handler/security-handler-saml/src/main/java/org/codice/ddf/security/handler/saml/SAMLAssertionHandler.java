@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -15,10 +15,6 @@ package org.codice.ddf.security.handler.saml;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Map;
-import java.util.zip.DataFormatException;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -31,7 +27,6 @@ import javax.xml.stream.XMLStreamException;
 
 import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
-import org.codice.ddf.security.common.HttpUtils;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.HandlerResult;
@@ -59,27 +54,27 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
         LOGGER.debug("Creating SAML Assertion handler.");
     }
 
-    @Override
-    public String getAuthenticationType() {
+    @Override public String getAuthenticationType() {
         return AUTH_TYPE;
     }
 
-    @Override
-    public HandlerResult getNormalizedToken(ServletRequest request, ServletResponse response,
-                                               FilterChain chain, boolean resolve) {
+    @Override public HandlerResult getNormalizedToken(ServletRequest request,
+            ServletResponse response, FilterChain chain, boolean resolve) {
         HandlerResult handlerResult = new HandlerResult();
         String realm = (String) request.getAttribute(ContextPolicy.ACTIVE_REALM);
 
         SecurityToken securityToken;
         HttpServletRequest httpRequest = (HttpServletRequest) request;
-        String authorizationHeader = ((HttpServletRequest) request).getHeader(SecurityConstants.SAML_HEADER_NAME);
+        String authorizationHeader = ((HttpServletRequest) request)
+                .getHeader(SecurityConstants.SAML_HEADER_NAME);
 
         // check for full SAML assertions coming in (federated requests, etc.)
-        if(authorizationHeader != null) {
-            String encodedSamlAssertion = authorizationHeader.substring(RestSecurity.SAML_HEADER_PREFIX.length());
+        if (authorizationHeader != null) {
+            String encodedSamlAssertion = authorizationHeader
+                    .substring(RestSecurity.SAML_HEADER_PREFIX.length());
             LOGGER.trace("Header retrieved");
             try {
-                String tokenString = RestSecurity.decodeSaml(cookieValue);
+                String tokenString = RestSecurity.decodeSaml(encodedSamlAssertion);
                 LOGGER.trace("Cookie value: {}", tokenString);
                 securityToken = new SecurityToken();
                 Element thisToken = StaxUtils.read(new StringReader(tokenString))
@@ -90,10 +85,8 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
                 handlerResult.setToken(samlToken);
                 handlerResult.setStatus(HandlerResult.Status.COMPLETED);
             } catch (IOException e) {
-                LOGGER.warn(
-                        "Unexpected error converting header value to string",
-                        e);
-            } catch(XMLStreamException e){
+                LOGGER.warn("Unexpected error converting header value to string", e);
+            } catch (XMLStreamException e) {
                 LOGGER.warn(
                         "Unexpected error converting XML string to element - proceeding without SAML token.",
                         e);
@@ -139,9 +132,8 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
      * @return result containing the potential credentials and status
      * @throws ServletException
      */
-    @Override
-    public HandlerResult handleError(ServletRequest servletRequest, ServletResponse servletResponse,
-            FilterChain chain) throws ServletException {
+    @Override public HandlerResult handleError(ServletRequest servletRequest,
+            ServletResponse servletResponse, FilterChain chain) throws ServletException {
         HandlerResult result = new HandlerResult();
 
         HttpServletRequest httpRequest = servletRequest instanceof HttpServletRequest ?
@@ -154,7 +146,8 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
             return result;
         }
 
-        LOGGER.debug("In error handler for saml - setting status code to 401 and returning status REDIRECTED.");
+        LOGGER.debug(
+                "In error handler for saml - setting status code to 401 and returning status REDIRECTED.");
 
         // we tried to process an invalid or missing SAML assertion
         try {

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -18,9 +18,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
-import java.util.Date;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.Inflater;
@@ -28,6 +26,7 @@ import java.util.zip.InflaterInputStream;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.cxf.helpers.IOUtils;
+
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.wss4j.common.ext.WSSecurityException;
@@ -50,7 +49,7 @@ public final class RestSecurity {
     private static final Logger LOGGER = LoggerFactory.getLogger(RestSecurity.class);
 
     /**
-     * Parses the incoming subject for a saml assertion and sets that as a cookie on the client.
+     * Parses the incoming subject for a saml assertion and sets that as a header on the client.
      *
      * @param subject Subject containing a SAML-based security token.
      * @param client  Non-null client to set the cookie on.
@@ -77,24 +76,15 @@ public final class RestSecurity {
     private static String createSamlHeader(Subject subject) {
         String encodedSamlHeader = null;
         org.w3c.dom.Element samlToken = null;
-        Date expires = null;
         try {
             for (Object principal : subject.getPrincipals().asList()) {
                 if (principal instanceof SecurityAssertion) {
                     SecurityToken securityToken = ((SecurityAssertion) principal)
                             .getSecurityToken();
                     samlToken = securityToken.getToken();
-                    expires = securityToken.getExpires();
                 }
             }
             if (samlToken != null) {
-                BigDecimal maxAge = null;
-                if (expires == null) {
-                    //default to 10 minutes
-                    maxAge = new BigDecimal(600);
-                } else {
-                    maxAge = new BigDecimal((expires.getTime() - new Date().getTime()) / 1000);
-                }
                 SamlAssertionWrapper assertion = new SamlAssertionWrapper(samlToken);
                 String saml = assertion.assertionToString();
                 encodedSamlHeader = SAML_HEADER_PREFIX + encodeSaml(saml);
