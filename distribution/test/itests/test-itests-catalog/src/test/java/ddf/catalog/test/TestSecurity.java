@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -13,12 +13,16 @@
  **/
 package ddf.catalog.test;
 
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -76,6 +80,11 @@ public class TestSecurity extends AbstractIntegrationTest {
                     + "            </wsp:AppliesTo>\n" + "            <wst:Renewing/>\n"
                     + "        </wst:RequestSecurityToken>\n" + "    </soap:Body>\n"
                     + "</soap:Envelope>";
+
+    private static final String CERT_GEN_PATH = "https://localhost:" + HTTPS_PORT
+            + "/jolokia/exec/org.codice.ddf.security.certificate.generator.CertificateGenerator:service=demo-certificate-generation-service";
+
+    Path backupFile;
 
     @BeforeExam
     public void beforeTest() throws Exception {
@@ -253,6 +262,9 @@ public class TestSecurity extends AbstractIntegrationTest {
                         containsString("Anonymous")));
     }
 
+    /* These STS tests are here to prove out functionality that doesn't get hit when accessing internal services. The standard UsernameToken and BinarySecurityToken elements are supported
+     * by DDF, but not used internally. These elements need to be checked for functionality independently since going through our REST security framework won't touch these validators. */
+
     @Test
     public void testAnonymousSoapAccessHttp() throws Exception {
         configureRestForAnonymous();
@@ -273,9 +285,6 @@ public class TestSecurity extends AbstractIntegrationTest {
 
         stopFeature(false, "platform-http-proxy");
     }
-
-    /* These STS tests are here to prove out functionality that doesn't get hit when accessing internal services. The standard UsernameToken and BinarySecurityToken elements are supported
-     * by DDF, but not used internally. These elements need to be checked for functionality independently since going through our REST security framework won't touch these validators. */
 
     @Test
     public void testUsernameTokenSTS() throws Exception {
@@ -389,6 +398,38 @@ public class TestSecurity extends AbstractIntegrationTest {
         return body;
     }
 
+    String getFilename() {
+        return System.getProperty("javax.net.ssl.keyStore");
+    }
+
+    String getBackupFilename() {
+        return getFilename() + ".backup";
+    }
+
+    void backupKeystoreFile() throws IOException {
+        backupFile = Files
+                .copy(Paths.get(getFilename()), Paths.get(getBackupFilename()), REPLACE_EXISTING);
+    }
+
+    void restoreKeystoreFile() throws IOException {
+        Files.copy(Paths.get(getBackupFilename()), Paths.get(getFilename()), REPLACE_EXISTING);
+    }
+
+    @Test
+    public void testCertificateGeneratorService() throws Exception {
+
+        backupKeystoreFile();
+        try {
+            getServiceManager().startFeature(true, "demo-certificate-generation");
+            given().auth().basic("admin", "admin").when()
+                    .get(CERT_GEN_PATH + "/installCertificate/mydomain").then().log().all()
+                    .assertThat().statusCode(equalTo(200));
+            getServiceManager().stopFeature(false, "demo-certificate-generation");
+        } finally {
+            restoreKeystoreFile();
+        }
+    }
+
     public class PolicyProperties extends HashMap<String, Object> {
 
         public static final String SYMBOLIC_NAME = "security-policy-context";
@@ -400,4 +441,5 @@ public class TestSecurity extends AbstractIntegrationTest {
         }
 
     }
+
 }

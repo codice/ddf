@@ -42,18 +42,21 @@ public class KeyStoreFile {
 
     private char[] password;
 
-    static KeyStoreFile openFile(String filePath, char[] password)
-            throws IOException, GeneralSecurityException {
+    static KeyStoreFile openFile(String filePath, char[] password) {
 
         KeyStoreFile facade = new KeyStoreFile();
-        File file;
-        KeyStore keyStore = newKeyStore();
         PkiTools tools = new PkiTools();
-        file = tools.createFileObject(filePath);
+        File file;
         char[] pw = tools.formatPassword(password);
-
-        try (FileInputStream resource = new FileInputStream(file)) {
+        KeyStore keyStore = null;
+        try {
+            file = tools.createFileObject(filePath);
+            FileInputStream resource = new FileInputStream(file);
+            keyStore = newKeyStore();
             keyStore.load(resource, pw);
+        } catch (GeneralSecurityException | IOException e) {
+            throw new CertificateGeneratorException("Could not create new instance of KeyStoreFile",
+                    e);
         }
 
         facade.file = file;
@@ -81,9 +84,13 @@ public class KeyStoreFile {
      *
      * @return List of aliases in keystore or null
      */
-    public List<String> aliases() throws KeyStoreException {
+    public List<String> aliases() {
 
-        return Collections.list(keyStore.aliases());
+        try {
+            return Collections.list(keyStore.aliases());
+        } catch (KeyStoreException e) {
+            throw new CertificateGeneratorException("Could not retrieve keys from keystore", e);
+        }
     }
 
     public KeyStore.Entry getEntry(String alias) {

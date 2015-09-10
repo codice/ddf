@@ -20,7 +20,6 @@ import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -66,13 +65,13 @@ public class KeyStoreFileTest {
     }
 
     //Test constructor. Invalid path to keyStore file.
-    @Test(expected = FileNotFoundException.class)
+    @Test(expected = CertificateGeneratorException.class)
     public void constructorInvalidPath() throws Exception {
         KeyStoreFile.openFile("", null);
     }
 
     //Test Constructor. Path is a directory, not a file.
-    @Test(expected = FileNotFoundException.class)
+    @Test(expected = CertificateGeneratorException.class)
     public void constructorPathIsDirectory() throws Exception {
         String anyDirectory = getPathTo("");
         KeyStoreFile.openFile(anyDirectory, null);
@@ -83,26 +82,26 @@ public class KeyStoreFileTest {
     //Not sure how to createAndAccess it automated testing, and probably not worth the effort anyway.
 
     //Test Constructor. File is not keyStore.
-    @Test(expected = IOException.class)
+    @Test(expected = CertificateGeneratorException.class)
     public void constructorFileNotKeyStore() throws Exception {
         KeyStoreFile.openFile(getPathTo(BOGUS_FILENAME), null);
     }
 
     //Test Constructor. Password is null.
-    @Test(expected = IOException.class)
+    @Test(expected = CertificateGeneratorException.class)
     public void constructorNullPassword() throws Exception {
         KeyStoreFile.openFile(getPathTo(KEYSTORE_COPY), null);
     }
 
     //Test Constructor. Password is wrong.
-    @Test(expected = IOException.class)
+    @Test(expected = CertificateGeneratorException.class)
     public void constructorWrongPassword() throws Exception {
         KeyStoreFile.openFile(getPathTo(KEYSTORE_COPY), BOGUS_PASSWORD);
     }
 
     //Test Constructor. Valid file, valid password.
     @Test
-    public void testConstructor() throws Exception {
+    public void testConstructor() {
 
         KeyStoreFile keyStore = KeyStoreFile.openFile(getPathTo(KEYSTORE_COPY), PASSWORD);
         assertNotNull(keyStore.aliases());

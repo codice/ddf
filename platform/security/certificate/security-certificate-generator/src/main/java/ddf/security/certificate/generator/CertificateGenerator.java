@@ -14,9 +14,7 @@
 
 package ddf.security.certificate.generator;
 
-import java.io.IOException;
 import java.lang.management.ManagementFactory;
-import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 
 import javax.management.InstanceAlreadyExistsException;
@@ -27,34 +25,16 @@ import javax.management.ObjectName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-//import org.apache.shiro.util.CollectionUtils;
-//import org.codice.ddf.ui.admin.api.ConfigurationAdminExt;
-//import org.osgi.framework.Bundle;
-//import org.osgi.framework.BundleContext;
-//import org.osgi.framework.FrameworkUtil;
-//import org.osgi.framework.InvalidSyntaxException;
-//import org.osgi.framework.ServiceReference;
-//import org.osgi.service.cm.Configuration;
-//import org.osgi.service.cm.ConfigurationAdmin;
-//import org.osgi.service.metatype.ObjectClassDefinition;
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
-//
-//import ddf.catalog.service.ConfiguredService;
-//import ddf.catalog.source.ConnectedSource;
-//import ddf.catalog.source.FederatedSource;
-//import ddf.catalog.source.Source;
-
 public class CertificateGenerator implements CertificateGeneratorMBean {
+    public static final String SERVICE_NAME = ":service=demo-certificate-generation-service";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(CertificateGenerator.class);
 
-    private static final String SERVICE_NAME = ":service=demo-certificate-generation-service";
+    ObjectName objectName;
 
-    private final ObjectName objectName;
+    MBeanServer mBeanServer;
 
-    private final MBeanServer mBeanServer;
-
-    private PkiTools pkiTools = new PkiTools();
+    PkiTools pkiTools = new PkiTools();
 
     public CertificateGenerator() {
         mBeanServer = ManagementFactory.getPlatformMBeanServer();
@@ -70,24 +50,20 @@ public class CertificateGenerator implements CertificateGeneratorMBean {
         objectName = objName;
     }
 
-    public boolean installCertificate(String commonName) {
+    public void installCertificate(String commonName) {
         CertificateAuthority demoCa = new DemoCertificateAuthority();
         CertificateSigningRequest csr = new CertificateSigningRequest();
         csr.setCommonName(commonName);
         KeyStore.PrivateKeyEntry pkEntry = demoCa.sign(csr);
-        KeyStoreFile ksFile = null;
-        try {
-            ksFile = KeyStoreFile.openFile(System.getProperty("javax.net.ssl.keyStore"),
-                    System.getProperty("javax.net.ssl.keyStorePassword").toCharArray());
-            //Ask Eric or someone about what to do here. Hide the checked errors behind unchecked errors?
-        } catch (IOException e) {
-            return false;
-        } catch (GeneralSecurityException e) {
-            return false;
-        }
+        KeyStoreFile ksFile = getKeyStoreFile();
         ksFile.setEntry(commonName, pkEntry);
         ksFile.save();
-        return true;
+
+    }
+
+    KeyStoreFile getKeyStoreFile() {
+        return KeyStoreFile.openFile(System.getProperty("javax.net.ssl.keyStore"),
+                System.getProperty("javax.net.ssl.keyStorePassword").toCharArray());
     }
 
     public void init() {
