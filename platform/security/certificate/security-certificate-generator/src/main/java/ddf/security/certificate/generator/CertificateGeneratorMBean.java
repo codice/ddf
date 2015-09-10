@@ -15,5 +15,5 @@ package ddf.security.certificate.generator;
 
 public interface CertificateGeneratorMBean {
 
-    public boolean installCertificate(String commonName);
+    public void installCertificate(String commonName);
 }

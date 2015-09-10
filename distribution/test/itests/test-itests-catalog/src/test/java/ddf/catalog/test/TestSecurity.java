@@ -13,11 +13,16 @@
  **/
 package ddf.catalog.test;
 
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -76,7 +81,13 @@ public class TestSecurity extends AbstractIntegrationTest {
 
     protected static final String SDK_SOAP_CONTEXT = "/services/sdk/SoapService";
 
+    private static final String CERT_GEN_PATH = "https://localhost:" + HTTPS_PORT
+            + "/jolokia/exec/org.codice.ddf.security.certificate.generator.CertificateGenerator:service=demo-certificate-generation-service";
+
+    Path backupFile;
+
     @BeforeExam
+
     public void beforeTest() throws Exception {
         setLogLevels();
         waitForAllBundles();
@@ -106,7 +117,8 @@ public class TestSecurity extends AbstractIntegrationTest {
 
         //test that anonymous works and check that we get an sso token
         String cookie = when().get(url).then().log().all().assertThat().statusCode(equalTo(200))
-                .assertThat().header("Set-Cookie", containsString("JSESSIONID")).extract().cookie("JSESSIONID");
+                .assertThat().header("Set-Cookie", containsString("JSESSIONID")).extract()
+                .cookie("JSESSIONID");
 
         //try again with the sso token
         given().cookie("JSESSIONID", cookie).when().get(url).then().log().all().assertThat()
@@ -223,6 +235,9 @@ public class TestSecurity extends AbstractIntegrationTest {
                         containsString("Anonymous")));
     }
 
+    /* These STS tests are here to prove out functionality that doesn't get hit when accessing internal services. The standard UsernameToken and BinarySecurityToken elements are supported
+     * by DDF, but not used internally. These elements need to be checked for functionality independently since going through our REST security framework won't touch these validators. */
+
     @Test
     public void testAnonymousSoapAccessHttp() throws Exception {
         startFeature(true, "platform-http-proxy");
@@ -241,9 +256,6 @@ public class TestSecurity extends AbstractIntegrationTest {
 
         stopFeature(false, "platform-http-proxy");
     }
-
-    /* These STS tests are here to prove out functionality that doesn't get hit when accessing internal services. The standard UsernameToken and BinarySecurityToken elements are supported
-     * by DDF, but not used internally. These elements need to be checked for functionality independently since going through our REST security framework won't touch these validators. */
 
     @Test
     public void testUsernameTokenSTS() throws Exception {
@@ -339,7 +351,6 @@ public class TestSecurity extends AbstractIntegrationTest {
                 .expect().statusCode(equalTo(200)).when()
                 .post(SERVICE_ROOT + "/SecurityTokenService").then().log().all().assertThat()
                 .body(HasXPath.hasXPath("//*[local-name()='Assertion']"));
-
     }
 
     private String getSoapEnvelope(String onBehalfOf) {
@@ -355,5 +366,37 @@ public class TestSecurity extends AbstractIntegrationTest {
         body = body.replace("CREATED", created);
         body = body.replace("EXPIRES", expires);
         return body;
+    }
+
+    String getFilename() {
+        return System.getProperty("javax.net.ssl.keyStore");
+    }
+
+    String getBackupFilename() {
+        return getFilename() + ".backup";
+    }
+
+    void backupKeystoreFile() throws IOException {
+        backupFile = Files
+                .copy(Paths.get(getFilename()), Paths.get(getBackupFilename()), REPLACE_EXISTING);
+    }
+
+    void restoreKeystoreFile() throws IOException {
+        Files.copy(Paths.get(getBackupFilename()), Paths.get(getFilename()), REPLACE_EXISTING);
+    }
+
+    @Test
+    public void testCertificateGeneratorService() throws Exception {
+
+        backupKeystoreFile();
+        try {
+            getServiceManager().startFeature(true, "demo-certificate-generation");
+            given().auth().basic("admin", "admin").when()
+                    .get(CERT_GEN_PATH + "/installCertificate/mydomain").then().log().all()
+                    .assertThat().statusCode(equalTo(200));
+            getServiceManager().stopFeature(false, "demo-certificate-generation");
+        } finally {
+            restoreKeystoreFile();
+        }
     }
 }
