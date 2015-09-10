@@ -127,10 +127,14 @@ define([
             },
 
             setBBox : function() {
-                var north = this.get('north'),
-                    south = this.get('south'),
-                    west = this.get('west'),
-                    east = this.get('east');
+
+                //we need these to always be inferred
+                //as numeric values and never as strings
+                var north = parseFloat(this.get('north'));
+                var south = parseFloat(this.get('south'));
+                var west = parseFloat(this.get('west'));
+                var east = parseFloat(this.get('east'));
+
                 if (north && south && east && west){
                     this.set('bbox', [west, south, east, north].join(','), {silent:this.get('locationType') === 'usng' && !this.drawing});
                 }
