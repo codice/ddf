@@ -5050,13 +5050,37 @@ In order to make a resource reader available to the Catalog Framework, it must 
 
 The `URLResourceReader` is an implementation of `ResourceReader` which is included in the DDF Catalog.  It obtains a resource given an http, https, or file-based URL. The `URLResourceReader` will connect to the provided Resource URL and read the resource's bytes into an `InputStream`.  
 
+[WARNING]
+====
+When a resource linked using a file-based URL is in the product cache, the `URLResourceReader`&#8217;s rootResourceDirectories is not checked when downloading the product. It is downloaded from the product cache which bypasses the `URLResourceReader`. For example, if path /my/valid/path is configured in the `URLResourceReader`&#8217;s rootResourceDirectories and one downloads the product with resource-uri file:///my/valid/path/product.txt and then one removes /my/valid/path from the `URLResourceReader`&#8217;s rootResourceDirectories configuration, the product will still be accessible via the product cache.
+====
+
 ===== Installing and Uninstalling
 
 `URLResourceReader` is installed by default with the DDF Catalog.
 
 ===== Configuring
 
-This `URLResourceReader` has no configurable properties. It can only be installed or uninstalled.
+====== Configurable Properties
+
+_URL Resource Reader_
+
+[cols="5*", options="header"]
+|===
+
+|Property
+|Type
+|Description
+|Default Value
+|Required
+
+|rootResourceDirectories
+|String array
+|Specifies the only directories the `URLResourceReader` has access to when attempting to download resources linked using file-based URLs (i.e. the metacard attribute resource-uri uses the file URI scheme). This property is used to restrict the `URLResourceReader`&#8217;s access to the file system. The `URLResourceReader` can be given full access to the file system by setting the rootResourceDirectories property to the root directory (e.g. `/`), but this configuration is not recommended.
+|<ddf.home>/data/products
+|yes
+
+|===
 
 ===== Using
 
@@ -5086,7 +5110,7 @@ Supported Schemes:
 
 [NOTE]
 ====
-If a file-based URL is passed to the `URLResourceReader`, that file path needs to be accessible by the DDF instance.
+If a file-based URL is passed to the `URLResourceReader`, that file path needs to be accessible by the DDF instance (see the rootResourceDirectories property of the `URLResourceReader`).
 ====
 
 ===== Known Issues
@@ -5115,7 +5139,7 @@ public class TestResourceReader implements ddf.catalog.resource.ResourceReader
 [NOTE]
 ====
 *URI* +
-It is recommended to become familiar with the Java API URI class in order to properly build a `ResourceReader`.  Furthermore, a URIshould be used according to its specification here: +
+It is recommended to become familiar with the Java API URI class in order to properly build a `ResourceReader`.  Furthermore, a URI should be used according to its specification here: +
 http://www.w3.org/Addressing/URL/uri-spec.html.
 ====
 
@@ -5168,7 +5192,7 @@ InputStream is = conn.getInputStream();
 
 [NOTE]
 ====
-The `Resource` needs to be accessible from the DDF installation.  This includes being able to find a file locally or reach out to a remote URI.  This may require Internet access, and DDF may need to be configured to use a proxy (http.proxyHost and http.proxyPort can be added to the system properties on the command line script).
+The `Resource` needs to be accessible from the DDF installation (see the rootResourceDirectories property of the `URLResourceReader`).  This includes being able to find a file locally or reach out to a remote URI.  This may require Internet access, and DDF may need to be configured to use a proxy (http.proxyHost and http.proxyPort can be added to the system properties on the command line script).
 ====
 
 . Return `Resource` in `ResourceResponse`.

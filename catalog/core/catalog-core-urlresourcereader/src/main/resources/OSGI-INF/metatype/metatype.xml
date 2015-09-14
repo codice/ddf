@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+
+ -->
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
+
+        <OCD name="URL Resource Reader"
+         id="ddf.catalog.resource.impl.URLResourceReader">
+                <AD
+                description="List of root resource directories. A relative path is relative to ddf.home. Specifies the only directories the URLResourceReader has access to when attempting to download resources linked using file-based URLs."
+                name="Root Resource Directories" id="rootResourceDirectories" required="true" cardinality="100"
+                type="String" default="data/products"/>
+        </OCD>
+
+        <Designate pid="ddf.catalog.resource.impl.URLResourceReader">
+                <Object ocdref="ddf.catalog.resource.impl.URLResourceReader"/>
+        </Designate>
+
+</metatype:MetaData>
