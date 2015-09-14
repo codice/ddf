@@ -20,38 +20,38 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.shiro.subject.Subject;
 
-import ddf.security.common.util.SubjectUtils;
+import ddf.security.common.util.DdfSubjectUtils;
 
 /**
- * SubjectCommands provides the ability to change what subject (user) the extending command is run as.
+ * DdfSubjectCommands provides the ability to change what subject (user) the extending command is run as.
  * If no user is specified and the user has the admin role, the command will execute as the system
  * user otherwise it will fail.
  */
-public abstract class SubjectCommands extends CommandSupport {
+public abstract class DdfSubjectCommands extends CommandSupport {
 
     @Option(name = "--user", required = false, aliases = {
             "-u"}, multiValued = false, description = "Run command as a different user")
     protected String user = null;
 
-    protected SubjectUtils subjectUtils = new SubjectUtils();
+    protected DdfSubjectUtils ddfSubjectUtils = new DdfSubjectUtils();
 
-    protected abstract Object executeAsSubject() throws Exception;
+    protected abstract Object executeWithDdfSubject() throws Exception;
 
     @Override
     protected Object doExecute() throws Exception {
         Subject subject;
         if (!StringUtils.isEmpty(user)) {
             String password = getLine("Password for " + user + ": ", false);
-            subject = subjectUtils.getSubject(user, password);
+            subject = ddfSubjectUtils.getSubject(user, password);
         } else {
             //verify that java subject has the correct roles (admin)
-            if (!subjectUtils.javaSubjectHasAdminRole()) {
+            if (!ddfSubjectUtils.javaSubjectHasAdminRole()) {
                 printErrorMessage(
                         "Current user doesn't have sufficient privileges to run this command");
                 return null;
             }
             //get system subject
-            subject = subjectUtils.getSystemSubject();
+            subject = ddfSubjectUtils.getSystemSubject();
         }
 
         if (subject == null) {
@@ -62,7 +62,7 @@ public abstract class SubjectCommands extends CommandSupport {
         Callable callable = new Callable() {
             @Override
             public Object call() throws Exception {
-                return executeAsSubject();
+                return executeWithDdfSubject();
             }
         };
 

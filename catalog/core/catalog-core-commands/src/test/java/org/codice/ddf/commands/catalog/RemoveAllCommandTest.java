@@ -68,7 +68,7 @@ public class RemoveAllCommandTest {
         RemoveAllCommand command = new RemoveAllCommand() {
             @Override
             protected Object doExecute() throws Exception {
-                return executeAsSubject();
+                return executeWithDdfSubject();
             }
         };
 
@@ -126,7 +126,7 @@ public class RemoveAllCommandTest {
 
             @Override
             protected Object doExecute() throws Exception {
-                return executeAsSubject();
+                return executeWithDdfSubject();
             }
         };
 
@@ -157,7 +157,7 @@ public class RemoveAllCommandTest {
 
             @Override
             protected Object doExecute() throws Exception {
-                return executeAsSubject();
+                return executeWithDdfSubject();
             }
         };
 

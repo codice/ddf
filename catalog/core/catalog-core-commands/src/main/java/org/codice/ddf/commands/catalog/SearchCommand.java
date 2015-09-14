@@ -74,7 +74,7 @@ public class SearchCommand extends CatalogCommands {
     boolean cache = false;
 
     @Override
-    protected Object executeAsSubject() throws Exception {
+    protected Object executeWithDdfSubject() throws Exception {
         Filter filter = null;
         if (cqlFilter != null) {
             filter = CQL.toFilter(cqlFilter);

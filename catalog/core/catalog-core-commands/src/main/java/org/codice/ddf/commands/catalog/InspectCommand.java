@@ -37,7 +37,7 @@ public class InspectCommand extends CatalogCommands {
     String id = null;
 
     @Override
-    protected Object executeAsSubject() throws Exception {
+    protected Object executeWithDdfSubject() throws Exception {
 
         if (id == null) {
             return null;

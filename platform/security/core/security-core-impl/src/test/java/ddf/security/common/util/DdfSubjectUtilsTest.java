@@ -44,12 +44,12 @@ import ddf.security.assertion.SecurityAssertion;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
 
-public class SubjectUtilsTest {
+public class DdfSubjectUtilsTest {
 
     @Test
     public void testGetSubjectNoSecurityManager() throws Exception {
-        SubjectUtils subjectUtils = new SubjectUtils();
-        Subject subject = subjectUtils.getSubject("username", "password");
+        DdfSubjectUtils ddfSubjectUtils = new DdfSubjectUtils();
+        Subject subject = ddfSubjectUtils.getSubject("username", "password");
         assertThat(subject, is(equalTo(null)));
     }
 
@@ -59,14 +59,14 @@ public class SubjectUtilsTest {
         Subject smSubject = mock(Subject.class);
         when(sm.getSubject(any())).thenThrow(new SecurityServiceException("Error"));
 
-        SubjectUtils subjectUtils = new SubjectUtils() {
+        DdfSubjectUtils ddfSubjectUtils = new DdfSubjectUtils() {
             @Override
             public SecurityManager getSecurityManager() {
                 return sm;
             }
         };
 
-        Subject subject = subjectUtils.getSubject("username", "password");
+        Subject subject = ddfSubjectUtils.getSubject("username", "password");
         assertThat(subject, is(equalTo(null)));
     }
 
@@ -76,35 +76,35 @@ public class SubjectUtilsTest {
         Subject smSubject = mock(Subject.class);
         when(sm.getSubject(any())).thenReturn(smSubject);
 
-        SubjectUtils subjectUtils = new SubjectUtils() {
+        DdfSubjectUtils ddfSubjectUtils = new DdfSubjectUtils() {
             @Override
             public SecurityManager getSecurityManager() {
                 return sm;
             }
         };
 
-        Subject subject = subjectUtils.getSubject("username", "password");
+        Subject subject = ddfSubjectUtils.getSubject("username", "password");
         assertThat(subject, not(equalTo(null)));
     }
 
     @Test
     public void testTokenAboutToExpire() throws Exception {
-        SubjectUtils subjectUtils = new SubjectUtils();
+        DdfSubjectUtils ddfSubjectUtils = new DdfSubjectUtils();
         Subject subject = mock(Subject.class);
         SecurityAssertion assertion = mock(SecurityAssertion.class);
         PrincipalCollection pc = mock(PrincipalCollection.class);
         SecurityToken st = mock(SecurityToken.class);
         when(st.isAboutToExpire(anyLong())).thenReturn(true);
 
-        assertThat(subjectUtils.tokenAboutToExpire(null), equalTo(true));
-        assertThat(subjectUtils.tokenAboutToExpire(subject), equalTo(true));
+        assertThat(ddfSubjectUtils.tokenAboutToExpire(null), equalTo(true));
+        assertThat(ddfSubjectUtils.tokenAboutToExpire(subject), equalTo(true));
         when(subject.getPrincipals()).thenReturn(pc);
-        assertThat(subjectUtils.tokenAboutToExpire(subject), equalTo(true));
+        assertThat(ddfSubjectUtils.tokenAboutToExpire(subject), equalTo(true));
         when(pc.oneByType(any(Class.class))).thenReturn(assertion);
         when(assertion.getSecurityToken()).thenReturn(st);
-        assertThat(subjectUtils.tokenAboutToExpire(subject), equalTo(true));
+        assertThat(ddfSubjectUtils.tokenAboutToExpire(subject), equalTo(true));
         when(st.isAboutToExpire(anyLong())).thenReturn(false);
-        assertThat(subjectUtils.tokenAboutToExpire(subject), equalTo(false));
+        assertThat(ddfSubjectUtils.tokenAboutToExpire(subject), equalTo(false));
     }
 
     @Test
@@ -113,8 +113,8 @@ public class SubjectUtilsTest {
         javax.security.auth.Subject.doAs(subject, new PrivilegedAction<Object>() {
             @Override
             public Object run() {
-                SubjectUtils subjectUtils = new SubjectUtils();
-                assertThat(subjectUtils.javaSubjectHasAdminRole(), equalTo(false));
+                DdfSubjectUtils ddfSubjectUtils = new DdfSubjectUtils();
+                assertThat(ddfSubjectUtils.javaSubjectHasAdminRole(), equalTo(false));
                 return null;
             }
         });
@@ -130,8 +130,8 @@ public class SubjectUtilsTest {
         javax.security.auth.Subject.doAs(subject, new PrivilegedAction<Object>() {
             @Override
             public Object run() {
-                SubjectUtils subjectUtils = new SubjectUtils();
-                assertThat(subjectUtils.javaSubjectHasAdminRole(), equalTo(true));
+                DdfSubjectUtils ddfSubjectUtils = new DdfSubjectUtils();
+                assertThat(ddfSubjectUtils.javaSubjectHasAdminRole(), equalTo(true));
                 return null;
             }
         });
@@ -146,14 +146,14 @@ public class SubjectUtilsTest {
         props.put("host", "server");
         final BundleContext bc = getBundleContext(props);
 
-        SubjectUtils subjectUtils = new SubjectUtils() {
+        DdfSubjectUtils ddfSubjectUtils = new DdfSubjectUtils() {
             @Override
             public BundleContext getBundleContext() {
                 return bc;
             }
         };
 
-        assertThat(subjectUtils.getSystemSubject(), not(equalTo(null)));
+        assertThat(ddfSubjectUtils.getSystemSubject(), not(equalTo(null)));
     }
 
     @Test
@@ -165,14 +165,14 @@ public class SubjectUtilsTest {
         props.put("host", "bad-alias");
         final BundleContext bc = getBundleContext(props);
 
-        SubjectUtils subjectUtils = new SubjectUtils() {
+        DdfSubjectUtils ddfSubjectUtils = new DdfSubjectUtils() {
             @Override
             public BundleContext getBundleContext() {
                 return bc;
             }
         };
 
-        assertThat(subjectUtils.getSystemSubject(), equalTo(null));
+        assertThat(ddfSubjectUtils.getSystemSubject(), equalTo(null));
     }
 
     private void setSystemProps() throws Exception {

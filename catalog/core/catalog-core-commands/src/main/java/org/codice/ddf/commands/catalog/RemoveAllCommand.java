@@ -88,7 +88,7 @@ public class RemoveAllCommand extends CatalogCommands {
     boolean cache = false;
 
     @Override
-    protected Object executeAsSubject() throws Exception {
+    protected Object executeWithDdfSubject() throws Exception {
 
         if (batchSize < PAGE_SIZE_LOWER_LIMIT) {
             printErrorMessage(String.format(BATCH_SIZE_ERROR_MESSAGE_FORMAT, batchSize));

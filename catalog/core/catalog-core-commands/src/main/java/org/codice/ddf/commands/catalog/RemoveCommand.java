@@ -60,7 +60,7 @@ public class RemoveCommand extends CatalogCommands {
     boolean cache = false;
 
     @Override
-    protected Object executeAsSubject() throws Exception {
+    protected Object executeWithDdfSubject() throws Exception {
         if (ids == null || ids.isEmpty()) {
             printErrorMessage("Nothing to remove.");
             return null;

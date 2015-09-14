@@ -123,7 +123,7 @@ public class DumpCommand extends CatalogCommands {
     int dirLevel = 0;
 
     @Override
-    protected Object executeAsSubject() throws Exception {
+    protected Object executeWithDdfSubject() throws Exception {
         final File dumpDir = new File(dirPath);
 
         if (!dumpDir.exists()) {
