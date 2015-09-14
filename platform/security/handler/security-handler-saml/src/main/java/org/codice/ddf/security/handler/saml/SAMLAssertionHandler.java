@@ -15,10 +15,6 @@ package org.codice.ddf.security.handler.saml;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Map;
-import java.util.zip.DataFormatException;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -78,7 +74,7 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
                     .substring(RestSecurity.SAML_HEADER_PREFIX.length());
             LOGGER.trace("Header retrieved");
             try {
-                String tokenString = RestSecurity.decodeSaml(cookieValue);
+                String tokenString = RestSecurity.decodeSaml(encodedSamlAssertion);
                 LOGGER.trace("Cookie value: {}", tokenString);
                 securityToken = new SecurityToken();
                 Element thisToken = StaxUtils.read(new StringReader(tokenString))
@@ -88,15 +84,6 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
                         realm);
                 handlerResult.setToken(samlToken);
                 handlerResult.setStatus(HandlerResult.Status.COMPLETED);
-            } catch (IOException e) {
-            } catch (Base64Exception e) {
-                LOGGER.warn(
-                        "Unexpected error un-encoding the header value - proceeding without SAML toekn",
-                        e);
-            } catch (DataFormatException e) {
-                LOGGER.warn(
-                        "Unexpected error deflating header value - proceeding without SAML token",
-                        e);
             } catch (IOException e) {
                 LOGGER.warn("Unexpected error converting header value to string", e);
             } catch (XMLStreamException e) {
