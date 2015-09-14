@@ -65,17 +65,25 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
 
         SecurityToken securityToken;
         HttpServletRequest httpRequest = (HttpServletRequest) request;
-        String authorizationHeader = ((HttpServletRequest) request)
+        String authHeader = ((HttpServletRequest) request)
                 .getHeader(SecurityConstants.SAML_HEADER_NAME);
 
         // check for full SAML assertions coming in (federated requests, etc.)
-        if (authorizationHeader != null) {
-            String encodedSamlAssertion = authorizationHeader
-                    .substring(RestSecurity.SAML_HEADER_PREFIX.length());
+        if (authHeader != null) {
+            String[] tokenizedAuthHeader = authHeader.split(" ");
+            if(tokenizedAuthHeader.length != 2){
+                LOGGER.warn("Unexpected error - Authorization header tokenized incorrectly.");
+                return handlerResult;
+            }
+            if(!tokenizedAuthHeader[0].equals("SAML")){
+                LOGGER.trace("Header is not a SAML assertion.");
+                return handlerResult;
+            }
+            String encodedSamlAssertion = tokenizedAuthHeader[1];
             LOGGER.trace("Header retrieved");
             try {
                 String tokenString = RestSecurity.decodeSaml(encodedSamlAssertion);
-                LOGGER.trace("Cookie value: {}", tokenString);
+                LOGGER.trace("Header value: {}", tokenString);
                 securityToken = new SecurityToken();
                 Element thisToken = StaxUtils.read(new StringReader(tokenString))
                         .getDocumentElement();
