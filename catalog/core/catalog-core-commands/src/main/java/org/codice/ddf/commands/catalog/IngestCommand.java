@@ -120,7 +120,7 @@ public class IngestCommand extends CatalogCommands {
     File failedIngestDirectory = null;
 
     @Override
-    protected Object executeAsSubject() throws Exception {
+    protected Object executeWithDdfSubject() throws Exception {
 
         final CatalogFacade catalog = getCatalog();
         final File inputFile = new File(filePath);

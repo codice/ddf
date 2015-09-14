@@ -21,7 +21,7 @@ import ddf.catalog.util.Describable;
 public class DescribeCommand extends CatalogCommands {
 
     @Override
-    protected Object executeAsSubject() throws Exception {
+    protected Object executeWithDdfSubject() throws Exception {
         Describable catalog = getCatalog();
 
         console.printf("%s=%s%n", "title", catalog.getTitle());

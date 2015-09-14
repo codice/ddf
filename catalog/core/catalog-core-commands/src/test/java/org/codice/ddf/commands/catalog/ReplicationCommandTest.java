@@ -125,7 +125,7 @@ public class ReplicationCommandTest {
 
             @Override
             protected Object doExecute() throws Exception {
-                return executeAsSubject();
+                return executeWithDdfSubject();
             }
         };
 

@@ -47,17 +47,17 @@ import ddf.security.assertion.SecurityAssertion;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
 
-public class SubjectUtils {
+public class DdfSubjectUtils {
 
     private static final RolePrincipal ADMIN_ROLE = new RolePrincipal("admin");
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SubjectUtils.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DdfSubjectUtils.class);
 
     private static Subject cachedSystemSubject;
 
     private static Object lock = new Object();
 
-    public SubjectUtils() {
+    public DdfSubjectUtils() {
 
     }
 
@@ -88,7 +88,10 @@ public class SubjectUtils {
     public boolean javaSubjectHasAdminRole() {
         javax.security.auth.Subject subject = javax.security.auth.Subject
                 .getSubject(AccessController.getContext());
-        return ADMIN_ROLE.implies(subject);
+        if (subject != null) {
+            return subject.getPrincipals().contains(ADMIN_ROLE);
+        }
+        return false;
     }
 
     public Subject getSystemSubject() {
@@ -148,7 +151,7 @@ public class SubjectUtils {
     }
 
     public BundleContext getBundleContext() {
-        Bundle bundle = FrameworkUtil.getBundle(SubjectUtils.class);
+        Bundle bundle = FrameworkUtil.getBundle(DdfSubjectUtils.class);
         if (bundle != null) {
             return bundle.getBundleContext();
         }

@@ -56,7 +56,7 @@ public class LatestCommandTest extends AbstractCommandTest {
 
                 @Override
                 protected Object doExecute() throws Exception {
-                    return executeAsSubject();
+                    return executeWithDdfSubject();
                 }
             };
 
