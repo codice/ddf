@@ -52,7 +52,7 @@ public class TestSecurity extends AbstractIntegrationTest {
                     + "                <wsu:Expires>EXPIRES</wsu:Expires>\n"
                     + "            </wsu:Timestamp>\n" + "        </wsse:Security>\n"
                     + "    </soap:Header>\n" + "    <soap:Body>\n"
-                    + "        <wst:RequestSecurityToken xmlns:wst=\"http://docs.oasis-open.org/ws-sx/ws-trust/200512\">\n"
+                    + "        <wst:RequestSecurityToken xmlns:wst=\"http://docs.oasis-open.org/ws-sTx/ws-trust/200512\">\n"
                     + "            <wst:SecondaryParameters>\n"
                     + "                <t:TokenType xmlns:t=\"http://docs.oasis-open.org/ws-sx/ws-trust/200512\">http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0</t:TokenType>\n"
                     + "                <t:KeyType xmlns:t=\"http://docs.oasis-open.org/ws-sx/ws-trust/200512\">http://docs.oasis-open.org/ws-sx/ws-trust/200512/Bearer</t:KeyType>\n"
