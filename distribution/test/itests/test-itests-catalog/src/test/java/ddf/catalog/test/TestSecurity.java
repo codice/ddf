@@ -52,7 +52,7 @@ public class TestSecurity extends AbstractIntegrationTest {
                     + "                <wsu:Expires>EXPIRES</wsu:Expires>\n"
                     + "            </wsu:Timestamp>\n" + "        </wsse:Security>\n"
                     + "    </soap:Header>\n" + "    <soap:Body>\n"
-                    + "        <wst:RequestSecurityToken xmlns:wst=\"http://docs.oasis-open.org/ws-sTx/ws-trust/200512\">\n"
+                    + "        <wst:RequestSecurityToken xmlns:wst=\"http://docs.oasis-open.org/ws-sx/ws-trust/200512\">\n"
                     + "            <wst:SecondaryParameters>\n"
                     + "                <t:TokenType xmlns:t=\"http://docs.oasis-open.org/ws-sx/ws-trust/200512\">http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0</t:TokenType>\n"
                     + "                <t:KeyType xmlns:t=\"http://docs.oasis-open.org/ws-sx/ws-trust/200512\">http://docs.oasis-open.org/ws-sx/ws-trust/200512/Bearer</t:KeyType>\n"
@@ -340,6 +340,23 @@ public class TestSecurity extends AbstractIntegrationTest {
                 .post(SERVICE_ROOT + "/SecurityTokenService").then().log().all().assertThat()
                 .body(HasXPath.hasXPath("//*[local-name()='Assertion']"));
 
+    }
+
+    @Test
+    public void testSamlAssertionInHeaders() throws Exception {
+        String onBehalfOf = "<wst:OnBehalfOf>"
+                + "                    <wsse:UsernameToken xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\">\n"
+                + "                        <wsse:Username>admin</wsse:Username>\n"
+                + "                        <wsse:Password Type=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText\">admin</wsse:Password>\n"
+                + "                   </wsse:UsernameToken>\n"
+                + "                </wst:OnBehalfOf>\n";
+        String body = getSoapEnvelope(onBehalfOf);
+
+        given().log().all().body(body).header("Content-Type", "text/xml; charset=utf-8")
+                .header("SOAPAction", "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue")
+                .expect().statusCode(equalTo(200)).when()
+                .post(SERVICE_ROOT + "/SecurityTokenService").then().log().all().assertThat()
+                .body(HasXPath.hasXPath("//*[local-name()='Assertion']"));
     }
 
     private String getSoapEnvelope(String onBehalfOf) {
