@@ -989,7 +989,7 @@ The following example shows a request for a record to be inserted.
 
 The following is an example of an application/xml response to the Transaction Insert sub-operation:
 
-Note that you will only receive the `InsertResult` element if you specify `verboseResponse=true`.
+Note that you will only receive the `InsertResult` element if you specify `verboseResponse="true"`.
 
 .Sample XML Transaction Insert Response
 [source,xml,linenums]
@@ -1028,9 +1028,9 @@ Note that you will only receive the `InsertResult` element if you specify `verbo
 
 ===== Transaction Update Sub-Operation `HTTP POST`
 
-The Update sub-operation is a method to specify values used to change existing information in the catalog. If individual record property values are specified in the Update element, using the `RecordProperty` element, then those individual property values of a catalog record are replaced. The `RecordProperty` contains a `Name` and `Value` element. The `Name` element is used to specify the name of the record property to be updated. The `Value` element contains the value that will be used to update the record in the catalog. The values in the Update will completely replace those that are already in the record. A property is removed only if the `RecordProperty` contains a `Name` but not a `Value`.
+The Update sub-operation is a method to specify values used to change existing information in the catalog. If individual record property values are specified in the `Update` element, using the `RecordProperty` element, then those individual property values of a catalog record are replaced. The `RecordProperty` contains a `Name` and `Value` element. The `Name` element is used to specify the name of the record property to be updated. The `Value` element contains the value that will be used to update the record in the catalog. The values in the `Update` will completely replace those that are already in the record. A property is removed only if the `RecordProperty` contains a `Name` but not a `Value`.
 
-The number of records affected by an Update operation is determined by the contents of the Constraint element, that contains a filter for limiting the update to a specific record or group of records.
+The number of records affected by an Update operation is determined by the contents of the `Constraint` element, which contains a filter for limiting the update to a specific record or group of records.
 
 The following example shows how the newly inserted record could be updated to modify the date field. If your update request contains a `<csw:Record>` rather than a set of `<RecordProperty>` elements plus a `<Constraint>` , the existing record with the same ID will be replaced with the new record.
 
@@ -1041,7 +1041,6 @@ The following example shows how the newly inserted record could be updated to mo
 <csw:Transaction
     service="CSW"
     version="2.0.2"
-    verboseResponse="true"
     xmlns:csw="http://www.opengis.net/cat/csw/2.0.2">
     <csw:Update>
         <csw:Record
@@ -1075,7 +1074,6 @@ The following example shows how the newly inserted record could be updated to mo
 <csw:Transaction
     service="CSW"
     version="2.0.2"
-    verboseResponse="true"
     xmlns:csw="http://www.opengis.net/cat/csw/2.0.2">
     <csw:Update>
         <csw:RecordProperty>
@@ -1085,7 +1083,7 @@ The following example shows how the newly inserted record could be updated to mo
         <csw:RecordProperty>
             <csw:Name>date</csw:Name>
             <csw:Value>2015-08-25</csw:Value>
-        </csw:RecordProperty>
+        </csw:RecordProperty>©
         <csw:RecordProperty>
             <csw:Name>format</csw:Name>
             <csw:Value></csw:Value>
@@ -1111,7 +1109,6 @@ The following example shows how the newly inserted record could be updated to mo
 <csw:Transaction
     service="CSW"
     version="2.0.2"
-    verboseResponse="true"
     xmlns:csw="http://www.opengis.net/cat/csw/2.0.2">
     <csw:Update>
         <csw:RecordProperty>
