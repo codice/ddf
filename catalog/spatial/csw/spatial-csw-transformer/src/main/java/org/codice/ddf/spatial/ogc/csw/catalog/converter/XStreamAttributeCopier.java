@@ -138,8 +138,7 @@ public class XStreamAttributeCopier {
         Iterator<String> attributeNames = reader.getAttributeNames();
         while (attributeNames.hasNext()) {
             String name = attributeNames.next();
-            if (StringUtils
-                    .startsWith(name, CswConstants.XMLNS + CswConstants.NAMESPACE_DELIMITER)) {
+            if (StringUtils.startsWith(name, CswConstants.XMLNS)) {
                 String attributeValue = reader.getAttribute(name);
                 namespaces.put(name, attributeValue);
             }

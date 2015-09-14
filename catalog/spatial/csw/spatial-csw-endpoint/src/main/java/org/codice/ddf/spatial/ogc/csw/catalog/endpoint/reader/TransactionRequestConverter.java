@@ -319,14 +319,14 @@ public class TransactionRequestConverter implements Converter {
         if (xmlnsAttributeToUriMappings != null) {
             // The xmlns attributes on the top-level Transaction element have been copied
             // into the UnmarshallingContext by
-            // XStreamAttributeCopier.copyXmlNamespaceDeclarationsIntoContext(). The map
-            // keys are of the form "xmlns:PREFIX", which is why we don't check that there's
-            // actually a semicolon in the attribute name.
+            // XStreamAttributeCopier.copyXmlNamespaceDeclarationsIntoContext().
             Map<String, String> prefixToUriMappings = new HashMap<>();
             for (Entry<String, String> entry : xmlnsAttributeToUriMappings.entrySet()) {
                 String xmlnsAttribute = entry.getKey();
-                String prefix = xmlnsAttribute.split(":")[1];
-                prefixToUriMappings.put(prefix, entry.getValue());
+                if (StringUtils.contains(xmlnsAttribute, CswConstants.NAMESPACE_DELIMITER)) {
+                    String prefix = xmlnsAttribute.split(CswConstants.NAMESPACE_DELIMITER)[1];
+                    prefixToUriMappings.put(prefix, entry.getValue());
+                }
             }
             return prefixToUriMappings;
         }

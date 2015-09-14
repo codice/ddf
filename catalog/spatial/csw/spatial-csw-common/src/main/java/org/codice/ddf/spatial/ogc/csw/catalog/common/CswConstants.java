@@ -68,7 +68,8 @@ public interface CswConstants {
      *
      * TODO: If this proves to be a continuing problem amongst supported services, getRecordsRequest
      * may need to support typeName as well.
-     */ String TYPE_NAME_PARAMETER = "typeName";
+     */
+    String TYPE_NAME_PARAMETER = "typeName";
 
     String TYPE_NAMES_PARAMETER = "typeNames";
 
