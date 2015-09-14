@@ -135,7 +135,7 @@ define([
                     //assume they want scrolling initialized for them
 
                     var initScroll = true;
-                    if(view.attributes != undefined){
+                    if(view.attributes){
                         initScroll = view.attributes.allowScroll;
                     }
 

@@ -37,7 +37,7 @@ define([
         });
 
         Metacard.MetacardDetailView = Marionette.ItemView.extend({
-            className : 'slide-animate',
+            className : 'slide-animate height-full',
             template: 'metacardTemplate',
             events: {
                 'click .location-link': 'viewLocation',
@@ -75,13 +75,12 @@ define([
             },
             onRender: function () {
                 this.updateIterationControls();
-                this.$el.addClass('height-full');
 
-                var view = this.$el;
+                var view = this;
                 _.defer(function () {
-                     $('.tab-content',view).perfectScrollbar({
-                          suppressScrollX:true
-                     });
+                     view.$('.tab-content').perfectScrollbar({
+                           suppressScrollX:true
+                      });
                 });
 
             },
@@ -105,9 +104,10 @@ define([
             },
             updateScrollbar: function () {
 
-               $('.tab-content',this.$el).perfectScrollbar({
+
+                this.$('.tab-content').perfectScrollbar({
                     suppressScrollX:true
-               });
+                });
 
                 var view = this;
                 // defer seems to be necessary for this to update correctly
