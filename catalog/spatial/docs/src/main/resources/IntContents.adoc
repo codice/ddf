@@ -1083,7 +1083,7 @@ The following example shows how the newly inserted record could be updated to mo
         <csw:RecordProperty>
             <csw:Name>date</csw:Name>
             <csw:Value>2015-08-25</csw:Value>
-        </csw:RecordProperty>©
+        </csw:RecordProperty>
         <csw:RecordProperty>
             <csw:Name>format</csw:Name>
             <csw:Value></csw:Value>
