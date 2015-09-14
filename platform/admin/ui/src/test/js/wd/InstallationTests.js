@@ -84,7 +84,6 @@ describe('Installation', function () {
             return this.browser
                 .waitForElementByClassName('fa-caret-down', shared.timeout).click()
                 .waitForElementByClassName('dropdown-menu', asserters.isDisplayed, shared.timeout)
-                .takeScreenshot().saveScreenshot(shared.getPathForScreenshot('attribute-dropdown.png'))
                 .waitForElementByCssSelector('li[value="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"]', shared.timeout)
                 .waitForElementByCssSelector('li[value="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname"]', shared.timeout)
                 .waitForElementByCssSelector('li[value="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"]', shared.timeout)
@@ -234,7 +233,6 @@ describe('Installation', function () {
                 return this.browser
                     .waitForElementById('solr-appcb', shared.timeout).moveTo()
                     .waitForElementByCssSelector('td#detailsName', shared.timeout)
-                    .takeScreenshot().saveScreenshot(shared.getPathForScreenshot('hover.png'))
                     .waitForElementById('detailsName', asserters.textInclude('DDF Solr Catalog'), shared.timeout)
                     .waitForElementById('detailsVersion', asserters.textNonEmpty, shared.timeout)
                     .waitForElementById('detailsDesc', asserters.textNonEmpty, shared.timeout);
