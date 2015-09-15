@@ -8,16 +8,21 @@
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
+ ls
+
  *
  **/ -->
 <blueprint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs"
            xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-           xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
+           xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd http://cxf.apache.org/blueprint/jaxrs http://cxf.apache.org/schemas/blueprint/jaxrs.xsd">
 
-  http://cxf.apache.org/blueprint/jaxrs http://cxf.apache.org/schemas/blueprint/jaxrs.xsd">
+    <bean id="geoCoderFactory" class="org.codice.ddf.spatial.geocoder.endpoint.GeoCoderFactoryImpl"/>
 
-    <reference id="geoCoder" interface="org.codice.ddf.spatial.geocoder.GeoCoder"/>
+    <reference-list id="geoCoderList" interface="org.codice.ddf.spatial.geocoder.GeoCoder"
+            availability="optional">
+        <reference-listener bind-method="bindService" unbind-method="unbindService" ref="geoCoderFactory"/>
+    </reference-list>
 
     <jaxrs:server id="locationServer" address="/REST/v1/Locations">
         <jaxrs:serviceBeans>
@@ -29,6 +34,7 @@
                 <property name="callbackParam" value="callback"/>
             </bean>
         </jaxrs:inInterceptors>
+
         <jaxrs:outInterceptors>
             <bean class="org.apache.cxf.jaxrs.provider.jsonp.JsonpPreStreamInterceptor"/>
             <bean class="org.apache.cxf.jaxrs.provider.jsonp.JsonpPostStreamInterceptor"/>
@@ -37,7 +43,7 @@
 
     <bean id="locationService"
           class="org.codice.ddf.spatial.geocoder.endpoint.GeoCoderEndpoint">
-        <argument ref="geoCoder"/>
+      <argument ref="geoCoderFactory"/>
     </bean>
 
 </blueprint>

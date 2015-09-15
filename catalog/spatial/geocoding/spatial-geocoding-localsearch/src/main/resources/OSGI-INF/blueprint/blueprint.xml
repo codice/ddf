@@ -20,6 +20,6 @@
 
     <reference id="geoEntryQueryable" interface="org.codice.ddf.spatial.geocoding.GeoEntryQueryable"/>
 
-    <service ref="geoCoderLocal" interface="org.codice.ddf.spatial.geocoder.GeoCoder"/>
+    <service ref="geoCoderLocal" interface="org.codice.ddf.spatial.geocoder.GeoCoder" ranking="50"/>
 
 </blueprint>
