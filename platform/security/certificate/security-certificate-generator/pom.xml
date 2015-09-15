@@ -16,14 +16,16 @@
          xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>security-certificate-pom</artifactId>
+        <artifactId>certificate</artifactId>
         <groupId>ddf.security.certificate</groupId>
         <version>2.8.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>security-certificate-generator</artifactId>
+
     <name>DDF :: Security :: Certificate :: Generator</name>
+    <artifactId>security-certificate-generator</artifactId>
     <packaging>bundle</packaging>
+
     <dependencies>
         <dependency>
             <groupId>org.bouncycastle</groupId>
@@ -48,6 +50,10 @@
             <artifactId>slf4j-ext</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
+        <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
             <version>1.10</version>
@@ -65,25 +71,13 @@
         </dependency>
     </dependencies>
     <build>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-                <includes>
-                    <include>**/*.xml</include>
-                </includes>
-            </resource>
-        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
                     <instructions>
-                        <!--we will use this servlet filter once it has been made generic to protect this app-->
-                        <!--<Embed-Dependency>search-securityservletfilter</Embed-Dependency>-->
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Export-Package/>
                     </instructions>
                 </configuration>
             </plugin>

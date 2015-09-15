@@ -239,10 +239,17 @@
         <bundle>
             mvn:ddf.security.certificate/security-certificate-keystoreeditor/${project.version}
         </bundle>
-        <bundle>mvn:ddf.security.certificate/security-certificate-adminmodule/${project.version}
+        <bundle>
+            mvn:ddf.security.certificate/security-certificate-adminmodule/${project.version}
         </bundle>
     </feature>
-
+    <feature name="security-certificate-generation" install="manual"
+             version="${project.version}"
+             description="Certificate generator MBean">
+        <bundle>
+            mvn:ddf.security.certificate/security-certificate-generator/${project.version}
+        </bundle>
+    </feature>
     <feature name="security-anonymous" install="manual" version="${project.version}"
              description="Contains all of the anonymous security features.">
         <feature>security-handler-anonymous</feature>
@@ -250,16 +257,8 @@
         <feature>security-sts-anonymousclaimshandler</feature>
         <feature>security-interceptor-anonymous</feature>
     </feature>
-
     <feature name="security-servlet-logout" install="manual" version="${project.version}"
              description="Logout servlet.">
         <bundle>mvn:ddf.security.servlet/security-servlet-logout/${project.version}</bundle>
     </feature>
-
-    <feature name="demo-certificate-generation" install="auto" version="${project.version}"
-             description="Generate certificate">
-        <bundle>mvn:ddf.security.certificate/security-certificate-generator/${project.version}
-        </bundle>
-    </feature>
-
 </features>

@@ -112,4 +112,20 @@ public class CertificateAuthorityTest {
                 new DemoCertificateAuthority().newCertConverter(),
                 instanceOf(JcaX509CertificateConverter.class));
     }
+
+    //    @Test
+    //    public void generateDdf42() {
+    //        String commonName = "ddf42-single.vagrant.dev";
+    //        CertificateAuthority demoCa = new DemoCertificateAuthority();
+    //        CertificateSigningRequest csr = new CertificateSigningRequest();
+    //        csr.setCommonName(commonName);
+    //        KeyStore.PrivateKeyEntry pkEntry = demoCa.sign(csr);
+    //        KeyStoreFile ksFile = KeyStoreFile.openFile(
+    //                "/Users/aaronhoffer/Downloads/today//ddf-2.8.0-SNAPSHOT/etc/keystores/serverKeystore.jks",
+    //                "changeit".toCharArray());
+    //        ksFile.setEntry(commonName, pkEntry);
+    //        ksFile.deleteEntry("localhost");
+    //        ksFile.save();
+    //    }
+
 }

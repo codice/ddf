@@ -386,11 +386,11 @@ public class TestSecurity extends AbstractIntegrationTest {
 
         backupKeystoreFile();
         try {
-            getServiceManager().startFeature(true, "demo-certificate-generation");
+            getServiceManager().startFeature(true, "security-certificate-generation");
             given().auth().basic("admin", "admin").when()
                     .get(CERT_GEN_PATH + "/installCertificate/mydomain").then().log().all()
                     .assertThat().statusCode(equalTo(200));
-            getServiceManager().stopFeature(false, "demo-certificate-generation");
+            getServiceManager().stopFeature(false, "security-certificate-generation");
         } finally {
             restoreKeystoreFile();
         }
