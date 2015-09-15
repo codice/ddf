@@ -54,12 +54,14 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
         LOGGER.debug("Creating SAML Assertion handler.");
     }
 
-    @Override public String getAuthenticationType() {
+    @Override
+    public String getAuthenticationType() {
         return AUTH_TYPE;
     }
 
-    @Override public HandlerResult getNormalizedToken(ServletRequest request,
-            ServletResponse response, FilterChain chain, boolean resolve) {
+    @Override
+    public HandlerResult getNormalizedToken(ServletRequest request,
+                                            ServletResponse response, FilterChain chain, boolean resolve) {
         HandlerResult handlerResult = new HandlerResult();
         String realm = (String) request.getAttribute(ContextPolicy.ACTIVE_REALM);
 
@@ -71,11 +73,11 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
         // check for full SAML assertions coming in (federated requests, etc.)
         if (authHeader != null) {
             String[] tokenizedAuthHeader = authHeader.split(" ");
-            if(tokenizedAuthHeader.length != 2){
+            if (tokenizedAuthHeader.length != 2) {
                 LOGGER.warn("Unexpected error - Authorization header tokenized incorrectly.");
                 return handlerResult;
             }
-            if(!tokenizedAuthHeader[0].equals("SAML")){
+            if (!tokenizedAuthHeader[0].equals("SAML")) {
                 LOGGER.trace("Header is not a SAML assertion.");
                 return handlerResult;
             }
@@ -140,8 +142,9 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
      * @return result containing the potential credentials and status
      * @throws ServletException
      */
-    @Override public HandlerResult handleError(ServletRequest servletRequest,
-            ServletResponse servletResponse, FilterChain chain) throws ServletException {
+    @Override
+    public HandlerResult handleError(ServletRequest servletRequest,
+                                     ServletResponse servletResponse, FilterChain chain) throws ServletException {
         HandlerResult result = new HandlerResult();
 
         HttpServletRequest httpRequest = servletRequest instanceof HttpServletRequest ?

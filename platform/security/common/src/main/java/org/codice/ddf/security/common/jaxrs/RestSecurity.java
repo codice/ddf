@@ -25,7 +25,7 @@ import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.cxf.helpers.IOUtils;
+import org.apache.commons.io.IOUtils;
 
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
