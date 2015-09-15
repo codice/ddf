@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -224,7 +225,7 @@ public class CswSource extends MaskableImpl
 
     private Set<SourceMonitor> sourceMonitors = new HashSet<SourceMonitor>();
 
-    private Map<String, ContentType> contentTypes = new HashMap<>();
+    private Map<String, ContentType> contentTypes = new ConcurrentHashMap<>();
 
     private ResourceReader resourceReader;
 
@@ -484,6 +485,30 @@ public class CswSource extends MaskableImpl
         if (StringUtils.isNotBlank(modifiedProp)) {
             cswSourceConfiguration.setModifiedDateMapping(modifiedProp);
         }
+
+        String currentContentTypeMapping = ((String) configuration
+                .get(CONTENT_TYPE_MAPPING_PROPERTY));
+
+        if (StringUtils.isNotBlank(currentContentTypeMapping)) {
+            String previousContentTypeMapping = cswSourceConfiguration.getContentTypeMapping();
+            LOGGER.debug("{}: Previous content type mapping: {}.", cswSourceConfiguration.getId(),
+                    previousContentTypeMapping);
+            currentContentTypeMapping = currentContentTypeMapping.trim();
+            if (!currentContentTypeMapping
+                    .equals(previousContentTypeMapping)) {
+                LOGGER.debug("{}: The content type has been updated from {} to {}.",
+                        cswSourceConfiguration.getId(), previousContentTypeMapping,
+                        currentContentTypeMapping);
+                contentTypes.clear();
+            }
+        } else {
+            currentContentTypeMapping = CswRecordMetacardType.CSW_TYPE;
+        }
+
+        cswSourceConfiguration.setContentTypeMapping(currentContentTypeMapping);
+
+        LOGGER.debug("{}: Current content type mapping: {}.", cswSourceConfiguration.getId(),
+                currentContentTypeMapping);
 
         configureCswSource();
 
