@@ -45,13 +45,14 @@ public abstract class DdfSubjectCommands extends CommandSupport {
     /**
      * doExecute of DdfSubjectCommands attemps to run a command as a certain subject.
      * The order it checks for subject information is
-     *  1. User supplied subject name via command line
-     *  2. Shiro thread context subject
-     *  3. Java Subject
-     *  If there is a java subject and it has a RolePrincipal for admin the system subject is used.
-     *  If no valid subject is found an error message will be printed to the console and the
-     *  command will not be executed. Even if a valid subject is found, that subject might not have
-     *  the permissions necessary to run the command.
+     * 1. User supplied subject name via command line
+     * 2. Shiro thread context subject
+     * 3. Java Subject
+     * If there is a java subject and it has a RolePrincipal for admin the system subject is used.
+     * If no valid subject is found an error message will be printed to the console and the
+     * command will not be executed. Even if a valid subject is found, that subject might not have
+     * the permissions nessessary to run the command.
+     *
      * @return
      * @throws Exception
      */
@@ -65,7 +66,7 @@ public abstract class DdfSubjectCommands extends CommandSupport {
             try {
                 //check for a shiro subject
                 subject = SecurityUtils.getSubject();
-            } catch (IllegalStateException e) {
+            } catch (Exception e) {
                 LOGGER.debug("No shiro subject available for running command");
             }
 
