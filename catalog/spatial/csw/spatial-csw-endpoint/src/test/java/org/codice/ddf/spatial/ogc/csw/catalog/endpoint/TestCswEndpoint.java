@@ -1241,6 +1241,85 @@ public class TestCswEndpoint {
         csw.getRecords(grr);
     }
 
+    @Test
+    public void testPostGetRecordsValidElementNames() throws CswException {
+        GetRecordsType grr = createDefaultPostRecordsRequest();
+
+        QueryType query = new QueryType();
+
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
+                new QName("http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
+        List<QName> elementNameList = Arrays.asList(new QName("brief"), new QName("summary"), new QName("full"));
+        query.setElementName(elementNameList);
+        grr.setAbstractQuery(jaxbQuery);
+
+        csw.getRecords(grr);
+    }
+
+    @Test(expected = CswException.class)
+    public void testPostGetRecordsInvalidElementNames() throws CswException {
+        GetRecordsType grr = createDefaultPostRecordsRequest();
+
+        QueryType query = new QueryType();
+
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
+                new QName("http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
+        List<QName> elementNameList = Arrays.asList(new QName("brief"), new QName("sas"));
+        query.setElementName(elementNameList);
+        grr.setAbstractQuery(jaxbQuery);
+
+        csw.getRecords(grr);
+    }
+
+    @Test(expected = CswException.class)
+    public void testPostGetRecordsInvalidElementSetNames() throws CswException {
+        GetRecordsType grr = createDefaultPostRecordsRequest();
+
+        QueryType query = new QueryType();
+
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
+                new QName("http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
+
+        query.setElementSetName(new ElementSetNameType());
+        grr.setAbstractQuery(jaxbQuery);
+
+        csw.getRecords(grr);
+    }
+
+    @Test
+    public void testPostGetRecordsValidElementSetNames() throws CswException {
+        GetRecordsType grr = createDefaultPostRecordsRequest();
+
+        QueryType query = new QueryType();
+
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
+                new QName("http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
+        ElementSetNameType elsnt = new ElementSetNameType();
+        elsnt.setValue(ElementSetType.BRIEF);
+        query.setElementSetName(elsnt);
+        grr.setAbstractQuery(jaxbQuery);
+
+        csw.getRecords(grr);
+    }
+
+    @Test(expected = CswException.class)
+    public void testPostGetRecordsElementNamesMutex() throws CswException {
+        GetRecordsType grr = createDefaultPostRecordsRequest();
+
+        QueryType query = new QueryType();
+
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
+                new QName("http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
+        List<QName> elementNameList = Arrays.asList(new QName("brief"));
+        ElementSetNameType elsnt = new ElementSetNameType();
+        elsnt.setValue(ElementSetType.BRIEF);
+        query.setElementSetName(elsnt);
+        query.setElementName(elementNameList);
+        grr.setAbstractQuery(jaxbQuery);
+
+        csw.getRecords(grr);
+    }
+
     @SuppressWarnings("unchecked")
     @Test
     public void testPostGetRecordsDistributedSearchNotSet()

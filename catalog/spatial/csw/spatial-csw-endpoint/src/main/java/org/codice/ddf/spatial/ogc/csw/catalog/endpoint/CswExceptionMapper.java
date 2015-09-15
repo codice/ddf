@@ -18,20 +18,30 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 
 import net.opengis.ows.v_1_0_0.ExceptionReport;
 import net.opengis.ows.v_1_0_0.ExceptionType;
 
-public class CswExceptionMapper implements ExceptionMapper<CswException> {
+public class CswExceptionMapper implements ExceptionMapper<Throwable> {
 
     // Per the CSW 2.0.2 spec, the service exception report version is fixed at
     // 1.2.0
     private static final String SERVICE_EXCEPTION_REPORT_VERSION = "1.2.0";
 
     @Override
-    public Response toResponse(CswException exception) {
-        return Response.status(exception.getHttpStatus()).entity(createServiceException(exception))
+    public Response toResponse(Throwable exception) {
+
+        CswException cswException;
+
+        if (exception instanceof CswException) {
+            cswException = (CswException) exception;
+        } else  {
+            cswException = new CswException("Error parsing the request.  XML parameters may be missing or invalid.",
+                    CswConstants.MISSING_PARAMETER_VALUE, null);
+        }
+        return Response.status(cswException.getHttpStatus()).entity(createServiceException(cswException))
                 .type(MediaType.TEXT_XML).build();
     }
 

@@ -387,6 +387,8 @@ public class CswEndpoint implements Csw {
 
             validateTypes(query.getTypeNames(), CswConstants.VERSION_2_0_2);
 
+            validateElementNames(query);
+
             if (query.getConstraint() != null &&
                     query.getConstraint().isSetFilter() && query.getConstraint().isSetCqlText()) {
                 throw new CswException("A Csw Query can only have a Filter or CQL constraint");
@@ -448,6 +450,7 @@ public class CswEndpoint implements Csw {
             } else {
                 response.setElementSetType(ElementSetType.SUMMARY);
             }
+            LOGGER.error("GETRECORDBYID");
             return response;
         } else {
             throw new CswException("A GetRecordById Query must contain an ID.",
@@ -483,7 +486,8 @@ public class CswEndpoint implements Csw {
 
                 numInserted += createResponse.getCreatedMetacards().size();
             } catch (IngestException | SourceUnavailableException e) {
-                LOGGER.error("Unable to ingest records.", e);
+                throw new CswException("Unable to insert record(s).",
+                        CswConstants.TRANSACTION_FAILED, insertAction.getHandle());
             }
         }
         response.getTransactionSummary().setTotalInserted(BigInteger.valueOf(numInserted));
@@ -494,7 +498,8 @@ public class CswEndpoint implements Csw {
                 numUpdated += updateRecords(updateAction);
             } catch (CswException | FederationException | IngestException |
                     SourceUnavailableException | UnsupportedQueryException e) {
-                LOGGER.error("Unable to update records.", e);
+                throw new CswException("Unable to update record(s).",
+                        CswConstants.TRANSACTION_FAILED, updateAction.getHandle());
             }
         }
         response.getTransactionSummary().setTotalUpdated(BigInteger.valueOf(numUpdated));
@@ -505,7 +510,8 @@ public class CswEndpoint implements Csw {
                 numDeleted += deleteRecords(deleteAction);
             } catch (CswException | FederationException | IngestException |
                     SourceUnavailableException | UnsupportedQueryException e) {
-                LOGGER.error("Unable to delete records.", e);
+                throw new CswException("Unable to delete record(s).",
+                        CswConstants.TRANSACTION_FAILED, deleteAction.getHandle());
             }
         }
         response.getTransactionSummary().setTotalDeleted(BigInteger.valueOf(numDeleted));
@@ -513,7 +519,8 @@ public class CswEndpoint implements Csw {
         return response;
     }
 
-    private InsertResultType getInsertResultFromResponse(CreateResponse createResponse) {
+    private InsertResultType getInsertResultFromResponse(CreateResponse createResponse)
+            throws CswException {
         InsertResultType result = new InsertResultType();
         WKTReader reader = new WKTReader();
         for (Metacard metacard : createResponse.getCreatedMetacards()) {
@@ -527,7 +534,8 @@ public class CswEndpoint implements Csw {
                     geometry = reader.read(metacard.getLocation());
                 }
             } catch (ParseException e) {
-                LOGGER.warn("Unable to parse BoundingBox.", e);
+                throw new CswException("Unable to parse BoundingBox.",
+                        CswConstants.INVALID_PARAMETER_VALUE, "BoundingBox");
             }
             BriefRecordType briefRecordType = new BriefRecordType();
             if (geometry != null) {
@@ -601,7 +609,9 @@ public class CswEndpoint implements Csw {
                 UpdateResponse updateResponse = framework.update(updateRequest);
                 return updateResponse.getUpdatedMetacards().size();
             } else {
-                LOGGER.warn("No ID was specified in the replacement record: nothing to update.");
+                throw new CswException("Unable to update record(s).  No ID was specified in the request.",
+                        CswConstants.MISSING_PARAMETER_VALUE, updateAction.getHandle());
+
             }
         } else if (updateAction.getConstraint() != null) {
             QueryConstraintType constraint = updateAction.getConstraint();
@@ -1244,7 +1254,6 @@ public class CswEndpoint implements Csw {
         dcp.setHTTP(http);
         dcpList.add(dcp);
         op.setDCP(dcpList);
-
         return op;
     }
 
@@ -1305,6 +1314,35 @@ public class CswEndpoint implements Csw {
         }
     }
 
+    /**
+    * Verifies that if the ElementName or ElementSetName is passed, that they are
+    * valid and mutually exclusive according to the OpenGIS CSW spec.
+    *
+    *  @param query   QueryType to be validated
+    */
+    private void validateElementNames(QueryType query) throws CswException {
+
+        if (query.isSetElementSetName() && query.isSetElementName()) {
+            throw new CswException("ElementSetName and ElementName must be mutually exclusive",
+                    CswConstants.INVALID_PARAMETER_VALUE, "ElementName");
+        } else if (query.isSetElementName() && query.getElementName().size() > 0) {
+            List<String> elementNames = Arrays.asList("brief", "summary", "full");
+            for (QName elementName : query.getElementName()) {
+                String elementNameString = elementName.getLocalPart();
+                if (!elementNames.contains(elementNameString)) {
+                    throw new CswException("Unknown ElementName "
+                            + elementNameString, CswConstants.INVALID_PARAMETER_VALUE,
+                            "ElementName");
+                }
+            }
+        } else if (query.isSetElementSetName() && query.getElementSetName().getValue() == null) {
+            throw new CswException("Unknown ElementSetName",
+                    CswConstants.INVALID_PARAMETER_VALUE, "ElementSetName");
+        }
+
+    }
+
+
     private void validateOutputSchema(String schema) throws CswException {
         if (schema == null || schemaTransformerManager.getTransformerBySchema(schema) != null) {
             return;
@@ -1322,6 +1360,7 @@ public class CswEndpoint implements Csw {
     }
 
     private void validateOutputFormat(String format) throws CswException {
+
         if (!StringUtils.isEmpty(format)) {
             if (!DEFAULT_OUTPUT_FORMAT.equals(format) && !mimeTypeTransformerManager
                     .getAvailableMimeTypes().contains(format)) {
@@ -1332,6 +1371,7 @@ public class CswEndpoint implements Csw {
     }
 
     private void validateSchemaLanguage(String schemaLanguage) throws CswException {
+
         if (!StringUtils.isEmpty(schemaLanguage)) {
             if (!CswConstants.VALID_SCHEMA_LANGUAGES.contains(schemaLanguage)) {
                 throw new CswException("Invalid schema language '" + schemaLanguage + "'",

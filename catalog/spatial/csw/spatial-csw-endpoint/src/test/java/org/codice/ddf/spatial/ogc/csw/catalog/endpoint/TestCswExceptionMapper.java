@@ -22,6 +22,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.ext.ExceptionMapper;
 
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.junit.Test;
 
@@ -33,7 +34,10 @@ public class TestCswExceptionMapper {
 
     private static final String EXCEPTION_CODE = "OperationNotSupported";
 
-    private static final String LOCATOR = "descriveRecords";
+    private static final String LOCATOR = "describeRecords";
+
+    private static final String XML_PARSE_FAIL_MSG =
+            "Error parsing the request.  XML parameters may be missing or invalid.";
 
     @Test
     public void testCswExceptionToServiceExceptionReport() {
@@ -41,7 +45,7 @@ public class TestCswExceptionMapper {
         CswException exception = new CswException(SERVICE_EXCEPTION_MSG,
                 Status.BAD_REQUEST.getStatusCode());
 
-        ExceptionMapper<CswException> exceptionMapper = new CswExceptionMapper();
+        ExceptionMapper<Throwable> exceptionMapper = new CswExceptionMapper();
         Response response = exceptionMapper.toResponse(exception);
         assertTrue(response.getEntity() instanceof ExceptionReport);
         ExceptionReport exceptionReport = (ExceptionReport) response.getEntity();
@@ -58,7 +62,7 @@ public class TestCswExceptionMapper {
         CswException exception = new CswException(SERVICE_EXCEPTION_MSG,
                 Status.BAD_REQUEST.getStatusCode(), EXCEPTION_CODE, LOCATOR);
 
-        ExceptionMapper<CswException> exceptionMapper = new CswExceptionMapper();
+        ExceptionMapper<Throwable> exceptionMapper = new CswExceptionMapper();
         Response response = exceptionMapper.toResponse(exception);
         assertTrue(response.getEntity() instanceof ExceptionReport);
         ExceptionReport exceptionReport = (ExceptionReport) response.getEntity();
@@ -67,5 +71,39 @@ public class TestCswExceptionMapper {
                 exceptionReport.getException().get(0).getExceptionText().get(0));
         assertEquals(EXCEPTION_CODE, exceptionReport.getException().get(0).getExceptionCode());
         assertEquals(LOCATOR, exceptionReport.getException().get(0).getLocator());
+    }
+
+    @Test
+    public void testThrowableExceptionToServiceExceptionReport() {
+
+        NullPointerException npe = new NullPointerException();
+
+        ExceptionMapper<Throwable> exceptionMapper = new CswExceptionMapper();
+        Response response = exceptionMapper.toResponse(npe);
+        assertTrue(response.getEntity() instanceof ExceptionReport);
+        ExceptionReport exceptionReport = (ExceptionReport) response.getEntity();
+        assertEquals(Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+        assertEquals(XML_PARSE_FAIL_MSG,
+                exceptionReport.getException().get(0).getExceptionText().get(0));
+        assertEquals(CswConstants.MISSING_PARAMETER_VALUE,
+                exceptionReport.getException().get(0).getExceptionCode());
+        assertNull(exceptionReport.getException().get(0).getLocator());
+
+
+
+        IllegalArgumentException iae = new IllegalArgumentException();
+
+        exceptionMapper = new CswExceptionMapper();
+        response = exceptionMapper.toResponse(iae);
+        assertTrue(response.getEntity() instanceof ExceptionReport);
+        exceptionReport = (ExceptionReport) response.getEntity();
+        assertEquals(Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+        assertEquals(XML_PARSE_FAIL_MSG,
+                exceptionReport.getException().get(0).getExceptionText().get(0));
+        assertEquals(CswConstants.MISSING_PARAMETER_VALUE,
+                exceptionReport.getException().get(0).getExceptionCode());
+        assertNull(exceptionReport.getException().get(0).getLocator());
+
+
     }
 }

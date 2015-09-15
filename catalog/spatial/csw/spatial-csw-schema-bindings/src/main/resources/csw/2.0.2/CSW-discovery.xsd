@@ -229,7 +229,7 @@
                   <xsd:element ref="csw:ElementSetName"/>
                   <xsd:element name="ElementName"
                                type="xsd:QName"
-                               minOccurs="1" maxOccurs="unbounded"/>
+                               minOccurs="0" maxOccurs="unbounded"/>
                </xsd:choice>
                <xsd:element ref="csw:Constraint" minOccurs="0" maxOccurs="1"/>
                <xsd:element ref="ogc:SortBy" minOccurs="0" maxOccurs="1"/>

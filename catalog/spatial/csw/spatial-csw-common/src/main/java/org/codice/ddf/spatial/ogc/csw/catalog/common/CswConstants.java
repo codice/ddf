@@ -217,6 +217,7 @@ public interface CswConstants {
     static final String NONEXISTENT_TYPE = "NonexistentType";
     static final String OPERATION_NOT_SUPPORTED = "OperationNotSupported";
     static final String NO_APPLICABLE_CODE = "NoApplicableCode";
+    static final String TRANSACTION_FAILED = "TransactionFailed";
 
     public static final String OUTPUT_FORMAT_XML = MediaType.APPLICATION_XML;
 
@@ -228,6 +229,7 @@ public interface CswConstants {
     public static final List<String> VALID_SCHEMA_LANGUAGES = new ArrayList<String>(
             Arrays.asList(SCHEMA_LANGUAGE_X_SCHEMA, SCHEMA_LANGUAGE_XML_SCHEMA,
                     SCHEMA_LANGUAGE_X_SCHEMA_2001, SCHEMA_LANGUAGE_XML_TR));
+
     String ELEMENT_SET_TYPE = "ELEMENT_SET_TYPE";
     String ELEMENT_NAMES = "ELEMENT_NAMES";
     String IS_BY_ID_QUERY = "IS_BY_ID_QUERY";
@@ -241,4 +243,6 @@ public interface CswConstants {
     enum BinarySpatialOperand {
         GEOMETRY, ENVELOPE, NONE
     }
+
+
 }
