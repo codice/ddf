@@ -99,6 +99,7 @@
         <feature>spatial-wfs-v1_0_0</feature>
         <feature>spatial-wfs-v2_0_0</feature>
         <feature>spatial-csw</feature>
+        <feature>webservice-gazetteer</feature>
     </feature>
 
 </features>

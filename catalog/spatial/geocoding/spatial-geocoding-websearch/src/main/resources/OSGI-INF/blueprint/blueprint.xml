@@ -17,6 +17,6 @@
     <bean id="geoCoder" class="org.codice.ddf.spatial.geocoder.geonames.GeoNamesWebService">
     </bean>
 
-    <service ref="geoCoder" interface="org.codice.ddf.spatial.geocoder.GeoCoder"/>
+    <service ref="geoCoder" interface="org.codice.ddf.spatial.geocoder.GeoCoder" ranking="10"/>
 
 </blueprint>
