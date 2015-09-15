@@ -37,7 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.security.Subject;
-import ddf.security.common.util.DdfSubjectUtils;
+import ddf.security.common.util.SecurityUtils;
 import ddf.security.impl.SubjectImpl;
 
 /**
@@ -156,8 +156,8 @@ public class TestCommandJob {
     private CommandJob getCommandJob() {
         CommandJob job = new CommandJob() {
             @Override
-            public DdfSubjectUtils getDdfSubjectUtils() {
-                DdfSubjectUtils utils = mock(DdfSubjectUtils.class);
+            public SecurityUtils getDdfSubjectUtils() {
+                SecurityUtils utils = mock(SecurityUtils.class);
                 org.apache.shiro.mgt.SecurityManager sm = mock(
                         org.apache.shiro.mgt.SecurityManager.class);
                 Subject subject = new SubjectImpl(null, false, "localhost", null, false, sm) {

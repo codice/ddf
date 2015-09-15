@@ -47,17 +47,17 @@ import ddf.security.assertion.SecurityAssertion;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
 
-public class DdfSubjectUtils {
+public class SecurityUtils {
 
     private static final RolePrincipal ADMIN_ROLE = new RolePrincipal("admin");
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DdfSubjectUtils.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SecurityUtils.class);
 
     private static Subject cachedSystemSubject;
 
     private static Object lock = new Object();
 
-    public DdfSubjectUtils() {
+    public SecurityUtils() {
 
     }
 
@@ -151,7 +151,7 @@ public class DdfSubjectUtils {
     }
 
     public BundleContext getBundleContext() {
-        Bundle bundle = FrameworkUtil.getBundle(DdfSubjectUtils.class);
+        Bundle bundle = FrameworkUtil.getBundle(SecurityUtils.class);
         if (bundle != null) {
             return bundle.getBundleContext();
         }

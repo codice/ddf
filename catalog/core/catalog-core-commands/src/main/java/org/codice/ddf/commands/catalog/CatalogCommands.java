@@ -37,12 +37,12 @@ import ddf.catalog.source.CatalogProvider;
 /**
  * Parent object to all Catalog Commands. Provides common methods and instance variables as well as
  * the extension of {@link org.apache.karaf.shell.console.OsgiCommandSupport}  and
- * {@link DdfSubjectCommands} that Catalog Commands can use.
+ * {@link SubjectCommands} that Catalog Commands can use.
  *
  * @author Ashraf Barakat
  * @author ddf.isgs@lmco.com
  */
-public abstract class CatalogCommands extends DdfSubjectCommands {
+public abstract class CatalogCommands extends SubjectCommands {
 
     public static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormat
             .forPattern("yyyy-MM-dd'T'HH:mm:ssZZ");

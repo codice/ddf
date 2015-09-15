@@ -18,32 +18,31 @@ import java.util.concurrent.Callable;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.felix.gogo.commands.Option;
-import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.security.common.util.DdfSubjectUtils;
+import ddf.security.common.util.SecurityUtils;
 
 /**
- * DdfSubjectCommands provides the ability to change what subject (user) the extending command is run as.
+ * SubjectCommands provides the ability to change what subject (user) the extending command is run as.
  * If no user is specified and the user has the admin role, the command will execute as the system
  * user otherwise it will fail.
  */
-public abstract class DdfSubjectCommands extends CommandSupport {
+public abstract class SubjectCommands extends CommandSupport {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DdfSubjectCommands.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SubjectCommands.class);
 
     @Option(name = "--user", required = false, aliases = {
             "-u"}, multiValued = false, description = "Run command as a different user")
     protected String user = null;
 
-    protected DdfSubjectUtils ddfSubjectUtils = new DdfSubjectUtils();
+    protected SecurityUtils subjectUtils = new SecurityUtils();
 
-    protected abstract Object executeWithDdfSubject() throws Exception;
+    protected abstract Object executeWithSubject() throws Exception;
 
     /**
-     * doExecute of DdfSubjectCommands attemps to run a command as a certain subject.
+     * doExecute of SubjectCommands attemps to run a command as a certain subject.
      * The order it checks for subject information is
      * 1. User supplied subject name via command line
      * 2. Shiro thread context subject
@@ -61,24 +60,24 @@ public abstract class DdfSubjectCommands extends CommandSupport {
         Subject subject = null;
         if (!StringUtils.isEmpty(user)) {
             String password = getLine("Password for " + user + ": ", false);
-            subject = ddfSubjectUtils.getSubject(user, password);
+            subject = subjectUtils.getSubject(user, password);
         } else {
             try {
                 //check for a shiro subject
-                subject = SecurityUtils.getSubject();
+                subject = org.apache.shiro.SecurityUtils.getSubject();
             } catch (Exception e) {
                 LOGGER.debug("No shiro subject available for running command");
             }
 
             if (subject == null) {
                 //verify that java subject has the correct roles (admin)
-                if (!ddfSubjectUtils.javaSubjectHasAdminRole()) {
+                if (!subjectUtils.javaSubjectHasAdminRole()) {
                     printErrorMessage(
                             "Current user doesn't have sufficient privileges to run this command");
                     return null;
                 }
                 //set subject to system subject since they have admin
-                subject = ddfSubjectUtils.getSystemSubject();
+                subject = subjectUtils.getSystemSubject();
             }
         }
 
@@ -90,7 +89,7 @@ public abstract class DdfSubjectCommands extends CommandSupport {
         Callable callable = new Callable() {
             @Override
             public Object call() throws Exception {
-                return executeWithDdfSubject();
+                return executeWithSubject();
             }
         };
 

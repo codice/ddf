@@ -72,7 +72,7 @@ public class ReplicationCommand extends DuplicateCommands {
     private AtomicInteger ingestCount = new AtomicInteger(0);
 
     @Override
-    protected Object executeWithDdfSubject() throws Exception {
+    protected Object executeWithSubject() throws Exception {
         final CatalogFacade catalog = getCatalog();
 
         final CatalogFacade framework = new Framework(getService(CatalogFramework.class));

@@ -66,7 +66,7 @@ public class MigrateCommand extends DuplicateCommands {
     private AtomicInteger ingestCount = new AtomicInteger(0);
 
     @Override
-    protected Object executeWithDdfSubject() throws Exception {
+    protected Object executeWithSubject() throws Exception {
 
         List<CatalogProvider> providers = getCatalogProviders();
 

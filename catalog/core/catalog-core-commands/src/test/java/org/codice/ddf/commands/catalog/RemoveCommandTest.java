@@ -67,7 +67,7 @@ public class RemoveCommandTest {
 
             @Override
             protected Object doExecute() throws Exception {
-                return executeWithDdfSubject();
+                return executeWithSubject();
             }
         };
 
@@ -99,7 +99,7 @@ public class RemoveCommandTest {
 
             @Override
             protected Object doExecute() throws Exception {
-                return executeWithDdfSubject();
+                return executeWithSubject();
             }
         };
 
@@ -132,7 +132,7 @@ public class RemoveCommandTest {
 
             @Override
             protected Object doExecute() throws Exception {
-                return executeWithDdfSubject();
+                return executeWithSubject();
             }
         };
 

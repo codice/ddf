@@ -36,7 +36,7 @@ import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.content.plugin.PluginExecutionException;
 import ddf.security.Subject;
-import ddf.security.common.util.DdfSubjectUtils;
+import ddf.security.common.util.SecurityUtils;
 
 /**
  * Cataloger provides the create, update, and delete capabilities for entries in the Metadata
@@ -54,7 +54,7 @@ public class Cataloger {
 
     private CatalogFramework catalogFramework;
 
-    private DdfSubjectUtils ddfSubjectUtils = new DdfSubjectUtils();
+    private SecurityUtils securityUtils = new SecurityUtils();
 
     /**
      * @param catalogFramework the parent framework for this Cataloger
@@ -254,7 +254,7 @@ public class Cataloger {
         //if there is no security manager then SecurityUtils.getSubject() will error out
         //so get the system subject and use that instead
         if (ThreadContext.getSecurityManager() == null) {
-            Subject subject = ddfSubjectUtils.getSystemSubject();
+            Subject subject = securityUtils.getSystemSubject();
             if (subject != null) {
                 return (String) subject.execute(callable);
             }

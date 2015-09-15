@@ -20,7 +20,8 @@ import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.fusesource.jansi.Ansi;
 
 /**
- * Created by clockard on 9/11/15.
+ * CommandSupport provides printing and progress bar support for
+ * extending classes
  */
 public abstract class CommandSupport extends OsgiCommandSupport {
 
@@ -30,11 +31,11 @@ public abstract class CommandSupport extends OsgiCommandSupport {
 
     protected static final int PROGESS_BAR_NOTCH_LENGTH = 50;
 
-    private static final Ansi.Color ERROR_COLOUR = Ansi.Color.RED;
+    private static final Ansi.Color ERROR_COLOR = Ansi.Color.RED;
 
-    private static final Ansi.Color HEADER_COLOUR = Ansi.Color.CYAN;
+    private static final Ansi.Color HEADER_COLOR = Ansi.Color.CYAN;
 
-    private static final Ansi.Color SUCCESS_COLOUR = Ansi.Color.GREEN;
+    private static final Ansi.Color SUCCESS_COLOR = Ansi.Color.GREEN;
 
     protected PrintStream console = System.out;
 
@@ -60,15 +61,15 @@ public abstract class CommandSupport extends OsgiCommandSupport {
     }
 
     protected void printErrorMessage(String message) {
-        printColor(ERROR_COLOUR, message);
+        printColor(ERROR_COLOR, message);
     }
 
     protected void printHeaderMessage(String message) {
-        printColor(HEADER_COLOUR, message);
+        printColor(HEADER_COLOR, message);
     }
 
     protected void printSuccessMessage(String message) {
-        printColor(SUCCESS_COLOUR, message);
+        printColor(SUCCESS_COLOR, message);
     }
 
     protected void printProgressAndFlush(long start, long totalCount, long currentCount) {

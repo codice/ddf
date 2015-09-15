@@ -58,7 +58,7 @@ public class DumpCommandTest extends AbstractCommandTest {
         DumpCommand command = new DumpCommand() {
             @Override
             protected Object doExecute() throws Exception {
-                return executeWithDdfSubject();
+                return executeWithSubject();
             }
         };
         command.dirPath = "nosuchdirectoryanywherehereman";
@@ -95,7 +95,7 @@ public class DumpCommandTest extends AbstractCommandTest {
         DumpCommand command = new DumpCommand() {
             @Override
             protected Object doExecute() throws Exception {
-                return executeWithDdfSubject();
+                return executeWithSubject();
             }
         };
         File testFile = testFolder.newFile("somefile.txt");
@@ -147,7 +147,7 @@ public class DumpCommandTest extends AbstractCommandTest {
 
             @Override
             protected Object doExecute() throws Exception {
-                return executeWithDdfSubject();
+                return executeWithSubject();
             }
         };
         File outputDirectory = testFolder.newFolder("somedirectory");
@@ -194,7 +194,7 @@ public class DumpCommandTest extends AbstractCommandTest {
 
             @Override
             protected Object doExecute() throws Exception {
-                return executeWithDdfSubject();
+                return executeWithSubject();
             }
         };
         File outputDirectory = testFolder.newFolder("somedirectory");

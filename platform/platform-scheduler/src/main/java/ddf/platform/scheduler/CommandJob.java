@@ -30,7 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.security.Subject;
-import ddf.security.common.util.DdfSubjectUtils;
+import ddf.security.common.util.SecurityUtils;
 
 /**
  * Executes Felix/Karaf commands when called as a Quartz {@link Job}
@@ -109,8 +109,8 @@ public class CommandJob implements Job {
 
     }
 
-    public DdfSubjectUtils getDdfSubjectUtils() {
-        return new DdfSubjectUtils();
+    public SecurityUtils getDdfSubjectUtils() {
+        return new SecurityUtils();
     }
 
     private CommandProcessor getCommandProcessor() {

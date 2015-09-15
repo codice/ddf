@@ -56,7 +56,7 @@ public class TestIngestCommand extends AbstractCommandTest {
 
             @Override
             protected Object doExecute() throws Exception {
-                return executeWithDdfSubject();
+                return executeWithSubject();
             }
         };
         command.filePath = testFolder.getRoot().getAbsolutePath();
