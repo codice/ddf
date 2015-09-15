@@ -12,44 +12,51 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
+
 package org.codice.ddf.spatial.geocoder.endpoint;
 
-import java.util.List;
-
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Response;
-
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
 import org.codice.ddf.spatial.geocoder.GeoCoder;
 import org.codice.ddf.spatial.geocoder.GeoResult;
 import org.opengis.geometry.DirectPosition;
 import org.opengis.geometry.primitive.Point;
 
-import net.minidev.json.JSONArray;
-import net.minidev.json.JSONObject;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Response;
+import java.util.List;
 
 @Path("/")
 public class GeoCoderEndpoint {
 
-    private GeoCoder geoCoder;
+    private GeoCoderFactory geoCoderFactory;
 
-    public GeoCoderEndpoint(GeoCoder geoCoder) {
-        this.geoCoder = geoCoder;
+    public GeoCoderEndpoint(GeoCoderFactory geoCoderFactory) {
+
+        if (geoCoderFactory == null) {
+            throw new IllegalArgumentException("GeoCoderEndpoint(): constructor argument 'geoCoderFactory' may not be null.");
+        }
+
+        this.geoCoderFactory = geoCoderFactory;
     }
 
     @GET
     public Response getLocation(@QueryParam("jsonp") String jsonp,
             @QueryParam("query") String query) {
-        Response response;
 
-        GeoResult geoResult = geoCoder.getLocation(query);
+        JSONObject jsonObject = doQuery(query);
+        return Response.ok(jsonp + "(" + jsonObject.toJSONString() + ")").build();
+    }
 
-        DirectPosition directPosition = geoResult.getPoint().getDirectPosition();
-        double[] coords = directPosition.getCoordinate();
+    JSONObject doQuery(String query) {
+        GeoCoder geoCoder = geoCoderFactory.getService();
+        GeoResult geoResult = null;
 
-        double longitude = coords[0];
-        double latitude = coords[1];
+        if (geoCoder != null) {
+            geoResult = geoCoder.getLocation(query);
+        }
 
         JSONObject jsonObject = new JSONObject();
         JSONArray resourceSets = new JSONArray();
@@ -58,6 +65,21 @@ public class GeoCoderEndpoint {
         resourceSets.add(resourceSet);
         JSONArray resources = new JSONArray();
         resourceSet.put("resources", resources);
+
+        if (geoResult != null) {
+            transformGeoResult(geoResult, resources);
+        }
+
+        return jsonObject;
+    }
+
+    void transformGeoResult(GeoResult geoResult, JSONArray resources) {
+        DirectPosition directPosition = geoResult.getPoint().getDirectPosition();
+        double[] coords = directPosition.getCoordinate();
+
+        double longitude = coords[0];
+        double latitude = coords[1];
+
         JSONObject resource = new JSONObject();
         JSONArray bbox = new JSONArray();
         List<Point> points = geoResult.getBbox();
@@ -77,8 +99,6 @@ public class GeoCoderEndpoint {
         resource.put("point", point);
         resource.put("name", geoResult.getFullName());
         resources.add(resource);
-
-        response = Response.ok(jsonp + "(" + jsonObject.toJSONString() + ")").build();
-        return response;
     }
+
 }
