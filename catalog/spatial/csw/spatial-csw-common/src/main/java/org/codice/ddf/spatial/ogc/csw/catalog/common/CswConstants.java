@@ -217,6 +217,7 @@ public interface CswConstants {
     static final String NONEXISTENT_TYPE = "NonexistentType";
     static final String OPERATION_NOT_SUPPORTED = "OperationNotSupported";
     static final String NO_APPLICABLE_CODE = "NoApplicableCode";
+    static final String TRANSACTION_FAILED = "TransactionFailed";
 
     public static final String OUTPUT_FORMAT_XML = MediaType.APPLICATION_XML;
 
