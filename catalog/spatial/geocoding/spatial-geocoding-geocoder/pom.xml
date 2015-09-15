@@ -50,6 +50,10 @@
             <artifactId>gt-jts-wrapper</artifactId>
             <version>8.4</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-api-impl</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -60,7 +64,7 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Dependency>json-smart</Embed-Dependency>
+                        <Embed-Dependency>json-smart,catalog-core-api-impl</Embed-Dependency>
                         <Export-Package>org.codice.ddf.spatial.geocoder</Export-Package>
                     </instructions>
                 </configuration>
@@ -76,23 +80,6 @@
                         </goals>
                         <configuration>
                             <haltOnFailure>true</haltOnFailure>
-                            <rules>
-                                <rule>
-                                    <element>BUNDLE</element>
-                                    <limits>
-                                        <limit>
-                                            <counter>INSTRUCTION</counter>
-                                            <value>COVEREDRATIO</value>
-                                            <minimum>0.58</minimum>
-                                        </limit>
-                                        <limit>
-                                            <counter>LINE</counter>
-                                            <value>COVEREDRATIO</value>
-                                            <minimum>0.61</minimum>
-                                        </limit>
-                                    </limits>
-                                </rule>
-                            </rules>
                         </configuration>
                     </execution>
                 </executions>
