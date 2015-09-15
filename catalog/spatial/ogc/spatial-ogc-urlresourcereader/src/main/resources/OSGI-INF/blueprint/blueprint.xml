@@ -15,23 +15,27 @@
 <blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0"
            xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
+  <bean id="tika" class="org.apache.tika.Tika"/>
+   
+  <reference id="urlResourceReader" interface="ddf.catalog.resource.ResourceReader" filter="(id=URLResourceReader)" />
+
   <bean id="urlReader"
         class="org.codice.ddf.spatial.ogc.catalog.resource.impl.OgcUrlResourceReader">
       <cm:managed-properties
               persistent-id="org.codice.ddf.spatial.ogc.catalog.resource.impl.OgcUrlResourceReader"
               update-strategy="container-managed"/>
-      <argument ref="mimeTypeMapper"/>
+      <argument ref="urlResourceReader"/>
+      <argument ref="tika" />
   </bean>
   
-  <reference id="mimeTypeMapper" interface="ddf.mime.MimeTypeMapper"/>
-
-    <!--
+  <!--
     Ranking 3 places it ahead of DDF URL Resource Reader so that this has
     priority
-    -->
-    <service ref="urlReader" interface="ddf.catalog.resource.ResourceReader" ranking="3">
+  -->
+  <service ref="urlReader" interface="ddf.catalog.resource.ResourceReader" ranking="3">
     <service-properties>
       <entry key="shortname" value="OgcUrlResourceReader"/>
+      <entry key="id" value="OgcUrlResourceReader"/>
       <entry key="organization" value="OGC"/>
     </service-properties>
   </service>

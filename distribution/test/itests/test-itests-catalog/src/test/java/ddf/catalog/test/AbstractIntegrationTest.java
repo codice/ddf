@@ -129,6 +129,8 @@ public abstract class AbstractIntegrationTest {
 
     private CatalogBundle catalogBundle;
 
+    private UrlResourceReaderConfigurator urlResourceReaderConfigurator;
+
     static {
         // Make Pax URL use the maven.repo.local setting if present
         if (System.getProperty("maven.repo.local") != null) {
@@ -143,6 +145,7 @@ public abstract class AbstractIntegrationTest {
         serviceManager = new ServiceManager(bundleCtx, metatype, adminConfig);
         catalogBundle = new CatalogBundle(serviceManager, adminConfig);
         securityPolicy = new SecurityPolicyConfigurator(serviceManager, configAdmin);
+        urlResourceReaderConfigurator = new UrlResourceReaderConfigurator(configAdmin);
     }
 
     /**
@@ -171,6 +174,10 @@ public abstract class AbstractIntegrationTest {
 
     protected SecurityPolicyConfigurator getSecurityPolicy() {
         return securityPolicy;
+    }
+
+    protected UrlResourceReaderConfigurator getUrlResourceReaderConfigurator() {
+        return urlResourceReaderConfigurator;
     }
 
     /**
@@ -219,7 +226,9 @@ public abstract class AbstractIntegrationTest {
                                 .versionAsInProject()), wrappedBundle(
                         mavenBundle("ddf.test.itests", "test-itests-common").classifier("tests")
                                 .versionAsInProject()).bundleSymbolicName("test-itests-common"),
-                mavenBundle("ddf.test.thirdparty", "rest-assured").versionAsInProject());
+                mavenBundle("ddf.test.thirdparty", "rest-assured").versionAsInProject(),
+                wrappedBundle(mavenBundle("com.google.guava", "guava").versionAsInProject())
+                .exports("*;version=18.0"));
     }
 
     protected Option[] configureConfigurationPorts() throws URISyntaxException {
