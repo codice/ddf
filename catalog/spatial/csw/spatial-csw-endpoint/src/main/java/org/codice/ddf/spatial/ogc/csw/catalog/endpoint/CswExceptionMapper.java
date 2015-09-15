@@ -32,9 +32,7 @@ public class CswExceptionMapper implements ExceptionMapper<Throwable> {
 
     @Override
     public Response toResponse(Throwable exception) {
-
         CswException cswException;
-
         if (exception instanceof CswException) {
             cswException = (CswException) exception;
         } else  {

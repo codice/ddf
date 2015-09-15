@@ -309,7 +309,6 @@ public class CswEndpoint implements Csw {
         }
 
         validateOutputFormat(request.getOutputFormat());
-
         validateSchemaLanguage(request.getSchemaLanguage());
 
         Map<String, String> namespacePrefixToUriMappings = request
@@ -450,7 +449,6 @@ public class CswEndpoint implements Csw {
             } else {
                 response.setElementSetType(ElementSetType.SUMMARY);
             }
-            LOGGER.error("GETRECORDBYID");
             return response;
         } else {
             throw new CswException("A GetRecordById Query must contain an ID.",
@@ -1360,7 +1358,6 @@ public class CswEndpoint implements Csw {
     }
 
     private void validateOutputFormat(String format) throws CswException {
-
         if (!StringUtils.isEmpty(format)) {
             if (!DEFAULT_OUTPUT_FORMAT.equals(format) && !mimeTypeTransformerManager
                     .getAvailableMimeTypes().contains(format)) {
@@ -1371,7 +1368,6 @@ public class CswEndpoint implements Csw {
     }
 
     private void validateSchemaLanguage(String schemaLanguage) throws CswException {
-
         if (!StringUtils.isEmpty(schemaLanguage)) {
             if (!CswConstants.VALID_SCHEMA_LANGUAGES.contains(schemaLanguage)) {
                 throw new CswException("Invalid schema language '" + schemaLanguage + "'",
