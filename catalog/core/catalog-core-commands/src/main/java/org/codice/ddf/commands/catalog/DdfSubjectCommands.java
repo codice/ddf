@@ -18,7 +18,10 @@ import java.util.concurrent.Callable;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.felix.gogo.commands.Option;
+import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.security.common.util.DdfSubjectUtils;
 
@@ -29,6 +32,8 @@ import ddf.security.common.util.DdfSubjectUtils;
  */
 public abstract class DdfSubjectCommands extends CommandSupport {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(DdfSubjectCommands.class);
+
     @Option(name = "--user", required = false, aliases = {
             "-u"}, multiValued = false, description = "Run command as a different user")
     protected String user = null;
@@ -37,21 +42,43 @@ public abstract class DdfSubjectCommands extends CommandSupport {
 
     protected abstract Object executeWithDdfSubject() throws Exception;
 
+    /**
+     * doExecute of DdfSubjectCommands attemps to run a command as a certain subject.
+     * The order it checks for subject information is
+     *  1. User supplied subject name via command line
+     *  2. Shiro thread context subject
+     *  3. Java Subject
+     *  If there is a java subject and it has a RolePrincipal for admin the system subject is used.
+     *  If no valid subject is found an error message will be printed to the console and the
+     *  command will not be executed. Even if a valid subject is found, that subject might not have
+     *  the permissions necessary to run the command.
+     * @return
+     * @throws Exception
+     */
     @Override
     protected Object doExecute() throws Exception {
-        Subject subject;
+        Subject subject = null;
         if (!StringUtils.isEmpty(user)) {
             String password = getLine("Password for " + user + ": ", false);
             subject = ddfSubjectUtils.getSubject(user, password);
         } else {
-            //verify that java subject has the correct roles (admin)
-            if (!ddfSubjectUtils.javaSubjectHasAdminRole()) {
-                printErrorMessage(
-                        "Current user doesn't have sufficient privileges to run this command");
-                return null;
+            try {
+                //check for a shiro subject
+                subject = SecurityUtils.getSubject();
+            } catch (IllegalStateException e) {
+                LOGGER.debug("No shiro subject available for running command");
             }
-            //get system subject
-            subject = ddfSubjectUtils.getSystemSubject();
+
+            if (subject == null) {
+                //verify that java subject has the correct roles (admin)
+                if (!ddfSubjectUtils.javaSubjectHasAdminRole()) {
+                    printErrorMessage(
+                            "Current user doesn't have sufficient privileges to run this command");
+                    return null;
+                }
+                //set subject to system subject since they have admin
+                subject = ddfSubjectUtils.getSystemSubject();
+            }
         }
 
         if (subject == null) {
