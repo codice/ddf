@@ -24,6 +24,7 @@
         <feature>search-ui-app</feature>
         <feature>solr-app</feature>
         <feature>spatial-app</feature>
+        <feature>webservice-gazetteer</feature>
     </feature>
 
     <feature name="profile-full" install="manual" version="${project.version}" 
@@ -38,6 +39,7 @@
         <feature>solr-app</feature>
         <feature>search-ui-app</feature>
         <feature>spatial-app</feature>
+        <feature>webservice-gazetteer</feature>
     </feature>
 
 </features>
