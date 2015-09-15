@@ -17,11 +17,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.io.InputStream;
 
 import javax.servlet.FilterChain;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilder;
@@ -66,7 +68,7 @@ public class SAMLAssertionHandlerTest {
      * This test ensures the proper functionality of SAMLAssertionHandler's
      * method, getNormalizedToken(), when given a valid HttpServletRequest.
      */
-    @Test public void testGetNormalizedTokenSuccess() throws Exception {
+    @Test public void testGetNormalizedTokenSuccessWithHeader() throws Exception {
         SAMLAssertionHandler handler = new SAMLAssertionHandler();
 
         HttpServletRequest request = mock(HttpServletRequest.class);
@@ -92,7 +94,7 @@ public class SAMLAssertionHandlerTest {
      * This test ensures the proper functionality of SAMLAssertionHandler's
      * method, getNormalizedToken(), when given an invalid HttpServletRequest.
      */
-    @Test public void testGetNormalizedTokenFailure() {
+    @Test public void testGetNormalizedTokenFailureWithHeader() {
         SAMLAssertionHandler handler = new SAMLAssertionHandler();
 
         HttpServletRequest request = mock(HttpServletRequest.class);
@@ -100,6 +102,55 @@ public class SAMLAssertionHandlerTest {
         FilterChain chain = mock(FilterChain.class);
 
         doReturn(null).when(request).getHeader(SecurityConstants.SAML_HEADER_NAME);
+
+        HandlerResult result = handler.getNormalizedToken(request, response, chain, true);
+
+        assertNotNull(result);
+        assertEquals(HandlerResult.Status.NO_ACTION, result.getStatus());
+    }
+
+    /**
+     * This test ensures the proper functionality of SAMLAssertionHandler's
+     * method, getNormalizedToken(), when given a valid HttpServletRequest.
+     * Uses legacy SAML cookie
+     */
+    @Test
+    public void testGetNormalizedTokenSuccessWithCookie() throws Exception {
+        SAMLAssertionHandler handler = new SAMLAssertionHandler();
+
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        HttpServletResponse response = mock(HttpServletResponse.class);
+        FilterChain chain = mock(FilterChain.class);
+
+        Element assertion = readDocument("/saml.xml").getDocumentElement();
+        String assertionId = assertion.getAttributeNodeNS(null, "ID").getNodeValue();
+        SecurityToken samlToken = new SecurityToken(assertionId, assertion, null);
+        SamlAssertionWrapper wrappedAssertion = new SamlAssertionWrapper(samlToken.getToken());
+        String saml = wrappedAssertion.assertionToString();
+        Cookie cookie = new Cookie(SecurityConstants.SAML_COOKIE_NAME,
+                RestSecurity.encodeSaml(saml));
+        when(request.getCookies()).thenReturn(new Cookie[]{cookie});
+
+        HandlerResult result = handler.getNormalizedToken(request, response, chain, true);
+
+        assertNotNull(result);
+        assertEquals(HandlerResult.Status.COMPLETED, result.getStatus());
+    }
+
+    /**
+     * This test ensures the proper functionality of SAMLAssertionHandler's
+     * method, getNormalizedToken(), when given an invalid HttpServletRequest.
+     * Uses legacy SAML cookie
+     */
+    @Test
+    public void testGetNormalizedTokenFailurewithCookie() {
+        SAMLAssertionHandler handler = new SAMLAssertionHandler();
+
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        HttpServletResponse response = mock(HttpServletResponse.class);
+        FilterChain chain = mock(FilterChain.class);
+
+        when(request.getCookies()).thenReturn(null);
 
         HandlerResult result = handler.getNormalizedToken(request, response, chain, true);
 
