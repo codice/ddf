@@ -73,7 +73,8 @@ public class RestSecurityTest {
         return db.parse(is);
     }
 
-    @Test public void testSetSubjectOnClient() throws Exception {
+    @Test
+    public void testSetSubjectOnClient() throws Exception {
         Element samlToken = readDocument("/saml.xml").getDocumentElement();
         Subject subject = mock(Subject.class);
         SecurityAssertion assertion = mock(SecurityAssertion.class);
@@ -94,7 +95,8 @@ public class RestSecurityTest {
         assertTrue(containsSaml);
     }
 
-    @Test public void testNotSetSubjectOnClient() throws Exception {
+    @Test
+    public void testNotSetSubjectOnClient() throws Exception {
         Element samlToken = readDocument("/saml.xml").getDocumentElement();
         Subject subject = mock(Subject.class);
         SecurityAssertion assertion = mock(SecurityAssertion.class);

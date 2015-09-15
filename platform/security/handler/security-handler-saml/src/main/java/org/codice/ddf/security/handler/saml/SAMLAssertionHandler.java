@@ -15,11 +15,13 @@ package org.codice.ddf.security.handler.saml;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.Map;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -27,6 +29,7 @@ import javax.xml.stream.XMLStreamException;
 
 import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
+import org.codice.ddf.security.common.HttpUtils;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.HandlerResult;
@@ -96,6 +99,35 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
                 handlerResult.setStatus(HandlerResult.Status.COMPLETED);
             } catch (IOException e) {
                 LOGGER.warn("Unexpected error converting header value to string", e);
+            } catch (XMLStreamException e) {
+                LOGGER.warn(
+                        "Unexpected error converting XML string to element - proceeding without SAML token.",
+                        e);
+            }
+            return handlerResult;
+        }
+
+        // Check for legacy SAML cookie
+        Map<String, Cookie> cookies = HttpUtils.getCookieMap(httpRequest);
+        Cookie samlCookie = cookies.get(SecurityConstants.SAML_COOKIE_NAME);
+        if (samlCookie != null) {
+            String cookieValue = samlCookie.getValue();
+            LOGGER.trace("Cookie retrieved");
+            try {
+                String tokenString = RestSecurity.decodeSaml(cookieValue);
+                LOGGER.trace("Cookie value: {}", tokenString);
+                securityToken = new SecurityToken();
+                Element thisToken = StaxUtils.read(new StringReader(tokenString))
+                        .getDocumentElement();
+                securityToken.setToken(thisToken);
+                SAMLAuthenticationToken samlToken = new SAMLAuthenticationToken(null, securityToken,
+                        realm);
+                handlerResult.setToken(samlToken);
+                handlerResult.setStatus(HandlerResult.Status.COMPLETED);
+            } catch (IOException e) {
+                LOGGER.warn(
+                        "Unexpected error converting cookie value to string - proceeding without SAML token.",
+                        e);
             } catch (XMLStreamException e) {
                 LOGGER.warn(
                         "Unexpected error converting XML string to element - proceeding without SAML token.",
