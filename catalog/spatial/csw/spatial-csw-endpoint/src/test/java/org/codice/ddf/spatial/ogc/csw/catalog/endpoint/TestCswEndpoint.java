@@ -302,6 +302,8 @@ public class TestCswEndpoint {
 
     private static QueryResponseTransformer mockTransformer = mock(QueryResponseTransformer.class);
 
+    private static QName cswQnameOutPutSchema = new QName(CswConstants.CSW_OUTPUT_SCHEMA);
+
     @BeforeClass
     public static void setUpBeforeClass()
             throws URISyntaxException, SourceUnavailableException, UnsupportedQueryException,
@@ -1234,8 +1236,91 @@ public class TestCswEndpoint {
         typeNames.add(new QName(CswConstants.CSW_OUTPUT_SCHEMA, BAD_TYPE, VALID_PREFIX));
         query.setTypeNames(typeNames);
         JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                new QName("http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
+                cswQnameOutPutSchema, QueryType.class, query);
 
+        grr.setAbstractQuery(jaxbQuery);
+
+        csw.getRecords(grr);
+    }
+
+    /**
+     *  Test Valid GetRecords request, no exceptions should be thrown
+     */
+
+    @Test
+    public void testPostGetRecordsValidElementNames() throws CswException {
+        GetRecordsType grr = createDefaultPostRecordsRequest();
+
+        QueryType query = new QueryType();
+
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
+                cswQnameOutPutSchema, QueryType.class, query);
+        List<QName> elementNameList = Arrays.asList(new QName("brief"), new QName("summary"), new QName("full"));
+        query.setElementName(elementNameList);
+        grr.setAbstractQuery(jaxbQuery);
+
+        csw.getRecords(grr);
+    }
+
+    @Test(expected = CswException.class)
+    public void testPostGetRecordsInvalidElementNames() throws CswException {
+        GetRecordsType grr = createDefaultPostRecordsRequest();
+
+        QueryType query = new QueryType();
+
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
+                cswQnameOutPutSchema, QueryType.class, query);
+        List<QName> elementNameList = Arrays.asList(new QName("brief"), new QName("sas"));
+        query.setElementName(elementNameList);
+        grr.setAbstractQuery(jaxbQuery);
+
+        csw.getRecords(grr);
+    }
+
+    @Test(expected = CswException.class)
+    public void testPostGetRecordsInvalidElementSetNames() throws CswException {
+        GetRecordsType grr = createDefaultPostRecordsRequest();
+
+        QueryType query = new QueryType();
+
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
+                cswQnameOutPutSchema, QueryType.class, query);
+
+        query.setElementSetName(new ElementSetNameType());
+        grr.setAbstractQuery(jaxbQuery);
+
+        csw.getRecords(grr);
+    }
+
+    @Test
+    public void testPostGetRecordsValidElementSetNames() throws CswException {
+        GetRecordsType grr = createDefaultPostRecordsRequest();
+
+        QueryType query = new QueryType();
+
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
+                cswQnameOutPutSchema, QueryType.class, query);
+        ElementSetNameType elsnt = new ElementSetNameType();
+        elsnt.setValue(ElementSetType.BRIEF);
+        query.setElementSetName(elsnt);
+        grr.setAbstractQuery(jaxbQuery);
+
+        csw.getRecords(grr);
+    }
+
+    @Test(expected = CswException.class)
+    public void testPostGetRecordsElementNamesMutex() throws CswException {
+        GetRecordsType grr = createDefaultPostRecordsRequest();
+
+        QueryType query = new QueryType();
+
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
+                cswQnameOutPutSchema, QueryType.class, query);
+        List<QName> elementNameList = Arrays.asList(new QName("brief"));
+        ElementSetNameType elsnt = new ElementSetNameType();
+        elsnt.setValue(ElementSetType.BRIEF);
+        query.setElementSetName(elsnt);
+        query.setElementName(elementNameList);
         grr.setAbstractQuery(jaxbQuery);
 
         csw.getRecords(grr);
@@ -1277,7 +1362,7 @@ public class TestCswEndpoint {
 
         query.setConstraint(constraint);
         JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                new QName("http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
+                cswQnameOutPutSchema, QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -1366,7 +1451,7 @@ public class TestCswEndpoint {
         query.setConstraint(constraint);
 
         JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                new QName("http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
+                cswQnameOutPutSchema, QueryType.class, query);
         grr.setAbstractQuery(jaxbQuery);
 
         CatalogFramework framework = mock(CatalogFramework.class);
@@ -1395,7 +1480,7 @@ public class TestCswEndpoint {
 
         query.setConstraint(constraint);
         JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                new QName("http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
+                cswQnameOutPutSchema, QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -1417,7 +1502,7 @@ public class TestCswEndpoint {
 
         query.setConstraint(constraint);
         JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                new QName("http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
+                cswQnameOutPutSchema, QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -1457,7 +1542,7 @@ public class TestCswEndpoint {
         esnt.setValue(ElementSetType.SUMMARY);
         query.setElementSetName(esnt);
         JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                new QName("http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
+                cswQnameOutPutSchema, QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
         final String EXAMPLE_SCHEMA = CswConstants.CSW_OUTPUT_SCHEMA;
@@ -1505,7 +1590,7 @@ public class TestCswEndpoint {
 
         query.setConstraint(constraint);
         JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                new QName("http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
+                cswQnameOutPutSchema, QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -1546,7 +1631,7 @@ public class TestCswEndpoint {
 
         query.setConstraint(constraint);
         JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                new QName("http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
+                cswQnameOutPutSchema, QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -1590,7 +1675,7 @@ public class TestCswEndpoint {
         query.setSortBy(incomingSort);
 
         JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                new QName("http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
+                cswQnameOutPutSchema, QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -1630,7 +1715,7 @@ public class TestCswEndpoint {
         query.setSortBy(incomingSort);
 
         JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                new QName("http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
+                cswQnameOutPutSchema, QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -1967,7 +2052,7 @@ public class TestCswEndpoint {
             StringWriter sw = new StringWriter();
 
             JAXBElement<DescribeRecordResponseType> wrappedResponse = new JAXBElement<DescribeRecordResponseType>(
-                    new QName("http://www.opengis.net/cat/csw/2.0.2"),
+                    cswQnameOutPutSchema,
                     DescribeRecordResponseType.class, response);
 
             marshaller.marshal(wrappedResponse, sw);
@@ -2028,7 +2113,7 @@ public class TestCswEndpoint {
 
         verifyMarshalResponse(response,
                 "net.opengis.cat.csw.v_2_0_2:net.opengis.filter.v_1_1_0:net.opengis.gml.v_3_1_1",
-                new QName(CswConstants.CSW_OUTPUT_SCHEMA));
+                cswQnameOutPutSchema);
     }
 
     @Test
@@ -2117,7 +2202,7 @@ public class TestCswEndpoint {
 
         verifyMarshalResponse(response,
                 "net.opengis.cat.csw.v_2_0_2:net.opengis.filter.v_1_1_0:net.opengis.gml.v_3_1_1",
-                new QName(CswConstants.CSW_OUTPUT_SCHEMA));
+                cswQnameOutPutSchema);
     }
 
     @Test
@@ -2157,7 +2242,7 @@ public class TestCswEndpoint {
 
         verifyMarshalResponse(response,
                 "net.opengis.cat.csw.v_2_0_2:net.opengis.filter.v_1_1_0:net.opengis.gml.v_3_1_1",
-                new QName(CswConstants.CSW_OUTPUT_SCHEMA));
+                cswQnameOutPutSchema);
 
         ArgumentCaptor<UpdateRequest> updateRequestArgumentCaptor = ArgumentCaptor
                 .forClass(UpdateRequest.class);
@@ -2230,7 +2315,7 @@ public class TestCswEndpoint {
 
         verifyMarshalResponse(response,
                 "net.opengis.cat.csw.v_2_0_2:net.opengis.filter.v_1_1_0:net.opengis.gml.v_3_1_1",
-                new QName(CswConstants.CSW_OUTPUT_SCHEMA));
+                cswQnameOutPutSchema);
 
         ArgumentCaptor<UpdateRequest> updateRequestArgumentCaptor = ArgumentCaptor
                 .forClass(UpdateRequest.class);
@@ -2277,7 +2362,7 @@ public class TestCswEndpoint {
 
         query.setConstraint(constraint);
         JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                new QName("http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
+                cswQnameOutPutSchema, QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -2326,7 +2411,7 @@ public class TestCswEndpoint {
 
         query.setConstraint(constraint);
         JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                new QName("http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
+                cswQnameOutPutSchema, QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -2510,7 +2595,7 @@ public class TestCswEndpoint {
 
         query.setConstraint(constraint);
         JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                new QName("http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
+                cswQnameOutPutSchema, QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -2561,7 +2646,7 @@ public class TestCswEndpoint {
 
         query.setConstraint(constraint);
         JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                new QName("http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
+                cswQnameOutPutSchema, QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -2662,7 +2747,7 @@ public class TestCswEndpoint {
 
         query.setConstraint(constraint);
         JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                new QName("http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
+                cswQnameOutPutSchema, QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -2695,7 +2780,7 @@ public class TestCswEndpoint {
 
         query.setConstraint(constraint);
         JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                new QName("http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
+                cswQnameOutPutSchema, QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -2798,7 +2883,7 @@ public class TestCswEndpoint {
         query.setTypeNames(typeNames);
 
         JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                new QName("http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
+                cswQnameOutPutSchema, QueryType.class, query);
         grr.setAbstractQuery(jaxbQuery);
         return grr;
     }

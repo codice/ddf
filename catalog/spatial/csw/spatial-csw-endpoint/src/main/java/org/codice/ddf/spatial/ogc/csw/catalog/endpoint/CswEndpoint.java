@@ -203,6 +203,8 @@ public class CswEndpoint implements Csw {
             Arrays.asList(SERVICE_IDENTIFICATION, SERVICE_PROVIDER, OPERATIONS_METADATA,
                     FILTER_CAPABILITIES));
 
+    private static final List<String> ELEMENT_NAMES = Arrays.asList("brief", "summary", "full");
+
     private static final Logger LOGGER = LoggerFactory.getLogger(CswEndpoint.class);
 
     private static final Configuration PARSER_CONFIG = new org.geotools.filter.v1_1.OGCConfiguration();
@@ -309,7 +311,6 @@ public class CswEndpoint implements Csw {
         }
 
         validateOutputFormat(request.getOutputFormat());
-
         validateSchemaLanguage(request.getSchemaLanguage());
 
         Map<String, String> namespacePrefixToUriMappings = request
@@ -386,6 +387,8 @@ public class CswEndpoint implements Csw {
             QueryType query = (QueryType) request.getAbstractQuery().getValue();
 
             validateTypes(query.getTypeNames(), CswConstants.VERSION_2_0_2);
+
+            validateElementNames(query);
 
             if (query.getConstraint() != null &&
                     query.getConstraint().isSetFilter() && query.getConstraint().isSetCqlText()) {
@@ -483,7 +486,8 @@ public class CswEndpoint implements Csw {
 
                 numInserted += createResponse.getCreatedMetacards().size();
             } catch (IngestException | SourceUnavailableException e) {
-                LOGGER.error("Unable to ingest records.", e);
+                throw new CswException("Unable to insert record(s).",
+                        CswConstants.TRANSACTION_FAILED, insertAction.getHandle());
             }
         }
         response.getTransactionSummary().setTotalInserted(BigInteger.valueOf(numInserted));
@@ -494,7 +498,8 @@ public class CswEndpoint implements Csw {
                 numUpdated += updateRecords(updateAction);
             } catch (CswException | FederationException | IngestException |
                     SourceUnavailableException | UnsupportedQueryException e) {
-                LOGGER.error("Unable to update records.", e);
+                throw new CswException("Unable to update record(s).",
+                        CswConstants.TRANSACTION_FAILED, updateAction.getHandle());
             }
         }
         response.getTransactionSummary().setTotalUpdated(BigInteger.valueOf(numUpdated));
@@ -505,7 +510,8 @@ public class CswEndpoint implements Csw {
                 numDeleted += deleteRecords(deleteAction);
             } catch (CswException | FederationException | IngestException |
                     SourceUnavailableException | UnsupportedQueryException e) {
-                LOGGER.error("Unable to delete records.", e);
+                throw new CswException("Unable to delete record(s).",
+                        CswConstants.TRANSACTION_FAILED, deleteAction.getHandle());
             }
         }
         response.getTransactionSummary().setTotalDeleted(BigInteger.valueOf(numDeleted));
@@ -513,21 +519,25 @@ public class CswEndpoint implements Csw {
         return response;
     }
 
-    private InsertResultType getInsertResultFromResponse(CreateResponse createResponse) {
+    private InsertResultType getInsertResultFromResponse(CreateResponse createResponse)
+            throws CswException {
         InsertResultType result = new InsertResultType();
         WKTReader reader = new WKTReader();
         for (Metacard metacard : createResponse.getCreatedMetacards()) {
             BoundingBoxType boundingBox = new BoundingBoxType();
             Geometry geometry = null;
+            String bbox = null;
             try {
                 if (metacard.getAttribute(CswConstants.BBOX_PROP) != null) {
-                    geometry = reader.read(metacard.getAttribute(CswConstants.BBOX_PROP).getValue()
-                            .toString());
+                    bbox = metacard.getAttribute(CswConstants.BBOX_PROP).getValue()
+                            .toString();
+                    geometry = reader.read(bbox);
                 } else if (StringUtils.isNotBlank(metacard.getLocation())) {
-                    geometry = reader.read(metacard.getLocation());
+                    bbox = metacard.getLocation();
+                    geometry = reader.read(bbox);
                 }
             } catch (ParseException e) {
-                LOGGER.warn("Unable to parse BoundingBox.", e);
+                LOGGER.warn("Unable to parse BoundingBox : {}", bbox, e);
             }
             BriefRecordType briefRecordType = new BriefRecordType();
             if (geometry != null) {
@@ -601,7 +611,9 @@ public class CswEndpoint implements Csw {
                 UpdateResponse updateResponse = framework.update(updateRequest);
                 return updateResponse.getUpdatedMetacards().size();
             } else {
-                LOGGER.warn("No ID was specified in the replacement record: nothing to update.");
+                throw new CswException("Unable to update record.  No ID was specified in the request.",
+                        CswConstants.MISSING_PARAMETER_VALUE, updateAction.getHandle());
+
             }
         } else if (updateAction.getConstraint() != null) {
             QueryConstraintType constraint = updateAction.getConstraint();
@@ -1161,7 +1173,7 @@ public class CswEndpoint implements Csw {
         addOperationParameter(CswConstants.RESULT_TYPE_PARAMETER,
                 Arrays.asList("hits", "results", "validate"), getRecordByIdOp);
         addOperationParameter(CswConstants.ELEMENT_SET_NAME_PARAMETER,
-                Arrays.asList("brief", "summary", "full"), getRecordByIdOp);
+                ELEMENT_NAMES, getRecordByIdOp);
 
         // Builds Transactions operation metadata
         Operation transactionOp = buildOperation(CswConstants.TRANSACTION,
@@ -1244,7 +1256,6 @@ public class CswEndpoint implements Csw {
         dcp.setHTTP(http);
         dcpList.add(dcp);
         op.setDCP(dcpList);
-
         return op;
     }
 
@@ -1304,6 +1315,35 @@ public class CswEndpoint implements Csw {
 
         }
     }
+
+    /**
+    * Verifies that if the ElementName or ElementSetName is passed, that they are
+    * valid and mutually exclusive according to the OpenGIS CSW spec.
+    *
+    *  @param query   QueryType to be validated
+    */
+    private void validateElementNames(QueryType query) throws CswException {
+
+        if (query.isSetElementSetName() && query.isSetElementName()) {
+            throw new CswException("ElementSetName and ElementName must be mutually exclusive",
+                    CswConstants.INVALID_PARAMETER_VALUE, "ElementName");
+        } else if (query.isSetElementName() && query.getElementName().size() > 0) {
+
+            for (QName elementName : query.getElementName()) {
+                String elementNameString = elementName.getLocalPart();
+                if (!ELEMENT_NAMES.contains(elementNameString)) {
+                    throw new CswException("Unknown ElementName "
+                            + elementNameString, CswConstants.INVALID_PARAMETER_VALUE,
+                            "ElementName");
+                }
+            }
+        } else if (query.isSetElementSetName() && query.getElementSetName().getValue() == null) {
+            throw new CswException("Unknown ElementSetName",
+                    CswConstants.INVALID_PARAMETER_VALUE, "ElementSetName");
+        }
+
+    }
+
 
     private void validateOutputSchema(String schema) throws CswException {
         if (schema == null || schemaTransformerManager.getTransformerBySchema(schema) != null) {
