@@ -248,7 +248,7 @@ Namespace:: In `POST` operations, namespaces are defined in the xml. In `GET` op
 Service:: The service being used, in this case it is fixed at CSW.
 Version:: The version of the service being used (2.0.2).
 OutputFormat:: The requester wants the response to be in this intended output. Currently, only one format is supported (application/xml). If this parameter is supplied, it is validated against the known type. If this parameter is not supported, it passes through and returns the XML response upon success.
-OutputSchema:: The schema language from the request. This is validated against the known list of schema languages supported (refer to http://www.w3.org/XML/Schema).
+SchemaLanguage: The schema language from the request. This is validated against the known list of schema languages supported (refer to http://www.w3.org/XML/Schema).
 
 ===== DescribeRecord `HTTP GET`
 
@@ -256,7 +256,7 @@ The `HTTP GET` request differs from the `POST` request in that the typeName is a
 
 .DescribeRecord KVP Encoding
 ----
-http://<DDF_HOST>:<DDF_PORT>/services/csw?service=CSW&version=2.0.2&request=DescribeRecord&NAMESPACE=xmlns(http://www.opengis.net/cat/csw/2.0.2)&outputFormat=application/xml&outputSchema=http://www.opengis.net/cat/csw/2.0.2
+http://<DDF_HOST>:<DDF_PORT>/services/csw?service=CSW&version=2.0.2&request=DescribeRecord&NAMESPACE=xmlns(http://www.opengis.net/cat/csw/2.0.2)&outputFormat=application/xml&schemaLanguage=http://www.w3.org/XML/Schema
 ----
 
 ===== DescribeRecord HTTP POST
@@ -271,7 +271,7 @@ The HTTP POST request DescribeRecordType has the typeName as a List of QName(s).
     version="2.0.2"
     service="CSW"
     outputFormat="application/xml"
-    outputSchema="http://www.opengis.net/cat/csw/2.0.2"
+    schemaLanguage="http://www.w3.org/XML/Schema"
     xmlns="http://www.opengis.net/cat/csw/2.0.2">
   </DescribeRecord>
 ----
@@ -537,7 +537,7 @@ The following is an example of a `HTTP GET` request:
 
 .GetRecords KVP Encoding
 ----
-http://<DDF_HOST>:<DDF_PORT>/services/csw??service=CSW&version=2.0.2&request=GetRecordById&NAMESPACE=xmlns="http://www.opengis.net/cat/csw/2.0.2"&ElementSetName=full&outputFormat=application/xml&outputSchema=http://www.opengis.net/cat/csw/2.0.2&id=fd7ff1535dfe47db8793b550d4170424,ba908634c0eb439b84b5d9c42af1f871
+http://<DDF_HOST>:<DDF_PORT>/services/csw?service=CSW&version=2.0.2&request=GetRecordById&NAMESPACE=xmlns="http://www.opengis.net/cat/csw/2.0.2"&ElementSetName=full&outputFormat=application/xml&outputSchema=http://www.opengis.net/cat/csw/2.0.2&id=fd7ff1535dfe47db8793b550d4170424,ba908634c0eb439b84b5d9c42af1f871
 ----
 
 ===== GetRecordById `HTTP POST`
@@ -1215,15 +1215,8 @@ The following is an example of an application/xml response to the Transaction De
 [source,xml,linenums]
 ----
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<csw:TransactionResponse xmlns:ogc="http://www.opengis.net/ogc"
-                         xmlns:gml="http://www.opengis.net/gml"
-                         xmlns:ns3="http://www.w3.org/1999/xlink"
+<csw:TransactionResponse
                          xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
-                         xmlns:ns5="http://www.w3.org/2001/SMIL20/"
-                         xmlns:dc="http://purl.org/dc/elements/1.1/"
-                         xmlns:ows="http://www.opengis.net/ows"
-                         xmlns:dct="http://purl.org/dc/terms/"
-                         xmlns:ns9="http://www.w3.org/2001/SMIL20/Language"
                          xmlns:ns10="http://www.w3.org/2001/XMLSchema-instance"
                          ns10:schemaLocation="http://www.opengis.net/csw /ogc/csw/2.0.2/CSW-publication.xsd"
                          version="2.0.2">
