@@ -38,8 +38,8 @@ import org.codice.ddf.platform.util.Exceptions;
 import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -112,8 +112,7 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
 
     private static final int DEFAULT_MAX_START_INDEX = 50000;
 
-    private static XLogger logger = new XLogger(
-            LoggerFactory.getLogger(CachingFederationStrategy.class));
+    private static Logger logger = LoggerFactory.getLogger(CachingFederationStrategy.class);
 
     private final SolrCache cache;
 
@@ -606,8 +605,8 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
                     interruptRemainingSources(processingDetails, e);
                     break;
                 } catch (ExecutionException e) {
-                    logger.warn("Couldn't get results from completed federated query. {}",
-                            sourceId + ", " + Exceptions.getFullMessage(e), e);
+                    logger.warn("Couldn't get results from completed federated query. {}, {}",
+                            sourceId, Exceptions.getFullMessage(e), e);
 
                     processingDetails.add(new ProcessingDetailsImpl(sourceId,
                             new Exception(Exceptions.getFullMessage(e))));
