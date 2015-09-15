@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -24,9 +24,11 @@ import static org.mockito.Mockito.when;
 
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.concurrent.Callable;
 
 import org.apache.felix.service.command.CommandProcessor;
 import org.apache.felix.service.command.CommandSession;
+import org.apache.shiro.subject.ExecutionException;
 import org.junit.Test;
 import org.mockito.stubbing.Answer;
 import org.quartz.JobDataMap;
@@ -34,12 +36,15 @@ import org.quartz.JobExecutionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ddf.security.Subject;
+import ddf.security.common.util.DdfSubjectUtils;
+import ddf.security.impl.SubjectImpl;
+
 /**
  * Tests the {@link CommandJob} class.
  *
  * @author Ashraf Barakat
  * @author ddf.isgs@lmco.com
- *
  */
 public class TestCommandJob {
     private static final Logger LOGGER = LoggerFactory.getLogger(TestCommandJob.class);
@@ -55,7 +60,7 @@ public class TestCommandJob {
         // given
         String command = "info";
 
-        CommandJob job = new CommandJob();
+        CommandJob job = getCommandJob();
 
         // when
         job.execute(getJobExecutionContext(command));
@@ -81,7 +86,7 @@ public class TestCommandJob {
 
         setCommandProcessor(session);
 
-        CommandJob job = new CommandJob();
+        CommandJob job = getCommandJob();
 
         // when
         job.execute(getJobExecutionContext(command));
@@ -107,7 +112,7 @@ public class TestCommandJob {
 
         setCommandProcessor(session);
 
-        CommandJob job = new CommandJob();
+        CommandJob job = getCommandJob();
 
         // when
         job.execute(getJobExecutionContext(command));
@@ -135,7 +140,7 @@ public class TestCommandJob {
 
         setCommandProcessor(session);
 
-        CommandJob job = new CommandJob();
+        CommandJob job = getCommandJob();
 
         // when
         job.execute(getJobExecutionContext(command));
@@ -148,12 +153,35 @@ public class TestCommandJob {
 
     }
 
+    private CommandJob getCommandJob() {
+        CommandJob job = new CommandJob() {
+            @Override
+            public DdfSubjectUtils getDdfSubjectUtils() {
+                DdfSubjectUtils utils = mock(DdfSubjectUtils.class);
+                org.apache.shiro.mgt.SecurityManager sm = mock(
+                        org.apache.shiro.mgt.SecurityManager.class);
+                Subject subject = new SubjectImpl(null, false, "localhost", null, false, sm) {
+                    @Override
+                    public <V> V execute(Callable<V> callable) throws ExecutionException {
+                        try {
+                            return callable.call();
+                        } catch (Throwable t) {
+                            throw new ExecutionException(t);
+                        }
+                    }
+                };
+                when(utils.getSystemSubject()).thenReturn(subject);
+                return utils;
+            }
+        };
+        return job;
+    }
+
     /**
      * @param command
      * @param session
      * @param expectedAmountOfCalls
-     * @param expectedTimesToClose
-     *            TODO
+     * @param expectedTimesToClose  TODO
      * @throws Exception
      */
     void verifySessionCalls(String command, CommandSession session, int expectedAmountOfCalls,
