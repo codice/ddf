@@ -64,6 +64,8 @@ define([
             this.listenTo(wreqr.vent, 'showWarnings', this.verifyContinue);
             this.listenTo(wreqr.vent, 'saveClaimData', this.saveData);
 
+            this.checkConfig();
+
             this.valObj = this.model.get('value').at(0);
             this.configObj = this.valObj.get('configurations').at(0);
             this.configObj.set("ignoreWarnings", false);
@@ -81,6 +83,14 @@ define([
             }
 
             Backbone.ModelBinder.SetOptions({modelSetOptions: {validate: true}});
+        },
+        checkConfig: function() {
+            if(this.model.get('value').at(0).get('configurations').length === 0) {
+                var configuration = new Service.Configuration();
+                configuration.initializeFromService(this.model.get('value').at(0));
+                configuration.get('properties').set('service.pid',this.model.get('value').at(0).id);
+                this.model.get('value').at(0).get('configurations').add(configuration);
+            }
         },
         onRender: function () {
             var view = this;
