@@ -62,9 +62,11 @@ import ddf.common.test.PostTestConstruct;
 import ddf.common.test.ServiceManager;
 
 /**
- * Abstract integration test with helper methods and configuration at the container level.
+ * Abstract integration test with helper methods and configuration at the container level
  */
 public abstract class AbstractIntegrationTest {
+
+    public static final String TEST_LOGLEVEL_PROPERTY = "org.codice.test.defaultLoglevel";
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(AbstractIntegrationTest.class);
 
@@ -87,10 +89,13 @@ public abstract class AbstractIntegrationTest {
 
     protected static final String RMI_REG_PORT = "1100";
 
-    protected static final String SERVICE_ROOT = "https://localhost:" + HTTPS_PORT + "/services";
+    protected static final String SECURE_ROOT = "https://localhost:";
 
-    protected static final String INSECURE_SERVICE_ROOT =
-            "http://localhost:" + HTTP_PORT + "/services";
+    protected static final String SERVICE_ROOT = SECURE_ROOT + HTTPS_PORT + "/services";
+
+    protected static final String INSECURE_ROOT = "http://localhost:";
+
+    protected static final String INSECURE_SERVICE_ROOT = INSECURE_ROOT + HTTP_PORT + "/services";
 
     protected static final String REST_PATH = SERVICE_ROOT + "/catalog/";
 
@@ -102,12 +107,18 @@ public abstract class AbstractIntegrationTest {
 
     protected static final String CSW_SOURCE_ID = "cswSource";
 
-    protected String logLevel = "";
-
-    public static final String TEST_LOGLEVEL_PROPERTY = "org.codice.test.defaultLoglevel";
+    static {
+        // Make Pax URL use the maven.repo.local setting if present
+        if (System.getProperty("maven.repo.local") != null) {
+            System.setProperty("org.ops4j.pax.url.mvn.localRepository",
+                    System.getProperty("maven.repo.local"));
+        }
+    }
 
     @Rule
     public PaxExamRule paxExamRule = new PaxExamRule(this);
+
+    protected String logLevel = "";
 
     @Inject
     protected BundleContext bundleCtx;
@@ -130,14 +141,6 @@ public abstract class AbstractIntegrationTest {
     private CatalogBundle catalogBundle;
 
     private UrlResourceReaderConfigurator urlResourceReaderConfigurator;
-
-    static {
-        // Make Pax URL use the maven.repo.local setting if present
-        if (System.getProperty("maven.repo.local") != null) {
-            System.setProperty("org.ops4j.pax.url.mvn.localRepository",
-                    System.getProperty("maven.repo.local"));
-        }
-    }
 
     @PostTestConstruct
     public void initFacades() {
@@ -226,8 +229,9 @@ public abstract class AbstractIntegrationTest {
                                 .versionAsInProject()), wrappedBundle(
                         mavenBundle("ddf.test.itests", "test-itests-common").classifier("tests")
                                 .versionAsInProject()).bundleSymbolicName("test-itests-common"),
-                wrappedBundle(mavenBundle("ddf.security", "ddf-security-common")
-                        .versionAsInProject()).bundleSymbolicName("test-security-common"),
+                wrappedBundle(
+                        mavenBundle("ddf.security", "ddf-security-common").versionAsInProject())
+                        .bundleSymbolicName("test-security-common"),
                 mavenBundle("ddf.test.thirdparty", "rest-assured").versionAsInProject(),
                 wrappedBundle(mavenBundle("com.google.guava", "guava").versionAsInProject())
                         .exports("*;version=18.0"));

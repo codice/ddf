@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -13,11 +13,18 @@
  */
 package ddf.catalog.test;
 
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -31,6 +38,9 @@ import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
+
+import com.jayway.restassured.path.json.JsonPath;
+import com.jayway.restassured.response.Response;
 
 import ddf.common.test.BeforeExam;
 import ddf.security.SecurityConstants;
@@ -386,5 +396,60 @@ public class TestSecurity extends AbstractIntegrationTest {
         body = body.replace("CREATED", created);
         body = body.replace("EXPIRES", expires);
         return body;
+    }
+
+    String getKeystoreFilename() {
+        return System.getProperty("javax.net.ssl.keyStore");
+    }
+
+    String getBackupFilename() {
+        return getKeystoreFilename() + ".backup";
+    }
+
+    void getBackupKeystoreFile() throws IOException {
+        Files.copy(Paths.get(getKeystoreFilename()), Paths.get(getBackupFilename()),
+                REPLACE_EXISTING);
+    }
+
+    void restoreKeystoreFile() throws IOException {
+        Files.copy(Paths.get(getBackupFilename()), Paths.get(getKeystoreFilename()),
+                REPLACE_EXISTING);
+    }
+
+    //Purpose is to make sure operations of the security certificate generator are accessible
+    //at runtime. The actual functionality of these operations is proved in unit tests.
+    @Test
+    public void testCertificateGeneratorService() throws Exception {
+        String commonName = "pangalactic";
+        String expectedValue = "CN=" + commonName;
+        String featureName = "security-certificate-generator";
+        String certGenPath = SECURE_ROOT + HTTPS_PORT
+                + "/jolokia/exec/org.codice.ddf.security.certificate.generator.CertificateGenerator:service=certgenerator";
+        getBackupKeystoreFile();
+        try {
+            getServiceManager().startFeature(true, featureName);
+
+            //Test first operation
+            Response response = given().auth().basic("admin", "admin").when()
+                    .get(certGenPath + "/configureDemoCert/" + commonName);
+            String actualValue = JsonPath.from(response.getBody().asString()).getString("value");
+            assertThat(actualValue, equalTo(expectedValue));
+
+            //Test second operation
+            response = given().auth().basic("admin", "admin").when()
+                    .get(certGenPath + "/configureDemoCertWithDefaultHostname");
+
+            String jsonString = response.getBody().asString();
+            JsonPath jsonPath = JsonPath.from(jsonString);
+            //If the key value exists, the return value is well-formatted (i.e. not a stacktrace)
+            assertThat(jsonPath.getString("value"), notNullValue());
+
+            //Make sure an invalid key would return null
+            assertThat(jsonPath.getString("someinvalidkey"), nullValue());
+
+            getServiceManager().stopFeature(false, featureName);
+        } finally {
+            restoreKeystoreFile();
+        }
     }
 }
