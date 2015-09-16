@@ -17,9 +17,7 @@
   http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
 
-    <bean id="demoCertGenerator"
-          class="org.codice.ddf.security.certificate.generator.CertificateGenerator"
-          init-method="init"
-          destroy-method="destroy">
+    <bean id="certGenerator"
+          class="org.codice.org.codice.ddf.security.certificate.generator.CertificateGenerator">
     </bean>
 </blueprint>

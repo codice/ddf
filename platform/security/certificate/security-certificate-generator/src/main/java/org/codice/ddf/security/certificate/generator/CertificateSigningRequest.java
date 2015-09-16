@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.security.certificate.generator;
+package org.codice.ddf.security.certificate.generator;
 
 import java.math.BigInteger;
 import java.security.KeyPair;
@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
  * <p><ul>
  * <li>notAfter - certificate expiration date</li>
  * <li>subjectName - typically a server's FQDN.
- * <li>certificateAuthority - instance of {@link ddf.security.certificate.generator.CertificateAuthority} who will signed this request</li>
+ * <li>certificateAuthority - instance of {@link CertificateAuthority} who will signed this request</li>
  * </ul><p>
  * These values may be optionally set:
  * <p><ul>
