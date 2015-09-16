@@ -243,7 +243,7 @@
             mvn:ddf.security.certificate/security-certificate-adminmodule/${project.version}
         </bundle>
     </feature>
-    <feature name="security-certificate-generation" install="manual"
+    <feature name="security-certificate-generator" install="manual"
              version="${project.version}"
              description="Certificate generator MBean">
         <bundle>
