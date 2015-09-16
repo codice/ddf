@@ -205,6 +205,7 @@ public class IngestCommand extends CatalogCommands {
             console.println();
             String elapsedTime = timeFormatter.print(new Period(start, end).withMillis(0));
             console.printf(" %d file(s) ingested in %s", ingestCount.get(), elapsedTime);
+            console.println();
 
             LOGGER.info("{} file(s) ingested in {} [{} records/sec]", ingestCount.get(),
                     elapsedTime, calculateRecordsPerSecond(ingestCount.get(), start, end));
