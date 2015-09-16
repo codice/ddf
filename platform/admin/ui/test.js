@@ -36,8 +36,6 @@ app.all('/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui
 app.all('/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/listServices', server.mockRequest);
 app.all('/jolokia/read/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/ApplicationTree/', server.mockAppTree);
 app.all('/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/startApplication/*', server.mockStart);
-//app.all('/jolokia/*', server.requestProxy);
-//app.all('/services/*', server.requestProxy);
 
 exports = module.exports = app;
 
