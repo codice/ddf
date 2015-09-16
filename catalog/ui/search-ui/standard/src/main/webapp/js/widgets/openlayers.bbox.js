@@ -54,10 +54,20 @@ define([
             },
 
             modelToRectangle: function (model) {
-                var northWest = ol.proj.transform([model.get('west'), model.get('north')], 'EPSG:4326', properties.projection);
-                var northEast = ol.proj.transform([model.get('east'), model.get('north')], 'EPSG:4326', properties.projection);
-                var southWest = ol.proj.transform([model.get('west'), model.get('south')], 'EPSG:4326', properties.projection);
-                var southEast = ol.proj.transform([model.get('east'), model.get('south')], 'EPSG:4326', properties.projection);
+
+                //ensure that the values are numeric
+                //so that the openlayer projections
+                //do not fail
+                var north  = parseFloat(model.get('north'));
+                var south = parseFloat(model.get('south'));
+                var east = parseFloat(model.get('east'));
+                var west = parseFloat(model.get('west'));
+
+                var northWest = ol.proj.transform([west,north], 'EPSG:4326', properties.projection);
+                var northEast = ol.proj.transform([east,north], 'EPSG:4326', properties.projection);
+                var southWest = ol.proj.transform([west,south], 'EPSG:4326', properties.projection);
+                var southEast = ol.proj.transform([east,south], 'EPSG:4326', properties.projection);
+
                 var coords = [];
                 coords.push(northWest);
                 coords.push(northEast);

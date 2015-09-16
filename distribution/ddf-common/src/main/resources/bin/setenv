@@ -46,8 +46,6 @@ export DDF_HOME
 
 # export JAVA_MIN_MEM # Minimum memory for the JVM
 export JAVA_MAX_MEM=2048M 
-export JAVA_PERM_MEM=128M
-export JAVA_MAX_PERM_MEM=512M
 # export KARAF_HOME # Karaf home folder
 # export KARAF_DATA # Karaf data folder
 # export KARAF_BASE # Karaf base folder
