@@ -39,7 +39,7 @@ import net.opengis.cat.csw.v_2_0_2.TransactionResponseType;
 public interface Csw {
 
     /**
-     * GetCapabilities - HTTP GET
+     * GetCapabilities - HTTP GET 
      *
      * @param request
      * @return
