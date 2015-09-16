@@ -37,7 +37,7 @@ public class GeoNamesLocalIndex implements GeoCoder {
     @Override
     public GeoResult getLocation(final String location) {
         try {
-            List<GeoEntry> topResults = geoEntryQueryable.query(location, 1);
+            final List<GeoEntry> topResults = geoEntryQueryable.query(location, 1);
 
             if (topResults.size() > 0) {
                 final GeoEntry topResult = topResults.get(0);
