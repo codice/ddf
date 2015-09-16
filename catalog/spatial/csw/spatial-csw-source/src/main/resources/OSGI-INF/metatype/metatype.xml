@@ -71,9 +71,6 @@
             required="true" type="String"
             default="identifier"/>
 
-        <AD name="Content Types" id="contentTypeNames" required="false" type="String"
-            cardinality="100" description="The content types that can be found on server"/>
-
         <AD description="Poll Interval to Check if the Source is available (in minutes - minimum 1)."
             name="Poll Interval" id="pollInterval"
             required="true" type="Integer" default="5"/>
@@ -176,9 +173,6 @@
             name="ID maps to" id="identifierMapping"
             required="true" type="String"
             default="identifier"/>
-
-        <AD name="Content Types" id="contentTypeNames" required="false" type="String"
-            cardinality="100" description="The content types that can be found on server"/>
 
         <AD description="Poll Interval to Check if the Source is available (in minutes - minimum 1)."
             name="Poll Interval" id="pollInterval"

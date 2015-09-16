@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -68,8 +69,6 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
-import org.osgi.service.cm.Configuration;
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -147,8 +146,6 @@ public class CswSource extends MaskableImpl
 
     protected static final String PASSWORD_PROPERTY = "password";
 
-    protected static final String CONTENTTYPES_PROPERTY = "contentTypeNames";
-
     protected static final String EFFECTIVE_DATE_MAPPING_PROPERTY = "effectiveDateMapping";
 
     protected static final String CREATED_DATE_MAPPING_PROPERTY = "createdDateMapping";
@@ -214,8 +211,6 @@ public class CswSource extends MaskableImpl
 
     protected CswFilterDelegate cswFilterDelegate;
 
-    protected boolean contentTypeMappingUpdated;
-
     protected Converter cswTransformProvider;
 
     protected String forceSpatialFilter = NO_FORCE_SPATIAL_FILTER;
@@ -230,7 +225,7 @@ public class CswSource extends MaskableImpl
 
     private Set<SourceMonitor> sourceMonitors = new HashSet<SourceMonitor>();
 
-    private Map<String, ContentType> contentTypes;
+    private Map<String, ContentType> contentTypes = new ConcurrentHashMap<>();
 
     private ResourceReader resourceReader;
 
@@ -476,11 +471,6 @@ public class CswSource extends MaskableImpl
         }
         forceSpatialFilter = spatialFilter;
 
-        String[] contentTypeNames = (String[]) configuration.get(CONTENTTYPES_PROPERTY);
-        if (contentTypeNames != null) {
-            setContentTypeNames(Arrays.asList(contentTypeNames));
-        }
-
         String createdProp = (String) configuration.get(CREATED_DATE_MAPPING_PROPERTY);
         if (StringUtils.isNotBlank(createdProp)) {
             cswSourceConfiguration.setCreatedDateMapping(createdProp);
@@ -503,13 +493,13 @@ public class CswSource extends MaskableImpl
             String previousContentTypeMapping = cswSourceConfiguration.getContentTypeMapping();
             LOGGER.debug("{}: Previous content type mapping: {}.", cswSourceConfiguration.getId(),
                     previousContentTypeMapping);
-            contentTypeMappingUpdated = !currentContentTypeMapping
-                    .equals(previousContentTypeMapping);
             currentContentTypeMapping = currentContentTypeMapping.trim();
-            if (contentTypeMappingUpdated) {
+            if (!currentContentTypeMapping
+                    .equals(previousContentTypeMapping)) {
                 LOGGER.debug("{}: The content type has been updated from {} to {}.",
                         cswSourceConfiguration.getId(), previousContentTypeMapping,
                         currentContentTypeMapping);
+                contentTypes.clear();
             }
         } else {
             currentContentTypeMapping = CswRecordMetacardType.CSW_TYPE;
@@ -586,18 +576,6 @@ public class CswSource extends MaskableImpl
     @Override
     public Set<ContentType> getContentTypes() {
         return new HashSet<ContentType>(contentTypes.values());
-    }
-
-    public List<String> getContentTypeNames() {
-        return new ArrayList<String>(contentTypes.keySet());
-    }
-
-    public void setContentTypeNames(List<String> contentTypeNames) {
-        this.contentTypes = new HashMap<String, ContentType>();
-
-        for (String contentType : contentTypeNames) {
-            addContentType(contentType);
-        }
     }
 
     public ResourceReader getResourceReader() {
@@ -1313,94 +1291,21 @@ public class CswSource extends MaskableImpl
             return;
         }
 
-        if (contentTypeMappingUpdated) {
-            LOGGER.debug(
-                    "{}: The content type mapping has been updated. Removing all old content types.",
-                    cswSourceConfiguration.getId());
-            contentTypes.clear();
-        }
-
         for (Result result : response.getResults()) {
             Metacard metacard = result.getMetacard();
             if (metacard != null) {
-                addContentType(metacard.getContentTypeName(), metacard.getContentTypeVersion(),
-                        metacard.getContentTypeNamespace());
-            }
-        }
-
-        Configuration[] managedConfigs = getManagedConfigs();
-        if (managedConfigs != null) {
-
-            for (Configuration managedConfig : managedConfigs) {
-                Dictionary<String, Object> properties = managedConfig.getProperties();
-                Set<String> current = new HashSet<String>(
-                        Arrays.asList((String[]) properties.get(CONTENTTYPES_PROPERTY)));
-
-                if (contentTypeMappingUpdated || (current != null && !current
-                        .containsAll(contentTypes.keySet()))) {
-                    LOGGER.debug("{}: Adding new content types {} for content type mapping: {}.",
-                            cswSourceConfiguration.getId(), contentTypes.toString(),
-                            cswSourceConfiguration.getContentTypeMapping());
-                    properties.put(CONTENTTYPES_PROPERTY,
-                            contentTypes.keySet().toArray(new String[0]));
-                    properties.put(CONTENT_TYPE_MAPPING_PROPERTY,
-                            cswSourceConfiguration.getContentTypeMapping());
-                    try {
-                        LOGGER.debug("{}: Updating CSW Federated Source configuration with {}.",
-                                cswSourceConfiguration.getId(), properties.toString());
-                        managedConfig.update(properties);
-                    } catch (IOException e) {
-                        LOGGER.warn(
-                                "{}: Failed to update managedConfiguration with new contentTypes, Error: {}",
-                                cswSourceConfiguration.getId(), e);
+                final String name = metacard.getContentTypeName();
+                String version = metacard.getContentTypeVersion();
+                final URI namespace = metacard.getContentTypeNamespace();
+                if (!StringUtils.isEmpty(name) && !contentTypes.containsKey(name)) {
+                    if (version == null) {
+                        version = "";
                     }
+                    contentTypes.put(name, new ContentTypeImpl(name, version, namespace));
                 }
             }
         }
-    }
 
-    private Configuration[] getManagedConfigs() {
-        Configuration[] managedConfig = null;
-        ServiceReference configurationAdminReference = context
-                .getServiceReference(ConfigurationAdmin.class.getName());
-        if (configurationAdminReference != null) {
-            ConfigurationAdmin confAdmin = (ConfigurationAdmin) context
-                    .getService(configurationAdminReference);
-            try {
-                managedConfig = confAdmin.listConfigurations(
-                        "(&(" + ID_PROPERTY + "=" + cswSourceConfiguration.getId() + ")" + "("
-                                + CSWURL_PROPERTY + "=" + cswSourceConfiguration.getCswUrl()
-                                + "))");
-            } catch (IOException e) {
-                LOGGER.warn("{}: Failed to capture managedConfig.  Exception: {}",
-                        cswSourceConfiguration.getId(), e);
-            } catch (InvalidSyntaxException e) {
-                LOGGER.warn("{}: Failed to capture managedConfig.  Exception: {}",
-                        cswSourceConfiguration.getId(), e);
-            }
-        }
-
-        if (managedConfig != null) {
-            LOGGER.debug("{}: managedConfig length: {}.", cswSourceConfiguration.getId(),
-                    managedConfig.length);
-        }
-
-        return managedConfig;
-    }
-
-    private boolean addContentType(String name) {
-        return addContentType(name, null, null);
-    }
-
-    private boolean addContentType(String name, String version, URI namespace) {
-        if (!StringUtils.isEmpty(name) && !contentTypes.containsKey(name)) {
-            if (version == null) {
-                version = "";
-            }
-            contentTypes.put(name, new ContentTypeImpl(name, version, namespace));
-            return true;
-        }
-        return false;
     }
 
     public DomainType getParameter(Operation operation, String name) {
@@ -1465,7 +1370,10 @@ public class CswSource extends MaskableImpl
     }
 
     private void registerMetacardTypes() {
-        List<String> contentTypesNames = getContentTypeNames();
+        List<String> contentTypesNames = new ArrayList<>();
+        for (ContentType contentType : getContentTypes()) {
+            contentTypesNames.add(contentType.getName());
+        }
 
         if (!contentTypesNames.isEmpty()) {
             Dictionary<String, Object> metacardTypeProperties = new Hashtable<String, Object>();

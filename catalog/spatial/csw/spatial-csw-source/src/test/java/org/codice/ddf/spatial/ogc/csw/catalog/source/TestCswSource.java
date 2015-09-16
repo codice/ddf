@@ -10,7 +10,7 @@
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- **/
+ */
 package org.codice.ddf.spatial.ogc.csw.catalog.source;
 
 import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
@@ -35,7 +35,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -97,14 +96,14 @@ public class TestCswSource extends TestCswSourceBase {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestCswSource.class);
 
-    private CswTransformProvider mockProvider = mock(CswTransformProvider.class);
-
     private static final String CSW_RECORD_QNAME =
             "{" + CswConstants.CSW_OUTPUT_SCHEMA + "}" + CswConstants.CSW_RECORD_LOCAL_NAME;
 
+    private CswTransformProvider mockProvider = mock(CswTransformProvider.class);
+
     @Test
     public void testParseCapabilities() throws CswException, SecurityServiceException {
-        CswSource source = getCswSource(createMockCsw(), mockContext, new ArrayList<String>());
+        CswSource source = getCswSource(createMockCsw(), mockContext);
 
         assertTrue(source.isAvailable());
         assertEquals(10, source.getContentTypes().size());
@@ -116,12 +115,12 @@ public class TestCswSource extends TestCswSourceBase {
     @Test
     public void testInitialContentList() throws CswException, SecurityServiceException {
 
-        CswSource source = getCswSource(createMockCsw(), mockContext, Arrays.asList("x", "y"));
+        CswSource source = getCswSource(createMockCsw(), mockContext);
 
         assertTrue(source.isAvailable());
-        assertEquals(12, source.getContentTypes().size());
+        assertEquals(10, source.getContentTypes().size());
         Set<ContentType> expected = generateContentType(
-                Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "x", "y"));
+                Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h", "i", "j"));
         assertThat(source.getContentTypes(), is(expected));
     }
 
@@ -144,7 +143,7 @@ public class TestCswSource extends TestCswSourceBase {
         doReturn(mockServiceReference).when(mockRegisteredMetacardType).getReference();
         when(mockServiceReference.getProperty(eq(Metacard.CONTENT_TYPE))).thenReturn(expectedNames);
 
-        CswSource source = getCswSource(mockCsw, mockContext, new ArrayList<String>());
+        CswSource source = getCswSource(mockCsw, mockContext);
 
         assertEquals(10, source.getContentTypes().size());
 
@@ -191,7 +190,7 @@ public class TestCswSource extends TestCswSourceBase {
                 builder.attribute(Metacard.ANY_TEXT).is().like().text(searchPhrase));
         propertyIsLikeQuery.setPageSize(pageSize);
 
-        CswSource cswSource = getCswSource(mockCsw, mockContext, new LinkedList<String>());
+        CswSource cswSource = getCswSource(mockCsw, mockContext);
         cswSource.setCswUrl(URL);
         cswSource.setId(ID);
 
@@ -242,7 +241,7 @@ public class TestCswSource extends TestCswSourceBase {
         SortBy sortBy = new SortByImpl(TITLE, SortOrder.DESCENDING);
         query.setSortBy(sortBy);
 
-        CswSource cswSource = getCswSource(mockCsw, mockContext, new LinkedList<String>());
+        CswSource cswSource = getCswSource(mockCsw, mockContext);
         cswSource.setCswUrl(URL);
         cswSource.setId(ID);
 
@@ -295,7 +294,7 @@ public class TestCswSource extends TestCswSourceBase {
         SortBy sortBy = new SortByImpl(Result.DISTANCE, SortOrder.DESCENDING);
         query.setSortBy(sortBy);
 
-        CswSource cswSource = getCswSource(mockCsw, mockContext, new LinkedList<String>());
+        CswSource cswSource = getCswSource(mockCsw, mockContext);
         cswSource.setCswUrl(URL);
         cswSource.setId(ID);
 
@@ -342,7 +341,7 @@ public class TestCswSource extends TestCswSourceBase {
         SortBy sortBy = new SortByImpl(Result.RELEVANCE, SortOrder.DESCENDING);
         query.setSortBy(sortBy);
 
-        CswSource cswSource = getCswSource(mockCsw, mockContext, new LinkedList<String>());
+        CswSource cswSource = getCswSource(mockCsw, mockContext);
         cswSource.setCswUrl(URL);
         cswSource.setId(ID);
 
@@ -394,7 +393,7 @@ public class TestCswSource extends TestCswSourceBase {
         SortBy sortBy = new SortByImpl(Result.TEMPORAL, SortOrder.DESCENDING);
         query.setSortBy(sortBy);
 
-        CswSource cswSource = getCswSource(mockCsw, mockContext, new LinkedList<String>());
+        CswSource cswSource = getCswSource(mockCsw, mockContext);
         cswSource.setCswUrl(URL);
         cswSource.setId(ID);
 
@@ -449,8 +448,7 @@ public class TestCswSource extends TestCswSourceBase {
                 builder.attribute(Metacard.CONTENT_TYPE).is().text(format));
         propertyIsEqualToQuery.setPageSize(pageSize);
 
-        CswSource cswSource = getCswSource(mockCsw, mockContext, new LinkedList<String>(),
-                CswRecordMetacardType.CSW_FORMAT);
+        CswSource cswSource = getCswSource(mockCsw, mockContext, CswRecordMetacardType.CSW_FORMAT);
         cswSource.setCswUrl(URL);
         cswSource.setId(ID);
 
@@ -506,8 +504,7 @@ public class TestCswSource extends TestCswSourceBase {
         QueryImpl propertyIsEqualToQuery = new QueryImpl(filter);
         propertyIsEqualToQuery.setPageSize(pageSize);
 
-        CswSource cswSource = getCswSource(mockCsw, mockContext, new LinkedList<String>(),
-                CswRecordMetacardType.CSW_FORMAT);
+        CswSource cswSource = getCswSource(mockCsw, mockContext, CswRecordMetacardType.CSW_FORMAT);
         cswSource.setCswUrl(URL);
         cswSource.setId(ID);
 
@@ -580,7 +577,7 @@ public class TestCswSource extends TestCswSourceBase {
         QueryImpl temporalQuery = new QueryImpl(temporalFilter);
         temporalQuery.setPageSize(pageSize);
 
-        CswSource cswSource = getCswSource(mockCsw, mockContext, new LinkedList<String>());
+        CswSource cswSource = getCswSource(mockCsw, mockContext);
         cswSource.setCswUrl(URL);
         cswSource.setId(ID);
 
@@ -678,7 +675,7 @@ public class TestCswSource extends TestCswSourceBase {
         QueryImpl temporalQuery = new QueryImpl(temporalFilter);
         temporalQuery.setPageSize(pageSize);
 
-        CswSource cswSource = getCswSource(mockCsw, mockContext, new LinkedList<String>());
+        CswSource cswSource = getCswSource(mockCsw, mockContext);
         cswSource.setCswUrl(URL);
         cswSource.setId(ID);
 
@@ -708,7 +705,7 @@ public class TestCswSource extends TestCswSourceBase {
         when(mockCsw.getCapabilities(any(GetCapabilitiesRequest.class)))
                 .thenReturn(mockCapabilitiesType);
 
-        CswSource cswSource = getCswSource(mockCsw, mockContext, new ArrayList<String>());
+        CswSource cswSource = getCswSource(mockCsw, mockContext);
         cswSource.setCswUrl(URL);
         cswSource.setId(ID);
         QueryImpl propertyIsLikeQuery = new QueryImpl(
@@ -738,7 +735,7 @@ public class TestCswSource extends TestCswSourceBase {
             fail("Could not configure Mock Remote CSW: " + e.getMessage());
         }
 
-        CswSource cswSource = getCswSource(mockCsw, mockContext, new LinkedList<String>());
+        CswSource cswSource = getCswSource(mockCsw, mockContext);
         cswSource.setCswUrl(URL);
         cswSource.setId(ID);
 
@@ -753,7 +750,7 @@ public class TestCswSource extends TestCswSourceBase {
 
     @Test
     public void testRefresh() throws SecurityServiceException {
-        CswSource cswSource = getCswSource(null, null, Collections.<String>emptyList());
+        CswSource cswSource = getCswSource(null, null);
 
         cswSource.refresh(null);
 
@@ -786,8 +783,8 @@ public class TestCswSource extends TestCswSourceBase {
                 builder.attribute(Metacard.ANY_TEXT).is().like().text(searchPhrase));
         query.setPageSize(pageSize);
 
-        CswSource cswSource = getCswSource(mockCsw, mockContext, new LinkedList<String>(), null,
-                expectedQname.toString(), expectedQname.getPrefix());
+        CswSource cswSource = getCswSource(mockCsw, mockContext, null, expectedQname.toString(),
+                expectedQname.getPrefix());
 
         cswSource.setCswUrl(URL);
         cswSource.setId(ID);
@@ -833,8 +830,7 @@ public class TestCswSource extends TestCswSourceBase {
         query.setPageSize(pageSize);
 
         // Verify passing a null config for qname/prefix falls back to CSW Record
-        CswSource cswSource = getCswSource(mockCsw, mockContext, new LinkedList<String>(), null,
-                null, null);
+        CswSource cswSource = getCswSource(mockCsw, mockContext, null, null, null);
         cswSource.setCswUrl(URL);
         cswSource.setId(ID);
 
@@ -857,8 +853,7 @@ public class TestCswSource extends TestCswSourceBase {
 
     @Test
     public void testCreateResults() throws SecurityServiceException {
-        CswSource cswSource = getCswSource(mockCsw, mockContext, new LinkedList<String>(), null,
-                null, null);
+        CswSource cswSource = getCswSource(mockCsw, mockContext, null, null, null);
         CswRecordCollection recordCollection = new CswRecordCollection();
         final int total = 2;
         List<Metacard> metacards = new ArrayList<Metacard>(total);
@@ -882,9 +877,8 @@ public class TestCswSource extends TestCswSourceBase {
         assertThat(results.get(0).getMetacard().getResourceURI(),
                 is(recordCollection.getCswRecords().get(0).getResourceURI()));
         assertThat(results.get(1).getMetacard().getResourceURI(), is(URI.create(
-                        recordCollection.getCswRecords().get(1)
-                                .getAttribute(Metacard.RESOURCE_DOWNLOAD_URL).getValue()
-                                .toString())));
+                recordCollection.getCswRecords().get(1).getAttribute(Metacard.RESOURCE_DOWNLOAD_URL)
+                        .getValue().toString())));
 
     }
 
@@ -907,14 +901,12 @@ public class TestCswSource extends TestCswSourceBase {
         return cswSourceConfiguration;
     }
 
-    private CswSource getCswSource(Csw csw, BundleContext context, List<String> contentTypes)
-            throws SecurityServiceException {
-        return getCswSource(csw, context, contentTypes, null);
+    private CswSource getCswSource(Csw csw, BundleContext context) throws SecurityServiceException {
+        return getCswSource(csw, context, null);
     }
 
-    private CswSource getCswSource(Csw csw, BundleContext context, List<String> contentTypes,
-            String contentMapping, String queryTypeQName, String queryTypePrefix)
-            throws SecurityServiceException {
+    private CswSource getCswSource(Csw csw, BundleContext context, String contentMapping,
+            String queryTypeQName, String queryTypePrefix) throws SecurityServiceException {
 
         CswSourceConfiguration cswSourceConfiguration = getStandardCswSourceConfiguration(
                 contentMapping, queryTypeQName, queryTypePrefix);
@@ -935,7 +927,6 @@ public class TestCswSource extends TestCswSourceBase {
         cswSource.setFilterAdapter(new GeotoolsFilterAdapterImpl());
         cswSource.setFilterBuilder(builder);
         cswSource.setContext(context);
-        cswSource.setContentTypeNames(contentTypes);
         cswSource.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
         cswSource.setAvailabilityTask(mockAvailabilityTask);
         cswSource.configureCswSource();
@@ -943,10 +934,10 @@ public class TestCswSource extends TestCswSourceBase {
         return cswSource;
     }
 
-    private CswSource getCswSource(Csw csw, BundleContext context, List<String> contentTypes,
-            String contentMapping) throws SecurityServiceException {
+    private CswSource getCswSource(Csw csw, BundleContext context, String contentMapping)
+            throws SecurityServiceException {
 
-        return getCswSource(csw, context, contentTypes, contentMapping, CSW_RECORD_QNAME,
+        return getCswSource(csw, context, contentMapping, CSW_RECORD_QNAME,
                 CswConstants.CSW_NAMESPACE_PREFIX);
     }
 
