@@ -104,7 +104,7 @@ public class GeoNamesWebService implements GeoCoder {
                                 Long population = (Long) firstResult.get("population");
                                 String adminCode = (String) firstResult.get("fcode");
 
-                                geoResult = GeoResultCreator
+                                return GeoResultCreator
                                         .createGeoResult((String) firstResult.get("name"), lat, lon,
                                                 adminCode, population);
                             }
@@ -114,6 +114,6 @@ public class GeoNamesWebService implements GeoCoder {
             }
         }
 
-        return geoResult;
+        return null;
     }
 }

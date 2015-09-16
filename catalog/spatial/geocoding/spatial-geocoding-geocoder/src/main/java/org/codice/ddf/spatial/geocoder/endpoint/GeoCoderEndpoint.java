@@ -41,16 +41,6 @@ public class GeoCoderEndpoint {
     @GET
     public Response getLocation(@QueryParam("jsonp") String jsonp,
             @QueryParam("query") String query) {
-        Response response;
-
-        GeoResult geoResult = geoCoder.getLocation(query);
-
-        DirectPosition directPosition = geoResult.getPoint().getDirectPosition();
-        double[] coords = directPosition.getCoordinate();
-
-        double longitude = coords[0];
-        double latitude = coords[1];
-
         JSONObject jsonObject = new JSONObject();
         JSONArray resourceSets = new JSONArray();
         JSONObject resourceSet = new JSONObject();
@@ -58,27 +48,37 @@ public class GeoCoderEndpoint {
         resourceSets.add(resourceSet);
         JSONArray resources = new JSONArray();
         resourceSet.put("resources", resources);
-        JSONObject resource = new JSONObject();
-        JSONArray bbox = new JSONArray();
-        List<Point> points = geoResult.getBbox();
-        DirectPosition upperCorner = points.get(0).getDirectPosition();
-        DirectPosition lowerCorner = points.get(1).getDirectPosition();
-        bbox.add(upperCorner.getCoordinate()[1]);
-        bbox.add(upperCorner.getCoordinate()[0]);
-        bbox.add(lowerCorner.getCoordinate()[1]);
-        bbox.add(lowerCorner.getCoordinate()[0]);
-        resource.put("bbox", bbox);
-        JSONObject point = new JSONObject();
-        point.put("type", "Point");
-        JSONArray coordinates = new JSONArray();
-        coordinates.add(latitude);
-        coordinates.add(longitude);
-        point.put("coordinates", coordinates);
-        resource.put("point", point);
-        resource.put("name", geoResult.getFullName());
-        resources.add(resource);
 
-        response = Response.ok(jsonp + "(" + jsonObject.toJSONString() + ")").build();
-        return response;
+        GeoResult geoResult = geoCoder.getLocation(query);
+
+        if (geoResult != null) {
+            DirectPosition directPosition = geoResult.getPoint().getDirectPosition();
+            double[] coords = directPosition.getCoordinate();
+
+            double longitude = coords[0];
+            double latitude = coords[1];
+
+            JSONObject resource = new JSONObject();
+            JSONArray bbox = new JSONArray();
+            List<Point> points = geoResult.getBbox();
+            DirectPosition upperCorner = points.get(0).getDirectPosition();
+            DirectPosition lowerCorner = points.get(1).getDirectPosition();
+            bbox.add(upperCorner.getCoordinate()[1]);
+            bbox.add(upperCorner.getCoordinate()[0]);
+            bbox.add(lowerCorner.getCoordinate()[1]);
+            bbox.add(lowerCorner.getCoordinate()[0]);
+            resource.put("bbox", bbox);
+            JSONObject point = new JSONObject();
+            point.put("type", "Point");
+            JSONArray coordinates = new JSONArray();
+            coordinates.add(latitude);
+            coordinates.add(longitude);
+            point.put("coordinates", coordinates);
+            resource.put("point", point);
+            resource.put("name", geoResult.getFullName());
+            resources.add(resource);
+        }
+
+        return Response.ok(jsonp + "(" + jsonObject.toJSONString() + ")").build();
     }
 }
