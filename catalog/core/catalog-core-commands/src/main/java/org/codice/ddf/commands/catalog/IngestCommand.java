@@ -62,7 +62,7 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 
 /**
- * Custom Karaf command for ingesting records into the Catalog.
+ * Custom Karaf command for ingesting records into the Catalog. 
  *
  */
 @Command(scope = CatalogCommands.NAMESPACE, name = "ingest", description = "Ingests Metacards into the Catalog.")
@@ -151,7 +151,7 @@ public class IngestCommand extends CatalogCommands {
             }
 
             /**
-             * Batch size is always set to 1, when using an Ingest Failure Directory.  If a batch size is specified by the user, issue
+             * Batch size is always set to 1, when using an Ingest Failure Directory.  If a batch size is specified by the user, issue 
              * a warning stating that a batch size of 1 will be used.
              */
             if (batchSize != DEFAULT_BATCH_SIZE) {
@@ -204,7 +204,7 @@ public class IngestCommand extends CatalogCommands {
 
             console.println();
             String elapsedTime = timeFormatter.print(new Period(start, end).withMillis(0));
-            console.printf(" %d file(s) ingested in %s", ingestCount.get(), elapsedTime);
+            console.printf(" %d file(s) ingested in %s %n", ingestCount.get(), elapsedTime);
 
             LOGGER.info("{} file(s) ingested in {} [{} records/sec]", ingestCount.get(),
                     elapsedTime, calculateRecordsPerSecond(ingestCount.get(), start, end));
