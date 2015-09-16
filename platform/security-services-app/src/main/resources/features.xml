@@ -228,6 +228,7 @@
              description="Keystore editor MBean and associated web application.">
         <bundle>mvn:ddf.security.certificate/security-certificate-keystoreeditor/${project.version}</bundle>
         <bundle>mvn:ddf.security.certificate/security-certificate-adminmodule/${project.version}</bundle>
+        <bundle>mvn:ddf.security.certificate/security-certificate-generator/${project.version}</bundle>
     </feature>
 
     <feature name="security-anonymous" install="manual" version="${project.version}"

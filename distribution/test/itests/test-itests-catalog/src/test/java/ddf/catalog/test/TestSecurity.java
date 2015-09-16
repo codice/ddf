@@ -18,6 +18,10 @@ import static org.hamcrest.Matchers.equalTo;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
 
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -77,6 +81,8 @@ public class TestSecurity extends AbstractIntegrationTest {
                     + "</soap:Envelope>";
 
     protected static final String SDK_SOAP_CONTEXT = "/services/sdk/SoapService";
+    private static final String CERT_GEN_PATH = "https://localhost:" + HTTPS_PORT
+            + "/jolokia/exec/org.codice.ddf.security.certificate.generator.CertificateGenerator:service=demo-certificate-generation-service";
 
     @BeforeExam
     public void beforeTest() throws Exception {
@@ -386,5 +392,36 @@ public class TestSecurity extends AbstractIntegrationTest {
         body = body.replace("CREATED", created);
         body = body.replace("EXPIRES", expires);
         return body;
+    }
+
+    String getFilename() {
+        return System.getProperty("javax.net.ssl.keyStore");
+    }
+
+    String getBackupFilename() {
+        return getFilename() + ".backup";
+    }
+
+    void backupKeystoreFile() throws IOException {
+        Files.copy(Paths.get(getFilename()), Paths.get(getBackupFilename()), REPLACE_EXISTING);
+    }
+
+    void restoreKeystoreFile() throws IOException {
+        Files.copy(Paths.get(getBackupFilename()), Paths.get(getFilename()), REPLACE_EXISTING);
+    }
+
+    @Test
+    public void testCertificateGeneratorService() throws Exception {
+
+        backupKeystoreFile();
+        try {
+            getServiceManager().startFeature(true, "security-certificate-generator");
+            given().auth().basic("admin", "admin").when()
+                    .get(CERT_GEN_PATH + "/installCertificate/mydomain").then().log().all()
+                    .assertThat().statusCode(equalTo(200));
+            getServiceManager().stopFeature(false, "security-certificate-generator");
+        } finally {
+            restoreKeystoreFile();
+        }
     }
 }
