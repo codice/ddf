@@ -29,7 +29,7 @@
         <AD
                 description="Specifies the style of the Header and Footer."
                 name="Style" id="style" required="true" type="String"
-                default="green">
+                default="Green">
             <Option label="Green" value="green"/>
             <Option label="Blue" value="blue"/>
             <Option label="Red" value="red"/>
@@ -44,7 +44,7 @@
         <AD
                 description="Specifies the text color of the Header and Footer."
                 name="Text Color" id="textColor" required="true" type="String"
-                default="banner-text-white">
+                default="White">
             <Option label="Green" value="banner-text-green"/>
             <Option label="Blue" value="banner-text-blue"/>
             <Option label="Red" value="banner-text-red"/>
