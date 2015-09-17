@@ -81,7 +81,7 @@ import ddf.catalog.util.impl.TemporalResultComparator;
  * @see org.opengis.filter.sort.SortBy
  */
 public class CachingFederationStrategy implements FederationStrategy, PostIngestPlugin {
-
+g
     /**
      * The default comparator for sorting by {@link ddf.catalog.data.Result.RELEVANCE}, {@link org.opengis.filter.sort.SortOrder.DESCENDING}
      */

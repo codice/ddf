@@ -12,7 +12,8 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>ddf</groupId>
@@ -53,9 +54,9 @@
     <properties>
 
         <!--  default URL properties -->
-        <ddf.scm.connection.url />
-        <snapshots.repository.url />
-        <reports.repository.url />
+        <ddf.scm.connection.url/>
+        <snapshots.repository.url/>
+        <reports.repository.url/>
 
         <!-- Must MANUALLY update this if the ddf/support project's version changes -->
         <ddf.support.version>2.3.4-SNAPSHOT</ddf.support.version>
@@ -79,7 +80,7 @@
         <lux.version>1.0.1</lux.version>
         <opengis.bundle.version>${org.geotools.version}_1</opengis.bundle.version>
         <org.geotools.bundle.version>${org.geotools.version}_1</org.geotools.bundle.version>
-        <org.geotools.version>8.4</org.geotools.version>
+        <org.geotools.version>13.1</org.geotools.version>
         <org.slf4j.version>1.7.1</org.slf4j.version>
         <powermock.version>1.5.4</powermock.version>
         <tika.version>1.7</tika.version>
@@ -373,7 +374,8 @@
                         </execution>
                     </executions>
                     <configuration>
-                        <bottom><![CDATA[This work is licensed under a <a href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License<a>.]]> </bottom>
+                        <bottom>
+                            <![CDATA[This work is licensed under a <a href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License<a>.]]> </bottom>
                         <failOnError>false</failOnError>
                         <aggregate>true</aggregate>
                         <show>protected</show>
@@ -399,7 +401,9 @@
                             <id>default-report</id>
                             <phase>prepare-package</phase>
                             <configuration>
-                                <outputDirectory>${project.build.directory}/site/${project.report.output.directory}/jacoco/</outputDirectory>
+                                <outputDirectory>
+                                    ${project.build.directory}/site/${project.report.output.directory}/jacoco/
+                                </outputDirectory>
                             </configuration>
                             <goals>
                                 <goal>report</goal>
@@ -554,11 +558,11 @@
         <profile>
             <id>documentation</id>
             <activation>
-    	       <file>
-                  <exists>${basedir}/src/assembly/bin.xml</exists>
-               </file>
-	    </activation>
-		<properties>
+                <file>
+                    <exists>${basedir}/src/assembly/bin.xml</exists>
+                </file>
+            </activation>
+            <properties>
                 <asciidoctor.maven.plugin.version>1.5.2</asciidoctor.maven.plugin.version>
                 <packaging>pom</packaging>
                 <module>docs</module>
@@ -577,26 +581,26 @@
                     </snapshots>
                 </repository>
             </repositories>
-                <dependencies>
-                    <dependency>
-                        <groupId>rubygems</groupId>
-                        <artifactId>asciidoctor-diagram</artifactId>
-                        <version>1.2.1</version>
-                        <type>gem</type>
-                        <scope>provided</scope>
-                        <exclusions>
-                            <exclusion>
-                                <groupId>rubygems</groupId>
-                                <artifactId>asciidoctor</artifactId>
-                            </exclusion>
-                        </exclusions>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.asciidoctor</groupId>
-                        <artifactId>asciidoctorj</artifactId>
-                        <version>1.5.2</version>
-                    </dependency>
-                </dependencies>
+            <dependencies>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>asciidoctor-diagram</artifactId>
+                    <version>1.2.1</version>
+                    <type>gem</type>
+                    <scope>provided</scope>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>rubygems</groupId>
+                            <artifactId>asciidoctor</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+                <dependency>
+                    <groupId>org.asciidoctor</groupId>
+                    <artifactId>asciidoctorj</artifactId>
+                    <version>1.5.2</version>
+                </dependency>
+            </dependencies>
             <build>
                 <defaultGoal>process-resources</defaultGoal>
                 <pluginManagement>
@@ -688,9 +692,9 @@
                                         </requires>
                                         <!-- WARNING callout bullets don't yet work with CodeRay -->
                                         <attributes>
-                                            <pagenums />
-                                            <toc />
-                                            <idprefix />
+                                            <pagenums/>
+                                            <toc/>
+                                            <idprefix/>
                                             <idseparator>-</idseparator>
                                         </attributes>
                                     </configuration>
@@ -768,7 +772,7 @@
                                                 <file>${project.build.directory}/docs/pdf/Managing.pdf</file>
                                                 <type>pdf</type>
                                                 <classifier>Managing</classifier>
-                                            </artifact>             
+                                            </artifact>
                                         </artifacts>
                                     </configuration>
                                 </execution>
@@ -868,8 +872,10 @@
                                 <phase>pre-site</phase>
                                 <configuration>
                                     <failOnError>false</failOnError>
-                                    <outputDirectory>${project.build.directory}/${project.report.output.directory}/</outputDirectory>
-                                    <reportOutputDirectory>${project.reporting.outputDirectory}/${project.report.output.directory}/
+                                    <outputDirectory>${project.build.directory}/${project.report.output.directory}/
+                                    </outputDirectory>
+                                    <reportOutputDirectory>
+                                        ${project.reporting.outputDirectory}/${project.report.output.directory}/
                                     </reportOutputDirectory>
                                     <destDir>api</destDir>
                                 </configuration>
@@ -919,7 +925,8 @@
                                             <version>${ddf.support.version}</version>
                                             <type>jar</type>
                                             <overWrite>true</overWrite>
-                                            <outputDirectory>${project.build.directory}/target/classes/</outputDirectory>
+                                            <outputDirectory>${project.build.directory}/target/classes/
+                                            </outputDirectory>
                                         </artifactItem>
                                     </artifactItems>
                                     <excludes>META-INF</excludes>
@@ -933,7 +940,8 @@
                         <artifactId>findbugs-maven-plugin</artifactId>
                         <version>3.0.1</version>
                         <configuration>
-                            <excludeFilterFile>${project.build.directory}/target/classes/findbugs-exclude.xml</excludeFilterFile>
+                            <excludeFilterFile>${project.build.directory}/target/classes/findbugs-exclude.xml
+                            </excludeFilterFile>
                         </configuration>
                         <executions>
                             <execution>
