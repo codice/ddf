@@ -33,78 +33,76 @@ import java.util.Set;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.karaf.jaas.boot.principal.RolePrincipal;
 import org.apache.shiro.subject.PrincipalCollection;
+import org.junit.Rule;
 import org.junit.Test;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.rule.PowerMockRule;
 
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
 
-public class SecurityUtilsTest {
+@PrepareForTest(FrameworkUtil.class)
+public class SecurityTest {
+
+    @Rule
+    public PowerMockRule rule = new PowerMockRule();
 
     @Test
     public void testGetSubjectNoSecurityManager() throws Exception {
-        SecurityUtils securityUtils = new SecurityUtils();
-        Subject subject = securityUtils.getSubject("username", "password");
+        configureMockForSecurityManager(null);
+        Subject subject = Security.getSubject("username", "password");
         assertThat(subject, is(equalTo(null)));
     }
 
     @Test
     public void testGetSubjectInvalidUsernamePassword() throws Exception {
-        final SecurityManager sm = mock(SecurityManager.class);
-        Subject smSubject = mock(Subject.class);
+        SecurityManager sm = mock(SecurityManager.class);
         when(sm.getSubject(any())).thenThrow(new SecurityServiceException("Error"));
 
-        SecurityUtils securityUtils = new SecurityUtils() {
-            @Override
-            public SecurityManager getSecurityManager() {
-                return sm;
-            }
-        };
+        configureMockForSecurityManager(sm);
 
-        Subject subject = securityUtils.getSubject("username", "password");
+        Subject subject = Security.getSubject("username", "password");
         assertThat(subject, is(equalTo(null)));
     }
 
     @Test
     public void testGetSubject() throws Exception {
-        final SecurityManager sm = mock(SecurityManager.class);
+        SecurityManager sm = mock(SecurityManager.class);
         Subject smSubject = mock(Subject.class);
         when(sm.getSubject(any())).thenReturn(smSubject);
 
-        SecurityUtils securityUtils = new SecurityUtils() {
-            @Override
-            public SecurityManager getSecurityManager() {
-                return sm;
-            }
-        };
+        configureMockForSecurityManager(sm);
 
-        Subject subject = securityUtils.getSubject("username", "password");
+        Subject subject = Security.getSubject("username", "password");
         assertThat(subject, not(equalTo(null)));
     }
 
     @Test
     public void testTokenAboutToExpire() throws Exception {
-        SecurityUtils securityUtils = new SecurityUtils();
         Subject subject = mock(Subject.class);
         SecurityAssertion assertion = mock(SecurityAssertion.class);
         PrincipalCollection pc = mock(PrincipalCollection.class);
         SecurityToken st = mock(SecurityToken.class);
         when(st.isAboutToExpire(anyLong())).thenReturn(true);
 
-        assertThat(securityUtils.tokenAboutToExpire(null), equalTo(true));
-        assertThat(securityUtils.tokenAboutToExpire(subject), equalTo(true));
+        assertThat(Security.tokenAboutToExpire(null), equalTo(true));
+        assertThat(Security.tokenAboutToExpire(subject), equalTo(true));
         when(subject.getPrincipals()).thenReturn(pc);
-        assertThat(securityUtils.tokenAboutToExpire(subject), equalTo(true));
+        assertThat(Security.tokenAboutToExpire(subject), equalTo(true));
         when(pc.oneByType(any(Class.class))).thenReturn(assertion);
         when(assertion.getSecurityToken()).thenReturn(st);
-        assertThat(securityUtils.tokenAboutToExpire(subject), equalTo(true));
+        assertThat(Security.tokenAboutToExpire(subject), equalTo(true));
         when(st.isAboutToExpire(anyLong())).thenReturn(false);
-        assertThat(securityUtils.tokenAboutToExpire(subject), equalTo(false));
+        assertThat(Security.tokenAboutToExpire(subject), equalTo(false));
     }
 
     @Test
@@ -113,8 +111,7 @@ public class SecurityUtilsTest {
         javax.security.auth.Subject.doAs(subject, new PrivilegedAction<Object>() {
             @Override
             public Object run() {
-                SecurityUtils securityUtils = new SecurityUtils();
-                assertThat(securityUtils.javaSubjectHasAdminRole(), equalTo(false));
+                assertThat(Security.javaSubjectHasAdminRole(), equalTo(false));
                 return null;
             }
         });
@@ -130,8 +127,7 @@ public class SecurityUtilsTest {
         javax.security.auth.Subject.doAs(subject, new PrivilegedAction<Object>() {
             @Override
             public Object run() {
-                SecurityUtils securityUtils = new SecurityUtils();
-                assertThat(securityUtils.javaSubjectHasAdminRole(), equalTo(true));
+                assertThat(Security.javaSubjectHasAdminRole(), equalTo(true));
                 return null;
             }
         });
@@ -144,16 +140,10 @@ public class SecurityUtilsTest {
 
         Dictionary<String, Object> props = new Hashtable<>();
         props.put("host", "server");
-        final BundleContext bc = getBundleContext(props);
 
-        SecurityUtils securityUtils = new SecurityUtils() {
-            @Override
-            public BundleContext getBundleContext() {
-                return bc;
-            }
-        };
+        configurMocksForBundleContext(props);
 
-        assertThat(securityUtils.getSystemSubject(), not(equalTo(null)));
+        assertThat(Security.getSystemSubject(), not(equalTo(null)));
     }
 
     @Test
@@ -163,16 +153,20 @@ public class SecurityUtilsTest {
 
         Dictionary<String, Object> props = new Hashtable<>();
         props.put("host", "bad-alias");
-        final BundleContext bc = getBundleContext(props);
+        configurMocksForBundleContext(props);
 
-        SecurityUtils securityUtils = new SecurityUtils() {
-            @Override
-            public BundleContext getBundleContext() {
-                return bc;
-            }
-        };
+        assertThat(Security.getSystemSubject(), equalTo(null));
+    }
 
-        assertThat(securityUtils.getSystemSubject(), equalTo(null));
+    private void configureMockForSecurityManager(SecurityManager sm) {
+        PowerMockito.mockStatic(FrameworkUtil.class);
+        Bundle bundle = mock(Bundle.class);
+        when(FrameworkUtil.getBundle(any(Class.class))).thenReturn(bundle);
+        BundleContext bc = mock(BundleContext.class);
+        when(bundle.getBundleContext()).thenReturn(bc);
+        ServiceReference ref = mock(ServiceReference.class);
+        when(bc.getServiceReference(any(Class.class))).thenReturn(ref);
+        when(bc.getService(ref)).thenReturn(sm);
     }
 
     private void setSystemProps() throws Exception {
@@ -183,9 +177,13 @@ public class SecurityUtilsTest {
         System.setProperty("ddf.home", "/ddf/home");
     }
 
-    private BundleContext getBundleContext(Dictionary<String, Object> props) throws Exception {
+    private void configurMocksForBundleContext(Dictionary<String, Object> props) throws Exception {
         Subject subject = mock(Subject.class);
+        PowerMockito.mockStatic(FrameworkUtil.class);
+        Bundle bundle = mock(Bundle.class);
+        when(FrameworkUtil.getBundle(any(Class.class))).thenReturn(bundle);
         BundleContext bc = mock(BundleContext.class);
+        when(bundle.getBundleContext()).thenReturn(bc);
         ServiceReference adminRef = mock(ServiceReference.class);
         ConfigurationAdmin configAdmin = mock(ConfigurationAdmin.class);
         Configuration config = mock(Configuration.class);
@@ -198,6 +196,5 @@ public class SecurityUtilsTest {
         when(bc.getService(securityRef)).thenReturn(securityManager);
         when(bc.getServiceReference(ConfigurationAdmin.class)).thenReturn(adminRef);
         when(bc.getServiceReference(SecurityManager.class)).thenReturn(securityRef);
-        return bc;
     }
 }

@@ -37,34 +37,23 @@ import ddf.security.permission.KeyValuePermission;
 public class IngestPluginTest {
 
     @Test
-    public void testParsePermissionsEmptyString() throws Exception {
+    public void testParseEmptyPermissions() throws Exception {
         IngestPlugin ingestPlugin = new IngestPlugin();
-        ingestPlugin.setPermissionsString("");
+        ingestPlugin.setPermissionStrings(new String[]{});
         assertThat(ingestPlugin.getPermissions().size(), equalTo(0));
     }
 
     @Test
-    public void testParsePermissionsNullString() throws Exception {
+    public void testParseNullPermissions() throws Exception {
         IngestPlugin ingestPlugin = new IngestPlugin();
-        ingestPlugin.setPermissionsString(null);
+        ingestPlugin.setPermissionStrings(null);
         assertThat(ingestPlugin.getPermissions().size(), equalTo(0));
     }
 
     @Test
     public void testParsePermissionsSingleCondition() throws Exception {
         IngestPlugin ingestPlugin = new IngestPlugin();
-        ingestPlugin.setPermissionsString("{role=admin}");
-        List<KeyValuePermission> perms = ingestPlugin.getPermissions();
-        assertThat(perms.size(), equalTo(1));
-        assertThat(perms.get(0).getKey(), is(equalTo("role")));
-        assertThat(perms.get(0).getValues().size(), equalTo(1));
-        assertThat(perms.get(0).getValues().get(0), is(equalTo("admin")));
-    }
-
-    @Test
-    public void testParsePermissionsConditionWidthoutBrackets() throws Exception {
-        IngestPlugin ingestPlugin = new IngestPlugin();
-        ingestPlugin.setPermissionsString("role=admin");
+        ingestPlugin.setPermissionStrings(new String[]{"role=admin"});
         List<KeyValuePermission> perms = ingestPlugin.getPermissions();
         assertThat(perms.size(), equalTo(1));
         assertThat(perms.get(0).getKey(), is(equalTo("role")));
@@ -75,7 +64,7 @@ public class IngestPluginTest {
     @Test
     public void testParsePermissionsMultiCondition() throws Exception {
         IngestPlugin ingestPlugin = new IngestPlugin();
-        ingestPlugin.setPermissionsString("{role=admin;name=myname}");
+        ingestPlugin.setPermissionStrings(new String[]{"role=admin", "name=myname"});
         List<KeyValuePermission> perms = ingestPlugin.getPermissions();
         assertThat(perms.size(), equalTo(2));
         assertThat(perms.get(0).getKey(), is(equalTo("role")));
@@ -89,7 +78,7 @@ public class IngestPluginTest {
     @Test
     public void testParsePermissionsBadFormat() throws Exception {
         IngestPlugin ingestPlugin = new IngestPlugin();
-        ingestPlugin.setPermissionsString("{role->admin");
+        ingestPlugin.setPermissionStrings(new String[] {"role->admin"});
         List<KeyValuePermission> perms = ingestPlugin.getPermissions();
         assertThat(perms.size(), equalTo(0));
     }
@@ -97,7 +86,7 @@ public class IngestPluginTest {
     @Test
     public void testCreateProcessGoodSubject() throws Exception {
         IngestPlugin ingestPlugin = new IngestPlugin();
-        ingestPlugin.setPermissionsString("role=admin");
+        ingestPlugin.setPermissionStrings(new String[]{"role=admin"});
 
         Subject subject = mock(Subject.class);
         when(subject.isPermitted(any(Permission.class))).thenReturn(true);
@@ -106,12 +95,14 @@ public class IngestPluginTest {
         CreateRequest request = mock(CreateRequest.class);
         CreateRequest response = ingestPlugin.process(request);
         assertThat(response, not(equalTo(null)));
+
+        ThreadContext.unbindSubject();
     }
 
     @Test
     public void testUpdateProcessGoodSubject() throws Exception {
         IngestPlugin ingestPlugin = new IngestPlugin();
-        ingestPlugin.setPermissionsString("role=admin");
+        ingestPlugin.setPermissionStrings(new String[]{"role=admin"});
 
         Subject subject = mock(Subject.class);
         when(subject.isPermitted(any(Permission.class))).thenReturn(true);
@@ -120,12 +111,14 @@ public class IngestPluginTest {
         UpdateRequest request = mock(UpdateRequest.class);
         UpdateRequest response = ingestPlugin.process(request);
         assertThat(response, not(equalTo(null)));
+
+        ThreadContext.unbindSubject();
     }
 
     @Test
     public void testDeleteProcessGoodSubject() throws Exception {
         IngestPlugin ingestPlugin = new IngestPlugin();
-        ingestPlugin.setPermissionsString("role=admin");
+        ingestPlugin.setPermissionStrings(new String[]{"role=admin"});
 
         Subject subject = mock(Subject.class);
         when(subject.isPermitted(any(Permission.class))).thenReturn(true);
@@ -134,12 +127,14 @@ public class IngestPluginTest {
         DeleteRequest request = mock(DeleteRequest.class);
         DeleteRequest response = ingestPlugin.process(request);
         assertThat(response, not(equalTo(null)));
+
+        ThreadContext.unbindSubject();
     }
 
     @Test(expected = StopProcessingException.class)
     public void testCreateProcessBadSubject() throws Exception {
         IngestPlugin ingestPlugin = new IngestPlugin();
-        ingestPlugin.setPermissionsString("role=admin");
+        ingestPlugin.setPermissionStrings(new String[]{"role=admin"});
 
         Subject subject = mock(Subject.class);
         when(subject.isPermitted(any(Permission.class))).thenReturn(false);
@@ -147,12 +142,14 @@ public class IngestPluginTest {
 
         CreateRequest request = mock(CreateRequest.class);
         CreateRequest response = ingestPlugin.process(request);
+
+        ThreadContext.unbindSubject();
     }
 
     @Test(expected = StopProcessingException.class)
     public void testUpdateProcessBadSubject() throws Exception {
         IngestPlugin ingestPlugin = new IngestPlugin();
-        ingestPlugin.setPermissionsString("role=admin");
+        ingestPlugin.setPermissionStrings(new String[]{"role=admin"});
 
         Subject subject = mock(Subject.class);
         when(subject.isPermitted(any(Permission.class))).thenReturn(false);
@@ -160,12 +157,14 @@ public class IngestPluginTest {
 
         UpdateRequest request = mock(UpdateRequest.class);
         UpdateRequest response = ingestPlugin.process(request);
+
+        ThreadContext.unbindSubject();
     }
 
     @Test(expected = StopProcessingException.class)
     public void testDeleteProcessBadSubject() throws Exception {
         IngestPlugin ingestPlugin = new IngestPlugin();
-        ingestPlugin.setPermissionsString("role=admin");
+        ingestPlugin.setPermissionStrings(new String[]{"role=admin"});
 
         Subject subject = mock(Subject.class);
         when(subject.isPermitted(any(Permission.class))).thenReturn(false);
@@ -173,5 +172,7 @@ public class IngestPluginTest {
 
         DeleteRequest request = mock(DeleteRequest.class);
         DeleteRequest response = ingestPlugin.process(request);
+
+        ThreadContext.unbindSubject();
     }
 }

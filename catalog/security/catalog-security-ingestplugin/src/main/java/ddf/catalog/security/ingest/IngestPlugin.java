@@ -18,18 +18,14 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.subject.Subject;
-
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.PreIngestPlugin;
 import ddf.catalog.plugin.StopProcessingException;
+import ddf.security.common.util.Security;
 import ddf.security.permission.CollectionPermission;
-import ddf.security.permission.KeyValueCollectionPermission;
 import ddf.security.permission.KeyValuePermission;
 
 /**
@@ -38,25 +34,31 @@ import ddf.security.permission.KeyValuePermission;
  */
 public class IngestPlugin implements PreIngestPlugin {
 
-    private String permissionsString;
+    private String[] permissionStrings;
 
     private List<KeyValuePermission> permissions = new ArrayList<>();
 
     public CreateRequest process(CreateRequest createRequest)
             throws PluginExecutionException, StopProcessingException {
-        authenticateUser(CollectionPermission.CREATE_ACTION);
+        if (!Security.authenticateCurrentUser(CollectionPermission.CREATE_ACTION, permissions)) {
+            throw new StopProcessingException("User is not authorized to create records");
+        }
         return createRequest;
     }
 
     public UpdateRequest process(UpdateRequest updateRequest)
             throws PluginExecutionException, StopProcessingException {
-        authenticateUser(CollectionPermission.UPDATE_ACTION);
+        if (!Security.authenticateCurrentUser(CollectionPermission.UPDATE_ACTION, permissions)) {
+            throw new StopProcessingException("User is not authorized to update records");
+        }
         return updateRequest;
     }
 
     public DeleteRequest process(DeleteRequest deleteRequest)
             throws PluginExecutionException, StopProcessingException {
-        authenticateUser(CollectionPermission.DELETE_ACTION);
+        if (!Security.authenticateCurrentUser(CollectionPermission.DELETE_ACTION, permissions)) {
+            throw new StopProcessingException("User is not authorized to delete records");
+        }
         return deleteRequest;
     }
 
@@ -65,8 +67,8 @@ public class IngestPlugin implements PreIngestPlugin {
      *
      * @return
      */
-    public String getPermissionsString() {
-        return this.permissionsString;
+    public String[] getPermissionStrings() {
+        return this.permissionStrings;
     }
 
     /**
@@ -81,50 +83,22 @@ public class IngestPlugin implements PreIngestPlugin {
     /**
      * Setter used by the ui to set the permissions/attributes
      *
-     * @param permString
+     * @param permStrings
      */
-    public void setPermissionsString(String permString) {
-        this.permissionsString = permString;
-        parsePermissionsFromString(this.permissionsString);
+    public void setPermissionStrings(String[] permStrings) {
+        this.permissionStrings = permStrings;
+        parsePermissionsFromString(permStrings);
     }
 
     /**
-     * Authenticates the current Subject against the configured ingest permissions.
-     * If the subject doesn't have the right credentials than a StopProcessingException
-     * will be thrown
+     * Parses a string  array representation of permission attributes
      *
-     * @throws StopProcessingException
+     * @param permStrings String array of permissions to parse
      */
-    private void authenticateUser(String action) throws StopProcessingException {
-
-        Subject subject = SecurityUtils.getSubject();
-        KeyValueCollectionPermission kvcp = new KeyValueCollectionPermission(action, permissions);
-        if (subject == null || !subject.isPermitted(kvcp)) {
-            throw new StopProcessingException(
-                    "User is not authorized to create, update or delete records");
-        }
-    }
-
-    /**
-     * Parses a string representation of permission attributes the
-     * same way as the web policy context manager
-     *
-     * @param permString String to parse
-     */
-    private void parsePermissionsFromString(String permString) {
-        permissions.clear();
-        if (StringUtils.isNotEmpty(permString)) {
-            if (permString.startsWith("{") && permString.endsWith("}")) {
-                if (permString.length() == 2) {
-                    permString = "";
-                } else {
-                    permString = permString.substring(1, permString.length() - 1);
-                }
-            }
-            String[] attributesArray = permString.split(";");
-
-            for (String attribute : attributesArray) {
-                String[] parts = attribute.split("=");
+    private void parsePermissionsFromString(String[] permStrings) {
+        if (permStrings != null) {
+            for (String perm : permStrings) {
+                String[] parts = perm.split("=");
                 if (parts.length == 2) {
                     String attributeName = parts[0];
                     String attributeValue = parts[1];

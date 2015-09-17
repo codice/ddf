@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -20,7 +20,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
@@ -92,6 +91,7 @@ import org.xml.sax.SAXException;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
 import ddf.security.common.audit.SecurityLogger;
+import ddf.security.common.util.Security;
 import ddf.security.encryption.EncryptionService;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
@@ -442,7 +442,7 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
     }
 
     private Subject getSubject() {
-        if (tokenAboutToExpire(cachedAnonymousSubject)) {
+        if (Security.tokenAboutToExpire(cachedAnonymousSubject)) {
             AnonymousAuthenticationToken token = new AnonymousAuthenticationToken(
                     BaseAuthenticationToken.DEFAULT_REALM);
             LOGGER.debug("Getting new Anonymous user token");
@@ -458,17 +458,6 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
             LOGGER.debug("Using cached Anonymous user token");
         }
         return cachedAnonymousSubject;
-    }
-
-    private boolean tokenAboutToExpire(Subject subject) {
-        boolean tokenAboutToExpire = true;
-        if ((null != subject) && (null != subject.getPrincipal()) && (null != subject
-                .getPrincipals().oneByType(SecurityAssertion.class)) && (!subject.getPrincipals()
-                .oneByType(SecurityAssertion.class).getSecurityToken()
-                .isAboutToExpire(TimeUnit.MINUTES.toSeconds(1)))) {
-            tokenAboutToExpire = false;
-        }
-        return tokenAboutToExpire;
     }
 
     private void createIncludeTimestamp(SOAPFactory soapFactory, SOAPElement securityHeader) {

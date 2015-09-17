@@ -15,7 +15,6 @@
 package org.codice.ddf.security.filter.authorization;
 
 import java.io.IOException;
-import java.util.Collection;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -28,13 +27,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.codice.ddf.security.policy.context.ContextPolicyManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import ddf.security.permission.CollectionPermission;
-import ddf.security.permission.KeyValueCollectionPermission;
 
 /**
  * Handler that implements authorization checking for contexts.
@@ -44,8 +41,6 @@ public class AuthorizationFilter implements Filter {
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthorizationFilter.class);
 
     private final ContextPolicyManager contextPolicyManager;
-
-    private boolean shouldActionAuthorize;
 
     /**
      * Default constructor
@@ -69,7 +64,7 @@ public class AuthorizationFilter implements Filter {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
 
-        org.apache.shiro.subject.Subject subject = null;
+        Subject subject = null;
 
         if (request.getAttribute(ContextPolicy.NO_AUTH_POLICY) != null) {
             LOGGER.debug("NO_AUTH_POLICY header was found, skipping authorization filter.");
@@ -82,36 +77,24 @@ public class AuthorizationFilter implements Filter {
             }
 
             boolean permitted = true;
-            if (shouldActionAuthorize) {
-                KeyValueCollectionPermission permission = new KeyValueCollectionPermission(
-                        httpRequest.getRequestURI());
-                permitted = (subject != null) && subject.isPermitted(permission);
+
+            String path = StringUtils.isNotBlank(httpRequest.getContextPath()) ?
+                    httpRequest.getContextPath() :
+                    httpRequest.getServletPath() + StringUtils
+                            .defaultString(httpRequest.getPathInfo());
+            if (StringUtils.isEmpty(path)) {
+                path = httpRequest.getRequestURI();
+            }
+
+            ContextPolicy policy = contextPolicyManager.getContextPolicy(path);
+
+            if (policy != null && subject != null) {
+                permitted = subject.isPermitted(policy.getAllowedAttributePermissions());
             } else {
-                String path = StringUtils.isNotBlank(httpRequest.getContextPath()) ?
-                        httpRequest.getContextPath() :
-                        httpRequest.getServletPath() + StringUtils
-                                .defaultString(httpRequest.getPathInfo());
-                if (StringUtils.isEmpty(path)) {
-                    path = httpRequest.getRequestURI();
-                }
-
-                ContextPolicy policy = contextPolicyManager.getContextPolicy(path);
-
-                if (policy != null && subject != null) {
-                    Collection<CollectionPermission> permissions = policy
-                            .getAllowedAttributePermissions();
-                    for (CollectionPermission permission : permissions) {
-                        if (!subject.isPermitted(permission)) {
-                            permitted = false;
-                            break;
-                        }
-                    }
-                } else {
-                    LOGGER.warn(
-                            "Unable to determine policy for path {}. User is not permitted to continue. Check policy configuration!",
-                            path);
-                    permitted = false;
-                }
+                LOGGER.warn(
+                        "Unable to determine policy for path {}. User is not permitted to continue. Check policy configuration!",
+                        path);
+                permitted = false;
             }
 
             if (!permitted) {
@@ -143,10 +126,6 @@ public class AuthorizationFilter implements Filter {
     @Override
     public void destroy() {
         LOGGER.debug("Destroying AuthZ filter.");
-    }
-
-    public void setShouldActionAuthorize(boolean actionAuthorize) {
-        this.shouldActionAuthorize = actionAuthorize;
     }
 
 }

@@ -13,23 +13,19 @@
  */
 package org.codice.ddf.security.filter.authorization;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.Principal;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -51,7 +47,6 @@ import org.codice.ddf.security.policy.context.ContextPolicyManager;
 import org.codice.ddf.security.policy.context.attributes.ContextAttributeMapping;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
@@ -104,6 +99,7 @@ public class AuthorizationFilterTest {
         } catch (ServletException e) {
             fail(e.getMessage());
         }
+        ThreadContext.unbindSubject();
     }
 
     @Test
@@ -139,6 +135,7 @@ public class AuthorizationFilterTest {
         } catch (ServletException e) {
             fail(e.getMessage());
         }
+        ThreadContext.unbindSubject();
     }
 
     @Test
@@ -204,31 +201,6 @@ public class AuthorizationFilterTest {
         }
     }
 
-    @Test
-    public void testActionAuthorization() throws Exception {
-        String serviceURI = "/services/catalog/query";
-        FilterChain filterChain = mock(FilterChain.class);
-        ContextPolicyManager contextPolicyManager = mock(ContextPolicyManager.class);
-        AuthorizationFilter authorizationFilter = new AuthorizationFilter(contextPolicyManager);
-        authorizationFilter.setShouldActionAuthorize(true);
-
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        when(request.getRequestURI()).thenReturn(serviceURI);
-        HttpServletResponse response = mock(HttpServletResponse.class);
-
-        Subject subject = mock(Subject.class);
-        when(subject.isPermitted(any(CollectionPermission.class))).thenReturn(true);
-
-        ThreadContext.bind(subject);
-
-        authorizationFilter.doFilter(request, response, filterChain);
-
-        ArgumentCaptor<CollectionPermission> permission = ArgumentCaptor
-                .forClass(CollectionPermission.class);
-        verify(subject).isPermitted(permission.capture());
-        assertEquals(serviceURI, permission.getValue().getAction());
-    }
-
     private class TestContextPolicy implements ContextPolicy {
 
         @Override
@@ -242,11 +214,10 @@ public class AuthorizationFilterTest {
         }
 
         @Override
-        public Collection<CollectionPermission> getAllowedAttributePermissions() {
-            List<CollectionPermission> permissions = new ArrayList<CollectionPermission>();
-            permissions.add(new KeyValueCollectionPermission(getContextPath(),
-                    new KeyValuePermission(getContextPath(), Arrays.asList("permission"))));
-            return permissions;
+        public CollectionPermission getAllowedAttributePermissions() {
+
+            return new KeyValueCollectionPermission(getContextPath(),
+                    new KeyValuePermission(getContextPath(), Arrays.asList("permission")));
         }
 
         @Override

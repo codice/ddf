@@ -28,8 +28,9 @@ import java.util.concurrent.Callable;
 
 import org.apache.felix.service.command.CommandProcessor;
 import org.apache.felix.service.command.CommandSession;
-import org.apache.shiro.subject.ExecutionException;
 import org.junit.Test;
+import org.mockito.Matchers;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
@@ -37,8 +38,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.security.Subject;
-import ddf.security.common.util.SecurityUtils;
-import ddf.security.impl.SubjectImpl;
 
 /**
  * Tests the {@link CommandJob} class.
@@ -156,22 +155,18 @@ public class TestCommandJob {
     private CommandJob getCommandJob() {
         CommandJob job = new CommandJob() {
             @Override
-            public SecurityUtils getDdfSubjectUtils() {
-                SecurityUtils utils = mock(SecurityUtils.class);
-                org.apache.shiro.mgt.SecurityManager sm = mock(
-                        org.apache.shiro.mgt.SecurityManager.class);
-                Subject subject = new SubjectImpl(null, false, "localhost", null, false, sm) {
-                    @Override
-                    public <V> V execute(Callable<V> callable) throws ExecutionException {
-                        try {
-                            return callable.call();
-                        } catch (Throwable t) {
-                            throw new ExecutionException(t);
-                        }
-                    }
-                };
-                when(utils.getSystemSubject()).thenReturn(subject);
-                return utils;
+            public Subject getSystemSubject() {
+                Subject subject = mock(Subject.class);
+                when(subject.execute(Matchers.<Callable<Object>>any()))
+                        .thenAnswer(new Answer<Object>() {
+                            @Override
+                            public Object answer(InvocationOnMock invocation) throws Throwable {
+                                Callable<Object> callable = (Callable<Object>) invocation
+                                        .getArguments()[0];
+                                return callable.call();
+                            }
+                        });
+                return subject;
             }
         };
         return job;

@@ -22,7 +22,7 @@ import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.security.common.util.SecurityUtils;
+import ddf.security.common.util.Security;
 
 /**
  * SubjectCommands provides the ability to change what subject (user) the extending command is run as.
@@ -36,8 +36,6 @@ public abstract class SubjectCommands extends CommandSupport {
     @Option(name = "--user", required = false, aliases = {
             "-u"}, multiValued = false, description = "Run command as a different user")
     protected String user = null;
-
-    protected SecurityUtils subjectUtils = new SecurityUtils();
 
     protected abstract Object executeWithSubject() throws Exception;
 
@@ -60,7 +58,7 @@ public abstract class SubjectCommands extends CommandSupport {
         Subject subject = null;
         if (!StringUtils.isEmpty(user)) {
             String password = getLine("Password for " + user + ": ", false);
-            subject = subjectUtils.getSubject(user, password);
+            subject = Security.getSubject(user, password);
         } else {
             try {
                 //check for a shiro subject
@@ -71,13 +69,13 @@ public abstract class SubjectCommands extends CommandSupport {
 
             if (subject == null) {
                 //verify that java subject has the correct roles (admin)
-                if (!subjectUtils.javaSubjectHasAdminRole()) {
+                if (!Security.javaSubjectHasAdminRole()) {
                     printErrorMessage(
                             "Current user doesn't have sufficient privileges to run this command");
                     return null;
                 }
                 //set subject to system subject since they have admin
-                subject = subjectUtils.getSystemSubject();
+                subject = Security.getSystemSubject();
             }
         }
 

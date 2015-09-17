@@ -37,7 +37,7 @@ public class CollectionPermission implements Permission {
 
     public static final String DELETE_ACTION = "delete";
 
-    public static final String NO_ACTION = "no-action";
+    public static final String UNKNOWN_ACTION = "unknown-action";
 
     protected static final String PERMISSION_START_MSG = "Permission [";
 

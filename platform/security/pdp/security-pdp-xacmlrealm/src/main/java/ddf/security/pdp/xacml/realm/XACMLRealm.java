@@ -123,7 +123,7 @@ public class XACMLRealm extends AbstractAuthorizingRealm {
             for (int i = 0; i < permissions.size(); i++) {
                 curPermission = permissions.get(i);
                 if (curPermission instanceof KeyValuePermission) {
-                    curPermission = new KeyValueCollectionPermission(CollectionPermission.NO_ACTION,
+                    curPermission = new KeyValueCollectionPermission(CollectionPermission.UNKNOWN_ACTION,
                             (KeyValuePermission) curPermission);
                 }
                 if (curPermission instanceof KeyValueCollectionPermission) {

@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.shiro.authz.Permission;
 import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.codice.ddf.security.policy.context.attributes.ContextAttributeMapping;
 
@@ -59,11 +60,13 @@ public class Policy implements ContextPolicy {
     }
 
     @Override
-    public Collection<CollectionPermission> getAllowedAttributePermissions() {
-        List<CollectionPermission> permissions = new ArrayList<CollectionPermission>();
+    public CollectionPermission getAllowedAttributePermissions() {
+        List<Permission> perms = new ArrayList<>();
         for (ContextAttributeMapping mapping : attributeMappings) {
-            permissions.add(mapping.getAttributePermission());
+            perms.add(mapping.getAttributePermission());
         }
+        CollectionPermission permissions = new CollectionPermission(getContextPath());
+        permissions.addAll(perms);
         return permissions;
     }
 

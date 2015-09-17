@@ -30,7 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.security.Subject;
-import ddf.security.common.util.SecurityUtils;
+import ddf.security.common.util.Security;
 
 /**
  * Executes Felix/Karaf commands when called as a Quartz {@link Job}
@@ -48,15 +48,17 @@ public class CommandJob implements Job {
 
     @Override
     public void execute(final JobExecutionContext context) throws JobExecutionException {
-        Subject subject = getDdfSubjectUtils().getSystemSubject();
+        Subject subject = getSystemSubject();
         if (subject != null) {
-            subject.execute(new Callable() {
+            subject.execute(new Callable<Object>() {
                 @Override
                 public Object call() throws Exception {
                     doExecute(context);
                     return null;
                 }
             });
+        } else {
+            LOGGER.warn("Could not execute command. Could not get subject to run command");
         }
     }
 
@@ -109,8 +111,8 @@ public class CommandJob implements Job {
 
     }
 
-    public SecurityUtils getDdfSubjectUtils() {
-        return new SecurityUtils();
+    public Subject getSystemSubject() {
+        return Security.getSystemSubject();
     }
 
     private CommandProcessor getCommandProcessor() {

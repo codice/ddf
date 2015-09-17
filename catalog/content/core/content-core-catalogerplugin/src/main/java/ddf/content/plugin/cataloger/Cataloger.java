@@ -19,7 +19,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import org.apache.shiro.util.ThreadContext;
 import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
@@ -35,8 +34,7 @@ import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.content.plugin.PluginExecutionException;
-import ddf.security.Subject;
-import ddf.security.common.util.SecurityUtils;
+import ddf.security.common.util.Security;
 
 /**
  * Cataloger provides the create, update, and delete capabilities for entries in the Metadata
@@ -53,8 +51,6 @@ public class Cataloger {
     private static XLogger logger = new XLogger(LoggerFactory.getLogger(Cataloger.class));
 
     private CatalogFramework catalogFramework;
-
-    private SecurityUtils securityUtils = new SecurityUtils();
 
     /**
      * @param catalogFramework the parent framework for this Cataloger
@@ -79,9 +75,9 @@ public class Cataloger {
             logger.debug("Creating catalog CreateRequest with metacard  (ID = " + metacard.getId()
                     + ")");
             final CreateRequestImpl catalogCreateRequest = new CreateRequestImpl(metacard);
-            Callable callable = new Callable() {
+            Callable<String> callable = new Callable<String>() {
                 @Override
-                public Object call() throws Exception {
+                public String call() throws Exception {
                     String id = null;
                     try {
                         logger.debug("Calling catalog framework");
@@ -95,11 +91,7 @@ public class Cataloger {
                             Metacard createdMetacard = createdMetacards.get(0);
                             id = createdMetacard.getId();
                         }
-                    } catch (IngestException e) {
-                        String msg = CREATE_WARNING_MSG + "\n" + e.getMessage();
-                        logger.warn(msg, e);
-                        throw new PluginExecutionException(msg, e);
-                    } catch (SourceUnavailableException e) {
+                    } catch (IngestException | SourceUnavailableException e) {
                         String msg = CREATE_WARNING_MSG + "\n" + e.getMessage();
                         logger.warn(msg, e);
                         throw new PluginExecutionException(msg, e);
@@ -109,7 +101,7 @@ public class Cataloger {
             };
 
             try {
-                catalogId = runCallableWithSubject(callable);
+                catalogId = Security.runWithSystemSubjectFallback(callable);
             } catch (Exception e) {
                 String msg = CREATE_WARNING_MSG + "\n" + e.getMessage();
                 logger.warn(msg, e);
@@ -144,9 +136,9 @@ public class Cataloger {
             final UpdateRequestImpl catalogUpdateRequest = new UpdateRequestImpl(productUris,
                     metacards);
 
-            Callable callable = new Callable() {
+            Callable<String> callable = new Callable<String>() {
                 @Override
-                public Object call() throws Exception {
+                public String call() throws Exception {
                     String id = null;
                     try {
                         logger.debug("Calling catalog framework");
@@ -159,11 +151,7 @@ public class Cataloger {
                             id = updatedMetacard.getNewMetacard().getId();
                             logger.debug("updatedCatalogId = " + id);
                         }
-                    } catch (IngestException e) {
-                        String msg = UPDATE_WARNING_MSG + "\n" + e.getMessage();
-                        logger.warn(msg, e);
-                        throw new PluginExecutionException(msg, e);
-                    } catch (SourceUnavailableException e) {
+                    } catch (IngestException | SourceUnavailableException e) {
                         String msg = UPDATE_WARNING_MSG + "\n" + e.getMessage();
                         logger.warn(msg, e);
                         throw new PluginExecutionException(msg, e);
@@ -173,7 +161,7 @@ public class Cataloger {
             };
 
             try {
-                updatedCatalogId = runCallableWithSubject(callable);
+                updatedCatalogId = Security.runWithSystemSubjectFallback(callable);
             } catch (Exception e) {
                 String msg = UPDATE_WARNING_MSG + "\n" + e.getMessage();
                 logger.warn(msg, e);
@@ -206,9 +194,9 @@ public class Cataloger {
 
             final DeleteRequestImpl catalogDeleteRequest = new DeleteRequestImpl(uri);
 
-            Callable callable = new Callable() {
+            Callable<String> callable = new Callable<String>() {
                 @Override
-                public Object call() throws Exception {
+                public String call() throws Exception {
                     String id = null;
                     try {
                         logger.debug("Calling catalog framework");
@@ -222,11 +210,7 @@ public class Cataloger {
                             id = deletedMetacard.getId();
                             logger.debug("deletedCatalogId = " + id);
                         }
-                    } catch (IngestException e) {
-                        String msg = DELETE_WARNING_MSG + "\n" + e.getMessage();
-                        logger.warn(msg, e);
-                        throw new PluginExecutionException(msg, e);
-                    } catch (SourceUnavailableException e) {
+                    } catch (IngestException | SourceUnavailableException e) {
                         String msg = DELETE_WARNING_MSG + "\n" + e.getMessage();
                         logger.warn(msg, e);
                         throw new PluginExecutionException(msg, e);
@@ -236,7 +220,7 @@ public class Cataloger {
             };
 
             try {
-                deletedCatalogId = runCallableWithSubject(callable);
+                deletedCatalogId = Security.runWithSystemSubjectFallback(callable);
             } catch (Exception e) {
                 String msg = DELETE_WARNING_MSG + "\n" + e.getMessage();
                 logger.warn(msg, e);
@@ -249,19 +233,4 @@ public class Cataloger {
 
         return deletedCatalogId;
     }
-
-    public String runCallableWithSubject(Callable callable) throws Exception {
-        //if there is no security manager then SecurityUtils.getSubject() will error out
-        //so get the system subject and use that instead
-        if (ThreadContext.getSecurityManager() == null) {
-            Subject subject = securityUtils.getSystemSubject();
-            if (subject != null) {
-                return (String) subject.execute(callable);
-            }
-        } else {
-            return (String) callable.call();
-        }
-        return null;
-    }
-
 }

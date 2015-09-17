@@ -32,8 +32,8 @@ import org.apache.shiro.authz.permission.RolePermissionResolver;
 import org.apache.shiro.authz.permission.WildcardPermission;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.CollectionUtils;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
 
 import ddf.security.common.audit.SecurityLogger;
 import ddf.security.permission.CollectionPermission;
@@ -83,8 +83,7 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
      */
     public static final String ACCESS_ROLE_LIST = "accessRoleList";
 
-    private static final XLogger LOGGER = new XLogger(
-            LoggerFactory.getLogger(SimpleAuthzRealm.class));
+    private static final Logger LOGGER = LoggerFactory.getLogger(SimpleAuthzRealm.class);
 
     private static final String ACCESS_DENIED_MSG = "User not authorized";
 
@@ -240,50 +239,53 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
         }
         if (!CollectionUtils.isEmpty(perms)) {
             if (permission instanceof KeyValuePermission) {
-                permission = new KeyValueCollectionPermission(CollectionPermission.NO_ACTION,
+                permission = new KeyValueCollectionPermission(CollectionPermission.UNKNOWN_ACTION,
                         (KeyValuePermission) permission);
+                LOGGER.warn("No action associated with permissions");
+                LOGGER.debug(
+                        "Should not execute subject.isPermitted with KeyValuePermission. Instead create a KeyValueCollectionPermission with an action.");
             }
             if (permission != null && permission instanceof KeyValueCollectionPermission) {
-                List<KeyValuePermission> metacardPermissions = ((KeyValueCollectionPermission) permission)
-                        .getKeyValuePermissionList();
+                KeyValueCollectionPermission kvcp = (KeyValueCollectionPermission) permission;
+                List<KeyValuePermission> keyValuePermissions = kvcp.getKeyValuePermissionList();
                 List<KeyValuePermission> matchOnePermissions = new ArrayList<KeyValuePermission>();
                 List<KeyValuePermission> matchAllPermissions = new ArrayList<KeyValuePermission>();
 
-                for (KeyValuePermission metacardPermission : metacardPermissions) {
-                    String metacardKey = metacardPermission.getKey();
-                    // user specificied this metacard key in the match all list - remap key
+                for (KeyValuePermission keyValuePermission : keyValuePermissions) {
+                    String metacardKey = keyValuePermission.getKey();
+                    // user specificied this key in the match all list - remap key
                     if (matchAllMap.containsKey(metacardKey)) {
                         if (SecurityLogger.isDebugEnabled()) {
                             SecurityLogger.logDebug(
-                                    "Mapping metacard key " + metacardKey + " to " + matchAllMap
+                                    "Mapping key " + metacardKey + " to " + matchAllMap
                                             .get(metacardKey));
                         }
                         KeyValuePermission kvp = new KeyValuePermission(
-                                matchAllMap.get(metacardKey), metacardPermission.getValues());
+                                matchAllMap.get(metacardKey), keyValuePermission.getValues());
                         matchAllPermissions.add(kvp);
-                        // user specified this metacard key in the match one list - remap key
+                        // user specified this key in the match one list - remap key
                     } else if (matchOneMap.containsKey(metacardKey)) {
                         if (SecurityLogger.isDebugEnabled()) {
                             SecurityLogger.logDebug(
-                                    "Mapping metacard key " + metacardKey + " to " + matchOneMap
+                                    "Mapping key " + metacardKey + " to " + matchOneMap
                                             .get(metacardKey));
                         }
                         KeyValuePermission kvp = new KeyValuePermission(
-                                matchOneMap.get(metacardKey), metacardPermission.getValues());
+                                matchOneMap.get(metacardKey), keyValuePermission.getValues());
                         matchOnePermissions.add(kvp);
-                        // this metacard key was not specified in either - default to match all with the
+                        // this key was not specified in either - default to match all with the
                         // same key value
                     } else {
-                        matchAllPermissions.add(metacardPermission);
+                        matchAllPermissions.add(keyValuePermission);
                     }
                 }
 
                 CollectionPermission subjectAllCollection = new CollectionPermission(
-                        CollectionPermission.NO_ACTION, perms);
+                        CollectionPermission.UNKNOWN_ACTION, perms);
                 KeyValueCollectionPermission matchAllCollection = new KeyValueCollectionPermission(
-                        CollectionPermission.NO_ACTION, matchAllPermissions);
+                        kvcp.getAction(), matchAllPermissions);
                 KeyValueCollectionPermission matchOneCollection = new KeyValueCollectionPermission(
-                        CollectionPermission.NO_ACTION, matchOnePermissions);
+                        kvcp.getAction(), matchOnePermissions);
 
                 matchAllCollection = isPermittedByExtensionAll(subjectAllCollection,
                         matchAllCollection);

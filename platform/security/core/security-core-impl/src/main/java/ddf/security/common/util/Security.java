@@ -27,9 +27,13 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Dictionary;
+import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.karaf.jaas.boot.principal.RolePrincipal;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.util.ThreadContext;
 import org.codice.ddf.security.handler.api.PKIAuthenticationToken;
 import org.codice.ddf.security.handler.api.PKIAuthenticationTokenFactory;
 import org.codice.ddf.security.handler.api.UPAuthenticationToken;
@@ -44,24 +48,20 @@ import org.slf4j.LoggerFactory;
 
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
+import ddf.security.permission.KeyValueCollectionPermission;
+import ddf.security.permission.KeyValuePermission;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
 
-public class SecurityUtils {
+public class Security {
 
     private static final RolePrincipal ADMIN_ROLE = new RolePrincipal("admin");
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SecurityUtils.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Security.class);
 
     private static Subject cachedSystemSubject;
 
-    private static Object lock = new Object();
-
-    public SecurityUtils() {
-
-    }
-
-    public Subject getSubject(String username, String password) {
+    public static Subject getSubject(String username, String password) {
         UPAuthenticationToken token = new UPAuthenticationToken(username, password);
         SecurityManager securityManager = getSecurityManager();
         if (securityManager != null) {
@@ -74,18 +74,26 @@ public class SecurityUtils {
         return null;
     }
 
-    public boolean tokenAboutToExpire(Subject subject) {
-        boolean tokenAboutToExpire = true;
-        if ((null != subject) && (null != subject.getPrincipals()) && (null != subject
+    /**
+     * If the subjects security token is going to expire in the next minute return true otherwise
+     * returns false
+     *
+     * @param subject
+     * @return
+     */
+    public static boolean tokenAboutToExpire(Subject subject) {
+        return !((null != subject) && (null != subject.getPrincipals()) && (null != subject
                 .getPrincipals().oneByType(SecurityAssertion.class)) && (!subject.getPrincipals()
                 .oneByType(SecurityAssertion.class).getSecurityToken()
-                .isAboutToExpire(TimeUnit.MINUTES.toSeconds(1)))) {
-            tokenAboutToExpire = false;
-        }
-        return tokenAboutToExpire;
+                .isAboutToExpire(TimeUnit.MINUTES.toSeconds(1))));
     }
 
-    public boolean javaSubjectHasAdminRole() {
+    /**
+     * Returns true if the java subject exists and has the admin role. Returns false otherwise.
+     *
+     * @return
+     */
+    public static boolean javaSubjectHasAdminRole() {
         javax.security.auth.Subject subject = javax.security.auth.Subject
                 .getSubject(AccessController.getContext());
         if (subject != null) {
@@ -94,7 +102,55 @@ public class SecurityUtils {
         return false;
     }
 
-    public Subject getSystemSubject() {
+    /**
+     * Runs the callable in the current thread. If no subject is available it will try to run
+     * the callable as the system subject.
+     * Only call this method if using the system subject is the correct action when no other
+     * subject exists.
+     *
+     * @param callable The callable to run
+     * @return
+     * @throws Exception
+     */
+    public static  <V> V runWithSystemSubjectFallback(Callable<V> callable) throws Exception {
+        //if there is no security manager then SecurityUtils.getSubject() will error out
+        //so get the system subject and use that instead
+        if (ThreadContext.getSecurityManager() == null) {
+            Subject subject = getSystemSubject();
+            if (subject != null) {
+                return subject.execute(callable);
+            }
+        } else {
+            return callable.call();
+        }
+        return null;
+    }
+
+    /**
+     * Returns true if the current subject is implied by the action/permissions passed in. Otherwise
+     * returns false. Requires there to be a shiro subject in the current ThreadContext
+     *
+     * @param action
+     * @param permissions
+     * @return
+     */
+    public static boolean authenticateCurrentUser(String action,
+            List<KeyValuePermission> permissions) {
+        if (ThreadContext.getSubject() != null || ThreadContext.getSecurityManager() != null) {
+            org.apache.shiro.subject.Subject subject = SecurityUtils.getSubject();
+            KeyValueCollectionPermission kvcp = new KeyValueCollectionPermission(action,
+                    permissions);
+            return (subject != null && subject.isPermitted(kvcp));
+        }
+        return false;
+    }
+
+    /**
+     * Returns the subject associated with this system. Uses a cached subject since the subject
+     * will not change between calls.
+     * @return
+     */
+    public static synchronized Subject getSystemSubject() {
 
         if (!tokenAboutToExpire(cachedSystemSubject)) {
             return cachedSystemSubject;
@@ -127,19 +183,17 @@ public class SecurityUtils {
         if (pkiToken != null) {
             SecurityManager securityManager = getSecurityManager();
             if (securityManager != null) {
-                synchronized (lock) {
-                    try {
-                        cachedSystemSubject = securityManager.getSubject(pkiToken);
-                    } catch (SecurityServiceException sse) {
-                        LOGGER.error("Unable to request subject for system user.", sse);
-                    }
+                try {
+                    cachedSystemSubject = securityManager.getSubject(pkiToken);
+                } catch (SecurityServiceException sse) {
+                    LOGGER.error("Unable to request subject for system user.", sse);
                 }
             }
         }
         return cachedSystemSubject;
     }
 
-    public SecurityManager getSecurityManager() {
+    public static SecurityManager getSecurityManager() {
         BundleContext context = getBundleContext();
         if (context != null) {
             ServiceReference securityManagerRef = context
@@ -150,21 +204,21 @@ public class SecurityUtils {
         return null;
     }
 
-    public BundleContext getBundleContext() {
-        Bundle bundle = FrameworkUtil.getBundle(SecurityUtils.class);
+    public static BundleContext getBundleContext() {
+        Bundle bundle = FrameworkUtil.getBundle(Security.class);
         if (bundle != null) {
             return bundle.getBundleContext();
         }
         return null;
     }
 
-    public PKIAuthenticationTokenFactory createPKITokenFactory() {
+    public static PKIAuthenticationTokenFactory createPKITokenFactory() {
         PKIAuthenticationTokenFactory pkiTokenFactory = new PKIAuthenticationTokenFactory();
         pkiTokenFactory.init();
         return pkiTokenFactory;
     }
 
-    private String getCertificatAlias() {
+    private static String getCertificatAlias() {
         BundleContext context = getBundleContext();
         if (context != null) {
             ServiceReference configAdminRef = context.getServiceReference(ConfigurationAdmin.class);
@@ -184,7 +238,7 @@ public class SecurityUtils {
         return null;
     }
 
-    private KeyStore getSystemKeyStore() {
+    private static KeyStore getSystemKeyStore() {
         KeyStore keyStore;
         try {
             keyStore = KeyStore.getInstance(System.getProperty("javax.net.ssl.keyStoreType"));

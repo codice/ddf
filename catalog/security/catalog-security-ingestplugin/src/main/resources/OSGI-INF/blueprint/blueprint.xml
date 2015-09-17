@@ -16,7 +16,11 @@
     <bean id="ingestPlugin" class="ddf.catalog.security.ingest.IngestPlugin">
         <cm:managed-properties persistent-id="ddf.catalog.security.ingest.IngestPlugin"
                                update-strategy="container-managed" />
-        <property name="permissionsString" value="{http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=anonymous}"/>
+        <property name="permissionStrings">
+            <array>
+                <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=anonymous</value>
+            </array>
+        </property>
     </bean>
 
     <service ref="ingestPlugin" auto-export="interfaces" ranking="1" />

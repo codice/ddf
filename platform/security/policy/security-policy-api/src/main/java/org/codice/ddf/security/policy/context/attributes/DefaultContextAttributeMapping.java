@@ -15,8 +15,6 @@ package org.codice.ddf.security.policy.context.attributes;
 
 import java.util.Arrays;
 
-import ddf.security.permission.CollectionPermission;
-import ddf.security.permission.KeyValueCollectionPermission;
 import ddf.security.permission.KeyValuePermission;
 
 /**
@@ -30,7 +28,7 @@ public class DefaultContextAttributeMapping implements ContextAttributeMapping {
 
     private String context;
 
-    private CollectionPermission permissionCollection;
+    private KeyValuePermission keyValuePermission;
 
     public DefaultContextAttributeMapping(String context, String attributeName,
             String attributeValue) {
@@ -60,12 +58,12 @@ public class DefaultContextAttributeMapping implements ContextAttributeMapping {
     }
 
     @Override
-    public CollectionPermission getAttributePermission() {
-        if (permissionCollection == null) {
-            permissionCollection = new KeyValueCollectionPermission(context,
-                    new KeyValuePermission(attributeName, Arrays.asList(attributeValue)));
+    public KeyValuePermission getAttributePermission() {
+        if (keyValuePermission == null) {
+            keyValuePermission = new KeyValuePermission(attributeName,
+                    Arrays.asList(attributeValue));
         }
-        return permissionCollection;
+        return keyValuePermission;
     }
 
     public String getContext() {
