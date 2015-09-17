@@ -203,6 +203,8 @@ public class CswEndpoint implements Csw {
             Arrays.asList(SERVICE_IDENTIFICATION, SERVICE_PROVIDER, OPERATIONS_METADATA,
                     FILTER_CAPABILITIES));
 
+    private static final List<String> ELEMENT_NAMES = Arrays.asList("brief", "summary", "full");
+
     private static final Logger LOGGER = LoggerFactory.getLogger(CswEndpoint.class);
 
     private static final Configuration PARSER_CONFIG = new org.geotools.filter.v1_1.OGCConfiguration();
@@ -532,8 +534,7 @@ public class CswEndpoint implements Csw {
                     geometry = reader.read(metacard.getLocation());
                 }
             } catch (ParseException e) {
-                throw new CswException("Unable to parse BoundingBox.",
-                        CswConstants.INVALID_PARAMETER_VALUE, "BoundingBox");
+                LOGGER.warn("Unable to parse BoundingBox.");
             }
             BriefRecordType briefRecordType = new BriefRecordType();
             if (geometry != null) {
@@ -607,7 +608,7 @@ public class CswEndpoint implements Csw {
                 UpdateResponse updateResponse = framework.update(updateRequest);
                 return updateResponse.getUpdatedMetacards().size();
             } else {
-                throw new CswException("Unable to update record(s).  No ID was specified in the request.",
+                throw new CswException("Unable to update record.  No ID was specified in the request.",
                         CswConstants.MISSING_PARAMETER_VALUE, updateAction.getHandle());
 
             }
@@ -1169,7 +1170,7 @@ public class CswEndpoint implements Csw {
         addOperationParameter(CswConstants.RESULT_TYPE_PARAMETER,
                 Arrays.asList("hits", "results", "validate"), getRecordByIdOp);
         addOperationParameter(CswConstants.ELEMENT_SET_NAME_PARAMETER,
-                Arrays.asList("brief", "summary", "full"), getRecordByIdOp);
+                ELEMENT_NAMES, getRecordByIdOp);
 
         // Builds Transactions operation metadata
         Operation transactionOp = buildOperation(CswConstants.TRANSACTION,
@@ -1324,10 +1325,10 @@ public class CswEndpoint implements Csw {
             throw new CswException("ElementSetName and ElementName must be mutually exclusive",
                     CswConstants.INVALID_PARAMETER_VALUE, "ElementName");
         } else if (query.isSetElementName() && query.getElementName().size() > 0) {
-            List<String> elementNames = Arrays.asList("brief", "summary", "full");
+
             for (QName elementName : query.getElementName()) {
                 String elementNameString = elementName.getLocalPart();
-                if (!elementNames.contains(elementNameString)) {
+                if (!ELEMENT_NAMES.contains(elementNameString)) {
                     throw new CswException("Unknown ElementName "
                             + elementNameString, CswConstants.INVALID_PARAMETER_VALUE,
                             "ElementName");
