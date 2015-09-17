@@ -26,31 +26,42 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class CertificateGenerator implements CertificateGeneratorMBean {
-    public static final String SERVICE_NAME = ":service=demo-certificate-generation-service";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CertificateGenerator.class);
 
-    ObjectName objectName;
-
-    MBeanServer mBeanServer;
-
-    PkiTools pkiTools = new PkiTools();
-
     public CertificateGenerator() {
-        mBeanServer = ManagementFactory.getPlatformMBeanServer();
-        ObjectName objName = null;
-
-        try {
-            objName = new ObjectName(CertificateGenerator.class.getName() + SERVICE_NAME);
-
-        } catch (MalformedObjectNameException mone) {
-            LOGGER.info("Could not create objectName.", mone);
-        }
-
-        objectName = objName;
+        registerMbean();
     }
 
-    public void installCertificate(String commonName) {
+    private void registerMbean() {
+        ObjectName objectName = null;
+        MBeanServer mBeanServer = null;
+        try {
+            objectName = new ObjectName(
+                    CertificateGenerator.class.getName() + ":service=certgenerator");
+            mBeanServer = ManagementFactory.getPlatformMBeanServer();
+        } catch (MalformedObjectNameException e) {
+            LOGGER.error("Unable to create Certificate Generator MBean.", e);
+        }
+        if (mBeanServer != null) {
+            try {
+                try {
+                    mBeanServer.registerMBean(this, objectName);
+                    LOGGER.info("Registered Certificate Generator MBean under object name: {}",
+                            objectName.toString());
+                } catch (InstanceAlreadyExistsException e) {
+                    // Try to remove and re-register
+                    mBeanServer.unregisterMBean(objectName);
+                    mBeanServer.registerMBean(this, objectName);
+                    LOGGER.info("Re-registered Certificate Generator MBean");
+                }
+            } catch (Exception e) {
+                LOGGER.error("Could not register MBean [{}].", objectName.toString(), e);
+            }
+        }
+    }
+
+    public void configureDemoCert(String commonName) {
         CertificateAuthority demoCa = new DemoCertificateAuthority();
         CertificateSigningRequest csr = new CertificateSigningRequest();
         csr.setCommonName(commonName);
@@ -64,29 +75,5 @@ public class CertificateGenerator implements CertificateGeneratorMBean {
     KeyStoreFile getKeyStoreFile() {
         return KeyStoreFile.openFile(System.getProperty("javax.net.ssl.keyStore"),
                 System.getProperty("javax.net.ssl.keyStorePassword").toCharArray());
-    }
-
-    public void init() {
-        try {
-            try {
-                mBeanServer.registerMBean(this, objectName);
-            } catch (InstanceAlreadyExistsException iaee) {
-                LOGGER.info("Re-registering Certificate Generator MBean");
-                mBeanServer.unregisterMBean(objectName);
-                mBeanServer.registerMBean(this, objectName);
-            }
-        } catch (Exception e) {
-            LOGGER.warn("Could not register MBean.", e);
-        }
-    }
-
-    public void destroy() {
-        try {
-            if (objectName != null && mBeanServer != null) {
-                mBeanServer.unregisterMBean(objectName);
-            }
-        } catch (Exception e) {
-            LOGGER.warn("Exception unregistering MBean: ", e);
-        }
     }
 }
