@@ -13,12 +13,12 @@
  */
 package ddf.catalog.test;
 
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
 
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -81,8 +81,9 @@ public class TestSecurity extends AbstractIntegrationTest {
                     + "</soap:Envelope>";
 
     protected static final String SDK_SOAP_CONTEXT = "/services/sdk/SoapService";
+
     private static final String CERT_GEN_PATH = "https://localhost:" + HTTPS_PORT
-            + "/jolokia/exec/org.codice.ddf.security.certificate.generator.CertificateGenerator:service=demo-certificate-generation-service";
+            + "/jolokia/exec/org.codice.ddf.security.certificate.generator.CertificateGenerator:service=security-certificate-generator";
 
     @BeforeExam
     public void beforeTest() throws Exception {
