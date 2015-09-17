@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -14,8 +14,6 @@
 package org.codice.ddf.security.filter.websso;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -26,7 +24,6 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -49,9 +46,6 @@ import org.slf4j.LoggerFactory;
  * (the SAML assertion).
  */
 public class WebSSOFilter implements Filter {
-    private static final String SAML_COOKIE_NAME = "org.codice.websso.saml.token";
-
-    private static final String SAML_COOKIE_REF = "org.codice.websso.saml.ref";
 
     private static final String DDF_AUTHENTICATION_TOKEN = "ddf.security.token";
 
@@ -65,8 +59,7 @@ public class WebSSOFilter implements Filter {
 
     ContextPolicyManager contextPolicyManager;
 
-    @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
+    @Override public void init(FilterConfig filterConfig) throws ServletException {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("handlerList size is {}", handlerList.size());
 
@@ -94,8 +87,7 @@ public class WebSSOFilter implements Filter {
      * @throws IOException
      * @throws ServletException
      */
-    @Override
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse,
+    @Override public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse,
             FilterChain filterChain) throws IOException, ServletException {
         LOGGER.debug("Performing doFilter() on WebSSOFilter");
         HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
@@ -238,10 +230,7 @@ public class WebSSOFilter implements Filter {
             filterChain.doFilter(httpRequest, httpResponse);
         } catch (InvalidSAMLReceivedException e) {
             // we tried to process an invalid or missing SAML assertion
-            deleteCookie(SAML_COOKIE_NAME, httpRequest, httpResponse);
-            deleteCookie(SAML_COOKIE_REF, httpRequest, httpResponse);
-            // redirect to ourselves without the SAML cookies
-            httpResponse.sendRedirect(httpRequest.getRequestURI());
+            returnSimpleResponse(HttpServletResponse.SC_UNAUTHORIZED, httpResponse);
         } catch (Exception e) {
             LOGGER.debug("Exception in filter chain - passing off to handlers. Msg: {}",
                     e.getMessage(), e);
@@ -315,31 +304,11 @@ public class WebSSOFilter implements Filter {
         }
     }
 
-    public void deleteCookie(String cookieName, HttpServletRequest request,
-            HttpServletResponse response) {
-        //remove session cookie
-        try {
-            LOGGER.debug("Removing cookie {}", cookieName);
-            response.setContentType("text/html");
-            Cookie cookie = new Cookie(cookieName, "");
-            URL url = new URL(request.getRequestURL().toString());
-            cookie.setDomain(url.getHost());
-            cookie.setMaxAge(0);
-            cookie.setPath("/");
-            cookie.setComment("EXPIRING COOKIE at " + System.currentTimeMillis());
-            response.addCookie(cookie);
-        } catch (MalformedURLException e) {
-            LOGGER.warn("Unable to delete cookie {}", cookieName, e);
-        }
-    }
-
-    @Override
-    public void destroy() {
+    @Override public void destroy() {
 
     }
 
-    @Override
-    public String toString() {
+    @Override public String toString() {
         return WebSSOFilter.class.getName();
     }
 

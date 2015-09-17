@@ -36,14 +36,19 @@ public final class SecurityConstants {
     public static final String SAML_ASSERTION = "saml.assertion";
 
     /**
-     * Property key to obtain the saml cookie from an incoming HTTP request.
+     * Property key to obtain the legacy saml cookie from an incoming HTTP Request
      */
     public static final String SAML_COOKIE_NAME = "org.codice.websso.saml.token";
 
     /**
-     * Property key to obtain the saml cookie reference from an incoming HTTP request.
+     * Property key to obtain the legacy saml cookie reference from an incoming HTTP request
      */
-    public static final String SAML_COOKIE_REF = "org.codice.websso.saml.ref";
+    public static final String SAML_COOKIE_REF = "or.codice.websso.saml.ref";
+
+    /**
+     * Name of the header containing the saml assertion for HTTP requests/responses
+     */
+    public static final String SAML_HEADER_NAME = "Authorization";
 
     private SecurityConstants() {
 

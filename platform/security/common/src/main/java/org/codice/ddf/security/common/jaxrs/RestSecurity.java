@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -18,19 +18,15 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
-import java.util.Date;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
 
-import javax.ws.rs.core.Cookie;
-import javax.ws.rs.core.NewCookie;
-
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
+
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.wss4j.common.ext.WSSecurityException;
@@ -46,13 +42,14 @@ import ddf.security.assertion.SecurityAssertion;
  */
 public final class RestSecurity {
 
-    // SAML_COOKIE_NAME is not available in SecurityConstants 2.4.0
-    public static final String SECURITY_COOKIE_NAME = "org.codice.websso.saml.token";
+    public static final String SAML_HEADER_PREFIX = "SAML ";
+
+    public static final String SAML_HEADER_NAME = "Authorization";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RestSecurity.class);
 
     /**
-     * Parses the incoming subject for a saml assertion and sets that as a cookie on the client.
+     * Parses the incoming subject for a saml assertion and sets that as a header on the client.
      *
      * @param subject Subject containing a SAML-based security token.
      * @param client  Non-null client to set the cookie on.
@@ -61,77 +58,47 @@ public final class RestSecurity {
     public static void setSubjectOnClient(Subject subject, Client client) {
         if (client != null && subject != null && "https"
                 .equalsIgnoreCase(client.getCurrentURI().getScheme())) {
-            javax.ws.rs.core.Cookie cookie = createSamlCookie(subject, true);
-            if (cookie == null) {
-                LOGGER.debug("SAML Cookie was null. Unable to set the cookie for the client.");
+            String encodedSamlHeader = createSamlHeader(subject);
+            if (encodedSamlHeader == null) {
+                LOGGER.debug("SAML Header was null. Unable to set the header for the client.");
                 return;
             }
-            client.cookie(cookie);
+            client.header(SAML_HEADER_NAME, encodedSamlHeader);
         }
     }
 
     /**
-     * Sets a saml cookie without requiring ssl on the underlying client. This method
-     * only exists for compatibility with legacy or misconfigured systems, and is not
-     * recommended for use otherwise.
+     * Creates an authorization header to be returned to the browser if the token was successfully
+     * exchanged for a SAML assertion
      *
-     * @see #setSubjectOnClient(ddf.security.Subject, org.apache.cxf.jaxrs.client.Client)
+     * @param subject - {@link ddf.security.Subject} to create the header from
      */
-    public static void setUnsecuredSubjectOnClient(Subject subject, Client client) {
-        if (client != null && subject != null) {
-            javax.ws.rs.core.Cookie cookie = createSamlCookie(subject, false);
-            if (cookie == null) {
-                LOGGER.debug("SAML Cookie was null. Unable to set the cookie for the client.");
-                return;
-            }
-            client.cookie(cookie);
-        }
-    }
-
-    /**
-     * Creates a cookie to be returned to the browser if the token was successfully exchanged for
-     * a SAML assertion.
-     *
-     * @param subject - {@link ddf.security.Subject} to create the cookie from
-     * @param secure  - whether or not to require SSL for this cookie
-     */
-    private static Cookie createSamlCookie(Subject subject, boolean secure) {
-        Cookie cookie = null;
+    private static String createSamlHeader(Subject subject) {
+        String encodedSamlHeader = null;
         org.w3c.dom.Element samlToken = null;
-        Date expires = null;
         try {
             for (Object principal : subject.getPrincipals().asList()) {
                 if (principal instanceof SecurityAssertion) {
                     SecurityToken securityToken = ((SecurityAssertion) principal)
                             .getSecurityToken();
                     samlToken = securityToken.getToken();
-                    expires = securityToken.getExpires();
                 }
             }
             if (samlToken != null) {
-                BigDecimal maxAge = null;
-                if (expires == null) {
-                    //default to 10 minutes
-                    maxAge = new BigDecimal(600);
-                } else {
-                    maxAge = new BigDecimal((expires.getTime() - new Date().getTime()) / 1000);
-                }
                 SamlAssertionWrapper assertion = new SamlAssertionWrapper(samlToken);
                 String saml = assertion.assertionToString();
-                cookie = new NewCookie(new Cookie(SECURITY_COOKIE_NAME, encodeSaml(saml)), "",
-                        // gives us a checked exception for the cast
-                        maxAge.intValueExact(), secure).toCookie();
+                encodedSamlHeader = SAML_HEADER_PREFIX + encodeSaml(saml);
             }
         } catch (WSSecurityException | ArithmeticException e) {
             LOGGER.error("Unable to parse SAML assertion from subject.", e);
         }
-        return cookie;
+        return encodedSamlHeader;
     }
 
     /**
-     * Encodes the SAML assertion as a deflated Base64 String so that it can be used as a Cookie.
+     * Encodes the SAML assertion as a deflated Base64 String so that it can be used as a Header.
      *
-     * @param token SAML assertion as a token
+     * @param token SAML assertion as a string
      * @return String
      * @throws WSSecurityException if the assertion in the token cannot be converted
      */

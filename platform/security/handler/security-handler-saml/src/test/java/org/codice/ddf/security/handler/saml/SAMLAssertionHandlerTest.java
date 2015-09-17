@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -15,6 +15,7 @@ package org.codice.ddf.security.handler.saml;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -68,7 +69,55 @@ public class SAMLAssertionHandlerTest {
      * method, getNormalizedToken(), when given a valid HttpServletRequest.
      */
     @Test
-    public void testGetNormalizedTokenSuccess() throws Exception {
+    public void testGetNormalizedTokenSuccessWithHeader() throws Exception {
+        SAMLAssertionHandler handler = new SAMLAssertionHandler();
+
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        HttpServletResponse response = mock(HttpServletResponse.class);
+        FilterChain chain = mock(FilterChain.class);
+
+        Element assertion = readDocument("/saml.xml").getDocumentElement();
+        String assertionId = assertion.getAttributeNodeNS(null, "ID").getNodeValue();
+        SecurityToken samlToken = new SecurityToken(assertionId, assertion, null);
+        SamlAssertionWrapper wrappedAssertion = new SamlAssertionWrapper(samlToken.getToken());
+        String saml = wrappedAssertion.assertionToString();
+
+        doReturn("SAML " + RestSecurity.encodeSaml(saml)).when(request)
+                .getHeader(SecurityConstants.SAML_HEADER_NAME);
+
+        HandlerResult result = handler.getNormalizedToken(request, response, chain, true);
+
+        assertNotNull(result);
+        assertEquals(HandlerResult.Status.COMPLETED, result.getStatus());
+    }
+
+    /**
+     * This test ensures the proper functionality of SAMLAssertionHandler's
+     * method, getNormalizedToken(), when given an invalid HttpServletRequest.
+     */
+    @Test
+    public void testGetNormalizedTokenFailureWithHeader() {
+        SAMLAssertionHandler handler = new SAMLAssertionHandler();
+
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        HttpServletResponse response = mock(HttpServletResponse.class);
+        FilterChain chain = mock(FilterChain.class);
+
+        doReturn(null).when(request).getHeader(SecurityConstants.SAML_HEADER_NAME);
+
+        HandlerResult result = handler.getNormalizedToken(request, response, chain, true);
+
+        assertNotNull(result);
+        assertEquals(HandlerResult.Status.NO_ACTION, result.getStatus());
+    }
+
+    /**
+     * This test ensures the proper functionality of SAMLAssertionHandler's
+     * method, getNormalizedToken(), when given a valid HttpServletRequest.
+     * Uses legacy SAML cookie
+     */
+    @Test
+    public void testGetNormalizedTokenSuccessWithCookie() throws Exception {
         SAMLAssertionHandler handler = new SAMLAssertionHandler();
 
         HttpServletRequest request = mock(HttpServletRequest.class);
@@ -93,9 +142,10 @@ public class SAMLAssertionHandlerTest {
     /**
      * This test ensures the proper functionality of SAMLAssertionHandler's
      * method, getNormalizedToken(), when given an invalid HttpServletRequest.
+     * Uses legacy SAML cookie
      */
     @Test
-    public void testGetNormalizedTokenFailure() {
+    public void testGetNormalizedTokenFailurewithCookie() {
         SAMLAssertionHandler handler = new SAMLAssertionHandler();
 
         HttpServletRequest request = mock(HttpServletRequest.class);

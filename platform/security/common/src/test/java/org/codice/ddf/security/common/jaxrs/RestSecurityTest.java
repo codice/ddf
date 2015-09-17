@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -84,11 +84,11 @@ public class RestSecurityTest {
         when(subject.getPrincipals()).thenReturn(new SimplePrincipalCollection(assertion, "sts"));
         WebClient client = WebClient.create("https://example.org");
         RestSecurity.setSubjectOnClient(subject, client);
-        assertNotNull(client.getHeaders().get("Cookie"));
-        ArrayList cookies = (ArrayList) client.getHeaders().get("Cookie");
+        assertNotNull(client.getHeaders().get(RestSecurity.SAML_HEADER_NAME));
+        ArrayList headers = (ArrayList) client.getHeaders().get(RestSecurity.SAML_HEADER_NAME);
         boolean containsSaml = false;
-        for (Object cookie : cookies) {
-            if (StringUtils.contains(cookie.toString(), RestSecurity.SECURITY_COOKIE_NAME)) {
+        for (Object header : headers) {
+            if (StringUtils.contains(header.toString(), RestSecurity.SAML_HEADER_PREFIX)) {
                 containsSaml = true;
             }
         }
@@ -106,7 +106,7 @@ public class RestSecurityTest {
         when(subject.getPrincipals()).thenReturn(new SimplePrincipalCollection(assertion, "sts"));
         WebClient client = WebClient.create("http://example.org");
         RestSecurity.setSubjectOnClient(subject, client);
-        assertNull(client.getHeaders().get("Cookie"));
+        assertNull(client.getHeaders().get(RestSecurity.SAML_HEADER_NAME));
     }
 
     @Test

@@ -892,6 +892,11 @@ They are passed in the AuthorizationInfo of the Subject along with the Permissio
 
 |===
 
+[WARNING]
+====
+An update was made to the SAML Assertion Handler to pass SAML assertions via headers instead of cookies. Cookies are still accepted and processed to maintain legacy federation compatibility, but only headers are used when federating out. This means that it is still possible to federate and pass a machine's identity, but federation of a user's identity will ONLY work when federating from 2.7.x to 2.8.x+ or between 2.8.x+ and 2.8.x+.
+====
+
 === Securing REST
 
 [ditaa,security_architecture,png]

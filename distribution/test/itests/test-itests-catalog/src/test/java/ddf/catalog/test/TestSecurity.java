@@ -10,7 +10,7 @@
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- **/
+ */
 package ddf.catalog.test;
 
 import static org.hamcrest.Matchers.containsString;
@@ -18,11 +18,21 @@ import static org.hamcrest.Matchers.equalTo;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.zip.Deflater;
+import java.util.zip.DeflaterOutputStream;
 
+import org.apache.commons.codec.binary.Base64;
+import org.apache.cxf.helpers.IOUtils;
+import org.apache.wss4j.common.ext.WSSecurityException;
 import org.hamcrest.xml.HasXPath;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,6 +42,7 @@ import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
 
 import ddf.common.test.BeforeExam;
+import ddf.security.SecurityConstants;
 
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
@@ -106,7 +117,8 @@ public class TestSecurity extends AbstractIntegrationTest {
 
         //test that anonymous works and check that we get an sso token
         String cookie = when().get(url).then().log().all().assertThat().statusCode(equalTo(200))
-                .assertThat().header("Set-Cookie", containsString("JSESSIONID")).extract().cookie("JSESSIONID");
+                .assertThat().header("Set-Cookie", containsString("JSESSIONID")).extract()
+                .cookie("JSESSIONID");
 
         //try again with the sso token
         given().cookie("JSESSIONID", cookie).when().get(url).then().log().all().assertThat()
@@ -340,6 +352,54 @@ public class TestSecurity extends AbstractIntegrationTest {
                 .post(SERVICE_ROOT + "/SecurityTokenService").then().log().all().assertThat()
                 .body(HasXPath.hasXPath("//*[local-name()='Assertion']"));
 
+    }
+
+    @Test
+    public void testSamlAssertionInHeaders() throws Exception {
+        String onBehalfOf = "<wst:OnBehalfOf>"
+                + "                    <wsse:UsernameToken xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\">\n"
+                + "                        <wsse:Username>admin</wsse:Username>\n"
+                + "                        <wsse:Password Type=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText\">admin</wsse:Password>\n"
+                + "                   </wsse:UsernameToken>\n"
+                + "                </wst:OnBehalfOf>\n";
+        String body = getSoapEnvelope(onBehalfOf);
+
+        String assertionHeader = given().log().all().body(body)
+                .header("Content-Type", "text/xml; charset=utf-8")
+                .header("SOAPAction", "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue")
+                .expect().statusCode(equalTo(200)).when()
+                .post(SERVICE_ROOT + "/SecurityTokenService").then().extract().response()
+                .asString();
+        assertionHeader = assertionHeader.substring(assertionHeader.indexOf("<saml2:Assertion"),
+                assertionHeader.indexOf("</saml2:Assertion>") + "</saml2:Assertion>".length());
+
+        LOGGER.trace(assertionHeader);
+
+        //try that admin level assertion token on a restricted resource
+        given().header(SecurityConstants.SAML_HEADER_NAME, "SAML " + encodeSaml(assertionHeader))
+                .when().get("https://localhost:9993/admin/index.html").then().log().all()
+                .assertThat().statusCode(equalTo(200));
+    }
+
+    /**
+     * Encodes the SAML assertion as a deflated Base64 String so that it can be used as a Header.
+     *
+     * @param token SAML assertion as a string
+     * @return String
+     * @throws WSSecurityException if the assertion in the token cannot be converted
+     */
+    public static String encodeSaml(String token) throws WSSecurityException {
+        ByteArrayOutputStream tokenBytes = new ByteArrayOutputStream();
+        try (OutputStream tokenStream = new DeflaterOutputStream(tokenBytes,
+                new Deflater(Deflater.DEFAULT_COMPRESSION, false))) {
+            IOUtils.copy(new ByteArrayInputStream(token.getBytes(StandardCharsets.UTF_8)),
+                    tokenStream);
+            tokenStream.close();
+
+            return new String(Base64.encodeBase64(tokenBytes.toByteArray()));
+        } catch (IOException e) {
+            throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, e);
+        }
     }
 
     private String getSoapEnvelope(String onBehalfOf) {
