@@ -248,7 +248,7 @@ Namespace:: In `POST` operations, namespaces are defined in the xml. In `GET` op
 Service:: The service being used, in this case it is fixed at CSW.
 Version:: The version of the service being used (2.0.2).
 OutputFormat:: The requester wants the response to be in this intended output. Currently, only one format is supported (application/xml). If this parameter is supplied, it is validated against the known type. If this parameter is not supported, it passes through and returns the XML response upon success.
-OutputSchema:: The schema language from the request. This is validated against the known list of schema languages supported (refer to http://www.w3.org/XML/Schema).
+SchemaLanguage: The schema language from the request. This is validated against the known list of schema languages supported (refer to http://www.w3.org/XML/Schema).
 
 ===== DescribeRecord `HTTP GET`
 
@@ -256,7 +256,7 @@ The `HTTP GET` request differs from the `POST` request in that the typeName is a
 
 .DescribeRecord KVP Encoding
 ----
-http://<DDF_HOST>:<DDF_PORT>/services/csw?service=CSW&version=2.0.2&request=DescribeRecord&NAMESPACE=xmlns(http://www.opengis.net/cat/csw/2.0.2)&outputFormat=application/xml&outputSchema=http://www.opengis.net/cat/csw/2.0.2
+http://<DDF_HOST>:<DDF_PORT>/services/csw?service=CSW&version=2.0.2&request=DescribeRecord&NAMESPACE=xmlns(http://www.opengis.net/cat/csw/2.0.2)&outputFormat=application/xml&schemaLanguage=http://www.w3.org/XML/Schema
 ----
 
 ===== DescribeRecord HTTP POST
@@ -271,7 +271,7 @@ The HTTP POST request DescribeRecordType has the typeName as a List of QName(s).
     version="2.0.2"
     service="CSW"
     outputFormat="application/xml"
-    outputSchema="http://www.opengis.net/cat/csw/2.0.2"
+    schemaLanguage="http://www.w3.org/XML/Schema"
     xmlns="http://www.opengis.net/cat/csw/2.0.2">
   </DescribeRecord>
 ----
@@ -281,7 +281,7 @@ The HTTP POST request DescribeRecordType has the typeName as a List of QName(s).
 The following is an example of an application/xml response to the DescribeRecord operation.
 
 .DescribeRecord Response
-[source,xml,linenums]    
+[source,xml,linenums]
 ----
 <DescribeRecordResponse xsi:schemaLocation="http://www.opengis.net/csw/ogc/csw/2.0.2/CSW-discovery.xsd" xmlns="http://www.opengis.net/cat/csw/2.0.2" xmlns:ns2="http://www.opengis.net/ogc" xmlns:ns3="http://www.opengis.net/gml" xmlns:ns4="http://www.w3.org/1999/xlink" xmlns:ns5="http://www.opengis.net/ows" xmlns:ns6="http://purl.org/dc/elements/1.1/" xmlns:ns7="http://purl.org/dc/terms/" xmlns:ns8="http://www.w3.org/2001/SMIL20/"
 xmlns:ns9="http://www.w3.org/2001/SMIL20/Language" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -472,7 +472,7 @@ The following is an example of an application/xml response to the GetRecords ope
 .GetRecords XML Request
 [source,xml,linenums]
 ----
-<csw:GetRecordsResponse version="2.0.2" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dct="http://purl.org/dc/terms/" xmlns:ows="http://www.opengis.net/ows" xmlns:xs="http://www.w3.org/2001/XMLSchema"  xmlns:csw="http://www.opengis.net/cat/csw/2.0.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"> 
+<csw:GetRecordsResponse version="2.0.2" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dct="http://purl.org/dc/terms/" xmlns:ows="http://www.opengis.net/ows" xmlns:xs="http://www.w3.org/2001/XMLSchema"  xmlns:csw="http://www.opengis.net/cat/csw/2.0.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <csw:SearchStatus timestamp="2014-02-19T15:33:44.602-05:00"/>
     <csw:SearchResults numberOfRecordsMatched="41" numberOfRecordsReturned="4" nextRecord="5" recordSchema="http://www.opengis.net/cat/csw/2.0.2" elementSet="summary">
       <csw:SummaryRecord>
@@ -537,7 +537,7 @@ The following is an example of a `HTTP GET` request:
 
 .GetRecords KVP Encoding
 ----
-http://<DDF_HOST>:<DDF_PORT>/services/csw??service=CSW&version=2.0.2&request=GetRecordById&NAMESPACE=xmlns="http://www.opengis.net/cat/csw/2.0.2"&ElementSetName=full&outputFormat=application/xml&outputSchema=http://www.opengis.net/cat/csw/2.0.2&id=fd7ff1535dfe47db8793b550d4170424,ba908634c0eb439b84b5d9c42af1f871
+http://<DDF_HOST>:<DDF_PORT>/services/csw?service=CSW&version=2.0.2&request=GetRecordById&NAMESPACE=xmlns="http://www.opengis.net/cat/csw/2.0.2"&ElementSetName=full&outputFormat=application/xml&outputSchema=http://www.opengis.net/cat/csw/2.0.2&id=fd7ff1535dfe47db8793b550d4170424,ba908634c0eb439b84b5d9c42af1f871
 ----
 
 ===== GetRecordById `HTTP POST`
@@ -631,231 +631,231 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 |0-n
 
 |dc:creator
-| 
+|
 |
 |
 |0-n
 
 |dc:subject
-| 
+|
 |
 |0-n
 |0-n
 
 |dc:description
-| 
-| 
-| 
+|
+|
+|
 |0-n
 
-|dc:publisher 
-| 
-| 
-| 
+|dc:publisher
+|
+|
+|
 |0-n
 ￼￼￼￼￼￼￼￼￼
-|dc:contributor 
-| 
-| 
-| 
-|0-n
-
-|dc:date 
-|modified 
-|
-|
-|0-n
-
-|dc:type 
-|metadata-content-type 
-|0-1 
-|0-1 
-|0-n
-
-|dc:format 
-|
-|
-|0-n 
-|0-n
-
-|dc:identifier 
-|id 
-|1-n 
-|1-n 
-|0-n
-
-|dc:source 
-|source-id 
-|
-|
-|0-n
-
-|dc:language 
+|dc:contributor
 |
 |
 |
 |0-n
 
-|dc:relation 
+|dc:date
+|modified
+|
+|
+|0-n
+
+|dc:type
+|metadata-content-type
+|0-1
+|0-1
+|0-n
+
+|dc:format
 |
 |
 |0-n
 |0-n
 
-|dc:coverage 
+|dc:identifier
+|id
+|1-n
+|1-n
+|0-n
+
+|dc:source
+|source-id
+|
+|
+|0-n
+
+|dc:language
 |
 |
 |
 |0-n
 
-|dc:rights 
-|
-|
-|
-|0-n
-
-|dct:abstract 
+|dc:relation
 |
 |
 |0-n
 |0-n
 
-|dct:accessRights 
+|dc:coverage
 |
 |
 |
 |0-n
 
-|dct:alternative 
-|title 
-|
-|
-|0-n
-
-|dct:audience 
+|dc:rights
 |
 |
 |
 |0-n
 
-|dct:available 
+|dct:abstract
+|
+|
+|0-n
+|0-n
+
+|dct:accessRights
 |
 |
 |
 |0-n
 
-|dct:bibliographicCitation 
+|dct:alternative
+|title
+|
+|
+|0-n
+
+|dct:audience
+|
+|
+|
+|0-n
+
+|dct:available
+|
+|
+|
+|0-n
+
+|dct:bibliographicCitation
 |id
 |
-| 
-|0-n
-
-|dct:conformsTo 
-|
-|
 |
 |0-n
 
-|dct:created 
-|created 
+|dct:conformsTo
+|
 |
 |
 |0-n
 
-|dct:dateAccepted 
-|effective 
+|dct:created
+|created
 |
 |
 |0-n
 
-|dct:Copyrighted 
-|effective 
+|dct:dateAccepted
+|effective
 |
 |
 |0-n
 
-|dct:dateSubmitted 
-|modified 
+|dct:Copyrighted
+|effective
+|
+|
+|0-n
+
+|dct:dateSubmitted
+|modified
 |
 |
 |0-n
 ￼
-|dct:educationLevel 
+|dct:educationLevel
 |
 |
 |
 |0-n
 ￼
-|dct:extent 
+|dct:extent
 |
 |
 |
 |0-n
 
-|dct:hasFormat 
+|dct:hasFormat
 |
 |
 |
 |0-n
 
-|dct:hasPart 
+|dct:hasPart
 |
 |
 |
 |0-n
 
-|dct:hasVersion 
-|
-|
-|
-|0-n
-
-￼
-|dct:isFormatOf 
+|dct:hasVersion
 |
 |
 |
 |0-n
 
 ￼
-|dct:isPartOf 
+|dct:isFormatOf
 |
-|
-|
-|0-n
-
-|dct:isReferencedBy 
-|
-|
-|
-|0-n
-
-|dct:isReplacedBy 
-|
-|
-|
-|0-n
-
-|dct:isRequiredBy 
-|
-|
-|
-|0-n
-￼
-|dct:issued 
-|modified 
 |
 |
 |0-n
 
 ￼
-|dct:isVersionOf 
+|dct:isPartOf
 |
 |
 |
 |0-n
 
-|dct:license 
+|dct:isReferencedBy
+|
+|
+|
+|0-n
+
+|dct:isReplacedBy
+|
+|
+|
+|0-n
+
+|dct:isRequiredBy
+|
+|
+|
+|0-n
+￼
+|dct:issued
+|modified
+|
+|
+|0-n
+
+￼
+|dct:isVersionOf
+|
+|
+|
+|0-n
+
+|dct:license
 |
 |
 |
@@ -864,22 +864,22 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 |dct:mediator
 |
 |
-| 
-|0-n
-
-|dct:medium 
-|
-|
 |
 |0-n
 
-|dct:modified 
-|modified 
+|dct:medium
 |
-|0-n 
+|
+|
 |0-n
 
-|dct:provenance 
+|dct:modified
+|modified
+|
+|0-n
+|0-n
+
+|dct:provenance
 |
 |
 |
@@ -941,8 +941,295 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
 |===
 
+
+===== Transaction Operation
+Transactions define the operations for creating, modifying, and deleting catalog records. The supported sub-operations for the Transaction operation are Insert, Update, and Delete.
+
+The CSW Transactions endpoint only supports `HTTP POST` requests since there are no KVP operations.
+
+===== Transaction Insert Sub-Operation `HTTP POST`
+
+The Insert sub-operation is a method for one or more records to be inserted into the catalog. The schema of the record needs to conform to the schema of the information model that the catalog supports as described using the DescribeRecord operation.
+
+The following example shows a request for a record to be inserted.
+
+.Sample XML Transaction Insert Request
+[source,xml,linenums]
+----
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<csw:Transaction
+    service="CSW"
+    version="2.0.2"
+    verboseResponse="true"
+    xmlns:csw="http://www.opengis.net/cat/csw/2.0.2">
+    <csw:Insert typeName="csw:Record">
+        <csw:Record
+            xmlns:ows="http://www.opengis.net/ows"
+            xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+            xmlns:dc="http://purl.org/dc/elements/1.1/"
+            xmlns:dct="http://purl.org/dc/terms/"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+            <dc:identifier></dc:identifier>
+            <dc:title>Aliquam fermentum purus quis arcu</dc:title>
+            <dc:type>http://purl.org/dc/dcmitype/Text</dc:type>
+            <dc:subject>Hydrography--Dictionaries</dc:subject>
+            <dc:format>application/pdf</dc:format>
+            <dc:date>2006-05-12</dc:date>
+            <dct:abstract>Vestibulum quis ipsum sit amet metus imperdiet vehicula. Nulla scelerisque cursus mi.</dct:abstract>
+            <ows:BoundingBox crs="urn:x-ogc:def:crs:EPSG:6.11:4326">
+                <ows:LowerCorner>44.792 -6.171</ows:LowerCorner>
+                <ows:UpperCorner>51.126 -2.228</ows:UpperCorner>
+            </ows:BoundingBox>
+        </csw:Record>
+    </csw:Insert>
+</csw:Transaction>
+----
+
+===== Transaction Insert Response
+
+The following is an example of an application/xml response to the Transaction Insert sub-operation:
+
+Note that you will only receive the `InsertResult` element if you specify `verboseResponse="true"`.
+
+.Sample XML Transaction Insert Response
+[source,xml,linenums]
+----
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<csw:TransactionResponse xmlns:ogc="http://www.opengis.net/ogc"
+                         xmlns:gml="http://www.opengis.net/gml"
+                         xmlns:ns3="http://www.w3.org/1999/xlink"
+                         xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+                         xmlns:ns5="http://www.w3.org/2001/SMIL20/"
+                         xmlns:dc="http://purl.org/dc/elements/1.1/"
+                         xmlns:ows="http://www.opengis.net/ows"
+                         xmlns:dct="http://purl.org/dc/terms/"
+                         xmlns:ns9="http://www.w3.org/2001/SMIL20/Language"
+                         xmlns:ns10="http://www.w3.org/2001/XMLSchema-instance"
+                         version="2.0.2"
+                         ns10:schemaLocation="http://www.opengis.net/csw /ogc/csw/2.0.2/CSW-publication.xsd">
+    <csw:TransactionSummary>
+        <csw:totalInserted>1</csw:totalInserted>
+        <csw:totalUpdated>0</csw:totalUpdated>
+        <csw:totalDeleted>0</csw:totalDeleted>
+    </csw:TransactionSummary>
+    <csw:InsertResult>
+        <csw:BriefRecord>
+            <dc:identifier>2dbcfba3f3e24e3e8f68c50f5a98a4d1</dc:identifier>
+            <dc:title>Aliquam fermentum purus quis arcu</dc:title>
+            <dc:type>http://purl.org/dc/dcmitype/Text</dc:type>
+            <ows:BoundingBox crs="EPSG:4326">
+                <ows:LowerCorner>-6.171 44.792</ows:LowerCorner>
+                <ows:UpperCorner>-2.228 51.126</ows:UpperCorner>
+            </ows:BoundingBox>
+        </csw:BriefRecord>
+    </csw:InsertResult>
+</csw:TransactionResponse>
+----
+
+===== Transaction Update Sub-Operation `HTTP POST`
+
+The Update sub-operation is a method to specify values used to change existing information in the catalog. If individual record property values are specified in the `Update` element, using the `RecordProperty` element, then those individual property values of a catalog record are replaced. The `RecordProperty` contains a `Name` and `Value` element. The `Name` element is used to specify the name of the record property to be updated. The `Value` element contains the value that will be used to update the record in the catalog. The values in the `Update` will completely replace those that are already in the record. A property is removed only if the `RecordProperty` contains a `Name` but not a `Value`.
+
+The number of records affected by an Update operation is determined by the contents of the `Constraint` element, which contains a filter for limiting the update to a specific record or group of records.
+
+The following example shows how the newly inserted record could be updated to modify the date field. If your update request contains a `<csw:Record>` rather than a set of `<RecordProperty>` elements plus a `<Constraint>` , the existing record with the same ID will be replaced with the new record.
+
+.Sample XML Transaction Update Request
+[source,xml,linenums]
+----
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<csw:Transaction
+    service="CSW"
+    version="2.0.2"
+    xmlns:csw="http://www.opengis.net/cat/csw/2.0.2">
+    <csw:Update>
+        <csw:Record
+            xmlns:ows="http://www.opengis.net/ows"
+            xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+            xmlns:dc="http://purl.org/dc/elements/1.1/"
+            xmlns:dct="http://purl.org/dc/terms/"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+            <dc:identifier>2dbcfba3f3e24e3e8f68c50f5a98a4d1</dc:identifier>
+            <dc:title>Aliquam fermentum purus quis arcu</dc:title>
+            <dc:type>http://purl.org/dc/dcmitype/Text</dc:type>
+            <dc:subject>Hydrography--Dictionaries</dc:subject>
+            <dc:format>application/pdf</dc:format>
+            <dc:date>2008-08-10</dc:date>
+            <dct:abstract>Vestibulum quis ipsum sit amet metus imperdiet vehicula. Nulla scelerisque cursus mi.</dct:abstract>
+            <ows:BoundingBox crs="urn:x-ogc:def:crs:EPSG:6.11:4326">
+                <ows:LowerCorner>44.792 -6.171</ows:LowerCorner>
+                <ows:UpperCorner>51.126 -2.228</ows:UpperCorner>
+            </ows:BoundingBox>
+        </csw:Record>
+    </csw:Update>
+</csw:Transaction>
+----
+
+The following example shows how the newly inserted record could be updated to modify the date field while using a filter constraint with title equal to `Aliquam fermentum purus quis arcu`.
+
+.Sample XML Transaction Update Request with filter constraint
+[source,xml,linenums]
+----
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<csw:Transaction
+    service="CSW"
+    version="2.0.2"
+    xmlns:csw="http://www.opengis.net/cat/csw/2.0.2">
+    <csw:Update>
+        <csw:RecordProperty>
+            <csw:Name>title</csw:Name>
+            <csw:Value>Updated Title</csw:Value>
+        </csw:RecordProperty>
+        <csw:RecordProperty>
+            <csw:Name>date</csw:Name>
+            <csw:Value>2015-08-25</csw:Value>
+        </csw:RecordProperty>
+        <csw:RecordProperty>
+            <csw:Name>format</csw:Name>
+            <csw:Value></csw:Value>
+        </csw:RecordProperty>
+        <csw:Constraint version="2.0.0">
+            <ogc:Filter>
+                <ogc:PropertyIsEqualTo>
+                    <ogc:PropertyName>title</ogc:PropertyName>
+                    <ogc:Literal>Aliquam fermentum purus quis arcu</ogc:Literal>
+                </ogc:PropertyIsEqualTo>
+            </ogc:Filter>
+        </csw:Constraint>
+    </csw:Update>
+</csw:Transaction>
+----
+
+The following example shows how the newly inserted record could be updated to modify the date field while using a CQL filter constraint with title equal to `Aliquam fermentum purus quis arcu`.
+
+.Sample XML Transaction Update Request with CQL filter constraint
+[source,xml,linenums]
+----
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<csw:Transaction
+    service="CSW"
+    version="2.0.2"
+    xmlns:csw="http://www.opengis.net/cat/csw/2.0.2">
+    <csw:Update>
+        <csw:RecordProperty>
+            <csw:Name>title</csw:Name>
+            <csw:Value>Updated Title</csw:Value>
+        </csw:RecordProperty>
+        <csw:RecordProperty>
+            <csw:Name>date</csw:Name>
+            <csw:Value>2015-08-25</csw:Value>
+        </csw:RecordProperty>
+        <csw:RecordProperty>
+            <csw:Name>format</csw:Name>
+            <csw:Value></csw:Value>
+        </csw:RecordProperty>
+        <csw:Constraint version="2.0.0">
+            <ogc:CqlText>
+                title = 'Aliquam fermentum purus quis arcu'
+            </ogc:CqlText>
+        </csw:Constraint>
+    </csw:Update>
+</csw:Transaction>
+----
+
+===== Transaction Update Response
+
+The following is an example of an application/xml response to the Transaction Update sub-operation:
+
+.Sample XML Transaction Update Response
+[source,xml,linenums]
+----
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<csw:TransactionResponse xmlns:ogc="http://www.opengis.net/ogc"
+                         xmlns:gml="http://www.opengis.net/gml"
+                         xmlns:ns3="http://www.w3.org/1999/xlink"
+                         xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+                         xmlns:ns5="http://www.w3.org/2001/SMIL20/"
+                         xmlns:dc="http://purl.org/dc/elements/1.1/"
+                         xmlns:ows="http://www.opengis.net/ows"
+                         xmlns:dct="http://purl.org/dc/terms/"
+                         xmlns:ns9="http://www.w3.org/2001/SMIL20/Language"
+                         xmlns:ns10="http://www.w3.org/2001/XMLSchema-instance"
+                         ns10:schemaLocation="http://www.opengis.net/csw /ogc/csw/2.0.2/CSW-publication.xsd"
+                         version="2.0.2">
+    <csw:TransactionSummary>
+        <csw:totalInserted>0</csw:totalInserted>
+        <csw:totalUpdated>1</csw:totalUpdated>
+        <csw:totalDeleted>0</csw:totalDeleted>
+    </csw:TransactionSummary>
+</csw:TransactionResponse>
+----
+
+===== Transaction Delete Sub-Operation `HTTP POST`
+
+The Delete sub-operation is a method to identify a set of records to be deleted from the catalog.
+
+The following example shows a delete request for all records with a SpatialReferenceSystem name equal to `WGS-84`.
+
+.Sample XML Transaction Delete Request with filter constraint
+[source,xml,linenums]
+----
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<csw:Transaction service="CSW" version="2.0.2"
+    xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+    xmlns:gml="http://www.opengis.net/gml"
+    xmlns:ogc="http://www.opengis.net/ogc">
+    <csw:Delete typeName="csw:Record" handle="something">
+        <csw:Constraint version="2.0.0">
+            <ogc:Filter>
+                <ogc:PropertyIsEqualTo>
+                   <ogc:PropertyName>SpatialReferenceSystem</ogc:PropertyName>
+                   <ogc:Literal>WGS-84</ogc:Literal>
+                </ogc:PropertyIsEqualTo>
+            </ogc:Filter>
+        </csw:Constraint>
+    </csw:Delete>
+</csw:Transaction>
+----
+
+The following example shows a delete operation specifying a CQL constraint to delete all records with a title equal to `Aliquam fermentum purus quis arcu`
+
+.Sample XML Transaction Delete Request with CQL filter constraint
+[source,xml,linenums]
+----
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<csw:Transaction service="CSW" version="2.0.2"
+    xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+    xmlns:gml="http://www.opengis.net/gml"
+    xmlns:ogc="http://www.opengis.net/ogc">
+    <csw:Delete typeName="csw:Record" handle="something">
+        <csw:Constraint version="2.0.0">
+            <ogc:CqlText>
+                 title = 'Aliquam fermentum purus quis arcu'
+            </ogc:CqlText>
+        </csw:Constraint>
+    </csw:Delete>
+</csw:Transaction>
+----
+
+===== Transaction Delete Response
+
+The following is an example of an application/xml response to the Transaction Delete sub-operation:
+
+.Sample XML Transaction Delete Response
+[source,xml,linenums]
+----
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<csw:TransactionResponse
+                         xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+                         xmlns:ns10="http://www.w3.org/2001/XMLSchema-instance"
+                         ns10:schemaLocation="http://www.opengis.net/csw /ogc/csw/2.0.2/CSW-publication.xsd"
+                         version="2.0.2">
+    <csw:TransactionSummary>
+        <csw:totalInserted>0</csw:totalInserted>
+        <csw:totalUpdated>0</csw:totalUpdated>
+        <csw:totalDeleted>1</csw:totalDeleted>
+    </csw:TransactionSummary>
+</csw:TransactionResponse>
+----
+
 ==== Install and Uninstall
-The CSW endpoint can be installed and uninstalled using the normal processes described in the Configuration section. 
+The CSW endpoint can be installed and uninstalled using the normal processes described in the Configuration section.
 
 ==== Configuration
 The CSW endpoint has no configurable properties. It can only be installed or uninstalled.
@@ -1034,7 +1321,7 @@ The configurable properties for the CSW source are accessed from the CSW Federat
 |Created Date maps to
 |createdDateMapping
 |String
-|The field in the CSW Record that should be mapped to a Metacard's created date. This field will have a default mapping, but the user can change this to be any date formatted field in a CSW Record. Relevant CSW fields would include dateSubmitted, created and modified. If no value is specified, the default value of dateSubmitted will be used. 
+|The field in the CSW Record that should be mapped to a Metacard's created date. This field will have a default mapping, but the user can change this to be any date formatted field in a CSW Record. Relevant CSW fields would include dateSubmitted, created and modified. If no value is specified, the default value of dateSubmitted will be used.
 Note that the same CSW Record field cannot be used more than once in these date mapping properties.
 |dateSubmitted
 |No
@@ -1119,7 +1406,7 @@ Note that the same CSW Record field cannot be used more than once in these date 
 
 ==== Known Issues
 * The CSW Source does not support text path searches.
-* All contextual searches are case sensitive; case-insensitive searches are not supported. 
+* All contextual searches are case sensitive; case-insensitive searches are not supported.
 * Nearest neighbor spatial searches are not supported.
 * Fuzzy contextual searches are not supported.
 
@@ -1143,7 +1430,7 @@ After the above request is sent, a KML Network Link document is returned as a re
 [source,xml,linenums]
 ----
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:ns2="http://www.google.com/kml/ext/2.2" 
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:ns2="http://www.google.com/kml/ext/2.2"
   xmlns:ns3="http://www.w3.org/2005/Atom" xmlns:ns4="urn:oasis:names:tc:ciq:xsdschema:xAL:2.0">
   <NetworkLink>
     <name>DDF</name>
@@ -1175,7 +1462,7 @@ http://<DDF_HOST>:<DDF_PORT>/services/catalog/kml/icons?sample-icon.png
 ----
 
 ==== Installing and Uninstalling
-The spatial-kml-networklinkendpoint feature is installed by default with the Spatial App. 
+The spatial-kml-networklinkendpoint feature is installed by default with the Spatial App.
 
 ==== Configuring
 This KML Network Link endpoint has the ability to serve up custom KML style documents and Icons to be used within that document.
@@ -1189,28 +1476,28 @@ The Description will be displayed as a pop-up from the root network link on Goog
 |===
 |Title
 |Property
-|Type 
+|Type
 |Description
-|Default Value 
+|Default Value
 |Required
 
 |Style Document
 |styleUrl
-|String 
+|String
 |KML document containing custom styling. This will be served up by the KmlEndpoint (e.g., file:///path/to/kml/style/doc.kml).
 |
 |No
 
 |Icons Location
-|iconLoc 
-|String 
-|Location of icons for KmlEndpoint. 
+|iconLoc
+|String
+|Location of icons for KmlEndpoint.
 |
 |No
 
-|Description 
+|Description
 |description
-|String 
+|String
 |Description of this NetworkLink. Enter a short description of what this NetworkLink provides.
 |
 |No
@@ -1381,10 +1668,10 @@ None.
 
 [cols="2*", options="header"]
 |===
-|Transformer Shortname 
+|Transformer Shortname
 |kml
 
-|MIME Type 
+|MIME Type
 |application/vnd.google-earth.kml+xml
 |===
 
@@ -1401,7 +1688,7 @@ Using the REST Endpoint for example, request a metacard with the transform optio
 ===== Example Output
 
 [source,xml,linenums]
-----    
+----
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <kml xmlns:ns2="http://www.google.com/kml/ext/2.2" xmlns="http://www.opengis.net/kml/2.2" xmlns:ns4="urn:oasis:names:tc:ciq:xsdschema:xAL:2.0" xmlns:ns3="http://www.w3.org/2005/Atom">
   <Placemark id="Placemark-0103c77e66d9428d8f48fab939da528e">
@@ -1418,7 +1705,7 @@ Using the REST Endpoint for example, request a metacard with the transform optio
 width: 100% }
           .thumbnailDiv {
             text-align: center
-          } 
+          }
           img {
             max-width: 100px;
 ￼￼￼         max-height: 100px;
@@ -1525,7 +1812,7 @@ width="400"&gt;$[description]&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</text>
 ----
 
 ==== Installing and Uninstalling
-The spatial-kml-transformer feature is installed by default with the Spatial App. 
+The spatial-kml-transformer feature is installed by default with the Spatial App.
 
 ==== Configuring
 None.
@@ -1534,10 +1821,10 @@ None.
 
 [cols="2*", options="header"]
 |===
-|Transformer Shortname 
+|Transformer Shortname
 |kml
 
-|MIME Type 
+|MIME Type
 |application/vnd.google-earth.kml+xml
 |===
 
@@ -1553,7 +1840,7 @@ The KML Style Mapper supports all basic and extended metacard attributes.
 When a style mapping is configured, the resulting transformed KML contain a <styleUrl> tag pointing to that style, rather than the default KML style supplied by the KmlTransformer.
 
 ==== Configuring
-The properties below describe how to configure a Style Mapping. The configuration name is `Spatial KML Style Map Entry`. 
+The properties below describe how to configure a Style Mapping. The configuration name is `Spatial KML Style Map Entry`.
 
 [cols="6*", options="header"]
 .Configurable Properties
@@ -1561,7 +1848,7 @@ The properties below describe how to configure a Style Mapping. The configuratio
 
 |Title
 |Property
-|Type 
+|Type
 |Description
 |Default Value
 |Required
@@ -1569,24 +1856,24 @@ The properties below describe how to configure a Style Mapping. The configuratio
 |Attribute Name
 |attributeName
 |The name of the metacard attribute to match against (e.g., title, metadata-content-type).
-|String 
+|String
 |
 |Yes
 
 |Attribute Value
 |attributeValue
-|String 
+|String
 |The value of the metacard attribute.
 |
 |Yes
 
 |Style URL
 |styleUrl
-|String 
+|String
 |The full qualified URL to the KML style (e.g., http://example.com/styles#myStyle).
 |
 |Yes
-  
+
 |===
 
 ==== Example Values
@@ -1646,7 +1933,7 @@ href="http://localhost:8181/services/catalog/sources/ddf.distribution/0103c77e66
 &lt;/html&gt;
 </description>
     <TimeSpan>
-      <begin>2014-01-07T21:58:16</begin>  
+      <begin>2014-01-07T21:58:16</begin>
     </TimeSpan>
  <styleUrl>http://example.com/kml/style#sampleStyle</styleUrl>
     <MultiGeometry>
@@ -1678,15 +1965,15 @@ href="http://localhost:8181/services/catalog/sources/ddf.distribution/0103c77e66
 ----
 
 ==== Installing and Uninstalling
-The KML Style Mapper is included in the spatial-kml-transformer feature and is installed by default with the Spatial App. 
+The KML Style Mapper is included in the spatial-kml-transformer feature and is installed by default with the Spatial App.
 
 ==== Implementation Details
 
 [cols="2*", options="header"]
 |===
-|Transformer Shortname 
+|Transformer Shortname
 |kml
-|MIME Type 
+|MIME Type
 |application/vnd.google-earth.kml+xml
 |===
 
@@ -1798,7 +2085,7 @@ The configurable properties for the WFS Source are accessed from the WFS Federat
 |id
 |String
 |Unique name of the Source.
-|WFS_v1_0_0 
+|WFS_v1_0_0
 |Yes
 
 |WFS URL
@@ -1812,10 +2099,10 @@ The configurable properties for the WFS Source are accessed from the WFS Federat
 |disableCnCheck
 |Boolean
 |Disable CN check for the server certificate. This should only be used when testing.
-|false 
+|false
 |Yes
 
-|Username 
+|Username
 |username
 |String
 |Username to log in to the WFS service. Password to log in to the WFS service.
@@ -1823,38 +2110,38 @@ The configurable properties for the WFS Source are accessed from the WFS Federat
 |No
 
 |Password
-|password 
+|password
 |String
 |Password to log in to the WFS service.
 |
-|No 
+|No
 
 |Non Queryable Properties
 |nonQueryableProperties
 |List of Strings
 |Multivalued list of properties in the feature XML that should not be used as filters.
 |
-|No 
+|No
 
 |Poll Interval
 |pollInterval
 |Integer
 |Poll interval to check if the source is available (in minutes; minimum = 1).
-|5 
+|5
 |Yes
 
 |Forced Spatial Filter Type
 |forceSpatialFilter
 |String
 |Force the selected Spatial Filter Type to be the only available Spatial Filter.
-|None 
+|None
 |No
 
 |Connection Timeout
 |connectionTimeout
 |Integer
 |Amount of time to attempt to establish a connection before timing out, in milliseconds
-|30000 
+|30000
 |Yes
 
 |Receive Timeout
@@ -1869,7 +2156,7 @@ The configurable properties for the WFS Source are accessed from the WFS Federat
 ==== WFS URL
 The WFS URL must match the endpoint for the service being used. The type of service and version are added automatically, so they do not need to be included. Some servers will throw an exception if they are included twice, so do not include those.
 
-The syntax depends on the server. However, in most cases, the syntax will be everything before the ? character in the URL that corresponds to the GetCapabilities query.
+The syntax depends on the server. However, in most cases, the syntax will be everything before the ? character in the URL that corresponds to the GetCapabilities query. 
 
 As an example, GeoServer 2.5 syntax might look like:
 ----
@@ -2033,8 +2320,8 @@ The configurable properties for the WFS MetacardMapper are accessed from the Met
 ====== Configurable Properties
 [cols="6*", options="header"]
 |===
-|Title 
-|Property 
+|Title
+|Property
 |Type
 |Description
 |Default Value
@@ -2042,36 +2329,36 @@ The configurable properties for the WFS MetacardMapper are accessed from the Met
 
 
 |Feature Type
-|featureType 
-|String 
+|featureType
+|String
 |Feature Type. Format is {URI}local-name
 |
-|Yes 
+|Yes
 
 |Metacard Attribute to WFS Feature Property Mapping
 |metacardAttrToFeaturePropMap
-|String 
+|String
 |Metacard Attribute to WFS Feature Property Mapping. Format is metacardAttribute=featureProperty
 |
 |Yes
 
 |Temporal Sort By Feature Property
 |sortByTemporalFeatureProperty
-|String 
+|String
 |When Sorting Temporally, Sort By This Feature Property.
 |
 |No
 
 |Relevance Sort By Feature Property
 |sortByRelevanceFeatureProperty
-|String 
+|String
 |When Sorting By Distance, Sort By This Feature Property.
 |
 |No
 
 |Distance Sort By Feature Property
 |sortByDistanceFeatureProperty
-|String 
+|String
 |When Sorting By Relevance, Sort By This Feature Property.
 |
 |No
