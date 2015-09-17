@@ -102,8 +102,12 @@
 
     <feature name="security-sts-realm" install="manual" version="${project.version}"
              description="DDF Security STS Realm.">
-        <bundle>mvn:ddf.security.sts/security-sts-clientconfig/${project.version}</bundle>
         <bundle>mvn:ddf.security.sts/security-sts-realm/${project.version}</bundle>
+    </feature>
+
+    <feature name="security-sts-wss" install="manual" version="${project.version}"
+             description="DDF Security WSS STS support.">
+        <bundle>mvn:ddf.security.sts/security-sts-wss/${project.version}</bundle>
     </feature>
 
     <feature name="security-sts-ldaplogin" install="manual" version="${project.version}"

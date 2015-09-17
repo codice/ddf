@@ -20,7 +20,14 @@
 
     <service ref="handler" interface="org.codice.ddf.security.handler.api.AuthenticationHandler"
              ranking="50">
+    </service>
 
+    <bean id="wsshandler"
+          class="org.codice.ddf.security.handler.basic.WssBasicAuthenticationHandler">
+    </bean>
+
+    <service ref="wsshandler" interface="org.codice.ddf.security.handler.api.AuthenticationHandler"
+             ranking="50">
     </service>
 
 </blueprint>
