@@ -418,7 +418,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         try {
             getServiceManager().startFeature(true, "security-certificate-generator");
             given().auth().basic("admin", "admin").when()
-                    .get(CERT_GEN_PATH + "/installCertificate/mydomain").then().log().all()
+                    .get(CERT_GEN_PATH + "/configureDemoCert/mydomain").then().log().all()
                     .assertThat().statusCode(equalTo(200));
             getServiceManager().stopFeature(false, "security-certificate-generator");
         } finally {
