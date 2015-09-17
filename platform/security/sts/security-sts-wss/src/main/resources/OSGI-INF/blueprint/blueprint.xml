@@ -21,11 +21,13 @@
                interface="org.codice.ddf.security.policy.context.ContextPolicyManager"
                availability="optional"/>
     <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
+    <reference id="stsClientConfig"
+               interface="ddf.security.sts.client.configuration.STSClientConfiguration"/>
 
-	<bean id="stsRealm" class="ddf.security.realm.sts.StsRealm">
+	<bean id="stsRealm" class="ddf.security.realm.sts.wss.WssStsRealm">
 	    <property name="encryptionService" ref="encryptionService"/>
         <property name="contextPolicyManager" ref="contextPolicyManager"/>
-        <cm:managed-properties persistent-id="ddf.security.sts.client.configuration"
+        <cm:managed-properties persistent-id="ddf.security.sts.wss.configuration"
                                update-strategy="container-managed"/>
         <property name="address" value="https://localhost:8993/services/SecurityTokenService?wsdl"/>
         <property name="endpointName"

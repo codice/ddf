@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -12,20 +12,20 @@
  *
  **/
  -->
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xmlns="http://maven.apache.org/POM/4.0.0"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-
     <parent>
-        <groupId>ddf.security.sts</groupId>
         <artifactId>security-sts-pom</artifactId>
+        <groupId>ddf.security.sts</groupId>
         <version>2.8.0-SNAPSHOT</version>
     </parent>
+    <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>security-sts-realm</artifactId>
+    <artifactId>security-sts-wss</artifactId>
     <packaging>bundle</packaging>
-    <name>DDF :: Security :: STS :: Realm</name>
+    <name>DDF :: Security :: STS :: WSS</name>
+
 
     <dependencies>
         <dependency>
@@ -51,6 +51,11 @@
         <dependency>
             <groupId>ddf.security.core</groupId>
             <artifactId>security-core-impl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ddf.security.sts</groupId>
+            <artifactId>security-sts-realm</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.security.encryption</groupId>
@@ -93,6 +98,9 @@
                             ddf.security.common.util,
                             *
                         </Import-Package>
+                        <Embed-Dependency>
+                            security-sts-realm
+                        </Embed-Dependency>
                     </instructions>
                 </configuration>
             </plugin>
@@ -114,22 +122,22 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.17</minimum>
+                                            <minimum>0.0</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.15</minimum>
+                                            <minimum>0.0</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.12</minimum>
+                                            <minimum>0.0</minimum>
                                         </limit>
                                         <limit>
                                             <counter>LINE</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.18</minimum>
+                                            <minimum>0.0</minimum>
                                         </limit>
                                     </limits>
                                 </rule>
@@ -140,4 +148,5 @@
             </plugin>
         </plugins>
     </build>
+
 </project>

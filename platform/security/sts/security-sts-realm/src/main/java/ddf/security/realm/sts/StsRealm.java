@@ -90,7 +90,8 @@ import ddf.security.sts.client.configuration.STSClientConfiguration;
  * The STS Realm is the main piece of the security framework responsible for exchanging a binary
  * security token for a SAML assertion.
  */
-public class StsRealm extends AuthenticatingRealm implements ConfigurationWatcher {
+public class StsRealm extends AuthenticatingRealm
+        implements ConfigurationWatcher, STSClientConfiguration {
     private static final XLogger LOGGER = new XLogger(LoggerFactory.getLogger(StsRealm.class));
 
     private static final String NAME = StsRealm.class.getSimpleName();
@@ -122,9 +123,39 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
 
     private EncryptionService encryptionService;
 
-    private STSClientConfiguration stsClientConfig;
-
     private ContextPolicyManager contextPolicyManager;
+
+    String address = null;
+
+    String endpointName = null;
+
+    String serviceName = null;
+
+    String username = null;
+
+    String password = null;
+
+    String signatureUsername = null;
+
+    String signatureProperties = null;
+
+    String encryptionUsername = null;
+
+    String encryptionProperties = null;
+
+    String tokenUsername = null;
+
+    String tokenProperties = null;
+
+    List<String> claims = new ArrayList<String>();
+
+    private String assertionType = null;
+
+    private String keyType = null;
+
+    private String keySize = null;
+
+    private Boolean useKey = null;
 
     public StsRealm() {
         this.bus = getBus();
@@ -133,11 +164,6 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
 
     public void setEncryptionService(EncryptionService encryptionService) {
         this.encryptionService = encryptionService;
-    }
-
-    public void setStsClientConfig(STSClientConfiguration stsClientConfig) {
-        this.stsClientConfig = stsClientConfig;
-        configureStsClient();
     }
 
     public ContextPolicyManager getContextPolicyManager() {
@@ -185,6 +211,10 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
     @Override
     public boolean supports(AuthenticationToken token) {
         boolean supported = token != null && token.getCredentials() != null;
+        if (token instanceof BaseAuthenticationToken) {
+            supported = supported
+                    && ((BaseAuthenticationToken) token).isUseWssSts() == shouldHandleWss();
+        }
 
         if (supported) {
             LOGGER.debug("Token {} is supported by {}.", token.getClass(),
@@ -197,6 +227,10 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
         }
 
         return supported;
+    }
+
+    protected boolean shouldHandleWss() {
+        return false;
     }
 
     /**
@@ -260,7 +294,7 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
      */
     protected SecurityToken requestSecurityToken(Object authToken) {
         SecurityToken token = null;
-        String stsAddress = stsClientConfig.getAddress();
+        String stsAddress = getAddress();
 
         try {
             LOGGER.debug("Requesting security token from STS at: " + stsAddress + ".");
@@ -272,9 +306,9 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
                         "Telling the STS to request a security token on behalf of the auth token");
                 stsClient.setWsdlLocation(stsAddress);
                 stsClient.setOnBehalfOf(authToken);
-                stsClient.setTokenType(stsClientConfig.getAssertionType());
-                stsClient.setKeyType(stsClientConfig.getKeyType());
-                stsClient.setKeySize(Integer.valueOf(stsClientConfig.getKeySize()));
+                stsClient.setTokenType(getAssertionType());
+                stsClient.setKeyType(getKeyType());
+                stsClient.setKeySize(Integer.valueOf(getKeySize()));
                 token = stsClient.requestSecurityToken(stsAddress);
                 LOGGER.debug("Finished requesting security token.");
                 SecurityLogger.logInfo("Finished requesting security token.");
@@ -299,7 +333,7 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
      */
     protected SecurityToken renewSecurityToken(SecurityToken securityToken) {
         SecurityToken token = null;
-        String stsAddress = stsClientConfig.getAddress();
+        String stsAddress = getAddress();
 
         try {
             LOGGER.debug("Renewing security token from STS at: " + stsAddress + ".");
@@ -310,9 +344,9 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
                 SecurityLogger.logInfo(
                         "Telling the STS to renew a security token on behalf of the auth token");
                 stsClient.setWsdlLocation(stsAddress);
-                stsClient.setTokenType(stsClientConfig.getAssertionType());
-                stsClient.setKeyType(stsClientConfig.getKeyType());
-                stsClient.setKeySize(Integer.valueOf(stsClientConfig.getKeySize()));
+                stsClient.setTokenType(getAssertionType());
+                stsClient.setKeyType(getKeyType());
+                stsClient.setKeySize(Integer.valueOf(getKeySize()));
                 stsClient.setAllowRenewing(true);
                 token = stsClient.renewSecurityToken(securityToken);
                 LOGGER.debug("Finished renewing security token.");
@@ -563,7 +597,7 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
     private void addStsProperties() {
         Map<String, Object> map = new HashMap<String, Object>();
 
-        String signaturePropertiesPath = stsClientConfig.getSignatureProperties();
+        String signaturePropertiesPath = getSignatureProperties();
         if (signaturePropertiesPath != null && !signaturePropertiesPath.isEmpty()) {
             LOGGER.debug("Setting signature properties on STSClient: " + signaturePropertiesPath);
             Properties signatureProperties = PropertiesLoader
@@ -571,7 +605,7 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
             map.put(SecurityConstants.SIGNATURE_PROPERTIES, signatureProperties);
         }
 
-        String encryptionPropertiesPath = stsClientConfig.getEncryptionProperties();
+        String encryptionPropertiesPath = getEncryptionProperties();
         if (encryptionPropertiesPath != null && !encryptionPropertiesPath.isEmpty()) {
             LOGGER.debug("Setting encryption properties on STSClient: " + encryptionPropertiesPath);
             Properties encryptionProperties = PropertiesLoader
@@ -579,7 +613,7 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
             map.put(SecurityConstants.ENCRYPT_PROPERTIES, encryptionProperties);
         }
 
-        String stsPropertiesPath = stsClientConfig.getTokenProperties();
+        String stsPropertiesPath = getTokenProperties();
         if (stsPropertiesPath != null && !stsPropertiesPath.isEmpty()) {
             LOGGER.debug("Setting sts properties on STSClient: " + stsPropertiesPath);
             Properties stsProperties = PropertiesLoader.loadProperties(stsPropertiesPath);
@@ -590,8 +624,7 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
         //DDF-733 map.put(SecurityConstants.CALLBACK_HANDLER, new CommonCallbackHandler());
 
         LOGGER.debug("Setting STS TOKEN USE CERT FOR KEY INFO to \"true\"");
-        map.put(SecurityConstants.STS_TOKEN_USE_CERT_FOR_KEYINFO,
-                String.valueOf(stsClientConfig.getUseKey()));
+        map.put(SecurityConstants.STS_TOKEN_USE_CERT_FOR_KEYINFO, String.valueOf(getUseKey()));
 
         LOGGER.debug("Adding in realm information to the STSClient");
         map.put("CLIENT_REALM", "DDF");
@@ -604,9 +637,9 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
      */
     private void configureBaseStsClient() {
         stsClient = new STSClient(bus);
-        String stsAddress = stsClientConfig.getAddress();
-        String stsServiceName = stsClientConfig.getServiceName();
-        String stsEndpointName = stsClientConfig.getEndpointName();
+        String stsAddress = getAddress();
+        String stsServiceName = getServiceName();
+        String stsEndpointName = getEndpointName();
 
         if (stsAddress != null) {
             LOGGER.debug("Setting WSDL location on STSClient: " + stsAddress);
@@ -707,7 +740,7 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
     protected Element createClaimsElement() {
         Element claimsElement = null;
         List<String> claims = new ArrayList<String>();
-        claims.addAll(stsClientConfig.getClaims());
+        claims.addAll(getClaims());
 
         if (contextPolicyManager != null) {
             Collection<ContextPolicy> contextPolicies = contextPolicyManager
@@ -819,6 +852,181 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
             }
             return false;
         }
+    }
+
+    @Override
+    public String getAddress() {
+        return address;
+    }
+
+    @Override
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    @Override
+    public String getEndpointName() {
+        return endpointName;
+    }
+
+    @Override
+    public void setEndpointName(String endpointName) {
+        this.endpointName = endpointName;
+    }
+
+    @Override
+    public String getServiceName() {
+        return serviceName;
+    }
+
+    @Override
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName;
+    }
+
+    @Override
+    public String getUsername() {
+        return username;
+    }
+
+    @Override
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    @Override
+    public String getPassword() {
+        return password;
+    }
+
+    @Override
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    @Override
+    public String getSignatureUsername() {
+        return signatureUsername;
+    }
+
+    @Override
+    public void setSignatureUsername(String signatureUsername) {
+        this.signatureUsername = signatureUsername;
+    }
+
+    @Override
+    public String getSignatureProperties() {
+        return signatureProperties;
+    }
+
+    @Override
+    public void setSignatureProperties(String signatureProperties) {
+        this.signatureProperties = signatureProperties;
+
+    }
+
+    @Override
+    public String getEncryptionUsername() {
+        return encryptionUsername;
+    }
+
+    @Override
+    public void setEncryptionUsername(String encryptionUsername) {
+        this.encryptionUsername = encryptionUsername;
+
+    }
+
+    @Override
+    public String getEncryptionProperties() {
+        return encryptionProperties;
+    }
+
+    @Override
+    public void setEncryptionProperties(String encryptionProperties) {
+        this.encryptionProperties = encryptionProperties;
+
+    }
+
+    @Override
+    public String getTokenUsername() {
+        return tokenUsername;
+    }
+
+    @Override
+    public void setTokenUsername(String tokenUsername) {
+        this.tokenUsername = tokenUsername;
+    }
+
+    @Override
+    public String getTokenProperties() {
+        return tokenProperties;
+    }
+
+    @Override
+    public void setTokenProperties(String tokenProperties) {
+        this.tokenProperties = tokenProperties;
+    }
+
+    @Override
+    public List<String> getClaims() {
+        return claims;
+    }
+
+    @Override
+    public void setClaims(List<String> claims) {
+        this.claims = new ArrayList<String>(claims);
+    }
+
+    @Override
+    public void setClaims(String claimsListAsString) {
+        List<String> setClaims = new ArrayList<String>();
+        if (StringUtils.isNotBlank(claimsListAsString)) {
+            for (String claim : claimsListAsString.split(",")) {
+                claim = claim.trim();
+                setClaims.add(claim);
+            }
+        }
+        this.claims = setClaims;
+    }
+
+    @Override
+    public String getAssertionType() {
+        return assertionType;
+    }
+
+    @Override
+    public void setAssertionType(String assertionType) {
+        this.assertionType = assertionType;
+    }
+
+    @Override
+    public String getKeyType() {
+        return keyType;
+    }
+
+    @Override
+    public void setKeyType(String keyType) {
+        this.keyType = keyType;
+    }
+
+    @Override
+    public String getKeySize() {
+        return keySize;
+    }
+
+    @Override
+    public void setKeySize(String keySize) {
+        this.keySize = keySize;
+    }
+
+    @Override
+    public Boolean getUseKey() {
+        return useKey;
+    }
+
+    @Override
+    public void setUseKey(Boolean useKey) {
+        this.useKey = useKey;
     }
 
 }

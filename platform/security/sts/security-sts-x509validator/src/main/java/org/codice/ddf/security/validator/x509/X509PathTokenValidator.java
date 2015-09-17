@@ -28,8 +28,7 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
- */
-/**
+ * <p/>
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -37,9 +36,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
- *
+ * <p/>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -61,6 +60,7 @@ import org.apache.cxf.sts.request.ReceivedToken.STATE;
 import org.apache.cxf.sts.token.validator.TokenValidator;
 import org.apache.cxf.sts.token.validator.TokenValidatorParameters;
 import org.apache.cxf.sts.token.validator.TokenValidatorResponse;
+import org.apache.cxf.sts.token.validator.X509TokenValidator;
 import org.apache.cxf.ws.security.sts.provider.model.secext.BinarySecurityTokenType;
 import org.apache.wss4j.common.crypto.Crypto;
 import org.apache.wss4j.common.crypto.Merlin;
@@ -138,8 +138,10 @@ public class X509PathTokenValidator implements TokenValidator {
      */
     public boolean canHandleToken(ReceivedToken validateTarget, String realm) {
         Object token = validateTarget.getToken();
-        if ((token instanceof BinarySecurityTokenType) && X509_PKI_PATH
-                .equals(((BinarySecurityTokenType) token).getValueType())) {
+        if ((token instanceof BinarySecurityTokenType) && (
+                X509_PKI_PATH.equals(((BinarySecurityTokenType) token).getValueType())
+                        || X509TokenValidator.X509_V3_TYPE
+                        .equals(((BinarySecurityTokenType) token).getValueType()))) {
             return true;
         }
         return false;
@@ -212,7 +214,8 @@ public class X509PathTokenValidator implements TokenValidator {
             response.setPrincipal(
                     returnedCredential.getCertificates()[0].getSubjectX500Principal());
             validateTarget.setState(STATE.VALID);
-            validateTarget.setPrincipal(returnedCredential.getCertificates()[0].getSubjectX500Principal());
+            validateTarget.setPrincipal(
+                    returnedCredential.getCertificates()[0].getSubjectX500Principal());
         } catch (WSSecurityException ex) {
             LOGGER.warn("Unable to validate credentials.", ex);
         }

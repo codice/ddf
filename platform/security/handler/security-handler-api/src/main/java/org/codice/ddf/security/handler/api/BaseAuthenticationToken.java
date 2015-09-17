@@ -20,6 +20,8 @@ import org.slf4j.LoggerFactory;
 public class BaseAuthenticationToken implements AuthenticationToken {
     public static final String DEFAULT_REALM = "karaf";
 
+    private boolean useWssSts = false;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseAuthenticationToken.class);
 
     /**
@@ -72,6 +74,14 @@ public class BaseAuthenticationToken implements AuthenticationToken {
         this.credentials = o;
     }
 
+    public boolean isUseWssSts() {
+        return useWssSts;
+    }
+
+    public void setUseWssSts(boolean useWssSts) {
+        this.useWssSts = useWssSts;
+    }
+
     public String getRealm() {
         return realm;
     }
@@ -81,6 +91,7 @@ public class BaseAuthenticationToken implements AuthenticationToken {
      * This default behavior assumes that the credentials actually are stored in their
      * XML representation. If a subclass stores them differently, it is up to them to
      * override this method.
+     *
      * @return String containing the XML representation of this token's credentials
      */
     public String getCredentialsAsXMLString() {
