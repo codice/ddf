@@ -24,6 +24,8 @@
 
     <groupId>ddf.security.admin</groupId>
     <artifactId>security-admin-module</artifactId>
+    <name>DDF :: Security :: Admin</name>
+
     <packaging>bundle</packaging>
     <dependencies>
         <dependency>
@@ -51,7 +53,7 @@
                             <goal>install-node-and-npm</goal>
                         </goals>
                         <configuration>
-                            <nodeVersion>v0.10.18</nodeVersion>
+                            <nodeVersion>v0.10.40</nodeVersion>
                             <npmVersion>2.0.2</npmVersion>
                             <downloadRoot>http://artifacts.codice.org/nodejs/dist/</downloadRoot>
                         </configuration>
