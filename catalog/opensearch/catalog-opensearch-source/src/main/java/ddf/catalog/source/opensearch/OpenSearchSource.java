@@ -377,41 +377,20 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
             OpenSearchSiteUtil
                     .populateContextual(client, contextualFilter.getSearchPhrase(), parameters);
 
-            TemporalFilter temporalFilter = visitor.getTemporalSearch();
-            if (temporalFilter != null) {
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("startDate = " + temporalFilter.getStartDate().toString());
-                    LOGGER.debug("endDate = " + temporalFilter.getEndDate().toString());
-                }
-                OpenSearchSiteUtil.populateTemporal(client, temporalFilter, parameters);
-            }
+            applyFilters(visitor, client);
+            return true;
 
-            SpatialFilter spatialFilter = visitor.getSpatialSearch();
-            if (spatialFilter != null) {
-                if (spatialFilter instanceof SpatialDistanceFilter) {
-                    try {
-                        OpenSearchSiteUtil
-                                .populateGeospatial(client, (SpatialDistanceFilter) spatialFilter,
-                                        shouldConvertToBBox, parameters);
-                    } catch (UnsupportedQueryException e) {
-                        LOGGER.info("Problem with populating geospatial criteria. ", e);
-                    }
-                } else {
-                    try {
-                        OpenSearchSiteUtil
-                                .populateGeospatial(client, spatialFilter, shouldConvertToBBox,
-                                        parameters);
-                    } catch (UnsupportedQueryException e) {
-                        LOGGER.info("Problem with populating geospatial criteria. ", e);
-                    }
-                }
-            }
+            // ensure that there is no search phrase - we will add our own
+        } else if ((visitor.getSpatialSearch() != null && contextualFilter != null
+                && StringUtils.isEmpty(contextualFilter.getSearchPhrase())) || (visitor.getSpatialSearch() != null &&
+                contextualFilter == null)) {
 
-            if (localQueryOnly) {
-                client.replaceQueryParam(URL_SRC_PARAMETER, LOCAL_SEARCH_PARAMETER);
-            } else {
-                client.replaceQueryParam(URL_SRC_PARAMETER, "");
-            }
+            OpenSearchSiteUtil.populateSearchOptions(client, query, subject, parameters);
+
+            // add a wildcard search term - this query came in with no search phrase and a search phrase is necessary
+            OpenSearchSiteUtil.populateContextual(client, "*", parameters);
+
+            applyFilters(visitor, client);
             return true;
         }
         return false;
@@ -870,5 +849,43 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
             client = tempFactory.getUnsecuredWebClient();
         }
         return client;
+    }
+
+    private void applyFilters(OpenSearchFilterVisitor visitor, WebClient client) {
+
+        TemporalFilter temporalFilter = visitor.getTemporalSearch();
+        if (temporalFilter != null) {
+            LOGGER.debug("startDate = {}", temporalFilter.getStartDate());
+            LOGGER.debug("endDate = {}", temporalFilter.getEndDate());
+
+            OpenSearchSiteUtil.populateTemporal(client, temporalFilter, parameters);
+        }
+
+        SpatialFilter spatialFilter = visitor.getSpatialSearch();
+        if (spatialFilter != null) {
+            if (spatialFilter instanceof SpatialDistanceFilter) {
+                try {
+                    OpenSearchSiteUtil
+                            .populateGeospatial(client, (SpatialDistanceFilter) spatialFilter,
+                                    shouldConvertToBBox, parameters);
+                } catch (UnsupportedQueryException e) {
+                    LOGGER.warn("Problem with populating geospatial criteria. ", e);
+                }
+            } else {
+                try {
+                    OpenSearchSiteUtil
+                            .populateGeospatial(client, spatialFilter, shouldConvertToBBox,
+                                    parameters);
+                } catch (UnsupportedQueryException e) {
+                    LOGGER.warn("Problem with populating geospatial criteria. ", e);
+                }
+            }
+        }
+
+        if (localQueryOnly) {
+            client.replaceQueryParam(URL_SRC_PARAMETER, LOCAL_SEARCH_PARAMETER);
+        } else {
+            client.replaceQueryParam(URL_SRC_PARAMETER, "");
+        }
     }
 }
