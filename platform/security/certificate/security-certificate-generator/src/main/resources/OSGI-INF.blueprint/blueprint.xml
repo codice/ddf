@@ -18,6 +18,6 @@
 
 
     <bean id="certGenerator"
-          class="org.codice.org.codice.ddf.security.certificate.generator.CertificateGenerator">
+          class="org.codice.ddf.security.certificate.generator.CertificateGenerator">
     </bean>
 </blueprint>
