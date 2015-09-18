@@ -22,8 +22,8 @@
                availability="optional"/>
     <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
 
-	<bean id="stsRealm" class="ddf.security.realm.sts.StsRealm">
-	    <property name="encryptionService" ref="encryptionService"/>
+    <bean id="stsRealm" class="ddf.security.realm.sts.StsRealm">
+        <property name="encryptionService" ref="encryptionService"/>
         <property name="contextPolicyManager" ref="contextPolicyManager"/>
         <cm:managed-properties persistent-id="ddf.security.sts.client.configuration"
                                update-strategy="container-managed"/>
@@ -54,8 +54,52 @@
     <service ref="stsRealm"
              interface="ddf.security.sts.client.configuration.STSClientConfiguration"/>
 
-	<service ref="stsRealm" interface="org.codice.ddf.configuration.ConfigurationWatcher"/>
+    <service ref="stsRealm" interface="org.codice.ddf.configuration.ConfigurationWatcher"/>
 
-	<service ref="stsRealm" interface="org.apache.shiro.realm.Realm"/>
+    <service ref="stsRealm" interface="org.apache.shiro.realm.Realm"/>
+
+    <bean id="wssStsRealm" class="ddf.security.realm.sts.WssStsRealm">
+        <property name="encryptionService" ref="encryptionService"/>
+        <property name="contextPolicyManager" ref="contextPolicyManager"/>
+        <cm:managed-properties persistent-id="ddf.security.sts.wss.configuration"
+                               update-strategy="container-managed"/>
+        <property name="address" value="https://localhost:8993/services/SecurityTokenService?wsdl"/>
+        <property name="endpointName"
+                  value="{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}STS_Port"/>
+        <property name="serviceName"
+                  value="{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}SecurityTokenService"/>
+        <property name="signatureProperties" value="etc/ws-security/server/signature.properties"/>
+        <property name="encryptionProperties" value="etc/ws-security/server/encryption.properties"/>
+        <property name="tokenProperties" value="etc/ws-security/server/signature.properties"/>
+        <property name="assertionType"
+                  value="http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0"/>
+        <property name="keyType" value="http://docs.oasis-open.org/ws-sx/ws-trust/200512/Bearer"/>
+        <property name="keySize" value="256"/>
+        <property name="useKey" value="true"/>
+        <property name="claims">
+            <list>
+                <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier</value>
+                <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress</value>
+                <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname</value>
+                <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname</value>
+                <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role</value>
+            </list>
+        </property>
+    </bean>
+
+    <service ref="wssStsRealm"
+             interface="ddf.security.sts.client.configuration.STSClientConfiguration"/>
+
+    <service ref="wssStsRealm" interface="org.codice.ddf.configuration.ConfigurationWatcher"/>
+
+    <service ref="wssStsRealm" interface="org.apache.shiro.realm.Realm"/>
+
+    <bean id="stsAddressProvider" class="ddf.security.realm.sts.StsAddressProviderImpl">
+        <cm:managed-properties persistent-id="ddf.security.sts.address.provider"
+                               update-strategy="container-managed"/>
+        <property name="useWss" value="false"/>
+        <argument ref="stsRealm"/>
+        <argument ref="wssStsRealm"/>
+    </bean>
 
 </blueprint>

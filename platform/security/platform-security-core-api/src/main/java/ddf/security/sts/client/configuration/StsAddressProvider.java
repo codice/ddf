@@ -11,20 +11,9 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.security.realm.sts.wss;
+package ddf.security.sts.client.configuration;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+public interface StsAddressProvider {
 
-import ddf.security.realm.sts.StsRealm;
-
-public class WssStsRealm extends StsRealm {
-    private static final Logger LOGGER = LoggerFactory.getLogger(WssStsRealm.class);
-
-    @Override
-    protected boolean shouldHandleWss() {
-        return true;
-    }
-
+    public String getStsAddress();
 }
-

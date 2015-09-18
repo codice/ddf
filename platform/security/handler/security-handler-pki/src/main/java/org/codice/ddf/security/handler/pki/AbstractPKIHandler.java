@@ -33,7 +33,7 @@ public abstract class AbstractPKIHandler implements AuthenticationHandler {
 
     public static final String SOURCE = "PKIHandler";
 
-    protected static final Logger LOGGER = LoggerFactory.getLogger(PKIHandler.class);
+    protected static final Logger LOGGER = LoggerFactory.getLogger(AbstractPKIHandler.class);
 
     protected PKIAuthenticationTokenFactory tokenFactory;
 
