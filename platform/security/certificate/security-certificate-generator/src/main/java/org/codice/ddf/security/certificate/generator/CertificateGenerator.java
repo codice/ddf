@@ -16,6 +16,7 @@ package org.codice.ddf.security.certificate.generator;
 
 import java.lang.management.ManagementFactory;
 import java.security.KeyStore;
+import java.security.cert.X509Certificate;
 
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanServer;
@@ -31,6 +32,28 @@ public class CertificateGenerator implements CertificateGeneratorMBean {
 
     public CertificateGenerator() {
         registerMbean();
+    }
+
+    public String configureDemoCertWithDefaultHostname() {
+        return configureDemoCert(PkiTools.getHostName());
+    }
+
+    public String configureDemoCert(String commonName) {
+        CertificateAuthority demoCa = new DemoCertificateAuthority();
+        CertificateSigningRequest csr = new CertificateSigningRequest();
+        csr.setCommonName(commonName);
+        KeyStore.PrivateKeyEntry pkEntry = demoCa.sign(csr);
+        KeyStoreFile ksFile = getKeyStoreFile();
+        ksFile.setEntry(commonName, pkEntry);
+        ksFile.save();
+        String distinguishedName = ((X509Certificate) pkEntry.getCertificate()).getSubjectDN()
+                .getName();
+        return distinguishedName;
+    }
+
+    KeyStoreFile getKeyStoreFile() {
+        return KeyStoreFile.openFile(System.getProperty("javax.net.ssl.keyStore"),
+                System.getProperty("javax.net.ssl.keyStorePassword").toCharArray());
     }
 
     private void registerMbean() {
@@ -59,21 +82,5 @@ public class CertificateGenerator implements CertificateGeneratorMBean {
                 LOGGER.error("Could not register MBean [{}].", objectName.toString(), e);
             }
         }
-    }
-
-    public void configureDemoCert(String commonName) {
-        CertificateAuthority demoCa = new DemoCertificateAuthority();
-        CertificateSigningRequest csr = new CertificateSigningRequest();
-        csr.setCommonName(commonName);
-        KeyStore.PrivateKeyEntry pkEntry = demoCa.sign(csr);
-        KeyStoreFile ksFile = getKeyStoreFile();
-        ksFile.setEntry(commonName, pkEntry);
-        ksFile.save();
-
-    }
-
-    KeyStoreFile getKeyStoreFile() {
-        return KeyStoreFile.openFile(System.getProperty("javax.net.ssl.keyStore"),
-                System.getProperty("javax.net.ssl.keyStorePassword").toCharArray());
     }
 }
