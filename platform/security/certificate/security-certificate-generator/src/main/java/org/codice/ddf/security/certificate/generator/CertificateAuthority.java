@@ -19,7 +19,7 @@ import java.security.Security;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
-import org.apache.commons.lang3.Validate;
+import org.apache.commons.lang.Validate;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
@@ -42,8 +42,6 @@ public class CertificateAuthority {
     PrivateKey issuerPrivateKey;
 
     X509Certificate issuerCert;
-
-    PkiTools pkiTools = new PkiTools();
 
     /**
      * Create fully initialized instance of a Certificate Authority.

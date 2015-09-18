@@ -20,7 +20,7 @@ import java.security.PublicKey;
 import java.security.Security;
 import java.security.cert.X509Certificate;
 
-import org.apache.commons.lang3.Validate;
+import org.apache.commons.lang.Validate;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -60,8 +60,6 @@ public class CertificateSigningRequest {
 
     protected BigInteger serialNumber;
 
-    PkiTools pkiTools = new PkiTools();
-
     private X500Name subjectName;
 
     public CertificateSigningRequest() {
@@ -85,7 +83,7 @@ public class CertificateSigningRequest {
      */
     public void setCommonName(String name) {
         Validate.notNull("Subject common name of certificate signing request cannot be null");
-        subjectName = pkiTools.makeDistinguishedName(name);
+        subjectName = PkiTools.makeDistinguishedName(name);
     }
 
     /**
@@ -121,8 +119,8 @@ public class CertificateSigningRequest {
         setSerialNumber(System.currentTimeMillis());
         setNotBefore(DateTime.now().minusDays(1));
         setNotAfter(getNotBefore().plusYears(VALID_YEARS));
-        setCommonName(pkiTools.getHostName());
-        setSubjectKeyPair(pkiTools.generateRsaKeyPair());
+        setCommonName(PkiTools.getHostName());
+        setSubjectKeyPair(PkiTools.generateRsaKeyPair());
     }
 
     public DateTime getNotBefore() {
