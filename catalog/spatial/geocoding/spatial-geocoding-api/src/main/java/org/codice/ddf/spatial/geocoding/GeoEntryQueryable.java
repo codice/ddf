@@ -16,6 +16,8 @@ package org.codice.ddf.spatial.geocoding;
 
 import java.util.List;
 
+import org.codice.ddf.spatial.geocoding.context.NearbyLocation;
+
 import ddf.catalog.data.Metacard;
 
 /**
@@ -39,10 +41,10 @@ public interface GeoEntryQueryable {
      * Retrieves the cities within {@code radiusInKm} kilometers of {@code metacard}, sorted by
      * population in descending order.
      * <p>
-     * Each result is returned as a string of the format "[distance] km [direction] of [city]"; in
-     * other words, each result describes the position of {@code metacard} relative to the city.
+     * Each result is returned as a {@link NearbyLocation}, which describes the position of
+     * {@code metacard} relative to the city.
      *
-     * @param metacard  the {@link Metacard} to search around
+     * @param metacard  the {@link Metacard} around which to search
      * @param radiusInKm  the search radius, in kilometers
      * @param maxResults  the maximum number of results to return
      * @return the position of {@code metacard} relative to each of the nearest cities along with
@@ -51,5 +53,5 @@ public interface GeoEntryQueryable {
      *                                  {@code maxResults} is not a positive integer
      * @throws GeoEntryQueryException if an exception occurs while querying the GeoNames resource
      */
-    List<String> getNearestCities(Metacard metacard, int radiusInKm, int maxResults);
+    List<NearbyLocation> getNearestCities(Metacard metacard, int radiusInKm, int maxResults);
 }

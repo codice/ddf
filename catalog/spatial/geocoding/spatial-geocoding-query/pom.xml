@@ -36,6 +36,11 @@
         </dependency>
         <dependency>
             <groupId>org.codice.ddf.spatial</groupId>
+            <artifactId>spatial-geocoding-api-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.spatial</groupId>
             <artifactId>spatial-geocoding-index</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -76,7 +81,6 @@
         <dependency>
             <groupId>com.spatial4j</groupId>
             <artifactId>spatial4j</artifactId>
-            <version>0.4.1</version>
         </dependency>
 
         <!-- Test dependencies -->
@@ -117,6 +121,7 @@
                             lucene-queries,
                             lucene-queryparser,
                             lucene-spatial,
+                            spatial-geocoding-api-impl,
                             spatial4j
                         </Embed-Dependency>
                     </instructions>
@@ -144,7 +149,7 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.88</minimum>
+                                            <minimum>0.90</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>
@@ -154,7 +159,7 @@
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.67</minimum>
+                                            <minimum>0.70</minimum>
                                         </limit>
                                         <limit>
                                             <counter>LINE</counter>

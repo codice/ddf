@@ -49,6 +49,7 @@ import org.apache.lucene.store.RAMDirectory;
 import org.codice.ddf.spatial.geocoding.GeoEntry;
 import org.codice.ddf.spatial.geocoding.GeoEntryQueryException;
 import org.codice.ddf.spatial.geocoding.TestBase;
+import org.codice.ddf.spatial.geocoding.context.NearbyLocation;
 import org.codice.ddf.spatial.geocoding.index.GeoNamesLuceneConstants;
 import org.junit.Before;
 import org.junit.Test;
@@ -144,7 +145,7 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
 
         initializeIndex();
 
-        doReturn(directory).when(directoryIndex).createDirectory();
+        doReturn(directory).when(directoryIndex).openDirectory();
     }
 
     private Document createDocumentFromGeoEntry(final GeoEntry geoEntry) {
@@ -248,7 +249,7 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
 
     @Test
     public void testExceptionInDirectoryCreation() throws IOException {
-        doThrow(IOException.class).when(directoryIndex).createDirectory();
+        doThrow(IOException.class).when(directoryIndex).openDirectory();
 
         try {
             directoryIndex.query("phoenix", 1);
@@ -310,7 +311,7 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
 
         final int requestedMaxResults = 2;
 
-        final List<String> nearestCities = directoryIndex
+        final List<NearbyLocation> nearestCities = directoryIndex
                 .getNearestCities(metacard, 50, requestedMaxResults);
         assertThat(nearestCities.size(), is(requestedMaxResults));
 
@@ -321,8 +322,21 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
            Additionally, "Phoenix Airport" (GEO_ENTRY_2) is within 50 km of (56.78, 1), but it
            should not be included in the results because its feature code is AIRP (not a city).
         */
-        assertThat(nearestCities.get(0), is("26.02 km S of Phoenix"));
-        assertThat(nearestCities.get(1), is("24.46 km W of Glendale"));
+        final NearbyLocation first = nearestCities.get(0);
+        assertThat(first.getCardinalDirection(), is("S"));
+
+        final double firstDistance = first.getDistance();
+        assertThat(String.format("%.2f", firstDistance), is("26.02"));
+
+        assertThat(first.getName(), is("Phoenix"));
+
+        final NearbyLocation second = nearestCities.get(1);
+        assertThat(second.getCardinalDirection(), is("W"));
+
+        final double secondDistance = second.getDistance();
+        assertThat(String.format("%.2f", secondDistance), is("24.46"));
+
+        assertThat(second.getName(), is("Glendale"));
     }
 
     @Test
@@ -333,7 +347,7 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
         final int requestedMaxResults = 2;
         final int actualResults = 1;
 
-        final List<String> nearestCities = directoryIndex
+        final List<NearbyLocation> nearestCities = directoryIndex
                 .getNearestCities(metacard, 50, requestedMaxResults);
         assertThat(nearestCities.size(), is(actualResults));
 
@@ -342,7 +356,13 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
            Additionally, "Phoenix Airport" (GEO_ENTRY_2) is within 50 km of (56.78, 1.5), but it
            should not be included in the results because its feature code is AIRP (not a city).
         */
-        assertThat(nearestCities.get(0), is("29.58 km N of Phoenix"));
+        final NearbyLocation first = nearestCities.get(0);
+        assertThat(first.getCardinalDirection(), is("N"));
+
+        final double distance = first.getDistance();
+        assertThat(String.format("%.2f", distance), is("29.58"));
+
+        assertThat(first.getName(), is("Phoenix"));
     }
 
     @Test
@@ -353,7 +373,7 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
         final int requestedMaxResults = 2;
         final int actualResults = 0;
 
-        final List<String> nearestCities = directoryIndex
+        final List<NearbyLocation> nearestCities = directoryIndex
                 .getNearestCities(metacard, 50, requestedMaxResults);
         assertThat(nearestCities.size(), is(actualResults));
     }
@@ -366,7 +386,7 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
         final int requestedMaxResults = 2;
         final int actualResults = 0;
 
-        final List<String> nearestCities = directoryIndex
+        final List<NearbyLocation> nearestCities = directoryIndex
                 .getNearestCities(metacard, 50, requestedMaxResults);
         assertThat(nearestCities.size(), is(actualResults));
     }
@@ -378,7 +398,7 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
         final int requestedMaxResults = 2;
         final int actualResults = 0;
 
-        final List<String> nearestCities = directoryIndex
+        final List<NearbyLocation> nearestCities = directoryIndex
                 .getNearestCities(metacard, 50, requestedMaxResults);
         assertThat(nearestCities.size(), is(actualResults));
     }
