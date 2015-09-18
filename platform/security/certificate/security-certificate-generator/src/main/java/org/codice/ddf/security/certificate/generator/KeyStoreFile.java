@@ -45,15 +45,15 @@ public class KeyStoreFile {
     static KeyStoreFile openFile(String filePath, char[] password) {
 
         KeyStoreFile facade = new KeyStoreFile();
-        PkiTools tools = new PkiTools();
         File file;
-        char[] pw = tools.formatPassword(password);
+        char[] pw = PkiTools.formatPassword(password);
         KeyStore keyStore = null;
         try {
-            file = tools.createFileObject(filePath);
-            FileInputStream resource = new FileInputStream(file);
-            keyStore = newKeyStore();
-            keyStore.load(resource, pw);
+            file = PkiTools.createFileObject(filePath);
+            try (FileInputStream resource = new FileInputStream(file)) {
+                keyStore = newKeyStore();
+                keyStore.load(resource, pw);
+            }
         } catch (GeneralSecurityException | IOException e) {
             throw new CertificateGeneratorException("Could not create new instance of KeyStoreFile",
                     e);
