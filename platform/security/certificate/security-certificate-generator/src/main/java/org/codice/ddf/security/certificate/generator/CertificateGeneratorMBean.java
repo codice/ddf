@@ -15,5 +15,7 @@ package org.codice.ddf.security.certificate.generator;
 
 public interface CertificateGeneratorMBean {
 
-    public void configureDemoCert(String commonName);
+    public String configureDemoCert(String commonName);
+
+    public String configureDemoCertWithDefaultHostname();
 }

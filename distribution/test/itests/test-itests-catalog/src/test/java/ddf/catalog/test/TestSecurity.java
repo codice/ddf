@@ -14,8 +14,11 @@
 package ddf.catalog.test;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
 
@@ -35,6 +38,9 @@ import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
+
+import com.jayway.restassured.path.json.JsonPath;
+import com.jayway.restassured.response.Response;
 
 import ddf.common.test.BeforeExam;
 import ddf.security.SecurityConstants;
@@ -83,7 +89,7 @@ public class TestSecurity extends AbstractIntegrationTest {
     protected static final String SDK_SOAP_CONTEXT = "/services/sdk/SoapService";
 
     private static final String CERT_GEN_PATH = "https://localhost:" + HTTPS_PORT
-            + "/jolokia/exec/org.codice.ddf.security.certificate.generator.CertificateGenerator:service=security-certificate-generator";
+            + "/jolokia/exec/org.codice.ddf.security.certificate.generator.CertificateGenerator:service=certgenerator";
 
     @BeforeExam
     public void beforeTest() throws Exception {
@@ -411,18 +417,40 @@ public class TestSecurity extends AbstractIntegrationTest {
         Files.copy(Paths.get(getBackupFilename()), Paths.get(getFilename()), REPLACE_EXISTING);
     }
 
+    //Purpose is to make sure operations of the security certificate generator are accessible
+    //at runtime. The actual functionality of these operations is proved in unit tests.
     @Test
     public void testCertificateGeneratorService() throws Exception {
+        String commonName = "pangalactic";
+        String expectedValue = "CN=" + commonName;
+        String featureName = "security-certificate-generator";
 
         backupKeystoreFile();
         try {
-            getServiceManager().startFeature(true, "security-certificate-generator");
-            given().auth().basic("admin", "admin").when()
-                    .get(CERT_GEN_PATH + "/configureDemoCert/mydomain").then().log().all()
-                    .assertThat().statusCode(equalTo(200));
-            getServiceManager().stopFeature(false, "security-certificate-generator");
+            getServiceManager().startFeature(true, featureName);
+
+            //Test first operation
+            Response response = given().auth().basic("admin", "admin").when()
+                    .get(CERT_GEN_PATH + "/configureDemoCert/" + commonName);
+            String actualValue = JsonPath.from(response.getBody().asString()).getString("value");
+            assertThat(actualValue, equalTo(expectedValue));
+
+            //Test second operation
+            response = given().auth().basic("admin", "admin").when()
+                    .get(CERT_GEN_PATH + "/configureDemoCertWithDefaultHostname");
+
+            String jsonString = response.getBody().asString();
+            JsonPath jsonPath = JsonPath.from(jsonString);
+            //If the key value exists, the return value is well-formatted (i.e. not a stacktrace)
+            assertThat(jsonPath.getString("value"), notNullValue());
+
+            //Make sure an invalid key would return null
+            assertThat(jsonPath.getString("someinvalidkey"), nullValue());
+
+            getServiceManager().stopFeature(false, featureName);
         } finally {
             restoreKeystoreFile();
         }
     }
+
 }

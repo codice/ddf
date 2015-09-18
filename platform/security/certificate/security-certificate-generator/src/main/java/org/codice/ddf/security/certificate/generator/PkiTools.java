@@ -26,12 +26,13 @@ import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.PrivateKey;
+import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
 
-import org.apache.commons.lang3.Validate;
+import org.apache.commons.lang.Validate;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
 import org.bouncycastle.asn1.x500.style.RFC4519Style;
@@ -43,7 +44,7 @@ import org.slf4j.LoggerFactory;
 /**
  * This class is a home for helper functions that were did not belong to other classes.
  */
-public class PkiTools {
+public abstract class PkiTools {
 
     public static final int RSA_KEY_LENGTH = 2048;
 
@@ -57,7 +58,7 @@ public class PkiTools {
      * @param bytes DER encoded bytes
      * @return PEM encoded bytes
      */
-    public String derToPem(byte[] bytes) {
+    public static String derToPem(byte[] bytes) {
         Validate.isTrue(bytes != null, "Argument bytes cannot be null");
         return Base64.getEncoder().encodeToString(bytes);
     }
@@ -69,7 +70,7 @@ public class PkiTools {
      * @param password character array
      * @return character array
      */
-    char[] formatPassword(char[] password) {
+    static char[] formatPassword(char[] password) {
         return password == null ? new char[0] : password;
     }
 
@@ -78,7 +79,7 @@ public class PkiTools {
      * @return instance of File
      * @throws IOException
      */
-    File createFileObject(String filePath) throws IOException {
+    static File createFileObject(String filePath) throws IOException {
 
         File file;
 
@@ -109,11 +110,11 @@ public class PkiTools {
      * @param cert certificate
      * @return PEM encoded String
      */
-    public String certificateToPem(X509Certificate cert) {
+    public static String certificateToPem(X509Certificate cert) {
         Validate.isTrue(cert != null, "Certificate cannot be null");
         try {
             return derToPem(cert.getEncoded());
-        } catch (Exception e) {
+        } catch (RuntimeException | CertificateEncodingException e) {
             throw new CertificateGeneratorException(
                     "Unable to convert the certificate to a PEM object", e);
         }
@@ -125,8 +126,8 @@ public class PkiTools {
      * @param certDer byte array representing a DER encoded X509 certificate
      * @return instance of X509 certificate
      */
-    public X509Certificate derToCertificate(byte[] certDer) {
-        return pemToCertificate(derToPem(certDer));
+    public static X509Certificate derToCertificate(byte[] certDer) {
+        return PkiTools.pemToCertificate(derToPem(certDer));
     }
 
     /**
@@ -135,8 +136,8 @@ public class PkiTools {
      * @param privateKeyDer byte array representing a DER encoded private key
      * @return instance of private key
      */
-    public PrivateKey derToPrivateKey(byte[] privateKeyDer) {
-        return pemToPrivateKey(derToPem(privateKeyDer));
+    public static PrivateKey derToPrivateKey(byte[] privateKeyDer) {
+        return PkiTools.pemToPrivateKey(derToPem(privateKeyDer));
     }
 
     /**
@@ -146,7 +147,7 @@ public class PkiTools {
      *
      * @return Hostname of this machine. Hostname should be the same as the machine's DNS name.
      */
-    public String getHostName() {
+    public static String getHostName() {
         //getCannonicalHostName returns the IP address. getHostName is the closet Java method to getting
         // the FQDN.
         try {
@@ -162,7 +163,7 @@ public class PkiTools {
      * @return new generated key pair
      * @throws CertificateGeneratorException
      */
-    public KeyPair generateRsaKeyPair() {
+    public static KeyPair generateRsaKeyPair() {
         try {
             KeyPairGenerator keyGen = KeyPairGenerator
                     .getInstance(ALGORITHM, BouncyCastleProvider.PROVIDER_NAME);
@@ -174,7 +175,7 @@ public class PkiTools {
         }
     }
 
-    public byte[] keyToDer(Key key) {
+    public static byte[] keyToDer(Key key) {
         Validate.isTrue(key != null, "Key cannot be null");
         return pemToDer(keyToPem(key));
     }
@@ -183,7 +184,7 @@ public class PkiTools {
      * @param key object
      * @return PEM encoded string represents the bytes of the key
      */
-    public String keyToPem(Key key) {
+    public static String keyToPem(Key key) {
         Validate.isTrue(key != null, "Key cannot be null");
         return derToPem(key.getEncoded());
     }
@@ -204,9 +205,10 @@ public class PkiTools {
      * @see <a href="https://tools.ietf.org/html/rfc4519">RFC 4519 details the exact construction of distinguished names</a>
      * @see <a href="https://en.wikipedia.org/wiki/SubjectAltName">Subject Alternative Names on Wikipedia'</a>
      */
-    public X500Name makeDistinguishedName(String commonName) {
+    public static X500Name makeDistinguishedName(String commonName) {
         Validate.isTrue(commonName != null, "Certificate common name cannot be null");
 
+        assert commonName != null;
         if (commonName.isEmpty()) {
             LOGGER.warn(
                     "Setting certificate common name to empty string. This could result in an unusable TLS certificate.");
@@ -226,9 +228,9 @@ public class PkiTools {
      * @param certString PEM encoded X509 certificate
      * @return instance of X509 certificate
      */
-    public X509Certificate pemToCertificate(String certString) {
+    public static X509Certificate pemToCertificate(String certString) {
         CertificateFactory cf = new CertificateFactory();
-        ByteArrayInputStream in = new ByteArrayInputStream(pemToDer(certString));
+        ByteArrayInputStream in = new ByteArrayInputStream(PkiTools.pemToDer(certString));
         X509Certificate cert = null;
         try {
             cert = (X509Certificate) cf.engineGenerateCertificate(in);
@@ -249,7 +251,7 @@ public class PkiTools {
      * @param string PEM encoded bytes
      * @return DER encoded bytes
      */
-    public byte[] pemToDer(String string) {
+    public static byte[] pemToDer(String string) {
         Validate.isTrue(string != null, "PEM string cannot be null");
         return Base64.getDecoder().decode(string);
     }
@@ -260,16 +262,17 @@ public class PkiTools {
      * @param keyString encoded RSA private key. Assume PKCS#8 format
      * @return Instance of PrivateKey
      */
-    public PrivateKey pemToPrivateKey(String keyString) {
+    public static PrivateKey pemToPrivateKey(String keyString) {
         try {
-            return getRsaKeyFactory().generatePrivate(new PKCS8EncodedKeySpec(pemToDer(keyString)));
+            return PkiTools.getRsaKeyFactory()
+                    .generatePrivate(new PKCS8EncodedKeySpec(pemToDer(keyString)));
         } catch (Exception e) {
             throw new CertificateGeneratorException("Could not convert String to Private Key",
                     e.getCause());
         }
     }
 
-    private KeyFactory getRsaKeyFactory() throws GeneralSecurityException {
+    private static KeyFactory getRsaKeyFactory() throws GeneralSecurityException {
         return KeyFactory.getInstance(ALGORITHM, BouncyCastleProvider.PROVIDER_NAME);
     }
 }

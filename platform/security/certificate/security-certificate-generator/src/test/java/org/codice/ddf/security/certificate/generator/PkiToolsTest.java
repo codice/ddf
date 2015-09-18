@@ -29,7 +29,6 @@ import java.security.cert.X509Certificate;
 
 import org.bouncycastle.asn1.x500.X500Name;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -48,30 +47,25 @@ public class PkiToolsTest {
 
     @Test(expected = CertificateGeneratorException.class)
     public void testDerToPrivateKey() {
-        tools.derToPrivateKey(new byte[] {0});
-    }
-
-    @Before
-    public void setUp() {
-        tools = new PkiTools();
+        PkiTools.derToPrivateKey(new byte[] {0});
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void nameIsNull() throws IllegalArgumentException {
-        tools.makeDistinguishedName(null);
+        PkiTools.makeDistinguishedName(null);
     }
 
     @Test
     public void nameIsEmptyString() throws CertificateEncodingException {
 
-        X500Name name = tools.makeDistinguishedName("");
+        X500Name name = PkiTools.makeDistinguishedName("");
         assertThat(name.toString(), equalTo("cn="));
     }
 
     @Test
     public void nameIsNotEmpty() throws CertificateEncodingException {
         String host = "host.domain.tld";
-        X500Name name = tools.makeDistinguishedName(host);
+        X500Name name = PkiTools.makeDistinguishedName(host);
         assertThat(name.toString(), equalTo("cn=" + host));
     }
 
@@ -79,13 +73,13 @@ public class PkiToolsTest {
     public void convertCertificate() throws CertificateException {
         String originalCert = DemoCertificateAuthority.pemDemoCaCertificate;
         assertThat(originalCert, not(equalTo("")));
-        assertThat(tools.certificateToPem(tools.pemToCertificate(originalCert)),
+        assertThat(PkiTools.certificateToPem(PkiTools.pemToCertificate(originalCert)),
                 equalTo(originalCert));
     }
 
     @Test
     public void hostName() {
-        assertThat(tools.getHostName(), not(equalTo("")));
+        assertThat(PkiTools.getHostName(), not(equalTo("")));
     }
 
     @Test(expected = CertificateGeneratorException.class)
@@ -101,90 +95,90 @@ public class PkiToolsTest {
     @Test
     public void testFormatPassword() throws Exception {
         Assert.assertThat("formatPassword() failed to return empty character array",
-                tools.formatPassword(null), instanceOf(char[].class));
+                PkiTools.formatPassword(null), instanceOf(char[].class));
 
         char[] pw = "password".toCharArray();
         Assert.assertThat("formatPassword() should not modify the password",
-                new String(tools.formatPassword(pw)), equalTo("password"));
+                new String(PkiTools.formatPassword(pw)), equalTo("password"));
     }
 
     //Null path to keyStore file.
     @Test(expected = IllegalArgumentException.class)
     public void nullPath() throws Exception {
-        tools.createFileObject(null);
+        PkiTools.createFileObject(null);
     }
 
     //Test constructor. Invalid path to keyStore file.
     @Test(expected = FileNotFoundException.class)
     public void invalidPath() throws Exception {
-        tools.createFileObject("");
+        PkiTools.createFileObject("");
     }
 
     //Test Constructor. Path is a directory, not a file.
     @Test(expected = FileNotFoundException.class)
     public void pathIsDirectory() throws Exception {
         String anyDirectory = getPathTo("");
-        tools.createFileObject("");
+        PkiTools.createFileObject("");
     }
 
     @Test
     public void realFile() throws IOException {
         assertThat(
                 "Should have returned a new File object. Is the file in the test resources directory?",
-                tools.createFileObject(getPathTo("not_keystore.jks")), instanceOf(File.class));
+                PkiTools.createFileObject(getPathTo("not_keystore.jks")), instanceOf(File.class));
     }
 
     @Test(expected = CertificateGeneratorException.class)
     public void badKey() {
-        tools.pemToPrivateKey("YmFkc3RyaW5n");
+        PkiTools.pemToPrivateKey("YmFkc3RyaW5n");
     }
 
     @Test(expected = CertificateGeneratorException.class)
     public void badCert() {
-        tools.pemToCertificate("YmFkc3RyaW5n");
+        PkiTools.pemToCertificate("YmFkc3RyaW5n");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testDerToCertificate() {
 
-        tools.derToCertificate(null);
+        PkiTools.derToCertificate(null);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testDerToPem() {
-        tools.derToPem(null);
+        PkiTools.derToPem(null);
 
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testNullToPrivateKey() {
-        tools.derToPrivateKey(null);
+        PkiTools.derToPrivateKey(null);
 
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testCertificateToPem() {
-        tools.certificateToPem(null);
+        PkiTools.certificateToPem(null);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testKeyToDer() {
-        tools.keyToDer(null);
+        PkiTools.keyToDer(null);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testPemToDer() {
-        tools.pemToDer(null);
+        PkiTools.pemToDer(null);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testKeyToPem() {
-        tools.keyToPem(null);
+        PkiTools.keyToPem(null);
     }
 
     @Test(expected = CertificateGeneratorException.class)
     public void test() {
-        tools.certificateToPem(mockCert);
+        PkiTools.certificateToPem(mockCert);
     }
 
     @Test
@@ -195,6 +189,6 @@ public class PkiToolsTest {
 
     @Test(expected = CertificateGeneratorException.class)
     public void testDerToCert() {
-        tools.derToCertificate(new byte[] {0});
+        PkiTools.derToCertificate(new byte[] {0});
     }
 }
