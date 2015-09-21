@@ -4,7 +4,7 @@
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * </p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -15,16 +15,16 @@
 package org.codice.ddf.spatial.geocoding;
 
 /**
- * Thrown by a {@link GeoEntryExtractor} when an error occurs during the extraction of GeoNames
- * entries from a resource.
+ * Thrown by {@link GeoEntryExtractor} when an error occurs during downloading of a GeoNames
+ * zip file.
  */
-public class GeoEntryExtractionException extends Exception {
+public class GeoNamesRemoteDownloadException extends Exception {
     /**
      * Instantiates a new exception with the provided message.
      *
      * @param message the message
      */
-    public GeoEntryExtractionException(final String message) {
+    public GeoNamesRemoteDownloadException(final String message) {
         super(message);
     }
 
@@ -34,7 +34,7 @@ public class GeoEntryExtractionException extends Exception {
      * @param message   the message
      * @param throwable the throwable
      */
-    public GeoEntryExtractionException(final String message, final Throwable throwable) {
+    public GeoNamesRemoteDownloadException(final String message, final Throwable throwable) {
         super(message, throwable);
     }
 }
