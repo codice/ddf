@@ -39,9 +39,9 @@
         <module>ddf-common</module>
         <module>kernel</module>
         <module>install-profiles</module>
+        <module>docs</module>
         <module>ddf</module>
         <module>test</module>
-        <module>docs</module>
     </modules>
 
     <repositories>
