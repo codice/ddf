@@ -17,12 +17,12 @@
         <command name="geonames/update">
             <action class="org.codice.ddf.commands.spatial.geonames.GeoNamesUpdateCommand">
                 <property name="geoEntryIndexer" ref="geoEntryIndexer"/>
-                <property name="geoEntryExtractor" ref="geoEntryExtractor"/>
+                <property name="geoEntryExtractors" ref="geoEntryExtractors"/>
             </action>
         </command>
     </command-bundle>
 
     <reference id="geoEntryIndexer" interface="org.codice.ddf.spatial.geocoding.GeoEntryIndexer"/>
-    <reference id="geoEntryExtractor" interface="org.codice.ddf.spatial.geocoding.GeoEntryExtractor"/>
-
+    <reference-list id="geoEntryExtractors" member-type="service-object"
+                    interface="org.codice.ddf.spatial.geocoding.GeoEntryExtractor" />
 </blueprint>

@@ -60,13 +60,23 @@ public class GeoNamesFileExtractor implements GeoEntryExtractor {
             }
         };
 
-        getGeoEntriesStreaming(resource, extractionCallback);
+        pushGeoEntriesToExtractionCallback(resource, extractionCallback);
 
         return geoEntryList;
     }
 
     @Override
-    public void getGeoEntriesStreaming(final String resource,
+    public boolean canHandleResource(String resource) {
+        if (FilenameUtils.isExtension(resource, "zip") ||
+                FilenameUtils.isExtension(resource, "txt")) {
+            return true;
+        }
+        return false;
+    }
+
+
+    @Override
+    public void pushGeoEntriesToExtractionCallback(final String resource,
             final ExtractionCallback extractionCallback) {
         if (extractionCallback == null) {
             throw new IllegalArgumentException("You must pass a non-null callback.");

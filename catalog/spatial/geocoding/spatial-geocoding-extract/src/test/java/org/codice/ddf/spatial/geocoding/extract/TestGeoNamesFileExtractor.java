@@ -15,6 +15,7 @@
 package org.codice.ddf.spatial.geocoding.extract;
 
 import static org.codice.ddf.spatial.geocoding.GeoEntryExtractor.ExtractionCallback;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -90,7 +91,7 @@ public class TestGeoNamesFileExtractor extends TestBase {
         final ArgumentCaptor<GeoEntry> geoEntryArgumentCaptor =
                 ArgumentCaptor.forClass(GeoEntry.class);
 
-        geoNamesFileExtractor.getGeoEntriesStreaming(fileLocation, extractionCallback);
+        geoNamesFileExtractor.pushGeoEntriesToExtractionCallback(fileLocation, extractionCallback);
 
         verify(extractionCallback, atLeastOnce()).updateProgress(anyInt());
         verify(extractionCallback, times(3)).extracted(geoEntryArgumentCaptor.capture());
@@ -156,6 +157,12 @@ public class TestGeoNamesFileExtractor extends TestBase {
 
     @Test(expected = IllegalArgumentException.class)
     public void testNullExtractionCallback() {
-        geoNamesFileExtractor.getGeoEntriesStreaming(VALID_TEXT_FILE_PATH, null);
+        geoNamesFileExtractor.pushGeoEntriesToExtractionCallback(VALID_TEXT_FILE_PATH, null);
+    }
+
+    @Test
+    public void testCanHandleResource() {
+        assertThat(geoNamesFileExtractor.canHandleResource(VALID_TEXT_FILE_PATH), equalTo(true));
+        assertThat(geoNamesFileExtractor.canHandleResource("temp"), equalTo(false));
     }
 }
