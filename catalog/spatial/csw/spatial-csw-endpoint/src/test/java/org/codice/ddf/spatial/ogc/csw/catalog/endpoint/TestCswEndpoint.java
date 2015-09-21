@@ -1236,7 +1236,7 @@ public class TestCswEndpoint {
         typeNames.add(new QName(CswConstants.CSW_OUTPUT_SCHEMA, BAD_TYPE, VALID_PREFIX));
         query.setTypeNames(typeNames);
         JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                new QName(CswConstants.CSW_OUTPUT_SCHEMA), QueryType.class, query);
+                cswQnameOutPutSchema, QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -1254,7 +1254,7 @@ public class TestCswEndpoint {
         QueryType query = new QueryType();
 
         JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                new QName(CswConstants.CSW_OUTPUT_SCHEMA), QueryType.class, query);
+                cswQnameOutPutSchema, QueryType.class, query);
         List<QName> elementNameList = Arrays.asList(new QName("brief"), new QName("summary"), new QName("full"));
         query.setElementName(elementNameList);
         grr.setAbstractQuery(jaxbQuery);
@@ -1269,7 +1269,7 @@ public class TestCswEndpoint {
         QueryType query = new QueryType();
 
         JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                new QName(CswConstants.CSW_OUTPUT_SCHEMA), QueryType.class, query);
+                cswQnameOutPutSchema, QueryType.class, query);
         List<QName> elementNameList = Arrays.asList(new QName("brief"), new QName("sas"));
         query.setElementName(elementNameList);
         grr.setAbstractQuery(jaxbQuery);
@@ -1284,7 +1284,7 @@ public class TestCswEndpoint {
         QueryType query = new QueryType();
 
         JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                new QName(CswConstants.CSW_OUTPUT_SCHEMA), QueryType.class, query);
+                cswQnameOutPutSchema, QueryType.class, query);
 
         query.setElementSetName(new ElementSetNameType());
         grr.setAbstractQuery(jaxbQuery);
@@ -1299,7 +1299,7 @@ public class TestCswEndpoint {
         QueryType query = new QueryType();
 
         JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                new QName(CswConstants.CSW_OUTPUT_SCHEMA), QueryType.class, query);
+                cswQnameOutPutSchema, QueryType.class, query);
         ElementSetNameType elsnt = new ElementSetNameType();
         elsnt.setValue(ElementSetType.BRIEF);
         query.setElementSetName(elsnt);
@@ -1315,7 +1315,7 @@ public class TestCswEndpoint {
         QueryType query = new QueryType();
 
         JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                new QName(CswConstants.CSW_OUTPUT_SCHEMA), QueryType.class, query);
+                cswQnameOutPutSchema, QueryType.class, query);
         List<QName> elementNameList = Arrays.asList(new QName("brief"));
         ElementSetNameType elsnt = new ElementSetNameType();
         elsnt.setValue(ElementSetType.BRIEF);
@@ -1362,7 +1362,7 @@ public class TestCswEndpoint {
 
         query.setConstraint(constraint);
         JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                new QName(CswConstants.CSW_OUTPUT_SCHEMA), QueryType.class, query);
+                cswQnameOutPutSchema, QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -1451,7 +1451,7 @@ public class TestCswEndpoint {
         query.setConstraint(constraint);
 
         JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                new QName(CswConstants.CSW_OUTPUT_SCHEMA), QueryType.class, query);
+                cswQnameOutPutSchema, QueryType.class, query);
         grr.setAbstractQuery(jaxbQuery);
 
         CatalogFramework framework = mock(CatalogFramework.class);
@@ -1480,7 +1480,7 @@ public class TestCswEndpoint {
 
         query.setConstraint(constraint);
         JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                new QName(CswConstants.CSW_OUTPUT_SCHEMA), QueryType.class, query);
+                cswQnameOutPutSchema, QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -1502,7 +1502,7 @@ public class TestCswEndpoint {
 
         query.setConstraint(constraint);
         JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                new QName(CswConstants.CSW_OUTPUT_SCHEMA), QueryType.class, query);
+                cswQnameOutPutSchema, QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -1542,7 +1542,7 @@ public class TestCswEndpoint {
         esnt.setValue(ElementSetType.SUMMARY);
         query.setElementSetName(esnt);
         JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                new QName(CswConstants.CSW_OUTPUT_SCHEMA), QueryType.class, query);
+                cswQnameOutPutSchema, QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
         final String EXAMPLE_SCHEMA = CswConstants.CSW_OUTPUT_SCHEMA;
@@ -1590,7 +1590,7 @@ public class TestCswEndpoint {
 
         query.setConstraint(constraint);
         JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                new QName(CswConstants.CSW_OUTPUT_SCHEMA), QueryType.class, query);
+                cswQnameOutPutSchema, QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -1631,7 +1631,7 @@ public class TestCswEndpoint {
 
         query.setConstraint(constraint);
         JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                new QName(CswConstants.CSW_OUTPUT_SCHEMA), QueryType.class, query);
+                cswQnameOutPutSchema, QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -1675,7 +1675,7 @@ public class TestCswEndpoint {
         query.setSortBy(incomingSort);
 
         JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                new QName(CswConstants.CSW_OUTPUT_SCHEMA), QueryType.class, query);
+                cswQnameOutPutSchema, QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -1715,7 +1715,7 @@ public class TestCswEndpoint {
         query.setSortBy(incomingSort);
 
         JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                new QName(CswConstants.CSW_OUTPUT_SCHEMA), QueryType.class, query);
+                cswQnameOutPutSchema, QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -2052,7 +2052,7 @@ public class TestCswEndpoint {
             StringWriter sw = new StringWriter();
 
             JAXBElement<DescribeRecordResponseType> wrappedResponse = new JAXBElement<DescribeRecordResponseType>(
-                    new QName(CswConstants.CSW_OUTPUT_SCHEMA),
+                    cswQnameOutPutSchema,
                     DescribeRecordResponseType.class, response);
 
             marshaller.marshal(wrappedResponse, sw);
@@ -2362,7 +2362,7 @@ public class TestCswEndpoint {
 
         query.setConstraint(constraint);
         JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                new QName(CswConstants.CSW_OUTPUT_SCHEMA), QueryType.class, query);
+                cswQnameOutPutSchema, QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -2411,7 +2411,7 @@ public class TestCswEndpoint {
 
         query.setConstraint(constraint);
         JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                new QName(CswConstants.CSW_OUTPUT_SCHEMA), QueryType.class, query);
+                cswQnameOutPutSchema, QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -2595,7 +2595,7 @@ public class TestCswEndpoint {
 
         query.setConstraint(constraint);
         JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                new QName(CswConstants.CSW_OUTPUT_SCHEMA), QueryType.class, query);
+                cswQnameOutPutSchema, QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -2646,7 +2646,7 @@ public class TestCswEndpoint {
 
         query.setConstraint(constraint);
         JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                new QName(CswConstants.CSW_OUTPUT_SCHEMA), QueryType.class, query);
+                cswQnameOutPutSchema, QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -2747,7 +2747,7 @@ public class TestCswEndpoint {
 
         query.setConstraint(constraint);
         JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                new QName(CswConstants.CSW_OUTPUT_SCHEMA), QueryType.class, query);
+                cswQnameOutPutSchema, QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -2780,7 +2780,7 @@ public class TestCswEndpoint {
 
         query.setConstraint(constraint);
         JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                new QName(CswConstants.CSW_OUTPUT_SCHEMA), QueryType.class, query);
+                cswQnameOutPutSchema, QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -2883,7 +2883,7 @@ public class TestCswEndpoint {
         query.setTypeNames(typeNames);
 
         JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                new QName(CswConstants.CSW_OUTPUT_SCHEMA), QueryType.class, query);
+                cswQnameOutPutSchema, QueryType.class, query);
         grr.setAbstractQuery(jaxbQuery);
         return grr;
     }
