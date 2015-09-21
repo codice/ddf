@@ -218,6 +218,7 @@ public interface CswConstants {
     String NONEXISTENT_TYPE = "NonexistentType";
     String OPERATION_NOT_SUPPORTED = "OperationNotSupported";
     String NO_APPLICABLE_CODE = "NoApplicableCode";
+    String TRANSACTION_FAILED = "TransactionFailed";
 
     String OUTPUT_FORMAT_XML = MediaType.APPLICATION_XML;
 
