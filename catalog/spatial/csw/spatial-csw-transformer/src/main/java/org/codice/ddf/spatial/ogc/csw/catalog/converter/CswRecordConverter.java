@@ -514,7 +514,7 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
         }
 
         Map<String, String> namespaceMap = null;
-        Object namespaceObj = context.get(CswConstants.WRITE_NAMESPACES);
+        Object namespaceObj = context.get(CswConstants.NAMESPACE_DECLARATIONS);
         if (namespaceObj instanceof Map<?, ?>) {
             namespaceMap = (Map<String, String>) namespaceObj;
         }

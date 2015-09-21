@@ -206,7 +206,7 @@ public class TestCswRecordConverter {
                 CswConstants.DUBLIN_CORE_TERMS_SCHEMA);
         namespaces.put(CswConstants.XMLNS + CswConstants.NAMESPACE_DELIMITER
                 + CswConstants.OWS_NAMESPACE_PREFIX, CswConstants.OWS_NAMESPACE);
-        args.put(CswConstants.WRITE_NAMESPACES, namespaces);
+        args.put(CswConstants.NAMESPACE_DECLARATIONS, namespaces);
         Metacard mc = (Metacard) xstream.unmarshal(reader, null, args);
 
         Metacard expectedMetacard = getTestMetacard();

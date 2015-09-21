@@ -248,7 +248,7 @@ public class TestCswTransformProvider {
                 XmlPullParserFactory.newInstance().newPullParser());
         CswTransformProvider provider = new CswTransformProvider(null, mockInputManager);
         UnmarshallingContext context = new TreeUnmarshaller(null, null, null, null);
-        context.put(CswConstants.WRITE_NAMESPACES, namespaces);
+        context.put(CswConstants.NAMESPACE_DECLARATIONS, namespaces);
         context.put(CswConstants.OUTPUT_SCHEMA_PARAMETER, OTHER_SCHEMA);
 
 

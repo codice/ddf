@@ -163,7 +163,7 @@ public class TestXStreamAttributeCopier {
 
         @SuppressWarnings("unchecked")
         Map<String, String> attributeMap = (Map<String, String>) context
-                .get(CswConstants.WRITE_NAMESPACES);
+                .get(CswConstants.NAMESPACE_DECLARATIONS);
 
         assertThat(attributeMap.size(), is(2));
 

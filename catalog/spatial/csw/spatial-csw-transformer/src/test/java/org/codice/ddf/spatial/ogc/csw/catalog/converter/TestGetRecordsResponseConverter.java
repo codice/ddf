@@ -305,8 +305,8 @@ public class TestGetRecordsResponseConverter {
         UnmarshallingContext context = captor.getValue();
 
         assertThat(context, notNullValue());
-        assertThat(context.get(CswConstants.WRITE_NAMESPACES), is(Map.class));
-        Map<String, String> namespaces = (Map) context.get(CswConstants.WRITE_NAMESPACES);
+        assertThat(context.get(CswConstants.NAMESPACE_DECLARATIONS), is(Map.class));
+        Map<String, String> namespaces = (Map) context.get(CswConstants.NAMESPACE_DECLARATIONS);
         assertThat(namespaces.get(CswConstants.XMLNS + CswConstants.NAMESPACE_DELIMITER
                 + CswConstants.CSW_NAMESPACE_PREFIX), is(CswConstants.CSW_OUTPUT_SCHEMA));
         assertThat(namespaces.get(CswConstants.XMLNS + CswConstants.NAMESPACE_DELIMITER
