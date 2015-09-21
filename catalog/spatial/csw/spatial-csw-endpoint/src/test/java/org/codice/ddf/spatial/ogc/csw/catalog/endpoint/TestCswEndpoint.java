@@ -302,6 +302,8 @@ public class TestCswEndpoint {
 
     private static QueryResponseTransformer mockTransformer = mock(QueryResponseTransformer.class);
 
+    private static QName cswQnameOutPutSchema = new QName(CswConstants.CSW_OUTPUT_SCHEMA);
+
     @BeforeClass
     public static void setUpBeforeClass()
             throws URISyntaxException, SourceUnavailableException, UnsupportedQueryException,
@@ -2111,7 +2113,7 @@ public class TestCswEndpoint {
 
         verifyMarshalResponse(response,
                 "net.opengis.cat.csw.v_2_0_2:net.opengis.filter.v_1_1_0:net.opengis.gml.v_3_1_1",
-                new QName(CswConstants.CSW_OUTPUT_SCHEMA));
+                cswQnameOutPutSchema);
     }
 
     @Test
@@ -2200,7 +2202,7 @@ public class TestCswEndpoint {
 
         verifyMarshalResponse(response,
                 "net.opengis.cat.csw.v_2_0_2:net.opengis.filter.v_1_1_0:net.opengis.gml.v_3_1_1",
-                new QName(CswConstants.CSW_OUTPUT_SCHEMA));
+                cswQnameOutPutSchema);
     }
 
     @Test
@@ -2240,7 +2242,7 @@ public class TestCswEndpoint {
 
         verifyMarshalResponse(response,
                 "net.opengis.cat.csw.v_2_0_2:net.opengis.filter.v_1_1_0:net.opengis.gml.v_3_1_1",
-                new QName(CswConstants.CSW_OUTPUT_SCHEMA));
+                cswQnameOutPutSchema);
 
         ArgumentCaptor<UpdateRequest> updateRequestArgumentCaptor = ArgumentCaptor
                 .forClass(UpdateRequest.class);
@@ -2313,7 +2315,7 @@ public class TestCswEndpoint {
 
         verifyMarshalResponse(response,
                 "net.opengis.cat.csw.v_2_0_2:net.opengis.filter.v_1_1_0:net.opengis.gml.v_3_1_1",
-                new QName(CswConstants.CSW_OUTPUT_SCHEMA));
+                cswQnameOutPutSchema);
 
         ArgumentCaptor<UpdateRequest> updateRequestArgumentCaptor = ArgumentCaptor
                 .forClass(UpdateRequest.class);

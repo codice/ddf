@@ -526,15 +526,18 @@ public class CswEndpoint implements Csw {
         for (Metacard metacard : createResponse.getCreatedMetacards()) {
             BoundingBoxType boundingBox = new BoundingBoxType();
             Geometry geometry = null;
+            String bbox = null;
             try {
                 if (metacard.getAttribute(CswConstants.BBOX_PROP) != null) {
-                    geometry = reader.read(metacard.getAttribute(CswConstants.BBOX_PROP).getValue()
-                            .toString());
+                    bbox = metacard.getAttribute(CswConstants.BBOX_PROP).getValue()
+                            .toString();
+                    geometry = reader.read(bbox);
                 } else if (StringUtils.isNotBlank(metacard.getLocation())) {
-                    geometry = reader.read(metacard.getLocation());
+                    bbox = metacard.getLocation();
+                    geometry = reader.read(bbox);
                 }
             } catch (ParseException e) {
-                LOGGER.warn("Unable to parse BoundingBox.");
+                LOGGER.warn("Unable to parse BoundingBox : {} \n {}", e, bbox);
             }
             BriefRecordType briefRecordType = new BriefRecordType();
             if (geometry != null) {
