@@ -77,6 +77,11 @@
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>18.0</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -93,6 +98,9 @@
                             ddf.security.common.util,
                             *
                         </Import-Package>
+                        <Embed-Dependency>
+                            guava
+                        </Embed-Dependency>
                     </instructions>
                 </configuration>
             </plugin>

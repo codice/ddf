@@ -51,14 +51,14 @@ public class WssBasicAuthenticationHandler extends AbstractBasicAuthenticationHa
         PasswordString pass = new PasswordString();
         pass.setValue(password);
         pass.setType(WSConstants.PASSWORD_TEXT);
-        JAXBElement<PasswordString> passwordType = new JAXBElement<PasswordString>(
-                QNameConstants.PASSWORD, PasswordString.class, pass);
+        JAXBElement<PasswordString> passwordType = new JAXBElement<>(QNameConstants.PASSWORD,
+                PasswordString.class, pass);
         usernameTokenType.getAny().add(passwordType);
         // Marshall the received JAXB object into a DOM Element
         String usernameToken = null;
         Writer writer = new StringWriter();
         try {
-            Set<Class<?>> classes = new HashSet<Class<?>>();
+            Set<Class<?>> classes = new HashSet<>();
             classes.add(ObjectFactory.class);
             classes.add(
                     org.apache.cxf.ws.security.sts.provider.model.wstrust14.ObjectFactory.class);
@@ -68,15 +68,14 @@ public class WssBasicAuthenticationHandler extends AbstractBasicAuthenticationHa
             JAXBContext jaxbContext = cache.getContext();
 
             Marshaller marshaller = jaxbContext.createMarshaller();
-            Document doc = DOMUtils.createDocument();
-            JAXBElement<UsernameTokenType> tokenType = new JAXBElement<UsernameTokenType>(
+            JAXBElement<UsernameTokenType> tokenType = new JAXBElement<>(
                     QNameConstants.USERNAME_TOKEN, UsernameTokenType.class, usernameTokenType);
             marshaller.marshal(tokenType, writer);
             usernameToken = writer.toString();
         } catch (JAXBException ex) {
             LOGGER.warn("", ex);
         }
-        BaseAuthenticationToken baseAuthenticationToken = new BaseAuthenticationToken(null, null,
+        BaseAuthenticationToken baseAuthenticationToken = new BaseAuthenticationToken(null, "",
                 usernameToken);
         baseAuthenticationToken.setUseWssSts(true);
         return baseAuthenticationToken;

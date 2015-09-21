@@ -64,8 +64,7 @@ public abstract class AbstractPKIHandler implements AuthenticationHandler {
         LOGGER.debug("Doing PKI authentication and authorization for path {}", path);
 
         //doesn't matter what the resolve flag is set to, we do the same action
-        BaseAuthenticationToken token = extractAuthenticationInfo(
-                (String) httpRequest.getAttribute(ContextPolicy.ACTIVE_REALM),
+        BaseAuthenticationToken token = extractAuthenticationInfo(realm,
                 (X509Certificate[]) httpRequest
                         .getAttribute("javax.servlet.request.X509Certificate"));
 
