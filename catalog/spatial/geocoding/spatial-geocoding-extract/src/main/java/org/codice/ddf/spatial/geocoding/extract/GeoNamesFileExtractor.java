@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -15,28 +15,54 @@
 package org.codice.ddf.spatial.geocoding.extract;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.LineNumberReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+
+import javax.ws.rs.NotFoundException;
+import javax.ws.rs.core.Response;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.cxf.jaxrs.client.WebClient;
 import org.codice.ddf.spatial.geocoding.GeoEntry;
 import org.codice.ddf.spatial.geocoding.GeoEntryCreator;
 import org.codice.ddf.spatial.geocoding.GeoEntryExtractionException;
 import org.codice.ddf.spatial.geocoding.GeoEntryExtractor;
+import org.codice.ddf.spatial.geocoding.GeoNamesRemoteDownloadException;
 import org.codice.ddf.spatial.geocoding.ProgressCallback;
 
-import net.lingala.zip4j.core.ZipFile;
-import net.lingala.zip4j.exception.ZipException;
+import com.google.common.io.ByteSource;
+import com.google.common.io.FileBackedOutputStream;
 
 public class GeoNamesFileExtractor implements GeoEntryExtractor {
     private GeoEntryCreator geoEntryCreator;
 
+    private static final int BUFFER_SIZE = 4096;
+
+    private WebClient webClient;
+
+    private long fileSize = -1;
+
+    private String url;
+
     public void setGeoEntryCreator(final GeoEntryCreator geoEntryCreator) {
         this.geoEntryCreator = geoEntryCreator;
+    }
+
+    public void setUrl(String url) {
+        if (!url.endsWith("/")) {
+            this.url = url + "/";
+        } else {
+            this.url = url;
+        }
     }
 
     @Override
@@ -60,76 +86,222 @@ public class GeoNamesFileExtractor implements GeoEntryExtractor {
             }
         };
 
-        getGeoEntriesStreaming(resource, extractionCallback);
+        pushGeoEntriesToExtractionCallback(resource, extractionCallback);
 
         return geoEntryList;
     }
 
     @Override
-    public void getGeoEntriesStreaming(final String resource,
+    public void pushGeoEntriesToExtractionCallback(final String resource,
             final ExtractionCallback extractionCallback) {
         if (extractionCallback == null) {
             throw new IllegalArgumentException("You must pass a non-null callback.");
         }
 
-        final String inputTextFileLocation = getInputTextFileLocation(resource);
+        InputStream fileInputStream = getInputStreamFromResource(resource, extractionCallback);
 
-        try (final BufferedReader reader = new BufferedReader(
-                new InputStreamReader(new FileInputStream(inputTextFileLocation)));
-            final LineNumberReader lineNumberReader = new LineNumberReader(
-                new InputStreamReader(new FileInputStream(inputTextFileLocation)))) {
-            // Use the number of lines in the file to track the extraction progress.
-            lineNumberReader.skip(Long.MAX_VALUE);
-            final int lineCount = lineNumberReader.getLineNumber() + 1;
+        try (InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream);
+                BufferedReader reader = new BufferedReader(inputStreamReader);) {
 
-            int progress = 0;
-            int currentLine = 0;
+            double bytesRead = 0.0;
+
             for (String line; (line = reader.readLine()) != null;) {
                 extractionCallback.extracted(extractGeoEntry(line));
-
-                if (currentLine == (int) (lineCount * (progress / 100.0f))) {
-                    extractionCallback.updateProgress(progress);
-                    progress += 5;
-                }
-                ++currentLine;
+                bytesRead += line.getBytes().length;
+                extractionCallback.updateProgress((int)((bytesRead / fileSize) * 100));
             }
-            // Since we start counting the lines at 0, the progress callback won't be called in the
-            // above loop when progress is 100. In any case, we need to give a progress update when
-            // the work is complete.
             extractionCallback.updateProgress(100);
-        } catch (IndexOutOfBoundsException | NumberFormatException e) {
-            throw new GeoEntryExtractionException(inputTextFileLocation + " does not follow the " +
-                    "expected GeoNames file format.", e);
+
         } catch (IOException e) {
-            throw new GeoEntryExtractionException("An error occurred while reading " +
-                    inputTextFileLocation, e);
+            throw new GeoEntryExtractionException("Unable to open stream for " + resource, e);
+        } catch (IndexOutOfBoundsException | NumberFormatException e) {
+            throw new GeoEntryExtractionException(resource + " does not follow the " +
+                    "expected GeoNames file format.", e);
         }
     }
 
-    private String getInputTextFileLocation(final String fileLocation) {
-        if (FilenameUtils.isExtension(fileLocation, "zip")) {
-            // The GeoNames .zip files at http://download.geonames.org/export/dump each contain
-            // a text file with the same name.
-            final String baseName = FilenameUtils.getBaseName(fileLocation);
-            final String textFileName = baseName + ".txt";
-            try {
-                unzipFile(fileLocation, textFileName);
-                return FilenameUtils.getFullPath(fileLocation) + textFileName;
-            } catch (ZipException e) {
-                throw new GeoEntryExtractionException("Error unzipping " + textFileName + " from " +
-                    fileLocation, e);
+    /**
+     * Determines the appropriate InputStream to get from the given file resource.  If there is no
+     * file extension, the resource is downloaded from a url ( default : http://download.geonames.org/export/dump/ )
+     * otherwise it is treated as an absolute path for a file.
+     *
+     * @param resource - a String representing the resource.  Could be a data set from GeoNames
+     *                   (allCities, cities15000, AU, US etc) or an absolute path.
+     * @param extractionCallback - the callback to receive updates about the progress, may be
+     *                         null if you don't want any updates
+     * @return the InputStream for the given resource
+     *
+     * @throws GeoEntryExtractionException if the resource is not a .zip or .txt file
+     */
+
+    private InputStream getInputStreamFromResource(String resource,
+            ProgressCallback extractionCallback) {
+
+        if (FilenameUtils.isExtension(resource, "zip")) {
+            InputStream inputStream = getFileInputStream(resource);
+            return unZipInputStream(resource, inputStream);
+
+        } else if (FilenameUtils.isExtension(resource, "txt")) {
+            return getFileInputStream(resource);
+
+        } else if (StringUtils.isAlphanumeric(resource)) {
+
+                // Support the "all" keyword
+            if (resource.equalsIgnoreCase("all")) {
+                resource = "allCountries";
+                // Support case insensitive "cities" keyword
+            } else if (resource.matches("((?i)cities[0-9]+)")) {
+                resource = resource.toLowerCase();
+                // Support case insensitive country codes
+            } else {
+                resource = resource.toUpperCase();
             }
-        } else if (FilenameUtils.isExtension(fileLocation, "txt")) {
-            return fileLocation;
-        } else {
-            throw new GeoEntryExtractionException("Input must be a .txt or a .zip.");
+
+            Response response = createConnection(resource);
+            InputStream urlInputStream = getUrlInputStreamFromWebClient();
+            InputStream inputStream = getInputStreamFromUrl(resource, response, urlInputStream,
+                    extractionCallback);
+
+            return unZipInputStream(resource, inputStream);
+        }
+        throw new GeoEntryExtractionException("Unable to update the index.  " +
+                resource + " is not a .zip or .txt, or an invalid country "
+                + "code was entered.");
+    }
+
+    /**
+     *
+     * Download a GeoNames .zip file from a remote location
+     *
+     * @param resource - the name of the zip file to download ( ex. AD )
+     * @param response - the response from the get request
+     * @param inputStream - the InputStream from the web connection
+     * @param progressCallback -  the callback to receive updates about the progress, may be
+     *                         null if you don't want any updates
+     *
+     * @throws GeoNamesRemoteDownloadException when the connection could not be established or the
+     *         file could not be downloaded.
+     */
+    private InputStream getInputStreamFromUrl(String resource, Response response,
+            InputStream inputStream, final ProgressCallback progressCallback) {
+        int responseCode = 0;
+
+        try (FileBackedOutputStream fileOutputStream = new FileBackedOutputStream(BUFFER_SIZE);) {
+
+            responseCode = response.getStatus();
+
+            int totalFileSize = response.getLength();
+
+            if (inputStream == null) {
+                throw new GeoNamesRemoteDownloadException("Unable to get input stream from " +
+                        url + ".  Server responded with : " + responseCode);
+            }
+
+            double totalBytesRead = 0.0;
+            int bytesRead = -1;
+            byte[] buffer = new byte[BUFFER_SIZE];
+
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                fileOutputStream.write(buffer, 0, bytesRead);
+                totalBytesRead += bytesRead;
+                if (progressCallback != null) {
+                    progressCallback.updateProgress(
+                            (int) ((totalBytesRead / totalFileSize) * 100));
+                }
+            }
+
+            ByteSource byteSource = fileOutputStream.asByteSource();
+            fileOutputStream.flush();
+            inputStream.close();
+            closeConnection();
+
+            return byteSource.openBufferedStream();
+
+        } catch (IOException e) {
+            throw new GeoNamesRemoteDownloadException(
+                    "Unable to download " + resource + " from " + url + ".  Server responded with : "
+                            + responseCode, e);
         }
     }
 
-    private void unzipFile(final String zipFileLocation, final String textFileName)
-            throws ZipException {
-        final ZipFile zipFile = new ZipFile(zipFileLocation);
-        zipFile.extractFile(textFileName, FilenameUtils.getFullPath(zipFileLocation));
+    public Response createConnection(String resource) {
+        webClient = WebClient.create(url + resource + ".zip");
+        webClient.path(url + resource + ".zip");
+        Response response = webClient.get();
+        return response;
+    }
+
+    public InputStream getUrlInputStreamFromWebClient() {
+        try {
+            return webClient.get(InputStream.class);
+        } catch (NotFoundException e) {
+            throw new GeoNamesRemoteDownloadException("Unable get Input Stream from " +
+                    webClient.getCurrentURI(), e);
+        }
+    }
+
+    public void closeConnection() {
+        webClient.close();
+    }
+
+    /**
+     * Get the InputStream for the given file resource.
+     *
+     * @param resource - the absolute path of the file to open the InputStream for.
+     * @return the InputStream for the file resource
+     *
+     * @throws GeoEntryExtractionException when the file cannot be found.
+     */
+    private InputStream getFileInputStream(String resource) {
+        FileInputStream fileInputStream;
+
+        try {
+            File file = new File(resource);
+            fileSize = file.getTotalSpace();
+            fileInputStream = new FileInputStream(file);
+        } catch (FileNotFoundException e) {
+            throw new GeoEntryExtractionException(resource + " cannot be found", e);
+        }
+        return fileInputStream;
+    }
+
+    /**
+     *  Unzips a file and returns the output as a new InputStream
+     *
+     * @param resource - the name of the resource file to be unzipped
+     * @param inputStream - the InputStream for the file to be unzipped
+     * @return - the unzipped file as an InputStream
+     *
+     * @throws GeoEntryExtractionException when the given file fails to be unzipped.
+     */
+    private InputStream unZipInputStream(String resource, InputStream inputStream) {
+        try (FileBackedOutputStream bufferedOutputStream = new FileBackedOutputStream(BUFFER_SIZE);
+                ZipInputStream zipInputStream = new ZipInputStream(inputStream);) {
+
+            ZipEntry zipEntry;
+            while ((zipEntry = zipInputStream.getNextEntry()) != null) {
+
+                // GeoNames <filename>.zip files will contain <filename>.txt and readme.txt
+                if (!zipEntry.getName().equals("readme.txt")) {
+
+                    byte data[] = new byte[BUFFER_SIZE];
+                    int bytesRead;
+                    while ((bytesRead = zipInputStream.read(data, 0, BUFFER_SIZE)) != -1) {
+                        bufferedOutputStream.write(data, 0, bytesRead);
+                    }
+
+                    ByteSource zipByteSource = bufferedOutputStream.asByteSource();
+                    bufferedOutputStream.flush();
+                    fileSize = zipByteSource.size();
+                    return zipByteSource.openBufferedStream();
+                }
+            }
+
+        } catch (IOException e) {
+            throw new GeoEntryExtractionException("Unable to unzip " + resource, e);
+        }
+
+        throw new GeoEntryExtractionException("Unable to unzip " + resource);
     }
 
     private GeoEntry extractGeoEntry(final String line) {

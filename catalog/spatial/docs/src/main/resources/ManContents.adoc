@@ -118,7 +118,8 @@ geonames:update
 |Description
 
 |`update`
-|Adds new entries to an existing local GeoNames index. Currently, `.txt` and `.zip` files from http://download.geonames.org/export/dump are supported. Pass the absolute path to the file on your computer as the argument to the command.
+|Adds new entries to an existing local GeoNames index.  Entries can be manually downloaded from http://download.geonames.org/export/dump, where the absolute path of the file would be passed as an argument to the command (ex. /Users/johndoe/Downloads/AU.zip).  Currently .txt and .zip files are supported for manual entries.  Entries can also be automatically downloaded from http://download.geonames.org/export/dump by passing the country code as an argument to the command (ex. AU) which will add the country to the local GeoNames index.  The full list of country codes available can be found in http://download.geonames.org/export/dump/countryInfo.txt.  Using the argument "all" will download all of the current country codes (this process may take some time).  In addition to country codes, GeoNames also provides entries for cities based on their population sizes.  The arguments "cities1000", "cities5000", and "cities15000" will add cities to the index that have at least 1000, 5000, or 15000 people respectively.
+
 The index location can be configured via the Admin UI or the Felix Web Console. By default, the index location is `data/geonames-index`. If you specify a relative path, it is relative to the location of the unzipped
 DDF distribution. You may specify an absolute path if you want the index to be located somewhere else.
 
