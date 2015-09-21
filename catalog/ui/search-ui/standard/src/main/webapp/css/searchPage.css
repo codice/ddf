@@ -408,6 +408,10 @@ tr.selected {
     padding-left: 15px;
     padding-right: 15px;
 }
+.metacard-panel {
+    max-height:calc(100% - 42px);
+    position:relative;
+}
 
 .attribute {
     font-size: 16px;

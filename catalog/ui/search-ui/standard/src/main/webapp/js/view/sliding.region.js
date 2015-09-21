@@ -128,7 +128,24 @@ define([
 
             return this.slide(view, direction, flyIn)
                 .then(function(){
-                    region.$el.perfectScrollbar();
+
+                    //Child views may want to override the scroll
+                    //behavior. check to see if they have specified
+                    //an 'allowScroll' flag. If there is no flag present,
+                    //assume they want scrolling initialized for them
+
+                    var initScroll = true;
+                    if(view.attributes){
+                        initScroll = view.attributes.allowScroll;
+                    }
+
+                    if(initScroll){
+                        region.$el.perfectScrollbar();
+                    }else{
+
+                        //cleanup residual scrollbar resources
+                        region.$el.perfectScrollbar('destroy');
+                    }
                 });
 
         },

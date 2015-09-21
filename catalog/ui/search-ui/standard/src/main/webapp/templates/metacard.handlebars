@@ -16,9 +16,9 @@
     <a id="nextRecord" target='blank' title="Next"><i class='fa fa-chevron-circle-down fa-3x' /></a>
 </div>
 
-<div class="panel-primary">
+<div class="panel-primary height-full" >
 
-    <div class="metacard-details">
+    <div class="metacard-details height-full" >
         <ul class="nav nav-tabs" id="myTab">
             <li {{#if hash}} {{#is hash "#summary"}} class="active" {{/is}} {{else}} class="active" {{/if}}>
                 <a href="#summary" data-toggle="tab">Summary</a>
@@ -32,7 +32,7 @@
         </ul>
 
 
-        <div class="tab-content">
+        <div class="tab-content metacard-panel">
             <div class="tab-pane  {{#if hash}} {{#is hash "#summary"}} active {{/is}} {{else}} active {{/if}}" id="summary">
                 <div>
                     <h4 class="title" title="Title">
