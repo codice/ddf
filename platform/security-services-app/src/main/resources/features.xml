@@ -105,11 +105,6 @@
         <bundle>mvn:ddf.security.sts/security-sts-realm/${project.version}</bundle>
     </feature>
 
-    <feature name="security-sts-wss" install="manual" version="${project.version}"
-             description="DDF Security WSS STS support.">
-        <bundle>mvn:ddf.security.sts/security-sts-wss/${project.version}</bundle>
-    </feature>
-
     <feature name="security-sts-ldaplogin" install="manual" version="${project.version}"
              description="DDF Security STS JAAS LDAP Login.">
         <bundle>mvn:ddf.security.sts/security-sts-ldaplogin/${project.version}</bundle>

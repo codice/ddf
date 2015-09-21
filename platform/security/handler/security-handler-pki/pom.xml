@@ -92,7 +92,7 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.48</minimum>
+                                            <minimum>0.47</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>
@@ -107,7 +107,7 @@
                                         <limit>
                                             <counter>LINE</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.50</minimum>
+                                            <minimum>0.48</minimum>
                                         </limit>
                                     </limits>
                                 </rule>

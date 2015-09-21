@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.HttpHeaders;
 
+import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
@@ -120,7 +121,7 @@ public abstract class AbstractBasicAuthenticationHandler implements Authenticati
         String realm = (String) request.getAttribute(ContextPolicy.ACTIVE_REALM);
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
-        if (authHeader == null || authHeader.equals("")) {
+        if (StringUtils.isEmpty(authHeader)) {
             return null;
         }
 
@@ -131,7 +132,7 @@ public abstract class AbstractBasicAuthenticationHandler implements Authenticati
      * Extract the Authorization header and parse into a username/password token.
      *
      * @param authHeader the authHeader string from the HTTP request
-     * @return the initialize UPAuthenticationToken for this username, password, realm combination (or null)
+     * @return the initialized UPAuthenticationToken for this username, password, realm combination (or null)
      */
     protected BaseAuthenticationToken extractAuthInfo(String authHeader, String realm) {
         BaseAuthenticationToken token = null;
@@ -142,12 +143,16 @@ public abstract class AbstractBasicAuthenticationHandler implements Authenticati
             String authInfo = parts[1];
 
             if (authType.equalsIgnoreCase(AUTHENTICATION_SCHEME_BASIC)) {
-                String decoded = new String(Base64.decode(authInfo));
-                parts = decoded.split(":");
-                if (parts.length == 2) {
-                    token = getBaseAuthenticationToken(realm, parts[0], parts[1]);
-                } else if ((parts.length == 1) && (decoded.endsWith(":"))) {
-                    token = getBaseAuthenticationToken(realm, parts[0], "");
+                byte[] decode = Base64.decode(authInfo);
+                if (decode != null) {
+                    String userPass = new String(decode);
+                    String[] authComponents = userPass.split(":");
+                    if (authComponents.length == 2) {
+                        token = getBaseAuthenticationToken(realm, authComponents[0],
+                                authComponents[1]);
+                    } else if ((authComponents.length == 1) && (userPass.endsWith(":"))) {
+                        token = getBaseAuthenticationToken(realm, authComponents[0], "");
+                    }
                 }
             }
         }

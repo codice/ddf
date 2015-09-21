@@ -25,6 +25,7 @@ import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -78,6 +79,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSSerializer;
 
+import com.google.common.base.Splitter;
+
 import ddf.security.PropertiesLoader;
 import ddf.security.assertion.SecurityAssertion;
 import ddf.security.assertion.impl.SecurityAssertionImpl;
@@ -104,6 +107,8 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
 
     private static final String[] SSL_DISALLOWED_ALGORITHMS = {".*_WITH_NULL_.*", ".*_DH_anon_.*"};
 
+    private static final Splitter SPLITTER = Splitter.on(',').trimResults().omitEmptyStrings();
+
     protected Bus bus;
 
     String address = null;
@@ -128,7 +133,7 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
 
     String tokenProperties = null;
 
-    List<String> claims = new ArrayList<String>();
+    List<String> claims = new ArrayList<>();
 
     private STSClient stsClient;
 
@@ -590,7 +595,7 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
      * Helper method to setup STS Client.
      */
     private void addStsProperties() {
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
 
         String signaturePropertiesPath = getSignatureProperties();
         if (signaturePropertiesPath != null && !signaturePropertiesPath.isEmpty()) {
@@ -734,13 +739,13 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
      */
     protected Element createClaimsElement() {
         Element claimsElement = null;
-        List<String> claims = new ArrayList<String>();
+        List<String> claims = new ArrayList<>();
         claims.addAll(getClaims());
 
         if (contextPolicyManager != null) {
             Collection<ContextPolicy> contextPolicies = contextPolicyManager
                     .getAllContextPolicies();
-            Set<String> attributes = new LinkedHashSet<String>();
+            Set<String> attributes = new LinkedHashSet<>();
             if (contextPolicies != null && contextPolicies.size() > 0) {
                 for (ContextPolicy contextPolicy : contextPolicies) {
                     attributes.addAll(contextPolicy.getAllowedAttributeNames());
@@ -943,19 +948,19 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
 
     @Override
     public void setClaims(List<String> claims) {
-        this.claims = new ArrayList<String>(claims);
+        this.claims = Collections.unmodifiableList(claims);
     }
 
     @Override
     public void setClaims(String claimsListAsString) {
-        List<String> setClaims = new ArrayList<String>();
+        List<String> setClaims = SPLITTER.splitToList(claimsListAsString);
         if (StringUtils.isNotBlank(claimsListAsString)) {
             for (String claim : claimsListAsString.split(",")) {
                 claim = claim.trim();
                 setClaims.add(claim);
             }
         }
-        this.claims = setClaims;
+        setClaims(setClaims);
     }
 
     @Override

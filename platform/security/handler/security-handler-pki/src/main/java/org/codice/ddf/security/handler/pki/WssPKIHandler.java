@@ -52,7 +52,7 @@ public class WssPKIHandler extends AbstractPKIHandler {
         String data = binarySecurityType.getValue();
         ((Text) binarySecurity.getElement().getFirstChild()).setData(data);
 
-        BaseAuthenticationToken baseAuthenticationToken = new BaseAuthenticationToken(null, null,
+        BaseAuthenticationToken baseAuthenticationToken = new BaseAuthenticationToken(null, "",
                 binarySecurity.toString());
         baseAuthenticationToken.setUseWssSts(true);
         return baseAuthenticationToken;
