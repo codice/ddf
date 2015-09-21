@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -25,15 +25,20 @@ public interface GeoEntryExtractor {
      * Extracts GeoNames entries from a resource as {@link GeoEntry} objects, all at once, providing
      * updates about the extraction progress.
      *
-     * @param resource  the resource containing GeoNames entries
-     * @param progressCallback  the callback to receive updates about the extraction progress, may
-     *                          be null if you don't want any updates
+     * @param resource         the resource containing GeoNames entries
+     * @param progressCallback the callback to receive updates about the extraction progress, may
+     *                         be null if you don't want any updates
      * @return the list of {@code GeoEntry} objects corresponding to the GeoNames entries in the
-     *         resource
-     * @throws GeoEntryExtractionException if an error occurs while extracting GeoNames entries
-     *                                     from the resource
+     * resource
+     * @throws GeoEntryExtractionException     if an error occurs while extracting GeoNames entries
+     *                                         from the resource
+     * @throws GeoEntryIndexingException       if an error occurs when adding new entries to the
+     *                                         extraction callback
+     * @throws GeoNamesRemoteDownloadException if an error occurs while downloading from the resource
      */
-    List<GeoEntry> getGeoEntries(String resource, ProgressCallback progressCallback);
+    List<GeoEntry> getGeoEntries(String resource, ProgressCallback progressCallback)
+            throws GeoEntryExtractionException, GeoEntryIndexingException,
+            GeoNamesRemoteDownloadException;
 
     /**
      * Extracts GeoNames entries from a resource as {@link GeoEntry} objects and passes each
@@ -43,14 +48,19 @@ public interface GeoEntryExtractor {
      * This method should be used instead of {@link #getGeoEntries(String, ProgressCallback)} if the
      * resource contains a very large number of entries.
      *
-     * @param resource  the resource containing GeoNames entries
-     * @param extractionCallback  the callback that receives each extracted {@code GeoEntry} object,
-     *                            must not be null
-     * @throws IllegalArgumentException if {@code extractionCallback} is null
-     * @throws GeoEntryExtractionException if an error occurs while extracting GeoNames entries from
-     *                                     the resource
+     * @param resource           the resource containing GeoNames entries
+     * @param extractionCallback the callback that receives each extracted {@code GeoEntry} object,
+     *                           must not be null
+     * @throws IllegalArgumentException        if {@code extractionCallback} is null
+     * @throws GeoEntryExtractionException     if an error occurs while extracting GeoNames entries from
+     *                                         the resource
+     * @throws GeoEntryIndexingException       if an error occurs when adding new entries to the
+     *                                         extraction callback
+     * @throws GeoNamesRemoteDownloadException if an error occurs while downloading from the resource
      */
-    void getGeoEntriesStreaming(String resource, ExtractionCallback extractionCallback);
+    void pushGeoEntriesToExtractionCallback(String resource, ExtractionCallback extractionCallback)
+            throws GeoEntryExtractionException, GeoEntryIndexingException,
+            GeoNamesRemoteDownloadException;
 
     /**
      * An {@code ExtractionCallback} provides a method for receiving a {@link GeoEntry} object that
@@ -59,10 +69,11 @@ public interface GeoEntryExtractor {
     interface ExtractionCallback extends ProgressCallback {
         /**
          * Receives a {@link GeoEntry} object from
-         * {@link #getGeoEntriesStreaming(String, ExtractionCallback)}
+         * {@link #pushGeoEntriesToExtractionCallback(String, ExtractionCallback)}
          *
-         * @param newEntry  the {@code GeoEntry} object just extracted
+         * @param newEntry the {@code GeoEntry} object just extracted
+         * @throws GeoEntryIndexingException if an error occurs adding a new entry to the index
          */
-        void extracted(GeoEntry newEntry);
+        void extracted(GeoEntry newEntry) throws GeoEntryIndexingException;
     }
 }
