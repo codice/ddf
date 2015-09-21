@@ -179,7 +179,7 @@ public class TestGeoNamesLuceneIndexer extends TestBase {
                     }
 
                     @Override
-                    public void getGeoEntriesStreaming(final String resource,
+                    public void pushGeoEntriesToExtractionCallback(final String resource,
                             final ExtractionCallback extractionCallback) {
                         extractionCallback.extracted(GEO_ENTRY_1);
                         extractionCallback.extracted(GEO_ENTRY_2);

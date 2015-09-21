@@ -89,7 +89,7 @@ public class TestGeoNamesLuceneIndexerExceptions {
                 }
 
                 @Override
-                public void getGeoEntriesStreaming(final String resource,
+                public void pushGeoEntriesToExtractionCallback(final String resource,
                         final ExtractionCallback extractionCallback) {
                     extractionCallback.updateProgress(0);
                     extractionCallback.extracted(GEO_ENTRY);
