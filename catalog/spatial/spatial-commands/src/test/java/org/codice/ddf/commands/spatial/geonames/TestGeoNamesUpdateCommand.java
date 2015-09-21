@@ -25,6 +25,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.codice.ddf.spatial.geocoding.GeoEntry;
@@ -33,6 +34,8 @@ import org.codice.ddf.spatial.geocoding.GeoEntryExtractor;
 import org.codice.ddf.spatial.geocoding.GeoEntryIndexer;
 import org.codice.ddf.spatial.geocoding.GeoEntryIndexingException;
 import org.codice.ddf.spatial.geocoding.ProgressCallback;
+import org.codice.ddf.spatial.geocoding.extract.GeoNamesFileExtractor;
+import org.codice.ddf.spatial.geocoding.extract.GeoNamesUrlExtractor;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -65,7 +68,23 @@ public class TestGeoNamesUpdateCommand {
                 assertThat(consoleInterceptor.getOutput(), containsString("100%"));
             }
         });
-        geoNamesUpdateCommand.setGeoEntryExtractor(geoEntryExtractor);
+
+        final GeoEntryExtractor geoEntryUrlExtractor = spy(new GeoEntryExtractor() {
+            @Override
+            public List<GeoEntry> getGeoEntries(final String resource,
+                    final ProgressCallback progressCallback) {
+                return null;
+            }
+
+            @Override
+            public void getGeoEntriesStreaming(final String resource,
+                    final ExtractionCallback extractionCallback) {
+                extractionCallback.updateProgress(50);
+                assertThat(consoleInterceptor.getOutput(), containsString("50%"));
+                extractionCallback.updateProgress(100);
+                assertThat(consoleInterceptor.getOutput(), containsString("100%"));
+            }
+        });
 
         final GeoEntryIndexer geoEntryIndexer = spy(new GeoEntryIndexer() {
             @Override
@@ -88,6 +107,12 @@ public class TestGeoNamesUpdateCommand {
                 geoEntryExtractor.getGeoEntriesStreaming(resource, extractionCallback);
             }
         });
+
+        List<GeoEntryExtractor> geoEntryExtractors = new ArrayList<GeoEntryExtractor>();
+        geoEntryExtractors.add(geoEntryExtractor);
+        geoEntryExtractors.add(geoEntryUrlExtractor);
+
+        geoNamesUpdateCommand.setGeoEntryExtractors(geoEntryExtractors);
         geoNamesUpdateCommand.setGeoEntryIndexer(geoEntryIndexer);
 
         geoNamesUpdateCommand.doExecute();
@@ -99,14 +124,16 @@ public class TestGeoNamesUpdateCommand {
     @Test
     public void testExceptionDuringExtraction() throws IOException {
         final String errorText = "Extraction error text";
-
-        final GeoEntryExtractor geoEntryExtractor = mock(GeoEntryExtractor.class);
+        final GeoEntryExtractor geoEntryExtractor = mock(GeoNamesFileExtractor.class);
+        final GeoEntryExtractor geoEntryUrlExtractor = mock(GeoNamesUrlExtractor.class);
         final GeoEntryExtractionException geoEntryExtractionException =
                 new GeoEntryExtractionException(errorText);
-        doThrow(geoEntryExtractionException).when(geoEntryExtractor)
+
+        doThrow(geoEntryExtractionException).when(geoEntryUrlExtractor)
                 .getGeoEntriesStreaming(anyString(), any(ExtractionCallback.class));
 
-        geoNamesUpdateCommand.setGeoEntryExtractor(geoEntryExtractor);
+        doThrow(geoEntryExtractionException).when(geoEntryExtractor)
+                .getGeoEntriesStreaming(anyString(), any(ExtractionCallback.class));
 
         final GeoEntryIndexer geoEntryIndexer = new GeoEntryIndexer() {
             @Override
@@ -117,11 +144,24 @@ public class TestGeoNamesUpdateCommand {
             public void updateIndex(final String resource,
                     final GeoEntryExtractor geoEntryExtractor, final boolean create,
                     final ProgressCallback progressCallback) {
-                geoEntryExtractor.getGeoEntriesStreaming(null, mock(ExtractionCallback.class));
+                geoEntryExtractor.getGeoEntriesStreaming(resource, mock(ExtractionCallback.class));
             }
         };
-        geoNamesUpdateCommand.setGeoEntryIndexer(geoEntryIndexer);
 
+        List<GeoEntryExtractor> geoEntryExtractors = new ArrayList<>();
+        geoEntryExtractors.add(geoEntryExtractor);
+        geoEntryExtractors.add(geoEntryUrlExtractor);
+
+        geoNamesUpdateCommand.setGeoEntryIndexer(geoEntryIndexer);
+        geoNamesUpdateCommand.setGeoEntryExtractors(geoEntryExtractors);
+        geoNamesUpdateCommand.setResource("temp");
+
+        geoNamesUpdateCommand.doExecute();
+        assertThat(consoleInterceptor.getOutput(), containsString(errorText));
+
+        consoleInterceptor.resetSystemOut();
+
+        geoNamesUpdateCommand.setResource("temp.txt");
         geoNamesUpdateCommand.doExecute();
         assertThat(consoleInterceptor.getOutput(), containsString(errorText));
 
@@ -132,17 +172,27 @@ public class TestGeoNamesUpdateCommand {
     @Test
     public void testExceptionDuringIndexing() throws IOException {
         final String errorText = "Indexing error text";
-
-        final GeoEntryExtractor geoEntryExtractor = mock(GeoEntryExtractor.class);
-        geoNamesUpdateCommand.setGeoEntryExtractor(geoEntryExtractor);
+        final GeoEntryExtractor geoEntryExtractor = mock(GeoNamesFileExtractor.class);
+        final GeoEntryExtractor geoEntryUrlExtractor = mock(GeoNamesUrlExtractor.class);
 
         final GeoEntryIndexer geoEntryIndexer = mock(GeoEntryIndexer.class);
         final GeoEntryIndexingException geoEntryIndexingException =
                 new GeoEntryIndexingException(errorText);
         doThrow(geoEntryIndexingException).when(geoEntryIndexer).updateIndex(anyString(),
                 any(GeoEntryExtractor.class), anyBoolean(), any(ProgressCallback.class));
-        geoNamesUpdateCommand.setGeoEntryIndexer(geoEntryIndexer);
+        List<GeoEntryExtractor> geoEntryExtractors = new ArrayList<GeoEntryExtractor>();
+        geoEntryExtractors.add(geoEntryExtractor);
+        geoEntryExtractors.add(geoEntryUrlExtractor);
 
+        geoNamesUpdateCommand.setGeoEntryIndexer(geoEntryIndexer);
+        geoNamesUpdateCommand.setGeoEntryExtractors(geoEntryExtractors);
+        geoNamesUpdateCommand.setResource("temp");
+        geoNamesUpdateCommand.doExecute();
+        assertThat(consoleInterceptor.getOutput(), containsString(errorText));
+
+        consoleInterceptor.resetSystemOut();
+
+        geoNamesUpdateCommand.setResource("temp.txt");
         geoNamesUpdateCommand.doExecute();
         assertThat(consoleInterceptor.getOutput(), containsString(errorText));
 
