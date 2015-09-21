@@ -220,33 +220,33 @@
                         </goals>
                         <configuration>
                             <tasks>
-                                <move todir="${setup.folder}/docs/ddf">
+                                <copy todir="${setup.folder}/docs/ddf">
                                     <fileset dir="${setup.folder}/docs/ddf/docs-${project.version}"/>
-                                </move>
-                                <move todir="${setup.folder}/docs/admin">
+                                </copy>
+                                <copy todir="${setup.folder}/docs/admin">
                                     <fileset dir="${setup.folder}/docs/admin/docs-${project.version}"/>
-                                </move>
-                                <move todir="${setup.folder}/docs/catalog">
+                                </copy>
+                                <copy todir="${setup.folder}/docs/catalog">
                                     <fileset dir="${setup.folder}/docs/catalog/docs-${project.version}"/>
-                                </move>
-                                <move todir="${setup.folder}/docs/solr">
+                                </copy>
+                                <copy todir="${setup.folder}/docs/solr">
                                     <fileset dir="${setup.folder}/docs/solr/docs-${project.version}"/>
-                                </move>
-                                <move todir="${setup.folder}/docs/content">
+                                </copy>
+                                <copy todir="${setup.folder}/docs/content">
                                     <fileset dir="${setup.folder}/docs/content/docs-${project.version}"/>
-                                </move>
-                                <move todir="${setup.folder}/docs/platform">
+                                </copy>
+                                <copy todir="${setup.folder}/docs/platform">
                                     <fileset dir="${setup.folder}/docs/platform/docs-${project.version}"/>
-                                </move>
-                                <move todir="${setup.folder}/docs/security">
+                                </copy>
+                                <copy todir="${setup.folder}/docs/security">
                                     <fileset dir="${setup.folder}/docs/security/docs-${project.version}"/>
-                                </move>
-                                <move todir="${setup.folder}/docs/spatial">
+                                </copy>
+                                <copy todir="${setup.folder}/docs/spatial">
                                     <fileset dir="${setup.folder}/docs/spatial/docs-${project.version}"/>
-                                </move>
-                                <move todir="${setup.folder}/docs/ui">
+                                </copy>
+                                <copy todir="${setup.folder}/docs/ui">
                                     <fileset dir="${setup.folder}/docs/ui/docs-${project.version}"/>
-                                </move>
+                                </copy>
                             </tasks>
                         </configuration>
                     </execution>
