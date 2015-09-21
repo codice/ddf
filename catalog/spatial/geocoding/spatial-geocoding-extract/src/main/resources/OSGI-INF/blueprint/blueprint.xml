@@ -18,7 +18,12 @@
     <bean id="geonamesExtractor" class="org.codice.ddf.spatial.geocoding.extract.GeoNamesFileExtractor">
         <property name="geoEntryCreator" ref="geoEntryCreator"/>
     </bean>
+    <bean id="geonamesUrlExtractor" class="org.codice.ddf.spatial.geocoding.extract.GeoNamesUrlExtractor">
+        <property name="geoEntryCreator" ref="geoEntryCreator"/>
+    </bean>
+
     <service ref="geonamesExtractor" interface="org.codice.ddf.spatial.geocoding.GeoEntryExtractor"/>
+    <service ref="geonamesUrlExtractor" interface="org.codice.ddf.spatial.geocoding.GeoEntryExtractor"/>
 
     <reference id="geoEntryCreator" interface="org.codice.ddf.spatial.geocoding.GeoEntryCreator"/>
 </blueprint>
