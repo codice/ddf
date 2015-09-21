@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -15,7 +15,6 @@
 package org.codice.ddf.commands.spatial.geonames;
 
 import java.io.PrintStream;
-
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
@@ -29,13 +28,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Command(scope = "geonames", name = "update",
-        description = "Adds new entries to an existing local GeoNames index. Attempting to " +
+        description = "Adds new entries to an existing local GeoNames index. " + "Attempting to " +
                 "add entries when no index exists is an error.")
 public final class GeoNamesUpdateCommand extends OsgiCommandSupport {
     private static final Logger LOGGER = LoggerFactory.getLogger(GeoNamesUpdateCommand.class);
 
     @Argument(index = 0, name = "resource",
-            description = "The resource whose contents you wish to insert into the index.",
+            description = "The resource whose contents you wish to insert into the index.  "
+                    + "When the resource is a country code (ex: AU), "
+                    + "that country's data will be downloaded from geonames.org "
+                    + "and added to the index.  `cities1000`, `cities5000` and "
+                    + "`cities15000` can be used to get all of the cities with at "
+                    + "least 1000, 5000, 15000 people respectively.  "
+                    + "To download all country codes, use the keyword 'all'.  "
+                    + "When the resource is a path to a file, it will be imported locally.",
             required = true)
     private String resource = null;
 
@@ -43,8 +49,9 @@ public final class GeoNamesUpdateCommand extends OsgiCommandSupport {
             description = "Create a new index, overwriting any existing index at the destination.")
     private boolean create;
 
-    private GeoEntryExtractor geoEntryExtractor;
     private GeoEntryIndexer geoEntryIndexer;
+
+    private GeoEntryExtractor geoEntryExtractor;
 
     public void setGeoEntryExtractor(final GeoEntryExtractor geoEntryExtractor) {
         this.geoEntryExtractor = geoEntryExtractor;
@@ -52,6 +59,10 @@ public final class GeoNamesUpdateCommand extends OsgiCommandSupport {
 
     public void setGeoEntryIndexer(final GeoEntryIndexer geoEntryIndexer) {
         this.geoEntryIndexer = geoEntryIndexer;
+    }
+
+    public void setResource(String resource) {
+        this.resource = resource;
     }
 
     @Override

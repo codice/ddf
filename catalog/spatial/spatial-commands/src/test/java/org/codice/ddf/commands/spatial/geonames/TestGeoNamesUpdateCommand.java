@@ -25,6 +25,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.codice.ddf.spatial.geocoding.GeoEntry;
@@ -33,6 +34,7 @@ import org.codice.ddf.spatial.geocoding.GeoEntryExtractor;
 import org.codice.ddf.spatial.geocoding.GeoEntryIndexer;
 import org.codice.ddf.spatial.geocoding.GeoEntryIndexingException;
 import org.codice.ddf.spatial.geocoding.ProgressCallback;
+import org.codice.ddf.spatial.geocoding.extract.GeoNamesFileExtractor;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -57,7 +59,7 @@ public class TestGeoNamesUpdateCommand {
             }
 
             @Override
-            public void getGeoEntriesStreaming(final String resource,
+            public void pushGeoEntriesToExtractionCallback(final String resource,
                     final ExtractionCallback extractionCallback) {
                 extractionCallback.updateProgress(50);
                 assertThat(consoleInterceptor.getOutput(), containsString("50%"));
@@ -65,7 +67,23 @@ public class TestGeoNamesUpdateCommand {
                 assertThat(consoleInterceptor.getOutput(), containsString("100%"));
             }
         });
-        geoNamesUpdateCommand.setGeoEntryExtractor(geoEntryExtractor);
+
+        final GeoEntryExtractor geoEntryUrlExtractor = spy(new GeoEntryExtractor() {
+            @Override
+            public List<GeoEntry> getGeoEntries(final String resource,
+                    final ProgressCallback progressCallback) {
+                return null;
+            }
+
+            @Override
+            public void pushGeoEntriesToExtractionCallback(final String resource,
+                    final ExtractionCallback extractionCallback) {
+                extractionCallback.updateProgress(50);
+                assertThat(consoleInterceptor.getOutput(), containsString("50%"));
+                extractionCallback.updateProgress(100);
+                assertThat(consoleInterceptor.getOutput(), containsString("100%"));
+            }
+        });
 
         final GeoEntryIndexer geoEntryIndexer = spy(new GeoEntryIndexer() {
             @Override
@@ -85,11 +103,18 @@ public class TestGeoNamesUpdateCommand {
                         progressCallback.updateProgress(progress);
                     }
                 };
-                geoEntryExtractor.getGeoEntriesStreaming(resource, extractionCallback);
+                geoEntryExtractor.pushGeoEntriesToExtractionCallback(resource, extractionCallback);
             }
         });
+
+        List<GeoEntryExtractor> geoEntryExtractors = new ArrayList<GeoEntryExtractor>();
+        geoEntryExtractors.add(geoEntryExtractor);
+        geoEntryExtractors.add(geoEntryUrlExtractor);
+
+        geoNamesUpdateCommand.setGeoEntryExtractor(geoEntryExtractor);
         geoNamesUpdateCommand.setGeoEntryIndexer(geoEntryIndexer);
 
+        geoNamesUpdateCommand.setResource("test");
         geoNamesUpdateCommand.doExecute();
 
         consoleInterceptor.resetSystemOut();
@@ -99,14 +124,12 @@ public class TestGeoNamesUpdateCommand {
     @Test
     public void testExceptionDuringExtraction() throws IOException {
         final String errorText = "Extraction error text";
-
         final GeoEntryExtractor geoEntryExtractor = mock(GeoEntryExtractor.class);
         final GeoEntryExtractionException geoEntryExtractionException =
                 new GeoEntryExtractionException(errorText);
-        doThrow(geoEntryExtractionException).when(geoEntryExtractor)
-                .getGeoEntriesStreaming(anyString(), any(ExtractionCallback.class));
 
-        geoNamesUpdateCommand.setGeoEntryExtractor(geoEntryExtractor);
+        doThrow(geoEntryExtractionException).when(geoEntryExtractor)
+                .pushGeoEntriesToExtractionCallback(anyString(), any(ExtractionCallback.class));
 
         final GeoEntryIndexer geoEntryIndexer = new GeoEntryIndexer() {
             @Override
@@ -117,10 +140,14 @@ public class TestGeoNamesUpdateCommand {
             public void updateIndex(final String resource,
                     final GeoEntryExtractor geoEntryExtractor, final boolean create,
                     final ProgressCallback progressCallback) {
-                geoEntryExtractor.getGeoEntriesStreaming(null, mock(ExtractionCallback.class));
+                geoEntryExtractor.pushGeoEntriesToExtractionCallback(resource,
+                        mock(ExtractionCallback.class));
             }
         };
+
         geoNamesUpdateCommand.setGeoEntryIndexer(geoEntryIndexer);
+        geoNamesUpdateCommand.setGeoEntryExtractor(geoEntryExtractor);
+        geoNamesUpdateCommand.setResource("temp.txt");
 
         geoNamesUpdateCommand.doExecute();
         assertThat(consoleInterceptor.getOutput(), containsString(errorText));
@@ -132,21 +159,21 @@ public class TestGeoNamesUpdateCommand {
     @Test
     public void testExceptionDuringIndexing() throws IOException {
         final String errorText = "Indexing error text";
-
-        final GeoEntryExtractor geoEntryExtractor = mock(GeoEntryExtractor.class);
-        geoNamesUpdateCommand.setGeoEntryExtractor(geoEntryExtractor);
+        final GeoEntryExtractor geoEntryExtractor = mock(GeoNamesFileExtractor.class);
 
         final GeoEntryIndexer geoEntryIndexer = mock(GeoEntryIndexer.class);
         final GeoEntryIndexingException geoEntryIndexingException =
                 new GeoEntryIndexingException(errorText);
         doThrow(geoEntryIndexingException).when(geoEntryIndexer).updateIndex(anyString(),
                 any(GeoEntryExtractor.class), anyBoolean(), any(ProgressCallback.class));
-        geoNamesUpdateCommand.setGeoEntryIndexer(geoEntryIndexer);
 
+
+        geoNamesUpdateCommand.setGeoEntryIndexer(geoEntryIndexer);
+        geoNamesUpdateCommand.setGeoEntryExtractor(geoEntryExtractor);
+        geoNamesUpdateCommand.setResource("temp");
         geoNamesUpdateCommand.doExecute();
         assertThat(consoleInterceptor.getOutput(), containsString(errorText));
 
         consoleInterceptor.resetSystemOut();
-        consoleInterceptor.closeBuffer();
     }
 }

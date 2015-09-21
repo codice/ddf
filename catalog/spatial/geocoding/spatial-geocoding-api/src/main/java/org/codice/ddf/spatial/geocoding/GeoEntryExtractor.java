@@ -50,7 +50,7 @@ public interface GeoEntryExtractor {
      * @throws GeoEntryExtractionException if an error occurs while extracting GeoNames entries from
      *                                     the resource
      */
-    void getGeoEntriesStreaming(String resource, ExtractionCallback extractionCallback);
+    void pushGeoEntriesToExtractionCallback(String resource, ExtractionCallback extractionCallback);
 
     /**
      * An {@code ExtractionCallback} provides a method for receiving a {@link GeoEntry} object that
@@ -59,7 +59,7 @@ public interface GeoEntryExtractor {
     interface ExtractionCallback extends ProgressCallback {
         /**
          * Receives a {@link GeoEntry} object from
-         * {@link #getGeoEntriesStreaming(String, ExtractionCallback)}
+         * {@link #pushGeoEntriesToExtractionCallback(String, ExtractionCallback)}
          *
          * @param newEntry  the {@code GeoEntry} object just extracted
          */
