@@ -132,7 +132,7 @@ public class GeoNamesLuceneIndexer implements GeoEntryIndexer {
             };
 
             try {
-                geoEntryExtractor.getGeoEntriesStreaming(resource, extractionCallback);
+                geoEntryExtractor.pushGeoEntriesToExtractionCallback(resource, extractionCallback);
             } catch (GeoEntryExtractionException | GeoEntryIndexingException e) {
                 // Need to roll back here before the IndexWriter is closed at the end of the try
                 // block.
