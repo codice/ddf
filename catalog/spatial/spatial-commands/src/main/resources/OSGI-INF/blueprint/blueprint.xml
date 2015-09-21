@@ -20,6 +20,12 @@
                 <property name="geoEntryExtractor" ref="geoEntryExtractor"/>
             </action>
         </command>
+        <command name="geonames/import">
+            <action class="org.codice.ddf.commands.spatial.geonames.GeoNamesImportCommand">
+                <property name="geoEntryIndexer" ref="geoEntryIndexer"/>
+                <property name="geoEntryExtractor" ref="geoEntryExtractor"/>
+            </action>
+        </command>
     </command-bundle>
 
     <reference id="geoEntryIndexer" interface="org.codice.ddf.spatial.geocoding.GeoEntryIndexer"/>
