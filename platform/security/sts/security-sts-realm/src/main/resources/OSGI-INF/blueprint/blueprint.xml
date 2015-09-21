@@ -52,7 +52,11 @@
     </bean>
 
     <service ref="stsRealm"
-             interface="ddf.security.sts.client.configuration.STSClientConfiguration"/>
+             interface="ddf.security.sts.client.configuration.STSClientConfiguration">
+        <service-properties>
+            <entry key="id" value="internal"/>
+        </service-properties>
+    </service>
 
     <service ref="stsRealm" interface="org.codice.ddf.configuration.ConfigurationWatcher"/>
 
@@ -88,7 +92,11 @@
     </bean>
 
     <service ref="wssStsRealm"
-             interface="ddf.security.sts.client.configuration.STSClientConfiguration"/>
+             interface="ddf.security.sts.client.configuration.STSClientConfiguration">
+        <service-properties>
+            <entry key="id" value="wss"/>
+        </service-properties>
+    </service>
 
     <service ref="wssStsRealm" interface="org.codice.ddf.configuration.ConfigurationWatcher"/>
 
@@ -101,5 +109,8 @@
         <argument ref="stsRealm"/>
         <argument ref="wssStsRealm"/>
     </bean>
+
+    <service ref="stsAddressProvider"
+             interface="ddf.security.sts.client.configuration.StsAddressProvider"/>
 
 </blueprint>
