@@ -78,6 +78,7 @@
         <dependency>
             <groupId>org.luxdb</groupId>
             <artifactId>lux</artifactId>
+            <version>1.1.1-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

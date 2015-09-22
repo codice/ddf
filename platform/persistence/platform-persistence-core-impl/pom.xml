@@ -29,7 +29,7 @@
     <packaging>bundle</packaging>
 
     <properties>
-        <solr.version>4.7.2</solr.version>
+        <solr.version>4.10.4</solr.version>
     </properties>
 
     <dependencyManagement>
