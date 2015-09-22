@@ -1449,7 +1449,7 @@ public class CswEndpoint implements Csw {
     }
 
     private CswRecordCollection queryById(List<String> ids) throws CswException {
-        List<Filter> filters = new ArrayList<Filter>();
+        List<Filter> filters = new ArrayList<>();
         for (String id : ids) {
             filters.add(builder.attribute(Metacard.ID).is().equalTo().text(id));
         }
@@ -1459,18 +1459,18 @@ public class CswEndpoint implements Csw {
         try {
             CswRecordCollection response = new CswRecordCollection();
             response.setById(true);
+
             QueryResponse queryResponse = framework.query(queryRequest);
-            List<Metacard> metacards = new LinkedList<Metacard>();
+            response.setSourceResponse(queryResponse);
+
+            List<Metacard> metacards = new LinkedList<>();
             for (Result result : queryResponse.getResults()) {
                 metacards.add(result.getMetacard());
             }
             response.setCswRecords(metacards);
+
             return response;
-        } catch (UnsupportedQueryException e) {
-            throw new CswException(e);
-        } catch (SourceUnavailableException e) {
-            throw new CswException(e);
-        } catch (FederationException e) {
+        } catch (FederationException | SourceUnavailableException | UnsupportedQueryException e) {
             throw new CswException(e);
         }
     }

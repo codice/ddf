@@ -27,6 +27,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyList;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -42,6 +43,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -64,6 +66,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.DescribeRecordRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordByIdRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordsRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.DeleteAction;
@@ -121,6 +124,7 @@ import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.AttributeBuilder;
 import ddf.catalog.filter.ContextualExpressionBuilder;
+import ddf.catalog.filter.EqualityExpressionBuilder;
 import ddf.catalog.filter.ExpressionBuilder;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.CreateRequest;
@@ -128,6 +132,7 @@ import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
+import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.Update;
 import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.operation.UpdateResponse;
@@ -149,6 +154,7 @@ import net.opengis.cat.csw.v_2_0_2.DistributedSearchType;
 import net.opengis.cat.csw.v_2_0_2.ElementSetNameType;
 import net.opengis.cat.csw.v_2_0_2.ElementSetType;
 import net.opengis.cat.csw.v_2_0_2.GetCapabilitiesType;
+import net.opengis.cat.csw.v_2_0_2.GetRecordByIdType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.QueryConstraintType;
 import net.opengis.cat.csw.v_2_0_2.QueryType;
@@ -326,8 +332,10 @@ public class TestCswEndpoint {
         ContextualExpressionBuilder likeExprBuilder = mock(ContextualExpressionBuilder.class);
         when(likeExprBuilder.text(Matchers.anyString())).thenReturn(Filter.INCLUDE);
         when(exprBuilder.like()).thenReturn(likeExprBuilder);
+        when(exprBuilder.equalTo()).thenReturn(mock(EqualityExpressionBuilder.class));
         when(attrBuilder.is()).thenReturn(exprBuilder);
         when(filterBuilder.attribute(Metacard.ID)).thenReturn(attrBuilder);
+        when(filterBuilder.anyOf(anyList())).thenReturn(mock(Or.class));
         csw = new CswEndpoint(mockContext, catalogFramework, filterBuilder, mockUriInfo,
                 mockMimeTypeManager, mockSchemaManager);
 
@@ -2005,6 +2013,112 @@ public class TestCswEndpoint {
         cqlTemporalQuery(Metacard.EXPIRATION, cqlText, new Class[] {During.class, After.class});
     }
 
+    @Test
+    public void testGetRecordById()
+            throws CswException, FederationException, SourceUnavailableException,
+            UnsupportedQueryException {
+        final GetRecordByIdRequest getRecordByIdRequest = new GetRecordByIdRequest();
+        getRecordByIdRequest.setId("123");
+        getRecordByIdRequest.setOutputFormat(MediaType.APPLICATION_XML);
+        getRecordByIdRequest.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
+        getRecordByIdRequest.setElementSetName("full");
+
+        final Metacard metacard = new MetacardImpl();
+
+        final List<Result> mockResults = Collections
+                .<Result>singletonList(new ResultImpl(metacard));
+        final QueryResponseImpl queryResponse = new QueryResponseImpl(null, mockResults,
+                mockResults.size());
+
+        final CswEndpoint cswEndpoint = createCswEndpoint(queryResponse);
+
+        final CswRecordCollection cswRecordCollection = cswEndpoint
+                .getRecordById(getRecordByIdRequest);
+        verifyCswRecordCollection(cswRecordCollection, metacard);
+
+        assertThat(cswRecordCollection.getElementSetType(), is(ElementSetType.FULL));
+    }
+
+    @Test
+    public void testPostGetRecordById()
+            throws CswException, FederationException, SourceUnavailableException,
+            UnsupportedQueryException {
+        final GetRecordByIdType getRecordByIdType = new GetRecordByIdType();
+        getRecordByIdType.setId(Collections.singletonList("123,456"));
+        getRecordByIdType.setOutputFormat(MediaType.APPLICATION_XML);
+        getRecordByIdType.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
+
+        final Metacard metacard1 = new MetacardImpl();
+        final Metacard metacard2 = new MetacardImpl();
+
+        final List<Result> mockResults = Arrays
+                .<Result>asList(new ResultImpl(metacard1), new ResultImpl(metacard2));
+        final QueryResponse queryResponse = new QueryResponseImpl(null, mockResults,
+                mockResults.size());
+
+        final CswEndpoint cswEndpoint = createCswEndpoint(queryResponse);
+
+        final CswRecordCollection cswRecordCollection = cswEndpoint
+                .getRecordById(getRecordByIdType);
+        verifyCswRecordCollection(cswRecordCollection, metacard1, metacard2);
+
+        // "summary" is the default if none is specified in the request.
+        assertThat(cswRecordCollection.getElementSetType(), is(ElementSetType.SUMMARY));
+    }
+
+    private void verifyCswRecordCollection(final CswRecordCollection cswRecordCollection,
+            final Metacard... expectedRecords) {
+        final SourceResponse response = cswRecordCollection.getSourceResponse();
+        assertThat(response, notNullValue());
+
+        final List<Result> results = response.getResults();
+        assertThat(results.size(), is(expectedRecords.length));
+
+        for (int i = 0; i < results.size(); ++i) {
+            final Result result = results.get(i);
+            assertThat(result, notNullValue());
+            assertThat(result.getMetacard(), is(expectedRecords[i]));
+        }
+
+        final List<Metacard> cswRecordResults = cswRecordCollection.getCswRecords();
+        assertThat(cswRecordResults.size(), is(expectedRecords.length));
+
+        for (int i = 0; i < cswRecordResults.size(); ++i) {
+            final Metacard metacard = cswRecordResults.get(i);
+            assertThat(metacard, is(expectedRecords[i]));
+        }
+
+        assertThat(cswRecordCollection.isById(), is(true));
+        assertThat(cswRecordCollection.getOutputSchema(), is(CswConstants.CSW_OUTPUT_SCHEMA));
+    }
+
+    private CswEndpoint createCswEndpoint(final QueryResponse queryResponse)
+            throws FederationException, SourceUnavailableException, UnsupportedQueryException {
+        final CatalogFramework mockFramework = mock(CatalogFramework.class);
+        doReturn(queryResponse).when(mockFramework).query(any(QueryRequest.class));
+
+        return new CswEndpoint(mockContext, mockFramework, filterBuilder, mockUriInfo,
+                mockMimeTypeManager, mockSchemaManager);
+    }
+
+    @Test(expected = CswException.class)
+    public void testGetRecordByIdNoId() throws CswException {
+        final GetRecordByIdRequest getRecordByIdRequest = new GetRecordByIdRequest();
+        getRecordByIdRequest.setOutputFormat(MediaType.APPLICATION_XML);
+        getRecordByIdRequest.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
+
+        csw.getRecordById(getRecordByIdRequest);
+    }
+
+    @Test(expected = CswException.class)
+    public void testPostGetRecordByIdNoId() throws CswException {
+        final GetRecordByIdType getRecordByIdType = new GetRecordByIdType();
+        getRecordByIdType.setOutputFormat(MediaType.APPLICATION_XML);
+        getRecordByIdType.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
+
+        csw.getRecordById(getRecordByIdType);
+    }
+
     @Test(expected = CswException.class)
     public void testGetUnknownService() throws CswException {
         CswRequest request = new CswRequest();
@@ -2940,8 +3054,8 @@ public class TestCswEndpoint {
         ArrayList<String> opNames = new ArrayList<>();
         for (Operation op : opList) {
             opNames.add(op.getName());
-            if (StringUtils.equals(CswConstants.TRANSACTION, op.getName()) ||
-                    StringUtils.equals(CswConstants.GET_RECORDS, op.getName())) {
+            if (StringUtils.equals(CswConstants.TRANSACTION, op.getName()) || StringUtils
+                    .equals(CswConstants.GET_RECORDS, op.getName())) {
                 for (DomainType parameter : op.getParameter()) {
                     if (StringUtils.equals(CswConstants.CONSTRAINT_LANGUAGE_PARAMETER,
                             parameter.getName())) {
