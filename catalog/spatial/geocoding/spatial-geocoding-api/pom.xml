@@ -27,6 +27,13 @@
     <name>DDF :: Spatial :: Geocoding :: API</name>
     <packaging>bundle</packaging>
 
+    <dependencies>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-api</artifactId>
+        </dependency>
+    </dependencies>
+
     <build>
         <plugins>
             <plugin>
@@ -36,7 +43,10 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Export-Package>org.codice.ddf.spatial.geocoding</Export-Package>
+                        <Export-Package>
+                            org.codice.ddf.spatial.geocoding,
+                            org.codice.ddf.spatial.geocoding.context
+                        </Export-Package>
                     </instructions>
                 </configuration>
             </plugin>

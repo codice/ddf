@@ -25,7 +25,10 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.codice.ddf.spatial.geocoding.GeoEntry;
 import org.codice.ddf.spatial.geocoding.GeoEntryQueryException;
+import org.codice.ddf.spatial.geocoding.context.NearbyLocation;
 import org.codice.ddf.spatial.geocoding.index.GeoNamesLuceneIndexer;
+
+import ddf.catalog.data.Metacard;
 
 public class GeoNamesQueryLuceneDirectoryIndex extends GeoNamesQueryLuceneIndex {
     private String indexLocation;
@@ -35,8 +38,24 @@ public class GeoNamesQueryLuceneDirectoryIndex extends GeoNamesQueryLuceneIndex 
     }
 
     @Override
-    protected Directory createDirectory() throws IOException {
+    protected Directory openDirectory() throws IOException {
         return FSDirectory.open(Paths.get(indexLocation));
+    }
+
+    private Directory openDirectoryAndCheckForIndex() {
+        Directory directory;
+
+        try {
+            directory = openDirectory();
+            if (!indexExists(directory)) {
+                throw new GeoEntryQueryException("There is no index at " + indexLocation);
+            }
+
+            return directory;
+        } catch (IOException e) {
+            throw new GeoEntryQueryException(
+                    "Error opening the index directory at " + indexLocation, e);
+        }
     }
 
     @Override
@@ -53,17 +72,16 @@ public class GeoNamesQueryLuceneDirectoryIndex extends GeoNamesQueryLuceneIndex 
 
     @Override
     public List<GeoEntry> query(final String queryString, final int maxResults) {
-        Directory directory;
-
-        try {
-            directory = createDirectory();
-            if (!indexExists(directory)) {
-                throw new GeoEntryQueryException("There is no index at " + indexLocation);
-            }
-        } catch (IOException e) {
-            throw new GeoEntryQueryException("Error opening the index directory.", e);
-        }
+        final Directory directory = openDirectoryAndCheckForIndex();
 
         return doQuery(queryString, maxResults, directory);
+    }
+
+    @Override
+    public List<NearbyLocation> getNearestCities(final Metacard metacard, final int radiusInKm,
+            final int maxResults) {
+        final Directory directory = openDirectoryAndCheckForIndex();
+
+        return doGetNearestCities(metacard, radiusInKm, maxResults, directory);
     }
 }

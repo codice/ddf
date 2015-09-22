@@ -25,24 +25,73 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.queries.CustomScoreQuery;
 import org.apache.lucene.queries.function.FunctionQuery;
 import org.apache.lucene.queries.function.valuesource.FloatFieldSource;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.BooleanClause;
+import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.DisjunctionMaxQuery;
+import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.Sort;
+import org.apache.lucene.search.SortField;
+import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.spatial.SpatialStrategy;
+import org.apache.lucene.spatial.prefix.RecursivePrefixTreeStrategy;
+import org.apache.lucene.spatial.prefix.tree.GeohashPrefixTree;
+import org.apache.lucene.spatial.prefix.tree.SpatialPrefixTree;
+import org.apache.lucene.spatial.query.SpatialArgs;
+import org.apache.lucene.spatial.query.SpatialOperation;
 import org.apache.lucene.store.Directory;
 import org.codice.ddf.spatial.geocoding.GeoEntry;
 import org.codice.ddf.spatial.geocoding.GeoEntryQueryException;
 import org.codice.ddf.spatial.geocoding.GeoEntryQueryable;
+import org.codice.ddf.spatial.geocoding.context.NearbyLocation;
+import org.codice.ddf.spatial.geocoding.context.impl.NearbyLocationImpl;
 import org.codice.ddf.spatial.geocoding.index.GeoNamesLuceneConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.spatial4j.core.context.SpatialContext;
+import com.spatial4j.core.distance.DistanceUtils;
+import com.spatial4j.core.shape.Point;
+import com.spatial4j.core.shape.Shape;
+import com.spatial4j.core.shape.impl.PointImpl;
+
+import ddf.catalog.data.Metacard;
 
 public abstract class GeoNamesQueryLuceneIndex implements GeoEntryQueryable {
-    protected abstract Directory createDirectory() throws IOException;
+    private static final Logger LOGGER = LoggerFactory.getLogger(GeoNamesQueryLuceneIndex.class);
+
+    private static final SpatialContext SPATIAL_CONTEXT = SpatialContext.GEO;
+
+    private static final Sort SORT = new Sort(
+            new SortField(GeoNamesLuceneConstants.POPULATION_DOCVALUES_FIELD, SortField.Type.LONG,
+                    true /* sort descending */));
+
+    // The GeoNames feature codes for cities, excluding cities that no longer exist or that have
+    // been destroyed.
+    private static final String[] CITY_FEATURE_CODES = {"PPL", "PPLA", "PPLA2", "PPLA3", "PPLA4",
+            "PPLC", "PPLCH", "PPLF", "PPLG", "PPLL", "PPLR", "PPLS", "PPLX"};
+
+    private static final BooleanQuery PPL_QUERY = new BooleanQuery();
+
+    static {
+        // Create an OR query on the feature_code field that will accept any of the above feature
+        // codes.
+        for (String fc : CITY_FEATURE_CODES) {
+            PPL_QUERY.add(new TermQuery(new Term(GeoNamesLuceneConstants.FEATURE_CODE_FIELD, fc)),
+                    BooleanClause.Occur.SHOULD);
+        }
+    }
+
+    protected abstract Directory openDirectory() throws IOException;
 
     protected abstract IndexReader createIndexReader(Directory directory) throws IOException;
 
@@ -75,9 +124,9 @@ public abstract class GeoNamesQueryLuceneIndex implements GeoEntryQueryable {
                     // The alternate names aren't being stored (they are only used for queries),
                     // so we don't retrieve them here.
                     results.add(new GeoEntry.Builder()
-                            .name(document.get(GeoNamesLuceneConstants.NAME_FIELD))
-                            .latitude(Double.parseDouble(
-                                    document.get(GeoNamesLuceneConstants.LATITUDE_FIELD)))
+                            .name(document.get(GeoNamesLuceneConstants.NAME_FIELD)).latitude(
+                                    Double.parseDouble(
+                                            document.get(GeoNamesLuceneConstants.LATITUDE_FIELD)))
                             .longitude(Double.parseDouble(
                                     document.get(GeoNamesLuceneConstants.LONGITUDE_FIELD)))
                             .featureCode(document.get(GeoNamesLuceneConstants.FEATURE_CODE_FIELD))
@@ -99,8 +148,8 @@ public abstract class GeoNamesQueryLuceneIndex implements GeoEntryQueryable {
     protected Query createQuery(final String queryString) throws ParseException {
         final StandardAnalyzer standardAnalyzer = new StandardAnalyzer();
 
-        final QueryParser nameQueryParser =
-                new QueryParser(GeoNamesLuceneConstants.NAME_FIELD, standardAnalyzer);
+        final QueryParser nameQueryParser = new QueryParser(GeoNamesLuceneConstants.NAME_FIELD,
+                standardAnalyzer);
         nameQueryParser.setEnablePositionIncrements(false);
 
         /* For the name, we construct a query searching for exactly the query string (the phrase
@@ -129,8 +178,8 @@ public abstract class GeoNamesQueryLuceneIndex implements GeoEntryQueryable {
         // This query will score each document by the maximum of the three sub-queries.
         final Query nameQuery = new DisjunctionMaxQuery(nameQueryList, 0);
 
-        final QueryParser alternateNamesQueryParser =
-                new QueryParser(GeoNamesLuceneConstants.ALTERNATE_NAMES_FIELD, standardAnalyzer);
+        final QueryParser alternateNamesQueryParser = new QueryParser(
+                GeoNamesLuceneConstants.ALTERNATE_NAMES_FIELD, standardAnalyzer);
 
         // For the alternate names, we perform an AND query and an OR query, both of which are
         // boosted less than the name query because the alternate names are generally not as
@@ -144,8 +193,8 @@ public abstract class GeoNamesQueryLuceneIndex implements GeoEntryQueryable {
         // experimentation.
         final Query andAlternateNamesQuery = alternateNamesQueryParser.parse(queryString);
 
-        final List<Query> alternateNamesQueryList =
-                Arrays.asList(orAlternateNamesQuery, andAlternateNamesQuery);
+        final List<Query> alternateNamesQueryList = Arrays
+                .asList(orAlternateNamesQuery, andAlternateNamesQuery);
         // This query will score each document by the maximum of the two sub-queries.
         final Query alternateNamesQuery = new DisjunctionMaxQuery(alternateNamesQueryList, 0);
 
@@ -158,9 +207,86 @@ public abstract class GeoNamesQueryLuceneIndex implements GeoEntryQueryable {
         final DisjunctionMaxQuery disjunctionMaxQuery = new DisjunctionMaxQuery(queryList, 1.0f);
 
         // This is the boost we calculated at index time, and it is applied in the CustomScoreQuery.
-        final FunctionQuery boostQuery =
-                new FunctionQuery(new FloatFieldSource(GeoNamesLuceneConstants.BOOST_FIELD));
+        final FunctionQuery boostQuery = new FunctionQuery(
+                new FloatFieldSource(GeoNamesLuceneConstants.BOOST_FIELD));
 
         return new CustomScoreQuery(disjunctionMaxQuery, boostQuery);
+    }
+
+    protected List<NearbyLocation> doGetNearestCities(final Metacard metacard, final int radiusInKm,
+            final int maxResults, final Directory directory) {
+        if (metacard == null) {
+            throw new IllegalArgumentException("metacard must not be null.");
+        }
+
+        if (radiusInKm <= 0) {
+            throw new IllegalArgumentException("radiusInKm must be positive.");
+        }
+
+        if (maxResults <= 0) {
+            throw new IllegalArgumentException("maxResults must be positive.");
+        }
+
+        try (final IndexReader indexReader = createIndexReader(directory)) {
+            final IndexSearcher indexSearcher = createIndexSearcher(indexReader);
+
+            final String location = metacard.getLocation();
+            Shape shape = null;
+
+            try {
+                if (StringUtils.isNotBlank(location)) {
+                    shape = SPATIAL_CONTEXT.readShapeFromWkt(location);
+                }
+            } catch (java.text.ParseException e) {
+                LOGGER.warn("Couldn't parse WKT: {}", location, e);
+            }
+
+            final List<NearbyLocation> closestCities = new ArrayList<>();
+
+            if (shape != null) {
+                final SpatialPrefixTree grid = new GeohashPrefixTree(SPATIAL_CONTEXT,
+                        GeoNamesLuceneConstants.GEOHASH_LEVELS);
+
+                final SpatialStrategy strategy = new RecursivePrefixTreeStrategy(grid,
+                        GeoNamesLuceneConstants.GEO_FIELD);
+
+                // Create a spatial filter that will select the documents that are in the specified
+                // search radius around the metacard's center.
+                final Point center = shape.getCenter();
+                final double searchRadiusDegrees = radiusInKm * DistanceUtils.KM_TO_DEG;
+                final SpatialArgs args = new SpatialArgs(SpatialOperation.Intersects,
+                        SPATIAL_CONTEXT.makeCircle(center, searchRadiusDegrees));
+                final Filter filter = strategy.makeFilter(args);
+
+                // Query for all the documents in the index that are cities, then filter those
+                // results for the ones that are in the search area.
+                final BooleanQuery booleanQuery = new BooleanQuery();
+                booleanQuery.add(PPL_QUERY, BooleanClause.Occur.MUST);
+                booleanQuery.add(filter, BooleanClause.Occur.FILTER);
+
+                final TopDocs topDocs = indexSearcher.search(booleanQuery, maxResults, SORT);
+
+                if (topDocs.totalHits > 0) {
+                    for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
+                        final double lat = Double.parseDouble(indexSearcher.doc(scoreDoc.doc)
+                                .get(GeoNamesLuceneConstants.LATITUDE_FIELD));
+                        final double lon = Double.parseDouble(indexSearcher.doc(scoreDoc.doc)
+                                .get(GeoNamesLuceneConstants.LONGITUDE_FIELD));
+
+                        final String name = indexSearcher.doc(scoreDoc.doc)
+                                .get(GeoNamesLuceneConstants.NAME_FIELD);
+
+                        final NearbyLocation city = new NearbyLocationImpl(center,
+                                new PointImpl(lon, lat, SPATIAL_CONTEXT), name);
+
+                        closestCities.add(city);
+                    }
+                }
+            }
+
+            return closestCities;
+        } catch (IOException e) {
+            throw new GeoEntryQueryException("Error reading the index", e);
+        }
     }
 }
