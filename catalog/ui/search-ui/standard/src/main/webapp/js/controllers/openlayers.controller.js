@@ -115,18 +115,17 @@ define(['underscore',
             setupEvents: function () {
                 var controller = this;
                 this.mapViewer.on('click', function(event) {
-                    var feature;
-
-                    controller.mapViewer.forEachLayerAtPixel(event.pixel, function (layer) {
-                        feature = controller.mapViewer.forEachFeatureAtPixel(event.pixel,
-                            function(feature) {
-                                controller.trigger('click:left', feature);
-                            }, this, function(testLayer) {
-                                if (testLayer === layer) {
-                                    return true;
-                                }
-                            });
-                    });
+                    controller.mapViewer.forEachFeatureAtPixel(event.pixel,
+                        function(feature) {
+                            // Only trigger click events for metacards, not other features like geo
+                            // filters.
+                            if (feature.get("featureType") === "metacard") {
+                                controller.trigger("click:left", feature);
+                                // Return true to stop feature detection.
+                                return true;
+                            }
+                        }
+                    );
                 });
             },
 
@@ -248,7 +247,7 @@ define(['underscore',
                 var point = geometry.getPoint();
                 var location = ol.proj.transform([point.longitude, point.latitude], 'EPSG:4326', properties.projection);
                 var view = this.mapViewer.getView();
-                
+
                 var pan = ol.animation.pan({
                     duration: 2000,
                     source: view.getCenter()
