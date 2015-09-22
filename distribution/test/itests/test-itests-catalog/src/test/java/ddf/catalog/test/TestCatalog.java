@@ -451,6 +451,74 @@ public class TestCatalog extends AbstractIntegrationTest {
     }
 
     @Test
+    public void testGetRecordById() throws IOException, XPathExpressionException {
+        final Response firstResponse = ingestCswRecord();
+        final Response secondResponse = ingestCswRecord();
+
+        final String firstId = getMetacardIdFromCswInsertResponse(firstResponse);
+        final String secondId = getMetacardIdFromCswInsertResponse(secondResponse);
+        final String requestIds = firstId + "," + secondId;
+
+        // Request the records we just added.
+        final String url =
+                CSW_PATH + Library.getGetRecordByIdUrl().replace("placeholder_id", requestIds);
+
+        final ValidatableResponse response = when().get(url).then();
+
+        verifyGetRecordByIdResponse(response, firstId, secondId);
+
+        deleteMetacard(firstId);
+        deleteMetacard(secondId);
+    }
+
+    @Test
+    public void testPostGetRecordById() throws IOException, XPathExpressionException {
+        final Response firstResponse = ingestCswRecord();
+        final Response secondResponse = ingestCswRecord();
+
+        final String firstId = getMetacardIdFromCswInsertResponse(firstResponse);
+        final String secondId = getMetacardIdFromCswInsertResponse(secondResponse);
+
+        final String requestXml = Library.getGetRecordByIdXml().replace("placeholder_id_1", firstId)
+                .replace("placeholder_id_2", secondId);
+
+        final ValidatableResponse response = given()
+                .header("Content-Type", MediaType.APPLICATION_XML).body(requestXml).post(CSW_PATH)
+                .then();
+
+        verifyGetRecordByIdResponse(response, firstId, secondId);
+
+        deleteMetacard(firstId);
+        deleteMetacard(secondId);
+    }
+
+    private void verifyGetRecordByIdResponse(final ValidatableResponse response,
+            final String... ids) {
+        final String xPathGetRecordWithId = "//GetRecordByIdResponse/Record[identifier=\"%s\"]";
+        final String xPathValidateTitleWithId =
+                xPathGetRecordWithId + "/title[text()=\"Aliquam fermentum purus quis arcu\"]";
+        final String xPathValidateBboxLowerWithId =
+                xPathGetRecordWithId + "/BoundingBox/LowerCorner[text()=\"-6.171 44.792\"]";
+        final String xPathValidateBboxUpperWithId =
+                xPathGetRecordWithId + "/BoundingBox/UpperCorner[text()=\"-2.228 51.126\"]";
+
+        final String xPathValidateId = "//GetRecordByIdResponse/Record/identifier[text()=\"%s\"]";
+
+        final String xPathCountRecords = "count(//GetRecordByIdResponse/Record)";
+
+        response.body(hasXPath(xPathCountRecords, is(String.valueOf(ids.length))));
+
+        for (String id : ids) {
+            // Check that the IDs of the returned records are the IDs we requested.
+            response.body(hasXPath(String.format(xPathValidateId, id)))
+                    // Check the contents of the returned records.
+                    .body(hasXPath(String.format(xPathValidateTitleWithId, id)))
+                    .body(hasXPath(String.format(xPathValidateBboxLowerWithId, id)))
+                    .body(hasXPath(String.format(xPathValidateBboxUpperWithId, id)));
+        }
+    }
+
+    @Test
     public void testFilterPlugin() {
         try {
             // Ingest the metacard

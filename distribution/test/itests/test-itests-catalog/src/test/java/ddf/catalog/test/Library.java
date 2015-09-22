@@ -311,4 +311,24 @@ public final class Library {
                 + "  </csw:Update>\n"
                 + "</csw:Transaction>";
     }
+
+    public static String getGetRecordByIdUrl() {
+        return "?service=CSW&version=2.0.2&request=GetRecordById&NAMESPACE=xmlns="
+                + "http://www.opengis.net/cat/csw/2.0.2&ElementSetName=full&"
+                + "outputFormat=application/xml&outputSchema=http://www.opengis.net/cat/csw/2.0.2&"
+                + "id=placeholder_id";
+    }
+
+    public static String getGetRecordByIdXml() {
+        return "<GetRecordById xmlns=\"http://www.opengis.net/cat/csw/2.0.2\"\n"
+                + "xmlns:ogc=\"http://www.opengis.net/ogc\"\n"
+                + "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
+                + "service=\"CSW\" version=\"2.0.2\" outputFormat=\"application/xml\"\n"
+                + "outputSchema=\"http://www.opengis.net/cat/csw/2.0.2\"\n"
+                + "xsi:schemaLocation=\"http://www.opengis.net/cat/csw/2.0.2../../../csw/2.0.2/CSW-discovery.xsd\">\n"
+                + "  <ElementSetName>full</ElementSetName>\n"
+                + "  <Id>placeholder_id_1</Id>\n"
+                + "  <Id>placeholder_id_2</Id>\n"
+                + "</GetRecordById>";
+    }
 }
