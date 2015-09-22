@@ -112,20 +112,4 @@ public class CertificateAuthorityTest {
                 new DemoCertificateAuthority().newCertConverter(),
                 instanceOf(JcaX509CertificateConverter.class));
     }
-
-    @Test
-    public void updateKeystore() {
-        String commonName = "strax.local";
-        CertificateAuthority demoCa = new DemoCertificateAuthority();
-        CertificateSigningRequest csr = new CertificateSigningRequest();
-        csr.setCommonName(commonName);
-        KeyStore.PrivateKeyEntry pkEntry = demoCa.sign(csr);
-        KeyStoreFile ksFile = KeyStoreFile
-                .openFile("/Users/aaronhoffer/Downloads/serverKeystore.jks",
-                        "changeit".toCharArray());
-        ksFile.setEntry(commonName, pkEntry);
-        ksFile.deleteEntry("localhost");
-        ksFile.save();
-    }
-
 }
