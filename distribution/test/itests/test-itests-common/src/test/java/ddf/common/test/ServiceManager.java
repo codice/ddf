@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -21,12 +21,15 @@ import static com.jayway.restassured.RestAssured.get;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
@@ -35,6 +38,7 @@ import org.apache.karaf.shell.osgi.BlueprintListener;
 import org.codice.ddf.ui.admin.api.ConfigurationAdminExt;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -80,7 +84,7 @@ public class ServiceManager {
     /**
      * Creates a Managed Service that is created from a Managed Service Factory. Waits for the
      * asynchronous call that the properties have been updated and the service can be used.
-     * <p>
+     * <p/>
      * For Managed Services not created from a Managed Service Factory, use
      * {@link #startManagedService(String, Map)} instead.
      *
@@ -99,7 +103,7 @@ public class ServiceManager {
     /**
      * Starts a Managed Service. Waits for the asynchronous call that the properties have been
      * updated and the service can be used.
-     * <p>
+     * <p/>
      * For Managed Services created from a Managed Service Factory, use
      * {@link #createManagedService(String, Map)} instead.
      *
@@ -198,6 +202,42 @@ public class ServiceManager {
         if (wait) {
             waitForAllBundles();
         }
+    }
+
+    /**
+     * Restarts one or more bundles. The bundles will be stopped in the order provided and started
+     * in the reverse order.
+     *
+     * @param bundleSymbolicNames list of bundle symbolic names to restart
+     * @throws BundleException if one of the bundles fails to stop or start
+     */
+    public void restartBundles(String... bundleSymbolicNames) throws BundleException {
+        LOGGER.debug("Restarting bundles {}", bundleSymbolicNames);
+
+        Set<String> bundleSymbolicNameSet = new HashSet<>();
+        Collections.addAll(bundleSymbolicNameSet, bundleSymbolicNames);
+
+        Map<String, Bundle> bundlesToRestart = getBundlesToRestart(bundleSymbolicNameSet);
+
+        for (int i = 0; i < bundleSymbolicNames.length; i++) {
+            bundlesToRestart.get(bundleSymbolicNames[i]).stop();
+        }
+
+        for (int i = bundleSymbolicNames.length - 1; i > 0; i--) {
+            bundlesToRestart.get(bundleSymbolicNames[i]).start();
+        }
+    }
+
+    private Map<String, Bundle> getBundlesToRestart(Set<String> bundleSymbolicNames) {
+        Map<String, Bundle> bundlesToRestart = new HashMap();
+
+        for (Bundle bundle : bundleCtx.getBundles()) {
+            if (bundleSymbolicNames.contains(bundle.getSymbolicName())) {
+                bundlesToRestart.put(bundle.getSymbolicName(), bundle);
+            }
+        }
+
+        return bundlesToRestart;
     }
 
     public void waitForAllBundles() throws InterruptedException {
