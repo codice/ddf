@@ -177,6 +177,13 @@ public class BasicAuthenticationHandlerTest {
         assertEquals("password", result.getPassword());
         assertEquals("TestRealm", result.getRealm());
 
+        WssBasicAuthenticationHandler wssHandler = new WssBasicAuthenticationHandler();
+        BaseAuthenticationToken wssResult = wssHandler
+                .extractAuthInfo("Basic " + new String(Base64.encode(CREDENTIALS.getBytes())),
+                        "TestRealm");
+        assertNotNull(wssResult);
+        assertEquals("", wssResult.getRealm());
+
         result = (UPAuthenticationToken) handler
                 .extractAuthInfo("Basic " + new String(Base64.encode(":password".getBytes())),
                         "TestRealm");

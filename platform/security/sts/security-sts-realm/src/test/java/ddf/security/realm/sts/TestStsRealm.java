@@ -89,6 +89,16 @@ public class TestStsRealm {
 
         supports = realm.supports(null);
         assertEquals(false, supports);
+
+        WssStsRealm wssStsRealm = new WssStsRealm();
+        BaseAuthenticationToken baseAuthTok = mock(BaseAuthenticationToken.class);
+        when(baseAuthTok.isUseWssSts()).thenReturn(false);
+        when(baseAuthTok.getCredentials()).thenReturn("creds");
+        assertEquals(true, realm.supports(baseAuthTok));
+        assertEquals(false, wssStsRealm.supports(baseAuthTok));
+        when(baseAuthTok.isUseWssSts()).thenReturn(true);
+        assertEquals(false, realm.supports(baseAuthTok));
+        assertEquals(true, wssStsRealm.supports(baseAuthTok));
     }
 
     @Ignore
