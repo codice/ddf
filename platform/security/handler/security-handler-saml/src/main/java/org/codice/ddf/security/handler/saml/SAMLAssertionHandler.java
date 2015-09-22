@@ -87,7 +87,7 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
             String encodedSamlAssertion = tokenizedAuthHeader[1];
             LOGGER.trace("Header retrieved");
             try {
-                String tokenString = RestSecurity.decodeSaml(encodedSamlAssertion);
+                String tokenString = RestSecurity.inflateBase64(encodedSamlAssertion);
                 LOGGER.trace("Header value: {}", tokenString);
                 securityToken = new SecurityToken();
                 Element thisToken = StaxUtils.read(new StringReader(tokenString))
@@ -114,7 +114,7 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
             String cookieValue = samlCookie.getValue();
             LOGGER.trace("Cookie retrieved");
             try {
-                String tokenString = RestSecurity.decodeSaml(cookieValue);
+                String tokenString = RestSecurity.inflateBase64(cookieValue);
                 LOGGER.trace("Cookie value: {}", tokenString);
                 securityToken = new SecurityToken();
                 Element thisToken = StaxUtils.read(new StringReader(tokenString))

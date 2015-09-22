@@ -82,7 +82,7 @@ public class SAMLAssertionHandlerTest {
         SamlAssertionWrapper wrappedAssertion = new SamlAssertionWrapper(samlToken.getToken());
         String saml = wrappedAssertion.assertionToString();
 
-        doReturn("SAML " + RestSecurity.encodeSaml(saml)).when(request)
+        doReturn("SAML " + RestSecurity.deflateAndBase64Encode(saml)).when(request)
                 .getHeader(SecurityConstants.SAML_HEADER_NAME);
 
         HandlerResult result = handler.getNormalizedToken(request, response, chain, true);
@@ -130,7 +130,7 @@ public class SAMLAssertionHandlerTest {
         SamlAssertionWrapper wrappedAssertion = new SamlAssertionWrapper(samlToken.getToken());
         String saml = wrappedAssertion.assertionToString();
         Cookie cookie = new Cookie(SecurityConstants.SAML_COOKIE_NAME,
-                RestSecurity.encodeSaml(saml));
+                RestSecurity.deflateAndBase64Encode(saml));
         when(request.getCookies()).thenReturn(new Cookie[] {cookie});
 
         HandlerResult result = handler.getNormalizedToken(request, response, chain, true);

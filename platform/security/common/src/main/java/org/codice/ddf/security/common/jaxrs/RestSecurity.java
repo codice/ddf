@@ -48,6 +48,8 @@ public final class RestSecurity {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RestSecurity.class);
 
+    public static final boolean GZIP_COMPATIBLE = true;
+
     /**
      * Parses the incoming subject for a saml assertion and sets that as a header on the client.
      *
@@ -87,39 +89,36 @@ public final class RestSecurity {
             if (samlToken != null) {
                 SamlAssertionWrapper assertion = new SamlAssertionWrapper(samlToken);
                 String saml = assertion.assertionToString();
-                encodedSamlHeader = SAML_HEADER_PREFIX + encodeSaml(saml);
+                encodedSamlHeader = SAML_HEADER_PREFIX + deflateAndBase64Encode(saml);
             }
-        } catch (WSSecurityException | ArithmeticException e) {
+        } catch (WSSecurityException | ArithmeticException | IOException e) {
             LOGGER.error("Unable to parse SAML assertion from subject.", e);
         }
         return encodedSamlHeader;
     }
 
     /**
-     * Encodes the SAML assertion as a deflated Base64 String so that it can be used as a Header.
+     * Deflates a value and Base64 encodes the result.
      *
-     * @param token SAML assertion as a string
+     * @param value value to deflate and Base64 encode
      * @return String
-     * @throws WSSecurityException if the assertion in the token cannot be converted
+     * @throws IOException if the value cannot be converted
      */
-    public static String encodeSaml(String token) throws WSSecurityException {
-        ByteArrayOutputStream tokenBytes = new ByteArrayOutputStream();
-        try (OutputStream tokenStream = new DeflaterOutputStream(tokenBytes,
-                new Deflater(Deflater.DEFAULT_COMPRESSION, false))) {
-            IOUtils.copy(new ByteArrayInputStream(token.getBytes(StandardCharsets.UTF_8)),
-                    tokenStream);
+    public static String deflateAndBase64Encode(String value) throws IOException {
+        ByteArrayOutputStream valueBytes = new ByteArrayOutputStream();
+        try (OutputStream tokenStream = new DeflaterOutputStream(valueBytes,
+                new Deflater(Deflater.DEFLATED, GZIP_COMPATIBLE))) {
+            tokenStream.write(value.getBytes(StandardCharsets.UTF_8));
             tokenStream.close();
 
-            return new String(Base64.encodeBase64(tokenBytes.toByteArray()));
-        } catch (IOException e) {
-            throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, e);
+            return new String(Base64.encodeBase64(valueBytes.toByteArray()));
         }
     }
 
-    public static String decodeSaml(String encodedToken) throws IOException {
-        byte[] deflatedToken = Base64.decodeBase64(encodedToken);
-        InputStream is = new InflaterInputStream(new ByteArrayInputStream(deflatedToken),
-                new Inflater(false));
+    public static String inflateBase64(String base64EncodedValue) throws IOException {
+        byte[] deflatedValue = Base64.decodeBase64(base64EncodedValue);
+        InputStream is = new InflaterInputStream(new ByteArrayInputStream(deflatedValue),
+                new Inflater(GZIP_COMPATIBLE));
         return IOUtils.toString(is, "UTF-8");
     }
 

@@ -131,8 +131,8 @@ public class RestSecurityTest {
     public void testInflateDeflate() throws Exception {
         String token = "valid_grant";
 
-        String encodedToken = RestSecurity.encodeSaml(token);
-        String decodedToken = RestSecurity.decodeSaml(encodedToken);
+        String encodedToken = RestSecurity.deflateAndBase64Encode(token);
+        String decodedToken = RestSecurity.inflateBase64(encodedToken);
 
         assertThat(decodedToken, is(token));
     }
