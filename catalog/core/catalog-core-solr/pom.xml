@@ -43,9 +43,9 @@
         </dependency>
 
         <dependency>
-            <groupId>org.luxdb</groupId>
+            <groupId>org.codice</groupId>
             <artifactId>lux</artifactId>
-            <version>1.1.1-SNAPSHOT</version>
+            <version>${lux.version}</version>
         </dependency>
 
         <dependency>

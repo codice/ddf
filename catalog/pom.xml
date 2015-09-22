@@ -419,7 +419,7 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.luxdb</groupId>
+                <groupId>org.codice</groupId>
                 <artifactId>lux</artifactId>
                 <version>${lux.version}</version>
                 <exclusions>

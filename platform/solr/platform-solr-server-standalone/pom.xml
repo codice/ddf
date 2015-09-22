@@ -107,7 +107,7 @@
                                 </artifactItem>
                                 <!-- Next 3 needed for LuxDB -->
                                 <artifactItem>
-                                    <groupId>org.luxdb</groupId>
+                                    <groupId>org.codice</groupId>
                                     <artifactId>lux</artifactId>
                                     <version>${lux.version}</version>
                                     <type>jar</type>
