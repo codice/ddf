@@ -33,6 +33,7 @@ import java.util.zip.DeflaterOutputStream;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.wss4j.common.ext.WSSecurityException;
+import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.hamcrest.xml.HasXPath;
 import org.junit.Before;
 import org.junit.Test;
@@ -376,30 +377,10 @@ public class TestSecurity extends AbstractIntegrationTest {
         LOGGER.trace(assertionHeader);
 
         //try that admin level assertion token on a restricted resource
-        given().header(SecurityConstants.SAML_HEADER_NAME, "SAML " + encodeSaml(assertionHeader))
-                .when().get("https://localhost:9993/admin/index.html").then().log().all()
-                .assertThat().statusCode(equalTo(200));
-    }
-
-    /**
-     * Encodes the SAML assertion as a deflated Base64 String so that it can be used as a Header.
-     *
-     * @param token SAML assertion as a string
-     * @return String
-     * @throws WSSecurityException if the assertion in the token cannot be converted
-     */
-    public static String encodeSaml(String token) throws WSSecurityException {
-        ByteArrayOutputStream tokenBytes = new ByteArrayOutputStream();
-        try (OutputStream tokenStream = new DeflaterOutputStream(tokenBytes,
-                new Deflater(Deflater.DEFAULT_COMPRESSION, false))) {
-            IOUtils.copy(new ByteArrayInputStream(token.getBytes(StandardCharsets.UTF_8)),
-                    tokenStream);
-            tokenStream.close();
-
-            return new String(Base64.encodeBase64(tokenBytes.toByteArray()));
-        } catch (IOException e) {
-            throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, e);
-        }
+        given().header(SecurityConstants.SAML_HEADER_NAME,
+                "SAML " + RestSecurity.deflateAndBase64Encode(assertionHeader)).when()
+                .get("https://localhost:9993/admin/index.html").then().log().all().assertThat()
+                .statusCode(equalTo(200));
     }
 
     private String getSoapEnvelope(String onBehalfOf) {
