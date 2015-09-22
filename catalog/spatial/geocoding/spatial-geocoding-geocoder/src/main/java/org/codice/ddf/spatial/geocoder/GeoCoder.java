@@ -15,6 +15,12 @@
 package org.codice.ddf.spatial.geocoder;
 
 public interface GeoCoder {
-
-    public GeoResult getLocation(String location);
+    /**
+     * Takes a query for a place and returns the most relevant result.
+     *
+     * @param location  a string representing a simple placename query, such as "Washington, D.C."
+     *                  or "France" (i.e. the string just contains search terms, not query logic)
+     * @return the {@link GeoResult} most relevant to the query, null if no results were found
+     */
+    GeoResult getLocation(String location);
 }
