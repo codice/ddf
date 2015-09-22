@@ -100,17 +100,17 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>.65</minimum>
+                                            <minimum>.60</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>.65</minimum>
+                                            <minimum>.60</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>.65</minimum>
+                                            <minimum>.60</minimum>
                                         </limit>
                                     </limits>
                                 </rule>
