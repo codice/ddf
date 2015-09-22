@@ -74,7 +74,6 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            <!--bcprov-jdk15on,-->
                             bcpkix-jdk15on
                         </Embed-Dependency>
                         <Import-Package>
