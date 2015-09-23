@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -14,12 +14,16 @@
 package ddf.catalog.test;
 
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 
 import java.io.File;
 import java.io.FilenameFilter;
 import java.nio.file.Paths;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -69,21 +73,41 @@ public class TestSolrCommands extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testSolrBackupNumToKeep() {
-        //The number of backups created are 1 less than the value of numToKeep
-        //(ex. if numToKeep=3, then backups=2)
+    public void testSolrBackupNumToKeep() throws InterruptedException {
+        // The number of backups created are 1 less than the value of numToKeep
+        // (ex. if numToKeep=3, then backups=2)
         int numToKeep = 3;
         String coreName = "catalog";
 
         String command = BACKUP_COMMAND + " --numToKeep " + numToKeep;
 
-        //run this three times to make sure only 2 are kept
+        // Run this three times to make sure only 2 are kept
         console.runCommand(command);
-        console.runCommand(command);
-        console.runCommand(command);
+        waitForBackupFilesToBeCreated(coreName, 1);
+        assertThat("Too many backup files created", countBackupFiles(coreName),
+                is(not(greaterThan(1))));
 
-        assertEquals(numToKeep - 1, countBackupFiles(coreName));
+        console.runCommand(command);
+        waitForBackupFilesToBeCreated(coreName, 2);
+        assertThat("Too many backup files created", countBackupFiles(coreName),
+                is(not(greaterThan(2))));
 
+        console.runCommand(command);
+        waitForBackupFilesToBeCreated(coreName, 3);
+
+        assertThat("Wrong number of backup files created", countBackupFiles(coreName),
+                equalTo(numToKeep - 1));
+    }
+
+    private void waitForBackupFilesToBeCreated(String coreName, int numberOfFiles)
+            throws InterruptedException {
+        final long timeout = TimeUnit.SECONDS.toMillis(10);
+        int currentWaitTime = 0;
+
+        while ((countBackupFiles(coreName) < numberOfFiles) && (currentWaitTime < timeout)) {
+            TimeUnit.MILLISECONDS.sleep(250);
+            currentWaitTime += 250;
+        }
     }
 
     private int countBackupFiles(String coreName) {
