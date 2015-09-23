@@ -842,9 +842,9 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
         SecureCxfClientFactory tempFactory = tempFactory(url);
         WebClient client;
 
-        if (subj != null) {
+        if (StringUtils.isNotEmpty(username) && StringUtils.isNotEmpty(password)) {
             client = tempFactory.getWebClientForSubject(subj);
-        } else if (StringUtils.isNotEmpty(username) && StringUtils.isNotEmpty(password)) {
+        } else if (subj != null) {
             client = tempFactory.getWebClientForBasicAuth(username, password);
         } else {
             client = tempFactory.getUnsecuredWebClient();
