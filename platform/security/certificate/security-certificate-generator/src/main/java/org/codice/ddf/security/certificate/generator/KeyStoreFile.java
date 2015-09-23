@@ -82,7 +82,7 @@ public class KeyStoreFile {
     /**
      * Return the aliases of the items in the key store. Return null if there is an error.
      *
-     * @return List of aliases in keystore or null
+     * @return List of aliases or throw an exception
      */
     public List<String> aliases() {
 
@@ -93,8 +93,14 @@ public class KeyStoreFile {
         }
     }
 
+    /**
+     * Retrieve keystore entry, given the entry's alias. If the entry is encrypted, this method
+     * tries to decrypt it using the keystore's password.
+     *
+     * @param alias of the entry to retrieve
+     * @return concrete subclass of Keystore.Entry
+     */
     public KeyStore.Entry getEntry(String alias) {
-
         KeyStore.Entry entry = null;
         try {
             entry = getProtectedEntry(alias);
@@ -126,6 +132,12 @@ public class KeyStoreFile {
         return new KeyStore.PasswordProtection(password);
     }
 
+    /**
+     * Add a new entry to the keystore. Use the given alias.
+     *
+     * @param alias
+     * @param entry
+     */
     public void setEntry(String alias, KeyStore.Entry entry) {
         try {
             keyStore.setEntry(alias, entry, getPasswordObject());
@@ -138,6 +150,7 @@ public class KeyStoreFile {
      * Remove the key store entry at the given alias. If the alias does not exist, log that it does not exist.
      *
      * @param alias the name of the entry in the keystore
+     * @return true if entry exists and was removed, false otherwise
      */
     public boolean deleteEntry(String alias) {
         try {
