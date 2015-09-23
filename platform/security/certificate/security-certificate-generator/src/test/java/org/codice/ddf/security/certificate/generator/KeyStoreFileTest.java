@@ -109,11 +109,7 @@ public class KeyStoreFileTest {
                 hasItem(ALIAS_DEMO_CA));
     }
 
-    @Test
-    public void removeEntryFromKeystore() throws Exception {
-    }
-
-    Path refreshKeyStoreFile() throws IOException {
+     Path refreshKeyStoreFile() throws IOException {
         return Files
                 .copy(Paths.get(getPathTo(KEYSTORE_TEMPLATE)), Paths.get(getPathTo(KEYSTORE_COPY)),
                         REPLACE_EXISTING);
