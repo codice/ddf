@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -87,9 +87,6 @@ public class TestSecurity extends AbstractIntegrationTest {
                     + "</soap:Envelope>";
 
     protected static final String SDK_SOAP_CONTEXT = "/services/sdk/SoapService";
-
-    private static final String CERT_GEN_PATH = "https://localhost:" + HTTPS_PORT
-            + "/jolokia/exec/org.codice.ddf.security.certificate.generator.CertificateGenerator:service=certgenerator";
 
     @BeforeExam
     public void beforeTest() throws Exception {
@@ -401,20 +398,20 @@ public class TestSecurity extends AbstractIntegrationTest {
         return body;
     }
 
-    String getFilename() {
+    String getKeystoreFilename() {
         return System.getProperty("javax.net.ssl.keyStore");
     }
 
     String getBackupFilename() {
-        return getFilename() + ".backup";
+        return getKeystoreFilename() + ".backup";
     }
 
-    void backupKeystoreFile() throws IOException {
-        Files.copy(Paths.get(getFilename()), Paths.get(getBackupFilename()), REPLACE_EXISTING);
+    void getBackupKeystoreFile() throws IOException {
+        Files.copy(Paths.get(getKeystoreFilename()), Paths.get(getBackupFilename()), REPLACE_EXISTING);
     }
 
     void restoreKeystoreFile() throws IOException {
-        Files.copy(Paths.get(getBackupFilename()), Paths.get(getFilename()), REPLACE_EXISTING);
+        Files.copy(Paths.get(getBackupFilename()), Paths.get(getKeystoreFilename()), REPLACE_EXISTING);
     }
 
     //Purpose is to make sure operations of the security certificate generator are accessible
@@ -424,20 +421,21 @@ public class TestSecurity extends AbstractIntegrationTest {
         String commonName = "pangalactic";
         String expectedValue = "CN=" + commonName;
         String featureName = "security-certificate-generator";
-
-        backupKeystoreFile();
+        String certGenPath = SECURE_ROOT + HTTPS_PORT
+                + "/jolokia/exec/org.codice.ddf.security.certificate.generator.CertificateGenerator:service=certgenerator";
+        getBackupKeystoreFile();
         try {
             getServiceManager().startFeature(true, featureName);
 
             //Test first operation
             Response response = given().auth().basic("admin", "admin").when()
-                    .get(CERT_GEN_PATH + "/configureDemoCert/" + commonName);
+                    .get(certGenPath + "/configureDemoCert/" + commonName);
             String actualValue = JsonPath.from(response.getBody().asString()).getString("value");
             assertThat(actualValue, equalTo(expectedValue));
 
             //Test second operation
             response = given().auth().basic("admin", "admin").when()
-                    .get(CERT_GEN_PATH + "/configureDemoCertWithDefaultHostname");
+                    .get(certGenPath + "/configureDemoCertWithDefaultHostname");
 
             String jsonString = response.getBody().asString();
             JsonPath jsonPath = JsonPath.from(jsonString);
