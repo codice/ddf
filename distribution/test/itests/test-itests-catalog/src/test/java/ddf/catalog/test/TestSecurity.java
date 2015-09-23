@@ -158,6 +158,25 @@ public class TestSecurity extends AbstractIntegrationTest {
     }
 
     @Test
+    public void testSubjectFederatedAuth() throws Exception {
+        String recordId = TestCatalog.ingest(Library.getSimpleGeoJson(), "application/json");
+        configureRestForBasic();
+
+        //Positive tests
+        OpenSearchSourceProperties openSearchProperties = new OpenSearchSourceProperties(
+                OPENSEARCH_SOURCE_ID);
+        createManagedService(OpenSearchSourceProperties.FACTORY_PID, openSearchProperties);
+
+        waitForFederatedSource(OPENSEARCH_SOURCE_ID);
+
+        String openSearchQuery = SERVICE_ROOT + "/catalog/query?q=*&src=" + OPENSEARCH_SOURCE_ID;
+        given().auth().basic("admin", "admin").when().get(openSearchQuery).then().log().all()
+                .assertThat().statusCode(equalTo(200)).assertThat().body(containsString("myTitle"));
+
+        //TestCatalog.deleteMetacard(recordId);
+    }
+
+    @Test
     public void testBasicFederatedAuth() throws Exception {
         String recordId = TestCatalog.ingest(Library.getSimpleGeoJson(), "application/json");
         configureRestForBasic();
