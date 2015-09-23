@@ -22,6 +22,7 @@ import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
+import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.jaxrs.client.ClientConfiguration;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.apache.cxf.jaxrs.client.WebClient;
@@ -156,7 +157,7 @@ public class SecureCxfClientFactory<T> {
      * @see #getClientForSubject(Subject subject)
      */
     public WebClient getWebClientForSubject(Subject subject) throws SecurityServiceException {
-        return WebClient.fromClientObject(getClientForSubject(subject));
+        return WebClient.fromClient((Client) getClientForSubject(subject), true);
     }
 
     /**
