@@ -74,7 +74,7 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm {
             LOGGER.warn(msg);
             throw new AuthorizationException(msg);
         }
-        List<AttributeStatement> attributeStatements = assertion.getAttibuteStatements();
+        List<AttributeStatement> attributeStatements = assertion.getAttributeStatements();
         List<Attribute> attributes;
         Set<Permission> permissions = new HashSet<Permission>();
         Set<String> roles = new HashSet<String>();
