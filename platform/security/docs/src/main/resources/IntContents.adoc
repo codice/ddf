@@ -889,7 +889,7 @@ None
 
 == Security STS
 
-The Security STS application contains the bundles and services necessary to run and talk to a Security Token Service (STS). It builds off of the Apache CXF STS code and add components specific to DDF functionality. 
+The Security STS application contains the bundles and services necessary to run and talk to a Security Token Service (STS). It builds off of the Apache CXF STS code and adds components specific to DDF functionality. 
 
 === Components
 
@@ -1002,6 +1002,14 @@ Settings can be found in the web console under *Configuration -> Security STS C
 
 ===== Exported Services
 None
+
+==== External/WS-S STS Support
+
+===== Security STS WSS
+This configuration works just like the STS Client Config for the internal STS, but produces standard requests instead of the custom DDF ones. It supports two new auth types for the context policy manager, WSSBASIC and WSSPKI.
+
+===== Security STS Address Provider
+This allows one to select which STS address will be used (e.g. in SOAP sources) for clients of this service. Default is off (internal).
 
 === Security STS LDAP Claims Handler
 

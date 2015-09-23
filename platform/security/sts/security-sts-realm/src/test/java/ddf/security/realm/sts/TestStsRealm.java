@@ -42,8 +42,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import ddf.security.sts.client.configuration.STSClientConfiguration;
-
 public class TestStsRealm {
 
     public static Document readXml(InputStream is)
@@ -91,6 +89,16 @@ public class TestStsRealm {
 
         supports = realm.supports(null);
         assertEquals(false, supports);
+
+        WssStsRealm wssStsRealm = new WssStsRealm();
+        BaseAuthenticationToken baseAuthTok = mock(BaseAuthenticationToken.class);
+        when(baseAuthTok.isUseWssSts()).thenReturn(false);
+        when(baseAuthTok.getCredentials()).thenReturn("creds");
+        assertEquals(true, realm.supports(baseAuthTok));
+        assertEquals(false, wssStsRealm.supports(baseAuthTok));
+        when(baseAuthTok.isUseWssSts()).thenReturn(true);
+        assertEquals(false, realm.supports(baseAuthTok));
+        assertEquals(true, wssStsRealm.supports(baseAuthTok));
     }
 
     @Ignore
@@ -144,9 +152,7 @@ public class TestStsRealm {
     @Test
     public void testCreateClaimsElement() {
         StsRealm stsRealm = new StsRealm();
-        STSClientConfiguration stsClientConfig = mock(STSClientConfiguration.class);
-        when(stsClientConfig.getClaims()).thenReturn(Arrays.asList("claim1", "claim2", "claim3"));
-        stsRealm.setStsClientConfig(stsClientConfig);
+        stsRealm.setClaims(Arrays.asList("claim1", "claim2", "claim3"));
         ContextPolicyManager contextPolicyManager = mock(ContextPolicyManager.class);
         ContextPolicy policy1 = mock(ContextPolicy.class);
         ContextPolicy policy2 = mock(ContextPolicy.class);

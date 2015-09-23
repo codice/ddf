@@ -13,15 +13,16 @@
  */
 package ddf.security.realm.sts;
 
-/**
- * The STS Realm is the main piece of the security framework responsible for exchanging a binary
- * security token for a SAML assertion.
- */
-public class StsRealm extends AbstractStsRealm {
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class WssStsRealm extends AbstractStsRealm {
+    private static final Logger LOGGER = LoggerFactory.getLogger(WssStsRealm.class);
 
     @Override
     protected boolean shouldHandleWss() {
-        return false;
+        return true;
     }
 
 }
+

@@ -77,6 +77,11 @@
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>18.0</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -93,6 +98,9 @@
                             ddf.security.common.util,
                             *
                         </Import-Package>
+                        <Embed-Dependency>
+                            guava
+                        </Embed-Dependency>
                     </instructions>
                 </configuration>
             </plugin>
@@ -119,17 +127,17 @@
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.16</minimum>
+                                            <minimum>0.15</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.13</minimum>
+                                            <minimum>0.15</minimum>
                                         </limit>
                                         <limit>
                                             <counter>LINE</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.21</minimum>
+                                            <minimum>0.18</minimum>
                                         </limit>
                                     </limits>
                                 </rule>

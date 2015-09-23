@@ -11,17 +11,9 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.security.realm.sts;
+package ddf.security.sts.client.configuration;
 
-/**
- * The STS Realm is the main piece of the security framework responsible for exchanging a binary
- * security token for a SAML assertion.
- */
-public class StsRealm extends AbstractStsRealm {
+public interface StsAddressProvider {
 
-    @Override
-    protected boolean shouldHandleWss() {
-        return false;
-    }
-
+    public String getStsAddress();
 }
