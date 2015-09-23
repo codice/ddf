@@ -49,7 +49,7 @@ public interface SecurityAssertion extends Serializable {
      *
      * @return List<AttributeStatement>
      */
-    List<AttributeStatement> getAttibuteStatements();
+    List<AttributeStatement> getAttributeStatements();
 
     /**
      * Returns the list of authn statements contained in the SecurityToken
