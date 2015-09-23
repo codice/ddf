@@ -843,10 +843,10 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
         WebClient client;
 
         if (StringUtils.isNotEmpty(username) && StringUtils.isNotEmpty(password)) {
-            client = tempFactory.getWebClientForSubject(subj);
-        } else if (subj != null) {
             client = tempFactory.getWebClientForBasicAuth(username, password);
-        } else {
+        } else if (subj != null) {
+            client = tempFactory.getWebClientForSubject(subj);
+        }  else {
             client = tempFactory.getUnsecuredWebClient();
         }
         return client;
