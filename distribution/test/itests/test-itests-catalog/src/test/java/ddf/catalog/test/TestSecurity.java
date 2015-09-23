@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -145,6 +145,25 @@ public class TestSecurity extends AbstractIntegrationTest {
         //try that admin level sso token on a restricted resource and get in... sso works!
         given().cookie("JSESSIONID", cookie).when().get("https://localhost:9993/admin/index.html")
                 .then().log().all().assertThat().statusCode(equalTo(200));
+    }
+
+    @Test
+    public void testSubjectFederatedAuth() throws Exception {
+        String recordId = TestCatalog.ingest(Library.getSimpleGeoJson(), "application/json");
+        configureRestForBasic();
+
+        //Positive tests
+        OpenSearchSourceProperties openSearchProperties = new OpenSearchSourceProperties(
+                OPENSEARCH_SOURCE_ID);
+        createManagedService(OpenSearchSourceProperties.FACTORY_PID, openSearchProperties);
+
+        waitForFederatedSource(OPENSEARCH_SOURCE_ID);
+
+        String openSearchQuery = SERVICE_ROOT + "/catalog/query?q=*&src=" + OPENSEARCH_SOURCE_ID;
+        given().auth().basic("admin", "admin").when().get(openSearchQuery).then().log().all()
+                .assertThat().statusCode(equalTo(200)).assertThat().body(containsString("myTitle"));
+
+        //TestCatalog.deleteMetacard(recordId);
     }
 
     @Test
