@@ -207,6 +207,7 @@
                             lucene-analyzers-morfologik,
                             lucene-analyzers-phonetic,
                             lucene-highlighter,
+                            lucene-join,
                             lucene-memory,
                             lucene-misc,
                             lucene-queryparser,

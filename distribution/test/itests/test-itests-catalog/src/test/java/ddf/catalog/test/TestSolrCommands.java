@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -30,8 +30,6 @@ import org.ops4j.pax.exam.spi.reactors.PerClass;
 import ddf.common.test.BeforeExam;
 import ddf.common.test.KarafConsole;
 
-
-
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
 public class TestSolrCommands extends AbstractIntegrationTest {
@@ -45,7 +43,6 @@ public class TestSolrCommands extends AbstractIntegrationTest {
     private static final String BACKUP_ERROR_MESSAGE_FORMAT = "Error backing up Solr core: [%s]";
 
     private static KarafConsole console;
-
 
     @BeforeExam
     public void beforeExam() throws Exception {
@@ -73,23 +70,24 @@ public class TestSolrCommands extends AbstractIntegrationTest {
 
     @Test
     public void testSolrBackupNumToKeep() {
-        int numToKeep = 2;
+        //The number of backups created are 1 less than the value of numToKeep
+        //(ex. if numToKeep=3, then backups=2)
+        int numToKeep = 3;
         String coreName = "catalog";
 
-        String command = BACKUP_COMMAND + " -n " + numToKeep;
+        String command = BACKUP_COMMAND + " --numToKeep " + numToKeep;
+
         //run this three times to make sure only 2 are kept
         console.runCommand(command);
-
+        console.runCommand(command);
         console.runCommand(command);
 
-        console.runCommand(command);
-
-        assertEquals(numToKeep, countBackupFiles(coreName));
+        assertEquals(numToKeep - 1, countBackupFiles(coreName));
 
     }
 
     private int countBackupFiles(String coreName) {
-        File solrDir =  getSolrDataPath(coreName);
+        File solrDir = getSolrDataPath(coreName);
 
         File[] backupFiles = new File[0];
 
@@ -107,7 +105,7 @@ public class TestSolrCommands extends AbstractIntegrationTest {
 
     private File getSolrDataPath(String coreName) {
         String home = System.getProperty(DDF_HOME_PROPERTY);
-        File file =  Paths.get(home + "/data/solr/" + coreName + "/data").toFile();
+        File file = Paths.get(home + "/data/solr/" + coreName + "/data").toFile();
         return file;
     }
 

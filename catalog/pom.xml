@@ -35,7 +35,7 @@
             Remove restlet.version property and restlet dependencies from the dependencyManagement section when
             Solr version is updated (see DDF-1203).
         -->
-        <solr.version>4.7.2</solr.version>
+        <solr.version>4.10.4</solr.version>
         <!--
             Important: version 2.1.4 is being used to address security vulnerabilities CVE-2013-4221 and
             CVE-2013-4271. As this is a Solr transitive dependency, the restlet.version property and the restlet
@@ -419,7 +419,7 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.luxdb</groupId>
+                <groupId>org.codice</groupId>
                 <artifactId>lux</artifactId>
                 <version>${lux.version}</version>
                 <exclusions>
