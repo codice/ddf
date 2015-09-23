@@ -77,10 +77,6 @@ public class KeyStoreFileTest {
         KeyStoreFile.openFile(anyDirectory, null);
     }
 
-    //Test Constructor. No read permissions on file.
-    //I tested this one manually and it threw the correct exception with the correct message.
-    //Not sure how to createAndAccess it automated testing, and probably not worth the effort anyway.
-
     //Test Constructor. File is not keyStore.
     @Test(expected = CertificateGeneratorException.class)
     public void constructorFileNotKeyStore() throws Exception {
@@ -109,7 +105,7 @@ public class KeyStoreFileTest {
                 hasItem(ALIAS_DEMO_CA));
     }
 
-     Path refreshKeyStoreFile() throws IOException {
+    Path refreshKeyStoreFile() throws IOException {
         return Files
                 .copy(Paths.get(getPathTo(KEYSTORE_TEMPLATE)), Paths.get(getPathTo(KEYSTORE_COPY)),
                         REPLACE_EXISTING);

@@ -62,7 +62,7 @@ import ddf.common.test.PostTestConstruct;
 import ddf.common.test.ServiceManager;
 
 /**
- * Abstract integration test with helper methods and configuration at the container level.
+ * Abstract integration test with helper methods and configuration at the container level
  */
 public abstract class AbstractIntegrationTest {
 

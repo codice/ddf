@@ -42,7 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class is a home for helper functions that were did not belong to other classes.
+ * This class is a home for helper functions that did not belong to other classes.
  */
 public abstract class PkiTools {
 
@@ -75,7 +75,7 @@ public abstract class PkiTools {
     }
 
     /**
-     * @param filePath path to local file
+     * @param filePath path to local keystore file
      * @return instance of File
      * @throws IOException
      */
@@ -145,7 +145,7 @@ public abstract class PkiTools {
      * method is public so client code can easily check the name and decide if it should be used in the generated
      * certificate.
      *
-     * @return Hostname of this machine. Hostname should be the same as the machine's DNS name.
+     * @return String. Hostname of this machine. Hostname should be the same as the machine's DNS name.
      */
     public static String getHostName() {
         //getCannonicalHostName returns the IP address. getHostName is the closet Java method to getting
@@ -175,6 +175,12 @@ public abstract class PkiTools {
         }
     }
 
+    /**
+     * Serialize a Key object as a DER encoded byte array.
+     *
+     * @param key instance of Key object
+     * @return byte[]
+     */
     public static byte[] keyToDer(Key key) {
         Validate.isTrue(key != null, "Key cannot be null");
         return pemToDer(keyToPem(key));
@@ -257,7 +263,7 @@ public abstract class PkiTools {
     }
 
     /**
-     * Convert a Java String to an  private key
+     * Convert a Java String to an private key
      *
      * @param keyString encoded RSA private key. Assume PKCS#8 format
      * @return Instance of PrivateKey
@@ -272,7 +278,7 @@ public abstract class PkiTools {
         }
     }
 
-    private static KeyFactory getRsaKeyFactory() throws GeneralSecurityException {
+    static KeyFactory getRsaKeyFactory() throws GeneralSecurityException {
         return KeyFactory.getInstance(ALGORITHM, BouncyCastleProvider.PROVIDER_NAME);
     }
 }

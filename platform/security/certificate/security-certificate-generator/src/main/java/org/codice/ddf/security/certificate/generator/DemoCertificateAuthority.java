@@ -21,6 +21,7 @@ public class DemoCertificateAuthority extends CertificateAuthority {
     /**
      * Create new instance of the DDF Demo Certificate Authority
      */
+
     public DemoCertificateAuthority() {
         initialize(PkiTools.pemToCertificate(DemoCertificateAuthority.pemDemoCaCertificate),
                 PkiTools.pemToPrivateKey(DemoCertificateAuthority.pemDemoCaPrivateKey));

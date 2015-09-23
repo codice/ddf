@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  * <li>serialNumber - arbitrary serial number</li>
  * </ul>
  *
- * @see <a href="https://www.ietf.org/rfc/rfc4514.txt">RFC 5280,  Internet X.509 Public Key Infrastructure Certificat</a>
+ * @see <a href="https://www.ietf.org/rfc/rfc4514.txt">RFC 5280,  Internet X.509 Public Key Infrastructure Certificate</a>
  */
 public class CertificateSigningRequest {
 

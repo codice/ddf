@@ -30,14 +30,34 @@ public class CertificateGenerator implements CertificateGeneratorMBean {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CertificateGenerator.class);
 
+    /**
+     * Constructor. Registers the object as a service provider.
+     */
     public CertificateGenerator() {
         registerMbean();
     }
 
+    /**
+     * Generates new signed certificate. The hostname is used as the certificate's common name.
+     * Postcondition is the server keystore is updated to include a private entry. The private
+     * entry has the new certificate chain  that connects the server to the Demo CA. The matching
+     * private key is also stored in the entry.
+     *
+     * @return the string used as the common name in the new certificate
+     */
     public String configureDemoCertWithDefaultHostname() {
         return configureDemoCert(PkiTools.getHostName());
     }
 
+    /**
+     * Generates new signed certificate. The input parameter is used as the certificate's common name.
+     * Postcondition is the server keystore is updated to include a private entry. The private
+     * entry has the new certificate chain  that connects the server to the Demo CA. The matching
+     * private key is also stored in the entry.
+     *
+     * @param commonName string to use as the common name in the new certificate
+     * @return the string used as the common name in the new certificate
+     */
     public String configureDemoCert(String commonName) {
         CertificateAuthority demoCa = new DemoCertificateAuthority();
         CertificateSigningRequest csr = new CertificateSigningRequest();
@@ -51,7 +71,7 @@ public class CertificateGenerator implements CertificateGeneratorMBean {
         return distinguishedName;
     }
 
-    KeyStoreFile getKeyStoreFile() {
+    private KeyStoreFile getKeyStoreFile() {
         return KeyStoreFile.openFile(System.getProperty("javax.net.ssl.keyStore"),
                 System.getProperty("javax.net.ssl.keyStorePassword").toCharArray());
     }
@@ -73,9 +93,6 @@ public class CertificateGenerator implements CertificateGeneratorMBean {
                     LOGGER.info("Registered Certificate Generator MBean under object name: {}",
                             objectName.toString());
                 } catch (InstanceAlreadyExistsException e) {
-                    // Try to remove and re-register
-                    mBeanServer.unregisterMBean(objectName);
-                    mBeanServer.registerMBean(this, objectName);
                     LOGGER.info("Re-registered Certificate Generator MBean");
                 }
             } catch (Exception e) {

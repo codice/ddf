@@ -76,9 +76,6 @@
                         <Embed-Dependency>
                             bcpkix-jdk15on
                         </Embed-Dependency>
-                        <Import-Package>
-                            *
-                        </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>
@@ -100,17 +97,12 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>.60</minimum>
+                                            <minimum>.64</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>.60</minimum>
-                                        </limit>
-                                        <limit>
-                                            <counter>COMPLEXITY</counter>
-                                            <value>COVEREDRATIO</value>
-                                            <minimum>.60</minimum>
+                                            <minimum>.69</minimum>
                                         </limit>
                                     </limits>
                                 </rule>

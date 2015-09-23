@@ -407,11 +407,13 @@ public class TestSecurity extends AbstractIntegrationTest {
     }
 
     void getBackupKeystoreFile() throws IOException {
-        Files.copy(Paths.get(getKeystoreFilename()), Paths.get(getBackupFilename()), REPLACE_EXISTING);
+        Files.copy(Paths.get(getKeystoreFilename()), Paths.get(getBackupFilename()),
+                REPLACE_EXISTING);
     }
 
     void restoreKeystoreFile() throws IOException {
-        Files.copy(Paths.get(getBackupFilename()), Paths.get(getKeystoreFilename()), REPLACE_EXISTING);
+        Files.copy(Paths.get(getBackupFilename()), Paths.get(getKeystoreFilename()),
+                REPLACE_EXISTING);
     }
 
     //Purpose is to make sure operations of the security certificate generator are accessible
@@ -450,5 +452,4 @@ public class TestSecurity extends AbstractIntegrationTest {
             restoreKeystoreFile();
         }
     }
-
 }
