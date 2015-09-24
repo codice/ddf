@@ -12,10 +12,10 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  **/
 
-package org.codice.ddf.spatial.geocoding;
+package org.codice.ddf.spatial.geocoding.extract;
 
 /**
- * Thrown by {@link GeoNamesRemoteDownloader} when an error occurs during downloading of a GeoNames
+ * Thrown by {@link GeoNamesUrlExtractor} when an error occurs during downloading of a GeoNames
  * zip file.
  */
 public class GeoNamesRemoteDownloadException extends RuntimeException {
