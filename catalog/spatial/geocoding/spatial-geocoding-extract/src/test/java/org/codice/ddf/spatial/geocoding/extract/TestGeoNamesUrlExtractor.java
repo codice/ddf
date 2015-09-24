@@ -19,6 +19,7 @@ import org.codice.ddf.spatial.geocoding.GeoEntryCreator;
 import org.codice.ddf.spatial.geocoding.GeoEntryExtractor;
 import org.junit.Before;
 import org.junit.Test;
+//
 
 public class TestGeoNamesUrlExtractor {
 
