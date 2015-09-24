@@ -55,7 +55,15 @@
           <directory>src/main/resources/bin</directory>
           <filtering>true</filtering>
           <targetPath>bin</targetPath>
-        </resource> 
+        </resource>
+        <resource>
+          <directory>src/main/resources/etc</directory>
+          <filtering>true</filtering>
+          <includes>
+              <include>*.properties</include>
+          </includes>
+          <targetPath>etc</targetPath>
+        </resource>
         <resource>
           <directory>src/main/resources</directory>
           <filtering>false</filtering>

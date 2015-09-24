@@ -40,7 +40,6 @@
         <distribution.file.name>ddf-${project.version}</distribution.file.name>
         <opendj-embedded.app.version>1.3.0</opendj-embedded.app.version>
         <install-profiles.app.version>${project.version}</install-profiles.app.version>
-        <sitename.default>ddf.distribution</sitename.default>
     </properties>
 
     <build>
