@@ -16,6 +16,7 @@ package org.codice.ddf.commands.spatial.geonames;
 
 import java.io.PrintStream;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
@@ -25,6 +26,8 @@ import org.codice.ddf.spatial.geocoding.GeoEntryExtractor;
 import org.codice.ddf.spatial.geocoding.GeoEntryIndexer;
 import org.codice.ddf.spatial.geocoding.GeoEntryIndexingException;
 import org.codice.ddf.spatial.geocoding.ProgressCallback;
+import org.codice.ddf.spatial.geocoding.extract.GeoNamesFileExtractor;
+import org.codice.ddf.spatial.geocoding.extract.GeoNamesUrlExtractor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,11 +46,13 @@ public final class GeoNamesUpdateCommand extends OsgiCommandSupport {
             description = "Create a new index, overwriting any existing index at the destination.")
     private boolean create;
 
-    private GeoEntryExtractor geoEntryExtractor;
+    private GeoEntryExtractor geoEntryExtractor = new GeoNamesFileExtractor();
+    private GeoEntryExtractor geoEntryExtractorUrl = new GeoNamesUrlExtractor();
     private GeoEntryIndexer geoEntryIndexer;
 
-    public void setGeoEntryExtractor(final GeoEntryExtractor geoEntryExtractor) {
+    public void setGeoEntryExtractors(final GeoEntryExtractor geoEntryExtractor, final GeoEntryExtractor geoEntryExtractorUrl) {
         this.geoEntryExtractor = geoEntryExtractor;
+        this.geoEntryExtractorUrl = geoEntryExtractorUrl;
     }
 
     public void setGeoEntryIndexer(final GeoEntryIndexer geoEntryIndexer) {
@@ -66,8 +71,18 @@ public final class GeoNamesUpdateCommand extends OsgiCommandSupport {
             }
         };
 
-        console.println("Updating...");
+        if(FilenameUtils.isExtension(resource, "zip") ||
+                FilenameUtils.isExtension(resource, "txt")) {
+            updateIndex(console, geoEntryExtractor, progressCallback);
+        } else {
+            updateIndex(console, geoEntryExtractorUrl, progressCallback);
+        }
 
+        return null;
+    }
+
+    private void updateIndex(final PrintStream console, GeoEntryExtractor geoEntryExtractor, final ProgressCallback progressCallback) {
+        console.println("Updating...");
         try {
             geoEntryIndexer.updateIndex(resource, geoEntryExtractor, create, progressCallback);
             console.println("\nDone.");
@@ -81,6 +96,5 @@ public final class GeoNamesUpdateCommand extends OsgiCommandSupport {
                     + "Check the logs for more details.\n", e.getMessage());
         }
 
-        return null;
     }
 }
