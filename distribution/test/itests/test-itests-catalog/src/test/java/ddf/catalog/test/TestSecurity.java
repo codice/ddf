@@ -230,11 +230,13 @@ public class TestSecurity extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testSubjectFederatedAuth() throws Exception {
+    public void testSamlFederatedAuth() throws Exception {
         String recordId = TestCatalog.ingest(Library.getSimpleGeoJson(), "application/json");
         configureRestForBasic();
 
-        //Positive tests
+        // Creating a new OpenSearch source with no username/password.
+        // When an OpenSearch source attempts to authenticate without a username/password it will
+        // use the subject in the request to create a SAML authentication token
         OpenSearchSourceProperties openSearchProperties = new OpenSearchSourceProperties(
                 OPENSEARCH_SOURCE_ID);
         createManagedService(OpenSearchSourceProperties.FACTORY_PID, openSearchProperties);
@@ -244,8 +246,6 @@ public class TestSecurity extends AbstractIntegrationTest {
         String openSearchQuery = SERVICE_ROOT + "/catalog/query?q=*&src=" + OPENSEARCH_SOURCE_ID;
         given().auth().basic("admin", "admin").when().get(openSearchQuery).then().log().all()
                 .assertThat().statusCode(equalTo(200)).assertThat().body(containsString("myTitle"));
-
-        //TestCatalog.deleteMetacard(recordId);
     }
 
     @Test
