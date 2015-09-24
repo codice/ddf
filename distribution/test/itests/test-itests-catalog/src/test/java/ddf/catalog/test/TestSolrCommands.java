@@ -25,6 +25,7 @@ import java.io.FilenameFilter;
 import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.PaxExam;
@@ -72,6 +73,8 @@ public class TestSolrCommands extends AbstractIntegrationTest {
         assertThat(output, containsString(String.format(BACKUP_ERROR_MESSAGE_FORMAT, coreName)));
     }
 
+    // Skipping this test until intermittent failure has been addresses. See DDF-1491.
+    @Ignore
     @Test
     public void testSolrBackupNumToKeep() throws InterruptedException {
         // The number of backups created are 1 less than the value of numToKeep
