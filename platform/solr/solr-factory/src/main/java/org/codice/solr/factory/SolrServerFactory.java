@@ -220,7 +220,7 @@ public final class SolrServerFactory {
         KeyStore keyStore = null;
 
         try (FileInputStream storeStream = new FileInputStream(location)) {
-            keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+            keyStore = KeyStore.getInstance(System.getProperty("javax.net.ssl.keyStoreType"));
             keyStore.load(storeStream, password.toCharArray());
         } catch (CertificateException | IOException
                 | NoSuchAlgorithmException | KeyStoreException e) {

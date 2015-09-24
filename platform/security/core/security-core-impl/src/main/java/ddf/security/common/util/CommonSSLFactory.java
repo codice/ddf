@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -35,7 +35,6 @@ import ddf.security.SecurityConstants;
 
 /**
  * Creates a new SSLSocketFactory
- *
  */
 public final class CommonSSLFactory {
     public static final String PROTOCOL = "TLS";
@@ -54,14 +53,10 @@ public final class CommonSSLFactory {
      * Creates a new SSLSocketFactory from a truststore and keystore. This is used during SSL
      * communication.
      *
-     * @param trustStoreLoc
-     *            File path to the truststore.
-     * @param trustStorePass
-     *            Password to the truststore.
-     * @param keyStoreLoc
-     *            File path to the keystore.
-     * @param keyStorePass
-     *            Password to the keystore.
+     * @param trustStoreLoc  File path to the truststore.
+     * @param trustStorePass Password to the truststore.
+     * @param keyStoreLoc    File path to the keystore.
+     * @param keyStorePass   Password to the keystore.
      * @return new SSLSocketFactory instance containing the trust and key stores.
      * @throws IOException
      */
@@ -99,7 +94,8 @@ public final class CommonSSLFactory {
         KeyManagerFactory kmf;
         try {
             // keystore stuff
-            KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+            KeyStore keyStore = KeyStore
+                    .getInstance(System.getProperty("javax.net.ssl.keyStoreType"));
             LOGGER.debug("keyStoreLoc = {}", keyStoreLoc);
             FileInputStream keyFIS = new FileInputStream(keyStoreLoc);
             try {
@@ -132,7 +128,8 @@ public final class CommonSSLFactory {
         TrustManagerFactory tmf;
         try {
             // truststore stuff
-            KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
+            KeyStore trustStore = KeyStore
+                    .getInstance(System.getProperty("javax.net.ssl.keyStoreType"));
             LOGGER.debug("trustStoreLoc = {}", trustStoreLoc);
             FileInputStream trustFIS = new FileInputStream(trustStoreLoc);
             try {
