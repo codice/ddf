@@ -157,7 +157,13 @@ public class SecureCxfClientFactory<T> {
      * @see #getClientForSubject(Subject subject)
      */
     public WebClient getWebClientForSubject(Subject subject) throws SecurityServiceException {
-        return WebClient.fromClient((Client) getClientForSubject(subject), true);
+        Object client = getClientForSubject(subject);
+
+        if (client instanceof  Client) {
+            return WebClient.fromClient((Client) getClientForSubject(subject), true);
+        } else {
+            throw new SecurityServiceException("Couldn't create a client from the subject: created client is not an instance of Client");
+        }
     }
 
     /**
