@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -52,12 +52,9 @@ public class RemoveCommandTest {
         consoleOutput.closeBuffer();
     }
 
-
-
     @Test
     public void testSingleItemList() throws Exception {
         final SolrCacheMBean mbean = mock(SolrCacheMBean.class);
-
 
         List<String> ids = new ArrayList();
         ids.add(metacardList.get(0).getId());
@@ -66,6 +63,11 @@ public class RemoveCommandTest {
             @Override
             protected SolrCacheMBean getCacheProxy() {
                 return mbean;
+            }
+
+            @Override
+            protected Object doExecute() throws Exception {
+                return executeWithSubject();
             }
         };
 
@@ -84,7 +86,6 @@ public class RemoveCommandTest {
     public void testMultipleItemList() throws Exception {
         final SolrCacheMBean mbean = mock(SolrCacheMBean.class);
 
-
         List<String> ids = new ArrayList();
         ids.add(metacardList.get(0).getId());
         ids.add(metacardList.get(1).getId());
@@ -94,6 +95,11 @@ public class RemoveCommandTest {
             @Override
             protected SolrCacheMBean getCacheProxy() {
                 return mbean;
+            }
+
+            @Override
+            protected Object doExecute() throws Exception {
+                return executeWithSubject();
             }
         };
 
@@ -111,16 +117,22 @@ public class RemoveCommandTest {
     /**
      * Tests the {@Link RemoveCommand} when passed
      * a null list of ids
+     *
      * @throws Exception
      */
     @Test
-    public  void  testNullList() throws  Exception {
+    public void testNullList() throws Exception {
         final SolrCacheMBean mbean = mock(SolrCacheMBean.class);
 
         RemoveCommand removeCommand = new RemoveCommand() {
             @Override
             protected SolrCacheMBean getCacheProxy() {
                 return mbean;
+            }
+
+            @Override
+            protected Object doExecute() throws Exception {
+                return executeWithSubject();
             }
         };
 
@@ -149,6 +161,5 @@ public class RemoveCommandTest {
 
         return metacards;
     }
-
 
 }

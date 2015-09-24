@@ -71,12 +71,10 @@ public class SearchCommand extends CatalogCommands {
     String cqlFilter = null;
 
     @Option(name = "--cache", aliases = {}, required = false, multiValued = false, description = "Only search cached entries.")
-
     boolean cache = false;
 
     @Override
-    protected Object doExecute() throws Exception {
-
+    protected Object executeWithSubject() throws Exception {
         Filter filter = null;
         if (cqlFilter != null) {
             filter = CQL.toFilter(cqlFilter);
@@ -129,7 +127,7 @@ public class SearchCommand extends CatalogCommands {
         console.println();
         console.printf(" %d result(s) out of %s%d%s in %3.3f seconds", (size),
                 Ansi.ansi().fg(Ansi.Color.CYAN).toString(), response.getHits(),
-                Ansi.ansi().reset().toString(), (end - start) / MILLISECONDS_PER_SECOND);
+                Ansi.ansi().reset().toString(), (end - start) / MS_PER_SECOND);
         console.printf(formatString, "", "", "", "");
         printHeaderMessage(String.format(formatString, ID, DATE, TITLE, EXCERPT));
 
@@ -199,7 +197,7 @@ public class SearchCommand extends CatalogCommands {
 
         console.println();
         console.printf(" %d result(s) in %3.3f seconds", (results.size()),
-                (end - start) / MILLISECONDS_PER_SECOND);
+                (end - start) / MS_PER_SECOND);
         console.printf(formatString, "", "", "");
         printHeaderMessage(String.format(formatString, ID, DATE, TITLE));
 

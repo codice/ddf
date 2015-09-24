@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -55,7 +55,12 @@ public class DumpCommandTest extends AbstractCommandTest {
         consoleOutput.interceptSystemOut();
 
         // given
-        DumpCommand command = new DumpCommand();
+        DumpCommand command = new DumpCommand() {
+            @Override
+            protected Object doExecute() throws Exception {
+                return executeWithSubject();
+            }
+        };
         command.dirPath = "nosuchdirectoryanywherehereman";
 
         // when
@@ -87,7 +92,12 @@ public class DumpCommandTest extends AbstractCommandTest {
         consoleOutput.interceptSystemOut();
 
         // given
-        DumpCommand command = new DumpCommand();
+        DumpCommand command = new DumpCommand() {
+            @Override
+            protected Object doExecute() throws Exception {
+                return executeWithSubject();
+            }
+        };
         File testFile = testFolder.newFile("somefile.txt");
         String testFilePath = testFile.getAbsolutePath();
         command.dirPath = testFilePath;
@@ -134,6 +144,11 @@ public class DumpCommandTest extends AbstractCommandTest {
             protected FilterBuilder getFilterBuilder() throws InterruptedException {
                 return new GeotoolsFilterBuilder();
             }
+
+            @Override
+            protected Object doExecute() throws Exception {
+                return executeWithSubject();
+            }
         };
         File outputDirectory = testFolder.newFolder("somedirectory");
         String outputDirectoryPath = outputDirectory.getAbsolutePath();
@@ -175,6 +190,11 @@ public class DumpCommandTest extends AbstractCommandTest {
             @Override
             protected FilterBuilder getFilterBuilder() throws InterruptedException {
                 return new GeotoolsFilterBuilder();
+            }
+
+            @Override
+            protected Object doExecute() throws Exception {
+                return executeWithSubject();
             }
         };
         File outputDirectory = testFolder.newFolder("somedirectory");

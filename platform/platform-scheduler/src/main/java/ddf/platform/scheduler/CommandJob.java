@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -17,6 +17,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.Callable;
 
 import org.apache.felix.gogo.runtime.CommandNotFoundException;
 import org.apache.felix.service.command.CommandProcessor;
@@ -28,12 +29,14 @@ import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ddf.security.Subject;
+import ddf.security.common.util.Security;
+
 /**
  * Executes Felix/Karaf commands when called as a Quartz {@link Job}
  *
  * @author Ashraf Barakat
  * @author ddf.isgs@lmco.com
- *
  */
 public class CommandJob implements Job {
 
@@ -44,7 +47,22 @@ public class CommandJob implements Job {
     private CommandProcessor commandProcessor;
 
     @Override
-    public void execute(JobExecutionContext context) throws JobExecutionException {
+    public void execute(final JobExecutionContext context) throws JobExecutionException {
+        Subject subject = getSystemSubject();
+        if (subject != null) {
+            subject.execute(new Callable<Object>() {
+                @Override
+                public Object call() throws Exception {
+                    doExecute(context);
+                    return null;
+                }
+            });
+        } else {
+            LOGGER.warn("Could not execute command. Could not get subject to run command");
+        }
+    }
+
+    public void doExecute(JobExecutionContext context) throws JobExecutionException {
 
         String commandInput = null;
         try {
@@ -91,6 +109,10 @@ public class CommandJob implements Job {
             }
         }
 
+    }
+
+    public Subject getSystemSubject() {
+        return Security.getSystemSubject();
     }
 
     private CommandProcessor getCommandProcessor() {

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -45,7 +45,8 @@ import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
 import ddf.security.common.audit.SecurityLogger;
-import ddf.security.permission.ActionPermission;
+import ddf.security.permission.CollectionPermission;
+import ddf.security.permission.KeyValueCollectionPermission;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
 import ddf.security.service.impl.SecurityAssertionStore;
@@ -92,7 +93,7 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
 
             if ((assertion != null) && (assertion.getSecurityToken() != null)) {
                 Subject user = null;
-                ActionPermission action = null;
+                CollectionPermission action = null;
 
                 String actionURI = getActionUri(message);
 
@@ -120,8 +121,8 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
                         throw new AccessDeniedException("Unauthorized");
                     }
 
-                    action = new ActionPermission(actionURI);
-                    logger.debug("Action Permission: {}", action);
+                    action = new KeyValueCollectionPermission(actionURI);
+                    logger.debug("Permission: {}", action);
 
                     isPermitted = user.isPermitted(action);
 
