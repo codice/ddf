@@ -14,23 +14,23 @@
 package ddf.catalog.test;
 
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.FilenameFilter;
 import java.nio.file.Paths;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
+
+import com.google.common.collect.Sets;
 
 import ddf.common.test.BeforeExam;
 import ddf.common.test.KarafConsole;
@@ -73,8 +73,6 @@ public class TestSolrCommands extends AbstractIntegrationTest {
         assertThat(output, containsString(String.format(BACKUP_ERROR_MESSAGE_FORMAT, coreName)));
     }
 
-    // Skipping this test until intermittent failure has been addresses. See DDF-1491.
-    @Ignore
     @Test
     public void testSolrBackupNumToKeep() throws InterruptedException {
         // The number of backups created are 1 less than the value of numToKeep
@@ -86,48 +84,56 @@ public class TestSolrCommands extends AbstractIntegrationTest {
 
         // Run this three times to make sure only 2 are kept
         console.runCommand(command);
-        waitForBackupFilesToBeCreated(coreName, 1);
-        assertThat("Too many backup files created", countBackupFiles(coreName),
-                is(not(greaterThan(1))));
+        Set<File> firstBackupFileSet = waitForBackupFilesToBeCreated(coreName, 1);
 
         console.runCommand(command);
-        waitForBackupFilesToBeCreated(coreName, 2);
-        assertThat("Too many backup files created", countBackupFiles(coreName),
-                is(not(greaterThan(2))));
+        Set<File> secondBackupFileSet = waitForBackupFilesToBeCreated(coreName, 2);
+        assertTrue("Unexpected backup files found",
+                secondBackupFileSet.containsAll(firstBackupFileSet));
 
         console.runCommand(command);
-        waitForBackupFilesToBeCreated(coreName, 3);
 
-        assertThat("Wrong number of backup files created", countBackupFiles(coreName),
-                equalTo(numToKeep - 1));
+        // Need to sleep here to make sure new backup file has been created and old file deleted.
+        TimeUnit.SECONDS.sleep(10);
+
+        secondBackupFileSet.removeAll(firstBackupFileSet);
+        Set<File> thirdBackupFileSet = getBackupFiles(coreName);
+        assertThat("Wrong number of backup files created", thirdBackupFileSet, hasSize(2));
+        assertTrue("Unexpected backup files found",
+                thirdBackupFileSet.containsAll(secondBackupFileSet));
     }
 
-    private void waitForBackupFilesToBeCreated(String coreName, int numberOfFiles)
+    private Set<File> waitForBackupFilesToBeCreated(String coreName, int numberOfFiles)
             throws InterruptedException {
         final long timeout = TimeUnit.SECONDS.toMillis(10);
         int currentWaitTime = 0;
 
-        while ((countBackupFiles(coreName) < numberOfFiles) && (currentWaitTime < timeout)) {
+        Set<File> backupFiles = getBackupFiles(coreName);
+
+        while ((backupFiles.size() < numberOfFiles) && (currentWaitTime < timeout)) {
             TimeUnit.MILLISECONDS.sleep(250);
             currentWaitTime += 250;
+            backupFiles = getBackupFiles(coreName);
         }
+
+        assertThat("Wrong number of backup files created", backupFiles, hasSize(numberOfFiles));
+
+        return backupFiles;
     }
 
-    private int countBackupFiles(String coreName) {
+    private Set<File> getBackupFiles(String coreName) {
         File solrDir = getSolrDataPath(coreName);
 
-        File[] backupFiles = new File[0];
+        File[] backupFiles;
 
-        if (solrDir != null && solrDir.exists()) {
-            backupFiles = solrDir.listFiles(new FilenameFilter() {
-                @Override
-                public boolean accept(File dir, String name) {
-                    return name.contains("snapshot");
-                }
-            });
-        }
+        backupFiles = solrDir.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.contains("snapshot");
+            }
+        });
 
-        return backupFiles.length;
+        return Sets.newHashSet(backupFiles);
     }
 
     private File getSolrDataPath(String coreName) {
@@ -135,5 +141,4 @@ public class TestSolrCommands extends AbstractIntegrationTest {
         File file = Paths.get(home + "/data/solr/" + coreName + "/data").toFile();
         return file;
     }
-
 }
