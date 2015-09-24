@@ -41,6 +41,7 @@ import org.forgerock.opendj.ldap.LDAPOptions;
 import org.forgerock.opendj.ldap.LdapException;
 import org.forgerock.opendj.ldap.SearchResultReferenceIOException;
 import org.forgerock.opendj.ldap.SearchScope;
+import org.forgerock.opendj.ldap.responses.BindResult;
 import org.forgerock.opendj.ldap.responses.SearchResultEntry;
 import org.forgerock.opendj.ldif.ConnectionEntryReader;
 import org.osgi.framework.Bundle;
@@ -188,7 +189,12 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
         if (connection != null) {
             try {
                 try {
-                    connection.bind(connectionUsername, connectionPassword.toCharArray());
+                    BindResult bindResult = connection.bind(connectionUsername, connectionPassword.toCharArray());
+
+                    if (!bindResult.isSuccess()) {
+                        LOGGER.error("Bind failed");
+                        return false;
+                    }
                 } catch (LdapException e) {
                     LOGGER.error("Unable to bind to LDAP server.", e);
                     return false;
@@ -233,7 +239,12 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
 
         if (connection != null) {
             try {
-                connection.bind(userDn, tmpPassword);
+                BindResult bindResult = connection.bind(userDn, tmpPassword);
+
+                if (!bindResult.isSuccess()) {
+                    LOGGER.error("Bind failed");
+                    return false;
+                }
             } catch (Exception e) {
                 LOGGER.error("Unable to bind user to LDAP server.", e);
                 return false;
@@ -255,7 +266,12 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
         if (connection != null) {
             try {
                 try {
-                    connection.bind(connectionUsername, connectionPassword.toCharArray());
+                    BindResult bindResult = connection.bind(connectionUsername, connectionPassword.toCharArray());
+
+                    if (!bindResult.isSuccess()) {
+                        LOGGER.error("Bind failed");
+                        return false;
+                    }
                 } catch (LdapException e) {
                     LOGGER.error("Unable to bind to LDAP server.", e);
                     return false;
