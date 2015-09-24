@@ -32,6 +32,7 @@ import org.forgerock.opendj.ldap.LDAPConnectionFactory;
 import org.forgerock.opendj.ldap.LdapException;
 import org.forgerock.opendj.ldap.SearchResultReferenceIOException;
 import org.forgerock.opendj.ldap.SearchScope;
+import org.forgerock.opendj.ldap.responses.BindResult;
 import org.forgerock.opendj.ldap.responses.SearchResultEntry;
 import org.forgerock.opendj.ldif.ConnectionEntryReader;
 import org.slf4j.Logger;
@@ -114,48 +115,55 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
                     this.getUserBaseDN(), filter.toString());
             connection = connectionFactory.getConnection();
             if (connection != null) {
-                connection.bind(bindUserDN, bindUserCredentials.toCharArray());
-                ConnectionEntryReader entryReader = connection
-                        .search((this.getUserBaseDN() == null) ? "" : this.getUserBaseDN(),
-                                SearchScope.WHOLE_SUBTREE, filter.toString(), searchAttributes);
+                BindResult bindResult = connection.bind(bindUserDN, bindUserCredentials.toCharArray());
+                if (bindResult.isSuccess()) {
+                    ConnectionEntryReader entryReader = connection
+                            .search((this.getUserBaseDN() == null) ? "" : this.getUserBaseDN(),
+                                    SearchScope.WHOLE_SUBTREE, filter.toString(), searchAttributes);
 
-                SearchResultEntry entry;
-                while (entryReader.hasNext()) {
-                    entry = entryReader.readEntry();
-                    for (Claim claim : claims) {
-                        URI claimType = claim.getClaimType();
-                        String ldapAttribute = getClaimsLdapAttributeMapping()
-                                .get(claimType.toString());
-                        Attribute attr = entry.getAttribute(ldapAttribute);
-                        if (attr == null) {
-                            LOGGER.trace("Claim '{}' is null", claim.getClaimType());
-                        } else {
-                            ProcessedClaim c = new ProcessedClaim();
-                            c.setClaimType(claimType);
-                            c.setPrincipal(principal);
+                    SearchResultEntry entry;
+                    while (entryReader.hasNext()) {
+                        entry = entryReader.readEntry();
+                        for (Claim claim : claims) {
+                            URI claimType = claim.getClaimType();
+                            String ldapAttribute = getClaimsLdapAttributeMapping()
+                                    .get(claimType.toString());
+                            Attribute attr = entry.getAttribute(ldapAttribute);
+                            if (attr == null) {
+                                LOGGER.trace("Claim '{}' is null", claim.getClaimType());
+                            } else {
+                                ProcessedClaim c = new ProcessedClaim();
+                                c.setClaimType(claimType);
+                                c.setPrincipal(principal);
 
-                            for (ByteString value : attr) {
-                                String itemValue = value.toString();
-                                if (this.isX500FilterEnabled()) {
-                                    try {
-                                        X500Principal x500p = new X500Principal(itemValue);
-                                        itemValue = x500p.getName();
-                                        int index = itemValue.indexOf('=');
-                                        itemValue = itemValue.substring(index + 1,
-                                                itemValue.indexOf(',', index));
-                                    } catch (Exception ex) {
-                                        // Ignore, not X500 compliant thus use the whole
-                                        // string as the value
+                                for (ByteString value : attr) {
+                                    String itemValue = value.toString();
+                                    if (this.isX500FilterEnabled()) {
+                                        try {
+                                            X500Principal x500p = new X500Principal(itemValue);
+                                            itemValue = x500p.getName();
+                                            int index = itemValue.indexOf('=');
+                                            itemValue = itemValue.substring(index + 1,
+                                                    itemValue.indexOf(',', index));
+                                        } catch (Exception ex) {
+                                            // Ignore, not X500 compliant thus use the whole
+                                            // string as the value
+                                        }
                                     }
+                                    c.addValue(itemValue);
                                 }
-                                c.addValue(itemValue);
-                            }
 
-                            claimsColl.add(c);
+                                claimsColl.add(c);
+                            }
                         }
+
                     }
 
                 }
+                else {
+                    LOGGER.error("LDAP Connection failed.");
+                }
+
             }
         } catch (LdapException e) {
             LOGGER.error("Cannot connect to server, therefore unable to set user attributes.", e);
