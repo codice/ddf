@@ -74,13 +74,14 @@ public class TestSolrCommands extends AbstractIntegrationTest {
     }
 
     // Skipping this test until intermittent failure has been addresses. See DDF-1491.
-    @Ignore
+    //@Ignore
     @Test
     public void testSolrBackupNumToKeep() throws InterruptedException {
         // The number of backups created are 1 less than the value of numToKeep
         // (ex. if numToKeep=3, then backups=2)
         int numToKeep = 3;
         String coreName = "catalog";
+        printBackupFiles(coreName);
 
         String command = BACKUP_COMMAND + " --numToKeep " + numToKeep;
 
@@ -89,17 +90,20 @@ public class TestSolrCommands extends AbstractIntegrationTest {
         waitForBackupFilesToBeCreated(coreName, 1);
         assertThat("Too many backup files created", countBackupFiles(coreName),
                 is(not(greaterThan(1))));
+        printBackupFiles(coreName);
 
         console.runCommand(command);
         waitForBackupFilesToBeCreated(coreName, 2);
         assertThat("Too many backup files created", countBackupFiles(coreName),
                 is(not(greaterThan(2))));
+        printBackupFiles(coreName);
 
         console.runCommand(command);
         waitForBackupFilesToBeCreated(coreName, 3);
 
         assertThat("Wrong number of backup files created", countBackupFiles(coreName),
                 equalTo(numToKeep - 1));
+        printBackupFiles(coreName);
     }
 
     private void waitForBackupFilesToBeCreated(String coreName, int numberOfFiles)
@@ -130,10 +134,26 @@ public class TestSolrCommands extends AbstractIntegrationTest {
         return backupFiles.length;
     }
 
+    private void printBackupFiles(String coreName) {
+        File solrDir = getSolrDataPath(coreName);
+
+        if (solrDir != null && solrDir.exists()) {
+            solrDir.listFiles(new FilenameFilter() {
+                @Override
+                public boolean accept(File dir, String name) {
+                    if (name.contains("snapshot")) {
+                        LOGGER.error("##### Backup file: {}", name);
+                        return true;
+                    }
+                    return false;
+                }
+            });
+        }
+    }
+
     private File getSolrDataPath(String coreName) {
         String home = System.getProperty(DDF_HOME_PROPERTY);
         File file = Paths.get(home + "/data/solr/" + coreName + "/data").toFile();
         return file;
     }
-
 }
