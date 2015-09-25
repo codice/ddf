@@ -73,7 +73,7 @@ public class ITestScheduledTask {
 
         int numberOfSeconds = 1;
 
-        ScheduledCommandTask task = new ScheduledCommandTask(scheduler, CommandJob.class);
+        ScheduledCommandTask task = new ScheduledCommandTask(scheduler, NoSubjectCommandJob.class);
 
         task.setIntervalInSeconds(numberOfSeconds);
 
