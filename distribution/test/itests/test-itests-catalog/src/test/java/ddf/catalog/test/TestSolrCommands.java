@@ -30,6 +30,7 @@ import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
 
+import com.google.common.base.Predicate;
 import com.google.common.collect.Sets;
 
 import ddf.common.test.BeforeExam;
@@ -93,31 +94,50 @@ public class TestSolrCommands extends AbstractIntegrationTest {
 
         console.runCommand(command);
 
-        // Need to sleep here to make sure new backup file has been created and old file deleted.
-        TimeUnit.SECONDS.sleep(10);
-
         secondBackupFileSet.removeAll(firstBackupFileSet);
-        Set<File> thirdBackupFileSet = getBackupFiles(coreName);
+        Set<File> thirdBackupFileSet = waitForFirstFileToBeDeleted(coreName, firstBackupFileSet);
+
         assertThat("Wrong number of backup files created", thirdBackupFileSet, hasSize(2));
         assertTrue("Unexpected backup files found",
                 thirdBackupFileSet.containsAll(secondBackupFileSet));
     }
 
-    private Set<File> waitForBackupFilesToBeCreated(String coreName, int numberOfFiles)
+    private Set<File> waitFor(String coreName, Predicate<Set<File>> predicate)
             throws InterruptedException {
         final long timeout = TimeUnit.SECONDS.toMillis(10);
         int currentWaitTime = 0;
 
         Set<File> backupFiles = getBackupFiles(coreName);
 
-        while ((backupFiles.size() < numberOfFiles) && (currentWaitTime < timeout)) {
+        while (predicate.apply(backupFiles) && (currentWaitTime < timeout)) {
             TimeUnit.MILLISECONDS.sleep(250);
             currentWaitTime += 250;
             backupFiles = getBackupFiles(coreName);
         }
 
-        assertThat("Wrong number of backup files created", backupFiles, hasSize(numberOfFiles));
+        return backupFiles;
+    }
 
+    private Set<File> waitForFirstFileToBeDeleted(String coreName,
+            final Set<File> firstBackupFileSet) throws InterruptedException {
+        return waitFor(coreName, new Predicate<Set<File>>() {
+            @Override
+            public boolean apply(Set<File> backupFiles) {
+                return backupFiles.contains(firstBackupFileSet);
+            }
+        });
+    }
+
+    private Set<File> waitForBackupFilesToBeCreated(String coreName, final int numberOfFiles)
+            throws InterruptedException {
+        Set<File> backupFiles = waitFor(coreName, new Predicate<Set<File>>() {
+            @Override
+            public boolean apply(Set<File> backupFiles) {
+                return backupFiles.size() < numberOfFiles;
+            }
+        });
+
+        assertThat("Wrong number of backup files created", backupFiles, hasSize(numberOfFiles));
         return backupFiles;
     }
 
