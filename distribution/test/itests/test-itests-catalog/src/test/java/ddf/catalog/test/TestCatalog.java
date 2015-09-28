@@ -411,6 +411,20 @@ public class TestCatalog extends AbstractIntegrationTest {
     }
 
     @Test
+    public void  testCswGetRecordsWithHitsResultType() {
+        ValidatableResponse response = given().header("Content-Type", MediaType.APPLICATION_XML)
+                    .body(Library.getCswQuery("AnyText", "*")).post(CSW_PATH).then();
+
+        //assert that no records have been returned
+        response.body(not(hasXPath("//Record")));
+
+        //assert that the nextRecord attribute is not set
+        //because we didn't return any results
+        response.body(hasXPath("//@nextRecord",is("0")));
+
+    }
+
+    @Test
     public void testCswUpdateRemoveAttributesByCqlConstraint() {
         Response response = ingestCswRecord();
 

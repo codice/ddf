@@ -109,12 +109,11 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <!-- Don't Export Anything -->
                         <Export-Package/>
+                        <Import-Package>
+                            net.opengis.gml.v_3_1_1,
+                            *
+                        </Import-Package>
                         <Embed-Dependency>
-                            spatial-csw-schema-bindings,
-                            gml-v_3_1_1-schema,
-                            ows-v_1_0_0-schema,
-                            ogc-filter-v_1_1_0-schema,
-                            jaxb2-basics-runtime,
                             spatial-ogc-common,
                             spatial-csw-common,
                             spatial-csw-transformer,
