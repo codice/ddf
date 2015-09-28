@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -73,7 +73,7 @@ public class PolicyTest {
             @Override
             public URL answer(InvocationOnMock invocation) throws Throwable {
                 Object[] args = invocation.getArguments();
-                return (URL) this.getClass().getResource((String) args[0]);
+                return this.getClass().getResource((String) args[0]);
             }
         });
         when(mockContext.getBundle()).thenReturn(mockBundle);
@@ -120,8 +120,8 @@ public class PolicyTest {
             assertNotNull(wsdlDoc);
             assertNotNull(policyLoader.getPolicy());
 
-            PolicyWSDLGetInterceptor interceptor = new PolicyWSDLGetInterceptor(policyLoader);
-            Document doc = interceptor.addPolicyToWSDL(wsdlDoc, policyLoader.getPolicy());
+            Document doc = PolicyWSDLGetInterceptor
+                    .addPolicyToWSDL(wsdlDoc, policyLoader.getPolicy());
             assertNotNull(doc);
             assertFalse(wsdlDoc.isEqualNode(policyLoader.getPolicy()));
             assertFalse(doc.isEqualNode(policyLoader.getPolicy()));

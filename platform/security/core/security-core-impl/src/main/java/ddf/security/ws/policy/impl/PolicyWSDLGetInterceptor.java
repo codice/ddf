@@ -31,8 +31,7 @@ import org.apache.cxf.interceptor.OutgoingChainInterceptor;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.model.EndpointInfo;
-import org.codice.ddf.configuration.ConfigurationManager;
-import org.codice.ddf.configuration.ConfigurationWatcher;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,12 +40,13 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import ddf.security.sts.client.configuration.StsAddressProvider;
 import ddf.security.ws.policy.PolicyLoader;
 
 /**
  * Extension of the WSDLGetInterceptor that adds in the policy to the WSDL for clients to see.
  */
-public class PolicyWSDLGetInterceptor extends WSDLGetInterceptor implements ConfigurationWatcher {
+public class PolicyWSDLGetInterceptor extends WSDLGetInterceptor {
 
     private static final String XML_ENC = "utf-8";
 
@@ -56,11 +56,7 @@ public class PolicyWSDLGetInterceptor extends WSDLGetInterceptor implements Conf
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PolicyWSDLGetInterceptor.class);
 
-    private String protocol = "https://";
-
-    private String host = "localhost";
-
-    private String port = "8993";
+    private StsAddressProvider addressProvider;
 
     private PolicyLoader loader;
 
@@ -68,8 +64,10 @@ public class PolicyWSDLGetInterceptor extends WSDLGetInterceptor implements Conf
         super();
         getBefore().add(WSDLGetInterceptor.class.getName());
         this.loader = loader;
-        FrameworkUtil.getBundle(PolicyWSDLGetInterceptor.class).getBundleContext()
-                .registerService(ConfigurationWatcher.class, this, null);
+        BundleContext bundleCtx = FrameworkUtil.getBundle(PolicyWSDLGetInterceptor.class)
+                .getBundleContext();
+        addressProvider = bundleCtx
+                .getService(bundleCtx.getServiceReference(StsAddressProvider.class));
     }
 
     // Majority of this method is from the WSDLGetInterceptor, in-line comments
@@ -124,6 +122,10 @@ public class PolicyWSDLGetInterceptor extends WSDLGetInterceptor implements Conf
     }
 
     private Document configureAddress(Document doc) {
+        String fullAddress = getFullAddress();
+        if (fullAddress.equalsIgnoreCase(DEFAULT_ADDRESS)) {
+            return doc;
+        }
         Element de = doc.getDocumentElement();
         XPath xPath = XPathFactory.newInstance().newXPath();
         String xPathString = String
@@ -133,40 +135,21 @@ public class PolicyWSDLGetInterceptor extends WSDLGetInterceptor implements Conf
         try {
             nodes = (NodeList) xPath.evaluate(xPathString, de, XPathConstants.NODESET);
         } catch (XPathExpressionException e) {
-            LOGGER.error("Could not evaulate the xPath expression: {}", xPathString, e);
+            LOGGER.error("Could not evaluate the xPath expression: {}", xPathString, e);
             return doc;
         }
         for (int i = 0; i < nodes.getLength(); i++) {
             Node node = nodes.item(i);
-            node.setNodeValue(node.getNodeValue().replaceAll(DEFAULT_ADDRESS, getAddress()));
+            node.setNodeValue(node.getNodeValue().replaceAll(DEFAULT_ADDRESS, fullAddress));
         }
         return de.getOwnerDocument();
     }
 
-    private String getAddress() {
-        return String.format("%s%s:%s", protocol, host, port);
-    }
-
-    @Override
-    public synchronized void configurationUpdateCallback(Map<String, String> properties) {
-        LOGGER.debug("Updating configuration from: {}", getAddress());
-        if (properties != null && !properties.isEmpty()) {
-            String protocol = properties.get(ConfigurationManager.PROTOCOL);
-            if (protocol != null && !protocol.isEmpty()) {
-                this.protocol = protocol;
-            }
-
-            String host = properties.get(ConfigurationManager.HOST);
-            if (host != null && !host.isEmpty()) {
-                this.host = host;
-            }
-
-            String port = properties.get(ConfigurationManager.PORT);
-            if (port != null && !port.isEmpty()) {
-                this.port = port;
-            }
-        }
-        LOGGER.debug("Updated configuration to: {}", getAddress());
+    private String getFullAddress() {
+        String proto = addressProvider.getProtocol();
+        String host = addressProvider.getHost();
+        String port = addressProvider.getPort().equals("") ? "" : ":" + addressProvider.getPort();
+        return String.format("%s://%s%s", proto, host, port);
     }
 
     /**
@@ -178,7 +161,7 @@ public class PolicyWSDLGetInterceptor extends WSDLGetInterceptor implements Conf
      * @param policyDoc Policy to add to the WSDL.
      * @return A combined Node containing the WSDL with the policy added.
      */
-    protected Document addPolicyToWSDL(Document wsdlDoc, Document policyDoc) {
+    public static Document addPolicyToWSDL(Document wsdlDoc, Document policyDoc) {
         Element newElement = wsdlDoc.getDocumentElement();
         Node policyNode = policyDoc.getDocumentElement();
         newElement.appendChild(wsdlDoc.importNode(policyNode, true));
