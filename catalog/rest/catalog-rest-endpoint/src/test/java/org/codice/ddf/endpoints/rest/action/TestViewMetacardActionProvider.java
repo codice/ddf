@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -13,13 +13,17 @@
  */
 package org.codice.ddf.endpoints.rest.action;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
 import java.util.Date;
 
+import org.codice.ddf.configuration.SystemBaseUrl;
+import org.codice.ddf.configuration.SystemInfo;
 import org.junit.Test;
 
 import ddf.action.Action;
@@ -29,7 +33,8 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
 
     @Test
     public void testMetacardNull() {
-        assertEquals(null, new ViewMetacardActionProvider(ACTION_PROVIDER_ID).getAction(null));
+        assertEquals(null,
+                new ViewMetacardActionProvider(ACTION_PROVIDER_ID, null, null).getAction(null));
     }
 
     @Test
@@ -40,11 +45,9 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
         metacard.setId(SAMPLE_ID);
 
         AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
-                ACTION_PROVIDER_ID);
-
-        actionProvider.configurationUpdateCallback(
-                createMap(SAMPLE_PROTOCOL, "23^&*#", SAMPLE_PORT, SAMPLE_SERVICES_ROOT,
-                        SAMPLE_SOURCE_NAME));
+                ACTION_PROVIDER_ID, new SystemBaseUrl(), new SystemInfo());
+        this.configureActionProvider(SAMPLE_PROTOCOL, "23^&*#", SAMPLE_PORT, SAMPLE_SERVICES_ROOT,
+                SAMPLE_SOURCE_NAME);
 
         assertNull("A bad url should have been caught and a null action returned.",
                 actionProvider.getAction(metacard));
@@ -59,8 +62,9 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
 
         metacard.setId("abd ef");
 
-        AbstractMetacardActionProvider actionProvider = configureActionProvider(
-                new ViewMetacardActionProvider(ACTION_PROVIDER_ID));
+        AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
+                ACTION_PROVIDER_ID, new SystemBaseUrl(), new SystemInfo());
+        this.configureActionProvider();
 
         // when
         String url = actionProvider.getAction(metacard).getUrl().toString();
@@ -78,8 +82,9 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
 
         metacard.setId("abd&ef");
 
-        AbstractMetacardActionProvider actionProvider = configureActionProvider(
-                new ViewMetacardActionProvider(ACTION_PROVIDER_ID));
+        AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
+                ACTION_PROVIDER_ID, new SystemBaseUrl(), new SystemInfo());
+        this.configureActionProvider();
 
         // when
         String url = actionProvider.getAction(metacard).getUrl().toString();
@@ -96,8 +101,9 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
 
         metacard.setId(null);
 
-        AbstractMetacardActionProvider actionProvider = configureActionProvider(
-                new ViewMetacardActionProvider(ACTION_PROVIDER_ID));
+        AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
+                ACTION_PROVIDER_ID, new SystemBaseUrl(), new SystemInfo());
+        this.configureActionProvider();
 
         assertNull("An action should not have been created when no id is provided.",
                 actionProvider.getAction(metacard));
@@ -112,7 +118,7 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
         metacard.setId(SAMPLE_ID);
 
         AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
-                ACTION_PROVIDER_ID);
+                ACTION_PROVIDER_ID, null, null);
 
         assertNull(actionProvider.getAction(metacard));
 
@@ -126,14 +132,13 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
         metacard.setId(SAMPLE_ID);
 
         AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
-                ACTION_PROVIDER_ID);
+                ACTION_PROVIDER_ID, new SystemBaseUrl(), new SystemInfo());
 
-        actionProvider.configurationUpdateCallback(
-                createMap(SAMPLE_PROTOCOL, null, SAMPLE_PORT, SAMPLE_SERVICES_ROOT,
-                        SAMPLE_SOURCE_NAME));
+        this.configureActionProvider(SAMPLE_PROTOCOL, null, SAMPLE_PORT, SAMPLE_SERVICES_ROOT,
+                SAMPLE_SOURCE_NAME);
 
-        assertNull("An action should not have been created when ip is null.",
-                actionProvider.getAction(metacard));
+        assertThat(actionProvider.getAction(metacard).getUrl().toString(),
+                containsString("localhost"));
 
     }
 
@@ -145,15 +150,13 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
         metacard.setId(SAMPLE_ID);
 
         AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
-                ACTION_PROVIDER_ID);
+                ACTION_PROVIDER_ID, new SystemBaseUrl(), new SystemInfo());
 
-        actionProvider.configurationUpdateCallback(
-                createMap(SAMPLE_PROTOCOL, "0.0.0.0", SAMPLE_PORT, SAMPLE_SERVICES_ROOT,
-                        SAMPLE_SOURCE_NAME));
+        this.configureActionProvider(SAMPLE_PROTOCOL, "0.0.0.0", SAMPLE_PORT, SAMPLE_SERVICES_ROOT,
+                SAMPLE_SOURCE_NAME);
 
         assertNull("An action should not have been created when ip is unknown (0.0.0.0).",
                 actionProvider.getAction(metacard));
-
     }
 
     @Test
@@ -164,15 +167,12 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
         metacard.setId(SAMPLE_ID);
 
         AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
-                ACTION_PROVIDER_ID);
+                ACTION_PROVIDER_ID, new SystemBaseUrl(), new SystemInfo());
 
-        actionProvider.configurationUpdateCallback(
-                createMap(SAMPLE_PROTOCOL, SAMPLE_IP, null, SAMPLE_SERVICES_ROOT,
-                        SAMPLE_SOURCE_NAME));
+        this.configureActionProvider(SAMPLE_PROTOCOL, SAMPLE_IP, null, SAMPLE_SERVICES_ROOT,
+                SAMPLE_SOURCE_NAME);
 
-        assertNull("An action should not have been created when port is null.",
-                actionProvider.getAction(metacard));
-
+        assertThat(actionProvider.getAction(metacard).getUrl().toString(), containsString("8181"));
     }
 
     @Test
@@ -183,21 +183,21 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
         metacard.setId(SAMPLE_ID);
 
         AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
-                ACTION_PROVIDER_ID);
+                ACTION_PROVIDER_ID, new SystemBaseUrl(), new SystemInfo());
 
-        actionProvider.configurationUpdateCallback(
-                createMap(SAMPLE_PROTOCOL, SAMPLE_IP, SAMPLE_PORT, null, SAMPLE_SOURCE_NAME));
+        this.configureActionProvider(SAMPLE_PROTOCOL, SAMPLE_IP, SAMPLE_PORT, null,
+                SAMPLE_SOURCE_NAME);
 
-        assertNull("An action should not have been created when context root is null.",
-                actionProvider.getAction(metacard));
-
+        assertThat(actionProvider.getAction(metacard).getUrl().toString(),
+                not(containsString("/services")));
     }
 
     @Test
     public void testNonMetacard() {
 
-        AbstractMetacardActionProvider actionProvider = configureActionProvider(
-                new ViewMetacardActionProvider(ACTION_PROVIDER_ID));
+        AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
+                ACTION_PROVIDER_ID, new SystemBaseUrl(), new SystemInfo());
+        this.configureActionProvider();
 
         assertNull("An action when metacard was not provided.",
                 actionProvider.getAction(new Date()));
@@ -212,8 +212,9 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
 
         metacard.setId(SAMPLE_ID);
 
-        AbstractMetacardActionProvider actionProvider = configureActionProvider(
-                new ViewMetacardActionProvider(ACTION_PROVIDER_ID));
+        AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
+                ACTION_PROVIDER_ID, new SystemBaseUrl(), new SystemInfo());
+        this.configureActionProvider();
 
         // when
         Action action = actionProvider.getAction(metacard);
@@ -237,8 +238,9 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
         String newSourceName = "newSource";
         metacard.setSourceId(newSourceName);
 
-        AbstractMetacardActionProvider actionProvider = configureActionProvider(
-                new ViewMetacardActionProvider(ACTION_PROVIDER_ID));
+        AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
+                ACTION_PROVIDER_ID, new SystemBaseUrl(), new SystemInfo());
+        this.configureActionProvider();
 
         // when
         Action action = actionProvider.getAction(metacard);
@@ -258,8 +260,9 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
         MetacardImpl metacard = new MetacardImpl();
 
         metacard.setId(SAMPLE_ID);
-
-        AbstractMetacardActionProvider actionProvider = configureSecureActionProvider();
+        AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
+                ACTION_PROVIDER_ID, new SystemBaseUrl(), new SystemInfo());
+        this.configureSecureActionProvider();
 
         Action action = actionProvider.getAction(metacard);
 
@@ -281,15 +284,16 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
         metacard.setId(SAMPLE_ID);
 
         AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
-                ACTION_PROVIDER_ID);
+                ACTION_PROVIDER_ID, new SystemBaseUrl(), new SystemInfo());
 
-        actionProvider.configurationUpdateCallback(
-                createMap(null, SAMPLE_IP, SAMPLE_SECURE_PORT, SAMPLE_SERVICES_ROOT,
-                        SAMPLE_SOURCE_NAME));
+        this.configureActionProvider(null, SAMPLE_IP, SAMPLE_SECURE_PORT, SAMPLE_SERVICES_ROOT,
+                SAMPLE_SOURCE_NAME);
 
         Action action = actionProvider.getAction(metacard);
 
-        assertNull(action);
+        //when null protocal should default to https
+        assertThat(action.getUrl().toString(), containsString("https"));
+
     }
 
     private String expectedDefaultAddressWith(String id, String sourceName) {

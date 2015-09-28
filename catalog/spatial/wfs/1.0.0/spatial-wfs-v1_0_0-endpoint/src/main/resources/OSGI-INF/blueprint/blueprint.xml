@@ -33,13 +33,16 @@
         <argument ref="ddf"/>
     </bean>
 
+    <bean id="urlHelper" class="org.codice.ddf.configuration.SystemBaseUrl"/>
+
     <bean id="WfsResourceComparator"
           class="org.codice.ddf.spatial.ogc.catalog.common.EndpointOperationInfoResourceComparator"/>
     <bean id="XmlSchemaWriter"
           class="org.codice.ddf.spatial.ogc.wfs.catalog.endpoint.writer.XmlSchemaMessageBodyWriter"/>
     <bean id="FeatureCollectionWriter"
-          class="org.codice.ddf.spatial.ogc.wfs.catalog.endpoint.writer.FeatureCollectionMessageBodyWriter"/>
-    <service ref="FeatureCollectionWriter" interface="ddf.catalog.util.DdfConfigurationWatcher"/>
+          class="org.codice.ddf.spatial.ogc.wfs.catalog.endpoint.writer.FeatureCollectionMessageBodyWriter">
+        <argument ref="urlHelper"/>
+    </bean>
 
 
     <bean id="jaxbProvider" class="org.apache.cxf.jaxrs.provider.JAXBElementProvider">

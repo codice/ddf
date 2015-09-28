@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -32,8 +32,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.configuration.ConfigurationManager;
-import org.codice.ddf.configuration.ConfigurationWatcher;
+import org.codice.ddf.configuration.SystemInfo;
 import org.codice.ddf.opensearch.query.OpenSearchQuery;
 import org.parboiled.errors.ParsingException;
 import org.slf4j.Logger;
@@ -54,7 +53,7 @@ import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
 
 @Path("/")
-public class OpenSearchEndpoint implements ConfigurationWatcher, OpenSearch {
+public class OpenSearchEndpoint implements OpenSearch {
 
     private static final String UPDATE_QUERY_INTERVAL = "interval";
 
@@ -80,70 +79,49 @@ public class OpenSearchEndpoint implements ConfigurationWatcher, OpenSearch {
 
     private final FilterBuilder filterBuilder;
 
-    // DDF Site Name
-    private String localSiteName = null;
+    private SystemInfo systemInfo;
 
-    public OpenSearchEndpoint(CatalogFramework framework, FilterBuilder filterBuilder) {
+    public OpenSearchEndpoint(CatalogFramework framework, FilterBuilder filterBuilder, SystemInfo info) {
         this.framework = framework;
         this.filterBuilder = filterBuilder;
+        this.systemInfo = info;
     }
 
     /**
-     *
-     * @param searchTerms
-     *            Space delimited list of search terms.
-     * @param maxResults
-     *            Maximum # of results to return. If count is also specified, the count value will
-     *            take precedence over the maxResults value
-     * @param sources
-     *            Comma delimited list of data sources to query (default: default sources selected).
-     * @param maxTimeout
-     *            Maximum timeout (msec) for query to respond (default: mt=30000).
-     * @param startIndex
-     *            Index of first result to return. Integer >= 0 (default: start=1).
-     * @param count
-     *            Number of results to retrieve per page (default: count=10).
-     * @param geometry
-     *            WKT Geometries (Support POINT and POLYGON).
-     * @param bbox
-     *            Comma delimited list of lat/lon (deg) bounding box coordinates (geo format:
-     *            geo:bbox ~ West,South,East,North).
-     * @param polygon
-     *            Comma delimited list of lat/lon (deg) pairs, in clockwise order around the
-     *            polygon, with the last point being the same as the first in order to close the
-     *            polygon.
-     * @param lat
-     *            Latitude in decimal degrees (typical GPS receiver WGS84 coordinates).
-     * @param lon
-     *            Longitude in decimal degrees (typical GPS receiver WGS84 coordinates).
-     * @param radius
-     *            The radius (m) parameter, used with the lat and lon parameters, specifies the
-     *            search distance from this point (default: radius=5000).
-     * @param dateStart
-     *            Specifies the beginning of the time slice of the search on the modified time field
-     *            (RFC-3339 - Date and Time format, i.e. YYYY-MM-DDTHH:mm:ssZ). Default value of
-     *            "1970-01-01T00:00:00Z" is used when dtend is indicated but dtstart is not
-     *            specified
-     * @param dateEnd
-     *            Specifies the ending of the time slice of the search on the modified time field
-     *            (RFC-3339 - Date and Time format, i.e. YYYY-MM-DDTHH:mm:ssZ). Current GMT
-     *            date/time is used when dtstart is specified but not dtend.
-     * @param dateOffset
-     *            Specifies an offset, backwards from the current time, to search on the modified
-     *            time field for entries. Defined in milliseconds.
-     * @param sort
-     *            Specifies sort by field as sort=<sbfield>:<sborder>, where <sbfield> may be 'date'
-     *            or 'relevance' (default is 'relevance'). The conditional param <sborder> is
-     *            optional but has a value of 'asc' or 'desc' (default is 'desc'). When <sbfield> is
-     *            'relevance', <sborder> must be 'desc'.
-     * @param format
-     *            Defines the format that the return type should be in. (example:atom, html)
-     * @param selector
-     *            Defines a comma delimited list of XPath selectors to narrow the query.
-     * @param type
-     *            Specifies the type of data to search for. (example: nitf)
-     * @param versions
-     *            Specifies the versions in a comma delimited list.
+     * @param searchTerms Space delimited list of search terms.
+     * @param maxResults  Maximum # of results to return. If count is also specified, the count value will
+     *                    take precedence over the maxResults value
+     * @param sources     Comma delimited list of data sources to query (default: default sources selected).
+     * @param maxTimeout  Maximum timeout (msec) for query to respond (default: mt=30000).
+     * @param startIndex  Index of first result to return. Integer >= 0 (default: start=1).
+     * @param count       Number of results to retrieve per page (default: count=10).
+     * @param geometry    WKT Geometries (Support POINT and POLYGON).
+     * @param bbox        Comma delimited list of lat/lon (deg) bounding box coordinates (geo format:
+     *                    geo:bbox ~ West,South,East,North).
+     * @param polygon     Comma delimited list of lat/lon (deg) pairs, in clockwise order around the
+     *                    polygon, with the last point being the same as the first in order to close the
+     *                    polygon.
+     * @param lat         Latitude in decimal degrees (typical GPS receiver WGS84 coordinates).
+     * @param lon         Longitude in decimal degrees (typical GPS receiver WGS84 coordinates).
+     * @param radius      The radius (m) parameter, used with the lat and lon parameters, specifies the
+     *                    search distance from this point (default: radius=5000).
+     * @param dateStart   Specifies the beginning of the time slice of the search on the modified time field
+     *                    (RFC-3339 - Date and Time format, i.e. YYYY-MM-DDTHH:mm:ssZ). Default value of
+     *                    "1970-01-01T00:00:00Z" is used when dtend is indicated but dtstart is not
+     *                    specified
+     * @param dateEnd     Specifies the ending of the time slice of the search on the modified time field
+     *                    (RFC-3339 - Date and Time format, i.e. YYYY-MM-DDTHH:mm:ssZ). Current GMT
+     *                    date/time is used when dtstart is specified but not dtend.
+     * @param dateOffset  Specifies an offset, backwards from the current time, to search on the modified
+     *                    time field for entries. Defined in milliseconds.
+     * @param sort        Specifies sort by field as sort=<sbfield>:<sborder>, where <sbfield> may be 'date'
+     *                    or 'relevance' (default is 'relevance'). The conditional param <sborder> is
+     *                    optional but has a value of 'asc' or 'desc' (default is 'desc'). When <sbfield> is
+     *                    'relevance', <sborder> must be 'desc'.
+     * @param format      Defines the format that the return type should be in. (example:atom, html)
+     * @param selector    Defines a comma delimited list of XPath selectors to narrow the query.
+     * @param type        Specifies the type of data to search for. (example: nitf)
+     * @param versions    Specifies the versions in a comma delimited list.
      * @return
      */
     @GET
@@ -184,8 +162,9 @@ public class OpenSearchEndpoint implements ConfigurationWatcher, OpenSearch {
                 // Since local is a magic work, not in any specification, weneed to
                 // eventually remove support for it.
                 if (siteSet.remove(LOCAL)) {
-                    LOGGER.debug("Found 'local' alias, replacing with " + localSiteName + ".");
-                    siteSet.add(localSiteName);
+                    LOGGER.debug("Found 'local' alias, replacing with " + systemInfo.getSiteName()
+                            + ".");
+                    siteSet.add(systemInfo.getSiteName());
                 }
 
                 if (siteSet.contains(framework.getId()) && siteSet.size() == 1) {
@@ -255,18 +234,12 @@ public class OpenSearchEndpoint implements ConfigurationWatcher, OpenSearch {
     /**
      * Creates SpatialCriterion based on the input parameters, any null values will be ignored
      *
-     * @param geometry
-     *            - the geo to search over
-     * @param polygon
-     *            - the polygon to search over
-     * @param bbox
-     *            - the bounding box to search over
-     * @param radius
-     *            - the radius for a point radius search
-     * @param lat
-     *            - the latitude of the point.
-     * @param lon
-     *            - the longitude of the point.
+     * @param geometry - the geo to search over
+     * @param polygon  - the polygon to search over
+     * @param bbox     - the bounding box to search over
+     * @param radius   - the radius for a point radius search
+     * @param lat      - the latitude of the point.
+     * @param lon      - the longitude of the point.
      * @return - the spatialCriterion created, can be null
      */
     private void addSpatialFilter(OpenSearchQuery query, String geometry, String polygon,
@@ -294,15 +267,9 @@ public class OpenSearchEndpoint implements ConfigurationWatcher, OpenSearch {
     /**
      * Executes the OpenSearchQuery and formulates the response
      *
-     * @param format
-     *            - of the results in the response
-     *
-     * @param query
-     *            - the query to execute
-     *
-     * @param ui
-     *            -the ui information to use to format the results
-     *
+     * @param format     - of the results in the response
+     * @param query      - the query to execute
+     * @param ui         -the ui information to use to format the results
      * @param properties
      * @return the response on the query
      */
@@ -402,14 +369,10 @@ public class OpenSearchEndpoint implements ConfigurationWatcher, OpenSearch {
     /**
      * Creates a new query from the incoming parameters
      *
-     * @param startIndexStr
-     *            - Start index for the query
-     * @param countStr
-     *            - number of results for the query
-     * @param sortStr
-     *            - How to sort the query results
-     * @param maxTimeoutStr
-     *            - timeout value on the query execution
+     * @param startIndexStr - Start index for the query
+     * @param countStr      - number of results for the query
+     * @param sortStr       - How to sort the query results
+     * @param maxTimeoutStr - timeout value on the query execution
      * @return - the new query
      */
     private OpenSearchQuery createNewQuery(String startIndexStr, String countStr, String sortStr,
@@ -444,28 +407,6 @@ public class OpenSearchEndpoint implements ConfigurationWatcher, OpenSearch {
                 + sortOrder);
         return new OpenSearchQuery(null, startIndex, count, sortField, sortOrder, maxTimeout,
                 filterBuilder);
-    }
-
-    @Override
-    public void configurationUpdateCallback(Map<String, String> ddfProperties) {
-        String methodName = "configurationUpdateCallback";
-        LOGGER.trace("ENTERING: " + methodName);
-
-        // Need the id aka sitename property for the query
-
-        if (ddfProperties != null && !ddfProperties.isEmpty()) {
-
-            String siteName = ddfProperties.get(ConfigurationManager.SITE_NAME);
-            if (StringUtils.isNotBlank(siteName)) {
-
-                this.localSiteName = siteName;
-            }
-
-        } else {
-            LOGGER.debug("properties are NULL or empty");
-        }
-
-        LOGGER.trace("EXITING: " + methodName);
     }
 
     private String wrapStringInPreformattedTags(String stringToWrap) {

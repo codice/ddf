@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -31,8 +31,7 @@ import java.util.concurrent.Executors;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.codice.ddf.configuration.ConfigurationManager;
-import org.codice.ddf.configuration.ConfigurationWatcher;
+import org.codice.ddf.configuration.SystemInfo;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -123,8 +122,7 @@ import ddf.catalog.util.impl.SourcePoller;
  * @author ddf.isgs@lmco.com
  */
 @SuppressWarnings("deprecation")
-public class CatalogFrameworkImpl extends DescribableImpl
-        implements ConfigurationWatcher, CatalogFramework {
+public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFramework {
 
     protected static final String FAILED_BY_GET_RESOURCE_PLUGIN = "Error during Pre/PostResourcePlugin.";
 
@@ -245,6 +243,8 @@ public class CatalogFrameworkImpl extends DescribableImpl
     private boolean fanoutEnabled = false;
 
     private QueryResponsePostProcessor queryResponsePostProcessor;
+
+    private SystemInfo systemInfo;
 
     /**
      * Instantiates a new CatalogFrameworkImpl
@@ -471,7 +471,7 @@ public class CatalogFrameworkImpl extends DescribableImpl
     /**
      * Invoked by blueprint when a {@link CatalogProvider} is created and bound to this
      * CatalogFramework instance.
-     * <p/>
+     * <p>
      * The local catalog provider will be set to the first item in the {@link List} of
      * {@link CatalogProvider}s bound to this CatalogFramework.
      *
@@ -492,7 +492,7 @@ public class CatalogFrameworkImpl extends DescribableImpl
     /**
      * Invoked by blueprint when a {@link CatalogProvider} is deleted and unbound from this
      * CatalogFramework instance.
-     * <p/>
+     * <p>
      * The local catalog provider will be reset to the new first item in the {@link List} of
      * {@link CatalogProvider}s bound to this CatalogFramework. If this list of catalog providers is
      * currently empty, then the local catalog provider will be set to <code>null</code>.
@@ -633,7 +633,7 @@ public class CatalogFrameworkImpl extends DescribableImpl
      * Retrieves the {@link SourceDescriptor} info for all {@link FederatedSource}s in the fanout
      * configuration, but the all of the source info, e.g., content types, for all of the available
      * {@link FederatedSource}s is packed into one {@SourceDescriptor
-     * <p/>
+     * <p>
      * } for the
      * fanout configuration with the fanout's site name in it. This keeps the individual
      * {@link FederatedSource}s' source info hidden from the external client.
@@ -1675,7 +1675,7 @@ public class CatalogFrameworkImpl extends DescribableImpl
 
     /**
      * Retrieves a resource by URI.
-     * <p/>
+     * <p>
      * The {@link ResourceRequest} can specify either the product's URI or ID. If the product ID is
      * specified, then the matching {@link Metacard} must first be retrieved and the product URI
      * extracted from this {@link Metacard}.
@@ -1820,7 +1820,7 @@ public class CatalogFrameworkImpl extends DescribableImpl
 
     /**
      * Retrieves a resource by URI.
-     * <p/>
+     * <p>
      * The {@link ResourceRequest} can specify either the product's URI or ID. If the product ID is
      * specified, then the matching {@link Metacard} must first be retrieved and the product URI
      * extracted from this {@link Metacard}.
@@ -2589,40 +2589,6 @@ public class CatalogFrameworkImpl extends DescribableImpl
         }
     }
 
-    @Override
-    public void configurationUpdateCallback(Map<String, String> properties) {
-        String methodName = "configurationUpdateCallback";
-        LOGGER.debug("ENTERING: " + methodName);
-
-        if (properties != null && !properties.isEmpty()) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug(properties.toString());
-            }
-
-            String ddfSiteName = properties.get(ConfigurationManager.SITE_NAME);
-            if (StringUtils.isNotBlank(ddfSiteName)) {
-                LOGGER.debug("ddfSiteName = " + ddfSiteName);
-                this.setId(ddfSiteName);
-            }
-
-            String ddfVersion = properties.get(ConfigurationManager.VERSION);
-            if (StringUtils.isNotBlank(ddfVersion)) {
-                LOGGER.debug("ddfVersion = " + ddfVersion);
-                this.setVersion(ddfVersion);
-            }
-
-            String ddfOrganization = properties.get(ConfigurationManager.ORGANIZATION);
-            if (StringUtils.isNotBlank(ddfOrganization)) {
-                LOGGER.debug("ddfOrganization = " + ddfOrganization);
-                this.setOrganization(ddfOrganization);
-            }
-        } else {
-            LOGGER.debug("properties are NULL or empty");
-        }
-
-        LOGGER.debug("EXITING: " + methodName);
-    }
-
     protected static class ResourceInfo {
         private Metacard metacard;
 
@@ -2642,4 +2608,14 @@ public class CatalogFrameworkImpl extends DescribableImpl
         }
     }
 
+    public SystemInfo getSystemInfo() {
+        return systemInfo;
+    }
+
+    public void setSystemInfo(SystemInfo systemInfo) {
+        this.systemInfo = systemInfo;
+        setId(systemInfo.getSiteName());
+        setVersion(systemInfo.getVersion());
+        setOrganization(systemInfo.getOrganization());
+    }
 }

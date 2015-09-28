@@ -42,9 +42,8 @@
         <cm:managed-properties persistent-id="ddf.security.sts.ldap"
                                update-strategy="container-managed"/>
         <argument ref="encryptionService"/>
-        <property name="keyAlias" value="localhost"/>
+        <argument value="${org.codice.ddf.system.hostname}"/>
     </bean>
 
-    <service ref="keystoreManager" interface="org.codice.ddf.configuration.ConfigurationWatcher"/>
 
 </blueprint>

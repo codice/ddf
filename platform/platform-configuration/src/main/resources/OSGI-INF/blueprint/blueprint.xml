@@ -29,12 +29,15 @@
     DDF started up.
     -->
     <reference-list id="managedServiceList"
-                    interface="org.codice.ddf.configuration.ConfigurationWatcher">
+                    interface="org.codice.ddf.configuration.ConfigurationWatcher" availability="optional">
         <reference-listener bind-method="bind" unbind-method="bind" ref="ConfigurationManager"/>
     </reference-list>
 
-    <reference-list id="initialManagedServiceList"
+    <reference-list id="initialManagedServiceList" availability="optional"
                     interface="org.codice.ddf.configuration.ConfigurationWatcher"/>
+
+    <bean id="urlHelper" class="org.codice.ddf.configuration.SystemBaseUrl"/>
+    <bean id="systemInfo" class="org.codice.ddf.configuration.SystemInfo"/>
 
     <bean id="ConfigurationManager" class="org.codice.ddf.configuration.ConfigurationManager"
           init-method="init">
@@ -42,6 +45,8 @@
                                update-strategy="component-managed" update-method="updated"/>
         <argument ref="initialManagedServiceList"/>
         <argument ref="configurationAdmin"/>
+        <argument ref="urlHelper"/>
+        <argument ref="systemInfo"/>
     </bean>
 
     <bean id="PlatformUiConfiguration" class="org.codice.ddf.configuration.PlatformUiConfiguration">

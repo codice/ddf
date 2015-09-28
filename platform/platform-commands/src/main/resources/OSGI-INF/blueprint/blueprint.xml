@@ -24,11 +24,13 @@
 
     </command-bundle>
 
+    <bean id="urlHelper" class="org.codice.ddf.configuration.SystemBaseUrl"/>
+    <bean id="systemInfo" class="org.codice.ddf.configuration.SystemInfo"/>
+
     <bean id="platformDescribeCommand" class="org.codice.ddf.commands.platform.DescribeCommand">
         <property name="bundleContext" ref="blueprintBundleContext"/>
+        <argument ref="urlHelper"/>
+        <argument ref="systemInfo"/>
     </bean>
-
-    <service id="platformDescribeCommandWatcher" ref="platformDescribeCommand"
-             interface="org.codice.ddf.configuration.ConfigurationWatcher"/>
 
 </blueprint>

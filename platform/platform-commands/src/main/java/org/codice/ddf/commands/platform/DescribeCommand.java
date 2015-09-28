@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -13,28 +13,35 @@
  */
 package org.codice.ddf.commands.platform;
 
-import java.util.Map;
-import java.util.TreeSet;
-
 import org.apache.felix.gogo.commands.Command;
-import org.codice.ddf.configuration.ConfigurationWatcher;
+import org.codice.ddf.configuration.SystemBaseUrl;
+import org.codice.ddf.configuration.SystemInfo;
 
 @Command(scope = PlatformCommands.NAMESPACE, name = "describe", description = "Provides a description of the platform")
-public class DescribeCommand extends PlatformCommands implements ConfigurationWatcher {
+public class DescribeCommand extends PlatformCommands {
 
-    private static Map<String, String> configurationMap;
+    private SystemBaseUrl systemBaseUrl;
 
-    @Override
-    protected Object doExecute() throws Exception {
-        TreeSet<String> keys = new TreeSet<String>(configurationMap.keySet());
-        for (String key : keys) {
-            System.out.printf("%s=%s%n", key, configurationMap.get(key));
-        }
-        return null;
+    private SystemInfo systemInfo;
+
+    public DescribeCommand(SystemBaseUrl sbu, SystemInfo info) {
+        this.systemBaseUrl = sbu;
+        this.systemInfo = info;
     }
 
     @Override
-    public void configurationUpdateCallback(Map<String, String> configuration) {
-        configurationMap = configuration;
+    protected Object doExecute() throws Exception {
+        System.out.printf("%s=%s%n", "Protocol", systemBaseUrl.getProtocol());
+        System.out.printf("%s=%s%n", "Host", systemBaseUrl.getHost());
+        System.out.printf("%s=%s%n", "Port", systemBaseUrl.getPort());
+        System.out.printf("%s=%s%n", "Root Context", systemBaseUrl.getRootContext());
+        System.out.printf("%s=%s%n", "Http Port", systemBaseUrl.getHttpPort());
+        System.out.printf("%s=%s%n", "Https Port", systemBaseUrl.getHttpsPort());
+
+        System.out.printf("%s=%s%n", "Site Name", systemInfo.getSiteName());
+        System.out.printf("%s=%s%n", "Organization", systemInfo.getOrganization());
+        System.out.printf("%s=%s%n", "Contact", systemInfo.getSiteContatct());
+        System.out.printf("%s=%s%n", "Version", systemInfo.getVersion());
+        return null;
     }
 }

@@ -81,7 +81,7 @@
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.13</minimum>
+                                            <minimum>0.08</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
@@ -172,6 +172,10 @@
             <artifactId>powermock-module-junit4-rule-agent</artifactId>
             <version>${powermock.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>ddf.lib</groupId>
+            <artifactId>common-system</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

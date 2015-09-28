@@ -120,8 +120,6 @@ public class KMLTransformerImpl implements KMLTransformer {
 
     private ClassPathTemplateLoader templateLoader;
 
-    private Map<String, String> platformConfiguration;
-
     private KmlStyleMap styleMapper;
 
     private DescriptionTemplateHelper templateHelper;
@@ -382,11 +380,6 @@ public class KMLTransformerImpl implements KMLTransformer {
         } else {
             return null;
         }
-    }
-
-    @Override
-    public void configurationUpdateCallback(Map<String, String> configuration) {
-        platformConfiguration = configuration;
     }
 
     @Override
