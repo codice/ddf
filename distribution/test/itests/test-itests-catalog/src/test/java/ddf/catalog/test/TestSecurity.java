@@ -246,6 +246,9 @@ public class TestSecurity extends AbstractIntegrationTest {
         String openSearchQuery = SERVICE_ROOT + "/catalog/query?q=*&src=" + OPENSEARCH_SOURCE_ID;
         given().auth().basic("admin", "admin").when().get(openSearchQuery).then().log().all()
                 .assertThat().statusCode(equalTo(200)).assertThat().body(containsString("myTitle"));
+
+        configureRestForAnonymous();
+        TestCatalog.deleteMetacard(recordId);
     }
 
     @Test
