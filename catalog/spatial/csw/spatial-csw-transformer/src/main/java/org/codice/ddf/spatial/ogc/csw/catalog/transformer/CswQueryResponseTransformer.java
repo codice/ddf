@@ -198,9 +198,10 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
             } else {
                 writer.addAttribute(NUMBER_OF_RECORDS_RETURNED_ATTRIBUTE,
                         Long.toString(cswRecordCollection.getNumberOfRecordsReturned()));
+                writer.addAttribute(NEXT_RECORD_ATTRIBUTE, Long.toString(nextRecord));
             }
 
-            writer.addAttribute(NEXT_RECORD_ATTRIBUTE, Long.toString(nextRecord));
+
             writer.addAttribute(RECORD_SCHEMA_ATTRIBUTE, cswRecordCollection.getOutputSchema());
 
             if (cswRecordCollection.getElementSetType() != null && StringUtils
