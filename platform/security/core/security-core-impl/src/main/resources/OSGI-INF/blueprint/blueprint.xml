@@ -20,10 +20,8 @@
     <reference-list id="realmList" interface="org.apache.shiro.realm.Realm"
                     ext:proxy-method="greedy"/>
 
-    <!--<reference-list id="attributeList" interface="java.util.List"/> -->
-
     <bean id="securityManagerImpl" class="ddf.security.service.impl.SecurityManagerImpl">
-        <cm:managed-properties persistent-id="ddf.security.service"
+        <cm:managed-properties persistent-id="ddf.security.service.SecurityManager"
                                update-strategy="container-managed"/>
         <property name="realms" ref="realmList"/>
         <property name="usernameAttributeList">

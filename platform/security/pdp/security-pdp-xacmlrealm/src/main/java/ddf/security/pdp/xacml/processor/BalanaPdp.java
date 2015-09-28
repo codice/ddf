@@ -304,10 +304,14 @@ public class BalanaPdp {
             throw new PdpException(message, e);
         }
 
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        DOMResult domResult = new DOMResult();
-
+        DOMResult domResult;
+        ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+        Thread.currentThread().setContextClassLoader(BalanaPdp.class.getClassLoader());
         try {
+            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+
+            domResult = new DOMResult();
+
             Transformer transformer = transformerFactory.newTransformer();
             transformer.transform(
                     new SAXSource(xmlReader, new InputSource(new StringReader(xacmlResponse))),
@@ -316,6 +320,8 @@ public class BalanaPdp {
             String message = "Unable to transform XACML response:\n" + xacmlResponse;
             LOGGER.error(message);
             throw new PdpException(message, e);
+        } finally {
+            Thread.currentThread().setContextClassLoader(tccl);
         }
 
         return domResult;
