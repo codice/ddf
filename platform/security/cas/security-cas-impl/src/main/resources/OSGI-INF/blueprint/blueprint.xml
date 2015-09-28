@@ -15,14 +15,15 @@
  -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
         >
-  
-  <reference id="stsClientConfig"
-             interface="ddf.security.sts.client.configuration.STSClientConfiguration"/>
- 
-  <bean id="casRequestHandler" class="ddf.security.service.impl.cas.CASTokenRequestHandler">
-    <property name="stsClientConfiguration" ref="stsClientConfig"/>
-  </bean>
-  
-  <service ref="casRequestHandler" interface="ddf.security.service.TokenRequestHandler"/>
+
+    <reference id="stsClientConfig"
+               interface="ddf.security.sts.client.configuration.STSClientConfiguration"
+               filter="(id=internal)"/>
+
+    <bean id="casRequestHandler" class="ddf.security.service.impl.cas.CASTokenRequestHandler">
+        <property name="stsClientConfiguration" ref="stsClientConfig"/>
+    </bean>
+
+    <service ref="casRequestHandler" interface="ddf.security.service.TokenRequestHandler"/>
 
 </blueprint>
