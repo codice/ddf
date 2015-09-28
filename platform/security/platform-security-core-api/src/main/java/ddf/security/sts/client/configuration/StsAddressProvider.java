@@ -15,5 +15,8 @@ package ddf.security.sts.client.configuration;
 
 public interface StsAddressProvider {
 
-    public String getStsAddress();
+    public String getWsdlAddress();
+    public String getProtocol();
+    public String getHost();
+    public String getPort();
 }
