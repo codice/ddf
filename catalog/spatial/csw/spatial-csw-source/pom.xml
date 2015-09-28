@@ -174,7 +174,6 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Import-Package>
                             !org.jvnet.staxex,
-                            org.codice.ddf.spatial.ogc.catalog,
                             *
                         </Import-Package>
                         <!-- Don't Export Anything -->
@@ -183,17 +182,13 @@
                             spatial-csw-common,
                             spatial-ogc-common,
                             spatial-csw-transformer,
-                            spatial-csw-schema-bindings,
-                            gml-v_3_1_1-schema,
-                            ows-v_1_0_0-schema,
-                            ogc-filter-v_1_1_0-schema,
-                            jaxb2-basics-runtime,
                             catalog-core-api-impl,
                             commons-collections4,
                             gt-cql,
                             ogc-tools-gml-jts,
                             security-rest-cxfwrapper,
-                            ddf-security-common
+                            ddf-security-common,
+                            jaxb2-basics-runtime
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                     </instructions>
