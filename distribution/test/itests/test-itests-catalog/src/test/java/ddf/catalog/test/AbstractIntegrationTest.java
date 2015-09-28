@@ -243,6 +243,13 @@ public abstract class AbstractIntegrationTest {
                 editConfigurationFilePut("etc/system.properties", "jetty.port", HTTPS_PORT),
                 editConfigurationFilePut("etc/system.properties", "hostContext", "/solr"),
                 editConfigurationFilePut("etc/system.properties", "ddf.home", "${karaf.home}"),
+
+                editConfigurationFilePut("etc/system.properties", "org.codice.ddf.system.httpPort",
+                        HTTP_PORT),
+                editConfigurationFilePut("etc/system.properties", "org.codice.ddf.system.httpsPort",
+                        HTTPS_PORT),
+
+
                 editConfigurationFilePut("etc/org.apache.karaf.shell.cfg", "sshPort", SSH_PORT),
                 editConfigurationFilePut("etc/ddf.platform.config.cfg", "port", HTTPS_PORT),
                 editConfigurationFilePut("etc/ddf.platform.config.cfg", "host", "localhost"),

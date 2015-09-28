@@ -42,7 +42,12 @@
             <artifactId>slf4j-log4j12</artifactId>
             <version>${org.slf4j.version}</version>
             <scope>test</scope>
+        </dependency><dependency>
+            <groupId>ddf.lib</groupId>
+            <artifactId>common-system</artifactId>
+            <version>${project.version}</version>
         </dependency>
+
     </dependencies>
 
     <build>
@@ -63,6 +68,7 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Embed-Dependency>common-system</Embed-Dependency>
                     </instructions>
                 </configuration>
             </plugin>

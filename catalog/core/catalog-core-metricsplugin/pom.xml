@@ -68,6 +68,11 @@
             <version>0.9.24</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>ddf.lib</groupId>
+            <artifactId>common-system</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -81,7 +86,8 @@
                         <Embed-Dependency>
                             metrics-core,
                             metrics-collector,
-                            rrd4j;scope=compile|runtime;artifactId=!slf4j-api
+                            rrd4j;scope=compile|runtime;artifactId=!slf4j-api,
+                            common-system
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                         <Import-Package>

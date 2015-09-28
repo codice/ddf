@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -21,13 +21,11 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-import org.codice.ddf.configuration.ConfigurationManager;
+import org.codice.ddf.configuration.SystemInfo;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -61,7 +59,6 @@ import ddf.catalog.source.UnsupportedQueryException;
  *
  * @author Phillip Klinefelter
  * @author ddf.isgs@lmco.com
- *
  */
 public class CatalogMetricsTest {
 
@@ -76,7 +73,8 @@ public class CatalogMetricsTest {
 
     @Before
     public void setup() {
-        underTest = new CatalogMetrics(filterAdapter);
+        underTest = new CatalogMetrics(filterAdapter, new SystemInfo());
+        System.setProperty(SystemInfo.SITE_NAME, "testSite");
     }
 
     @After
@@ -145,17 +143,11 @@ public class CatalogMetricsTest {
         query = new QueryRequestImpl(new QueryImpl(idFilter), Arrays.asList((String) null));
         underTest.process(query);
 
-        setLocalCatalogId("localSourceId");
+        System.setProperty(SystemInfo.SITE_NAME, "localSourceId");
         query = new QueryRequestImpl(new QueryImpl(idFilter), Arrays.asList("localSourceId"));
         underTest.process(query);
 
         assertThat(underTest.federatedQueries.getCount(), is(0L));
-    }
-
-    private void setLocalCatalogId(String catalogId) {
-        Map<String, String> settings = new HashMap<String, String>();
-        settings.put(ConfigurationManager.SITE_NAME, catalogId);
-        underTest.configurationUpdateCallback(settings);
     }
 
     @Test

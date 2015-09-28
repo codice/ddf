@@ -11,16 +11,17 @@
  *
  **/
 -->
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-        >
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
     
     <reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>
 
+    <bean id="systemInfo" class="org.codice.ddf.configuration.SystemInfo"/>
+
 	<bean id="catalogMetrics" class="ddf.catalog.metrics.CatalogMetrics">
         <argument ref="filterAdapter"/>
+        <argument ref="systemInfo"/>
     </bean>
 
-    <service ref="catalogMetrics" interface="org.codice.ddf.configuration.ConfigurationWatcher"/>
     <service ref="catalogMetrics" interface="ddf.catalog.plugin.PreQueryPlugin"/>
 	<service ref="catalogMetrics" interface="ddf.catalog.plugin.PostQueryPlugin"/>
     <service ref="catalogMetrics" interface="ddf.catalog.plugin.PostIngestPlugin"/>

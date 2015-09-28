@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -122,14 +122,6 @@ public class ConfigurationManager {
     // Constants for the read-only DDF system settings
     private static final String DDF_HOME_ENVIRONMENT_VARIABLE = "DDF_HOME";
 
-    private static final String CXF_SERVICE_PID = "org.apache.cxf.osgi";
-
-    private static final String CXF_SERVLET_CONTEXT = "org.apache.cxf.servlet.context";
-
-    private static final String PAX_WEB_SERVICE_PID = "org.ops4j.pax.web";
-
-    private static final String JETTY_HTTP_PORT = "org.osgi.service.http.port";
-
     private static final String SSL_KEYSTORE_JAVA_PROPERTY = "javax.net.ssl.keyStore";
 
     private static final String SSL_KEYSTORE_PASSWORD_JAVA_PROPERTY = "javax.net.ssl.keyStorePassword";
@@ -137,6 +129,10 @@ public class ConfigurationManager {
     private static final String SSL_TRUSTSTORE_JAVA_PROPERTY = "javax.net.ssl.trustStore";
 
     private static final String SSL_TRUSTSTORE_PASSWORD_JAVA_PROPERTY = "javax.net.ssl.trustStorePassword";
+
+    protected SystemBaseUrl systemBaseUrl;
+
+    protected SystemInfo systemInfo;
 
     /**
      * List of DdfManagedServices to push the DDF system settings to.
@@ -171,10 +167,12 @@ public class ConfigurationManager {
      * @param configurationAdmin the OSGi Configuration Admin service handle
      */
     public ConfigurationManager(List<ConfigurationWatcher> services,
-            ConfigurationAdmin configurationAdmin) {
+            ConfigurationAdmin configurationAdmin, SystemBaseUrl sbu, SystemInfo info) {
         LOGGER.debug("ENTERING: ctor");
         this.services = services;
         this.configurationAdmin = configurationAdmin;
+        this.systemBaseUrl = sbu;
+        this.systemInfo = info;
 
         this.readOnlySettings = new HashMap<String, String>();
         if (System.getenv(DDF_HOME_ENVIRONMENT_VARIABLE) != null) {
@@ -182,10 +180,9 @@ public class ConfigurationManager {
         } else {
             readOnlySettings.put(HOME_DIR, System.getProperty("user.dir"));
         }
-        readOnlySettings
-                .put(HTTP_PORT, getConfigurationValue(PAX_WEB_SERVICE_PID, JETTY_HTTP_PORT));
-        readOnlySettings.put(SERVICES_CONTEXT_ROOT,
-                getConfigurationValue(CXF_SERVICE_PID, CXF_SERVLET_CONTEXT));
+
+        // Add the system properties
+        configurationProperties.putAll(getSystemProperties());
 
         readOnlySettings.put(KEY_STORE, System.getProperty(SSL_KEYSTORE_JAVA_PROPERTY));
         readOnlySettings
@@ -351,5 +348,18 @@ public class ConfigurationManager {
         LOGGER.debug("EXITING: {}    value = [{}]", methodName, value);
 
         return value;
+    }
+
+    private Map<String, String> getSystemProperties() {
+        Map<String, String> map = new HashMap<>();
+        map.put(HTTP_PORT, systemBaseUrl.getHttpPort());
+        map.put(HOST, systemBaseUrl.getHost());
+        map.put(PROTOCOL, systemBaseUrl.getProtocol());
+        map.put(PORT, systemBaseUrl.getPort());
+        map.put(SITE_NAME, systemInfo.getSiteName());
+        map.put(VERSION, systemInfo.getVersion());
+        map.put(ORGANIZATION, systemInfo.getOrganization());
+        map.put(SERVICES_CONTEXT_ROOT, systemBaseUrl.getRootContext());
+        return map;
     }
 }

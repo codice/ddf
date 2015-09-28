@@ -58,8 +58,6 @@
         </service-properties>
     </service>
 
-    <service ref="stsRealm" interface="org.codice.ddf.configuration.ConfigurationWatcher"/>
-
     <service ref="stsRealm" interface="org.apache.shiro.realm.Realm"/>
 
     <bean id="wssStsRealm" class="ddf.security.realm.sts.WssStsRealm">
@@ -97,8 +95,6 @@
             <entry key="id" value="wss"/>
         </service-properties>
     </service>
-
-    <service ref="wssStsRealm" interface="org.codice.ddf.configuration.ConfigurationWatcher"/>
 
     <service ref="wssStsRealm" interface="org.apache.shiro.realm.Realm"/>
 

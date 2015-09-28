@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 
 package org.codice.ddf.spatial.kml.endpoint;
@@ -22,7 +21,6 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
-import java.util.Map;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -38,8 +36,8 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.felix.webconsole.BrandingPlugin;
-import org.codice.ddf.configuration.ConfigurationManager;
-import org.codice.ddf.configuration.ConfigurationWatcher;
+import org.codice.ddf.configuration.SystemBaseUrl;
+import org.codice.ddf.configuration.SystemInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,7 +66,7 @@ import de.micromata.opengis.kml.v_2_2_0.ViewRefreshMode;
  *
  */
 @Path("/")
-public class KmlEndpoint implements ConfigurationWatcher {
+public class KmlEndpoint {
 
     private static final String FORWARD_SLASH = "/";
 
@@ -105,15 +103,9 @@ public class KmlEndpoint implements ConfigurationWatcher {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KmlEndpoint.class);
 
-    private String host;
-
-    private String port;
-
     private BrandingPlugin branding;
 
     private CatalogFramework framework;
-
-    private String servicesContextRoot;
 
     private Kml styleDoc;
 
@@ -133,13 +125,16 @@ public class KmlEndpoint implements ConfigurationWatcher {
 
     private String productName;
 
-    private String contact;
-
     private String baseUrl;
 
     private ClassPathTemplateLoader templateLoader;
 
-    public KmlEndpoint(BrandingPlugin brandingPlugin, CatalogFramework catalogFramework) {
+    private SystemBaseUrl systemBaseUrl;
+
+    private SystemInfo systemInfo;
+
+    public KmlEndpoint(BrandingPlugin brandingPlugin, CatalogFramework catalogFramework,
+            SystemBaseUrl sbu, SystemInfo info) {
         LOGGER.trace("ENTERING: KML Endpoint Constructor");
         this.branding = brandingPlugin;
         this.framework = catalogFramework;
@@ -147,6 +142,8 @@ public class KmlEndpoint implements ConfigurationWatcher {
         templateLoader.setPrefix("/templates");
         templateLoader.setSuffix(".hbt");
         this.productName = branding.getProductName().split(" ")[0];
+        this.systemBaseUrl = sbu;
+        this.systemInfo = info;
         LOGGER.trace("EXITING: KML Endpoint Constructor");
     }
 
@@ -163,9 +160,13 @@ public class KmlEndpoint implements ConfigurationWatcher {
                 styleUrl = url;
                 styleDoc = Kml.unmarshal(new URL(styleUrl).openStream());
             } catch (MalformedURLException e) {
-                LOGGER.warn("StyleUrl is not a valid URL. Unable to serve up custom KML de.micromata.opengis.kml.v_2_2_0.Style.", e);
+                LOGGER.warn(
+                        "StyleUrl is not a valid URL. Unable to serve up custom KML de.micromata.opengis.kml.v_2_2_0.Style.",
+                        e);
             } catch (IOException e) {
-                LOGGER.warn("Unable to open de.micromata.opengis.kml.v_2_2_0.Style Document from StyleUrl.", e);
+                LOGGER.warn(
+                        "Unable to open de.micromata.opengis.kml.v_2_2_0.Style Document from StyleUrl.",
+                        e);
             }
         }
     }
@@ -248,7 +249,7 @@ public class KmlEndpoint implements ConfigurationWatcher {
     }
 
     public String getContact() {
-        return this.contact;
+        return systemInfo.getSiteContatct();
     }
 
     public String getBaseUrl() {
@@ -298,7 +299,7 @@ public class KmlEndpoint implements ConfigurationWatcher {
         Link link = rootNetworkLink.createAndSetLink();
         UriBuilder builder = UriBuilder.fromUri(uriInfo.getBaseUri());
         builder = generateEndpointUrl(
-                servicesContextRoot + FORWARD_SLASH + CATALOG_URL_PATH + FORWARD_SLASH
+                systemBaseUrl.getRootContext() + FORWARD_SLASH + CATALOG_URL_PATH + FORWARD_SLASH
                         + KML_TRANSFORM_PARAM + FORWARD_SLASH + "sources", builder);
         link.setHref(builder.build().toString());
         link.setViewRefreshMode(ViewRefreshMode.NEVER);
@@ -330,8 +331,8 @@ public class KmlEndpoint implements ConfigurationWatcher {
             for (SourceDescriptor descriptor : response.getSourceInfo()) {
                 UriBuilder builder = UriBuilder.fromUri(uriInfo.getBaseUri());
                 builder = generateEndpointUrl(
-                        servicesContextRoot + FORWARD_SLASH + CATALOG_URL_PATH + FORWARD_SLASH
-                                + OPENSEARCH_URL_PATH, builder);
+                        systemBaseUrl.getRootContext() + FORWARD_SLASH + CATALOG_URL_PATH
+                                + FORWARD_SLASH + OPENSEARCH_URL_PATH, builder);
                 builder = builder.queryParam(SOURCE_PARAM, descriptor.getSourceId());
                 builder = builder.queryParam(OPENSEARCH_SORT_KEY, OPENSEARCH_DEFAULT_SORT);
                 builder = builder.queryParam(OPENSEARCH_FORMAT_KEY, KML_TRANSFORM_PARAM);
@@ -384,26 +385,20 @@ public class KmlEndpoint implements ConfigurationWatcher {
     /*
      * Creates the URL based on the configured host, port, and services context root path.
      */
-    private UriBuilder generateEndpointUrl(String path, UriBuilder uriBuilder) throws
-            UnknownHostException {
+    private UriBuilder generateEndpointUrl(String path, UriBuilder uriBuilder)
+            throws UnknownHostException {
         UriBuilder builder = uriBuilder;
-        if (host != null && port != null && servicesContextRoot != null) {
-            builder = builder.host(host);
+        builder.host(systemBaseUrl.getHost());
 
-            try {
-                int portInt = Integer.parseInt(port);
-                builder = builder.port(portInt);
-            } catch (NumberFormatException nfe) {
-                LOGGER.debug("Cannot convert the current DDF port: {} to an integer."
-                        + " Defaulting to port in invocation.", port);
-                throw new UnknownHostException("Unable to determine port DDF is using.");
-            }
-
-            builder = builder.replacePath(path);
-        } else {
-            LOGGER.debug("DDF Port is null, unable to determine host DDF is running on.");
+        try {
+            builder.port(Integer.parseInt(systemBaseUrl.getPort()));
+        } catch (NumberFormatException nfe) {
+            LOGGER.debug("Cannot convert the current DDF port: {} to an integer."
+                    + " Defaulting to port in invocation.", systemBaseUrl.getPort());
             throw new UnknownHostException("Unable to determine port DDF is using.");
         }
+
+        builder = builder.replacePath(path);
 
         return builder;
     }
@@ -423,7 +418,8 @@ public class KmlEndpoint implements ConfigurationWatcher {
             return styleDoc;
         }
         throw new WebApplicationException(new FileNotFoundException(
-                "No KML de.micromata.opengis.kml.v_2_2_0.Style has been configured or unable to load document."), Status.NOT_FOUND);
+                "No KML de.micromata.opengis.kml.v_2_2_0.Style has been configured or unable to load document."),
+                Status.NOT_FOUND);
     }
 
     /**
@@ -474,49 +470,5 @@ public class KmlEndpoint implements ConfigurationWatcher {
         }
 
         return iconBytes;
-    }
-
-    @Override
-    public void configurationUpdateCallback(Map<String, String> configuration) {
-        String methodName = "configurationUpdateCallback";
-        LOGGER.debug("ENTERING: {}", methodName);
-
-        if (configuration != null && !configuration.isEmpty()) {
-            Object value = configuration.get(ConfigurationManager.HOST);
-            if (value != null) {
-                this.host = value.toString();
-                LOGGER.debug("ddfHost = {}", this.host);
-            } else {
-                LOGGER.debug("ddfHost = NULL");
-            }
-
-            value = configuration.get(ConfigurationManager.PORT);
-            if (value != null) {
-                this.port = value.toString();
-                LOGGER.debug("ddfPort = {}", this.port);
-            } else {
-                LOGGER.debug("ddfPort = NULL");
-            }
-
-            value = configuration.get(ConfigurationManager.SERVICES_CONTEXT_ROOT);
-            if (value != null) {
-                this.servicesContextRoot = value.toString();
-                LOGGER.debug("servicesContextRoot = {}", this.servicesContextRoot);
-            } else {
-                LOGGER.debug("servicesContextRoot = NULL");
-            }
-
-            value = configuration.get(ConfigurationManager.CONTACT);
-            if (value != null) {
-                this.contact = value.toString();
-                LOGGER.debug("contact = {}", this.contact);
-            } else {
-                LOGGER.debug("contact = NULL");
-            }
-        } else {
-            LOGGER.debug("properties are NULL or empty");
-        }
-
-        LOGGER.debug("EXITING: {}", methodName);
     }
 }

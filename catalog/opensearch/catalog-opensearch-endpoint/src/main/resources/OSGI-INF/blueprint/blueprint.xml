@@ -36,12 +36,12 @@
         </jaxrs:outInterceptors>
     </jaxrs:server>
 
-    <service id="OsOsgiSvc" ref="OsSvc"
-             interface="org.codice.ddf.configuration.ConfigurationWatcher"/>
+    <bean id="systemInfo" class="org.codice.ddf.configuration.SystemInfo"/>
 
     <bean id="OsSvc" class="org.codice.ddf.endpoints.OpenSearchEndpoint">
         <argument ref="ddf"/>
         <argument ref="filterBuilder"/>
+        <argument ref="systemInfo"/>
     </bean>
 
 </blueprint>

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -18,7 +18,6 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 
-import org.codice.ddf.configuration.ConfigurationWatcher;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
@@ -34,13 +33,10 @@ import ddf.catalog.Constants;
  *
  * @author Ashraf Barakat
  * @author ddf.isgs@lmco.com
- *
  */
 public class ActionProviderRegistryProxy {
 
     static final String ACTION_ID_PREFIX = "catalog.data.metacard.";
-
-    private static final String WATCHER_INTERFACE_NAME = ConfigurationWatcher.class.getName();
 
     private static final String PROVIDER_INTERFACE_NAME = ActionProvider.class.getName();
 
@@ -48,14 +44,15 @@ public class ActionProviderRegistryProxy {
 
     private Map<ServiceReference, ServiceRegistration> actionProviderRegistry = new HashMap<ServiceReference, ServiceRegistration>();
 
-    private Map<ServiceReference, ServiceRegistration> configWatcherRegistry = new HashMap<ServiceReference, ServiceRegistration>();
-
     private BundleContext bundleContext;
 
-    public ActionProviderRegistryProxy(BundleContext bundleContext) {
+    private MetacardTransformerActionProviderFactory actionFactory;
+
+    public ActionProviderRegistryProxy(BundleContext bundleContext,
+            MetacardTransformerActionProviderFactory actionFactory) {
 
         this.bundleContext = bundleContext;
-
+        this.actionFactory = actionFactory;
     }
 
     public void bind(ServiceReference reference) {
@@ -68,7 +65,7 @@ public class ActionProviderRegistryProxy {
 
             transformerId = reference.getProperty(Constants.SERVICE_ID).toString();
 
-        // backwards compatibility
+            // backwards compatibility
         } else if (reference.getProperty(Constants.SERVICE_SHORTNAME) != null) {
 
             transformerId = reference.getProperty(Constants.SERVICE_SHORTNAME).toString();
@@ -80,8 +77,8 @@ public class ActionProviderRegistryProxy {
 
         String actionProviderId = ACTION_ID_PREFIX + transformerId;
 
-        ActionProvider provider = new MetacardTransformerActionProvider(actionProviderId,
-                transformerId);
+        ActionProvider provider = actionFactory
+                .createActionProvider(actionProviderId, transformerId);
 
         Dictionary actionProviderProperties = new Hashtable<String, String>();
 
@@ -90,15 +87,9 @@ public class ActionProviderRegistryProxy {
         ServiceRegistration actionServiceRegistration = bundleContext
                 .registerService(PROVIDER_INTERFACE_NAME, provider, actionProviderProperties);
 
-        ServiceRegistration configWatchServiceRegistration = bundleContext
-                .registerService(WATCHER_INTERFACE_NAME, provider, actionProviderProperties);
-
         LOGGER.info("Registered new {} [{}]", PROVIDER_INTERFACE_NAME, actionServiceRegistration);
-        LOGGER.info("Registered new {} [{}]", WATCHER_INTERFACE_NAME,
-                configWatchServiceRegistration);
 
         actionProviderRegistry.put(reference, actionServiceRegistration);
-        configWatcherRegistry.put(reference, configWatchServiceRegistration);
 
     }
 
@@ -108,17 +99,10 @@ public class ActionProviderRegistryProxy {
 
         ServiceRegistration actionProviderRegistration = actionProviderRegistry.remove(reference);
 
-        ServiceRegistration configWatcherRegistration = configWatcherRegistry.remove(reference);
-
         if (actionProviderRegistration != null) {
             actionProviderRegistration.unregister();
             LOGGER.info("Unregistered {} [{}]", PROVIDER_INTERFACE_NAME,
                     actionProviderRegistration);
-        }
-
-        if (configWatcherRegistration != null) {
-            configWatcherRegistration.unregister();
-            LOGGER.info("Unregistered {} [{}]", WATCHER_INTERFACE_NAME, configWatcherRegistration);
         }
 
     }
