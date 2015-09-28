@@ -411,6 +411,44 @@ public class TestCatalog extends AbstractIntegrationTest {
     }
 
     @Test
+    public void  testCswGetRecordsWithHitsResultType() {
+
+
+        Response response = ingestCswRecord();
+
+        String query = Library.getCswQuery("AnyText", "*");
+
+        String id;
+
+        try {
+            id = getMetacardIdFromCswInsertResponse(response);
+        } catch (IOException | XPathExpressionException e) {
+            fail("Could not retrieve the ingested record's ID from the response.");
+            return;
+        }
+
+        //test with resultType="results" first
+        ValidatableResponse validatableResponse = given().header("Content-Type", MediaType.APPLICATION_XML)
+                    .body(query).post(CSW_PATH).then();
+
+        validatableResponse.body(hasXPath("/GetRecordsResponse/SearchResults/Record"));
+
+        //test with resultType="hits"
+        query = query.replace("results", "hits");
+        validatableResponse = given().header("Content-Type", MediaType.APPLICATION_XML)
+                .body(query).post(CSW_PATH).then();
+        //assert that no records have been returned
+        validatableResponse.body(not(hasXPath("//Record")));
+
+        //testing with resultType='validate' is not
+        //possible due to DDF-1537, this test will need
+        //to be updated to test this once it is fixed.
+
+        deleteMetacard(id);
+
+    }
+
+    @Test
     public void testCswUpdateRemoveAttributesByCqlConstraint() {
         Response response = ingestCswRecord();
 
