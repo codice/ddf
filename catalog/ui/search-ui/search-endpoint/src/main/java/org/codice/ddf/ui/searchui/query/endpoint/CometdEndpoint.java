@@ -14,9 +14,9 @@
  **/
 package org.codice.ddf.ui.searchui.query.endpoint;
 
-import java.util.concurrent.ExecutorService;
 import java.util.Dictionary;
 import java.util.Hashtable;
+import java.util.concurrent.ExecutorService;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
