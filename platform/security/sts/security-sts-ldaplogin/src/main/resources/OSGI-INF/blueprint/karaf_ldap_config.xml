@@ -45,6 +45,5 @@
         <property name="keyAlias" value="localhost"/>
     </bean>
 
-    <service ref="keystoreManager" interface="org.codice.ddf.configuration.ConfigurationWatcher"/>
 
 </blueprint>

@@ -20,6 +20,8 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
+import org.codice.ddf.configuration.SystemBaseUrl;
+import org.codice.ddf.configuration.SystemInfo;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
@@ -43,7 +45,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 @Deprecated
-public class DdfConfigurationManager implements org.codice.ddf.configuration.ConfigurationWatcher {
+public class DdfConfigurationManager {
     /**
      * Service PID to use to look up System Settings Configuration.
      */
@@ -155,6 +157,10 @@ public class DdfConfigurationManager implements org.codice.ddf.configuration.Con
 
     private static final String JETTY_HTTP_PORT = "org.osgi.service.http.port";
 
+    protected SystemBaseUrl systemBaseUrl;
+
+    protected SystemInfo systemInfo;
+
     /**
      * List of DdfManagedServices to push the DDF system settings to.
      */
@@ -192,10 +198,12 @@ public class DdfConfigurationManager implements org.codice.ddf.configuration.Con
      *            the OSGi Configuration Admin service handle
      */
     public DdfConfigurationManager(List<DdfConfigurationWatcher> services,
-            ConfigurationAdmin configurationAdmin) {
+            ConfigurationAdmin configurationAdmin, SystemBaseUrl sbu, SystemInfo info) {
         LOGGER.info("ENTERING: ctor");
         this.services = services;
         this.configurationAdmin = configurationAdmin;
+        this.systemBaseUrl = sbu;
+        this.systemInfo = info;
 
         this.readOnlySettings = new Hashtable();
         if (System.getenv(DDF_HOME_ENVIRONMENT_VARIABLE) != null) {
@@ -203,12 +211,12 @@ public class DdfConfigurationManager implements org.codice.ddf.configuration.Con
         } else {
             readOnlySettings.put(HOME_DIR, System.getProperty("user.dir"));
         }
-        readOnlySettings
-                .put(HTTP_PORT, getConfigurationValue(PAX_WEB_SERVICE_PID, JETTY_HTTP_PORT));
-        readOnlySettings.put(SERVICES_CONTEXT_ROOT,
-                getConfigurationValue(CXF_SERVICE_PID, CXF_SERVLET_CONTEXT));
 
         this.configuration = new Hashtable();
+
+        // Add the system properties
+        configuration.putAll(getSystemProperties());
+
 
         // Append the read-only settings to the DDF System Settings so that all
         // settings are pushed to registered listeners
@@ -321,9 +329,15 @@ public class DdfConfigurationManager implements org.codice.ddf.configuration.Con
         return value;
     }
 
-    @Override
-    public void configurationUpdateCallback(Map<String, String> properties) {
-        LOGGER.debug("Calling update to send properties to all legacy watchers.");
-        updated(new HashMap<String, String>(properties));
+    private Map<String, String> getSystemProperties() {
+        Map<String, String> map = new HashMap<>();
+        map.put(HTTP_PORT, systemBaseUrl.getHttpPort());
+        map.put(HOST, systemBaseUrl.getHost());
+        map.put(PROTOCOL, systemBaseUrl.getProtocol());
+        map.put(PORT, systemBaseUrl.getPort());
+        map.put(SITE_NAME, systemInfo.getSiteName());
+        map.put(VERSION, systemInfo.getVersion());
+        map.put(ORGANIZATION, systemInfo.getOrganization());
+        return map;
     }
 }

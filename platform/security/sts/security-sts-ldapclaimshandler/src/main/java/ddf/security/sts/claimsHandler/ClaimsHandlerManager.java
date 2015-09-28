@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -13,7 +13,6 @@
  */
 package ddf.security.sts.claimsHandler;
 
-import java.io.File;
 import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -23,10 +22,7 @@ import java.util.Map;
 
 import javax.net.ssl.SSLContext;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.sts.claims.ClaimsHandler;
-import org.codice.ddf.configuration.ConfigurationManager;
-import org.codice.ddf.configuration.ConfigurationWatcher;
 import org.forgerock.opendj.ldap.LDAPConnectionFactory;
 import org.forgerock.opendj.ldap.LDAPOptions;
 import org.forgerock.opendj.ldap.LdapException;
@@ -44,7 +40,7 @@ import ddf.security.encryption.EncryptionService;
  * Creates and registers LDAP and Role claims handlers.
  *
  */
-public class ClaimsHandlerManager implements ConfigurationWatcher {
+public class ClaimsHandlerManager {
 
     public static final String URL = "url";
 
@@ -69,10 +65,6 @@ public class ClaimsHandlerManager implements ConfigurationWatcher {
     public static final String PROPERTY_FILE_LOCATION = "propertyFileLocation";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ClaimsHandlerManager.class);
-
-    protected String keystoreLoc, keystorePass;
-
-    protected String truststoreLoc, truststorePass;
 
     private EncryptionService encryptService;
 
@@ -152,13 +144,22 @@ public class ClaimsHandlerManager implements ConfigurationWatcher {
 
         LDAPOptions lo = new LDAPOptions();
 
+        String truststoreLoc = System.getProperty("javax.net.ssl.trustStore");
+        String truststorePass = System.getProperty("javax.net.ssl.trustStorePassword");
+        String keystoreLoc = System.getProperty("javax.net.ssl.keyStore");
+        String keystorePass = System.getProperty("javax.net.ssl.keyStorePassword");
+        if (encryptService != null) {
+            keystorePass = encryptService.decryptValue(keystorePass);
+            truststorePass = encryptService.decryptValue(truststorePass);
+        }
+
         try {
             if (useSsl || useTls) {
                 SSLContext sslContext = SSLContext.getInstance(CommonSSLFactory.PROTOCOL);
                 if (keystoreLoc != null && truststoreLoc != null) {
                     sslContext.init(CommonSSLFactory
-                                    .createKeyManagerFactory(keystoreLoc, keystorePass)
-                                    .getKeyManagers(), CommonSSLFactory
+                            .createKeyManagerFactory(keystoreLoc, keystorePass).getKeyManagers(),
+                            CommonSSLFactory
                                     .createTrustManagerFactory(truststoreLoc, truststorePass)
                                     .getTrustManagers(), new SecureRandom());
                 }
@@ -337,36 +338,4 @@ public class ClaimsHandlerManager implements ConfigurationWatcher {
         LOGGER.trace("configure method called - calling update");
         update(ldapProperties);
     }
-
-    @Override
-    public void configurationUpdateCallback(Map<String, String> configuration) {
-        String keystoreLocation = configuration.get(ConfigurationManager.KEY_STORE);
-        String keystorePassword = encryptService
-                .decryptValue(configuration.get(ConfigurationManager.KEY_STORE_PASSWORD));
-
-        String truststoreLocation = configuration.get(ConfigurationManager.TRUST_STORE);
-        String truststorePassword = encryptService
-                .decryptValue(configuration.get(ConfigurationManager.TRUST_STORE_PASSWORD));
-
-        if (StringUtils.isNotBlank(keystoreLocation)) {
-            if (new File(keystoreLocation).exists()) {
-                this.keystoreLoc = keystoreLocation;
-                this.keystorePass = keystorePassword;
-            } else {
-                LOGGER.debug(
-                        "Keystore file does not exist at location {}, not updating keystore values.");
-            }
-        }
-        if (StringUtils.isNotBlank(truststoreLocation)) {
-            if (new File(truststoreLocation).exists()) {
-                this.truststoreLoc = truststoreLocation;
-                this.truststorePass = truststorePassword;
-            } else {
-                LOGGER.debug(
-                        "Truststore file does not exist at location {}, not updating truststore values.");
-            }
-        }
-        update(props);
-    }
-
 }

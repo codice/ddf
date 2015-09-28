@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -13,8 +13,6 @@
  */
 package org.codice.ddf.endpoints.rest.action;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -23,6 +21,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.Dictionary;
 
+import org.codice.ddf.configuration.SystemBaseUrl;
+import org.codice.ddf.configuration.SystemInfo;
 import org.junit.Test;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -44,7 +44,7 @@ public class TestActionProviderRegistryProxy {
 
         BundleContext bundleContext = givenBundleContext(answer);
 
-        ActionProviderRegistryProxy proxy = new ActionProviderRegistryProxy(bundleContext);
+        ActionProviderRegistryProxy proxy = new ActionProviderRegistryProxy(bundleContext, null);
 
         ServiceReference reference = mock(ServiceReference.class);
 
@@ -65,7 +65,10 @@ public class TestActionProviderRegistryProxy {
 
         BundleContext bundleContext = givenBundleContext(answer);
 
-        ActionProviderRegistryProxy proxy = new ActionProviderRegistryProxy(bundleContext);
+        MetacardTransformerActionProviderFactory mtapf = new MetacardTransformerActionProviderFactory(
+                new SystemBaseUrl(), new SystemInfo());
+
+        ActionProviderRegistryProxy proxy = new ActionProviderRegistryProxy(bundleContext, mtapf);
 
         ServiceReference reference = mock(ServiceReference.class);
 
@@ -76,30 +79,21 @@ public class TestActionProviderRegistryProxy {
         proxy.unbind(reference);
 
         // then
-        verify(bundleContext, times(2))
+        verify(bundleContext, times(1))
                 .registerService(isA(String.class), isA(Object.class), isA(Dictionary.class));
 
-        Dictionary actionProperties = (Dictionary) (answer.getArguments()[2]);
-        LOGGER.info("actionproperties:" + actionProperties);
-
-        String actionProviderId = actionProperties.get(ddf.catalog.Constants.SERVICE_ID).toString();
-
-        assertThat(actionProviderId,
-                is(ActionProviderRegistryProxy.ACTION_ID_PREFIX + SAMPLE_TRANSFORMER_ID));
-
         ServiceRegistration mockRegistration1 = answer.getIssuedServiceRegistrations().get(0);
-        ServiceRegistration mockRegistration2 = answer.getIssuedServiceRegistrations().get(1);
 
         verify(mockRegistration1, times(1)).unregister();
-        verify(mockRegistration2, times(1)).unregister();
 
     }
 
     private BundleContext givenBundleContext(ServiceRegistrationAnswer answer) {
         BundleContext bundleContext = mock(BundleContext.class);
 
-        when(bundleContext.registerService(isA(String.class), isA(Object.class),
-                        isA(Dictionary.class))).then(answer);
+        when(bundleContext
+                .registerService(isA(String.class), isA(Object.class), isA(Dictionary.class)))
+                .then(answer);
 
         return bundleContext;
     }

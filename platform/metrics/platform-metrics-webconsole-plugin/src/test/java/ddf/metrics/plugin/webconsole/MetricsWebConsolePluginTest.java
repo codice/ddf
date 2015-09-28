@@ -28,6 +28,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.codice.ddf.configuration.SystemBaseUrl;
 import org.custommonkey.xmlunit.HTMLDocumentBuilder;
 import org.custommonkey.xmlunit.TolerantSaxDocumentBuilder;
 import org.custommonkey.xmlunit.XMLTestCase;
@@ -65,19 +66,19 @@ public class MetricsWebConsolePluginTest extends XMLTestCase {
 
     @Test
     public void testTitle() throws Exception {
-        MetricsWebConsolePlugin metricsPlugin = new MetricsWebConsolePlugin();
+        MetricsWebConsolePlugin metricsPlugin = new MetricsWebConsolePlugin(new SystemBaseUrl());
         assertEquals("Metrics", metricsPlugin.getTitle());
     }
 
     @Test
     public void testLabel() throws Exception {
-        MetricsWebConsolePlugin metricsPlugin = new MetricsWebConsolePlugin();
+        MetricsWebConsolePlugin metricsPlugin = new MetricsWebConsolePlugin(new SystemBaseUrl());
         assertEquals("metrics", metricsPlugin.getLabel());
     }
 
     @Test
     public void testConvertCamelCase() throws Exception {
-        MetricsWebConsolePlugin metricsPlugin = new MetricsWebConsolePlugin();
+        MetricsWebConsolePlugin metricsPlugin = new MetricsWebConsolePlugin(new SystemBaseUrl());
         assertEquals("Foo", metricsPlugin.convertCamelCase("foo"));
         assertEquals("Foo", metricsPlugin.convertCamelCase("Foo"));
         assertEquals("Foobar", metricsPlugin.convertCamelCase("foobar"));
@@ -147,7 +148,7 @@ public class MetricsWebConsolePluginTest extends XMLTestCase {
         Locale.setDefault(new Locale(language, country));
         StringWriter sw = new StringWriter();
 
-        MetricsWebConsolePlugin metricsPlugin = new MetricsWebConsolePlugin();
+        MetricsWebConsolePlugin metricsPlugin = new MetricsWebConsolePlugin(new SystemBaseUrl());
         PrintWriter pw = new PrintWriter(sw);
 
         int numWeeklyReports = 3;
@@ -168,7 +169,7 @@ public class MetricsWebConsolePluginTest extends XMLTestCase {
         DateTimeZone.setDefault(DateTimeZone.forID(dateTimeZoneId));
         Locale.setDefault(new Locale(language, country));
 
-        MetricsWebConsolePlugin metricsPlugin = new MetricsWebConsolePlugin();
+        MetricsWebConsolePlugin metricsPlugin = new MetricsWebConsolePlugin(new SystemBaseUrl());
 
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);

@@ -119,6 +119,12 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>ddf.lib</groupId>
+            <artifactId>common-system</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <!-- Wanted to use this in JUnit tests to be able to get SQL representation
            of an OGC filter, but it caused class loader problems.
            No idea why ...
@@ -136,6 +142,7 @@
           <instructions>
             <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
             <Spring-Context>*;wait-for-dependencies:=true;timeout:=604800</Spring-Context>
+              <Embed-Dependency>common-system</Embed-Dependency>
             <Import-Package>
               META-INF.cxf,
               org.joda.time;version="[1.6.0,3.0.0)",

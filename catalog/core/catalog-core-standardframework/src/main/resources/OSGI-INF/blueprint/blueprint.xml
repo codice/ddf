@@ -220,6 +220,8 @@
     	<argument ref="downloadStatusInfo"/>
     </bean>
 
+    <bean id="systemInfo" class="org.codice.ddf.configuration.SystemInfo"/>
+
     <!-- create the ddf bean -->
     <bean id="ddf" class="ddf.catalog.impl.CatalogFrameworkImpl">
 		<cm:managed-properties persistent-id="ddf.catalog.CatalogFrameworkImpl"
@@ -243,9 +245,7 @@
 		<argument ref="retrieveStatusEventPublisher"/>
 		<argument ref="reliableResourceDownloadManager"/>
 		<property name="poolSize" value="0"/>
-		<property name="id" value="ddf"/>
-		<property name="version" value="DDF v2.0"/>
-		<property name="organization" value="Codice"/>
+		<property name="systemInfo" ref="systemInfo"/>
 		<property name="masker" ref="sourceListener"/>
 		<property name="cacheEnabled" value="true"/>
 		<property name="delayBetweenRetryAttempts" value="10"/>
@@ -267,8 +267,6 @@
     <service ref="ddf" interface="ddf.catalog.CatalogFramework">
 		<registration-listener ref="sourcePoller"
                                registration-method="start" unregistration-method="cancel"/>
-	</service>
-	<service ref="ddf" interface="org.codice.ddf.configuration.ConfigurationWatcher">
 	</service>
 
     <!-- Events -->

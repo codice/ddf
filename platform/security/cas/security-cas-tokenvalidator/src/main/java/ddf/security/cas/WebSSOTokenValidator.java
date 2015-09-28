@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -15,7 +15,6 @@ package ddf.security.cas;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.security.auth.callback.CallbackHandler;
@@ -32,8 +31,6 @@ import org.apache.wss4j.common.crypto.Crypto;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.dom.WSSConfig;
 import org.apache.wss4j.dom.handler.RequestData;
-import org.codice.ddf.configuration.ConfigurationManager;
-import org.codice.ddf.configuration.ConfigurationWatcher;
 import org.jasig.cas.client.authentication.AttributePrincipal;
 import org.jasig.cas.client.validation.Assertion;
 import org.jasig.cas.client.validation.Cas20ProxyTicketValidator;
@@ -51,7 +48,7 @@ import ddf.security.encryption.EncryptionService;
  *
  * @author kcwire
  */
-public class WebSSOTokenValidator implements TokenValidator, ConfigurationWatcher {
+public class WebSSOTokenValidator implements TokenValidator {
 
     // The Supported SSO Token Types
     public static final String CAS_TYPE = "#CAS";
@@ -61,14 +58,6 @@ public class WebSSOTokenValidator implements TokenValidator, ConfigurationWatche
     private static final Logger LOGGER = LoggerFactory.getLogger(WebSSOTokenValidator.class);
 
     private String casServerUrl;
-
-    private String trustStorePath;
-
-    private String trustStorePassword;
-
-    private String keyStorePath;
-
-    private String keyStorePassword;
 
     private EncryptionService encryptionService;
 
@@ -205,56 +194,6 @@ public class WebSSOTokenValidator implements TokenValidator, ConfigurationWatche
     }
 
     /**
-     * Updates SSL settings from the DDF ConfigurationManager
-     *
-     * @param properties
-     */
-    @Override
-    public void configurationUpdateCallback(Map<String, String> properties) {
-        String setTrustStorePath = (String) properties.get(ConfigurationManager.TRUST_STORE);
-        if (setTrustStorePath != null) {
-            LOGGER.debug("Setting trust store path: " + setTrustStorePath);
-            this.trustStorePath = setTrustStorePath;
-        }
-
-        String setTrustStorePassword = properties.get(ConfigurationManager.TRUST_STORE_PASSWORD);
-        if (StringUtils.isNotBlank(setTrustStorePassword)) {
-            this.trustStorePassword = setTrustStorePassword;
-            if (encryptionService == null) {
-                LOGGER.error(
-                        "The WebSSOTokenValidator has a null Encryption Service. Unable to decrypt "
-                                + "the encrypted trustStore password. Setting decrypted password to null.");
-                this.trustStorePassword = null;
-            } else {
-                setTrustStorePassword = encryptionService.decryptValue(setTrustStorePassword);
-                LOGGER.debug("Setting trust store password.");
-                this.trustStorePassword = setTrustStorePassword;
-            }
-        }
-
-        String setKeyStorePath = properties.get(ConfigurationManager.KEY_STORE);
-        if (StringUtils.isNotBlank(setKeyStorePath)) {
-            LOGGER.debug("Setting key store path: " + setKeyStorePath);
-            this.keyStorePath = setKeyStorePath;
-        }
-
-        String setKeyStorePassword = properties.get(ConfigurationManager.KEY_STORE_PASSWORD);
-        if (StringUtils.isNotBlank(setKeyStorePassword)) {
-            this.keyStorePassword = setKeyStorePassword;
-            if (encryptionService == null) {
-                LOGGER.error(
-                        "The WebSSOTokenValidator has a null Encryption Service. Unable to decrypt "
-                                + "the encrypted keyStore password. Setting decrypted password to null.");
-                this.keyStorePassword = null;
-            } else {
-                setKeyStorePassword = encryptionService.decryptValue(setKeyStorePassword);
-                LOGGER.debug("Setting key store password.");
-                this.keyStorePassword = setKeyStorePassword;
-            }
-        }
-    }
-
-    /**
      * Validate the CAS ticket and service
      *
      * @param ticket
@@ -265,6 +204,14 @@ public class WebSSOTokenValidator implements TokenValidator, ConfigurationWatche
     public Assertion validate(String ticket, String service) throws TicketValidationException {
         LOGGER.trace("CAS Server URL = " + casServerUrl);
         try {
+            String trustStorePath = System.getProperty("javax.net.ssl.trustStore");
+            String trustStorePassword = System.getProperty("javax.net.ssl.trustStorePassword");
+            String keyStorePath = System.getProperty("javax.net.ssl.keyStore");
+            String keyStorePassword = System.getProperty("javax.net.ssl.keyStorePassword");
+            if (encryptionService != null) {
+                keyStorePassword = encryptionService.decryptValue(keyStorePassword);
+                trustStorePassword = encryptionService.decryptValue(trustStorePassword);
+            }
             HttpsURLConnection.setDefaultSSLSocketFactory(CommonSSLFactory
                     .createSocket(trustStorePath, trustStorePassword, keyStorePath,
                             keyStorePassword));

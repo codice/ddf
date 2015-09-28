@@ -52,14 +52,16 @@ NOTE:
 	
     <list id="ddfManagedServiceList" interface="ddf.catalog.util.DdfConfigurationWatcher"
           cardinality="0..N"/>
+
+    <beans:bean name="urlHelper" class="org.codice.ddf.configuration.SystemBaseUrl"/>
+    <beans:bean name="systemInfo" class="org.codice.ddf.configuration.SystemInfo"/>
 	
 	<beans:bean name="ddfConfigurationManager" class="ddf.catalog.util.DdfConfigurationManager">
 		<beans:constructor-arg ref="ddfManagedServiceList"/>
 		<beans:constructor-arg ref="configurationAdmin"/>
+        <beans:constructor-arg ref="urlHelper"/>
+        <beans:constructor-arg ref="systemInfo"/>
  	</beans:bean>
-  
-    <service ref="ddfConfigurationManager"
-             interface="org.codice.ddf.configuration.ConfigurationWatcher"/>
 	
 </beans:beans>
 

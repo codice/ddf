@@ -81,6 +81,11 @@
             <artifactId>org.osgi.core</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>ddf.lib</groupId>
+            <artifactId>common-system</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
     </dependencies>
 
@@ -92,7 +97,7 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Dependency>joda-time</Embed-Dependency>
+                        <Embed-Dependency>joda-time,common-system</Embed-Dependency>
                         <Import-Package>
                             javax.servlet;version="[2.5,3)",
                             javax.servlet.http;version="[2.5,3)",

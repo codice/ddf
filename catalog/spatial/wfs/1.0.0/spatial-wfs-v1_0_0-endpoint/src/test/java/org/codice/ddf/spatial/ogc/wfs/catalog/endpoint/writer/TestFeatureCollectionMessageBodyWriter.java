@@ -38,6 +38,7 @@ import javax.xml.validation.SchemaFactory;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.xerces.dom.DOMInputImpl;
+import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsFeatureCollection;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.junit.Test;
@@ -96,7 +97,7 @@ public class TestFeatureCollectionMessageBodyWriter {
     public void testWriteToGeneratesGMLConformantXml() throws IOException, WebApplicationException,
             SAXException {
 
-        FeatureCollectionMessageBodyWriter wtr = new FeatureCollectionMessageBodyWriter();
+        FeatureCollectionMessageBodyWriter wtr = new FeatureCollectionMessageBodyWriter(new SystemBaseUrl());
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         wtr.writeTo(getWfsFeatureCollection(), null, null, null, null, null, stream);
         String actual = stream.toString();
@@ -164,7 +165,7 @@ public class TestFeatureCollectionMessageBodyWriter {
     public void testWriteToGeneratesExpectedNonBasicMetacard() throws IOException,
             WebApplicationException, SAXException {
 
-        FeatureCollectionMessageBodyWriter wtr = new FeatureCollectionMessageBodyWriter();
+        FeatureCollectionMessageBodyWriter wtr = new FeatureCollectionMessageBodyWriter(new SystemBaseUrl());
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         wtr.writeTo(getWfsFeatureCollection(), null, null, null, null, null, stream);
 
@@ -180,7 +181,7 @@ public class TestFeatureCollectionMessageBodyWriter {
     public void testWriteToGeneratesExpectedBasicMetacard() throws IOException,
             WebApplicationException, SAXException {
 
-        FeatureCollectionMessageBodyWriter wtr = new FeatureCollectionMessageBodyWriter();
+        FeatureCollectionMessageBodyWriter wtr = new FeatureCollectionMessageBodyWriter(new SystemBaseUrl());
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         wtr.writeTo(getBasicWfsFeatureCollection(), null, null, null, null, null, stream);
 

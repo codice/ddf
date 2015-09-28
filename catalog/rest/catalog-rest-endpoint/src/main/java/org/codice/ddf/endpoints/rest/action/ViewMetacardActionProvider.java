@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -18,6 +18,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
+import org.codice.ddf.configuration.SystemBaseUrl;
+import org.codice.ddf.configuration.SystemInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +34,8 @@ public class ViewMetacardActionProvider extends AbstractMetacardActionProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ViewMetacardActionProvider.class);
 
-    public ViewMetacardActionProvider(String id) {
+    public ViewMetacardActionProvider(String id, SystemBaseUrl sbu, SystemInfo info) {
+        super(sbu, info);
         this.actionProviderId = id;
     }
 
@@ -42,9 +45,9 @@ public class ViewMetacardActionProvider extends AbstractMetacardActionProvider {
         URL url = null;
         try {
 
-            URI uri = new URI(
-                    protocol + host + ':' + port + contextRoot + PATH + "/" + metacardSource + "/"
-                            + metacardId);
+            URI uri = new URI(systemBaseUrl.constructUrl(
+                    systemBaseUrl.getRootContext() + PATH + "/" + metacardSource + "/"
+                            + metacardId));
             url = uri.toURL();
 
         } catch (MalformedURLException e) {

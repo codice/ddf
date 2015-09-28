@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -39,8 +39,7 @@ import org.apache.abdera.model.Feed;
 import org.apache.abdera.model.Link;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.configuration.ConfigurationManager;
-import org.codice.ddf.configuration.ConfigurationWatcher;
+import org.codice.ddf.configuration.SystemInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,7 +69,7 @@ import ddf.geo.formatter.CompositeGeometry;
  * http://tools.ietf.org/html/rfc4287
  *
  */
-public class AtomTransformer implements QueryResponseTransformer, ConfigurationWatcher {
+public class AtomTransformer implements QueryResponseTransformer {
 
     /**
      * This variable is a workaround. If org.apache.abdera.model.Link ever includes a "REL_PREVIEW" member variable, take this
@@ -113,11 +112,7 @@ public class AtomTransformer implements QueryResponseTransformer, ConfigurationW
         }
     }
 
-    private String organization = DEFAULT_AUTHOR;
-
-    private String version;
-
-    private String source;
+    private SystemInfo systemInfo;
 
     private MetacardTransformer metacardTransformer;
 
@@ -128,6 +123,10 @@ public class AtomTransformer implements QueryResponseTransformer, ConfigurationW
     private ActionProvider thumbnailActionProvider;
 
     private WKTReader reader = new WKTReader();
+
+    public AtomTransformer(SystemInfo info) {
+        this.systemInfo = info;
+    }
 
     public void setViewMetacardActionProvider(ActionProvider viewMetacardActionProvider) {
         this.viewMetacardActionProvider = viewMetacardActionProvider;
@@ -192,9 +191,11 @@ public class AtomTransformer implements QueryResponseTransformer, ConfigurationW
          */
         feed.addLink("#", Link.REL_SELF);
 
-        if (this.organization != null) {
+        if (!StringUtils.isEmpty(systemInfo.getOrganization())) {
 
-            feed.addAuthor(this.organization);
+            feed.addAuthor(systemInfo.getOrganization());
+        } else {
+            feed.addAuthor(DEFAULT_AUTHOR);
         }
 
         /*
@@ -202,10 +203,10 @@ public class AtomTransformer implements QueryResponseTransformer, ConfigurationW
          * the agent used to generate a feed, for debugging and other purposes." Generator is not
          * required in the atom:feed element.
          */
-        if (this.source != null) {
+        if (!StringUtils.isEmpty(systemInfo.getSiteName())) {
 
             // text is required.
-            feed.setGenerator(null, this.version, this.source);
+            feed.setGenerator(null, systemInfo.getVersion(), systemInfo.getSiteName());
         }
 
         /*
@@ -340,11 +341,11 @@ public class AtomTransformer implements QueryResponseTransformer, ConfigurationW
                 try {
                     binaryContent = metacardTransformer.transform(metacard, null);
 
-                // If the transformer cannot handle the data appropriately
+                    // If the transformer cannot handle the data appropriately
                 } catch (CatalogTransformerException e) {
                     LOGGER.warn(COULD_NOT_CREATE_XML_CONTENT_MESSAGE, e);
 
-                // If the transformer service is unavailable
+                    // If the transformer service is unavailable
                 } catch (RuntimeException e) {
                     LOGGER.info(COULD_NOT_CREATE_XML_CONTENT_MESSAGE, e);
                 }
@@ -499,27 +500,4 @@ public class AtomTransformer implements QueryResponseTransformer, ConfigurationW
         }
         return georssPositions;
     }
-
-    @Override
-    public void configurationUpdateCallback(Map<String, String> configuration) {
-
-        if (configuration != null) {
-            String organizationMapValue = configuration.get(ConfigurationManager.ORGANIZATION);
-            String versionMapValue = configuration.get(ConfigurationManager.VERSION);
-            String siteMapValue = configuration.get(ConfigurationManager.SITE_NAME);
-
-            if (StringUtils.isNotBlank(organizationMapValue)) {
-                this.organization = organizationMapValue.toString();
-            }
-
-            if (StringUtils.isNotBlank(versionMapValue)) {
-                this.version = versionMapValue;
-            }
-
-            if (StringUtils.isNotBlank(siteMapValue)) {
-                this.source = siteMapValue;
-            }
-        }
-    }
-
 }

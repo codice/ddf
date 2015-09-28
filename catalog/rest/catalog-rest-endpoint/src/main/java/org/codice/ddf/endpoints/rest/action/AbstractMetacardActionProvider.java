@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -15,12 +15,11 @@ package org.codice.ddf.endpoints.rest.action;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.Map;
 
 import org.apache.commons.lang.CharEncoding;
 import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.configuration.ConfigurationManager;
-import org.codice.ddf.configuration.ConfigurationWatcher;
+import org.codice.ddf.configuration.SystemBaseUrl;
+import org.codice.ddf.configuration.SystemInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,8 +27,7 @@ import ddf.action.Action;
 import ddf.action.ActionProvider;
 import ddf.catalog.data.Metacard;
 
-public abstract class AbstractMetacardActionProvider
-        implements ActionProvider, ConfigurationWatcher {
+public abstract class AbstractMetacardActionProvider implements ActionProvider {
 
     static final String UNKNOWN_TARGET = "0.0.0.0";
 
@@ -38,52 +36,18 @@ public abstract class AbstractMetacardActionProvider
     private static final Logger LOGGER = LoggerFactory
             .getLogger(AbstractMetacardActionProvider.class);
 
-    protected String protocol;
-
-    protected String host;
-
-    protected String port;
-
-    protected String contextRoot;
-
     protected String actionProviderId;
 
-    protected String currentSourceName;
+    protected SystemBaseUrl systemBaseUrl;
+
+    protected SystemInfo systemInfo;
+
+    protected AbstractMetacardActionProvider(SystemBaseUrl sbu, SystemInfo info) {
+        this.systemBaseUrl = sbu;
+        this.systemInfo = info;
+    }
 
     protected abstract Action getAction(String metacardId, String metacardSource);
-
-    @Override
-    public void configurationUpdateCallback(Map<String, String> configuration) {
-
-        if (configuration != null) {
-            String protocolMapValue = configuration.get(ConfigurationManager.PROTOCOL);
-            String hostMapValue = configuration.get(ConfigurationManager.HOST);
-            String portMapValue = configuration.get(ConfigurationManager.PORT);
-            String serviceContextMapValue = configuration
-                    .get(ConfigurationManager.SERVICES_CONTEXT_ROOT);
-            String sourceNameValue = configuration.get(ConfigurationManager.SITE_NAME);
-
-            if (StringUtils.isNotBlank(configuration.get(ConfigurationManager.PROTOCOL))) {
-                this.host = hostMapValue;
-            }
-
-            if (StringUtils.isNotBlank(portMapValue)) {
-                this.port = portMapValue;
-            }
-
-            if (StringUtils.isNotBlank(serviceContextMapValue)) {
-                this.contextRoot = serviceContextMapValue;
-            }
-
-            if (StringUtils.isNotBlank(protocolMapValue)) {
-                this.protocol = protocolMapValue;
-            }
-
-            if (StringUtils.isNotBlank(sourceNameValue)) {
-                this.currentSourceName = sourceNameValue;
-            }
-        }
-    }
 
     @Override
     public <T> Action getAction(T input) {
@@ -103,7 +67,7 @@ public abstract class AbstractMetacardActionProvider
                 return null;
             }
 
-            if (isHostUnset(this.host)) {
+            if (systemBaseUrl == null || isHostUnset(systemBaseUrl.getHost())) {
                 LOGGER.info("Host name/ip not set. Cannot create link for metacard.");
                 return null;
             }
@@ -137,12 +101,28 @@ public abstract class AbstractMetacardActionProvider
             return metacard.getSourceId();
         }
 
-        return this.currentSourceName;
+        return systemInfo.getSiteName();
     }
 
     @Override
     public String getId() {
         return this.actionProviderId;
+    }
+
+    public SystemBaseUrl getSystemBaseUrl() {
+        return systemBaseUrl;
+    }
+
+    public void setSystemBaseUrl(SystemBaseUrl systemBaseUrl) {
+        this.systemBaseUrl = systemBaseUrl;
+    }
+
+    public SystemInfo getSystemInfo() {
+        return systemInfo;
+    }
+
+    public void setSystemInfo(SystemInfo systemInfo) {
+        this.systemInfo = systemInfo;
     }
 
 }
