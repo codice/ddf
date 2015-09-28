@@ -112,13 +112,9 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Export-Package/>
                         <Embed-Dependency>
+
                             spatial-csw-common,
                             spatial-ogc-common,
-                            gml-v_3_1_1-schema,
-                            ows-v_1_0_0-schema,
-                            ogc-filter-v_1_1_0-schema,
-                            jaxb2-basics-runtime,
-                            spatial-csw-schema-bindings;scope=compile|runtime,
                             catalog-core-api-impl
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
