@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -112,14 +112,11 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
 
     private static final int DEFAULT_MAX_START_INDEX = 50000;
 
-    private static final int DEFAULT_THREAD_POOL_SIZE = 128;
-
     private static Logger logger = LoggerFactory.getLogger(CachingFederationStrategy.class);
 
     private final SolrCache cache;
 
-    private final ExecutorService cacheExecutorService = Executors
-            .newFixedThreadPool(getThreadPoolSize());
+    private final ExecutorService cacheExecutorService;
 
     /**
      * The {@link List} of pre-federated query plugins to execute on the query request before the
@@ -148,10 +145,11 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
      *
      * @param queryExecutorService the {@link ExecutorService} for queries
      */
-    public CachingFederationStrategy(ExecutorService queryExecutorService,
-            List<PreFederatedQueryPlugin> preQuery, List<PostFederatedQueryPlugin> postQuery,
-            SolrCache cache) {
+    public CachingFederationStrategy(ExecutorService queryExecutorService, ExecutorService cacheExecutorService,
+                                     List<PreFederatedQueryPlugin> preQuery, List<PostFederatedQueryPlugin> postQuery,
+                                     SolrCache cache) {
         this.queryExecutorService = queryExecutorService;
+        this.cacheExecutorService = cacheExecutorService;
         this.preQuery = preQuery;
         this.postQuery = postQuery;
         this.maxStartIndex = DEFAULT_MAX_START_INDEX;
@@ -159,7 +157,8 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
         cacheBulkProcessor = new CacheBulkProcessor(cache);
     }
 
-    @Override public QueryResponse federate(List<Source> sources, QueryRequest queryRequest) {
+    @Override
+    public QueryResponse federate(List<Source> sources, QueryRequest queryRequest) {
         Set<String> sourceIds = new HashSet<String>();
         for (Source source : sources) {
             sourceIds.add(source.getId());
@@ -240,7 +239,7 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
                     }
 
                     futures.put(queryCompletion
-                            .submit(new CallableSourceResponse(source, modifiedQueryRequest)),
+                                    .submit(new CallableSourceResponse(source, modifiedQueryRequest)),
                             source);
                 } else {
                     logger.warn("Duplicate source found with name {}. Ignoring second one.",
@@ -290,7 +289,7 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
     }
 
     private Query getModifiedQuery(Query originalQuery, int numberOfSources, int offset,
-            int pageSize) {
+                                   int pageSize) {
 
         Query query = null;
 
@@ -329,11 +328,13 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
         return offset + pageSize - 1;
     }
 
-    @Override public CreateResponse process(CreateResponse input) throws PluginExecutionException {
+    @Override
+    public CreateResponse process(CreateResponse input) throws PluginExecutionException {
         return input;
     }
 
-    @Override public UpdateResponse process(UpdateResponse input) throws PluginExecutionException {
+    @Override
+    public UpdateResponse process(UpdateResponse input) throws PluginExecutionException {
 
         logger.debug("Post ingest processing of UpdateResponse.");
         List<Metacard> metacards = new ArrayList<Metacard>(input.getUpdatedMetacards().size());
@@ -349,7 +350,8 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
         return input;
     }
 
-    @Override public DeleteResponse process(DeleteResponse input) throws PluginExecutionException {
+    @Override
+    public DeleteResponse process(DeleteResponse input) throws PluginExecutionException {
 
         logger.debug("Post ingest processing of DeleteResponse.");
 
@@ -403,8 +405,8 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
     }
 
     protected Runnable createMonitor(final CompletionService<SourceResponse> completionService,
-            final Map<Future<SourceResponse>, Source> futures,
-            final QueryResponseImpl returnResults, final QueryRequest request) {
+                                     final Map<Future<SourceResponse>, Source> futures,
+                                     final QueryResponseImpl returnResults, final QueryRequest request) {
 
         return new SortedQueryMonitor(completionService, futures, returnResults, request);
     }
@@ -412,27 +414,6 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
     public void shutdown() {
         cacheCommitPhaser.shutdown();
         cacheBulkProcessor.shutdown();
-    }
-
-    /**
-     * Gets the org.codice.ddf.system.threadPoolSize property,
-     * returns default value if property is null or invalid
-     *
-     * @return threadPoolSize property or default if null
-     */
-    private int getThreadPoolSize() {
-        try {
-            int threadPoolSize = Integer
-                    .parseInt(System.getProperty("org.codice.ddf.system.threadPoolSize"));
-
-            if (threadPoolSize > 0) {
-                return threadPoolSize;
-            } else {
-                return DEFAULT_THREAD_POOL_SIZE;
-            }
-        } catch (NumberFormatException e) {
-            return DEFAULT_THREAD_POOL_SIZE;
-        }
     }
 
     private static class OffsetResultHandler implements Runnable {
@@ -446,14 +427,15 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
         private int offset = 1;
 
         private OffsetResultHandler(QueryResponseImpl originalResults,
-                QueryResponseImpl offsetResultQueue, int pageSize, int offset) {
+                                    QueryResponseImpl offsetResultQueue, int pageSize, int offset) {
             this.originalResults = originalResults;
             this.offsetResultQueue = offsetResultQueue;
             this.pageSize = pageSize;
             this.offset = offset;
         }
 
-        @Override public void run() {
+        @Override
+        public void run() {
             int queryResultIndex = 1;
             int resultsSent = 0;
             Result result;
@@ -484,7 +466,8 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
             this.phaser = phaser;
         }
 
-        @Override public void run() {
+        @Override
+        public void run() {
             phaser.arriveAndAwaitAdvance();
         }
 
@@ -501,7 +484,8 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
             this.request = request;
         }
 
-        @Override public SourceResponse call() throws Exception {
+        @Override
+        public SourceResponse call() throws Exception {
             final SourceResponse sourceResponse = source
                     .query(new QueryRequestImpl(request.getQuery(), request.getProperties()));
 
@@ -511,7 +495,8 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
                 if (isCachingEverything || UPDATE_QUERY_MODE
                         .equals(request.getPropertyValue(QUERY_MODE))) {
                     cacheExecutorService.submit(new Runnable() {
-                        @Override public void run() {
+                        @Override
+                        public void run() {
                             try {
                                 cacheBulkProcessor.add(sourceResponse.getResults());
                             } catch (Throwable throwable) {
@@ -539,8 +524,8 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
         private Query query;
 
         public SortedQueryMonitor(CompletionService<SourceResponse> completionService,
-                Map<Future<SourceResponse>, Source> futures, QueryResponseImpl returnResults,
-                QueryRequest request) {
+                                  Map<Future<SourceResponse>, Source> futures, QueryResponseImpl returnResults,
+                                  QueryRequest request) {
 
             this.completionService = completionService;
             this.returnResults = returnResults;
@@ -549,7 +534,8 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
             this.futures = futures;
         }
 
-        @Override public void run() {
+        @Override
+        public void run() {
             SortBy sortBy = query.getSortBy();
             // Prepare the Comparators that we will use
             Comparator<Result> coreComparator = DEFAULT_COMPARATOR;
@@ -658,7 +644,7 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
         }
 
         private void interruptRemainingSources(Set<ProcessingDetails> processingDetails,
-                InterruptedException interruptedException) {
+                                               InterruptedException interruptedException) {
             for (Source interruptedSource : futures.values()) {
                 if (interruptedSource != null) {
                     logger.info("Search interrupted for {}", interruptedSource.getId());
@@ -698,7 +684,8 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
             phaseScheduler.scheduleWithFixedDelay(new PhaseAdvancer(this), 1, 1, TimeUnit.SECONDS);
         }
 
-        @Override protected boolean onAdvance(int phase, int registeredParties) {
+        @Override
+        protected boolean onAdvance(int phase, int registeredParties) {
             // registeredParties should be 1 since all parties other than the PhaseAdvancer
             // will arriveAndDeregister in the add method
             cache.forceCommit();
