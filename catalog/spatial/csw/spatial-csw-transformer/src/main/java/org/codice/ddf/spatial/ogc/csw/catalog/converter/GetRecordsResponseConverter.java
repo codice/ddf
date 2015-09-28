@@ -141,14 +141,15 @@ public class GetRecordsResponseConverter implements Converter {
                     + SEARCH_RESULTS_NODE_NAME);
             writer.addAttribute(NUMBER_OF_RECORDS_MATCHED_ATTRIBUTE,
                     Long.toString(cswRecordCollection.getNumberOfRecordsMatched()));
+
             if (!ResultType.HITS.equals(cswRecordCollection.getResultType())) {
                 writer.addAttribute(NUMBER_OF_RECORDS_RETURNED_ATTRIBUTE,
                         Long.toString(cswRecordCollection.getNumberOfRecordsReturned()));
+                writer.addAttribute(NEXT_RECORD_ATTRIBUTE, Long.toString(nextRecord));
             } else {
                 writer.addAttribute(NUMBER_OF_RECORDS_RETURNED_ATTRIBUTE, Long.toString(0));
             }
 
-            writer.addAttribute(NEXT_RECORD_ATTRIBUTE, Long.toString(nextRecord));
             writer.addAttribute(RECORD_SCHEMA_ATTRIBUTE, recordSchema);
             if (StringUtils.isNotBlank(elementSet)) {
                 writer.addAttribute(ELEMENT_SET_ATTRIBUTE, elementSet);
