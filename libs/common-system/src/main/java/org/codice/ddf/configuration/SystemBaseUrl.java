@@ -27,7 +27,7 @@ public final class SystemBaseUrl {
 
     public static final String PROTOCOL = "org.codice.ddf.system.protocol";
 
-    public static final String ROOT_CONTEXT = "org.apache.cxf.servlet.context";
+    public static final String ROOT_CONTEXT = "org.codice.ddf.system.rootContext";
 
     public static final String DEFAULT_HTTP_PORT = "8181";
 
