@@ -541,7 +541,7 @@
             </snapshots>
             <id>mygrid-repository</id>
             <name>myGrid Repository</name>
-            <url>http://www.mygrid.org.uk/maven/repository</url>
+            <url>http://repository.mygrid.org.uk/artifactory/ext-release-local</url>
         </repository>
     </repositories>
 </project>
