@@ -20,7 +20,6 @@ import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -107,7 +106,7 @@ public class SecurityAssertionImpl implements SecurityAssertion {
      * Attributes associated with the username
      * depending on the value of NameIDFormat
      */
-    private List<String> usernameAttributeList;
+    private ArrayList<String> usernameAttributeList;
 
     private String issuer;
 
@@ -134,16 +133,16 @@ public class SecurityAssertionImpl implements SecurityAssertion {
     /**
      * Default Constructor
      *
-     * @param securityToken - token to wrap
+     * @param securityToken         - token to wrap
+     * @param usernameAttributeList - configurable list of attributes
      */
     public SecurityAssertionImpl(SecurityToken securityToken, List<String> usernameAttributeList) {
         init();
         this.securityToken = securityToken;
         if (usernameAttributeList == null) {
             this.usernameAttributeList = new ArrayList<>();
-        }
-        else {
-            this.usernameAttributeList = usernameAttributeList;
+        } else {
+            this.usernameAttributeList = new ArrayList<>(usernameAttributeList);
         }
         parseToken(securityToken);
         identifyNameIDFormat();
@@ -158,6 +157,7 @@ public class SecurityAssertionImpl implements SecurityAssertion {
     private void init() {
         attributeStatements = new ArrayList<>();
         authenticationStatements = new ArrayList<>();
+        this.usernameAttributeList = new ArrayList<>();
     }
 
     /**
@@ -279,7 +279,7 @@ public class SecurityAssertionImpl implements SecurityAssertion {
     @Override
     public Principal getPrincipal() {
         if (securityToken != null) {
-            if (principal == null) {
+            if (principal == null || !principal.getName().equals(name)) {
                 String authMethod = null;
                 if (authenticationStatements != null) {
                     for (AuthnStatement authnStatement : authenticationStatements) {
@@ -370,39 +370,35 @@ public class SecurityAssertionImpl implements SecurityAssertion {
     }
 
     /**
-     * Checks the format of the NameID element and changes
-     * the name to the value of the usernameAttribute
-     * based on the type of NameIDFormat.
+     * Checks if the NameIDFormat is of the following formats below, if not, the name is changed
+     * to the value of the first matching usernameAttribute.
      */
     public void identifyNameIDFormat() {
-        if ((StringUtils.containsIgnoreCase(nameIDFormat, "persistent") || StringUtils
-                .containsIgnoreCase(nameIDFormat, "X509") ||
-                StringUtils.containsIgnoreCase(nameIDFormat, "kerberos") || StringUtils
-                .containsIgnoreCase(nameIDFormat, "unspecified")) && !name.equals("")) {
-            ;// If NameIDFormat is of the above following formats, then use the current name from the NameID
-        } else {
-            // If NameIDFormat is different then set the name to the value of the NameIdentifier or UID attribute
+        if (!((StringUtils.containsIgnoreCase(nameIDFormat, SAML2Constants.NAMEID_FORMAT_PERSISTENT)
+                || StringUtils
+                .containsIgnoreCase(nameIDFormat, SAML2Constants.NAMEID_FORMAT_X509_SUBJECT_NAME)
+                || StringUtils
+                .containsIgnoreCase(nameIDFormat, SAML2Constants.NAMEID_FORMAT_KERBEROS)
+                || StringUtils
+                .containsIgnoreCase(nameIDFormat, SAML2Constants.NAMEID_FORMAT_UNSPECIFIED))
+                && !name.equals(""))) {
             for (AttributeStatement attributeStatementList : getAttributeStatements()) {
                 List<Attribute> attributeList = attributeStatementList.getAttributes();
                 for (Attribute attribute : attributeList) {
-                    if (listContainsIgnoreCase(usernameAttributeList, attribute.getName())) { //What attribute should be used??
-                        List<XMLObject> attributeValues = attribute.getAttributeValues();
-                        for (XMLObject attributeValue : attributeValues) {
-                            // Sets username to value of first attribute value
-                            name = ((XMLString) attributeValue).getValue();
-                            return;
-                        }
+                    if (listContainsIgnoreCase(usernameAttributeList, attribute.getName())) {
+                        name = ((XMLString) attribute.getAttributeValues().get(0)).getValue();
+                        return;
                     }
                 }
             }
         }
     }
 
-    public boolean listContainsIgnoreCase(List <String> list, String string){
-        Iterator<String> it = list.iterator();
-        while(it.hasNext()){
-            if(it.next().equalsIgnoreCase(string))
+    public boolean listContainsIgnoreCase(List<String> list, String string) {
+        for (String next : list) {
+            if (next.equalsIgnoreCase(string)) {
                 return true;
+            }
         }
         return false;
     }
