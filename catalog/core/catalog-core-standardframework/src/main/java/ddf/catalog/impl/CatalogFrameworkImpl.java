@@ -1585,29 +1585,6 @@ public class CatalogFrameworkImpl extends DescribableImpl
     }
 
     /**
-     * To be set via Spring/Blueprint
-     *
-     * @param poolSize the number of threads in the pool, 0 for an automatically-managed pool
-     */
-    public synchronized void setPoolSize(int poolSize) {
-        LOGGER.debug("Setting poolSize = " + poolSize);
-        if (pool != null) {
-            if (this.threadPoolSize == poolSize || this.threadPoolSize <= 0 && poolSize <= 0) {
-                return;
-            } else {
-                pool.shutdown();
-            }
-        }
-
-        this.threadPoolSize = poolSize;
-        if (threadPoolSize > 0) {
-            pool = Executors.newFixedThreadPool(poolSize);
-        } else {
-            pool = Executors.newCachedThreadPool();
-        }
-    }
-
-    /**
      * String representation of this {@code CatalogFrameworkImpl}.
      */
     @Override

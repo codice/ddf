@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.ui.searchui.query.controller;
 
 import java.util.Collections;
@@ -51,6 +50,8 @@ import ddf.security.Subject;
 public class SearchController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SearchController.class);
+
+    private static final int DEFAULT_THREAD_POOL_SIZE = 128;
 
     private final ExecutorService executorService = getExecutorService();
 
@@ -150,7 +151,7 @@ public class SearchController {
             // Send any previously cached results
             cacheFuture = executorService
                     .submit(new CacheQueryRunnable(this, request, subject, search, session, results,
-                                    solrIndexFuture));
+                            solrIndexFuture));
         } else {
             cacheFuture = Futures.immediateFuture(null);
         }
@@ -208,11 +209,32 @@ public class SearchController {
 
     // Override for unit testing
     ExecutorService getExecutorService() {
-        return Executors.newCachedThreadPool();
+        return Executors.newFixedThreadPool(getThreadPoolSize());
     }
 
     public void setNormalizationDisabled(Boolean normalizationDisabled) {
         this.normalizationDisabled = normalizationDisabled;
+    }
+
+    /**
+     * Gets the org.codice.ddf.system.threadPoolSize property,
+     * returns default value if property is null or invalid
+     *
+     * @return threadPoolSize property or default if null
+     */
+    private int getThreadPoolSize() {
+        try {
+            int threadPoolSize = Integer
+                    .parseInt(System.getProperty("org.codice.ddf.system.threadPoolSize"));
+
+            if (threadPoolSize > 0) {
+                return threadPoolSize;
+            } else {
+                return DEFAULT_THREAD_POOL_SIZE;
+            }
+        } catch (NumberFormatException e) {
+            return DEFAULT_THREAD_POOL_SIZE;
+        }
     }
 
 }

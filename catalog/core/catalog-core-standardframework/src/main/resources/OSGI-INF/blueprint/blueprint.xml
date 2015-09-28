@@ -242,7 +242,6 @@
 		<argument ref="productCache"/>
 		<argument ref="retrieveStatusEventPublisher"/>
 		<argument ref="reliableResourceDownloadManager"/>
-		<property name="poolSize" value="0"/>
 		<property name="id" value="ddf"/>
 		<property name="version" value="DDF v2.0"/>
 		<property name="organization" value="Codice"/>

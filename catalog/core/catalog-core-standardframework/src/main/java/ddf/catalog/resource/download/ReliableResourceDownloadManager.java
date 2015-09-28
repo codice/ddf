@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -50,6 +50,8 @@ public class ReliableResourceDownloadManager {
     private static final Logger LOGGER = LoggerFactory
             .getLogger(ReliableResourceDownloadManager.class);
 
+    private static final int DEFAULT_THREAD_POOL_SIZE = 128;
+
     private DownloadsStatusEventPublisher eventPublisher;
 
     private ResourceResponse resourceResponse;
@@ -58,7 +60,7 @@ public class ReliableResourceDownloadManager {
 
     private DownloadStatusInfo downloadStatusInfo;
 
-    private ExecutorService executor = Executors.newCachedThreadPool();
+    private ExecutorService executor = Executors.newFixedThreadPool(getThreadPoolSize());
 
     private ReliableResourceDownloaderConfig downloaderConfig = new ReliableResourceDownloaderConfig();
 
@@ -193,5 +195,26 @@ public class ReliableResourceDownloadManager {
 
     public void setChunkSize(int chunkSize) {
         downloaderConfig.setChunkSize(chunkSize);
+    }
+
+    /**
+     * Gets the org.codice.ddf.system.threadPoolSize property,
+     * returns default value if property is null or invalid
+     *
+     * @return threadPoolSize property or default if null
+     */
+    private int getThreadPoolSize() {
+        try {
+            int threadPoolSize = Integer
+                    .parseInt(System.getProperty("org.codice.ddf.system.threadPoolSize"));
+
+            if (threadPoolSize > 0) {
+                return threadPoolSize;
+            } else {
+                return DEFAULT_THREAD_POOL_SIZE;
+            }
+        } catch (NumberFormatException e) {
+            return DEFAULT_THREAD_POOL_SIZE;
+        }
     }
 }
