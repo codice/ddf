@@ -11,6 +11,7 @@ This guide discusses the several extension points and components permitted by th
 * Verify that the JAVA_HOME environment variable is set to the newly installed JDK location, and that the PATH includes `%JAVA_HOME%\bin` (for Windows) or `$JAVA_HOME$/bin` (*nix).
 Install Maven 3.1.0 or later (http://maven.apache.org/download.cgi). Verify that the PATH includes the `MVN_HOME/bin` directory.
 In addition, access to a Maven repository with the latest project artifacts and dependencies is necessary in order for a successful build. The following sample settings.xml (the default settings file) can be used to access the public repositories with the required artifacts. For more help on how to use the settings.xml file, refer to the Maven settings reference page (http://maven.apache.org/settings.html).
+* Java 8 is required; using Java 7 will no longer correctly build DDF
 
 .Sample settings.xml file
 [source,xml,linenums]
