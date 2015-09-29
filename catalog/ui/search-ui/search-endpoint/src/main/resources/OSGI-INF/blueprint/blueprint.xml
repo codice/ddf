@@ -22,9 +22,9 @@
     <bean id="comet" class="org.cometd.server.CometdServlet">
     </bean>
 
-    <bean id="fixedThreadPool" class="java.util.concurrent.Executors"
+    <bean id="searchThreadPool" class="java.util.concurrent.Executors"
           factory-method="newFixedThreadPool">
-        <argument ref="nThreads" value="${org.codice.ddf.system.threadPoolSize}"/>
+        <argument value="${org.codice.ddf.system.threadPoolSize}"/>
     </bean>
 
     <reference id="eventAdmin" interface="org.osgi.service.event.EventAdmin"/>
@@ -55,7 +55,7 @@
         <argument ref="blueprintBundleContext"/>
         <argument ref="eventAdmin"/>
         <argument ref="actionRegistry"/>
-        <argument ref="fixedThreadPool"/>
+        <argument ref="searchThreadPool"/>
     </bean>
 
 

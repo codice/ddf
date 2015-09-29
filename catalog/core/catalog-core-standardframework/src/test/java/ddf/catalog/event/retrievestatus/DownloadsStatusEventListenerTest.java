@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.HashSet; 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.BeforeClass;
@@ -73,7 +74,7 @@ public class DownloadsStatusEventListenerTest {
         DownloadsStatusEventPublisher testEventPublisher = mock(
                 DownloadsStatusEventPublisher.class);
         testEventListener = new DownloadsStatusEventListener();
-        testDownloadManager = new ReliableResourceDownloadManager(testResourceCache,
+        testDownloadManager = new ReliableResourceDownloadManager(Executors.newSingleThreadExecutor(), testResourceCache,
                 testEventPublisher, testEventListener, testDownloadStatusInfo);
         testDownloadManager.setMaxRetryAttempts(1);
         testDownloadManager.setDelayBetweenAttempts(0);
