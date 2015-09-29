@@ -2301,17 +2301,14 @@ Event event = new Event("ddf/notification/catalog/downloads", properties);
 eventAdmin.postEvent(event);
 ----
 
-=== Configuring system.properties
+=== Configuring Thread Pools
 
-The `system.properties` file found under `$DDF_HOME/etc` contains properties that will be made available through system properties at the very beginning of Karaf's boot process. This file can be used to change specific system-level properties such as thread-pool count and default directory locations.
+The `system.properties` file found under `$DDF_HOME/etc` contains properties that will be made available through system properties at the beginning of Karaf's boot process. The `org.codice.ddf.system.threadPoolSize` property can be used to specify the size of thread pools used by:
+* Federating requests between {branding} systems
+* Downloading resources
+* Handling asynchronous queries, such as queries from the UI
 
-==== Thread Pool
-
-The `org.codice.ddf.system.threadPoolSize` property can be used to specify the size of the thread pool used by the federation strategy for handling queries.
-
-* By default, this value is set to 128.
-* The ideal and recommended value for this setting should the the number of cores of the system on which {branding} is running.
-* It is not recommended to set this value extremely high. If unsure, leave this setting at it's defualt value of 128.
+By default, this value is set to 128. It is not recommended to set this value extremely high. If unsure, leave this setting at it's default value of 128.
 
 == Managing Web Service Security
 
