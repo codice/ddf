@@ -116,7 +116,7 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
 
     private final SolrCache cache;
 
-    private final ExecutorService cacheExecutorService = Executors.newFixedThreadPool(8);
+    private final ExecutorService cacheExecutorService;
 
     /**
      * The {@link List} of pre-federated query plugins to execute on the query request before the
@@ -148,12 +148,13 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
      */
     public CachingFederationStrategy(ExecutorService queryExecutorService,
             List<PreFederatedQueryPlugin> preQuery, List<PostFederatedQueryPlugin> postQuery,
-            SolrCache cache) {
+            SolrCache cache, ExecutorService cacheExecutorService) {
         this.queryExecutorService = queryExecutorService;
         this.preQuery = preQuery;
         this.postQuery = postQuery;
         this.maxStartIndex = DEFAULT_MAX_START_INDEX;
         this.cache = cache;
+        this.cacheExecutorService = cacheExecutorService;
         cacheBulkProcessor = new CacheBulkProcessor(cache);
     }
 

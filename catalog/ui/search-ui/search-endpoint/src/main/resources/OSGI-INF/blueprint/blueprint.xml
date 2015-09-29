@@ -14,9 +14,17 @@
 -->
 
 <blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+           xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.2.0"
            xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
+    <ext:property-placeholder/>
+
     <bean id="comet" class="org.cometd.server.CometdServlet">
+    </bean>
+
+    <bean id="searchThreadPool" class="java.util.concurrent.Executors"
+          factory-method="newFixedThreadPool">
+        <argument value="${org.codice.ddf.system.threadPoolSize}"/>
     </bean>
 
     <reference id="eventAdmin" interface="org.osgi.service.event.EventAdmin"/>
@@ -47,6 +55,7 @@
         <argument ref="blueprintBundleContext"/>
         <argument ref="eventAdmin"/>
         <argument ref="actionRegistry"/>
+        <argument ref="searchThreadPool"/>
     </bean>
 
 
