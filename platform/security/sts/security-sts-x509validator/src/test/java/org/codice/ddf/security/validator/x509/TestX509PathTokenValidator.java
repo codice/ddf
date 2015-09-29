@@ -19,7 +19,15 @@ import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.security.KeyStore;
+import java.security.cert.CertPath;
+import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
 
 import javax.security.auth.x500.X500Principal;
 
@@ -27,6 +35,7 @@ import org.apache.cxf.sts.STSPropertiesMBean;
 import org.apache.cxf.sts.request.ReceivedToken;
 import org.apache.cxf.sts.token.validator.TokenValidatorParameters;
 import org.apache.cxf.sts.token.validator.TokenValidatorResponse;
+import org.apache.cxf.sts.token.validator.X509TokenValidator;
 import org.apache.cxf.ws.security.sts.provider.model.secext.BinarySecurityTokenType;
 import org.apache.wss4j.common.crypto.Crypto;
 import org.apache.wss4j.common.crypto.Merlin;
@@ -34,22 +43,45 @@ import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.dom.handler.RequestData;
 import org.apache.wss4j.dom.validate.Credential;
 import org.apache.wss4j.dom.validate.Validator;
+import org.junit.Before;
 import org.junit.Test;
 
 public class TestX509PathTokenValidator {
-    @Test
-    public void testValidateGoodToken() {
-        X509PathTokenValidator x509PathTokenValidator = new X509PathTokenValidator();
+
+    private X509PathTokenValidator x509PathTokenValidator;
+
+    private Validator validator;
+
+    @Before
+    public void setUp() {
+        x509PathTokenValidator = new X509PathTokenValidator();
         x509PathTokenValidator.merlin = mock(Merlin.class);
         try {
-            X509Certificate[] x509Certificates = new X509Certificate[] {
-                    mock(X509Certificate.class)};
+            X509Certificate mockCert = mock(X509Certificate.class);
+            X509Certificate[] x509Certificates = new X509Certificate[] {mockCert};
             when(x509PathTokenValidator.merlin.getCertificatesFromBytes(any(byte[].class)))
                     .thenReturn(x509Certificates);
+
+            when(x509PathTokenValidator.merlin.loadCertificate(any(InputStream.class)))
+                    .thenReturn(mockCert);
         } catch (WSSecurityException e) {
             //ignore
         }
-        Validator validator = mock(Validator.class);
+        validator = mock(Validator.class);
+    }
+
+    @Test
+    public void testValidateGoodPath() {
+        goodToken(X509PathTokenValidator.X509_PKI_PATH);
+    }
+
+    @Test
+    public void testValidateGoodToken() {
+        goodToken(X509TokenValidator.X509_V3_TYPE);
+    }
+
+    private void goodToken(String type) {
+
         try {
             Credential credential = mock(Credential.class);
             X509Certificate x509Certificate = mock(X509Certificate.class);
@@ -74,11 +106,13 @@ public class TestX509PathTokenValidator {
         doCallRealMethod().when(receivedToken).getState();
         when(tokenParameters.getToken()).thenReturn(receivedToken);
         when(receivedToken.isBinarySecurityToken()).thenReturn(true);
+
         BinarySecurityTokenType binarySecurityTokenType = mock(BinarySecurityTokenType.class);
+        when(binarySecurityTokenType.getValueType()).thenReturn(type);
+
         when(receivedToken.getToken()).thenReturn(binarySecurityTokenType);
         when(binarySecurityTokenType.getEncodingType())
                 .thenReturn(X509PathTokenValidator.BASE64_ENCODING);
-        when(binarySecurityTokenType.getValueType()).thenReturn("valuetype");
         when(binarySecurityTokenType.getValue()).thenReturn("data");
 
         TokenValidatorResponse tokenValidatorResponse = x509PathTokenValidator
@@ -88,18 +122,28 @@ public class TestX509PathTokenValidator {
     }
 
     @Test
+    public void biteme() throws Exception {
+
+        String storename = "/Users/rporter/serverKeystore.jks";
+        char[] storepass = "changeit".toCharArray();
+        String alias = "localhost";
+        KeyStore ks = KeyStore.getInstance("JKS");
+        ks.load(new FileInputStream(storename), storepass);
+        java.security.cert.Certificate[] cchain = ks.getCertificateChain(alias);
+        List mylist = new ArrayList();
+        for (int i = 0; i < cchain.length; i++) {
+            mylist.add(cchain[i]);
+        }
+        CertificateFactory cf = CertificateFactory.getInstance("X.509");
+        CertPath cp = cf.generateCertPath(mylist);
+//        System.out.println(cp.getEncoded());
+        System.out.println(new String(Base64.getEncoder().encode(cp.getEncoded())));
+    }
+
+    @Test
     public void testValidateBadToken() {
         X509PathTokenValidator x509PathTokenValidator = new X509PathTokenValidator();
-        x509PathTokenValidator.merlin = mock(Merlin.class);
-        try {
-            X509Certificate[] x509Certificates = new X509Certificate[] {
-                    mock(X509Certificate.class)};
-            when(x509PathTokenValidator.merlin.getCertificatesFromBytes(any(byte[].class)))
-                    .thenReturn(x509Certificates);
-        } catch (WSSecurityException e) {
-            //ignore
-        }
-        Validator validator = mock(Validator.class);
+
         try {
             Credential credential = mock(Credential.class);
             X509Certificate x509Certificate = mock(X509Certificate.class);
