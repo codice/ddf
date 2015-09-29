@@ -114,65 +114,54 @@ public class TestCswSourceBase {
 
     protected String getRecordsControlXml202 =
             "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
-                    + "<ns4:GetRecords resultType=\"results\" outputFormat=\"application/xml\""
-                    + " outputSchema=\"http://www.opengis.net/cat/csw/2.0.2\" startPosition=\"1\""
-                    + " maxRecords=\"10\" service=\"CSW\" version=\"2.0.2\" xmlns:ns2=\"http://www.w3.org/1999/xlink\""
-                    + " xmlns=\"http://www.opengis.net/ows\" xmlns:ns4=\"http://www.opengis.net/cat/csw/2.0.2\""
-                    + " xmlns:ns3=\"http://www.opengis.net/ogc\" xmlns:ns9=\"http://www.w3.org/2001/SMIL20/Language\""
-                    + " xmlns:ns5=\"http://www.opengis.net/gml\" xmlns:ns6=\"http://purl.org/dc/elements/1.1/\""
-                    + " xmlns:ns7=\"http://purl.org/dc/terms/\" xmlns:ns8=\"http://www.w3.org/2001/SMIL20/\">"
-                    + "<ns4:Query typeNames=\"Record\" xmlns=\"\" xmlns:ns10=\"http://www.opengis.net/ows\">"
-                    + "<ns4:ElementSetName>full</ns4:ElementSetName>"
-                    + "<ns4:Constraint version=\"1.1.0\">" + "<ns3:Filter>"
-                    + "<ns3:PropertyIsLike wildCard=\"*\" singleChar=\"#\" escapeChar=\"!\">"
-                    + "<ns3:PropertyName>" + CswConstants.ANY_TEXT + "</ns3:PropertyName>"
-                    + "<ns3:Literal>*th*e</ns3:Literal>" + "</ns3:PropertyIsLike>" + "</ns3:Filter>"
-                    + "</ns4:Constraint>" + "</ns4:Query>" + "</ns4:GetRecords>";
-
-    protected String getRecordsControlXml201 =
-            "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
-                    + "<ns4:GetRecords resultType=\"results\" outputFormat=\"application/xml\""
-                    + " outputSchema=\"OGCCORE\" startPosition=\"1\""
-                    + " maxRecords=\"10\" service=\"CSW\" version=\"2.0.1\" xmlns:ns2=\"http://www.w3.org/1999/xlink\""
-                    + " xmlns=\"http://www.opengis.net/ows\" xmlns:ns4=\"http://www.opengis.net/cat/csw\""
-                    + " xmlns:ns3=\"http://www.opengis.net/ogc\" xmlns:ns9=\"http://www.w3.org/2001/SMIL20/Language\""
-                    + " xmlns:ns5=\"http://www.opengis.net/gml\" xmlns:ns6=\"http://purl.org/dc/elements/1.1/\""
-                    + " xmlns:ns7=\"http://purl.org/dc/terms/\" xmlns:ns8=\"http://www.w3.org/2001/SMIL20/\">"
-                    + "<ns4:Query typeNames=\"csw:Record\" xmlns=\"\" xmlns:ns10=\"http://www.opengis.net/ows\">"
-                    + "<ns4:ElementSetName>full</ns4:ElementSetName>"
-                    + "<ns4:Constraint version=\"1.1.0\">" + "<ns3:Filter>"
-                    + "<ns3:PropertyIsLike wildCard=\"*\" singleChar=\"#\" escapeChar=\"!\">"
-                    + "<ns3:PropertyName>" + CswConstants.ANY_TEXT + "</ns3:PropertyName>"
-                    + "<ns3:Literal>*th*e</ns3:Literal>" + "</ns3:PropertyIsLike>" + "</ns3:Filter>"
-                    + "</ns4:Constraint>" + "</ns4:Query>" + "</ns4:GetRecords>";
+                    + "<GetRecords resultType=\"results\" outputFormat=\"application/xml\""
+                    + "    outputSchema=\"http://www.opengis.net/cat/csw/2.0.2\" startPosition=\"1\""
+                    + "    maxRecords=\"10\" service=\"CSW\" version=\"2.0.2\""
+                    + "    xmlns=\"http://www.opengis.net/cat/csw/2.0.2\""
+                    + "    xmlns:ogc=\"http://www.opengis.net/ogc\">"
+                    + "    <Query typeNames=\"Record\">"
+                    + "        <ElementSetName>full</ElementSetName>"
+                    + "        <Constraint version=\"1.1.0\">" // Line break
+                    + "            <ogc:Filter>"
+                    + "                <ogc:PropertyIsLike wildCard=\"*\" singleChar=\"#\" escapeChar=\"!\">"
+                    + "                    <ogc:PropertyName>" + CswConstants.ANY_TEXT
+                    + "                    </ogc:PropertyName>" // Line break
+                    + "                    <ogc:Literal>*th*e</ogc:Literal>" // Line break
+                    + "                </ogc:PropertyIsLike>" // Line break
+                    + "            </ogc:Filter>" // Line break
+                    + "        </Constraint>" // Line break
+                    + "    </Query>" // Line break
+                    + "</GetRecords>";
 
     protected String getRecordsControlXml202ContentTypeMappedToFormat =
             "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
                     + "<GetRecords resultType=\"results\" outputFormat=\"application/xml\""
-                    + " outputSchema=\"http://www.opengis.net/cat/csw/2.0.2\" startPosition=\"1\""
-                    + " maxRecords=\"10\" service=\"CSW\" version=\"2.0.2\" xmlns:ns2=\"http://www.opengis.net/ogc\""
-                    + " xmlns=\"http://www.opengis.net/cat/csw/2.0.2\" xmlns:ns4=\"http://www.w3.org/1999/xlink\""
-                    + " xmlns:ns3=\"http://www.opengis.net/gml\" xmlns:ns9=\"http://www.w3.org/2001/SMIL20/Language\""
-                    + " xmlns:ns5=\"http://purl.org/dc/elements/1.1/\" xmlns:ns6=\"http://www.opengis.net/ows\""
-                    + " xmlns:ns7=\"http://purl.org/dc/terms/\" xmlns:ns8=\"http://www.w3.org/2001/SMIL20/\">"
-                    + "<ns10:Query typeNames=\"Record\" xmlns=\"\" xmlns:ns10=\"http://www.opengis.net/cat/csw/2.0.2\">"
-                    + "<ns10:ElementSetName>full</ns10:ElementSetName>"
-                    + "<ns10:Constraint version=\"1.1.0\">" + "<ns2:Filter>"
-                    + "<ns2:PropertyIsEqualTo matchCase=\"true\">" + "<ns2:PropertyName>"
-                    + CswRecordMetacardType.CSW_FORMAT + "</ns2:PropertyName>"
-                    + "<ns2:Literal>myContentType</ns2:Literal>" + "</ns2:PropertyIsEqualTo>"
-                    + "</ns2:Filter>" + "</ns10:Constraint>" + "</ns10:Query>" + "</GetRecords>";
+                    + "    outputSchema=\"http://www.opengis.net/cat/csw/2.0.2\" startPosition=\"1\""
+                    + "    maxRecords=\"10\" service=\"CSW\" version=\"2.0.2\""
+                    + "    xmlns:ogc=\"http://www.opengis.net/ogc\""
+                    + "    xmlns=\"http://www.opengis.net/cat/csw/2.0.2\">"
+                    + "    <Query typeNames=\"Record\">" + "<ElementSetName>full</ElementSetName>"
+                    + "        <Constraint version=\"1.1.0\">" // Line break
+                    + "            <ogc:Filter>" // Line break
+                    + "                <ogc:PropertyIsEqualTo matchCase=\"true\">"
+                    + "                    <ogc:PropertyName>" + CswRecordMetacardType.CSW_FORMAT
+                    + "                    </ogc:PropertyName>"
+                    + "                    <ogc:Literal>myContentType</ogc:Literal>"
+                    + "                </ogc:PropertyIsEqualTo>" // Line break
+                    + "            </ogc:Filter>" // Line break
+                    + "        </Constraint>" // Line break
+                    + "    </Query>" // Line break
+                    + "</GetRecords>";
 
     @BeforeClass
     public static void init() {
-        // The magic setting - besides ignoring whitespace, this setting
-        // configures XMLUnit to
-        // treat namespaces that are equivalent but that use different prefixes
-        // to be considered
-        // a recoverable difference, hence XMLUnit's diff will mark the docs as
-        // similar if this is
+        // The magic setting - besides ignoring whitespace, this setting configures XMLUnit to
+        // treat namespaces that are equivalent but that use different prefixes to be considered
+        // a recoverable difference, hence XMLUnit's diff will mark the docs as similar if this is
         // their only difference.
         XMLUnit.setIgnoreWhitespace(true);
+        XMLUnit.setIgnoreAttributeOrder(true);
+        XMLUnit.setIgnoreComments(true);
     }
 
     @Before

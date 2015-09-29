@@ -340,8 +340,7 @@ public class CswSource extends MaskableImpl
 
         getRecordsTypeProvider.setJaxbElementClassNames(jaxbElementClassNames);
 
-        // Adding map entry of <Class Name>,<Qualified Name> to
-        // jaxbElementClassMap
+        // Adding map entry of <Class Name>,<Qualified Name> to jaxbElementClassMap
         String expandedName = new QName(CswConstants.CSW_OUTPUT_SCHEMA, CswConstants.GET_RECORDS)
                 .toString();
         LOGGER.debug("{} expanded name: {}", CswConstants.GET_RECORDS, expandedName);
@@ -367,7 +366,6 @@ public class CswSource extends MaskableImpl
         GetRecordsMessageBodyReader grmbr = new GetRecordsMessageBodyReader(cswTransformProvider,
                 cswSourceConfiguration);
         return Arrays.asList(getRecordsTypeProvider, new CswResponseExceptionMapper(), grmbr);
-
     }
 
     /**
