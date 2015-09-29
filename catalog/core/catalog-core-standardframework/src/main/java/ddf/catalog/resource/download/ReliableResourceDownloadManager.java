@@ -16,7 +16,6 @@ package ddf.catalog.resource.download;
 import java.io.IOException;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -58,7 +57,7 @@ public class ReliableResourceDownloadManager {
 
     private DownloadStatusInfo downloadStatusInfo;
 
-    private ExecutorService executor = Executors.newCachedThreadPool();
+    private ExecutorService executor;
 
     private ReliableResourceDownloaderConfig downloaderConfig = new ReliableResourceDownloaderConfig();
 
@@ -72,9 +71,10 @@ public class ReliableResourceDownloadManager {
      * @param downloadStatusInfo
      *            reference to the {@link DownloadStatusInfo}
      */
-    public ReliableResourceDownloadManager(ResourceCache resourceCache,
-            DownloadsStatusEventPublisher eventPublisher,
-            DownloadsStatusEventListener eventListener, DownloadStatusInfo downloadStatusInfo) {
+    public ReliableResourceDownloadManager(ExecutorService executor, ResourceCache resourceCache,
+                                           DownloadsStatusEventPublisher eventPublisher,
+                                           DownloadsStatusEventListener eventListener, DownloadStatusInfo downloadStatusInfo) {
+        this.executor = executor;
         this.downloaderConfig.setResourceCache(resourceCache);
         this.eventPublisher = eventPublisher;
         this.downloaderConfig.setEventPublisher(this.eventPublisher);
@@ -108,7 +108,7 @@ public class ReliableResourceDownloadManager {
      * @throws DownloadException
      */
     public ResourceResponse download(ResourceRequest resourceRequest, Metacard metacard,
-            ResourceRetriever retriever) throws DownloadException {
+                                     ResourceRetriever retriever) throws DownloadException {
 
         if (metacard == null) {
             throw new DownloadException("Cannot download resource if metacard is null");

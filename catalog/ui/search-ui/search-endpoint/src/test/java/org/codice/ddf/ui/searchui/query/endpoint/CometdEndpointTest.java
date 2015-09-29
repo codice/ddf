@@ -21,6 +21,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
+import java.util.concurrent.Executors;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -135,7 +136,7 @@ public class CometdEndpointTest {
         cometdEndpoint = new CometdEndpoint(cometdServlet, mock(CatalogFramework.class),
                 mock(FilterBuilder.class), mock(FilterAdapter.class), mock(PersistentStore.class),
                 mock(BundleContext.class), mock(EventAdmin.class),
-                new ActionRegistryImpl(Collections.EMPTY_LIST));
+                new ActionRegistryImpl(Collections.EMPTY_LIST), Executors.newSingleThreadExecutor());
     }
 
     /**

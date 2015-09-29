@@ -116,7 +116,7 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
 
     private final SolrCache cache;
 
-    private final ExecutorService cacheExecutorService = Executors.newFixedThreadPool(8);
+    private final ExecutorService cacheExecutorService;
 
     /**
      * The {@link List} of pre-federated query plugins to execute on the query request before the
@@ -143,13 +143,13 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
     /**
      * Instantiates an {@code AbstractFederationStrategy} with the provided {@link ExecutorService}.
      *
-     * @param queryExecutorService
-     *            the {@link ExecutorService} for queries
+     * @param queryExecutorService the {@link ExecutorService} for queries
      */
-    public CachingFederationStrategy(ExecutorService queryExecutorService,
-            List<PreFederatedQueryPlugin> preQuery, List<PostFederatedQueryPlugin> postQuery,
-            SolrCache cache) {
+    public CachingFederationStrategy(ExecutorService queryExecutorService, ExecutorService cacheExecutorService,
+                                     List<PreFederatedQueryPlugin> preQuery, List<PostFederatedQueryPlugin> postQuery,
+                                     SolrCache cache) {
         this.queryExecutorService = queryExecutorService;
+        this.cacheExecutorService = cacheExecutorService;
         this.preQuery = preQuery;
         this.postQuery = postQuery;
         this.maxStartIndex = DEFAULT_MAX_START_INDEX;
@@ -239,7 +239,7 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
                     }
 
                     futures.put(queryCompletion
-                            .submit(new CallableSourceResponse(source, modifiedQueryRequest)),
+                                    .submit(new CallableSourceResponse(source, modifiedQueryRequest)),
                             source);
                 } else {
                     logger.warn("Duplicate source found with name {}. Ignoring second one.",
@@ -289,7 +289,7 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
     }
 
     private Query getModifiedQuery(Query originalQuery, int numberOfSources, int offset,
-            int pageSize) {
+                                   int pageSize) {
 
         Query query = null;
 
@@ -375,8 +375,7 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
     /**
      * To be set via Spring/Blueprint
      *
-     * @param maxStartIndex
-     *            the new default max start index value
+     * @param maxStartIndex the new default max start index value
      */
     public void setMaxStartIndex(int maxStartIndex) {
         this.maxStartIndex = DEFAULT_MAX_START_INDEX;
@@ -406,8 +405,8 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
     }
 
     protected Runnable createMonitor(final CompletionService<SourceResponse> completionService,
-            final Map<Future<SourceResponse>, Source> futures,
-            final QueryResponseImpl returnResults, final QueryRequest request) {
+                                     final Map<Future<SourceResponse>, Source> futures,
+                                     final QueryResponseImpl returnResults, final QueryRequest request) {
 
         return new SortedQueryMonitor(completionService, futures, returnResults, request);
     }
@@ -428,7 +427,7 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
         private int offset = 1;
 
         private OffsetResultHandler(QueryResponseImpl originalResults,
-                QueryResponseImpl offsetResultQueue, int pageSize, int offset) {
+                                    QueryResponseImpl offsetResultQueue, int pageSize, int offset) {
             this.originalResults = originalResults;
             this.offsetResultQueue = offsetResultQueue;
             this.pageSize = pageSize;
@@ -525,8 +524,8 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
         private Query query;
 
         public SortedQueryMonitor(CompletionService<SourceResponse> completionService,
-                Map<Future<SourceResponse>, Source> futures, QueryResponseImpl returnResults,
-                QueryRequest request) {
+                                  Map<Future<SourceResponse>, Source> futures, QueryResponseImpl returnResults,
+                                  QueryRequest request) {
 
             this.completionService = completionService;
             this.returnResults = returnResults;
@@ -645,7 +644,7 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
         }
 
         private void interruptRemainingSources(Set<ProcessingDetails> processingDetails,
-                InterruptedException interruptedException) {
+                                               InterruptedException interruptedException) {
             for (Source interruptedSource : futures.values()) {
                 if (interruptedSource != null) {
                     logger.info("Search interrupted for {}", interruptedSource.getId());

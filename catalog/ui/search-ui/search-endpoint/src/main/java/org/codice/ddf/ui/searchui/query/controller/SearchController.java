@@ -1,24 +1,22 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.ui.searchui.query.controller;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.codice.ddf.ui.searchui.query.controller.search.CacheQueryRunnable;
@@ -52,7 +50,7 @@ public class SearchController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SearchController.class);
 
-    private final ExecutorService executorService = getExecutorService();
+    private final ExecutorService executorService;
 
     private final FilterAdapter filterAdapter;
 
@@ -74,10 +72,11 @@ public class SearchController {
      * @param filterAdapter
      */
     public SearchController(CatalogFramework framework, ActionRegistry actionRegistry,
-            FilterAdapter filterAdapter) {
+                            FilterAdapter filterAdapter, ExecutorService executorService) {
         this.framework = framework;
         this.actionRegistry = actionRegistry;
         this.filterAdapter = filterAdapter;
+        this.executorService = executorService;
     }
 
     /**
@@ -94,7 +93,7 @@ public class SearchController {
      * @param serverSession
      */
     public synchronized void pushResults(String channel, Map<String, Object> jsonData,
-            ServerSession serverSession) {
+                                         ServerSession serverSession) {
         String channelName;
         //you can't have 2 leading slashes, but if there isn't one, add it
         if (channel.startsWith("/")) {
@@ -130,7 +129,7 @@ public class SearchController {
      *            - Cometd ServerSession
      */
     public void executeQuery(final SearchRequest request, final ServerSession session,
-            final Subject subject) {
+                             final Subject subject) {
 
         final Search search = new Search(request, actionRegistry);
         final Map<String, Result> results = Collections
@@ -150,7 +149,7 @@ public class SearchController {
             // Send any previously cached results
             cacheFuture = executorService
                     .submit(new CacheQueryRunnable(this, request, subject, search, session, results,
-                                    solrIndexFuture));
+                            solrIndexFuture));
         } else {
             cacheFuture = Futures.immediateFuture(null);
         }
@@ -206,13 +205,7 @@ public class SearchController {
         return filterAdapter;
     }
 
-    // Override for unit testing
-    ExecutorService getExecutorService() {
-        return Executors.newCachedThreadPool();
-    }
-
     public void setNormalizationDisabled(Boolean normalizationDisabled) {
         this.normalizationDisabled = normalizationDisabled;
     }
-
 }
