@@ -16,7 +16,6 @@ package ddf.catalog.resource.download;
 import java.io.IOException;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -58,7 +57,7 @@ public class ReliableResourceDownloadManager {
 
     private DownloadStatusInfo downloadStatusInfo;
 
-    private ExecutorService executor = Executors.newCachedThreadPool();
+    private ExecutorService executor;
 
     private ReliableResourceDownloaderConfig downloaderConfig = new ReliableResourceDownloaderConfig();
 
@@ -74,12 +73,14 @@ public class ReliableResourceDownloadManager {
      */
     public ReliableResourceDownloadManager(ResourceCache resourceCache,
             DownloadsStatusEventPublisher eventPublisher,
-            DownloadsStatusEventListener eventListener, DownloadStatusInfo downloadStatusInfo) {
+            DownloadsStatusEventListener eventListener, DownloadStatusInfo downloadStatusInfo,
+                                           ExecutorService executor) {
         this.downloaderConfig.setResourceCache(resourceCache);
         this.eventPublisher = eventPublisher;
         this.downloaderConfig.setEventPublisher(this.eventPublisher);
         this.downloaderConfig.setEventListener(eventListener);
         this.downloadStatusInfo = downloadStatusInfo;
+        this.executor = executor;
         this.downloadIdentifier = UUID.randomUUID().toString();
     }
 
