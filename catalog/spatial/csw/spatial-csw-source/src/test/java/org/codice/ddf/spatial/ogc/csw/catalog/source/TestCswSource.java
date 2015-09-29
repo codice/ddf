@@ -56,6 +56,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswTransformProvider;
+import org.custommonkey.xmlunit.Diff;
 import org.geotools.filter.FilterFactoryImpl;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
@@ -129,7 +130,7 @@ public class TestCswSource extends TestCswSourceBase {
             throws CswException, UnsupportedQueryException, SecurityServiceException {
         Csw mockCsw = createMockCsw();
 
-        List<String> expectedNames = new LinkedList<String>(
+        List<String> expectedNames = new LinkedList<>(
                 Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h", "i", "j"));
 
         ServiceRegistration<?> mockRegisteredMetacardType = (ServiceRegistration<?>) mock(
@@ -209,9 +210,16 @@ public class TestCswSource extends TestCswSourceBase {
         }
         GetRecordsType getRecordsType = captor.getValue();
 
-        String xml = getGetRecordsTypeAsXml(getRecordsType, CswConstants.VERSION_2_0_2);
-        LOGGER.debug(xml);
-        assertXMLEqual(xml, getRecordsControlXml202);
+        String xml = getGetRecordsTypeAsXml(getRecordsType);
+        Diff xmlDiff = new Diff(getRecordsControlXml202, xml);
+
+        if (!xmlDiff.similar()) {
+            LOGGER.error("Unexpected XML request sent");
+            LOGGER.error("Expected: {}", getRecordsControlXml202);
+            LOGGER.error("Actual: {}", xml);
+        }
+
+        assertXMLEqual(getRecordsControlXml202, xml);
     }
 
     @Test
@@ -467,9 +475,16 @@ public class TestCswSource extends TestCswSourceBase {
         }
         GetRecordsType getRecordsType = captor.getValue();
 
-        String xml = getGetRecordsTypeAsXml(getRecordsType, CswConstants.VERSION_2_0_2);
-        LOGGER.debug(xml);
-        assertXMLEqual(xml, getRecordsControlXml202ContentTypeMappedToFormat);
+        String xml = getGetRecordsTypeAsXml(getRecordsType);
+        Diff xmlDiff = new Diff(getRecordsControlXml202ContentTypeMappedToFormat, xml);
+
+        if (!xmlDiff.similar()) {
+            LOGGER.error("Unexpected XML request sent");
+            LOGGER.error("Expected: {}", getRecordsControlXml202ContentTypeMappedToFormat);
+            LOGGER.error("Actual: {}", xml);
+        }
+
+        assertXMLEqual(getRecordsControlXml202ContentTypeMappedToFormat, xml);
     }
 
     /**
@@ -523,9 +538,16 @@ public class TestCswSource extends TestCswSourceBase {
         }
         GetRecordsType getRecordsType = captor.getValue();
 
-        String xml = getGetRecordsTypeAsXml(getRecordsType, CswConstants.VERSION_2_0_2);
-        LOGGER.debug(xml);
-        assertXMLEqual(xml, getRecordsControlXml202ContentTypeMappedToFormat);
+        String xml = getGetRecordsTypeAsXml(getRecordsType);
+        Diff xmlDiff = new Diff(getRecordsControlXml202ContentTypeMappedToFormat, xml);
+
+        if (!xmlDiff.similar()) {
+            LOGGER.error("Unexpected XML request sent");
+            LOGGER.error("Expected: {}", getRecordsControlXml202ContentTypeMappedToFormat);
+            LOGGER.error("Actual: {}", xml);
+        }
+
+        assertXMLEqual(getRecordsControlXml202ContentTypeMappedToFormat, xml);
     }
 
     @Test
@@ -535,20 +557,29 @@ public class TestCswSource extends TestCswSourceBase {
 
         // Setup
         String expectedXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n"
-                + "<GetRecords resultType=\"results\" outputFormat=\"application/xml\" outputSchema=\"http://www.opengis.net/cat/csw/2.0.2\" startPosition=\"1\" maxRecords=\"10\" service=\"CSW\" version=\"2.0.2\" xmlns:ns2=\"http://www.opengis.net/ogc\" xmlns=\"http://www.opengis.net/cat/csw/2.0.2\" xmlns:ns4=\"http://www.w3.org/1999/xlink\" xmlns:ns3=\"http://www.opengis.net/gml\" xmlns:ns9=\"http://www.w3.org/2001/SMIL20/Language\" xmlns:ns5=\"http://www.opengis.net/ows\" xmlns:ns6=\"http://purl.org/dc/elements/1.1/\" xmlns:ns7=\"http://purl.org/dc/terms/\" xmlns:ns8=\"http://www.w3.org/2001/SMIL20/\">\r\n"
-                + "    <ns10:Query typeNames=\"Record\" xmlns=\"\" xmlns:ns10=\"http://www.opengis.net/cat/csw/2.0.2\">\r\n"
-                + "        <ns10:ElementSetName>full</ns10:ElementSetName>\r\n"
-                + "        <ns10:Constraint version=\"1.1.0\">\r\n" + "            <ns2:Filter>\r\n"
-                + "                <ns2:PropertyIsBetween>\r\n"
-                + "                    <ns2:PropertyName>effective</ns2:PropertyName>\r\n"
-                + "                    <ns2:LowerBoundary>\r\n"
-                + "                        <ns2:Literal>START_DATE_TIME</ns2:Literal>\r\n"
-                + "                    </ns2:LowerBoundary>\r\n"
-                + "                    <ns2:UpperBoundary>\r\n"
-                + "                        <ns2:Literal>END_DATE_TIME</ns2:Literal>\r\n"
-                + "                    </ns2:UpperBoundary>\r\n"
-                + "                </ns2:PropertyIsBetween>\r\n" + "            </ns2:Filter>\r\n"
-                + "        </ns10:Constraint>\r\n" + "    </ns10:Query>\r\n" + "</GetRecords>";
+                + "<GetRecords resultType=\"results\" outputFormat=\"application/xml\" "
+                + "    outputSchema=\"http://www.opengis.net/cat/csw/2.0.2\" startPosition=\"1\" "
+                + "    maxRecords=\"10\" service=\"CSW\" version=\"2.0.2\" "
+                + "    xmlns=\"http://www.opengis.net/cat/csw/2.0.2\" "
+                + "    xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\" "
+                + "    xmlns:ogc=\"http://www.opengis.net/ogc\">\n "
+                + "    <Query typeNames=\"csw:Record\">\r\n"
+                + "        <ElementSetName>full</ElementSetName>\r\n"
+                + "        <Constraint version=\"1.1.0\">\r\n" // Line break
+                + "            <ogc:Filter>\r\n" // Line break
+                + "                <ogc:PropertyIsBetween>\r\n"
+                + "                    <ogc:PropertyName>effective</ogc:PropertyName>\r\n"
+                + "                    <ogc:LowerBoundary>\r\n"
+                + "                        <ogc:Literal>START_DATE_TIME</ogc:Literal>\r\n"
+                + "                    </ogc:LowerBoundary>\r\n"
+                + "                    <ogc:UpperBoundary>\r\n"
+                + "                        <ogc:Literal>END_DATE_TIME</ogc:Literal>\r\n"
+                + "                    </ogc:UpperBoundary>\r\n"
+                + "                </ogc:PropertyIsBetween>\r\n" // Line break
+                + "            </ogc:Filter>\r\n" // Line break
+                + "        </Constraint>\r\n" // Line break
+                + "    </Query>\r\n" // Line break
+                + "</GetRecords>";
 
         final int pageSize = 10;
         final int numRecordsReturned = 1;
@@ -595,8 +626,15 @@ public class TestCswSource extends TestCswSourceBase {
         }
         GetRecordsType getRecordsType = captor.getValue();
 
-        String xml = getGetRecordsTypeAsXml(getRecordsType, CswConstants.VERSION_2_0_2);
-        LOGGER.debug(xml);
+        String xml = getGetRecordsTypeAsXml(getRecordsType);
+        Diff xmlDiff = new Diff(expectedXml, xml);
+
+        if (!xmlDiff.similar()) {
+            LOGGER.error("Unexpected XML request sent");
+            LOGGER.error("Expected: {}", expectedXml);
+            LOGGER.error("Actual: {}", xml);
+        }
+
         assertXMLEqual(expectedXml, xml);
     }
 
@@ -607,38 +645,40 @@ public class TestCswSource extends TestCswSourceBase {
 
         // Setup
         String expectedXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n"
-                + "<ns4:GetRecords resultType=\"results\" outputFormat=\"application/xml\"\r\n"
+                + "<GetRecords resultType=\"results\" outputFormat=\"application/xml\"\r\n"
                 + "    outputSchema=\"http://www.opengis.net/cat/csw/2.0.2\" startPosition=\"1\"\r\n"
-                + "    maxRecords=\"10\" service=\"CSW\" version=\"2.0.2\" xmlns:ns2=\"http://www.w3.org/1999/xlink\"\r\n"
-                + "    xmlns=\"http://www.opengis.net/ows\" xmlns:ns4=\"http://www.opengis.net/cat/csw/2.0.2\"\r\n"
-                + "    xmlns:ns3=\"http://www.opengis.net/ogc\" xmlns:ns9=\"http://www.w3.org/2001/SMIL20/Language\"\r\n"
-                + "    xmlns:ns5=\"http://www.opengis.net/gml\" xmlns:ns6=\"http://purl.org/dc/elements/1.1/\"\r\n"
-                + "    xmlns:ns7=\"http://purl.org/dc/terms/\" xmlns:ns8=\"http://www.w3.org/2001/SMIL20/\">\r\n"
-                + "    <ns4:Query typeNames=\"Record\" xmlns=\"\"\r\n"
-                + "        xmlns:ns10=\"http://www.opengis.net/ows\">\r\n"
-                + "        <ns4:ElementSetName>full</ns4:ElementSetName>\r\n"
-                + "        <ns4:Constraint version=\"1.1.0\">\r\n" + "            <ns3:Filter>\r\n"
-                + "                <ns3:Or>\r\n" + "                    <ns3:PropertyIsBetween>\r\n"
-                + "                        <ns3:PropertyName>effective</ns3:PropertyName>\r\n"
-                + "                        <ns3:LowerBoundary>\r\n"
-                + "                            <ns3:Literal>START1_DATE_TIME</ns3:Literal>\r\n"
-                + "                        </ns3:LowerBoundary>\r\n"
-                + "                        <ns3:UpperBoundary>\r\n"
-                + "                            <ns3:Literal>END1_DATE_TIME</ns3:Literal>\r\n"
-                + "                        </ns3:UpperBoundary>\r\n"
-                + "                    </ns3:PropertyIsBetween>\r\n"
-                + "                    <ns3:PropertyIsBetween>\r\n"
-                + "                        <ns3:PropertyName>effective</ns3:PropertyName>\r\n"
-                + "                        <ns3:LowerBoundary>\r\n"
-                + "                            <ns3:Literal>START2_DATE_TIME</ns3:Literal>\r\n"
-                + "                        </ns3:LowerBoundary>\r\n"
-                + "                        <ns3:UpperBoundary>\r\n"
-                + "                            <ns3:Literal>END2_DATE_TIME</ns3:Literal>\r\n"
-                + "                        </ns3:UpperBoundary>\r\n"
-                + "                    </ns3:PropertyIsBetween>\r\n"
-                + "                </ns3:Or>\r\n" + "            </ns3:Filter>\r\n"
-                + "        </ns4:Constraint>\r\n" + "    </ns4:Query>\r\n"
-                + "</ns4:GetRecords>\r\n";
+                + "    maxRecords=\"10\" service=\"CSW\" version=\"2.0.2\""
+                + "    xmlns=\"http://www.opengis.net/cat/csw/2.0.2\""
+                + "    xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\""
+                + "    xmlns:ogc=\"http://www.opengis.net/ogc\">\r\n"
+                + "    <Query typeNames=\"csw:Record\">\r\n"
+                + "        <ElementSetName>full</ElementSetName>\r\n"
+                + "        <Constraint version=\"1.1.0\">\r\n" // Line break
+                + "            <ogc:Filter>\r\n" // Line break
+                + "                <ogc:Or>\r\n" // Line break
+                + "                    <ogc:PropertyIsBetween>\r\n"
+                + "                        <ogc:PropertyName>effective</ogc:PropertyName>\r\n"
+                + "                        <ogc:LowerBoundary>\r\n"
+                + "                            <ogc:Literal>START1_DATE_TIME</ogc:Literal>\r\n"
+                + "                        </ogc:LowerBoundary>\r\n"
+                + "                        <ogc:UpperBoundary>\r\n"
+                + "                            <ogc:Literal>END1_DATE_TIME</ogc:Literal>\r\n"
+                + "                        </ogc:UpperBoundary>\r\n"
+                + "                    </ogc:PropertyIsBetween>\r\n"
+                + "                    <ogc:PropertyIsBetween>\r\n"
+                + "                        <ogc:PropertyName>effective</ogc:PropertyName>\r\n"
+                + "                        <ogc:LowerBoundary>\r\n"
+                + "                            <ogc:Literal>START2_DATE_TIME</ogc:Literal>\r\n"
+                + "                        </ogc:LowerBoundary>\r\n"
+                + "                        <ogc:UpperBoundary>\r\n"
+                + "                            <ogc:Literal>END2_DATE_TIME</ogc:Literal>\r\n"
+                + "                        </ogc:UpperBoundary>\r\n"
+                + "                    </ogc:PropertyIsBetween>\r\n"
+                + "                </ogc:Or>\r\n" // Line break
+                + "            </ogc:Filter>\r\n" // Line break
+                + "        </Constraint>\r\n" // Line break
+                + "    </Query>\r\n" // Line break
+                + "</GetRecords>\r\n";
 
         final int pageSize = 10;
         final int numRecordsReturned = 1;
@@ -692,8 +732,15 @@ public class TestCswSource extends TestCswSourceBase {
         }
         GetRecordsType getRecordsType = captor.getValue();
 
-        String xml = getGetRecordsTypeAsXml(getRecordsType, CswConstants.VERSION_2_0_2);
-        LOGGER.debug(xml);
+        String xml = getGetRecordsTypeAsXml(getRecordsType);
+        Diff xmlDiff = new Diff(expectedXml, xml);
+
+        if (!xmlDiff.similar()) {
+            LOGGER.error("Unexpected XML request sent");
+            LOGGER.error("Expected: {}", expectedXml);
+            LOGGER.error("Actual: {}", xml);
+        }
+
         assertXMLEqual(expectedXml, xml);
     }
 
@@ -719,11 +766,7 @@ public class TestCswSource extends TestCswSourceBase {
     @Test
     public void testTimeoutConfiguration() throws SecurityServiceException {
 
-        final String TITLE = "title";
-
         // Setup
-        final String searchPhrase = "*";
-        final int pageSize = 1;
         final int numRecordsReturned = 1;
         final long numRecordsMatched = 1;
 
@@ -754,7 +797,7 @@ public class TestCswSource extends TestCswSourceBase {
 
         cswSource.refresh(null);
 
-        Map<String, Object> configuration = new HashMap<String, Object>();
+        Map<String, Object> configuration = new HashMap<>();
         cswSource.refresh(configuration);
 
     }
@@ -856,7 +899,7 @@ public class TestCswSource extends TestCswSourceBase {
         CswSource cswSource = getCswSource(mockCsw, mockContext, null, null, null);
         CswRecordCollection recordCollection = new CswRecordCollection();
         final int total = 2;
-        List<Metacard> metacards = new ArrayList<Metacard>(total);
+        List<Metacard> metacards = new ArrayList<>(total);
         for (int i = 0; i <= total; i++) {
             String id = "ID_" + String.valueOf(i);
             MetacardImpl metacard = new MetacardImpl();
@@ -940,5 +983,4 @@ public class TestCswSource extends TestCswSourceBase {
         return getCswSource(csw, context, contentMapping, CSW_RECORD_QNAME,
                 CswConstants.CSW_NAMESPACE_PREFIX);
     }
-
 }
