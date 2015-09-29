@@ -36,8 +36,8 @@ function (Marionette, Backbone, Cesium, _, wreqr) {
             Backbone.View.prototype.remove.apply(this, arguments);
         },
         cleanUpPrimitive: function() {
-            if(this.primitive){
-                this.options.geoController.scene.primitives.remove(this.primitive);
+            if (this.primitive) {
+                this.options.primitiveCollection.remove(this.primitive);
                 this.primitive = null;
             }
         },
@@ -52,8 +52,8 @@ function (Marionette, Backbone, Cesium, _, wreqr) {
                 this.primitive = this.createBboxPrimitive();
             }
 
-            if(this.primitive) {
-                this.options.geoController.scene.primitives.add(this.primitive);
+            if (this.primitive) {
+                this.options.primitiveCollection.add(this.primitive);
             }
         },
 
@@ -173,8 +173,20 @@ function (Marionette, Backbone, Cesium, _, wreqr) {
         childView: FilterGeometryItem,
         childViewOptions: function(){
             return {
-                geoController: this.options.geoController
+                geoController: this.options.geoController,
+                primitiveCollection: this.primitiveCollection
             };
+        },
+        initialize: function() {
+            this.primitiveCollection = new Cesium.PrimitiveCollection();
+            this.options.geoController.scene.primitives.add(this.primitiveCollection);
+        },
+        onDestroy: function() {
+            // Removing a primitive automatically destroys it.
+            this.options.geoController.scene.primitives.remove(this.primitiveCollection);
+        },
+        hideFilters: function() {
+            this.primitiveCollection.show = false;
         }
     });
 
@@ -182,6 +194,7 @@ function (Marionette, Backbone, Cesium, _, wreqr) {
         initialize: function(options){
             this.options = options;
             this.listenTo(wreqr.vent, 'mapfilter:showFilters', this.showFilters);
+            this.listenTo(wreqr.vent, 'search:clearfilters', this.hideFilters);
             this.listenTo(wreqr.vent, 'map:clear', this.clear);
         },
         showFilters: function(filters){
@@ -192,6 +205,11 @@ function (Marionette, Backbone, Cesium, _, wreqr) {
                 collection: filters
             });
             this.view.render();
+        },
+        hideFilters: function() {
+            if (this.view) {
+                this.view.hideFilters();
+            }
         },
         clear: function () {
             if (this.view){
