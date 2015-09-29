@@ -342,9 +342,55 @@ public class TestSecurity extends AbstractIntegrationTest {
                 + "b2NhbGhvc3RAZXhhbXBsZS5vcmcwDQYJKoZIhvcNAQEFBQADgYEAtRUp7fAxU/E6\n"
                 + "JD2Kj/+CTWqu8Elx13S0TxoIqv3gMoBW0ehyzEKjJi0bb1gUxO7n1SmOESp5sE3j\n"
                 + "GTnh0GtYV0D219z/09n90cd/imAEhknJlayyd0SjpnaL9JUd8uYxJexy8TJ2sMhs\n"
-                + "GAZ6EMTZCfT9m07XduxjsmDz0hlSGV0="
-                + "</wsse:BinarySecurityToken>\n"
+                + "GAZ6EMTZCfT9m07XduxjsmDz0hlSGV0=" + "</wsse:BinarySecurityToken>\n"
                 + "                </wst:OnBehalfOf>\n";
+        String body = getSoapEnvelope(onBehalfOf);
+
+        given().log().all().body(body).header("Content-Type", "text/xml; charset=utf-8")
+                .header("SOAPAction", "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue")
+                .expect().statusCode(equalTo(200)).when()
+                .post(SERVICE_ROOT + "/SecurityTokenService").then().log().all().assertThat()
+                .body(HasXPath.hasXPath("//*[local-name()='Assertion']"));
+
+    }
+
+    @Test
+    public void testX509PathSTS() throws Exception {
+        String onBehalfOf = "<wst:OnBehalfOf>\n"
+                + "                    <wsse:BinarySecurityToken xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\" EncodingType=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary\" ValueType=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509PKIPathv1\" >"
+                + "MIIF1zCCArwwggIloAMCAQICCQCM3OBWKyKfZTANBgkqhkiG9w0BAQUFADB3MQsw"
+                + "CQYDVQQGEwJVUzELMAkGA1UECAwCQVoxDDAKBgNVBAoMA0RERjEMMAoGA1UECwwD"
+                + "RGV2MRkwFwYDVQQDDBBEREYgRGVtbyBSb290IENBMSQwIgYJKoZIhvcNAQkBFhVk"
+                + "ZGZyb290Y2FAZXhhbXBsZS5vcmcwHhcNMTQxMjEwMjE1NjMwWhcNMTcxMjA5MjE1"
+                + "NjMwWjB3MQswCQYDVQQGEwJVUzELMAkGA1UECAwCQVoxDDAKBgNVBAoMA0RERjEM"
+                + "MAoGA1UECwwDRGV2MRkwFwYDVQQDDBBEREYgRGVtbyBSb290IENBMSQwIgYJKoZI"
+                + "hvcNAQkBFhVkZGZyb290Y2FAZXhhbXBsZS5vcmcwgZ8wDQYJKoZIhvcNAQEBBQAD"
+                + "gY0AMIGJAoGBALVtFJIVYgb+07/jBZ1KXZVCxuf0hUoOMOw2vYJ8VqhS755Sf74q"
+                + "RcVaPm8BcrWVG80OdutXtzP+ylnO/tjmr+myxsKnpodXZcLqCzQE58rh57bFJRAJ"
+                + "SjqJjny+JBSy0MdI3NtJS3yVmrUgZRVHdIquYBPMjxIxgRsT230F1MnfAgMBAAGj"
+                + "UDBOMB0GA1UdDgQWBBThVMeX3wrCv6lfeF47CyvkSBe9xjAfBgNVHSMEGDAWgBTh"
+                + "VMeX3wrCv6lfeF47CyvkSBe9xjAMBgNVHRMEBTADAQH/MA0GCSqGSIb3DQEBBQUA"
+                + "A4GBAJ8QlzOYMjNiqA6YAIJ+LGbTSXbc1nnAgP6unnvatSmew8o/nGIzcrmRCeGg"
+                + "d5Bsx/xHncFtSeLRidgp6AvXA96/0ik7W5PWxFzbwy7vWIrkHx/tnWka6b95/FlB"
+                + "I+GxycJiGZZCwNWGFBWXWrn/aVCVicZQ7q+nPAuCkV+TKIalMIIDEzCCAnygAwIB"
+                + "AgIJAIzc4FYrIp9mMA0GCSqGSIb3DQEBBQUAMHcxCzAJBgNVBAYTAlVTMQswCQYD"
+                + "VQQIDAJBWjEMMAoGA1UECgwDRERGMQwwCgYDVQQLDANEZXYxGTAXBgNVBAMMEERE"
+                + "RiBEZW1vIFJvb3QgQ0ExJDAiBgkqhkiG9w0BCQEWFWRkZnJvb3RjYUBleGFtcGxl"
+                + "Lm9yZzAeFw0xNDEyMTAyMTU4MThaFw0xNTEyMTAyMTU4MThaMIGDMQswCQYDVQQG"
+                + "EwJVUzELMAkGA1UECAwCQVoxETAPBgNVBAcMCEdvb2R5ZWFyMQwwCgYDVQQKDANE"
+                + "REYxDDAKBgNVBAsMA0RldjESMBAGA1UEAwwJbG9jYWxob3N0MSQwIgYJKoZIhvcN"
+                + "AQkBFhVsb2NhbGhvc3RAZXhhbXBsZS5vcmcwgZ8wDQYJKoZIhvcNAQEBBQADgY0A"
+                + "MIGJAoGBAMeCyNZbCTZphHQfB5g8FrgBq1RYzV7ikVw/pVGkz8gx3l3A99s8WtA4"
+                + "mRAeb6n0vTR9yNBOekW4nYOiEOq//YTi/frI1kz0QbEH1s2cI5nFButabD3PYGxU"
+                + "Suapbc+AS7+Pklr0TDI4MRzPPkkTp4wlORQ/a6CfVsNr/mVgL2CfAgMBAAGjgZkw"
+                + "gZYwCQYDVR0TBAIwADAnBglghkgBhvhCAQ0EGhYYRk9SIFRFU1RJTkcgUFVSUE9T"
+                + "RSBPTkxZMB0GA1UdDgQWBBSA95QIMyBAHRsd0R4s7C3BreFrsDAfBgNVHSMEGDAW"
+                + "gBThVMeX3wrCv6lfeF47CyvkSBe9xjAgBgNVHREEGTAXgRVsb2NhbGhvc3RAZXhh"
+                + "bXBsZS5vcmcwDQYJKoZIhvcNAQEFBQADgYEAtRUp7fAxU/E6JD2Kj/+CTWqu8Elx"
+                + "13S0TxoIqv3gMoBW0ehyzEKjJi0bb1gUxO7n1SmOESp5sE3jGTnh0GtYV0D219z/"
+                + "09n90cd/imAEhknJlayyd0SjpnaL9JUd8uYxJexy8TJ2sMhsGAZ6EMTZCfT9m07X"
+                + "duxjsmDz0hlSGV0=\n"
+                + "</wsse:BinarySecurityToken>\n" + "                </wst:OnBehalfOf>\n";
         String body = getSoapEnvelope(onBehalfOf);
 
         given().log().all().body(body).header("Content-Type", "text/xml; charset=utf-8")
