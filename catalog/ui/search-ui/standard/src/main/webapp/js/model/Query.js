@@ -47,7 +47,6 @@ define([
                 timeType: 'modified',
                 radiusUnits: 'meters',
                 radius: 0,
-                radiusValue: 0,
                 count: properties.resultCount,
                 start: 1,
                 format: "geojson",
@@ -469,7 +468,7 @@ define([
                     result = new Metacard.SearchResult();
                     this.set({result: result});
                 }
-                
+
                 result.set('initiated', moment().format('lll'));
 
                 var progress = progressFunction || function() {
