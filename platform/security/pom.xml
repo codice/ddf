@@ -209,6 +209,7 @@
         <module>security-admin-module</module>
         <module>docs</module>
         <module>rest</module>
+        <module>security-services-app</module>
     </modules>
 
 </project>
