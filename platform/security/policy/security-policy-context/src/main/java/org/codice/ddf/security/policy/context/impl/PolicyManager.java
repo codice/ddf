@@ -16,6 +16,7 @@ package org.codice.ddf.security.policy.context.impl;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -172,49 +173,33 @@ public class PolicyManager implements ContextPolicyManager {
 
         LOGGER.debug("setPolicies called: {}", properties);
         Object realmsObj = properties.get(REALMS);
-        String[] realmContexts = null;
-        Object authTypesObj = properties.get(AUTH_TYPES);
-        String[] authContexts = null;
-        Object reqAttrsObj = properties.get(REQ_ATTRS);
-        String[] attrContexts = null;
-        Object whiteList = properties.get(WHITE_LIST);
+        List<String> realmContexts = new ArrayList<>();
+        String[] authContexts = (String[])properties.get(AUTH_TYPES);
+        String[] attrContexts = (String[])properties.get(REQ_ATTRS);
+        String[] whiteList = (String[])properties.get(WHITE_LIST);
         if (realmsObj == null) {
             realmsObj = DEFAULT_REALM_CONTEXTS;
         }
-        if (realmsObj instanceof String[]) {
-            realmContexts = (String[]) realmsObj;
-        } else if (realmsObj instanceof String) {
-            realmContexts = ((String) realmsObj).split(",");
+
+        Collections.addAll(realmContexts, (String[])realmsObj);
+
+        if (whiteList != null) {
+            setWhiteListContexts(Arrays.asList(whiteList));
         }
 
-        if (authTypesObj != null && authTypesObj instanceof String[]) {
-            authContexts = (String[]) authTypesObj;
-        } else if (authTypesObj != null) {
-            authContexts = ((String) authTypesObj).split(",");
-        }
-
-        if (whiteList != null && whiteList instanceof String[]) {
-            setWhiteListContexts(Arrays.asList((String[]) whiteList));
-        } else if (whiteList != null) {
-            setWhiteListContexts((String) whiteList);
-        }
-
-        if (reqAttrsObj != null && reqAttrsObj instanceof String[]) {
-            attrContexts = (String[]) reqAttrsObj;
-        } else if (reqAttrsObj != null) {
-            attrContexts = ((String) reqAttrsObj).split(",");
-        }
-        if (authTypesObj != null && reqAttrsObj != null) {
+        if (authContexts != null && attrContexts != null) {
 
             Map<String, String> contextToRealm = new HashMap<>();
             Map<String, List<String>> contextToAuth = new HashMap<>();
             Map<String, List<ContextAttributeMapping>> contextToAttr = new HashMap<>();
 
-            List<String> realmContextList = expandStrings(realmContexts);
-            List<String> authContextList = expandStrings(authContexts);
-            List<String> attrContextList = expandStrings(attrContexts);
+            List<String> authContextList = new ArrayList<>();
+            Collections.addAll(authContextList, authContexts);
 
-            for (String realm : realmContextList) {
+            List<String> attrContextList = new ArrayList<>();
+            Collections.addAll(attrContextList, attrContexts);
+
+            for (String realm : realmContexts) {
                 String[] parts = realm.split("=");
                 if (parts.length == 2) {
                     contextToRealm.put(parts[0], parts[1]);
@@ -424,24 +409,6 @@ public class PolicyManager implements ContextPolicyManager {
         return path.substring(0, idx);
     }
 
-    private List<String> expandStrings(String[] itemArr) {
-        return expandStrings(Arrays.asList(itemArr));
-    }
-
-    private List<String> expandStrings(List<String> itemArr) {
-        List<String> itemList = new ArrayList<>();
-        for (String item : itemArr) {
-            item = PropertyResolver.resolveProperties(item);
-            if (item.contains(",")) {
-                String[] items = item.split(",");
-                itemList.addAll(Arrays.asList(items));
-            } else {
-                itemList.add(item);
-            }
-        }
-        return itemList;
-    }
-
     public void setAuthenticationTypes(List<String> authenticationTypes) {
         LOGGER.debug("setAuthenticationTypes(List<String>) called with {}", authenticationTypes);
         if (authenticationTypes != null) {
@@ -450,11 +417,6 @@ public class PolicyManager implements ContextPolicyManager {
         } else {
             policyProperties.put(AUTH_TYPES, null);
         }
-    }
-
-    public void setAuthenticationTypes(String authenticationTypes) {
-        LOGGER.debug("setAuthenticationTypes(String) called with {}", authenticationTypes);
-        policyProperties.put(AUTH_TYPES, authenticationTypes);
     }
 
     public void setRequiredAttributes(List<String> requiredAttributes) {
@@ -467,11 +429,6 @@ public class PolicyManager implements ContextPolicyManager {
         }
     }
 
-    public void setRequiredAttributes(String requiredAttributes) {
-        LOGGER.debug("setRequiredAttributes(String) called with {}", requiredAttributes);
-        policyProperties.put(REQ_ATTRS, requiredAttributes);
-    }
-
     public void setRealms(List<String> realms) {
         LOGGER.debug("setRealms(List<String>) called with {}", realms);
         if (realms != null) {
@@ -481,24 +438,10 @@ public class PolicyManager implements ContextPolicyManager {
         }
     }
 
-    public void setRealms(String realms) {
-        LOGGER.debug("setRealms(String) called with {}", realms);
-        policyProperties.put(REALMS, realms);
-    }
-
     public void setWhiteListContexts(List<String> contexts) {
         LOGGER.debug("setWhiteListContexts(List<String>) called with {}", contexts);
         if (contexts != null && !contexts.isEmpty()) {
-            whiteListContexts = expandStrings(contexts);
-        }
-    }
-
-    public void setWhiteListContexts(String contexts) {
-        LOGGER.debug("setWhiteListContexts(String) called with {}", contexts);
-        if (StringUtils.isNotEmpty(contexts)) {
-            contexts = PropertyResolver.resolveProperties(contexts);
-            String[] contextsArr = contexts.split(",");
-            whiteListContexts = Arrays.asList(contextsArr);
+            whiteListContexts = contexts;
         }
     }
 
