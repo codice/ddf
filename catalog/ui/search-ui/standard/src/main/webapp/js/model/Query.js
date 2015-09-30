@@ -93,7 +93,13 @@ define([
             repositionLatLon: function (silent) {
                 if (this.get('usngbb')) {
                     var result = converter.USNGtoLL(this.get('usngbb'));
-                    this.set(result, {silent:silent});
+                    var newResult = {};
+                    newResult["mapNorth"] = result["north"];
+                    newResult["mapSouth"] = result["south"];
+                    newResult["mapEast"] = result["east"];
+                    newResult["mapWest"] = result["west"];
+
+                    this.set(newResult, {silent:true});
                 }
             },
 
@@ -123,10 +129,15 @@ define([
 
             setBboxUsng: function () {
                 var result = converter.USNGtoLL(this.get('usngbb'));
-                this.set(result, {silent:this.get('locationType') === 'usng' && this.drawing});
+                var newResult = {};
+                newResult["mapNorth"] = result["north"];
+                newResult["mapSouth"] = result["south"];
+                newResult["mapEast"] = result["east"];
+                newResult["mapWest"] = result["west"];
+                this.set(newResult);
             },
 
-            setBBox : function() {
+            setBBox : function(e) {
 
                 //we need these to always be inferred
                 //as numeric values and never as strings
