@@ -63,7 +63,6 @@ import ddf.catalog.transform.MetacardTransformer;
 import ddf.catalog.transform.QueryResponseTransformer;
 import ddf.catalog.transformer.api.PrintWriter;
 import ddf.catalog.transformer.api.PrintWriterProvider;
-
 import net.opengis.cat.csw.v_2_0_2.AcknowledgementType;
 import net.opengis.cat.csw.v_2_0_2.EchoedRequestType;
 import net.opengis.cat.csw.v_2_0_2.ElementSetType;
@@ -87,8 +86,6 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
     private static final String XML_PREFIX =
             XMLConstants.XMLNS_ATTRIBUTE + CswConstants.NAMESPACE_DELIMITER;
 
-    private static final String GET_RECORDS_RESPONSE_NODE_NAME = "GetRecordsResponse";
-
     private static final String SEARCH_STATUS_NODE_NAME = "SearchStatus";
 
     private static final String SEARCH_RESULTS_NODE_NAME = "SearchResults";
@@ -107,7 +104,11 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
 
     private static final String XML_DECL = "<?xml version=\'1.0\' encoding=\'UTF-8\'?>\n";
 
-    public static final String RECORDS_RESPONSE_QNAME = CSW_PREFIX + GET_RECORDS_RESPONSE_NODE_NAME;
+    public static final String RECORDS_RESPONSE_QNAME =
+            CSW_PREFIX + CswConstants.GET_RECORDS_RESPONSE;
+
+    public static final String RECORD_BY_ID_RESPONSE_QNAME =
+            CSW_PREFIX + CswConstants.GET_RECORD_BY_ID_RESPONSE;
 
     public static final String SEARCH_STATUS_QNAME = CSW_PREFIX + SEARCH_STATUS_NODE_NAME;
 
@@ -161,7 +162,12 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
         PrintWriter writer = writerProvider.build(Metacard.class);
         writer.setRawValue(XML_DECL);
 
-        writer.startNode(RECORDS_RESPONSE_QNAME);
+        if (cswRecordCollection.isById()) {
+            writer.startNode(RECORD_BY_ID_RESPONSE_QNAME);
+        } else {
+            writer.startNode(RECORDS_RESPONSE_QNAME);
+        }
+
         for (Map.Entry<String, String> entry : DefaultCswRecordMap.getDefaultCswRecordMap()
                 .getPrefixToUriMapping().entrySet()) {
             writer.addAttribute(XML_PREFIX + entry.getKey(), entry.getValue());
@@ -273,6 +279,14 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
 
     } // end multiThreadedMarshal()
 
+    private boolean isByIdQuery(Map<String, Serializable> arguments) {
+        Serializable isByIdQuery = arguments.get(CswConstants.IS_BY_ID_QUERY);
+        if (isByIdQuery instanceof Boolean) {
+            return (Boolean) isByIdQuery;
+        }
+        return false;
+    }
+
     private void validateInput(SourceResponse sourceResponse, Map<String, Serializable> arguments) {
 
         if (null == sourceResponse) {
@@ -281,7 +295,10 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
             throw new IllegalArgumentException("Null argument map.");
         } else if (null == sourceResponse.getResults()) {
             throw new IllegalArgumentException("Null results list.");
-        } else if (null == arguments.get(CswConstants.RESULT_TYPE_PARAMETER)) {
+        } else if (!isByIdQuery(arguments) && null == arguments
+                .get(CswConstants.RESULT_TYPE_PARAMETER)) {
+            // An exception is thrown only if the query isn't by ID (i.e. it's not a GetRecordById
+            // request) because GetRecordById does not use the ResultType attribute.
             throw new IllegalArgumentException("Null result type argument.");
         } else if (null == sourceResponse.getRequest()) {
             throw new IllegalArgumentException("Null source response query request.");
