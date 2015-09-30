@@ -1,0 +1,139 @@
+/**
+ * Copyright (c) Codice Foundation
+ * <p/>
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * <p/>
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ */
+package org.codice.ddf.platform.util;
+
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+
+import java.util.Dictionary;
+
+import org.apache.felix.cm.impl.CaseInsensitiveDictionary;
+import org.junit.Before;
+import org.junit.Test;
+
+public class ConfigurationPropertiesComparatorTest {
+    private ConfigurationPropertiesComparator configurationPropertiesComparator;
+
+    @Before
+    public void setup() {
+        configurationPropertiesComparator = new ConfigurationPropertiesComparator();
+    }
+
+    @Test
+    public void equalWithBothArgumentsNull() {
+        assertThat(configurationPropertiesComparator.equal(null, null), is(true));
+    }
+
+    @Test
+    public void equalWithFirstArgumentNull() {
+        assertThat(configurationPropertiesComparator.equal(null, newDictionary("Key", "Value")),
+                is(false));
+    }
+
+    @Test
+    public void equalWithSecondArgumentNull() {
+        assertThat(configurationPropertiesComparator.equal(newDictionary("Key", "Value"), null),
+                is(false));
+    }
+
+    @Test
+    public void equalDictionaryWithItself() {
+        Dictionary<String, Object> dictionary = newDictionary("Key", "Value");
+        assertThat(configurationPropertiesComparator.equal(dictionary, dictionary), is(true));
+    }
+
+    @Test
+    public void equalWithEmptyDictionaries() {
+        Dictionary<String, Object> dictionary = newDictionary();
+        assertThat(configurationPropertiesComparator.equal(dictionary, dictionary), is(true));
+    }
+
+    @Test
+    public void equalWithEmptyAndNonEmptyDictionaries() {
+        assertThat(configurationPropertiesComparator
+                .equal(newDictionary(), newDictionary("Key", "Value")), is(false));
+    }
+
+    @Test
+    public void equalWithDictionariesThatHaveTheSameKeysAndValues() {
+        assertThat(configurationPropertiesComparator
+                .equal(newDictionary("Key", "Value"), newDictionary("Key", "Value")), is(true));
+    }
+
+    @Test
+    public void equalWithDictionariesThatHaveDifferentKeys() {
+        assertThat(configurationPropertiesComparator
+                .equal(newDictionary("Key1", "Value"), newDictionary("Key2", "Value")), is(false));
+    }
+
+    @Test
+    public void equalWithDictionariesThatHaveDifferentSizes() {
+        assertThat(configurationPropertiesComparator.equal(newDictionary("Key1", "Value"),
+                newDictionary("Key1", "Value", "Key2", "Value")), is(false));
+    }
+
+    @Test
+    public void equalWithDictionariesThatHaveDifferentValues() {
+        assertThat(configurationPropertiesComparator
+                .equal(newDictionary("Key", "Value1"), newDictionary("Key", "Value2")), is(false));
+    }
+
+    @Test
+    public void equalWithDictionariesThatHaveDifferentValueTypes() {
+        assertThat(configurationPropertiesComparator
+                .equal(newDictionary("Key", "10"), newDictionary("Key", 10)), is(false));
+    }
+
+    @Test
+    public void equalWithDictionariesThatHaveSameKeysAndArrayValues() {
+        assertThat(configurationPropertiesComparator
+                .equal(newDictionary("Key", new String[] {"Value"}),
+                        newDictionary("Key", new String[] {"Value"})), is(true));
+    }
+
+    @Test
+    public void equalWithDictionariesThatHaveDifferentArrayValues() {
+        assertThat(configurationPropertiesComparator
+                .equal(newDictionary("Key", new String[] {"Value1"}),
+                        newDictionary("Key", new String[] {"Value2"})), is(false));
+    }
+
+    @Test
+    public void equalWithDictionaryThatHasArrayValueAndAnotherThatHasSimpleValue() {
+        assertThat(configurationPropertiesComparator
+                .equal(newDictionary("Key", new String[] {"Value1"}),
+                        newDictionary("Key", "Value1")), is(false));
+    }
+
+    @Test
+    public void equalWithDictionaryThatHasSimpleValueAndAnotherThatHasArrayValue() {
+        assertThat(configurationPropertiesComparator.equal(newDictionary("Key", "Value1"),
+                newDictionary("Key", new String[] {"Value1"})), is(false));
+    }
+
+    private Dictionary<String, Object> newDictionary(Object... keyValuePairs) {
+        assertThat("List of key/value arguments must be even", keyValuePairs.length % 2,
+                equalTo(0));
+
+        @SuppressWarnings("unchecked")
+        Dictionary<String, Object> dictionary = new CaseInsensitiveDictionary();
+
+        for (int i = 0; i < keyValuePairs.length; i += 2) {
+            dictionary.put((String) keyValuePairs[i], keyValuePairs[i + 1]);
+        }
+
+        return dictionary;
+    }
+}
