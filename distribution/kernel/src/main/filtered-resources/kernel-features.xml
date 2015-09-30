@@ -60,6 +60,8 @@
         <bundle>mvn:commons-io/commons-io/${commons-io.version}</bundle>
         <bundle>mvn:ddf.distribution/webconsole-branding/${project.version}</bundle>
         <bundle>mvn:ddf.distribution/webconsole-branding-plugin/${project.version}</bundle>
+        <bundle>mvn:ddf/landing-page/${project.version}</bundle>
+        <bundle>mvn:ddf/branding-resources/${project.version}</bundle>
     </feature>
 
 </features>

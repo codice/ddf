@@ -1,0 +1,54 @@
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
+    <!-- Map the root URL "/" -->
+    <bean id="resourceMapping"
+          class="org.ops4j.pax.web.extender.whiteboard.runtime.DefaultResourceMapping">
+        <property name="alias" value="/landing"/>
+        <property name="path" value=""/>
+    </bean>
+    <service id="resources" ref="resourceMapping"
+             interface="org.ops4j.pax.web.extender.whiteboard.ResourceMapping"/>
+
+    <bean id="landingPage" class="org.codice.ddf.distribution.LandingPage">
+        <cm:managed-properties persistent-id="org.codice.ddf.distribution.landing-page.properties"
+                               update-strategy="container-managed"/>
+        <property name="branding" ref="branding"/>
+        <argument ref="resourceProvider"/>
+        <property name="description" value="DDF is a free and open-source common data layer that abstracts services and business logic from the underlying data structures to enable rapid integration of new data sources.
+Licensed under LGPL, DDF is an interoperability platform that provides secure and scalable discovery and retrieval from a wide array of disparate sources. DDF is built to 'unzip and run' while having the ability to scale to large enterprise systems.
+Lockheed Martin has donated all copyright to the Codice Foundation, a non-profit established to provide infrastructure, support, education, and export control advice to government-focused teams desiring to operate open-source projects."/>
+        <property name="phone" value=""/>
+        <property name="email" value=""/>
+        <property name="externalUrl" value=""/>
+        <property name="announcements">
+            <list></list>
+        </property>
+    </bean>
+
+    <service ref="landingPage" interface="javax.servlet.http.HttpServlet">
+        <service-properties>
+            <entry key="alias" value="/"/>
+            <entry key="servlet-name" value="LandingPage"/>
+        </service-properties>
+    </service>
+
+    <!-- The BrandingPlugin gives access to the Product name and version to
+        be displayed on the Landing Page -->
+    <reference id="branding" interface="org.apache.felix.webconsole.BrandingPlugin"/>
+
+    <reference id="resourceProvider" interface="org.codice.ddf.branding.ResourceProvider"/>
+
+</blueprint>
