@@ -14,8 +14,8 @@
 -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <bean id="auditPlugin" class="ddf.catalog.security.audit.RetrieveResourceAuditPlugin"/>
+    <bean id="auditPlugin" class="ddf.catalog.security.audit.AuditPlugin"/>
 
-    <service ref="auditPlugin" auto-export="interfaces"/>
+    <service ref="auditPlugin" auto-export="interfaces" ranking="0"/>
 
 </blueprint>
