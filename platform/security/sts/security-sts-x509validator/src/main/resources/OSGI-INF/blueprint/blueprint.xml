@@ -35,18 +35,11 @@
 
     <ext:property-placeholder/>
 
-    <bean id="x509TokenValidator" class="org.apache.cxf.sts.token.validator.X509TokenValidator">
-
-    </bean>
-
     <bean id="x509PathTokenValidator"
           class="org.codice.ddf.security.validator.x509.X509PathTokenValidator" init-method="init">
         <property name="signaturePropertiesPath"
                   value="${ddf.home}/etc/ws-security/server/signature.properties"/>
     </bean>
-
-    <service ref="x509TokenValidator"
-             interface="org.apache.cxf.sts.token.validator.TokenValidator"/>
 
     <service ref="x509PathTokenValidator"
              interface="org.apache.cxf.sts.token.validator.TokenValidator"/>

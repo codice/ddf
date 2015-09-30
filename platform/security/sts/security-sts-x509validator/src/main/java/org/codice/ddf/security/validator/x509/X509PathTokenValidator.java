@@ -48,6 +48,7 @@
  */
 package org.codice.ddf.security.validator.x509;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.cert.X509Certificate;
 
@@ -138,13 +139,10 @@ public class X509PathTokenValidator implements TokenValidator {
      */
     public boolean canHandleToken(ReceivedToken validateTarget, String realm) {
         Object token = validateTarget.getToken();
-        if ((token instanceof BinarySecurityTokenType) && (
+        return (token instanceof BinarySecurityTokenType) && (
                 X509_PKI_PATH.equals(((BinarySecurityTokenType) token).getValueType())
                         || X509TokenValidator.X509_V3_TYPE
-                        .equals(((BinarySecurityTokenType) token).getValueType()))) {
-            return true;
-        }
-        return false;
+                        .equals(((BinarySecurityTokenType) token).getValueType()));
     }
 
     /**
@@ -201,9 +199,15 @@ public class X509PathTokenValidator implements TokenValidator {
             if (merlin != null) {
                 byte[] token = binarySecurity.getToken();
                 if (token != null) {
-                    X509Certificate[] certificates = merlin.getCertificatesFromBytes(token);
-                    if (certificates != null) {
-                        credential.setCertificates(certificates);
+                    if (binarySecurityType.getValueType().equals(X509_PKI_PATH)) {
+                        X509Certificate[] certificates = merlin.getCertificatesFromBytes(token);
+                        if (certificates != null) {
+                            credential.setCertificates(certificates);
+                        }
+                    } else {
+                        X509Certificate singleCert = merlin
+                                .loadCertificate(new ByteArrayInputStream(token));
+                        credential.setCertificates(new X509Certificate[]{singleCert});
                     }
                 } else {
                     LOGGER.debug("Binary Security Token bytes were null.");
