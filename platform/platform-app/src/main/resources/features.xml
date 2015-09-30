@@ -528,6 +528,11 @@
     </feature>
     <!-- End CXF Features -->
 
+    <feature name ="platform-configuration-listener" install="manual" version="${project.version}"
+             description="Listens for changes to config admin and updates their configuration files">
+        <bundle>mvn:ddf.platform/platform-configuration-listener/${project.version}</bundle>
+    </feature>
+
     <feature name="platform-scheduler" install="manual" version="${project.version}"
              description="Schedules tasks">
         <bundle>mvn:ddf.platform/platform-scheduler/${project.version}</bundle>
