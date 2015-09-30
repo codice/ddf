@@ -123,7 +123,9 @@
                             ddf.catalog.operation.impl,
                             ddf.catalog.util.impl
                         </Private-Package>
-                        <Export-Package/>
+                        <Export-Package>
+                            ddf.catalog.transformer.api
+                        </Export-Package>
                         <Import-Package>
                             org.joda.time;version="[1.6.0,3.0.0)",
                             *
@@ -154,7 +156,7 @@
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.49</minimum>
+                                            <minimum>0.47</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
