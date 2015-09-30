@@ -88,6 +88,77 @@ public class TestSecurity extends AbstractIntegrationTest {
 
     protected static final String SDK_SOAP_CONTEXT = "/services/sdk/SoapService";
 
+    private static final String BAD_X509_TOKEN =
+            "                        MIIDQDCCAqmgAwIBAgICAQUwDQYJKoZIhvcNAQEFBQAwTjELMAkGA1UEBhMCSlAxETAPBg\n"
+                    + "    NVBAgTCEthbmFnYXdhMQwwCgYDVQQKEwNJQk0xDDAKBgNVBAsTA1RSTDEQMA4GA1UEAxMH\n"
+                    + "    SW50IENBMjAeFw0wMTEwMDExMDAwMzlaFw0xMTEwMDExMDAwMzlaMFMxCzAJBgNVBAYTAk\n"
+                    + "    pQMREwDwYDVQQIEwhLYW5hZ2F3YTEMMAoGA1UEChMDSUJNMQwwCgYDVQQLEwNUUkwxFTAT\n"
+                    + "    BgNVBAMTDFNPQVBQcm92aWRlcjCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAraakNJ\n"
+                    + "    1JzkPUuvPdXRvPOOCl12nBwmqvt65dk/x+QzxxarDNwH+eWRbLyyKcrAyd0XGV+Zbvj6V3\n"
+                    + "    O9DSVCZUCJttw6bbqqeYhwAP3V8s24sID77tk3gOhUTEGYxsljX2orL26SLqFJMrvnvk2F\n"
+                    + "    RS2mrdkZEBUG97mD4QWcln4d0CAwEAAaOCASYwggEiMAkGA1UdEwQCMAAwCwYDVR0PBAQD\n"
+                    + "    AgXgMCwGCWCGSAGG+EIBDQQfFh1PcGVuU1NMIEdlbmVyYXRlZCBDZXJ0aWZpY2F0ZTAdBg\n"
+                    + "    NVHQ4EFgQUlXSsrVRfZOLGdJdjEIwTbuSTe4UwgboGA1UdIwSBsjCBr4AUvfkg1Tj5ZHLT\n"
+                    + "    29p/3M6w/tC872+hgZKkgY8wgYwxCzAJBgNVBAYTAkpQMREwDwYDVQQIEwhLYW5hZ2F3YT\n"
+                    + "    EPMA0GA1UEBxMGWWFtYXRvMQwwCgYDVQQKEwNJQk0xDDAKBgNVBAsTA1RSTDEZMBcGA1UE\n"
+                    + "    AxMQU09BUCAyLjEgVGVzdCBDQTEiMCAGCSqGSIb3DQEJARYTbWFydXlhbWFAanAuaWJtLm\n"
+                    + "    NvbYICAQEwDQYJKoZIhvcNAQEFBQADgYEAXE7mE1RPb3lYAYJFzBb3VAHvkCWa/HQtCOZd\n"
+                    + "    yniCHp3MJ9EbNTq+QpOHV60YE8u0+5SejCzFSOHOpyBgLPjWoz8JXQnjV7VcAbTglw+ZoO\n"
+                    + "    SYy64rfhRdr9giSs47F4D6woPsAd2ubg/YhMaXLTSyGxPdV3VqQsutuSgDUDoqWCA=";
+
+    private static final String GOOD_X509_TOKEN =
+            "MIIDEzCCAnygAwIBAgIJAIzc4FYrIp9mMA0GCSqGSIb3DQEBBQUAMHcxCzAJBgNV\n"
+                    + "BAYTAlVTMQswCQYDVQQIDAJBWjEMMAoGA1UECgwDRERGMQwwCgYDVQQLDANEZXYx\n"
+                    + "GTAXBgNVBAMMEERERiBEZW1vIFJvb3QgQ0ExJDAiBgkqhkiG9w0BCQEWFWRkZnJv\n"
+                    + "b3RjYUBleGFtcGxlLm9yZzAeFw0xNDEyMTAyMTU4MThaFw0xNTEyMTAyMTU4MTha\n"
+                    + "MIGDMQswCQYDVQQGEwJVUzELMAkGA1UECAwCQVoxETAPBgNVBAcMCEdvb2R5ZWFy\n"
+                    + "MQwwCgYDVQQKDANEREYxDDAKBgNVBAsMA0RldjESMBAGA1UEAwwJbG9jYWxob3N0\n"
+                    + "MSQwIgYJKoZIhvcNAQkBFhVsb2NhbGhvc3RAZXhhbXBsZS5vcmcwgZ8wDQYJKoZI\n"
+                    + "hvcNAQEBBQADgY0AMIGJAoGBAMeCyNZbCTZphHQfB5g8FrgBq1RYzV7ikVw/pVGk\n"
+                    + "z8gx3l3A99s8WtA4mRAeb6n0vTR9yNBOekW4nYOiEOq//YTi/frI1kz0QbEH1s2c\n"
+                    + "I5nFButabD3PYGxUSuapbc+AS7+Pklr0TDI4MRzPPkkTp4wlORQ/a6CfVsNr/mVg\n"
+                    + "L2CfAgMBAAGjgZkwgZYwCQYDVR0TBAIwADAnBglghkgBhvhCAQ0EGhYYRk9SIFRF\n"
+                    + "U1RJTkcgUFVSUE9TRSBPTkxZMB0GA1UdDgQWBBSA95QIMyBAHRsd0R4s7C3BreFr\n"
+                    + "sDAfBgNVHSMEGDAWgBThVMeX3wrCv6lfeF47CyvkSBe9xjAgBgNVHREEGTAXgRVs\n"
+                    + "b2NhbGhvc3RAZXhhbXBsZS5vcmcwDQYJKoZIhvcNAQEFBQADgYEAtRUp7fAxU/E6\n"
+                    + "JD2Kj/+CTWqu8Elx13S0TxoIqv3gMoBW0ehyzEKjJi0bb1gUxO7n1SmOESp5sE3j\n"
+                    + "GTnh0GtYV0D219z/09n90cd/imAEhknJlayyd0SjpnaL9JUd8uYxJexy8TJ2sMhs\n"
+                    + "GAZ6EMTZCfT9m07XduxjsmDz0hlSGV0=";
+
+    private static final String GOOD_X509_PATH_TOKEN =
+            "MIIF1zCCArwwggIloAMCAQICCQCM3OBWKyKfZTANBgkqhkiG9w0BAQUFADB3MQsw"
+                    + "CQYDVQQGEwJVUzELMAkGA1UECAwCQVoxDDAKBgNVBAoMA0RERjEMMAoGA1UECwwD"
+                    + "RGV2MRkwFwYDVQQDDBBEREYgRGVtbyBSb290IENBMSQwIgYJKoZIhvcNAQkBFhVk"
+                    + "ZGZyb290Y2FAZXhhbXBsZS5vcmcwHhcNMTQxMjEwMjE1NjMwWhcNMTcxMjA5MjE1"
+                    + "NjMwWjB3MQswCQYDVQQGEwJVUzELMAkGA1UECAwCQVoxDDAKBgNVBAoMA0RERjEM"
+                    + "MAoGA1UECwwDRGV2MRkwFwYDVQQDDBBEREYgRGVtbyBSb290IENBMSQwIgYJKoZI"
+                    + "hvcNAQkBFhVkZGZyb290Y2FAZXhhbXBsZS5vcmcwgZ8wDQYJKoZIhvcNAQEBBQAD"
+                    + "gY0AMIGJAoGBALVtFJIVYgb+07/jBZ1KXZVCxuf0hUoOMOw2vYJ8VqhS755Sf74q"
+                    + "RcVaPm8BcrWVG80OdutXtzP+ylnO/tjmr+myxsKnpodXZcLqCzQE58rh57bFJRAJ"
+                    + "SjqJjny+JBSy0MdI3NtJS3yVmrUgZRVHdIquYBPMjxIxgRsT230F1MnfAgMBAAGj"
+                    + "UDBOMB0GA1UdDgQWBBThVMeX3wrCv6lfeF47CyvkSBe9xjAfBgNVHSMEGDAWgBTh"
+                    + "VMeX3wrCv6lfeF47CyvkSBe9xjAMBgNVHRMEBTADAQH/MA0GCSqGSIb3DQEBBQUA"
+                    + "A4GBAJ8QlzOYMjNiqA6YAIJ+LGbTSXbc1nnAgP6unnvatSmew8o/nGIzcrmRCeGg"
+                    + "d5Bsx/xHncFtSeLRidgp6AvXA96/0ik7W5PWxFzbwy7vWIrkHx/tnWka6b95/FlB"
+                    + "I+GxycJiGZZCwNWGFBWXWrn/aVCVicZQ7q+nPAuCkV+TKIalMIIDEzCCAnygAwIB"
+                    + "AgIJAIzc4FYrIp9mMA0GCSqGSIb3DQEBBQUAMHcxCzAJBgNVBAYTAlVTMQswCQYD"
+                    + "VQQIDAJBWjEMMAoGA1UECgwDRERGMQwwCgYDVQQLDANEZXYxGTAXBgNVBAMMEERE"
+                    + "RiBEZW1vIFJvb3QgQ0ExJDAiBgkqhkiG9w0BCQEWFWRkZnJvb3RjYUBleGFtcGxl"
+                    + "Lm9yZzAeFw0xNDEyMTAyMTU4MThaFw0xNTEyMTAyMTU4MThaMIGDMQswCQYDVQQG"
+                    + "EwJVUzELMAkGA1UECAwCQVoxETAPBgNVBAcMCEdvb2R5ZWFyMQwwCgYDVQQKDANE"
+                    + "REYxDDAKBgNVBAsMA0RldjESMBAGA1UEAwwJbG9jYWxob3N0MSQwIgYJKoZIhvcN"
+                    + "AQkBFhVsb2NhbGhvc3RAZXhhbXBsZS5vcmcwgZ8wDQYJKoZIhvcNAQEBBQADgY0A"
+                    + "MIGJAoGBAMeCyNZbCTZphHQfB5g8FrgBq1RYzV7ikVw/pVGkz8gx3l3A99s8WtA4"
+                    + "mRAeb6n0vTR9yNBOekW4nYOiEOq//YTi/frI1kz0QbEH1s2cI5nFButabD3PYGxU"
+                    + "Suapbc+AS7+Pklr0TDI4MRzPPkkTp4wlORQ/a6CfVsNr/mVgL2CfAgMBAAGjgZkw"
+                    + "gZYwCQYDVR0TBAIwADAnBglghkgBhvhCAQ0EGhYYRk9SIFRFU1RJTkcgUFVSUE9T"
+                    + "RSBPTkxZMB0GA1UdDgQWBBSA95QIMyBAHRsd0R4s7C3BreFrsDAfBgNVHSMEGDAW"
+                    + "gBThVMeX3wrCv6lfeF47CyvkSBe9xjAgBgNVHREEGTAXgRVsb2NhbGhvc3RAZXhh"
+                    + "bXBsZS5vcmcwDQYJKoZIhvcNAQEFBQADgYEAtRUp7fAxU/E6JD2Kj/+CTWqu8Elx"
+                    + "13S0TxoIqv3gMoBW0ehyzEKjJi0bb1gUxO7n1SmOESp5sE3jGTnh0GtYV0D219z/"
+                    + "09n90cd/imAEhknJlayyd0SjpnaL9JUd8uYxJexy8TJ2sMhsGAZ6EMTZCfT9m07X"
+                    + "duxjsmDz0hlSGV0=\n";
+
     @BeforeExam
     public void beforeTest() throws Exception {
         setLogLevels();
@@ -295,23 +366,7 @@ public class TestSecurity extends AbstractIntegrationTest {
     public void testBadX509TokenSTS() throws Exception {
         String onBehalfOf = "<wst:OnBehalfOf>\n"
                 + "                    <wsse:BinarySecurityToken xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\" EncodingType=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary\" ValueType=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3\" >\n"
-                + "                        MIIDQDCCAqmgAwIBAgICAQUwDQYJKoZIhvcNAQEFBQAwTjELMAkGA1UEBhMCSlAxETAPBg\n"
-                + "    NVBAgTCEthbmFnYXdhMQwwCgYDVQQKEwNJQk0xDDAKBgNVBAsTA1RSTDEQMA4GA1UEAxMH\n"
-                + "    SW50IENBMjAeFw0wMTEwMDExMDAwMzlaFw0xMTEwMDExMDAwMzlaMFMxCzAJBgNVBAYTAk\n"
-                + "    pQMREwDwYDVQQIEwhLYW5hZ2F3YTEMMAoGA1UEChMDSUJNMQwwCgYDVQQLEwNUUkwxFTAT\n"
-                + "    BgNVBAMTDFNPQVBQcm92aWRlcjCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAraakNJ\n"
-                + "    1JzkPUuvPdXRvPOOCl12nBwmqvt65dk/x+QzxxarDNwH+eWRbLyyKcrAyd0XGV+Zbvj6V3\n"
-                + "    O9DSVCZUCJttw6bbqqeYhwAP3V8s24sID77tk3gOhUTEGYxsljX2orL26SLqFJMrvnvk2F\n"
-                + "    RS2mrdkZEBUG97mD4QWcln4d0CAwEAAaOCASYwggEiMAkGA1UdEwQCMAAwCwYDVR0PBAQD\n"
-                + "    AgXgMCwGCWCGSAGG+EIBDQQfFh1PcGVuU1NMIEdlbmVyYXRlZCBDZXJ0aWZpY2F0ZTAdBg\n"
-                + "    NVHQ4EFgQUlXSsrVRfZOLGdJdjEIwTbuSTe4UwgboGA1UdIwSBsjCBr4AUvfkg1Tj5ZHLT\n"
-                + "    29p/3M6w/tC872+hgZKkgY8wgYwxCzAJBgNVBAYTAkpQMREwDwYDVQQIEwhLYW5hZ2F3YT\n"
-                + "    EPMA0GA1UEBxMGWWFtYXRvMQwwCgYDVQQKEwNJQk0xDDAKBgNVBAsTA1RSTDEZMBcGA1UE\n"
-                + "    AxMQU09BUCAyLjEgVGVzdCBDQTEiMCAGCSqGSIb3DQEJARYTbWFydXlhbWFAanAuaWJtLm\n"
-                + "    NvbYICAQEwDQYJKoZIhvcNAQEFBQADgYEAXE7mE1RPb3lYAYJFzBb3VAHvkCWa/HQtCOZd\n"
-                + "    yniCHp3MJ9EbNTq+QpOHV60YE8u0+5SejCzFSOHOpyBgLPjWoz8JXQnjV7VcAbTglw+ZoO\n"
-                + "    SYy64rfhRdr9giSs47F4D6woPsAd2ubg/YhMaXLTSyGxPdV3VqQsutuSgDUDoqWCA="
-                + "                   </wsse:BinarySecurityToken>\n"
+                + BAD_X509_TOKEN + "                   </wsse:BinarySecurityToken>\n"
                 + "                </wst:OnBehalfOf>\n";
         String body = getSoapEnvelope(onBehalfOf);
 
@@ -325,25 +380,10 @@ public class TestSecurity extends AbstractIntegrationTest {
     @Test
     public void testX509TokenSTS() throws Exception {
         String onBehalfOf = "<wst:OnBehalfOf>\n"
-                + "                    <wsse:BinarySecurityToken xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\" EncodingType=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary\" ValueType=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3\" >"
-                + "MIIDEzCCAnygAwIBAgIJAIzc4FYrIp9mMA0GCSqGSIb3DQEBBQUAMHcxCzAJBgNV\n"
-                + "BAYTAlVTMQswCQYDVQQIDAJBWjEMMAoGA1UECgwDRERGMQwwCgYDVQQLDANEZXYx\n"
-                + "GTAXBgNVBAMMEERERiBEZW1vIFJvb3QgQ0ExJDAiBgkqhkiG9w0BCQEWFWRkZnJv\n"
-                + "b3RjYUBleGFtcGxlLm9yZzAeFw0xNDEyMTAyMTU4MThaFw0xNTEyMTAyMTU4MTha\n"
-                + "MIGDMQswCQYDVQQGEwJVUzELMAkGA1UECAwCQVoxETAPBgNVBAcMCEdvb2R5ZWFy\n"
-                + "MQwwCgYDVQQKDANEREYxDDAKBgNVBAsMA0RldjESMBAGA1UEAwwJbG9jYWxob3N0\n"
-                + "MSQwIgYJKoZIhvcNAQkBFhVsb2NhbGhvc3RAZXhhbXBsZS5vcmcwgZ8wDQYJKoZI\n"
-                + "hvcNAQEBBQADgY0AMIGJAoGBAMeCyNZbCTZphHQfB5g8FrgBq1RYzV7ikVw/pVGk\n"
-                + "z8gx3l3A99s8WtA4mRAeb6n0vTR9yNBOekW4nYOiEOq//YTi/frI1kz0QbEH1s2c\n"
-                + "I5nFButabD3PYGxUSuapbc+AS7+Pklr0TDI4MRzPPkkTp4wlORQ/a6CfVsNr/mVg\n"
-                + "L2CfAgMBAAGjgZkwgZYwCQYDVR0TBAIwADAnBglghkgBhvhCAQ0EGhYYRk9SIFRF\n"
-                + "U1RJTkcgUFVSUE9TRSBPTkxZMB0GA1UdDgQWBBSA95QIMyBAHRsd0R4s7C3BreFr\n"
-                + "sDAfBgNVHSMEGDAWgBThVMeX3wrCv6lfeF47CyvkSBe9xjAgBgNVHREEGTAXgRVs\n"
-                + "b2NhbGhvc3RAZXhhbXBsZS5vcmcwDQYJKoZIhvcNAQEFBQADgYEAtRUp7fAxU/E6\n"
-                + "JD2Kj/+CTWqu8Elx13S0TxoIqv3gMoBW0ehyzEKjJi0bb1gUxO7n1SmOESp5sE3j\n"
-                + "GTnh0GtYV0D219z/09n90cd/imAEhknJlayyd0SjpnaL9JUd8uYxJexy8TJ2sMhs\n"
-                + "GAZ6EMTZCfT9m07XduxjsmDz0hlSGV0=" + "</wsse:BinarySecurityToken>\n"
-                + "                </wst:OnBehalfOf>\n";
+                + "<wsse:BinarySecurityToken xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\" "
+                + "EncodingType=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary\" "
+                + "ValueType=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3\" >"
+                + GOOD_X509_TOKEN + "</wsse:BinarySecurityToken>\n" + "</wst:OnBehalfOf>\n";
         String body = getSoapEnvelope(onBehalfOf);
 
         given().log().all().body(body).header("Content-Type", "text/xml; charset=utf-8")
@@ -357,40 +397,10 @@ public class TestSecurity extends AbstractIntegrationTest {
     @Test
     public void testX509PathSTS() throws Exception {
         String onBehalfOf = "<wst:OnBehalfOf>\n"
-                + "                    <wsse:BinarySecurityToken xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\" EncodingType=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary\" ValueType=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509PKIPathv1\" >"
-                + "MIIF1zCCArwwggIloAMCAQICCQCM3OBWKyKfZTANBgkqhkiG9w0BAQUFADB3MQsw"
-                + "CQYDVQQGEwJVUzELMAkGA1UECAwCQVoxDDAKBgNVBAoMA0RERjEMMAoGA1UECwwD"
-                + "RGV2MRkwFwYDVQQDDBBEREYgRGVtbyBSb290IENBMSQwIgYJKoZIhvcNAQkBFhVk"
-                + "ZGZyb290Y2FAZXhhbXBsZS5vcmcwHhcNMTQxMjEwMjE1NjMwWhcNMTcxMjA5MjE1"
-                + "NjMwWjB3MQswCQYDVQQGEwJVUzELMAkGA1UECAwCQVoxDDAKBgNVBAoMA0RERjEM"
-                + "MAoGA1UECwwDRGV2MRkwFwYDVQQDDBBEREYgRGVtbyBSb290IENBMSQwIgYJKoZI"
-                + "hvcNAQkBFhVkZGZyb290Y2FAZXhhbXBsZS5vcmcwgZ8wDQYJKoZIhvcNAQEBBQAD"
-                + "gY0AMIGJAoGBALVtFJIVYgb+07/jBZ1KXZVCxuf0hUoOMOw2vYJ8VqhS755Sf74q"
-                + "RcVaPm8BcrWVG80OdutXtzP+ylnO/tjmr+myxsKnpodXZcLqCzQE58rh57bFJRAJ"
-                + "SjqJjny+JBSy0MdI3NtJS3yVmrUgZRVHdIquYBPMjxIxgRsT230F1MnfAgMBAAGj"
-                + "UDBOMB0GA1UdDgQWBBThVMeX3wrCv6lfeF47CyvkSBe9xjAfBgNVHSMEGDAWgBTh"
-                + "VMeX3wrCv6lfeF47CyvkSBe9xjAMBgNVHRMEBTADAQH/MA0GCSqGSIb3DQEBBQUA"
-                + "A4GBAJ8QlzOYMjNiqA6YAIJ+LGbTSXbc1nnAgP6unnvatSmew8o/nGIzcrmRCeGg"
-                + "d5Bsx/xHncFtSeLRidgp6AvXA96/0ik7W5PWxFzbwy7vWIrkHx/tnWka6b95/FlB"
-                + "I+GxycJiGZZCwNWGFBWXWrn/aVCVicZQ7q+nPAuCkV+TKIalMIIDEzCCAnygAwIB"
-                + "AgIJAIzc4FYrIp9mMA0GCSqGSIb3DQEBBQUAMHcxCzAJBgNVBAYTAlVTMQswCQYD"
-                + "VQQIDAJBWjEMMAoGA1UECgwDRERGMQwwCgYDVQQLDANEZXYxGTAXBgNVBAMMEERE"
-                + "RiBEZW1vIFJvb3QgQ0ExJDAiBgkqhkiG9w0BCQEWFWRkZnJvb3RjYUBleGFtcGxl"
-                + "Lm9yZzAeFw0xNDEyMTAyMTU4MThaFw0xNTEyMTAyMTU4MThaMIGDMQswCQYDVQQG"
-                + "EwJVUzELMAkGA1UECAwCQVoxETAPBgNVBAcMCEdvb2R5ZWFyMQwwCgYDVQQKDANE"
-                + "REYxDDAKBgNVBAsMA0RldjESMBAGA1UEAwwJbG9jYWxob3N0MSQwIgYJKoZIhvcN"
-                + "AQkBFhVsb2NhbGhvc3RAZXhhbXBsZS5vcmcwgZ8wDQYJKoZIhvcNAQEBBQADgY0A"
-                + "MIGJAoGBAMeCyNZbCTZphHQfB5g8FrgBq1RYzV7ikVw/pVGkz8gx3l3A99s8WtA4"
-                + "mRAeb6n0vTR9yNBOekW4nYOiEOq//YTi/frI1kz0QbEH1s2cI5nFButabD3PYGxU"
-                + "Suapbc+AS7+Pklr0TDI4MRzPPkkTp4wlORQ/a6CfVsNr/mVgL2CfAgMBAAGjgZkw"
-                + "gZYwCQYDVR0TBAIwADAnBglghkgBhvhCAQ0EGhYYRk9SIFRFU1RJTkcgUFVSUE9T"
-                + "RSBPTkxZMB0GA1UdDgQWBBSA95QIMyBAHRsd0R4s7C3BreFrsDAfBgNVHSMEGDAW"
-                + "gBThVMeX3wrCv6lfeF47CyvkSBe9xjAgBgNVHREEGTAXgRVsb2NhbGhvc3RAZXhh"
-                + "bXBsZS5vcmcwDQYJKoZIhvcNAQEFBQADgYEAtRUp7fAxU/E6JD2Kj/+CTWqu8Elx"
-                + "13S0TxoIqv3gMoBW0ehyzEKjJi0bb1gUxO7n1SmOESp5sE3jGTnh0GtYV0D219z/"
-                + "09n90cd/imAEhknJlayyd0SjpnaL9JUd8uYxJexy8TJ2sMhsGAZ6EMTZCfT9m07X"
-                + "duxjsmDz0hlSGV0=\n"
-                + "</wsse:BinarySecurityToken>\n" + "                </wst:OnBehalfOf>\n";
+                + "<wsse:BinarySecurityToken xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\" "
+                + "EncodingType=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary\" "
+                + "ValueType=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509PKIPathv1\" >"
+                + GOOD_X509_PATH_TOKEN + "</wsse:BinarySecurityToken>\n" + "</wst:OnBehalfOf>\n";
         String body = getSoapEnvelope(onBehalfOf);
 
         given().log().all().body(body).header("Content-Type", "text/xml; charset=utf-8")
@@ -398,6 +408,38 @@ public class TestSecurity extends AbstractIntegrationTest {
                 .expect().statusCode(equalTo(200)).when()
                 .post(SERVICE_ROOT + "/SecurityTokenService").then().log().all().assertThat()
                 .body(HasXPath.hasXPath("//*[local-name()='Assertion']"));
+
+    }
+
+    @Test
+    public void testX509TokenWithPathSTS() throws Exception {
+        String onBehalfOf = "<wst:OnBehalfOf>\n"
+                + "<wsse:BinarySecurityToken xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\" "
+                + "EncodingType=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary\" "
+                + "ValueType=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3\" >\n"
+                + GOOD_X509_PATH_TOKEN + "</wsse:BinarySecurityToken>\n" + "</wst:OnBehalfOf>\n";
+        String body = getSoapEnvelope(onBehalfOf);
+
+        given().log().all().body(body).header("Content-Type", "text/xml; charset=utf-8")
+                .header("SOAPAction", "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue")
+                .expect().statusCode(equalTo(500)).when()
+                .post(SERVICE_ROOT + "/SecurityTokenService").then().log().all();
+
+    }
+
+    @Test
+    public void testX509PathWithTokenSTS() throws Exception {
+        String onBehalfOf = "<wst:OnBehalfOf>\n"
+                + "<wsse:BinarySecurityToken xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\" "
+                + "EncodingType=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary\" "
+                + "ValueType=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509PKIPathv1\" >"
+                + GOOD_X509_TOKEN + "</wsse:BinarySecurityToken>\n" + "</wst:OnBehalfOf>\n";
+        String body = getSoapEnvelope(onBehalfOf);
+
+        given().log().all().body(body).header("Content-Type", "text/xml; charset=utf-8")
+                .header("SOAPAction", "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue")
+                .expect().statusCode(equalTo(500)).when()
+                .post(SERVICE_ROOT + "/SecurityTokenService").then().log().all();
 
     }
 
