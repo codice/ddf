@@ -1151,6 +1151,76 @@ Be sure to note the port number that replaced 8181 then enter that number in the
 Only root can access ports<1024 on Unix systems. For suggested ways to run {branding} with ports < 1024 see How do I use port 80 as a non-root user?.
 ====
 
+=== Configuring {branding} using Configuration (.config) files
+
+The {branding} can also be configured with configuration (.config) files.
+
+[NOTE]
+====
+This type of configuration file supports lists within configuration values and should be used for any configuration that makes use of lists
+====
+
+The syntax of the (.config) configuration files is similar to the older (.cfg) files but introduces support for lists and types other than simple strings. The type associated with a property should match the _type_ attribute used in the corresponding _metatype.xml_ file when applicable.
+
+The following table shows the format to use for each property type supported.
+
+[cols="2" options="header"]
+|===
+
+|Type
+|Format
+
+|Strings
+|name = "john"
+
+|Booleans
+|authorized = B"true"
+
+|Integers
+|timeout=I"60"
+
+|Longs
+|diameter = L"10000"
+
+|Floats
+|cost = F"10.0"
+
+|Doubles
+|latitude = D"45.0234"
+
+|Lists of Strings
+|authenticationTypes = [ "/\=SAML\|ANON", "/admin\=SAML\|basic", "/jolokia\=SAML\|basic", "/system\=basic", "/solr\=SAML\|PKI\|basic", "/sources\=SAML\|basic", "/security-config\=SAML\|basic" ]
+
+|Lists of Integers
+|sizes = I[ "10", "20", "30" ]
+
+|===
+
+[NOTE]
+====
+* Lists of values can be of any of the supported types, namely integers (prefixed with _I_ as in the example above), booleans (prefixed with _B_), floats (prefixed with _F_)or  doubles (prefixed with _D_)
+* The backslashes before the equals signs are generally a good practice in order to avoid running into configuration issues
+====
+
+.Sample (.config) file
+----
+property.string = "string"
+property.boolean.true = B"true"
+property.boolean.false = B"false"
+property.int = I"10"
+property.float = F"10.0"
+property.double = D"10.01"
+property.long = L"10"
+property.list.strings = [ "A", "B", "C" ]
+property.list.int = I[ "10", "20", "30" ]
+----
+
+
+[WARNING]
+====
+Currently the configuration (.config) file method does not support configuration of ManagedServiceFactories, for safety it is advised that this method is used mainly for configurations that need to contain lists of values
+====
+
 === Enable and Configure HTTP to HTTPS Proxy
 
 
