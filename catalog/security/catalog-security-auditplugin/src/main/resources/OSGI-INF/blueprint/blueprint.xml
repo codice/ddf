@@ -16,6 +16,6 @@
 
     <bean id="auditPlugin" class="ddf.catalog.security.audit.AuditPlugin"/>
 
-    <service ref="auditPlugin" auto-export="interfaces" ranking="0"/>
+    <service ref="auditPlugin" auto-export="interfaces" ranking="100"/>
 
 </blueprint>

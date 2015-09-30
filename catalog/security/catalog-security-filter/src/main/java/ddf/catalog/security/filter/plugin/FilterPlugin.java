@@ -94,14 +94,14 @@ public class FilterPlugin implements PostQueryPlugin {
                 securityPermission.addAll(map);
             }
             if (!subject.isPermitted(securityPermission)) {
-                filteredMetacards ++;
+                filteredMetacards++;
             } else {
                 newResults.add(result);
             }
         }
 
         logger.info("Filtered " + filteredMetacards + "metacards, returned " + (newResults.size() - filteredMetacards));
-        SecurityLogger.logInfo("Filtered " + filteredMetacards + "metacards, returned " + (newResults.size() - filteredMetacards));
+        SecurityLogger.logInfo("Filtered " + filteredMetacards + " metacards, returned " + (newResults.size() - filteredMetacards));
 
         input.getResults().clear();
         input.getResults().addAll(newResults);
