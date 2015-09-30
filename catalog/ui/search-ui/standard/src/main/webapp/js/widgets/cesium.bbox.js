@@ -39,7 +39,7 @@ define([
                 this.scene = options.scene;
                 this.ellipsoid = options.scene.globe.ellipsoid;
                 this.mouseHandler = new Cesium.ScreenSpaceEventHandler(this.canvas);
-                this.listenTo(this.model, 'change:north change:south change:east change:west', this.updatePrimitive);
+                this.listenTo(this.model, 'change:mapNorth change:mapSouth change:mapEast change:mapWest', this.updatePrimitive);
             },
             enableInput: function () {
                 var controller = this.scene.screenSpaceCameraController;
@@ -177,10 +177,10 @@ define([
                     return null;
                 }
 
-                rectangle.north = obj.north;
-                rectangle.south = obj.south;
-                rectangle.east = obj.east;
-                rectangle.west = obj.west;
+                rectangle.north = obj.mapNorth;
+                rectangle.south = obj.mapSouth;
+                rectangle.east = obj.mapEast;
+                rectangle.west = obj.mapWest;
                 return rectangle;
             },
 
@@ -244,8 +244,8 @@ define([
                 this.enableInput();
                 this.mouseHandler.destroy();
                 this.drawBorderedRectangle(this.primitive.rectangle);
-                this.stopListening(this.model, 'change:north change:south change:east change:west', this.updatePrimitive);
-                this.listenTo(this.model, 'change:north change:south change:east change:west', this.updateGeometry);
+                this.stopListening(this.model, 'change:mapNorth change:mapSouth change:mapEast change:mapWest', this.updatePrimitive);
+                this.listenTo(this.model, 'change:mapNorth change:mapSouth change:mapEast change:mapWest', this.updateGeometry);
 
                 this.model.trigger("EndExtent", this.model);
                 this.dir = undefined;
