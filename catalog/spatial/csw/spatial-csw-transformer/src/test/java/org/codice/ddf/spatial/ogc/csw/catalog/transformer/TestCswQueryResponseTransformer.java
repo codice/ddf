@@ -73,9 +73,6 @@ import net.opengis.cat.csw.v_2_0_2.AcknowledgementType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.ResultType;
 
-//import static org.hamcrest.MatcherAssert.assertThat;
-//import static org.mockito.Matchers.eq;
-
 public class TestCswQueryResponseTransformer {
 
     private static final Logger LOGGER = LoggerFactory
@@ -214,10 +211,9 @@ public class TestCswQueryResponseTransformer {
         ArgumentCaptor<String> strArgCaptor = ArgumentCaptor.forClass(String.class);
         verify(mockPrintWriter, times(1)).startNode(strArgCaptor.capture());
 
-        //LOGGER.info("[" + StringUtils.join(strArgCaptor.getAllValues(), ", ") + "]");
         List<String> values = strArgCaptor.getAllValues();
-        assertThat("Missing XML node.", values.get(0),
-                new IsEqual(CswQueryResponseTransformer.RECORDS_RESPONSE_QNAME));
+        assertThat("Missing root GetRecordByIdResponse node.", values.get(0),
+                is(CswQueryResponseTransformer.RECORD_BY_ID_RESPONSE_QNAME));
 
     }
 
