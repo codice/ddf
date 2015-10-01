@@ -17,6 +17,7 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static com.jayway.restassured.RestAssured.given;
@@ -267,8 +268,6 @@ public class TestSecurity extends AbstractIntegrationTest {
         given().auth().basic("admin", "admin").when().get(cswQueryUnavail).then().log().all()
                 .assertThat().statusCode(equalTo(500));
 
-        /*
-        //Negative tests TODO: DDF-1444 Negative OpenSearchSource BasicAuth tests currently do not work
         String unavailableOpenSourceId = "Unavailable OpenSearchSource";
 
         OpenSearchSourceProperties openSearchUnavailProp = new OpenSearchSourceProperties(
@@ -284,9 +283,6 @@ public class TestSecurity extends AbstractIntegrationTest {
         given().auth().basic("admin", "admin").when().get(unavailableOpenSearchQuery).then().log()
                 .all().assertThat().statusCode(equalTo(200)).assertThat()
                 .body(not(containsString("myTitle")));
-
-        String unavailableCswQuery = SERVICE_ROOT + "/catalog/query?q=*&src=" + unavailableCswSourceId;
-        */
 
         configureRestForAnonymous();
         TestCatalog.deleteMetacard(recordId);
