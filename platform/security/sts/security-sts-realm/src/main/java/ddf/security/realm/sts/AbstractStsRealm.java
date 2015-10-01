@@ -953,14 +953,7 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
 
     @Override
     public void setClaims(String claimsListAsString) {
-        List<String> setClaims = SPLITTER.splitToList(claimsListAsString);
-        if (StringUtils.isNotBlank(claimsListAsString)) {
-            for (String claim : claimsListAsString.split(",")) {
-                claim = claim.trim();
-                setClaims.add(claim);
-            }
-        }
-        setClaims(setClaims);
+        setClaims(SPLITTER.splitToList(claimsListAsString));
     }
 
     @Override

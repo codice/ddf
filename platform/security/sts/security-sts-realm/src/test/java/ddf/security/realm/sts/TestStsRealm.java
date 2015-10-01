@@ -174,6 +174,14 @@ public class TestStsRealm {
         assertEquals("claim7", childNodes.item(6).getAttributes().item(1).getTextContent());
     }
 
+    @Test
+    public void testAddClaimsAsString() {
+        StsRealm stsRealm = new StsRealm();
+        assertEquals(0, stsRealm.getClaims().size());
+        stsRealm.setClaims("claim1,claim2,claim3");
+        assertEquals(3, stsRealm.getClaims().size());
+    }
+
     protected Document readDocument(String name)
             throws SAXException, IOException, ParserConfigurationException {
         InputStream inStream = getClass().getResourceAsStream(name);
