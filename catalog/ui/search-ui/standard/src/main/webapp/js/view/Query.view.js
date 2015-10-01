@@ -201,13 +201,13 @@ define([
 
             swapLocationTypeLatLon: function() {
                 this.model.set('locationType', 'latlon');
+                this.model.setLatLon();
                 this.updateLocationFields();
             },
 
             swapLocationTypeUsng: function() {
                 this.model.set('locationType', 'usng');
-                this.model.setBboxLatLon();
-                this.model.repositionLatLon(false);
+                this.model.setLatLon();
                 this.updateLocationFields();
             },
 
