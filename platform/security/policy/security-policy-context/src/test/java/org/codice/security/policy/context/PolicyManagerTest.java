@@ -13,6 +13,10 @@
  */
 package org.codice.security.policy.context;
 
+import static org.codice.ddf.security.policy.context.impl.PolicyManager.DEFAULT_REALM;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -25,6 +29,8 @@ import org.codice.ddf.security.policy.context.impl.PolicyManager;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.google.common.collect.ImmutableMap;
+
 import junit.framework.Assert;
 
 /**
@@ -32,23 +38,128 @@ import junit.framework.Assert;
  */
 public class PolicyManagerTest {
 
+    private static final String REALMS = "realms";
+
+    private static final String AUTH_TYPES = "authenticationTypes";
+
+    private static final String REQ_ATTRS = "requiredAttributes";
+
     private PolicyManager manager;
+
+    private PolicyManager rollBackTestManager;
+
+    private String rollBackRealmValues = "/=" + DEFAULT_REALM + ","
+            + "/A=a,"
+            + "/A/B/C/testContext4=abcTestContext4,"
+            + "/testContext5=karaf,"
+            + "/1/2/3/testContext6=" + DEFAULT_REALM + ","
+            + "/A/B/C/testContext7=" + DEFAULT_REALM + ",";
+
+    private String rollBackAuthTypesValues = "/=SAML|ANON,"
+            + "/A=a,"
+            + "/A/B/C/testContext4=abcTestContext4";
+
+    private String rollBackReqAttrValues = "/=,"
+            + "/A={A=a},"
+            + "/testContext=,"
+            + "/1/2/3/testContext2=,"
+            + "/A/B/C/testContext3=,"
+            + "/A/B/C/testContext4=,"
+            + "/A/B/C/testContext8={AbcTestContext8=abcTestContext8}";
+
+    private final Map<String, String> expectedRollBackRealms = new ImmutableMap.Builder<String, String>()
+            .put("/testContext", DEFAULT_REALM)
+            .put("/1/2/3/testContext2", DEFAULT_REALM)
+            .put("/A/B/C/testContext3", "a")
+            .put("/A/B/C/testContext4", "abcTestContext4").build();
+
+    private final Map<String, List<String>> expectedRollBackAuthTypes = new ImmutableMap.Builder<String, List<String>>()
+            .put("/testContext", Arrays.asList(new String[] {"SAML", "ANON"}))
+            .put("/1/2/3/testContext2", Arrays.asList(new String[] {"SAML", "ANON"}))
+            .put("/A/B/C/testContext3", Arrays.asList(new String[] {"a"}))
+            .put("/A/B/C/testContext4", Arrays.asList(new String[] {"abcTestContext4"}))
+            .build();
+
+    private  final Map<String, List<String>> expectedRollBackReqAttrs = new ImmutableMap.Builder<String, List<String>>()
+            .put("/testContext5", Arrays.asList(new String[] {}))
+            .put("/1/2/3/testContext6", Arrays.asList(new String[] {}))
+            .put("/A/B/C/testContext7", Arrays.asList(new String[] {"A"}))
+            .put("/A/B/C/testContext8", Arrays.asList(new String[] {"AbcTestContext8"}))
+            .build();
 
     @Before
     public void setup() {
         manager = new PolicyManager();
-        manager.setContextPolicy("/", new Policy("/", null, null, null));
-        manager.setContextPolicy("/search", new Policy("/search", null, null, null));
-        manager.setContextPolicy("/admin", new Policy("/admin", null, null, null));
+        manager.setContextPolicy("/", new Policy("/", null, new ArrayList<String>(), null));
+        manager.setContextPolicy("/search", new Policy("/search", null, new ArrayList<String>(), null));
+        manager.setContextPolicy("/admin", new Policy("/admin", null, new ArrayList<String>(), null));
         manager.setContextPolicy("/search/standard",
-                new Policy("/search/standard", null, null, null));
-        manager.setContextPolicy("/cometd", new Policy("/cometd", null, null, null));
-        manager.setContextPolicy("/search/simple", new Policy("/search/simple", null, null, null));
-        manager.setContextPolicy("/aaaaaa", new Policy("/aaaaaa", null, null, null));
-        manager.setContextPolicy("/aaa", new Policy("/aaa", null, null, null));
-        manager.setContextPolicy("/aaa/aaa", new Policy("/aaa/aaa", null, null, null));
-        manager.setContextPolicy("/foo/bar", new Policy("/foo/bar", null, null, null));
+                new Policy("/search/standard", null, new ArrayList<String>(), null));
+        manager.setContextPolicy("/cometd", new Policy("/cometd", null, new ArrayList<String>(), null));
+        manager.setContextPolicy("/search/simple", new Policy("/search/simple", null, new ArrayList<String>(), null));
+        manager.setContextPolicy("/aaaaaa", new Policy("/aaaaaa", null, new ArrayList<String>(), null));
+        manager.setContextPolicy("/aaa", new Policy("/aaa", null, new ArrayList<String>(), null));
+        manager.setContextPolicy("/aaa/aaa", new Policy("/aaa/aaa", null, new ArrayList<String>(), null));
+        manager.setContextPolicy("/foo/bar", new Policy("/foo/bar", null, new ArrayList<String>(), null));
         manager.setWhiteListContexts("/foo");
+
+        Map<String, Object> contextPolicies = new HashMap<>();
+        contextPolicies.put(REALMS, rollBackRealmValues);
+        contextPolicies.put(AUTH_TYPES, rollBackAuthTypesValues);
+        contextPolicies.put(REQ_ATTRS, rollBackReqAttrValues);
+
+        rollBackTestManager = new PolicyManager();
+        rollBackTestManager.setPolicies(contextPolicies);
+    }
+
+    /**
+     * Tests context rollbacks to the specified realms
+     * / <- /testContext - single rollback to default
+     * / <- /1/2/3/testContext2 - several rollbacks to default
+     * /A <- /A/B/C/testContext3 - several rollback to parent
+     * /A/B/C/testContext4 <- /A/B/C/testContext4 - no rollback
+     */
+    @Test
+    public void testContextRealmRollBack() {
+        for (String contextPath : expectedRollBackRealms.keySet()) {
+            Assert.assertEquals(expectedRollBackRealms.get(contextPath),
+                    rollBackTestManager.getContextPolicy(contextPath).getRealm());
+        }
+
+    }
+
+    /**
+     * Tests context rollbacks to the specified authorization types
+     * / <- /testContext - single rollback to default
+     * / <- /1/2/3/testContext2 - several rollbacks to default
+     * /A <- /A/B/C/testContext3 - several rollback to parent
+     * /A/B/C/testContext4 <- /A/B/C/testContext4 - no rollback
+     */
+    @Test
+    public void testAuthTypesRollBack() {
+        for (String contextPath : expectedRollBackAuthTypes.keySet()) {
+            for (String authType : rollBackTestManager.getContextPolicy(contextPath)
+                    .getAuthenticationMethods()) {
+                Assert.assertTrue(expectedRollBackAuthTypes.get(contextPath).contains(authType));
+            }
+        }
+    }
+
+    /**
+     * Tests context rollbacks to the specified required attributes
+     * / <- /testContext5 - single rollback to default
+     * / <- /1/2/3/testContext6 - several rollbacks to default
+     * /A <- /A/B/C/testContext7 - several rollback to parent
+     * /A/B/C/testContext8 <- /A/B/C/testContext8 - no rollback
+     */
+    @Test
+    public void testReqAttrRollBack() {
+        for (String contextPath : expectedRollBackReqAttrs.keySet()) {
+            for (String authType : rollBackTestManager.getContextPolicy(contextPath)
+                    .getAllowedAttributeNames()) {
+                Assert.assertTrue(expectedRollBackReqAttrs.get(contextPath).contains(authType));
+            }
+        }
     }
 
     @Test

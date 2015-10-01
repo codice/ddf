@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -46,9 +47,11 @@ public class PolicyManager implements ContextPolicyManager {
 
     private static final String WHITE_LIST = "whiteListContexts";
 
-    private static final String DEFAULT_REALM = "DDF";
+    public static final String DEFAULT_REALM = "DDF";
 
-    private static final String DEFAULT_REALM_CONTEXTS = "/=karaf";
+    public static final String DEFAULT_REALM_CONTEXT_VALUE = "karaf";
+
+    private static final String DEFAULT_REALM_CONTEXTS = "/=" + DEFAULT_REALM_CONTEXT_VALUE;
 
     private Map<String, ContextPolicy> policyStore = new HashMap<>();
 
@@ -105,9 +108,38 @@ public class PolicyManager implements ContextPolicyManager {
         if (contextPolicy == null) {
             throw new IllegalArgumentException("Context policy cannot be null.");
         }
+        
         LOGGER.debug("setContextPolicy called with path = {}", path);
-        policyStore.put(path, contextPolicy);
 
+        //gather all context realms, authorization types, & required attributes
+        Map<String, String> contextsToRealms = new HashMap<String, String>();
+        Map<String, List<ContextAttributeMapping>> contextsToAttrs = new HashMap<>();
+        Map<String, List<String>> contextsToAuths = new HashMap<>();
+
+        for (String contextPath : policyStore.keySet()) {
+            contextsToRealms.put(contextPath, policyStore.get(contextPath).getRealm());
+            contextsToAttrs.put(contextPath,
+                    new ArrayList(((Policy) policyStore.get(contextPath)).getAllowedAttributes()));
+            contextsToAuths.put(contextPath,
+                    new ArrayList(policyStore.get(contextPath).getAuthenticationMethods()));
+        }
+
+        //add the new context policy
+        String newContextRealm = contextPolicy.getRealm();
+        Collection<ContextAttributeMapping> newContextAttrs = ((Policy) contextPolicy).getAllowedAttributes();
+        Collection<String> newContextAuths = contextPolicy.getAuthenticationMethods();
+
+        if (StringUtils.isNotEmpty(newContextRealm)) {
+            contextsToRealms.put(path, newContextRealm);
+        }
+        if (newContextAttrs != null) {
+            contextsToAttrs.put(path, new ArrayList(newContextAttrs));
+        }
+        if (newContextAuths != null) {
+            contextsToAuths.put(path, new ArrayList(newContextAuths));
+        }
+        
+        setPolicyStore(contextsToRealms, contextsToAuths, contextsToAttrs);
         currentPolicies = Collections.unmodifiableCollection(new ArrayList<>(policyStore.values()));
     }
 
@@ -176,9 +208,7 @@ public class PolicyManager implements ContextPolicyManager {
             Map<String, List<ContextAttributeMapping>> contextToAttr = new HashMap<>();
 
             List<String> realmContextList = expandStrings(realmContexts);
-
             List<String> authContextList = expandStrings(authContexts);
-
             List<String> attrContextList = expandStrings(attrContexts);
 
             for (String realm : realmContextList) {
@@ -216,30 +246,137 @@ public class PolicyManager implements ContextPolicyManager {
                     for (String attribute : attributes) {
                         String[] parts = attribute.split("=");
                         if (parts.length == 2) {
-                            attrMaps.add(new DefaultContextAttributeMapping(context, parts[0],
-                                    parts[1]));
+                            attrMaps.add(new DefaultContextAttributeMapping(context, parts[0], parts[1]));
                         }
                     }
                     contextToAttr.put(context, attrMaps);
                 }
             }
 
-            Set<Map.Entry<String, List<String>>> contexts = contextToAuth.entrySet();
+            setPolicyStore(contextToRealm, contextToAuth, contextToAttr);
+            currentPolicies = Collections.unmodifiableCollection(new ArrayList<>(policyStore.values()));
+        }
+        LOGGER.debug("Policy store initialized, now contains {} entries", policyStore.size());
+    }
 
-            for (Map.Entry<String, List<String>> context : contexts) {
-                List<ContextAttributeMapping> mappings = contextToAttr.get(context.getKey());
-                if (mappings == null) {
-                    mappings = new ArrayList<>();
-                }
-                policyStore.put(context.getKey(),
-                        new Policy(context.getKey(), contextToRealm.get(context.getKey()),
-                                context.getValue(), mappings));
-            }
+    private void setPolicyStore(Map<String, String> allContextsToRealms,
+            Map<String, List<String>> allContextsToAuths,
+            Map<String, List<ContextAttributeMapping>> allContextsToAttrs) {
+
+        //add default context values if they do not exist
+        if (allContextsToRealms.get("/") == null) {
+            allContextsToRealms.put("/", DEFAULT_REALM_CONTEXT_VALUE);
         }
 
-        currentPolicies = Collections.unmodifiableCollection(new ArrayList<>(policyStore.values()));
+        if (allContextsToAttrs.get("/") == null) {
+            allContextsToAttrs.put("/", new ArrayList<ContextAttributeMapping>());
+        }
 
-        LOGGER.debug("Policy store initialized, now contains {} entries", policyStore.size());
+        if (allContextsToAuths.get("/") == null) {
+            allContextsToAuths.put("/", new ArrayList<String>());
+        }
+
+        //gather all given context paths
+        Set<String> allContextPaths = new HashSet<>();
+        allContextPaths.addAll(allContextsToRealms.keySet());
+        allContextPaths.addAll(allContextsToAuths.keySet());
+        allContextPaths.addAll(allContextsToAttrs.keySet());
+
+        //resolve all realms, authorization types & required attributes
+        for (String path : allContextPaths) {
+            String contextRealm = getContextRealm(path, allContextsToRealms);
+            List<String> contextAuthTypes = getContextAuthTypes(path, allContextsToAuths);
+            List<ContextAttributeMapping> contextReqAttrs = getContextReqAttrs(path,
+                    allContextsToAttrs);
+            policyStore
+                    .put(path, new Policy(path, contextRealm, contextAuthTypes, contextReqAttrs));
+        }
+    }
+
+    /**
+     * Gets the context realm of the given path. If context realm of given path does not exist it rolls back until a parent path exists with a context realm
+     * If no parent path exists, the context defaults to "/" realm
+     *
+     * @param path           - Path associated to context
+     * @param contextToRealm - Map of all paths and their context realms
+     * @return context - Realm associated to path
+     */
+    public String getContextRealm(String path, Map<String, String> contextToRealm) {
+        String entry = contextToRealm.get(path);
+        if (entry != null) {
+            return entry;
+        } else {
+
+            //continue splitting by last "/"  down path until value found
+            int idx = path.lastIndexOf("/");
+            if (idx <= 0) {
+                idx++;
+            }
+            String pathFragment = path.substring(0, idx);
+            if (StringUtils.isNotEmpty(pathFragment)) {
+                return getContextRealm(pathFragment, contextToRealm);
+            } else {
+                return DEFAULT_REALM_CONTEXT_VALUE;
+            }
+        }
+    }
+
+    /**
+     * Gets the authorization types of the given path. If authorization types of given path do not exist it rolls back until a parent path exists with such authorization types is found
+     * If no parent path exists, the authorization types defaults to an empty list
+     *
+     * @param path               - Path associated with context
+     * @param contextToAuthTypes - Map of all paths and their context authorization types
+     * @return List of authorization types
+     */
+    public List<String> getContextAuthTypes(String path,
+            Map<String, List<String>> contextToAuthTypes) {
+        List<String> entry = contextToAuthTypes.get(path);
+        if (entry != null) {
+            return entry;
+        } else {
+
+            //continue splitting by last "/"  down path until value found, if last "/" is hit return default authentication type
+            int idx = path.lastIndexOf("/");
+            if (idx <= 0) {
+                idx++;
+            }
+            String pathFragment = path.substring(0, idx);
+            if (StringUtils.isNotEmpty(pathFragment)) {
+                return getContextAuthTypes(pathFragment, contextToAuthTypes);
+            } else {
+                return new ArrayList<String>();
+            }
+        }
+    }
+
+    /**
+     * Gets the required attributes of the context associated to the given path. If required attributes of given path do not exist it rolls back until a parent context path exists with such required attributes is found
+     * If no parent path exists, the context defaults to empty list
+     *
+     * @param -                 Path associated to context
+     * @param contextToReqAttrs - Map of all paths to contexts and their associated required attributes
+     * @return List of required attributes
+     */
+    public List<ContextAttributeMapping> getContextReqAttrs(String path,
+            Map<String, List<ContextAttributeMapping>> contextToReqAttrs) {
+        List<ContextAttributeMapping> entry = contextToReqAttrs.get(path);
+        if (entry != null) {
+            return entry;
+        } else {
+
+            //Continue splitting by last "/"  down path until value found,
+            int idx = path.lastIndexOf("/");
+            if (idx <= 0) {
+                idx++;
+            }
+            String pathFragment = path.substring(0, idx);
+            if (StringUtils.isNotEmpty(pathFragment)) {
+                return getContextReqAttrs(pathFragment, contextToReqAttrs);
+            } else {
+                return new ArrayList<ContextAttributeMapping>();
+            }
+        }
     }
 
     private List<String> expandStrings(String[] itemArr) {
