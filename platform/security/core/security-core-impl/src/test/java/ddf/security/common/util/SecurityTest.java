@@ -25,14 +25,13 @@ import static org.mockito.Mockito.when;
 
 import java.security.Principal;
 import java.security.PrivilegedAction;
-import java.util.Dictionary;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Set;
 
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.karaf.jaas.boot.principal.RolePrincipal;
 import org.apache.shiro.subject.PrincipalCollection;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.osgi.framework.Bundle;
@@ -135,25 +134,16 @@ public class SecurityTest {
 
     @Test
     public void testGetSystemSubject() throws Exception {
-
-        setSystemProps();
-
-        Dictionary<String, Object> props = new Hashtable<>();
-        props.put("host", "server");
-
-        configurMocksForBundleContext(props);
+        System.setProperty("org.codice.ddf.system.hostname", "server");
+        configurMocksForBundleContext();
 
         assertThat(Security.getSystemSubject(), not(equalTo(null)));
     }
 
     @Test
     public void testGetSystemSubjectBadAlias() throws Exception {
-
-        setSystemProps();
-
-        Dictionary<String, Object> props = new Hashtable<>();
-        props.put("host", "bad-alias");
-        configurMocksForBundleContext(props);
+        System.setProperty("org.codice.ddf.system.hostname", "bad-alias");
+        configurMocksForBundleContext();
 
         assertThat(Security.getSystemSubject(), equalTo(null));
     }
@@ -169,15 +159,17 @@ public class SecurityTest {
         when(bc.getService(ref)).thenReturn(sm);
     }
 
-    private void setSystemProps() throws Exception {
+    @Before
+    public void setSystemProps() throws Exception {
         System.setProperty("javax.net.ssl.keyStoreType", "JKS");
         System.setProperty("javax.net.ssl.keyStore",
                 getClass().getResource("/secureKeystore.jks").toURI().getPath());
         System.setProperty("javax.net.ssl.keyStorePassword", "password");
         System.setProperty("ddf.home", "/ddf/home");
+        System.setProperty("org.codice.ddf.system.hostname", "localhost");
     }
 
-    private void configurMocksForBundleContext(Dictionary<String, Object> props) throws Exception {
+    private void configurMocksForBundleContext() throws Exception {
         Subject subject = mock(Subject.class);
         PowerMockito.mockStatic(FrameworkUtil.class);
         Bundle bundle = mock(Bundle.class);
@@ -187,7 +179,6 @@ public class SecurityTest {
         ServiceReference adminRef = mock(ServiceReference.class);
         ConfigurationAdmin configAdmin = mock(ConfigurationAdmin.class);
         Configuration config = mock(Configuration.class);
-        when(config.getProperties()).thenReturn(props);
         when(configAdmin.getConfiguration(anyString(), anyString())).thenReturn(config);
         when(bc.getService(adminRef)).thenReturn(configAdmin);
         ServiceReference securityRef = mock(ServiceReference.class);
