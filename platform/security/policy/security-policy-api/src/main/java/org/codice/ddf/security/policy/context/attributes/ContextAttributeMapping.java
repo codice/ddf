@@ -31,25 +31,11 @@ public interface ContextAttributeMapping {
     public String getAttributeName();
 
     /**
-     * Sets the attribute name for this mapping
-     *
-     * @param name
-     */
-    public void setAttributeName(String name);
-
-    /**
      * Gets the attribute value for this mapping. This should return the raw, un-parsed value.
      *
      * @return attribute value
      */
     public String getAttributeValue();
-
-    /**
-     * Sets the attribute value for this mapping.
-     *
-     * @param value
-     */
-    public void setAttributeValue(String value);
 
     /**
      * Returns a {@link ddf.security.permission.KeyValuePermission} object that has been created
@@ -58,4 +44,11 @@ public interface ContextAttributeMapping {
      * @return permission
      */
     public KeyValuePermission getAttributePermission();
+
+    /**
+     * Returns the context of the attribute
+     *
+     * @return context
+     */
+    public String getContext();
 }

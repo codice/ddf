@@ -43,18 +43,8 @@ public class DefaultContextAttributeMapping implements ContextAttributeMapping {
     }
 
     @Override
-    public void setAttributeName(String name) {
-        this.attributeName = name;
-    }
-
-    @Override
     public String getAttributeValue() {
         return attributeValue;
-    }
-
-    @Override
-    public void setAttributeValue(String value) {
-        this.attributeValue = value;
     }
 
     @Override
@@ -66,11 +56,8 @@ public class DefaultContextAttributeMapping implements ContextAttributeMapping {
         return keyValuePermission;
     }
 
+    @Override
     public String getContext() {
         return context;
-    }
-
-    public void setContext(String context) {
-        this.context = context;
     }
 }
