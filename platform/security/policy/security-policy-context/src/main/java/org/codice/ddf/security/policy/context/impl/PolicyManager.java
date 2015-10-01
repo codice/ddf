@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -16,6 +16,7 @@ package org.codice.ddf.security.policy.context.impl;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,8 +59,11 @@ public class PolicyManager implements ContextPolicyManager {
 
     private Map<String, Object> policyProperties = new HashMap<>();
 
+    private Collection<ContextPolicy> currentPolicies;
+
     public PolicyManager() {
         policyStore.put("/", defaultPolicy);
+        currentPolicies = Collections.unmodifiableCollection(new ArrayList<>(policyStore.values()));
     }
 
     @Override
@@ -87,7 +91,7 @@ public class PolicyManager implements ContextPolicyManager {
 
     @Override
     public Collection<ContextPolicy> getAllContextPolicies() {
-        return policyStore.values();
+        return currentPolicies;
     }
 
     @Override
@@ -101,7 +105,10 @@ public class PolicyManager implements ContextPolicyManager {
         if (contextPolicy == null) {
             throw new IllegalArgumentException("Context policy cannot be null.");
         }
+        LOGGER.debug("setContextPolicy called with path = {}", path);
         policyStore.put(path, contextPolicy);
+
+        currentPolicies = Collections.unmodifiableCollection(new ArrayList<>(policyStore.values()));
     }
 
     /**
@@ -209,7 +216,8 @@ public class PolicyManager implements ContextPolicyManager {
                     for (String attribute : attributes) {
                         String[] parts = attribute.split("=");
                         if (parts.length == 2) {
-                            attrMaps.add(new DefaultContextAttributeMapping(context, parts[0], parts[1]));
+                            attrMaps.add(new DefaultContextAttributeMapping(context, parts[0],
+                                    parts[1]));
                         }
                     }
                     contextToAttr.put(context, attrMaps);
@@ -228,6 +236,8 @@ public class PolicyManager implements ContextPolicyManager {
                                 context.getValue(), mappings));
             }
         }
+
+        currentPolicies = Collections.unmodifiableCollection(new ArrayList<>(policyStore.values()));
 
         LOGGER.debug("Policy store initialized, now contains {} entries", policyStore.size());
     }
