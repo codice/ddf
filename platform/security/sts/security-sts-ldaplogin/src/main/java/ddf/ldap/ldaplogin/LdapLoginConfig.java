@@ -102,10 +102,12 @@ public class LdapLoginConfig {
      *            Map of properties.
      */
     public void update(Map<String, ?> props) {
-        LOGGER.debug("Received an updated set of configurations for the LDAP Login Config.");
-        // create modules from the newly updated config
-        Module ldapModule = createLdapModule(props);
-        registerConfig(new Module[] {ldapModule});
+        if (props != null) {
+            LOGGER.debug("Received an updated set of configurations for the LDAP Login Config.");
+            // create modules from the newly updated config
+            Module ldapModule = createLdapModule(props);
+            registerConfig(new Module[] {ldapModule});
+        }
     }
 
     /**
