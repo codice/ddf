@@ -103,6 +103,11 @@ define([
                 }
             },
 
+            setLatLon: function() {
+                var result = converter.USNGtoLL(this.get('usngbb'));
+                this.set(result);
+            },
+
             setBboxLatLon: function () {
                 var north = this.get('north'),
                     south = this.get('south'),
