@@ -62,7 +62,10 @@ import ddf.catalog.util.impl.TemporalResultComparator;
  * @see Metacard
  * @see Query
  * @see SortBy
+ * @deprecated This federation strategy has been left for historical purposes. Refer to the
+ * {@code CachingFederationStrategy} provided by the {@code catalog-core-standardframework} bundle.
  */
+@Deprecated
 public class SortedFederationStrategy extends AbstractFederationStrategy {
 
     /**
@@ -101,6 +104,8 @@ public class SortedFederationStrategy extends AbstractFederationStrategy {
 
         private Query query;
 
+        private long deadline;
+
         public SortedQueryMonitor(ExecutorService pool,
                 Map<Source, Future<SourceResponse>> futuress, QueryResponseImpl returnResults,
                 Query query) {
@@ -108,6 +113,8 @@ public class SortedFederationStrategy extends AbstractFederationStrategy {
             this.returnResults = returnResults;
             this.query = query;
             this.futures = futuress;
+
+            deadline = System.currentTimeMillis() + query.getTimeoutMillis();
         }
 
         @SuppressWarnings({"rawtypes", "unchecked"})
@@ -142,8 +149,6 @@ public class SortedFederationStrategy extends AbstractFederationStrategy {
             List<Result> resultList = new ArrayList<Result>();
             long totalHits = 0;
             Set<ProcessingDetails> processingDetails = returnResults.getProcessingDetails();
-
-            long deadline = System.currentTimeMillis() + query.getTimeoutMillis();
 
             Map<String, Serializable> returnProperties = returnResults.getProperties();
             for (final Entry<Source, Future<SourceResponse>> entry : futures.entrySet()) {
