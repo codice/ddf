@@ -100,6 +100,9 @@ public class ClaimsHandlerManager implements ConfigurationWatcher {
      * @param props Map of properties.
      */
     public void update(Map<String, Object> props) {
+        if (props == null) {
+            return;
+        }
         LOGGER.debug(
                 "Received an updated set of configurations for the LDAP/Role Claims Handlers.");
         String url = (String) props.get(ClaimsHandlerManager.URL);

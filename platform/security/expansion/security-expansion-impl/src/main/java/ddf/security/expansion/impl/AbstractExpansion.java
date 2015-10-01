@@ -427,13 +427,14 @@ public abstract class AbstractExpansion implements Expansion {
 
     public void update(Map<String, String> properties) {
         LOGGER.debug("Updating Expansion Properties.");
-        if (properties.containsKey(ATTRIBUTE_SEPARATOR)) {
-            setAttributeSeparator(properties.get(ATTRIBUTE_SEPARATOR));
+        if (properties != null) {
+            if (properties.containsKey(ATTRIBUTE_SEPARATOR)) {
+                setAttributeSeparator(properties.get(ATTRIBUTE_SEPARATOR));
+            }
+            if (properties.containsKey(EXPANSION_FILE_NAME)) {
+                setExpansionFileName(properties.get(EXPANSION_FILE_NAME));
+            }
         }
-        if (properties.containsKey(EXPANSION_FILE_NAME)) {
-            setExpansionFileName(properties.get(EXPANSION_FILE_NAME));
-        }
-
     }
 
     /**
