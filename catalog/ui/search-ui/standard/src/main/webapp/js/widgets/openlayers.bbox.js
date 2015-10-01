@@ -133,7 +133,7 @@ define([
             handleRegionStop: function () {
                 this.setModelFromGeometry(this.primitive.getGeometry());
                 this.updateGeometry(this.model);
-                this.listenTo(this.model, 'change:north change:south change:east change:west', this.updateGeometry);
+                this.listenTo(this.model, 'change:mapNorth change:mapSouth change:mapEast change:mapWest', this.updateGeometry);
 
                 this.model.trigger("EndExtent", this.model);
             },
