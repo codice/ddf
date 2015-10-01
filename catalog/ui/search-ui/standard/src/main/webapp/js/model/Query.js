@@ -90,16 +90,16 @@ define([
                 this.drawing = true;
             },
 
-            repositionLatLon: function (silent) {
+            repositionLatLon: function () {
                 if (this.get('usngbb')) {
                     var result = converter.USNGtoLL(this.get('usngbb'));
                     var newResult = {};
-                    newResult["mapNorth"] = result["north"];
-                    newResult["mapSouth"] = result["south"];
-                    newResult["mapEast"] = result["east"];
-                    newResult["mapWest"] = result["west"];
+                    newResult.mapNorth = result.north;
+                    newResult.mapSouth = result.south;
+                    newResult.mapEast = result.east;
+                    newResult.mapWest = result.west;
 
-                    this.set(newResult, {silent:true});
+                    this.set(newResult);
                 }
             },
 
@@ -113,7 +113,7 @@ define([
 
                     this.set('usngbb', usngsStr, {silent: this.get('locationType') !== 'usng'});
                     if (this.get('locationType') === 'usng' && this.drawing) {
-                        this.repositionLatLon(true);
+                        this.repositionLatLon();
                     }
                 }
             },
@@ -130,14 +130,14 @@ define([
             setBboxUsng: function () {
                 var result = converter.USNGtoLL(this.get('usngbb'));
                 var newResult = {};
-                newResult["mapNorth"] = result["north"];
-                newResult["mapSouth"] = result["south"];
-                newResult["mapEast"] = result["east"];
-                newResult["mapWest"] = result["west"];
+                newResult.mapNorth = result.north;
+                newResult.mapSouth = result.south;
+                newResult.mapEast = result.east;
+                newResult.mapWest = result.west;
                 this.set(newResult);
             },
 
-            setBBox : function(e) {
+            setBBox : function() {
 
                 //we need these to always be inferred
                 //as numeric values and never as strings
@@ -148,6 +148,9 @@ define([
 
                 if (north && south && east && west){
                     this.set('bbox', [west, south, east, north].join(','), {silent:this.get('locationType') === 'usng' && !this.drawing});
+                }
+                if (this.get('locationType') !== 'usng') {
+                    this.set({mapNorth: north, mapSouth: south, mapEast: east, mapWest: west});
                 }
             },
 
