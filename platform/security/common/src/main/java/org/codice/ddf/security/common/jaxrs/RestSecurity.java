@@ -44,7 +44,9 @@ public final class RestSecurity {
 
     public static final String SAML_HEADER_PREFIX = "SAML ";
 
-    public static final String SAML_HEADER_NAME = "Authorization";
+    public static final String BASIC_HEADER_PREFIX = "BASIC ";
+
+    public static final String AUTH_HEADER = "Authorization";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RestSecurity.class);
 
@@ -65,7 +67,17 @@ public final class RestSecurity {
                 LOGGER.debug("SAML Header was null. Unable to set the header for the client.");
                 return;
             }
-            client.header(SAML_HEADER_NAME, encodedSamlHeader);
+            client.header(AUTH_HEADER, encodedSamlHeader);
+        }
+    }
+
+    public static void setUserOnClient(String username, String password, Client client) {
+        if (client != null && username != null && password != null && "https"
+                .equalsIgnoreCase(client.getCurrentURI().getScheme())) {
+            String basicCredentials = username + ":" + password;
+            String encodedHeader = BASIC_HEADER_PREFIX + new String(
+                    Base64.encodeBase64(basicCredentials.getBytes()));
+            client.header(AUTH_HEADER, encodedHeader);
         }
     }
 

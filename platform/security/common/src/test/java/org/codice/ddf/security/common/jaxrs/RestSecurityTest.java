@@ -84,8 +84,8 @@ public class RestSecurityTest {
         when(subject.getPrincipals()).thenReturn(new SimplePrincipalCollection(assertion, "sts"));
         WebClient client = WebClient.create("https://example.org");
         RestSecurity.setSubjectOnClient(subject, client);
-        assertNotNull(client.getHeaders().get(RestSecurity.SAML_HEADER_NAME));
-        ArrayList headers = (ArrayList) client.getHeaders().get(RestSecurity.SAML_HEADER_NAME);
+        assertNotNull(client.getHeaders().get(RestSecurity.AUTH_HEADER));
+        ArrayList headers = (ArrayList) client.getHeaders().get(RestSecurity.AUTH_HEADER);
         boolean containsSaml = false;
         for (Object header : headers) {
             if (StringUtils.contains(header.toString(), RestSecurity.SAML_HEADER_PREFIX)) {
@@ -106,7 +106,7 @@ public class RestSecurityTest {
         when(subject.getPrincipals()).thenReturn(new SimplePrincipalCollection(assertion, "sts"));
         WebClient client = WebClient.create("http://example.org");
         RestSecurity.setSubjectOnClient(subject, client);
-        assertNull(client.getHeaders().get(RestSecurity.SAML_HEADER_NAME));
+        assertNull(client.getHeaders().get(RestSecurity.AUTH_HEADER));
     }
 
     @Test
