@@ -26,7 +26,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.util.Dictionary;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
@@ -41,8 +40,6 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
-import org.osgi.service.cm.Configuration;
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -163,7 +160,7 @@ public class Security {
             if (keyStore.size() == 1) {
                 alias = keyStore.aliases().nextElement();
             } else if (keyStore.size() > 1) {
-                alias = getCertificatAlias();
+                alias = getCertificateAlias();
             }
             cert = keyStore.getCertificate(alias);
         } catch (KeyStoreException e) {
@@ -218,24 +215,8 @@ public class Security {
         return pkiTokenFactory;
     }
 
-    private static String getCertificatAlias() {
-        BundleContext context = getBundleContext();
-        if (context != null) {
-            ServiceReference configAdminRef = context.getServiceReference(ConfigurationAdmin.class);
-            ConfigurationAdmin configAdmin = (ConfigurationAdmin) context
-                    .getService(configAdminRef);
-            Configuration config;
-            try {
-                config = configAdmin.getConfiguration("ddf.platform.config", null);
-            } catch (IOException e) {
-                LOGGER.error("Could not get reference to configuration admin. ", e);
-                return null;
-            }
-            Dictionary<String, Object> properties = config.getProperties();
-            return (String) properties.get("host");
-        }
-        LOGGER.warn("Unable to get system certificate alias");
-        return null;
+    private static String getCertificateAlias() {
+        return System.getProperty("org.codice.ddf.system.hostname");
     }
 
     private static KeyStore getSystemKeyStore() {
