@@ -178,9 +178,7 @@ public class SecureCxfClientFactory<T> {
      */
     public WebClient getWebClientForBasicAuth(String username, String password)
             throws SecurityServiceException {
-        WebClient client = WebClient.fromClientObject(getClientForBasicAuth(username, password));
-        RestSecurity.setUserOnClient(username, password, client);
-        return client;
+        return WebClient.fromClientObject(getClientForBasicAuth(username, password));
     }
 
     /**
@@ -214,6 +212,7 @@ public class SecureCxfClientFactory<T> {
             LOGGER.warn("CAUTION: Passing username & password on an un-encrypted protocol [{}]."
                     + " This is a security issue. ", endpointUrl);
         }
+        RestSecurity.setUserOnClient(username, password, WebClient.client(clientImpl));
         configureCnCheck(clientConfig);
         configureTimeouts(clientConfig, connectionTimeout, receiveTimeout);
         return clientImpl;
