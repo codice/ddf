@@ -150,7 +150,7 @@ public class ContentEndpoint {
     @Path("/")
     public Response create(MultipartBody multipartBody, @Context UriInfo requestUriInfo)
             throws ContentEndpointException {
-        LOGGER.trace(requestUriInfo.getRequestUri() + " ENTERING: create");
+        LOGGER.trace("ENTERING: create");
 
         String directive = multipartBody
                 .getAttachmentObject(DIRECTIVE_ATTACHMENT_CONTENT_ID, String.class);
@@ -181,7 +181,7 @@ public class ContentEndpoint {
         Response response = doCreate(stream, contentType, directive, filename, contentUri,
                 requestUriInfo);
 
-        LOGGER.trace(requestUriInfo.getRequestUri() + "EXITING: create");
+        LOGGER.trace("EXITING: create");
 
         return response;
     }
@@ -358,12 +358,12 @@ public class ContentEndpoint {
         LOGGER.trace("ENTERING: doCreate");
 
         if (stream == null) {
-            throw new ContentEndpointException(" Cannot create content. InputStream is null.",
+            throw new ContentEndpointException("Cannot create content. InputStream is null.",
                     Response.Status.BAD_REQUEST);
         }
 
         if (contentType == null) {
-            throw new ContentEndpointException(" Cannot create content. Content-Type is null.",
+            throw new ContentEndpointException("Cannot create content. Content-Type is null.",
                     Response.Status.BAD_REQUEST);
         }
 
@@ -439,7 +439,7 @@ public class ContentEndpoint {
 
         LOGGER.debug("createdContentId = [{}]", createdContentId);
 
-        LOGGER.trace(" EXITING: doCreate");
+        LOGGER.trace("EXITING: doCreate");
 
         return response;
     }

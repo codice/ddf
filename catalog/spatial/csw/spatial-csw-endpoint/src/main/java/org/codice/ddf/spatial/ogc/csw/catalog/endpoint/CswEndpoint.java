@@ -281,7 +281,7 @@ public class CswEndpoint implements Csw {
             sectionList = Arrays.asList(sections);
         }
 
-        LOGGER.trace("Entering: getCapabilities.");
+        LOGGER.trace("Exiting: getCapabilities.");
 
         return buildCapabilitiesType(sectionList);
     }
@@ -410,7 +410,7 @@ public class CswEndpoint implements Csw {
                 throw new CswException("A Csw Query can only have a Filter or CQL constraint");
             }
         }
-        LOGGER.debug(request.getService() + " exiting getRecords.");
+        LOGGER.trace("Exiting getRecords.");
         return queryCsw(request);
     }
 
@@ -614,9 +614,9 @@ public class CswEndpoint implements Csw {
             DeleteRequestImpl deleteRequest = new DeleteRequestImpl(
                     ids.toArray(new String[ids.size()]));
 
+            LOGGER.debug("Attempting to delete " + ids.size() + " metacards.");
             DeleteResponse deleteResponse = framework.delete(deleteRequest);
 
-            LOGGER.debug("Attempting to delete " + ids.size() + " metacards.");
             return deleteResponse.getDeletedMetacards().size();
         }
 
@@ -631,6 +631,7 @@ public class CswEndpoint implements Csw {
 
             if (newRecord.getId() != null) {
                 UpdateRequest updateRequest = new UpdateRequestImpl(newRecord.getId(), newRecord);
+                LOGGER.debug("Attempting to update {} ", newRecord.getId());
                 UpdateResponse updateResponse = framework.update(updateRequest);
                 return updateResponse.getUpdatedMetacards().size();
             } else {
@@ -676,8 +677,8 @@ public class CswEndpoint implements Csw {
                     UpdateRequest updateRequest = new UpdateRequestImpl(updatedMetacardIds,
                             updatedMetacards);
 
-                    UpdateResponse updateResponse = framework.update(updateRequest);
                     LOGGER.debug("Attempting to update " + updatedMetacardIdsList.size() + " metacards.");
+                    UpdateResponse updateResponse = framework.update(updateRequest);
                     return updateResponse.getUpdatedMetacards().size();
                 }
             }
@@ -906,6 +907,7 @@ public class CswEndpoint implements Csw {
             }
 
             try {
+                LOGGER.debug("Attempting to execute query: " + response.getRequest());
                 QueryResponse queryResponse = framework.query(queryRequest);
                 response.setSourceResponse(queryResponse);
             } catch (UnsupportedQueryException e) {
@@ -920,7 +922,6 @@ public class CswEndpoint implements Csw {
             }
         }
 
-        LOGGER.debug("Attempting to execute query: " + response.getRequest());
         return response;
     }
 

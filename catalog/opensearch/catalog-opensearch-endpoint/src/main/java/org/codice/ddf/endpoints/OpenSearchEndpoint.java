@@ -82,11 +82,11 @@ public class OpenSearchEndpoint implements OpenSearch {
     private SystemInfo systemInfo;
 
     public OpenSearchEndpoint(CatalogFramework framework, FilterBuilder filterBuilder, SystemInfo info) {
-        LOGGER.debug("Entering OpenSearch Endpoint Constructor.");
+        LOGGER.trace("Entering OpenSearch Endpoint Constructor.");
         this.framework = framework;
         this.filterBuilder = filterBuilder;
         this.systemInfo = info;
-        LOGGER.debug("Exiting OpenSearch Endpoint Constructor.");
+        LOGGER.trace("Exiting OpenSearch Endpoint Constructor.");        
     }
 
     /**
@@ -283,7 +283,7 @@ public class OpenSearchEndpoint implements OpenSearch {
         MultivaluedMap<String, String> queryParams = ui.getQueryParameters();
         List<String> subscriptionList = queryParams.get(Constants.SUBSCRIPTION_KEY);
 
-        LOGGER.debug("Attempting to execute query: " + query.toString());
+        LOGGER.debug("Attempting to execute query: {}", query.toString());
         try {
             Map<String, Serializable> arguments = new HashMap<String, Serializable>();
             String organization = framework.getOrganization();
