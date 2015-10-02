@@ -119,6 +119,25 @@ public class TestPKITokenValidator {
     }
 
     @Test
+    public void testCanHandleAnyRealmToken() {
+        BinarySecurityTokenType binarySecurityTokenType = new BinarySecurityTokenType();
+        binarySecurityTokenType.setEncodingType(WSConstants.SOAPMESSAGE_NS + "#Base64Binary");
+        binarySecurityTokenType.setValueType(PKIAuthenticationToken.PKI_TOKEN_VALUE_TYPE);
+        PKIAuthenticationTokenFactory pkiAuthenticationTokenFactory = new PKIAuthenticationTokenFactory();
+        pkiAuthenticationTokenFactory.setSignaturePropertiesPath(
+                TestPKITokenValidator.class.getResource("/signature.properties").getPath());
+        pkiAuthenticationTokenFactory.init();
+        PKIAuthenticationToken pkiAuthenticationToken = pkiAuthenticationTokenFactory
+                .getTokenFromCerts(certificates, "*");
+        binarySecurityTokenType.setValue(pkiAuthenticationToken.getEncodedCredentials());
+        ReceivedToken receivedToken = mock(ReceivedToken.class);
+        when(receivedToken.getToken()).thenReturn(binarySecurityTokenType);
+
+        boolean result = pkiTokenValidator.canHandleToken(receivedToken);
+        assertEquals(true, result);
+    }
+
+    @Test
     public void testCanNotHandleToken() {
         BinarySecurityTokenType binarySecurityTokenType = new BinarySecurityTokenType();
         binarySecurityTokenType.setEncodingType(WSConstants.SOAPMESSAGE_NS + "#Base64Binary");
@@ -148,6 +167,33 @@ public class TestPKITokenValidator {
         pkiAuthenticationTokenFactory.init();
         PKIAuthenticationToken pkiAuthenticationToken = pkiAuthenticationTokenFactory
                 .getTokenFromCerts(certificates, "karaf");
+        binarySecurityTokenType.setValue(pkiAuthenticationToken.getEncodedCredentials());
+        ReceivedToken receivedToken = mock(ReceivedToken.class);
+        when(receivedToken.getToken()).thenReturn(binarySecurityTokenType);
+        TokenValidatorParameters tokenValidatorParameters = mock(TokenValidatorParameters.class);
+        STSPropertiesMBean stsPropertiesMBean = mock(STSPropertiesMBean.class);
+        when(stsPropertiesMBean.getSignatureCrypto()).thenReturn(merlin);
+        when(tokenValidatorParameters.getStsProperties()).thenReturn(stsPropertiesMBean);
+        when(tokenValidatorParameters.getToken()).thenReturn(receivedToken);
+        doCallRealMethod().when(receivedToken).setState(any(ReceivedToken.STATE.class));
+        doCallRealMethod().when(receivedToken).getState();
+
+        TokenValidatorResponse tokenValidatorResponse = pkiTokenValidator
+                .validateToken(tokenValidatorParameters);
+        assertEquals(ReceivedToken.STATE.VALID, tokenValidatorResponse.getToken().getState());
+    }
+
+    @Test
+    public void testValidateAnyRealmToken() {
+        BinarySecurityTokenType binarySecurityTokenType = new BinarySecurityTokenType();
+        binarySecurityTokenType.setEncodingType(WSConstants.SOAPMESSAGE_NS + "#Base64Binary");
+        binarySecurityTokenType.setValueType(PKIAuthenticationToken.PKI_TOKEN_VALUE_TYPE);
+        PKIAuthenticationTokenFactory pkiAuthenticationTokenFactory = new PKIAuthenticationTokenFactory();
+        pkiAuthenticationTokenFactory.setSignaturePropertiesPath(
+                TestPKITokenValidator.class.getResource("/signature.properties").getPath());
+        pkiAuthenticationTokenFactory.init();
+        PKIAuthenticationToken pkiAuthenticationToken = pkiAuthenticationTokenFactory
+                .getTokenFromCerts(certificates, "*");
         binarySecurityTokenType.setValue(pkiAuthenticationToken.getEncodedCredentials());
         ReceivedToken receivedToken = mock(ReceivedToken.class);
         when(receivedToken.getToken()).thenReturn(binarySecurityTokenType);

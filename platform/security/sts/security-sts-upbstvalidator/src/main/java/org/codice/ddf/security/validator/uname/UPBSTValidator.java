@@ -175,6 +175,9 @@ public class UPBSTValidator implements TokenValidator {
                 LOGGER.trace("Realm '{}' recognized - canHandleToken = true",
                         usernameToken.getRealm());
                 canHandle = true;
+            } else if (validators != null && "*".equals(usernameToken.getRealm())) {
+                LOGGER.trace("Realm '*' recognized - canHandleToken = true");
+                canHandle = true;
             }
             if (!canHandle) {
                 LOGGER.trace("Realm '{}' unrecognized - canHandleToken = false",
@@ -282,7 +285,7 @@ public class UPBSTValidator implements TokenValidator {
                 Credential credential = new Credential();
                 credential.setUsernametoken(ut);
 
-                if (usernameToken.getRealm() != null) {
+                if (usernameToken.getRealm() != null && !"*".equals(usernameToken.getRealm())) {
                     Validator validator = validators.get(usernameToken.getRealm());
                     if (validator != null) {
                         try {
