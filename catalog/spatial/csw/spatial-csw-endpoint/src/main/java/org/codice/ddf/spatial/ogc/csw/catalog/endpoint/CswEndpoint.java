@@ -235,11 +235,13 @@ public class CswEndpoint implements Csw {
      */
     public CswEndpoint(BundleContext context, CatalogFramework ddf, FilterBuilder filterBuilder,
             TransformerManager mimeTypeManager, TransformerManager schemaManager) {
+        LOGGER.trace("Entering: CSW Endpoint constructor.");
         this.context = context;
         this.framework = ddf;
         this.builder = filterBuilder;
         this.mimeTypeTransformerManager = mimeTypeManager;
         this.schemaTransformerManager = schemaManager;
+        LOGGER.trace("Exiting: CSW Endpoint constructor.");
     }
 
     /* Constructor for unit testing */
@@ -265,7 +267,9 @@ public class CswEndpoint implements Csw {
     public CapabilitiesType getCapabilities(@QueryParam("") GetCapabilitiesRequest request)
             throws CswException {
 
+        LOGGER.trace("Entering: getCapabilities.");
         capabilitiesType = buildCapabilitiesType();
+
 
         if (request.getAcceptVersions() != null) {
             validateVersion(request.getAcceptVersions());
@@ -277,6 +281,8 @@ public class CswEndpoint implements Csw {
             sectionList = Arrays.asList(sections);
         }
 
+        LOGGER.trace("Entering: getCapabilities.");
+
         return buildCapabilitiesType(sectionList);
     }
 
@@ -287,6 +293,7 @@ public class CswEndpoint implements Csw {
     public CapabilitiesType getCapabilities(GetCapabilitiesType request) throws CswException {
         capabilitiesType = buildCapabilitiesType();
 
+        LOGGER.trace("Entering: getCapabilities.");
         if (request.getAcceptVersions() != null) {
             validateVersion(request.getAcceptVersions().toString());
         }
@@ -295,6 +302,8 @@ public class CswEndpoint implements Csw {
         if (request.getSections() != null) {
             sectionList = request.getSections().getSection();
         }
+
+        LOGGER.trace("Exiting: getCapabilities.");
 
         return buildCapabilitiesType(sectionList);
     }
@@ -354,12 +363,16 @@ public class CswEndpoint implements Csw {
 
         if (request == null) {
             throw new CswException("GetRecordsRequest request is null");
+        } else {
+            LOGGER.debug(request.getRequest() + " attempting to get records.");
         }
         if (StringUtils.isEmpty(request.getVersion())) {
             request.setVersion(CswConstants.VERSION_2_0_2);
         } else {
             validateVersion(request.getVersion());
         }
+
+        LOGGER.debug(request.getRequest() + " exiting getRecords");
 
         return getRecords(request.get202RecordsType());
     }
@@ -372,6 +385,8 @@ public class CswEndpoint implements Csw {
 
         if (request == null) {
             throw new CswException("GetRecordsType request is null");
+        } else {
+            LOGGER.debug(request.getService() + " attempting to get records.");
         }
 
         validateOutputFormat(request.getOutputFormat());
@@ -395,7 +410,7 @@ public class CswEndpoint implements Csw {
                 throw new CswException("A Csw Query can only have a Filter or CQL constraint");
             }
         }
-
+        LOGGER.debug(request.getService() + " exiting getRecords.");
         return queryCsw(request);
     }
 
@@ -414,6 +429,7 @@ public class CswEndpoint implements Csw {
         validateOutputSchema(request.getOutputSchema());
 
         if (StringUtils.isNotBlank(request.getId())) {
+            LOGGER.debug(request.getRequest() + " attempting to retrieve record(s) " + request.getId());
             List<String> ids = Arrays.<String>asList(request.getId().split(CswConstants.COMMA));
 
             CswRecordCollection response = queryById(ids);
@@ -423,6 +439,7 @@ public class CswEndpoint implements Csw {
             } else {
                 response.setElementSetType(ElementSetType.SUMMARY);
             }
+            LOGGER.debug(request.getRequest() + " successfully retrieved record(s): " + request.getId());
             return response;
         } else {
             throw new CswException("A GetRecordById Query must contain an ID.",
@@ -444,6 +461,7 @@ public class CswEndpoint implements Csw {
         validateOutputSchema(request.getOutputSchema());
 
         if (!request.getId().isEmpty()) {
+            LOGGER.debug(request.getService() + " is attempting to retrieve records: " + request.getId());
             CswRecordCollection response = queryById(request.getId());
             response.setOutputSchema(request.getOutputSchema());
             if (request.isSetElementSetName() && request.getElementSetName().getValue() != null) {
@@ -451,6 +469,7 @@ public class CswEndpoint implements Csw {
             } else {
                 response.setElementSetType(ElementSetType.SUMMARY);
             }
+            LOGGER.debug(request.getService() + " successfully retrieved record(s): " + request.getId());
             return response;
         } else {
             throw new CswException("A GetRecordById Query must contain an ID.",
@@ -490,6 +509,7 @@ public class CswEndpoint implements Csw {
                         CswConstants.TRANSACTION_FAILED, insertAction.getHandle());
             }
         }
+        LOGGER.debug(numInserted + " records inserted.");
         response.getTransactionSummary().setTotalInserted(BigInteger.valueOf(numInserted));
 
         int numUpdated = 0;
@@ -502,6 +522,7 @@ public class CswEndpoint implements Csw {
                         CswConstants.TRANSACTION_FAILED, updateAction.getHandle());
             }
         }
+        LOGGER.debug(numInserted + " records inserted.");
         response.getTransactionSummary().setTotalUpdated(BigInteger.valueOf(numUpdated));
 
         int numDeleted = 0;
@@ -514,6 +535,7 @@ public class CswEndpoint implements Csw {
                         CswConstants.TRANSACTION_FAILED, deleteAction.getHandle());
             }
         }
+        LOGGER.debug(numDeleted + " records deleted.");
         response.getTransactionSummary().setTotalDeleted(BigInteger.valueOf(numDeleted));
 
         return response;
@@ -594,6 +616,7 @@ public class CswEndpoint implements Csw {
 
             DeleteResponse deleteResponse = framework.delete(deleteRequest);
 
+            LOGGER.debug("Attempting to delete " + ids.size() + " metacards.");
             return deleteResponse.getDeletedMetacards().size();
         }
 
@@ -654,6 +677,7 @@ public class CswEndpoint implements Csw {
                             updatedMetacards);
 
                     UpdateResponse updateResponse = framework.update(updateRequest);
+                    LOGGER.debug("Attempting to update " + updatedMetacardIdsList.size() + " metacards.");
                     return updateResponse.getUpdatedMetacards().size();
                 }
             }
@@ -896,6 +920,7 @@ public class CswEndpoint implements Csw {
             }
         }
 
+        LOGGER.debug("Attempting to execute query: " + response.getRequest());
         return response;
     }
 
