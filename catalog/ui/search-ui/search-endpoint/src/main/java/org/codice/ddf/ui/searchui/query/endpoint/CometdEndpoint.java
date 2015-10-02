@@ -89,7 +89,7 @@ public class CometdEndpoint {
     public CometdEndpoint(CometdServlet cometdServlet, CatalogFramework framework,
             FilterBuilder filterBuilder, FilterAdapter filterAdapter, PersistentStore persistentStore,
             BundleContext bundleContext, EventAdmin eventAdmin, ActionRegistry actionRegistry) {
-        LOGGER.trace("Constructing Cometd Endpoint");
+        LOGGER.trace("Constructing CometdEndpoint");
         this.bundleContext = bundleContext;
         this.cometdServlet = cometdServlet;
         this.filterBuilder = filterBuilder;

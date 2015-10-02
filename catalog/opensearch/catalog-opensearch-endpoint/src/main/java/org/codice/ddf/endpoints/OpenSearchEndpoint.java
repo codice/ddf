@@ -84,10 +84,10 @@ public class OpenSearchEndpoint implements ConfigurationWatcher, OpenSearch {
     private String localSiteName = null;
 
     public OpenSearchEndpoint(CatalogFramework framework, FilterBuilder filterBuilder) {
-        LOGGER.debug("Entering OpenSearch Endpoint Constructor.");
+        LOGGER.trace("Entering OpenSearch Endpoint Constructor.");
         this.framework = framework;
         this.filterBuilder = filterBuilder;
-        LOGGER.debug("Exiting OpenSearch Endpoint Constructor.");
+        LOGGER.trace("Exiting OpenSearch Endpoint Constructor.");
     }
 
     /**
