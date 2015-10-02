@@ -84,8 +84,10 @@ public class OpenSearchEndpoint implements ConfigurationWatcher, OpenSearch {
     private String localSiteName = null;
 
     public OpenSearchEndpoint(CatalogFramework framework, FilterBuilder filterBuilder) {
+        LOGGER.debug("Entering OpenSearch Endpoint Constructor.");
         this.framework = framework;
         this.filterBuilder = filterBuilder;
+        LOGGER.debug("Exiting OpenSearch Endpoint Constructor.");
     }
 
     /**
@@ -314,6 +316,7 @@ public class OpenSearchEndpoint implements ConfigurationWatcher, OpenSearch {
         MultivaluedMap<String, String> queryParams = ui.getQueryParameters();
         List<String> subscriptionList = queryParams.get(Constants.SUBSCRIPTION_KEY);
 
+        LOGGER.debug("Attempting to execute query: " + query.toString());
         try {
             Map<String, Serializable> arguments = new HashMap<String, Serializable>();
             String organization = framework.getOrganization();
@@ -396,7 +399,6 @@ public class OpenSearchEndpoint implements ConfigurationWatcher, OpenSearch {
                     .build();
         }
         return response;
-
     }
 
     /**

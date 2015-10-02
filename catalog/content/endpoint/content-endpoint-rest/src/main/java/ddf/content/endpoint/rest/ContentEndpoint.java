@@ -150,7 +150,7 @@ public class ContentEndpoint {
     @Path("/")
     public Response create(MultipartBody multipartBody, @Context UriInfo requestUriInfo)
             throws ContentEndpointException {
-        LOGGER.trace("ENTERING: create");
+        LOGGER.trace(requestUriInfo.getRequestUri() + " ENTERING: create");
 
         String directive = multipartBody
                 .getAttachmentObject(DIRECTIVE_ATTACHMENT_CONTENT_ID, String.class);
@@ -181,7 +181,7 @@ public class ContentEndpoint {
         Response response = doCreate(stream, contentType, directive, filename, contentUri,
                 requestUriInfo);
 
-        LOGGER.trace("EXITING: create");
+        LOGGER.trace(requestUriInfo.getRequestUri() + "EXITING: create");
 
         return response;
     }
@@ -358,12 +358,12 @@ public class ContentEndpoint {
         LOGGER.trace("ENTERING: doCreate");
 
         if (stream == null) {
-            throw new ContentEndpointException("Cannot create content. InputStream is null.",
+            throw new ContentEndpointException(" Cannot create content. InputStream is null.",
                     Response.Status.BAD_REQUEST);
         }
 
         if (contentType == null) {
-            throw new ContentEndpointException("Cannot create content. Content-Type is null.",
+            throw new ContentEndpointException(" Cannot create content. Content-Type is null.",
                     Response.Status.BAD_REQUEST);
         }
 
@@ -411,7 +411,7 @@ public class ContentEndpoint {
 
                 // If content was stored in content repository, i.e., STORE or STORE_AND_PROCESS,
                 // then set location URI in HTTP header. However, the location URI is not the
-                // physical location in the content repository as ths is hidden from the client.
+                // physical location in the content repository as this is hidden from the client.
                 if (requestDirective != Request.Directive.PROCESS) {
                     responseBuilder.status(Response.Status.CREATED);
                     // responseBuilder.location( new URI( "/" + createdContentId ) );
@@ -439,7 +439,7 @@ public class ContentEndpoint {
 
         LOGGER.debug("createdContentId = [{}]", createdContentId);
 
-        LOGGER.trace("EXITING: doCreate");
+        LOGGER.trace(" EXITING: doCreate");
 
         return response;
     }

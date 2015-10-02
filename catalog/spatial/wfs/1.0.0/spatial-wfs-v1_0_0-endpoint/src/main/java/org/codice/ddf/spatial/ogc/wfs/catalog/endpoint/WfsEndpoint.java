@@ -149,9 +149,11 @@ public class WfsEndpoint implements Wfs {
      */
     public WfsEndpoint(CatalogFramework ddf, FilterBuilder filterBuilder,
             FeatureTypeSchemaCache cache) {
+        LOGGER.trace("Entering WFS Endpoint constructor.");
         this.framework = ddf;
         this.builder = filterBuilder;
         this.schemaCache = cache;
+        LOGGER.trace("Exiting WFS Endpoint constructor.");
     }
 
     /* Constructor for unit testing */
