@@ -28,8 +28,7 @@ var convertUSNGtoLL = function(browser, usng) {
         .waitForElementById('usng', shared.timeout).click()
         .waitForElementById('locationBbox', shared.timeout).click()
         .waitForElementById('usngbb', shared.timeout).type(usng)
-        .waitForElementById('latlon', shared.timeout).click()
-        .takeScreenshot().saveScreenshot(shared.getPathForScreenshot('USNGtoLL2.png'));
+        .waitForElementById('latlon', shared.timeout).click();
 };
 
 describe('USNG Search', function () {
