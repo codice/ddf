@@ -120,6 +120,11 @@
             <version>1.2-pre-dr-b04-2014-09-13</version>
         </dependency>
 
+        <dependency>
+            <groupId>net.sf.saxon</groupId>
+            <artifactId>Saxon-HE</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -134,7 +139,8 @@
                             imgscalr-lib,
                             guava,
                             jai-imageio-core-standalone,
-                            jai-imageio-jpeg2000
+                            jai-imageio-jpeg2000,
+                            Saxon-HE
                         </Embed-Dependency>
                         <Private-Package>
                             ddf.catalog.transformer.input.tika,

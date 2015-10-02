@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -67,10 +67,12 @@ import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 
+import net.sf.saxon.TransformerFactoryImpl;
+
 public class TikaInputTransformer implements InputTransformer {
     private static final Logger LOGGER = LoggerFactory.getLogger(TikaInputTransformer.class);
 
-    private static final TransformerFactory TRANSFORMER_FACTORY = TransformerFactory.newInstance();
+    private static final TransformerFactory TRANSFORMER_FACTORY = new TransformerFactoryImpl();
 
     private static final String XSLT = "/metadata.xslt";
 
