@@ -1,4 +1,4 @@
-var getSourceAvailabilities = function() {
+var getSourceAvailabilities = function () {
     var sourceAvailabilityList = $("#sourceAvailabilityList");
     sourceAvailabilityList.hide();
 
@@ -21,9 +21,9 @@ var getSourceAvailabilities = function() {
 
     $.ajax({
         url: "/services/catalog/sources",
-        success: function(data) {
+        success: function (data) {
             if (data.length > 0) {
-                data.sort(function(a,b) {
+                data.sort(function (a, b) {
                     if (a.id < b.id)
                         return -1;
                     else if (a.id > b.id)
@@ -31,7 +31,7 @@ var getSourceAvailabilities = function() {
                     else
                         return 0;
                 });
-                $.each(data, function(index, value) {
+                $.each(data, function (index, value) {
                     var listItem = "";
                     if (value.available) {
                         listItem = "<li class='list-group-item list-group-item-success'>";
@@ -51,7 +51,7 @@ var getSourceAvailabilities = function() {
 
             sourceAvailabilityList.show();
         },
-        error: function() {
+        error: function () {
             // Stop spinner.
             spinner.spin(false);
             spinner.hide();
@@ -62,6 +62,36 @@ var getSourceAvailabilities = function() {
     });
 };
 
-$(function() {
+var getHeaderFooter = function () {
+    var header = $("#header");
+    var footer = $("#footer");
+    var content = $("#content");
+    $.ajax({
+        url: "/services/platform/config/ui",
+        getBanner: function (data, text) {
+            return "<div style='color: " + data.color + "; background-color:" + data.background + "'>" + text + "</div>";
+        }, success: function (data) {
+            var headerText = data.header;
+            if (headerText && headerText != '') {
+                header.html(this.getBanner(data, headerText));
+                header.show();
+                content.css("top", 20);
+            } else {
+                header.height(0);
+            }
+            var footerText = data.footer;
+            if (footerText && footerText != '') {
+                footer.html(this.getBanner(data, footerText));
+                content.css("bottom", 20);
+                footer.show();
+            } else {
+                footer.height(0);
+            }
+        }
+    });
+};
+
+$(function () {
     getSourceAvailabilities();
+    getHeaderFooter();
 });
