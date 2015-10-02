@@ -14,8 +14,10 @@
 
 package ddf.security.sts;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.sts.StaticSTSProperties;
 import org.apache.cxf.sts.token.provider.DefaultConditionsProvider;
+import org.codice.ddf.configuration.SystemBaseUrl;
 
 /**
  * property-placeholder misbehaves when set to reload, causing the bundle to bounce
@@ -34,21 +36,19 @@ public class PropertyPlaceholderWrapper {
 
     private static final int DEFAULT_LIFETIME = 1800;
 
-    private static final String DEFAULT_NAME = "localhost";
-
     private DefaultConditionsProvider samlConditionsProvider;
 
     private StaticSTSProperties stsProperties;
 
     public PropertyPlaceholderWrapper(DefaultConditionsProvider conditionsProvider,
-            StaticSTSProperties properties) {
+            StaticSTSProperties properties, SystemBaseUrl baseUrl) {
         samlConditionsProvider = conditionsProvider;
         stsProperties = properties;
         // set the default values in case there is no configuration
         samlConditionsProvider.setLifetime(DEFAULT_LIFETIME);
-        stsProperties.setSignatureUsername(DEFAULT_NAME);
-        stsProperties.setIssuer(DEFAULT_NAME);
-        stsProperties.setEncryptionUsername(DEFAULT_NAME);
+        stsProperties.setSignatureUsername(baseUrl.getHost());
+        stsProperties.setIssuer(baseUrl.getHost());
+        stsProperties.setEncryptionUsername(baseUrl.getHost());
     }
 
     public void setLifetime(Long lifetime) {
@@ -64,6 +64,8 @@ public class PropertyPlaceholderWrapper {
     }
 
     public void setIssuer(String issuer) {
-        stsProperties.setIssuer(issuer);
+        if (StringUtils.isNotBlank(issuer)) {
+            stsProperties.setIssuer(issuer);
+        }
     }
 }

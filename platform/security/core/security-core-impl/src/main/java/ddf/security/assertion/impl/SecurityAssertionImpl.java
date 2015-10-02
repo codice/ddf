@@ -19,12 +19,14 @@ import java.io.Serializable;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 import javax.security.auth.x500.X500Principal;
+import javax.xml.bind.DatatypeConverter;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
@@ -46,6 +48,7 @@ import org.opensaml.saml2.core.AuthnContextDecl;
 import org.opensaml.saml2.core.AuthnContextDeclRef;
 import org.opensaml.saml2.core.AuthnStatement;
 import org.opensaml.saml2.core.AuthzDecisionStatement;
+import org.opensaml.saml2.core.Conditions;
 import org.opensaml.saml2.core.EncryptedAttribute;
 import org.opensaml.saml2.core.Issuer;
 import org.opensaml.saml2.core.NameID;
@@ -113,6 +116,10 @@ public class SecurityAssertionImpl implements SecurityAssertion {
     private transient List<AttributeStatement> attributeStatements;
 
     private transient List<AuthnStatement> authenticationStatements;
+
+    private Date notBefore;
+
+    private Date notOnOrAfter;
 
     /**
      * Uninitialized Constructor
@@ -242,6 +249,18 @@ public class SecurityAssertionImpl implements SecurityAssertion {
                         break;
                     case Issuer.DEFAULT_ELEMENT_LOCAL_NAME:
                         issuer = xmlStreamReader.getElementText();
+                        break;
+                    case Conditions.DEFAULT_ELEMENT_LOCAL_NAME:
+                        attrs = xmlStreamReader.getAttributeCount();
+                        for (int i = 0; i < attrs; i++) {
+                            String name = xmlStreamReader.getAttributeLocalName(i);
+                            String value = xmlStreamReader.getAttributeValue(i);
+                            if (Conditions.NOT_BEFORE_ATTRIB_NAME.equals(name)) {
+                                notBefore = DatatypeConverter.parseDateTime(value).getTime();
+                            } else if (Conditions.NOT_ON_OR_AFTER_ATTRIB_NAME.equals(name)) {
+                                notOnOrAfter = DatatypeConverter.parseDateTime(value).getTime();
+                            }
+                        }
                         break;
                     }
                     break;
@@ -373,7 +392,7 @@ public class SecurityAssertionImpl implements SecurityAssertion {
      * Checks if the NameIDFormat is of the following formats below, if not, the name is changed
      * to the value of the first matching usernameAttribute.
      */
-    public void identifyNameIDFormat() {
+    private void identifyNameIDFormat() {
         if (!((StringUtils.containsIgnoreCase(nameIDFormat, SAML2Constants.NAMEID_FORMAT_PERSISTENT)
                 || StringUtils
                 .containsIgnoreCase(nameIDFormat, SAML2Constants.NAMEID_FORMAT_X509_SUBJECT_NAME)
@@ -394,13 +413,23 @@ public class SecurityAssertionImpl implements SecurityAssertion {
         }
     }
 
-    public boolean listContainsIgnoreCase(List<String> list, String string) {
+    private boolean listContainsIgnoreCase(List<String> list, String string) {
         for (String next : list) {
             if (next.equalsIgnoreCase(string)) {
                 return true;
             }
         }
         return false;
+    }
+
+    @Override
+    public Date getNotBefore() {
+        return notBefore;
+    }
+
+    @Override
+    public Date getNotOnOrAfter() {
+        return notOnOrAfter;
     }
 
     /*

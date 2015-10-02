@@ -1,0 +1,285 @@
+/**
+ * Copyright (c) Codice Foundation
+ * <p/>
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * <p/>
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ */
+package org.codice.ddf.security.idp.client;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLEncoder;
+import java.util.UUID;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.UriBuilder;
+
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.IOUtils;
+import org.apache.cxf.helpers.DOMUtils;
+import org.apache.cxf.jaxrs.impl.UriBuilderImpl;
+import org.apache.cxf.rs.security.saml.sso.SamlpRequestComponentBuilder;
+import org.apache.wss4j.common.ext.WSSecurityException;
+import org.apache.wss4j.common.saml.OpenSAMLUtil;
+import org.apache.wss4j.common.util.DOM2Writer;
+import org.codice.ddf.configuration.SystemBaseUrl;
+import org.codice.ddf.security.common.jaxrs.RestSecurity;
+import org.codice.ddf.security.handler.api.AuthenticationHandler;
+import org.codice.ddf.security.handler.api.HandlerResult;
+import org.codice.ddf.security.policy.context.ContextPolicy;
+import org.joda.time.DateTime;
+import org.opensaml.Configuration;
+import org.opensaml.common.SAMLObjectBuilder;
+import org.opensaml.common.SAMLVersion;
+import org.opensaml.saml2.core.AuthnRequest;
+import org.opensaml.saml2.core.Issuer;
+import org.opensaml.xml.XMLObjectBuilderFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
+/**
+ * Handler for SAML 2.0 IdP based authentication. Unauthenticated clients will be redirected to the
+ * configured IdP for authentication.
+ */
+public class IdpHandler implements AuthenticationHandler {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(IdpHandler.class);
+
+    /**
+     * IdP type to use when configuring context policy.
+     */
+    public static final String AUTH_TYPE = "IDP";
+
+    public static final String SOURCE = "IdpHandler";
+
+    public static final String UNABLE_TO_ENCODE_SAML_AUTHN_REQUEST = "Unable to encode SAML AuthnRequest";
+
+    public static final String UNABLE_TO_SIGN_SAML_AUTHN_REQUEST = "Unable to sign SAML Authn Request";
+
+    private static XMLObjectBuilderFactory builderFactory = Configuration.getBuilderFactory();
+
+    @SuppressWarnings("unchecked")
+    private static SAMLObjectBuilder<AuthnRequest> authnRequestBuilder = (SAMLObjectBuilder<AuthnRequest>) builderFactory
+            .getBuilder(AuthnRequest.DEFAULT_ELEMENT_NAME);
+
+    @SuppressWarnings("unchecked")
+    private static SAMLObjectBuilder<Issuer> issuerBuilder = (SAMLObjectBuilder<Issuer>)
+            builderFactory.getBuilder(Issuer.DEFAULT_ELEMENT_NAME);
+
+    private final String postBindingTemplate;
+
+    private final SimpleSign simpleSign;
+
+    private final IdpMetadata idpMetadata;
+
+    private final SystemBaseUrl baseUrl;
+
+    public IdpHandler(SimpleSign simpleSign, IdpMetadata metadata, SystemBaseUrl baseUrl)
+            throws IOException {
+        LOGGER.debug("Creating IdP handler.");
+
+        this.simpleSign = simpleSign;
+        idpMetadata = metadata;
+
+        this.baseUrl = baseUrl;
+
+        postBindingTemplate = IOUtils
+                .toString(IdpHandler.class.getResourceAsStream("/post-binding.html"));
+    }
+
+    @Override
+    public String getAuthenticationType() {
+        return AUTH_TYPE;
+    }
+
+    /**
+     * Handler implementing SAML 2.0 IdP authentication. Supports HTTP-Redirect and HTTP-POST bindings.
+     *
+     * @param request  http request to obtain attributes from and to pass into any local filter chains required
+     * @param response http response to return http responses or redirects
+     * @param chain    original filter chain (should not be called from your handler)
+     * @param resolve  flag with true implying that credentials should be obtained, false implying return if no credentials are found.
+     * @return result of handling this request - status and optional tokens
+     * @throws ServletException
+     */
+    @Override
+    public HandlerResult getNormalizedToken(ServletRequest request, ServletResponse response,
+            FilterChain chain, boolean resolve) throws ServletException {
+
+        String realm = (String) request.getAttribute(ContextPolicy.ACTIVE_REALM);
+        HandlerResult handlerResult = new HandlerResult(HandlerResult.Status.REDIRECTED, null);
+        handlerResult.setSource(realm + "-" + SOURCE);
+
+        HttpServletRequest httpRequest = (HttpServletRequest) request;
+        String path = httpRequest.getServletPath();
+        LOGGER.debug("Doing IdP authentication and authorization for path {}", path);
+
+        // Default to HTTP-Redirect if binding is null
+        if (idpMetadata.getSingleSignOnBinding() == null || idpMetadata.getSingleSignOnBinding().endsWith("Redirect")) {
+            doHttpRedirectBinding((HttpServletRequest) request, (HttpServletResponse) response);
+        } else {
+            doHttpPostBinding((HttpServletRequest) request, (HttpServletResponse) response);
+        }
+
+        return handlerResult;
+    }
+
+    private void doHttpRedirectBinding(HttpServletRequest request, HttpServletResponse response) throws ServletException {
+
+        String redirectUrl;
+        String idpRequest = null;
+        String relayState = createRelayState(request);
+        try {
+            String queryParams = String.format("SAMLRequest=%s&RelayState=%s",
+                    createAuthnRequest(false), URLEncoder.encode(relayState, "UTF-8"));
+            idpRequest = idpMetadata.getSingleSignOnLocation() + "?" + queryParams;
+            UriBuilder idpUri = new UriBuilderImpl(new URI(idpRequest));
+
+            simpleSign.signUriString(queryParams, idpUri);
+
+            redirectUrl = idpUri.build().toString();
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.warn("Unable to encode relay state: " + relayState, e);
+            throw new ServletException("Unable to create return location");
+        } catch (SimpleSign.SignatureException e) {
+            String msg = "Unable to sign request";
+            LOGGER.warn(msg, e);
+            throw new ServletException(msg);
+        } catch (URISyntaxException e) {
+            LOGGER.warn("Unable to parse IDP request location: " + idpRequest, e);
+            throw new ServletException("Unable to determine IDP location.");
+        }
+
+        try {
+            response.sendRedirect(redirectUrl);
+            response.flushBuffer();
+        } catch (IOException e) {
+            LOGGER.warn("Unable to redirect AuthnRequest to " + redirectUrl, e);
+            throw new ServletException("Unable to redirect to IdP");
+        }
+    }
+
+    private void doHttpPostBinding(HttpServletRequest request, HttpServletResponse response) throws ServletException {
+        try {
+            response.getWriter().printf(postBindingTemplate, idpMetadata.getSingleSignOnLocation(), createAuthnRequest(true),
+                    createRelayState(request));
+            response.setStatus(200);
+            response.flushBuffer();
+        } catch (IOException e) {
+            LOGGER.warn("Unable to post AuthnRequest to IdP", e);
+            throw new ServletException("Unable to post to IdP");
+        }
+    }
+
+    private String createAuthnRequest(boolean isPost) throws ServletException {
+
+        String spIssuerId = String.format("https://%s:%s%s/saml", baseUrl.getHost(),
+                baseUrl.getHttpsPort(), baseUrl.getRootContext());
+        String spAssertionConsumerServiceUrl = spIssuerId + "/sso";
+
+        AuthnRequest authnRequest = authnRequestBuilder.buildObject();
+
+        Issuer issuer = issuerBuilder.buildObject();
+        issuer.setValue(spIssuerId);
+        authnRequest.setIssuer(issuer);
+
+        authnRequest.setAssertionConsumerServiceURL(spAssertionConsumerServiceUrl);
+
+        authnRequest.setID("_" + UUID.randomUUID().toString());
+        authnRequest.setVersion(SAMLVersion.VERSION_20);
+        authnRequest.setIssueInstant(new DateTime());
+
+        authnRequest.setDestination(idpMetadata.getSingleSignOnLocation());
+
+        authnRequest.setProtocolBinding(idpMetadata.getSingleSignOnBinding());
+        authnRequest.setNameIDPolicy(SamlpRequestComponentBuilder
+                .createNameIDPolicy(true, "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent",
+                        spIssuerId));
+
+        return serializeAndSign(isPost, authnRequest);
+    }
+
+    private String serializeAndSign(boolean isPost, AuthnRequest authnRequest)
+            throws ServletException {
+        try {
+            if (isPost) {
+                simpleSign.signSamlObject(authnRequest);
+            }
+
+            Document doc = DOMUtils.createDocument();
+            doc.appendChild(doc.createElement("root"));
+
+            Element requestElement = OpenSAMLUtil.toDom(authnRequest, doc);
+
+            String requestMessage = DOM2Writer.nodeToString(requestElement);
+
+            LOGGER.trace(requestMessage);
+
+            if (isPost) {
+                return encodePostRequest(requestMessage);
+            } else {
+                return encodeRedirectRequest(requestMessage);
+            }
+        } catch (WSSecurityException | IOException e) {
+            LOGGER.warn(UNABLE_TO_ENCODE_SAML_AUTHN_REQUEST, e);
+            throw new ServletException(UNABLE_TO_ENCODE_SAML_AUTHN_REQUEST);
+        } catch (SimpleSign.SignatureException e) {
+            LOGGER.warn(UNABLE_TO_SIGN_SAML_AUTHN_REQUEST, e);
+            throw new ServletException(UNABLE_TO_SIGN_SAML_AUTHN_REQUEST);
+        }
+    }
+
+    private String createRelayState(HttpServletRequest request) {
+        String requestUrl = recreateFullRequestUrl(request);
+        if (requestUrl.length() > 80) {
+            LOGGER.warn("AuthN relay state exceeds 80 characters: {}", requestUrl);
+        }
+        return requestUrl;
+    }
+
+    private String encodeRedirectRequest(String request) throws WSSecurityException, IOException {
+        return URLEncoder.encode(RestSecurity.deflateAndBase64Encode(request), "UTF-8");
+    }
+
+    private String encodePostRequest(String request) throws WSSecurityException, IOException {
+        return new String(Base64.encodeBase64(request.getBytes()));
+    }
+
+    private String recreateFullRequestUrl(HttpServletRequest request) {
+        StringBuffer requestURL = request.getRequestURL();
+        String queryString = request.getQueryString();
+
+        if (queryString == null) {
+            return requestURL.toString();
+        } else {
+            return requestURL.append('?').append(queryString).toString();
+        }
+    }
+
+    @Override
+    public HandlerResult handleError(ServletRequest servletRequest, ServletResponse servletResponse,
+            FilterChain chain) throws ServletException {
+        String realm = (String) servletRequest.getAttribute(ContextPolicy.ACTIVE_REALM);
+        HandlerResult result = new HandlerResult(HandlerResult.Status.NO_ACTION, null);
+        result.setSource(realm + "-" + SOURCE);
+        LOGGER.debug("In error handler for idp - no action taken.");
+        return result;
+    }
+
+}

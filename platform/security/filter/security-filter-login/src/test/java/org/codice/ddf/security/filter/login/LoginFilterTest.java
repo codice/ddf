@@ -14,15 +14,18 @@
 package org.codice.ddf.security.filter.login;
 
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.Principal;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Locale;
@@ -48,11 +51,16 @@ import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.api.SAMLAuthenticationToken;
+import org.codice.ddf.security.handler.api.UPAuthenticationToken;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
+import ddf.security.SecurityConstants;
+import ddf.security.Subject;
+import ddf.security.assertion.SecurityAssertion;
+import ddf.security.common.util.SecurityTokenHolder;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
 
@@ -81,7 +89,7 @@ public class LoginFilterTest {
     @Test
     public void testNoSubject() {
         FilterConfig filterConfig = mock(FilterConfig.class);
-        LoginFilter loginFilter = new LoginFilter();
+        LoginFilter loginFilter = new LoginFilter(null);
         try {
             loginFilter.init(filterConfig);
         } catch (ServletException e) {
@@ -115,7 +123,7 @@ public class LoginFilterTest {
     @Test
     public void testBadSubject() throws IOException, ServletException {
         FilterConfig filterConfig = mock(FilterConfig.class);
-        LoginFilter loginFilter = new LoginFilter();
+        LoginFilter loginFilter = new LoginFilter(null);
         try {
             loginFilter.init(filterConfig);
         } catch (ServletException e) {
@@ -139,7 +147,7 @@ public class LoginFilterTest {
     @Test
     public void testValidEmptySubject() throws IOException, ServletException {
         FilterConfig filterConfig = mock(FilterConfig.class);
-        LoginFilter loginFilter = new LoginFilter();
+        LoginFilter loginFilter = new LoginFilter(null);
         loginFilter.init(filterConfig);
 
         HttpServletRequest servletRequest = new TestHttpServletRequest();
@@ -152,12 +160,46 @@ public class LoginFilterTest {
         verify(filterChain, never()).doFilter(servletRequest, servletResponse);
     }
 
+    @Test
+    public void testValidUsernameToken()
+            throws IOException, XMLStreamException, ServletException, ParserConfigurationException,
+            SAXException, SecurityServiceException {
+        FilterConfig filterConfig = mock(FilterConfig.class);
+        LoginFilter loginFilter = new LoginFilter(null);
+        ddf.security.service.SecurityManager securityManager = mock(
+                ddf.security.service.SecurityManager.class);
+        loginFilter.setSecurityManager(securityManager);
+        loginFilter.init(filterConfig);
+
+        HttpServletRequest servletRequest = mock(HttpServletRequest.class);
+        HttpServletResponse servletResponse = mock(HttpServletResponse.class);
+        FilterChain filterChain = mock(FilterChain.class);
+
+        UPAuthenticationToken token = new UPAuthenticationToken("foo", "bar");
+        HandlerResult result = new HandlerResult(HandlerResult.Status.COMPLETED, token);
+        when(servletRequest.getAttribute("ddf.security.token")).thenReturn(result);
+
+        HttpSession session = mock(HttpSession.class);
+        when(servletRequest.getSession(true)).thenReturn(session);
+        when(session.getAttribute(SecurityConstants.SAML_ASSERTION)).thenReturn(new SecurityTokenHolder(null));
+
+        Subject subject = mock(Subject.class, RETURNS_DEEP_STUBS);
+        when(securityManager.getSubject(token)).thenReturn(subject);
+        SecurityAssertion assertion = mock(SecurityAssertion.class);
+        SecurityToken securityToken = mock(SecurityToken.class);
+        when(assertion.getSecurityToken()).thenReturn(securityToken);
+        when(subject.getPrincipals().asList()).thenReturn(Arrays.asList(assertion));
+        when(securityToken.getToken()).thenReturn(readDocument("/good_saml.xml").getDocumentElement());
+
+        loginFilter.doFilter(servletRequest, servletResponse, filterChain);
+    }
+
     @Test(expected = ServletException.class)
     public void testExpiredSamlCookie()
             throws IOException, XMLStreamException, ServletException, ParserConfigurationException,
             SAXException, SecurityServiceException {
         FilterConfig filterConfig = mock(FilterConfig.class);
-        LoginFilter loginFilter = new LoginFilter();
+        LoginFilter loginFilter = new LoginFilter(null);
         ddf.security.service.SecurityManager securityManager = mock(
                 ddf.security.service.SecurityManager.class);
         loginFilter.setSecurityManager(securityManager);
@@ -187,7 +229,7 @@ public class LoginFilterTest {
             throws IOException, XMLStreamException, ServletException, ParserConfigurationException,
             SAXException, SecurityServiceException {
         FilterConfig filterConfig = mock(FilterConfig.class);
-        LoginFilter loginFilter = new LoginFilter();
+        LoginFilter loginFilter = new LoginFilter(null);
         ddf.security.service.SecurityManager securityManager = mock(SecurityManager.class);
         loginFilter.setSecurityManager(securityManager);
         loginFilter.setSignaturePropertiesFile("signature.properties");

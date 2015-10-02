@@ -47,7 +47,7 @@ import org.slf4j.LoggerFactory;
  */
 public class WebSSOFilter implements Filter {
 
-    private static final String DDF_AUTHENTICATION_TOKEN = "ddf.security.token";
+    public static final String DDF_AUTHENTICATION_TOKEN = "ddf.security.token";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WebSSOFilter.class);
 

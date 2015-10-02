@@ -15,6 +15,7 @@ package ddf.security.assertion;
 
 import java.io.Serializable;
 import java.security.Principal;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -78,6 +79,20 @@ public interface SecurityAssertion extends Serializable {
      * @return SecurityToken
      */
     SecurityToken getSecurityToken();
+
+    /**
+     * Returns the earliest date that the assertion is valid
+     *
+     * @return Date
+     */
+    Date getNotBefore();
+
+    /**
+     * Returns the date that the assertion is invalid
+     *
+     * @return Date
+     */
+    Date getNotOnOrAfter();
 
     /**
      * Returns a String representation of this Assertion
