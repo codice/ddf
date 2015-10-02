@@ -90,7 +90,8 @@ public class CometdEndpoint {
     public CometdEndpoint(CometdServlet cometdServlet, CatalogFramework framework,
             FilterBuilder filterBuilder, FilterAdapter filterAdapter, PersistentStore persistentStore,
             BundleContext bundleContext, EventAdmin eventAdmin, ActionRegistry actionRegistry,
-                          ExecutorService executorService) {
+                          ExecutorService executorService) {            
+        LOGGER.trace("Constructing Cometd Endpoint");
         this.bundleContext = bundleContext;
         this.cometdServlet = cometdServlet;
         this.filterBuilder = filterBuilder;
@@ -100,6 +101,7 @@ public class CometdEndpoint {
                 eventAdmin);
         this.activityController = new ActivityController(persistentStore, bundleContext,
                 eventAdmin);
+        LOGGER.trace("Exiting CometdEndpoint constructor. ");
     }
 
     public void init() throws ServletException {

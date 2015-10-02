@@ -141,8 +141,9 @@ public class RESTEndpoint implements RESTService {
     private MimeTypeResolver tikaMimeTypeResolver;
 
     public RESTEndpoint(CatalogFramework framework) {
-        LOGGER.debug("constructing rest endpoint");
+        LOGGER.trace("Constructing REST Endpoint");
         this.catalogFramework = framework;
+        LOGGER.trace(("Rest Endpoint constructed successfully"));
     }
 
     /**
@@ -183,7 +184,7 @@ public class RESTEndpoint implements RESTService {
         QueryResponse queryResponse;
         Metacard card = null;
 
-        LOGGER.debug("getHeaders");
+        LOGGER.trace("getHeaders");
         URI absolutePath = uriInfo.getAbsolutePath();
         MultivaluedMap<String, String> map = uriInfo.getQueryParameters();
 
@@ -391,7 +392,7 @@ public class RESTEndpoint implements RESTService {
         QueryResponse queryResponse;
         Metacard card = null;
 
-        LOGGER.debug("GET");
+        LOGGER.trace("GET");
         URI absolutePath = uriInfo.getAbsolutePath();
         MultivaluedMap<String, String> map = uriInfo.getQueryParameters();
 
@@ -561,11 +562,12 @@ public class RESTEndpoint implements RESTService {
 
         try {
             Metacard metacard = generateMetacard(mimeType, "assigned-when-ingested", stream);
-            LOGGER.debug("metacard created");
-            LOGGER.debug("Transforming metacard to {} to be able to return it to client",
-                    transformer);
+            String metacardId = metacard.getId();
+            LOGGER.debug("Metacard {} created", metacardId);
+            LOGGER.debug("Transforming metacard {} to {} to be able to return it to client",
+                    metacardId, transformer);
             final BinaryContent content = catalogFramework.transform(metacard, transformer, null);
-            LOGGER.debug("Metacard to {} transform complete, preparing response.", transformer);
+            LOGGER.debug("Metacard to {} transform complete for {}, preparing response.", transformer, metacardId);
 
             Response.ResponseBuilder responseBuilder = Response
                     .ok(content.getInputStream(), content.getMimeTypeValue());
@@ -574,7 +576,7 @@ public class RESTEndpoint implements RESTService {
             throw new ServerErrorException("Unable to create metacard", Status.BAD_REQUEST);
         }
 
-        LOGGER.debug("EXITING: createMetacard");
+        LOGGER.trace("EXITING: createMetacard");
 
         return response;
     }
@@ -590,7 +592,7 @@ public class RESTEndpoint implements RESTService {
     @Path("/{id}")
     public Response updateDocument(@PathParam("id") String id, @Context HttpHeaders headers,
             @Context HttpServletRequest httpRequest, InputStream message) {
-        LOGGER.debug("PUT");
+        LOGGER.trace("PUT");
         Response response;
 
         try {
@@ -601,6 +603,7 @@ public class RESTEndpoint implements RESTService {
                         generateMetacard(mimeType, id, message));
 
                 catalogFramework.update(updateReq);
+                LOGGER.debug("Metacard {} updated.", id);
                 response = Response.ok().build();
             } else {
                 String errorResponseString = "Both ID and content are needed to perform UPDATE.";
@@ -708,6 +711,7 @@ public class RESTEndpoint implements RESTService {
 
                 catalogFramework.delete(deleteReq);
                 response = Response.ok(id).build();
+                LOGGER.debug("Attempting to delete Metacard with id: {}", id);
             } else {
                 String errorMessage = "ID of entry not specified, cannot do DELETE.";
                 LOGGER.warn(errorMessage);
@@ -749,6 +753,7 @@ public class RESTEndpoint implements RESTService {
         List<InputTransformer> listOfCandidates = mimeTypeToTransformerMapper
                 .findMatches(InputTransformer.class, mimeType);
 
+        LOGGER.trace("Entering generateMetacard.");
         LOGGER.debug("List of matches for mimeType [{}]: {}", mimeType, listOfCandidates);
 
         Metacard generatedMetacard = null;
