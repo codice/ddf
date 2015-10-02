@@ -67,7 +67,7 @@ public class AnonymousValidator implements TokenValidator {
                 LOGGER.trace("No realm specified in request, canHandletoken = true");
                 return true;
             } else {
-                if (supportedRealm.contains(anonToken.getRealm())) {
+                if (supportedRealm.contains(anonToken.getRealm()) || "*".equals(anonToken.getRealm())) {
                     LOGGER.trace("Realm '{}' recognized - canHandleToken = true",
                             anonToken.getRealm());
                     return true;
