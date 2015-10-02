@@ -13,9 +13,17 @@
  */
 package org.codice.ddf.configuration;
 
+import java.io.IOException;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.felix.webconsole.BrandingPlugin;
+import org.codice.ddf.branding.BrandingResourceProvider;
+import org.codice.ddf.branding.impl.BrandingResourceProviderImpl;
 
 import net.minidev.json.JSONObject;
 
@@ -42,6 +50,14 @@ public class PlatformUiConfiguration {
 
     public static final String BACKGROUND = "background";
 
+    public static final String TITLE = "title";
+
+    public static final String VERSION = "version";
+
+    public static final String PRODUCT_IMAGE = "productImage";
+
+    public static final String FAV_ICON = "favIcon";
+
     private boolean systemUsageEnabled;
 
     private String systemUsageTitle;
@@ -57,6 +73,18 @@ public class PlatformUiConfiguration {
     private String color;
 
     private String background;
+
+    private BrandingPlugin branding;
+
+    private BrandingResourceProvider provider =new BrandingResourceProviderImpl();
+
+    private String title;
+
+    private String version;
+
+    private String productImage;
+
+    private String favicon;
 
     @GET
     @Path("/config/ui")
@@ -74,7 +102,45 @@ public class PlatformUiConfiguration {
         jsonObject.put(FOOTER, this.footer);
         jsonObject.put(COLOR, this.color);
         jsonObject.put(BACKGROUND, this.background);
+        jsonObject.put(TITLE, this.title);
+        jsonObject.put(VERSION, this.version);
+        jsonObject.put(PRODUCT_IMAGE, this.productImage);
+        jsonObject.put(FAV_ICON, this.favicon);
         return jsonObject.toJSONString();
+    }
+
+    private void setVersion() {
+        if (branding != null) {
+            version = branding.getProductName();
+        }
+    }
+
+    private void setTitle() {
+        if (StringUtils.isNotBlank(version)) {
+            // The Product name looks like: "Product 1.0.0.ALPHA12-SNAPSHOT"
+            // we want to remove the "version" from the general title.
+            String[] productNameParts = version.split(" ");
+            productNameParts[productNameParts.length - 1] = "";
+            title = StringUtils.join(productNameParts, " ").trim();
+        } else {
+            title = "DDF";
+        }
+    }
+
+    public void setBranding(BrandingPlugin branding) throws IOException {
+        this.branding = branding;
+        setVersion();
+        setTitle();
+        this.productImage = getBase64(branding.getProductImage());
+        this.favicon = getBase64(branding.getFavIcon());
+    }
+
+    private String getBase64(String productImage) throws IOException {
+        byte[] resourceAsBytes = provider.getResourceAsBytes(productImage);
+        if (resourceAsBytes.length > 0) {
+            return Base64.encodeBase64String(resourceAsBytes);
+        }
+        return "";
     }
 
     public boolean getSystemUsageEnabled() {
@@ -141,4 +207,7 @@ public class PlatformUiConfiguration {
         this.background = background;
     }
 
+    public void setProvider(BrandingResourceProvider provider) {
+        this.provider = provider;
+    }
 }

@@ -22,7 +22,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
 
-import org.apache.cxf.common.util.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.ws.security.sts.provider.model.secext.BinarySecurityTokenType;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.dom.WSConstants;
@@ -110,12 +110,7 @@ public abstract class BSTAuthenticationToken extends BaseAuthenticationToken {
     }
 
     protected static String parseComponent(String s, String expectedStartsWith) {
-        String value = "";
-        int minLength = expectedStartsWith == null ? 1 : expectedStartsWith.length() + 1;
-        if ((s != null) && (s.length() > minLength)) {
-            value = s.substring(minLength - 1);
-        }
-        return value;
+        return StringUtils.substringAfter(s, expectedStartsWith);
     }
 
     @Override

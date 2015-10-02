@@ -42,12 +42,17 @@ public class AnonymousValidatorTest {
 
     TokenValidatorParameters parameters;
 
+    ReceivedToken receivedAnyRealmToken;
+
     @Before
     public void setup() {
         validator = new AnonymousValidator();
         validator.setSupportedRealm(Arrays.asList("DDF"));
         AnonymousAuthenticationToken anonymousAuthenticationToken = new AnonymousAuthenticationToken(
                 "DDF");
+
+        AnonymousAuthenticationToken anonymousAuthenticationTokenAnyRealm = new AnonymousAuthenticationToken(
+                "*");
 
         BinarySecurityTokenType binarySecurityTokenType = new BinarySecurityTokenType();
         binarySecurityTokenType
@@ -62,7 +67,7 @@ public class AnonymousValidatorTest {
                 binarySecurityTokenType);
 
         BinarySecurityTokenType binarySecurityTokenType2 = new BinarySecurityTokenType();
-        binarySecurityTokenType
+        binarySecurityTokenType2
                 .setValueType(AnonymousAuthenticationToken.ANONYMOUS_TOKEN_VALUE_TYPE);
         binarySecurityTokenType2.setEncodingType(BSTAuthenticationToken.BASE64_ENCODING);
         binarySecurityTokenType2.setId(AnonymousAuthenticationToken.BST_ANONYMOUS_LN);
@@ -74,7 +79,21 @@ public class AnonymousValidatorTest {
                         "BinarySecurityToken"), BinarySecurityTokenType.class,
                 binarySecurityTokenType2);
 
+        BinarySecurityTokenType binarySecurityTokenType3 = new BinarySecurityTokenType();
+        binarySecurityTokenType3
+                .setValueType(AnonymousAuthenticationToken.ANONYMOUS_TOKEN_VALUE_TYPE);
+        binarySecurityTokenType3.setEncodingType(BSTAuthenticationToken.BASE64_ENCODING);
+        binarySecurityTokenType3.setId(AnonymousAuthenticationToken.BST_ANONYMOUS_LN);
+        binarySecurityTokenType3
+                .setValue(anonymousAuthenticationTokenAnyRealm.getEncodedCredentials());
+        JAXBElement<BinarySecurityTokenType> binarySecurityTokenElement3 = new JAXBElement<BinarySecurityTokenType>(
+                new QName(
+                        "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",
+                        "BinarySecurityToken"), BinarySecurityTokenType.class,
+                binarySecurityTokenType3);
+
         receivedToken = new ReceivedToken(binarySecurityTokenElement);
+        receivedAnyRealmToken = new ReceivedToken(binarySecurityTokenElement3);
         receivedBadToken = new ReceivedToken(binarySecurityTokenElement2);
         parameters = new TokenValidatorParameters();
         parameters.setToken(receivedToken);
@@ -88,8 +107,24 @@ public class AnonymousValidatorTest {
     }
 
     @Test
+    public void testCanHandleAnyRealmToken() throws JAXBException {
+        boolean canHandle = validator.canHandleToken(receivedAnyRealmToken);
+
+        assertTrue(canHandle);
+    }
+
+    @Test
     public void testCanValidateToken() {
         TokenValidatorResponse response = validator.validateToken(parameters);
+
+        assertEquals(ReceivedToken.STATE.VALID, response.getToken().getState());
+    }
+
+    @Test
+    public void testCanValidateAnyRealmToken() {
+        TokenValidatorParameters params = new TokenValidatorParameters();
+        params.setToken(receivedAnyRealmToken);
+        TokenValidatorResponse response = validator.validateToken(params);
 
         assertEquals(ReceivedToken.STATE.VALID, response.getToken().getState());
     }

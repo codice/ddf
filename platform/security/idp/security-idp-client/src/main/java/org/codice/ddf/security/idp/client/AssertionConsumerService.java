@@ -21,14 +21,17 @@ import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
+import java.util.Map;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
+import javax.servlet.http.HttpSession;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -50,6 +53,7 @@ import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.apache.wss4j.common.util.DOM2Writer;
 import org.codice.ddf.configuration.SystemBaseUrl;
+import org.codice.ddf.security.common.HttpUtils;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.codice.ddf.security.filter.websso.WebSSOFilter;
 import org.codice.ddf.security.handler.api.HandlerResult;
@@ -78,6 +82,8 @@ public class AssertionConsumerService {
     private static final String SIGNATURE = "Signature";
 
     private static final String UNABLE_TO_LOGIN = "Unable to login with provided AuthN response assertion.";
+
+    private final Object newSessionLock = "org.codice.ddf.security.NewHttpSession";
 
     private final SimpleSign simpleSign;
 
@@ -207,6 +213,15 @@ public class AssertionConsumerService {
     }
 
     private boolean login(org.opensaml.saml2.core.Response samlResponse) {
+        Map<String, Cookie> cookieMap = HttpUtils.getCookieMap(request);
+        if (cookieMap.containsKey("JSESSIONID")) {
+            synchronized (newSessionLock) {
+                HttpSession session = request.getSession(true);
+                if (session != null) {
+                    session.invalidate();
+                }
+            }
+        }
         String assertionValue = DOM2Writer
                 .nodeToString(samlResponse.getAssertions().get(0).getDOM());
 
