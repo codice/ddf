@@ -263,4 +263,9 @@
         <bundle>mvn:ddf.security.servlet/security-servlet-logout/${project.version}</bundle>
     </feature>
 
+    <feature name="security-idp" install="manual" version="${project.version}"
+             description="IDP client">
+        <bundle>mvn:ddf.security.idp/security-idp-client/${project.version}</bundle>
+    </feature>
+
 </features>

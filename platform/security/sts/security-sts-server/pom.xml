@@ -30,6 +30,12 @@
 
     <dependencies>
         <dependency>
+            <groupId>ddf.lib</groupId>
+            <artifactId>common-system</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-ws-security</artifactId>
             <scope>provided</scope>
@@ -87,7 +93,9 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Dependency>cxf-services-sts-core,
+                        <Embed-Dependency>
+                            common-system,
+                            cxf-services-sts-core,
                             security-sts-x509delegationhandler,
                             security-sts-bstdelegationhandler
                         </Embed-Dependency>
