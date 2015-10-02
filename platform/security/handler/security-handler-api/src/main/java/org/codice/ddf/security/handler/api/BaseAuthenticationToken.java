@@ -20,6 +20,8 @@ import org.slf4j.LoggerFactory;
 public class BaseAuthenticationToken implements AuthenticationToken {
     public static final String DEFAULT_REALM = "karaf";
 
+    public static final String ALL_REALM = "*";
+
     private boolean useWssSts = false;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseAuthenticationToken.class);
