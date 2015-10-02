@@ -27,9 +27,8 @@
                                update-strategy="container-managed"/>
         <property name="branding" ref="branding"/>
         <argument ref="resourceProvider"/>
-        <property name="description" value="DDF is a free and open-source common data layer that abstracts services and business logic from the underlying data structures to enable rapid integration of new data sources.
-Licensed under LGPL, DDF is an interoperability platform that provides secure and scalable discovery and retrieval from a wide array of disparate sources. DDF is built to 'unzip and run' while having the ability to scale to large enterprise systems.
-Lockheed Martin has donated all copyright to the Codice Foundation, a non-profit established to provide infrastructure, support, education, and export control advice to government-focused teams desiring to operate open-source projects."/>
+        <property name="description"
+                  value="DDF is a free and open-source common data layer that abstracts services and business logic from the underlying data structures to enable rapid integration of new data sources."/>
         <property name="phone" value=""/>
         <property name="email" value=""/>
         <property name="externalUrl" value=""/>
