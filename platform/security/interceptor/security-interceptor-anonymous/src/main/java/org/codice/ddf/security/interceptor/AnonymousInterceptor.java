@@ -140,6 +140,7 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
     public AnonymousInterceptor(SecurityManager securityManager,
             ContextPolicyManager contextPolicyManager) {
         super();
+        LOGGER.trace("Constructing AnonymousInterceptor");
         this.securityManager = securityManager;
         this.contextPolicyManager = contextPolicyManager;
         setPhase(Phase.PRE_PROTOCOL);
@@ -147,6 +148,7 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
         Set<String> before = getBefore();
         before.add(WSS4JInInterceptor.class.getName());
         before.add(PolicyBasedWSS4JInInterceptor.class.getName());
+        LOGGER.trace("Exiting AnonymousInterceptor constructor.");
     }
 
     @Override
@@ -171,6 +173,7 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
 
             Element existingSecurityHeader = null;
             try {
+                LOGGER.debug("Checking for security header.");
                 existingSecurityHeader = WSSecurityUtil
                         .getSecurityHeader(soapMessage.getSOAPPart(), actor);
             } catch (WSSecurityException e1) {
@@ -416,6 +419,7 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
             SOAPElement securityHeader) {
         Subject subject = getSubject();
 
+        LOGGER.trace("Attempting to create Security token.");
         if (subject != null) {
             PrincipalCollection principals = subject.getPrincipals();
             if (principals != null) {
