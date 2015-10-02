@@ -26,6 +26,7 @@ import javax.servlet.FilterChain;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -41,6 +42,7 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import ddf.security.SecurityConstants;
+import ddf.security.common.util.SecurityTokenHolder;
 
 public class SAMLAssertionHandlerTest {
 
@@ -158,6 +160,29 @@ public class SAMLAssertionHandlerTest {
 
         assertNotNull(result);
         assertEquals(HandlerResult.Status.NO_ACTION, result.getStatus());
+    }
+
+    @Test
+    public void testGetNormalizedTokenFromSession() throws Exception {
+        SAMLAssertionHandler handler = new SAMLAssertionHandler();
+
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        HttpServletResponse response = mock(HttpServletResponse.class);
+        FilterChain chain = mock(FilterChain.class);
+
+        when(request.getCookies()).thenReturn(null);
+        HttpSession session = mock(HttpSession.class);
+        when(request.getSession(false)).thenReturn(session);
+        SecurityTokenHolder tokenHolder = mock(SecurityTokenHolder.class);
+        when(session.getAttribute(SecurityConstants.SAML_ASSERTION)).thenReturn(tokenHolder);
+        SecurityToken securityToken = mock(SecurityToken.class);
+        when(tokenHolder.getSecurityToken()).thenReturn(securityToken);
+        when(securityToken.getToken()).thenReturn(readDocument("/saml.xml").getDocumentElement());
+
+        HandlerResult result = handler.getNormalizedToken(request, response, chain, true);
+
+        assertNotNull(result);
+        assertEquals(HandlerResult.Status.COMPLETED, result.getStatus());
     }
 
     /**

@@ -43,6 +43,8 @@ public class TestLogoutServlet {
         }
         HttpSession httpSession = mock(HttpSession.class);
         when(request.getSession(anyBoolean())).thenReturn(httpSession);
+        when(request.getSession(anyBoolean()).getId()).thenReturn("id");
+        when(request.getRequestURL()).thenReturn(new StringBuffer("http://foo.bar"));
         try {
             logoutServlet.doGet(request, response);
         } catch (ServletException | IOException e) {

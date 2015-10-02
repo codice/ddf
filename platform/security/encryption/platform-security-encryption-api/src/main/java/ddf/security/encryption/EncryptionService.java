@@ -13,22 +13,9 @@
  */
 package ddf.security.encryption;
 
-public interface EncryptionService {
-    /**
-     * Encrypts a plain text value.
-     *
-     * @param value
-     *            The value to encrypt.
-     */
-    String encrypt(String value);
+import org.apache.wss4j.common.crypto.PasswordEncryptor;
 
-    /**
-     * Decrypts a plain text value.
-     *
-     * @param value
-     *            The value to decrypt.
-     */
-    String decrypt(String value);
+public interface EncryptionService extends PasswordEncryptor {
 
     /**
      * Decrypts the unwrapped encrypted value

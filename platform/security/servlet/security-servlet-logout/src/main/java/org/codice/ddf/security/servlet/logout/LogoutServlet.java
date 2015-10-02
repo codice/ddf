@@ -16,6 +16,7 @@ package org.codice.ddf.security.servlet.logout;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -32,6 +33,7 @@ public class LogoutServlet extends HttpServlet {
         HttpSession session = request.getSession(false);
         if (session != null) {
             session.invalidate();
+            deleteJSessionId(response);
         }
 
         //This is just here to avoid a blank screen
@@ -41,5 +43,13 @@ public class LogoutServlet extends HttpServlet {
                 .print("You have successfully logged out. Please close your browser or tab.");
 
         response.getWriter().close();
+    }
+
+    private void deleteJSessionId(HttpServletResponse response) {
+        Cookie cookie = new Cookie("JSESSIONID", "");
+        cookie.setMaxAge(0);
+        cookie.setPath("/");
+        cookie.setComment("EXPIRING COOKIE at " + System.currentTimeMillis());
+        response.addCookie(cookie);
     }
 }

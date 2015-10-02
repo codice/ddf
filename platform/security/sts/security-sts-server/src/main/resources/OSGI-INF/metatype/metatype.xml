@@ -21,7 +21,7 @@
         </AD>
 	    
 	    <AD name="Token Issuer:" id="issuer" required="true" type="String"
-            default="localhost"
+            default=""
             description="The name of the server issuing tokens. Generally this is the cn or hostname of this machine on the network.">
 	    </AD>
 	    
