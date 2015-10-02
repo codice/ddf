@@ -67,10 +67,12 @@ import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 
+import net.sf.saxon.TransformerFactoryImpl;
+
 public class TikaInputTransformer implements InputTransformer {
     private static final Logger LOGGER = LoggerFactory.getLogger(TikaInputTransformer.class);
 
-    private static final TransformerFactory TRANSFORMER_FACTORY = TransformerFactory.newInstance();
+    private static final TransformerFactory TRANSFORMER_FACTORY = TransformerFactoryImpl.newInstance();
 
     private static final String XSLT = "/metadata.xslt";
 
