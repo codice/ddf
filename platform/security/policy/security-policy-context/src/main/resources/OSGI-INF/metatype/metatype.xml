@@ -36,7 +36,7 @@
 
         <AD description="List of contexts that will not use security. Note that sub-contexts to ones listed here will also skip security, unless authentication types are provided for it. For example: if /foo is listed here, then /foo/bar will also not require any sort of authentication. However, if /foo is listed and /foo/bar has authentication types provided in the 'Authentication Types' field, then that more specific policy will be used."
             name="White Listed Contexts" id="whiteListContexts" required="true" cardinality="100"
-            type="String" default="/services/SecurityTokenService,/services/internal/metrics,/services/saml,/proxy"/>
+            type="String" default="/services/SecurityTokenService,/services/internal/metrics,/services/saml,/services/idp,/idp,/proxy"/>
 
     </OCD>
 

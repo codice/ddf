@@ -67,7 +67,7 @@ public class AnonymousValidator implements TokenValidator {
                 LOGGER.trace("No realm specified in request, canHandletoken = true");
                 return true;
             } else {
-                if (supportedRealm.contains(anonToken.getRealm())) {
+                if (supportedRealm.contains(anonToken.getRealm()) || "*".equals(anonToken.getRealm())) {
                     LOGGER.trace("Realm '{}' recognized - canHandleToken = true",
                             anonToken.getRealm());
                     return true;
@@ -92,7 +92,8 @@ public class AnonymousValidator implements TokenValidator {
 
         if (anonToken != null) {
             if (anonToken.getRealm() != null) {
-                if (supportedRealm.contains(anonToken.getRealm()) && anonToken.getCredentials()
+                if ((supportedRealm.contains(anonToken.getRealm()) || "*"
+                        .equals(anonToken.getRealm())) && anonToken.getCredentials()
                         .equals(AnonymousAuthenticationToken.ANONYMOUS_CREDENTIALS)) {
                     validateTarget.setState(ReceivedToken.STATE.VALID);
                     validateTarget.setPrincipal(new CustomTokenPrincipal(AnonymousAuthenticationToken.ANONYMOUS_CREDENTIALS));
