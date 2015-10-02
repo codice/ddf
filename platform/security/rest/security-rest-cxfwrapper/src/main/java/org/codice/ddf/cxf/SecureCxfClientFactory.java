@@ -18,7 +18,6 @@ import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
-import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
@@ -179,7 +178,9 @@ public class SecureCxfClientFactory<T> {
      */
     public WebClient getWebClientForBasicAuth(String username, String password)
             throws SecurityServiceException {
-        return WebClient.fromClientObject(getClientForBasicAuth(username, password));
+        WebClient client = WebClient.fromClientObject(getClientForBasicAuth(username, password));
+        RestSecurity.setUserOnClient(username, password, client);
+        return client;
     }
 
     /**
@@ -213,7 +214,7 @@ public class SecureCxfClientFactory<T> {
             LOGGER.warn("CAUTION: Passing username & password on an un-encrypted protocol [{}]."
                     + " This is a security issue. ", endpointUrl);
         }
-        initSecurity(clientConfig, username, password);
+        configureCnCheck(clientConfig);
         configureTimeouts(clientConfig, connectionTimeout, receiveTimeout);
         return clientImpl;
     }
@@ -222,21 +223,12 @@ public class SecureCxfClientFactory<T> {
      * Add TLS and Basic Auth credentials to the underlying {@link org.apache.cxf.transport.http.HTTPConduit}
      * This includes two-way ssl assuming that the platform keystores are configured correctly
      */
-    private void initSecurity(ClientConfiguration clientConfig, String username, String password)
+    private void configureCnCheck(ClientConfiguration clientConfig)
             throws SecurityServiceException {
         HTTPConduit httpConduit = clientConfig.getHttpConduit();
         if (httpConduit == null) {
             throw new SecurityServiceException(
                     "HTTPConduit was null for " + this + ". Unable to configure security.");
-        }
-
-        if (StringUtils.isNotEmpty(username) && StringUtils.isNotEmpty(password)) {
-            if (httpConduit.getAuthorization() == null) {
-                httpConduit.setAuthorization(new AuthorizationPolicy());
-            }
-
-            httpConduit.getAuthorization().setUserName(username);
-            httpConduit.getAuthorization().setPassword(password);
         }
 
         if (disableCnCheck) {

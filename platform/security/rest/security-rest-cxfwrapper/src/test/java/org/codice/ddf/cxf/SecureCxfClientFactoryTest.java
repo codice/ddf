@@ -22,7 +22,6 @@ import java.util.UUID;
 import javax.ws.rs.GET;
 import javax.ws.rs.core.Response;
 
-import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.transport.http.HTTPConduit;
@@ -210,9 +209,6 @@ public class SecureCxfClientFactoryTest {
                 null, true).getClientForBasicAuth(USERNAME, PASSWORD);
         HTTPConduit httpConduit = WebClient.getConfig(WebClient.client(clientForSubject))
                 .getHttpConduit();
-        AuthorizationPolicy authorization = httpConduit.getAuthorization();
-        assertThat(authorization.getUserName(), is(USERNAME));
-        assertThat(authorization.getPassword(), is(PASSWORD));
         assertThat(httpConduit.getTlsClientParameters().isDisableCNCheck(), is(true));
     }
 
