@@ -331,6 +331,8 @@
         <module>error</module>
         <module>platform-http-proxy</module>
         <module>admin</module>
+        <module>branding-resources</module>
+        <module>landing-page</module>
         <module>platform-app</module>
         <module>docs</module>
     </modules>
