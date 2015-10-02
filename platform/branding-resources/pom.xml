@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -15,25 +15,22 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>ddf</groupId>
-        <artifactId>distribution</artifactId>
+        <artifactId>platform</artifactId>
+        <groupId>ddf.platform</groupId>
         <version>2.8.0-SNAPSHOT</version>
     </parent>
-    <artifactId>landing-page</artifactId>
-    <name>DDF :: Distribution :: Landing Page</name>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>branding-resources</artifactId>
     <packaging>bundle</packaging>
+    <name>DDF :: Platform :: Branding Resources</name>
+
     <dependencies>
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-            <version>${servlet-api.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>${commons-io.version}</version>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+            <version>5.0.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.felix</groupId>
@@ -41,52 +38,17 @@
             <version>4.2.2</version>
         </dependency>
         <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
-            <version>${commons-lang.version}</version>
+            <groupId>org.eclipse</groupId>
+            <artifactId>osgi</artifactId>
+            <version>3.9.1-v20140110-1610</version>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>${org.slf4j.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.servicemix.specs</groupId>
-            <artifactId>org.apache.servicemix.specs.jsr339-api-2.0</artifactId>
-            <version>2.4.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>3.3.2</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.jknack</groupId>
-            <artifactId>handlebars</artifactId>
-            <version>${handlebars.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.antlr</groupId>
-            <artifactId>antlr4-runtime</artifactId>
-            <version>${antlr.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.abego.treelayout</groupId>
-                    <artifactId>org.abego.treelayout.core</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>ddf</groupId>
-            <artifactId>branding-resources</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-codec</groupId>
-            <artifactId>commons-codec</artifactId>
-            <version>1.10</version>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commons-io.version}</version>
         </dependency>
     </dependencies>
+
     <build>
         <plugins>
             <plugin>
@@ -95,18 +57,8 @@
                 <configuration>
                     <instructions>
                         <Import-Package>
-                            javax.servlet;version="[2.5,3)",
-                            javax.servlet.http;version="[2.5,3)",
-                            org.apache.felix.webconsole;version="[3.1,5)",
-                            !org.abego.treelayout.*,
                             *
                         </Import-Package>
-                        <Export-Package/>
-                        <Embed-Dependency>
-                            handlebars,
-                            commons-lang3,
-                            antlr4-runtime
-                        </Embed-Dependency>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                     </instructions>
                 </configuration>
@@ -156,5 +108,6 @@
 
         </plugins>
     </build>
+
 
 </project>
