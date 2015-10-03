@@ -121,19 +121,23 @@ public class TestFederation extends AbstractIntegrationTest {
         cswProperties2.put("outputSchema", "urn:catalog:metacard");
         createManagedService(CswSourceProperties.FACTORY_PID, cswProperties2);
 
-        waitForFederatedSource(OPENSEARCH_SOURCE_ID);
-        waitForFederatedSource(CSW_SOURCE_ID);
-        waitForFederatedSource(CSW_SOURCE_WITH_METACARD_XML_ID);
-
-        waitForSourcesToBeAvailable(OPENSEARCH_SOURCE_ID, CSW_SOURCE_ID,
-                CSW_SOURCE_WITH_METACARD_XML_ID);
+        waitForAllSources();
 
         metacardIds[GEOJSON_RECORD_INDEX] = TestCatalog
                 .ingest(Library.getSimpleGeoJson(), "application/json");
 
         metacardIds[XML_RECORD_INDEX] = ingestXmlWithProduct(DEFAULT_SAMPLE_PRODUCT_FILE_NAME);
 
-        LOGGER.info("Source status: \n{}", get(REST_PATH + "sources").body());
+        LOGGER.info("Source status: \n{}", get(REST_PATH + "sources").body().prettyPrint());
+    }
+
+    private void waitForAllSources() throws Exception {
+        waitForFederatedSource(OPENSEARCH_SOURCE_ID);
+        waitForFederatedSource(CSW_SOURCE_ID);
+        waitForFederatedSource(CSW_SOURCE_WITH_METACARD_XML_ID);
+
+        waitForSourcesToBeAvailable(OPENSEARCH_SOURCE_ID, CSW_SOURCE_ID,
+                CSW_SOURCE_WITH_METACARD_XML_ID);
     }
 
     @Before
@@ -461,7 +465,7 @@ public class TestFederation extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testFanoutQueryAgainstUnknownSource() throws IOException, InterruptedException {
+    public void testFanoutQueryAgainstUnknownSource() throws Exception {
         setFanout(true);
         waitForAllBundles();
 
@@ -471,10 +475,11 @@ public class TestFederation extends AbstractIntegrationTest {
 
         setFanout(false);
         waitForAllBundles();
+        waitForAllSources();
     }
 
     @Test
-    public void testFanoutQueryAgainstKnownSource() throws IOException, InterruptedException {
+    public void testFanoutQueryAgainstKnownSource() throws Exception {
 
         setFanout(true);
         waitForAllBundles();
@@ -485,6 +490,7 @@ public class TestFederation extends AbstractIntegrationTest {
 
         setFanout(false);
         waitForAllBundles();
+        waitForAllSources();
     }
 
     @Test
