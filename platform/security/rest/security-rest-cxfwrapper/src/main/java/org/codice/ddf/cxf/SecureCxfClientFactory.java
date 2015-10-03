@@ -155,7 +155,7 @@ public class SecureCxfClientFactory<T> {
      * @see #getClientForSubject(Subject subject)
      */
     public WebClient getWebClientForSubject(Subject subject) throws SecurityServiceException {
-        return WebClient.fromClientObject(getClientForSubject(subject));
+        return getWebClient(getClientForSubject(subject));
     }
 
     /**
@@ -180,9 +180,11 @@ public class SecureCxfClientFactory<T> {
      */
     public WebClient getWebClientForBasicAuth(String username, String password)
             throws SecurityServiceException {
-        WebClient client = WebClient.fromClientObject(getNewClient(username, password));
-        RestSecurity.setUserOnClient(username, password, client);
-        return client;
+        return getWebClient(getClientForBasicAuth(username, password));
+    }
+
+    private WebClient getWebClient(Object client) {
+        return WebClient.fromClient(WebClient.client(client), true);
     }
 
     /**
