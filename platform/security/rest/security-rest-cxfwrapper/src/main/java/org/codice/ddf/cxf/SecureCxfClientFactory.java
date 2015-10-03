@@ -22,6 +22,7 @@ import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
 import org.apache.cxf.jaxrs.client.ClientConfiguration;
+import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.message.Message;
@@ -135,7 +136,7 @@ public class SecureCxfClientFactory<T> {
     public T getClientForSubject(Subject subject) throws SecurityServiceException {
         String asciiString = clientFactory.getAddress();
 
-        T newClient = getNewClient(null, null);
+        T newClient = getNewClient();
 
         if (StringUtils.startsWithIgnoreCase(asciiString, "https")) {
             if (subject instanceof ddf.security.Subject) {
@@ -168,7 +169,7 @@ public class SecureCxfClientFactory<T> {
      */
     public T getClientForBasicAuth(String username, String password)
             throws SecurityServiceException {
-        T client = getNewClient(username, password);
+        T client = getNewClient();
         RestSecurity.setUserOnClient(username, password, WebClient.client(client));
         return client;
     }
@@ -193,7 +194,7 @@ public class SecureCxfClientFactory<T> {
      * Since there is no security information to expire, this client may be reused.
      */
     public T getUnsecuredClient() throws SecurityServiceException {
-        return getNewClient(null, null);
+        return getNewClient();
     }
 
     /**
@@ -205,8 +206,8 @@ public class SecureCxfClientFactory<T> {
         return WebClient.fromClientObject(getUnsecuredClient());
     }
 
-    private T getNewClient(String username, String password) throws SecurityServiceException {
-        T clientImpl = clientFactory.create(interfaceClass);
+    private T getNewClient() throws SecurityServiceException {
+        T clientImpl = JAXRSClientFactory.fromClient(clientFactory.create(), interfaceClass);
         if (clientImpl == null) {
             throw new SecurityServiceException("Could not construct base client");
         }
