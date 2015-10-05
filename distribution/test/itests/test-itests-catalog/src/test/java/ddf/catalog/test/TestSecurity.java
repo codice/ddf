@@ -160,6 +160,8 @@ public class TestSecurity extends AbstractIntegrationTest {
                     + "09n90cd/imAEhknJlayyd0SjpnaL9JUd8uYxJexy8TJ2sMhsGAZ6EMTZCfT9m07X"
                     + "duxjsmDz0hlSGV0=\n";
 
+    private static final String OPENSEARCH_SAML_SOURCE_ID = "openSearchSamlSource";
+
     @BeforeExam
     public void beforeTest() throws Exception {
         setLogLevels();
@@ -238,12 +240,13 @@ public class TestSecurity extends AbstractIntegrationTest {
         // When an OpenSearch source attempts to authenticate without a username/password it will
         // use the subject in the request to create a SAML authentication token
         OpenSearchSourceProperties openSearchProperties = new OpenSearchSourceProperties(
-                OPENSEARCH_SOURCE_ID);
+                OPENSEARCH_SAML_SOURCE_ID);
         createManagedService(OpenSearchSourceProperties.FACTORY_PID, openSearchProperties);
 
-        waitForFederatedSource(OPENSEARCH_SOURCE_ID);
+        waitForFederatedSource(OPENSEARCH_SAML_SOURCE_ID);
 
-        String openSearchQuery = SERVICE_ROOT + "/catalog/query?q=*&src=" + OPENSEARCH_SOURCE_ID;
+        String openSearchQuery =
+                SERVICE_ROOT + "/catalog/query?q=*&src=" + OPENSEARCH_SAML_SOURCE_ID;
         given().auth().basic("admin", "admin").when().get(openSearchQuery).then().log().all()
                 .assertThat().statusCode(equalTo(200)).assertThat().body(containsString("myTitle"));
 

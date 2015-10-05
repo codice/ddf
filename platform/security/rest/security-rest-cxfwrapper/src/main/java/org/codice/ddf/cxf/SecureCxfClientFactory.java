@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -21,7 +21,6 @@ import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
-import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.jaxrs.client.ClientConfiguration;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
@@ -64,7 +63,7 @@ public class SecureCxfClientFactory<T> {
     /**
      * Constructs a factory that will return security-aware cxf clients. Once constructed,
      * use the getClient* methods to retrieve a fresh client  with the same configuration.
-     * <p/>
+     * <p>
      * This factory can and should be cached. The clients it constructs should not be.
      *
      * @param endpointUrl    the remote url to connect to
@@ -104,7 +103,7 @@ public class SecureCxfClientFactory<T> {
     /**
      * Constructs a factory that will return security-aware cxf clients. Once constructed,
      * use the getClient* methods to retrieve a fresh client  with the same configuration.
-     * <p/>
+     * <p>
      * This factory can and should be cached. The clients it constructs should not be.
      *
      * @param endpointUrl       the remote url to connect to
@@ -129,7 +128,7 @@ public class SecureCxfClientFactory<T> {
     /**
      * Clients produced by this method will be secured with two-way ssl
      * and the provided security subject.
-     * <p/>
+     * <p>
      * The returned client should NOT be reused between requests!
      * This method should be called for each new request in order to ensure
      * that the security token is up-to-date each time.
@@ -163,7 +162,7 @@ public class SecureCxfClientFactory<T> {
     /**
      * Clients produced by this method will be secured with two-way ssl
      * and basic authentication.
-     * <p/>
+     * <p>
      * The returned client should NOT be reused between requests!
      * This method should be called for each new request in order to ensure
      * that the security token is up-to-date each time.
@@ -191,7 +190,7 @@ public class SecureCxfClientFactory<T> {
 
     /**
      * Clients produced by this method will be completely unsecured.
-     * <p/>
+     * <p>
      * Since there is no security information to expire, this client may be reused.
      */
     public T getUnsecuredClient() throws SecurityServiceException {
