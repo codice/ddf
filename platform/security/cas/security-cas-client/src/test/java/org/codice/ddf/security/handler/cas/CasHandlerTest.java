@@ -42,7 +42,6 @@ import org.jasig.cas.client.validation.Assertion;
 import org.junit.Test;
 
 import ddf.security.sts.client.configuration.STSClientConfiguration;
-import ddf.security.sts.client.configuration.impl.STSClientConfigurationImpl;
 
 public class CasHandlerTest {
 
@@ -147,8 +146,8 @@ public class CasHandlerTest {
 
     private CasHandler createHandler() {
         CasHandler handler = new CasHandler();
-        STSClientConfiguration clientConfiguration = new STSClientConfigurationImpl();
-        clientConfiguration.setAddress(STS_ADDRESS);
+        STSClientConfiguration clientConfiguration = mock(STSClientConfiguration.class);
+        when(clientConfiguration.getAddress()).thenReturn(STS_ADDRESS);
         handler.setClientConfiguration(clientConfiguration);
         Filter testFilter = mock(Filter.class);
         handler.setProxyFilter(new ProxyFilter(Arrays.asList(testFilter)));
