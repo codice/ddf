@@ -27,7 +27,7 @@ public class ResourceProviderImpl implements ResourceProvider {
 
     @Override
     public byte[] getResourceAsBytes(String path) throws IOException {
-        Bundle bundle = FrameworkUtil.getBundle(WebConsoleUtil.class);
+        Bundle bundle = getBundle(WebConsoleUtil.class);
         if (bundle instanceof BundleHost) {
             BundleFragment[] fragments = ((BundleHost) bundle).getFragments();
             for (BundleFragment fragment : fragments) {
@@ -38,5 +38,10 @@ public class ResourceProviderImpl implements ResourceProvider {
             }
         }
         return new byte[0];
+    }
+
+    // package-private for unit testing
+    Bundle getBundle(Class<?> aClass) {
+        return FrameworkUtil.getBundle(aClass);
     }
 }
