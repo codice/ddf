@@ -292,8 +292,7 @@ public abstract class AbstractIntegrationTest {
     }
 
     protected Option[] configureVmOptions() {
-        return options(vmOption("-Xmx2048M"), vmOption("-XX:PermSize=128M"),
-                vmOption("-XX:MaxPermSize=512M"),
+        return options(vmOption("-Xmx2048M"),
                 // avoid integration tests stealing focus on OS X
                 vmOption("-Djava.awt.headless=true"));
     }
