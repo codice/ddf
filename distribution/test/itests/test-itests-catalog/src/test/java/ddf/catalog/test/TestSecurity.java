@@ -17,6 +17,7 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasXPath;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
@@ -43,6 +44,7 @@ import org.ops4j.pax.exam.spi.reactors.PerClass;
 import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.response.Response;
 
+import ddf.catalog.data.Metacard;
 import ddf.common.test.BeforeExam;
 import ddf.security.SecurityConstants;
 
@@ -248,7 +250,8 @@ public class TestSecurity extends AbstractIntegrationTest {
         String openSearchQuery =
                 SERVICE_ROOT + "/catalog/query?q=*&src=" + OPENSEARCH_SAML_SOURCE_ID;
         given().auth().basic("admin", "admin").when().get(openSearchQuery).then().log().all()
-                .assertThat().statusCode(equalTo(200)).assertThat().body(containsString("myTitle"));
+                .assertThat().statusCode(equalTo(200)).assertThat().body(hasXPath(
+                "//metacard/string[@name='" + Metacard.TITLE + "']/value[text()='myTitle']"));
 
         configureRestForAnonymous();
         TestCatalog.deleteMetacard(recordId);
@@ -276,11 +279,13 @@ public class TestSecurity extends AbstractIntegrationTest {
 
         String openSearchQuery = SERVICE_ROOT + "/catalog/query?q=*&src=" + OPENSEARCH_SOURCE_ID;
         given().auth().basic("admin", "admin").when().get(openSearchQuery).then().log().all()
-                .assertThat().statusCode(equalTo(200)).assertThat().body(containsString("myTitle"));
+                .assertThat().statusCode(equalTo(200)).assertThat().body(hasXPath(
+                "//metacard/string[@name='" + Metacard.TITLE + "']/value[text()='myTitle']"));
 
         String cswQuery = SERVICE_ROOT + "/catalog/query?q=*&src=" + CSW_SOURCE_ID;
         given().auth().basic("admin", "admin").when().get(cswQuery).then().log().all().assertThat()
-                .statusCode(equalTo(200)).assertThat().body(containsString("myTitle"));
+                .statusCode(equalTo(200)).assertThat().body(hasXPath(
+                "//metacard/string[@name='" + Metacard.TITLE + "']/value[text()='myTitle']"));
 
         //Negative tests
         String unavailableCswSourceId = "Unavailable Csw";
@@ -306,8 +311,8 @@ public class TestSecurity extends AbstractIntegrationTest {
                 SERVICE_ROOT + "/catalog/query?q=*&src=" + unavailableOpenSourceId;
 
         given().auth().basic("admin", "admin").when().get(unavailableOpenSearchQuery).then().log()
-                .all().assertThat().statusCode(equalTo(200)).assertThat()
-                .body(not(containsString("myTitle")));
+                .all().assertThat().statusCode(equalTo(200)).assertThat().body(not(hasXPath(
+                "//metacard/string[@name='" + Metacard.TITLE + "']/value[text()='myTitle']")));
 
         configureRestForAnonymous();
         TestCatalog.deleteMetacard(recordId);
