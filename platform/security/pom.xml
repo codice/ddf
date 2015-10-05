@@ -40,11 +40,6 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>ddf.security.sts</groupId>
-                <artifactId>security-sts-clientconfig</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>ddf.security.pdp</groupId>
                 <artifactId>security-pdp-authzrealm</artifactId>
                 <version>${project.version}</version>
