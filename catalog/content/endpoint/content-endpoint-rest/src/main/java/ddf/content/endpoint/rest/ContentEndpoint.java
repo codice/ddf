@@ -358,12 +358,12 @@ public class ContentEndpoint {
         LOGGER.trace("ENTERING: doCreate");
 
         if (stream == null) {
-            throw new ContentEndpointException(" Cannot create content. InputStream is null.",
+            throw new ContentEndpointException("Cannot create content. InputStream is null.",
                     Response.Status.BAD_REQUEST);
         }
 
         if (contentType == null) {
-            throw new ContentEndpointException(" Cannot create content. Content-Type is null.",
+            throw new ContentEndpointException("Cannot create content. Content-Type is null.",
                     Response.Status.BAD_REQUEST);
         }
 
@@ -439,7 +439,7 @@ public class ContentEndpoint {
 
         LOGGER.debug("createdContentId = [{}]", createdContentId);
 
-        LOGGER.trace(" EXITING: doCreate");
+        LOGGER.trace("EXITING: doCreate");
 
         return response;
     }
