@@ -14,6 +14,7 @@
 define([
         'jquery',
         'backbone',
+        'cesium',
         'marionette',
         'underscore',
         'icanhaz',
@@ -26,7 +27,7 @@ define([
         'maptype',
         'bootstrapselect'
     ],
-    function ($, Backbone, Marionette, _, ich, properties, MetaCard, Progress, wreqr, searchFormTemplate, dir, maptype) {
+    function ($, Backbone, Cesium, Marionette, _, ich, properties, MetaCard, Progress, wreqr, searchFormTemplate, dir, maptype) {
         "use strict";
         var Query = {};
 
@@ -285,19 +286,21 @@ define([
 
                 var radiusConverter = function (direction, value) {
                         var radiusUnitVal = view.model.get("radiusUnits");
-                        var distanceFromMeters = view.getDistanceFromMeters(parseFloat(view.model.get('radius'), 10), radiusUnitVal);
-                        var distanceInMeters = view.getDistanceInMeters(parseFloat(value, 10), radiusUnitVal);
-
-                        if (direction === 'ViewToModel') {
-                            //radius value is bound to radius since radiusValue is converted, so we just need to set
-                            //the value so that it shows up in the view
-                            view.model.set("radius", distanceInMeters);
-                            return distanceInMeters;
-                        } else if (direction === 'ModelToView') {
-                            return distanceFromMeters;
+                        switch (direction) {
+                            case 'ViewToModel':
+                                var distanceInMeters = view.getDistanceInMeters(value, radiusUnitVal);
+                                //radius value is bound to radius since radiusValue is converted, so we just need to set
+                                //the value so that it shows up in the view
+                                view.model.set("radius", distanceInMeters);
+                                return distanceInMeters;
+                            case 'ModelToView':
+                                var distanceFromMeters = view.getDistanceFromMeters(view.model.get('radius'), radiusUnitVal);
+                                var currentValue = this.boundEls[0].value;
+                                var deltaThreshold = Cesium.Math.EPSILON7;  // same used in cesium.bbox.js
+                                // only update the view's value if it's significantly different from the model's value
+                                return (Math.abs(currentValue - distanceFromMeters) > deltaThreshold) ?
+                                    distanceFromMeters : currentValue;
                         }
-
-                        return value;
                     },
 
                     offsetConverter = function (direction, value) {
@@ -634,11 +637,11 @@ define([
                     case "kilometers":
                         return distance * 1000;
                     case "feet":
-                        return Math.ceil(distance * 0.3048);
+                        return distance * 0.3048;
                     case "yards":
-                        return Math.ceil(distance * 0.9144);
+                        return distance * 0.9144;
                     case "miles":
-                        return Math.ceil(distance * 1609.34);
+                        return distance * 1609.34;
                     default:
                         return distance;
                 }
@@ -652,11 +655,11 @@ define([
                     case "kilometers":
                         return distance / 1000;
                     case "feet":
-                        return Math.ceil(distance / 0.3048);
+                        return distance / 0.3048;
                     case "yards":
-                        return Math.ceil(distance / 0.9144);
+                        return distance / 0.9144;
                     case "miles":
-                        return Math.ceil(distance / 1609.34);
+                        return distance / 1609.34;
                     default:
                         return distance;
                 }
