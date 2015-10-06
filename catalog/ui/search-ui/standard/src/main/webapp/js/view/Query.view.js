@@ -346,7 +346,7 @@ define([
                     };
 
                 var queryModelBindings = Backbone.ModelBinder.createDefaultBindings(this.el, 'name');
-                queryModelBindings.radius.selector = '[name=radiusValue]';
+                queryModelBindings.radius.selector = '#radiusValue';
                 queryModelBindings.radius.converter = radiusConverter;
                 queryModelBindings.offsetTime.converter = offsetConverter;
                 queryModelBindings.offsetTimeUnits.converter = offsetConverter;
@@ -427,7 +427,7 @@ define([
                 this.$('#offsetTimeUnits').multiselect(singleselectOptions);
 
                 this.$('#scheduleUnits').multiselect(singleselectOptions);
-                
+
                 this.setupPopOver('[data-toggle="keyword-popover"]', 'Search by free text using the grammar of the underlying source. For wildcard searches, use % or * after partial keywords (e.g. earth%).');
                 this.setupPopOver('[data-toggle="time-popover"]', 'Search based on relative or absolute time of the created, modified, or effective date.');
                 this.setupPopOver('[data-toggle="location-popover"]', 'Search by latitude/longitude or the USNG using a polygon, point-radius, or bounding box.');
@@ -438,7 +438,7 @@ define([
                 this.updateZoomOnResults();
                 this.updateLocationFields();
             },
-            
+
             setupPopOver: function(selector, content) {
                 var options = {
                     trigger: 'hover',
@@ -618,7 +618,7 @@ define([
             },
 
             onRadiusUnitsChanged: function () {
-                this.$('input[name=radiusValue]').val(
+                this.$('#radiusValue').val(
                     this.getDistanceFromMeters(this.model.get('radius'), this.$('#radiusUnits').val()));
             },
 
