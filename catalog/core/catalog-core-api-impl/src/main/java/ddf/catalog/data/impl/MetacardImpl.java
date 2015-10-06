@@ -28,8 +28,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
 
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
@@ -69,7 +69,7 @@ public class MetacardImpl implements Metacard {
 
     private static final long serialVersionUID = 1L;
 
-    private static final XLogger LOGGER = new XLogger(LoggerFactory.getLogger(MetacardImpl.class));
+    private static final Logger LOGGER = LoggerFactory.getLogger(MetacardImpl.class);
 
     /**
      * key/value map of {@link Attribute}s.
@@ -398,6 +398,54 @@ public class MetacardImpl implements Metacard {
      */
     public void setContentTypeName(String contentType) {
         setAttribute(Metacard.CONTENT_TYPE, contentType);
+    }
+
+    /**
+     * Returns the Point of Contact for the {@link Metacard}
+     *
+     * @return A String representing the Point of Contact for the {@link Metacard}.
+     */
+    public String getPointOfContact() {
+        return requestString(Metacard.POINT_OF_CONTACT);
+    }
+
+    /**
+     * Sets the point of contact for the {@link Metacard}. <br/>
+     * Convenience method for <code>
+     * {@link #setAttribute setAttribute}(new {@link AttributeImpl}({@link Metacard#POINT_OF_CONTACT}, pointOfContact))
+     * </code>
+     *
+     * @param pointOfContact
+     *            the point of contact for the {@link Metacard}
+     *
+     * @see Metacard#POINT_OF_CONTACT
+     */
+    public void setPointOfContact(String pointOfContact) {
+        setAttribute(Metacard.POINT_OF_CONTACT, pointOfContact);
+    }
+
+    /**
+     * Returns the description for the {@link Metacard}
+     *
+     * @return A String representing the description for the {@link Metacard}.
+     */
+    public String getDescription() {
+        return requestString(Metacard.DESCRIPTION);
+    }
+
+    /**
+     * Sets the description of the {@link Metacard}. <br/>
+     * Convenience method for <code>
+     * {@link #setAttribute setAttribute}(new {@link AttributeImpl}({@link Metacard#DESCRIPTION}, description))
+     * </code>
+     *
+     * @param description
+     *            the description of the {@link Metacard}
+     *
+     * @see Metacard#DESCRIPTION
+     */
+    public void setDescription(String description) {
+        setAttribute(Metacard.DESCRIPTION, description);
     }
 
     @Override
