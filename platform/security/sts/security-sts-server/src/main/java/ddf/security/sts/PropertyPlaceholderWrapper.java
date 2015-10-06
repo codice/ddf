@@ -18,6 +18,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.sts.StaticSTSProperties;
 import org.apache.cxf.sts.token.provider.DefaultConditionsProvider;
 import org.codice.ddf.configuration.SystemBaseUrl;
+import org.codice.ddf.configuration.PropertyResolver;
+
 
 /**
  * property-placeholder misbehaves when set to reload, causing the bundle to bounce
@@ -56,16 +58,16 @@ public class PropertyPlaceholderWrapper {
     }
 
     public void setSignatureUsername(String username) {
-        stsProperties.setSignatureUsername(username);
+        stsProperties.setSignatureUsername(PropertyResolver.resolveProperties(username));
     }
 
     public void setEncryptionUsername(String username) {
-        stsProperties.setEncryptionUsername(username);
+        stsProperties.setEncryptionUsername(PropertyResolver.resolveProperties(username));
     }
 
     public void setIssuer(String issuer) {
         if (StringUtils.isNotBlank(issuer)) {
-            stsProperties.setIssuer(issuer);
+            stsProperties.setIssuer(PropertyResolver.resolveProperties(issuer));
         }
     }
 }

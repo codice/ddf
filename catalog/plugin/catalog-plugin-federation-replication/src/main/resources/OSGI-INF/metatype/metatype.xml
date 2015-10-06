@@ -20,7 +20,7 @@
 		<AD
                 description="All create, update, and delete responses will be sent to this parent address."
                 name="Parent Address" id="parentAddress" required="true" type="String"
-                default="http://localhost:8182/services/catalog"/>
+                default="${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:8182${org.codice.ddf.system.rootContext}/catalog"/>
 	</OCD>
 
 	<Designate

@@ -64,6 +64,7 @@ import org.apache.shiro.authc.SimpleAuthenticationInfo;
 import org.apache.shiro.authc.credential.CredentialsMatcher;
 import org.apache.shiro.realm.AuthenticatingRealm;
 import org.apache.shiro.subject.SimplePrincipalCollection;
+import org.codice.ddf.configuration.PropertyResolver;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.SAMLAuthenticationToken;
 import org.codice.ddf.security.policy.context.ContextPolicy;
@@ -109,7 +110,7 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
 
     protected Bus bus;
 
-    String address = null;
+    PropertyResolver address = null;
 
     String endpointName = null;
 
@@ -764,12 +765,12 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
 
     @Override
     public String getAddress() {
-        return address;
+        return address.getResolvedString();
     }
 
     @Override
     public void setAddress(String address) {
-        this.address = address;
+        this.address = new PropertyResolver(address);
     }
 
     @Override

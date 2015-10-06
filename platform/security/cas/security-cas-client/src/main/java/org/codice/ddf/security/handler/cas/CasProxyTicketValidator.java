@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.security.handler.cas;
 
+import org.codice.ddf.configuration.PropertyResolver;
 import org.jasig.cas.client.proxy.ProxyGrantingTicketStorage;
 import org.jasig.cas.client.validation.Assertion;
 import org.jasig.cas.client.validation.Cas20ProxyTicketValidator;
@@ -22,7 +23,7 @@ import org.jasig.cas.client.validation.TicketValidator;
 public class CasProxyTicketValidator implements TicketValidator {
     private Cas20ProxyTicketValidator proxyTicketValidator;
 
-    private String proxyCallbackUrl;
+    private PropertyResolver proxyCallbackUrl;
 
     private boolean acceptAnyProxy;
 
@@ -34,16 +35,16 @@ public class CasProxyTicketValidator implements TicketValidator {
     }
 
     public void setCasServerUrl(String serverUrl) {
-        proxyTicketValidator = new Cas20ProxyTicketValidator(serverUrl);
-        proxyTicketValidator.setProxyCallbackUrl(proxyCallbackUrl);
+        proxyTicketValidator = new Cas20ProxyTicketValidator(PropertyResolver.resolveProperties(serverUrl));
+        proxyTicketValidator.setProxyCallbackUrl(proxyCallbackUrl.getResolvedString());
         proxyTicketValidator.setAcceptAnyProxy(acceptAnyProxy);
         proxyTicketValidator.setProxyGrantingTicketStorage(proxyGrantingTicketStorage);
     }
 
     public void setProxyCallbackUrl(String proxyCallbackUrl) {
-        this.proxyCallbackUrl = proxyCallbackUrl;
+        this.proxyCallbackUrl = new PropertyResolver(proxyCallbackUrl);
         if (proxyTicketValidator != null) {
-            proxyTicketValidator.setProxyCallbackUrl(proxyCallbackUrl);
+            proxyTicketValidator.setProxyCallbackUrl(this.proxyCallbackUrl.getResolvedString());
         }
     }
 

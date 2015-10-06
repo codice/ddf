@@ -49,7 +49,7 @@
                     init-method="init" destroy-method="destroy">
             <beans:property name="shortname" value="DDF-OS"/>
             <beans:property name="endpointUrl"
-                            value="http://localhost:8181/services/catalog/query"/>
+                            value="${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.port}${org.codice.ddf.system.rootContext}/catalog/query"/>
             <beans:property name="username" value=""/>
             <beans:property name="password" value=""/>
             <beans:property name="localQueryOnly" value="false"/>

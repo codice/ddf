@@ -53,8 +53,7 @@ public class SignaturePropertiesFileValidatorTest {
         assertThat(alerts.size(), is(1));
         assertThat(alerts.get(0).getMessage(), is(String
                         .format(SignaturePropertiesFileValidator.GENERIC_INSECURE_DEFAULTS_MSG,
-                                FAKE_SIGNATURE_PROPERTIES_FILE) + FAKE_SIGNATURE_PROPERTIES_FILE
-                        + " (No such file or directory)"));
+                                FAKE_SIGNATURE_PROPERTIES_FILE)));
     }
 
     @Test

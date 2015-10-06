@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -14,7 +14,6 @@
 package org.codice.ddf.platform.http.proxy;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
@@ -29,6 +28,8 @@ import org.codice.proxy.http.HttpProxyService;
 import org.codice.proxy.http.HttpProxyServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import ddf.security.PropertiesLoader;
 
 public class HttpProxy {
 
@@ -111,11 +112,8 @@ public class HttpProxy {
                         + CXF_CONFIG);
         Properties properties = new Properties();
         if (paxConfig.exists() && cxfConfig.exists()) {
-            try (FileReader paxReader = new FileReader(paxConfig);
-                    FileReader cxfReader = new FileReader(cxfConfig)) {
-                properties.load(paxReader);
-                properties.load(cxfReader);
-            }
+            properties.putAll(PropertiesLoader.loadProperties(paxConfig.getAbsolutePath()));
+            properties.putAll(PropertiesLoader.loadProperties(cxfConfig.getAbsolutePath()));
         }
         return properties;
     }

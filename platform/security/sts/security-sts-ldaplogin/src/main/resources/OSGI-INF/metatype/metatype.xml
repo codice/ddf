@@ -19,7 +19,7 @@
          id="ddf.security.sts.ldap">
 	    
 	    <AD name="LDAP URL:" id="ldapUrl" required="true" type="String"
-            default="ldaps://localhost:1636"
+            default="ldaps://${org.codice.ddf.system.hostname}:1636"
             description="LDAP or LDAPS server and port">
 	    </AD>
 
@@ -54,7 +54,7 @@
 	    </AD>
 
         <AD name="SSL Keystore Alias:" id="keyAlias" required="true" type="String"
-            default="localhost"
+            default="${org.codice.ddf.system.hostname}"
             description="Alias of the private key to use for SSL connections.">
         </AD>
 	    

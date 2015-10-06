@@ -239,6 +239,9 @@
         <argument ref="baseUrl"/>
         <cm:managed-properties persistent-id="ddf.security.sts"
                                update-strategy="container-managed"/>
+        <property name="issuer" value="${org.codice.ddf.system.hostname}"/>
+        <property name="signatureUsername" value="${org.codice.ddf.system.hostname}"/>
+        <property name="encryptionUsername" value="${org.codice.ddf.system.hostname}"/>
     </bean>
 </blueprint>
 

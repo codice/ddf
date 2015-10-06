@@ -24,8 +24,8 @@
 
         <AD name="OpenSearch service URL" id="endpointUrl" required="true"
             type="String"
-            default="http://localhost:8181/services/catalog/query"
-            description="The OpenSearch endpoint URL or DDF's OpenSearch endpoint (http://0.0.0.0:8181/services/catalog/query)"/>
+            default="${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.port}${org.codice.ddf.system.rootContext}/catalog/query"
+            description="The OpenSearch endpoint URL or DDF's OpenSearch endpoint (https://localhost:8993/services/catalog/query)"/>
 
         <AD name="Username" id="username" required="false"
             type="String"

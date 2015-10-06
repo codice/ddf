@@ -75,8 +75,7 @@ public class EncryptionPropertiesFileValidatorTest {
         assertThat(alerts.size(), is(1));
         assertThat(alerts.get(0).getMessage(), is(String
                 .format(EncryptionPropertiesFileValidator.GENERIC_INSECURE_DEFAULTS_MSG,
-                        FAKE_ENCRYPTION_PROPERTIES_FILE) + FAKE_ENCRYPTION_PROPERTIES_FILE
-                + " (No such file or directory)"));
+                        FAKE_ENCRYPTION_PROPERTIES_FILE)));
     }
 
     @Test

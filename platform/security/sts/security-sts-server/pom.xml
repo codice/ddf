@@ -83,6 +83,12 @@
             <version>${project.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>ddf.lib</groupId>
+            <artifactId>common-system</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -97,7 +103,8 @@
                             common-system,
                             cxf-services-sts-core,
                             security-sts-x509delegationhandler,
-                            security-sts-bstdelegationhandler
+                            security-sts-bstdelegationhandler,
+                            common-system
                         </Embed-Dependency>
                         <Import-Package>
                             javax.net.ssl,

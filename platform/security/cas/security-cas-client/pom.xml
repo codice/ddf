@@ -56,6 +56,11 @@
             <version>0.9.24</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>ddf.lib</groupId>
+            <artifactId>common-system</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -103,6 +108,7 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Version>${project.version}</Bundle-Version>
+                        <Embed-Dependency>common-system</Embed-Dependency>
                         <Export-Package>
                             ddf.security.cas.client;version=${project.version}
                         </Export-Package>

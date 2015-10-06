@@ -22,6 +22,7 @@
         <cm:managed-properties
                 persistent-id="org.codice.ddf.persistence.internal.PersistentStoreImpl"
                 update-strategy="container-managed"/>
+        <argument value="${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.port}/solr"/>
     </bean>
     
     <service ref="persistentStore" id="persistentStoreService"

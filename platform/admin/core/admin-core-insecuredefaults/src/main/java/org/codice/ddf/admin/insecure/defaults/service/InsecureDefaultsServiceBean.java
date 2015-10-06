@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -26,7 +26,7 @@ import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 
-import org.osgi.service.cm.ConfigurationAdmin;
+import org.codice.ddf.configuration.SystemBaseUrl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,9 +83,9 @@ public class InsecureDefaultsServiceBean implements InsecureDefaultsServiceBeanM
 
     private List<Validator> validators;
 
-    public InsecureDefaultsServiceBean(ConfigurationAdmin configurationAdmin) {
+    public InsecureDefaultsServiceBean(SystemBaseUrl sbu) {
         validators = new ArrayList<>();
-        addValidators(configurationAdmin);
+        addValidators(sbu);
 
         try {
             objectName = new ObjectName(MBEAN_NAME);
@@ -149,7 +149,7 @@ public class InsecureDefaultsServiceBean implements InsecureDefaultsServiceBeanM
         }
     }
 
-    void addValidators(ConfigurationAdmin configurationAdmin) {
+    void addValidators(SystemBaseUrl sbu) {
         addKeystoreValidator();
         addTruststoreValidator();
         addIssuerEncryptionPropertiesFileValidator();
@@ -158,7 +158,7 @@ public class InsecureDefaultsServiceBean implements InsecureDefaultsServiceBeanM
         addServerSignaturePropertiesFileValidator();
         addUsersPropertiesFileValidator();
         addPaxWebCfgFileValidator();
-        addPlatformGlobalConfigurationValidator(configurationAdmin);
+        addPlatformGlobalConfigurationValidator(sbu);
     }
 
     void setValidators(List<Validator> validatorsList) {
@@ -244,9 +244,9 @@ public class InsecureDefaultsServiceBean implements InsecureDefaultsServiceBeanM
         validators.add(paxWebCfgFileValidator);
     }
 
-    private void addPlatformGlobalConfigurationValidator(ConfigurationAdmin configurationAdmin) {
+    private void addPlatformGlobalConfigurationValidator(SystemBaseUrl sbu) {
         PlatformGlobalConfigurationValidator platformGlobalConfigurationValidator = new PlatformGlobalConfigurationValidator(
-                configurationAdmin);
+                sbu);
         validators.add(platformGlobalConfigurationValidator);
     }
 

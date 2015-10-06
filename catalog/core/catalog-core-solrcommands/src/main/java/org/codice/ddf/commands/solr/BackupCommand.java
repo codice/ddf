@@ -81,7 +81,7 @@ public class BackupCommand extends SolrCommands {
     }
 
     private String getBackupUrl(String coreName) {
-        String backupUrl = SolrServerFactory.DEFAULT_HTTPS_ADDRESS;
+        String backupUrl = SolrServerFactory.getDefaultHttpsAddress();
 
         if (configurationAdmin != null) {
             try {
@@ -106,7 +106,7 @@ public class BackupCommand extends SolrCommands {
                                     backupUrl);
                         } else {
                             LOGGER.info("No Solr url configured, defaulting to: {}",
-                                    SolrServerFactory.DEFAULT_HTTPS_ADDRESS);
+                                    SolrServerFactory.getDefaultHttpsAddress());
                         }
                     }
                 }
