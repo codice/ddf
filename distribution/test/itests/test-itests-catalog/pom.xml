@@ -69,6 +69,13 @@
             <version>18.0</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>ddf.distribution</groupId>
+            <artifactId>sdk-app</artifactId>
+            <version>${project.version}</version>
+            <classifier>features</classifier>
+            <type>xml</type>
+        </dependency>
     </dependencies>
 
     <build>
