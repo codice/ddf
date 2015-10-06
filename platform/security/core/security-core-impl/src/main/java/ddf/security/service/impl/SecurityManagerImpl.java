@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -15,6 +15,7 @@ package ddf.security.service.impl;
 
 import java.security.Principal;
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
@@ -42,6 +43,8 @@ public class SecurityManagerImpl implements SecurityManager {
 
     private Collection<Realm> realms;
 
+    private List<String> usernameAttributeList;
+
     private Logger logger = LoggerFactory.getLogger(SecurityManagerImpl.class);
 
     /**
@@ -60,6 +63,14 @@ public class SecurityManagerImpl implements SecurityManager {
         // update the default manager with current realm list
         logger.debug("Updating manager with {} realms.", realms.size());
         internalManager.setRealms(realms);
+    }
+
+    public List<String> getUsernameAttributeList() {
+        return usernameAttributeList;
+    }
+
+    public void setUsernameAttributeList(List<String> usernameAttributeList) {
+        this.usernameAttributeList = usernameAttributeList;
     }
 
     public Subject getSubject(Object token) throws SecurityServiceException {
@@ -129,7 +140,7 @@ public class SecurityManagerImpl implements SecurityManager {
                     curRealm instanceof Authorizer, curRealm instanceof AuthorizingRealm);
             SecurityAssertion securityAssertion = null;
             try {
-                securityAssertion = new SecurityAssertionImpl(token);
+                securityAssertion = new SecurityAssertionImpl(token, usernameAttributeList);
                 Principal principal = securityAssertion.getPrincipal();
                 if (principal != null) {
                     principals.add(principal.getName(), curRealm.getName());

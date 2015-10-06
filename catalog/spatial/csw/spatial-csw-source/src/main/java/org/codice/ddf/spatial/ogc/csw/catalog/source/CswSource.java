@@ -1398,14 +1398,18 @@ public class CswSource extends MaskableImpl
 
     private void unregisterMetacardTypes() {
         for (ServiceRegistration<?> metacardType : registeredMetacardTypes) {
-            LOGGER.debug(
-                    "{}: Unregistering CSW Record Metacard Type {} with metadata content types {}",
-                    cswSourceConfiguration.getId(), CswRecordMetacardType.class.getName(),
-                    metacardType.getReference().getProperty(Metacard.CONTENT_TYPE));
-            metacardType.unregister();
+            try {
+                LOGGER.debug(
+                        "{}: Unregistering CSW Record Metacard Type {} with metadata content types {}",
+                        cswSourceConfiguration.getId(), CswRecordMetacardType.class.getName(),
+                        metacardType.getReference().getProperty(Metacard.CONTENT_TYPE));
+                metacardType.unregister();
+            } catch (IllegalStateException e) {
+                // Ignore - if caught the service has already been unregistered.
+            }
         }
 
-        registeredMetacardTypes.removeAll(registeredMetacardTypes);
+        registeredMetacardTypes.clear();
     }
 
     private boolean isOutputSchemaSupported() {

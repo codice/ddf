@@ -66,7 +66,7 @@ public class SecurityAssertionImplTest {
     public void testEmptyAssertion() {
         SecurityAssertionImpl assertion = new SecurityAssertionImpl();
         assertEquals(null, assertion.getIssuer());
-        assertEquals(0, assertion.getAttibuteStatements().size());
+        assertEquals(0, assertion.getAttributeStatements().size());
         assertEquals(0, assertion.getAuthnStatements().size());
         assertEquals(0, assertion.getAuthzDecisionStatements().size());
         assertEquals(null, assertion.getPrincipal());
@@ -83,7 +83,7 @@ public class SecurityAssertionImplTest {
         assertEquals(ISSUER, assertion.getIssuer());
         assertEquals(PRINCIPAL, assertion.getPrincipal().getName());
         assertEquals(PRINCIPAL, assertion.getPrincipal().toString());
-        assertEquals(NUM_ATTRIBUTES, assertion.getAttibuteStatements().size());
+        assertEquals(NUM_ATTRIBUTES, assertion.getAttributeStatements().size());
         assertEquals(NUM_NAUTH, assertion.getAuthnStatements().size());
         //we don't currently parse these
         //        assertEquals(NUM_AUTHZ, assertion.getAuthzDecisionStatements().size());

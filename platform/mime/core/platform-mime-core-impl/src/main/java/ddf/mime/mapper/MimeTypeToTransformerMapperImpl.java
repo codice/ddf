@@ -126,8 +126,9 @@ public class MimeTypeToTransformerMapperImpl implements MimeTypeToTransformerMap
                         userIdValue == null || StringUtils.equals(userIdValue, serviceId))) {
 
                     try {
-                        T service = clazz.cast(bundleContext.getService(ref));
-                        strictlyMatching.add(service);
+                        Object service = bundleContext.getService(ref);
+                        T typedService = clazz.cast(service);
+                        strictlyMatching.add(typedService);
                         break; // found exact mimetype, no need to continue within
                         // the same service
 

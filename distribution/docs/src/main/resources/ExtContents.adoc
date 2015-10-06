@@ -155,8 +155,8 @@ It may take several moments for Maven to download the required dependencies in t
 
 [WARNING]
 ====
-In certain circumstances, the build may fail due to a 'java.lang.OutOfMemory: Java heap space' error. This error is due to the large number of sub-modules in the DDF build, which causes the heap space to run out in the main Maven JVM. To fix this issue, set the system variable `MAVEN_OPTS` with the value `-Xmx512m` `-XX:MaxPermSize=256m` before running the build.
-Example on Linux system with the bash shell: `export MAVEN_OPTS='-Xmx512m -XX:MaxPermSize=256m'`
+In certain circumstances, the build may fail due to a 'java.lang.OutOfMemory: Java heap space' error. This error is due to the large number of sub-modules in the DDF build, which causes the heap space to run out in the main Maven JVM. To fix this issue, set the system variable `MAVEN_OPTS` with the value `-Xmx512m` before running the build.
+Example on Linux system with the bash shell: `export MAVEN_OPTS='-Xmx512m'`
 ====
 
 === Troubleshoot Build Errors on ddf-admin and ddf-ui on a Windows Platform

@@ -88,12 +88,15 @@
             </list>
         </property>
         <property name="conditionsProvider" ref="SAMLConditionsProvider"/>
+        <property name="subjectProvider" ref="SAMLSubjectProvider"/>
     </bean>
 
     <bean id="SAMLConditionsProvider"
           class="org.apache.cxf.sts.token.provider.DefaultConditionsProvider">
         <property name="acceptClientLifetime" value="true"/>
     </bean>
+
+    <bean id="SAMLSubjectProvider" class="ddf.security.sts.SAMLSubjectProvider"/>
 
     <bean id="utDelegationHandler"
           class="org.apache.cxf.sts.token.delegation.UsernameTokenDelegationHandler"/>
