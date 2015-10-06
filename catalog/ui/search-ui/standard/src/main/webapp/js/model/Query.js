@@ -103,8 +103,14 @@ define([
             },
 
             setLatLon: function() {
-                var result = converter.USNGtoLL(this.get('usngbb'));
-                this.set(result);
+                var north = this.get('north'),
+                    south = this.get('south'),
+                    west = this.get('west'),
+                    east = this.get('east');
+                if (!(north && south && west && east)) {
+                    var result = converter.USNGtoLL(this.get('usngbb'));
+                    this.set(result);
+                }
             },
 
             setBboxLatLon: function () {
