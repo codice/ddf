@@ -181,6 +181,13 @@ public interface Metacard extends Serializable {
     public static final String SECURITY = "security";
 
     /**
+     * {@link Attribute} description associated with the {@link Metacard}
+     *
+     * @since DDF-2.8.0
+     */
+    public static final String DESCRIPTION = "description";
+
+    /**
      * Returns {@link Attribute} for given attribute name.
      *
      * @param name
