@@ -145,6 +145,63 @@ Configuration can be performed using the processes described in the Configuring 
 
 |===
 
+== Landing Page
+
+The {branding} landing page offers a starting point and general information for a {branding} node. It is accessible at `/(index|home|landing(.htm|html))`.
+
+=== Configuration
+
+Configuration can be performed using the processes described in the Configuring DDF section. The configurable properties for the landing page configuration are accessed from *Platform -> Landing Page* in the Admin UI.
+
+==== Configurable Properties
+
+[cols="6" options="header"]
+|===
+
+|Title
+|Property
+|Type
+|Description
+|Default Value
+|Required
+
+|Description
+|description
+|String
+|Specifies the description to display on the landing page.
+|DDF is a free and open-source common data layer that abstracts services and business logic from the underlying data structures to enable rapid integration of new data sources.
+|yes
+
+|Phone Number
+|phone
+|String
+|Specifies the phone number to display on the landing page.
+|
+|yes
+
+|Email Address
+|email
+|String
+|Specifies the email address to display on the landing page.
+|
+|yes
+
+|External Web Site
+|externalUrl
+|String
+|Specifies the external web site URL to display on the landing page.
+|
+|yes
+
+|Announcements
+|announcements
+|String
+|Announcements that will be displayed on the landing page. Can be prefixed with a date of the form mm/dd/yy, leading zeroes not required.
+|
+|yes
+
+|===
+
 == {branding} Mime Framework
 
 === Mime Type Mapper
