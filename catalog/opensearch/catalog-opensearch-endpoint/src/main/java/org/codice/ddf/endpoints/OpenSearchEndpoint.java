@@ -316,7 +316,7 @@ public class OpenSearchEndpoint implements ConfigurationWatcher, OpenSearch {
         MultivaluedMap<String, String> queryParams = ui.getQueryParameters();
         List<String> subscriptionList = queryParams.get(Constants.SUBSCRIPTION_KEY);
 
-        LOGGER.debug("Attempting to execute query: {}", query.toString();
+        LOGGER.debug("Attempting to execute query: {}", query.toString());
         try {
             Map<String, Serializable> arguments = new HashMap<String, Serializable>();
             String organization = framework.getOrganization();
