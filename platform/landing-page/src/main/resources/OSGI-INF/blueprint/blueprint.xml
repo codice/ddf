@@ -22,7 +22,7 @@
     <service id="resources" ref="resourceMapping"
              interface="org.ops4j.pax.web.extender.whiteboard.ResourceMapping"/>
 
-    <bean id="landingPage" class="org.codice.ddf.distribution.LandingPage">
+    <bean id="landingPage" class="org.codice.ddf.landing.LandingPage">
         <cm:managed-properties persistent-id="org.codice.ddf.distribution.landing-page.properties"
                                update-strategy="container-managed"/>
         <property name="branding" ref="branding"/>
