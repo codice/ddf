@@ -50,6 +50,7 @@ import org.apache.solr.core.SolrConfig;
 import org.apache.solr.core.SolrCore;
 import org.apache.solr.core.SolrResourceLoader;
 import org.apache.solr.schema.IndexSchema;
+import org.codice.ddf.configuration.SystemBaseUrl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
@@ -60,10 +61,6 @@ import org.xml.sax.SAXException;
  * {@link EmbeddedSolrServer} instance.
  */
 public final class SolrServerFactory {
-
-    public static final String DEFAULT_HTTP_ADDRESS = "http://localhost:8181/solr";
-
-    public static final String DEFAULT_HTTPS_ADDRESS = "https://localhost:8993/solr";
 
     public static final String DEFAULT_EMBEDDED_CORE_NAME = "embedded";
 
@@ -85,11 +82,21 @@ public final class SolrServerFactory {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SolrServerFactory.class);
 
+    private static SystemBaseUrl systemBaseUrl = new SystemBaseUrl();
+
     /**
      * Hiding constructor
      */
     private SolrServerFactory() {
 
+    }
+
+    public static String getDefaultHttpsAddress() {
+        return systemBaseUrl.constructUrl("https", "/solr");
+    }
+
+    public static String getDefaultHttpAddress() {
+        return systemBaseUrl.constructUrl("http", "/solr");
     }
 
     /**
@@ -105,13 +112,13 @@ public final class SolrServerFactory {
     }
 
     /**
-     * Creates an {@link org.apache.solr.client.solrj.impl.HttpSolrServer} with the {@link SolrServerFactory#DEFAULT_HTTP_ADDRESS}
+     * Creates an {@link org.apache.solr.client.solrj.impl.HttpSolrServer} with the default http address
      * url.
      *
      * @return SolrServer
      */
     static SolrServer getHttpSolrServer() {
-        return new HttpSolrServer(DEFAULT_HTTP_ADDRESS);
+        return new HttpSolrServer(getDefaultHttpAddress());
     }
 
     public static SolrServer getHttpSolrServer(String url) {
@@ -124,16 +131,7 @@ public final class SolrServerFactory {
 
     public static SolrServer getHttpSolrServer(String url, String coreName, String configFile) {
         if (StringUtils.isBlank(url)) {
-            url = DEFAULT_HTTPS_ADDRESS;
-        }
-
-        if (System.getProperty("host") != null && System.getProperty("jetty.port") != null
-                && System.getProperty("hostContext") != null) {
-            url = System.getProperty("urlScheme", "http") + "://" + System.getProperty("host") +
-                    ":" + System.getProperty("jetty.port") + "/" + StringUtils
-                    .strip(System.getProperty("hostContext"), "/");
-            LOGGER.info("Solr system properties set.  Using system configured URL instead: {}",
-                    url);
+            url = systemBaseUrl.constructUrl("/solr");
         }
 
         String coreUrl = url + "/" + coreName;

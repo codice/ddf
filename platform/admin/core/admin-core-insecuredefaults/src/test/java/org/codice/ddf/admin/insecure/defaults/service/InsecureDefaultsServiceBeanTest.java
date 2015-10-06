@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -26,10 +26,10 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import org.codice.ddf.admin.insecure.defaults.service.Alert.Level;
+import org.codice.ddf.configuration.SystemBaseUrl;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.osgi.service.cm.ConfigurationAdmin;
 
 public class InsecureDefaultsServiceBeanTest {
 
@@ -135,11 +135,11 @@ public class InsecureDefaultsServiceBeanTest {
      */
     @Test
     public void testAddKeystoreValidator() {
-        ConfigurationAdmin testConfigAdmin = mock(ConfigurationAdmin.class);
         System.setProperty(KEYSTORE_SYSTEM_PROPERTY, "TestKeystorePath");
         System.setProperty(TRUSTSTORE_SYSTEM_PROPERTY, "TestTruststorePath");
 
-        InsecureDefaultsServiceBean serviceBean = new InsecureDefaultsServiceBean(testConfigAdmin);
+        InsecureDefaultsServiceBean serviceBean = new InsecureDefaultsServiceBean(
+                new SystemBaseUrl());
         List<Validator> result = serviceBean.getValidators();
         assertThat("Should create nine validators.", result.size(), is(9));
     }
@@ -164,7 +164,7 @@ public class InsecureDefaultsServiceBeanTest {
     private InsecureDefaultsServiceBean createInsecureDefaultsServiceBean(int validatorCount) {
         InsecureDefaultsServiceBean bean = new InsecureDefaultsServiceBean(null) {
             @Override
-            void addValidators(ConfigurationAdmin configurationAdmin) {
+            void addValidators(SystemBaseUrl sbu) {
                 return;
             }
         };

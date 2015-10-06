@@ -13,15 +13,18 @@
  **/
 -->
 
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+		   xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.2.0">
+
+	<ext:property-placeholder/>
 
 	<bean id="CasSingleSignOutFilterServiceBean" class="org.jasig.cas.client.session.SingleSignOutFilter" />
 
 	<bean id="CasAuthenticationFilterServiceBean"
 		class="org.jasig.cas.client.authentication.AuthenticationFilter">
-		<property name="service" value="http://localhost:8181/sso/ExampleSSOWidget" />
-		<property name="serverName" value="https://localhost:8443" />
-		<property name="casServerLoginUrl" value="https://localhost:8443/cas/login" />
+		<property name="service" value="${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.port}/sso/ExampleSSOWidget" />
+		<property name="serverName" value="${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:8443" />
+		<property name="casServerLoginUrl" value="${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:8443/cas/login" />
 		<property name="renew" value="false" />
 		<property name="gateway" value="false" />
 		<property name="ignoreInitConfiguration" value="true" />
@@ -30,15 +33,15 @@
 	<bean id="CasTicketValidationFilterServiceBean"
 		class="org.jasig.cas.client.validation.Cas20ProxyReceivingTicketValidationFilter">
 		<property name="ignoreInitConfiguration" value="true" />
-		<property name="serverName" value="https://localhost:8443" />
-		<property name="service" value="http://localhost:8181/sso/ExampleSSOWidget" />
+		<property name="serverName" value="${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:8443" />
+		<property name="service" value="${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.port}/sso/ExampleSSOWidget" />
 		<property name="millisBetweenCleanUps" value="60000" />
 		<property name="ticketValidator" ref="cas20ServiceTicketValidator" />
 	</bean>
 
 	<bean id="cas20ServiceTicketValidator"
 		class="org.jasig.cas.client.validation.Cas20ServiceTicketValidator">
-		<argument value="https://localhost:8443/cas" />
+		<argument value="${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:8443/cas" />
 	</bean>
 
 	<bean id="CasRequestWrapperFilterServiceBean"

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -14,11 +14,9 @@
 package org.codice.proxy.http;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Dictionary;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.builder.RouteBuilder;
@@ -26,10 +24,6 @@ import org.apache.camel.component.servlet.ServletComponent;
 import org.apache.commons.httpclient.contrib.ssl.AuthSSLProtocolSocketFactory;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.lang.StringUtils;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
-import org.osgi.service.cm.Configuration;
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +34,6 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class HttpProxyServiceImpl implements HttpProxyService {
-    BundleContext bundleContext = null;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpProxyServiceImpl.class);
 
@@ -52,13 +45,7 @@ public class HttpProxyServiceImpl implements HttpProxyService {
 
     public static final String GENERIC_ENDPOINT_NAME = "endpoint";
 
-    public static final String PLATFORM_CONFIG_PID = "ddf.platform.config";
-
-    public static final String PROPERTY_TRUSTSTORE = "trustStore";
-
     public static final String TRUSTSTORE_VALUE_DEFAULT = "etc/keystores/serverTruststore.jks";
-
-    public static final String PROPERTY_TRUSTSTORE_PASSWORD = "trustStorePassword";
 
     public static final String TRUSTSTORE_PASSWORD_VALUE = "changeit";
 
@@ -94,18 +81,17 @@ public class HttpProxyServiceImpl implements HttpProxyService {
 
     private String routeEndpointType = SERVLET;
 
-    public HttpProxyServiceImpl(final BundleContext bundleContext, CamelContext camelContext,
+    public HttpProxyServiceImpl(CamelContext camelContext,
             String endpointType) throws Exception {
-        this(bundleContext, camelContext);
+        this(camelContext);
         this.routeEndpointType = endpointType;
         if (!this.routeEndpointType.equals(SERVLET)) {
             this.camelContext.removeComponent(SERVLET_COMPONENT);
         }
     }
 
-    public HttpProxyServiceImpl(final BundleContext bundleContext, CamelContext camelContext)
+    public HttpProxyServiceImpl(CamelContext camelContext)
             throws Exception {
-        this.bundleContext = bundleContext;
         this.camelContext = camelContext;
 
         // Add servlet to the Camel Context
@@ -224,42 +210,13 @@ public class HttpProxyServiceImpl implements HttpProxyService {
     }
 
     private void fetchTrustStoreLocation() {
-        if (bundleContext != null) {
-            ServiceReference configAdminServiceRef = bundleContext
-                    .getServiceReference(ConfigurationAdmin.class.getName());
-            if (configAdminServiceRef != null) {
-                ConfigurationAdmin ca = (ConfigurationAdmin) bundleContext
-                        .getService(configAdminServiceRef);
-                LOGGER.debug("Configuration Admin obtained: {}", ca);
-                if (ca != null) {
-                    try {
-                        Configuration platformConfig = ca.getConfiguration(PLATFORM_CONFIG_PID);
-                        if (platformConfig != null) {
-                            Dictionary<String, Object> props = platformConfig.getProperties();
-                            trustStore = (String) props.get(PROPERTY_TRUSTSTORE);
-                            trustStorePassword = (String) props.get(PROPERTY_TRUSTSTORE_PASSWORD);
 
-                            // If property values are empty, populate them with the defaults.
-
-                            if (StringUtils.isBlank(trustStore)) {
-                                trustStore = TRUSTSTORE_VALUE_DEFAULT;
-                            }
-
-                            if (StringUtils.isBlank(trustStorePassword)) {
-                                trustStorePassword = TRUSTSTORE_PASSWORD_VALUE;
-                            }
-
-                            LOGGER.debug("Trust Store: {}", trustStore);
-                            LOGGER.debug("Trust Store Password not empty: {}",
-                                    StringUtils.isNotBlank(trustStorePassword));
-                        }
-                    } catch (IOException e) {
-                        LOGGER.error(e.getMessage());
-                    }
-
-                }
-            }
-        }
+        trustStore = System.getProperty("javax.net.ssl.trustStore", TRUSTSTORE_VALUE_DEFAULT);
+        trustStorePassword = System
+                .getProperty("javax.net.ssl.trustStorePassword", TRUSTSTORE_PASSWORD_VALUE);
+        LOGGER.debug("Trust Store: {}", trustStore);
+        LOGGER.debug("Trust Store Password not empty: {}",
+                StringUtils.isNotBlank(trustStorePassword));
     }
 
     public void stop(String endpointName) throws Exception {

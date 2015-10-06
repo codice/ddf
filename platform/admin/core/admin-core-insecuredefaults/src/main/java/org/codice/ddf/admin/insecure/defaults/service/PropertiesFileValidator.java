@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -13,9 +13,6 @@
  */
 package org.codice.ddf.admin.insecure.defaults.service;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +21,8 @@ import java.util.Properties;
 import org.codice.ddf.admin.insecure.defaults.service.Alert.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import ddf.security.PropertiesLoader;
 
 public abstract class PropertiesFileValidator implements Validator {
 
@@ -46,15 +45,12 @@ public abstract class PropertiesFileValidator implements Validator {
     public abstract List<Alert> validate();
 
     protected Properties readFile() {
-        File file = new File(path.toString());
-        Properties properties = new Properties();
 
-        try (FileInputStream fis = new FileInputStream(file)) {
-            properties.load(fis);
-        } catch (IOException e) {
+        Properties properties = PropertiesLoader.loadProperties(path.toString());
+        if (properties.isEmpty()) {
             String msg = String.format(GENERIC_INSECURE_DEFAULTS_MSG, path.toString());
-            LOGGER.warn(msg, e);
-            alerts.add(new Alert(Level.WARN, msg + e.getMessage()));
+            LOGGER.warn(msg);
+            alerts.add(new Alert(Level.WARN, msg));
         }
 
         return properties;

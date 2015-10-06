@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.configuration.PropertyResolver;
 import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.codice.ddf.security.policy.context.ContextPolicyManager;
 import org.codice.ddf.security.policy.context.attributes.ContextAttributeMapping;
@@ -430,6 +431,7 @@ public class PolicyManager implements ContextPolicyManager {
     private List<String> expandStrings(List<String> itemArr) {
         List<String> itemList = new ArrayList<>();
         for (String item : itemArr) {
+            item = PropertyResolver.resolveProperties(item);
             if (item.contains(",")) {
                 String[] items = item.split(",");
                 itemList.addAll(Arrays.asList(items));
@@ -494,6 +496,7 @@ public class PolicyManager implements ContextPolicyManager {
     public void setWhiteListContexts(String contexts) {
         LOGGER.debug("setWhiteListContexts(String) called with {}", contexts);
         if (StringUtils.isNotEmpty(contexts)) {
+            contexts = PropertyResolver.resolveProperties(contexts);
             String[] contextsArr = contexts.split(",");
             whiteListContexts = Arrays.asList(contextsArr);
         }

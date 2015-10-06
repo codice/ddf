@@ -22,7 +22,7 @@
 	    </AD>
        
         <AD name="CAS Server URL:" id="casServerUrl" required="true" type="String"
-            default="https://localhost:8443/cas"
+            default="${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:8443/cas"
             description="URL to the CAS server (generally ends in /cas)">
         </AD>
 	    
@@ -32,7 +32,7 @@
 	    </AD>
 	    
 	    <AD name="Proxy Callback URL:" id="proxyCallbackUrl" required="true" type="String"
-            default="https://localhost:8993/sso"
+            default="${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.port}/sso"
             description="CAS client callback URL used when requesting proxy tickets.">
 	    </AD>
 	    

@@ -18,6 +18,7 @@ import java.util.Hashtable;
 import javax.servlet.Filter;
 
 import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
+import org.codice.ddf.configuration.PropertyResolver;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -56,7 +57,7 @@ public class CXFFilterAdder {
     public void setUrlPattern(String urlPattern) {
         logger.trace("Unregistering filter service to reset urlPatterns");
         filterService.unregister();
-        properties.put(URL_PATTERNS_KEY, urlPattern);
+        properties.put(URL_PATTERNS_KEY, PropertyResolver.resolveProperties(urlPattern));
         registerService();
     }
 

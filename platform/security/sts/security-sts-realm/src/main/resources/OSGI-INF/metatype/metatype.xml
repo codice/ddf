@@ -52,7 +52,7 @@
 
         <AD name="STS WSDL Address:" id="address" description="STS WSDL Address" required="true"
             type="String"
-            default="https://localhost:8993/services/SecurityTokenService?wsdl"/>
+            default="${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.port}${org.codice.ddf.system.rootContext}/SecurityTokenService?wsdl"/>
 
         <AD name="STS Endpoint Name:" id="endpointName" description="STS Endpoint Name."
             required="false"
@@ -125,7 +125,7 @@
 
         <AD name="STS WSDL Address:" id="address" description="STS WSDL Address" required="true"
             type="String"
-            default="https://localhost:8993/services/SecurityTokenService?wsdl"/>
+            default="${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.httpsPort}${org.codice.ddf.system.rootContext}/SecurityTokenService?wsdl"/>
 
         <AD name="STS Endpoint Name:" id="endpointName" description="STS Endpoint Name."
             required="false"

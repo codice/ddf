@@ -27,7 +27,7 @@
         <property name="contextPolicyManager" ref="contextPolicyManager"/>
         <cm:managed-properties persistent-id="ddf.security.sts.client.configuration"
                                update-strategy="container-managed"/>
-        <property name="address" value="https://localhost:8993/services/SecurityTokenService?wsdl"/>
+        <property name="address" value="${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.port}${org.codice.ddf.system.rootContext}/SecurityTokenService?wsdl"/>
         <property name="endpointName"
                   value="{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}STS_Port"/>
         <property name="serviceName"
@@ -65,7 +65,7 @@
         <property name="contextPolicyManager" ref="contextPolicyManager"/>
         <cm:managed-properties persistent-id="ddf.security.sts.wss.configuration"
                                update-strategy="container-managed"/>
-        <property name="address" value="https://localhost:8993/services/SecurityTokenService?wsdl"/>
+        <property name="address" value="${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.port}${org.codice.ddf.system.rootContext}/SecurityTokenService?wsdl"/>
         <property name="endpointName"
                   value="{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}STS_Port"/>
         <property name="serviceName"

@@ -60,8 +60,7 @@ public class UsersPropertiesFileValidatorTest {
         assertThat(alerts.size(), is(1));
         assertThat(alerts.get(0).getMessage(), is(String
                         .format(UsersPropertiesFileValidator.GENERIC_INSECURE_DEFAULTS_MSG,
-                                FAKE_USERS_PROPERTIES_FILE) + FAKE_USERS_PROPERTIES_FILE
-                        + " (No such file or directory)"));
+                                FAKE_USERS_PROPERTIES_FILE)));
     }
 
     @Test

@@ -43,8 +43,7 @@ public class PaxWebCfgFileValidatorTest {
         assertThat(alerts.size(), is(1));
         assertThat(alerts.get(0).getMessage(), is(String
                         .format(PaxWebCfgFileValidator.GENERIC_INSECURE_DEFAULTS_MSG,
-                                FAKE_PAX_WEB_CFG_FILE) + FAKE_PAX_WEB_CFG_FILE
-                        + " (No such file or directory)"));
+                                FAKE_PAX_WEB_CFG_FILE)));
     }
 
     @Test

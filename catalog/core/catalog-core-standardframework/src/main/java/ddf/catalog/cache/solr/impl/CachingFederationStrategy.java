@@ -30,6 +30,7 @@ import java.util.concurrent.Phaser;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.codice.ddf.configuration.PropertyResolver;
 import org.opengis.filter.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -236,9 +237,8 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
                         logger.warn("Plugin stopped processing", e);
                     }
 
-                    futures.put(queryCompletion
-                            .submit(new CallableSourceResponse(source, modifiedQueryRequest)),
-                            source);
+                    futures.put(queryCompletion.submit(new CallableSourceResponse(source,
+                                    modifiedQueryRequest)), source);
                 } else {
                     logger.warn("Duplicate source found with name {}. Ignoring second one.",
                             source.getId());
@@ -387,7 +387,7 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
     }
 
     public void setUrl(String url) {
-        cache.updateServer(url);
+        cache.updateServer(PropertyResolver.resolveProperties(url));
     }
 
     public void setExpirationIntervalInMinutes(long expirationIntervalInMinutes) {
