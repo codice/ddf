@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * </p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -53,7 +53,6 @@ import ddf.catalog.transformer.xml.binding.StringElement;
 import ddf.catalog.transformer.xml.binding.StringxmlElement;
 
 /**
- *
  * @see http://stackoverflow.com/a/11967459
  */
 @XmlRootElement(name = "metacard", namespace = "urn:catalog:metacard")
@@ -117,8 +116,7 @@ public class AdaptedMetacard implements Metacard {
     }
 
     /**
-     * @param id
-     *            the id to set
+     * @param id the id to set
      */
     protected void setId(String id) {
         setAttribute(new AttributeImpl(Metacard.ID, id));
@@ -136,8 +134,7 @@ public class AdaptedMetacard implements Metacard {
     }
 
     /**
-     * @param sourceId
-     *            the sourceId to set
+     * @param sourceId the sourceId to set
      */
     public void setSourceId(String sourceId) {
         this.sourceId = sourceId;
@@ -155,8 +152,7 @@ public class AdaptedMetacard implements Metacard {
     }
 
     /**
-     * @param metacardType
-     *            the metacardType to set
+     * @param metacardType the metacardType to set
      */
     protected void setMetacardType(MetacardType metacardType) {
         this.metacardType = metacardType;
@@ -174,8 +170,7 @@ public class AdaptedMetacard implements Metacard {
             @XmlElement(name = "object", namespace = METACARD_URI, type = ObjectElement.class),
             @XmlElement(name = "short", namespace = METACARD_URI, type = ShortElement.class),
             @XmlElement(name = "string", namespace = METACARD_URI, type = StringElement.class),
-            @XmlElement(name = "stringxml", namespace = METACARD_URI, type = StringxmlElement.class)
-            })
+            @XmlElement(name = "stringxml", namespace = METACARD_URI, type = StringxmlElement.class)})
             protected List<Attribute> getAttributes() {
         return attributes;
     }
@@ -326,5 +321,13 @@ public class AdaptedMetacard implements Metacard {
      */
     public String getTitle() {
         return delegate.getTitle();
+    }
+
+    /**
+     * @return
+     * @see ddf.catalog.data.Metacard#getDescription()
+     */
+    public String getDescription() {
+        return delegate.getDescription();
     }
 }

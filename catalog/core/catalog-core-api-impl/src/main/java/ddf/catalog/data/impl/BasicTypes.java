@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * </p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -292,7 +292,7 @@ public class BasicTypes {
                 .add(new AttributeDescriptorImpl(Metacard.ID, true /* indexed */, true /* stored */,
                         false /* tokenized */, false /* multivalued */, STRING_TYPE));
         descriptors.add(new AttributeDescriptorImpl(Metacard.TITLE, true /* indexed */, true /* stored */,
-                true /* tokenized */, false /* multivalued */, STRING_TYPE));
+                        true /* tokenized */, false /* multivalued */, STRING_TYPE));
         descriptors
                 .add(new AttributeDescriptorImpl(Metacard.POINT_OF_CONTACT, true /* indexed */, true /* stored */,
                         false /* tokenized */, false /* multivalued */, STRING_TYPE));
@@ -310,7 +310,8 @@ public class BasicTypes {
         descriptors.add(new AttributeDescriptorImpl(Metacard.RESOURCE_URI, true /* indexed */, true /* stored */,
                 false /* tokenized */, false /* multivalued */, STRING_TYPE));
         descriptors.add(new AttributeDescriptorImpl(Metacard.RESOURCE_DOWNLOAD_URL, false /* indexed */,
-                false /* stored */, false /* tokenized */, false /* multivalued */, STRING_TYPE));
+                        false /* stored */, false /* tokenized */, false /* multivalued */,
+                        STRING_TYPE));
         descriptors
                 .add(new AttributeDescriptorImpl(Metacard.RESOURCE_SIZE, false /* indexed */, true /* stored */,
                         false /* tokenized */, false /* multivalued */, STRING_TYPE));
@@ -318,6 +319,8 @@ public class BasicTypes {
                 false /* tokenized */, false /* multivalued */, BINARY_TYPE));
         descriptors.add(new AttributeDescriptorImpl(Metacard.GEOGRAPHY, true /* indexed */, true /* stored */,
                 false /* tokenized */, false /* multivalued */, GEO_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(Metacard.DESCRIPTION, true /* indexed */, true /* stored */,
+                false /* tokenized */, false /* multivalued */, STRING_TYPE));
 
         basic = new MetacardTypeImpl(MetacardType.DEFAULT_METACARD_TYPE_NAME, descriptors);
 
