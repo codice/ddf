@@ -35,6 +35,8 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
@@ -47,6 +49,8 @@ import ddf.catalog.transformer.xml.binding.StringxmlElement.Value;
 public class StringxmlAdapter extends XmlAdapter<StringxmlElement, Attribute> {
 
     private static final String TRANSFORMATION_FAILED_ERROR_MESSAGE = "Transformation failed.  Could not transform XML Attribute.";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(StringxmlAdapter.class);
 
     private static DocumentBuilderFactory factory;
 
@@ -63,6 +67,7 @@ public class StringxmlAdapter extends XmlAdapter<StringxmlElement, Attribute> {
         try {
             templates = transFactory.newTemplates(xsltSource);
         } catch (TransformerConfigurationException e) {
+            LOGGER.error("Unable to create transformer.", e);
         }
 
     }

@@ -92,6 +92,7 @@ public class MetacardImplTest {
         mc.setTargetNamespace(nsUri);
         mc.setTitle("testTitle");
         mc.setThumbnail(mc.getId().getBytes());
+        mc.setDescription("testDescription");
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -160,6 +161,7 @@ public class MetacardImplTest {
         assertEquals(null, mi.getSourceId());
         assertEquals(null, mi.getThumbnail());
         assertEquals(null, mi.getTitle());
+        assertEquals(null, mi.getDescription());
 
         mi = new MetacardImpl(BasicTypes.BASIC_METACARD);
         assertEquals(null, mi.getContentTypeName());
@@ -177,6 +179,7 @@ public class MetacardImplTest {
         assertEquals(null, mi.getResourceURI());
         assertEquals(null, mi.getSourceId());
         assertEquals(null, mi.getThumbnail());
+        assertEquals(null, mi.getDescription());
         assertEquals(null, mi.getTitle());
 
         mi = new MetacardImpl(mc);
@@ -197,6 +200,7 @@ public class MetacardImplTest {
         assertEquals(mc.getSourceId(), mi.getSourceId());
         assertEquals(mc.getThumbnail(), mi.getThumbnail());
         assertEquals(mc.getTitle(), mi.getTitle());
+        assertEquals(mc.getDescription(), mi.getDescription());
 
     }
 
@@ -233,6 +237,7 @@ public class MetacardImplTest {
         mc.setSourceId(null);
         mc.setTitle(null);
         mc.setThumbnail(null);
+        mc.setDescription(null);
         assertEquals(null, mc.getAttribute("testNullValueAtt1"));
         assertEquals(null, mc.getAttribute("testNullValueAtt2"));
         assertEquals(null, mc.getContentTypeName());
@@ -249,6 +254,7 @@ public class MetacardImplTest {
         assertEquals(null, mc.getSourceId());
         assertEquals(null, mc.getThumbnail());
         assertEquals(null, mc.getTitle());
+        assertEquals(null, mc.getDescription());
 
     }
 
@@ -274,7 +280,7 @@ public class MetacardImplTest {
         byte[] buffer = {-86};
         metacard.setThumbnail(buffer);
         metacard.setSourceId("mySourceId");
-
+        metacard.setDescription("Northern Arizona City");
         Serializer<Metacard> serializer = new Serializer<Metacard>();
 
         /* WRITE */
@@ -294,6 +300,7 @@ public class MetacardImplTest {
         assertEquals(metacard.getResourceSize(), readMetacard.getResourceSize());
         assertTrue(Arrays.equals(metacard.getThumbnail(), readMetacard.getThumbnail()));
         assertEquals(metacard.getSourceId(), readMetacard.getSourceId());
+        assertEquals(metacard.getDescription(), readMetacard.getDescription());
 
         MetacardType metacardType = metacard.getMetacardType();
         MetacardType readMetacardType = readMetacard.getMetacardType();
@@ -341,7 +348,7 @@ public class MetacardImplTest {
         innerMetacard.setResourceURI(new URI("http://ddf.com"));
         byte[] buffer = {-86};
         innerMetacard.setThumbnail(buffer);
-
+        innerMetacard.setDescription("Northern Arizona City");
         Metacard metacard = new MetacardImpl(innerMetacard);
 
         Serializer<Metacard> serializer = new Serializer<Metacard>();
@@ -359,6 +366,7 @@ public class MetacardImplTest {
         assertEquals(metacard.getExpirationDate(), readMetacard.getExpirationDate());
         assertEquals(metacard.getResourceURI(), readMetacard.getResourceURI());
         assertEquals(metacard.getResourceSize(), readMetacard.getResourceSize());
+        assertEquals(metacard.getDescription(), readMetacard.getDescription());
         assertTrue(Arrays.equals(metacard.getThumbnail(), readMetacard.getThumbnail()));
 
         MetacardType metacardType = metacard.getMetacardType();

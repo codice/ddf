@@ -20,6 +20,9 @@
     </ns3:string>
     <ns3:dateTime name="modified"/>
     <ns3:string name="metadata-content-type-version"/>
+    <ns3:string name="description">
+        <ns3:value>Description!</ns3:value>
+    </ns3:string>
     <ns3:base64Binary name="thumbnail">
         <ns3:value>AAABAAABAQEAAQAAAQEBAAEAAAEBAQABAAABAQEAAQAAAQEBAAEAAAEBAQABAAABAQE=</ns3:value>
     </ns3:base64Binary>

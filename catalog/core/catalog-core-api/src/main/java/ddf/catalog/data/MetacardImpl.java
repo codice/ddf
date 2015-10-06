@@ -492,6 +492,28 @@ public class MetacardImpl implements Metacard {
     }
 
     /**
+     * Returns the description for the {@link ddf.catalog.data.Metacard}.
+     *
+     * @return description
+     */
+    @Override
+    public String getDescription() {
+        return requestString(Metacard.DESCRIPTION);
+    }
+
+    /**
+     * Sets the description on this {@link Metacard}. <br />
+     * Convenience method for <code>
+     * {@link #setAttribute setAttribute}(new {@link AttributeImpl}({@link Metacard#DESCRIPTION}, description))
+     * </code>
+     *
+     * @param description
+     */
+    public void setDescription(String description) {
+        setAttribute(Metacard.DESCRIPTION, description);
+    }
+
+    /**
      * The brains of the operation -- does the interaction with the map or the wrapped metacard.
      *
      * @param <T>

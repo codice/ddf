@@ -139,6 +139,9 @@ public class TestXmlInputTransformer {
         assertEquals((new SimpleDateFormat("MMM d, yyyy HH:mm:ss.SSS z"))
                         .parse("Dec 27, 2012 16:31:01.641 MST"),
                 metacard.getAttribute(Metacard.EXPIRATION).getValue());
+
+        assertEquals("Description!", metacard.getAttribute(Metacard.DESCRIPTION).getValue());
+
     }
 
     @Test
@@ -183,6 +186,8 @@ public class TestXmlInputTransformer {
         assertThat((new SimpleDateFormat("MMM d, yyyy HH:mm:ss.SSS z"))
                         .parse("Dec 27, 2012 16:31:01.641 MST"),
                 is(metacard.getAttribute(Metacard.EXPIRATION).getValue()));
+
+        assertEquals("Description!", metacard.getAttribute(Metacard.DESCRIPTION).getValue());
     }
 
 }
