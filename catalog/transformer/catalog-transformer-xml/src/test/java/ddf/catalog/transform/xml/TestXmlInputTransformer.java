@@ -47,6 +47,10 @@ public class TestXmlInputTransformer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestXmlInputTransformer.class);
 
+    private static final String DESCRIPTION = "Description!";
+
+    private static final String POINT_OF_CONTACT = "POC!";
+
     private XmlInputTransformer xit;
 
     @Before
@@ -139,6 +143,9 @@ public class TestXmlInputTransformer {
         assertEquals((new SimpleDateFormat("MMM d, yyyy HH:mm:ss.SSS z"))
                         .parse("Dec 27, 2012 16:31:01.641 MST"),
                 metacard.getAttribute(Metacard.EXPIRATION).getValue());
+
+        assertEquals(DESCRIPTION, metacard.getDescription());
+        assertEquals(POINT_OF_CONTACT, metacard.getPointOfContact());
     }
 
     @Test
@@ -183,6 +190,8 @@ public class TestXmlInputTransformer {
         assertThat((new SimpleDateFormat("MMM d, yyyy HH:mm:ss.SSS z"))
                         .parse("Dec 27, 2012 16:31:01.641 MST"),
                 is(metacard.getAttribute(Metacard.EXPIRATION).getValue()));
-    }
 
+        assertEquals(DESCRIPTION, metacard.getDescription());
+        assertEquals(POINT_OF_CONTACT, metacard.getPointOfContact());
+    }
 }

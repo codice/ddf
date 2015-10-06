@@ -492,6 +492,50 @@ public class MetacardImpl implements Metacard {
     }
 
     /**
+     * Returns the description for the {@link ddf.catalog.data.Metacard}.
+     *
+     * @return description
+     */
+    @Override
+    public String getDescription() {
+        return requestString(Metacard.DESCRIPTION);
+    }
+
+    /**
+     * Sets the description on this {@link Metacard}. <br />
+     * Convenience method for <code>
+     * {@link #setAttribute setAttribute}(new {@link AttributeImpl}({@link Metacard#DESCRIPTION}, description))
+     * </code>
+     *
+     * @param description
+     */
+    public void setDescription(String description) {
+        setAttribute(Metacard.DESCRIPTION, description);
+    }
+
+    /**
+     * Returns the point of conysvy for the {@link ddf.catalog.data.Metacard}.
+     *
+     * @return point of contact
+     */
+    @Override
+    public String getPointOfContact() {
+        return requestString(Metacard.POINT_OF_CONTACT);
+    }
+
+    /**
+     * Sets the point of contact on this {@link Metacard}. <br />
+     * Convenience method for <code>
+     * {@link #setAttribute setAttribute}(new {@link AttributeImpl}({@link Metacard#POINT_OF_CONTACT}, pointOfContact))
+     * </code>
+     *
+     * @param pointOfContact
+     */
+    public void setPointOfContact(String pointOfContact) {
+        setAttribute(Metacard.POINT_OF_CONTACT, pointOfContact);
+    }
+
+    /**
      * The brains of the operation -- does the interaction with the map or the wrapped metacard.
      *
      * @param <T>
