@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.distribution;
+package org.codice.ddf.landing;
 
 import java.io.IOException;
 import java.text.DateFormat;
@@ -80,8 +80,6 @@ public class LandingPage extends HttpServlet {
             .asList("/index.html", "/index.htm", "home.html", "home.htm", "landing.html",
                     "landing.htm", "/", "");
 
-    private static String landingPageHtml;
-
     private static final Logger LOGGER = LoggerFactory.getLogger(LandingPage.class);
 
     private String productImage;
@@ -89,6 +87,26 @@ public class LandingPage extends HttpServlet {
     private String favicon;
 
     private ResourceProvider provider;
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public String getProductImage() {
+        return productImage;
+    }
+
+    public String getFavicon() {
+        return favicon;
+    }
+
+    public List<String> getAnnouncements() {
+        return announcements;
+    }
 
     public LandingPage(ResourceProvider provider) {
         this.provider = provider;
@@ -192,12 +210,12 @@ public class LandingPage extends HttpServlet {
             throws ServletException, IOException {
         resp.addHeader(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_HTML);
         if (ACCEPTED_PATHS.contains(req.getRequestURI())) {
-            compileTemplateWithProperties();
-            resp.getWriter().write(landingPageHtml);
+            resp.getWriter().write(compileTemplateWithProperties());
         }
     }
 
-    private void compileTemplateWithProperties() {
+    // package-private for unit testing
+    String compileTemplateWithProperties() {
         // FieldValueResolver so this class' fields can be accessed in the template.
         // MapValueResolver so we can access {{@index}} in the #each helper in the template.
         final Context context = Context.newBuilder(this)
@@ -207,6 +225,7 @@ public class LandingPage extends HttpServlet {
         final Handlebars handlebars = new Handlebars(templateLoader);
         // extractDate(), extractAnnouncement(), expanded(), and in() are helper functions used in the template.
         handlebars.registerHelpers(this);
+        String landingPageHtml;
         try {
             final Template template = handlebars.compile(LANDING_PAGE_FILE);
             landingPageHtml = template.apply(context);
@@ -214,6 +233,7 @@ public class LandingPage extends HttpServlet {
             LOGGER.info("Unable to compile template.", e);
             landingPageHtml = "<p>We are experiencing some issues. Please contact an administrator.</p>";
         }
+        return landingPageHtml;
     }
 
     // A helper function used in the Handlebars template (index.html). Also used locally.
