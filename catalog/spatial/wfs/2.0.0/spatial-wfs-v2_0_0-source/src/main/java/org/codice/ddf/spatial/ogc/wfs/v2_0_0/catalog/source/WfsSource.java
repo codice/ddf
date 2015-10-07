@@ -55,7 +55,6 @@ import org.codice.ddf.spatial.ogc.catalog.MetadataTransformer;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityCommand;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
 import org.codice.ddf.spatial.ogc.catalog.common.ContentTypeFilterDelegate;
-import org.codice.ddf.spatial.ogc.catalog.common.TrustedRemoteSource;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
@@ -169,6 +168,8 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
     private static final String POLL_INTERVAL_PROPERTY = "pollInterval";
 
+    public static final String DISABLE_CN_CHECK_PROPERTY = "disableCnCheck";
+
     private static Properties describableProperties = new Properties();
 
     static {
@@ -278,7 +279,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         String password = (String) configuration.get(PASSWORD_PROPERTY);
         String username = (String) configuration.get(USERNAME_PROPERTY);
         Boolean disableCnCheckProp = (Boolean) configuration
-                .get(TrustedRemoteSource.DISABLE_CN_CHECK_PROPERTY);
+                .get(DISABLE_CN_CHECK_PROPERTY);
         String coordinateOrder = (String) configuration.get(COORDINATE_ORDER);
         boolean disableSorting = (Boolean) configuration.get(DISABLE_SORTING);
         String id = (String) configuration.get(ID_PROPERTY);
