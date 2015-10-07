@@ -44,6 +44,17 @@ public class SecuritySettingsServiceImplTest {
         System.setProperty(SecurityConstants.TRUSTSTORE_PASSWORD, KEYSTORE_PASSWORD);
         System.setProperty(SecurityConstants.KEYSTORE_TYPE, "jks");
         System.setProperty(SecurityConstants.TRUSTSTORE_TYPE, "jks");
+        System.setProperty(SecuritySettingsService.SSL_KEYSTORE_JAVA_PROPERTY, KEYSTORE_PATH);
+        System.setProperty(SecuritySettingsService.SSL_KEYSTORE_PASSWORD_JAVA_PROPERTY,
+                KEYSTORE_PASSWORD);
+        System.setProperty(SecuritySettingsService.SSL_TRUSTSTORE_JAVA_PROPERTY, KEYSTORE_PATH);
+        System.setProperty(SecuritySettingsService.SSL_TRUSTSTORE_PASSWORD_JAVA_PROPERTY,
+                KEYSTORE_PASSWORD);
+        System.setProperty(SecuritySettingsService.SSL_KEYSTORE_TYPE_JAVA_PROPERTY, "jks");
+        System.setProperty("javax.net.ssl.trustManagerAlgorithm", "PKIX");
+        System.setProperty("javax.net.ssl.keyManagerAlgorithm", "SunX509");
+        System.setProperty("org.apache.cxf.configuration.jsse.sslAllowedAlgorithms", ".*_WITH_AES_.*");
+        System.setProperty("org.apache.cxf.configuration.jsse.sslDisallowedAlgorithms", ".*_WITH_NULL_.*, .*_DH_anon_.*");
     }
 
     @Test
