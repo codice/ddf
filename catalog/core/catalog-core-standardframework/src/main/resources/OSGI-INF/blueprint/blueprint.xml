@@ -259,7 +259,6 @@
 		<argument ref="productCache"/>
 		<argument ref="retrieveStatusEventPublisher"/>
 		<argument ref="reliableResourceDownloadManager"/>
-		<property name="poolSize" value="0"/>
 		<property name="systemInfo" ref="systemInfo"/>
 		<property name="masker" ref="sourceListener"/>
 		<property name="cacheEnabled" value="true"/>
