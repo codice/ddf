@@ -53,7 +53,6 @@ import org.codice.ddf.spatial.ogc.catalog.MetadataTransformer;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityCommand;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
 import org.codice.ddf.spatial.ogc.catalog.common.ContentTypeFilterDelegate;
-import org.codice.ddf.spatial.ogc.catalog.common.TrustedRemoteSource;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsFeatureCollection;
@@ -153,6 +152,8 @@ public class WfsSource extends MaskableImpl
     private static final String DEFAULT_WFS_TRANSFORMER_ID = "wfs";
 
     private static final String POLL_INTERVAL_PROPERTY = "pollInterval";
+
+    public static final String DISABLE_CN_CHECK_PROPERTY = "disableCnCheck";
 
     private static Properties describableProperties = new Properties();
 
@@ -257,7 +258,7 @@ public class WfsSource extends MaskableImpl
         String password = (String) configuration.get(PASSWORD_PROPERTY);
         String username = (String) configuration.get(USERNAME_PROPERTY);
         Boolean disableCnCheckProp = (Boolean) configuration
-                .get(TrustedRemoteSource.DISABLE_CN_CHECK_PROPERTY);
+                .get(DISABLE_CN_CHECK_PROPERTY);
         String id = (String) configuration.get(ID_PROPERTY);
 
         setConnectionTimeout((Integer) configuration.get(CONNECTION_TIMEOUT_PROPERTY));
