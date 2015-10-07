@@ -167,6 +167,8 @@ define([
                     stroke: new ol.style.Stroke({color: this.lineStrokeColor, width: 1})
                 }));
 
+                this.billboard.set("featureType", "metacard");
+
                 var vectorSource = new ol.source.Vector({
                     features: [this.billboard]
                 });
