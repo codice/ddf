@@ -13,31 +13,13 @@
  **/
 package org.codice.ddf.spatial.ogc.catalog.common;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.anyOf;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import java.io.File;
 import java.io.FileInputStream;
-import java.net.SocketException;
 import java.security.KeyStore;
 import java.util.Properties;
 
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLHandshakeException;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.cxf.configuration.jsse.TLSClientParameters;
-import org.apache.cxf.configuration.security.FiltersType;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.DefaultHandler;
@@ -47,7 +29,6 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -154,6 +135,7 @@ public class TestTrustedRemoteSource {
         }
         return keyStore;
     }
+    // Commented out tests to be removed in DDF-1563
 
     @AfterClass
     public static void tearDownAfterClass() {
@@ -163,6 +145,16 @@ public class TestTrustedRemoteSource {
     /**
      * Tests that server properly accepts trusted certificates.
      */
+//    @Test
+//    public void testGoodCertificates() {
+//        RemoteSource remoteSource = createSecuredSource(keyStore, GOOD_PASSWORD, trustStore, 30000,
+//                60000);
+//        // hit server
+//        if (remoteSource.get() == null) {
+//            fail("Could not get capabilities from the test server. This means no connection was established.");
+//        }
+//
+//    }
     @Test
     public void testGoodCertificates() {
         RemoteSource remoteSource = createSecuredSource(keyStore, GOOD_PASSWORD, trustStore, 304000,
@@ -172,44 +164,93 @@ public class TestTrustedRemoteSource {
             fail("Could not get capabilities from the test server. This means no connection was established.");
         }
 
-    }
-
     /**
      * Tests that server fails on non-trusted client certificates.
      */
-    @Test
-    public void testBadClientCertificate() {
-        RemoteSource remoteSource = createSecuredSource(badStore, BAD_PASSWORD, trustStore, 30000,
-                60000);
-        // hit server
-        try {
-            if (remoteSource.get() != null) {
-                fail("Server should have errored out with bad certificate but request passed instead.");
-            }
-        } catch (Exception e) {
-            assertThat(e.getCause(),
-                    anyOf(is(SSLHandshakeException.class), is(SocketException.class)));
-        }
-
-    }
+//    @Test
+//    public void testBadClientCertificate() {
+//        RemoteSource remoteSource = createSecuredSource(badStore, BAD_PASSWORD, trustStore, 30000,
+//                60000);
+//        // hit server
+//        try {
+//            if (remoteSource.get() != null) {
+//                fail("Server should have errored out with bad certificate but request passed instead.");
+//            }
+//        } catch (Exception e) {
+//            assertThat(e.getCause(),
+//                    anyOf(is(SSLHandshakeException.class), is(SocketException.class)));
+//        }
+//
+//    }
 
     /**
      * Tests that client fails on non-trusted server certificates.
      */
-    @Test
-    public void testBadServerCertificate() {
-        RemoteSource remoteSource = createSecuredSource(keyStore, GOOD_PASSWORD, badStore, 30000,
-                60000);
-        // hit server
-        try {
-            if (remoteSource.get() != null) {
-                fail("Client should have errored out with no valid certification path found, but request passed instead.");
-            }
-        } catch (Exception e) {
-            assertThat(e.getCause(), is(SSLHandshakeException.class));
-        }
+//    @Test
+//    public void testBadServerCertificate() {
+//        RemoteSource remoteSource = createSecuredSource(keyStore, GOOD_PASSWORD, badStore, 30000,
+//                60000);
+//        // hit server
+//        try {
+//            if (remoteSource.get() != null) {
+//                fail("Client should have errored out with no valid certification path found, but request passed instead.");
+//            }
+//        } catch (Exception e) {
+//            assertThat(e.getCause(), is(SSLHandshakeException.class));
+//        }
+//
+//    }
 
-    }
+//    private RemoteSource createSecuredSource(KeyStore keyStore, String keystorePassword,
+//            KeyStore trustStore, Integer connectionTimeout, Integer receiveTimeout) {
+//        RemoteSource rs = new RemoteSource("https://localhost:" + serverPort + "/", true);
+//        rs.setTimeouts(connectionTimeout, receiveTimeout);
+//        SecuritySettingsService securitySettingsService = mock(SecuritySettingsService.class);
+//        when(securitySettingsService.getTLSParameters())
+//                .thenReturn(getTLSParameters(keyStore, keystorePassword, trustStore));
+//        rs.setSecuritySettings(securitySettingsService);
+//        rs.setTlsParameters();
+//        return rs;
+//    }
+
+//    private TLSClientParameters getTLSParameters(KeyStore keyStore, String keystorePassword,
+//            KeyStore trustStore) {
+//        TLSClientParameters tlsParams = new TLSClientParameters();
+//        try {
+//            TrustManagerFactory trustFactory = TrustManagerFactory
+//                    .getInstance(TrustManagerFactory.getDefaultAlgorithm());
+//            trustFactory.init(trustStore);
+//            TrustManager[] tm = trustFactory.getTrustManagers();
+//            tlsParams.setTrustManagers(tm);
+//
+//            KeyManagerFactory keyFactory = KeyManagerFactory
+//                    .getInstance(KeyManagerFactory.getDefaultAlgorithm());
+//            keyFactory.init(keyStore, keystorePassword.toCharArray());
+//            KeyManager[] km = keyFactory.getKeyManagers();
+//            tlsParams.setKeyManagers(km);
+//        } catch (Exception e) {
+//            LOGGER.warn("Could not load keystores, may be an error with the filesystem", e);
+//        }
+//
+//        FiltersType filter = new FiltersType();
+//        filter.getInclude().addAll(SecuritySettingsService.SSL_ALLOWED_ALGORITHMS);
+//        filter.getExclude().addAll(SecuritySettingsService.SSL_DISALLOWED_ALGORITHMS);
+//        tlsParams.setCipherSuitesFilter(filter);
+//
+//        tlsParams.setHostnameVerifier(new HostnameVerifier() {
+//            @Override
+//            public boolean verify(String host, SSLSession sslSession) {
+//                if (!sslSession.getPeerHost().equals(host)) {
+//                    LOGGER.debug(String.format(
+//                            "Server hostname - %s - does not match client request - %s; verifying regardless.",
+//                            sslSession.getPeerHost(), host));
+//                }
+//                return true;
+//            }
+//        });
+//
+//        return tlsParams;
+//    }
 
     private RemoteSource createSecuredSource(KeyStore keyStore, String keystorePassword,
             KeyStore trustStore, Integer connectionTimeout, Integer receiveTimeout) {
