@@ -11,19 +11,20 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.branding;
+package org.codice.ddf.branding.impl;
 
 import java.io.IOException;
 import java.net.URL;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.felix.webconsole.WebConsoleUtil;
+import org.codice.ddf.branding.BrandingResourceProvider;
 import org.eclipse.osgi.framework.internal.core.BundleFragment;
 import org.eclipse.osgi.framework.internal.core.BundleHost;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 
-public class ResourceProviderImpl implements ResourceProvider {
+public class BrandingResourceProviderImpl implements BrandingResourceProvider {
 
     @Override
     public byte[] getResourceAsBytes(String path) throws IOException {

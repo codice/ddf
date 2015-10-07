@@ -26,7 +26,7 @@ import java.util.List;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.felix.webconsole.BrandingPlugin;
-import org.codice.ddf.branding.ResourceProvider;
+import org.codice.ddf.branding.BrandingResourceProvider;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -48,7 +48,7 @@ public class TestLandingPage {
 
     @BeforeClass
     public static void setupLandingPage() throws IOException {
-        ResourceProvider provider = mock(ResourceProvider.class);
+        BrandingResourceProvider provider = mock(BrandingResourceProvider.class);
         landingPage = new LandingPage(provider);
         when(provider.getResourceAsBytes(imgPath)).thenReturn(fakeImg.getBytes());
         when(provider.getResourceAsBytes(faviconPath)).thenReturn(new byte[0]);
@@ -62,8 +62,7 @@ public class TestLandingPage {
         String noDate = "something happened";
         List<String> unsorted = Arrays
                 .asList(secondDateNoLeadingZeroes, noDate, firstDateLeadingZeroes);
-        sorted = Arrays
-                .asList(firstDateLeadingZeroes, secondDateNoLeadingZeroes, noDate);
+        sorted = Arrays.asList(firstDateLeadingZeroes, secondDateNoLeadingZeroes, noDate);
         landingPage.setAnnouncements(unsorted);
     }
 

@@ -25,8 +25,8 @@
     <bean id="landingPage" class="org.codice.ddf.landing.LandingPage">
         <cm:managed-properties persistent-id="org.codice.ddf.distribution.landing-page.properties"
                                update-strategy="container-managed"/>
-        <property name="branding" ref="branding"/>
         <argument ref="resourceProvider"/>
+        <property name="branding" ref="branding"/>
         <property name="description"
                   value="DDF is a free and open-source common data layer that abstracts services and business logic from the underlying data structures to enable rapid integration of new data sources."/>
         <property name="phone" value=""/>
@@ -48,6 +48,6 @@
         be displayed on the Landing Page -->
     <reference id="branding" interface="org.apache.felix.webconsole.BrandingPlugin"/>
 
-    <reference id="resourceProvider" interface="org.codice.ddf.branding.ResourceProvider"/>
+    <reference id="resourceProvider" interface="org.codice.ddf.branding.BrandingResourceProvider"/>
 
 </blueprint>

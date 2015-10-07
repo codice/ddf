@@ -35,7 +35,7 @@ import javax.ws.rs.core.MediaType;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.apache.felix.webconsole.BrandingPlugin;
-import org.codice.ddf.branding.ResourceProvider;
+import org.codice.ddf.branding.BrandingResourceProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,7 +86,7 @@ public class LandingPage extends HttpServlet {
 
     private String favicon;
 
-    private ResourceProvider provider;
+    private BrandingResourceProvider provider;
 
     public String getTitle() {
         return title;
@@ -108,7 +108,7 @@ public class LandingPage extends HttpServlet {
         return announcements;
     }
 
-    public LandingPage(ResourceProvider provider) {
+    public LandingPage(BrandingResourceProvider provider) {
         this.provider = provider;
     }
 

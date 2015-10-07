@@ -110,7 +110,7 @@
                         </goals>
                         <phase>install</phase>
                         <configuration>
-                            <arguments>build --force</arguments>
+                            <arguments>build</arguments>
                         </configuration>
                     </execution>
                 </executions>

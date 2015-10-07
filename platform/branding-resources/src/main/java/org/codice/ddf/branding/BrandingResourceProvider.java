@@ -20,7 +20,7 @@ import java.io.IOException;
  * in bundle fragments attached to
  * {@code org.apache.karaf.webconsole.console}
  */
-public interface ResourceProvider {
+public interface BrandingResourceProvider {
 
     /**
      * Loads a binary resource (e.g. image) as bytes

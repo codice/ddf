@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.branding;
+package org.codice.ddf.branding.impl;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -27,11 +27,11 @@ import org.eclipse.osgi.framework.internal.core.BundleHost;
 import org.junit.Test;
 import org.osgi.framework.Bundle;
 
-public class TestResourceProviderImpl {
+public class TestBrandingResourceProviderImpl {
 
     public static final String TEST_PATH = "asdf";
 
-    private class TestImpl extends ResourceProviderImpl {
+    private class TestImpl extends BrandingResourceProviderImpl {
         private final Bundle bundle;
 
         private TestImpl(Bundle bundle) {
@@ -54,10 +54,10 @@ public class TestResourceProviderImpl {
     public void testFullArray() throws IOException {
         BundleHost bundle = mock(BundleHost.class);
         BundleFragment fragment = mock(BundleFragment.class);
-        URL url = this.getClass().getResource("/cat.png");
+        URL url = this.getClass().getResource("/logo.png");
         when(bundle.getFragments()).thenReturn(new BundleFragment[] {fragment});
         when(fragment.getEntry(TEST_PATH)).thenReturn(url);
         TestImpl impl = new TestImpl(bundle);
-        assertThat(impl.getResourceAsBytes(TEST_PATH).length, is(equalTo(117728)));
+        assertThat(impl.getResourceAsBytes(TEST_PATH).length, is(equalTo(22490)));
     }
 }
