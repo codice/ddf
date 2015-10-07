@@ -18,7 +18,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.codice.ddf.ui.searchui.query.controller.search.CacheQueryRunnable;
@@ -52,7 +51,7 @@ public class SearchController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SearchController.class);
 
-    private final ExecutorService executorService = getExecutorService();
+    private final ExecutorService executorService;
 
     private final FilterAdapter filterAdapter;
 
@@ -74,10 +73,11 @@ public class SearchController {
      * @param filterAdapter
      */
     public SearchController(CatalogFramework framework, ActionRegistry actionRegistry,
-            FilterAdapter filterAdapter) {
+            FilterAdapter filterAdapter, ExecutorService executorService) {
         this.framework = framework;
         this.actionRegistry = actionRegistry;
         this.filterAdapter = filterAdapter;
+        this.executorService = executorService;
     }
 
     /**
@@ -204,11 +204,6 @@ public class SearchController {
 
     public FilterAdapter getFilterAdapter() {
         return filterAdapter;
-    }
-
-    // Override for unit testing
-    ExecutorService getExecutorService() {
-        return Executors.newCachedThreadPool();
     }
 
     public void setNormalizationDisabled(Boolean normalizationDisabled) {

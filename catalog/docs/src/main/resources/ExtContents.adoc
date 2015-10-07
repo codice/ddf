@@ -2007,14 +2007,6 @@ _Catalog Standard Framework_
 |false
 |yes
 
-|poolSize
-|Integer
-|The federation thread pool size
-
-(0 for unlimited)
-|0
-|yes
-
 |productCacheDirectory
 |String
 |Directory where retrieved products will be cached for faster, future retrieval. If a directory path is specified with directories that do not exist, Catalog Framework will attempt to create those directories. Out of the box (without configuration), the product cache directory is `<INSTALL_DIR>/data/product-cache`. If a relative path is provided it will be relative to the `<INSTALL_DIR>`.
@@ -2272,15 +2264,6 @@ Catalog Fanout Framework configuration in the Web Console.
 |Description
 |Default Value
 |Required
-
-|Federation Thread Pool Size
-(0 for unlimited)
-|poolSize
-|Integer
-|The federation thread pool size.
-(0 for unlimited)
-|0
-|yes
 
 |Default Timeout
 (in milliseconds)

@@ -27,7 +27,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -1582,29 +1581,6 @@ public class CatalogFrameworkImpl extends DescribableImpl
 
         LOGGER.exit(methodName);
         return resourceResponse;
-    }
-
-    /**
-     * To be set via Spring/Blueprint
-     *
-     * @param poolSize the number of threads in the pool, 0 for an automatically-managed pool
-     */
-    public synchronized void setPoolSize(int poolSize) {
-        LOGGER.debug("Setting poolSize = " + poolSize);
-        if (pool != null) {
-            if (this.threadPoolSize == poolSize || this.threadPoolSize <= 0 && poolSize <= 0) {
-                return;
-            } else {
-                pool.shutdown();
-            }
-        }
-
-        this.threadPoolSize = poolSize;
-        if (threadPoolSize > 0) {
-            pool = Executors.newFixedThreadPool(poolSize);
-        } else {
-            pool = Executors.newCachedThreadPool();
-        }
     }
 
     /**
