@@ -63,7 +63,7 @@ The Search UI queries a Catalog using the following criteria.
 |Sorting	
 |Sort results by relevance, distance, created time, modified time or effective time.
 
-|Addtional Sources	
+|Additional Sources
 |Select *All Sources* or *Specific Sources*.
 
 |All Sources	
@@ -276,7 +276,7 @@ collection of searches and metacards created by a user. Complete the following p
 a saved search.
 
 . Select the Search tab at the bottom of the left pane.
-. Use the fields provided to define the <<search criteria>> for the query to be saved.
+. Use the fields provided to define the <<_search_criteria>> for the query to be saved.
 . Select the *Save* button. The Select Workspace pane opens.
 . Type a name for the query in the *ENTER NAME FOR SEARCH* field.
 . Select a workspace in which to save the query, or create a workspace by typing a title for the
@@ -323,7 +323,7 @@ are private and cannot be viewed by other users.
 . Select the + icon near the top of the Workspace pane to begin adding queries to the workspace.
   The Add/Edit Search pane opens.
 . Enter a name for the new query to be saved in the QUERY NAME field.
-. Complete the rest of the <<search criteria>>.
+. Complete the rest of the <<_search_criteria>>.
   image:workspace-query.png[complete search criteria]
 
 . Select the *Save & Search* button. The Search UI begins searching for records matching the
