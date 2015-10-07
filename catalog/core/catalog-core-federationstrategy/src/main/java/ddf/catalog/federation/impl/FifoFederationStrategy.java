@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -50,7 +50,10 @@ import ddf.catalog.source.Source;
  * strategy that returns results in the order they are received. This means that the first results
  * received by this strategy are the first results sent back to the client.
  *
+ * @deprecated This federation strategy has been left for historical purposes. Refer to the
+ * {@code CachingFederationStrategy} provided by the {@code catalog-core-standardframework} bundle.
  */
+@Deprecated
 public class FifoFederationStrategy implements FederationStrategy {
 
     private static final XLogger LOGGER = new XLogger(
@@ -144,7 +147,7 @@ public class FifoFederationStrategy implements FederationStrategy {
                                         .process(source, modifiedQueryRequest);
                             } catch (PluginExecutionException e) {
                                 LOGGER.warn("Error executing PreFederatedQueryPlugin: " + e
-                                                .getMessage(), e);
+                                        .getMessage(), e);
                             }
                         }
                     } catch (StopProcessingException e) {
@@ -215,13 +218,6 @@ public class FifoFederationStrategy implements FederationStrategy {
 
     }
 
-    /**
-     * Gets the time remaining before the timeout on a query
-     *
-     * @param deadline
-     *            - the deadline for the timeout to occur
-     * @return the time remaining prior to the timeout
-     */
     private static class FifoQueryMonitor implements Runnable {
 
         private QueryResponseImpl returnResults;
@@ -290,12 +286,16 @@ public class FifoFederationStrategy implements FederationStrategy {
 
             private Source site = null;
 
+            private long deadline;
+
             public SourceQueryThread(Source site, Future<SourceResponse> curFuture,
                     QueryResponseImpl returnResults, long maxResults) {
                 this.curFuture = curFuture;
                 this.returnResults = returnResults;
                 this.site = site;
                 this.maxResults = maxResults;
+
+                deadline = System.currentTimeMillis() + query.getTimeoutMillis();
             }
 
             @Override
@@ -305,9 +305,7 @@ public class FifoFederationStrategy implements FederationStrategy {
                 try {
                     sourceResponse = query.getTimeoutMillis() < 1 ?
                             curFuture.get() :
-                            curFuture.get(getTimeRemaining(
-                                    System.currentTimeMillis() + query.getTimeoutMillis()),
-                                    TimeUnit.MILLISECONDS);
+                            curFuture.get(getTimeRemaining(deadline), TimeUnit.MILLISECONDS);
                     sourceResponse = curFuture.get();
                 } catch (Exception e) {
                     LOGGER.warn("Federated query returned exception " + e.getMessage());

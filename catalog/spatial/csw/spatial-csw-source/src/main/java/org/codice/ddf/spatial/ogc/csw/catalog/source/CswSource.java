@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -22,11 +22,9 @@ import java.math.BigInteger;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Dictionary;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -68,7 +66,6 @@ import org.opengis.filter.sort.SortOrder;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
-import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -239,8 +236,6 @@ public class CswSource extends MaskableImpl
 
     private CapabilitiesType capabilities;
 
-    private List<ServiceRegistration<?>> registeredMetacardTypes = new ArrayList<ServiceRegistration<?>>();
-
     private String cswVersion;
 
     private SpatialCapabilitiesType spatialCapabilities;
@@ -321,7 +316,6 @@ public class CswSource extends MaskableImpl
 
     public void destroy() {
         LOGGER.debug("{}: Entering destroy()", cswSourceConfiguration.getId());
-        unregisterMetacardTypes();
         availabilityPollFuture.cancel(true);
         scheduler.shutdownNow();
     }
@@ -492,8 +486,7 @@ public class CswSource extends MaskableImpl
             LOGGER.debug("{}: Previous content type mapping: {}.", cswSourceConfiguration.getId(),
                     previousContentTypeMapping);
             currentContentTypeMapping = currentContentTypeMapping.trim();
-            if (!currentContentTypeMapping
-                    .equals(previousContentTypeMapping)) {
+            if (!currentContentTypeMapping.equals(previousContentTypeMapping)) {
                 LOGGER.debug("{}: The content type has been updated from {} to {}.",
                         cswSourceConfiguration.getId(), previousContentTypeMapping,
                         currentContentTypeMapping);
@@ -676,9 +669,6 @@ public class CswSource extends MaskableImpl
         SourceResponseImpl sourceResponse = new SourceResponseImpl(queryRequest, results,
                 totalHits);
         addContentTypes(sourceResponse);
-        unregisterMetacardTypes();
-        registerMetacardTypes();
-
         return sourceResponse;
     }
 
@@ -1365,51 +1355,6 @@ public class CswSource extends MaskableImpl
                 monitor.setUnavailable();
             }
         }
-    }
-
-    private void registerMetacardTypes() {
-        List<String> contentTypesNames = new ArrayList<>();
-        for (ContentType contentType : getContentTypes()) {
-            contentTypesNames.add(contentType.getName());
-        }
-
-        if (!contentTypesNames.isEmpty()) {
-            Dictionary<String, Object> metacardTypeProperties = new Hashtable<String, Object>();
-            metacardTypeProperties.put(Metacard.CONTENT_TYPE,
-                    contentTypesNames.toArray(new String[contentTypesNames.size()]));
-            CswRecordMetacardType cswRecordMetacardType = new CswRecordMetacardType(
-                    cswSourceConfiguration.getId());
-            LOGGER.debug("{}: CSW Record Metacard Type hash code: {}",
-                    cswSourceConfiguration.getId(), cswRecordMetacardType.hashCode());
-            LOGGER.debug("{}: Registering CSW Record Metacard Type {} with content types: {}",
-                    cswSourceConfiguration.getId(), cswRecordMetacardType.getClass().getName(),
-                    contentTypesNames);
-            ServiceRegistration<?> registeredMetacardType = context
-                    .registerService(MetacardType.class.getName(), cswRecordMetacardType,
-                            metacardTypeProperties);
-            registeredMetacardTypes.add(registeredMetacardType);
-        } else {
-            LOGGER.debug(
-                    "{}: There are no metadata content types to register for CSW Record Metacard Type {}. Not registering CSW Record Metacard Type {}.",
-                    cswSourceConfiguration.getId(), CswRecordMetacardType.class.getName(),
-                    CswRecordMetacardType.class.getName());
-        }
-    }
-
-    private void unregisterMetacardTypes() {
-        for (ServiceRegistration<?> metacardType : registeredMetacardTypes) {
-            try {
-                LOGGER.debug(
-                        "{}: Unregistering CSW Record Metacard Type {} with metadata content types {}",
-                        cswSourceConfiguration.getId(), CswRecordMetacardType.class.getName(),
-                        metacardType.getReference().getProperty(Metacard.CONTENT_TYPE));
-                metacardType.unregister();
-            } catch (IllegalStateException e) {
-                // Ignore - if caught the service has already been unregistered.
-            }
-        }
-
-        registeredMetacardTypes.clear();
     }
 
     private boolean isOutputSchemaSupported() {
