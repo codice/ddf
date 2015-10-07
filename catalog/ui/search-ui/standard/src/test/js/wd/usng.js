@@ -4,21 +4,14 @@
 
 var shared = require('./shared');
 
-//var asserters = shared.asserters;
-
-//var essentiallyEqual = function(/* float */ a, /* float */ b, /* float */ epsilon) {
-//    var A = Math.abs(a), B = Math.abs(b);
-//    return Math.abs(A - B) < epsilon;
-//}
-
 var convertLLtoUSNG = function(browser,lat1, lon1, lat2, lon2) {
     return browser
         .waitForElementById('latlon', shared.timeout).click()
         .waitForElementById('locationBbox', shared.timeout).click()
-        .waitForElementById('north', shared.timeout).type(lat1)
-        .waitForElementById('south', shared.timeout).type(lat2)
-        .waitForElementById('east', shared.timeout).type(lon1)
-        .waitForElementById('west', shared.timeout).type(lon2)
+        .waitForElementById('north', shared.timeout).clear().type(lat1)
+        .waitForElementById('south', shared.timeout).clear().type(lat2)
+        .waitForElementById('east', shared.timeout).clear().type(lon1)
+        .waitForElementById('west', shared.timeout).clear().type(lon2)
         .waitForElementById('usng', shared.timeout).click()
         .waitForElementById('usngbb', shared.timeout);
 };
@@ -31,17 +24,100 @@ var convertUSNGtoLL = function(browser, usng) {
         .waitForElementById('latlon', shared.timeout).click();
 };
 
+
 describe('USNG Search', function () {
     shared.setup(this);
 
-    describe('lat/lon bbox to usng', function () {
-        it("should convert to 18S UJ 23487 06483", function () {
-            var lat = 38.88;
-            var lon = -77.03;
-            //var usng = "18S UJ 23487 06483";
-            return convertLLtoUSNG(this.browser, lat, lon, lat, lon);
-               // .waitForElementById('usngbb', asserters.textInclude(usng), shared.timeout);
+    // Create bigger and bigger boxes around the washington monument
+    // Tests the precision conversion from llbbox to usng
+    describe('lat/lon bbox to usng', function() {
+
+        // 0-1m
+        it("should convert to 18S UJ 23495 06472", function () {
+            var lat = 38.8894;
+            var lon = -77.0351;
+            var usng = "18S UJ 23495 06472";
+            return convertLLtoUSNG(this.browser, lat, lon, lat, lon)
+                .waitForConditionInBrowser("document.getElementById('usngbb').value.includes('" + usng + "')", shared.timeout)
+                .refresh();
         });
+
+        // 2-10m
+        it("should convert to 18S UJ 2349 0648", function () {
+            var north = 38.8895;
+            var south = 38.8895;
+            var east = -77.0352;
+            var west = -77.0351;
+            var usng = "18S UJ 2349 0648";
+            return convertLLtoUSNG(this.browser, north, east, south, west)
+                .waitForConditionInBrowser("document.getElementById('usngbb').value.includes('" + usng + "')", shared.timeout)
+                .refresh();
+        });
+
+        // 11-100m
+        it("should convert to 18S UJ 234 064", function () {
+            var north = 38.8896;
+            var south = 38.8895;
+            var east = -77.0357;
+            var west = -77.0361;
+            var usng = "18S UJ 234 064";
+            return convertLLtoUSNG(this.browser, north, east, south, west)
+                .waitForConditionInBrowser("document.getElementById('usngbb').value.includes('" + usng + "')", shared.timeout)
+                .refresh();
+        });
+
+            // 100-1000m
+        it("should convert to 18S UJ 23 06", function () {
+            var north = 38.8905;
+            var south = 38.8891;
+            var east = -77.0355;
+            var west = -77.0376;
+            var usng = "18S UJ 23 06";
+            return convertLLtoUSNG(this.browser, north, east, south, west)
+                .waitForConditionInBrowser("document.getElementById('usngbb').value.includes('" + usng + "')", shared.timeout)
+                .refresh();
+        });
+
+            // 1000-10k
+        it("should convert to 18S UJ 2 0", function () {
+            var north = 38.8973;
+            var south = 38.8825;
+            var east = -77.0241;
+            var west = -77.0429;
+            var usng = "18S UJ 2 0";
+            return convertLLtoUSNG(this.browser, north, east, south, west)
+                .waitForConditionInBrowser("document.getElementById('usngbb').value.includes('" + usng + "')", shared.timeout)
+                .refresh();
+        });
+
+            // 10k-100k
+        it("should convert to 18S UJ", function () {
+            var north = 38.8973;
+            var south = 38.8825;
+            var east = -77.0241;
+            var west = -77.0429;
+            var usng = "18S UJ";
+            return convertLLtoUSNG(this.browser, north, east, south, west)
+                .waitForConditionInBrowser("document.getElementById('usngbb').value.includes('" + usng + "')", shared.timeout)
+                .refresh();
+        });
+
+            // 100k+
+        it("should convert to 18S", function () {
+            var north = 40;
+            var south = 32;
+            var east = -72;
+            var west = -78;
+            var usng = "18S";
+            return convertLLtoUSNG(this.browser, north, east, south, west)
+                .waitForConditionInBrowser("document.getElementById('usngbb').value.includes('" + usng + "')", shared.timeout)
+                .refresh();
+        });
+    });
+
+    // Create bigger and bigger boxes around the washington monument
+    // Tests the precision conversion from usng to llbbox
+    describe('usng to lat/lon bbox', function () {
 
         it("should convert to 38.889 -77.0351", function () {
             var north = 38.889;
