@@ -21,6 +21,8 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
@@ -56,6 +58,19 @@ public class SecuritySettingsServiceImpl implements SecuritySettingsService {
     private KeyStore keyStore;
 
     private KeyStore trustStore;
+
+    private List<String> getSslAllowedAlgorithms() {
+        return stringToArray(System.getProperty("org.apache.cxf.configuration.jsse.sslAllowedAlgorithms"));
+    }
+
+    private List<String> getSslDisallowedAlgorithms() {
+        return stringToArray(System.getProperty("org.apache.cxf.configuration.jsse.sslDisallowedAlgorithms"));
+    }
+
+    static List<String> stringToArray(String commaDelimitedString) {
+        return Arrays.asList(commaDelimitedString.split("\\s*,\\s"));
+
+    }
 
     public SecuritySettingsServiceImpl(EncryptionService encryptService) {
         this.encryptionService = encryptService;
@@ -127,13 +142,13 @@ public class SecuritySettingsServiceImpl implements SecuritySettingsService {
         TLSClientParameters tlsParams = new TLSClientParameters();
         try {
             TrustManagerFactory trustFactory = TrustManagerFactory
-                    .getInstance(TrustManagerFactory.getDefaultAlgorithm());
+                    .getInstance(System.getProperty("javax.net.ssl.trustManagerAlgorithm"));
             trustFactory.init(trustStore);
             TrustManager[] tm = trustFactory.getTrustManagers();
             tlsParams.setTrustManagers(tm);
 
             KeyManagerFactory keyFactory = KeyManagerFactory
-                    .getInstance(KeyManagerFactory.getDefaultAlgorithm());
+                    .getInstance(System.getProperty("javax.net.ssl.keyManagerAlgorithm"));
             keyFactory.init(keyStore, keystorePassword.toCharArray());
             KeyManager[] km = keyFactory.getKeyManagers();
             tlsParams.setKeyManagers(km);
@@ -144,8 +159,8 @@ public class SecuritySettingsServiceImpl implements SecuritySettingsService {
         }
 
         FiltersType filter = new FiltersType();
-        filter.getInclude().addAll(SSL_ALLOWED_ALGORITHMS);
-        filter.getExclude().addAll(SSL_DISALLOWED_ALGORITHMS);
+        filter.getInclude().addAll(getSslAllowedAlgorithms());
+        filter.getExclude().addAll(getSslDisallowedAlgorithms());
         tlsParams.setCipherSuitesFilter(filter);
 
         return tlsParams;
