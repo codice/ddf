@@ -13,17 +13,7 @@
  */
 package ddf.security.realm.sts;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -33,26 +23,13 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
 import javax.xml.stream.XMLStreamException;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.Bus;
-import org.apache.cxf.BusException;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.CXFBusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
-import org.apache.cxf.configuration.jsse.TLSClientParameters;
-import org.apache.cxf.configuration.security.FiltersType;
-import org.apache.cxf.endpoint.Client;
-import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.staxutils.W3CDOMStreamWriter;
-import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.ws.security.SecurityConstants;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.cxf.ws.security.trust.STSClient;
@@ -84,8 +61,6 @@ import ddf.security.PropertiesLoader;
 import ddf.security.assertion.SecurityAssertion;
 import ddf.security.assertion.impl.SecurityAssertionImpl;
 import ddf.security.common.audit.SecurityLogger;
-import ddf.security.common.util.CommonSSLFactory;
-import ddf.security.encryption.EncryptionService;
 import ddf.security.sts.client.configuration.STSClientConfiguration;
 
 public abstract class AbstractStsRealm extends AuthenticatingRealm
@@ -95,16 +70,7 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
 
     private static final String NAME = AbstractStsRealm.class.getSimpleName();
 
-    private static final String HTTPS = "https";
-
     private static final String ADDRESSING_NAMESPACE = "http://www.w3.org/2005/08/addressing";
-
-    // AES is the best encryption but isn't always supported, 3DES is widely
-    // supported and is very difficult to crack
-    private static final String[] SSL_ALLOWED_ALGORITHMS = {".*_EXPORT_.*", ".*_WITH_AES_.*",
-            ".*_WITH_3DES_.*"};
-
-    private static final String[] SSL_DISALLOWED_ALGORITHMS = {".*_WITH_NULL_.*", ".*_DH_anon_.*"};
 
     private static final Splitter SPLITTER = Splitter.on(',').trimResults().omitEmptyStrings();
 
@@ -136,17 +102,7 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
 
     private STSClient stsClient;
 
-    private String trustStorePath;
-
-    private String trustStorePassword;
-
-    private String keyStorePath;
-
-    private String keyStorePassword;
-
     private boolean settingsConfigured;
-
-    private EncryptionService encryptionService;
 
     private ContextPolicyManager contextPolicyManager;
 
@@ -161,10 +117,6 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
     public AbstractStsRealm() {
         this.bus = getBus();
         setCredentialsMatcher(new STSCredentialsMatcher());
-    }
-
-    public void setEncryptionService(EncryptionService encryptionService) {
-        this.encryptionService = encryptionService;
     }
 
     public ContextPolicyManager getContextPolicyManager() {
@@ -206,7 +158,7 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
      */
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) {
-        String method = "doGetAuthenticationInfo( AuthenticationToken token )";
+        String method = "doGetAuthenticationInfo(    AuthenticationToken token )";
         LOGGER.entry(method);
 
         Object credential;
@@ -354,167 +306,6 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
     }
 
     /**
-     * Setup trust store for SSL client.
-     */
-    private void setupTrustStore(TLSClientParameters tlsParams, String trustStorePath,
-            String trustStorePassword) {
-        File trustStoreFile = new File(trustStorePath);
-        if (trustStoreFile.exists() && trustStorePassword != null) {
-            KeyStore trustStore = null;
-            FileInputStream fis = null;
-
-            try {
-                trustStore = KeyStore.getInstance(System.getProperty("javax.net.ssl.keyStoreType"));
-                fis = new FileInputStream(trustStoreFile);
-                LOGGER.debug("Loading trustStore");
-                trustStore.load(fis, trustStorePassword.toCharArray());
-                TrustManagerFactory trustFactory = TrustManagerFactory
-                        .getInstance(TrustManagerFactory.getDefaultAlgorithm());
-                trustFactory.init(trustStore);
-                LOGGER.debug("trust manager factory initialized");
-                TrustManager[] tm = trustFactory.getTrustManagers();
-                tlsParams.setTrustManagers(tm);
-
-            } catch (FileNotFoundException e) {
-                LOGGER.error("Unable to find SSL store: " + trustStorePath, e);
-            } catch (IOException e) {
-                LOGGER.error("Unable to load trust store. " + trustStore, e);
-            } catch (CertificateException e) {
-                LOGGER.error("Unable to load certificates from trust store. " + trustStore, e);
-            } catch (KeyStoreException e) {
-                LOGGER.error("Unable to read trust store: ", e);
-            } catch (NoSuchAlgorithmException e) {
-                LOGGER.error("Problems creating SSL socket. Usually this is "
-                                + "referring to the certificate sent by the server not being trusted by the client.",
-                        e);
-            } finally {
-                IOUtils.closeQuietly(fis);
-            }
-        }
-    }
-
-    /**
-     * Setup key store for SSL client.
-     */
-    private void setupKeyStore(TLSClientParameters tlsParams, String keyStorePath,
-            String keyStorePassword) {
-        File keyStoreFile = new File(keyStorePath);
-
-        if (keyStoreFile.exists() && keyStorePassword != null) {
-            FileInputStream fis = null;
-            KeyStore keyStore = null;
-
-            try {
-                keyStore = KeyStore.getInstance(System.getProperty("javax.net.ssl.keyStoreType"));
-                fis = new FileInputStream(keyStoreFile);
-
-                LOGGER.debug("Loading keyStore");
-                keyStore.load(fis, keyStorePassword.toCharArray());
-
-                KeyManagerFactory keyFactory = KeyManagerFactory
-                        .getInstance(KeyManagerFactory.getDefaultAlgorithm());
-                keyFactory.init(keyStore, keyStorePassword.toCharArray());
-                LOGGER.debug("key manager factory initialized");
-                KeyManager[] km = keyFactory.getKeyManagers();
-                tlsParams.setKeyManagers(km);
-            } catch (FileNotFoundException e) {
-                LOGGER.error("Unable to find SSL store: " + keyStorePath, e);
-            } catch (IOException e) {
-                LOGGER.error("Unable to load key store. " + keyStoreFile, e);
-            } catch (CertificateException e) {
-                LOGGER.error("Unable to load certificates from key store. " + keyStoreFile, e);
-            } catch (KeyStoreException e) {
-                LOGGER.error("Unable to read key store: ", e);
-            } catch (NoSuchAlgorithmException e) {
-                LOGGER.error("Problems creating SSL socket. Usually this is "
-                                + "referring to the certificate sent by the server not being trusted by the client.",
-                        e);
-            } catch (UnrecoverableKeyException e) {
-                LOGGER.error("Unable to read key store: ", e);
-            } finally {
-                IOUtils.closeQuietly(fis);
-            }
-
-        }
-    }
-
-    /**
-     * Setup cipher suites filter for SSL client.
-     */
-    private void setupCipherSuiteFilters(TLSClientParameters tlsParams) {
-        // this sets the algorithms that we accept for SSL
-        FiltersType filter = new FiltersType();
-        filter.getInclude().addAll(Arrays.asList(SSL_ALLOWED_ALGORITHMS));
-        filter.getExclude().addAll(Arrays.asList(SSL_DISALLOWED_ALGORITHMS));
-        tlsParams.setCipherSuitesFilter(filter);
-    }
-
-    /**
-     * Configure SSL on the client.
-     */
-    private void configureSslOnClient(Client client) {
-        HTTPConduit httpConduit = (HTTPConduit) client.getConduit();
-
-        if (null != httpConduit) {
-            TLSClientParameters tlsParams = new TLSClientParameters();
-            tlsParams.setDisableCNCheck(true);
-
-            setupTrustStore(tlsParams, trustStorePath, trustStorePassword);
-
-            setupKeyStore(tlsParams, keyStorePath, keyStorePassword);
-
-            setupCipherSuiteFilters(tlsParams);
-
-            httpConduit.setTlsClientParameters(tlsParams);
-        }
-    }
-
-    /**
-     * Set properties based on DDF System Properties.
-     */
-    private void setDdfPropertiesFromSystemProperties() {
-        String setTrustStorePath = System.getProperty("javax.net.ssl.trustStore");
-        if (StringUtils.isNotBlank(setTrustStorePath)) {
-            LOGGER.debug("Setting trust store path: " + setTrustStorePath);
-            this.trustStorePath = setTrustStorePath;
-        }
-
-        String setTrustStorePassword = System.getProperty("javax.net.ssl.trustStorePassword");
-        if (StringUtils.isNotBlank(setTrustStorePassword)) {
-            if (encryptionService == null) {
-                LOGGER.error(
-                        "The StsRealm has a null Encryption Service. Unable to decrypt the encrypted "
-                                + "trustStore password. Setting decrypted password to null.");
-                this.trustStorePassword = null;
-            } else {
-                setTrustStorePassword = encryptionService.decryptValue(setTrustStorePassword);
-                LOGGER.debug("Setting trust store password.");
-                this.trustStorePassword = setTrustStorePassword;
-            }
-        }
-
-        String setKeyStorePath = System.getProperty("javax.net.ssl.keyStore");
-        if (StringUtils.isNotBlank(setKeyStorePath)) {
-            LOGGER.debug("Setting key store path: " + setKeyStorePath);
-            this.keyStorePath = setKeyStorePath;
-        }
-
-        String setKeyStorePassword = System.getProperty("javax.net.ssl.keyStorePassword");
-        if (StringUtils.isNotBlank(setKeyStorePassword)) {
-            if (encryptionService == null) {
-                LOGGER.error(
-                        "The StsRealm has a null Encryption Service. Unable to decrypt the encrypted "
-                                + "keyStore password. Setting decrypted password to null.");
-                this.keyStorePassword = null;
-            } else {
-                setKeyStorePassword = encryptionService.decryptValue(setKeyStorePassword);
-                LOGGER.debug("Setting key store password.");
-                this.keyStorePassword = setKeyStorePassword;
-            }
-        }
-    }
-
-    /**
      * Helper method to setup STS Client.
      */
     protected Bus getBus() {
@@ -600,18 +391,6 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
      */
     protected void configureStsClient() {
         LOGGER.debug("Configuring the STS client.");
-        setDdfPropertiesFromSystemProperties();
-        try {
-            if (trustStorePath != null && trustStorePassword != null && keyStorePath != null
-                    && keyStorePassword != null) {
-                HttpsURLConnection.setDefaultSSLSocketFactory(CommonSSLFactory
-                        .createSocket(trustStorePath, trustStorePassword, keyStorePath,
-                                keyStorePassword));
-            }
-        } catch (IOException ioe) {
-            throw new RuntimeException(
-                    "Could not create SSL connection with given trust/key stores.", ioe);
-        }
 
         configureBaseStsClient();
 
@@ -619,39 +398,8 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
 
         setClaimsOnStsClient(createClaimsElement());
 
-        if (stsClient.getWsdlLocation() != null && stsClient.getWsdlLocation().startsWith(HTTPS)) {
-            if (trustStorePath != null && trustStorePassword != null && keyStorePath != null
-                    && keyStorePassword != null) {
-                setupSslOnStsClientHttpConduit();
-            }
-        } else {
-            LOGGER.debug("STS address is null, unable to create STS Client");
-        }
-
         if (LOGGER.isDebugEnabled()) {
             logStsClientConfiguration();
-        }
-    }
-
-    /**
-     * Helper method to setup STS Client.
-     */
-    private void setupSslOnStsClientHttpConduit() {
-        LOGGER.debug("Setting up SSL on the STSClient HTTP conduit");
-
-        try {
-            Client client = stsClient.getClient();
-
-            if (client != null) {
-                configureSslOnClient(client);
-            } else {
-                LOGGER.debug(
-                        "CXF STS endpoint client is null.  Unable to setup SSL on the STSClient HTTP conduit.");
-            }
-        } catch (BusException e) {
-            LOGGER.error("Unable to create STS client.", e);
-        } catch (EndpointException e) {
-            LOGGER.error("Unable to create STS client endpoint.", e);
         }
     }
 

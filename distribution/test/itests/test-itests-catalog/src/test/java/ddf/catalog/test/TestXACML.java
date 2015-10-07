@@ -47,7 +47,7 @@ public class TestXACML extends TestSecurity {
 
     @Override
     public void configurePDP() throws Exception {
-        stopFeature(true, "security-pdp-java");
-        startFeature(true, "security-pdp-xacml");
+        getServiceManager().stopFeature(true, "security-pdp-java");
+        getServiceManager().startFeature(true, "security-pdp-xacml");
     }
 }
