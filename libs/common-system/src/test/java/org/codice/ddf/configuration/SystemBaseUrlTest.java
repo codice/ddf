@@ -106,6 +106,12 @@ public class SystemBaseUrlTest {
         assertThat(sbu.getRootContext(), equalTo(""));
         System.setProperty("org.codice.ddf.system.rootContext", "/services");
         assertThat(sbu.getRootContext(), equalTo("/services"));
+
+        assertThat(sbu.constructUrl("/some/path", true),
+                equalTo("https://localhost:8993/services/some/path"));
+        System.setProperty("org.codice.ddf.system.rootContext", "services");
+        assertThat(sbu.constructUrl("/some/path", true),
+                equalTo("https://localhost:8993/services/some/path"));
     }
 
 }

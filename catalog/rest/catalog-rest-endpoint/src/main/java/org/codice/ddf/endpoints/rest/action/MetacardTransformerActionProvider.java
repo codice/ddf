@@ -60,8 +60,8 @@ public class MetacardTransformerActionProvider extends AbstractMetacardActionPro
         try {
 
             URI uri = new URI(systemBaseUrl.constructUrl(
-                    systemBaseUrl.getRootContext() + PATH + "/" + metacardSource + "/" + metacardId
-                            + "?transform=" + metacardTransformerId));
+                    PATH + "/" + metacardSource + "/" + metacardId + "?transform="
+                            + metacardTransformerId, true));
             url = uri.toURL();
 
         } catch (MalformedURLException e) {

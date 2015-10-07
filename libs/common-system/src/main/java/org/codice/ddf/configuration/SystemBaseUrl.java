@@ -23,6 +23,8 @@ public final class SystemBaseUrl {
 
     public static final String HTTPS_PORT = "org.codice.ddf.system.httpsPort";
 
+    public static final String PORT = "org.codice.ddf.system.port";
+
     public static final String HOST = "org.codice.ddf.system.hostname";
 
     public static final String PROTOCOL = "org.codice.ddf.system.protocol";
@@ -47,7 +49,11 @@ public final class SystemBaseUrl {
      * @return
      */
     public String getPort() {
-        return getPort(getProtocol());
+        String port = System.getProperty(PORT);
+        if (port == null) {
+            port = getPort(getProtocol());
+        }
+        return port;
     }
 
     /**
@@ -81,6 +87,18 @@ public final class SystemBaseUrl {
     }
 
     /**
+     * Construct a url for the given context
+     *
+     * @param context The context path to be appened to the end of the base url
+     * @param includeRootContext Flag to indicated whether the rootcontext should be
+     *                           included in the url.
+     * @return
+     */
+    public String constructUrl(String context, boolean includeRootContext) {
+        return constructUrl(getProtocol(), context, includeRootContext);
+    }
+
+    /**
      * Construct a url based on the protocol and context
      *
      * @param proto   Protocol to use during url construction. A null value will
@@ -89,6 +107,20 @@ public final class SystemBaseUrl {
      * @return
      */
     public String constructUrl(String proto, String context) {
+        return constructUrl(proto, context, false);
+    }
+
+    /**
+     * Construct a url based on the protocol and context
+     *
+     * @param proto   Protocol to use during url construction. A null value will
+     *                cause the system default protocol to be used
+     * @param context The context path to be appened to the end of the base url
+     * @param includeRootContext Flag to indicated whether the rootcontext should be
+     *                           included in the url.
+     * @return
+     */
+    public String constructUrl(String proto, String context, boolean includeRootContext) {
         StringBuilder sb = new StringBuilder();
         String protocol = proto;
         if (protocol == null) {
@@ -101,7 +133,15 @@ public final class SystemBaseUrl {
         }
         sb.append(getHost());
         sb.append(":");
+
         sb.append(getPort(protocol));
+
+        if (includeRootContext) {
+            if (!getRootContext().startsWith("/")) {
+                sb.append("/");
+            }
+            sb.append(getRootContext());
+        }
 
         if (context != null) {
             if (!context.startsWith("/")) {

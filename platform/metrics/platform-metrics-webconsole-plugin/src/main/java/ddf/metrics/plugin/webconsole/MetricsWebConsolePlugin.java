@@ -76,7 +76,6 @@ import org.slf4j.LoggerFactory;
  *
  * @author rodgersh
  * @author ddf.isgs@lmco.com
- *
  */
 public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin {
     public static final String NAME = "metrics";
@@ -162,8 +161,7 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin {
 
         final PrintWriter pw = response.getWriter();
 
-        String metricsServiceUrl = systemBaseUrl
-                .constructUrl(systemBaseUrl.getRootContext() + METRICS_SERVICE_BASE_URL);
+        String metricsServiceUrl = systemBaseUrl.constructUrl(METRICS_SERVICE_BASE_URL, true);
 
         // Call Metrics Endpoint REST service to get list of all of the monitored
         // metrics and their associated hyperlinks to graph their historical data.

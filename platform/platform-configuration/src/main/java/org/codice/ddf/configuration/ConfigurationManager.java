@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.configuration;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Dictionary;
@@ -20,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.felix.utils.properties.Properties;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
@@ -32,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * displayed in the DDF System Settings configuration (but appear in other OSGi
  * bundle configurations such as CXF). These read-only settings are included in
  * the list of configuration settings pushed to registered listeners.
- * <p/>
+ * <p>
  * Registered listeners implement the ConfigurationWatcher interface and have
  * these DDF configuration settings pushed to them when they come online (aka
  * bind) and when one or more of the settings are changed in the Admin Console.
@@ -143,6 +145,18 @@ public class ConfigurationManager {
      * The map of DDF system settings, including the read-only settings.
      */
     protected Map<String, String> configuration;
+
+    private static Map<String, String> propertyMapping = new HashMap<>();
+
+    static {
+        propertyMapping.put(PROTOCOL, SystemBaseUrl.PROTOCOL);
+        propertyMapping.put(HOST, SystemBaseUrl.HOST);
+        propertyMapping.put(PORT, SystemBaseUrl.PORT);
+        propertyMapping.put(SITE_NAME, SystemInfo.SITE_NAME);
+        propertyMapping.put(CONTACT, SystemInfo.SITE_CONTACT);
+        propertyMapping.put(ORGANIZATION, SystemInfo.ORGANIZATION);
+        propertyMapping.put(VERSION, SystemInfo.VERSION);
+    }
 
     /**
      * The map of DDF system settings that are read-only, i.e., they are set in
@@ -257,14 +271,44 @@ public class ConfigurationManager {
         if (updatedConfig != null && !updatedConfig.isEmpty()) {
             configuration.clear();
 
+            //NOTE: logic to load/save system properties is only temporary until new configuration
+            //      mbean is merged in DDF-1525. Once that happens only need to add system properties
+            //      and read only configuration
+            File systemPropsFile = new File(
+                    readOnlySettings.get(HOME_DIR) + "/etc/system.properties");
+            Properties props = new Properties();
+            boolean propsLoaded = false;
+            try {
+                props.load(systemPropsFile);
+                propsLoaded = true;
+            } catch (IOException e) {
+                LOGGER.warn("Could not load system.properties.", e);
+            }
+
             for (Map.Entry<String, ?> entry : updatedConfig.entrySet()) {
                 if (entry.getValue() != null) {
+                    if (propertyMapping.containsKey(entry.getKey())) {
+                        props.put(propertyMapping.get(entry.getKey()), (String) entry.getValue());
+                        System.setProperty(propertyMapping.get(entry.getKey()),
+                                (String) entry.getValue());
+                    }
                     configuration.put(entry.getKey(), entry.getValue().toString());
                 }
             }
 
+            // Add the system properties
+            configuration.putAll(getSystemProperties());
+
             // Add the read-only settings to list to be pushed out to watchers
             configuration.putAll(readOnlySettings);
+
+            try {
+                if (propsLoaded) {
+                    props.save(systemPropsFile);
+                }
+            } catch (IOException e) {
+                LOGGER.warn("Could not save system.properties.", e);
+            }
         }
         Map<String, String> readOnlyConfig = Collections.unmodifiableMap(this.configuration);
         for (ConfigurationWatcher service : services) {

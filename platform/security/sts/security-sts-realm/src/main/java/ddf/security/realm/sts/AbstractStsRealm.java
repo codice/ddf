@@ -64,7 +64,6 @@ import org.apache.shiro.authc.SimpleAuthenticationInfo;
 import org.apache.shiro.authc.credential.CredentialsMatcher;
 import org.apache.shiro.realm.AuthenticatingRealm;
 import org.apache.shiro.subject.SimplePrincipalCollection;
-import org.codice.ddf.configuration.ConfigurationManager;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.SAMLAuthenticationToken;
 import org.codice.ddf.security.policy.context.ContextPolicy;
@@ -333,21 +332,6 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
     }
 
     /**
-     * Log properties from DDF configuration updates.
-     */
-    private void logIncomingProperties(@SuppressWarnings("rawtypes") Map properties) {
-        @SuppressWarnings("unchecked")
-        Set<String> keys = properties.keySet();
-        StringBuilder builder = new StringBuilder();
-        builder.append("\nIncoming properties:\n");
-        for (String key : keys) {
-            builder.append("key: " + key + "; value: " + properties.get(key) + "\n");
-        }
-
-        LOGGER.debug(builder.toString());
-    }
-
-    /**
      * Logs the current STS client configuration.
      */
     private void logStsClientConfiguration() {
@@ -366,24 +350,6 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
         }
 
         LOGGER.debug(builder.toString());
-    }
-
-    /**
-     * Determines if the received update is a DDF System Settings update.
-     */
-    private boolean isDdfConfigurationUpdate(@SuppressWarnings("rawtypes") Map properties) {
-        boolean updated = false;
-
-        if (properties.containsKey(ConfigurationManager.TRUST_STORE) && properties
-                .containsKey(ConfigurationManager.TRUST_STORE_PASSWORD) && properties
-                .containsKey(ConfigurationManager.KEY_STORE) && properties
-                .containsKey(ConfigurationManager.KEY_STORE_PASSWORD)) {
-            updated = true;
-        } else {
-            updated = false;
-        }
-
-        return updated;
     }
 
     /**
