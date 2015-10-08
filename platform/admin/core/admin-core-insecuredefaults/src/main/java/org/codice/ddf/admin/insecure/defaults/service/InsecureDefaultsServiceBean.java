@@ -19,8 +19,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.management.InstanceAlreadyExistsException;
+import javax.management.InstanceNotFoundException;
+import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
+import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -71,6 +74,9 @@ public class InsecureDefaultsServiceBean implements InsecureDefaultsServiceBeanM
 
     private static final String TRUSTSTORE_PASSWORD_SYSTEM_PROPERTY = "javax.net.ssl.trustStorePassword";
 
+    public static final String MBEAN_NAME =
+            InsecureDefaultsServiceBean.class.getName() + ":service=insecure-defaults-service";
+
     private ObjectName objectName;
 
     private MBeanServer mBeanServer;
@@ -82,8 +88,7 @@ public class InsecureDefaultsServiceBean implements InsecureDefaultsServiceBeanM
         addValidators(configurationAdmin);
 
         try {
-            objectName = new ObjectName(InsecureDefaultsServiceBean.class.getName()
-                    + ":service=insecure-defaults-service");
+            objectName = new ObjectName(MBEAN_NAME);
             mBeanServer = ManagementFactory.getPlatformMBeanServer();
         } catch (MalformedObjectNameException e) {
             LOGGER.error("Unable to create Insecure Defaults Service MBean with name [{}].",
@@ -127,7 +132,8 @@ public class InsecureDefaultsServiceBean implements InsecureDefaultsServiceBeanM
                 mBeanServer.registerMBean(this, objectName);
                 LOGGER.info("Re-registered Insecure Defaults Service MBean");
             }
-        } catch (Exception e) {
+        } catch (MBeanRegistrationException | InstanceNotFoundException |
+                InstanceAlreadyExistsException | NotCompliantMBeanException e) {
             LOGGER.error("Could not register MBean [{}].", objectName.toString(), e);
         }
     }
@@ -138,7 +144,7 @@ public class InsecureDefaultsServiceBean implements InsecureDefaultsServiceBeanM
                 mBeanServer.unregisterMBean(objectName);
                 LOGGER.info("Unregistered Insecure Defaults Service MBean");
             }
-        } catch (Exception e) {
+        } catch (InstanceNotFoundException | MBeanRegistrationException e) {
             LOGGER.error("Exception unregistering MBean [{}].", objectName.toString(), e);
         }
     }
