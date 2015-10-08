@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -32,8 +32,7 @@ import java.util.concurrent.Executors;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.codice.ddf.configuration.ConfigurationManager;
-import org.codice.ddf.configuration.ConfigurationWatcher;
+import org.codice.ddf.configuration.SystemInfo;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -114,8 +113,7 @@ import ddf.catalog.util.SourcePoller;
  *
  */
 @Deprecated
-public class CatalogFrameworkImpl extends DescribableImpl
-        implements ConfigurationWatcher, CatalogFramework {
+public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFramework {
 
     // TODO make this private
     protected static final String PRE_INGEST_ERROR = "Error during pre-ingest service invocation:\n\n";
@@ -222,6 +220,8 @@ public class CatalogFrameworkImpl extends DescribableImpl
     private Masker masker;
 
     private SourcePoller poller;
+
+    private SystemInfo systemInfo;
 
     /**
      * Instantiates a new CatalogFrameworkImpl
@@ -2109,38 +2109,14 @@ public class CatalogFrameworkImpl extends DescribableImpl
         }
     }
 
-    @Override
-    public void configurationUpdateCallback(Map<String, String> properties) {
-        String methodName = "configurationUpdateCallback";
-        logger.debug("ENTERING: " + methodName);
-
-        if (properties != null && !properties.isEmpty()) {
-            if (logger.isDebugEnabled()) {
-                logger.debug(properties.toString());
-            }
-
-            String ddfSiteName = properties.get(ConfigurationManager.SITE_NAME);
-            if (StringUtils.isNotBlank(ddfSiteName)) {
-                logger.debug("ddfSiteName = " + ddfSiteName);
-                this.setId(ddfSiteName);
-            }
-
-            String ddfVersion = properties.get(ConfigurationManager.VERSION);
-            if (StringUtils.isNotBlank(ddfVersion)) {
-                logger.debug("ddfVersion = " + ddfVersion);
-                this.setVersion(ddfVersion);
-            }
-
-            String ddfOrganization = properties.get(ConfigurationManager.ORGANIZATION);
-            if (StringUtils.isNotBlank(ddfOrganization)) {
-                logger.debug("ddfOrganization = " + ddfOrganization);
-                this.setOrganization(ddfOrganization);
-            }
-        } else {
-            logger.debug("properties are NULL or empty");
-        }
-
-        logger.debug("EXITING: " + methodName);
+    public SystemInfo getSystemInfo() {
+        return systemInfo;
     }
 
+    public void setSystemInfo(SystemInfo systemInfo) {
+        this.systemInfo = systemInfo;
+        setId(systemInfo.getSiteName());
+        setVersion(systemInfo.getVersion());
+        setOrganization(systemInfo.getOrganization());
+    }
 }

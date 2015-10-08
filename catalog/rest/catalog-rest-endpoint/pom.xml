@@ -106,6 +106,11 @@
             <artifactId>guava</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>ddf.lib</groupId>
+            <artifactId>common-system</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -116,7 +121,7 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Dependency>json-smart,catalog-core-api-impl,guava</Embed-Dependency>
+                        <Embed-Dependency>json-smart,catalog-core-api-impl,common-system,guava</Embed-Dependency>
                         <Import-Package>
                             org.joda.time;version="[1.6.0,3.0.0)",
                             *

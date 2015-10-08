@@ -49,7 +49,16 @@
             <groupId>net.minidev</groupId>
             <artifactId>json-smart</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>ddf.lib</groupId>
+            <artifactId>common-system</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.utils</artifactId>
+            <version>1.2.0</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -60,7 +69,7 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Dependency>json-smart</Embed-Dependency>
+                        <Embed-Dependency>json-smart,common-system,org.apache.felix.utils</Embed-Dependency>
                     </instructions>
                 </configuration>
             </plugin>

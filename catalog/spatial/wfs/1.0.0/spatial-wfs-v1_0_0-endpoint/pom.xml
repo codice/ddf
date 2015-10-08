@@ -94,6 +94,12 @@
             <version>1.4</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>ddf.lib</groupId>
+            <artifactId>common-system</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -119,7 +125,8 @@
                             spatial-wfs-v1_0_0-common;scope=compile|runtime,
                             spatial-wfs-converter;scope=compile|runtime,
                             spatial-wfs-v1_0_0-converter;scope=compile|runtime,
-                            catalog-core-api-impl;scope=compile|runtime
+                            catalog-core-api-impl;scope=compile|runtime,
+                            common-system
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                     </instructions>

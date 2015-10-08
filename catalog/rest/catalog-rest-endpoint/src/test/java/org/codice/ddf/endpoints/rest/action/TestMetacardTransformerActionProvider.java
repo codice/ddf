@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -21,6 +21,8 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import org.codice.ddf.configuration.SystemBaseUrl;
+import org.codice.ddf.configuration.SystemInfo;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,11 +46,10 @@ public class TestMetacardTransformerActionProvider extends AbstractActionProvide
         Metacard metacard = givenMetacard(SAMPLE_ID, noSource);
 
         AbstractMetacardActionProvider actionProvider = new MetacardTransformerActionProvider(
-                ACTION_PROVIDER_ID, SAMPLE_TRANSFORMER_ID);
+                ACTION_PROVIDER_ID, SAMPLE_TRANSFORMER_ID, new SystemBaseUrl(), new SystemInfo());
 
-        actionProvider.configurationUpdateCallback(
-                createMap("badProtocol", SAMPLE_IP, SAMPLE_PORT, SAMPLE_SERVICES_ROOT,
-                        SAMPLE_SOURCE_NAME));
+        this.configureActionProvider("badProtocol", SAMPLE_IP, SAMPLE_PORT, SAMPLE_SERVICES_ROOT,
+                SAMPLE_SOURCE_NAME);
 
         assertNull("A bad url should have been caught and a null action returned.",
                 actionProvider.getAction(metacard));
@@ -62,11 +63,10 @@ public class TestMetacardTransformerActionProvider extends AbstractActionProvide
         Metacard metacard = givenMetacard(SAMPLE_ID, noSource);
 
         AbstractMetacardActionProvider actionProvider = new MetacardTransformerActionProvider(
-                ACTION_PROVIDER_ID, SAMPLE_TRANSFORMER_ID);
+                ACTION_PROVIDER_ID, SAMPLE_TRANSFORMER_ID, new SystemBaseUrl(), new SystemInfo());
 
-        actionProvider.configurationUpdateCallback(
-                createMap(SAMPLE_PROTOCOL, "23^&*#", SAMPLE_PORT, SAMPLE_SERVICES_ROOT,
-                        SAMPLE_SOURCE_NAME));
+        this.configureActionProvider(SAMPLE_PROTOCOL, "23^&*#", SAMPLE_PORT, SAMPLE_SERVICES_ROOT,
+                SAMPLE_SOURCE_NAME);
 
         assertNull("A bad url should have been caught and a null action returned.",
                 actionProvider.getAction(metacard));
@@ -81,8 +81,9 @@ public class TestMetacardTransformerActionProvider extends AbstractActionProvide
         String noSource = null;
         Metacard metacard = givenMetacard(SAMPLE_ID, noSource);
 
-        AbstractMetacardActionProvider actionProvider = configureActionProvider(
-                new MetacardTransformerActionProvider(ACTION_PROVIDER_ID, SAMPLE_TRANSFORMER_ID));
+        AbstractMetacardActionProvider actionProvider = new MetacardTransformerActionProvider(
+                ACTION_PROVIDER_ID, SAMPLE_TRANSFORMER_ID, new SystemBaseUrl(), new SystemInfo());
+        this.configureActionProvider();
 
         // when
         Action action = actionProvider.getAction(metacard);
@@ -105,7 +106,7 @@ public class TestMetacardTransformerActionProvider extends AbstractActionProvide
     @Test
     public void testToString() {
         String toString = new MetacardTransformerActionProvider(ACTION_PROVIDER_ID,
-                SAMPLE_TRANSFORMER_ID).toString();
+                SAMPLE_TRANSFORMER_ID, new SystemBaseUrl(), new SystemInfo()).toString();
 
         LOGGER.info(toString);
 
@@ -136,8 +137,9 @@ public class TestMetacardTransformerActionProvider extends AbstractActionProvide
 
         metacard.setSourceId(newSourceName);
 
-        AbstractMetacardActionProvider actionProvider = configureActionProvider(
-                new MetacardTransformerActionProvider(ACTION_PROVIDER_ID, SAMPLE_TRANSFORMER_ID));
+        AbstractMetacardActionProvider actionProvider = new MetacardTransformerActionProvider(
+                ACTION_PROVIDER_ID, SAMPLE_TRANSFORMER_ID, new SystemBaseUrl(), new SystemInfo());
+        this.configureActionProvider();
 
         // when
         Action action = actionProvider.getAction(metacard);

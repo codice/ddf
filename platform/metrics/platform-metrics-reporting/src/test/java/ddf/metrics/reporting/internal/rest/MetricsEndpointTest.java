@@ -49,6 +49,8 @@ import org.apache.poi.hslf.usermodel.SlideShow;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.codice.ddf.configuration.SystemBaseUrl;
+import org.codice.ddf.configuration.SystemInfo;
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -86,7 +88,7 @@ public class MetricsEndpointTest extends XMLTestCase {
 
     @Test
     public void testParseDate() {
-        long time = new MetricsEndpoint().parseDate("1998-07-09T09:00:00-07:00");
+        long time = getEndpoint().parseDate("1998-07-09T09:00:00-07:00");
         assertThat(time, equalTo(900000000L));
     }
 
@@ -115,7 +117,7 @@ public class MetricsEndpointTest extends XMLTestCase {
         UriInfo uriInfo = createUriInfo();
 
         // Get the metrics list from the endpoint
-        MetricsEndpoint endpoint = new MetricsEndpoint();
+        MetricsEndpoint endpoint = getEndpoint();
         endpoint.setMetricsDir(TEST_DIR);
         Response response = endpoint.getMetricsList(uriInfo);
         String metricsList = (String) response.getEntity();
@@ -195,7 +197,7 @@ public class MetricsEndpointTest extends XMLTestCase {
         UriInfo uriInfo = createUriInfo();
 
         // Get the metrics graph from the endpoint
-        MetricsEndpoint endpoint = new MetricsEndpoint();
+        MetricsEndpoint endpoint = getEndpoint();
         endpoint.setMetricsDir(TEST_DIR);
         Response response = endpoint.getMetricsData("uptime", "png", "2013-03-25T06:00:00-07:00",
                 "2013-03-25T07:10:00-07:00", null, "my label", "my title", uriInfo);
@@ -220,7 +222,7 @@ public class MetricsEndpointTest extends XMLTestCase {
         UriInfo uriInfo = createUriInfo();
 
         // Get the metrics graph from the endpoint
-        MetricsEndpoint endpoint = new MetricsEndpoint();
+        MetricsEndpoint endpoint = getEndpoint();
         endpoint.setMetricsDir(TEST_DIR);
         Response response = endpoint
                 .getMetricsData("uptime", "png", null, null, null, null, null, uriInfo);
@@ -237,7 +239,7 @@ public class MetricsEndpointTest extends XMLTestCase {
     public void testGetMetricsGraphWithDateOffsetAndDates() throws Exception {
         UriInfo uriInfo = createUriInfo();
 
-        MetricsEndpoint endpoint = new MetricsEndpoint();
+        MetricsEndpoint endpoint = getEndpoint();
         endpoint.setMetricsDir(TEST_DIR);
         try {
             endpoint.getMetricsData("uptime", "png", "2013-03-25T06:00:00-07:00",
@@ -259,7 +261,7 @@ public class MetricsEndpointTest extends XMLTestCase {
                 .createGraph(anyString(), anyString(), anyLong(), anyLong(), anyString(),
                         anyString())).thenThrow(IOException.class);
 
-        MetricsEndpoint endpoint = new MetricsEndpoint();
+        MetricsEndpoint endpoint = getEndpoint();
         endpoint.setMetricsDir(TEST_DIR);
         endpoint.setMetricsRetriever(metricsRetriever);
 
@@ -283,7 +285,7 @@ public class MetricsEndpointTest extends XMLTestCase {
                 .createGraph(anyString(), anyString(), anyLong(), anyLong(), anyString(),
                         anyString())).thenThrow(MetricsGraphException.class);
 
-        MetricsEndpoint endpoint = new MetricsEndpoint();
+        MetricsEndpoint endpoint = getEndpoint();
         endpoint.setMetricsDir(TEST_DIR);
         endpoint.setMetricsRetriever(metricsRetriever);
 
@@ -304,7 +306,7 @@ public class MetricsEndpointTest extends XMLTestCase {
         UriInfo uriInfo = createUriInfo();
 
         // Get the metrics data from the endpoint
-        MetricsEndpoint endpoint = new MetricsEndpoint();
+        MetricsEndpoint endpoint = getEndpoint();
         endpoint.setMetricsDir(TEST_DIR);
 
         Response response = endpoint
@@ -337,7 +339,7 @@ public class MetricsEndpointTest extends XMLTestCase {
         UriInfo uriInfo = createUriInfo();
 
         // Get the metrics data from the endpoint
-        MetricsEndpoint endpoint = new MetricsEndpoint();
+        MetricsEndpoint endpoint = getEndpoint();
         endpoint.setMetricsDir(TEST_DIR);
 
         Response response = endpoint
@@ -372,7 +374,7 @@ public class MetricsEndpointTest extends XMLTestCase {
         UriInfo uriInfo = createUriInfo();
 
         // Get the metrics data from the endpoint
-        MetricsEndpoint endpoint = new MetricsEndpoint();
+        MetricsEndpoint endpoint = getEndpoint();
         endpoint.setMetricsDir(TEST_DIR);
 
         Response response = endpoint
@@ -426,7 +428,7 @@ public class MetricsEndpointTest extends XMLTestCase {
         UriInfo uriInfo = createUriInfo();
 
         // Get the metrics data from the endpoint
-        MetricsEndpoint endpoint = new MetricsEndpoint();
+        MetricsEndpoint endpoint = getEndpoint();
         endpoint.setMetricsDir(TEST_DIR);
 
         Response response = endpoint
@@ -452,7 +454,7 @@ public class MetricsEndpointTest extends XMLTestCase {
         UriInfo uriInfo = createUriInfo();
 
         // Get the metrics data from the endpoint
-        MetricsEndpoint endpoint = new MetricsEndpoint();
+        MetricsEndpoint endpoint = getEndpoint();
         endpoint.setMetricsDir(TEST_DIR);
 
         Response response = endpoint
@@ -495,7 +497,7 @@ public class MetricsEndpointTest extends XMLTestCase {
         UriInfo uriInfo = createUriInfo();
 
         // Get the metrics data from the endpoint
-        MetricsEndpoint endpoint = new MetricsEndpoint();
+        MetricsEndpoint endpoint = getEndpoint();
         endpoint.setMetricsDir(TEST_DIR);
 
         Response response = endpoint.getMetricsReport("xls", null, null,
@@ -525,7 +527,7 @@ public class MetricsEndpointTest extends XMLTestCase {
         UriInfo uriInfo = createUriInfo();
 
         // Get the metrics data from the endpoint
-        MetricsEndpoint endpoint = new MetricsEndpoint();
+        MetricsEndpoint endpoint = getEndpoint();
         endpoint.setMetricsDir(TEST_DIR);
 
         Response response = endpoint.getMetricsReport("ppt", null, null,
@@ -549,7 +551,7 @@ public class MetricsEndpointTest extends XMLTestCase {
     public void testSummaryFormat() throws URISyntaxException {
         boolean pass = false;
         try {
-            MetricsEndpoint endpoint = new MetricsEndpoint();
+            MetricsEndpoint endpoint = getEndpoint();
             endpoint.setMetricsDir(TEST_DIR);
 
             Response response = endpoint
@@ -703,7 +705,7 @@ public class MetricsEndpointTest extends XMLTestCase {
                 .thenThrow(exceptionClass);
 
         // Get the metrics data from the endpoint
-        MetricsEndpoint endpoint = new MetricsEndpoint();
+        MetricsEndpoint endpoint = getEndpoint();
         endpoint.setMetricsDir(TEST_DIR);
         endpoint.setMetricsRetriever(metricsRetriever);
 
@@ -756,5 +758,12 @@ public class MetricsEndpointTest extends XMLTestCase {
         }
 
         return String.valueOf(value);
+    }
+
+    private MetricsEndpoint getEndpoint() {
+        MetricsEndpoint me = new MetricsEndpoint(new SystemBaseUrl(), new SystemInfo());
+        System.setProperty(SystemBaseUrl.ROOT_CONTEXT, "/services");
+        System.setProperty(SystemInfo.SITE_NAME, "siteName");
+        return me;
     }
 }

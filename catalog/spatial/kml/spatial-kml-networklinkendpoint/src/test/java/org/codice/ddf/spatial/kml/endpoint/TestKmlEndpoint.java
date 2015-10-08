@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.kml.endpoint;
 
@@ -28,9 +27,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.UnknownHostException;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import javax.ws.rs.WebApplicationException;
@@ -41,7 +38,8 @@ import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.felix.webconsole.BrandingPlugin;
-import org.codice.ddf.configuration.ConfigurationManager;
+import org.codice.ddf.configuration.SystemBaseUrl;
+import org.codice.ddf.configuration.SystemInfo;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -94,8 +92,6 @@ public class TestKmlEndpoint {
 
     private static String jetPath;
 
-    private static Map<String, String> config = new HashMap<String, String>();
-
     @BeforeClass
     public static void setUp() throws IOException, URISyntaxException, SourceUnavailableException {
         when(mockUriInfo.getBaseUri()).thenReturn(new URI("http://example.com"));
@@ -108,11 +104,11 @@ public class TestKmlEndpoint {
         jetPath = jetLocation.getPath().replaceAll(JET_ICON, "");
         jetBtyes = IOUtils.toByteArray(jetLocation.openStream());
 
-        config = new HashMap<String, String>();
-        config.put(ConfigurationManager.HOST, TEST_HOST);
-        config.put(ConfigurationManager.PORT, TEST_PORT);
-        config.put(ConfigurationManager.SERVICES_CONTEXT_ROOT, "/services");
-        config.put(ConfigurationManager.CONTACT, "example@example.com");
+        System.setProperty(SystemBaseUrl.HOST, TEST_HOST);
+        System.setProperty(SystemBaseUrl.HTTPS_PORT, TEST_PORT);
+        System.setProperty(SystemBaseUrl.HTTP_PORT, TEST_PORT);
+        System.setProperty(SystemBaseUrl.ROOT_CONTEXT, "/services");
+        System.setProperty(SystemInfo.SITE_CONTACT, "example@example.com");
 
         when(mockFramework.getSourceInfo(any(SourceInfoRequest.class)))
                 .thenReturn(mockSourceInfoResponse);
@@ -127,8 +123,8 @@ public class TestKmlEndpoint {
     @Test
     public void testGetKmlNetworkLink() {
         when(mockUriInfo.getQueryParameters(false)).thenReturn(mockMap);
-        KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding, mockFramework);
-        kmlEndpoint.configurationUpdateCallback(config);
+        KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding, mockFramework, new SystemBaseUrl(),
+                new SystemInfo());
         kmlEndpoint.setDescription("This is some description.");
         kmlEndpoint.setLogo(
                 "https://tools.codice.org/wiki/download/attachments/3047457/DDF?version=1&modificationDate=1369422662164&api=v2");
@@ -149,11 +145,12 @@ public class TestKmlEndpoint {
     }
 
     @Test
-    public void testGetAvailableSources() throws UnknownHostException, MalformedURLException,
-            IllegalArgumentException, UriBuilderException, SourceUnavailableException {
+    public void testGetAvailableSources()
+            throws UnknownHostException, MalformedURLException, IllegalArgumentException,
+            UriBuilderException, SourceUnavailableException {
         when(mockUriInfo.getQueryParameters(false)).thenReturn(mockMap);
-        KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding, mockFramework);
-        kmlEndpoint.configurationUpdateCallback(config);
+        KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding, mockFramework, new SystemBaseUrl(),
+                new SystemInfo());
         Kml response = kmlEndpoint.getAvailableSources(mockUriInfo);
         assertThat(response, notNullValue());
         assertThat(response.getFeature(), is(Folder.class));
@@ -169,12 +166,12 @@ public class TestKmlEndpoint {
     }
 
     @Test
-    public void testGetAvailableSourcesVisibleByDefault() throws UnknownHostException,
-            MalformedURLException, IllegalArgumentException, UriBuilderException,
-            SourceUnavailableException {
+    public void testGetAvailableSourcesVisibleByDefault()
+            throws UnknownHostException, MalformedURLException, IllegalArgumentException,
+            UriBuilderException, SourceUnavailableException {
         when(mockUriInfo.getQueryParameters(false)).thenReturn(mockMap);
-        KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding, mockFramework);
-        kmlEndpoint.configurationUpdateCallback(config);
+        KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding, mockFramework, new SystemBaseUrl(),
+                new SystemInfo());
         Kml response = kmlEndpoint.getAvailableSources(mockUriInfo);
         assertThat(response, notNullValue());
         assertThat(response.getFeature(), is(Folder.class));
@@ -192,12 +189,12 @@ public class TestKmlEndpoint {
     }
 
     @Test
-    public void testGetAvailableSourcesWithCount() throws UnknownHostException,
-            MalformedURLException, IllegalArgumentException, UriBuilderException,
-            SourceUnavailableException {
+    public void testGetAvailableSourcesWithCount()
+            throws UnknownHostException, MalformedURLException, IllegalArgumentException,
+            UriBuilderException, SourceUnavailableException {
         when(mockUriInfo.getQueryParameters(false)).thenReturn(mockMap);
-        KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding, mockFramework);
-        kmlEndpoint.configurationUpdateCallback(config);
+        KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding, mockFramework, new SystemBaseUrl(),
+                new SystemInfo());
         kmlEndpoint.setMaxResults(250);
         Kml response = kmlEndpoint.getAvailableSources(mockUriInfo);
         assertThat(response, notNullValue());
@@ -220,7 +217,8 @@ public class TestKmlEndpoint {
      */
     @Test
     public void testGetIconLocation() {
-        KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding, mockFramework);
+        KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding, mockFramework, new SystemBaseUrl(),
+                new SystemInfo());
         byte[] response = kmlEndpoint.getIcon(null, BOMBER_ICON);
         assertThat(response, is(bomberBytes));
     }
@@ -230,13 +228,15 @@ public class TestKmlEndpoint {
      */
     @Test(expected = WebApplicationException.class)
     public void testExceptionGetIconLocation() {
-        KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding, mockFramework);
+        KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding, mockFramework, new SystemBaseUrl(),
+                new SystemInfo());
         kmlEndpoint.getIcon(null, JET_ICON);
     }
 
     @Test
     public void testGetIconCustomLocation() {
-        KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding, mockFramework);
+        KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding, mockFramework, new SystemBaseUrl(),
+                new SystemInfo());
         kmlEndpoint.setIconLoc(jetPath);
         byte[] response = kmlEndpoint.getIcon(null, JET_ICON);
         assertThat(response, is(jetBtyes));
@@ -247,7 +247,8 @@ public class TestKmlEndpoint {
      */
     @Test(expected = WebApplicationException.class)
     public void testExceptionGetCustomIconLocation() {
-        KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding, mockFramework);
+        KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding, mockFramework, new SystemBaseUrl(),
+                new SystemInfo());
         kmlEndpoint.setIconLoc(bomberPath);
         kmlEndpoint.getIcon(null, JET_ICON);
     }

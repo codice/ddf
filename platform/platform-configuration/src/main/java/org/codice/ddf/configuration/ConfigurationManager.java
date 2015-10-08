@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.configuration;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Dictionary;
@@ -20,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.felix.utils.properties.Properties;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
@@ -32,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * displayed in the DDF System Settings configuration (but appear in other OSGi
  * bundle configurations such as CXF). These read-only settings are included in
  * the list of configuration settings pushed to registered listeners.
- * <p/>
+ * <p>
  * Registered listeners implement the ConfigurationWatcher interface and have
  * these DDF configuration settings pushed to them when they come online (aka
  * bind) and when one or more of the settings are changed in the Admin Console.
@@ -122,14 +124,6 @@ public class ConfigurationManager {
     // Constants for the read-only DDF system settings
     private static final String DDF_HOME_ENVIRONMENT_VARIABLE = "DDF_HOME";
 
-    private static final String CXF_SERVICE_PID = "org.apache.cxf.osgi";
-
-    private static final String CXF_SERVLET_CONTEXT = "org.apache.cxf.servlet.context";
-
-    private static final String PAX_WEB_SERVICE_PID = "org.ops4j.pax.web";
-
-    private static final String JETTY_HTTP_PORT = "org.osgi.service.http.port";
-
     private static final String SSL_KEYSTORE_JAVA_PROPERTY = "javax.net.ssl.keyStore";
 
     private static final String SSL_KEYSTORE_PASSWORD_JAVA_PROPERTY = "javax.net.ssl.keyStorePassword";
@@ -137,6 +131,10 @@ public class ConfigurationManager {
     private static final String SSL_TRUSTSTORE_JAVA_PROPERTY = "javax.net.ssl.trustStore";
 
     private static final String SSL_TRUSTSTORE_PASSWORD_JAVA_PROPERTY = "javax.net.ssl.trustStorePassword";
+
+    protected SystemBaseUrl systemBaseUrl;
+
+    protected SystemInfo systemInfo;
 
     /**
      * List of DdfManagedServices to push the DDF system settings to.
@@ -147,6 +145,18 @@ public class ConfigurationManager {
      * The map of DDF system settings, including the read-only settings.
      */
     protected Map<String, String> configuration;
+
+    private static Map<String, String> propertyMapping = new HashMap<>();
+
+    static {
+        propertyMapping.put(PROTOCOL, SystemBaseUrl.PROTOCOL);
+        propertyMapping.put(HOST, SystemBaseUrl.HOST);
+        propertyMapping.put(PORT, SystemBaseUrl.PORT);
+        propertyMapping.put(SITE_NAME, SystemInfo.SITE_NAME);
+        propertyMapping.put(CONTACT, SystemInfo.SITE_CONTACT);
+        propertyMapping.put(ORGANIZATION, SystemInfo.ORGANIZATION);
+        propertyMapping.put(VERSION, SystemInfo.VERSION);
+    }
 
     /**
      * The map of DDF system settings that are read-only, i.e., they are set in
@@ -171,10 +181,12 @@ public class ConfigurationManager {
      * @param configurationAdmin the OSGi Configuration Admin service handle
      */
     public ConfigurationManager(List<ConfigurationWatcher> services,
-            ConfigurationAdmin configurationAdmin) {
+            ConfigurationAdmin configurationAdmin, SystemBaseUrl sbu, SystemInfo info) {
         LOGGER.debug("ENTERING: ctor");
         this.services = services;
         this.configurationAdmin = configurationAdmin;
+        this.systemBaseUrl = sbu;
+        this.systemInfo = info;
 
         this.readOnlySettings = new HashMap<String, String>();
         if (System.getenv(DDF_HOME_ENVIRONMENT_VARIABLE) != null) {
@@ -182,10 +194,9 @@ public class ConfigurationManager {
         } else {
             readOnlySettings.put(HOME_DIR, System.getProperty("user.dir"));
         }
-        readOnlySettings
-                .put(HTTP_PORT, getConfigurationValue(PAX_WEB_SERVICE_PID, JETTY_HTTP_PORT));
-        readOnlySettings.put(SERVICES_CONTEXT_ROOT,
-                getConfigurationValue(CXF_SERVICE_PID, CXF_SERVLET_CONTEXT));
+
+        // Add the system properties
+        configurationProperties.putAll(getSystemProperties());
 
         readOnlySettings.put(KEY_STORE, System.getProperty(SSL_KEYSTORE_JAVA_PROPERTY));
         readOnlySettings
@@ -260,14 +271,44 @@ public class ConfigurationManager {
         if (updatedConfig != null && !updatedConfig.isEmpty()) {
             configuration.clear();
 
+            //NOTE: logic to load/save system properties is only temporary until new configuration
+            //      mbean is merged in DDF-1525. Once that happens only need to add system properties
+            //      and read only configuration
+            File systemPropsFile = new File(
+                    readOnlySettings.get(HOME_DIR) + "/etc/system.properties");
+            Properties props = new Properties();
+            boolean propsLoaded = false;
+            try {
+                props.load(systemPropsFile);
+                propsLoaded = true;
+            } catch (IOException e) {
+                LOGGER.warn("Could not load system.properties.", e);
+            }
+
             for (Map.Entry<String, ?> entry : updatedConfig.entrySet()) {
                 if (entry.getValue() != null) {
+                    if (propertyMapping.containsKey(entry.getKey())) {
+                        props.put(propertyMapping.get(entry.getKey()), (String) entry.getValue());
+                        System.setProperty(propertyMapping.get(entry.getKey()),
+                                (String) entry.getValue());
+                    }
                     configuration.put(entry.getKey(), entry.getValue().toString());
                 }
             }
 
+            // Add the system properties
+            configuration.putAll(getSystemProperties());
+
             // Add the read-only settings to list to be pushed out to watchers
             configuration.putAll(readOnlySettings);
+
+            try {
+                if (propsLoaded) {
+                    props.save(systemPropsFile);
+                }
+            } catch (IOException e) {
+                LOGGER.warn("Could not save system.properties.", e);
+            }
         }
         Map<String, String> readOnlyConfig = Collections.unmodifiableMap(this.configuration);
         for (ConfigurationWatcher service : services) {
@@ -351,5 +392,18 @@ public class ConfigurationManager {
         LOGGER.debug("EXITING: {}    value = [{}]", methodName, value);
 
         return value;
+    }
+
+    private Map<String, String> getSystemProperties() {
+        Map<String, String> map = new HashMap<>();
+        map.put(HTTP_PORT, systemBaseUrl.getHttpPort());
+        map.put(HOST, systemBaseUrl.getHost());
+        map.put(PROTOCOL, systemBaseUrl.getProtocol());
+        map.put(PORT, systemBaseUrl.getPort());
+        map.put(SITE_NAME, systemInfo.getSiteName());
+        map.put(VERSION, systemInfo.getVersion());
+        map.put(ORGANIZATION, systemInfo.getOrganization());
+        map.put(SERVICES_CONTEXT_ROOT, systemBaseUrl.getRootContext());
+        return map;
     }
 }

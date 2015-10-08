@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -50,8 +50,7 @@ import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.felix.webconsole.AbstractWebConsolePlugin;
-import org.codice.ddf.configuration.ConfigurationManager;
-import org.codice.ddf.configuration.ConfigurationWatcher;
+import org.codice.ddf.configuration.SystemBaseUrl;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
@@ -77,10 +76,8 @@ import org.slf4j.LoggerFactory;
  *
  * @author rodgersh
  * @author ddf.isgs@lmco.com
- *
  */
-public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin
-        implements ConfigurationWatcher {
+public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin {
     public static final String NAME = "metrics";
 
     public static final String LABEL = "Metrics";
@@ -107,15 +104,11 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin
 
     private static final String KEYSTORE_DEFAULT_PASS = "changeit";
 
-    private String trustStore;
+    private SystemBaseUrl systemBaseUrl;
 
-    private String trustStorePassword;
-
-    private String keyStore;
-
-    private String keyStorePassword;
-
-    private String servicesContextRoot = "/services";
+    public MetricsWebConsolePlugin(SystemBaseUrl sbu) {
+        this.systemBaseUrl = sbu;
+    }
 
     private static String urlEncodeDate(DateMidnight date) throws UnsupportedEncodingException {
         return urlEncodeDate(date.toDateTime());
@@ -168,9 +161,7 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin
 
         final PrintWriter pw = response.getWriter();
 
-        String metricsServiceUrl =
-                request.getScheme() + "://" + request.getServerName() + ":" + request
-                        .getServerPort() + servicesContextRoot + METRICS_SERVICE_BASE_URL;
+        String metricsServiceUrl = systemBaseUrl.constructUrl(METRICS_SERVICE_BASE_URL, true);
 
         // Call Metrics Endpoint REST service to get list of all of the monitored
         // metrics and their associated hyperlinks to graph their historical data.
@@ -343,6 +334,14 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin
             FileInputStream ksFIS = null;
             try {
                 keyStoreJks = KeyStore.getInstance("JKS");
+                String trustStore = System
+                        .getProperty("javax.net.ssl.trustStore", TRUSTSTORE_DEFAULT_LOC);
+                String trustStorePassword = System
+                        .getProperty("javax.net.ssl.trustStorePassword", TRUSTSTORE_DEFAULT_PASS);
+                String keyStore = System
+                        .getProperty("javax.net.ssl.keyStore", KEYSTORE_DEFAULT_LOC);
+                String keyStorePassword = System
+                        .getProperty("javax.net.ssl.keyStorePassword", KEYSTORE_DEFAULT_PASS);
 
                 File trustStoreFile = new File(trustStore);
                 tsFIS = new FileInputStream(trustStoreFile);
@@ -536,29 +535,5 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin
 
     private void endTableRow(PrintWriter pw) {
         pw.println("</tr>");
-    }
-
-    @Override
-    public void configurationUpdateCallback(Map<String, String> configuration) {
-        synchronized (this) {
-            servicesContextRoot = configuration.get(ConfigurationManager.SERVICES_CONTEXT_ROOT);
-            String trustStoreLoc = configuration.get(ConfigurationManager.TRUST_STORE);
-            if (StringUtils.isNotBlank(trustStoreLoc)) {
-                trustStore = trustStoreLoc;
-                trustStorePassword = configuration.get(ConfigurationManager.TRUST_STORE_PASSWORD);
-            } else {
-                trustStore = TRUSTSTORE_DEFAULT_LOC;
-                trustStorePassword = TRUSTSTORE_DEFAULT_PASS;
-            }
-
-            String keystoreLoc = configuration.get(ConfigurationManager.KEY_STORE);
-            if (StringUtils.isNotBlank(keystoreLoc)) {
-                keyStore = keystoreLoc;
-                keyStorePassword = configuration.get(ConfigurationManager.KEY_STORE_PASSWORD);
-            } else {
-                keyStore = KEYSTORE_DEFAULT_LOC;
-                keyStorePassword = KEYSTORE_DEFAULT_PASS;
-            }
-        }
     }
 }

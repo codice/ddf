@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -47,8 +47,8 @@ import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.configuration.ConfigurationManager;
-import org.codice.ddf.configuration.ConfigurationWatcher;
+import org.codice.ddf.configuration.SystemBaseUrl;
+import org.codice.ddf.configuration.SystemInfo;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.json.simple.JSONValue;
@@ -63,17 +63,15 @@ import ddf.metrics.reporting.internal.rrd4j.RrdMetricsRetriever;
 /**
  * This class provides an endpoint for a client, e.g., {@link MetricsWebConsolePlugin} to access the
  * historical metrics data collected by DDF.
- *
+ * <p>
  * This endpoint provides a URL to retrieve the list of metrics collected by DDF, including their
  * associated URLs to access pre-defined time ranges of each metric's historical data, e.g., for the
  * past 15 minutes, 1 hour, 4 hours, 12 hours, 24 hours, 3 days, 1 week, 1 month, and 1 year. Each
  * of these hyperlinks will return a byte array containing a PNG graph of the metric's historical
  * data for the given time range.
- *
- *
  */
 @Path("/")
-public class MetricsEndpoint implements ConfigurationWatcher {
+public class MetricsEndpoint {
     public static final String DEFAULT_METRICS_DIR = "data/metrics/";
 
     static final Map<String, Long> TIME_RANGES = new HashMap<String, Long>();
@@ -127,10 +125,9 @@ public class MetricsEndpoint implements ConfigurationWatcher {
         TIME_RANGES.put("1y", ONE_YEAR_IN_SECONDS);
     }
 
-    // Storage string for DDF site name from Configuration Watcher
-    public String siteName;
+    private SystemBaseUrl systemBaseUrl;
 
-    private String servicesContextRoot = "/services";
+    private SystemInfo systemInfo;
 
     private final SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 
@@ -140,47 +137,43 @@ public class MetricsEndpoint implements ConfigurationWatcher {
 
     private double metricsMaxThreshold;
 
+    public MetricsEndpoint(SystemBaseUrl sbu, SystemInfo info) {
+        this.systemBaseUrl = sbu;
+        this.systemInfo = info;
+    }
+
     /**
      * Retrieve data for the specified metric over the given time range. The URL to access this
      * method is of the form http://<host>:<port>/<metricName>.<outputFormat> So the desired metric
      * filename is specified in the URL, e.g., catalogQueryCount.png, where the filename extension
      * defines the desired output format returned for the metric's data. Currently supported formats
      * are png, csv, xls, ppt, xml, and json.
-     *
+     * <p>
      * Note that the time range can be specified as either a start and end date (in RFC3339 format,
      * i.e., YYYY-MM-DD'T'hh:mm:ssZ), or as an offset in seconds from the current time. These 2 time
      * range mechanisms cannot be combined, e.g., you cannot specify an end date and an offset to be
      * applied from that end date.
-     *
+     * <p>
      * By default, the metric's name will be used for the y-axis label on the PNG graph, and the
      * metric name and time range will be used for the graph's title. Both of these can be
      * optionally specified with the yAxisLabel and title parameters. These 2 parameters do not
      * apply for the other formats.
      *
-     * @param metricName
-     *            Name of the metric being graphed, e.g., queryCount
-     * @param outputFormat
-     *            output format of the metric, e.g. csv
-     * @param startDate
-     *            Specifies the start of the time range of the search on the metric's data (RFC-3339
-     *            - Date and Time format, i.e. YYYY-MM-DDTHH:mm:ssZ). Cannot be used with dateOffset
-     *            parameter.
-     * @param endDate
-     *            Specifies the end of the time range of the search on the metric's data (RFC-3339 -
-     *            Date and Time format, i.e. YYYY-MM-DDTHH:mm:ssZ). Cannot be used with dateOffset
-     *            parameter.
-     * @param dateOffset
-     *            Specifies an offset, backwards from the current time, to search on the modified
-     *            time field for entries. Defined in seconds. Cannot be used with startDate and
-     *            endDate parameters.
-     * @param yAxisLabel
-     *            (optional) the label to apply to the graph's y-axis
-     * @param title
-     *            (optional) the title to be applied to the graph
+     * @param metricName   Name of the metric being graphed, e.g., queryCount
+     * @param outputFormat output format of the metric, e.g. csv
+     * @param startDate    Specifies the start of the time range of the search on the metric's data (RFC-3339
+     *                     - Date and Time format, i.e. YYYY-MM-DDTHH:mm:ssZ). Cannot be used with dateOffset
+     *                     parameter.
+     * @param endDate      Specifies the end of the time range of the search on the metric's data (RFC-3339 -
+     *                     Date and Time format, i.e. YYYY-MM-DDTHH:mm:ssZ). Cannot be used with dateOffset
+     *                     parameter.
+     * @param dateOffset   Specifies an offset, backwards from the current time, to search on the modified
+     *                     time field for entries. Defined in seconds. Cannot be used with startDate and
+     *                     endDate parameters.
+     * @param yAxisLabel   (optional) the label to apply to the graph's y-axis
+     * @param title        (optional) the title to be applied to the graph
      * @param uriInfo
-     *
      * @return Response containing the metric's data in the specified outputFormat
-     *
      * @throws MetricsEndpointException
      */
     @GET
@@ -391,8 +384,8 @@ public class MetricsEndpoint implements ConfigurationWatcher {
      *
      * @param uriInfo
      * @return JSON-formatted response where each metric has a list of URLs (and the display text
-     *         for them), where each URL links to a graph of the metric's data for a specific time
-     *         range from current time (e.g., for last 4 hours).
+     * for them), where each URL links to a graph of the metric's data for a specific time
+     * range from current time (e.g., for last 4 hours).
      */
     @GET
     @Path("/")
@@ -420,19 +413,19 @@ public class MetricsEndpoint implements ConfigurationWatcher {
      * of the form http://<host>:<port>/report.<outputFormat> The filename extension defines the
      * desired output format returned for the report's data. Currently supported formats are xls and
      * ppt.
-     *
+     * <p>
      * The XLS-formatted report will be one spreadsheet (workbook) with a worksheet per metric. The
      * PPT-formatted report will be one PowerPoint slide deck with a slide per metric. Each slide
      * will contain the metric's PNG graph.
-     *
+     * <p>
      * If a summary interval is requested, the XSL report will instead contain a single table, with
      * the summarized values for each interval and metric. Cannot be used with PPT format.
-     *
+     * <p>
      * Note that the time range can be specified as either a start and end date (in RFC3339 format,
      * i.e., YYYY-MM-DD'T'hh:mm:ssZ), or as an offset in seconds from the current time. These 2 time
      * range mechanisms cannot be combined, e.g., you cannot specify an end date and an offset to be
      * applied from that end date.
-     *
+     * <p>
      * By default, the metric's name will be used for the y-axis label, and the metric name and time
      * range will be used for the graph's title for the report in PPT format.
      *
@@ -447,9 +440,7 @@ public class MetricsEndpoint implements ConfigurationWatcher {
      *                        endDate parameters.
      * @param summaryInterval One of {@link ddf.metrics.reporting.internal.rrd4j.RrdMetricsRetriever.SUMMARY_INTERVALS}
      * @param uriInfo
-     *
      * @return Response containing the report as a stream in either XLS or PPT format
-     *
      * @throws MetricsEndpointException
      */
     @GET
@@ -520,8 +511,8 @@ public class MetricsEndpoint implements ConfigurationWatcher {
 
         // Generated name for metrics file (<DDF Sitename>_<Startdate>_<EndDate>.outputFormat)
         String dispositionString =
-                "attachment; filename=" + siteName + "_" + startDate.substring(0, 10) + "_"
-                        + endDate.substring(0, 10) + "." + outputFormat;
+                "attachment; filename=" + systemInfo.getSiteName() + "_" + startDate
+                        .substring(0, 10) + "_" + endDate.substring(0, 10) + "." + outputFormat;
 
         try {
             if (outputFormat.equalsIgnoreCase("xls")) {
@@ -583,7 +574,7 @@ public class MetricsEndpoint implements ConfigurationWatcher {
 
     /**
      * Generates the URLs for each time range, e.g., 15m, 1h, etc. for the specified metric.
-     *
+     * <p>
      * The metric's URL info will be put in the {@code metrics} Maps passed in to this method. The
      * structure of these nested Maps are:
      * {@code Map1<String1, Map2<String2, Map3<String3,String4>>>} (Numbers added to end of Map and
@@ -598,12 +589,9 @@ public class MetricsEndpoint implements ConfigurationWatcher {
      * http://host:port/services/internal/metrics/catalogQueries.png?dateOffset=900</li>
      * </ul>
      *
-     * @param metrics
-     *            nested Maps that will be populated with the metric's URL info
-     * @param metricsName
-     *            name of the metric to generate URLs for
-     * @param uriInfo
-     *            used to extract the base URL and append the metric's path to it
+     * @param metrics     nested Maps that will be populated with the metric's URL info
+     * @param metricsName name of the metric to generate URLs for
+     * @param uriInfo     used to extract the base URL and append the metric's path to it
      */
     protected void generateMetricsUrls(Map<String, Map<String, Map<String, String>>> metrics,
             String metricsName, UriInfo uriInfo) {
@@ -648,9 +636,8 @@ public class MetricsEndpoint implements ConfigurationWatcher {
                  * END: CXF bug
                  */
 
-                String metricsUrl =
-                        servicesContextRoot + METRICS_SERVICE_BASE_URL + "/" + metricsName + "."
-                                + format + DATE_OFFSET_QUERY + timeRangeInSeconds;
+                String metricsUrl = systemBaseUrl.getRootContext() + METRICS_SERVICE_BASE_URL + "/"
+                        + metricsName + "." + format + DATE_OFFSET_QUERY + timeRangeInSeconds;
 
                 // key=format
                 // value=url for format with specified time range in seconds
@@ -721,32 +708,9 @@ public class MetricsEndpoint implements ConfigurationWatcher {
         metricsRetriever = new RrdMetricsRetriever(metricsMaxThreshold);
     }
 
-    @Override
-    public void configurationUpdateCallback(Map<String, String> configuration) {
-        String methodName = "configurationUpdateCallback";
-        LOGGER.debug("ENTERING: {}", methodName);
-
-        if (configuration != null && !configuration.isEmpty()) {
-            servicesContextRoot = configuration.get(ConfigurationManager.SERVICES_CONTEXT_ROOT);
-            LOGGER.debug("configuration: {}", configuration);
-
-            String ddfSiteName = configuration.get(ConfigurationManager.SITE_NAME);
-            if (StringUtils.isNotBlank(ddfSiteName)) {
-                LOGGER.debug("ddfSiteName = {}", ddfSiteName);
-                this.siteName = ddfSiteName;
-            }
-
-        } else {
-            LOGGER.debug("properties are NULL or empty");
-        }
-
-        LOGGER.debug("EXITING: {}", methodName);
-    }
-
     /**
      * Comparator used to sort metric time ranges by chronological order rather than the default
      * lexigraphical order.
-     *
      */
     static class MetricsTimeRangeComparator implements Comparator {
         public int compare(Object o1, Object o2) {
@@ -759,5 +723,4 @@ public class MetricsEndpoint implements ConfigurationWatcher {
             return dateOffset1.compareTo(dateOffset2);
         }
     }
-
 }

@@ -56,6 +56,4 @@
 		</service-properties>
 	</service>
 
-	<service ref="kmlTransformerImpl"
-             interface="org.codice.ddf.configuration.ConfigurationWatcher"/>
 </blueprint>

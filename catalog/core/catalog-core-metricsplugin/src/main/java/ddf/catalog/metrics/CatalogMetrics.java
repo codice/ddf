@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -14,13 +14,10 @@
 package ddf.catalog.metrics;
 
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.configuration.ConfigurationManager;
-import org.codice.ddf.configuration.ConfigurationWatcher;
+import org.codice.ddf.configuration.SystemInfo;
 
 import com.codahale.metrics.Histogram;
 import com.codahale.metrics.JmxReporter;
@@ -51,11 +48,9 @@ import ddf.catalog.source.UnsupportedQueryException;
  *
  * @author Phillip Klinefelter
  * @author ddf.isgs@lmco.com
- *
  */
 public final class CatalogMetrics
-        implements PreQueryPlugin, PostQueryPlugin, PostIngestPlugin, PostResourcePlugin,
-        ConfigurationWatcher {
+        implements PreQueryPlugin, PostQueryPlugin, PostIngestPlugin, PostResourcePlugin {
 
     protected static final String EXCEPTIONS_SCOPE = "Exceptions";
 
@@ -104,13 +99,15 @@ public final class CatalogMetrics
 
     private FilterAdapter filterAdapter;
 
-    private String localSourceId;
+    private SystemInfo systemInfo;
 
-    public CatalogMetrics(FilterAdapter filterAdapter) {
+    public CatalogMetrics(FilterAdapter filterAdapter, SystemInfo info) {
 
         this.filterAdapter = filterAdapter;
+        this.systemInfo = info;
 
-        resultCount = metrics.register(MetricRegistry.name(QUERIES_SCOPE, "TotalResults"), new Histogram(new SlidingTimeWindowReservoir(1, TimeUnit.MINUTES)));
+        resultCount = metrics.register(MetricRegistry.name(QUERIES_SCOPE, "TotalResults"),
+                new Histogram(new SlidingTimeWindowReservoir(1, TimeUnit.MINUTES)));
 
         queries = metrics.meter(MetricRegistry.name(QUERIES_SCOPE));
         federatedQueries = metrics.meter(MetricRegistry.name(QUERIES_SCOPE, "Federated"));
@@ -244,18 +241,7 @@ public final class CatalogMetrics
             return false;
         } else {
             return (sourceIds.size() > 1) || (sourceIds.size() == 1 && !sourceIds.contains("")
-                    && !sourceIds.contains(null) && !sourceIds.contains(localSourceId));
+                    && !sourceIds.contains(null) && !sourceIds.contains(systemInfo.getSiteName()));
         }
     }
-
-    @Override
-    public void configurationUpdateCallback(Map<String, String> configuration) {
-        if (configuration != null && !configuration.isEmpty()) {
-            String siteName = configuration.get(ConfigurationManager.SITE_NAME);
-            if (StringUtils.isNotBlank(siteName)) {
-                localSourceId = siteName;
-            }
-        }
-    }
-
 }

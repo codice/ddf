@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -64,8 +64,6 @@ import org.apache.shiro.authc.SimpleAuthenticationInfo;
 import org.apache.shiro.authc.credential.CredentialsMatcher;
 import org.apache.shiro.realm.AuthenticatingRealm;
 import org.apache.shiro.subject.SimplePrincipalCollection;
-import org.codice.ddf.configuration.ConfigurationManager;
-import org.codice.ddf.configuration.ConfigurationWatcher;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.SAMLAuthenticationToken;
 import org.codice.ddf.security.policy.context.ContextPolicy;
@@ -90,7 +88,7 @@ import ddf.security.encryption.EncryptionService;
 import ddf.security.sts.client.configuration.STSClientConfiguration;
 
 public abstract class AbstractStsRealm extends AuthenticatingRealm
-        implements ConfigurationWatcher, STSClientConfiguration {
+        implements STSClientConfiguration {
     private static final XLogger LOGGER = new XLogger(
             LoggerFactory.getLogger(AbstractStsRealm.class));
 
@@ -174,37 +172,6 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
 
     public void setContextPolicyManager(ContextPolicyManager contextPolicyManager) {
         this.contextPolicyManager = contextPolicyManager;
-    }
-
-    /**
-     * Watch for changes in System Settings and STS Client Settings from the configuration page in
-     * the DDF console.
-     */
-    @Override
-    public void configurationUpdateCallback(Map<String, String> properties) {
-        settingsConfigured = false;
-
-        if (properties != null && !properties.isEmpty()) {
-
-            if (LOGGER.isDebugEnabled()) {
-                logIncomingProperties(properties);
-            }
-
-            if (isDdfConfigurationUpdate(properties)) {
-                LOGGER.debug("Got system configuration update.");
-                setDdfPropertiesFromConfigAdmin(properties);
-                try {
-                    configureStsClient();
-                    settingsConfigured = true;
-                } catch (Exception e) {
-                    LOGGER.debug(
-                            "STS was not available during configuration update, will try again when realm is called. Full stack trace is available at the TRACE level.");
-                    LOGGER.trace("Could not create STS client", e);
-                }
-            }
-        } else {
-            LOGGER.debug("properties are NULL or empty");
-        }
     }
 
     /**
@@ -365,21 +332,6 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
     }
 
     /**
-     * Log properties from DDF configuration updates.
-     */
-    private void logIncomingProperties(@SuppressWarnings("rawtypes") Map properties) {
-        @SuppressWarnings("unchecked")
-        Set<String> keys = properties.keySet();
-        StringBuilder builder = new StringBuilder();
-        builder.append("\nIncoming properties:\n");
-        for (String key : keys) {
-            builder.append("key: " + key + "; value: " + properties.get(key) + "\n");
-        }
-
-        LOGGER.debug(builder.toString());
-    }
-
-    /**
      * Logs the current STS client configuration.
      */
     private void logStsClientConfiguration() {
@@ -398,24 +350,6 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
         }
 
         LOGGER.debug(builder.toString());
-    }
-
-    /**
-     * Determines if the received update is a DDF System Settings update.
-     */
-    private boolean isDdfConfigurationUpdate(@SuppressWarnings("rawtypes") Map properties) {
-        boolean updated = false;
-
-        if (properties.containsKey(ConfigurationManager.TRUST_STORE) && properties
-                .containsKey(ConfigurationManager.TRUST_STORE_PASSWORD) && properties
-                .containsKey(ConfigurationManager.KEY_STORE) && properties
-                .containsKey(ConfigurationManager.KEY_STORE_PASSWORD)) {
-            updated = true;
-        } else {
-            updated = false;
-        }
-
-        return updated;
     }
 
     /**
@@ -535,16 +469,16 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
     }
 
     /**
-     * Set properties based on DDF System Setting updates.
+     * Set properties based on DDF System Properties.
      */
-    private void setDdfPropertiesFromConfigAdmin(Map<String, String> properties) {
-        String setTrustStorePath = properties.get(ConfigurationManager.TRUST_STORE);
+    private void setDdfPropertiesFromSystemProperties() {
+        String setTrustStorePath = System.getProperty("javax.net.ssl.trustStore");
         if (StringUtils.isNotBlank(setTrustStorePath)) {
             LOGGER.debug("Setting trust store path: " + setTrustStorePath);
             this.trustStorePath = setTrustStorePath;
         }
 
-        String setTrustStorePassword = properties.get(ConfigurationManager.TRUST_STORE_PASSWORD);
+        String setTrustStorePassword = System.getProperty("javax.net.ssl.trustStorePassword");
         if (StringUtils.isNotBlank(setTrustStorePassword)) {
             if (encryptionService == null) {
                 LOGGER.error(
@@ -558,13 +492,13 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
             }
         }
 
-        String setKeyStorePath = properties.get(ConfigurationManager.KEY_STORE);
+        String setKeyStorePath = System.getProperty("javax.net.ssl.keyStore");
         if (StringUtils.isNotBlank(setKeyStorePath)) {
             LOGGER.debug("Setting key store path: " + setKeyStorePath);
             this.keyStorePath = setKeyStorePath;
         }
 
-        String setKeyStorePassword = properties.get(ConfigurationManager.KEY_STORE_PASSWORD);
+        String setKeyStorePassword = System.getProperty("javax.net.ssl.keyStorePassword");
         if (StringUtils.isNotBlank(setKeyStorePassword)) {
             if (encryptionService == null) {
                 LOGGER.error(
@@ -665,7 +599,7 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
      */
     protected void configureStsClient() {
         LOGGER.debug("Configuring the STS client.");
-
+        setDdfPropertiesFromSystemProperties();
         try {
             if (trustStorePath != null && trustStorePassword != null && keyStorePath != null
                     && keyStorePassword != null) {

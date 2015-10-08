@@ -14,20 +14,27 @@
            xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs"
            xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
-
-  http://cxf.apache.org/blueprint/jaxrs http://cxf.apache.org/schemas/blueprint/jaxrs.xsd">
+		http://cxf.apache.org/blueprint/jaxrs http://cxf.apache.org/schemas/blueprint/jaxrs.xsd">
 
 	<reference id="transformerMapper" interface="ddf.mime.MimeTypeToTransformerMapper"/>
 	<reference id="catalog" interface="ddf.catalog.CatalogFramework"/>
 	<reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
     <reference id="tikaMimeTypeResolver" interface="ddf.mime.MimeTypeResolver"/>
-    
+
+	<bean id="urlHelper" class="org.codice.ddf.configuration.SystemBaseUrl"></bean>
+	<bean id="systemInfo" class="org.codice.ddf.configuration.SystemInfo"></bean>
+
+	<bean id="actionFactory" class="org.codice.ddf.endpoints.rest.action.MetacardTransformerActionProviderFactory">
+		<argument ref="urlHelper"/>
+		<argument ref="systemInfo"/>
+	</bean>
 
 	<reference-list id="metacardTransformerRefList"
                     interface="ddf.catalog.transform.MetacardTransformer" availability="optional">
 		<reference-listener bind-method="bind" unbind-method="unbind">
 			<bean class="org.codice.ddf.endpoints.rest.action.ActionProviderRegistryProxy">
 				<argument ref="blueprintBundleContext"/>
+				<argument ref="actionFactory"/>
 			</bean>
 		</reference-listener>
 	</reference-list>
@@ -58,6 +65,8 @@
 	<bean id="viewActionProvider"
           class="org.codice.ddf.endpoints.rest.action.ViewMetacardActionProvider">
 		<argument value="catalog.data.metacard.view"/>
+		<argument ref="urlHelper"/>
+		<argument ref="systemInfo"/>
 	</bean>
 
 	<service ref="viewActionProvider" interface="ddf.action.ActionProvider">
@@ -65,8 +74,5 @@
 			<entry key="id" value="catalog.data.metacard.view"/>
 		</service-properties>
 	</service>
-
-	<service ref="viewActionProvider"
-             interface="org.codice.ddf.configuration.ConfigurationWatcher"/>
 
 </blueprint>

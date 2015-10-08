@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -25,12 +25,11 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
 
+import org.codice.ddf.configuration.SystemInfo;
 import org.codice.ddf.opensearch.query.OpenSearchQuery;
 import org.junit.Assert;
 import org.junit.Test;
@@ -58,7 +57,7 @@ public class OpenSearchEndpointTest {
      * Test method for
      * {@link org.codice.ddf.endpoints.OpenSearchEndpoint#processQuery(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, javax.ws.rs.core.UriInfo, java.lang.String, java.lang.String)}
      * .
-     *
+     * <p>
      * This test will verify that the string "local" in the sources passed to
      * OpenSearchEndpoint.processQuery is replaced with the local site name (in this case the mocked
      * name "TestSiteName"). The QueryRequest object is checked when the framework.query is called
@@ -137,13 +136,10 @@ public class OpenSearchEndpointTest {
         when(mockFramework.transform(any(QueryResponse.class), anyString(), anyMap()))
                 .thenReturn(mockBinaryContent);
 
-        OpenSearchEndpoint osEndPoint = new OpenSearchEndpoint(mockFramework, mockFilterBuilder);
+        OpenSearchEndpoint osEndPoint = new OpenSearchEndpoint(mockFramework, mockFilterBuilder,
+                new SystemInfo());
 
-        // Call ddfConfigurationUpdated to set the id values to the site name we want
-        // local to be replaced with
-        Map<String, String> ddfProperties = new HashMap<String, String>();
-        ddfProperties.put("id", testSiteName);
-        osEndPoint.configurationUpdateCallback(ddfProperties);
+        System.setProperty(SystemInfo.SITE_NAME, testSiteName);
 
         // ***Test Execution***
         osEndPoint

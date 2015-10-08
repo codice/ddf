@@ -58,8 +58,5 @@
         <property name="propertyFileLocation" value="etc/ws-security/attributeMap.properties"/>
     </bean>
 
-    <service ref="claimsHandlerManager"
-             interface="org.codice.ddf.configuration.ConfigurationWatcher"/>
-
 </blueprint>
 

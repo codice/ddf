@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -55,11 +55,13 @@ public class ConfigurationManagerTest {
 
     @Before
     public void setUp() throws Exception {
+        SystemBaseUrl sbu = new SystemBaseUrl();
+        SystemInfo info = new SystemInfo();
         key = ConfigurationManagerTest.class.getSimpleName() + "Key";
         mockWatcher = new MockConfigurationWatcher();
         List<ConfigurationWatcher> watchers = new ArrayList<ConfigurationWatcher>();
         watchers.add(mockWatcher);
-        ddfConfigMgr = new ConfigurationManager(watchers, null);
+        ddfConfigMgr = new ConfigurationManager(watchers, null, sbu, info);
         config1 = new HashMap<String, String>();
         config1.put(key, "config1");
         config2 = new HashMap<String, String>();
@@ -118,6 +120,7 @@ public class ConfigurationManagerTest {
 
     @Test
     public void testInit() {
+
         ddfConfigMgr.setProtocol(PROTOCOL);
         ddfConfigMgr.setHost(HOST);
         ddfConfigMgr.setPort(PORT);
