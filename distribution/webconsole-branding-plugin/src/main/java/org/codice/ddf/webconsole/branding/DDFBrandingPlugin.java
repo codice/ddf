@@ -64,8 +64,8 @@ public class DDFBrandingPlugin implements BrandingPlugin {
         productName = props.getProperty("webconsole.product.name", "DDF");
         productURL = props.getProperty("webconsole.product.url", "http://felix.apache.org");
         productImage = props.getProperty("webconsole.product.image", "/res/ddf/ddf.jpg");
-        vendorName = props.getProperty("webconsole.vendor.name", "Lockheed Martin");
-        vendorURL = props.getProperty("webconsole.vendor.url", "http://www.lockheedmartin.com");
+        vendorName = props.getProperty("webconsole.vendor.name", "Codice");
+        vendorURL = props.getProperty("webconsole.vendor.url", "http://www.codice.org");
         vendorImage = props.getProperty("webconsole.vendor.image", "/res/ddf/logo.png");
         favIcon = props.getProperty("webconsole.favicon", "/res/ddf/favicon.ico");
         mainStyleSheet = props.getProperty("webconsole.stylesheet", "/res/ddf/webconsole.css");

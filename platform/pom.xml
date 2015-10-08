@@ -57,7 +57,7 @@
             <dependency>
                 <groupId>commons-lang</groupId>
                 <artifactId>commons-lang</artifactId>
-                <version>2.6</version>
+                <version>${commons-lang.version}</version>
             </dependency>
 
             <dependency>
@@ -257,7 +257,7 @@
             <dependency>
                 <groupId>javax.servlet</groupId>
                 <artifactId>servlet-api</artifactId>
-                <version>3.0-alpha-1</version>
+                <version>${servlet-api.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.tika</groupId>
@@ -331,6 +331,8 @@
         <module>error</module>
         <module>platform-http-proxy</module>
         <module>admin</module>
+        <module>branding-resources</module>
+        <module>landing-page</module>
         <module>platform-app</module>
         <module>docs</module>
     </modules>

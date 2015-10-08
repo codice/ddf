@@ -855,6 +855,7 @@
         <feature>persistence-core</feature>
         <feature>error</feature>
         <feature>parser-xml</feature>
+        <feature>landing-page</feature>
 
         <bundle>mvn:ch.qos.cal10n/cal10n-api/0.7.4</bundle>
         <!-- for slf4j-ext -->
@@ -879,6 +880,12 @@
              description="HTTP to HTTPS proxy.">
         <feature>camel-jetty</feature>
         <bundle>mvn:ddf.platform/platform-http-proxy/${project.version}</bundle>
+    </feature>
+
+    <feature name="landing-page" install="manual" version="${project.version}"
+             description="Landing page and branding support.">
+        <bundle>mvn:ddf.platform/branding-resources/${project.version}</bundle>
+        <bundle>mvn:ddf.platform/landing-page/${project.version}</bundle>
     </feature>
 
 </features>

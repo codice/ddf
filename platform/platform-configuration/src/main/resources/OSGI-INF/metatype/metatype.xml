@@ -55,7 +55,7 @@
                 description="Turns on a system usage message, which is shown when the Search Application is opened"
                 name="Enable System Usage Message" id="systemUsageEnabled" required="true"
                 type="Boolean"
-                default=""
+                default="false"
                 />
         <AD
                 description="A title for the system usage Message when the application is opened"
