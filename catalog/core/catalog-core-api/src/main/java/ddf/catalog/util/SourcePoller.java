@@ -65,7 +65,7 @@ public class SourcePoller {
 
         this.runner = incomingRunner;
 
-        scheduler = Executors.newSingleThreadScheduledExecutor();
+        scheduler = Executors.newScheduledThreadPool(1);
 
         handle = scheduler.scheduleAtFixedRate(runner, INITIAL_DELAY, INTERVAL, TimeUnit.SECONDS);
 

@@ -16,7 +16,6 @@ package org.codice.ddf.ui.searchui.query.endpoint;
 
 import java.util.Dictionary;
 import java.util.Hashtable;
-import java.util.concurrent.ExecutorService;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -89,12 +88,11 @@ public class CometdEndpoint {
      */
     public CometdEndpoint(CometdServlet cometdServlet, CatalogFramework framework,
             FilterBuilder filterBuilder, FilterAdapter filterAdapter, PersistentStore persistentStore,
-            BundleContext bundleContext, EventAdmin eventAdmin, ActionRegistry actionRegistry,
-                          ExecutorService executorService) {
+            BundleContext bundleContext, EventAdmin eventAdmin, ActionRegistry actionRegistry) {
         this.bundleContext = bundleContext;
         this.cometdServlet = cometdServlet;
         this.filterBuilder = filterBuilder;
-        this.searchController = new SearchController(framework, actionRegistry, filterAdapter, executorService);
+        this.searchController = new SearchController(framework, actionRegistry, filterAdapter);
         this.persistentStore = persistentStore;
         this.notificationController = new NotificationController(persistentStore, bundleContext,
                 eventAdmin);
