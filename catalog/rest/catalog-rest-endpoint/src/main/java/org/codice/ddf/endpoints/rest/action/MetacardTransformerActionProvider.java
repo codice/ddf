@@ -27,7 +27,7 @@ import ddf.action.impl.ActionImpl;
 
 public class MetacardTransformerActionProvider extends AbstractMetacardActionProvider {
 
-    static final String DESCRIPTION_PREFIX = "Provides a URL to the metacard that transforms the return value via the";
+    static final String DESCRIPTION_PREFIX = "Provides a URL to the metacard that transforms the return value via the ";
 
     static final String DESCRIPTION_SUFFIX = " transformer";
 
