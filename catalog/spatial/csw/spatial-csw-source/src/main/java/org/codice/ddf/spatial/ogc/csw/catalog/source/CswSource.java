@@ -50,7 +50,6 @@ import org.codice.ddf.cxf.SecureCxfClientFactory;
 import org.codice.ddf.spatial.ogc.catalog.MetadataTransformer;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityCommand;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
-import org.codice.ddf.spatial.ogc.catalog.common.TrustedRemoteSource;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.Csw;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
@@ -184,6 +183,8 @@ public class CswSource extends MaskableImpl
     private static final String VERSION = "version";
 
     private static final String TITLE = "name";
+
+    public static final String DISABLE_CN_CHECK_PROPERTY = "disableCnCheck";
 
     private static final int CONTENT_TYPE_SAMPLE_SIZE = 50;
 
@@ -435,7 +436,7 @@ public class CswSource extends MaskableImpl
         }
 
         Boolean sslProp = (Boolean) configuration
-                .get(TrustedRemoteSource.DISABLE_CN_CHECK_PROPERTY);
+                .get(DISABLE_CN_CHECK_PROPERTY);
         if (sslProp != null) {
             cswSourceConfiguration.setDisableCnCheck(sslProp);
         }

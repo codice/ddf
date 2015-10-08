@@ -19,28 +19,26 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.apache.cxf.jaxrs.client.WebClient;
-
 /**
  * Generic implementation of TrustedRemoteSource to for unit testing.
  *
  */
-
+// Some sections commented out as this class will be removed as part of DDF-1563
 public class RemoteSource extends TrustedRemoteSource implements GenericRemoteSource {
 
     private GenericRemoteSource grs;
 
     public RemoteSource(String url, boolean disableCnCheck) {
-        grs = createClientBean(GenericRemoteSource.class, url, null, null, disableCnCheck, null,
-                getClass().getClassLoader());
+//        grs = createClientBean(GenericRemoteSource.class, url, null, null, disableCnCheck, null,
+//                getClass().getClassLoader());
     }
 
     public void setTimeouts(Integer connectionTimeout, Integer receiveTimeout) {
-        this.configureTimeouts(WebClient.fromClientObject(grs), connectionTimeout, receiveTimeout);
+//        this.configureTimeouts(WebClient.fromClientObject(grs), connectionTimeout, receiveTimeout);
     }
 
     public void setTlsParameters() {
-        setTlsParameters(WebClient.fromClientObject(grs));
+//        setTlsParameters(WebClient.fromClientObject(grs));
     }
 
     @GET
