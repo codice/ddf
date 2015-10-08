@@ -13,7 +13,6 @@
 <blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-           xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.2.0"
            xsi:schemaLocation="
 	    http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
         ">
@@ -22,8 +21,6 @@
     <type-converters>
 		<bean id="listConverter" class="ddf.catalog.util.impl.ListConverter"/>
 	</type-converters>
-
-    <ext:property-placeholder/>
 
 	<bean id="sourceListener" class="ddf.catalog.util.impl.Masker"/>
 
@@ -133,18 +130,8 @@
                             unbind-method="unbindPlugin" ref="resourceReaderSortedList"/>
 	</reference-list>
 
-	<bean id="queryThreadPool" class="java.util.concurrent.Executors"
+	<bean id="pool" class="java.util.concurrent.Executors"
           factory-method="newCachedThreadPool"/>
-
-    <bean id="cacheThreadPool" class="java.util.concurrent.Executors"
-          factory-method="newFixedThreadPool">
-        <argument value="${org.codice.ddf.system.threadPoolSize}"/>
-    </bean>
-
-    <bean id="downloadThreadPool" class="java.util.concurrent.Executors"
-          factory-method="newFixedThreadPool">
-        <argument value="${org.codice.ddf.system.threadPoolSize}"/>
-    </bean>
 
     <reference id="resourceActionProvider" interface="ddf.action.ActionProvider"
                filter="id=catalog.data.metacard.resource"
@@ -170,11 +157,10 @@
 		<cm:managed-properties
                 persistent-id="ddf.catalog.federation.impl.CachingFederationStrategy"
                 update-strategy="container-managed"/>
-		<argument ref="queryThreadPool"/>
+		<argument ref="pool"/>
 		<argument ref="preFederatedQuerySortedList"/>
 		<argument ref="postFederatedQuerySortedList"/>
         <argument ref="solrCatalogCache"/>
-        <argument ref="cacheThreadPool"/>
 		<property name="maxStartIndex" value="50000"/>
 	</bean>
 
@@ -232,7 +218,6 @@
     	<argument ref="retrieveStatusEventPublisher"/>
     	<argument ref="retrieveStatusEventListener"/>
     	<argument ref="downloadStatusInfo"/>
-        <argument ref="downloadThreadPool"/>
     </bean>
 
     <!-- create the ddf bean -->
@@ -251,12 +236,13 @@
 		<argument ref="federatedSources"/>
 		<argument ref="resourceReaderSortedList"/>
 		<argument ref="sorted"/>
-		<argument ref="queryThreadPool"/>
+		<argument ref="pool"/>
         <argument ref="queryResponsePostProcessor"/>
 		<argument ref="sourcePoller"/>
 		<argument ref="productCache"/>
 		<argument ref="retrieveStatusEventPublisher"/>
 		<argument ref="reliableResourceDownloadManager"/>
+		<property name="poolSize" value="0"/>
 		<property name="id" value="ddf"/>
 		<property name="version" value="DDF v2.0"/>
 		<property name="organization" value="Codice"/>

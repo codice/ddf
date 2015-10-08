@@ -102,7 +102,12 @@ public class SearchControllerTest {
 
         searchController = new SearchController(framework,
                 new ActionRegistryImpl(Collections.<ActionProvider>emptyList()),
-                new GeotoolsFilterAdapterImpl(), new SequentialExectorService());
+                new GeotoolsFilterAdapterImpl()) {
+            @Override
+            ExecutorService getExecutorService() {
+                return new SequentialExectorService();
+            }
+        };
 
         mockServerSession = mock(ServerSession.class);
 
