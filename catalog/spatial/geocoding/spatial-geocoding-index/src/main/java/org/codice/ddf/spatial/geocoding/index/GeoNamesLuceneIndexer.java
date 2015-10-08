@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -48,6 +48,7 @@ import org.codice.ddf.spatial.geocoding.GeoEntryExtractionException;
 import org.codice.ddf.spatial.geocoding.GeoEntryExtractor;
 import org.codice.ddf.spatial.geocoding.GeoEntryIndexer;
 import org.codice.ddf.spatial.geocoding.GeoEntryIndexingException;
+import org.codice.ddf.spatial.geocoding.GeoNamesRemoteDownloadException;
 import org.codice.ddf.spatial.geocoding.ProgressCallback;
 
 import com.spatial4j.core.context.SpatialContext;
@@ -79,8 +80,8 @@ public class GeoNamesLuceneIndexer implements GeoEntryIndexer {
                 // field. We divide again by the same value to further reduce scores for places with
                 // longer names. This helps to prevent places that have names matching the query but
                 // containing extra terms from beating places whose names match the query exactly.
-                return super.lengthNorm(fieldInvertState) /
-                        (float) Math.sqrt(fieldInvertState.getLength());
+                return super.lengthNorm(fieldInvertState) / (float) Math
+                        .sqrt(fieldInvertState.getLength());
             }
 
             return super.lengthNorm(fieldInvertState);
@@ -89,13 +90,15 @@ public class GeoNamesLuceneIndexer implements GeoEntryIndexer {
 
     @Override
     public void updateIndex(final List<GeoEntry> geoEntryList, final boolean create,
-            final ProgressCallback progressCallback) {
+            final ProgressCallback progressCallback) throws GeoEntryIndexingException {
         buildIndex(geoEntryList, create, progressCallback);
     }
 
     @Override
     public void updateIndex(final String resource, final GeoEntryExtractor geoEntryExtractor,
-            final boolean create, final ProgressCallback progressCallback) {
+            final boolean create, final ProgressCallback progressCallback)
+            throws GeoEntryIndexingException, GeoEntryExtractionException,
+            GeoNamesRemoteDownloadException {
         Directory directory;
 
         try {
@@ -115,7 +118,7 @@ public class GeoNamesLuceneIndexer implements GeoEntryIndexer {
 
             final ExtractionCallback extractionCallback = new ExtractionCallback() {
                 @Override
-                public void extracted(final GeoEntry newEntry) {
+                public void extracted(final GeoEntry newEntry) throws GeoEntryIndexingException {
                     try {
                         addDocument(indexWriter, newEntry, strategy);
                     } catch (IOException e) {
@@ -132,8 +135,8 @@ public class GeoNamesLuceneIndexer implements GeoEntryIndexer {
             };
 
             try {
-                geoEntryExtractor.getGeoEntriesStreaming(resource, extractionCallback);
-            } catch (GeoEntryExtractionException | GeoEntryIndexingException e) {
+                geoEntryExtractor.pushGeoEntriesToExtractionCallback(resource, extractionCallback);
+            } catch (GeoEntryExtractionException e) {
                 // Need to roll back here before the IndexWriter is closed at the end of the try
                 // block.
                 indexWriter.rollback();
@@ -153,7 +156,7 @@ public class GeoNamesLuceneIndexer implements GeoEntryIndexer {
     }
 
     private void buildIndex(final List<GeoEntry> geoEntryList, final boolean create,
-            final ProgressCallback progressCallback) {
+            final ProgressCallback progressCallback) throws GeoEntryIndexingException {
         Directory directory;
 
         try {
@@ -217,8 +220,9 @@ public class GeoNamesLuceneIndexer implements GeoEntryIndexer {
 
         document.add(new DoubleField(GeoNamesLuceneConstants.LATITUDE_FIELD, geoEntry.getLatitude(),
                 Field.Store.YES));
-        document.add(new DoubleField(GeoNamesLuceneConstants.LONGITUDE_FIELD,
-                geoEntry.getLongitude(), Field.Store.YES));
+        document.add(
+                new DoubleField(GeoNamesLuceneConstants.LONGITUDE_FIELD, geoEntry.getLongitude(),
+                        Field.Store.YES));
 
         document.add(new StringField(GeoNamesLuceneConstants.FEATURE_CODE_FIELD,
                 geoEntry.getFeatureCode(), Field.Store.YES));
