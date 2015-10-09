@@ -58,10 +58,10 @@ define([
                 //ensure that the values are numeric
                 //so that the openlayer projections
                 //do not fail
-                var north  = parseFloat(model.get('north'));
-                var south = parseFloat(model.get('south'));
-                var east = parseFloat(model.get('east'));
-                var west = parseFloat(model.get('west'));
+                var north  = parseFloat(model.get('mapNorth'));
+                var south = parseFloat(model.get('mapSouth'));
+                var east = parseFloat(model.get('mapEast'));
+                var west = parseFloat(model.get('mapWest'));
 
                 var northWest = ol.proj.transform([west,north], 'EPSG:4326', properties.projection);
                 var northEast = ol.proj.transform([east,north], 'EPSG:4326', properties.projection);
@@ -133,7 +133,7 @@ define([
             handleRegionStop: function () {
                 this.setModelFromGeometry(this.primitive.getGeometry());
                 this.updateGeometry(this.model);
-                this.listenTo(this.model, 'change:north change:south change:east change:west', this.updateGeometry);
+                this.listenTo(this.model, 'change:mapNorth change:mapSouth change:mapEast change:mapWest', this.updateGeometry);
 
                 this.model.trigger("EndExtent", this.model);
             },
