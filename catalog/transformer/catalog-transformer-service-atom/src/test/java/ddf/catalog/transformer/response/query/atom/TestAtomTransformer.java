@@ -187,8 +187,11 @@ public class TestAtomTransformer {
         // given
         MetacardTransformer metacardTransformer = getXmlMetacardTransformerStub();
 
-        AtomTransformer transformer = getConfiguredAtomTransformer(metacardTransformer, false);
+        SystemInfo systemInfo = mock(SystemInfo.class);
+        when(systemInfo.getSiteName()).thenReturn("");
 
+        AtomTransformer transformer = new AtomTransformer(systemInfo);
+        transformer.setMetacardTransformer(metacardTransformer);
         SourceResponse response = getSourceResponseStub(SAMPLE_ID, null);
 
         // when
