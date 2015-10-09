@@ -89,8 +89,6 @@ public class TestFederation extends AbstractIntegrationTest {
 
     private static String[] metacardIds = new String[2];
 
-    private String localSourceID = "";
-
     private List<String> metacardsToDelete = new ArrayList<>();
 
     private List<String> resourcesToDelete = new ArrayList<>();
@@ -121,7 +119,12 @@ public class TestFederation extends AbstractIntegrationTest {
         cswProperties2.put("outputSchema", "urn:catalog:metacard");
         createManagedService(CswSourceProperties.FACTORY_PID, cswProperties2);
 
-        waitForAllSources();
+        waitForFederatedSource(OPENSEARCH_SOURCE_ID);
+        waitForFederatedSource(CSW_SOURCE_ID);
+        waitForFederatedSource(CSW_SOURCE_WITH_METACARD_XML_ID);
+
+        waitForSourcesToBeAvailable(OPENSEARCH_SOURCE_ID, CSW_SOURCE_ID,
+                CSW_SOURCE_WITH_METACARD_XML_ID);
 
         metacardIds[GEOJSON_RECORD_INDEX] = TestCatalog
                 .ingest(Library.getSimpleGeoJson(), "application/json");
@@ -129,15 +132,6 @@ public class TestFederation extends AbstractIntegrationTest {
         metacardIds[XML_RECORD_INDEX] = ingestXmlWithProduct(DEFAULT_SAMPLE_PRODUCT_FILE_NAME);
 
         LOGGER.info("Source status: \n{}", get(REST_PATH + "sources").body().prettyPrint());
-    }
-
-    private void waitForAllSources() throws Exception {
-        waitForFederatedSource(OPENSEARCH_SOURCE_ID);
-        waitForFederatedSource(CSW_SOURCE_ID);
-        waitForFederatedSource(CSW_SOURCE_WITH_METACARD_XML_ID);
-
-        waitForSourcesToBeAvailable(OPENSEARCH_SOURCE_ID, CSW_SOURCE_ID,
-                CSW_SOURCE_WITH_METACARD_XML_ID);
     }
 
     @Before
@@ -462,35 +456,6 @@ public class TestFederation extends AbstractIntegrationTest {
                 .body(titleQuery).when().post(CSW_PATH).then().log().all().assertThat()
                 .contentType(ContentType.JSON)
                 .body("results[0].metacard.properties.title", equalTo(RECORD_TITLE_1));
-    }
-
-    @Test
-    public void testFanoutQueryAgainstUnknownSource() throws Exception {
-        setFanout(true);
-        waitForAllBundles();
-
-        String queryUrl = OPENSEARCH_PATH + "?q=" + DEFAULT_KEYWORD + "&src=" + CSW_SOURCE_ID;
-
-        when().get(queryUrl).then().log().all().assertThat().body(containsString("Unknown source"));
-
-        setFanout(false);
-        waitForAllBundles();
-        waitForAllSources();
-    }
-
-    @Test
-    public void testFanoutQueryAgainstKnownSource() throws Exception {
-
-        setFanout(true);
-        waitForAllBundles();
-
-        String queryUrl = OPENSEARCH_PATH + "?q=" + DEFAULT_KEYWORD + "&src=" + localSourceID;
-
-        when().get(queryUrl).then().log().all().assertThat().body(containsString(localSourceID));
-
-        setFanout(false);
-        waitForAllBundles();
-        waitForAllSources();
     }
 
     @Test

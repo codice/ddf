@@ -100,6 +100,7 @@ public class PaxExamRule implements TestRule {
                 runAnnotations(BeforeExam.class, testClass);
             } catch (Throwable throwable) {
                 setupFailed = true;
+                LOGGER.error("Failed to setup " + testClassName, throwable);
                 fail(String.format(BEFORE_EXAM_FAILURE_MESSAGE, testClassName,
                         throwable.getMessage()));
             }

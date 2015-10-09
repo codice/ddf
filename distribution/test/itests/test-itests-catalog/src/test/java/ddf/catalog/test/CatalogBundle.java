@@ -110,7 +110,7 @@ public class CatalogBundle {
 
             if (!available) {
                 if (System.currentTimeMillis() > timeoutLimit) {
-                    fail("Federated Source was not created in a timely manner.");
+                    fail("Federated source (" + id + ") was not created in a timely manner.");
                 }
                 Thread.sleep(100);
             }
