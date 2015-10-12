@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -17,9 +17,8 @@ package ddf.security.sts;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.sts.StaticSTSProperties;
 import org.apache.cxf.sts.token.provider.DefaultConditionsProvider;
-import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.configuration.PropertyResolver;
-
+import org.codice.ddf.configuration.SystemBaseUrl;
 
 /**
  * property-placeholder misbehaves when set to reload, causing the bundle to bounce

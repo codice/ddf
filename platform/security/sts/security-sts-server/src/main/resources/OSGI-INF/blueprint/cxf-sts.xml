@@ -186,13 +186,21 @@
                   value="file:${ddf.home}/etc/ws-security/issuer/encryption.properties"/>
     </bean>
 
+    <bean id="encryptionProps" class="ddf.security.sts.PropertiesWrapper">
+        <argument value="${ddf.home}/etc/ws-security/issuer/encryption.properties"/>
+    </bean>
+
+    <bean id="signatureProps" class="ddf.security.sts.PropertiesWrapper">
+        <argument value="${ddf.home}/etc/ws-security/issuer/signature.properties"/>
+    </bean>
+
     <bean id="STSProperties" class="org.apache.cxf.sts.StaticSTSProperties">
-        <property name="signaturePropertiesFile"
-                  value="file:${ddf.home}/etc/ws-security/issuer/signature.properties"/>
+        <property name="signatureCryptoProperties"
+                  ref="signatureProps"/>
         <property name="callbackHandler"
                   ref="propertyCallbackHandler"/>
-        <property name="encryptionPropertiesFile"
-                  value="file:${ddf.home}/etc/ws-security/issuer/encryption.properties"/>
+        <property name="encryptionCryptoProperties"
+                  ref="encryptionProps"/>
     </bean>
 
     <!-- RENEWAL CONFIGURATION -->
@@ -215,10 +223,8 @@
             <ref component-id="crlInterceptor"/>
         </jaxws:inInterceptors>
         <jaxws:properties>
-            <entry key="ws-security.signature.properties"
-                   value="file:${ddf.home}/etc/ws-security/issuer/signature.properties"/>
-            <entry key="ws-security.encryption.properties"
-                   value="file:${ddf.home}/etc/ws-security/issuer/encryption.properties"/>
+            <entry key="ws-security.signature.properties" value-ref="signatureProps"/>
+            <entry key="ws-security.encryption.properties" value-ref="encryptionProps"/>
             <entry key="ws-security.enableRevocation" value="true"/>
             <entry key="ws-security.encryption.username" value="useReqSigCert"/>
             <entry key="ws-security.is-bsp-compliant" value="false"/>

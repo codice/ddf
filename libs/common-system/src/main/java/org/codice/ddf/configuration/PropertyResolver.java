@@ -17,7 +17,7 @@ import org.apache.commons.lang.text.StrSubstitutor;
 
 /**
  * Class holds a string potentially containing variables of the format ${system.prop} and handles
- * resolving those variables byt trying to replace them with system properties
+ * resolving those variables by trying to replace them with system properties
  */
 public class PropertyResolver {
 

@@ -27,6 +27,14 @@
 
     <reference id="securityManager" interface="ddf.security.service.SecurityManager"/>
 
+    <bean id="encryptionProps" class="ddf.security.sts.PropertiesWrapper">
+        <argument value="${ddf.home}/etc/ws-security/issuer/encryption.properties"/>
+    </bean>
+
+    <bean id="signatureProps" class="ddf.security.sts.PropertiesWrapper">
+        <argument value="${ddf.home}/etc/ws-security/issuer/signature.properties"/>
+    </bean>
+
     <jaxws:endpoint id="soapEndpoint" implementor="#soapImpl"
                     wsdlLocation="classpath:META-INF/wsdl/sdk.wsdl"
                     address="/sdk/SoapService">
@@ -39,8 +47,8 @@
         </jaxws:inInterceptors>
         <jaxws:properties>
             <entry key="ws-security.validate.audience-restriction" value="false" />
-            <entry key="ws-security.signature.properties" value="file:${ddf.home}/etc/ws-security/server/signature.properties"/>
-            <entry key="ws-security.encryption.properties" value="file:${ddf.home}/etc/ws-security/server/encryption.properties"/>
+            <entry key="ws-security.signature.properties" value-ref="signatureProps"/>
+            <entry key="ws-security.encryption.properties" value-ref="encryptionProps"/>
         </jaxws:properties>
     </jaxws:endpoint>
 
