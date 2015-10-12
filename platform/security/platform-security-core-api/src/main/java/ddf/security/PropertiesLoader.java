@@ -174,7 +174,7 @@ public final class PropertiesLoader {
             //replace any ${prop} with system properties
             Properties filtered = new Properties();
             for (Map.Entry<?, ?> entry : properties.entrySet()) {
-                filtered.put(entry.getKey(),
+                filtered.put(StrSubstitutor.replaceSystemProperties(entry.getKey()),
                         StrSubstitutor.replaceSystemProperties(entry.getValue()));
             }
             properties = filtered;
