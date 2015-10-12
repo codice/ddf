@@ -26,6 +26,7 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
+import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.cxf.sts.STSPropertiesMBean;
@@ -43,8 +44,11 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import ddf.security.PropertiesLoader;
+import ddf.security.SecurityConstants;
 
 public class TestPKITokenValidator {
+
+    private static Properties properties;
 
     PKITokenValidator pkiTokenValidator;
 
@@ -56,12 +60,13 @@ public class TestPKITokenValidator {
 
     @BeforeClass
     public static void setUpBeforeClass() {
-        System.setProperty("javax.net.ssl.keyStoreType", "jks");
+        properties = System.getProperties();
+        System.setProperty(SecurityConstants.KEYSTORE_TYPE, "jks");
     }
 
     @AfterClass
     public static void tearDownAfterClass() {
-        System.clearProperty("javax.net.ssl.keyStoreType");
+        System.setProperties(properties);
     }
 
     @Before
@@ -90,7 +95,7 @@ public class TestPKITokenValidator {
                 certificates[i] = (X509Certificate) certs[i];
             }
 
-            trustStore = KeyStore.getInstance(System.getProperty("javax.net.ssl.keyStoreType"));
+            trustStore = KeyStore.getInstance(System.getProperty(SecurityConstants.KEYSTORE_TYPE));
             trustFIS = TestPKITokenValidator.class.getResourceAsStream("/badKeystore.jks");
             try {
                 trustStore.load(trustFIS, "changeit".toCharArray());
