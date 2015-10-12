@@ -84,7 +84,10 @@ public class Policy implements ContextPolicy {
     }
 
     @Override
-    public void setAllowedAttributes(Collection<ContextAttributeMapping> attributes) {
-        this.attributeMappings = attributes;
+    public Collection<ContextAttributeMapping> getAllowedAttributes() {
+        if (attributeMappings == null) {
+            return new ArrayList<ContextAttributeMapping>();
+        }
+        return new ArrayList<ContextAttributeMapping>(attributeMappings);
     }
 }

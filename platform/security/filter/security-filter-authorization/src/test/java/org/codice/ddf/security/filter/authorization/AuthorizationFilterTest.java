@@ -226,8 +226,8 @@ public class AuthorizationFilterTest {
         }
 
         @Override
-        public void setAllowedAttributes(Collection<ContextAttributeMapping> attributes) {
-
+        public Collection<ContextAttributeMapping> getAllowedAttributes() {
+            return null;
         }
 
         @Override

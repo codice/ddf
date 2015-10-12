@@ -73,9 +73,9 @@ public interface ContextPolicy {
     public Collection<String> getAllowedAttributeNames();
 
     /**
-     * Sets the attribute mappings.
+     * Returns a{@link java.util.Collection} of attributes
      *
-     * @param attributes
+     * @return all attributes the policy uses
      */
-    public void setAllowedAttributes(Collection<ContextAttributeMapping> attributes);
+    public Collection<ContextAttributeMapping> getAllowedAttributes();
 }
