@@ -39,6 +39,8 @@ import org.codice.solr.factory.SolrServerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ddf.security.SecurityConstants;
+
 public class SolrHttpWrapper implements HttpWrapper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SolrHttpWrapper.class);
@@ -56,53 +58,6 @@ public class SolrHttpWrapper implements HttpWrapper {
                 .setMaxConnPerRoute(32).build();
     }
 
-    @Override
-    public ResponseWrapper execute(URI uri) {
-        HttpResponse httpResponse = null;
-        HttpGet get = new HttpGet(uri);
-        try {
-            LOGGER.info("Executing uri: {}", uri.toString());
-            httpResponse = solrClient.execute(get);
-            return new ResponseWrapper(httpResponse);
-        } catch (IOException e) {
-            LOGGER.debug("Error during request. Returning null response.");
-        }
-        BasicHttpResponse response = new BasicHttpResponse(null,
-                HttpStatus.SC_INTERNAL_SERVER_ERROR, "Error during request.");
-        return new ResponseWrapper(response);
-    }
-
-    private SSLContext getSslContext() {
-        if (System.getProperty("javax.net.ssl.keyStore") == null ||
-                System.getProperty("javax.net.ssl.keyStorePassword") == null ||
-                System.getProperty("javax.net.ssl.trustStore") == null ||
-                System.getProperty("javax.net.ssl.trustStorePassword") == null) {
-            throw new IllegalArgumentException("KeyStore and TrustStore system properties must be set.");
-        }
-
-        KeyStore trustStore = getKeyStore(System.getProperty("javax.net.ssl.trustStore"),
-                System.getProperty("javax.net.ssl.trustStorePassword"));
-        KeyStore keyStore = getKeyStore(System.getProperty("javax.net.ssl.keyStore"),
-                System.getProperty("javax.net.ssl.keyStorePassword"));
-
-        SSLContext sslContext = null;
-
-        try {
-            sslContext = SSLContexts.custom().loadKeyMaterial(keyStore,
-                    System.getProperty("javax.net.ssl.keyStorePassword").toCharArray())
-                    .loadTrustMaterial(trustStore).useTLS().build();
-        } catch (UnrecoverableKeyException | NoSuchAlgorithmException | KeyStoreException |
-                KeyManagementException e) {
-            LOGGER.error("Unable to create secure HttpClient", e);
-            return null;
-        }
-
-        sslContext.getDefaultSSLParameters().setNeedClientAuth(true);
-        sslContext.getDefaultSSLParameters().setWantClientAuth(true);
-
-        return sslContext;
-    }
-
     private static KeyStore getKeyStore(String location, String password) {
         LOGGER.debug("Loading keystore from {}", location);
         KeyStore keyStore = null;
@@ -118,6 +73,63 @@ public class SolrHttpWrapper implements HttpWrapper {
         return keyStore;
     }
 
+    private static String[] getCipherSuites() {
+        if (System.getProperty(SecurityConstants.HTTPS_CIPHER_SUITES) != null) {
+            return StringUtils
+                    .split(System.getProperty(SecurityConstants.HTTPS_CIPHER_SUITES), ",");
+        } else {
+            return SolrServerFactory.DEFAULT_CIPHER_SUITES;
+        }
+    }
+
+    @Override
+    public ResponseWrapper execute(URI uri) {
+        HttpResponse httpResponse;
+        HttpGet get = new HttpGet(uri);
+        try {
+            LOGGER.info("Executing uri: {}", uri.toString());
+            httpResponse = solrClient.execute(get);
+            return new ResponseWrapper(httpResponse);
+        } catch (IOException e) {
+            LOGGER.debug("Error during request. Returning null response.");
+        }
+        BasicHttpResponse response = new BasicHttpResponse(null,
+                HttpStatus.SC_INTERNAL_SERVER_ERROR, "Error during request.");
+        return new ResponseWrapper(response);
+    }
+
+    private SSLContext getSslContext() {
+        String keystorePath = System.getProperty(SecurityConstants.KEYSTORE_PATH);
+        String keystorePassword = System.getProperty(SecurityConstants.KEYSTORE_PASSWORD);
+        String truststorePath = System.getProperty(SecurityConstants.TRUSTSTORE_PATH);
+        String truststorePassword = System.getProperty(SecurityConstants.TRUSTSTORE_PASSWORD);
+        if (keystorePath == null || keystorePassword == null || truststorePath == null
+                || truststorePassword == null) {
+            throw new IllegalArgumentException(
+                    "KeyStore and TrustStore system properties must be set.");
+        }
+
+        KeyStore trustStore = getKeyStore(truststorePath, truststorePassword);
+        KeyStore keyStore = getKeyStore(keystorePath, keystorePassword);
+
+        SSLContext sslContext;
+
+        try {
+            sslContext = SSLContexts.custom()
+                    .loadKeyMaterial(keyStore, keystorePassword.toCharArray())
+                    .loadTrustMaterial(trustStore).useTLS().build();
+        } catch (UnrecoverableKeyException | NoSuchAlgorithmException | KeyStoreException |
+                KeyManagementException e) {
+            LOGGER.error("Unable to create secure HttpClient", e);
+            return null;
+        }
+
+        sslContext.getDefaultSSLParameters().setNeedClientAuth(true);
+        sslContext.getDefaultSSLParameters().setWantClientAuth(true);
+
+        return sslContext;
+    }
+
     private String[] getProtocols() {
         if (System.getProperty("https.protocols") != null) {
             return StringUtils.split(System.getProperty("https.protocols"), ",");
@@ -125,14 +137,5 @@ public class SolrHttpWrapper implements HttpWrapper {
             return SolrServerFactory.DEFAULT_PROTOCOLS;
         }
     }
-
-    private static String[] getCipherSuites() {
-        if (System.getProperty("https.cipherSuites") != null) {
-            return StringUtils.split(System.getProperty("https.cipherSuites"), ",");
-        } else {
-            return SolrServerFactory.DEFAULT_CIPHER_SUITES;
-        }
-    }
-
 
 }

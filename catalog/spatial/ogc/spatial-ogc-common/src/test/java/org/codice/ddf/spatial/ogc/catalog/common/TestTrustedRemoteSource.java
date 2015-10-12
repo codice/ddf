@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.net.SocketException;
 import java.security.KeyStore;
+import java.util.Properties;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.KeyManager;
@@ -50,6 +51,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ddf.security.SecurityConstants;
 import ddf.security.settings.SecuritySettingsService;
 
 /**
@@ -82,6 +84,8 @@ public class TestTrustedRemoteSource {
     private static KeyStore trustStore;
 
     private static KeyStore badStore;
+
+    private static Properties properties;
 
     @BeforeClass
     public static void startServer() {
@@ -126,7 +130,8 @@ public class TestTrustedRemoteSource {
 
     @BeforeClass
     public static void createKeystores() {
-        System.setProperty("javax.net.ssl.keyStoreType", "jks");
+        properties = System.getProperties();
+        System.setProperty(SecurityConstants.KEYSTORE_TYPE, "jks");
         trustStore = createKeyStore(GOOD_TRUSTSTORE_PATH, GOOD_PASSWORD);
         keyStore = createKeyStore(GOOD_KEYSTORE_PATH, GOOD_PASSWORD);
         badStore = createKeyStore(BAD_KEYSTORE_PATH, BAD_PASSWORD);
@@ -152,7 +157,7 @@ public class TestTrustedRemoteSource {
 
     @AfterClass
     public static void tearDownAfterClass() {
-        System.clearProperty("javax.net.ssl.keyStoreType");
+        System.setProperties(properties);
     }
 
     /**
@@ -160,7 +165,7 @@ public class TestTrustedRemoteSource {
      */
     @Test
     public void testGoodCertificates() {
-        RemoteSource remoteSource = createSecuredSource(keyStore, GOOD_PASSWORD, trustStore, 30000,
+        RemoteSource remoteSource = createSecuredSource(keyStore, GOOD_PASSWORD, trustStore, 304000,
                 60000);
         // hit server
         if (remoteSource.get() == null) {
