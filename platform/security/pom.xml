@@ -202,9 +202,10 @@
         <module>interceptor</module>
         <module>certificate</module>
         <module>security-admin-module</module>
-        <module>docs</module>
+        <module>idp</module>
         <module>rest</module>
         <module>security-services-app</module>
+        <module>docs</module>
     </modules>
 
 </project>

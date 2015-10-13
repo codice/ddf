@@ -13,9 +13,12 @@
  */
 package org.codice.ddf.security.handler.saml;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -25,6 +28,8 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 
 import org.apache.cxf.staxutils.StaxUtils;
@@ -38,8 +43,11 @@ import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
 
 import ddf.security.SecurityConstants;
+import ddf.security.assertion.impl.SecurityAssertionImpl;
+import ddf.security.common.util.SecurityTokenHolder;
 
 /**
  * Checks for a SAML assertion that has been returned to us in the ddf security cookie. If it exists, it
@@ -52,6 +60,15 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
     public static final String AUTH_TYPE = "SAML";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SAMLAssertionHandler.class);
+
+    private static final String SAML_NAMESPACE = "urn:oasis:names:tc:SAML:2.0:assertion";
+
+    private static final String EVIDENCE = "<%1$s:Evidence xmlns:%1$s=\"urn:oasis:names:tc:SAML:2.0:assertion\">%2$s</%1$s:Evidence>";
+
+    private static final Pattern SAML_PREFIX = Pattern.compile("<(?<prefix>\\w+?):Assertion\\s.*");
+
+    // Interned string literal lock for creating new HTTP sessions
+    private final Object newSessionLock = "org.codice.ddf.security.NewHttpSession";
 
     public SAMLAssertionHandler() {
         LOGGER.debug("Creating SAML Assertion handler.");
@@ -90,8 +107,22 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
                 String tokenString = RestSecurity.inflateBase64(encodedSamlAssertion);
                 LOGGER.trace("Header value: {}", tokenString);
                 securityToken = new SecurityToken();
-                Element thisToken = StaxUtils.read(new StringReader(tokenString))
-                        .getDocumentElement();
+
+                Element thisToken = null;
+
+                if (tokenString.contains(SAML_NAMESPACE)) {
+                    try {
+                        thisToken = StaxUtils.read(new StringReader(tokenString))
+                                .getDocumentElement();
+                    } catch (XMLStreamException e) {
+                        LOGGER.warn(
+                                "Unexpected error converting XML string to element - proceeding without SAML token.",
+                                e);
+                    }
+                } else {
+                    thisToken = parseAssertionWithoutNamespace(tokenString);
+                }
+
                 securityToken.setToken(thisToken);
                 SAMLAuthenticationToken samlToken = new SAMLAuthenticationToken(null, securityToken,
                         realm);
@@ -99,10 +130,6 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
                 handlerResult.setStatus(HandlerResult.Status.COMPLETED);
             } catch (IOException e) {
                 LOGGER.warn("Unexpected error converting header value to string", e);
-            } catch (XMLStreamException e) {
-                LOGGER.warn(
-                        "Unexpected error converting XML string to element - proceeding without SAML token.",
-                        e);
             }
             return handlerResult;
         }
@@ -138,27 +165,70 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
 
         HttpSession session = httpRequest.getSession(false);
         if (session == null && httpRequest.getRequestedSessionId() != null) {
-            session = httpRequest.getSession();
+            synchronized (newSessionLock) {
+                session = httpRequest.getSession(true);
+                if (session.getAttribute(SecurityConstants.SAML_ASSERTION) == null) {
+                    session.setAttribute(SecurityConstants.SAML_ASSERTION, new SecurityTokenHolder(null));
+                }
+            }
         }
         if (session != null) {
             //Check if there is a SAML Assertion in the session
             //If so, create a SAMLAuthenticationToken using the sessionId
-            Object savedToken = session.getAttribute(SecurityConstants.SAML_ASSERTION);
-            if (savedToken != null) {
-                LOGGER.trace("Creating SAML authentication token with session.");
-                SAMLAuthenticationToken samlToken = new SAMLAuthenticationToken(null,
-                        session.getId(), realm);
-                handlerResult.setToken(samlToken);
-                handlerResult.setStatus(HandlerResult.Status.COMPLETED);
-                return handlerResult;
+            SecurityTokenHolder savedToken = (SecurityTokenHolder) session
+                    .getAttribute(SecurityConstants.SAML_ASSERTION);
+            if (savedToken != null && savedToken.getSecurityToken() != null) {
+                SecurityAssertionImpl assertion = new SecurityAssertionImpl(savedToken.getSecurityToken());
+                if (assertion.getNotOnOrAfter() == null
+                        || assertion.getNotOnOrAfter().getTime() - System.currentTimeMillis() > 0) {
+                    LOGGER.trace("Creating SAML authentication token with session.");
+                    SAMLAuthenticationToken samlToken = new SAMLAuthenticationToken(null, session.getId(), realm);
+                    handlerResult.setToken(samlToken);
+                    handlerResult.setStatus(HandlerResult.Status.COMPLETED);
+                    return handlerResult;
+                } else {
+                    LOGGER.trace(
+                            "SAML token in session has expired - removing from session and returning with no results");
+                    savedToken.setSecurityToken(null);
+                }
             } else {
-                LOGGER.trace("No SAML cookie located - returning with no results");
+                LOGGER.trace("No SAML token located in session - returning with no results");
             }
         } else {
             LOGGER.trace("No HTTP Session - returning with no results");
         }
 
         return handlerResult;
+    }
+
+    private Element parseAssertionWithoutNamespace(String assertion) {
+        Element result = null;
+
+        Matcher prefix = SAML_PREFIX.matcher(assertion);
+        if (prefix.find()) {
+
+            Thread thread = Thread.currentThread();
+            ClassLoader loader = thread.getContextClassLoader();
+            thread.setContextClassLoader(SAMLAssertionHandler.class.getClassLoader());
+
+            try {
+                DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+                dbf.setNamespaceAware(true);
+
+                String evidence = String.format(EVIDENCE, prefix.group("prefix"), assertion);
+
+                Element root = dbf.newDocumentBuilder()
+                        .parse(new ByteArrayInputStream(evidence.getBytes())).getDocumentElement();
+
+                result = ((Element) root.getChildNodes().item(0));
+            } catch (ParserConfigurationException | SAXException | IOException ex) {
+                LOGGER.warn("Unable to parse SAML assertion", ex);
+            } finally {
+                thread.setContextClassLoader(loader);
+            }
+        }
+
+        return result;
     }
 
     /**

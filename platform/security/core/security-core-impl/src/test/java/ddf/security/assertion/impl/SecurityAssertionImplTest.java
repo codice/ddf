@@ -15,10 +15,12 @@ package ddf.security.assertion.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import java.io.IOException;
 import java.io.InputStream;
 
+import javax.xml.bind.DatatypeConverter;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -41,6 +43,10 @@ public class SecurityAssertionImplTest {
     private static final int NUM_NAUTH = 1;
 
     private static final int NUM_AUTHZ = 0;
+
+    public static final String BEFORE = "2013-04-23T23:39:54.788Z";
+
+    public static final String AFTER = "2013-04-24T00:09:54.788Z";
 
     public static Document readXml(InputStream is)
             throws SAXException, IOException, ParserConfigurationException {
@@ -65,11 +71,13 @@ public class SecurityAssertionImplTest {
     @Test
     public void testEmptyAssertion() {
         SecurityAssertionImpl assertion = new SecurityAssertionImpl();
-        assertEquals(null, assertion.getIssuer());
+        assertNull(assertion.getIssuer());
         assertEquals(0, assertion.getAttributeStatements().size());
         assertEquals(0, assertion.getAuthnStatements().size());
         assertEquals(0, assertion.getAuthzDecisionStatements().size());
-        assertEquals(null, assertion.getPrincipal());
+        assertNull(assertion.getPrincipal());
+        assertNull(assertion.getNotBefore());
+        assertNull(assertion.getNotOnOrAfter());
     }
 
     @Test
@@ -85,6 +93,10 @@ public class SecurityAssertionImplTest {
         assertEquals(PRINCIPAL, assertion.getPrincipal().toString());
         assertEquals(NUM_ATTRIBUTES, assertion.getAttributeStatements().size());
         assertEquals(NUM_NAUTH, assertion.getAuthnStatements().size());
+        assertEquals(DatatypeConverter.parseDateTime(BEFORE).getTimeInMillis(),
+                assertion.getNotBefore().getTime());
+        assertEquals(DatatypeConverter.parseDateTime(AFTER).getTimeInMillis(),
+                assertion.getNotOnOrAfter().getTime());
         //we don't currently parse these
         //        assertEquals(NUM_AUTHZ, assertion.getAuthzDecisionStatements().size());
         assertNotNull(assertion.toString());
