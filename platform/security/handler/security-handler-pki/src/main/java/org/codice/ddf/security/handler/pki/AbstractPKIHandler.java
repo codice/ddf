@@ -46,13 +46,13 @@ public abstract class AbstractPKIHandler implements AuthenticationHandler {
 
     public static final String SOURCE = "PKIHandler";
 
+    public static final String CRL_PROPERTY_KEY = "org.apache.ws.security.crypto.merlin.x509crl.file";
+
     protected static final Logger LOGGER = LoggerFactory.getLogger(AbstractPKIHandler.class);
 
+    private static String encryptionPropertiesLocation = "etc/ws-security/server/encryption.properties";
+
     protected PKIAuthenticationTokenFactory tokenFactory;
-
-    private static final String ENCRYPTION_PROPERTIES_LOCATION = "etc/ws-security/server/encryption.properties";
-
-    private static final String CRL_PROPERTY_KEY = "org.apache.ws.security.crypto.merlin.x509crl.file";
 
     private boolean isEnabled = false;
 
@@ -107,7 +107,7 @@ public abstract class AbstractPKIHandler implements AuthenticationHandler {
             return handlerResult;
         }
 
-        Properties encryptionProperties = PropertiesLoader.loadProperties(ENCRYPTION_PROPERTIES_LOCATION);
+        Properties encryptionProperties = loadProperties(encryptionPropertiesLocation);
         setCrlLocation(encryptionProperties.getProperty(CRL_PROPERTY_KEY));
         // No CRL was specified, or there was an error reading
         if (crl == null) {
@@ -116,7 +116,23 @@ public abstract class AbstractPKIHandler implements AuthenticationHandler {
             return handlerResult;
         }
 
-        // CRL was specified, check against CRL here
+        // CRL was specified, check against CRL and return the result
+        handlerResult = checkAgainstCRL(httpResponse, token, certs, handlerResult);
+        return handlerResult;
+    }
+
+    /**
+     * Checks the certificates agains the CRL. If it is in the CRL, send a 401 error and return a HandlerResult with
+     * the status of REDIRECTED. Otherwise, set appropriate tokens on the HandlerResult and return with status of COMPLETED
+     *
+     * @param httpResponse  HttpServletResponse to send 401 error if needed
+     * @param token         BaseAuthenticationToken containing the auth data to attached to the HandlerResult if it passes the CRL
+     * @param certs         Certificates extracted from the request to check against the CRL
+     * @param handlerResult HandlerResult to modify and return
+     * @return returns the modified handler result. REDIRECTED status if it failed the CRL check or COMPLETED if it passed
+     */
+    public HandlerResult checkAgainstCRL(HttpServletResponse httpResponse,
+            BaseAuthenticationToken token, X509Certificate[] certs, HandlerResult handlerResult) {
         if (passesCRL(certs)) {
             handlerResult.setToken(token);
             handlerResult.setStatus(HandlerResult.Status.COMPLETED);
@@ -150,9 +166,9 @@ public abstract class AbstractPKIHandler implements AuthenticationHandler {
      * @param certs
      * @return boolean value
      */
-    private boolean passesCRL(X509Certificate[] certs) {
-        if (certs != null && isEnabled) {
-            if (crl != null) {
+    public boolean passesCRL(X509Certificate[] certs) {
+        if (certs != null) {
+            if (crl != null && isEnabled) {
                 LOGGER.debug("Got {} certificate(s) in the incoming request", certs.length);
                 for (X509Certificate curCert : certs) {
                     if (crl.isRevoked(curCert)) {
@@ -165,14 +181,14 @@ public abstract class AbstractPKIHandler implements AuthenticationHandler {
                     }
                 }
             } else {
-                String errorMsg = "Denying access to all users as no crl file is available. Either fix the file location or disable CRL checking to allow access to users.";
+                String errorMsg = "The CRL check passed because CRL is disabled. Check that your properties and CRL file are correct if revocation is needed.";
                 SecurityLogger.logInfo(errorMsg);
                 LOGGER.warn(errorMsg);
-                return false;
+                return true;
             }
         } else {
             LOGGER.debug(
-                    "Allowing message through. CRL checking has been disabled or there were no certificates sent by the client.");
+                    "Allowing message through CRL check. There were no certificates sent by the client.");
             return true;
         }
         return true;
@@ -186,17 +202,6 @@ public abstract class AbstractPKIHandler implements AuthenticationHandler {
     }
 
     /**
-     * Sets the isEnabled flag for the CRL checker which determines if the
-     * handler should check the incoming request to the specified CRL.
-     *
-     * @param isEnabled boolean value that either turns on crl checking (true) or
-     *                  turns off checking (false).
-     */
-    private void setIsEnabled(boolean isEnabled) {
-        this.isEnabled = isEnabled;
-    }
-
-    /**
      * Sets the location of the CRL. Enables CRL checking if property is set, disables it otherwise
      *
      * @param location Location of the DER-encoded CRL file that should be used to
@@ -204,7 +209,8 @@ public abstract class AbstractPKIHandler implements AuthenticationHandler {
      */
     public synchronized void setCrlLocation(String location) {
         if (location == null) {
-            LOGGER.warn("CRL property in [{}] is not set. Certs will not be checked against a CRL.", ENCRYPTION_PROPERTIES_LOCATION);
+            LOGGER.warn("CRL property in [{}] is not set. Certs will not be checked against a CRL.",
+                    encryptionPropertiesLocation);
             setIsEnabled(false);
             return;
         }
@@ -241,5 +247,35 @@ public abstract class AbstractPKIHandler implements AuthenticationHandler {
         FileInputStream fis = new FileInputStream(new File(location));
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
         return cf.generateCRL(fis);
+    }
+
+    /**
+     * For unit tests
+     *
+     * @return boolean isEnabled
+     */
+    public boolean getIsEnabled() {
+        return isEnabled;
+    }
+
+    /**
+     * Sets the isEnabled flag for the CRL checker which determines if the
+     * handler should check the incoming request to the specified CRL.
+     *
+     * @param isEnabled boolean value that either turns on crl checking (true) or
+     *                  turns off checking (false).
+     */
+    private void setIsEnabled(boolean isEnabled) {
+        this.isEnabled = isEnabled;
+    }
+
+    /**
+     * Abstracted for unit tests
+     *
+     * @param location location of properties file
+     * @return Properties from
+     */
+    public Properties loadProperties(String location) {
+        return PropertiesLoader.loadProperties(location);
     }
 }
