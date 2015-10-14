@@ -34,6 +34,7 @@ import org.apache.cxf.configuration.security.FiltersType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ddf.security.SecurityConstants;
 import ddf.security.encryption.EncryptionService;
 import ddf.security.settings.SecuritySettingsService;
 
@@ -62,12 +63,12 @@ public class SecuritySettingsServiceImpl implements SecuritySettingsService {
     }
 
     public void init() {
-        String setTrustStorePath = System.getProperty(SSL_TRUSTSTORE_JAVA_PROPERTY);
+        String setTrustStorePath = System.getProperty(SecurityConstants.TRUSTSTORE_PATH);
         if (setTrustStorePath != null) {
             truststorePath = setTrustStorePath;
         }
 
-        String setTrustStorePassword = System.getProperty(SSL_TRUSTSTORE_PASSWORD_JAVA_PROPERTY);
+        String setTrustStorePassword = System.getProperty(SecurityConstants.TRUSTSTORE_PASSWORD);
         if (setTrustStorePassword != null) {
             if (encryptionService == null) {
                 LOGGER.debug("TRUSTSTORE: {}", NO_ENCRYPT_SERVICE);
@@ -78,14 +79,14 @@ public class SecuritySettingsServiceImpl implements SecuritySettingsService {
             }
         }
 
-        trustStore = createKeyStore(truststorePath, truststorePassword);
+        trustStore = getTruststore();
 
-        String setKeyStorePath = System.getProperty(SSL_KEYSTORE_JAVA_PROPERTY);
+        String setKeyStorePath = System.getProperty(SecurityConstants.KEYSTORE_PATH);
         if (setKeyStorePath != null) {
             keystorePath = setKeyStorePath;
         }
 
-        String setKeyStorePassword = System.getProperty(SSL_KEYSTORE_PASSWORD_JAVA_PROPERTY);
+        String setKeyStorePassword = System.getProperty(SecurityConstants.KEYSTORE_PASSWORD);
         if (setKeyStorePassword != null) {
             if (encryptionService == null) {
                 LOGGER.debug("KEYSTORE: {}", NO_ENCRYPT_SERVICE);
@@ -96,16 +97,16 @@ public class SecuritySettingsServiceImpl implements SecuritySettingsService {
             }
         }
 
-        keyStore = createKeyStore(keystorePath, keystorePassword);
+        keyStore = getKeystore();
     }
 
-    private KeyStore createKeyStore(String path, String password) {
+    private KeyStore createKeyStore(String path, String password, String type) {
         KeyStore keyStore = null;
         File keyStoreFile = new File(path);
         if (keyStoreFile.exists() && StringUtils.isNotBlank(password)) {
             FileInputStream fis = null;
             try {
-                keyStore = KeyStore.getInstance(System.getProperty("javax.net.ssl.keyStoreType"));
+                keyStore = KeyStore.getInstance(type);
                 fis = new FileInputStream(keyStoreFile);
                 LOGGER.debug("Loading trustStore");
                 keyStore.load(fis, password.toCharArray());
@@ -144,8 +145,8 @@ public class SecuritySettingsServiceImpl implements SecuritySettingsService {
         }
 
         FiltersType filter = new FiltersType();
-        filter.getInclude().addAll(SSL_ALLOWED_ALGORITHMS);
-        filter.getExclude().addAll(SSL_DISALLOWED_ALGORITHMS);
+        filter.getInclude().addAll(SecurityConstants.SSL_ALLOWED_ALGORITHMS);
+        filter.getExclude().addAll(SecurityConstants.SSL_DISALLOWED_ALGORITHMS);
         tlsParams.setCipherSuitesFilter(filter);
 
         return tlsParams;
@@ -153,11 +154,13 @@ public class SecuritySettingsServiceImpl implements SecuritySettingsService {
 
     @Override
     public KeyStore getKeystore() {
-        return createKeyStore(keystorePath, keystorePassword);
+        return createKeyStore(keystorePath, keystorePassword,
+                System.getProperty(SecurityConstants.KEYSTORE_TYPE));
     }
 
     @Override
     public KeyStore getTruststore() {
-        return createKeyStore(truststorePath, truststorePassword);
+        return createKeyStore(truststorePath, truststorePassword,
+                System.getProperty(SecurityConstants.TRUSTSTORE_TYPE));
     }
 }

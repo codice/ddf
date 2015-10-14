@@ -14,8 +14,6 @@
 package ddf.security.settings;
 
 import java.security.KeyStore;
-import java.util.Arrays;
-import java.util.List;
 
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 
@@ -23,21 +21,6 @@ import org.apache.cxf.configuration.jsse.TLSClientParameters;
  * Service that can be used to obtain settings used for security purposes (SSL/TLS/Keystores...etc)
  */
 public interface SecuritySettingsService {
-
-    static final List<String> SSL_ALLOWED_ALGORITHMS = Arrays.asList(".*_WITH_AES_.*");
-
-    static final List<String> SSL_DISALLOWED_ALGORITHMS = Arrays
-            .asList(".*_WITH_NULL_.*", ".*_DH_anon_.*");
-
-    static final String SSL_KEYSTORE_JAVA_PROPERTY = "javax.net.ssl.keyStore";
-
-    static final String SSL_KEYSTORE_PASSWORD_JAVA_PROPERTY = "javax.net.ssl.keyStorePassword";
-
-    static final String SSL_TRUSTSTORE_JAVA_PROPERTY = "javax.net.ssl.trustStore";
-
-    static final String SSL_TRUSTSTORE_PASSWORD_JAVA_PROPERTY = "javax.net.ssl.trustStorePassword";
-
-    static final String SSL_KEYSTORE_TYPE_JAVA_PROPERTY = "javax.net.ssl.keyStoreType";
 
     TLSClientParameters getTLSParameters();
 

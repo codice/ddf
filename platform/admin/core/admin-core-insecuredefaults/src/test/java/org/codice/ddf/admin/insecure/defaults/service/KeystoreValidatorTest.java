@@ -22,8 +22,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
+
+import ddf.security.SecurityConstants;
 
 public class KeystoreValidatorTest {
 
@@ -74,6 +79,19 @@ public class KeystoreValidatorTest {
     private static final String DEFAULT_KEY_NULL_PASS = "No key password provided";
 
     private static final String KEYSTORE_NULL_PASS = "No keystore password provided";
+
+    private static Properties properties;
+
+    @Before
+    public void setUp() {
+        properties = System.getProperties();
+        System.setProperty(SecurityConstants.KEYSTORE_TYPE, "JKS");
+    }
+
+    @After
+    public void tearDown() {
+        System.setProperties(properties);
+    }
 
     @Test
     public void testInvalidPasswordForBlacklistKeystore() throws Exception {

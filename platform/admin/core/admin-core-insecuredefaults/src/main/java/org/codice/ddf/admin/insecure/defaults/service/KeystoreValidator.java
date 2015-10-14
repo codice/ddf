@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -34,6 +34,8 @@ import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.admin.insecure.defaults.service.Alert.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import ddf.security.SecurityConstants;
 
 public class KeystoreValidator implements Validator {
 
@@ -165,7 +167,7 @@ public class KeystoreValidator implements Validator {
         KeyStore keystore = null;
 
         try {
-            keystore = KeyStore.getInstance("JKS");
+            keystore = KeyStore.getInstance(System.getProperty(SecurityConstants.KEYSTORE_TYPE));
         } catch (KeyStoreException e) {
             LOGGER.warn(String.format(GENERIC_INSECURE_DEFAULTS_MSG, keystorePath.toString()), e);
             alerts.add(new Alert(Level.WARN,
@@ -247,7 +249,8 @@ public class KeystoreValidator implements Validator {
         }
 
         try (FileInputStream fis = new FileInputStream(blacklistKeystorePath.toString())) {
-            blacklistKeystore = KeyStore.getInstance("JKS");
+            blacklistKeystore = KeyStore
+                    .getInstance(System.getProperty(SecurityConstants.KEYSTORE_TYPE));
             blacklistKeystore.load(fis, blacklistKeystorePassword.toCharArray());
 
             Enumeration<String> aliases = blacklistKeystore.aliases();

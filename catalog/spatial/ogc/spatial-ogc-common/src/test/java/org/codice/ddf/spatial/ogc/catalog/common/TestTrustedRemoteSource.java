@@ -243,8 +243,8 @@ public class TestTrustedRemoteSource {
         }
 
         FiltersType filter = new FiltersType();
-        filter.getInclude().addAll(SecuritySettingsService.SSL_ALLOWED_ALGORITHMS);
-        filter.getExclude().addAll(SecuritySettingsService.SSL_DISALLOWED_ALGORITHMS);
+        filter.getInclude().addAll(SecurityConstants.SSL_ALLOWED_ALGORITHMS);
+        filter.getExclude().addAll(SecurityConstants.SSL_DISALLOWED_ALGORITHMS);
         tlsParams.setCipherSuitesFilter(filter);
 
         tlsParams.setHostnameVerifier(new HostnameVerifier() {
