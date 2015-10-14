@@ -14,16 +14,11 @@
 package org.codice.ddf.spatial.ogc.csw.catalog.converter;
 
 import java.util.List;
-import java.util.Map.Entry;
 
 import javax.measure.converter.ConversionException;
-import javax.xml.XMLConstants;
 
-import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
-import org.joda.time.DateTime;
-import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +31,6 @@ import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
-import net.opengis.cat.csw.v_2_0_2.ResultType;
 
 /**
  * Converts a {@link org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection} into a
@@ -89,83 +83,7 @@ public class GetRecordsResponseConverter implements Converter {
     @Override
     public void marshal(Object source, HierarchicalStreamWriter writer,
             MarshallingContext context) {
-        LOGGER.debug("Entering GetRecordsResponseConverter.marshal()");
-        if (source == null || !(source instanceof CswRecordCollection)) {
-            LOGGER.warn("Failed to marshal CswRecordCollection: {}", source);
-            return;
-        }
-        CswRecordCollection cswRecordCollection = (CswRecordCollection) source;
-
-        for (Entry<String, String> entry : DefaultCswRecordMap.getPrefixToUriMapping().entrySet()) {
-            writer.addAttribute(
-                    XMLConstants.XMLNS_ATTRIBUTE + CswConstants.NAMESPACE_DELIMITER + entry
-                            .getKey(), entry.getValue());
-        }
-
-        long start = 1;
-        String elementSet = null;
-        String recordSchema = CswConstants.CSW_OUTPUT_SCHEMA;
-
-        if (cswRecordCollection.getStartPosition() > 0) {
-            start = cswRecordCollection.getStartPosition();
-        }
-
-        if (StringUtils.isNotBlank(cswRecordCollection.getOutputSchema())) {
-            recordSchema = cswRecordCollection.getOutputSchema();
-
-        }
-        context.put(CswConstants.OUTPUT_SCHEMA_PARAMETER, recordSchema);
-
-        if (cswRecordCollection.getElementSetType() != null) {
-            context.put(CswConstants.ELEMENT_SET_TYPE, cswRecordCollection.getElementSetType());
-
-            elementSet = cswRecordCollection.getElementSetType().value();
-        } else if (cswRecordCollection.getElementName() != null) {
-            context.put(CswConstants.ELEMENT_NAMES, cswRecordCollection.getElementName());
-        }
-
-        long nextRecord = start + cswRecordCollection.getNumberOfRecordsReturned();
-        if (nextRecord > cswRecordCollection.getNumberOfRecordsMatched()) {
-            nextRecord = 0;
-        }
-        if (!cswRecordCollection.isById()) {
-            writer.addAttribute(VERSION_ATTRIBUTE, CswConstants.VERSION_2_0_2);
-
-            writer.startNode(CswConstants.CSW_NAMESPACE_PREFIX + CswConstants.NAMESPACE_DELIMITER
-                    + SEARCH_STATUS_NODE_NAME);
-            writer.addAttribute(TIMESTAMP_ATTRIBUTE,
-                    ISODateTimeFormat.dateTime().print(new DateTime()));
-            writer.endNode();
-
-            writer.startNode(CswConstants.CSW_NAMESPACE_PREFIX + CswConstants.NAMESPACE_DELIMITER
-                    + SEARCH_RESULTS_NODE_NAME);
-            writer.addAttribute(NUMBER_OF_RECORDS_MATCHED_ATTRIBUTE,
-                    Long.toString(cswRecordCollection.getNumberOfRecordsMatched()));
-            if (!ResultType.HITS.equals(cswRecordCollection.getResultType())) {
-                writer.addAttribute(NUMBER_OF_RECORDS_RETURNED_ATTRIBUTE,
-                        Long.toString(cswRecordCollection.getNumberOfRecordsReturned()));
-            } else {
-                writer.addAttribute(NUMBER_OF_RECORDS_RETURNED_ATTRIBUTE, Long.toString(0));
-            }
-
-            writer.addAttribute(NEXT_RECORD_ATTRIBUTE, Long.toString(nextRecord));
-            writer.addAttribute(RECORD_SCHEMA_ATTRIBUTE, recordSchema);
-            if (StringUtils.isNotBlank(elementSet)) {
-                writer.addAttribute(ELEMENT_SET_ATTRIBUTE, elementSet);
-            }
-        }
-        context.put(CswConstants.WRITE_NAMESPACES, cswRecordCollection.isDoWriteNamespaces());
-
-        if (!ResultType.HITS.equals(cswRecordCollection.getResultType())) {
-            LOGGER.debug("Transforming individual metacards.");
-            for (Metacard mc : cswRecordCollection.getCswRecords()) {
-                context.convertAnother(mc, transformProvider);
-            }
-        }
-        if (!cswRecordCollection.isById()) {
-            writer.endNode();
-        }
-
+        throw new UnsupportedOperationException();
     }
 
     /**
