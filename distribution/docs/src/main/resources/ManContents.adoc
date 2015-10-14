@@ -127,6 +127,7 @@ app:start solr-app
 Other applications may be installed at a later time.
 ====
 +
+. After the installation has been configured the instance should be restarted.
 . Go to https://localhost:8993/services and verify five REST services are available: admin, application, metrics, catalog, and catalog/query.
 . Click on the links to each REST service's WADL to see its interface.
 . In the Admin Console (at /admin), configure the system settings.
@@ -550,6 +551,23 @@ unzip ddf-kernel-X.Y.zip
 "C:\Program Files\Java\jdk1.8.0\bin\jar.exe" xf ddf-kernel-X.Y.zip
 ----
 
+* Configure global properties in <INSTALL_DIRECTORY>/etc/system.properties
+.system.properties
+----
+org.codice.ddf.system.protocol=https://
+org.codice.ddf.system.hostname=localhost
+org.codice.ddf.system.httpsPort=8993
+org.codice.ddf.system.httpPort=8181
+org.codice.ddf.system.port=8993
+org.codice.ddf.system.rootContext=/services
+
+# Set the system information properties
+org.codice.ddf.system.siteName=ddf.distribution
+org.codice.ddf.system.siteContact=
+org.codice.ddf.system.version=<latest version>
+org.codice.ddf.system.organization=Codice Foundation
+----
+
 * If the {branding} Standalone Solr Server will be installed later, an additional configuration step is required for the {branding} kernel. Add the following lines to the bottom of the `<INSTALL_DIR>/etc/org.ops4j.pax.web.cfg` file:
 
 .Additional Configuration Step
@@ -626,11 +644,6 @@ The order the {branding} applications are listed below is the recommended order 
 ==== (Option 2/Part 2) Configuration
 . Open a compatible web browser and log in to the Administrator Console (https://localhost:8993/admin) with username "admin" and password "admin" (no quotes).
 . Select the Configuration tab in the Administrator Console.
-.. Select Platform Global Configuration.
-... In the Host field, enter the IP address or hostname of the installation.
-... In the Port field, enter 8181. The port can be changed later, if necessary.
-... Enter the site name (e.g., the name {branding} will return in federation and web service responses).
-... Select the Save button.
 .. Select Catalog Sorted Federation Strategy.
 ... In the Maximum start index field, enter the maximum query offset number or keep the default setting. Refer to Standard Catalog Framework for additional information.
 ... Select the Save button.
@@ -803,28 +816,11 @@ Configuration via this page could result in an unstable system.
 Proceed with caution!
 ====
 
-=== Configuring {branding} Using the Web Console
+=== Configuring {branding}
 
-==== Access the Web Console
+==== Configure {branding} Global Settings
 
-. Open the web administration console.
-.. `http://localhost:8993/admin`
-.. Enter Username and Password
-
-[NOTE]
-====
-The default username/password is admin/admin. To change this, refer to Security Hardening.
-====
-
-==== Configure {branding} Platform Global Settings
-
-. Open the web administration console.
-.. `https://localhost:8993/admin`
-.. Enter Username and Password
-. Select {branding} Platform
-. Select *Platform Global Configuration*.
-. Enter the  {branding} configuration values per the Configurable Properties table below.
-. Select the *Save* button.
+Global configuration settings are configured via the properties file system.properties. These properties can be manually set by editing this file or set via the installer.
 
 ===== Configurable Properties
 
@@ -838,28 +834,53 @@ The default username/password is admin/admin. To change this, refer to Security 
 |Required
 
 |Protocol
-|protocol
+|org.codice.ddf.system.protocol
 |String
 |Default protocol that should be used to connect to this machine.
-|https
+|https://
 |yes
 
 |Host
-|host
+|org.codice.ddf.system.hostname
 |String
 |The hostname or IP address used to advertise the system. Do not enter localhost. Possibilities include the address of a single node or that of a load balancer in a multi-node deployment.
 
 NOTE: Does not change the address the system runs on.
-|
+|localhost
 |yes
 
-|Port
-|port
+|Default Port
+|org.codice.ddf.system.port
 |String
-|The port used to advertise the system. Possibilities include the port of a single node or that of a load balancer in a multi-node deployment.
+|The default port used to advertise the system. This should match either the http or https port.
 
 NOTE: Does not change the port the system runs on.
-|
+|8993
+|yes
+
+|HTTP Port
+|org.codice.ddf.system.httpPort
+|String
+|The http port used by the system.
+
+NOTE: This *DOES* change the port the system runs on.
+|8181
+|yes
+
+|HTTPS Port
+|org.codice.ddf.system.httpsPort
+|String
+|The https port used by the system.
+
+NOTE: This *DOES* change the port the system runs on.
+|8993
+|yes
+
+|Root Context
+|org.codice.ddf.system.rootContext
+|String
+|The the base or root context that services will be made available under.
+|/services
 |yes
 
 ////
@@ -868,28 +889,28 @@ NOTE: Does not change the port the system runs on.
 |String
 |The trust store used for outgoing SSL connections. Path is relative to ddf.home.
 |etc/keystores/clientTruststore.jks
-|no
+|yes
 
 |Trust Store Password
 |trustStorePassword
 |String
 |The password associated with the trust store.
 |changeit (encrypted)
-|no
+|yes
 
 |Key Store
 |keyStore
 |String
 |The key store used for outgoing SSL connections. Path is relative to karaf.home.
 |etc/keystores/clientKeystore.jks
-|no
+|yes
 
 |Key Store Password
 |keyStorePassword
 |String
 |The password associated with the key store.
 |changeit (encrypted)
-|no
+|yes
 
 ////
 
@@ -1251,7 +1272,7 @@ TLS_RSA_WITH_AES_128_CBC_SHA
 |===
 
 === Configuring {branding} with New Certificates
-{branding} ships with a default security certificate configured to identify the {branding} instance machine as "localhost." This allows the {branding} distribution to be unzipped and run immediately in a secure manner. However, in order to access the {branding} instance from another machine over HTTPS (now the default for many services) the default certificates need to be replaced with a certificate that uses the fully qualified hostname of the server running the {branding} instance.
+{branding} ships with a default security certificate configured to identify the {branding} instance machine as "localhost." This allows the {branding} distribution to be unzipped and run immediately in a secure manner. If the installer was used to install the {branding} and a hostname other than 'localhost' was given, a new cert for the hostname was generated and added to the keystore. If the hostname was left as 'localhost' or the hostname was changed after installation, in order to access the {branding} instance from another machine over HTTPS (now the default for many services) the default certificates need to be replaced with a certificate that uses the fully qualified hostname of the server running the {branding} instance.
 
 ==== Important Terms
 
@@ -1343,9 +1364,9 @@ TLS_RSA_WITH_AES_128_CBC_SHA
 ==== Update {branding} Configuration
 
 ===== Configure {branding} Web Service Providers
-By default Solr, STS server, STS client and platform global config settings point to *localhost* and not to the fully qualified domain name of the {branding} instance. Assuming the {branding} instance is providing these servcies, the configuration must be updated to use the {branding} instance's *fully qualified domain name*  as the service provider.
+By default Solr, STS server, STS client and the rest of the system use the system property 'org.codice.ddf.system.hostname' which is defaulted to 'localhost' and not to the fully qualified domain name of the {branding} instance. Assuming the {branding} instance is providing these servcies, the configuration must be updated to use the {branding} instance's *fully qualified domain name*  as the service provider.
 
-This can be done throught the *Admin UI* application, the *Felix console*, or from the {branding} console. The most common method is to use the *Admin UI*.
+This can be done through the installer or editing the system.properties in <INSTALL_DIRECTORY>/etc/
 
 [IMPORTANT]
 ====
@@ -1359,62 +1380,6 @@ Even if Web access is lost, the {branding} instance can still be configured usin
 
 . Start the {branding} instance, if it is not already running.
 . Go to https://localhost:8993/admin and step through the installer setting the hostname to the instance's FQDN and the port to correct value.
-. Configure the following properties:
-
-[cols="4" options="header"]
-|===
-
-|Application Name
-|Configuration Name
-|Property Name
-|New Value
-
-|DDF Catalog
-|Catalog Federation Strategy
-|Solr URL
-|https://<FQDN>:<PORT>/solr
-
-|DDF Platform
-|Persistent Store
-|Solr URL
-|https://<FQDN>:<PORT>/solr
-
-|DDF Platform
-|Platform Global Config
-|Host
-|<FQDN>
-
-|DDF Security
-|Security STS Client
-|STS WSDL Address
-|https://<FQDN>:<PORT>/services/SecurityTokenService?wsdl
-
-|DDF Security
-|Security STS Server
-|Token Issuer
-|<FQDN>
-
-|DDF Security
-|Security STS Server
-|Signature Username
-|<FQDN>
-
-|DDF Security
-|Security STS Server
-|Encryption Username
-|<FQDN>
-
-|DDF Solr Catalog
-|Catalog External Solr Catalog Provider
-|HTTP URL
-|https://<FQDN>:<PORT>/solr
-
-|===
-
-[NOTE]
-====
-The Security STS Server Signature Username and Encryption Username properties are the *alias* of the server's private key entry in the Java keystore. _The server's FQDN is used as the alias_. This is repeated in other palces where an alias is configured.
-====
 
 ===== Configure Files in HOME Directory Hierarchy
 
@@ -1441,52 +1406,6 @@ javax.net.ssl.keyStorePassword=<NewPassword>
 javax.net.ssl.trustStore=etc/keystores/serverTruststore.jks
 javax.net.ssl.trustStorePassword=<NewPassword>
 javax.net.ssl.keyStoreType=jks
-----
-
-* Configure `<DDF_HOME>/etc/ws-security/issuer/encryption.properties`
-[source,bash]
-----
-#Property descriptions at http://ws.apache.org/wss4j/config.html
-org.apache.ws.security.crypto.provider=org.apache.ws.security.components.crypto.Merlin
-org.apache.ws.security.crypto.merlin.keystore.type=jks
-org.apache.ws.security.crypto.merlin.keystore.password=<NewPassword>
-org.apache.ws.security.crypto.merlin.keystore.alias=<FQDN>
-org.apache.ws.security.crypto.merlin.keystore.file=etc/keystores/serverKeystore.jks
-----
-
-* Configure `<DDF_HOME>/etc/ws-security/issuer/signature.properties`
-[source,bash]
-----
-#Property descriptions at http://ws.apache.org/wss4j/config.html
-org.apache.ws.security.crypto.provider=org.apache.ws.security.components.crypto.Merlin
-org.apache.ws.security.crypto.merlin.keystore.type=jks
-org.apache.ws.security.crypto.merlin.keystore.password=<NewPassword>
-org.apache.ws.security.crypto.merlin.keystore.alias=<FQDN>
-org.apache.ws.security.crypto.merlin.keystore.file=etc/keystores/serverKeystore.jks
-----
-
-* Configure `<{DDF_HOME>/etc/ws-security/server/encryption.properties`
-[source,bash]
-----
-#Property descriptions at http://ws.apache.org/wss4j/config.html
-org.apache.ws.security.crypto.provider=org.apache.ws.security.components.crypto.Merlin
-org.apache.ws.security.crypto.merlin.keystore.type=jks
-org.apache.ws.security.crypto.merlin.keystore.password=<NewPassword>
-org.apache.ws.security.crypto.merlin.keystore.private.password=<NewPassword>
-org.apache.ws.security.crypto.merlin.keystore.alias=<FQDN>
-org.apache.ws.security.crypto.merlin.keystore.file=etc/keystores/serverKeystore.jks
-----
-
-* Configure `<DDF_HOME>/etc/ws-security/ser/signature.properties`
-[source,bash]
-----
-#Property descriptions at http://ws.apache.org/wss4j/config.html
-org.apache.ws.security.crypto.provider=org.apache.ws.security.components.crypto.Merlin
-org.apache.ws.security.crypto.merlin.keystore.type=jks
-org.apache.ws.security.crypto.merlin.keystore.password=<NewPassword>
-org.apache.ws.security.crypto.merlin.keystore.private.password=<NewPassword>
-org.apache.ws.security.crypto.merlin.keystore.alias=<FQDN>
-org.apache.ws.security.crypto.merlin.keystore.file=etc/keystores/serverKeystore.jks
 ----
 
 ==== Create Private Key and Certificate Signing Request
@@ -1746,6 +1665,8 @@ After the keystore is successfully created, delete the jetty files used to perfo
 By default, the Catalog Backup Post-Ingest Plugin is *NOT* enabled. To enable, the Enable Backup Plugin configuration item must be checked in the Backup Post-Ingest Plugin configuration.
 
 Enable Backup Plugin: true
+
+Assumes hostname of 'ddf'
 ====
 
 * Configure Catalog External Solr Catalog Provider
@@ -1812,6 +1733,14 @@ javax.net.ssl.trustStore=etc/keystores/serverTruststore.jks
 javax.net.ssl.trustStorePassword=password
 javax.net.ssl.keyStoreType=jks
 
+# Set the global url properties
+org.codice.ddf.system.protocol=https://
+org.codice.ddf.system.hostname=ddf
+org.codice.ddf.system.httpsPort=8993
+org.codice.ddf.system.httpPort=8181
+org.codice.ddf.system.port=8993
+org.codice.ddf.system.rootContext=/services
+
 # HTTPS Specific settings.  If making a Secure Connection not leveraging the HTTPS Jaav libraries and
 # classes (e.g. if you are using secure sockets directly) then you will have to set this directly
 https.cipherSuites=TLS_DHE_RSA_WITH_AES_128_CBC_SHA,TLS_DHE_RSA_WITH_AES_128_CBC_SHA,TLS_DHE_DSS_WITH_AES_128_CBC_SHA,TLS_RSA_WITH_AES_128_CBC_SHA
@@ -1820,59 +1749,6 @@ https.protocols=TLSv1,TLSv1.1,TLSv1.2
 
 * Configure users properties
 ** In `<ddf-home>/etc/users.properties`, change `localhost=localhost,admin` to `ddf=ddf,admin`
-* Configure `encryption.properties` and `signature.properties` files
-** In `<ddf-home>/etc/ws-security/issuer`, modify `encryption.properties`
-
-.encryption.properties
-[source]
-----
-#Property descriptions at http://ws.apache.org/wss4j/config.html
-org.apache.ws.security.crypto.provider=org.apache.ws.security.components.crypto.Merlin
-org.apache.ws.security.crypto.merlin.keystore.type=jks
-org.apache.ws.security.crypto.merlin.keystore.password=password
-org.apache.ws.security.crypto.merlin.keystore.alias=ddf
-org.apache.ws.security.crypto.merlin.keystore.file=etc/keystores/serverKeystore.jks
-----
-
-* In `<ddf-home>/etc/ws-security/issuer`, modify `signature.properties`
-
-.signature.properties
-----
-#Property descriptions at http://ws.apache.org/wss4j/config.html
-org.apache.ws.security.crypto.provider=org.apache.ws.security.components.crypto.Merlin
-org.apache.ws.security.crypto.merlin.keystore.type=jks
-org.apache.ws.security.crypto.merlin.keystore.password=password
-org.apache.ws.security.crypto.merlin.keystore.private.password=password
-org.apache.ws.security.crypto.merlin.keystore.alias=ddf
-org.apache.ws.security.crypto.merlin.keystore.file=etc/keystores/serverKeystore.jks
-----
-
-* In `<ddf-home>/etc/ws-security/server`, modify `encryption.properties`
-
-.encryption.properties
-[source]
-----
-#Property descriptions at http://ws.apache.org/wss4j/config.html
-org.apache.ws.security.crypto.provider=org.apache.ws.security.components.crypto.Merlin
-org.apache.ws.security.crypto.merlin.keystore.type=jks
-org.apache.ws.security.crypto.merlin.keystore.password=password
-org.apache.ws.security.crypto.merlin.keystore.alias=ddf
-org.apache.ws.security.crypto.merlin.keystore.file=etc/keystores/serverKeystore.jks
-#org.apache.ws.security.crypto.merlin.x509crl.file=etc/certs/demoCA/crl/crl.pem
-----
-
-* In `<ddf-home>/etc/ws-security/server`, modify `signature.properties`
-
-.signature.properties
-[source]
-----
-#Property descriptions at http://ws.apache.org/wss4j/config.html
-org.apache.ws.security.crypto.provider=org.apache.ws.security.components.crypto.Merlin
-org.apache.ws.security.crypto.merlin.keystore.type=jks
-org.apache.ws.security.crypto.merlin.keystore.password=password
-org.apache.ws.security.crypto.merlin.keystore.alias=ddf
-org.apache.ws.security.crypto.merlin.keystore.file=etc/keystores/serverKeystore.jks
-----
 
 * Start ddf
 ** For Windows, run `<ddf-home>/bin/ddf.bat`
@@ -2310,6 +2186,23 @@ The `system.properties` file found under `$DDF_HOME/etc` contains properties tha
 
 By default, this value is set to 128. It is not recommended to set this value extremely high. If unsure, leave this setting at it's default value of 128.
 
+=== Configuring Global System Properties
+The `system.properties` file found under `$DDF_HOME/etc` contains properties that will be made available through system properties at the beginning of Karaf's boot process. After changing any of these properties you will need to restart the system. If you change the 'hostname' property you will also need to configure the certs as described in Configuring {branding} with New Certificates.
+The system by default uses both http and https so both httpsPort and httpPort need to be specified. The protocol and port properties are the defaults the system should use in places where either http or https could be valid.
+----
+org.codice.ddf.system.protocol=https://        #one of http:// or https://
+org.codice.ddf.system.hostname=localhost       #should be the fully qualified domain name
+org.codice.ddf.system.httpsPort=8993           #secure port
+org.codice.ddf.system.httpPort=8181            #public port
+org.codice.ddf.system.port=8993                #default port corresponding to the protocol selected. Should match the httpPort or httpsPort
+org.codice.ddf.system.rootContext=/services    #the root context that services will be made available under
+
+org.codice.ddf.system.siteName=${sitename.default}        #the name of this instance
+org.codice.ddf.system.siteContact=                        #contact for this instance
+org.codice.ddf.system.version=${project.version}          #this instances version
+org.codice.ddf.system.organization=${organization.name}   #who owns/runs this instance
+----
+
 == Managing Web Service Security
 
 === Configuring WSS
@@ -2326,6 +2219,8 @@ By default, this value is set to 128. It is not recommended to set this value ex
 By default, the Catalog Backup Post-Ingest Plugin is *NOT* enabled. To enable, the Enable Backup Plugin configuration item must be checked in the Backup Post-Ingest Plugin configuration.
 
 Enable Backup Plugin: true
+
+Assumes a hostname of 'ddf'
 ====
 
 [IMPORTANT]
@@ -2411,59 +2306,6 @@ https.protocols=TLSv1,TLSv1.1,TLSv1.2
 
 * Configure users properties
 ** In `<ddf-home>/etc/users.properties`, change `localhost=localhost,admin` to `ddf=ddf,admin`
-* Configure `encryption.properties` and `signature.properties` files
-** In `<ddf-home>/etc/ws-security/issuer`, modify `encryption.properties`
-
-.encryption.properties
-[source]
-----
-#Property descriptions at http://ws.apache.org/wss4j/config.html
-org.apache.ws.security.crypto.provider=org.apache.ws.security.components.crypto.Merlin
-org.apache.ws.security.crypto.merlin.keystore.type=jks
-org.apache.ws.security.crypto.merlin.keystore.password=password
-org.apache.ws.security.crypto.merlin.keystore.alias=ddf
-org.apache.ws.security.crypto.merlin.keystore.file=etc/keystores/serverKeystore.jks
-----
-
-* In `<ddf-home>/etc/ws-security/issuer`, modify `signature.properties`
-
-.signature.properties
-----
-#Property descriptions at http://ws.apache.org/wss4j/config.html
-org.apache.ws.security.crypto.provider=org.apache.ws.security.components.crypto.Merlin
-org.apache.ws.security.crypto.merlin.keystore.type=jks
-org.apache.ws.security.crypto.merlin.keystore.password=password
-org.apache.ws.security.crypto.merlin.keystore.private.password=password
-org.apache.ws.security.crypto.merlin.keystore.alias=ddf
-org.apache.ws.security.crypto.merlin.keystore.file=etc/keystores/serverKeystore.jks
-----
-
-* In `<ddf-home>/etc/ws-security/server`, modify `encryption.properties`
-
-.encryption.properties
-[source]
-----
-#Property descriptions at http://ws.apache.org/wss4j/config.html
-org.apache.ws.security.crypto.provider=org.apache.ws.security.components.crypto.Merlin
-org.apache.ws.security.crypto.merlin.keystore.type=jks
-org.apache.ws.security.crypto.merlin.keystore.password=password
-org.apache.ws.security.crypto.merlin.keystore.alias=ddf
-org.apache.ws.security.crypto.merlin.keystore.file=etc/keystores/serverKeystore.jks
-#org.apache.ws.security.crypto.merlin.x509crl.file=etc/certs/demoCA/crl/crl.pem
-----
-
-* In `<ddf-home>/etc/ws-security/server`, modify `signature.properties`
-
-.signature.properties
-[source]
-----
-#Property descriptions at http://ws.apache.org/wss4j/config.html
-org.apache.ws.security.crypto.provider=org.apache.ws.security.components.crypto.Merlin
-org.apache.ws.security.crypto.merlin.keystore.type=jks
-org.apache.ws.security.crypto.merlin.keystore.password=password
-org.apache.ws.security.crypto.merlin.keystore.alias=ddf
-org.apache.ws.security.crypto.merlin.keystore.file=etc/keystores/serverKeystore.jks
-----
 
 * Start ddf
 ** For Windows, run `<ddf-home>/bin/ddf.bat`
@@ -3197,7 +3039,7 @@ File: etc/ws-security/issuer/encryption.properties
 
 File: etc/ws-security/issuer/signature.properties
 
-File: etc/ddf.platform.config.cfg
+File: etc/system.properties
 |Used to secure (SSL) all of the endpoints for {branding}, to perform outgoing SSL requests, sign STS SAML assertions. This also includes the admin console and any other web service that is hosted by {branding}.
 
 |===
@@ -4539,9 +4381,9 @@ For {branding}, these actions are populated by various components in the securit
 |Description
 
 |Filtering / Redaction
-|filter
+|read
 |security-pdp-xacmlrealm
-|When performing any redaction or filtering, the XACMLRealm will set the action-id to "filter".
+|When performing any redaction or filtering, the XACMLRealm will set the action-id to "read".
 
 |Service
 |<SOAPAction>
