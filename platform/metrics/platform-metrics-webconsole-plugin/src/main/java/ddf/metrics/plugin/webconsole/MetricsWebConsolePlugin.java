@@ -68,8 +68,10 @@ import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ddf.security.SecurityConstants;
+
 /**
- * Felix Web Console plugin to create a Metrics tab for interacting with the {@link MetricsEndpoint}
+ * Felix Web Console plugin to create a Metrics tab for interacting with the MetricsEndpoint
  * . This plugin displays a table of all of the monitored metrics and their associated hyperlinks to
  * display an each metrics collected data in various formats, including PNG graph, CSV, Excel
  * spreadsheet, and PowerPoint slides.
@@ -95,14 +97,6 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin {
     private static final int NUMBER_OF_MONTHLY_REPORTS = 12;
 
     private static final int NUMBER_OF_YEARLY_REPORTS = 1;
-
-    private static final String TRUSTSTORE_DEFAULT_LOC = "etc/keystores/serverTruststore.jks";
-
-    private static final String TRUSTSTORE_DEFAULT_PASS = "changeit";
-
-    private static final String KEYSTORE_DEFAULT_LOC = "etc/keystores/serverKeystore.jks";
-
-    private static final String KEYSTORE_DEFAULT_PASS = "changeit";
 
     private SystemBaseUrl systemBaseUrl;
 
@@ -149,7 +143,7 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin {
 
     /**
      * Renders the Metrics tab in the Admin GUI console. Retrieves the list of all metrics being
-     * collected in the system by invoking the {@link MetricsEndpoint}, and then parsing this JSON
+     * collected in the system by invoking the MetricsEndpoint, and then parsing this JSON
      * response to create the table in the Metrics tab that consists of the list of metric names and
      * hyperlinks for each format for each time range that a metric's data can be retrieved.
      */
@@ -329,35 +323,39 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin {
 
             params.setDisableCNCheck(true);
 
-            KeyStore keyStoreJks;
+            KeyStore keyStore;
+            KeyStore trustStore;
             FileInputStream tsFIS = null;
             FileInputStream ksFIS = null;
             try {
-                keyStoreJks = KeyStore.getInstance("JKS");
-                String trustStore = System
-                        .getProperty("javax.net.ssl.trustStore", TRUSTSTORE_DEFAULT_LOC);
+                String trustStorePath = System.getProperty(SecurityConstants.TRUSTSTORE_PATH);
+                String trustStoreType = System.getProperty(SecurityConstants.TRUSTSTORE_TYPE);
                 String trustStorePassword = System
-                        .getProperty("javax.net.ssl.trustStorePassword", TRUSTSTORE_DEFAULT_PASS);
-                String keyStore = System
-                        .getProperty("javax.net.ssl.keyStore", KEYSTORE_DEFAULT_LOC);
-                String keyStorePassword = System
-                        .getProperty("javax.net.ssl.keyStorePassword", KEYSTORE_DEFAULT_PASS);
+                        .getProperty(SecurityConstants.TRUSTSTORE_PASSWORD);
 
-                File trustStoreFile = new File(trustStore);
+                trustStore = KeyStore.getInstance(trustStoreType);
+                File trustStoreFile = new File(trustStorePath);
                 tsFIS = new FileInputStream(trustStoreFile);
-                keyStoreJks.load(tsFIS, trustStorePassword.toCharArray());
+                trustStore.load(tsFIS, trustStorePassword.toCharArray());
+
+                String keyStorePath = System.getProperty(SecurityConstants.KEYSTORE_PATH);
+                String keyStoreType = System.getProperty(SecurityConstants.KEYSTORE_TYPE);
+                String keyStorePassword = System.getProperty(SecurityConstants.KEYSTORE_PASSWORD);
+
+                keyStore = KeyStore.getInstance(keyStoreType);
+                File keyStoreFile = new File(keyStorePath);
+                ksFIS = new FileInputStream(keyStoreFile);
+                keyStore.load(ksFIS, keyStorePassword.toCharArray());
+
                 TrustManagerFactory trustFactory = TrustManagerFactory
                         .getInstance(TrustManagerFactory.getDefaultAlgorithm());
-                trustFactory.init(keyStoreJks);
+                trustFactory.init(trustStore);
                 TrustManager[] tm = trustFactory.getTrustManagers();
                 params.setTrustManagers(tm);
 
-                File keyStoreFile = new File(keyStore);
-                ksFIS = new FileInputStream(keyStoreFile);
-                keyStoreJks.load(ksFIS, keyStorePassword.toCharArray());
                 KeyManagerFactory keyFactory = KeyManagerFactory
                         .getInstance(KeyManagerFactory.getDefaultAlgorithm());
-                keyFactory.init(keyStoreJks, keyStorePassword.toCharArray());
+                keyFactory.init(keyStore, keyStorePassword.toCharArray());
                 KeyManager[] km = keyFactory.getKeyManagers();
                 params.setKeyManagers(km);
 
