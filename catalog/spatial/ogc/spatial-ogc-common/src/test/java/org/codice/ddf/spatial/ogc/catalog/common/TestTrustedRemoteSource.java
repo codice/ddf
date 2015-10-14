@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.net.SocketException;
 import java.security.KeyStore;
+import java.util.Properties;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.KeyManager;
@@ -44,11 +45,13 @@ import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.server.ssl.SslSocketConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ddf.security.SecurityConstants;
 import ddf.security.settings.SecuritySettingsService;
 
 /**
@@ -81,6 +84,8 @@ public class TestTrustedRemoteSource {
     private static KeyStore trustStore;
 
     private static KeyStore badStore;
+
+    private static Properties properties;
 
     @BeforeClass
     public static void startServer() {
@@ -125,6 +130,8 @@ public class TestTrustedRemoteSource {
 
     @BeforeClass
     public static void createKeystores() {
+        properties = System.getProperties();
+        System.setProperty(SecurityConstants.KEYSTORE_TYPE, "jks");
         trustStore = createKeyStore(GOOD_TRUSTSTORE_PATH, GOOD_PASSWORD);
         keyStore = createKeyStore(GOOD_KEYSTORE_PATH, GOOD_PASSWORD);
         badStore = createKeyStore(BAD_KEYSTORE_PATH, BAD_PASSWORD);
@@ -136,7 +143,7 @@ public class TestTrustedRemoteSource {
         FileInputStream fis = null;
         if (StringUtils.isNotBlank(password)) {
             try {
-                keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+                keyStore = KeyStore.getInstance(System.getProperty("javax.net.ssl.keyStoreType"));
                 fis = new FileInputStream(keyStoreFile);
                 keyStore.load(fis, password.toCharArray());
             } catch (Exception e) {
@@ -148,12 +155,17 @@ public class TestTrustedRemoteSource {
         return keyStore;
     }
 
+    @AfterClass
+    public static void tearDownAfterClass() {
+        System.setProperties(properties);
+    }
+
     /**
      * Tests that server properly accepts trusted certificates.
      */
     @Test
     public void testGoodCertificates() {
-        RemoteSource remoteSource = createSecuredSource(keyStore, GOOD_PASSWORD, trustStore, 30000,
+        RemoteSource remoteSource = createSecuredSource(keyStore, GOOD_PASSWORD, trustStore, 304000,
                 60000);
         // hit server
         if (remoteSource.get() == null) {
@@ -249,5 +261,4 @@ public class TestTrustedRemoteSource {
 
         return tlsParams;
     }
-
 }

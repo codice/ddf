@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -49,6 +49,21 @@ public final class SecurityConstants {
      * Name of the header containing the saml assertion for HTTP requests/responses
      */
     public static final String SAML_HEADER_NAME = "Authorization";
+
+    /**
+     * Keystore/truststore related system property keys
+     */
+    public static final String KEYSTORE_PATH = "javax.net.ssl.keyStore";
+
+    public static final String KEYSTORE_PASSWORD = "javax.net.ssl.keyStorePassword";
+
+    public static final String TRUSTSTORE_PATH = "javax.net.ssl.trustStore";
+
+    public static final String TRUSTSTORE_PASSWORD = "javax.net.ssl.trustStorePassword";
+
+    public static final String KEYSTORE_TYPE =  "javax.net.ssl.keyStoreType";
+
+    public static final String HTTPS_CIPHER_SUITES = "https.cipherSuites";
 
     private SecurityConstants() {
 

@@ -363,7 +363,7 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
             FileInputStream fis = null;
 
             try {
-                trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
+                trustStore = KeyStore.getInstance(System.getProperty("javax.net.ssl.keyStoreType"));
                 fis = new FileInputStream(trustStoreFile);
                 LOGGER.debug("Loading trustStore");
                 trustStore.load(fis, trustStorePassword.toCharArray());
@@ -404,7 +404,7 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
             KeyStore keyStore = null;
 
             try {
-                keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+                keyStore = KeyStore.getInstance(System.getProperty("javax.net.ssl.keyStoreType"));
                 fis = new FileInputStream(keyStoreFile);
 
                 LOGGER.debug("Loading keyStore");
@@ -887,6 +887,7 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
 
     @Override
     public void setClaims(String claimsListAsString) {
+
         setClaims(SPLITTER.splitToList(claimsListAsString));
     }
 

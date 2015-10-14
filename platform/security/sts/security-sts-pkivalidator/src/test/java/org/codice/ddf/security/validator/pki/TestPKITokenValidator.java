@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -26,6 +26,7 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
+import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.cxf.sts.STSPropertiesMBean;
@@ -37,12 +38,17 @@ import org.apache.wss4j.common.crypto.Merlin;
 import org.apache.wss4j.dom.WSConstants;
 import org.codice.ddf.security.handler.api.PKIAuthenticationToken;
 import org.codice.ddf.security.handler.api.PKIAuthenticationTokenFactory;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import ddf.security.PropertiesLoader;
+import ddf.security.SecurityConstants;
 
 public class TestPKITokenValidator {
+
+    private static Properties properties;
 
     PKITokenValidator pkiTokenValidator;
 
@@ -51,6 +57,17 @@ public class TestPKITokenValidator {
     X509Certificate[] badCertificates;
 
     Merlin merlin;
+
+    @BeforeClass
+    public static void setUpBeforeClass() {
+        properties = System.getProperties();
+        System.setProperty(SecurityConstants.KEYSTORE_TYPE, "jks");
+    }
+
+    @AfterClass
+    public static void tearDownAfterClass() {
+        System.setProperties(properties);
+    }
 
     @Before
     public void setup() {
@@ -61,7 +78,8 @@ public class TestPKITokenValidator {
         pkiTokenValidator.init();
 
         try {
-            KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
+            KeyStore trustStore = KeyStore
+                    .getInstance(System.getProperty("javax.net.ssl.keyStoreType"));
             InputStream trustFIS = TestPKITokenValidator.class
                     .getResourceAsStream("/serverKeystore.jks");
             try {
@@ -77,7 +95,7 @@ public class TestPKITokenValidator {
                 certificates[i] = (X509Certificate) certs[i];
             }
 
-            trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
+            trustStore = KeyStore.getInstance(System.getProperty(SecurityConstants.KEYSTORE_TYPE));
             trustFIS = TestPKITokenValidator.class.getResourceAsStream("/badKeystore.jks");
             try {
                 trustStore.load(trustFIS, "changeit".toCharArray());
@@ -190,4 +208,5 @@ public class TestPKITokenValidator {
                 .validateToken(tokenValidatorParameters);
         assertEquals(ReceivedToken.STATE.INVALID, tokenValidatorResponse.getToken().getState());
     }
+
 }
