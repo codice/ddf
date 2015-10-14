@@ -72,8 +72,7 @@ public final class RestSecurity {
     }
 
     public static void setUserOnClient(String username, String password, Client client) {
-        if (client != null && username != null && password != null && "https"
-                .equalsIgnoreCase(client.getCurrentURI().getScheme())) {
+        if (client != null && username != null && password != null) {
             String basicCredentials = username + ":" + password;
             String encodedHeader = BASIC_HEADER_PREFIX + new String(
                     Base64.encodeBase64(basicCredentials.getBytes()));
