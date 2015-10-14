@@ -15,13 +15,9 @@ package ddf.security.settings.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
-import java.security.KeyStore;
-import java.security.KeyStoreException;
 
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.junit.BeforeClass;
@@ -29,8 +25,8 @@ import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import ddf.security.SecurityConstants;
 import ddf.security.encryption.EncryptionService;
-import ddf.security.settings.SecuritySettingsService;
 
 public class SecuritySettingsServiceImplTest {
 
@@ -39,17 +35,15 @@ public class SecuritySettingsServiceImplTest {
 
     private static final String KEYSTORE_PASSWORD = "changeit";
 
-    private static final String KEYSTORE_ALIAS = "server";
 
     @BeforeClass
     public static void setup() {
-        System.setProperty(SecuritySettingsService.SSL_KEYSTORE_JAVA_PROPERTY, KEYSTORE_PATH);
-        System.setProperty(SecuritySettingsService.SSL_KEYSTORE_PASSWORD_JAVA_PROPERTY,
-                KEYSTORE_PASSWORD);
-        System.setProperty(SecuritySettingsService.SSL_TRUSTSTORE_JAVA_PROPERTY, KEYSTORE_PATH);
-        System.setProperty(SecuritySettingsService.SSL_TRUSTSTORE_PASSWORD_JAVA_PROPERTY,
-                KEYSTORE_PASSWORD);
-        System.setProperty(SecuritySettingsService.SSL_KEYSTORE_TYPE_JAVA_PROPERTY, "jks");
+        System.setProperty(SecurityConstants.KEYSTORE_PATH, KEYSTORE_PATH);
+        System.setProperty(SecurityConstants.KEYSTORE_PASSWORD, KEYSTORE_PASSWORD);
+        System.setProperty(SecurityConstants.TRUSTSTORE_PATH, KEYSTORE_PATH);
+        System.setProperty(SecurityConstants.TRUSTSTORE_PASSWORD, KEYSTORE_PASSWORD);
+        System.setProperty(SecurityConstants.KEYSTORE_TYPE, "jks");
+        System.setProperty(SecurityConstants.TRUSTSTORE_TYPE, "jks");
     }
 
     @Test
@@ -71,18 +65,6 @@ public class SecuritySettingsServiceImplTest {
         SecuritySettingsServiceImpl securitySettingsService = new SecuritySettingsServiceImpl(
                 encryptionService);
         getTLSParams(securitySettingsService);
-    }
-
-    @Test
-    public void testGetKeystores() throws KeyStoreException {
-        SecuritySettingsServiceImpl securitySettingsService = new SecuritySettingsServiceImpl(null);
-        securitySettingsService.init();
-        KeyStore keyStore = securitySettingsService.getKeystore();
-        assertNotNull(keyStore);
-        assertTrue(keyStore.containsAlias(KEYSTORE_ALIAS));
-        KeyStore trustStore = securitySettingsService.getTruststore();
-        assertNotNull(trustStore);
-        assertTrue(keyStore.containsAlias(KEYSTORE_ALIAS));
     }
 
     private void getTLSParams(SecuritySettingsServiceImpl securitySettingsService) {

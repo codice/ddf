@@ -63,12 +63,12 @@ public class SecuritySettingsServiceImpl implements SecuritySettingsService {
     }
 
     public void init() {
-        String setTrustStorePath = System.getProperty(SSL_TRUSTSTORE_JAVA_PROPERTY);
+        String setTrustStorePath = System.getProperty(SecurityConstants.TRUSTSTORE_PATH);
         if (setTrustStorePath != null) {
             truststorePath = setTrustStorePath;
         }
 
-        String setTrustStorePassword = System.getProperty(SSL_TRUSTSTORE_PASSWORD_JAVA_PROPERTY);
+        String setTrustStorePassword = System.getProperty(SecurityConstants.TRUSTSTORE_PASSWORD);
         if (setTrustStorePassword != null) {
             if (encryptionService == null) {
                 LOGGER.debug("TRUSTSTORE: {}", NO_ENCRYPT_SERVICE);
@@ -81,12 +81,12 @@ public class SecuritySettingsServiceImpl implements SecuritySettingsService {
 
         trustStore = getTruststore();
 
-        String setKeyStorePath = System.getProperty(SSL_KEYSTORE_JAVA_PROPERTY);
+        String setKeyStorePath = System.getProperty(SecurityConstants.KEYSTORE_PATH);
         if (setKeyStorePath != null) {
             keystorePath = setKeyStorePath;
         }
 
-        String setKeyStorePassword = System.getProperty(SSL_KEYSTORE_PASSWORD_JAVA_PROPERTY);
+        String setKeyStorePassword = System.getProperty(SecurityConstants.KEYSTORE_PASSWORD);
         if (setKeyStorePassword != null) {
             if (encryptionService == null) {
                 LOGGER.debug("KEYSTORE: {}", NO_ENCRYPT_SERVICE);
@@ -145,8 +145,8 @@ public class SecuritySettingsServiceImpl implements SecuritySettingsService {
         }
 
         FiltersType filter = new FiltersType();
-        filter.getInclude().addAll(SSL_ALLOWED_ALGORITHMS);
-        filter.getExclude().addAll(SSL_DISALLOWED_ALGORITHMS);
+        filter.getInclude().addAll(SecurityConstants.SSL_ALLOWED_ALGORITHMS);
+        filter.getExclude().addAll(SecurityConstants.SSL_DISALLOWED_ALGORITHMS);
         tlsParams.setCipherSuitesFilter(filter);
 
         return tlsParams;

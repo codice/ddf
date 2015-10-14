@@ -80,10 +80,10 @@ public class KeystoreFormatTest {
 
     private void pointToKeystoreFile(String filename, String keystoreType) {
         String password = "changeit";
-        System.setProperty(SecuritySettingsService.SSL_KEYSTORE_JAVA_PROPERTY, getPath(filename));
-        System.setProperty(SecuritySettingsService.SSL_KEYSTORE_PASSWORD_JAVA_PROPERTY, password);
-        System.setProperty(SecuritySettingsService.SSL_TRUSTSTORE_JAVA_PROPERTY, getPath(filename));
-        System.setProperty(SecuritySettingsService.SSL_TRUSTSTORE_PASSWORD_JAVA_PROPERTY, password);
+        System.setProperty(SecurityConstants.KEYSTORE_PATH, getPath(filename));
+        System.setProperty(SecurityConstants.KEYSTORE_PASSWORD, password);
+        System.setProperty(SecurityConstants.TRUSTSTORE_PATH, getPath(filename));
+        System.setProperty(SecurityConstants.TRUSTSTORE_PASSWORD, password);
         System.setProperty(SecurityConstants.KEYSTORE_TYPE, keystoreType);
         System.setProperty(SecurityConstants.TRUSTSTORE_TYPE, keystoreType);
     }
