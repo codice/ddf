@@ -364,7 +364,7 @@ public class CswEndpoint implements Csw {
         if (request == null) {
             throw new CswException("GetRecordsRequest request is null");
         } else {
-            LOGGER.debug(request.getRequest() + " attempting to get records.");
+            LOGGER.debug("{} attempting to get records.", request.getRequest());
         }
         if (StringUtils.isEmpty(request.getVersion())) {
             request.setVersion(CswConstants.VERSION_2_0_2);
@@ -372,7 +372,7 @@ public class CswEndpoint implements Csw {
             validateVersion(request.getVersion());
         }
 
-        LOGGER.debug(request.getRequest() + " exiting getRecords");
+        LOGGER.trace("Exiting getRecords");
 
         return getRecords(request.get202RecordsType());
     }
@@ -386,7 +386,7 @@ public class CswEndpoint implements Csw {
         if (request == null) {
             throw new CswException("GetRecordsType request is null");
         } else {
-            LOGGER.debug(request.getService() + " attempting to get records.");
+            LOGGER.debug("{} attempting to get records.", request.getRequest());
         }
 
         validateOutputFormat(request.getOutputFormat());
@@ -429,7 +429,7 @@ public class CswEndpoint implements Csw {
         validateOutputSchema(request.getOutputSchema());
 
         if (StringUtils.isNotBlank(request.getId())) {
-            LOGGER.debug(request.getRequest() + " attempting to retrieve record(s) " + request.getId());
+            LOGGER.debug("{} attempting to retrieve record(s): ", request.getRequest(), request.getId());
             List<String> ids = Arrays.<String>asList(request.getId().split(CswConstants.COMMA));
 
             CswRecordCollection response = queryById(ids);
@@ -439,7 +439,7 @@ public class CswEndpoint implements Csw {
             } else {
                 response.setElementSetType(ElementSetType.SUMMARY);
             }
-            LOGGER.debug(request.getRequest() + " successfully retrieved record(s): " + request.getId());
+            LOGGER.debug("{} successfully retrieved record(s): {}", request.getRequest(), request.getId());
             return response;
         } else {
             throw new CswException("A GetRecordById Query must contain an ID.",
@@ -461,7 +461,7 @@ public class CswEndpoint implements Csw {
         validateOutputSchema(request.getOutputSchema());
 
         if (!request.getId().isEmpty()) {
-            LOGGER.debug(request.getService() + " is attempting to retrieve records: " + request.getId());
+            LOGGER.debug("{} is attempting to retrieve records: {}", request.getService(), request.getId());
             CswRecordCollection response = queryById(request.getId());
             response.setOutputSchema(request.getOutputSchema());
             if (request.isSetElementSetName() && request.getElementSetName().getValue() != null) {
@@ -469,7 +469,7 @@ public class CswEndpoint implements Csw {
             } else {
                 response.setElementSetType(ElementSetType.SUMMARY);
             }
-            LOGGER.debug(request.getService() + " successfully retrieved record(s): " + request.getId());
+            LOGGER.debug("{} successfully retrieved record(s): {}", request.getService(), request.getId());
             return response;
         } else {
             throw new CswException("A GetRecordById Query must contain an ID.",
@@ -509,7 +509,7 @@ public class CswEndpoint implements Csw {
                         CswConstants.TRANSACTION_FAILED, insertAction.getHandle());
             }
         }
-        LOGGER.debug(numInserted + " records inserted.");
+        LOGGER.debug("{} records inserted.", numInserted);
         response.getTransactionSummary().setTotalInserted(BigInteger.valueOf(numInserted));
 
         int numUpdated = 0;
@@ -522,7 +522,7 @@ public class CswEndpoint implements Csw {
                         CswConstants.TRANSACTION_FAILED, updateAction.getHandle());
             }
         }
-        LOGGER.debug(numInserted + " records inserted.");
+        LOGGER.debug("{} records inserted.", numInserted);
         response.getTransactionSummary().setTotalUpdated(BigInteger.valueOf(numUpdated));
 
         int numDeleted = 0;
@@ -535,7 +535,7 @@ public class CswEndpoint implements Csw {
                         CswConstants.TRANSACTION_FAILED, deleteAction.getHandle());
             }
         }
-        LOGGER.debug(numDeleted + " records deleted.");
+        LOGGER.debug("{} records deleted.", numDeleted);
         response.getTransactionSummary().setTotalDeleted(BigInteger.valueOf(numDeleted));
 
         return response;
@@ -614,7 +614,7 @@ public class CswEndpoint implements Csw {
             DeleteRequestImpl deleteRequest = new DeleteRequestImpl(
                     ids.toArray(new String[ids.size()]));
 
-            LOGGER.debug("Attempting to delete " + ids.size() + " metacards.");
+            LOGGER.debug("Attempting to delete {} metacards. ", ids.size());
             DeleteResponse deleteResponse = framework.delete(deleteRequest);
 
             return deleteResponse.getDeletedMetacards().size();
@@ -677,7 +677,7 @@ public class CswEndpoint implements Csw {
                     UpdateRequest updateRequest = new UpdateRequestImpl(updatedMetacardIds,
                             updatedMetacards);
 
-                    LOGGER.debug("Attempting to update " + updatedMetacardIdsList.size() + " metacards.");
+                    LOGGER.debug("Attempting to update {} metacards.", updatedMetacardIdsList.size());
                     UpdateResponse updateResponse = framework.update(updateRequest);
                     return updateResponse.getUpdatedMetacards().size();
                 }
@@ -907,7 +907,7 @@ public class CswEndpoint implements Csw {
             }
 
             try {
-                LOGGER.debug("Attempting to execute query: " + response.getRequest());
+                LOGGER.debug("Attempting to execute query: {}", response.getRequest());
                 QueryResponse queryResponse = framework.query(queryRequest);
                 response.setSourceResponse(queryResponse);
             } catch (UnsupportedQueryException e) {
