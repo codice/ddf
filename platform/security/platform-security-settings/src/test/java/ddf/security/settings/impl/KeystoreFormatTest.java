@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import ddf.security.SecurityConstants;
 import ddf.security.settings.SecuritySettingsService;
 
 public class KeystoreFormatTest {
@@ -83,8 +84,8 @@ public class KeystoreFormatTest {
         System.setProperty(SecuritySettingsService.SSL_KEYSTORE_PASSWORD_JAVA_PROPERTY, password);
         System.setProperty(SecuritySettingsService.SSL_TRUSTSTORE_JAVA_PROPERTY, getPath(filename));
         System.setProperty(SecuritySettingsService.SSL_TRUSTSTORE_PASSWORD_JAVA_PROPERTY, password);
-        System.setProperty(SecuritySettingsService.SSL_KEYSTORE_TYPE_JAVA_PROPERTY, keystoreType);
-
+        System.setProperty(SecurityConstants.KEYSTORE_TYPE, keystoreType);
+        System.setProperty(SecurityConstants.TRUSTSTORE_TYPE, keystoreType);
     }
 
     private SecuritySettingsService makeSecurityService() {

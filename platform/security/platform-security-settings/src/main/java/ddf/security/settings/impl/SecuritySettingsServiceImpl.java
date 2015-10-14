@@ -34,6 +34,7 @@ import org.apache.cxf.configuration.security.FiltersType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ddf.security.SecurityConstants;
 import ddf.security.encryption.EncryptionService;
 import ddf.security.settings.SecuritySettingsService;
 
@@ -78,7 +79,7 @@ public class SecuritySettingsServiceImpl implements SecuritySettingsService {
             }
         }
 
-        trustStore = createKeyStore(truststorePath, truststorePassword);
+        trustStore = getTruststore();
 
         String setKeyStorePath = System.getProperty(SSL_KEYSTORE_JAVA_PROPERTY);
         if (setKeyStorePath != null) {
@@ -96,16 +97,16 @@ public class SecuritySettingsServiceImpl implements SecuritySettingsService {
             }
         }
 
-        keyStore = createKeyStore(keystorePath, keystorePassword);
+        keyStore = getKeystore();
     }
 
-    private KeyStore createKeyStore(String path, String password) {
+    private KeyStore createKeyStore(String path, String password, String type) {
         KeyStore keyStore = null;
         File keyStoreFile = new File(path);
         if (keyStoreFile.exists() && StringUtils.isNotBlank(password)) {
             FileInputStream fis = null;
             try {
-                keyStore = KeyStore.getInstance(System.getProperty("javax.net.ssl.keyStoreType"));
+                keyStore = KeyStore.getInstance(type);
                 fis = new FileInputStream(keyStoreFile);
                 LOGGER.debug("Loading trustStore");
                 keyStore.load(fis, password.toCharArray());
@@ -153,11 +154,13 @@ public class SecuritySettingsServiceImpl implements SecuritySettingsService {
 
     @Override
     public KeyStore getKeystore() {
-        return createKeyStore(keystorePath, keystorePassword);
+        return createKeyStore(keystorePath, keystorePassword,
+                System.getProperty(SecurityConstants.KEYSTORE_TYPE));
     }
 
     @Override
     public KeyStore getTruststore() {
-        return createKeyStore(truststorePath, truststorePassword);
+        return createKeyStore(truststorePath, truststorePassword,
+                System.getProperty(SecurityConstants.TRUSTSTORE_TYPE));
     }
 }

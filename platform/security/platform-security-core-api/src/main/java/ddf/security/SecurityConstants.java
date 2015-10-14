@@ -53,17 +53,19 @@ public final class SecurityConstants {
     /**
      * Keystore/truststore related system property keys
      */
-    public static final String KEYSTORE_PATH = "javax.net.ssl.keyStore";
+    public static final String HTTPS_CIPHER_SUITES = "https.cipherSuites";
 
     public static final String KEYSTORE_PASSWORD = "javax.net.ssl.keyStorePassword";
 
-    public static final String TRUSTSTORE_PATH = "javax.net.ssl.trustStore";
+    public static final String KEYSTORE_PATH = "javax.net.ssl.keyStore";
+
+    public static final String KEYSTORE_TYPE = "javax.net.ssl.keyStoreType";
 
     public static final String TRUSTSTORE_PASSWORD = "javax.net.ssl.trustStorePassword";
 
-    public static final String KEYSTORE_TYPE =  "javax.net.ssl.keyStoreType";
+    public static final String TRUSTSTORE_PATH = "javax.net.ssl.trustStore";
 
-    public static final String HTTPS_CIPHER_SUITES = "https.cipherSuites";
+    public static final String TRUSTSTORE_TYPE = "javax.net.ssl.trustStoreType";
 
     private SecurityConstants() {
 
