@@ -1569,7 +1569,7 @@ The private key, certificate need to be combined into a new structure that can b
 * If the certificate was signed by the Demo CA, skip this step. It is not necessary in because `openssl` adds the issuer's (signer's) certificate to the PKCS12 file to create the complete chain of trust.
 
 * Establasihing a *chain of trust* is imporant if a root CA did not directly sign the CSR. It is  important for establishing a connection between different branches/orgganizations/departments.
- 
+
 
 [NOTE]
  ====
@@ -2669,6 +2669,18 @@ SAML ASSERTION WILL BE LOCATED HERE
 10:54:22,169 | INFO  | qtp995500086-141 | securityLogger                   | rity.common.audit.SecurityLogger  143 | 245 - security-core-commons - 2.2.0.ALPHA5-SNAPSHOT | Unable to validate CAS token. Request IP: 127.0.0.1, Port: 64548
 10:54:22,244 | INFO  | qtp995500086-618 | securityLogger                   | rity.common.audit.SecurityLogger  143 | 245 - security-core-commons - 2.2.0.ALPHA5-SNAPSHOT | Error requesting the security token from STS at: https://server:8993/services/SecurityTokenService.
 ----
+
+==== AuditPlugin
+
+{branding} provides an optional *Audit Plugin* that logs all catalog transactions to the `security.log`.
+Information captured includes user identity, query information, and resources retrieved.
+
+===== Configuring Audit Plugin
+The Audit plugin is not enabled by default. To enable, sign into the Admin Console............................................................................
+
+. Select {branding} Catalog
+. Select _Features_ tab
+. Install both `catalog-security-logging` and `catalog-security-audit-plugin` features............................................................................
 
 === Web Context Policy Manager
 

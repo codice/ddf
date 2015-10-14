@@ -81,6 +81,7 @@ public class FilterPlugin implements PostQueryPlugin {
         Metacard metacard;
         KeyValueCollectionPermission securityPermission = new KeyValueCollectionPermission(
                 CollectionPermission.READ_ACTION);
+        int filteredMetacards = 0;
         for (Result result : results) {
             metacard = result.getMetacard();
             Attribute attr = metacard.getAttribute(Metacard.SECURITY);
@@ -93,13 +94,14 @@ public class FilterPlugin implements PostQueryPlugin {
                 securityPermission.addAll(map);
             }
             if (!subject.isPermitted(securityPermission)) {
-                logger.debug("Filtering metacard {}", metacard.getId());
-                SecurityLogger.logInfo("Filtering metacard " + metacard.getId());
+                filteredMetacards++;
             } else {
-                SecurityLogger.logInfo("Allowing metacard " + metacard.getId());
                 newResults.add(result);
             }
         }
+
+        logger.info("Filtered {} metacards, returned {}", filteredMetacards , (newResults.size() - filteredMetacards));
+        SecurityLogger.logInfo("Filtered " + filteredMetacards + " metacards, returned " + (newResults.size() - filteredMetacards));
 
         input.getResults().clear();
         input.getResults().addAll(newResults);
