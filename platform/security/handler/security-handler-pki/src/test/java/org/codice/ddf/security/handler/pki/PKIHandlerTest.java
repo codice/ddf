@@ -14,10 +14,10 @@
 package org.codice.ddf.security.handler.pki;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -162,7 +162,7 @@ public class PKIHandlerTest {
         assertThat(handler.getIsEnabled(), is(false));
         Properties prop = handler.loadProperties("encryption-crl-none.properties");
         String crlRelativePath = prop.getProperty(handler.CRL_PROPERTY_KEY);
-        assertNull(crlRelativePath);
+        assertThat(crlRelativePath, is(nullValue()));
         handler.setCrlLocation(crlRelativePath);
         assertThat(handler.getIsEnabled(), is(false));
     }
