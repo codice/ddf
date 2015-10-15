@@ -87,7 +87,6 @@ public class KeystoreFormatTest {
 
     private void accessKeyStore() throws KeyStoreException {
         KeyStore keyStore = makeSecurityService().getKeystore();
-        //        assertThat("Could not get keystore file " + System.getProperty(SecurityConstants.KEYSTORE_PATH))
         keyStore.aliases();
     }
 }
