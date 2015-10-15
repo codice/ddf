@@ -16,37 +16,6 @@
 <metatype:MetaData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                    xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.2.0"
                    xsi:schemaLocation="http://www.osgi.org/xmlns/metatype/v1.2.0 http://www.osgi.org/xmlns/metatype/v1.2.0">
-    <OCD description="Site"
-         name="Platform Global Configuration"
-         id="ddf.platform.config">
-
-        <AD name="Protocol" id="protocol" type="String" required="true"
-            description="The protocol used to advertise the system. When selecting the protocol, be sure to enter the port number corresponding to that protocol."
-            default="https://">
-            <Option label="http" value="http://"/>
-            <Option label="https" value="https://"/>
-        </AD>
-
-        <AD name="Host" id="host" required="true" type="String"
-            description="The host name or IP address used to advertise the system. Possibilities include the address of a single node of that of a load balancer in a multi-node deployment. NOTE: Does not change the address the system runs on."/>
-
-        <AD name="Port" id="port" required="true" type="String"
-            description="The port used to advertise the system. Possibilities include the port of a single node of that of a load balancer in a multi-node deployment. NOTE: Does not change the port the system runs on."/>
-
-        <AD name="Site Name" id="id" required="true" type="String"
-            description="The unique name of this instance. This name will be provided via web services that ask for the name."/>
-
-        <AD name="Version" id="version" required="true" type="String"
-            description="The version of this instance."/>
-
-        <AD name="Organization" id="organization" required="true" type="String"
-            description="The name of the organization that runs this instance."/>
-
-        <AD name="Site contact" id="contact" required="true" type="String"
-            description="The email address of the site contact"/>
-    </OCD>
-
-
     <OCD name="Platform UI Configuration"
          description="Global User Interface configurations used across the applications.  Contains configuration for banners and other generic ui components."
          id="ddf.platform.ui.config">
@@ -95,10 +64,6 @@
                 default=""
                 />
     </OCD>
-
-    <Designate pid="ddf.platform.config">
-        <Object ocdref="ddf.platform.config"/>
-    </Designate>
 
     <Designate pid="ddf.platform.ui.config">
         <Object ocdref="ddf.platform.ui.config"/>
