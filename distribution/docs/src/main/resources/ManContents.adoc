@@ -1364,9 +1364,9 @@ TLS_RSA_WITH_AES_128_CBC_SHA
 ==== Update {branding} Configuration
 
 ===== Configure {branding} Web Service Providers
-By default Solr, STS server, STS client and the rest of the system use the system property 'org.codice.ddf.system.hostname' which is defaulted to 'localhost' and not to the fully qualified domain name of the {branding} instance. Assuming the {branding} instance is providing these servcies, the configuration must be updated to use the {branding} instance's *fully qualified domain name*  as the service provider.
+By default Solr, STS server, STS client and the rest of the services use the system property 'org.codice.ddf.system.hostname' which is defaulted to 'localhost' and not to the fully qualified domain name of the {branding} instance. Assuming the {branding} instance is providing these servcies, the configuration must be updated to use the {branding} instance's *fully qualified domain name*  as the service provider.
 
-This can be done through the installer or editing the system.properties in <INSTALL_DIRECTORY>/etc/
+This can be done by editing the system.properties in <INSTALL_DIRECTORY>/etc/
 
 [IMPORTANT]
 ====
@@ -2187,7 +2187,7 @@ The `system.properties` file found under `$DDF_HOME/etc` contains properties tha
 By default, this value is set to 128. It is not recommended to set this value extremely high. If unsure, leave this setting at it's default value of 128.
 
 === Configuring Global System Properties
-The `system.properties` file found under `$DDF_HOME/etc` contains properties that will be made available through system properties at the beginning of Karaf's boot process. After changing any of these properties you will need to restart the system. If you change the 'hostname' property you will also need to configure the certs as described in Configuring {branding} with New Certificates.
+The `system.properties` file found under `$DDF_HOME/etc` contains properties that will be made available through the system properties on startup. After changing any of these properties you will need to restart the system. If you change the 'hostname' property you will also need to configure the certs as described in Configuring {branding} with New Certificates.
 The system by default uses both http and https so both httpsPort and httpPort need to be specified. The protocol and port properties are the defaults the system should use in places where either http or https could be valid.
 ----
 org.codice.ddf.system.protocol=https://        #one of http:// or https://
@@ -2202,6 +2202,19 @@ org.codice.ddf.system.siteContact=                        #contact for this inst
 org.codice.ddf.system.version=${project.version}          #this instances version
 org.codice.ddf.system.organization=${organization.name}   #who owns/runs this instance
 ----
+
+The above properties (along with any other system properties) are available to be used as variable parameters in input url fields within the admin UI. For example if you wanted to enter the url for the csw service you could write
+----
+${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.port}${org.codice.ddf.system.rootContext}/csw
+----
+
+instead of
+
+-----
+https://localhost:8993/services/csw
+-----
+
+The variable version is longer but will not need to be changed if the system host, port or root context changes.
 
 == Managing Web Service Security
 
