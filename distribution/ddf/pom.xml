@@ -16,7 +16,6 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <artifactId>kernel</artifactId>
         <groupId>org.codice.ddf</groupId>
@@ -25,12 +24,9 @@
     </parent>
 
     <!--
-    Packages the DDF Standard distribution, which consists of the DDF Core distribution.
+    Packages the DDF Standard distribution, which consists of the DDF Core distribution.​ 
 
-    Note that this distribution has the DDF Kernel distribution as its parent, hence
-    all of the maven goals in the DDF Kernel distribution pom will execute unless they are overridden
-    in this pom.
-
+    Note that this distribution has the DDF Kernel distribution as its parent, hence all of the maven goals in the DDF Kernel distribution pom will execute unless they are overridden in this pom.
     -->
     <artifactId>ddf</artifactId>
     <name>DDF :: Distribution :: DDF</name>
@@ -56,13 +52,13 @@
                 </includes>
             </resource>
         </resources>
-
+        
         <plugins>
-
+            
             <!--
-            Adds all of the feature repositories from DDF Kernel distribution, and this DDF Standard distribution
-            to the Karaf system folder, which is the repo for Karaf at runtime.
+                Adds all of the feature repositories from DDF Kernel distribution, and this DDF Standard distribution to the Karaf system folder, which is the repo for Karar at runtime.
             -->
+
             <plugin>
                 <groupId>org.apache.karaf.tooling</groupId>
                 <artifactId>features-maven-plugin</artifactId>
@@ -115,146 +111,174 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>copy-docs</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>ddf</groupId>
-                                    <artifactId>docs</artifactId>
-                                    <version>${project.version}</version>
-                                    <outputDirectory>${setup.folder}/docs/ddf</outputDirectory>
-                                    <classifier>export</classifier>
-                                    <type>zip</type>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>ddf.admin</groupId>
-                                    <artifactId>docs</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>zip</type>
-                                    <classifier>export</classifier>
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${setup.folder}/docs/admin</outputDirectory>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>ddf.catalog</groupId>
-                                    <artifactId>docs</artifactId>
-                                    <version>${project.version}</version>
-                                    <outputDirectory>${setup.folder}/docs/catalog</outputDirectory>
-                                    <classifier>export</classifier>
-                                    <type>zip</type>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>ddf.catalog.solr</groupId>
-                                    <artifactId>docs</artifactId>
-                                    <version>${project.version}</version>
-                                    <outputDirectory>${setup.folder}/docs/solr</outputDirectory>
-                                    <classifier>export</classifier>
-                                    <type>zip</type>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>ddf.content</groupId>
-                                    <artifactId>docs</artifactId>
-                                    <version>${project.version}</version>
-                                    <outputDirectory>${setup.folder}/docs/content</outputDirectory>
-                                    <classifier>export</classifier>
-                                    <type>zip</type>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>ddf.platform</groupId>
-                                    <artifactId>docs</artifactId>
-                                    <version>${project.version}</version>
-                                    <outputDirectory>${setup.folder}/docs/platform</outputDirectory>
-                                    <classifier>export</classifier>
-                                    <type>zip</type>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>ddf.platform.security</groupId>
-                                    <artifactId>docs</artifactId>
-                                    <version>${project.version}</version>
-                                    <outputDirectory>${setup.folder}/docs/security</outputDirectory>
-                                    <classifier>export</classifier>
-                                    <type>zip</type>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.codice.ddf.spatial</groupId>
-                                    <artifactId>docs</artifactId>
-                                    <version>${project.version}</version>
-                                    <outputDirectory>${setup.folder}/docs/spatial</outputDirectory>
-                                    <classifier>export</classifier>
-                                    <type>zip</type>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>ddf.ui</groupId>
-                                    <artifactId>docs</artifactId>
-                                    <version>${project.version}</version>
-                                    <outputDirectory>${setup.folder}/docs/ui</outputDirectory>
-                                    <classifier>export</classifier>
-                                    <type>zip</type>
-                                </artifactItem>
-                            </artifactItems>
-                            <overWriteSnapshots>true</overWriteSnapshots>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.3</version>
-                <executions>
-                    <execution>
-                        <id>simplify-directory</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <tasks>
-                                <copy todir="${setup.folder}/docs/ddf">
-                                    <fileset dir="${setup.folder}/docs/ddf/docs-${project.version}"/>
-                                </copy>
-                                <copy todir="${setup.folder}/docs/admin">
-                                    <fileset dir="${setup.folder}/docs/admin/docs-${project.version}"/>
-                                </copy>
-                                <copy todir="${setup.folder}/docs/catalog">
-                                    <fileset dir="${setup.folder}/docs/catalog/docs-${project.version}"/>
-                                </copy>
-                                <copy todir="${setup.folder}/docs/solr">
-                                    <fileset dir="${setup.folder}/docs/solr/docs-${project.version}"/>
-                                </copy>
-                                <copy todir="${setup.folder}/docs/content">
-                                    <fileset dir="${setup.folder}/docs/content/docs-${project.version}"/>
-                                </copy>
-                                <copy todir="${setup.folder}/docs/platform">
-                                    <fileset dir="${setup.folder}/docs/platform/docs-${project.version}"/>
-                                </copy>
-                                <copy todir="${setup.folder}/docs/security">
-                                    <fileset dir="${setup.folder}/docs/security/docs-${project.version}"/>
-                                </copy>
-                                <copy todir="${setup.folder}/docs/spatial">
-                                    <fileset dir="${setup.folder}/docs/spatial/docs-${project.version}"/>
-                                </copy>
-                                <copy todir="${setup.folder}/docs/ui">
-                                    <fileset dir="${setup.folder}/docs/ui/docs-${project.version}"/>
-                                </copy>
-                            </tasks>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
 
     <profiles>
+        <profile>
+            <id>documentation</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>copy-docs</id>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>unpack</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>ddf</groupId>
+                                            <artifactId>docs</artifactId>
+                                            <version>${project.version}</version>
+                                            <outputDirectory>${setup.folder}/docs/ddf
+                                            </outputDirectory>
+                                            <classifier>export</classifier>
+                                            <type>zip</type>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>ddf.admin</groupId>
+                                            <artifactId>docs</artifactId>
+                                            <version>${project.version}</version>
+                                            <type>zip</type>
+                                            <classifier>export</classifier>
+                                            <overWrite>true</overWrite>
+                                            <outputDirectory>${setup.folder}/docs/admin
+                                            </outputDirectory>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>ddf.catalog</groupId>
+                                            <artifactId>docs</artifactId>
+                                            <version>${project.version}</version>
+                                            <outputDirectory>${setup.folder}/docs/catalog
+                                            </outputDirectory>
+                                            <classifier>export</classifier>
+                                            <type>zip</type>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>ddf.catalog.solr</groupId>
+                                            <artifactId>docs</artifactId>
+                                            <version>${project.version}</version>
+                                            <outputDirectory>${setup.folder}/docs/solr
+                                            </outputDirectory>
+                                            <classifier>export</classifier>
+                                            <type>zip</type>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>ddf.content</groupId>
+                                            <artifactId>docs</artifactId>
+                                            <version>${project.version}</version>
+                                            <outputDirectory>${setup.folder}/docs/content
+                                            </outputDirectory>
+                                            <classifier>export</classifier>
+                                            <type>zip</type>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>ddf.platform</groupId>
+                                            <artifactId>docs</artifactId>
+                                            <version>${project.version}</version>
+                                            <outputDirectory>${setup.folder}/docs/platform
+                                            </outputDirectory>
+                                            <classifier>export</classifier>
+                                            <type>zip</type>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>ddf.platform.security</groupId>
+                                            <artifactId>docs</artifactId>
+                                            <version>${project.version}</version>
+                                            <outputDirectory>${setup.folder}/docs/security
+                                            </outputDirectory>
+                                            <classifier>export</classifier>
+                                            <type>zip</type>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>org.codice.ddf.spatial</groupId>
+                                            <artifactId>docs</artifactId>
+                                            <version>${project.version}</version>
+                                            <outputDirectory>${setup.folder}/docs/spatial
+                                            </outputDirectory>
+                                            <classifier>export</classifier>
+                                            <type>zip</type>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>ddf.ui</groupId>
+                                            <artifactId>docs</artifactId>
+                                            <version>${project.version}</version>
+                                            <outputDirectory>${setup.folder}/docs/ui
+                                            </outputDirectory>
+                                            <classifier>export</classifier>
+                                            <type>zip</type>
+                                        </artifactItem>
+                                    </artifactItems>
+                                    <overWriteSnapshots>true</overWriteSnapshots>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>1.3</version>
+                        <executions>
+                            <execution>
+                                <id>simplify-directory</id>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <tasks>
+                                        <copy todir="${setup.folder}/docs/ddf">
+                                            <fileset
+                                                    dir="${setup.folder}/docs/ddf/docs-${project.version}"/>
+                                        </copy>
+                                        <copy todir="${setup.folder}/docs/admin">
+                                            <fileset
+                                                    dir="${setup.folder}/docs/admin/docs-${project.version}"/>
+                                        </copy>
+                                        <copy todir="${setup.folder}/docs/catalog">
+                                            <fileset
+                                                    dir="${setup.folder}/docs/catalog/docs-${project.version}"/>
+                                        </copy>
+                                        <copy todir="${setup.folder}/docs/solr">
+                                            <fileset
+                                                    dir="${setup.folder}/docs/solr/docs-${project.version}"/>
+                                        </copy>
+                                        <copy todir="${setup.folder}/docs/content">
+                                            <fileset
+                                                    dir="${setup.folder}/docs/content/docs-${project.version}"/>
+                                        </copy>
+                                        <copy todir="${setup.folder}/docs/platform">
+                                            <fileset
+                                                    dir="${setup.folder}/docs/platform/docs-${project.version}"/>
+                                        </copy>
+                                        <copy todir="${setup.folder}/docs/security">
+                                            <fileset
+                                                    dir="${setup.folder}/docs/security/docs-${project.version}"/>
+                                        </copy>
+                                        <copy todir="${setup.folder}/docs/spatial">
+                                            <fileset
+                                                    dir="${setup.folder}/docs/spatial/docs-${project.version}"/>
+                                        </copy>
+                                        <copy todir="${setup.folder}/docs/ui">
+                                            <fileset
+                                                    dir="${setup.folder}/docs/ui/docs-${project.version}"/>
+                                        </copy>
+                                    </tasks>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
         <profile>
             <id>javadoc-unpack</id>
             <build>
