@@ -2203,6 +2203,19 @@ org.codice.ddf.system.version=${project.version}          #this instances versio
 org.codice.ddf.system.organization=${organization.name}   #who owns/runs this instance
 ----
 
+The above properties (along with any other system properties) are available to be used as variable parameters in input url fields within the admin UI. For example if you wanted to enter the url for the csw service you could write
+----
+${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.port}${org.codice.ddf.system.rootContext}/csw
+----
+
+instead of
+
+-----
+https://localhost:8993/services/csw
+-----
+
+The variable version is longer but will not need to be changed if the system host, port or root context changes.
+
 == Managing Web Service Security
 
 === Configuring WSS
