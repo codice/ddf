@@ -36,7 +36,7 @@ import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import net.opengis.cat.csw.v_2_0_2.ObjectFactory;
 
-public class CswRecordMetacardTypeTest {
+public class TestCswRecordMetacardType {
 
     public ObjectFactory objFactory;
 

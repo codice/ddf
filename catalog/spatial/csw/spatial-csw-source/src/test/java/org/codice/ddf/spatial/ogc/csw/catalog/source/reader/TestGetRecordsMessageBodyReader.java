@@ -167,9 +167,9 @@ public class TestGetRecordsMessageBodyReader {
         expectedValues.put(CswRecordMetacardType.CSW_TYPE, "dataset");
         expectedValues.put(CswRecordMetacardType.CSW_FORMAT, new String[] {"Shapefile"});
         expectedValues.put(Metacard.GEOGRAPHY,
-                "POLYGON((52.139 5.121, 52.517 5.121, 52.517 4.468, 52.139 4.468, 52.139 5.121))");
+                "POLYGON((5.121 52.139, 4.468 52.139, 4.468 52.517, 5.121 52.517, 5.121 52.139))");
         expectedValues.put(CswRecordMetacardType.OWS_BOUNDING_BOX, new String[] {
-                "POLYGON((52.139 5.121, 52.517 5.121, 52.517 4.468, 52.139 4.468, 52.139 5.121))"});
+                "POLYGON((5.121 52.139, 4.468 52.139, 4.468 52.517, 5.121 52.517, 5.121 52.139))"});
         assertMetacard(mc, expectedValues);
 
         expectedValues.clear();
@@ -197,9 +197,9 @@ public class TestGetRecordsMessageBodyReader {
         expectedValues.put(CswRecordMetacardType.CSW_TYPE, "dataset 2");
         expectedValues.put(CswRecordMetacardType.CSW_FORMAT, new String[] {"Shapefile 2"});
         expectedValues.put(Metacard.GEOGRAPHY,
-                "POLYGON((53.139 6.121, 53.517 6.121, 53.517 5.468, 53.139 5.468, 53.139 6.121))");
+                "POLYGON((6.121 53.139, 5.468 53.139, 5.468 53.517, 6.121 53.517, 6.121 53.139))");
         expectedValues.put(CswRecordMetacardType.OWS_BOUNDING_BOX, new String[] {
-                "POLYGON((53.139 6.121, 53.517 6.121, 53.517 5.468, 53.139 5.468, 53.139 6.121))"});
+                "POLYGON((6.121 53.139, 5.468 53.139, 5.468 53.517, 6.121 53.517, 6.121 53.139))"});
         assertMetacard(mc, expectedValues);
 
         expectedValues.clear();
