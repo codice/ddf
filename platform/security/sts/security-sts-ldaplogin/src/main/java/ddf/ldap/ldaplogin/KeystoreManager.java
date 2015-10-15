@@ -17,6 +17,7 @@ import java.io.File;
 
 import org.apache.karaf.jaas.config.KeystoreInstance;
 import org.apache.karaf.jaas.config.impl.ResourceKeystoreInstance;
+import org.codice.ddf.configuration.PropertyResolver;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -39,7 +40,7 @@ public class KeystoreManager {
 
     private ServiceRegistration<KeystoreInstance> truststoreRegistration = null;
 
-    private String keyAlias;
+    private PropertyResolver keyAlias;
 
     private EncryptionService encryptService;
 
@@ -50,7 +51,7 @@ public class KeystoreManager {
      */
     public KeystoreManager(EncryptionService encryptService, String alias) {
         this.encryptService = encryptService;
-        this.keyAlias = alias;
+        this.keyAlias = new PropertyResolver(alias);
         configure();
     }
 
@@ -62,7 +63,7 @@ public class KeystoreManager {
      */
     public void setKeyAlias(String keyAlias) {
         LOGGER.debug("Updating the keyAlias from {} to {}", this.keyAlias, keyAlias);
-        this.keyAlias = keyAlias;
+        this.keyAlias = new PropertyResolver(keyAlias);
     }
 
     private void configure() {
@@ -103,7 +104,7 @@ public class KeystoreManager {
         try {
             ResourceKeystoreInstance keystore = new ResourceKeystoreInstance();
             keystore.setName(name);
-            keystore.setKeyPasswords(keyAlias + "=" + password);
+            keystore.setKeyPasswords(keyAlias.getResolvedString() + "=" + password);
             keystore.setKeystorePassword(password);
             keystore.setPath(new File(location).toURI().toURL());
 

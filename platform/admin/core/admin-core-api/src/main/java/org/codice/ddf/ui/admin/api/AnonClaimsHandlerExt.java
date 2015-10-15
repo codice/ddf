@@ -14,10 +14,7 @@
 package org.codice.ddf.ui.admin.api;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -28,6 +25,8 @@ import java.util.Properties;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import ddf.security.PropertiesLoader;
 
 /**
  * AnonClaimsHandlerExt is an extension for the ConfigurationAdminMBean
@@ -103,15 +102,8 @@ public class AnonClaimsHandlerExt {
     private Map<String, String> loadPropertiesFile(File propFile) {
         Map<String, String> propertyMap = new HashMap<>();
         if (propFile != null && propFile.exists()) {
-            Properties properties = new Properties();
-            try (InputStream inputStream = new FileInputStream(propFile)) {
-                properties.load(inputStream);
-            } catch (IOException e) {
-                LOGGER.error("Error loading property file {}", propFile.getAbsolutePath(), e);
-            }
-            for (String name : properties.stringPropertyNames()) {
-                propertyMap.put(name, properties.getProperty(name));
-            }
+            Properties properties = PropertiesLoader.loadProperties(propFile.getAbsolutePath());
+            propertyMap  = PropertiesLoader.toMap(properties);
         }
         return propertyMap;
     }

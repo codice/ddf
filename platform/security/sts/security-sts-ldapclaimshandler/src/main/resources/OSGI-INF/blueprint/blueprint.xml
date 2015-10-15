@@ -46,7 +46,7 @@
                                update-strategy="component-managed" update-method="update"/>
         <argument ref="encryptionService"/>
         <!-- Default properties -->
-        <property name="url" value="ldaps://localhost:1636"/>
+        <property name="url" value="ldaps://${org.codice.ddf.system.hostname}:1636"/>
         <property name="startTls" value="false"/>
         <property name="ldapBindUserDn" value="cn=admin"/>
         <property name="password" value="ENC(c+GitDfYAMTDRESXSDDsMw==)"/>

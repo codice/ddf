@@ -20,6 +20,7 @@ import java.util.Properties;
 import org.apache.karaf.jaas.config.JaasRealm;
 import org.apache.karaf.jaas.config.impl.Config;
 import org.apache.karaf.jaas.config.impl.Module;
+import org.codice.ddf.configuration.PropertyResolver;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -57,7 +58,7 @@ public class LdapLoginConfig {
 
     private ServiceRegistration<JaasRealm> registration = null;
 
-    private Map<String, String> ldapProperties = new HashMap<String, String>();
+    private Map<String, Object> ldapProperties = new HashMap<>();
 
     /**
      * Registers the passed-in modules under a new JaasRealm.
@@ -125,7 +126,7 @@ public class LdapLoginConfig {
         Properties props = new Properties();
         props.put("connection.username", properties.get(LDAP_BIND_USER_DN));
         props.put("connection.password", properties.get(LDAP_BIND_USER_PASS));
-        props.put("connection.url", properties.get(LDAP_URL));
+        props.put("connection.url", properties.get(LDAP_URL).toString());
         props.put("user.base.dn", properties.get(USER_BASE_DN));
         props.put("user.filter", "(uid=%u)");
         props.put("user.search.subtree", "true");
@@ -137,7 +138,7 @@ public class LdapLoginConfig {
         props.put("ssl.protocol", "TLS");
         props.put("ssl.truststore", "ts");
         props.put("ssl.keystore", "ks");
-        props.put("ssl.keyalias", properties.get(KEY_ALIAS));
+        props.put("ssl.keyalias", properties.get(KEY_ALIAS).toString());
         props.put("ssl.algorithm", "SunX509");
         props.put("ssl.starttls", properties.get(START_TLS));
         ldapModule.setOptions(props);
@@ -157,7 +158,7 @@ public class LdapLoginConfig {
 
     public void setLdapUrl(String ldapUrl) {
         LOGGER.trace("setLdapUrl called: {}", ldapUrl);
-        ldapProperties.put(LDAP_URL, ldapUrl);
+        ldapProperties.put(LDAP_URL, new PropertyResolver(ldapUrl));
     }
 
     public void setUserBaseDn(String userBaseDn) {
@@ -172,7 +173,7 @@ public class LdapLoginConfig {
 
     public void setKeyAlias(String keyAlias) {
         LOGGER.trace("setKeyAlias called: {}", keyAlias);
-        ldapProperties.put(KEY_ALIAS, keyAlias);
+        ldapProperties.put(KEY_ALIAS, new PropertyResolver(keyAlias));
     }
 
     public void setStartTls(boolean startTls) {

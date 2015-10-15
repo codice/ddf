@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -42,6 +42,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.codehaus.stax2.XMLInputFactory2;
+import org.codice.ddf.configuration.PropertyResolver;
 import org.codice.ddf.cxf.SecureCxfClientFactory;
 import org.codice.ddf.endpoints.OpenSearch;
 import org.geotools.filter.FilterTransformer;
@@ -130,7 +131,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
     private boolean shouldConvertToBBox;
 
-    private String endpointUrl;
+    private PropertyResolver endpointUrl;
 
     private FilterAdapter filterAdapter;
 
@@ -166,7 +167,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
      */
     public void init() {
         isInitialized = true;
-        factory = new SecureCxfClientFactory(endpointUrl, OpenSearch.class);
+        factory = new SecureCxfClientFactory(endpointUrl.getResolvedString(), OpenSearch.class);
         configureXmlInputFactory();
     }
 
@@ -196,7 +197,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
             Response response;
 
             try {
-                client = newOpenSearchClient(endpointUrl, null);
+                client = newOpenSearchClient(endpointUrl.getResolvedString(), null);
                 response = client.head();
             } catch (Exception e) {
                 LOGGER.warn("Web Client was unable to connect to endpoint.", e);
@@ -242,7 +243,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
             subject = (Subject) subjectObj;
         }
         try {
-            restWebClient = newOpenSearchClient(endpointUrl, subject);
+            restWebClient = newOpenSearchClient(endpointUrl.getResolvedString(), subject);
         } catch (SecurityServiceException sse) {
             LOGGER.error(
                     "Failed to get OpenSearchWebClient using endpointUrl and Security Subject.");
@@ -268,8 +269,8 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
         } else {
 
             try {
-                restWebClient = newRestClient(endpointUrl, query, (String) metacardId, false,
-                        subject);
+                restWebClient = newRestClient(endpointUrl.getResolvedString(), query,
+                        (String) metacardId, false, subject);
             } catch (SecurityServiceException sse) {
                 LOGGER.error("Failed to get client using either BasicAuth or Security Subject.");
             }
@@ -381,9 +382,9 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
             return true;
 
             // ensure that there is no search phrase - we will add our own
-        } else if ((visitor.getSpatialSearch() != null && contextualFilter != null
-                && StringUtils.isEmpty(contextualFilter.getSearchPhrase())) || (visitor.getSpatialSearch() != null &&
-                contextualFilter == null)) {
+        } else if ((visitor.getSpatialSearch() != null && contextualFilter != null && StringUtils
+                .isEmpty(contextualFilter.getSearchPhrase())) || (visitor.getSpatialSearch() != null
+                && contextualFilter == null)) {
 
             OpenSearchSiteUtil.populateSearchOptions(client, query, subject, parameters);
 
@@ -540,7 +541,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
      */
     public String getEndpointUrl() {
         LOGGER.trace("getEndpointUrl:  endpointUrl = {}", endpointUrl);
-        return endpointUrl;
+        return endpointUrl.toString();
     }
 
     /**
@@ -549,7 +550,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
      * @param endpointUrl Full url of the endpoint.
      */
     public void setEndpointUrl(String endpointUrl) {
-        this.endpointUrl = endpointUrl;
+        this.endpointUrl = new PropertyResolver(endpointUrl);
         factory = new SecureCxfClientFactory(endpointUrl, OpenSearch.class);
     }
 
@@ -692,7 +693,8 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
             String metacardId = serializableId.toString();
             WebClient restClient = null;
             try {
-                restClient = newRestClient(endpointUrl, null, metacardId, true, null);
+                restClient = newRestClient(endpointUrl.getResolvedString(), null, metacardId, true,
+                        null);
             } catch (SecurityServiceException e) {
                 throw new ResourceNotSupportedException(e);
             }
@@ -846,7 +848,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
             client = tempFactory.getWebClientForBasicAuth(username, password);
         } else if (subj != null) {
             client = tempFactory.getWebClientForSubject(subj);
-        }  else {
+        } else {
             client = tempFactory.getUnsecuredWebClient();
         }
         return client;

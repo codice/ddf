@@ -23,6 +23,7 @@ import java.util.Map;
 import javax.net.ssl.SSLContext;
 
 import org.apache.cxf.sts.claims.ClaimsHandler;
+import org.codice.ddf.configuration.PropertyResolver;
 import org.forgerock.opendj.ldap.LDAPConnectionFactory;
 import org.forgerock.opendj.ldap.LDAPOptions;
 import org.forgerock.opendj.ldap.LdapException;
@@ -97,7 +98,7 @@ public class ClaimsHandlerManager {
         }
         LOGGER.debug(
                 "Received an updated set of configurations for the LDAP/Role Claims Handlers.");
-        String url = (String) props.get(ClaimsHandlerManager.URL);
+        String url = props.get(ClaimsHandlerManager.URL).toString();
         Boolean startTls;
         if (props.get(ClaimsHandlerManager.START_TLS) instanceof String) {
             startTls = Boolean.valueOf((String) props.get(ClaimsHandlerManager.START_TLS));
@@ -281,7 +282,7 @@ public class ClaimsHandlerManager {
 
     public void setUrl(String url) {
         LOGGER.trace("Setting url: {}", url);
-        ldapProperties.put(URL, url);
+        ldapProperties.put(URL, new PropertyResolver(url));
     }
 
     public void setStartTls(boolean startTls) {

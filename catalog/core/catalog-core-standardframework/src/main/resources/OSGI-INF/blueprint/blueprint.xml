@@ -156,6 +156,8 @@
 
     <reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>
 
+    <bean id="urlHelper" class="org.codice.ddf.configuration.SystemBaseUrl"/>
+
     <!-- Create the SolrCache -->
     <bean id="solrCatalogCache" class="ddf.catalog.cache.solr.impl.SolrCache"
           destroy-method="shutdown">
@@ -163,6 +165,7 @@
         <argument>
             <bean class="ddf.catalog.source.solr.SolrFilterDelegateFactoryImpl"/>
         </argument>
+        <argument ref="urlHelper"/>
     </bean>
 
 	<bean id="sorted" class="ddf.catalog.cache.solr.impl.CachingFederationStrategy"

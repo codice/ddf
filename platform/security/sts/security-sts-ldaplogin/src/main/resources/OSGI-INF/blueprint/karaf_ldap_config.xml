@@ -12,15 +12,11 @@
  **/
 -->
 <blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
-           xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
-           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-        >
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
     <type-converters>
         <bean class="org.apache.karaf.jaas.modules.properties.PropertiesConverter"/>
     </type-converters>
-
-    <ext:property-placeholder/>
 
     <bean id="LdapConfig" class="ddf.ldap.ldaplogin.LdapLoginConfig" init-method="configure">
         <cm:managed-properties persistent-id="ddf.security.sts.ldap"
@@ -29,10 +25,10 @@
         <!-- Default properties -->
         <property name="ldapBindUserDn" value="cn=admin"/>
         <property name="ldapBindUserPass" value="ENC(c+GitDfYAMTDRESXSDDsMw==)"/>
-        <property name="ldapUrl" value="ldaps://localhost:1636"/>
+        <property name="ldapUrl" value="ldaps://${org.codice.ddf.system.hostname}:1636"/>
         <property name="userBaseDn" value="ou=users,dc=example,dc=com"/>
         <property name="groupBaseDn" value="ou=groups,dc=example,dc=com"/>
-        <property name="keyAlias" value="localhost"/>
+        <property name="keyAlias" value="${org.codice.ddf.system.hostname}"/>
         <property name="startTls" value="false"/>
     </bean>
 

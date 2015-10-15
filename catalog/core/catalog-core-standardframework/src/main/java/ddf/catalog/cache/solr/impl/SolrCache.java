@@ -40,6 +40,7 @@ import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrException;
 import org.apache.solr.common.SolrInputDocument;
+import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.solr.factory.SolrServerFactory;
 import org.opengis.filter.Filter;
 import org.slf4j.Logger;
@@ -88,7 +89,7 @@ public class SolrCache implements SolrCacheMBean {
 
     private ObjectName objectName;
 
-    private String url = SolrServerFactory.DEFAULT_HTTPS_ADDRESS;
+    private String url = SolrServerFactory.getDefaultHttpsAddress();
 
     private SolrServer server;
 
@@ -106,25 +107,19 @@ public class SolrCache implements SolrCacheMBean {
 
     private MBeanServer mbeanServer;
 
-    private String protocol;
-
-    private String host;
-
-    private String port;
-
-    private String contextRoot;
-
-    static final String PATH = "/catalog/sources";
+    private SystemBaseUrl systemBaseUrl;
 
     /**
      * Convenience constructor that creates a the Solr server
      *
      * @param adapter injected implementation of FilterAdapter
      */
-    public SolrCache(FilterAdapter adapter, SolrFilterDelegateFactory solrFilterDelegateFactory) {
+    public SolrCache(FilterAdapter adapter, SolrFilterDelegateFactory solrFilterDelegateFactory, SystemBaseUrl sbu) {
         this.filterAdapter = adapter;
         this.solrFilterDelegateFactory = solrFilterDelegateFactory;
-        this.updateServer(url);
+        this.systemBaseUrl = sbu;
+        this.url = systemBaseUrl.constructUrl("/solr");
+        this.updateServer(this.url);
         configureCacheExpirationScheduler();
 
         try {

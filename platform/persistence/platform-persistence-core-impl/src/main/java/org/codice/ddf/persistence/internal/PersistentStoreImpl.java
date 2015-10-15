@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -32,6 +32,7 @@ import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
+import org.codice.ddf.configuration.PropertyResolver;
 import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.PersistentItem;
 import org.codice.ddf.persistence.PersistentStore;
@@ -47,13 +48,9 @@ public class PersistentStoreImpl implements PersistentStore {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PersistentStoreImpl.class);
 
-    private String solrUrl = SolrServerFactory.DEFAULT_HTTPS_ADDRESS;
+    private PropertyResolver solrUrl;
 
     private ConcurrentHashMap<String, SolrServer> coreSolrServers = new ConcurrentHashMap<>();
-
-    public PersistentStoreImpl() {
-        this(SolrServerFactory.DEFAULT_HTTPS_ADDRESS);
-    }
 
     public PersistentStoreImpl(String solrUrl) {
         LOGGER.trace("INSIDE: PersistentStoreImpl constructor with solrUrl = {}", solrUrl);
@@ -61,10 +58,11 @@ public class PersistentStoreImpl implements PersistentStore {
     }
 
     public void setSolrUrl(String url) {
+
         LOGGER.debug("Setting solrUrl to {}", url);
         if (url != null) {
-            if (!StringUtils.equalsIgnoreCase(url.trim(), solrUrl)) {
-                solrUrl = url.trim();
+            if (solrUrl == null || !StringUtils.equalsIgnoreCase(url.trim(), solrUrl.getResolvedString())) {
+                solrUrl = new PropertyResolver(url.trim());
 
                 List<SolrServer> servers = new ArrayList<>(coreSolrServers.values());
                 coreSolrServers.clear();
@@ -74,7 +72,7 @@ public class PersistentStoreImpl implements PersistentStore {
             }
         } else {
             // sets to null
-            solrUrl = url;
+            solrUrl = new PropertyResolver(url);
         }
     }
 
@@ -285,7 +283,8 @@ public class PersistentStoreImpl implements PersistentStore {
         }
 
         // Must specify shard in URL so proper core is used
-        SolrServer coreSolrServer = SolrServerFactory.getHttpSolrServer(solrUrl, storeName);
+        SolrServer coreSolrServer = SolrServerFactory
+                .getHttpSolrServer(solrUrl.getResolvedString(), storeName);
         coreSolrServers.put(storeName, coreSolrServer);
 
         LOGGER.trace("EXITING: getSolrCore");

@@ -31,6 +31,7 @@ import org.apache.wss4j.common.crypto.Crypto;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.dom.WSSConfig;
 import org.apache.wss4j.dom.handler.RequestData;
+import org.codice.ddf.configuration.PropertyResolver;
 import org.jasig.cas.client.authentication.AttributePrincipal;
 import org.jasig.cas.client.validation.Assertion;
 import org.jasig.cas.client.validation.Cas20ProxyTicketValidator;
@@ -57,16 +58,16 @@ public class WebSSOTokenValidator implements TokenValidator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WebSSOTokenValidator.class);
 
-    private String casServerUrl;
+    private PropertyResolver casServerUrl;
 
     private EncryptionService encryptionService;
 
     public String getCasServerUrl() {
-        return casServerUrl;
+        return casServerUrl.getResolvedString();
     }
 
     public void setCasServerUrl(String casServerUrl) {
-        this.casServerUrl = casServerUrl;
+        this.casServerUrl = new PropertyResolver(casServerUrl);
     }
 
     public void setEncryptionService(EncryptionService encryptionService) {
@@ -219,7 +220,7 @@ public class WebSSOTokenValidator implements TokenValidator {
             throw new TicketValidationException("Could not set up connection to CAS Server.", ioe);
         }
 
-        Cas20ProxyTicketValidator casValidator = new Cas20ProxyTicketValidator(casServerUrl);
+        Cas20ProxyTicketValidator casValidator = new Cas20ProxyTicketValidator(casServerUrl.getResolvedString());
         casValidator.setAcceptAnyProxy(true);
 
         return casValidator.validate(ticket, service);

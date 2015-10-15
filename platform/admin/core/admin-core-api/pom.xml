@@ -63,6 +63,11 @@
             <artifactId>type-parser</artifactId>
             <version>0.5.0</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.security.core</groupId>
+            <artifactId>security-core-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <artifactId>admin-core-api</artifactId>

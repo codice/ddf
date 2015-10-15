@@ -14,27 +14,14 @@
 package org.codice.ddf.admin.insecure.defaults.service;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
-import java.io.IOException;
-import java.util.Dictionary;
-import java.util.Hashtable;
 import java.util.List;
 
+import org.codice.ddf.configuration.SystemBaseUrl;
 import org.junit.Test;
-import org.osgi.service.cm.ConfigurationAdmin;
 
 public class PlatformGlobalConfigurationValidatorTest {
-
-    private static final String PLATFORM_GLOBAL_CONFIGURATION_PID = "ddf.platform.config";
-
-    private static final String PROTOCOL_PROPERTY = "protocol";
 
     private static final String HTTP_PROTOCOL = "http://";
 
@@ -47,34 +34,26 @@ public class PlatformGlobalConfigurationValidatorTest {
     @Test
     public void testValidateWhenHttpIsEnabled() throws Exception {
         // Setup
-        ConfigurationAdmin mockConfigAdmin = mock(ConfigurationAdmin.class, RETURNS_DEEP_STUBS);
-        Dictionary<String, Object> mockProperties = new Hashtable<>();
-        mockProperties.put(PROTOCOL_PROPERTY, HTTP_PROTOCOL);
-        when(mockConfigAdmin.getConfiguration(PLATFORM_GLOBAL_CONFIGURATION_PID).getProperties())
-                .thenReturn(mockProperties);
+        System.setProperty(SystemBaseUrl.PROTOCOL, HTTP_PROTOCOL);
         PlatformGlobalConfigurationValidator pgc = new PlatformGlobalConfigurationValidator(
-                mockConfigAdmin);
+                new SystemBaseUrl());
 
         // Perform Test
         List<Alert> alerts = pgc.validate();
 
         // Verify
         assertThat(alerts.size(), is(1));
-        assertThat(alerts.get(0).getMessage(), is(String
-                .format(PlatformGlobalConfigurationValidator.PROTCOL_IN_PLATFORM_GLOBAL_CONFIG_IS_HTTP,
-                        PROTOCOL_PROPERTY)));
+        assertThat(alerts.get(0).getMessage(),
+                is(PlatformGlobalConfigurationValidator.PROTCOL_IN_PLATFORM_GLOBAL_CONFIG_IS_HTTP));
     }
 
     @Test
     public void testValidateWhenHttpIsDisabled() throws Exception {
         // Setup
-        ConfigurationAdmin mockConfigAdmin = mock(ConfigurationAdmin.class, RETURNS_DEEP_STUBS);
-        Dictionary<String, Object> mockProperties = new Hashtable<>();
-        mockProperties.put(PROTOCOL_PROPERTY, HTTPS_PROTOCOL);
-        when(mockConfigAdmin.getConfiguration(PLATFORM_GLOBAL_CONFIGURATION_PID).getProperties())
-                .thenReturn(mockProperties);
+
+        System.setProperty(SystemBaseUrl.PROTOCOL, HTTPS_PROTOCOL);
         PlatformGlobalConfigurationValidator pgc = new PlatformGlobalConfigurationValidator(
-                mockConfigAdmin);
+                new SystemBaseUrl());
 
         // Perform Test
         List<Alert> alerts = pgc.validate();
@@ -91,19 +70,5 @@ public class PlatformGlobalConfigurationValidatorTest {
 
         assertThat("Should return a warning about null admin config.", result.get(0).getMessage(),
                 is(NULL_ADMIN_VALIDATE));
-    }
-
-    @Test
-    public void testValidateIOException() throws Exception {
-        ConfigurationAdmin testConfigAdmin = mock(ConfigurationAdmin.class);
-
-        doThrow(new IOException()).when(testConfigAdmin).getConfiguration(anyString());
-
-        PlatformGlobalConfigurationValidator pgc = new PlatformGlobalConfigurationValidator(
-                testConfigAdmin);
-        List<Alert> result = pgc.validate();
-
-        assertThat("Should return a warning about the exception.", result.get(0).getMessage(),
-                containsString(VALIDATE_EXCEPT));
     }
 }

@@ -19,7 +19,6 @@
 
     <bean id="httpProxyServiceImpl" class="org.codice.proxy.http.HttpProxyServiceImpl"
           destroy-method="destroy">
-    	<argument ref="blueprintBundleContext"/>
     	<argument ref="proxyCamelContext"/>
     </bean>
     <service ref="httpProxyServiceImpl" interface="org.codice.proxy.http.HttpProxyService"/>

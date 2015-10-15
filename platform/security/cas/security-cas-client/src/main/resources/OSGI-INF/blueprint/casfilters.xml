@@ -14,14 +14,17 @@
 -->
 
 <blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
-           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.2.0">
+
+    <ext:property-placeholder/>
 
     <bean id="casAuthenticationFilter"
           class="org.jasig.cas.client.authentication.AuthenticationFilter">
         <cm:managed-properties persistent-id="ddf.security.cas"
                                update-strategy="container-managed"/>
-        <property name="serverName" value="https://localhost:8993"/>
-        <property name="casServerLoginUrl" value="https://localhost:8443/cas/login"/>
+        <property name="serverName" value="${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.port}"/>
+        <property name="casServerLoginUrl" value="${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:8443/cas/login"/>
         <property name="renew" value="false"/>
         <property name="gateway" value="false"/>
         <property name="ignoreInitConfiguration" value="true"/>
@@ -32,7 +35,7 @@
         <cm:managed-properties persistent-id="ddf.security.cas"
                                update-strategy="container-managed"/>
         <property name="ignoreInitConfiguration" value="true"/>
-        <property name="serverName" value="https://localhost:8993"/>
+        <property name="serverName" value="${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.port}"/>
         <property name="millisBetweenCleanUps" value="60000"/>
         <property name="ticketValidator" ref="cas20ServiceTicketValidator"/>
         <property name="proxyReceptorUrl" value="/sso"/>
@@ -44,8 +47,8 @@
           class="org.codice.ddf.security.handler.cas.CasProxyTicketValidator">
         <cm:managed-properties persistent-id="ddf.security.cas"
                                update-strategy="container-managed"/>
-        <property name="casServerUrl" value="https://localhost:8443/cas"/>
-        <property name="proxyCallbackUrl" value="https://localhost:8993/sso"/>
+        <property name="casServerUrl" value="${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:8443/cas"/>
+        <property name="proxyCallbackUrl" value="${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.port}/sso"/>
         <property name="acceptAnyProxy" value="true"/>
         <property name="proxyGrantingTicketStorage" ref="proxyStorage"/>
     </bean>

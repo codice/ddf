@@ -22,6 +22,7 @@ import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.codice.ddf.configuration.PropertyResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +45,7 @@ public class RestReplicatorPlugin implements PostIngestPlugin {
     /**
      * A configurable property of parent's location.
      */
-    private String parentAddress = null;
+    private PropertyResolver parentAddress = null;
 
     private MetacardTransformer transformer = null;
 
@@ -153,24 +154,24 @@ public class RestReplicatorPlugin implements PostIngestPlugin {
     }
 
     public String getParentAddress() {
-        return parentAddress;
+        return parentAddress.getResolvedString();
     }
 
     public void setParentAddress(String endpointAddress) {
 
         if (endpointAddress == null) {
 
-            this.parentAddress = endpointAddress;
+            this.parentAddress = new PropertyResolver(null);
 
             client = null;
 
-        } else if (!endpointAddress.equals(this.parentAddress)) {
+        } else if (this.parentAddress == null || !endpointAddress.equals(this.parentAddress.getResolvedString())) {
 
-            String previous = this.parentAddress;
+            PropertyResolver previous = this.parentAddress;
 
-            this.parentAddress = endpointAddress;
+            this.parentAddress = new PropertyResolver(endpointAddress);
 
-            client = WebClient.create(this.parentAddress, true);
+            client = WebClient.create(this.parentAddress.getResolvedString(), true);
 
             LOGGER.debug("Changed the parent address property from [{}] to [{}]", previous,
                     this.parentAddress);

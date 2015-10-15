@@ -19,6 +19,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServer;
+import org.codice.ddf.configuration.PropertyResolver;
 import org.codice.solr.factory.ConfigurationStore;
 import org.codice.solr.factory.SolrServerFactory;
 import org.slf4j.Logger;
@@ -72,7 +73,7 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
 
     }
 
-    private String url = SolrServerFactory.DEFAULT_HTTPS_ADDRESS;
+    private String url = SolrServerFactory.getDefaultHttpsAddress();
 
     private CatalogProvider provider = new UnconfiguredCatalogProvider();
 
@@ -218,7 +219,7 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
      * @param url
      */
     public void setUrl(String url) {
-        updateServer(url);
+        updateServer(PropertyResolver.resolveProperties(url));
     }
 
     /**

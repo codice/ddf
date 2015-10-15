@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -13,38 +13,26 @@
  */
 package org.codice.ddf.admin.insecure.defaults.service;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Dictionary;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.admin.insecure.defaults.service.Alert.Level;
-import org.osgi.service.cm.Configuration;
-import org.osgi.service.cm.ConfigurationAdmin;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.codice.ddf.configuration.SystemBaseUrl;
 
 public class PlatformGlobalConfigurationValidator implements Validator {
 
-    static final String PROTCOL_IN_PLATFORM_GLOBAL_CONFIG_IS_HTTP = "The [%s] in Platform Global Configuration is set to [http].";
-
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(PlatformGlobalConfigurationValidator.class);
-
-    private static final String PLATFORM_GLOBAL_CONFIGURATION_PID = "ddf.platform.config";
-
-    private static final String PROTOCOL_PROPERTY = "protocol";
+    static final String PROTCOL_IN_PLATFORM_GLOBAL_CONFIG_IS_HTTP = "The protocol in the system properties is set to [http].";
 
     private static final String HTTP_PROTOCOL = "http://";
 
-    private ConfigurationAdmin configAdmin;
+    private SystemBaseUrl systemBaseUrl;
 
     private List<Alert> alerts;
 
-    public PlatformGlobalConfigurationValidator(ConfigurationAdmin configAdmin) {
+    public PlatformGlobalConfigurationValidator(SystemBaseUrl sbu) {
         alerts = new ArrayList<>();
-        this.configAdmin = configAdmin;
+        this.systemBaseUrl = sbu;
     }
 
     public List<Alert> validate() {
@@ -54,26 +42,15 @@ public class PlatformGlobalConfigurationValidator implements Validator {
     }
 
     private void validateHttpIsDisabled() {
-        try {
-            if (configAdmin != null) {
-                Configuration config = configAdmin
-                        .getConfiguration(PLATFORM_GLOBAL_CONFIGURATION_PID);
-                Dictionary<String, Object> properties = config.getProperties();
-                LOGGER.debug("props: {}", properties.toString());
-                String protocol = (String) properties.get(PROTOCOL_PROPERTY);
-                if (StringUtils.equalsIgnoreCase(protocol, HTTP_PROTOCOL)) {
-                    alerts.add(new Alert(Level.WARN,
-                            String.format(PROTCOL_IN_PLATFORM_GLOBAL_CONFIG_IS_HTTP,
-                                    PROTOCOL_PROPERTY)));
-                }
-            } else {
-                String msg = "Unable to determine if Platform Global Configuration has insecure defaults. Cannot access Configuration Admin.";
-                alerts.add(new Alert(Level.WARN, msg));
+        if (systemBaseUrl != null) {
+            String protocol = systemBaseUrl.getProtocol();
+
+            if (StringUtils.equalsIgnoreCase(protocol, HTTP_PROTOCOL)) {
+                alerts.add(new Alert(Level.WARN, PROTCOL_IN_PLATFORM_GLOBAL_CONFIG_IS_HTTP));
             }
-        } catch (IOException e) {
-            String msg = "Unable to determine if Platform Global Configuration has insecure defaults. ";
-            LOGGER.warn(msg, e);
-            alerts.add(new Alert(Level.WARN, msg + e.getMessage()));
+        } else {
+            String msg = "Unable to determine if Platform Global Configuration has insecure defaults. Cannot access Configuration Admin.";
+            alerts.add(new Alert(Level.WARN, msg));
         }
     }
 }

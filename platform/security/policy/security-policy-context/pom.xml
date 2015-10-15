@@ -32,6 +32,11 @@
             <artifactId>security-policy-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.lib</groupId>
+            <artifactId>common-system</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -42,6 +47,7 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Embed-Dependency>common-system</Embed-Dependency>
                         <Export-Package>
                             org.codice.ddf.security.policy.context.impl
                         </Export-Package>

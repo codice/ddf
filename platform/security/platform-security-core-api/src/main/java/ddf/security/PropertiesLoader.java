@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -24,6 +24,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.text.StrSubstitutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
@@ -169,6 +170,15 @@ public final class PropertiesLoader {
                     }
                 }
             }
+
+            //replace any ${prop} with system properties
+            Properties filtered = new Properties();
+            for (Map.Entry<?, ?> entry : properties.entrySet()) {
+                filtered.put(StrSubstitutor.replaceSystemProperties(entry.getKey()),
+                        StrSubstitutor.replaceSystemProperties(entry.getValue()));
+            }
+            properties = filtered;
+
         } else {
             LOGGER.debug("Properties file must not be null.");
         }

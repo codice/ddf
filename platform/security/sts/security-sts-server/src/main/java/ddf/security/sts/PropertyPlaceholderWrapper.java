@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -17,6 +17,7 @@ package ddf.security.sts;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.sts.StaticSTSProperties;
 import org.apache.cxf.sts.token.provider.DefaultConditionsProvider;
+import org.codice.ddf.configuration.PropertyResolver;
 import org.codice.ddf.configuration.SystemBaseUrl;
 
 /**
@@ -56,16 +57,16 @@ public class PropertyPlaceholderWrapper {
     }
 
     public void setSignatureUsername(String username) {
-        stsProperties.setSignatureUsername(username);
+        stsProperties.setSignatureUsername(PropertyResolver.resolveProperties(username));
     }
 
     public void setEncryptionUsername(String username) {
-        stsProperties.setEncryptionUsername(username);
+        stsProperties.setEncryptionUsername(PropertyResolver.resolveProperties(username));
     }
 
     public void setIssuer(String issuer) {
         if (StringUtils.isNotBlank(issuer)) {
-            stsProperties.setIssuer(issuer);
+            stsProperties.setIssuer(PropertyResolver.resolveProperties(issuer));
         }
     }
 }
