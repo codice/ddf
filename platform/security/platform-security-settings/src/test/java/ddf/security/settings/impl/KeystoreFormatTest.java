@@ -27,10 +27,6 @@ import ddf.security.settings.SecuritySettingsService;
 
 public class KeystoreFormatTest {
 
-    private static final String PKCS12 = "PKCS12";
-
-    private static final String JKS = "JKS";
-
     private static Properties properties;
 
     @Before
@@ -40,22 +36,13 @@ public class KeystoreFormatTest {
 
     @Test
     public void jksKeyStoreMustWork() throws KeyStoreException {
-
-        pointToKeystoreFile("keystore.jks", JKS);
-        accessKeyStore();
-    }
-
-    @Test(expected = KeyStoreException.class)
-    public void pkcs12KeyStoreWrongType() throws KeyStoreException {
-
-        pointToKeystoreFile("keystore.p12", JKS);
+        pointToKeystoreFile("keystore.jks", "JKS");
         accessKeyStore();
     }
 
     @Test
     public void pkcs12MustWork() throws KeyStoreException {
-
-        pointToKeystoreFile("keystore.p12", PKCS12);
+        pointToKeystoreFile("keystore.p12", "PKCS12");
         KeyStore keyStore = makeSecurityService().getKeystore();
         accessKeyStore();
     }
@@ -86,7 +73,6 @@ public class KeystoreFormatTest {
     }
 
     private void accessKeyStore() throws KeyStoreException {
-        KeyStore keyStore = makeSecurityService().getKeystore();
-        keyStore.aliases();
+        makeSecurityService().getKeystore().aliases();
     }
 }
