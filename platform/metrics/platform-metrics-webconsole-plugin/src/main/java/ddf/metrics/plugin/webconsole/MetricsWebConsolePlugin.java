@@ -68,8 +68,6 @@ import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.security.SecurityConstants;
-
 /**
  * Felix Web Console plugin to create a Metrics tab for interacting with the MetricsEndpoint
  * . This plugin displays a table of all of the monitored metrics and their associated hyperlinks to
@@ -328,19 +326,18 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin {
             FileInputStream tsFIS = null;
             FileInputStream ksFIS = null;
             try {
-                String trustStorePath = System.getProperty(SecurityConstants.TRUSTSTORE_PATH);
-                String trustStoreType = System.getProperty(SecurityConstants.TRUSTSTORE_TYPE);
-                String trustStorePassword = System
-                        .getProperty(SecurityConstants.TRUSTSTORE_PASSWORD);
+                String trustStorePath = System.getProperty("javax.net.ssl.trustStore");
+                String trustStoreType = System.getProperty("javax.net.ssl.trustStoreType");
+                String trustStorePassword = System.getProperty("javax.net.ssl.trustStorePassword");
 
                 trustStore = KeyStore.getInstance(trustStoreType);
                 File trustStoreFile = new File(trustStorePath);
                 tsFIS = new FileInputStream(trustStoreFile);
                 trustStore.load(tsFIS, trustStorePassword.toCharArray());
 
-                String keyStorePath = System.getProperty(SecurityConstants.KEYSTORE_PATH);
-                String keyStoreType = System.getProperty(SecurityConstants.KEYSTORE_TYPE);
-                String keyStorePassword = System.getProperty(SecurityConstants.KEYSTORE_PASSWORD);
+                String keyStorePath = System.getProperty("javax.net.ssl.keyStore");
+                String keyStoreType = System.getProperty("javax.net.ssl.keyStoreType");
+                String keyStorePassword = System.getProperty("javax.net.ssl.keyStorePassword");
 
                 keyStore = KeyStore.getInstance(keyStoreType);
                 File keyStoreFile = new File(keyStorePath);
