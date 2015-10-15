@@ -239,7 +239,7 @@ public class PKIHandlerTest {
 
         HttpServletResponse httpResponse = mock(HttpServletResponse.class);
 
-        handlerResult = handler.checkAgainstCRL(httpResponse, token, certs, handlerResult);
+        handlerResult = handler.checkAgainstCrl(httpResponse, token, certs, handlerResult);
         assertThat(handlerResult.getStatus(), equalTo(HandlerResult.Status.COMPLETED));
     }
 
@@ -265,7 +265,7 @@ public class PKIHandlerTest {
 
         HttpServletResponse httpResponse = mock(HttpServletResponse.class);
 
-        handlerResult = handler.checkAgainstCRL(httpResponse, token, certs, handlerResult);
+        handlerResult = handler.checkAgainstCrl(httpResponse, token, certs, handlerResult);
         assertThat(handlerResult.getStatus(), equalTo(HandlerResult.Status.REDIRECTED));
     }
 
