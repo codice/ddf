@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -20,16 +20,12 @@ import java.util.Properties;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
+import ddf.security.SecurityConstants;
 import ddf.security.settings.SecuritySettingsService;
 
 public class KeystoreFormatTest {
-
-    private static final String PKCS12 = "PKCS12";
-
-    private static final String JKS = "JKS";
 
     private static Properties properties;
 
@@ -40,30 +36,13 @@ public class KeystoreFormatTest {
 
     @Test
     public void jksKeyStoreMustWork() throws KeyStoreException {
-
-        pointToKeystoreFile("keystore.jks", JKS);
-        accessKeyStore();
-    }
-
-    @Test(expected = KeyStoreException.class)
-    public void jksKeyStoreWrongType() throws KeyStoreException {
-
-        pointToKeystoreFile("keystore.jks", PKCS12);
-        accessKeyStore();
-    }
-
-    @Test(expected = KeyStoreException.class)
-    @Ignore
-    public void pkcs12KeyStoreWrongType() throws KeyStoreException {
-
-        pointToKeystoreFile("keystore.p12", JKS);
+        pointToKeystoreFile("keystore.jks", "JKS");
         accessKeyStore();
     }
 
     @Test
     public void pkcs12MustWork() throws KeyStoreException {
-
-        pointToKeystoreFile("keystore.p12", PKCS12);
+        pointToKeystoreFile("keystore.p12", "PKCS12");
         KeyStore keyStore = makeSecurityService().getKeystore();
         accessKeyStore();
     }
@@ -79,12 +58,12 @@ public class KeystoreFormatTest {
 
     private void pointToKeystoreFile(String filename, String keystoreType) {
         String password = "changeit";
-        System.setProperty(SecuritySettingsService.SSL_KEYSTORE_JAVA_PROPERTY, getPath(filename));
-        System.setProperty(SecuritySettingsService.SSL_KEYSTORE_PASSWORD_JAVA_PROPERTY, password);
-        System.setProperty(SecuritySettingsService.SSL_TRUSTSTORE_JAVA_PROPERTY, getPath(filename));
-        System.setProperty(SecuritySettingsService.SSL_TRUSTSTORE_PASSWORD_JAVA_PROPERTY, password);
-        System.setProperty(SecuritySettingsService.SSL_KEYSTORE_TYPE_JAVA_PROPERTY, keystoreType);
-
+        System.setProperty(SecurityConstants.KEYSTORE_PATH, getPath(filename));
+        System.setProperty(SecurityConstants.KEYSTORE_PASSWORD, password);
+        System.setProperty(SecurityConstants.TRUSTSTORE_PATH, getPath(filename));
+        System.setProperty(SecurityConstants.TRUSTSTORE_PASSWORD, password);
+        System.setProperty(SecurityConstants.KEYSTORE_TYPE, keystoreType);
+        System.setProperty(SecurityConstants.TRUSTSTORE_TYPE, keystoreType);
     }
 
     private SecuritySettingsService makeSecurityService() {
@@ -96,5 +75,4 @@ public class KeystoreFormatTest {
     private void accessKeyStore() throws KeyStoreException {
         makeSecurityService().getKeystore().aliases();
     }
-
 }

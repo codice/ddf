@@ -28,6 +28,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ddf.security.SecurityConstants;
+
 /**
  * Facade class for a Java Keystore (JKS) file. Exposes a few high-level behaviors to abstract away the
  * complexity of JCA/JCE, as well as file I/O operations.
@@ -67,16 +69,7 @@ public class KeyStoreFile {
 
     static KeyStore newKeyStore() throws KeyStoreException {
 
-        String type = System.getProperty("javax.net.ssl.keyStoreType");
-
-        if (type == null) {
-            type = KeyStore.getDefaultType();
-            LOGGER.info(
-                    "System property javax.net.ssl.keyStoreType not set. Using default keyStore type {}",
-                    type);
-        }
-
-        return KeyStore.getInstance(type);
+        return KeyStore.getInstance(System.getProperty(SecurityConstants.KEYSTORE_TYPE));
     }
 
     /**

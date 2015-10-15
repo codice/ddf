@@ -26,11 +26,16 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
+import java.util.Properties;
 
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import ddf.security.SecurityConstants;
 
 @RunWith(value = MockitoJUnitRunner.class)
 public class KeyStoreFileTest {
@@ -48,6 +53,19 @@ public class KeyStoreFileTest {
     public static final char[] BOGUS_PASSWORD = "ThisIsNotThePassword".toCharArray();
 
     public static final String ALIAS_SAMPLE_PRIVATE_KEY_ENTRY = "sampleprivatekeyentry";
+
+    private static Properties properties;
+
+    @BeforeClass
+    public static void init() {
+        properties = System.getProperties();
+        System.setProperty(SecurityConstants.KEYSTORE_TYPE, "JKS");
+    }
+
+    @AfterClass
+    public static void tearDown() {
+        System.setProperties(properties);
+    }
 
     String getPathTo(String path) {
         return getClass().getClassLoader().getResource(path).getPath();
