@@ -135,22 +135,22 @@ public class BoundingBoxReader {
 
     /**
      * @param coords
-     *            The latitude and longitude coordinates (in no particular order).
+     *            The latitude and longitude coordinates (in LAT/LON order).
      * @param areCoordsInLonLatOrder
      *            True if the source returns the coordinates in LON/LAT order; false, otherwise.
-     * @return The coordinates in LON/LAT order.
+     * @return The coordinates in LAT/LON order.
      */
     private String[] getCoordinates(String coords, boolean areCoordsInLonLatOrder) {
 
-        if (!areCoordsInLonLatOrder) {
+        if (areCoordsInLonLatOrder) {
             /**
-             * We want to create WKT in LON/LAT order. Since the response has the coords in LAT/LON
+             * We want to create WKT in LAT/LON order. Since the response has the coords in LON/LAT
              * order, we need to reverse them.
              */
             return StringUtils.reverseDelimited(coords, SPACE.charAt(0)).split(SPACE);
         } else {
             /**
-             * We want to create WKT in LON/LAT order. Since this is the order of the coords in the
+             * We want to create WKT in LAT/LON order. Since this is the order of the coords in the
              * response, we use them as-is.
              */
             return coords.split(SPACE);
