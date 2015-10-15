@@ -32,8 +32,9 @@ public interface ScheduledTask {
 
     /**
      * Removes a task completely so that it does not run or exist.
+     *
      */
-    public void deleteTask();
+    public void deleteTask(int code);
 
     /**
      * Updates an existing task with new properties.
