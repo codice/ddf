@@ -179,7 +179,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
     }
 
-    public void destroy() {
+    public void destroy(int code) {
         LOGGER.info("Nothing to destroy.");
     }
 
