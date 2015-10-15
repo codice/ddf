@@ -51,12 +51,13 @@ define([
         },
         changePage: function() {
             //close whatever view is open
-            var welcomeStep = 0, configStep = 1, anonClaimsStep = 2, profileStep = null, applicationStep = null, finishStep = null;
+            var welcomeStep = 0, anonClaimsStep = 1, configStep = null, profileStep = null, applicationStep = null, finishStep = null;
             if(this.model.get('showInstallProfileStep')){
                 // factor in profile step
                 profileStep = anonClaimsStep +1;
                 applicationStep = profileStep +1;
-                finishStep = applicationStep +1;
+                configStep = applicationStep +1;
+                finishStep = configStep +1;
             } else {
                 // no profile step.
                 profileStep = null;

@@ -12,6 +12,7 @@
  **/
  --}}
 {{#if hasPrevious}}
+    {{#ifNotAnd hidePrevious}}
     <li>
         {{#if busy}}
             <a id="previousStep" class="disabled-previous" href="#" > <i class="fa fa-arrow-left"></i> Previous</a>
@@ -19,6 +20,7 @@
             <a id="previousStep" class="previous" href="#" > <i class="fa fa-arrow-left"></i> Previous</a>
         {{/if}}
     </li>
+    {{/ifNotAnd}}
 {{/if}}
 {{#if hasNext}}
     {{#ifNotAnd hasPrevious}}
