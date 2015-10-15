@@ -101,10 +101,19 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
 
     // AES is the best encryption but isn't always supported, 3DES is widely
     // supported and is very difficult to crack
-    private static final String[] SSL_ALLOWED_ALGORITHMS = {".*_EXPORT_.*", ".*_WITH_AES_.*",
-            ".*_WITH_3DES_.*"};
 
-    private static final String[] SSL_DISALLOWED_ALGORITHMS = {".*_WITH_NULL_.*", ".*_DH_anon_.*"};
+    private List<String> getSslAllowedAlgorithms() {
+        return stringToArray(System.getProperty("org.apache.cxf.configuration.jsse.sslAllowedAlgorithms"));
+    }
+
+    static List<String> getSslDisallowedAlgorithms() {
+        return stringToArray(System.getProperty("org.apache.cxf.configuration.jsse.sslDisallowedAlgorithms"));
+    }
+
+    static List<String> stringToArray(String commaDelimitedString) {
+        return Arrays.asList(commaDelimitedString.split("\\s*,\\s"));
+
+    }
 
     private static final Splitter SPLITTER = Splitter.on(',').trimResults().omitEmptyStrings();
 
@@ -369,7 +378,7 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
                 LOGGER.debug("Loading trustStore");
                 trustStore.load(fis, trustStorePassword.toCharArray());
                 TrustManagerFactory trustFactory = TrustManagerFactory
-                        .getInstance(TrustManagerFactory.getDefaultAlgorithm());
+                        .getInstance(System.getProperty("javax.net.ssl.trustManagerAlgorithm"));
                 trustFactory.init(trustStore);
                 LOGGER.debug("trust manager factory initialized");
                 TrustManager[] tm = trustFactory.getTrustManagers();
@@ -412,7 +421,7 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
                 keyStore.load(fis, keyStorePassword.toCharArray());
 
                 KeyManagerFactory keyFactory = KeyManagerFactory
-                        .getInstance(KeyManagerFactory.getDefaultAlgorithm());
+                        .getInstance(System.getProperty("javax.net.ssl.keyManagerAlgorithm"));
                 keyFactory.init(keyStore, keyStorePassword.toCharArray());
                 LOGGER.debug("key manager factory initialized");
                 KeyManager[] km = keyFactory.getKeyManagers();
@@ -444,8 +453,8 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
     private void setupCipherSuiteFilters(TLSClientParameters tlsParams) {
         // this sets the algorithms that we accept for SSL
         FiltersType filter = new FiltersType();
-        filter.getInclude().addAll(Arrays.asList(SSL_ALLOWED_ALGORITHMS));
-        filter.getExclude().addAll(Arrays.asList(SSL_DISALLOWED_ALGORITHMS));
+        filter.getInclude().addAll(getSslAllowedAlgorithms());
+        filter.getExclude().addAll(getSslDisallowedAlgorithms());
         tlsParams.setCipherSuitesFilter(filter);
     }
 
