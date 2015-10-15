@@ -13,16 +13,7 @@
  */
 package org.codice.ddf.security.handler.pki;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.security.cert.CRL;
-import java.security.cert.CRLException;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.util.Properties;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -31,7 +22,6 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.wss4j.common.crypto.Merlin;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
@@ -40,24 +30,19 @@ import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.security.PropertiesLoader;
-import ddf.security.common.audit.SecurityLogger;
-
 public abstract class AbstractPKIHandler implements AuthenticationHandler {
 
     public static final String SOURCE = "PKIHandler";
 
-    public static final String CRL_PROPERTY_KEY = Merlin.OLD_PREFIX + Merlin.X509_CRL_FILE;
-
     protected static final Logger LOGGER = LoggerFactory.getLogger(AbstractPKIHandler.class);
-
-    private static String encryptionPropertiesLocation = "etc/ws-security/server/encryption.properties";
 
     protected PKIAuthenticationTokenFactory tokenFactory;
 
-    private boolean isEnabled = false;
+    protected CrlChecker crlChecker;
 
-    private CRL crl;
+    public AbstractPKIHandler() {
+        crlChecker = new CrlChecker();
+    }
 
     @Override
     public abstract String getAuthenticationType();
@@ -97,7 +82,7 @@ public abstract class AbstractPKIHandler implements AuthenticationHandler {
                 (HttpServletResponse) response :
                 null;
 
-        // Somehow the httpResponse was null, return no action and try to process with other handlers
+        // The httpResponse was null, return no action and try to process with other handlers
         if (httpResponse == null) {
             LOGGER.error("HTTP Response was null for request {}", path);
             return handlerResult;
@@ -108,46 +93,8 @@ public abstract class AbstractPKIHandler implements AuthenticationHandler {
             return handlerResult;
         }
 
-        Properties encryptionProperties = loadProperties(encryptionPropertiesLocation);
-        setCrlLocation(encryptionProperties.getProperty(CRL_PROPERTY_KEY));
-        // No CRL was specified, or there was an error reading
-        if (crl == null) {
-            handlerResult.setToken(token);
-            handlerResult.setStatus(HandlerResult.Status.COMPLETED);
-            return handlerResult;
-        }
-
         // CRL was specified, check against CRL and return the result
-        handlerResult = checkAgainstCRL(httpResponse, token, certs, handlerResult);
-        return handlerResult;
-    }
-
-    /**
-     * Checks the certificates agains the CRL. If it is in the CRL, send a 401 error and return a HandlerResult with
-     * the status of REDIRECTED. Otherwise, set appropriate tokens on the HandlerResult and return with status of COMPLETED
-     *
-     * @param httpResponse  HttpServletResponse to send 401 error if needed
-     * @param token         BaseAuthenticationToken containing the auth data to be attached to the HandlerResult if it passes the CRL
-     * @param certs         Certificates extracted from the request to check against the CRL
-     * @param handlerResult HandlerResult to modify and return
-     * @return returns the modified handler result. REDIRECTED status if it failed the CRL check or COMPLETED if it passed
-     */
-    public HandlerResult checkAgainstCRL(HttpServletResponse httpResponse,
-            BaseAuthenticationToken token, X509Certificate[] certs, HandlerResult handlerResult) {
-        if (passesCRL(certs)) {
-            handlerResult.setToken(token);
-            handlerResult.setStatus(HandlerResult.Status.COMPLETED);
-        } else {
-            // cert is present and in the CRL list - set handlerResult to REDIRECTED and return 401
-            handlerResult.setStatus(HandlerResult.Status.REDIRECTED);
-            try {
-                httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-                httpResponse.flushBuffer();
-            } catch (IOException e) {
-                LOGGER.debug("Unable to send 401 response to client.");
-            }
-        }
+        handlerResult = crlChecker.check(httpResponse, token, certs, handlerResult);
         return handlerResult;
     }
 
@@ -161,40 +108,6 @@ public abstract class AbstractPKIHandler implements AuthenticationHandler {
         return result;
     }
 
-    /**
-     * Checks if the provided cert is listed in the CRL.
-     *
-     * @param certs
-     * @return boolean value
-     */
-    public boolean passesCRL(X509Certificate[] certs) {
-        if (certs != null) {
-            if (crl != null && isEnabled) {
-                LOGGER.debug("Got {} certificate(s) in the incoming request", certs.length);
-                for (X509Certificate curCert : certs) {
-                    if (crl.isRevoked(curCert)) {
-                        SecurityLogger.logInfo("Denying access for user" + curCert.getSubjectDN()
-                                + " due to certificate being revoked by CRL.");
-                        LOGGER.warn(
-                                "Denying access for user {} due to certificate being revoked by CRL.",
-                                curCert.getSubjectDN());
-                        return false;
-                    }
-                }
-            } else {
-                String errorMsg = "The CRL check passed because CRL is disabled. Check that your properties and CRL file are correct if revocation is needed.";
-                SecurityLogger.logInfo(errorMsg);
-                LOGGER.warn(errorMsg);
-                return true;
-            }
-        } else {
-            LOGGER.debug(
-                    "Allowing message through CRL check. There were no certificates sent by the client.");
-            return true;
-        }
-        return true;
-    }
-
     protected abstract BaseAuthenticationToken extractAuthenticationInfo(String realm,
             X509Certificate[] certs);
 
@@ -202,89 +115,4 @@ public abstract class AbstractPKIHandler implements AuthenticationHandler {
         tokenFactory = factory;
     }
 
-    /**
-     * Sets the location of the CRL. Enables CRL checking if property is set, disables it otherwise
-     *
-     * @param location Location of the DER-encoded CRL file that should be used to
-     *                 check certificate revocation.
-     */
-    public synchronized void setCrlLocation(String location) {
-        if (location == null) {
-            LOGGER.warn("CRL property in [{}] is not set. Certs will not be checked against a CRL.",
-                    encryptionPropertiesLocation);
-            setIsEnabled(false);
-            return;
-        }
-
-        crl = null;
-        try {
-            crl = createCRL(location);
-            if (crl == null) {
-                setIsEnabled(false);
-            } else {
-                setIsEnabled(true);
-            }
-        } catch (FileNotFoundException fnfe) {
-            LOGGER.error("Could not find CRL file, cannot validate certificates to a CRL.", fnfe);
-        } catch (CertificateException ce) {
-            LOGGER.error(
-                    "Encountered an error while trying to create new certificate factory. Cannot validate certificates to a CRL.",
-                    ce);
-        } catch (CRLException ce) {
-            LOGGER.error(
-                    "Could not create new CRL from the provided file. File may not be valid CRL DER-encoded file.",
-                    ce);
-        }
-    }
-
-    /**
-     * Generates a new CRL object from the given location.
-     *
-     * @param location File location of the CRL file.
-     * @return new CRL object
-     * @throws FileNotFoundException If no file is located at the location
-     * @throws CertificateException  If the Certificate factory cannot be located
-     * @throws CRLException          If the input CRL file is invalid and cannot be used to
-     *                               generate a crl object.
-     */
-    private CRL createCRL(String location)
-            throws FileNotFoundException, CertificateException, CRLException {
-        try (FileInputStream fis = new FileInputStream(new File(location))) {
-            CertificateFactory cf = CertificateFactory.getInstance("X.509");
-            return cf.generateCRL(fis);
-        } catch (IOException e) {
-            LOGGER.error("An error occurred while accessing {}", location, e);
-            return null;
-        }
-    }
-
-    /**
-     * For unit tests
-     *
-     * @return boolean isEnabled
-     */
-    boolean getIsEnabled() {
-        return isEnabled;
-    }
-
-    /**
-     * Sets the isEnabled flag for the CRL checker which determines if the
-     * handler should check the incoming request to the specified CRL.
-     *
-     * @param isEnabled boolean value that either turns on crl checking (true) or
-     *                  turns off checking (false).
-     */
-    private void setIsEnabled(boolean isEnabled) {
-        this.isEnabled = isEnabled;
-    }
-
-    /**
-     * Abstracted for unit tests
-     *
-     * @param location location of properties file
-     * @return Properties from
-     */
-    Properties loadProperties(String location) {
-        return PropertiesLoader.loadProperties(location);
-    }
 }
