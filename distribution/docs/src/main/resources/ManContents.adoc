@@ -3154,7 +3154,7 @@ Configuration management includes configuring {branding} to use existing certifi
 ====== Enable Revocation
 [NOTE]
 ====
-Enabling CRL revocation will require a restart of {BRANDING}.
+Enabling CRL revocation or modifying the CRL file will require a restart of {BRANDING} to apply updates.
 ====
 
 . Place the CRL in `<ddf.home>/etc/keystores`.
@@ -3166,7 +3166,7 @@ Uncommenting this property will also enable CRL revocation for any context polic
 ====== Disable Revocation
 [NOTE]
 ======
-Disabling CRL revocation will require a restart of {BRANDING}.
+Disabling CRL revocation or modifying the CRL file will require a restart of {BRANDING} to apply updates.
 ======
 
 . Comment out the following line in `<ddf.home>/etc/ws-security/server/encryption.properties`. +
@@ -3185,7 +3185,7 @@ With anonymous access, a user with a revoked cert will be given a 401 error, but
 
 [NOTE]
 ======
-Restarting {BRANDING} is not required if the CRL is edited. The only time restarting is required is if CRL property in `encryption.properties` is modified. For example, when enabling or disabling CRL revocation or if moving or renaming the CRL file.
+Disabling or enabling CRL revocation or modifying the CRL file will require a restart of {BRANDING} to apply updates. If CRL checking is already enabled, adding a new context via the Web Context Policy Manager will not require a restart.
 ======
 
 ====== Add Revocation to a New Endpoint
