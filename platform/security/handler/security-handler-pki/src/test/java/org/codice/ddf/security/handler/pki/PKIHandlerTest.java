@@ -14,10 +14,9 @@
 package org.codice.ddf.security.handler.pki;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -76,8 +75,8 @@ public class PKIHandlerTest {
             HandlerResult result = null;
             result = handler.getNormalizedToken(request, response, chain, true);
 
-            assertNotNull(result);
-            assertEquals(HandlerResult.Status.COMPLETED, result.getStatus());
+            assertThat(result, is(notNullValue()));
+            assertThat(HandlerResult.Status.COMPLETED, equalTo(result.getStatus()));
         }
     }
 
@@ -106,8 +105,8 @@ public class PKIHandlerTest {
         HandlerResult result = null;
         result = handler.getNormalizedToken(request, response, chain, true);
 
-        assertNotNull(result);
-        assertEquals(HandlerResult.Status.NO_ACTION, result.getStatus());
+        assertThat(result, is(notNullValue()));
+        assertThat(HandlerResult.Status.NO_ACTION, equalTo(result.getStatus()));
     }
 
     /**
@@ -135,8 +134,8 @@ public class PKIHandlerTest {
         HandlerResult result = null;
         result = handler.getNormalizedToken(request, response, chain, true);
 
-        assertNotNull(result);
-        assertEquals(HandlerResult.Status.NO_ACTION, result.getStatus());
+        assertThat(result, is(notNullValue()));
+        assertThat(HandlerResult.Status.NO_ACTION, equalTo(result.getStatus()));
     }
 
     /**
@@ -307,6 +306,39 @@ public class PKIHandlerTest {
         assertThat(handler.passesCRL(certs), is(true));
     }
 
+    @Test
+    public void testCertPassesCRLCheckWhenADifferentCertIsInCRL()
+            throws java.security.cert.CertificateException, ServletException {
+
+        PKIHandler handler = configurePKIHandlerWithCRL("signature.properties",
+                "encryption-crl-revoked.properties");
+
+        String certificateString =
+                "MIIC5DCCAk2gAwIBAgIJAKj7ROPHjo1yMA0GCSqGSIb3DQEBCwUAMIGKMQswCQYDVQQGEwJVUzEQ"
+                        + "MA4GA1UECAwHQXJpem9uYTERMA8GA1UEBwwIR29vZHllYXIxGDAWBgNVBAoMD0xvY2toZWVkIE1h"
+                        + "cnRpbjENMAsGA1UECwwESTRDRTEPMA0GA1UEAwwGY2xpZW50MRwwGgYJKoZIhvcNAQkBFg1pNGNl"
+                        + "QGxtY28uY29tMB4XDTEyMDYyMDE5NDMwOVoXDTIyMDYxODE5NDMwOVowgYoxCzAJBgNVBAYTAlVT"
+                        + "MRAwDgYDVQQIDAdBcml6b25hMREwDwYDVQQHDAhHb29keWVhcjEYMBYGA1UECgwPTG9ja2hlZWQg"
+                        + "TWFydGluMQ0wCwYDVQQLDARJNENFMQ8wDQYDVQQDDAZjbGllbnQxHDAaBgkqhkiG9w0BCQEWDWk0"
+                        + "Y2VAbG1jby5jb20wgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAIpHxCBLYE7xfDLcITS9SsPG"
+                        + "4Q04Z6S32/+TriGsRgpGTj/7GuMG7oJ98m6Ws5cTYl7nyunyHTkZuP7rBzy4esDIHheyx18EgdSJ"
+                        + "vvACgGVCnEmHndkf9bWUlAOfNaxW+vZwljUkRUVdkhPbPdPwOcMdKg/SsLSNjZfsQIjoWd4rAgMB"
+                        + "AAGjUDBOMB0GA1UdDgQWBBQx11VLtYXLvFGpFdHnhlNW9+lxBDAfBgNVHSMEGDAWgBQx11VLtYXL"
+                        + "vFGpFdHnhlNW9+lxBDAMBgNVHRMEBTADAQH/MA0GCSqGSIb3DQEBCwUAA4GBAHYs2OI0K6yVXzyS"
+                        + "sKcv2fmfw6XCICGTnyA7BOdAjYoqq6wD+33dHJUCFDqye7AWdcivuc7RWJt9jnlfJZKIm2BHcDTR"
+                        + "Hhk6CvjJ14Gf40WQdeMHoX8U8b0diq7Iy5Ravx+zRg7SdiyJUqFYjRh/O5tywXRT1+freI3bwAN0"
+                        + "L6tQ";
+
+        InputStream stream = new ByteArrayInputStream(
+                Base64.decodeBase64(certificateString.getBytes()));
+        CertificateFactory factory = CertificateFactory.getInstance("X.509");
+        X509Certificate cert = (X509Certificate) factory.generateCertificate(stream);
+        X509Certificate[] certs = new X509Certificate[1];
+        certs[0] = cert;
+
+        assertThat(handler.passesCRL(certs), is(true));
+    }
+
     private PKIHandler configurePKIHandlerWithCRL(String signatureProperties,
             String encryptionProperties) {
         PKIHandler handler = new PKIHandler();
@@ -347,3 +379,4 @@ public class PKIHandlerTest {
     }
 
 }
+
