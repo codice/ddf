@@ -386,7 +386,7 @@ public class CswEndpoint implements Csw {
         if (request == null) {
             throw new CswException("GetRecordsType request is null");
         } else {
-            LOGGER.debug("{} attempting to get records.", request.getRequest());
+            LOGGER.debug("{} attempting to get records.", request.getRequestId());
         }
 
         validateOutputFormat(request.getOutputFormat());
