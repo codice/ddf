@@ -70,7 +70,7 @@ public class ConfigurationAdminListener implements ConfigurationListener {
                 fileHandler.delete(pid);
                 break;
             default:
-                LOGGER.info("Unsupported ConfigurationEvent [{}]. No action taken for pid [{}].",
+                LOGGER.debug("Unsupported ConfigurationEvent [{}]. No action taken for pid [{}].",
                         eventType, pid);
             }
         } catch (RuntimeException | IOException e) {
@@ -80,7 +80,7 @@ public class ConfigurationAdminListener implements ConfigurationListener {
     }
 
     /*
-     * Returns configuration information of configAdmin of a given pid and event
+     * Returns the configuration object associated with a specific PID and configuration event.
      */
     private Configuration getConfiguration(String pid, ConfigurationEvent event)
             throws IOException {

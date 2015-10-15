@@ -47,8 +47,8 @@ public interface FileHandler {
             throws ConfigurationFileException, IllegalArgumentException;
 
     /**
-     * Writes the properties associated with a configuration PID. If not configuration existed, a
-     * new file will be created.
+     * Writes the properties associated with a configuration PID. The properties will only be
+     * written if a file existed at startup.
      *
      * @param pid        configuration PID of the properties to write
      * @param properties properties to write
@@ -67,7 +67,7 @@ public interface FileHandler {
     void delete(@NotNull String pid) throws ConfigurationFileException;
 
     /**
-     * Registers a listener that will be called when a file associated with a configuration PID
+     * Registers a listener that will be called when any file associated with a configuration PID
      * changes. Only one listener can be registered at any given time, i.e., calling this method
      * will replace any listener previously registered.
      *

@@ -17,6 +17,7 @@ package org.codice.ddf.configuration.store;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
+import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
 import static org.codice.ddf.configuration.store.ChangeListener.ChangeType.CREATED;
 import static org.codice.ddf.configuration.store.ChangeListener.ChangeType.DELETED;
 import static org.codice.ddf.configuration.store.ChangeListener.ChangeType.UPDATED;
@@ -82,32 +83,34 @@ public class ConfigurationFilesPoller implements Runnable {
                 LOGGER.debug("Key has been signalled.  Looping over events.");
 
                 for (WatchEvent<?> genericEvent : key.pollEvents()) {
-                    String kind = genericEvent.kind().name();
-                    if (kind.equals("OVERFLOW")) {
+                    WatchEvent.Kind<?> kind = genericEvent.kind();
+
+                    if (kind.equals(OVERFLOW)) {
                         LOGGER.debug("Skipping event due to overflow");
                         continue;
                     }
 
-                    String filename = ((WatchEvent<Path>) genericEvent).context().toString();
+                    String filename = genericEvent.context().toString();
 
                     if (!filename.endsWith(fileExtension)) {
                         LOGGER.debug("Skipping event for [{}] due to file extension.", filename);
                         continue;  //just skip to the next event
                     }
+
                     LOGGER.debug("Processing [{}] event for for [{}].", kind, filename);
 
                     String pid = filename.substring(0, filename.lastIndexOf("."));
+
                     try {
-                        switch (kind) {
-                        case "ENTRY_CREATE":
+                        if (kind.equals(ENTRY_CREATE)) {
                             listener.update(pid, CREATED);
-                            break;
-                        case "ENTRY_MODIFY":
+                        } else if (kind.equals(ENTRY_MODIFY)) {
                             listener.update(pid, UPDATED);
-                            break;
-                        case "ENTRY_DELETE":
+                        } else if (kind.equals(ENTRY_DELETE)) {
                             listener.update(pid, DELETED);
-                            break;
+                        } else {
+                            LOGGER.warn("Received unknown WatchEvent kind [{}], ignoring",
+                                    kind.name());
                         }
                     } catch (RuntimeException e) {
                         LOGGER.error(

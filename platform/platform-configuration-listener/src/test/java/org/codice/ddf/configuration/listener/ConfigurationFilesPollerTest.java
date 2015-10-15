@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -14,16 +14,13 @@
 
 package org.codice.ddf.configuration.listener;
 
-import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
-import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
-import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
-import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.nio.file.Path;
+import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchEvent.Kind;
 import java.nio.file.WatchKey;
@@ -51,8 +48,8 @@ public class ConfigurationFilesPollerTest {
     public void testRunFileModified() throws Exception {
         // Setup
         Path mockPath = getMockPath(PID, FILE_EXT);
-        Kind<?> mockKind = getMockKind(ENTRY_MODIFY.toString());
-        WatchEvent<?> mockWatchEvent = getMockWatchEvent(mockPath, mockKind);
+        WatchEvent<?> mockWatchEvent = getMockWatchEvent(mockPath,
+                StandardWatchEventKinds.ENTRY_MODIFY);
         List<WatchEvent<?>> watchEvents = getSingleMockWatchEvent(mockWatchEvent);
         WatchKey mockWatchKey = getMockWatchKey(watchEvents);
         WatchService mockWatchService = getMockWatchService(mockWatchKey);
@@ -74,8 +71,8 @@ public class ConfigurationFilesPollerTest {
     @Test
     public void testRunOverflow() throws Exception {
         // Setup
-        Kind<?> mockKind = getMockKind(OVERFLOW.toString());
-        WatchEvent<?> mockWatchEvent = getMockWatchEvent(new Object(), mockKind);
+        WatchEvent<?> mockWatchEvent = getMockWatchEvent(new Object(),
+                StandardWatchEventKinds.OVERFLOW);
         List<WatchEvent<?>> watchEvents = getSingleMockWatchEvent(mockWatchEvent);
         WatchKey mockWatchKey = getMockWatchKey(watchEvents);
         WatchService mockWatchService = getMockWatchService(mockWatchKey);
@@ -98,8 +95,8 @@ public class ConfigurationFilesPollerTest {
     public void testRunFileCreated() throws Exception {
         // Setup
         Path mockPath = getMockPath(PID, FILE_EXT);
-        Kind<?> mockKind = getMockKind(ENTRY_CREATE.toString());
-        WatchEvent<?> mockWatchEvent = getMockWatchEvent(mockPath, mockKind);
+        WatchEvent<?> mockWatchEvent = getMockWatchEvent(mockPath,
+                StandardWatchEventKinds.ENTRY_CREATE);
         List<WatchEvent<?>> watchEvents = getSingleMockWatchEvent(mockWatchEvent);
         WatchKey mockWatchKey = getMockWatchKey(watchEvents);
         WatchService mockWatchService = getMockWatchService(mockWatchKey);
@@ -122,8 +119,8 @@ public class ConfigurationFilesPollerTest {
     public void testRunFileDeleted() throws Exception {
         // Setup
         Path mockPath = getMockPath(PID, FILE_EXT);
-        Kind<?> mockKind = getMockKind(ENTRY_DELETE.toString());
-        WatchEvent<?> mockWatchEvent = getMockWatchEvent(mockPath, mockKind);
+        WatchEvent<?> mockWatchEvent = getMockWatchEvent(mockPath,
+                StandardWatchEventKinds.ENTRY_DELETE);
         List<WatchEvent<?>> watchEvents = getSingleMockWatchEvent(mockWatchEvent);
         WatchKey mockWatchKey = getMockWatchKey(watchEvents);
         WatchService mockWatchService = getMockWatchService(mockWatchKey);
@@ -141,13 +138,13 @@ public class ConfigurationFilesPollerTest {
         // Verify
         verify(mockChangeListener).update(PID, ChangeListener.ChangeType.DELETED);
     }
-    
+
     @Test
     public void testDestroyShutsdownAfterFirstAwaitTermination() throws Exception {
         // Setup
         Path mockPath = getMockPath(PID, FILE_EXT);
-        Kind<?> mockKind = getMockKind(ENTRY_DELETE.toString());
-        WatchEvent<?> mockWatchEvent = getMockWatchEvent(mockPath, mockKind);
+        WatchEvent<?> mockWatchEvent = getMockWatchEvent(mockPath,
+                StandardWatchEventKinds.ENTRY_DELETE);
         List<WatchEvent<?>> watchEvents = getSingleMockWatchEvent(mockWatchEvent);
         WatchKey mockWatchKey = getMockWatchKey(watchEvents);
         WatchService mockWatchService = getMockWatchService(mockWatchKey);
@@ -171,8 +168,8 @@ public class ConfigurationFilesPollerTest {
     public void testDestroyShutsdownAfterSecondAwaitTermination() throws Exception {
         // Setup
         Path mockPath = getMockPath(PID, FILE_EXT);
-        Kind<?> mockKind = getMockKind(ENTRY_DELETE.toString());
-        WatchEvent<?> mockWatchEvent = getMockWatchEvent(mockPath, mockKind);
+        WatchEvent<?> mockWatchEvent = getMockWatchEvent(mockPath,
+                StandardWatchEventKinds.ENTRY_DELETE);
         List<WatchEvent<?>> watchEvents = getSingleMockWatchEvent(mockWatchEvent);
         WatchKey mockWatchKey = getMockWatchKey(watchEvents);
         WatchService mockWatchService = getMockWatchService(mockWatchKey);
@@ -197,8 +194,8 @@ public class ConfigurationFilesPollerTest {
     public void testDestroyFailsToShutdownAfterSecondAwaitTermination() throws Exception {
         // Setup
         Path mockPath = getMockPath(PID, FILE_EXT);
-        Kind<?> mockKind = getMockKind(ENTRY_DELETE.toString());
-        WatchEvent<?> mockWatchEvent = getMockWatchEvent(mockPath, mockKind);
+        WatchEvent<?> mockWatchEvent = getMockWatchEvent(mockPath,
+                StandardWatchEventKinds.ENTRY_DELETE);
         List<WatchEvent<?>> watchEvents = getSingleMockWatchEvent(mockWatchEvent);
         WatchKey mockWatchKey = getMockWatchKey(watchEvents);
         WatchService mockWatchService = getMockWatchService(mockWatchKey);
@@ -223,8 +220,8 @@ public class ConfigurationFilesPollerTest {
     public void testRunInvalidFileExtension() throws Exception {
         // Setup
         Path mockPath = getMockPath(PID, INVALID_FILE_EXT);
-        Kind<?> mockKind = getMockKind(ENTRY_MODIFY.toString());
-        WatchEvent<?> mockWatchEvent = getMockWatchEvent(mockPath, mockKind);
+        WatchEvent<?> mockWatchEvent = getMockWatchEvent(mockPath,
+                StandardWatchEventKinds.ENTRY_MODIFY);
         List<WatchEvent<?>> watchEvents = getSingleMockWatchEvent(mockWatchEvent);
         WatchKey mockWatchKey = getMockWatchKey(watchEvents);
         WatchService mockWatchService = getMockWatchService(mockWatchKey);
@@ -247,12 +244,6 @@ public class ConfigurationFilesPollerTest {
         Path mockPath = mock(Path.class);
         when(mockPath.toString()).thenReturn(baseFileName + extension);
         return mockPath;
-    }
-
-    private Kind<?> getMockKind(String kindName) {
-        Kind<?> mockKind = mock(Kind.class);
-        when(mockKind.name()).thenReturn(kindName);
-        return mockKind;
     }
 
     private <T> WatchEvent<?> getMockWatchEvent(T mockPath, Kind<?> mockKind) {
