@@ -655,7 +655,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         final String TMP_PREFIX = "tcdm_";
         Path tmpDir = Files.createTempDirectory(TMP_PREFIX);
         tmpDir.toFile().deleteOnExit();
-        Path tmpFile = Files.createTempFile(tmpDir, TMP_PREFIX, "_tmp.xml");
+        Path tmpFile = Files.createTempFile(tmpDir, TMP_PREFIX, ".xml");
         tmpFile.toFile().deleteOnExit();
         Files.copy(this.getClass().getClassLoader().getResourceAsStream("metacard5.xml"), tmpFile,
                 StandardCopyOption.REPLACE_EXISTING);
@@ -681,7 +681,7 @@ public class TestCatalog extends AbstractIntegrationTest {
             }
         } while (TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime) < TimeUnit.MINUTES
                 .toMillis(1));
-        response.body("metcards.metacard.size()", equalTo(1));
+        response.body("metacards.metacard.size()", equalTo(1));
     }
 
     @Test
