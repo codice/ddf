@@ -18,13 +18,12 @@ define([
     'marionette',
     'icanhaz',
     'underscore',
-    'jquery',
     'backbone',
     'text!templates/installer/configuration.handlebars',
     'modelbinder',
     'perfectscrollbar',
     'multiselect'
-    ], function (Marionette, ich, _, $, Backbone, configurationTemplate) {
+    ], function (Marionette, ich, _, Backbone, configurationTemplate) {
 
     ich.addTemplate('configurationTemplate', configurationTemplate);
 
