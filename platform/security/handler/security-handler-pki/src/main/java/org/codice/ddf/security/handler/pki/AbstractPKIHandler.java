@@ -31,6 +31,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.wss4j.common.crypto.Merlin;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
@@ -46,7 +47,7 @@ public abstract class AbstractPKIHandler implements AuthenticationHandler {
 
     public static final String SOURCE = "PKIHandler";
 
-    public static final String CRL_PROPERTY_KEY = "org.apache.ws.security.crypto.merlin.x509crl.file";
+    public static final String CRL_PROPERTY_KEY = Merlin.OLD_PREFIX + Merlin.X509_CRL_FILE;
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(AbstractPKIHandler.class);
 
@@ -126,7 +127,7 @@ public abstract class AbstractPKIHandler implements AuthenticationHandler {
      * the status of REDIRECTED. Otherwise, set appropriate tokens on the HandlerResult and return with status of COMPLETED
      *
      * @param httpResponse  HttpServletResponse to send 401 error if needed
-     * @param token         BaseAuthenticationToken containing the auth data to attached to the HandlerResult if it passes the CRL
+     * @param token         BaseAuthenticationToken containing the auth data to be attached to the HandlerResult if it passes the CRL
      * @param certs         Certificates extracted from the request to check against the CRL
      * @param handlerResult HandlerResult to modify and return
      * @return returns the modified handler result. REDIRECTED status if it failed the CRL check or COMPLETED if it passed
@@ -254,7 +255,7 @@ public abstract class AbstractPKIHandler implements AuthenticationHandler {
      *
      * @return boolean isEnabled
      */
-    public boolean getIsEnabled() {
+    boolean getIsEnabled() {
         return isEnabled;
     }
 
@@ -275,7 +276,7 @@ public abstract class AbstractPKIHandler implements AuthenticationHandler {
      * @param location location of properties file
      * @return Properties from
      */
-    public Properties loadProperties(String location) {
+    Properties loadProperties(String location) {
         return PropertiesLoader.loadProperties(location);
     }
 }
