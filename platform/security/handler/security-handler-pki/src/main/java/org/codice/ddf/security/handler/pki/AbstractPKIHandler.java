@@ -99,7 +99,7 @@ public abstract class AbstractPKIHandler implements AuthenticationHandler {
 
         // Somehow the httpResponse was null, return no action and try to process with other handlers
         if (httpResponse == null) {
-            LOGGER.error("Somehow the httpResponse was null");
+            LOGGER.error("HTTP Response was null for request {}", path);
             return handlerResult;
         }
 
@@ -219,7 +219,11 @@ public abstract class AbstractPKIHandler implements AuthenticationHandler {
         crl = null;
         try {
             crl = createCRL(location);
-            setIsEnabled(true);
+            if (crl == null) {
+                setIsEnabled(false);
+            } else {
+                setIsEnabled(true);
+            }
         } catch (FileNotFoundException fnfe) {
             LOGGER.error("Could not find CRL file, cannot validate certificates to a CRL.", fnfe);
         } catch (CertificateException ce) {
@@ -245,9 +249,13 @@ public abstract class AbstractPKIHandler implements AuthenticationHandler {
      */
     private CRL createCRL(String location)
             throws FileNotFoundException, CertificateException, CRLException {
-        FileInputStream fis = new FileInputStream(new File(location));
-        CertificateFactory cf = CertificateFactory.getInstance("X.509");
-        return cf.generateCRL(fis);
+        try (FileInputStream fis = new FileInputStream(new File(location))) {
+            CertificateFactory cf = CertificateFactory.getInstance("X.509");
+            return cf.generateCRL(fis);
+        } catch (IOException e) {
+            LOGGER.error("An error occurred while accessing {}", location, e);
+            return null;
+        }
     }
 
     /**
