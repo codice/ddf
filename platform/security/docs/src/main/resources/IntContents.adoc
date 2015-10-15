@@ -1,4 +1,4 @@
-= 
+
 == Overview
 
 The Security application provides authentication, authorization, and auditing services for the DDF. They comprise both a framework that developers and integrators can extend and a reference implementation that meets security requirements. More information about the security framework and how everything works as a single security solution can be found on the Managing Web Service Security page.
