@@ -44,7 +44,7 @@ public class ConfigurationPropertiesComparator {
             return false;
         }
 
-        for (Enumeration<String> keys = configProperties1.keys(); keys.hasMoreElements(); ) {
+        for (Enumeration<String> keys = configProperties1.keys(); keys.hasMoreElements();) {
             String key = keys.nextElement();
             Object value1 = configProperties1.get(key);
             Object value2 = configProperties2.get(key);

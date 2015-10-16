@@ -27,7 +27,7 @@ public class ConfigurationPropertiesComparatorTest {
     private ConfigurationPropertiesComparator configurationPropertiesComparator;
 
     @Before
-    public void setup() {
+    public void setUp() {
         configurationPropertiesComparator = new ConfigurationPropertiesComparator();
     }
 
