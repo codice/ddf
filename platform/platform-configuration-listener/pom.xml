@@ -86,7 +86,7 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Dependency>commons-lang,validation-api</Embed-Dependency>
+                        <Embed-Dependency>commons-lang,validation-api,guava</Embed-Dependency>
                     </instructions>
                 </configuration>
             </plugin>
