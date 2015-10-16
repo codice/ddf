@@ -50,27 +50,27 @@ public class PolicyManagerTest {
 
     private PolicyManager rollBackTestManager;
 
-    private String[] rollBackRealmValues = {
+    private String[] rollBackRealmValues = new String[] {
             "/=" + DEFAULT_REALM_CONTEXT_VALUE,
             "/A=a",
             "/A/B/C/testContext4=abcTestContext4",
             "/testContext5=karaf",
             "/1/2/3/testContext6=" + DEFAULT_REALM_CONTEXT_VALUE,
-            "/A/B/C/testContext7=" + DEFAULT_REALM_CONTEXT_VALUE, };
+            "/A/B/C/testContext7=" + DEFAULT_REALM_CONTEXT_VALUE };
 
-    private String[] rollBackAuthTypesValues = {
-            "/=SAML|ANON",
-            "/A=a",
-            "/A/B/C/testContext4=abcTestContext4" };
+    private String rollBackAuthTypesValues =
+            "/=SAML|ANON,"
+            + "/A=a,"
+            + "/A/B/C/testContext4=abcTestContext4";
 
-    private String[] rollBackReqAttrValues = {
-            "/=",
-            "/A={A=a}",
-            "/testContext=",
-            "/1/2/3/testContext2=",
-            "/A/B/C/testContext3=",
-            "/A/B/C/testContext4=",
-            "/A/B/C/testContext8={AbcTestContext8=abcTestContext8}" };
+    private String rollBackReqAttrValues =
+            "/=,"
+            + "/A={A=a},"
+            + "/testContext=,"
+            + "/1/2/3/testContext2=,"
+            + "/A/B/C/testContext3=,"
+            + "/A/B/C/testContext4=,"
+            + "/A/B/C/testContext8={AbcTestContext8=abcTestContext8}";
 
     private final Map<String, String> expectedRollBackRealms = new ImmutableMap.Builder<String, String>()
             .put("/testContext", DEFAULT_REALM_CONTEXT_VALUE)
@@ -80,16 +80,16 @@ public class PolicyManagerTest {
 
     private final Map<String, List<String>> expectedRollBackAuthTypes = new ImmutableMap.Builder<String, List<String>>()
             .put("/testContext", DEFAULT_AUTH_TYPES)
-            .put("/1/2/3/testContext2", Arrays.asList("SAML", "ANON"))
-            .put("/A/B/C/testContext3", Arrays.asList("a"))
-            .put("/A/B/C/testContext4", Arrays.asList("abcTestContext4"))
+            .put("/1/2/3/testContext2", Arrays.asList(new String[] {"SAML", "ANON"}))
+            .put("/A/B/C/testContext3", Arrays.asList(new String[] {"a"}))
+            .put("/A/B/C/testContext4", Arrays.asList(new String[] {"abcTestContext4"}))
             .build();
 
     private  final Map<String, List<String>> expectedRollBackReqAttrs = new ImmutableMap.Builder<String, List<String>>()
             .put("/testContext5", Arrays.asList(new String[] {}))
             .put("/1/2/3/testContext6", Arrays.asList(new String[] {}))
-            .put("/A/B/C/testContext7", Arrays.asList("A"))
-            .put("/A/B/C/testContext8", Arrays.asList("AbcTestContext8"))
+            .put("/A/B/C/testContext7", Arrays.asList(new String[] {"A"}))
+            .put("/A/B/C/testContext8", Arrays.asList(new String[] {"AbcTestContext8"}))
             .build();
 
 
@@ -107,7 +107,7 @@ public class PolicyManagerTest {
         manager.setContextPolicy("/aaa", new Policy("/aaa", null, new ArrayList<String>(), null));
         manager.setContextPolicy("/aaa/aaa", new Policy("/aaa/aaa", null, new ArrayList<String>(), null));
         manager.setContextPolicy("/foo/bar", new Policy("/foo/bar", null, new ArrayList<String>(), null));
-        manager.setWhiteListContexts(Arrays.asList("/foo"));
+        manager.setWhiteListContexts("/foo");
 
         Map<String, Object> contextPolicies = new HashMap<>();
         contextPolicies.put(REALMS, rollBackRealmValues);
@@ -229,30 +229,43 @@ public class PolicyManagerTest {
     @Test
     public void testConfiguration() {
         Map<String, Object> properties = new HashMap<>();
-
-        String[] authTypes = new String[] {"/=SAML|BASIC", "/search=SAML|BASIC|ANON", "/admin=SAML|BASIC", "/foo=BASIC",
-                "/blah=ANON", "/bleh=ANON", "/unprotected=", "/unprotected2="};
-        String[] requiredAttributes = new String[] {"/={}", "/blah=", "/search={role=user;control=foo;control=bar}",
-                "/admin={role=admin}"};
-
         properties.put("authenticationTypes",
-                authTypes);
+                "/=SAML|BASIC,/search=SAML|BASIC|ANON,/admin=SAML|BASIC,/foo=BASIC,/blah=ANON,/bleh=ANON,/unprotected=,/unprotected2=");
         properties.put("requiredAttributes",
-                requiredAttributes);
+                "/={},/blah=,/search={role=user;control=foo;control=bar},/admin={role=admin}");
         manager.setPolicies(properties);
         testAllPolicies();
     }
 
     @Test
-    public void testSetPropertiesIgnoresNullMap() {
-        String[] authTypes = new String[] {"/=SAML|BASIC", "/search=SAML|BASIC|ANON", "/admin=SAML|BASIC",
-                "/foo=BASIC", "/blah=ANON", "/unprotected=", "/unprotected2=", "/bleh=ANON"};
-        String[] requiredAttributes = new String[] {"/={}", "/search={role=user;control=foo;control=bar}",
-                "/admin={role=admin|supervisor}"};
+    public void testMangledConfiguration() {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("authenticationTypes", new String[] {
+                "/=SAML|BASIC,/search=SAML|BASIC|ANON,/admin=SAML|BASIC,/foo=BASIC,/blah=ANON",
+                "/unprotected=,/unprotected2=", "/bleh=ANON"});
+        properties.put("requiredAttributes",
+                new String[] {"/={},/blah=,/search={role=user;control=foo;control=bar}",
+                        "/admin={role=admin|supervisor}"});
+        manager.setPolicies(properties);
+        testAllPolicies();
+    }
+
+    @Test
+    public void testConfigureAfterSettingIndividualPropertiesAsStrings() {
         manager.setAuthenticationTypes(
-                Arrays.asList(authTypes));
+                "/=SAML|BASIC,/search=SAML|BASIC|ANON,/admin=SAML|BASIC,/foo=BASIC,/blah=ANON,/unprotected=,/unprotected2=,/bleh=ANON");
         manager.setRequiredAttributes(
-                Arrays.asList(requiredAttributes));
+                "/={},/blah=,/search={role=user;control=foo;control=bar},/admin={role=admin|supervisor}");
+        manager.configure();
+        testAllPolicies();
+    }
+
+    @Test
+    public void testSetPropertiesIgnoresNullMap() {
+        manager.setAuthenticationTypes(
+                "/=SAML|BASIC,/search=SAML|BASIC|ANON,/admin=SAML|BASIC,/foo=BASIC,/blah=ANON,/unprotected=,/unprotected2=,/bleh=ANON");
+        manager.setRequiredAttributes(
+                "/={},/blah=,/search={role=user;control=foo;control=bar},/admin={role=admin|supervisor}");
         manager.configure();
         manager.setPolicies(null);
         testAllPolicies();

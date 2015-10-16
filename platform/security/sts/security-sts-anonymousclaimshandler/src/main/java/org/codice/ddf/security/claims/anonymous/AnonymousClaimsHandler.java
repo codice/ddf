@@ -52,11 +52,7 @@ public class AnonymousClaimsHandler implements ClaimsHandler, RealmSupport {
     public void setAttributes(List<String> attributes) {
         if (attributes != null) {
             LOGGER.debug("Attribute value list was set.");
-            List<String> attrs = new ArrayList<>(attributes.size());
-            for (String attr : attributes) {
-                attrs.add(attr);
-            }
-            initClaimsMap(attrs);
+            initClaimsMap(attributes);
         } else {
             LOGGER.warn("Set attribute value list was null");
         }
