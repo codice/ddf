@@ -91,14 +91,18 @@ public class IdpHandler implements AuthenticationHandler {
 
     private final SystemBaseUrl baseUrl;
 
-    public IdpHandler(SimpleSign simpleSign, IdpMetadata metadata, SystemBaseUrl baseUrl)
-            throws IOException {
+    private final RelayStates relayStates;
+
+    public IdpHandler(SimpleSign simpleSign, IdpMetadata metadata, SystemBaseUrl baseUrl,
+            RelayStates relayStates) throws IOException {
         LOGGER.debug("Creating IdP handler.");
 
         this.simpleSign = simpleSign;
         idpMetadata = metadata;
 
         this.baseUrl = baseUrl;
+
+        this.relayStates = relayStates;
 
         postBindingTemplate = IOUtils
                 .toString(IdpHandler.class.getResourceAsStream("/post-binding.html"));
@@ -247,11 +251,7 @@ public class IdpHandler implements AuthenticationHandler {
     }
 
     private String createRelayState(HttpServletRequest request) {
-        String requestUrl = recreateFullRequestUrl(request);
-        if (requestUrl.length() > 80) {
-            LOGGER.warn("AuthN relay state exceeds 80 characters: {}", requestUrl);
-        }
-        return requestUrl;
+        return relayStates.encode(recreateFullRequestUrl(request));
     }
 
     private String encodeRedirectRequest(String request) throws WSSecurityException, IOException {

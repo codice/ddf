@@ -41,12 +41,15 @@
         <argument ref="crypto" />
     </bean>
 
+    <bean id="relayStates" class="org.codice.ddf.security.idp.client.RelayStates" />
+
     <bean id="idpHandler" class="org.codice.ddf.security.idp.client.IdpHandler">
         <cm:managed-properties persistent-id="org.codice.ddf.security.idp.client.IdpHandler"
                                update-strategy="container-managed"/>
         <argument ref="simpleSign" />
         <argument ref="idpMetadata" />
         <argument ref="baseUrl" />
+        <argument ref="relayStates" />
     </bean>
 
     <service ref="idpHandler" interface="org.codice.ddf.security.handler.api.AuthenticationHandler" />
@@ -58,6 +61,7 @@
                 <argument ref="idpMetadata" />
                 <argument ref="crypto" />
                 <argument ref="baseUrl" />
+                <argument ref="relayStates" />
                 <property name="loginFilter">
                     <reference interface="javax.servlet.Filter"
                                filter="(filter-name=login-filter)"/>

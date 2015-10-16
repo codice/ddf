@@ -85,6 +85,8 @@ public class AssertionConsumerService {
 
     private final SystemBaseUrl baseUrl;
 
+    private final RelayStates relayStates;
+
     @Context
     private HttpServletRequest request;
 
@@ -93,11 +95,12 @@ public class AssertionConsumerService {
     private SystemCrypto systemCrypto;
 
     public AssertionConsumerService(SimpleSign simpleSign, IdpMetadata metadata,
-            SystemCrypto crypto, SystemBaseUrl systemBaseUrl) {
+            SystemCrypto crypto, SystemBaseUrl systemBaseUrl, RelayStates relayStates) {
         this.simpleSign = simpleSign;
         idpMetadata = metadata;
         systemCrypto = crypto;
         baseUrl = systemBaseUrl;
+        this.relayStates = relayStates;
     }
 
     @POST
@@ -168,13 +171,19 @@ public class AssertionConsumerService {
                     .entity("AuthN response failed validation.").build();
         }
 
+        String redirectLocation = relayStates.decode(relayState);
+        if (StringUtils.isBlank(redirectLocation)) {
+            return Response.serverError()
+                    .entity("AuthN response returned unknown or expired relay state.").build();
+        }
+
         if (!login(samlResponse)) {
             return Response.serverError().entity(UNABLE_TO_LOGIN).build();
         }
 
         URI relayUri;
         try {
-            relayUri = new URI(relayState);
+            relayUri = new URI(redirectLocation);
         } catch (URISyntaxException e) {
             LOGGER.warn("Unable to parse relay state.", e);
             return Response.serverError().entity("Unable to redirect back to original location.")
