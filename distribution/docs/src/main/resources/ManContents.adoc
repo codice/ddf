@@ -1151,6 +1151,38 @@ Be sure to note the port number that replaced 8181 then enter that number in the
 Only root can access ports<1024 on Unix systems. For suggested ways to run {branding} with ports < 1024 see How do I use port 80 as a non-root user?.
 ====
 
+=== Configuring {branding} using Configuration (.config) files
+
+The {branding} can also be configured with configuration (.config) files.
+
+[NOTE]
+====
+This type of configuration file supports lists within configuration values and should be used for any configuration that makes use of lists
+====
+
+When using configuration (.config) files the syntax is the same as the older (.cfg) formated files with the following exceptions
+
+[cols="2" options="header"]
+|===
+
+|Type
+|Format
+
+|Lists
+|authenticationTypes=["/\=SAML\|ANON", "/admin\=SAML\|basic", "/jolokia\=SAML\|basic", "/system\=basic", "/solr\=SAML\|PKI\|basic", "/sources\=SAML\|basic", "/security-config\=SAML\|basic"]
+
+|===
+
+[NOTE]
+====
+The backslashes before the equals signs are generally a good practice in order to avoid running into configuration issues
+====
+
+[WARNING]
+====
+Currently the configuration (.config) file method does not support configuration of ManagedServiceFactories, for safety it is advised that this method is used mainly for configurations that need to contain lists of values
+====
+
 === Enable and Configure HTTP to HTTPS Proxy
 
 
