@@ -17,7 +17,10 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.startsWith;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.xml.HasXPath.hasXPath;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static com.jayway.restassured.RestAssured.delete;
 import static com.jayway.restassured.RestAssured.given;
@@ -32,7 +35,9 @@ import java.nio.file.StandardCopyOption;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 import javax.ws.rs.core.MediaType;
@@ -41,6 +46,10 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.io.IOUtils;
+import org.codice.ddf.persistence.PersistentItem;
+import org.codice.ddf.persistence.PersistentStore;
+import org.json.simple.JSONObject;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.PaxExam;
@@ -49,6 +58,7 @@ import org.ops4j.pax.exam.spi.reactors.PerClass;
 import org.osgi.service.cm.Configuration;
 import org.xml.sax.InputSource;
 
+import com.google.common.collect.Maps;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.response.ValidatableResponse;
 
@@ -411,8 +421,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     }
 
     @Test
-    public void  testCswGetRecordsWithHitsResultType() {
-
+    public void testCswGetRecordsWithHitsResultType() {
 
         Response response = ingestCswRecord();
 
@@ -428,15 +437,16 @@ public class TestCatalog extends AbstractIntegrationTest {
         }
 
         //test with resultType="results" first
-        ValidatableResponse validatableResponse = given().header("Content-Type", MediaType.APPLICATION_XML)
-                    .body(query).post(CSW_PATH).then();
+        ValidatableResponse validatableResponse = given()
+                .header("Content-Type", MediaType.APPLICATION_XML).body(query).post(CSW_PATH)
+                .then();
 
         validatableResponse.body(hasXPath("/GetRecordsResponse/SearchResults/Record"));
 
         //test with resultType="hits"
         query = query.replace("results", "hits");
-        validatableResponse = given().header("Content-Type", MediaType.APPLICATION_XML)
-                .body(query).post(CSW_PATH).then();
+        validatableResponse = given().header("Content-Type", MediaType.APPLICATION_XML).body(query)
+                .post(CSW_PATH).then();
         //assert that no records have been returned
         validatableResponse.body(not(hasXPath("//Record")));
 
@@ -672,6 +682,77 @@ public class TestCatalog extends AbstractIntegrationTest {
         } while (TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime) < TimeUnit.MINUTES
                 .toMillis(1));
         response.body("metcards.metacard.size()", equalTo(1));
+    }
+
+    @Test
+    public void persistObjectToWorkspace() throws Exception {
+        persistToWorkspace(100);
+    }
+
+    @Test
+    @Ignore
+    // Ignored until DDF-1571 is addressed
+    public void persistLargeObjectToWorkspace() throws Exception {
+        persistToWorkspace(40000);
+    }
+
+    private void persistToWorkspace(int size) throws Exception {
+        // Generate very large data block
+        Map<String, String> map = Maps.newHashMap();
+        for (int i = 0; i < size; i++) {
+            map.put("Key-" + i, "Val-" + i);
+        }
+
+        String jsonString = new JSONObject(map).toJSONString();
+
+        final PersistentStore pstore = getServiceManager().getService(PersistentStore.class);
+
+        PersistentItem item = new PersistentItem();
+        item.addIdProperty("itest");
+        item.addProperty("user", "itest");
+        item.addProperty("workspaces_json", jsonString);
+
+        try {
+            assertThat(pstore.get(PersistentStore.WORKSPACE_TYPE), is(empty()));
+            pstore.add(PersistentStore.WORKSPACE_TYPE, item);
+
+            // Wait for the solr core to be spun up and the item to be persisted
+            waitFor(300, "Object not persisted", new Callable<Boolean>() {
+                @Override
+                public Boolean call() throws Exception {
+                    return pstore.get(PersistentStore.WORKSPACE_TYPE).size() == 1;
+                }
+            });
+
+            List<Map<String, Object>> storedWs = pstore
+                    .get(PersistentStore.WORKSPACE_TYPE, "id = 'itest'");
+            assertThat(storedWs, hasSize(1));
+            assertThat(storedWs.get(0).get("user_txt"), is("itest"));
+        } finally {
+            pstore.delete(PersistentStore.WORKSPACE_TYPE, "id = 'itest'");
+            waitFor(300, "Object not removed from persistent store", new Callable<Boolean>() {
+                @Override
+                public Boolean call() throws Exception {
+                    return pstore.get(PersistentStore.WORKSPACE_TYPE).size() == 0;
+                }
+            });
+        }
+    }
+
+    private void waitFor(long secondsToWait, String msg, Callable<Boolean> waitTest)
+            throws Exception {
+        long timeoutLimit = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(secondsToWait);
+        while (true) {
+            if (waitTest.call()) {
+                break;
+            } else {
+                if (System.currentTimeMillis() > timeoutLimit) {
+                    fail(msg);
+                } else {
+                    TimeUnit.SECONDS.sleep(1);
+                }
+            }
+        }
     }
 
     private ValidatableResponse executeOpenSearch(String format, String... query) {
