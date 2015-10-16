@@ -171,7 +171,7 @@ public class PolicyManagerTest {
     @Test
     public void testInvalidEntry() {
         Assert.assertEquals(rollBackTestManager.getContextPolicy("invalidContextPathEntry").getRealm(), PolicyManager.DEFAULT_REALM_CONTEXT_VALUE);
-        Assert.assertEquals(rollBackTestManager.getContextPolicy("invalidContextPathEntry").getAllowedAttributeNames(), Arrays.asList(new String[] {}));
+        Assert.assertEquals(rollBackTestManager.getContextPolicy("invalidContextPathEntry").getAllowedAttributeNames(), Arrays.asList(new String[]{}));
         Assert.assertEquals(rollBackTestManager.getContextPolicy("invalidContextPathEntry").getAuthenticationMethods(), DEFAULT_AUTH_TYPES);
     }
 
@@ -256,6 +256,13 @@ public class PolicyManagerTest {
         manager.configure();
         manager.setPolicies(null);
         testAllPolicies();
+    }
+
+    @Test
+    public void testWhiteListWithProperties() {
+        System.setProperty("org.codice.security.policy.context.test.bar", "/baz");
+        manager.setWhiteListContexts(Arrays.asList("/foo", "${org.codice.security.policy.context.test.bar}"));
+        Assert.assertTrue(manager.getWhiteListContexts().contains("/baz"));
     }
 
     private void testAllPolicies() {

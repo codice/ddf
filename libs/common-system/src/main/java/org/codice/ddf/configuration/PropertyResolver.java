@@ -15,6 +15,9 @@ package org.codice.ddf.configuration;
 
 import org.apache.commons.lang.text.StrSubstitutor;
 
+import java.util.List;
+import java.util.ListIterator;
+
 /**
  * Class holds a string potentially containing variables of the format ${system.prop} and handles
  * resolving those variables by trying to replace them with system properties
@@ -52,6 +55,14 @@ public class PropertyResolver {
      */
     public static String resolveProperties(String str) {
         return StrSubstitutor.replaceSystemProperties(str);
+    }
+
+    public static List<String> resolveProperties(List<String> list) {
+        for (final ListIterator<String> i = list.listIterator(); i.hasNext();) {
+            final String item = StrSubstitutor.replaceSystemProperties(i.next());
+            i.set(item);
+        }
+        return list;
     }
 
     /**

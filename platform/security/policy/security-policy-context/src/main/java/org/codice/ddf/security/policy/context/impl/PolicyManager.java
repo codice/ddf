@@ -13,15 +13,7 @@
  */
 package org.codice.ddf.security.policy.context.impl;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.configuration.PropertyResolver;
@@ -445,13 +437,8 @@ public class PolicyManager implements ContextPolicyManager {
 
     public void setWhiteListContexts(List<String> contexts) {
         LOGGER.debug("setWhiteListContexts(List<String>) called with {}", contexts);
-
         if (contexts != null && !contexts.isEmpty()) {
-            whiteListContexts = new ArrayList<>(contexts.size());
-
-            for (String context : contexts) {
-                whiteListContexts.add(PropertyResolver.resolveProperties(context));
-            }
+            this.whiteListContexts = PropertyResolver.resolveProperties(contexts);
         }
     }
 
