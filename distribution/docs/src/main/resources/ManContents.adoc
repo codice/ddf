@@ -1097,6 +1097,11 @@ State         Version          Name                          Repository  Descrip
 === Configuring {branding} using Configuration (.cfg) files
 The {branding} can also be configured with configuration (.cfg) files.
 
+[IMPORTANT]
+====
+Certain bundles can only be configured using the new `.config` file format. Please refer to the Configuring {branding} using Configuration (.config) Files section for more details.
+====
+
 ==== HTTP Port Configuration
 [IMPORTANT]
 ====
@@ -1151,74 +1156,107 @@ Be sure to note the port number that replaced 8181 then enter that number in the
 Only root can access ports<1024 on Unix systems. For suggested ways to run {branding} with ports < 1024 see How do I use port 80 as a non-root user?.
 ====
 
-=== Configuring {branding} using Configuration (.config) files
+=== Configuring {branding} using Configuration (.config) Files
 
-The {branding} can also be configured with configuration (.config) files.
+The {branding} can also be configured using configuration `.config` files. Like the Karaf `.cfg` files, these configuration files must be located in the `<DDF_HOME>/etc/` directory and have a name that matches the configuration persistence ID (PID) they represent.
 
-[NOTE]
+This type of configuration file supports lists within configuration values and should be used for any configuration that makes use of lists (metatype `cardinality` attribute greater than 1).
+
+[IMPORTANT]
 ====
-This type of configuration file supports lists within configuration values and should be used for any configuration that makes use of lists
+This new configuration file format *must* be used to configure the following bundles:
+
+* Web Context Policy Manager (PID: `org.codice.ddf.security.policy.context.impl.PolicyManager`)
+* Security STS Anonymous Claims Handler (PID: `ddf.security.sts.anonymousclaims`)
 ====
 
-The syntax of the (.config) configuration files is similar to the older (.cfg) files but introduces support for lists and types other than simple strings. The type associated with a property should match the _type_ attribute used in the corresponding _metatype.xml_ file when applicable.
+[WARNING]
+====
+Currently the `.config` configuration files do not support configuration of ManagedServiceFactories. To prevent any configuration issues, it is advised that this method be used mainly to configure services that are not created by a ManagedServiceFactory and that need to contain lists of values.
+====
+
+[WARNING]
+====
+Only one configuration file should exist for any given PID. The result of having both a `.cfg` and a `.config` file for the same PID is undefined and could cause the application to fail.
+====
+
+==== File Format
+
+The syntax of the `.config` configuration files is similar to the older `.cfg` files but introduces support for lists and types other than simple strings. The type associated with a property must match the `type` attribute used in the corresponding `metatype.xml` file when applicable.
 
 The following table shows the format to use for each property type supported.
 
-[cols="2" options="header"]
+[cols="1,2,4" options="header"]
 |===
 
 |Type
 |Format
+|Example
 
 |Strings
-|name = "john"
+|`name = "value"`
+|`name = "john"`
 
 |Booleans
-|authorized = B"true"
+|`name = B"true\|false"`
+|`authorized = B"true"`
 
 |Integers
-|timeout=I"60"
+|`name = I"value"`
+|`timeout=I"60"`
 
 |Longs
-|diameter = L"10000"
+|`name = L"value"`
+|`diameter = L"10000"`
 
 |Floats
-|cost = F"10.0"
+|`name = F"value"`
+|`cost = F"10.0"`
 
 |Doubles
-|latitude = D"45.0234"
+|`name = D"value"`
+|`latitude = D"45.0234"`
 
 |Lists of Strings
-|authenticationTypes = [ "/\=SAML\|ANON", "/admin\=SAML\|basic", "/jolokia\=SAML\|basic", "/system\=basic", "/solr\=SAML\|PKI\|basic", "/sources\=SAML\|basic", "/security-config\=SAML\|basic" ]
+|`name = [ "value1", "value2", ... ]`
+|`authenticationTypes = [ "/\=SAML\|ANON", "/admin\=SAML\|basic", "/jolokia\=SAML\|basic", "/system\=basic", "/solr\=SAML\|PKI\|basic", "/sources\=SAML\|basic", "/security-config\=SAML\|basic" ]`
 
 |Lists of Integers
-|sizes = I[ "10", "20", "30" ]
+|`name = I[ "value1", "value1", ... ]`
+|`sizes = I[ "10", "20", "30" ]`
 
 |===
 
 [NOTE]
 ====
-* Lists of values can be of any of the supported types, namely integers (prefixed with _I_ as in the example above), booleans (prefixed with _B_), floats (prefixed with _F_)or  doubles (prefixed with _D_)
-* The backslashes before the equals signs are generally a good practice in order to avoid running into configuration issues
+* Lists of values can be prefixed with any of the supported types (`B`, `I`, `L`, `F` or `D`)
+* To prevent any configuration issues, the `=` signs used in values should be escaped using `\`
 ====
 
-.Sample (.config) file
+.Sample configuration file
 ----
-property.string = "string"
-property.boolean.true = B"true"
-property.boolean.false = B"false"
-property.int = I"10"
-property.float = F"10.0"
-property.double = D"10.01"
-property.long = L"10"
-property.list.strings = [ "A", "B", "C" ]
-property.list.int = I[ "10", "20", "30" ]
+service.pid="org.codice.ddf.security.policy.context.impl.PolicyManager"
+authenticationTypes=["/\=SAML|ANON","/admin\=SAML|basic","/jolokia\=SAML|basic","/system\=basic","/solr\=SAML|PKI|basic","/sources\=SAML|basic","/security-config\=SAML|basic","/search\=basic"]
+realms=["/\=karaf"]
+requiredAttributes=["/\=","/admin\={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role\=admin}","/solr\={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role\=admin}","/jolokia\={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role\=admin}","/system\={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role\=admin}","/sources\={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role\=admin}","/security-config\={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role\=admin}"]
+whiteListContexts=["/services/SecurityTokenService","/services/internal/metrics","/services/saml","/proxy","/services/csw"]
 ----
 
+==== Pre-Configuring {branding}
 
-[WARNING]
+The main purpose of the configuration files is to allow administrators to pre-configure {branding} without having to use the admin console. In order to do so, simply extract the {branding} zip file, copy the configuration files in the `<DDF_HOME>/etc` directory and start the application. The system will then configure itself using the values set in the properties files.
+
+Once {branding} is up and running, the `.config` configuration files that existed in `<DDF_HOME>/etc` at startup will be automatically updated to reflect any changes made using the admin console. This allows administrators to capture any configuration changes made at runtime.
+
+==== Dynamic Configuration File Updates
+
+{branding} will also monitor any changes made to the configuration files and update the itself accordingly. Those changes will be automatically reflected in the admin console.
+
+Creating a new configuration file in the `<DDF_HOME>/etc` directory will automatically create the corresponding configuration in the admin console if it did not already exist, or update the existing one. From that point on, the configuration file will be tracked and any update reflected in the admin console.
+
+[IMPORTANT]
 ====
-Currently the configuration (.config) file method does not support configuration of ManagedServiceFactories, for safety it is advised that this method is used mainly for configurations that need to contain lists of values
+Even though file updates and deletions are monitored and handled, it is still strongly recommended to make configuration changes when the application is running using the admin console. Changes made directly to the configuration files while the system is running could conflict with changes made through the admin console and corrupt the system' configuration.
 ====
 
 === Enable and Configure HTTP to HTTPS Proxy
