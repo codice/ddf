@@ -13,22 +13,12 @@
  */
 package ddf.catalog.test;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-import static com.jayway.restassured.RestAssured.config;
-import static com.jayway.restassured.RestAssured.get;
-
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.Dictionary;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.felix.cm.file.ConfigurationHandler;
-import org.apache.karaf.shell.obr.util.FileUtil;
 import org.codice.ddf.platform.util.ConfigurationPropertiesComparator;
 import org.junit.After;
 import org.junit.Before;
@@ -43,7 +33,6 @@ import org.slf4j.ext.XLogger;
 
 import ddf.common.test.BeforeExam;
 import ddf.common.test.config.ConfigurationPredicate;
-import ddf.common.test.config.ConfigurationPropertyMatches;
 
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
@@ -64,6 +53,7 @@ public class TestPlatform extends AbstractIntegrationTest {
     private static Dictionary<String, Object> modifiedConfigProperties;
 
     @BeforeExam
+    @SuppressWarnings("unchecked")
     public void beforeExam() throws Exception {
         configProperties = ConfigurationHandler.read(getClass().getResourceAsStream(testConfig));
         modifiedConfigProperties = ConfigurationHandler
