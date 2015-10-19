@@ -108,6 +108,7 @@
                         </goals>
                         <phase>test</phase>
                         <configuration>
+                            <skip>${skipTests}</skip>
                             <arguments>test --force</arguments>
                         </configuration>
                     </execution>
