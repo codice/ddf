@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -14,6 +14,11 @@
 package ddf.security.ws.policy.impl;
 
 import java.util.Map;
+
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.common.util.UrlUtils;
@@ -26,6 +31,8 @@ import org.apache.cxf.interceptor.OutgoingChainInterceptor;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.model.EndpointInfo;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -33,6 +40,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import ddf.security.sts.client.configuration.StsAddressProvider;
 import ddf.security.ws.policy.PolicyLoader;
 
 /**
@@ -42,7 +50,13 @@ public class PolicyWSDLGetInterceptor extends WSDLGetInterceptor {
 
     private static final String XML_ENC = "utf-8";
 
-    private Logger logger = LoggerFactory.getLogger(PolicyWSDLGetInterceptor.class);
+    /*This is used to match a substring in an xpath but also used as a regex, so if changed
+    take care not to put characters that could make the regex match more than it should*/
+    private static final String DEFAULT_ADDRESS = "https://localhost:8993";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PolicyWSDLGetInterceptor.class);
+
+    private StsAddressProvider addressProvider;
 
     private PolicyLoader loader;
 
@@ -50,6 +64,10 @@ public class PolicyWSDLGetInterceptor extends WSDLGetInterceptor {
         super();
         getBefore().add(WSDLGetInterceptor.class.getName());
         this.loader = loader;
+        BundleContext bundleCtx = FrameworkUtil.getBundle(PolicyWSDLGetInterceptor.class)
+                .getBundleContext();
+        addressProvider = bundleCtx
+                .getService(bundleCtx.getServiceReference(StsAddressProvider.class));
     }
 
     // Majority of this method is from the WSDLGetInterceptor, in-line comments
@@ -74,6 +92,7 @@ public class PolicyWSDLGetInterceptor extends WSDLGetInterceptor {
             // DDF- start ADDED code
             if (map.containsKey("wsdl")) {
                 doc = addPolicyToWSDL(doc, loader.getPolicy());
+                doc = configureAddress(doc);
             }
             // DDF- end of ADDED code
 
@@ -102,6 +121,37 @@ public class PolicyWSDLGetInterceptor extends WSDLGetInterceptor {
         }
     }
 
+    private Document configureAddress(Document doc) {
+        String fullAddress = getFullAddress();
+        if (fullAddress.equalsIgnoreCase(DEFAULT_ADDRESS)) {
+            return doc;
+        }
+        Element de = doc.getDocumentElement();
+        XPath xPath = XPathFactory.newInstance().newXPath();
+        String xPathString = String
+                .format("//@*[starts-with(.,\"%s\")] | //text()[starts-with(.,\"%s\")]",
+                        DEFAULT_ADDRESS, DEFAULT_ADDRESS);
+        NodeList nodes;
+        try {
+            nodes = (NodeList) xPath.evaluate(xPathString, de, XPathConstants.NODESET);
+        } catch (XPathExpressionException e) {
+            LOGGER.error("Could not evaluate the xPath expression: {}", xPathString, e);
+            return doc;
+        }
+        for (int i = 0; i < nodes.getLength(); i++) {
+            Node node = nodes.item(i);
+            node.setNodeValue(node.getNodeValue().replaceAll(DEFAULT_ADDRESS, fullAddress));
+        }
+        return de.getOwnerDocument();
+    }
+
+    private String getFullAddress() {
+        String proto = addressProvider.getProtocol();
+        String host = addressProvider.getHost();
+        String port = addressProvider.getPort().equals("") ? "" : ":" + addressProvider.getPort();
+        return String.format("%s://%s%s", proto, host, port);
+    }
+
     /**
      * Adds the specified policy into the WSDL document. The policy should be added as a child to
      * the main definitions element of the WSDL and a PolicyReference pointing to it should be added
@@ -111,7 +161,7 @@ public class PolicyWSDLGetInterceptor extends WSDLGetInterceptor {
      * @param policyDoc Policy to add to the WSDL.
      * @return A combined Node containing the WSDL with the policy added.
      */
-    protected Document addPolicyToWSDL(Document wsdlDoc, Document policyDoc) {
+    public static Document addPolicyToWSDL(Document wsdlDoc, Document policyDoc) {
         Element newElement = wsdlDoc.getDocumentElement();
         Node policyNode = policyDoc.getDocumentElement();
         newElement.appendChild(wsdlDoc.importNode(policyNode, true));
@@ -149,5 +199,4 @@ public class PolicyWSDLGetInterceptor extends WSDLGetInterceptor {
         }
         return false;
     }
-
 }
