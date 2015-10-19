@@ -107,6 +107,10 @@ public abstract class AbstractIntegrationTest {
 
     protected static final String CSW_SOURCE_ID = "cswSource";
 
+    protected static final String DDF_HOME_PROPERTY = "ddf.home";
+
+    protected static String DDF_HOME;
+
     static {
         // Make Pax URL use the maven.repo.local setting if present
         if (System.getProperty("maven.repo.local") != null) {
@@ -144,6 +148,7 @@ public abstract class AbstractIntegrationTest {
 
     @PostTestConstruct
     public void initFacades() {
+        DDF_HOME = System.getProperty(DDF_HOME_PROPERTY);
         adminConfig = new AdminConfig(configAdmin);
         serviceManager = new ServiceManager(bundleCtx, metatype, adminConfig);
         catalogBundle = new CatalogBundle(serviceManager, adminConfig);
