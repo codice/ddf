@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -26,7 +26,7 @@ import java.util.zip.InflaterInputStream;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
-
+import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.wss4j.common.ext.WSSecurityException;
@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
+import ddf.security.common.audit.SecurityLogger;
 
 /**
  * Provides methods that help with securing RESTful (jaxrs) communications.
@@ -73,6 +74,22 @@ public final class RestSecurity {
 
     public static void setUserOnClient(String username, String password, Client client) {
         if (client != null && username != null && password != null) {
+            if (!StringUtils.startsWithIgnoreCase(client.getCurrentURI().getScheme(), "https")) {
+                if (Boolean.valueOf(
+                        System.getProperty("org.codice.allowBasicAuthOverHttp", "false"))) {
+                    LOGGER.warn(
+                            "CAUTION: Passing username & password on an un-encrypted protocol [{}]."
+                                    + " This is a security issue. ", client.getCurrentURI());
+                    SecurityLogger.logWarn(
+                            "Passing username & password on an un-encrypted protocol [" + client
+                                    .getCurrentURI() + "].");
+                } else {
+                    LOGGER.warn(
+                            "Passing username & password is not allowed on an un-encrypted protocol [{}].",
+                            client.getCurrentURI());
+                    return;
+                }
+            }
             String basicCredentials = username + ":" + password;
             String encodedHeader = BASIC_HEADER_PREFIX + new String(
                     Base64.encodeBase64(basicCredentials.getBytes()));

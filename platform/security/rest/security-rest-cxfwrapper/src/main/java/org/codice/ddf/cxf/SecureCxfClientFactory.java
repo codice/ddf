@@ -215,10 +215,6 @@ public class SecureCxfClientFactory<T> {
         clientConfig.getRequestContext().put(Message.MAINTAIN_SESSION, Boolean.TRUE);
 
         String endpointUrl = clientFactory.getAddress();
-        if (!StringUtils.startsWithIgnoreCase(endpointUrl, "https")) {
-            LOGGER.warn("CAUTION: Passing username & password on an un-encrypted protocol [{}]."
-                    + " This is a security issue. ", endpointUrl);
-        }
         configureCnCheck(clientConfig);
         configureTimeouts(clientConfig, connectionTimeout, receiveTimeout);
         return clientImpl;
