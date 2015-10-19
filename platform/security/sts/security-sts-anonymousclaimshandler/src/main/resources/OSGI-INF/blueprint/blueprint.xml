@@ -25,8 +25,12 @@
         <cm:managed-properties persistent-id="ddf.security.sts.anonymousclaims"
                                update-strategy="container-managed"/>
         <!-- Default properties -->
-        <property name="attributes"
-                  value="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier=anonymous,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=anonymous"/>
+        <property name="attributes">
+            <array value-type="java.lang.String">
+                <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier=anonymous</value>
+                <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=anonymous</value>
+            </array>
+        </property>
     </bean>
 
     <service ref="anonHandler" interface="org.apache.cxf.sts.claims.ClaimsHandler"/>
