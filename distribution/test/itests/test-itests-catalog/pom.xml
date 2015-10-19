@@ -70,6 +70,18 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>com.springsource.org.apache.httpcomponents.httpcore</artifactId>
+            <version>4.2.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>com.springsource.org.apache.httpcomponents.httpclient</artifactId>
+            <version>4.2.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>ddf.distribution</groupId>
             <artifactId>sdk-app</artifactId>
             <version>${project.version}</version>
