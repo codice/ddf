@@ -318,7 +318,9 @@
     </build>
 
     <modules>
+        <module>util</module>
         <module>platform-configuration</module>
+        <module>platform-configuration-listener</module>
         <module>parser</module>
         <module>action</module>
         <module>compression</module>
@@ -330,7 +332,6 @@
         <module>platform-scheduler</module>
         <module>security</module>
         <module>platform-commands</module>
-        <module>util</module>
         <module>platform-filter-delegate</module>
         <module>error</module>
         <module>platform-http-proxy</module>
