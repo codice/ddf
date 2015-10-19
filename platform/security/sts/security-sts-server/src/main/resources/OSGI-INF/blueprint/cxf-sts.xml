@@ -169,6 +169,11 @@
                                update-strategy="container-managed"/>
     </bean>
 
+    <bean id="SubjectDNConstraintsInterceptor"
+          class="ddf.security.sts.SubjectDNConstraintsInterceptor">
+
+    </bean>
+
     <bean id="service"
           class="org.apache.cxf.sts.service.StaticService">
         <property name="endpoints">
@@ -221,6 +226,7 @@
                     depends-on="propertyWrapper">
         <jaxws:inInterceptors>
             <ref component-id="crlInterceptor"/>
+            <ref component-id="SubjectDNConstraintsInterceptor"/>
         </jaxws:inInterceptors>
         <jaxws:properties>
             <entry key="ws-security.signature.properties" value-ref="signatureProps"/>
@@ -230,6 +236,8 @@
             <entry key="ws-security.is-bsp-compliant" value="false"/>
             <entry key="ws-security.role.classifier" value="RolePrincipal"/>
             <entry key="ws-security.role.classifier.type" value="classname"/>
+            <entry key="ws-security.subject.cert.constraints"
+                   value="${ws-security.subject.cert.constraints}"/>
         </jaxws:properties>
     </jaxws:endpoint>
 
@@ -237,7 +245,7 @@
                     interface="org.apache.cxf.sts.token.validator.TokenValidator"
                     availability="optional"/>
 
-    <bean id="baseUrl" class="org.codice.ddf.configuration.SystemBaseUrl" />
+    <bean id="baseUrl" class="org.codice.ddf.configuration.SystemBaseUrl"/>
 
     <bean id="propertyWrapper" class="ddf.security.sts.PropertyPlaceholderWrapper">
         <argument ref="SAMLConditionsProvider"/>
