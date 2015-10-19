@@ -321,6 +321,7 @@
 
     <modules>
         <module>platform-configuration</module>
+        <module>platform-configuration-listener</module>
         <module>parser</module>
         <module>action</module>
         <module>compression</module>
