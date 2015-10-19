@@ -100,7 +100,6 @@ define([
                 this.collection.trimUnfinishedFilters();
                 var progressFunction = function (value, model) {
                     model.mergeLatest();
-                    wreqr.vent.trigger('map:clear');
                     wreqr.vent.trigger('map:results', model, false);
                 };
 
