@@ -25,12 +25,9 @@ import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
 import static com.jayway.restassured.authentication.CertificateAuthSettings.certAuthSettings;
 
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.security.KeyStore;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -62,10 +59,6 @@ public class TestSecurity extends AbstractIntegrationTest {
     protected static final String KEY_STORE_PATH = System.getProperty("javax.net.ssl.keyStore");
 
     protected static final String PASSWORD = System.getProperty("javax.net.ssl.trustStorePassword");
-
-    protected static KeyStore keystore;
-
-    protected static KeyStore truststore;
 
     protected static final String SOAP_ENV =
             "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n"
@@ -185,12 +178,6 @@ public class TestSecurity extends AbstractIntegrationTest {
         waitForAllBundles();
         configurePDP();
         waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query");
-        keystore = KeyStore.getInstance("jks");
-        InputStream keystoreInput = new FileInputStream(KEY_STORE_PATH);
-        keystore.load(keystoreInput, PASSWORD.toCharArray());
-        truststore = KeyStore.getInstance(KeyStore.getDefaultType());
-        InputStream truststoreInput = new FileInputStream(TRUST_STORE_PATH);
-        truststore.load(truststoreInput, PASSWORD.toCharArray());
     }
 
     public void configurePDP() throws Exception {

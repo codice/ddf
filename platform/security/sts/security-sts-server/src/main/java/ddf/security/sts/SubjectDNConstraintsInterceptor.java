@@ -39,6 +39,13 @@ public class SubjectDNConstraintsInterceptor extends AbstractPhaseInterceptor<Me
         addAfter(AbstractWSS4JInterceptor.class.getName());
     }
 
+    /**
+     * Return true if the provided certificate matches the regular expression
+     * defined in the Subject DN Certificate Constraints.
+     *
+     * @param message
+     * @return true if the certificate matches the constraints
+     */
     @Override
     public void handleMessage(Message message) throws Fault {
         if (message != null) {
@@ -75,6 +82,14 @@ public class SubjectDNConstraintsInterceptor extends AbstractPhaseInterceptor<Me
         return subjectDNPatterns;
     }
 
+    /**
+     * Checks the certificate against the list of regular expressions given.
+     * Only matching one of the regular expressions is necessary.
+     *
+     * @param cert
+     * @param subjectDNPatterns
+     * @return true if the certificate matches the constraints
+     */
     protected boolean matches(final X509Certificate cert,
             final Collection<Pattern> subjectDNPatterns) {
         if (subjectDNPatterns == null || subjectDNPatterns.isEmpty()) {
