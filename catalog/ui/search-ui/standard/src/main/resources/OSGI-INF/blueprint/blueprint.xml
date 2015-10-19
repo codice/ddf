@@ -4,7 +4,7 @@
  * Copyright (c) Codice Foundation
  *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
+ * version 3 of the License, or any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
@@ -43,9 +43,9 @@
         <property name="imageryProviders"
                   value='{"type" "OSM" "url" "http://otile1.mqcdn.com/tiles/1.0.0/map" "fileExtension" "jpg" "alpha" 1},{"type" "OSM" "url" "http://otile1.mqcdn.com/tiles/1.0.0/sat" "fileExtension" "jpg" "alpha" 0.5}'/>
         <property name="terrainProvider"
-                  value='{"type" "CT" "url" "http://cesiumjs.org/stk-terrain/tilesets/world/tiles"}'/>
+                  value='{"type" "CT" "url" "http://assets.agi.com/stk-terrain/tilesets/world/tiles"}'/>
 	</bean>
-  
+
     <jaxrs:server id="restService" address="/store">
         <jaxrs:serviceBeans>
             <ref component-id="configurationStore"/>
