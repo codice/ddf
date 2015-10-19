@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -107,6 +107,10 @@ public abstract class AbstractIntegrationTest {
 
     protected static final String CSW_SOURCE_ID = "cswSource";
 
+    protected static final String DDF_HOME_PROPERTY = "ddf.home";
+
+    protected static String ddfHome;
+
     static {
         // Make Pax URL use the maven.repo.local setting if present
         if (System.getProperty("maven.repo.local") != null) {
@@ -144,6 +148,7 @@ public abstract class AbstractIntegrationTest {
 
     @PostTestConstruct
     public void initFacades() {
+        ddfHome = System.getProperty(DDF_HOME_PROPERTY);
         adminConfig = new AdminConfig(configAdmin);
         serviceManager = new ServiceManager(bundleCtx, metatype, adminConfig);
         catalogBundle = new CatalogBundle(serviceManager, adminConfig);

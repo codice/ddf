@@ -46,6 +46,12 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>ddf.platform</groupId>
+            <artifactId>platform-util</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>ddf.security.policy</groupId>
             <artifactId>security-policy-context</artifactId>
             <version>${project.version}</version>
