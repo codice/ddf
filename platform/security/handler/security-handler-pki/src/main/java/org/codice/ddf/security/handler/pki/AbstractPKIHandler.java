@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -20,6 +20,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
@@ -36,6 +37,12 @@ public abstract class AbstractPKIHandler implements AuthenticationHandler {
     protected static final Logger LOGGER = LoggerFactory.getLogger(AbstractPKIHandler.class);
 
     protected PKIAuthenticationTokenFactory tokenFactory;
+
+    protected CrlChecker crlChecker;
+
+    public AbstractPKIHandler() {
+        crlChecker = new CrlChecker();
+    }
 
     @Override
     public abstract String getAuthenticationType();
@@ -68,10 +75,26 @@ public abstract class AbstractPKIHandler implements AuthenticationHandler {
                 (X509Certificate[]) httpRequest
                         .getAttribute("javax.servlet.request.X509Certificate"));
 
-        if (token != null) {
-            handlerResult.setToken(token);
-            handlerResult.setStatus(HandlerResult.Status.COMPLETED);
+        X509Certificate[] certs = (X509Certificate[]) request
+                .getAttribute("javax.servlet.request.X509Certificate");
+
+        HttpServletResponse httpResponse = response instanceof HttpServletResponse ?
+                (HttpServletResponse) response :
+                null;
+
+        // The httpResponse was null, return no action and try to process with other handlers
+        if (httpResponse == null) {
+            LOGGER.error("HTTP Response was null for request {}", path);
+            return handlerResult;
         }
+
+        // No auth info was extracted, return NO_ACTION
+        if (token == null) {
+            return handlerResult;
+        }
+
+        // CRL was specified, check against CRL and return the result
+        handlerResult = crlChecker.check(httpResponse, token, certs, handlerResult);
         return handlerResult;
     }
 
@@ -91,4 +114,5 @@ public abstract class AbstractPKIHandler implements AuthenticationHandler {
     public void setTokenFactory(PKIAuthenticationTokenFactory factory) {
         tokenFactory = factory;
     }
+
 }

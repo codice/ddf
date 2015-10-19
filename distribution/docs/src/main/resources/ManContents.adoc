@@ -3152,12 +3152,47 @@ Configuration management includes configuring {branding} to use existing certifi
 ===== Certificate Revocation Configuration
 
 ====== Enable Revocation
+[NOTE]
+====
+Enabling CRL revocation or modifying the CRL file will require a restart of {BRANDING} to apply updates.
+====
 
 . Place the CRL in `<ddf.home>/etc/keystores`.
-. Uncomment the following line in `<ddf.home>/etc/ws-security/server/encryption`.properties and replace the file name with the CRL file used in step 1. +
+. Uncomment the following line in `<ddf.home>/etc/ws-security/server/encryption.properties` and replace the file name with the CRL file used in step 1. +
 `#org.apache.ws.security.crypto.merlin.x509crl.file=etc/keystores/crlTokenissuerValid.pem`
 
+Uncommenting this property will also enable CRL revocation for any context policy implementing PKI authentication. For example, adding an authentication policy in the Web Context Policy Manager of "/search=PKI|ANON" will disable basic authentication, and require a certificate for the search UI. If a certificate is not in the CRL, it will be allowed through, otherwise it will get a 401 error. Not providing a cert will pass it to the anonymous handler and the user will be granted anonymous access.
+
+====== Disable Revocation
+[NOTE]
+======
+Disabling CRL revocation or modifying the CRL file will require a restart of {BRANDING} to apply updates.
+======
+
+. Comment out the following line in `<ddf.home>/etc/ws-security/server/encryption.properties`. +
+`#org.apache.ws.security.crypto.merlin.x509crl.file=etc/keystores/crlTokenissuerValid.pem`
+
+The PKIHandler will not check the CRL if this property is not defined.
+
+====== Add Revocation to a Web Context
+The PKIHandler implements CRL revocation, so any web context that is configured to use PKI authentication will also use CRL revocation if revocation is enabled.
+
+. After enabling revocation (see above), open the Web Context Policy manager.
+. Add or modify a Web Context to use PKI in authentication. For example, enabling CRL for the search ui endpoint would require adding an authorization policy of `/search=PKI`
+. If anonymous access is required, add "ANON" to the policy. Ex, `/search=PKI|ANON`.
+
+With anonymous access, a user with a revoked cert will be given a 401 error, but users without a certificate will be able to access the web context as the anonymous user.
+
+[NOTE]
+======
+Disabling or enabling CRL revocation or modifying the CRL file will require a restart of {BRANDING} to apply updates. If CRL checking is already enabled, adding a new context via the Web Context Policy Manager will not require a restart.
+======
+
 ====== Add Revocation to a New Endpoint
+[NOTE]
+======
+This section explains how to add CXF's CRL revocation method to an endpoint and not the CRL revocation method in the PKIHandler described above.
+======
 This guide assumes that the endpoint being created uses CXF and is being started via Blueprint from inside the OSGi container. If other tools are being used, the configuration may differ. The CXF WS-Security page (http://cxf.apache.org/docs/ws-securitypolicy.html) contains additional information and samples.
 
 . Add the following property to the jaxws endpoint in the endpoint's blueprint.xml: +
