@@ -100,30 +100,30 @@ public class TestFederation extends AbstractIntegrationTest {
 
     @BeforeExam
     public void beforeExam() throws Exception {
-        setLogLevels();
-        waitForAllBundles();
-        waitForCatalogProvider();
-        waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query?_wadl");
+        getAdminConfig().setLogLevels();
+        getServiceManager().waitForAllBundles();
+        getCatalogBundle().waitForCatalogProvider();
+        getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query?_wadl");
 
         OpenSearchSourceProperties openSearchProperties = new OpenSearchSourceProperties(
                 OPENSEARCH_SOURCE_ID);
-        createManagedService(OpenSearchSourceProperties.FACTORY_PID, openSearchProperties);
+        getServiceManager().createManagedService(OpenSearchSourceProperties.FACTORY_PID, openSearchProperties);
 
-        waitForHttpEndpoint(CSW_PATH + "?_wadl");
+        getServiceManager().waitForHttpEndpoint(CSW_PATH + "?_wadl");
         get(CSW_PATH + "?_wadl").prettyPrint();
         CswSourceProperties cswProperties = new CswSourceProperties(CSW_SOURCE_ID);
-        createManagedService(CswSourceProperties.FACTORY_PID, cswProperties);
+        getServiceManager().createManagedService(CswSourceProperties.FACTORY_PID, cswProperties);
 
         CswSourceProperties cswProperties2 = new CswSourceProperties(
                 CSW_SOURCE_WITH_METACARD_XML_ID);
         cswProperties2.put("outputSchema", "urn:catalog:metacard");
-        createManagedService(CswSourceProperties.FACTORY_PID, cswProperties2);
+        getServiceManager().createManagedService(CswSourceProperties.FACTORY_PID, cswProperties2);
 
-        waitForFederatedSource(OPENSEARCH_SOURCE_ID);
-        waitForFederatedSource(CSW_SOURCE_ID);
-        waitForFederatedSource(CSW_SOURCE_WITH_METACARD_XML_ID);
+        getCatalogBundle().waitForFederatedSource(OPENSEARCH_SOURCE_ID);
+        getCatalogBundle().waitForFederatedSource(CSW_SOURCE_ID);
+        getCatalogBundle().waitForFederatedSource(CSW_SOURCE_WITH_METACARD_XML_ID);
 
-        waitForSourcesToBeAvailable(OPENSEARCH_SOURCE_ID, CSW_SOURCE_ID,
+        getServiceManager().waitForSourcesToBeAvailable(REST_PATH, OPENSEARCH_SOURCE_ID, CSW_SOURCE_ID,
                 CSW_SOURCE_WITH_METACARD_XML_ID);
 
         metacardIds[GEOJSON_RECORD_INDEX] = TestCatalog
