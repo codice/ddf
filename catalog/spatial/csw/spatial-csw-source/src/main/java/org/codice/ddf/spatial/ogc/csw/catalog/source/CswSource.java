@@ -315,7 +315,7 @@ public class CswSource extends MaskableImpl
      * Clean-up when shutting down the CswSource
      */
 
-    public void destroy() {
+    public void destroy(int code) {
         LOGGER.debug("{}: Entering destroy()", cswSourceConfiguration.getId());
         availabilityPollFuture.cancel(true);
         scheduler.shutdownNow();
@@ -549,7 +549,7 @@ public class CswSource extends MaskableImpl
         this.cswSourceConfiguration.setConnectionTimeout(timeout);
     }
 
-    public int getConnectionTimeout() {
+    public Integer getConnectionTimeout() {
         return this.cswSourceConfiguration.getConnectionTimeout();
     }
 
@@ -557,7 +557,7 @@ public class CswSource extends MaskableImpl
         this.cswSourceConfiguration.setReceiveTimeout(timeout);
     }
 
-    public int getReceiveTimeout() {
+    public Integer getReceiveTimeout() {
         return this.cswSourceConfiguration.getReceiveTimeout();
     }
 
