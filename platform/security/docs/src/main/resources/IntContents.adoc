@@ -1426,3 +1426,58 @@ The `AnonymousInterceptor` is installed by default with DDF Security Application
 . Click save.
 
 Once these configurations have been added, the AnonymousInterceptor is ready for use. Both secure and non-secure requests will be accepted by all secure DDF service endpoints.
+
+== Security IdP
+
+The Security IdP application provides service provider handling that satisfies the http://docs.oasis-open.org/security/saml/v2.0/saml-profiles-2.0-os.pdf[SAML 2.0 Web SSO profile] in order to support external IdPs (Identity Providers).
+
+=== Components
+[cols="3", options="header"]
+|===
+
+|Bundle Name
+|Located in Feature
+|Description
+
+|security-idp-sp
+|security-idp
+|IdP Service Provider
+
+|security-idp-server
+|security-idp
+|IdP Server
+
+|===
+
+=== Installation
+
+These bundles are not installed by default, they can be started by installing the `security-idp` feature.
+
+=== Security IdP Service Provider
+
+The IdP client that interacts with the specified Identity Provider.
+
+==== Configuration
+
+. Navigate to Admin Console -> DDF Security -> Configuration -> IdP Client
+. Populate IdP Metadata field with an HTTPS URL (https://), file URL (file:), or XML block to refer to desired metadata (e.g., https://localhost:8993/services/idp/login/metadata)
+
+=== Security IdP Server
+
+An internal Identity Provider solution.
+
+==== Configuration
+
+. Navigate to Admin Console -> DDF Security -> Configuration -> IdP Server
+. Click the + next to SP Metadata to add a new entry
+. Populate the new entry with an HTTPS URL (https://), file URL (file:), or XML block to refer to desired metadata (e.g., https://localhost:8993/services/saml/sso/metadata)
+
+=== Related Configuration
+
+. Navigate to Admin Console -> DDF Security -> Configuration -> Web Context Policy Manager
+. Under Authentication Types, set the IDP authentication type as necessary. Note that it should _only_ be used on context paths that will be accessed by users via web browsers. For example:
+- /search=SAML|IDP
+
+=== Limitations
+
+The internal Identity Provider solution should be used in favor of any external solutions until the IdP Service Provider fully satisfies the SAML 2.0 Web SSO profile.
