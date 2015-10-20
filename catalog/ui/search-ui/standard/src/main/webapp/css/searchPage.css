@@ -970,7 +970,7 @@ button.ui-multiselect {
     line-height: 20px;
 }
 
-.count-overlay {
+.menu-item-overlay {
     font-size: 70%;
     font-weight: 200;
     display: block;
@@ -1414,10 +1414,6 @@ a.pause:hover, a.pause:focus {
     fill: #edffff;
 }
 
-.metacard-edit-region {
-    padding: 0 20px;
-}
-
 .ingest-upload-buttons {
     float: right;
 }
@@ -1429,14 +1425,6 @@ a.pause:hover, a.pause:focus {
 
 .file-info-area {
     max-width: 200px;
-}
-
-.hideButtonGroup {
-    display: none;
-}
-
-.showButtonGroup {
-    display: inline-block;
 }
 
 .drop-zone {
@@ -1533,6 +1521,13 @@ a.pause:hover, a.pause:focus {
     display: inline-block;
 }
 .heading-with-help-tip h6 {
+    display: inline-block;
+}
+.modal-heading-with-help-tip i {
+    display: inline-block;
+    vertical-align: baseline;
+}
+.modal-heading-with-help-tip h4 {
     display: inline-block;
 }
 .keyword-heading-with-help-tip i {

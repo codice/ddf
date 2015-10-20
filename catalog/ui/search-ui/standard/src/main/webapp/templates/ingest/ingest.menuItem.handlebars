@@ -12,4 +12,7 @@
  **/
  --}}
 <a id="{{id}}" href="#" class="{{classes}}{{#if dropdown}} dropdown-toggle{{/if}}" {{#if dropdown}} data-toggle="dropdown"{{/if}}>{{#is iconOnly true}}{{else}}{{name}}{{/is}}</a>
+{{#uploading}}
+    <span class="menu-item-overlay">&bull;</span>
+{{/uploading}}
 <div class="modal-region"></div>
