@@ -35,6 +35,7 @@
         <module>content-core-directorymonitor</module>
         <module>content-core-filestorageprovider</module>
         <module>content-core-catalogerplugin</module>
+        <module>content-core-checksumplugin</module>
     </modules>
 
     <build>
