@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.ui.searchui.query.controller;
 
@@ -18,12 +17,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.codice.ddf.notifications.Notification;
 import org.codice.ddf.persistence.PersistenceException;
+import org.codice.ddf.persistence.PersistentItem;
 import org.codice.ddf.persistence.PersistentStore;
 import org.cometd.annotation.Listener;
 import org.cometd.annotation.Service;
@@ -62,7 +65,7 @@ public class NotificationController extends AbstractEventController {
      *
      * @throws IllegalArgumentException when any of the following required properties are either missing from the Event
      *                                  or contain empty values:
-     *                                  <p/>
+     *                                  <p>
      *                                  <ul>
      *                                  <li>{@link Notification#NOTIFICATION_KEY_APPLICATION}</li>
      *                                  <li>{@link Notification#NOTIFICATION_KEY_MESSAGE}</li>
@@ -158,17 +161,24 @@ public class NotificationController extends AbstractEventController {
             throw new IllegalArgumentException("User ID is null");
         }
 
-        List<Map<String, String>> notifications = getNotificationsForUser(userId);
-        List<Map<String, Object>> compatibleNotifications = new ArrayList<Map<String, Object>>();
-        for (Map<String, String> entry : notifications) {
-            Map<String, Object> tempEntry = new HashMap<String, Object>();
-            tempEntry.putAll(entry);
-            compatibleNotifications.add(tempEntry);
-        }
+        Map<String, Object> data = message.getDataAsMap();
+        if (MapUtils.isEmpty(data)) {
+            List<Map<String, Object>> notifications = getNotificationsForUser(userId);
 
-        if (notifications != null && !notifications.isEmpty()) {
-            queuePersistedMessages(remote, compatibleNotifications,
-                    "/" + Notification.NOTIFICATION_TOPIC_BROADCAST);
+            if (CollectionUtils.isNotEmpty(notifications)) {
+                queuePersistedMessages(remote, notifications,
+                        "/" + Notification.NOTIFICATION_TOPIC_BROADCAST);
+            }
+        } else {
+            String id = UUID.randomUUID().toString().replaceAll("-", "");
+            String sessionId = remote.getId();
+            Notification notification = new Notification(id, sessionId,
+                    (String) data.get(Notification.NOTIFICATION_KEY_APPLICATION),
+                    (String) data.get(Notification.NOTIFICATION_KEY_TITLE),
+                    (String) data.get(Notification.NOTIFICATION_KEY_MESSAGE),
+                    (Long) data.get(Notification.NOTIFICATION_KEY_TIMESTAMP), userId);
+            Event event = new Event(Notification.NOTIFICATION_TOPIC_PUBLISH, notification);
+            eventAdmin.postEvent(event);
         }
     }
 
@@ -224,5 +234,23 @@ public class NotificationController extends AbstractEventController {
         } else {
             throw new IllegalArgumentException("Server Message is null.");
         }
+    }
+
+    public List<Map<String, Object>> getNotificationsForUser(String userId) {
+        List<Map<String, Object>> notifications = new ArrayList<>();
+        List<Map<String, Object>> results = new ArrayList<>();
+        try {
+            results = persistentStore.get(PersistentStore.NOTIFICATION_TYPE,
+                    Notification.NOTIFICATION_KEY_USER_ID + " = '" + userId + "'");
+        } catch (PersistenceException e) {
+            LOGGER.debug("PersistenceException trying to get notifications for user {}", userId, e);
+        }
+
+        for (Map<String, Object> result : results) {
+            Map<String, Object> sanitizedResult = PersistentItem.stripSuffixes(result);
+            notifications.add(sanitizedResult);
+        }
+
+        return notifications;
     }
 }

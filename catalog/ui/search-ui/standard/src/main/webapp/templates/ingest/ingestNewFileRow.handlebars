@@ -12,9 +12,11 @@
 **/
 --}}
 <div class="file-info-area">
-    <div class="btn btn-danger btn-xs remove-upload">
-        <i class="fa fa-times remove-upload"></i>
-    </div>
+    {{#is state 'start'}}
+        <div class="btn btn-danger btn-xs remove-upload">
+            <i class="fa fa-times remove-upload"></i>
+        </div>
+    {{/is}}
     File: {{name}}
 </div>
 <div class="ingest-upload-buttons">

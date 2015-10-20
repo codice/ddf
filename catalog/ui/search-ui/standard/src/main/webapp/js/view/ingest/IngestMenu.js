@@ -40,8 +40,11 @@ define([
                 'click .showModal': 'showModal'
             },
             showModal: function() {
-               var modal = new IngestModal({model: this.model});
-                wreqr.vent.trigger('showModal', modal);
+                var keepCurrentModal = this.modal && this.modal.isUnfinished();
+                if (!keepCurrentModal) {
+                    this.modal = new IngestModal();
+                }
+                wreqr.vent.trigger('showModal', this.modal);
             }
         });
 

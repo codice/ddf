@@ -15,19 +15,20 @@
            xsi:schemaLocation="
         http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
         ">
-    
+
     <reference id="persistentStore" interface="org.codice.ddf.persistence.PersistentStore"/>
-    
+
     <bean id="notificationListener" class="org.codice.ddf.persistence.events.NotificationListener">
         <argument ref="persistentStore"/>
     </bean>
-    
+
     <service ref="notificationListener" interface="org.osgi.service.event.EventHandler">
         <service-properties>
             <entry key="event.topics">
                 <array value-type="java.lang.String">
                     <value>ddf/notifications/broadcast</value>
                     <value>ddf/notifications/catalog/downloads</value>
+                    <value>ddf/notifications/publish</value>
                 </array>
             </entry>
         </service-properties>

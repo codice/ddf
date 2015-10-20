@@ -22,36 +22,32 @@ define([
         'js/view/Modal',
         './IngestUploadList.view',
         'text!templates/ingest/ingestModal.handlebars',
-        'js/model/Metacard',
-        'wreqr',
-        'js/view/ingest/MetacardEdit.view'
+        'cometdinit',
+        'bootstrapselect'
     ],
-    function (ich,_,Marionette,Backbone,$,Modal,UploadList, ingestModalTemplate, Metacard, wreqr, MetacardEdit) {
+    function (ich,_,Marionette,Backbone,$,Modal,UploadList, ingestModalTemplate, Cometd) {
         ich.addTemplate('ingestModalTemplate',ingestModalTemplate);
         var IngestModal = Modal.extend({
             template: 'ingestModalTemplate',
             events: {
-                'click .start-upload':'startUpload',
-                'click .remove-upload': 'removeUpload'
+                'click .start-upload': 'startUpload',
+                'click .finish-upload': 'finishUpload'
             },
-            initialize: function(){
-                this.stateModel = new Backbone.Model({
+            initialize: function() {
+                this.model = new Backbone.Model({
                     state: 'start'
                 });
-
+                this.listenTo(this.model, 'change:state', this.updateModalControls);
                 this.collection = new Backbone.Collection();
                 this.listenTo(this.collection, "add", this.checkIfDialogComplete);
                 this.listenTo(this.collection, "remove", this.checkIfDialogComplete);
-                this.listenTo(wreqr.vent, 'ingest:metacard', this.metacardIngested);
-                this.listenTo(wreqr.vent, 'ingest:metacardEditDone', this.enableButtons);
             },
             regions: {
-                fileUploadListRegion:'.file-upload-region',
-                metacardEditRegion: '.metacard-edit-region'
+                fileUploadListRegion: '.file-upload-region'
             },
-            onRender: function(){
+            onRender: function() {
                 var view = this;
-                this.toggleModalButtons(true);
+                view.$('[data-toggle="upload-popover"]').popover();
                 view.fileUploadListRegion.show(new UploadList({collection: view.collection}));
                 $.ajaxSetup({
                     headers: {directive: "STORE_AND_PROCESS"}
@@ -61,7 +57,6 @@ define([
                     paramName: 'file',
                     dataType: 'json',
                     maxFileSize: 5000000,
-                    maxNumberOfFiles: 1,
                     add: function(e, data){
 // this overrides the add to use our own model to control when the upload actually happens.
                         var that = this;
@@ -72,8 +67,7 @@ define([
                             e: e,
                             data: data
                         };
-                        view.collection.reset([model]);
-                        view.checkIfDialogComplete();
+                        view.collection.add(model);
                     },
                     done: function(e, data){
                         var attrs = {};
@@ -81,11 +75,6 @@ define([
                         var model = view.collection.findWhere(attrs);
                         model.set('state', 'done');
                         view.checkIfDialogComplete();
-                        view.stateModel.set('state','done');
-                        view.checkIfDialogComplete();
-
-                        var metacard = new Metacard.Metacard(data.result);
-                        wreqr.vent.trigger('ingest:metacard', metacard);
                     },
                     fail: function(e, data){
                         var attrs = {};
@@ -95,7 +84,6 @@ define([
                             state: 'failed',
                             error: data.errorThrown
                         });
-                        view.stateModel.set('state','start'); // lets start over.
                         view.checkIfDialogComplete();
                     },
                     progress: function(e, data){
@@ -112,19 +100,8 @@ define([
                     dropZone: view.$el
                 });
             },
-            onBeforeClose: function(){
+            onBeforeClose: function() {
                 this.$('.fileupload').fileupload('destroy');
-            },
-            fileUploadStart: function(){
-                this.stateModel.set('state','uploading');
-            },
-            stateChanged: function(){
-                var state = this.stateModel.get('state');
-                if(state === 'uploading' || state === 'done'){
-                    this.$('.fileinput-button').attr('disabled', 'disabled');
-                } else {
-                    this.$('.fileinput-button').removeAttr('disabled');
-                }
             },
             buildModelFromFileData: function(data){
                 var name = data.files[0].name.toLowerCase();
@@ -145,31 +122,66 @@ define([
                     progress: parseInt(data.loaded / data.total * 100, 10)
                 });
             },
-            checkIfDialogComplete: function(){
+            checkIfDialogComplete: function() {
                 var complete = true;
+                var succeeded = 0, failed = 0;
                 this.collection.each(function(item) {
-                    if (item.get('state') !== 'done') {
+                    if (item.get('state') === 'done') {
+                        ++succeeded;
+                    } else if (item.get('state') === 'failed') {
+                        ++failed;
+                    } else {
                         complete = false;
                     }
                 });
 
-                this.toggleModalButtons(complete);
+                if (this.collection.length > 0) {
+                    if (complete && this.model.get('state') === 'uploading') {
+                        this.model.set('state', 'uploaded');
+                        this.sendNotification(succeeded, failed);
+                    }
+
+                    this.hideUploadControls(complete);
+                } else {
+                    this.hideUploadControls(true);
+                }
+            },
+            sendNotification: function(succeeded, failed) {
+                var notification = {
+                    application: "Uploads",
+                    title: "File Upload Complete",
+                    message: succeeded + " succeeded, " + failed + " failed",
+                    timestamp: Date.now()
+                };
+                Cometd.Comet.publish("/ddf/notifications", notification);
             },
             startUpload: function() {
+                this.model.set('state', 'uploading');
                 this.collection.trigger('startUpload');
             },
-            toggleModalButtons: function(showUpload) {
-                this.$('.uploadFields').toggleClass('hideButtonGroup', showUpload);
-                this.$('.okCancelFields').toggleClass('hideButtonGroup', !showUpload);
+            finishUpload: function() {
+                this.model.set('state', 'finished');
             },
-            metacardIngested: function(metacard) {
-                this.metacardEditRegion.show(new MetacardEdit.MetacardEditView({model: metacard}));
-                this.$('button').prop('disabled', true);
-                this.$('.fileinput-button').attr('disabled', 'disabled');
+            hideUploadControls: function(hideUpload) {
+                if (this.model.get('state') === 'start') {
+                    this.$('.uploadFields').toggleClass('hideButtonGroup', hideUpload);
+                    this.$('.okCancelFields').toggleClass('hideButtonGroup', !hideUpload);
+                }
             },
-            enableButtons: function() {
-                this.$('button').prop('disabled', false);
-                this.$('.fileinput-button').removeAttr('disabled');
+            updateModalControls: function() {
+                if (this.model.get('state') === 'uploading') {
+                    this.$('.start-upload').attr('disabled', 'disabled');
+                    this.$('.fileinput-button').attr('disabled', 'disabled');
+                    this.$('.fileupload').fileupload('disable');
+                } else if (this.model.get('state') === 'uploaded') {
+                    this.$('.uploadFields').toggleClass('hideButtonGroup', true);
+                    this.$('.okCancelFields').toggleClass('hideButtonGroup', true);
+                    this.$('.finishFields').toggleClass('hideButtonGroup', false);
+                }
+            },
+            isUnfinished: function() {
+                return this.model.get('state') === 'uploading' ||
+                    this.model.get('state') === 'uploaded';
             }
         });
         return IngestModal;
