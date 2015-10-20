@@ -107,6 +107,10 @@ public class CustomMimeTypeResolver implements MimeTypeResolver {
         return customMimeTypes.clone();
     }
 
+    public void setCustomMimeTypes(String customMimeTypes) {
+        this.setCustomMimeTypes(customMimeTypes.split(","));
+    }
+
     public void setCustomMimeTypes(String[] customMimeTypes) {
         LOGGER.trace("ENTERING: setCustomMimeTypes");
 

@@ -237,7 +237,7 @@ public class WfsSource extends MaskableImpl
         setupAvailabilityPoll();
     }
 
-    public void destroy() {
+    public void destroy(int code) {
         unregisterAllMetacardTypes();
         availabilityPollFuture.cancel(true);
         scheduler.shutdownNow();
@@ -885,7 +885,7 @@ public class WfsSource extends MaskableImpl
         this.connectionTimeout = timeout;
     }
 
-    public int getConnectionTimeout() {
+    public Integer getConnectionTimeout() {
         return this.connectionTimeout;
     }
 
@@ -893,7 +893,7 @@ public class WfsSource extends MaskableImpl
         this.receiveTimeout = timeout;
     }
 
-    public int getReceiveTimeout() {
+    public Integer getReceiveTimeout() {
         return this.receiveTimeout;
     }
 

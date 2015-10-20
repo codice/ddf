@@ -681,7 +681,7 @@ public class TestCatalog extends AbstractIntegrationTest {
             }
         } while (TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime) < TimeUnit.MINUTES
                 .toMillis(1));
-        response.body("metcards.metacard.size()", equalTo(1));
+        response.body("metacards.metacard.size()", equalTo(1));
     }
 
     @Test
