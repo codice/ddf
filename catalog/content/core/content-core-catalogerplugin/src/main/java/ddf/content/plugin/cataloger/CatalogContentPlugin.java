@@ -15,6 +15,7 @@ package ddf.content.plugin.cataloger;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -31,13 +32,17 @@ import org.slf4j.ext.XLogger;
 import com.google.common.io.FileBackedOutputStream;
 
 import ddf.catalog.CatalogFramework;
+import ddf.catalog.data.Attribute;
+import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardCreationException;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.content.data.ContentItem;
+import ddf.content.data.impl.ContentMetacardType;
 import ddf.content.operation.CreateResponse;
 import ddf.content.operation.DeleteResponse;
 import ddf.content.operation.UpdateResponse;
@@ -56,6 +61,9 @@ public class CatalogContentPlugin implements ContentPlugin {
     private static final String CATALOG_ID = "Catalog-ID";
 
     private static final String DEFAULT_METACARD_TRANSFORMER = "geojson";
+
+    private static final String CHECKSUM_PROPERTY_NAME= "Resource Checksum";
+    private static final String CHECKSUM_ALGORITHM_PROPERTY_NAME = "Resource Checksum Algorithm";
 
     private final CatalogFramework catalogFramework;
 
@@ -93,10 +101,10 @@ public class CatalogContentPlugin implements ContentPlugin {
 
         try {
             Metacard metacard = generateMetacard(createdContentItem, mimeType,
-                    createdContentItem.getUri(), stream);
+                    createdContentItem.getUri(), stream,input.getRequest().getProperties());
             String catalogId = cataloger.createMetacard(metacard);
             LOGGER.debug("catalogId = " + catalogId);
-            Map<String, String> properties = response.getResponseProperties();
+            Map<String, String> properties = input.getResponseProperties();
             properties.put(CATALOG_ID, catalogId);
             response.setResponseProperties(properties);
             if (metacard != null) {
@@ -147,7 +155,7 @@ public class CatalogContentPlugin implements ContentPlugin {
 
         try {
             Metacard metacard = generateMetacard(updatedContentItem, mimeType,
-                    updatedContentItem.getUri(), stream);
+                    updatedContentItem.getUri(), stream,null);
             String catalogId = cataloger.updateMetacard(updatedContentItem.getUri(), metacard);
             LOGGER.debug("catalogId = " + catalogId);
             Map<String, String> properties = response.getResponseProperties();
@@ -204,7 +212,7 @@ public class CatalogContentPlugin implements ContentPlugin {
     }
 
     private Metacard generateMetacard(ContentItem contentItem, MimeType mimeType, String uri,
-            InputStream message) throws MetacardCreationException {
+            InputStream message,Map<String,Serializable> properties) throws MetacardCreationException {
         LOGGER.trace("ENTERING: generateMetacard");
 
         List<InputTransformer> listOfCandidates = mimeTypeToTransformerMapper
@@ -213,6 +221,7 @@ public class CatalogContentPlugin implements ContentPlugin {
         LOGGER.debug("List of matches for mimeType [ {} ]: {}", mimeType, listOfCandidates);
 
         Metacard generatedMetacard = null;
+        Metacard contentMetacard = null;
         try (FileBackedOutputStream fileBackedOutputStream = new FileBackedOutputStream(1000000)) {
 
             long size;
@@ -232,11 +241,21 @@ public class CatalogContentPlugin implements ContentPlugin {
                 try (InputStream inputStreamMessageCopy = fileBackedOutputStream.asByteSource()
                         .openStream()) {
                     generatedMetacard = transformer.transform(inputStreamMessageCopy);
-                    if (generatedMetacard != null) {
+                    contentMetacard = new MetacardImpl(new ContentMetacardType());
+
+                    //copy attributes in loop
+                    for(AttributeDescriptor descriptor : generatedMetacard.getMetacardType().getAttributeDescriptors()){
+                            Attribute attribute = generatedMetacard.getAttribute(descriptor.getName());
+                            if(attribute != null){
+                                contentMetacard.setAttribute(attribute);
+                            }
+                    }
+
+                    if (contentMetacard != null) {
                         try {
                             Subject subject = SecurityUtils.getSubject();
                             if (subject != null) {
-                                generatedMetacard.setAttribute(
+                                contentMetacard.setAttribute(
                                         new AttributeImpl(Metacard.POINT_OF_CONTACT,
                                                 SubjectUtils.getName(subject)));
                             }
@@ -248,16 +267,16 @@ public class CatalogContentPlugin implements ContentPlugin {
 
                         if (uri != null) {
                             //Setting the non-transformer specific information not including creation and modification dates/times
-                            generatedMetacard
+                            contentMetacard
                                     .setAttribute(new AttributeImpl(Metacard.RESOURCE_URI, uri));
-                            generatedMetacard.setAttribute(new AttributeImpl(Metacard.RESOURCE_SIZE,
+                            contentMetacard.setAttribute(new AttributeImpl(Metacard.RESOURCE_SIZE,
                                     String.valueOf(size)));
                         } else {
                             LOGGER.debug("Metacard had a null uri");
                         }
-                        if (StringUtils.isBlank(generatedMetacard.getTitle())) {
+                        if (StringUtils.isBlank(contentMetacard.getTitle())) {
                             LOGGER.debug("Metacard title was blank. Setting title to filename.");
-                            generatedMetacard.setAttribute(
+                            contentMetacard.setAttribute(
                                     new AttributeImpl(Metacard.TITLE, contentItem.getFilename()));
                         }
                         break;
@@ -268,7 +287,7 @@ public class CatalogContentPlugin implements ContentPlugin {
 
             }
 
-            if (generatedMetacard == null) {
+            if (contentMetacard == null) {
                 throw new MetacardCreationException(
                         "Could not create metacard with mimeType " + mimeType
                                 + ". No valid transformers found.");
@@ -279,7 +298,19 @@ public class CatalogContentPlugin implements ContentPlugin {
             LOGGER.debug("Error encountered while using filed backed stream.", e);
         }
 
-        return generatedMetacard;
+        if(properties != null){
+            if(properties.containsKey(ContentMetacardType.RESOURCE_CHECKSUM)){
+                String checksumValue = properties.get(ContentMetacardType.RESOURCE_CHECKSUM).toString();
+                contentMetacard.setAttribute(new AttributeImpl(ContentMetacardType.RESOURCE_CHECKSUM,checksumValue));
+            }
+
+            if(properties.containsKey(ContentMetacardType.RESOURCE_CHECKSUM_ALGORITHM)){
+                String checkSumAlgrotithm = properties.get(ContentMetacardType.RESOURCE_CHECKSUM_ALGORITHM).toString();
+                contentMetacard.setAttribute(new AttributeImpl(ContentMetacardType.RESOURCE_CHECKSUM_ALGORITHM,checkSumAlgrotithm));
+            }
+        }
+
+        return contentMetacard;
     }
 
 }
