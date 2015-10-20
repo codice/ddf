@@ -175,12 +175,21 @@ define([
                 // contextual
                 var q = this.get('q');
                 if (q) {
-                    filters.push(new Filter.Model({
-                        fieldName: 'anyText',
-                        fieldType: 'string',
-                        fieldOperator: 'contains',
-                        stringValue1: q
-                    }));
+                    if (this.get('matchcase')){
+                        filters.push(new Filter.Model({
+                            fieldName: 'anyText',
+                            fieldType: 'string',
+                            fieldOperator: 'matchcase',
+                            stringValue1: q
+                        }));
+                    } else {
+                        filters.push(new Filter.Model({
+                            fieldName: 'anyText',
+                            fieldType: 'string',
+                            fieldOperator: 'contains',
+                            stringValue1: q
+                        }));
+                    }
                 }
 
                 // temporal
@@ -306,7 +315,8 @@ define([
                 // contextual
                 var q = this.get('q');
                 if (q) {
-                    filters.push('anyText ILIKE ' + this.getValue(q));
+                    var likeOp = this.get('matchcase') ? ' LIKE ' : ' ILIKE ';
+                    filters.push('anyText' + likeOp + this.getValue(q));
                 }
 
                 // temporal
