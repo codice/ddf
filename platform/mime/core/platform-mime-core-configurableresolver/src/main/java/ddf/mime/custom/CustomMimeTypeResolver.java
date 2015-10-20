@@ -65,7 +65,7 @@ public class CustomMimeTypeResolver implements MimeTypeResolver {
         LOGGER.trace("INSIDE: init");
     }
 
-    public void destroy(int code) {
+    public void destroy() {
         LOGGER.trace("INSIDE: destroy");
     }
 
