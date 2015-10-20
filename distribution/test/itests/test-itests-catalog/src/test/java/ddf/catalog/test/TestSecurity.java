@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -23,6 +23,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
+import static com.jayway.restassured.authentication.CertificateAuthSettings.certAuthSettings;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -32,6 +33,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
+import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.hamcrest.xml.HasXPath;
 import org.junit.Before;
@@ -51,6 +53,12 @@ import ddf.security.SecurityConstants;
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
 public class TestSecurity extends AbstractIntegrationTest {
+
+    protected static final String TRUST_STORE_PATH = System.getProperty("javax.net.ssl.trustStore");
+
+    protected static final String KEY_STORE_PATH = System.getProperty("javax.net.ssl.keyStore");
+
+    protected static final String PASSWORD = System.getProperty("javax.net.ssl.trustStorePassword");
 
     protected static final String SOAP_ENV =
             "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n"
@@ -365,7 +373,9 @@ public class TestSecurity extends AbstractIntegrationTest {
                 + "                </wst:OnBehalfOf>\n";
         String body = getSoapEnvelope(onBehalfOf);
 
-        given().log().all().body(body).header("Content-Type", "text/xml; charset=utf-8")
+        given().auth().certificate(KEY_STORE_PATH, PASSWORD,
+                certAuthSettings().sslSocketFactory(SSLSocketFactory.getSystemSocketFactory()))
+                .log().all().body(body).header("Content-Type", "text/xml; charset=utf-8")
                 .header("SOAPAction", "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue")
                 .expect().statusCode(equalTo(200)).when()
                 .post(SERVICE_ROOT + "/SecurityTokenService").then().log().all().assertThat()
@@ -382,7 +392,9 @@ public class TestSecurity extends AbstractIntegrationTest {
                 + "                </wst:OnBehalfOf>\n";
         String body = getSoapEnvelope(onBehalfOf);
 
-        given().log().all().body(body).header("Content-Type", "text/xml; charset=utf-8")
+        given().auth().certificate(KEY_STORE_PATH, PASSWORD,
+                certAuthSettings().sslSocketFactory(SSLSocketFactory.getSystemSocketFactory())).
+                log().all().body(body).header("Content-Type", "text/xml; charset=utf-8")
                 .header("SOAPAction", "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue")
                 .expect().statusCode(equalTo(500)).when()
                 .post(SERVICE_ROOT + "/SecurityTokenService").then().log().all();
@@ -396,7 +408,9 @@ public class TestSecurity extends AbstractIntegrationTest {
                 + "                </wst:OnBehalfOf>\n";
         String body = getSoapEnvelope(onBehalfOf);
 
-        given().log().all().body(body).header("Content-Type", "text/xml; charset=utf-8")
+        given().auth().certificate(KEY_STORE_PATH, PASSWORD,
+                certAuthSettings().sslSocketFactory(SSLSocketFactory.getSystemSocketFactory())).
+                log().all().body(body).header("Content-Type", "text/xml; charset=utf-8")
                 .header("SOAPAction", "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue")
                 .expect().statusCode(equalTo(500)).when()
                 .post(SERVICE_ROOT + "/SecurityTokenService").then().log().all();
@@ -412,7 +426,9 @@ public class TestSecurity extends AbstractIntegrationTest {
                 + GOOD_X509_TOKEN + "</wsse:BinarySecurityToken>\n" + "</wst:OnBehalfOf>\n";
         String body = getSoapEnvelope(onBehalfOf);
 
-        given().log().all().body(body).header("Content-Type", "text/xml; charset=utf-8")
+        given().auth().certificate(KEY_STORE_PATH, PASSWORD,
+                certAuthSettings().sslSocketFactory(SSLSocketFactory.getSystemSocketFactory()))
+                .log().all().body(body).header("Content-Type", "text/xml; charset=utf-8")
                 .header("SOAPAction", "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue")
                 .expect().statusCode(equalTo(200)).when()
                 .post(SERVICE_ROOT + "/SecurityTokenService").then().log().all().assertThat()
@@ -429,7 +445,9 @@ public class TestSecurity extends AbstractIntegrationTest {
                 + GOOD_X509_PATH_TOKEN + "</wsse:BinarySecurityToken>\n" + "</wst:OnBehalfOf>\n";
         String body = getSoapEnvelope(onBehalfOf);
 
-        given().log().all().body(body).header("Content-Type", "text/xml; charset=utf-8")
+        given().auth().certificate(KEY_STORE_PATH, PASSWORD,
+                certAuthSettings().sslSocketFactory(SSLSocketFactory.getSystemSocketFactory()))
+                .log().all().body(body).header("Content-Type", "text/xml; charset=utf-8")
                 .header("SOAPAction", "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue")
                 .expect().statusCode(equalTo(200)).when()
                 .post(SERVICE_ROOT + "/SecurityTokenService").then().log().all().assertThat()
@@ -479,8 +497,9 @@ public class TestSecurity extends AbstractIntegrationTest {
                 + "                </wst:OnBehalfOf>\n";
         String body = getSoapEnvelope(onBehalfOf);
 
-        String assertionHeader = given().log().all().body(body)
-                .header("Content-Type", "text/xml; charset=utf-8")
+        String assertionHeader = given().auth().certificate(KEY_STORE_PATH, PASSWORD,
+                certAuthSettings().sslSocketFactory(SSLSocketFactory.getSystemSocketFactory()))
+                .log().all().body(body).header("Content-Type", "text/xml; charset=utf-8")
                 .header("SOAPAction", "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue")
                 .expect().statusCode(equalTo(200)).when()
                 .post(SERVICE_ROOT + "/SecurityTokenService").then().extract().response()

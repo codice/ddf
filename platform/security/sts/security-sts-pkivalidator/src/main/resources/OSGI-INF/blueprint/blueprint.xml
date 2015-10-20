@@ -44,6 +44,7 @@
         <property name="realms">
             <list value-type="java.lang.String">
                 <value>karaf</value>
+                <value>ldap</value>
             </list>
         </property>
 
