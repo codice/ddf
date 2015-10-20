@@ -13,10 +13,8 @@
  */
 package ddf.security.cas;
 
-import java.io.IOException;
 import java.nio.charset.Charset;
 
-import javax.net.ssl.HttpsURLConnection;
 import javax.security.auth.callback.CallbackHandler;
 
 import org.apache.commons.lang.StringUtils;
@@ -41,7 +39,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.security.common.audit.SecurityLogger;
-import ddf.security.common.util.CommonSSLFactory;
 import ddf.security.encryption.EncryptionService;
 
 /**
@@ -204,21 +201,7 @@ public class WebSSOTokenValidator implements TokenValidator {
      */
     public Assertion validate(String ticket, String service) throws TicketValidationException {
         LOGGER.trace("CAS Server URL = " + casServerUrl);
-        try {
-            String trustStorePath = System.getProperty("javax.net.ssl.trustStore");
-            String trustStorePassword = System.getProperty("javax.net.ssl.trustStorePassword");
-            String keyStorePath = System.getProperty("javax.net.ssl.keyStore");
-            String keyStorePassword = System.getProperty("javax.net.ssl.keyStorePassword");
-            if (encryptionService != null) {
-                keyStorePassword = encryptionService.decryptValue(keyStorePassword);
-                trustStorePassword = encryptionService.decryptValue(trustStorePassword);
-            }
-            HttpsURLConnection.setDefaultSSLSocketFactory(CommonSSLFactory
-                    .createSocket(trustStorePath, trustStorePassword, keyStorePath,
-                            keyStorePassword));
-        } catch (IOException ioe) {
-            throw new TicketValidationException("Could not set up connection to CAS Server.", ioe);
-        }
+
 
         Cas20ProxyTicketValidator casValidator = new Cas20ProxyTicketValidator(casServerUrl.getResolvedString());
         casValidator.setAcceptAnyProxy(true);
