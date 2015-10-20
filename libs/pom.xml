@@ -32,6 +32,7 @@
         <module>notifications</module>
         <module>platform-configuration-impl</module>
         <module>common-system</module>
+        <module>checksum</module>
     </modules>
 
 </project>
