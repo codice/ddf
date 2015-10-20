@@ -15,7 +15,6 @@
 package org.codice.ddf.ui.searchui.query.controller;
 
 import java.security.Principal;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashMap;
@@ -30,9 +29,6 @@ import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.Subject;
 import org.codice.ddf.activities.ActivityEvent;
-import org.codice.ddf.notifications.Notification;
-import org.codice.ddf.persistence.PersistenceException;
-import org.codice.ddf.persistence.PersistentItem;
 import org.codice.ddf.persistence.PersistentStore;
 import org.cometd.annotation.Listener;
 import org.cometd.annotation.Service;
@@ -92,27 +88,6 @@ public abstract class AbstractEventController implements EventHandler {
 
         this.persistentStore = persistentStore;
         this.eventAdmin = eventAdmin;
-    }
-
-    public List<Map<String, String>> getNotificationsForUser(String userId) {
-        List<Map<String, String>> notifications = new ArrayList<Map<String, String>>();
-        List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
-        try {
-            results = persistentStore.get(PersistentStore.NOTIFICATION_TYPE,
-                    Notification.NOTIFICATION_KEY_USER_ID + " = '" + userId + "'");
-        } catch (PersistenceException e) {
-            LOGGER.debug("PersistenceException trying to get notifications for user {}", userId, e);
-        }
-        for (Map<String, Object> result : results) {
-            Map<String, Object> sanitizedResult = PersistentItem.stripSuffixes(result);
-            Map<String, String> notification = new HashMap<String, String>();
-            for (String name : sanitizedResult.keySet()) {
-                notification.put(name, sanitizedResult.get(name).toString());
-            }
-            notifications.add(notification);
-        }
-
-        return notifications;
     }
 
     /**

@@ -39,9 +39,22 @@ define([
             events: {
                 'click .showModal': 'showModal'
             },
+            initialize: function() {
+                this.listenTo(wreqr.vent, 'upload:start', this.onUploadStart);
+                this.listenTo(wreqr.vent, 'upload:finish', this.onUploadFinish);
+            },
             showModal: function() {
-               var modal = new IngestModal({model: this.model});
-                wreqr.vent.trigger('showModal', modal);
+                var keepCurrentModal = this.modal && this.modal.isUnfinished();
+                if (!keepCurrentModal) {
+                    this.modal = new IngestModal();
+                }
+                wreqr.vent.trigger('showModal', this.modal);
+            },
+            onUploadStart: function() {
+                this.model.set('uploading', true);
+            },
+            onUploadFinish: function() {
+                this.model.set('uploading', false);
             }
         });
 
