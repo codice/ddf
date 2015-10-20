@@ -97,7 +97,7 @@ public class ScheduledCommandTask implements ScheduledTask {
     }
 
     @Override
-    public void deleteTask() {
+    public void deleteTask(int code) {
         try {
             scheduler.deleteJob(jobKey);
         } catch (SchedulerException e) {

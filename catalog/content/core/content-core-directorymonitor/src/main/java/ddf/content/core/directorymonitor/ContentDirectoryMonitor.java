@@ -49,7 +49,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
      *
      * @param camelContext the Camel context to use across all Content Directory
      *                     Monitors. Note that if Apache changes this ModelCamelContext interface there
-     *                     is no guarantee that whatever DM is being used (Spring in this case) will be
+     *                     is no guarantee that whatever DM is being used (Blueprint in this case) will be
      *                     updated accordingly.
      */
     public ContentDirectoryMonitor(CamelContext camelContext) {
@@ -84,9 +84,12 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
     }
 
     /**
+     * Invoked when a configuration is destroyed from the container
      *
+     * @param code - not used
+     * @see https://issues.apache.org/jira/browse/ARIES-1436
      */
-    public void destroy() {
+    public void destroy(int code) {
         LOGGER.trace("INSIDE: destroy()");
         removeRoutes();
     }
@@ -94,7 +97,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
     /**
      * Invoked when updates are made to the configuration of existing directory monitors. This
      * method is invoked by the container as specified by the update-strategy and update-method
-     * attributes in Spring beans XML file.
+     * attributes in Blueprint XML file.
      *
      * @param properties - properties map for the configuration
      */

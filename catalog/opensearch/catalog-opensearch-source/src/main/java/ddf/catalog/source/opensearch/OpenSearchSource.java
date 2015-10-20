@@ -179,8 +179,8 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
     }
 
-    public void destroy() {
-        LOGGER.info("Nothing to destroy.");
+    public void destroy(int code) {
+        LOGGER.debug("Nothing to destroy.");
     }
 
     @Override
@@ -826,7 +826,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
             restUrl = RestUrl.newInstance(url);
             restUrl.setRetrieveResource(true);
         } catch (MalformedURLException | URISyntaxException e) {
-            LOGGER.info("Bad url given for remote source", e);
+            LOGGER.debug("Bad url given for remote source", e);
         }
         return restUrl;
     }

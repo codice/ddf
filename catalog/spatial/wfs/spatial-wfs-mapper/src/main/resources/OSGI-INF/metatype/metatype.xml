@@ -85,7 +85,8 @@
 
 	</OCD>
 
-	<Designate factoryPid="org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper">
+	<Designate pid="org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper"
+               factoryPid="org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper">
 		<Object ocdref="org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper"/>
 	</Designate>
 </metatype:MetaData>
