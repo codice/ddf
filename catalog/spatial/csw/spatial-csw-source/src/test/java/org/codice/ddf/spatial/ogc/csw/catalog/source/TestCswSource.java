@@ -787,8 +787,8 @@ public class TestCswSource extends TestCswSourceBase {
         configuration.put("receiveTimeout", 10000);
         cswSource.refresh(configuration);
 
-        assertEquals(cswSource.getConnectionTimeout(), 10000);
-        assertEquals(cswSource.getReceiveTimeout(), 10000);
+        assertEquals(cswSource.getConnectionTimeout().intValue(), 10000);
+        assertEquals(cswSource.getReceiveTimeout().intValue(), 10000);
     }
 
     @Test
