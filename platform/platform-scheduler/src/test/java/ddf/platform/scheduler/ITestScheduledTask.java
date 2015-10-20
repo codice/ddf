@@ -111,7 +111,7 @@ public class ITestScheduledTask {
         assertThat(captureInput.getInputArg(), is(newCommand));
 
         // DELETE
-        task.deleteTask();
+        task.deleteTask(1);
 
         Thread.sleep(
                 (updatedExpectedRuns - 1) * numberOfSeconds * MILLISECONDS_IN_ONE_SECOND + buffer);
