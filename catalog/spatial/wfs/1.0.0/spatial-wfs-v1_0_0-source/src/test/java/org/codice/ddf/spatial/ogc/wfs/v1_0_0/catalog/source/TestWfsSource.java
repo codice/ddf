@@ -1028,8 +1028,8 @@ public class TestWfsSource {
         source.setConnectionTimeout(10000);
         source.setReceiveTimeout(10000);
         // Perform test
-        assertEquals(source.getConnectionTimeout(), 10000);
-        assertEquals(source.getReceiveTimeout(), 10000);
+        assertEquals(source.getConnectionTimeout().intValue(), 10000);
+        assertEquals(source.getReceiveTimeout().intValue(), 10000);
     }
 
     private SourceResponse executeQuery(int startIndex, int pageSize)
