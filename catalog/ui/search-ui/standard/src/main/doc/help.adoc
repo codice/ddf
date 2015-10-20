@@ -137,7 +137,7 @@ sophisticated queries.
 |Query	
 |The Query builder enables users to construct a very granular search query.
  The first drop down menu contains the metadata elements in the search results, and the second
- contains operators based on the field selected (greater than, equals, contains, before, after,
+ contains operators based on the field selected (greater than, equals, contains, matchcase, before, after,
  etc.)  Click the + to add further constraints to the query, or x to remove.
  Click Search to use the new query.
 
