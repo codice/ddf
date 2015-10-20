@@ -13,14 +13,8 @@
  */
 package ddf.security.sts.claimsHandler;
 
-import java.io.IOException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.net.ssl.SSLContext;
 
 import org.apache.cxf.sts.claims.ClaimsHandler;
 import org.codice.ddf.configuration.PropertyResolver;
@@ -34,7 +28,6 @@ import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.security.common.util.CommonSSLFactory;
 import ddf.security.encryption.EncryptionService;
 
 /**
@@ -152,24 +145,6 @@ public class ClaimsHandlerManager {
         if (encryptService != null) {
             keystorePass = encryptService.decryptValue(keystorePass);
             truststorePass = encryptService.decryptValue(truststorePass);
-        }
-
-        try {
-            if (useSsl || useTls) {
-                SSLContext sslContext = SSLContext.getInstance(CommonSSLFactory.PROTOCOL);
-                if (keystoreLoc != null && truststoreLoc != null) {
-                    sslContext.init(CommonSSLFactory
-                            .createKeyManagerFactory(keystoreLoc, keystorePass).getKeyManagers(),
-                            CommonSSLFactory
-                                    .createTrustManagerFactory(truststoreLoc, truststorePass)
-                                    .getTrustManagers(), new SecureRandom());
-                }
-
-                lo.setSSLContext(sslContext);
-            }
-        } catch (IOException | NoSuchAlgorithmException | KeyManagementException e) {
-            LOGGER.error("Error encountered while configuring SSL. Secure connection will fail.",
-                    e);
         }
 
         lo.setUseStartTLS(useTls);

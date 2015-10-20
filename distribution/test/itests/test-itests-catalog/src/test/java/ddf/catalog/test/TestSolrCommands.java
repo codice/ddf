@@ -52,10 +52,10 @@ public class TestSolrCommands extends AbstractIntegrationTest {
 
     @BeforeExam
     public void beforeExam() throws Exception {
-        setLogLevels();
-        waitForAllBundles();
-        waitForCatalogProvider();
-        waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query");
+        getAdminConfig().setLogLevels();
+        getServiceManager().waitForAllBundles();
+        getCatalogBundle().waitForCatalogProvider();
+        getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query");
         console = new KarafConsole(bundleCtx);
     }
 
