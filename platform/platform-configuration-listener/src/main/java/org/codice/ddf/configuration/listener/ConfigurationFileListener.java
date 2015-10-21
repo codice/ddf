@@ -74,7 +74,6 @@ public class ConfigurationFileListener implements ChangeListener {
         } catch (RuntimeException e) {
             LOGGER.error("A runtime exception occured", e);
         }
-
     }
 
     /*

@@ -32,7 +32,9 @@ import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.useOwnExa
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -42,6 +44,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.karaf.features.FeaturesService;
 import org.junit.Rule;
 import org.ops4j.pax.exam.Option;
@@ -330,6 +333,23 @@ public abstract class AbstractIntegrationTest {
      */
     protected Option[] configureCustom() {
         return null;
+    }
+
+    /**
+     * Copies the content of a JAR resource to the destination specified before the container
+     * starts up. Useful to add test configuration files before tests are run.
+     *
+     * @param resourceInputStream input stream to te he JAR resource to copy
+     * @param destination         destination relative to DDF_HOME
+     * @return option object to include in a {@link #configureCustom()} method
+     * @throws IOException thrown if a problem occurs while copying the resource
+     */
+    protected Option installStartupFile(InputStream resourceInputStream, String destination)
+            throws IOException {
+        File tempFile = Files.createTempFile("StartupFile", ".temp").toFile();
+        tempFile.deleteOnExit();
+        FileUtils.copyInputStreamToFile(resourceInputStream, tempFile);
+        return replaceConfigurationFile(destination, tempFile);
     }
 
     /**

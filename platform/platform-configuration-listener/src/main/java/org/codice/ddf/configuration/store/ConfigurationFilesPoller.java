@@ -113,10 +113,13 @@ public class ConfigurationFilesPoller implements Runnable {
                         listener.update(pid, KIND_CHANGE_TYPE_MAP.get(kind));
                     } catch (RuntimeException e) {
                         LOGGER.error(
-                                "A runtime exception occured"); // TODO is this try catch needed anymore?
+                                "Runtime exception occurred when calling listener.update() for PID [{}], filename [{}]",
+                                pid, filename, e);
                     }
                 }
-                // reset key, shutdown watcher if directory no able to be observed (possibly deleted, who knows)
+
+                // Reset key, shutdown watcher if directory no able to be observed
+                // (possibly deleted)
                 if (!key.reset()) {
                     LOGGER.warn("Configurations in [{}] are no longer able to be observed.",
                             configurationDirectory);

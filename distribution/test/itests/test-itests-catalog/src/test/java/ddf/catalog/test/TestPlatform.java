@@ -20,11 +20,9 @@ import static org.junit.Assert.fail;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import static org.ops4j.pax.exam.CoreOptions.options;
 import static org.ops4j.pax.exam.CoreOptions.wrappedBundle;
-import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.replaceConfigurationFile;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.nio.file.Files;
 import java.util.Dictionary;
 import java.util.concurrent.TimeUnit;
 
@@ -32,19 +30,18 @@ import org.apache.commons.io.FileUtils;
 import org.apache.felix.cm.file.ConfigurationHandler;
 import org.codice.ddf.platform.util.ConfigurationPropertiesComparator;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
-import org.osgi.service.cm.Configuration;
 import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
 import ddf.common.test.BeforeExam;
-import ddf.common.test.config.ConfigurationPredicate;
+import ddf.common.test.config.ConfigurationDeleted;
+import ddf.common.test.config.ConfigurationPropertiesMatch;
 
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
@@ -81,6 +78,10 @@ public class TestPlatform extends AbstractIntegrationTest {
 
     private static Dictionary<String, Object> startupConfigProperties;
 
+    private static String trackedConfigFilePath;
+
+    private static File trackedConfigFile;
+
     @BeforeExam
     @SuppressWarnings("unchecked")
     public void beforeExam() throws Exception {
@@ -92,16 +93,11 @@ public class TestPlatform extends AbstractIntegrationTest {
                 .read(getClass().getResourceAsStream(UNTRACKED_CONFIG_FILE));
         startupConfigProperties = ConfigurationHandler
                 .read(getClass().getResourceAsStream(STARTUP_CONFIG_FILE));
+        trackedConfigFilePath = String.format("%s/etc%s", ddfHome, TRACKED_CONFIG_FILE);
+        trackedConfigFile = new File(trackedConfigFilePath);
+
         getAdminConfig().setLogLevels();
         getServiceManager().waitForAllBundles();
-    }
-
-    @Before
-    public void setup() throws Exception {
-        copyConfigToFileSystem();
-
-        getAdminConfig().waitForConfiguration(TRACKED_PID,
-                new ConfigurationPropertiesMatch(configProperties), POLLER_WAIT_TIME);
     }
 
     @Override
@@ -109,10 +105,8 @@ public class TestPlatform extends AbstractIntegrationTest {
         String fileName = String.format("/%s.startup.config", TRACKED_PID);
 
         try {
-            File tempFile = Files.createTempFile(TRACKED_PID, ".config").toFile();
-            tempFile.deleteOnExit();
-            FileUtils.copyInputStreamToFile(getClass().getResourceAsStream(fileName), tempFile);
-            return options(replaceConfigurationFile("/etc" + fileName, tempFile),
+            return options(
+                    installStartupFile(getClass().getResourceAsStream(fileName), "/etc" + fileName),
                     wrappedBundle(mavenBundle("ddf.platform", "platform-configuration-listener")));
         } catch (Exception e) {
             LOGGER.error("Could not copy file [{}]", fileName);
@@ -120,6 +114,10 @@ public class TestPlatform extends AbstractIntegrationTest {
         }
     }
 
+    /**
+     * Tests that a {@link org.osgi.service.cm.Configuration} object exists for the resource that
+     * was copied using {@link AbstractIntegrationTest#installStartupFile(java.io.InputStream, String)}.
+     */
     @Test
     public void testStartUpWithExistingConfigFile() throws Exception {
         assertThat("Did not startup with config",
@@ -131,12 +129,13 @@ public class TestPlatform extends AbstractIntegrationTest {
 
     @Test
     public void testModifyConfigFileFromAdmin() throws Exception {
-        LOGGER.debug("Starting test");
+        copyConfigToFileSystemAndWait();
         getAdminConfig().getConfiguration(TRACKED_PID, null).update(modifiedConfigProperties);
         waitForConfigurationFilePoller();
-        LOGGER.debug("Checking file properties");
+
+        @SuppressWarnings("unchecked")
         Dictionary<String, Object> fileProperties = ConfigurationHandler
-                .read(new FileInputStream(String.format("%s/etc%s", ddfHome, TRACKED_CONFIG_FILE)));
+                .read(new FileInputStream(trackedConfigFilePath));
         assertThat("File does not match modification from config admin",
                 CONFIGURATION_PROPERTIES_COMPARATOR.equal(fileProperties, modifiedConfigProperties),
                 is(true));
@@ -144,11 +143,10 @@ public class TestPlatform extends AbstractIntegrationTest {
 
     @Test
     public void testDeleteConfigFileFromAdmin() throws Exception {
+        copyConfigToFileSystemAndWait();
         getAdminConfig().getConfiguration(TRACKED_PID, null).delete();
         waitForConfigurationFilePoller();
-        assertThat("Files was not deleted ",
-                new File(String.format("%s/etc%s", ddfHome, TRACKED_CONFIG_FILE)).exists(),
-                is(false));
+        assertThat("Files was not deleted ", trackedConfigFile.exists(), is(false));
     }
 
     @Test
@@ -162,28 +160,26 @@ public class TestPlatform extends AbstractIntegrationTest {
 
     @Test
     public void testRecreationOfTrackedFile() throws Exception {
-        deleteConfigFileFromFileSystem();
+        copyConfigToFileSystemAndWait();
+        deleteConfigFileFromFileSystemAndWait();
 
-        getAdminConfig()
-                .waitForConfiguration(TRACKED_PID, new ConfigurationDeleted(), POLLER_WAIT_TIME);
-        LOGGER.debug("Configuration deleted!");
         getAdminConfig().getConfiguration(TRACKED_PID, null).update(configProperties);
+
         long timeoutLimit = System.currentTimeMillis() + POLLER_WAIT_TIME;
-        while (!(new File(String.format("%s/etc%s", ddfHome, TRACKED_CONFIG_FILE)).exists())) {
-            Thread.sleep(1000);
+
+        while (!(trackedConfigFile.exists())) {
+            Thread.sleep(500);
+
             if (System.currentTimeMillis() > timeoutLimit) {
-                fail(String.format("Configuration file wasn't recreated within %d seconds.",
-                        TimeUnit.MILLISECONDS.toSeconds(POLLER_WAIT_TIME)));
+                fail(String.format("Configuration file [%s] wasn't recreated within [%d] seconds.",
+                        trackedConfigFilePath, TimeUnit.MILLISECONDS.toSeconds(POLLER_WAIT_TIME)));
             }
         }
-        LOGGER.debug("Wait to Delete!");
-        waitForConfigurationFilePoller();
-        LOGGER.debug("Start the Delete!");
     }
 
     @Test
     public void testModifyConfigFromFileSystem() throws Exception {
-
+        copyConfigToFileSystemAndWait();
         overwriteExistingConfigOnFileSystem();
 
         getAdminConfig().waitForConfiguration(TRACKED_PID,
@@ -192,69 +188,44 @@ public class TestPlatform extends AbstractIntegrationTest {
 
     @Test
     public void testDeleteConfigFromFileSystem() throws Exception {
-        // this is accomplished by teardown
+        copyConfigToFileSystemAndWait();
+        deleteConfigFileFromFileSystemAndWait();
     }
 
     @Test
     public void testCreateTrackedConfigFileFromFileSystem() throws Exception {
-        // this is accomplished by setup
+        copyConfigToFileSystemAndWait();
     }
 
     @After
     public void tearDown() throws Exception {
-        deleteConfigFileFromFileSystem();
-
-        getAdminConfig()
-                .waitForConfiguration(TRACKED_PID, new ConfigurationDeleted(), POLLER_WAIT_TIME);
+        trackedConfigFile.delete();
         getAdminConfig().getConfiguration(TRACKED_PID, null).delete();
     }
 
-    public void overwriteExistingConfigOnFileSystem() throws Exception {
+    private void overwriteExistingConfigOnFileSystem() throws Exception {
         FileUtils
                 .copyInputStreamToFile(getClass().getResourceAsStream(MODIFIED_TRACKED_CONFIG_FILE),
-                        new File(String.format("%s/etc%s", ddfHome, TRACKED_CONFIG_FILE)));
+                        trackedConfigFile);
     }
 
-    public void copyConfigToFileSystem() throws Exception {
+    private void copyConfigToFileSystemAndWait() throws Exception {
         FileUtils.copyInputStreamToFile(getClass().getResourceAsStream(TRACKED_CONFIG_FILE),
-                new File(String.format("%s/etc%s", ddfHome, TRACKED_CONFIG_FILE)));
+                trackedConfigFile);
+        getAdminConfig().waitForConfiguration(TRACKED_PID,
+                new ConfigurationPropertiesMatch(configProperties), POLLER_WAIT_TIME);
+        LOGGER.debug("{} copied", trackedConfigFilePath);
     }
 
-    public void deleteConfigFileFromFileSystem() throws Exception {
-        new File(String.format("%s/etc%s", ddfHome, TRACKED_CONFIG_FILE)).delete();
+    private void deleteConfigFileFromFileSystemAndWait() throws Exception {
+        trackedConfigFile.delete();
+        getAdminConfig()
+                .waitForConfiguration(TRACKED_PID, new ConfigurationDeleted(), POLLER_WAIT_TIME);
+        LOGGER.debug("{} deleted", trackedConfigFilePath);
     }
 
     private void waitForConfigurationFilePoller() throws Exception {
         Thread.sleep(POLLER_WAIT_TIME);
     }
-
-    private static class ConfigurationDeleted implements ConfigurationPredicate {
-        @Override
-        public boolean test(Configuration configuration) {
-            if ((configuration == null) || (configuration.getProperties() == null)) {
-                return true;
-            }
-            return false;
-        }
-    }
-
-    private static class ConfigurationPropertiesMatch implements ConfigurationPredicate {
-        private final Dictionary<String, Object> expectedProperties;
-
-        public ConfigurationPropertiesMatch(Dictionary<String, Object> expectedProperties) {
-            this.expectedProperties = expectedProperties;
-        }
-
-        @Override
-        public boolean test(Configuration configuration) {
-            if ((configuration == null) || (configuration.getProperties() == null)) {
-                return false;
-            }
-
-            return CONFIGURATION_PROPERTIES_COMPARATOR
-                    .equal(expectedProperties, configuration.getProperties());
-        }
-    }
-
 }
 
