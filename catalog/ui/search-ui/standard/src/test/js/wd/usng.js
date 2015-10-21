@@ -8,10 +8,10 @@ var convertLLtoUSNG = function(browser,lat1, lon1, lat2, lon2) {
     return browser
         .waitForElementById('latlon', shared.timeout).click()
         .waitForElementById('locationBbox', shared.timeout).click()
-        .waitForElementById('north', shared.timeout).clear().type(lat1)
-        .waitForElementById('south', shared.timeout).clear().type(lat2)
-        .waitForElementById('east', shared.timeout).clear().type(lon1)
-        .waitForElementById('west', shared.timeout).clear().type(lon2)
+        .waitForElementById('mapNorth', shared.timeout).clear().type(lat1)
+        .waitForElementById('mapSouth', shared.timeout).clear().type(lat2)
+        .waitForElementById('mapEast', shared.timeout).clear().type(lon1)
+        .waitForElementById('mapWest', shared.timeout).clear().type(lon2)
         .waitForElementById('usng', shared.timeout).click()
         .waitForElementById('usngbb', shared.timeout);
 };
@@ -125,10 +125,10 @@ describe('USNG Search', function () {
             var east = -77.0351;
             var west = -77.0351;
             return convertUSNGtoLL(this.browser, "18S UJ 23487 06483")
-                .waitForConditionInBrowser("document.getElementById('west').value.indexOf(\'"+west+"\') >= 0", shared.timeout)
-                .waitForConditionInBrowser("document.getElementById('east').value.indexOf(\'"+east+"\') >= 0", shared.timeout)
-                .waitForConditionInBrowser("document.getElementById('north').value.indexOf(\'"+north+"\') >= 0", shared.timeout)
-                .waitForConditionInBrowser("document.getElementById('south').value.indexOf(\'"+south+"\') >= 0", shared.timeout);
+                .waitForConditionInBrowser("document.getElementById('mapWest').value.indexOf(\'"+west+"\') >= 0", shared.timeout)
+                .waitForConditionInBrowser("document.getElementById('mapEast').value.indexOf(\'"+east+"\') >= 0", shared.timeout)
+                .waitForConditionInBrowser("document.getElementById('mapNorth').value.indexOf(\'"+north+"\') >= 0", shared.timeout)
+                .waitForConditionInBrowser("document.getElementById('mapSouth').value.indexOf(\'"+south+"\') >= 0", shared.timeout);
         });
 
         it("should convert to 38.8895 -77.0351 38.8894 -77.0350", function () {
@@ -137,10 +137,10 @@ describe('USNG Search', function () {
             var east = -77.0350;
             var west = -77.0351;
             return convertUSNGtoLL(this.browser, "18S UJ 2349 0648")
-                .waitForConditionInBrowser("document.getElementById('west').value.indexOf(\'"+west+"\') >= 0", shared.timeout)
-                .waitForConditionInBrowser("document.getElementById('east').value.indexOf(\'"+east+"\') >= 0", shared.timeout)
-                .waitForConditionInBrowser("document.getElementById('north').value.indexOf(\'"+north+"\') >= 0", shared.timeout)
-                .waitForConditionInBrowser("document.getElementById('south').value.indexOf(\'"+south+"\') >= 0", shared.timeout);
+                .waitForConditionInBrowser("document.getElementById('mapWest').value.indexOf(\'"+west+"\') >= 0", shared.timeout)
+                .waitForConditionInBrowser("document.getElementById('mapEast').value.indexOf(\'"+east+"\') >= 0", shared.timeout)
+                .waitForConditionInBrowser("document.getElementById('mapNorth').value.indexOf(\'"+north+"\') >= 0", shared.timeout)
+                .waitForConditionInBrowser("document.getElementById('mapSouth').value.indexOf(\'"+south+"\') >= 0", shared.timeout);
         });
 
         it("should convert to 38.8896 -77.0361 38.8887 -77.0350", function () {
@@ -149,10 +149,10 @@ describe('USNG Search', function () {
             var east = -77.0350;
             var west = -77.0361;
             return convertUSNGtoLL(this.browser, "18S UJ 234 064")
-                .waitForConditionInBrowser("document.getElementById('west').value.indexOf(\'"+west+"\') >= 0", shared.timeout)
-                .waitForConditionInBrowser("document.getElementById('east').value.indexOf(\'"+east+"\') >= 0", shared.timeout)
-                .waitForConditionInBrowser("document.getElementById('north').value.indexOf(\'"+north+"\') >= 0", shared.timeout)
-                .waitForConditionInBrowser("document.getElementById('south').value.indexOf(\'"+south+"\') >= 0", shared.timeout);
+                .waitForConditionInBrowser("document.getElementById('mapWest').value.indexOf(\'"+west+"\') >= 0", shared.timeout)
+                .waitForConditionInBrowser("document.getElementById('mapEast').value.indexOf(\'"+east+"\') >= 0", shared.timeout)
+                .waitForConditionInBrowser("document.getElementById('mapNorth').value.indexOf(\'"+north+"\') >= 0", shared.timeout)
+                .waitForConditionInBrowser("document.getElementById('mapSouth').value.indexOf(\'"+south+"\') >= 0", shared.timeout);
         });
 
         it("should convert to 38.8942 -77.0406 38.8850 -77.0294", function () {
@@ -161,10 +161,10 @@ describe('USNG Search', function () {
             var east = -77.0294;
             var west = -77.0406;
             return convertUSNGtoLL(this.browser, "18S UJ 23 06")
-                .waitForConditionInBrowser("document.getElementById('west').value.indexOf(\'"+west+"\') >= 0", shared.timeout)
-                .waitForConditionInBrowser("document.getElementById('east').value.indexOf(\'"+east+"\') >= 0", shared.timeout)
-                .waitForConditionInBrowser("document.getElementById('north').value.indexOf(\'"+north+"\') >= 0", shared.timeout)
-                .waitForConditionInBrowser("document.getElementById('south').value.indexOf(\'"+south+"\') >= 0", shared.timeout);
+                .waitForConditionInBrowser("document.getElementById('mapWest').value.indexOf(\'"+west+"\') >= 0", shared.timeout)
+                .waitForConditionInBrowser("document.getElementById('mapEast').value.indexOf(\'"+east+"\') >= 0", shared.timeout)
+                .waitForConditionInBrowser("document.getElementById('mapNorth').value.indexOf(\'"+north+"\') >= 0", shared.timeout)
+                .waitForConditionInBrowser("document.getElementById('mapSouth').value.indexOf(\'"+south+"\') >= 0", shared.timeout);
         });
 
         it("should convert to 38.9224 -77.0736 38.8304 -76.9610", function () {
@@ -173,10 +173,10 @@ describe('USNG Search', function () {
             var east = -76.9610;
             var west = -77.0736;
             return convertUSNGtoLL(this.browser, "18S UJ 2 0")
-                .waitForConditionInBrowser("document.getElementById('west').value.indexOf(\'"+west+"\') >= 0", shared.timeout)
-                .waitForConditionInBrowser("document.getElementById('east').value.indexOf(\'"+east+"\') >= 0", shared.timeout)
-                .waitForConditionInBrowser("document.getElementById('north').value.indexOf(\'"+north+"\') >= 0", shared.timeout)
-                .waitForConditionInBrowser("document.getElementById('south').value.indexOf(\'"+south+"\') >= 0", shared.timeout);
+                .waitForConditionInBrowser("document.getElementById('mapWest').value.indexOf(\'"+west+"\') >= 0", shared.timeout)
+                .waitForConditionInBrowser("document.getElementById('mapEast').value.indexOf(\'"+east+"\') >= 0", shared.timeout)
+                .waitForConditionInBrowser("document.getElementById('mapNorth').value.indexOf(\'"+north+"\') >= 0", shared.timeout)
+                .waitForConditionInBrowser("document.getElementById('mapSouth').value.indexOf(\'"+south+"\') >= 0", shared.timeout);
         });
 
         it("should convert to 39.7440 -77.3039 38.8260 -76.1671", function () {
@@ -185,10 +185,10 @@ describe('USNG Search', function () {
             var east = -76.1671;
             var west = -77.3039;
             return convertUSNGtoLL(this.browser, "18S UJ")
-                .waitForConditionInBrowser("document.getElementById('west').value.indexOf(\'"+west+"\') >= 0", shared.timeout)
-                .waitForConditionInBrowser("document.getElementById('east').value.indexOf(\'"+east+"\') >= 0", shared.timeout)
-                .waitForConditionInBrowser("document.getElementById('north').value.indexOf(\'"+north+"\') >= 0", shared.timeout)
-                .waitForConditionInBrowser("document.getElementById('south').value.indexOf(\'"+south+"\') >= 0", shared.timeout);
+                .waitForConditionInBrowser("document.getElementById('mapWest').value.indexOf(\'"+west+"\') >= 0", shared.timeout)
+                .waitForConditionInBrowser("document.getElementById('mapEast').value.indexOf(\'"+east+"\') >= 0", shared.timeout)
+                .waitForConditionInBrowser("document.getElementById('mapNorth').value.indexOf(\'"+north+"\') >= 0", shared.timeout)
+                .waitForConditionInBrowser("document.getElementById('mapSouth').value.indexOf(\'"+south+"\') >= 0", shared.timeout);
         });
 
         it("should convert to 40 -84 32 -84", function () {
@@ -197,10 +197,10 @@ describe('USNG Search', function () {
             var east = -78;
             var west = -84;
             return convertUSNGtoLL(this.browser, "17S")
-                .waitForConditionInBrowser("document.getElementById('west').value.indexOf(\'"+west+"\') >= 0", shared.timeout)
-                .waitForConditionInBrowser("document.getElementById('east').value.indexOf(\'"+east+"\') >= 0", shared.timeout)
-                .waitForConditionInBrowser("document.getElementById('north').value.indexOf(\'"+north+"\') >= 0", shared.timeout)
-                .waitForConditionInBrowser("document.getElementById('south').value.indexOf(\'"+south+"\') >= 0", shared.timeout);
+                .waitForConditionInBrowser("document.getElementById('mapWest').value.indexOf(\'"+west+"\') >= 0", shared.timeout)
+                .waitForConditionInBrowser("document.getElementById('mapEast').value.indexOf(\'"+east+"\') >= 0", shared.timeout)
+                .waitForConditionInBrowser("document.getElementById('mapNorth').value.indexOf(\'"+north+"\') >= 0", shared.timeout)
+                .waitForConditionInBrowser("document.getElementById('mapSouth').value.indexOf(\'"+south+"\') >= 0", shared.timeout);
         });
     });
 });
