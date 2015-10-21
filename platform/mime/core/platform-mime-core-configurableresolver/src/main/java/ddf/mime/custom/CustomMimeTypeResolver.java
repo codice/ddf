@@ -14,6 +14,7 @@
 package ddf.mime.custom;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +43,7 @@ public class CustomMimeTypeResolver implements MimeTypeResolver {
 
     private int priority;
 
-    private String[] customMimeTypes;
+    private List<String> customMimeTypes;
 
     private HashMap<String, String> customFileExtensionsToMimeTypesMap;
 
@@ -103,14 +104,18 @@ public class CustomMimeTypeResolver implements MimeTypeResolver {
         this.priority = priority;
     }
 
-    public String[] getCustomMimeTypes() {
-        return customMimeTypes.clone();
+    public List<String> getCustomMimeTypes() {
+        return customMimeTypes;
     }
 
-    public void setCustomMimeTypes(String[] customMimeTypes) {
+    public void setCustomMimeTypes(String customMimeTypes) {
+        setCustomMimeTypes(Arrays.asList(customMimeTypes.split(",")));
+    }
+
+    public void setCustomMimeTypes(List<String> customMimeTypes) {
         LOGGER.trace("ENTERING: setCustomMimeTypes");
 
-        this.customMimeTypes = customMimeTypes.clone();
+        this.customMimeTypes = customMimeTypes;
         this.customFileExtensionsToMimeTypesMap = new HashMap<String, String>();
         this.customMimeTypesToFileExtensionsMap = new HashMap<String, List<String>>();
 
