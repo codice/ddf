@@ -5604,6 +5604,12 @@ Note the last line: _jar verified_. This indicates that the signatures used to s
 
 === Security
 
+==== Configure STS Subject DN constraints
+The configuration for the STS Subject DN constraints is located in the `ws-security.subject.cert.constraints property`in the `<DDF_INSTALL_DIR>/etc/system.properties` file.
+
+The default constraints are ".*", which allows any connection with a trusted certificate the ability to access the STS. This opens up the vulnerability for a client to "pretend" to be another client.
+To prevent this, modify this property to be a list of regular expressions that map to the fully qualified hostnames of systems allowed to contact the STS.
+
 ==== Manage Users and Passwords
 The default security configuration uses a property file located in `DDF_HOME/etc/user`.properties to store users and passwords.
 
