@@ -35,8 +35,8 @@ define(['application',
             this.subscription = Cometd.Comet.subscribe("/ddf/notifications/**", function(resp) {
                 // instead of doing a notifications.create(), make new Model and then add it to collection.
                 // this is done to avoid calling model.save() which notifications.create() will do.
-                var incomingNotification = new Notification.Notification(resp, {validate: true, parse: true});
-                
+                var incomingNotification = new Notification.Notification(resp.data, {validate: true});
+
                 //only add the Notification if it is properly formatted and contains application, message, and title
                 if(!incomingNotification.validationError){
                     notifications.add(incomingNotification);

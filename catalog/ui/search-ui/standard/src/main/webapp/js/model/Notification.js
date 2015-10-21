@@ -29,13 +29,6 @@ define(["backbone", "moment", "underscore", "jquery"], function (Backbone, momen
                 return "Notification must have message.";
             if (!attrs.timestamp)
                 return "Notification must have timestamp.";
-        },
-
-        //parses out the object returned from CometD 
-        parse: function (resp) {
-            if(!_.isEmpty(resp.data)) {
-                return $.parseJSON(resp.data);
-            }
         }
     });
 
