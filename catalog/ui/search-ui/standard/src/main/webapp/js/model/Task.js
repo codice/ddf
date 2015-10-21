@@ -31,9 +31,8 @@ define([
             if(!attrs.timestamp)
                 return "Task must have timestamp.";
         },
-        parse : function(resp){
-            if(!_.isEmpty(resp.data)) {
-                var json = $.parseJSON(resp.data);
+        parse : function(json){
+            if(!_.isEmpty(json)) {
                 if(json.operations) {
                     //remove the stuff that we have pre-defined actions for in the template
                     json.operationsExt = this.pluck(json.operations, ['download', 'retry', 'cancel', 'pause', 'remove', 'resume']);

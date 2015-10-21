@@ -15,12 +15,12 @@
 package org.codice.ddf.ui.searchui.query.controller;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
@@ -48,6 +48,12 @@ public class ActivityController extends AbstractEventController {
     // CometD requires prepending the topic name with a '/' character, whereas
     // the OSGi Event Admin doesn't allow it.
     protected static final String ACTIVITY_TOPIC_COMETD = "/" + ActivityEvent.EVENT_TOPIC;
+
+    protected static final String ACTIVITY_TOPIC_COMETD_BROADCAST =
+            ACTIVITY_TOPIC_COMETD + "/broadcast";
+
+    protected static final String ACTIVITY_TOPIC_COMETD_DOWNLOADS =
+            ACTIVITY_TOPIC_COMETD + "/downloads";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ActivityController.class);
 
@@ -135,7 +141,8 @@ public class ActivityController extends AbstractEventController {
                 }
             }
 
-            recipient.deliver(controllerServerSession, ACTIVITY_TOPIC_COMETD, propMap, null);
+            recipient.deliver(controllerServerSession, ACTIVITY_TOPIC_COMETD_DOWNLOADS, propMap,
+                    null);
 
         } else {
             LOGGER.debug(
@@ -175,7 +182,7 @@ public class ActivityController extends AbstractEventController {
     @Listener('/' + ActivityEvent.EVENT_TOPIC)
     public void getPersistedActivities(final ServerSession remote, Message message) {
         Map<String, Object> data = message.getDataAsMap();
-        if (CollectionUtils.isEmpty((Collection) data)) {
+        if (MapUtils.isEmpty(data)) {
             Subject subject = null;
             try {
                 subject = SecurityUtils.getSubject();
@@ -191,8 +198,8 @@ public class ActivityController extends AbstractEventController {
 
             List<Map<String, Object>> activities = getActivitiesForUser(userId);
 
-            if (CollectionUtils.isNotEmpty((Collection) activities)) {
-                queuePersistedMessages(remote, activities, ACTIVITY_TOPIC_COMETD);
+            if (CollectionUtils.isNotEmpty(activities)) {
+                queuePersistedMessages(remote, activities, ACTIVITY_TOPIC_COMETD_BROADCAST);
             }
         }
     }
