@@ -18,6 +18,7 @@ import java.util.UUID;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.wss4j.common.ext.WSSecurityException;
+import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.apache.wss4j.common.saml.SamlAssertionWrapper;
 import org.joda.time.DateTime;
 import org.opensaml.Configuration;
@@ -50,6 +51,10 @@ public class SamlProtocol {
     public static final String REDIRECT_BINDING = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect";
 
     public static final String POST_BINDING = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST";
+
+    static {
+        OpenSAMLUtil.initSamlEngine();
+    }
 
     private static XMLObjectBuilderFactory builderFactory = Configuration.getBuilderFactory();
 

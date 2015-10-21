@@ -15,7 +15,14 @@ package org.codice.ddf.configuration;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import java.io.IOException;
+
+import org.apache.commons.codec.binary.Base64;
+import org.apache.felix.webconsole.BrandingPlugin;
+import org.codice.ddf.branding.BrandingResourceProvider;
 import org.junit.Test;
 
 import net.minidev.json.JSONObject;
@@ -24,13 +31,28 @@ import net.minidev.json.JSONValue;
 public class PlatformUiConfigurationTest {
 
     @Test
-    public void testConfig() {
+    public void testConfig() throws IOException {
         PlatformUiConfiguration configuration = new PlatformUiConfiguration();
         String wsOutput = configuration.getConfig();
         Object obj = JSONValue.parse(wsOutput);  // throws JSON Parse exception if not valid json.
         if (!(obj instanceof JSONObject)) {
             fail("PlatformUiConfiguration is not a JSON Object.");
         }
+
+        BrandingPlugin brandingPlugin = mock(BrandingPlugin.class);
+        when(brandingPlugin.getProductName()).thenReturn("product");
+        when(brandingPlugin.getProductImage()).thenReturn("image");
+        when(brandingPlugin.getFavIcon()).thenReturn("fav");
+
+        configuration.setProvider(new BrandingResourceProvider() {
+
+            @Override
+            public byte[] getResourceAsBytes(String path) throws IOException {
+                return path.getBytes();
+            }
+        });
+
+        configuration.setBranding(brandingPlugin);
 
         configuration.setHeader("header");
         configuration.setFooter("footer");
@@ -47,6 +69,11 @@ public class PlatformUiConfigurationTest {
         assertEquals("footer", jsonObject.get(PlatformUiConfiguration.FOOTER));
         assertEquals("background", jsonObject.get(PlatformUiConfiguration.BACKGROUND));
         assertEquals("color", jsonObject.get(PlatformUiConfiguration.COLOR));
+        assertEquals("product", jsonObject.get(PlatformUiConfiguration.VERSION));
+        assertEquals("image", new String(Base64.decodeBase64(
+                (String) jsonObject.get(PlatformUiConfiguration.PRODUCT_IMAGE))));
+        assertEquals("fav", new String(Base64.decodeBase64(
+                (String) jsonObject.get(PlatformUiConfiguration.FAV_ICON))));
     }
 
 }
