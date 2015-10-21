@@ -1,26 +1,25 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.ui.searchui.query.controller;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
@@ -49,6 +48,11 @@ public class ActivityController extends AbstractEventController {
     // the OSGi Event Admin doesn't allow it.
     protected static final String ACTIVITY_TOPIC_COMETD = "/" + ActivityEvent.EVENT_TOPIC;
 
+    protected static final String ACTIVITY_TOPIC_COMETD_BROADCAST =
+            ACTIVITY_TOPIC_COMETD + "/broadcast";
+
+    protected static final String ACTIVITY_TOPIC_COMETD_NEW = ACTIVITY_TOPIC_COMETD + "/new";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ActivityController.class);
 
     private static final String CANCEL_ACTION = "cancel";
@@ -68,7 +72,7 @@ public class ActivityController extends AbstractEventController {
      *
      * @throws IllegalArgumentException when any of the following required properties are either
      *                                  missing from the Event or contain empty values:
-     *                                  <p/>
+     *                                  <p>
      *                                  <ul>
      *                                  <li>{@link ActivityEvent#ID_KEY}</li>
      *                                  <li>{@link ActivityEvent#MESSAGE_KEY}</li>
@@ -99,7 +103,7 @@ public class ActivityController extends AbstractEventController {
 
         if (null == event.getProperty(ActivityEvent.STATUS_KEY) || event
                 .getProperty(ActivityEvent.STATUS_KEY).toString().isEmpty()) {
-            throw new IllegalArgumentException("Activity Event \"" + ActivityEvent.MESSAGE_KEY
+            throw new IllegalArgumentException("Activity Event \"" + ActivityEvent.STATUS_KEY
                     + "\" property is null or empty");
         }
 
@@ -135,31 +139,31 @@ public class ActivityController extends AbstractEventController {
                 }
             }
 
-            recipient.deliver(controllerServerSession, ACTIVITY_TOPIC_COMETD, propMap, null);
-
+            recipient.deliver(controllerServerSession, ACTIVITY_TOPIC_COMETD_NEW, propMap, null);
         } else {
-            LOGGER.debug(
-                    "Session with ID \"{}\" is not connected to the server. " + "Ignoring activity",
+            LOGGER.debug("Session with ID \"{}\" is not connected to the server. Ignoring activity",
                     sessionId);
         }
     }
 
     public List<Map<String, Object>> getActivitiesForUser(String userId) {
-        List<Map<String, Object>> activities = new ArrayList<Map<String, Object>>();
-        List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
+        List<Map<String, Object>> activities = new ArrayList<>();
+        List<Map<String, Object>> results = new ArrayList<>();
         try {
             results = persistentStore.get(PersistentStore.ACTIVITY_TYPE,
                     ActivityEvent.USER_ID_KEY + " = '" + userId + "'");
         } catch (PersistenceException e) {
             LOGGER.debug("PersistenceException trying to get activities for user {}", userId, e);
         }
+
         for (Map<String, Object> result : results) {
             Map<String, Object> sanitizedResult = PersistentItem.stripSuffixes(result);
-            Map<String, Object> activity = new HashMap<String, Object>();
-            activity.put(ActivityEvent.OPERATIONS_KEY, new HashMap<String, String>());
+            Map<String, Object> activity = new HashMap<>();
+            Map<String, String> activityOperations = new HashMap<>();
+            activity.put(ActivityEvent.OPERATIONS_KEY, activityOperations);
             for (Map.Entry<String, Object> entry : sanitizedResult.entrySet()) {
                 if (entry.getKey().contains(ActivityEvent.OPERATIONS_KEY + "_")) {
-                    ((Map) activity.get(ActivityEvent.OPERATIONS_KEY)).put(entry.getKey()
+                    activityOperations.put(entry.getKey()
                                     .substring((ActivityEvent.OPERATIONS_KEY + "_").length()),
                             entry.getValue().toString());
                 } else {
@@ -175,7 +179,7 @@ public class ActivityController extends AbstractEventController {
     @Listener('/' + ActivityEvent.EVENT_TOPIC)
     public void getPersistedActivities(final ServerSession remote, Message message) {
         Map<String, Object> data = message.getDataAsMap();
-        if (CollectionUtils.isEmpty((Collection) data)) {
+        if (MapUtils.isEmpty(data)) {
             Subject subject = null;
             try {
                 subject = SecurityUtils.getSubject();
@@ -191,8 +195,8 @@ public class ActivityController extends AbstractEventController {
 
             List<Map<String, Object>> activities = getActivitiesForUser(userId);
 
-            if (CollectionUtils.isNotEmpty((Collection) activities)) {
-                queuePersistedMessages(remote, activities, ACTIVITY_TOPIC_COMETD);
+            if (CollectionUtils.isNotEmpty(activities)) {
+                queuePersistedMessages(remote, activities, ACTIVITY_TOPIC_COMETD_BROADCAST);
             }
         }
     }
