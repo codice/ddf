@@ -40,7 +40,7 @@
             <argument ref="filterAdapter"/>
             <property name="shortname" value="DDF-OS"/>
             <property name="endpointUrl"
-                      value=""/>
+                      value="test"/>
             <property name="username" value=""/>
             <property name="password" value=""/>
             <property name="localQueryOnly" value="false"/>
