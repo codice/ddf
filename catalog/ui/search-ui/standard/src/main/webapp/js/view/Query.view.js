@@ -202,7 +202,6 @@ define([
 
             swapLocationTypeLatLon: function() {
                 this.model.set('locationType', 'latlon');
-                this.model.setLatLon();
                 this.updateLocationFields();
             },
 
@@ -539,6 +538,10 @@ define([
                 if (_.isUndefined(this.model.get('src'))) {
                     this.model.setSources(this.sources);
                 }
+                view.model.set({"north" : view.model.get('mapNorth')}, {silent: true});
+                view.model.set({"west" : view.model.get('mapWest')}, {silent: true});
+                view.model.set({"south" : view.model.get('mapSouth')}, {silent: true});
+                view.model.set({"east" : view.model.get('mapEast')}, {silent: true});
 
                 // disable the whole form
                 this.$('button').addClass('disabled');

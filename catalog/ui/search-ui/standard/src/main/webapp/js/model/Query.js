@@ -103,14 +103,16 @@ define([
             },
 
             setLatLon: function() {
-                var north = this.get('north'),
-                    south = this.get('south'),
-                    west = this.get('west'),
-                    east = this.get('east');
-                if (!(north && south && west && east)) {
-                    var result = converter.USNGtoLL(this.get('usngbb'));
-                    this.set(result);
+                var result = {};
+                result.north = this.get('mapNorth');
+                result.south = this.get('mapSouth');
+                result.west = this.get('mapWest');
+                result.east = this.get('mapEast');
+                if (!(result.north && result.south && result.west && result.east)) {
+                    result = converter.USNGtoLL(this.get('usngbb'));
+
                 }
+                this.set(result);
             },
 
             setBboxLatLon: function () {
