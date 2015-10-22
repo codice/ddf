@@ -17,10 +17,12 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -54,6 +56,7 @@ import org.apache.cxf.message.MessageUtils;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.transport.http.AbstractHTTPDestination;
 import org.apache.cxf.ws.addressing.AddressingProperties;
 import org.apache.cxf.ws.addressing.AttributedURIType;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
@@ -135,7 +138,7 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
 
     private boolean overrideEndpointPolicies = false;
 
-    private Subject cachedAnonymousSubject;
+    private Map<String, Subject> cachedAnonymousSubjectMap = new HashMap<>();
 
     public AnonymousInterceptor(SecurityManager securityManager,
             ContextPolicyManager contextPolicyManager) {
@@ -386,7 +389,10 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
                 if (policyRequirementsSupported || overrideEndpointPolicies) {
                     LOGGER.debug("Creating anonymous security token.");
                     if (soapFactory != null) {
-                        createSecurityToken(version, soapFactory, securityHeader);
+                        HttpServletRequest request = (HttpServletRequest) message
+                                .get(AbstractHTTPDestination.HTTP_REQUEST);
+                        createSecurityToken(version, soapFactory, securityHeader,
+                                request.getRemoteAddr());
                         try {
                             // Add security header to SOAP message
                             soapMessage.getSOAPHeader().addChildElement(securityHeader);
@@ -416,8 +422,8 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
     }
 
     private void createSecurityToken(SoapVersion version, SOAPFactory soapFactory,
-            SOAPElement securityHeader) {
-        Subject subject = getSubject();
+            SOAPElement securityHeader, String ipAddress) {
+        Subject subject = getSubject(ipAddress);
 
         LOGGER.trace("Attempting to create Security token.");
         if (subject != null) {
@@ -445,23 +451,25 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
         }
     }
 
-    private Subject getSubject() {
-        if (Security.tokenAboutToExpire(cachedAnonymousSubject)) {
+    private Subject getSubject(String ipAddress) {
+        Subject subject = cachedAnonymousSubjectMap.get(ipAddress);
+        if (Security.tokenAboutToExpire(subject)) {
             AnonymousAuthenticationToken token = new AnonymousAuthenticationToken(
-                    BaseAuthenticationToken.DEFAULT_REALM);
-            LOGGER.debug("Getting new Anonymous user token");
+                    BaseAuthenticationToken.DEFAULT_REALM, ipAddress);
+            LOGGER.debug("Getting new Anonymous user token for {}", ipAddress);
             //synchronize the step of requesting the assertion, it is not thread safe
             synchronized (lock) {
                 try {
-                    cachedAnonymousSubject = securityManager.getSubject(token);
+                    subject = securityManager.getSubject(token);
+                    cachedAnonymousSubjectMap.put(ipAddress, subject);
                 } catch (SecurityServiceException sse) {
                     LOGGER.warn("Unable to request subject for anonymous user.", sse);
                 }
             }
         } else {
-            LOGGER.debug("Using cached Anonymous user token");
+            LOGGER.debug("Using cached Anonymous user token for {}", ipAddress);
         }
-        return cachedAnonymousSubject;
+        return subject;
     }
 
     private void createIncludeTimestamp(SOAPFactory soapFactory, SOAPElement securityHeader) {

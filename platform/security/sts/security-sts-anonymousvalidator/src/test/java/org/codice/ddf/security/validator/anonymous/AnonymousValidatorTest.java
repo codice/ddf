@@ -49,10 +49,10 @@ public class AnonymousValidatorTest {
         validator = new AnonymousValidator();
         validator.setSupportedRealm(Arrays.asList("DDF"));
         AnonymousAuthenticationToken anonymousAuthenticationToken = new AnonymousAuthenticationToken(
-                "DDF");
+                "DDF", "127.0.0.1");
 
         AnonymousAuthenticationToken anonymousAuthenticationTokenAnyRealm = new AnonymousAuthenticationToken(
-                "*");
+                "*", "127.0.0.1");
 
         BinarySecurityTokenType binarySecurityTokenType = new BinarySecurityTokenType();
         binarySecurityTokenType

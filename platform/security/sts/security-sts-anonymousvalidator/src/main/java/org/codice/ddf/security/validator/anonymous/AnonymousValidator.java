@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -39,9 +39,13 @@ public class AnonymousValidator implements TokenValidator {
                 && AnonymousAuthenticationToken.ANONYMOUS_TOKEN_VALUE_TYPE
                 .equals(((BinarySecurityTokenType) token).getValueType())) {
             String credential = ((BinarySecurityTokenType) token).getValue();
+            String ipAddress = "";
+            if (token instanceof AnonymousAuthenticationToken) {
+                ipAddress = ((AnonymousAuthenticationToken) token).getIpAddress();
+            }
             try {
                 BaseAuthenticationToken base = AnonymousAuthenticationToken.parse(credential, true);
-                return new AnonymousAuthenticationToken(base.getRealm());
+                return new AnonymousAuthenticationToken(base.getRealm(), ipAddress);
             } catch (WSSecurityException e) {
                 LOGGER.warn("Unable to parse {} from encodedToken.",
                         AnonymousAuthenticationToken.class.getSimpleName(), e);
@@ -67,7 +71,8 @@ public class AnonymousValidator implements TokenValidator {
                 LOGGER.trace("No realm specified in request, canHandletoken = true");
                 return true;
             } else {
-                if (supportedRealm.contains(anonToken.getRealm()) || "*".equals(anonToken.getRealm())) {
+                if (supportedRealm.contains(anonToken.getRealm()) || "*"
+                        .equals(anonToken.getRealm())) {
                     LOGGER.trace("Realm '{}' recognized - canHandleToken = true",
                             anonToken.getRealm());
                     return true;
@@ -96,12 +101,14 @@ public class AnonymousValidator implements TokenValidator {
                         .equals(anonToken.getRealm())) && anonToken.getCredentials()
                         .equals(AnonymousAuthenticationToken.ANONYMOUS_CREDENTIALS)) {
                     validateTarget.setState(ReceivedToken.STATE.VALID);
-                    validateTarget.setPrincipal(new CustomTokenPrincipal(AnonymousAuthenticationToken.ANONYMOUS_CREDENTIALS));
+                    validateTarget.setPrincipal(new CustomTokenPrincipal(
+                            AnonymousAuthenticationToken.ANONYMOUS_CREDENTIALS));
                 }
             } else if (anonToken.getCredentials()
                     .equals(AnonymousAuthenticationToken.ANONYMOUS_CREDENTIALS)) {
                 validateTarget.setState(ReceivedToken.STATE.VALID);
-                validateTarget.setPrincipal(new CustomTokenPrincipal(AnonymousAuthenticationToken.ANONYMOUS_CREDENTIALS));
+                validateTarget.setPrincipal(new CustomTokenPrincipal(
+                        AnonymousAuthenticationToken.ANONYMOUS_CREDENTIALS));
             }
         }
         return response;

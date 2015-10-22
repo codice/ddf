@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -13,6 +13,9 @@
  */
 package org.codice.ddf.security.handler.api;
 
+import org.apache.commons.lang.StringUtils;
+
+import ddf.security.common.audit.SecurityLogger;
 import ddf.security.principal.AnonymousPrincipal;
 
 /**
@@ -28,9 +31,20 @@ public class AnonymousAuthenticationToken extends BSTAuthenticationToken {
             BSTAuthenticationToken.BST_NS + BSTAuthenticationToken.TOKEN_VALUE_SEPARATOR
                     + BST_ANONYMOUS_LN;
 
-    public AnonymousAuthenticationToken(String realm) {
+    private String ipAddress;
+
+    public AnonymousAuthenticationToken(String realm, String ip) {
         super(new AnonymousPrincipal(), ANONYMOUS_CREDENTIALS, realm);
         setTokenValueType(BSTAuthenticationToken.BST_NS, BST_ANONYMOUS_LN);
         setTokenId(BST_ANONYMOUS_LN);
+        this.ipAddress = ip;
+
+        if (!StringUtils.isEmpty(ip)) {
+            SecurityLogger.logInfo("Anonymous token generated for IP address: " + this.ipAddress);
+        }
+    }
+
+    public String getIpAddress() {
+        return this.ipAddress;
     }
 }

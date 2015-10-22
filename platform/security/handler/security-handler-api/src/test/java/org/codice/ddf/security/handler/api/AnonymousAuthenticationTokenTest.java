@@ -25,11 +25,12 @@ public class AnonymousAuthenticationTokenTest {
     @Test
     public void testConstructor() {
         final String realm = "someRealm";
-        AnonymousAuthenticationToken token = new AnonymousAuthenticationToken(realm);
+        AnonymousAuthenticationToken token = new AnonymousAuthenticationToken(realm, "127.0.0.1");
         assertTrue(token.getPrincipal() instanceof AnonymousPrincipal);
         assertEquals(AnonymousAuthenticationToken.ANONYMOUS_CREDENTIALS, token.getCredentials());
         assertEquals(realm, token.getRealm());
         assertEquals(AnonymousAuthenticationToken.ANONYMOUS_TOKEN_VALUE_TYPE, token.tokenValueType);
         assertEquals(AnonymousAuthenticationToken.BST_ANONYMOUS_LN, token.tokenId);
+        assertEquals(token.getIpAddress(), "127.0.0.1");
     }
 }
