@@ -68,7 +68,7 @@
 
         <!-- Properties for the frontend-maven-plugin -->
         <node.version>v0.10.30</node.version>
-        <npm.version>1.4.12</npm.version>
+        <npm.version>2.14.7</npm.version>
 
         <camel.version>2.14.2</camel.version>
         <commons-io.version>2.1</commons-io.version>
@@ -461,7 +461,7 @@
                             <configuration>
                                 <nodeVersion>${node.version}</nodeVersion>
                                 <npmVersion>${npm.version}</npmVersion>
-                                <downloadRoot>http://artifacts.codice.org/nodejs/dist/</downloadRoot>
+                           <!--     <downloadRoot>http://artifacts.codice.org/nodejs/dist/</downloadRoot> -->
                             </configuration>
                         </execution>
                         <execution>
