@@ -1498,7 +1498,7 @@ The private key, certificate need to be combined into a new structure that can b
 * Concatenate the certificate from the issuer, all intermediate certificate authorities, and the root authority into a text file.
 
 ----
-$>  cat <root CA PEM> <intermediate CA 1 PEM> <intermediate CA 2 PEM> > chain.txt
+$>  cat mycertfile certificate_authority_certfile > chain.txt
 ----
 
 This command created the file `chain.txt`. This file an intermediate file used to create the PKCS#12 file.
