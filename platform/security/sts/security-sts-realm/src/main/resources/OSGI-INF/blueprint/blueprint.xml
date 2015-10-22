@@ -20,10 +20,8 @@
     <reference id="contextPolicyManager"
                interface="org.codice.ddf.security.policy.context.ContextPolicyManager"
                availability="optional"/>
-    <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
 
     <bean id="stsRealm" class="ddf.security.realm.sts.StsRealm">
-        <property name="encryptionService" ref="encryptionService"/>
         <property name="contextPolicyManager" ref="contextPolicyManager"/>
         <cm:managed-properties persistent-id="ddf.security.sts.client.configuration"
                                update-strategy="container-managed"/>
@@ -61,7 +59,6 @@
     <service ref="stsRealm" interface="org.apache.shiro.realm.Realm"/>
 
     <bean id="wssStsRealm" class="ddf.security.realm.sts.WssStsRealm">
-        <property name="encryptionService" ref="encryptionService"/>
         <property name="contextPolicyManager" ref="contextPolicyManager"/>
         <cm:managed-properties persistent-id="ddf.security.sts.wss.configuration"
                                update-strategy="container-managed"/>
