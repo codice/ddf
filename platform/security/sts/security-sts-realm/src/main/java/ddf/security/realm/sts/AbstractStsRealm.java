@@ -14,7 +14,6 @@
 package ddf.security.realm.sts;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -26,14 +25,10 @@ import java.util.Set;
 
 import javax.xml.stream.XMLStreamException;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.Bus;
-import org.apache.cxf.BusException;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.CXFBusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
-import org.apache.cxf.endpoint.Client;
-import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.staxutils.W3CDOMStreamWriter;
 import org.apache.cxf.ws.security.SecurityConstants;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
@@ -66,7 +61,6 @@ import ddf.security.PropertiesLoader;
 import ddf.security.assertion.SecurityAssertion;
 import ddf.security.assertion.impl.SecurityAssertionImpl;
 import ddf.security.common.audit.SecurityLogger;
-import ddf.security.encryption.EncryptionService;
 import ddf.security.sts.client.configuration.STSClientConfiguration;
 
 public abstract class AbstractStsRealm extends AuthenticatingRealm
@@ -76,25 +70,7 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
 
     private static final String NAME = AbstractStsRealm.class.getSimpleName();
 
-    private static final String HTTPS = "https";
-
     private static final String ADDRESSING_NAMESPACE = "http://www.w3.org/2005/08/addressing";
-
-    // AES is the best encryption but isn't always supported, 3DES is widely
-    // supported and is very difficult to crack
-
-    private List<String> getSslAllowedAlgorithms() {
-        return stringToArray(System.getProperty("org.apache.cxf.configuration.jsse.sslAllowedAlgorithms"));
-    }
-
-    static List<String> getSslDisallowedAlgorithms() {
-        return stringToArray(System.getProperty("org.apache.cxf.configuration.jsse.sslDisallowedAlgorithms"));
-    }
-
-    static List<String> stringToArray(String commaDelimitedString) {
-        return Arrays.asList(commaDelimitedString.split("\\s*,\\s"));
-
-    }
 
     private static final Splitter SPLITTER = Splitter.on(',').trimResults().omitEmptyStrings();
 
@@ -126,17 +102,7 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
 
     private STSClient stsClient;
 
-    private String trustStorePath;
-
-    private String trustStorePassword;
-
-    private String keyStorePath;
-
-    private String keyStorePassword;
-
     private boolean settingsConfigured;
-
-    private EncryptionService encryptionService;
 
     private ContextPolicyManager contextPolicyManager;
 
@@ -151,10 +117,6 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
     public AbstractStsRealm() {
         this.bus = getBus();
         setCredentialsMatcher(new STSCredentialsMatcher());
-    }
-
-    public void setEncryptionService(EncryptionService encryptionService) {
-        this.encryptionService = encryptionService;
     }
 
     public ContextPolicyManager getContextPolicyManager() {
@@ -343,52 +305,6 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
         LOGGER.debug(builder.toString());
     }
 
-
-    /**
-     * Set properties based on DDF System Properties.
-     */
-    private void setDdfPropertiesFromSystemProperties() {
-        String setTrustStorePath = System.getProperty("javax.net.ssl.trustStore");
-        if (StringUtils.isNotBlank(setTrustStorePath)) {
-            LOGGER.debug("Setting trust store path: " + setTrustStorePath);
-            this.trustStorePath = setTrustStorePath;
-        }
-
-        String setTrustStorePassword = System.getProperty("javax.net.ssl.trustStorePassword");
-        if (StringUtils.isNotBlank(setTrustStorePassword)) {
-            if (encryptionService == null) {
-                LOGGER.error(
-                        "The StsRealm has a null Encryption Service. Unable to decrypt the encrypted "
-                                + "trustStore password. Setting decrypted password to null.");
-                this.trustStorePassword = null;
-            } else {
-                setTrustStorePassword = encryptionService.decryptValue(setTrustStorePassword);
-                LOGGER.debug("Setting trust store password.");
-                this.trustStorePassword = setTrustStorePassword;
-            }
-        }
-
-        String setKeyStorePath = System.getProperty("javax.net.ssl.keyStore");
-        if (StringUtils.isNotBlank(setKeyStorePath)) {
-            LOGGER.debug("Setting key store path: " + setKeyStorePath);
-            this.keyStorePath = setKeyStorePath;
-        }
-
-        String setKeyStorePassword = System.getProperty("javax.net.ssl.keyStorePassword");
-        if (StringUtils.isNotBlank(setKeyStorePassword)) {
-            if (encryptionService == null) {
-                LOGGER.error(
-                        "The StsRealm has a null Encryption Service. Unable to decrypt the encrypted "
-                                + "keyStore password. Setting decrypted password to null.");
-                this.keyStorePassword = null;
-            } else {
-                setKeyStorePassword = encryptionService.decryptValue(setKeyStorePassword);
-                LOGGER.debug("Setting key store password.");
-                this.keyStorePassword = setKeyStorePassword;
-            }
-        }
-    }
-
     /**
      * Helper method to setup STS Client.
      */
@@ -475,7 +391,6 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
      */
     protected void configureStsClient() {
         LOGGER.debug("Configuring the STS client.");
-        setDdfPropertiesFromSystemProperties();
 
         configureBaseStsClient();
 
@@ -483,33 +398,8 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
 
         setClaimsOnStsClient(createClaimsElement());
 
-        if (stsClient.getWsdlLocation() != null && stsClient.getWsdlLocation().startsWith(HTTPS)) {
-            if (trustStorePath != null && trustStorePassword != null && keyStorePath != null
-                    && keyStorePassword != null) {
-                setupSslOnStsClientHttpConduit();
-            }
-        } else {
-            LOGGER.debug("STS address is null, unable to create STS Client");
-        }
-
         if (LOGGER.isDebugEnabled()) {
             logStsClientConfiguration();
-        }
-    }
-
-    /**
-     * Helper method to setup STS Client.
-     */
-    private void setupSslOnStsClientHttpConduit() {
-        LOGGER.debug("Setting up SSL on the STSClient HTTP conduit");
-
-        try {
-            Client client = stsClient.getClient();
-
-        } catch (BusException e) {
-            LOGGER.error("Unable to create STS client.", e);
-        } catch (EndpointException e) {
-            LOGGER.error("Unable to create STS client endpoint.", e);
         }
     }
 
