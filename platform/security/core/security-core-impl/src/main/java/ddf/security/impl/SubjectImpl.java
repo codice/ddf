@@ -42,12 +42,11 @@ public class SubjectImpl extends DelegatingSubject implements Subject {
 
     @Override
     public boolean isAnonymous() {
-        AnonymousPrincipal anonymousPrincipal = new AnonymousPrincipal();
         PrincipalCollection collection = getPrincipals();
         for (Object principal : collection.asList()) {
             if (principal instanceof AnonymousPrincipal) {
                 return true;
-            } else if (anonymousPrincipal.getName().equals(principal)) {
+            } else if (principal.toString().startsWith(AnonymousPrincipal.ANONYMOUS_NAME_PREFIX)) {
                 return true;
             }
         }
