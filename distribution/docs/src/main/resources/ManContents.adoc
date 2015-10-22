@@ -1498,7 +1498,7 @@ The private key, certificate need to be combined into a new structure that can b
 * Concatenate the certificate from the issuer, all intermediate certificate authorities, and the root authority into a text file.
 
 ----
-$>  cat <root CA PEM> <intermediate CA 1 PEM> <intermediate CA 2 PEM> > chain.txt
+$>  cat mycertfile certificate_authority_certfile > chain.txt
 ----
 
 This command created the file `chain.txt`. This file an intermediate file used to create the PKCS#12 file.
@@ -3073,7 +3073,7 @@ Portecle (http://portecle.sourceforge.net/) can be used for *keytool* operations
 The following steps define the procedure for creating a root CA to sign certificates.
 
 . Create a key pair. +
- `$> openssl genrsa -aes128 -out root-ca.key 1024`
+ `$> openssl genrsa -des3 -out root-ca.key 1024`
 . Use the key to sign the CA certificate. +
 `$> openssl req -new -x509 -days 3650 -key root-ca.key -out root-ca.crt`
 
