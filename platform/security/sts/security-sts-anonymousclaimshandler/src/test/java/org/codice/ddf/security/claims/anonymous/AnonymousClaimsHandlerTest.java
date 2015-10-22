@@ -29,6 +29,8 @@ import org.apache.cxf.sts.claims.ProcessedClaim;
 import org.apache.cxf.sts.claims.ProcessedClaimCollection;
 import org.junit.Test;
 
+import ddf.security.principal.AnonymousPrincipal;
+
 public class AnonymousClaimsHandlerTest {
 
     @Test
@@ -117,6 +119,7 @@ public class AnonymousClaimsHandlerTest {
         requestClaims.add(requestClaim);
 
         ClaimsParameters claimsParameters = new ClaimsParameters();
+        claimsParameters.setPrincipal(new AnonymousPrincipal("127.0.0.1"));
 
         List<URI> supportedClaims = claimsHandler.getSupportedClaimTypes();
 
@@ -125,7 +128,7 @@ public class AnonymousClaimsHandlerTest {
         ProcessedClaimCollection claimsCollection = claimsHandler
                 .retrieveClaimValues(requestClaims, claimsParameters);
 
-        assertEquals(2, claimsCollection.size());
+        assertEquals(3, claimsCollection.size());
 
         for (ProcessedClaim claim : claimsCollection) {
             if (claim.getClaimType().equals(nameURI)) {
@@ -137,6 +140,8 @@ public class AnonymousClaimsHandlerTest {
                 assertEquals("Anonymous@anon.com", values.get(0));
                 assertEquals("someguy@somesite.com", values.get(1));
                 assertEquals("somedude@cool.com", values.get(2));
+            } else if(claim.getClaimType().equals("IpAddress")) {
+                assertEquals("127.0.0.1", claim.getValues().get(0));
             }
             assertFalse(claim.getClaimType().equals(fooURI));
         }
