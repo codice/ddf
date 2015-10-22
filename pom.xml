@@ -12,7 +12,9 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>ddf</groupId>
@@ -53,9 +55,9 @@
     <properties>
 
         <!--  default URL properties -->
-        <ddf.scm.connection.url />
-        <snapshots.repository.url />
-        <reports.repository.url />
+        <ddf.scm.connection.url/>
+        <snapshots.repository.url/>
+        <reports.repository.url/>
 
         <!-- Must MANUALLY update this if the ddf/support project's version changes -->
         <ddf.support.version>2.3.4-SNAPSHOT</ddf.support.version>
@@ -377,7 +379,8 @@
                         </execution>
                     </executions>
                     <configuration>
-                        <bottom><![CDATA[This work is licensed under a <a href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License<a>.]]> </bottom>
+                        <bottom>
+                            <![CDATA[This work is licensed under a <a href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License<a>.]]> </bottom>
                         <failOnError>false</failOnError>
                         <aggregate>true</aggregate>
                         <show>protected</show>
@@ -403,7 +406,9 @@
                             <id>default-report</id>
                             <phase>prepare-package</phase>
                             <configuration>
-                                <outputDirectory>${project.build.directory}/site/${project.report.output.directory}/jacoco/</outputDirectory>
+                                <outputDirectory>
+                                    ${project.build.directory}/site/${project.report.output.directory}/jacoco/
+                                </outputDirectory>
                             </configuration>
                             <goals>
                                 <goal>report</goal>
@@ -461,7 +466,8 @@
                             <configuration>
                                 <nodeVersion>${node.version}</nodeVersion>
                                 <npmVersion>${npm.version}</npmVersion>
-                                <downloadRoot>http://artifacts.codice.org/nodejs/dist/</downloadRoot>
+                                <downloadRoot>http://artifacts.codice.org/nodejs/dist/
+                                </downloadRoot>
                             </configuration>
                         </execution>
                         <execution>
@@ -545,7 +551,7 @@
         <profile>
             <id>pmd</id>
             <activation>
-                <activeByDefault>true</activeByDefault>
+                <activeByDefault>false</activeByDefault>
             </activation>
             <build>
                 <plugins>
@@ -555,14 +561,15 @@
                 </plugins>
             </build>
         </profile>
+
         <profile>
             <id>documentation</id>
             <activation>
-    	       <file>
-                  <exists>${basedir}/src/assembly/bin.xml</exists>
-               </file>
-	    </activation>
-		<properties>
+                <file>
+                    <exists>${basedir}/src/assembly/bin.xml</exists>
+                </file>
+            </activation>
+            <properties>
                 <asciidoctor.maven.plugin.version>1.5.2</asciidoctor.maven.plugin.version>
                 <packaging>pom</packaging>
                 <module>docs</module>
@@ -581,26 +588,26 @@
                     </snapshots>
                 </repository>
             </repositories>
-                <dependencies>
-                    <dependency>
-                        <groupId>rubygems</groupId>
-                        <artifactId>asciidoctor-diagram</artifactId>
-                        <version>1.2.1</version>
-                        <type>gem</type>
-                        <scope>provided</scope>
-                        <exclusions>
-                            <exclusion>
-                                <groupId>rubygems</groupId>
-                                <artifactId>asciidoctor</artifactId>
-                            </exclusion>
-                        </exclusions>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.asciidoctor</groupId>
-                        <artifactId>asciidoctorj</artifactId>
-                        <version>1.5.2</version>
-                    </dependency>
-                </dependencies>
+            <dependencies>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>asciidoctor-diagram</artifactId>
+                    <version>1.2.1</version>
+                    <type>gem</type>
+                    <scope>provided</scope>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>rubygems</groupId>
+                            <artifactId>asciidoctor</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+                <dependency>
+                    <groupId>org.asciidoctor</groupId>
+                    <artifactId>asciidoctorj</artifactId>
+                    <version>1.5.2</version>
+                </dependency>
+            </dependencies>
             <build>
                 <defaultGoal>process-resources</defaultGoal>
                 <pluginManagement>
@@ -615,7 +622,8 @@
                                         <goal>copy-resources</goal>
                                     </goals>
                                     <configuration>
-                                        <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+                                        <outputDirectory>${project.build.outputDirectory}
+                                        </outputDirectory>
                                         <resources>
                                             <resource>
                                                 <directory>src/main/resources</directory>
@@ -675,7 +683,8 @@
                                     <configuration>
                                         <backend>html</backend>
                                         <doctype>book</doctype>
-                                        <outputDirectory>${project.build.directory}/docs/html</outputDirectory>
+                                        <outputDirectory>${project.build.directory}/docs/html
+                                        </outputDirectory>
                                     </configuration>
                                 </execution>
                                 <execution>
@@ -686,22 +695,24 @@
                                     </goals>
                                     <configuration>
                                         <backend>pdf</backend>
-                                        <outputDirectory>${project.build.directory}/docs/pdf</outputDirectory>
+                                        <outputDirectory>${project.build.directory}/docs/pdf
+                                        </outputDirectory>
                                         <requires>
                                             <require>asciidoctor-diagram</require>
                                         </requires>
                                         <!-- WARNING callout bullets don't yet work with CodeRay -->
                                         <attributes>
-                                            <pagenums />
-                                            <toc />
-                                            <idprefix />
+                                            <pagenums/>
+                                            <toc/>
+                                            <idprefix/>
                                             <idseparator>-</idseparator>
                                         </attributes>
                                     </configuration>
                                 </execution>
                             </executions>
                             <configuration>
-                                <sourceDirectory>${project.build.directory}/classes</sourceDirectory>
+                                <sourceDirectory>${project.build.directory}/classes
+                                </sourceDirectory>
                                 <gemPath>${project.build.directory}/gems-provided</gemPath>
                                 <headerFooter>true</headerFooter>
                                 <imagesDir>./images</imagesDir>
@@ -717,7 +728,8 @@
                             <version>2.5.3</version>
                             <configuration>
                                 <descriptor>${project.basedir}/src/assembly/bin.xml</descriptor>
-                                <outputDirectory>${project.build.directory}/documentation</outputDirectory>
+                                <outputDirectory>${project.build.directory}/documentation
+                                </outputDirectory>
                             </configuration>
                             <executions>
                                 <execution>
@@ -744,35 +756,47 @@
                                         <artifacts>
 
                                             <artifact>
-                                                <file>${project.build.directory}/docs/html/Extending.html</file>
+                                                <file>
+                                                    ${project.build.directory}/docs/html/Extending.html
+                                                </file>
                                                 <type>html</type>
                                                 <classifier>Extending</classifier>
                                             </artifact>
                                             <artifact>
-                                                <file>${project.build.directory}/docs/html/Integrating.html</file>
+                                                <file>
+                                                    ${project.build.directory}/docs/html/Integrating.html
+                                                </file>
                                                 <type>html</type>
                                                 <classifier>Integrating</classifier>
                                             </artifact>
                                             <artifact>
-                                                <file>${project.build.directory}/docs/html/Managing.html</file>
+                                                <file>
+                                                    ${project.build.directory}/docs/html/Managing.html
+                                                </file>
                                                 <type>html</type>
                                                 <classifier>Managing</classifier>
                                             </artifact>
                                             <artifact>
-                                                <file>${project.build.directory}/docs/pdf/Extending.pdf</file>
+                                                <file>
+                                                    ${project.build.directory}/docs/pdf/Extending.pdf
+                                                </file>
                                                 <type>pdf</type>
                                                 <classifier>Extending</classifier>
                                             </artifact>
                                             <artifact>
-                                                <file>${project.build.directory}/docs/pdf/Integrating.pdf</file>
+                                                <file>
+                                                    ${project.build.directory}/docs/pdf/Integrating.pdf
+                                                </file>
                                                 <type>pdf</type>
                                                 <classifier>Integrating</classifier>
                                             </artifact>
                                             <artifact>
-                                                <file>${project.build.directory}/docs/pdf/Managing.pdf</file>
+                                                <file>
+                                                    ${project.build.directory}/docs/pdf/Managing.pdf
+                                                </file>
                                                 <type>pdf</type>
                                                 <classifier>Managing</classifier>
-                                            </artifact>             
+                                            </artifact>
                                         </artifacts>
                                     </configuration>
                                 </execution>
@@ -872,8 +896,11 @@
                                 <phase>pre-site</phase>
                                 <configuration>
                                     <failOnError>false</failOnError>
-                                    <outputDirectory>${project.build.directory}/${project.report.output.directory}/</outputDirectory>
-                                    <reportOutputDirectory>${project.reporting.outputDirectory}/${project.report.output.directory}/
+                                    <outputDirectory>
+                                        ${project.build.directory}/${project.report.output.directory}/
+                                    </outputDirectory>
+                                    <reportOutputDirectory>
+                                        ${project.reporting.outputDirectory}/${project.report.output.directory}/
                                     </reportOutputDirectory>
                                     <destDir>api</destDir>
                                 </configuration>
@@ -897,11 +924,7 @@
         <profile>
             <id>findbugs</id>
             <activation>
-                <activeByDefault>true</activeByDefault>
-                <property>
-                    <name>env</name>
-                    <value>ci</value>
-                </property>
+                <activeByDefault>false</activeByDefault>
             </activation>
             <build>
                 <plugins>
@@ -923,7 +946,9 @@
                                             <version>${ddf.support.version}</version>
                                             <type>jar</type>
                                             <overWrite>true</overWrite>
-                                            <outputDirectory>${project.build.directory}/target/classes/</outputDirectory>
+                                            <outputDirectory>
+                                                ${project.build.directory}/target/classes/
+                                            </outputDirectory>
                                         </artifactItem>
                                     </artifactItems>
                                     <excludes>META-INF</excludes>
@@ -937,7 +962,9 @@
                         <artifactId>findbugs-maven-plugin</artifactId>
                         <version>3.0.1</version>
                         <configuration>
-                            <excludeFilterFile>${project.build.directory}/target/classes/findbugs-exclude.xml</excludeFilterFile>
+                            <excludeFilterFile>
+                                ${project.build.directory}/target/classes/findbugs-exclude.xml
+                            </excludeFilterFile>
                         </configuration>
                         <executions>
                             <execution>
