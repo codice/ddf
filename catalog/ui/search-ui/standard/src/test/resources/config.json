@@ -16,5 +16,7 @@
       },
       "alpha": 1
     }
-  ]
+  ],
+  "showWelcome": true,
+  "externalAuthentication": true
 }

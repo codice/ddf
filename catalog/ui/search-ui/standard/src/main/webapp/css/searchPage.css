@@ -988,6 +988,10 @@ button.ui-multiselect {
     display: block;
 }
 
+.btn-loginExternal {
+    display: block;
+}
+
 .login-container {
     padding: 10px;
     width: 250px;
@@ -995,7 +999,9 @@ button.ui-multiselect {
 
 .logout-container {
     margin: 10px auto;
-    width: 75%;
+    min-width: 75%;
+    padding-left: 19px;
+    padding-right: 19px;
 }
 
 .full-screen-search {
