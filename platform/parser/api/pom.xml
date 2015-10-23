@@ -18,7 +18,7 @@
     <parent>
         <groupId>ddf.platform</groupId>
         <artifactId>parser</artifactId>
-        <version>2.8.1-SNAPSHOT</version>
+        <version>2.9.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>platform-parser-api</artifactId>
