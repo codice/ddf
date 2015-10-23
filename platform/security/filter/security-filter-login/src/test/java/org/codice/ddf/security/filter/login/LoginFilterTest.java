@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -61,6 +61,7 @@ import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
 import ddf.security.common.util.SecurityTokenHolder;
+import ddf.security.http.impl.HttpSessionFactory;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
 
@@ -90,6 +91,7 @@ public class LoginFilterTest {
     public void testNoSubject() {
         FilterConfig filterConfig = mock(FilterConfig.class);
         LoginFilter loginFilter = new LoginFilter(null);
+        loginFilter.setSessionFactory(new HttpSessionFactory());
         try {
             loginFilter.init(filterConfig);
         } catch (ServletException e) {
@@ -124,6 +126,7 @@ public class LoginFilterTest {
     public void testBadSubject() throws IOException, ServletException {
         FilterConfig filterConfig = mock(FilterConfig.class);
         LoginFilter loginFilter = new LoginFilter(null);
+        loginFilter.setSessionFactory(new HttpSessionFactory());
         try {
             loginFilter.init(filterConfig);
         } catch (ServletException e) {
@@ -148,6 +151,7 @@ public class LoginFilterTest {
     public void testValidEmptySubject() throws IOException, ServletException {
         FilterConfig filterConfig = mock(FilterConfig.class);
         LoginFilter loginFilter = new LoginFilter(null);
+        loginFilter.setSessionFactory(new HttpSessionFactory());
         loginFilter.init(filterConfig);
 
         HttpServletRequest servletRequest = new TestHttpServletRequest();
@@ -166,6 +170,7 @@ public class LoginFilterTest {
             SAXException, SecurityServiceException {
         FilterConfig filterConfig = mock(FilterConfig.class);
         LoginFilter loginFilter = new LoginFilter(null);
+        loginFilter.setSessionFactory(new HttpSessionFactory());
         ddf.security.service.SecurityManager securityManager = mock(
                 ddf.security.service.SecurityManager.class);
         loginFilter.setSecurityManager(securityManager);
@@ -181,7 +186,8 @@ public class LoginFilterTest {
 
         HttpSession session = mock(HttpSession.class);
         when(servletRequest.getSession(true)).thenReturn(session);
-        when(session.getAttribute(SecurityConstants.SAML_ASSERTION)).thenReturn(new SecurityTokenHolder(null));
+        when(session.getAttribute(SecurityConstants.SAML_ASSERTION))
+                .thenReturn(new SecurityTokenHolder(null));
 
         Subject subject = mock(Subject.class, RETURNS_DEEP_STUBS);
         when(securityManager.getSubject(token)).thenReturn(subject);
@@ -189,7 +195,8 @@ public class LoginFilterTest {
         SecurityToken securityToken = mock(SecurityToken.class);
         when(assertion.getSecurityToken()).thenReturn(securityToken);
         when(subject.getPrincipals().asList()).thenReturn(Arrays.asList(assertion));
-        when(securityToken.getToken()).thenReturn(readDocument("/good_saml.xml").getDocumentElement());
+        when(securityToken.getToken())
+                .thenReturn(readDocument("/good_saml.xml").getDocumentElement());
 
         loginFilter.doFilter(servletRequest, servletResponse, filterChain);
     }
@@ -200,6 +207,7 @@ public class LoginFilterTest {
             SAXException, SecurityServiceException {
         FilterConfig filterConfig = mock(FilterConfig.class);
         LoginFilter loginFilter = new LoginFilter(null);
+        loginFilter.setSessionFactory(new HttpSessionFactory());
         ddf.security.service.SecurityManager securityManager = mock(
                 ddf.security.service.SecurityManager.class);
         loginFilter.setSecurityManager(securityManager);
@@ -230,6 +238,7 @@ public class LoginFilterTest {
             SAXException, SecurityServiceException {
         FilterConfig filterConfig = mock(FilterConfig.class);
         LoginFilter loginFilter = new LoginFilter(null);
+        loginFilter.setSessionFactory(new HttpSessionFactory());
         ddf.security.service.SecurityManager securityManager = mock(SecurityManager.class);
         loginFilter.setSecurityManager(securityManager);
         loginFilter.setSignaturePropertiesFile("signature.properties");

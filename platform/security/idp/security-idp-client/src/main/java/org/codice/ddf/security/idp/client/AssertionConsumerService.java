@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -31,7 +31,6 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
-import javax.servlet.http.HttpSession;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -66,6 +65,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
+import ddf.security.http.SessionFactory;
 import ddf.security.samlp.SamlProtocol;
 
 @Path("sso")
@@ -100,6 +100,8 @@ public class AssertionConsumerService {
     private Filter loginFilter;
 
     private SystemCrypto systemCrypto;
+
+    private SessionFactory sessionFactory;
 
     public AssertionConsumerService(SimpleSign simpleSign, IdpMetadata metadata,
             SystemCrypto crypto, SystemBaseUrl systemBaseUrl, RelayStates relayStates) {
@@ -174,8 +176,7 @@ public class AssertionConsumerService {
         }
 
         if (!validateResponse(samlResponse)) {
-            return Response.serverError()
-                    .entity("AuthN response failed validation.").build();
+            return Response.serverError().entity("AuthN response failed validation.").build();
         }
 
         String redirectLocation = relayStates.decode(relayState);
@@ -213,15 +214,14 @@ public class AssertionConsumerService {
         return true;
     }
 
+    public void setSessionFactory(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
+    }
+
     private boolean login(org.opensaml.saml2.core.Response samlResponse) {
         Map<String, Cookie> cookieMap = HttpUtils.getCookieMap(request);
         if (cookieMap.containsKey("JSESSIONID")) {
-            synchronized (newSessionLock) {
-                HttpSession session = request.getSession(true);
-                if (session != null) {
-                    session.invalidate();
-                }
-            }
+            sessionFactory.getOrCreateSession(request).invalidate();
         }
         String assertionValue = DOM2Writer
                 .nodeToString(samlResponse.getAssertions().get(0).getDOM());
@@ -246,7 +246,7 @@ public class AssertionConsumerService {
             }
         };
 
-        SAMLAssertionHandler samlAssertionHandler = new SAMLAssertionHandler();
+        SAMLAssertionHandler samlAssertionHandler = new SAMLAssertionHandler(sessionFactory);
 
         LOGGER.trace("Processing SAML assertion with SAML Handler.");
         HandlerResult samlResult = samlAssertionHandler

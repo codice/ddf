@@ -48,6 +48,7 @@ import org.xml.sax.SAXException;
 import ddf.security.SecurityConstants;
 import ddf.security.assertion.impl.SecurityAssertionImpl;
 import ddf.security.common.util.SecurityTokenHolder;
+import ddf.security.http.SessionFactory;
 
 /**
  * Checks for a SAML assertion that has been returned to us in the ddf security cookie. If it exists, it
@@ -67,10 +68,10 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
 
     private static final Pattern SAML_PREFIX = Pattern.compile("<(?<prefix>\\w+?):Assertion\\s.*");
 
-    // Interned string literal lock for creating new HTTP sessions
-    private final Object newSessionLock = "org.codice.ddf.security.NewHttpSession";
+    private SessionFactory sessionFactory;
 
-    public SAMLAssertionHandler() {
+    public SAMLAssertionHandler(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
         LOGGER.debug("Creating SAML Assertion handler.");
     }
 
@@ -165,12 +166,7 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
 
         HttpSession session = httpRequest.getSession(false);
         if (session == null && httpRequest.getRequestedSessionId() != null) {
-            synchronized (newSessionLock) {
-                session = httpRequest.getSession(true);
-                if (session.getAttribute(SecurityConstants.SAML_ASSERTION) == null) {
-                    session.setAttribute(SecurityConstants.SAML_ASSERTION, new SecurityTokenHolder(null));
-                }
-            }
+            session = sessionFactory.getOrCreateSession(httpRequest);
         }
         if (session != null) {
             //Check if there is a SAML Assertion in the session

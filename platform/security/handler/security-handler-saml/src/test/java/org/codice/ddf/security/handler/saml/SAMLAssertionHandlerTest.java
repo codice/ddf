@@ -43,9 +43,11 @@ import org.xml.sax.SAXException;
 
 import ddf.security.SecurityConstants;
 import ddf.security.common.util.SecurityTokenHolder;
+import ddf.security.http.impl.HttpSessionFactory;
 
 public class SAMLAssertionHandlerTest {
 
+    private HttpSessionFactory httpSessionFactory = new HttpSessionFactory();
     public static Document readXml(InputStream is)
             throws SAXException, IOException, ParserConfigurationException {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -72,7 +74,7 @@ public class SAMLAssertionHandlerTest {
      */
     @Test
     public void testGetNormalizedTokenSuccessWithHeader() throws Exception {
-        SAMLAssertionHandler handler = new SAMLAssertionHandler();
+        SAMLAssertionHandler handler = new SAMLAssertionHandler(httpSessionFactory);
 
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
@@ -99,7 +101,7 @@ public class SAMLAssertionHandlerTest {
      */
     @Test
     public void testGetNormalizedTokenFailureWithHeader() {
-        SAMLAssertionHandler handler = new SAMLAssertionHandler();
+        SAMLAssertionHandler handler = new SAMLAssertionHandler(httpSessionFactory);
 
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
@@ -120,7 +122,7 @@ public class SAMLAssertionHandlerTest {
      */
     @Test
     public void testGetNormalizedTokenSuccessWithCookie() throws Exception {
-        SAMLAssertionHandler handler = new SAMLAssertionHandler();
+        SAMLAssertionHandler handler = new SAMLAssertionHandler(httpSessionFactory);
 
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
@@ -148,7 +150,7 @@ public class SAMLAssertionHandlerTest {
      */
     @Test
     public void testGetNormalizedTokenFailurewithCookie() {
-        SAMLAssertionHandler handler = new SAMLAssertionHandler();
+        SAMLAssertionHandler handler = new SAMLAssertionHandler(httpSessionFactory);
 
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
@@ -164,7 +166,7 @@ public class SAMLAssertionHandlerTest {
 
     @Test
     public void testGetNormalizedTokenFromSession() throws Exception {
-        SAMLAssertionHandler handler = new SAMLAssertionHandler();
+        SAMLAssertionHandler handler = new SAMLAssertionHandler(httpSessionFactory);
 
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
