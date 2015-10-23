@@ -71,36 +71,43 @@ define([
             return '"' + fieldName + '"';
         },
 
+        buildStringFilter: function(filter, likeOperator){
+            if(filter.get('fieldName') === Properties.filters.METADATA_CONTENT_TYPE){
+                var split = filter.get('stringValue1').split(',');
+                var joinArray = [];
+                _.each(split, function(subContentType){
+                if(subContentType === 'no-value'){
+                    joinArray.push(Filter.CQLFactory.formatFieldName(filter.get('fieldName')) + ' IS NULL ');
+                } else {
+                    // lets check if its a mapped value
+                    if(Properties.typeNameMapping && Properties.typeNameMapping[subContentType]){
+                        // for each content type mapped to this value, create a expression for it.
+                        _.each(Properties.typeNameMapping[subContentType], function(customContentType){
+                        joinArray.push(Filter.CQLFactory.formatFieldName(filter.get('fieldName')) + ' = ' + Filter.CQLFactory.getValue(customContentType));
+                        });
+                    } else {
+                        // not a custom value.  just add normally.
+                        joinArray.push(Filter.CQLFactory.formatFieldName(filter.get('fieldName')) + ' = ' + Filter.CQLFactory.getValue(subContentType));
+                    }
+                }
+            });
+            return joinArray.join(' OR ');
+            } else {
+                var value = Filter.CQLFactory.getValue(filter.get('stringValue1'));
+                value = value.replace(/\*/g,"%");  // replace * with %.
+                return Filter.CQLFactory.formatFieldName(filter.get('fieldName')) + likeOperator + value;
+            }
+        },
+
         string: {
             'equals': function(filter){
                 return Filter.CQLFactory.formatFieldName(filter.get('fieldName')) + ' = ' + Filter.CQLFactory.getValue(filter.get('stringValue1'));
             },
             'contains': function(filter){
-                if(filter.get('fieldName') === Properties.filters.METADATA_CONTENT_TYPE){
-                    var split = filter.get('stringValue1').split(',');
-                    var joinArray = [];
-                    _.each(split, function(subContentType){
-                        if(subContentType === 'no-value'){
-                            joinArray.push(Filter.CQLFactory.formatFieldName(filter.get('fieldName')) + ' IS NULL ');
-                        } else {
-                            // lets check if its a mapped value
-                            if(Properties.typeNameMapping && Properties.typeNameMapping[subContentType]){
-                                // for each content type mapped to this value, create a expression for it.
-                                _.each(Properties.typeNameMapping[subContentType], function(customContentType){
-                                    joinArray.push(Filter.CQLFactory.formatFieldName(filter.get('fieldName')) + ' = ' + Filter.CQLFactory.getValue(customContentType));
-                                });
-                            } else {
-                                // not a custom value.  just add normally.
-                                joinArray.push(Filter.CQLFactory.formatFieldName(filter.get('fieldName')) + ' = ' + Filter.CQLFactory.getValue(subContentType));
-                            }
-                        }
-                    });
-                    return joinArray.join(' OR ');
-                } else {
-                    var value = Filter.CQLFactory.getValue(filter.get('stringValue1'));
-                    value = value.replace(/\*/g,"%");  // replace * with %.
-                    return Filter.CQLFactory.formatFieldName(filter.get('fieldName')) + ' ILIKE ' + value;
-                }
+                return Filter.CQLFactory.buildStringFilter(filter, ' ILIKE ');
+            },
+            'matchcase': function(filter){
+                return Filter.CQLFactory.buildStringFilter(filter, ' LIKE ');
 
             }
         },
@@ -110,6 +117,9 @@ define([
             },
             'contains': function(filter){
                 return Filter.CQLFactory.formatFieldName(filter.get('fieldName')) + ' ILIKE ' + Filter.CQLFactory.getValue(filter.get('stringValue1'));
+            },
+            'matchcase': function(filter){
+                return Filter.CQLFactory.formatFieldName(filter.get('fieldName')) + ' LIKE ' + Filter.CQLFactory.getValue(filter.get('stringValue1'));
             }
         },
         date: {

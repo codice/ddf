@@ -33,8 +33,8 @@ define(function (require) {
             ANY_GEO: 'anyGeo',
             ANY_TEXT: 'anyText',
             OPERATIONS : {
-                'string': ['contains','equals'],
-                'xml': ['contains','equals'],
+                'string': ['contains', 'matchcase','equals'],
+                'xml': ['contains', 'matchcase','equals'],
                 'date': ['before','after'],
                 'number': ['=','>','>=','<','<='],
                 'anyGeo': ['intersects']
