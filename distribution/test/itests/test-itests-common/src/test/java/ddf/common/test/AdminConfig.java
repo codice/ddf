@@ -85,14 +85,14 @@ public class AdminConfig {
         LOGGER.debug("Waiting for condition {} in Configuration object [{}] to be true",
                 predicate.toString(), pid);
 
-        Configuration configuration = configAdmin.getConfiguration(pid);
+        Configuration configuration = configAdmin.getConfiguration(pid, null);
 
         int waitPeriod = 0;
 
         while ((waitPeriod < timeoutMs) && !predicate.test(configuration)) {
             TimeUnit.MILLISECONDS.sleep(CONFIG_WAIT_POLLING_INTERVAL);
             waitPeriod += CONFIG_WAIT_POLLING_INTERVAL;
-            configuration = configAdmin.getConfiguration(pid);
+            configuration = configAdmin.getConfiguration(pid, null);
         }
 
         LOGGER.debug("Waited for {}ms", waitPeriod);

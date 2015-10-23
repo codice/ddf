@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -32,7 +32,9 @@ import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.useOwnExa
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -42,6 +44,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.karaf.features.FeaturesService;
 import org.junit.Rule;
 import org.ops4j.pax.exam.Option;
@@ -107,6 +110,10 @@ public abstract class AbstractIntegrationTest {
 
     protected static final String CSW_SOURCE_ID = "cswSource";
 
+    protected static final String DDF_HOME_PROPERTY = "ddf.home";
+
+    protected static String ddfHome;
+
     static {
         // Make Pax URL use the maven.repo.local setting if present
         if (System.getProperty("maven.repo.local") != null) {
@@ -144,6 +151,7 @@ public abstract class AbstractIntegrationTest {
 
     @PostTestConstruct
     public void initFacades() {
+        ddfHome = System.getProperty(DDF_HOME_PROPERTY);
         adminConfig = new AdminConfig(configAdmin);
         serviceManager = new ServiceManager(bundleCtx, metatype, adminConfig);
         catalogBundle = new CatalogBundle(serviceManager, adminConfig);
@@ -337,6 +345,23 @@ public abstract class AbstractIntegrationTest {
      */
     protected Option[] configureCustom() {
         return null;
+    }
+
+    /**
+     * Copies the content of a JAR resource to the destination specified before the container
+     * starts up. Useful to add test configuration files before tests are run.
+     *
+     * @param resourceInputStream input stream to te he JAR resource to copy
+     * @param destination         destination relative to DDF_HOME
+     * @return option object to include in a {@link #configureCustom()} method
+     * @throws IOException thrown if a problem occurs while copying the resource
+     */
+    protected Option installStartupFile(InputStream resourceInputStream, String destination)
+            throws IOException {
+        File tempFile = Files.createTempFile("StartupFile", ".temp").toFile();
+        tempFile.deleteOnExit();
+        FileUtils.copyInputStreamToFile(resourceInputStream, tempFile);
+        return replaceConfigurationFile(destination, tempFile);
     }
 
     /**
