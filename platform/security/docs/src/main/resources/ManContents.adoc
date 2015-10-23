@@ -109,3 +109,10 @@ The following packages have been exported by the DDF Security application and ar
 * Security PEP
 * Security PDP
 * Security STS
+
+== IDP
+
+[NOTE]
+====
+If you have configured /search to use IDP, ensure to select the "External Authentication" checkbox in Search UI standard settings.
+====

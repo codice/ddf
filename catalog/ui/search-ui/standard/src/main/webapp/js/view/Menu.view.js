@@ -22,6 +22,7 @@ define([
     'underscore',
     'text!templates/menu/menubarLogin.handlebars',
     'text!templates/menu/menubarLogout.handlebars',
+    'text!templates/menu/menubarLoginExternal.handlebars',
     'text!templates/tasks/task.menu.handlebars',
     'text!templates/tasks/task.category.handlebars',
     'text!templates/menu/help.handlebars',
@@ -35,8 +36,9 @@ define([
     'perfectscrollbar',
     'backbonecometd',
     'progressbar'
-], function(Marionette, ich, menubarTemplate, menubarItemTemplate, Backbone, notificationMenuTemplate, notificationCategoryTemplate, wreqr, _, loginTemplate, logoutTemplate, taskTemplate, taskCategoryTemplate, helpTemplate, Cometd, $,
-        IngestMenu, PreferencesMenu, Application, properties) {
+], function(Marionette, ich, menubarTemplate, menubarItemTemplate, Backbone, notificationMenuTemplate,
+        notificationCategoryTemplate, wreqr, _, loginTemplate, logoutTemplate, loginExternalTemplate,
+        taskTemplate, taskCategoryTemplate, helpTemplate, Cometd, $, IngestMenu, PreferencesMenu, Application, properties) {
 
     if (!ich.menubarItemTemplate) {
         ich.addTemplate('menubarItemTemplate', menubarItemTemplate);
@@ -51,6 +53,8 @@ define([
     ich.addTemplate('loginTemplate', loginTemplate);
 
     ich.addTemplate('logoutTemplate', logoutTemplate);
+
+    ich.addTemplate('loginExternalTemplate', loginExternalTemplate);
 
     ich.addTemplate('taskTemplate', taskTemplate);
 
@@ -381,6 +385,23 @@ define([
         }
     });
 
+    Menu.LoginExternalForm = Marionette.ItemView.extend({
+            template: 'loginExternalTemplate',
+            events: {
+                'click .btn-loginExternal': 'logOutUser'
+            },
+            logOutUser: function() {
+
+                $.ajax({
+                    type: "GET",
+                    url: '/logout',
+                    async: false,
+                    error: document.location.reload(),
+                    success: document.location.reload()
+                });
+            }
+        });
+
     Menu.Bar = Marionette.LayoutView.extend({
         template: 'menubarTemplate',
         className: 'container-fluid navbar',
@@ -415,6 +436,10 @@ define([
                     onRender: function() {
                         if(this.isNotGuestUser()) {
                             this.children.show(new Menu.LogoutForm());
+                        }
+
+                        else if ( properties.externalAuthentication ) {
+                            this.children.show(new Menu.LoginExternalForm());
                         }
                         else {
                             this.children.show(new Menu.LoginForm());
