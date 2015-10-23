@@ -30,6 +30,10 @@
         <property name="securityManager" ref="securityManager"/>
         <property name="signaturePropertiesFile"
                   value="${ddf.home}/etc/ws-security/server/signature.properties"/>
+        <property name="sessionFactory">
+            <reference interface="ddf.security.http.SessionFactory"
+                       filter="(id=http)"/>
+        </property>
     </bean>
 
     <service ref="filter"
