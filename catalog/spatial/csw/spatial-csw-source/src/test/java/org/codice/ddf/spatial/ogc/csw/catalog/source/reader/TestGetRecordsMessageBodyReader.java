@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswAxisOrder;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
@@ -74,7 +75,7 @@ public class TestGetRecordsMessageBodyReader {
         config.setMetacardCswMappings(
                 DefaultCswRecordMap.getDefaultCswRecordMap().getCswToMetacardAttributeNames());
         config.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
-        config.setIsLonLatOrder(false);
+        config.setCswAxisOrder(CswAxisOrder.LAT_LON);
         config.setThumbnailMapping(CswRecordMetacardType.CSW_REFERENCES);
         config.setResourceUriMapping(CswRecordMetacardType.CSW_SOURCE);
 
@@ -102,8 +103,8 @@ public class TestGetRecordsMessageBodyReader {
         assertThat(context.get(Metacard.THUMBNAIL), is(String.class));
         assertThat((String) context.get(Metacard.THUMBNAIL),
                 is(CswRecordMetacardType.CSW_REFERENCES));
-        assertThat(context.get(CswConstants.IS_LON_LAT_ORDER_PROPERTY), is(Boolean.class));
-        assertThat((Boolean) context.get(CswConstants.IS_LON_LAT_ORDER_PROPERTY), is(false));
+        assertThat(context.get(CswConstants.AXIS_ORDER_PROPERTY), is(CswAxisOrder.class));
+        assertThat((CswAxisOrder) context.get(CswConstants.AXIS_ORDER_PROPERTY), is(CswAxisOrder.LAT_LON));
 
         // Assert the output Schema is set.
         assertThat(context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER), is(String.class));
@@ -128,7 +129,7 @@ public class TestGetRecordsMessageBodyReader {
         //        config.setMetacardCswMappings(
         //                DefaultCswRecordMap.getDefaultCswRecordMap().getCswToMetacardAttributeNames());
         config.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
-        config.setIsLonLatOrder(false);
+        config.setCswAxisOrder(CswAxisOrder.LAT_LON);
         config.setThumbnailMapping(CswRecordMetacardType.CSW_REFERENCES);
         config.setResourceUriMapping(CswRecordMetacardType.CSW_SOURCE);
 
