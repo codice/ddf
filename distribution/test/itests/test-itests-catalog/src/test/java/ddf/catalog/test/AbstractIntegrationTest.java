@@ -29,10 +29,13 @@ import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.keepRunti
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.logLevel;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.replaceConfigurationFile;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.useOwnExamBundlesStartLevel;
+import static ddf.catalog.test.AbstractIntegrationTest.DynamicUrl.INSECURE_ROOT;
+import static ddf.catalog.test.AbstractIntegrationTest.DynamicUrl.SECURE_ROOT;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.ServerSocket;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -55,6 +58,8 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.metatype.MetaTypeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.sun.istack.NotNull;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.source.CatalogProvider;
@@ -81,38 +86,140 @@ public abstract class AbstractIntegrationTest {
 
     protected static final String KARAF_VERSION = "2.4.3";
 
-    // TODO: Use the Camel AvailablePortFinder.getNextAvailable() test method
-    protected static final String HTTP_PORT = "9081";
-
-    protected static final String HTTPS_PORT = "9993";
-
-    protected static final String SSH_PORT = "9101";
-
-    protected static final String RMI_SERVER_PORT = "44445";
-
-    protected static final String RMI_REG_PORT = "1100";
-
-    protected static final String SECURE_ROOT = "https://localhost:";
-
-    protected static final String SERVICE_ROOT = SECURE_ROOT + HTTPS_PORT + "/services";
-
-    protected static final String INSECURE_ROOT = "http://localhost:";
-
-    protected static final String INSECURE_SERVICE_ROOT = INSECURE_ROOT + HTTP_PORT + "/services";
-
-    protected static final String REST_PATH = SERVICE_ROOT + "/catalog/";
-
-    protected static final String OPENSEARCH_PATH = REST_PATH + "query";
-
-    protected static final String CSW_PATH = SERVICE_ROOT + "/csw";
-
     protected static final String OPENSEARCH_SOURCE_ID = "openSearchSource";
 
     protected static final String CSW_SOURCE_ID = "cswSource";
 
+    protected static ServerSocket placeHolderSocket;
+
+    protected static Integer basePort;
+
     protected static final String DDF_HOME_PROPERTY = "ddf.home";
 
     protected static String ddfHome;
+
+    /**
+     * An enum that returns a port number based on the class variable {@link #basePort}. Used to allow parallel itests
+     * and dynamic allocation of ports to prevent conflicts on hard coded port numbers.
+     * {@link #basePort} needs to be set in the {@link @BeforeExam} method of every test class that uses DynamicPort or
+     * {@link DynamicUrl}. E.g. 'basePort = {@link #getBasePort()}`
+     */
+    public static class DynamicPort {
+
+        private final String systemProperty;
+        private final Integer ordinal;
+
+        public DynamicPort(Integer ordinal) {
+            this.systemProperty = null;
+            this.ordinal = ordinal;
+        }
+
+        public DynamicPort(String systemProperty, Integer ordinal) {
+            this.systemProperty = systemProperty;
+            this.ordinal = ordinal;
+        }
+
+        String getSystemProperty() {
+            return this.systemProperty;
+        }
+
+        public String getPort(Integer basePort) {
+            return String.valueOf(basePort + this.ordinal());
+        }
+
+        public String getPort() {
+            return String.valueOf(basePort + this.ordinal());
+        }
+
+        Integer ordinal() {
+            return this.ordinal;
+        }
+    }
+
+    /**
+     * A class used to give a dynamic {@link String} that evaluates when called rather than at compile time.
+     * Used to allow parallel itests and dynamic URLs to prevent conflicts on hard coded port numbers and endpoint, source, etc URLs.
+     * Constructed with a {@link ddf.catalog.test.AbstractIntegrationTest.DynamicPort}
+     */
+    public static class DynamicUrl {
+        public static final String SECURE_ROOT = "https://localhost:";
+
+        public static final String INSECURE_ROOT = "http://localhost:";
+
+        private final String root;
+
+        private final String tail;
+
+        private final DynamicPort port;
+
+        private final DynamicUrl url;
+
+        public DynamicUrl(String root, @NotNull DynamicPort port) {
+            this(root, port, "");
+        }
+
+        public DynamicUrl(String root, @NotNull DynamicPort port, String tail) {
+            if (null == port) {
+                throw new IllegalArgumentException("Port cannot be null");
+            }
+            this.root = root;
+            this.port = port;
+            this.url = null;
+            this.tail = tail;
+        }
+
+        public DynamicUrl(@NotNull DynamicUrl url, String tail) {
+            if (null == url) {
+                throw new IllegalArgumentException("Url cannot be null");
+            }
+            this.root = null;
+            this.port = null;
+            this.url = url;
+            this.tail = tail;
+        }
+
+        public String getUrl() {
+            if (null != port) {
+                return root + port.getPort() + tail;
+            } else {
+                return url.getUrl() + tail;
+            }
+        }
+
+        /**
+         * @return the same String as {@link #getUrl()}
+         */
+        @Override
+        public String toString() {
+            return this.getUrl();
+        }
+
+    }
+    public static final DynamicPort BASE_PORT = new DynamicPort("org.codice.ddf.system.basePort", 0);
+    public static final DynamicPort HTTP_PORT = new DynamicPort("org.codice.ddf.system.httpPort", 1);
+    public static final DynamicPort HTTPS_PORT = new DynamicPort(
+            "org.codice.ddf.system.httpsPort", 2);
+    public static final DynamicPort SSH_PORT = new DynamicPort(3);
+    public static final DynamicPort RMI_SERVER_PORT = new DynamicPort(4);
+    public static final DynamicPort RMI_REG_PORT = new DynamicPort(5);
+
+    public static final DynamicUrl SERVICE_ROOT = new DynamicUrl(SECURE_ROOT, HTTPS_PORT,
+            "/services");
+
+    public static final DynamicUrl INSECURE_SERVICE_ROOT = new DynamicUrl(INSECURE_ROOT, HTTP_PORT,
+            "/services");
+
+    public static final DynamicUrl REST_PATH = new DynamicUrl(SERVICE_ROOT, "/catalog/");
+
+    public static final DynamicUrl OPENSEARCH_PATH = new DynamicUrl(REST_PATH, "query");
+
+    public static final DynamicUrl CSW_PATH = new DynamicUrl(SERVICE_ROOT, "/csw");
+
+    public static final DynamicUrl ADMIN_ALL_SOURCES_PATH = new DynamicUrl(SECURE_ROOT, HTTPS_PORT,
+            "/jolokia/exec/org.codice.ddf.catalog.admin.plugin.AdminSourcePollerServiceBean:service=admin-source-poller-service/allSourceInfo");
+
+    public static final DynamicUrl ADMIN_STATUS_PATH = new DynamicUrl(SECURE_ROOT, HTTPS_PORT,
+            "/jolokia/exec/org.codice.ddf.catalog.admin.plugin.AdminSourcePollerServiceBean:service=admin-source-poller-service/sourceStatus/");
 
     static {
         // Make Pax URL use the maven.repo.local setting if present
@@ -166,9 +273,22 @@ public abstract class AbstractIntegrationTest {
      */
     @org.ops4j.pax.exam.Configuration
     public Option[] config() throws URISyntaxException {
+        basePort = findPortNumber(20000);
         return combineOptions(configureCustom(), configureDistribution(), configurePaxExam(),
                 configureAdditionalBundles(), configureConfigurationPorts(), configureMavenRepos(),
                 configureSystemSettings(), configureVmOptions(), configureStartScript());
+    }
+
+    private static Integer findPortNumber(Integer portToTry) {
+        try {
+            placeHolderSocket = new ServerSocket(portToTry);
+            placeHolderSocket.setReuseAddress(true);
+            return portToTry;
+        } catch (Exception e) {
+            portToTry += 10;
+            LOGGER.debug("Bad port, trying {}", portToTry);
+            return findPortNumber(portToTry);
+        }
     }
 
     protected AdminConfig getAdminConfig() {
@@ -260,14 +380,17 @@ public abstract class AbstractIntegrationTest {
     protected Option[] configureConfigurationPorts() throws URISyntaxException {
         return options(editConfigurationFilePut("etc/system.properties", "urlScheme", "https"),
                 editConfigurationFilePut("etc/system.properties", "host", "localhost"),
-                editConfigurationFilePut("etc/system.properties", "jetty.port", HTTPS_PORT),
+                editConfigurationFilePut("etc/system.properties", "jetty.port",
+                        HTTPS_PORT.getPort()),
                 editConfigurationFilePut("etc/system.properties", "hostContext", "/solr"),
                 editConfigurationFilePut("etc/system.properties", "ddf.home", "${karaf.home}"),
 
-                editConfigurationFilePut("etc/system.properties", "org.codice.ddf.system.httpPort",
-                        HTTP_PORT),
-                editConfigurationFilePut("etc/system.properties", "org.codice.ddf.system.httpsPort",
-                        HTTPS_PORT),
+                editConfigurationFilePut("etc/system.properties", HTTP_PORT.getSystemProperty(),
+                        HTTP_PORT.getPort()),
+                editConfigurationFilePut("etc/system.properties", HTTPS_PORT.getSystemProperty(),
+                        HTTPS_PORT.getPort()),
+                editConfigurationFilePut("etc/system.properties", BASE_PORT.getSystemProperty(),
+                        BASE_PORT.getPort()),
 
                 // DDF-1572: Disables the periodic backups of .bundlefile. In itests, having those
                 // backups serves no purpose and it appears that intermittent failures have occurred
@@ -276,20 +399,25 @@ public abstract class AbstractIntegrationTest {
                 editConfigurationFilePut("etc/system.properties", "eclipse.enableStateSaver",
                         Boolean.FALSE.toString()),
 
-                editConfigurationFilePut("etc/org.apache.karaf.shell.cfg", "sshPort", SSH_PORT),
-                editConfigurationFilePut("etc/ddf.platform.config.cfg", "port", HTTPS_PORT),
+                editConfigurationFilePut("etc/org.apache.karaf.shell.cfg", "sshPort",
+                        SSH_PORT.getPort()),
+                editConfigurationFilePut("etc/ddf.platform.config.cfg", "port",
+                        HTTPS_PORT.getPort()),
                 editConfigurationFilePut("etc/ddf.platform.config.cfg", "host", "localhost"),
                 editConfigurationFilePut("etc/org.ops4j.pax.web.cfg", "org.osgi.service.http.port",
-                        HTTP_PORT), editConfigurationFilePut("etc/org.ops4j.pax.web.cfg",
-                        "org.osgi.service.http.port.secure", HTTPS_PORT),
+                        HTTP_PORT.getPort()), editConfigurationFilePut("etc/org.ops4j.pax.web.cfg",
+                        "org.osgi.service.http.port.secure", HTTPS_PORT.getPort()),
                 editConfigurationFilePut("etc/org.apache.karaf.management.cfg", "rmiRegistryPort",
-                        RMI_REG_PORT),
+                        RMI_REG_PORT.getPort()),
                 editConfigurationFilePut("etc/org.apache.karaf.management.cfg", "rmiServerPort",
-                        RMI_SERVER_PORT), replaceConfigurationFile("etc/hazelcast.xml",
+                        RMI_SERVER_PORT.getPort()), replaceConfigurationFile("etc/hazelcast.xml",
                         new File(this.getClass().getResource("/hazelcast.xml").toURI())),
                 replaceConfigurationFile("etc/ddf.security.sts.client.configuration.cfg", new File(
                         this.getClass().getResource("/ddf.security.sts.client.configuration.cfg")
-                                .toURI())), replaceConfigurationFile(
+                                .toURI())),
+                editConfigurationFilePut("etc/ddf.security.sts.client.configuration.cfg", "address",
+                        SECURE_ROOT + HTTPS_PORT.getPort() + "/services/SecurityTokenService?wsdl"),
+                replaceConfigurationFile(
                         "etc/ddf.catalog.solr.external.SolrHttpCatalogProvider.cfg", new File(
                                 this.getClass().getResource(
                                         "/ddf.catalog.solr.external.SolrHttpCatalogProvider.cfg")
@@ -338,6 +466,10 @@ public abstract class AbstractIntegrationTest {
                         "security-services-app,catalog-app,solr-app,spatial-app,sdk-app"),
                 editConfigurationFileExtend("etc/org.apache.karaf.features.cfg",
                         "featuresRepositories", featuresUrl));
+    }
+
+    protected Integer getBasePort() {
+        return Integer.parseInt(System.getProperty(BASE_PORT.getSystemProperty()));
     }
 
     /**
@@ -434,7 +566,7 @@ public abstract class AbstractIntegrationTest {
      */
     @Deprecated
     protected void waitForSourcesToBeAvailable(String... sources) throws InterruptedException {
-        serviceManager.waitForSourcesToBeAvailable(REST_PATH, sources);
+        serviceManager.waitForSourcesToBeAvailable(REST_PATH.getUrl(), sources);
     }
 
     /**
@@ -503,7 +635,7 @@ public abstract class AbstractIntegrationTest {
             this.putAll(getMetatypeDefaults(SYMBOLIC_NAME, FACTORY_PID));
 
             this.put("shortname", sourceId);
-            this.put("endpointUrl", OPENSEARCH_PATH);
+            this.put("endpointUrl", OPENSEARCH_PATH.getUrl());
         }
 
     }
@@ -518,7 +650,7 @@ public abstract class AbstractIntegrationTest {
             this.putAll(getMetatypeDefaults(SYMBOLIC_NAME, FACTORY_PID));
 
             this.put("id", sourceId);
-            this.put("cswUrl", CSW_PATH);
+            this.put("cswUrl", CSW_PATH.getUrl());
             this.put("pollInterval", 1);
         }
 
@@ -534,7 +666,7 @@ public abstract class AbstractIntegrationTest {
             this.putAll(getMetatypeDefaults(SYMBOLIC_NAME, FACTORY_PID));
 
             this.put("id", sourceId);
-            this.put("cswUrl", CSW_PATH);
+            this.put("cswUrl", CSW_PATH.getUrl());
             this.put("pollInterval", 1);
         }
 
