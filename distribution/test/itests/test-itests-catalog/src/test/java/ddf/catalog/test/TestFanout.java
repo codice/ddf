@@ -33,27 +33,29 @@ public class TestFanout extends AbstractIntegrationTest {
 
     @BeforeExam
     public void beforeExam() throws Exception {
+        basePort = getBasePort();
         getAdminConfig().setLogLevels();
         getServiceManager().waitForAllBundles();
         getCatalogBundle().setFanout(true);
         getCatalogBundle().waitForCatalogProvider();
-        getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query?_wadl");
+        getServiceManager().waitForHttpEndpoint(SERVICE_ROOT.getUrl() + "/catalog/query?_wadl");
 
-        getServiceManager().waitForSourcesToBeAvailable(REST_PATH, LOCAL_SOURCE_ID);
+        getServiceManager().waitForSourcesToBeAvailable(REST_PATH.getUrl(), LOCAL_SOURCE_ID);
 
-        LOGGER.info("Source status: \n{}", get(REST_PATH + "sources").body().prettyPrint());
+        LOGGER.info("Source status: \n{}",
+                get(REST_PATH.getUrl() + "sources").body().prettyPrint());
     }
 
     @Test
     public void testFanoutQueryWithUnknownSource() throws Exception {
-        String queryUrl = OPENSEARCH_PATH + "?q=*&src=does.not.exist";
+        String queryUrl = OPENSEARCH_PATH.getUrl() + "?q=*&src=does.not.exist";
 
         when().get(queryUrl).then().log().all().assertThat().body(containsString("Unknown source"));
     }
 
     @Test
     public void testFanoutQueryWithoutFederatedSources() throws Exception {
-        String queryUrl = OPENSEARCH_PATH + "?q=*&src=local";
+        String queryUrl = OPENSEARCH_PATH.getUrl() + "?q=*&src=local";
 
         when().get(queryUrl).then().log().all().assertThat()
                 .body(containsString("SiteNames could not be resolved"));
