@@ -75,12 +75,12 @@ public class TestFederation extends AbstractIntegrationTest {
 
     private static final String CSW_SOURCE_WITH_METACARD_XML_ID = "cswSource2";
 
-    private static final String ADMIN_SOURCE_PATH = "https://localhost:" + HTTPS_PORT;
+    private static String ADMIN_SOURCE_PATH = "https://localhost:" + HTTPS_PORT;
 
-    private static final String ADMIN_ALL_SOURCES_PATH = ADMIN_SOURCE_PATH
+    private static String ADMIN_ALL_SOURCES_PATH = ADMIN_SOURCE_PATH
             + "/jolokia/exec/org.codice.ddf.catalog.admin.plugin.AdminSourcePollerServiceBean:service=admin-source-poller-service/allSourceInfo";
 
-    private static final String ADMIN_STATUS_PATH = ADMIN_SOURCE_PATH
+    private static String ADMIN_STATUS_PATH = ADMIN_SOURCE_PATH
             + "/jolokia/exec/org.codice.ddf.catalog.admin.plugin.AdminSourcePollerServiceBean:service=admin-source-poller-service/sourceStatus/";
 
     private static final String DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS = "data/products";
@@ -100,6 +100,10 @@ public class TestFederation extends AbstractIntegrationTest {
 
     @BeforeExam
     public void beforeExam() throws Exception {
+        setPortsAndUrls();
+        ADMIN_SOURCE_PATH = "https://localhost:" + HTTPS_PORT;
+        ADMIN_ALL_SOURCES_PATH = ADMIN_SOURCE_PATH + "/jolokia/exec/org.codice.ddf.catalog.admin.plugin.AdminSourcePollerServiceBean:service=admin-source-poller-service/allSourceInfo";
+        ADMIN_STATUS_PATH = ADMIN_SOURCE_PATH + "/jolokia/exec/org.codice.ddf.catalog.admin.plugin.AdminSourcePollerServiceBean:service=admin-source-poller-service/sourceStatus/";
         setLogLevels();
         waitForAllBundles();
         waitForCatalogProvider();
@@ -346,7 +350,7 @@ public class TestFederation extends AbstractIntegrationTest {
     public void testFederatedRetrieveProductInvalidResourceUrlWithBackReferences()
             throws Exception {
         // Setup
-        String fileName = testName.getMethodName() + ".txt";
+        String fileName = testName.getMethodName()+ HTTPS_PORT + ".txt";
         String fileNameWithBackReferences =
                 ".." + File.separator + ".." + File.separator + fileName;
         resourcesToDelete.add(fileNameWithBackReferences);
