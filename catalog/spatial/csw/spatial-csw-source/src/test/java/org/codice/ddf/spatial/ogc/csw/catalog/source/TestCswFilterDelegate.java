@@ -53,6 +53,7 @@ import javax.xml.namespace.QName;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswAxisOrder;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswJAXBElementProvider;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
@@ -74,6 +75,7 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import ddf.catalog.data.Metacard;
+
 import net.opengis.filter.v_1_1_0.AbstractIdType;
 import net.opengis.filter.v_1_1_0.ComparisonOperatorType;
 import net.opengis.filter.v_1_1_0.ComparisonOperatorsType;
@@ -149,10 +151,10 @@ public class TestCswFilterDelegate {
     }
 
     private final CswFilterDelegate cswFilterDelegateLatLon = createCswFilterDelegate(
-            initCswSourceConfiguration(false, false, CswRecordMetacardType.CSW_TYPE));
+            initCswSourceConfiguration(CswAxisOrder.LAT_LON, false, CswRecordMetacardType.CSW_TYPE));
 
     private final CswFilterDelegate cswFilterDelegateLatLonPosList = createCswFilterDelegate(
-            initCswSourceConfiguration(false, true, CswRecordMetacardType.CSW_TYPE));
+            initCswSourceConfiguration(CswAxisOrder.LAT_LON, true, CswRecordMetacardType.CSW_TYPE));
 
     private final String propertyName = DEFAULT_PROPERTY_NAME;
 
@@ -1138,7 +1140,7 @@ public class TestCswFilterDelegate {
         String contentTypeMapping = CswRecordMetacardType.CSW_FORMAT;
         String contentType = "myContentType";
         CswFilterDelegate localCswFilterDelegate = createCswFilterDelegate(
-                initCswSourceConfiguration(false, false, contentTypeMapping));
+                initCswSourceConfiguration(CswAxisOrder.LAT_LON, false, contentTypeMapping));
 
         // Perform Test
         /**
@@ -1184,7 +1186,7 @@ public class TestCswFilterDelegate {
 
     @Test
     public void testDuring() throws JAXBException, SAXException, IOException {
-        CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(false, false,
+        CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(CswAxisOrder.LAT_LON, false,
                 CswRecordMetacardType.CSW_TYPE, effectiveDateMapping, createdDateMapping,
                 modifiedDateMapping, CswRecordMetacardType.CSW_IDENTIFIER);
 
@@ -1206,7 +1208,7 @@ public class TestCswFilterDelegate {
     @Test
     public void testAfter() throws Exception {
         // Setup
-        CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(false, false,
+        CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(CswAxisOrder.LAT_LON, false,
                 CswRecordMetacardType.CSW_TYPE, effectiveDateMapping, createdDateMapping,
                 modifiedDateMapping, CswRecordMetacardType.CSW_IDENTIFIER);
 
@@ -1228,7 +1230,7 @@ public class TestCswFilterDelegate {
     @Test
     public void testBefore() throws Exception {
         // Setup
-        CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(false, false,
+        CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(CswAxisOrder.LAT_LON, false,
                 CswRecordMetacardType.CSW_TYPE, effectiveDateMapping, createdDateMapping,
                 modifiedDateMapping, CswRecordMetacardType.CSW_IDENTIFIER);
 
@@ -1252,7 +1254,7 @@ public class TestCswFilterDelegate {
             IOException {
 
         String replacedTemporalProperty = "myEffectiveDate";
-        CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(false, false,
+        CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(CswAxisOrder.LAT_LON, false,
                 CswRecordMetacardType.CSW_TYPE, replacedTemporalProperty, createdDateMapping,
                 modifiedDateMapping, CswRecordMetacardType.CSW_IDENTIFIER);
 
@@ -1275,7 +1277,7 @@ public class TestCswFilterDelegate {
             IOException {
 
         String replacedTemporalProperty = "myCreatedDate";
-        CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(false, false,
+        CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(CswAxisOrder.LAT_LON, false,
                 CswRecordMetacardType.CSW_TYPE, effectiveDateMapping, replacedTemporalProperty,
                 modifiedDateMapping, CswRecordMetacardType.CSW_IDENTIFIER);
 
@@ -1299,7 +1301,7 @@ public class TestCswFilterDelegate {
             IOException {
 
         String replacedTemporalProperty = "myModifiedDate";
-        CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(false, false,
+        CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(CswAxisOrder.LAT_LON, false,
                 CswRecordMetacardType.CSW_TYPE, effectiveDateMapping, createdDateMapping,
                 replacedTemporalProperty, CswRecordMetacardType.CSW_IDENTIFIER);
 
@@ -1322,7 +1324,7 @@ public class TestCswFilterDelegate {
             throws JAXBException, SAXException, IOException {
 
         String replacedIdentifierProperty = propertyName;
-        CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(false, false,
+        CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(CswAxisOrder.LAT_LON, false,
                 CswRecordMetacardType.CSW_TYPE, effectiveDateMapping, createdDateMapping,
                 modifiedDateMapping, replacedIdentifierProperty);
 
@@ -1337,7 +1339,7 @@ public class TestCswFilterDelegate {
     public void testRelative() throws JAXBException, SAXException, IOException {
         long duration = 92000000000L;
 
-        CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(false, false,
+        CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(CswAxisOrder.LAT_LON, false,
                 CswRecordMetacardType.CSW_TYPE, effectiveDateMapping, createdDateMapping,
                 modifiedDateMapping, CswRecordMetacardType.CSW_IDENTIFIER);
         CswFilterDelegate localCswFilterDelegate = createCswFilterDelegate(cswSourceConfiguration);
@@ -2212,7 +2214,7 @@ public class TestCswFilterDelegate {
         CswFilterDelegate localCswFilterDelegate = initCswFilterDelegate(
                 getMockFilterCapabilitiesForSpatialFallback(Arrays.asList(BBOX),
                         Arrays.asList("Envelope")),
-                initCswSourceConfiguration(false, false, CswRecordMetacardType.CSW_TYPE));
+                initCswSourceConfiguration(CswAxisOrder.LAT_LON, false, CswRecordMetacardType.CSW_TYPE));
 
         FilterType filterType = localCswFilterDelegate.intersects(propName, polygonWkt);
         Diff diff = XMLUnit
@@ -2231,7 +2233,7 @@ public class TestCswFilterDelegate {
         CswFilterDelegate localCswFilterDelegate = initCswFilterDelegate(
                 getMockFilterCapabilitiesForSpatialFallback(Arrays.asList(DISJOINT),
                         Arrays.asList("Polygon")),
-                initCswSourceConfiguration(false, false, CswRecordMetacardType.CSW_TYPE));
+                initCswSourceConfiguration(CswAxisOrder.LAT_LON, false, CswRecordMetacardType.CSW_TYPE));
 
         FilterType filterType = localCswFilterDelegate.intersects(propName, polygonWkt);
         assertXMLEqual(notDisjointPolygonXmlPropertyOwsBoundingBox,
@@ -2253,7 +2255,7 @@ public class TestCswFilterDelegate {
         CswFilterDelegate localCswFilterDelegate = initCswFilterDelegate(
                 getMockFilterCapabilitiesForSpatialFallback(Arrays.asList(INTERSECTS),
                         Arrays.asList("Envelope")),
-                initCswSourceConfiguration(false, false, CswRecordMetacardType.CSW_TYPE));
+                initCswSourceConfiguration(CswAxisOrder.LAT_LON, false, CswRecordMetacardType.CSW_TYPE));
 
         FilterType filterType = localCswFilterDelegate.dwithin(propName, pointWkt, SAMPLE_DISTANCE);
         assertXMLEqual(dWithinFallbackToIntersects1, getXmlFromMarshaller(filterType));
@@ -2273,7 +2275,7 @@ public class TestCswFilterDelegate {
         CswFilterDelegate localCswFilterDelegate = initCswFilterDelegate(
                 getMockFilterCapabilitiesForSpatialFallback(Arrays.asList(INTERSECTS),
                         Arrays.asList("Polygon")),
-                initCswSourceConfiguration(false, false, CswRecordMetacardType.CSW_TYPE));
+                initCswSourceConfiguration(CswAxisOrder.LAT_LON, false, CswRecordMetacardType.CSW_TYPE));
 
         FilterType filterType = localCswFilterDelegate.dwithin(propName, pointWkt, SAMPLE_DISTANCE);
         assertXMLEqual(dWithinFallbackToIntersects2, getXmlFromMarshaller(filterType));
@@ -2288,7 +2290,7 @@ public class TestCswFilterDelegate {
         CswFilterDelegate localCswFilterDelegate = initCswFilterDelegate(
                 getMockFilterCapabilitiesForSpatialFallback(Arrays.asList(INTERSECTS),
                         Arrays.asList("Envelope")),
-                initCswSourceConfiguration(false, false, CswRecordMetacardType.CSW_TYPE));
+                initCswSourceConfiguration(CswAxisOrder.LAT_LON, false, CswRecordMetacardType.CSW_TYPE));
 
         FilterType filterType = localCswFilterDelegate.intersects(propName, polygonWkt);
         assertXMLEqual(intersectsEnvelopeXmlPropertyOwsBoundingBox,
@@ -2301,7 +2303,7 @@ public class TestCswFilterDelegate {
 
         String propName = CswConstants.BBOX_PROP;
         CswFilterDelegate localCswFilterDelegate = initCswFilterDelegate(null,
-                initCswSourceConfiguration(false, false, CswRecordMetacardType.CSW_TYPE));
+                initCswSourceConfiguration(CswAxisOrder.LAT_LON, false, CswRecordMetacardType.CSW_TYPE));
         localCswFilterDelegate.intersects(propName, polygonWkt);
     }
 
@@ -2310,7 +2312,7 @@ public class TestCswFilterDelegate {
 
         String propName = CswConstants.BBOX_PROP;
         CswFilterDelegate localCswFilterDelegate = initCswFilterDelegate(null,
-                initCswSourceConfiguration(false, false, CswRecordMetacardType.CSW_TYPE));
+                initCswSourceConfiguration(CswAxisOrder.LAT_LON, false, CswRecordMetacardType.CSW_TYPE));
         localCswFilterDelegate.beyond(propName, polygonWkt, SAMPLE_DISTANCE);
     }
 
@@ -2319,7 +2321,7 @@ public class TestCswFilterDelegate {
 
         String propName = CswConstants.BBOX_PROP;
         CswFilterDelegate localCswFilterDelegate = initCswFilterDelegate(null,
-                initCswSourceConfiguration(false, false, CswRecordMetacardType.CSW_TYPE));
+                initCswSourceConfiguration(CswAxisOrder.LAT_LON, false, CswRecordMetacardType.CSW_TYPE));
         localCswFilterDelegate.dwithin(propName, polygonWkt, SAMPLE_DISTANCE);
     }
 
@@ -2328,7 +2330,7 @@ public class TestCswFilterDelegate {
 
         String propName = CswConstants.BBOX_PROP;
         CswFilterDelegate localCswFilterDelegate = initCswFilterDelegate(null,
-                initCswSourceConfiguration(false, false, CswRecordMetacardType.CSW_TYPE));
+                initCswSourceConfiguration(CswAxisOrder.LAT_LON, false, CswRecordMetacardType.CSW_TYPE));
         localCswFilterDelegate.contains(propName, polygonWkt);
     }
 
@@ -2337,7 +2339,7 @@ public class TestCswFilterDelegate {
 
         String propName = CswConstants.BBOX_PROP;
         CswFilterDelegate localCswFilterDelegate = initCswFilterDelegate(null,
-                initCswSourceConfiguration(false, false, CswRecordMetacardType.CSW_TYPE));
+                initCswSourceConfiguration(CswAxisOrder.LAT_LON, false, CswRecordMetacardType.CSW_TYPE));
         localCswFilterDelegate.crosses(propName, polygonWkt);
     }
 
@@ -2346,7 +2348,7 @@ public class TestCswFilterDelegate {
 
         String propName = CswConstants.BBOX_PROP;
         CswFilterDelegate localCswFilterDelegate = initCswFilterDelegate(null,
-                initCswSourceConfiguration(false, false, CswRecordMetacardType.CSW_TYPE));
+                initCswSourceConfiguration(CswAxisOrder.LAT_LON, false, CswRecordMetacardType.CSW_TYPE));
         localCswFilterDelegate.disjoint(propName, polygonWkt);
     }
 
@@ -2355,7 +2357,7 @@ public class TestCswFilterDelegate {
 
         String propName = CswConstants.BBOX_PROP;
         CswFilterDelegate localCswFilterDelegate = initCswFilterDelegate(null,
-                initCswSourceConfiguration(false, false, CswRecordMetacardType.CSW_TYPE));
+                initCswSourceConfiguration(CswAxisOrder.LAT_LON, false, CswRecordMetacardType.CSW_TYPE));
         localCswFilterDelegate.overlaps(propName, polygonWkt);
     }
 
@@ -2364,7 +2366,7 @@ public class TestCswFilterDelegate {
 
         String propName = CswConstants.BBOX_PROP;
         CswFilterDelegate localCswFilterDelegate = initCswFilterDelegate(null,
-                initCswSourceConfiguration(false, false, CswRecordMetacardType.CSW_TYPE));
+                initCswSourceConfiguration(CswAxisOrder.LAT_LON, false, CswRecordMetacardType.CSW_TYPE));
         localCswFilterDelegate.touches(propName, polygonWkt);
     }
 
@@ -2373,7 +2375,7 @@ public class TestCswFilterDelegate {
 
         String propName = CswConstants.BBOX_PROP;
         CswFilterDelegate localCswFilterDelegate = initCswFilterDelegate(null,
-                initCswSourceConfiguration(false, false, CswRecordMetacardType.CSW_TYPE));
+                initCswSourceConfiguration(CswAxisOrder.LAT_LON, false, CswRecordMetacardType.CSW_TYPE));
         localCswFilterDelegate.within(propName, polygonWkt);
     }
 
@@ -2409,7 +2411,7 @@ public class TestCswFilterDelegate {
 
         String propName = CswConstants.BBOX_PROP;
         CswFilterDelegate localCswFilterDelegate = this.createCswFilterDelegate(
-                initCswSourceConfiguration(true, false, CswRecordMetacardType.CSW_TYPE));
+                initCswSourceConfiguration(CswAxisOrder.LON_LAT, false, CswRecordMetacardType.CSW_TYPE));
 
         FilterType filterType = localCswFilterDelegate.intersects(propName, polygonWkt);
 
@@ -2519,7 +2521,7 @@ public class TestCswFilterDelegate {
         CswFilterDelegate localCswFilterDelegate = initCswFilterDelegate(
                 getMockFilterCapabilitiesForSpatialFallback(Arrays.asList(CONTAINS),
                         Arrays.asList("Polygon")),
-                initCswSourceConfiguration(false, false, CswRecordMetacardType.CSW_TYPE));
+                initCswSourceConfiguration(CswAxisOrder.LAT_LON, false, CswRecordMetacardType.CSW_TYPE));
 
         FilterType filterType = localCswFilterDelegate.within(propName, polygonWkt);
         assertXMLEqual(containsPolygonXmlPropertyOwsBoundingBox, getXmlFromMarshaller(filterType));
@@ -2782,22 +2784,22 @@ public class TestCswFilterDelegate {
         return cswFilterDelegate;
     }
 
-    private CswSourceConfiguration initCswSourceConfiguration(boolean isLonLatOrder,
+    private CswSourceConfiguration initCswSourceConfiguration(CswAxisOrder cswAxisOrder,
             boolean usePosList, String contentType) {
         CswSourceConfiguration cswSourceConfiguration = new CswSourceConfiguration();
         cswSourceConfiguration.setIdentifierMapping(CswRecordMetacardType.CSW_IDENTIFIER);
-        cswSourceConfiguration.setIsLonLatOrder(isLonLatOrder);
+        cswSourceConfiguration.setCswAxisOrder(cswAxisOrder);
         cswSourceConfiguration.setUsePosList(usePosList);
         cswSourceConfiguration.setContentTypeMapping(contentType);
         return cswSourceConfiguration;
     }
 
-    private CswSourceConfiguration initCswSourceConfiguration(boolean isLonLatOrder,
+    private CswSourceConfiguration initCswSourceConfiguration(CswAxisOrder cswAxisOrder,
             boolean usePosList, String contentType, String effectiveDateMapping,
             String createdDateMapping, String modifiedDateMapping, String identifierMapping) {
         CswSourceConfiguration cswSourceConfiguration = new CswSourceConfiguration();
         cswSourceConfiguration.setIdentifierMapping(identifierMapping);
-        cswSourceConfiguration.setIsLonLatOrder(isLonLatOrder);
+        cswSourceConfiguration.setCswAxisOrder(cswAxisOrder);
         cswSourceConfiguration.setUsePosList(usePosList);
         cswSourceConfiguration.setContentTypeMapping(contentType);
         cswSourceConfiguration.setEffectiveDateMapping(effectiveDateMapping);

@@ -31,9 +31,12 @@
             name="Disable CN Check" id="disableCnCheck" required="true"
             type="Boolean" default="false"/>
 
-        <AD description="Force Longitude/Latitude coordinate order"
-            name="Force Longitude/Latitude coordinate order" id="isLonLatOrder" required="true"
-            type="Boolean" default="false"/>
+        <AD description="Coordinate order that remote source expects and returns spatial data in"
+            name="Coordinate Order" id="coordinateOrder" required="true"
+            type="String" default="LON_LAT">
+            <Option label="Lon/Lat" value="LON_LAT"/>
+            <Option label="Lat/Lon" value="LAT_LON"/>
+        </AD>
 
         <AD description="Use a <posList> element rather than a series of <pos> elements when issuing geospatial queries containing a LinearRing"
             name="Use posList in LinearRing" id="usePosList" required="false" type="Boolean"

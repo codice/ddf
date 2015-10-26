@@ -51,6 +51,7 @@ import org.codice.ddf.spatial.ogc.catalog.MetadataTransformer;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityCommand;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.Csw;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswAxisOrder;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswJAXBElementProvider;
@@ -152,7 +153,9 @@ public class CswSource extends MaskableImpl
 
     protected static final String IDENTIFIER_MAPPING_PROPERTY = "identifierMapping";
 
-    protected static final String IS_LON_LAT_ORDER_PROPERTY = "isLonLatOrder";
+    protected static final String COORDINATE_ORDER_PROPERTY = "coordinateOrder";
+
+    protected static final String CSW_AXIS_ORDER_PROPERTY = "cswAxisOrder";
 
     protected static final String POLL_INTERVAL_PROPERTY = "pollInterval";
 
@@ -441,16 +444,10 @@ public class CswSource extends MaskableImpl
             cswSourceConfiguration.setDisableCnCheck(sslProp);
         }
 
-        Boolean latLonProp = (Boolean) configuration.get(IS_LON_LAT_ORDER_PROPERTY);
-        if (latLonProp != null) {
-            cswSourceConfiguration.setIsLonLatOrder(latLonProp);
-            if (cswSourceConfiguration.isLonLatOrder()) {
-                LOGGER.debug("{}: Setting coordinate ordering to LON/LAT.",
-                        cswSourceConfiguration.getId());
-            } else {
-                LOGGER.debug("{}: Setting coordinate ordering to LAT/LON.",
-                        cswSourceConfiguration.getId());
-            }
+        String coordinateOrder = (String) configuration.get(COORDINATE_ORDER_PROPERTY);
+        if (coordinateOrder != null) {
+            setCoordinateOrder(coordinateOrder);
+            configuration.put(CSW_AXIS_ORDER_PROPERTY, cswSourceConfiguration.getCswAxisOrder());
         }
 
         Boolean posListProp = (Boolean) configuration.get(USE_POS_LIST_PROPERTY);
@@ -764,10 +761,19 @@ public class CswSource extends MaskableImpl
         cswSourceConfiguration.setDisableCnCheck(disableCnCheck);
     }
 
-    public void setIsLonLatOrder(Boolean isLonLatOrder) {
-        cswSourceConfiguration.setIsLonLatOrder(isLonLatOrder);
-        LOGGER.debug("{}: LON/LAT order: {}", cswSourceConfiguration.getId(),
-                cswSourceConfiguration.isLonLatOrder());
+    public void setCoordinateOrder(String coordinateOrder) {
+        CswAxisOrder cswAxisOrder = CswAxisOrder.LON_LAT;
+
+        if (StringUtils.isNotBlank(coordinateOrder)) {
+            cswAxisOrder = CswAxisOrder.valueOf(CswAxisOrder.class, coordinateOrder);
+
+            if (cswAxisOrder == null) {
+                cswAxisOrder = CswAxisOrder.LON_LAT;
+            }
+        }
+
+        LOGGER.debug("{}: Setting CSW coordinate order to {}", cswSourceConfiguration.getId(), cswAxisOrder);
+        cswSourceConfiguration.setCswAxisOrder(cswAxisOrder);
     }
 
     public void setUsePosList(Boolean usePosList) {

@@ -74,7 +74,7 @@ public class GetRecordsMessageBodyReader implements MessageBodyReader<CswRecordC
         argumentHolder = xstream.newDataHolder();
         argumentHolder.put(CswConstants.OUTPUT_SCHEMA_PARAMETER, configuration.getOutputSchema());
         argumentHolder.put(CswConstants.CSW_MAPPING, configuration.getMetacardCswMappings());
-        argumentHolder.put(CswConstants.IS_LON_LAT_ORDER_PROPERTY, configuration.isLonLatOrder());
+        argumentHolder.put(CswConstants.AXIS_ORDER_PROPERTY, configuration.getCswAxisOrder());
         argumentHolder.put(Metacard.RESOURCE_URI, configuration.getResourceUriMapping());
         argumentHolder.put(Metacard.THUMBNAIL, configuration.getThumbnailMapping());
     }
