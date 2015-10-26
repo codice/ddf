@@ -81,8 +81,7 @@ public class CrlChecker {
             handlerResult.setToken(token);
             handlerResult.setStatus(HandlerResult.Status.COMPLETED);
         } else {
-            // cert is present and listed as revoked in the CRL - set handlerResult to REDIRECTED and return 401
-            handlerResult.setStatus(HandlerResult.Status.REDIRECTED);
+            // cert is present and listed as revoked in the CRL - throw a ServletException so the error message is displayed to the user
             String errorMsg = "The certificate used to complete the request has been revoked.";
             LOGGER.error(errorMsg);
             throw new ServletException(errorMsg);
