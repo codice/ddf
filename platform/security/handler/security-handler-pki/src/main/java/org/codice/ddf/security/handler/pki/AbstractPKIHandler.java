@@ -93,8 +93,16 @@ public abstract class AbstractPKIHandler implements AuthenticationHandler {
             return handlerResult;
         }
 
-        // CRL was specified, check against CRL and return the result
-        handlerResult = crlChecker.check(token, certs, handlerResult);
+        // CRL was specified, check against CRL and return the result or throw a ServletException to the WebSSOFilter
+        if (crlChecker.passesCrlCheck(certs)) {
+            handlerResult.setToken(token);
+            handlerResult.setStatus(HandlerResult.Status.COMPLETED);
+        } else {
+            String errorMsg = "The certificate used to complete the request has been revoked.";
+            LOGGER.error(errorMsg);
+            throw new ServletException(errorMsg);
+        }
+
         return handlerResult;
     }
 
