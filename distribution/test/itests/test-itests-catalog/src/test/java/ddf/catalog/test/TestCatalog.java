@@ -89,10 +89,11 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     @BeforeExam
     public void beforeExam() throws Exception {
+        setPortsAndUrls();
         setLogLevels();
         waitForAllBundles();
         waitForCatalogProvider();
-        waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query");
+        waitForHttpEndpoint(AbstractIntegrationTest.SERVICE_ROOT + "/catalog/query");
     }
 
     @Test

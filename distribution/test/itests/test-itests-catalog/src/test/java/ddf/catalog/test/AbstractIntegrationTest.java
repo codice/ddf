@@ -33,6 +33,7 @@ import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.useOwnExa
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.ServerSocket;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -82,33 +83,38 @@ public abstract class AbstractIntegrationTest {
     protected static final String KARAF_VERSION = "2.4.3";
 
     // TODO: Use the Camel AvailablePortFinder.getNextAvailable() test method
-    protected static final String HTTP_PORT = "9081";
 
-    protected static final String HTTPS_PORT = "9993";
+    protected static ServerSocket placeHolderSocket;
 
-    protected static final String SSH_PORT = "9101";
+    protected Integer basePort;
 
-    protected static final String RMI_SERVER_PORT = "44445";
+    protected static String HTTP_PORT = "9081";
 
-    protected static final String RMI_REG_PORT = "1100";
+    protected static String HTTPS_PORT = "9993";
 
-    protected static final String SECURE_ROOT = "https://localhost:";
+    protected static String SSH_PORT = "9101";
 
-    protected static final String SERVICE_ROOT = SECURE_ROOT + HTTPS_PORT + "/services";
+    protected static String RMI_SERVER_PORT = "44445";
 
-    protected static final String INSECURE_ROOT = "http://localhost:";
+    protected static String RMI_REG_PORT = "1100";
 
-    protected static final String INSECURE_SERVICE_ROOT = INSECURE_ROOT + HTTP_PORT + "/services";
+    protected static String SECURE_ROOT;
 
-    protected static final String REST_PATH = SERVICE_ROOT + "/catalog/";
+    protected static String SERVICE_ROOT;
 
-    protected static final String OPENSEARCH_PATH = REST_PATH + "query";
+    protected static String INSECURE_ROOT;
 
-    protected static final String CSW_PATH = SERVICE_ROOT + "/csw";
+    protected static String INSECURE_SERVICE_ROOT;
 
-    protected static final String OPENSEARCH_SOURCE_ID = "openSearchSource";
+    protected static String REST_PATH;
 
-    protected static final String CSW_SOURCE_ID = "cswSource";
+    protected static String OPENSEARCH_PATH;
+
+    protected static String CSW_PATH;
+
+    protected static String OPENSEARCH_SOURCE_ID;
+
+    protected static String CSW_SOURCE_ID;
 
     protected static final String DDF_HOME_PROPERTY = "ddf.home";
 
@@ -166,9 +172,31 @@ public abstract class AbstractIntegrationTest {
      */
     @org.ops4j.pax.exam.Configuration
     public Option[] config() throws URISyntaxException {
+        basePort = findPortNumber(20000);
+
+        HTTP_PORT = String.valueOf(basePort + 1);
+        HTTPS_PORT = String.valueOf(basePort + 2);
+        SSH_PORT = String.valueOf(basePort + 3);
+        RMI_SERVER_PORT = String.valueOf(basePort + 4);
+        RMI_REG_PORT = String.valueOf(basePort + 5);
+        LOGGER.debug(HTTP_PORT + " " + HTTPS_PORT + " " + SSH_PORT + " " + RMI_SERVER_PORT + " "
+                + RMI_REG_PORT);
+
         return combineOptions(configureCustom(), configureDistribution(), configurePaxExam(),
                 configureAdditionalBundles(), configureConfigurationPorts(), configureMavenRepos(),
                 configureSystemSettings(), configureVmOptions(), configureStartScript());
+    }
+
+    private static Integer findPortNumber(Integer portToTry) {
+        try {
+            placeHolderSocket = new ServerSocket(portToTry);
+            placeHolderSocket.setReuseAddress(true);
+            return portToTry;
+        } catch (Exception e) {
+            portToTry += 10;
+            LOGGER.debug("Bad port, trying {}", portToTry);
+            return findPortNumber(portToTry);
+        }
     }
 
     protected AdminConfig getAdminConfig() {
@@ -287,9 +315,9 @@ public abstract class AbstractIntegrationTest {
                 editConfigurationFilePut("etc/org.apache.karaf.management.cfg", "rmiServerPort",
                         RMI_SERVER_PORT), replaceConfigurationFile("etc/hazelcast.xml",
                         new File(this.getClass().getResource("/hazelcast.xml").toURI())),
-                replaceConfigurationFile("etc/ddf.security.sts.client.configuration.cfg", new File(
-                        this.getClass().getResource("/ddf.security.sts.client.configuration.cfg")
-                                .toURI())), replaceConfigurationFile(
+                editConfigurationFilePut("etc/ddf.security.sts.client.configuration.cfg", "address",
+                        "https://localhost:" + HTTPS_PORT + "/services/SecurityTokenService?wsdl"),
+                replaceConfigurationFile(
                         "etc/ddf.catalog.solr.external.SolrHttpCatalogProvider.cfg", new File(
                                 this.getClass().getResource(
                                         "/ddf.catalog.solr.external.SolrHttpCatalogProvider.cfg")
@@ -338,6 +366,20 @@ public abstract class AbstractIntegrationTest {
                         "security-services-app,catalog-app,solr-app,spatial-app,sdk-app"),
                 editConfigurationFileExtend("etc/org.apache.karaf.features.cfg",
                         "featuresRepositories", featuresUrl));
+    }
+
+    protected void setPortsAndUrls() {
+        HTTP_PORT = System.getProperty("org.codice.ddf.system.httpPort");
+        HTTPS_PORT = System.getProperty("org.codice.ddf.system.httpsPort");
+        SECURE_ROOT = "https://localhost:";
+        SERVICE_ROOT = SECURE_ROOT + HTTPS_PORT + "/services";
+        INSECURE_ROOT = "http://localhost:";
+        INSECURE_SERVICE_ROOT = INSECURE_ROOT + HTTP_PORT + "/services";
+        REST_PATH = SERVICE_ROOT + "/catalog/";
+        OPENSEARCH_PATH = REST_PATH + "query";
+        CSW_PATH = SERVICE_ROOT + "/csw";
+        OPENSEARCH_SOURCE_ID = "openSearchSource";
+        CSW_SOURCE_ID = "cswSource";
     }
 
     /**
