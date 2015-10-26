@@ -539,7 +539,7 @@ public class TestCswRecordConverter {
     @Test
     public void testConvertISODateMetacardAttribute() {
         String dateStr = "2013-05-03T17:25:04Z";
-        Serializable ser = CswRecordConverter
+        Serializable ser = CswUnmarshallHelper
                 .convertStringValueToMetacardValue(AttributeFormat.DATE, dateStr);
         assertThat(ser, not(nullValue()));
         assertThat(Date.class.isAssignableFrom(ser.getClass()), is(true));
@@ -558,7 +558,7 @@ public class TestCswRecordConverter {
     @Test
     public void testConvertInvalidTimeZoneInDateMetacardAttribute() {
         String dateStr = "2013-05-13T10:56:39EDT";
-        Serializable ser = CswRecordConverter
+        Serializable ser = CswUnmarshallHelper
                 .convertStringValueToMetacardValue(AttributeFormat.DATE, dateStr);
 
         assertDateConversion(ser, Calendar.getInstance());
@@ -570,7 +570,7 @@ public class TestCswRecordConverter {
     @Test
     public void testConvertInvalidDateMetacardAttribute() {
         String dateStr = "26021000ZFEB11";
-        Serializable ser = CswRecordConverter
+        Serializable ser = CswUnmarshallHelper
                 .convertStringValueToMetacardValue(AttributeFormat.DATE, dateStr);
 
         assertDateConversion(ser, Calendar.getInstance());

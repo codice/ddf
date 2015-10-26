@@ -31,6 +31,7 @@ import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswAxisOrder;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequest;
@@ -268,11 +269,11 @@ public class TransactionRequestConverter implements Converter {
                 if (reader.hasMoreChildren()) {
                     reader.moveDown();
                     newValue = CswRecordConverter.convertRecordPropertyToMetacardAttribute(
-                            attributeDescriptor.getType().getAttributeFormat(), reader, false);
+                            attributeDescriptor.getType().getAttributeFormat(), reader, CswAxisOrder.LON_LAT);
                     reader.moveUp();
                 } else {
                     newValue = CswRecordConverter.convertRecordPropertyToMetacardAttribute(
-                            attributeDescriptor.getType().getAttributeFormat(), reader, false);
+                            attributeDescriptor.getType().getAttributeFormat(), reader, CswAxisOrder.LON_LAT);
                 }
 
                 return newValue;

@@ -2816,7 +2816,7 @@ public class TestCswEndpoint {
      *
      * @param expectedAttr Exprected Mapped Attribute
      * @param temporalOps  The Temporal query, in terms of a binary comparison
-     * @param clz          the Expected Class result
+     * @param clzzes       the Expected Class result
      * @throws UnsupportedQueryException
      * @throws SourceUnavailableException
      * @throws FederationException

@@ -30,6 +30,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswAxisOrder;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswJAXBElementProvider;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
@@ -130,7 +131,7 @@ public class TestCswCqlFilter {
     private static final String CSW_RECORD_ID = "cswRecord.1234";
 
     private final CswFilterDelegate cswFilterDelegate = initDefaultCswFilterDelegate(
-            initCswSourceConfiguration(true, CswRecordMetacardType.CSW_TYPE));
+            initCswSourceConfiguration(CswAxisOrder.LON_LAT, CswRecordMetacardType.CSW_TYPE));
 
     private final Date date = getDate();
 
@@ -537,7 +538,7 @@ public class TestCswCqlFilter {
     public void testPropertyIsEqualToStringLiteralAlternateIdMapping()
             throws UnsupportedQueryException {
         String replacedIdentifierProperty = propertyName;
-        CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(false,
+        CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(CswAxisOrder.LAT_LON,
                 CswRecordMetacardType.CSW_TYPE, effectiveDateMapping, createdDateMapping,
                 modifiedDateMapping, replacedIdentifierProperty);
 
@@ -575,7 +576,7 @@ public class TestCswCqlFilter {
 
         DateTime startDate = new DateTime(2013, 5, 1, 0, 0, 0, 0);
         DateTime endDate = new DateTime(2013, 12, 31, 0, 0, 0, 0);
-        CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(false,
+        CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(CswAxisOrder.LAT_LON,
                 CswRecordMetacardType.CSW_TYPE, effectiveDateMapping, createdDateMapping,
                 modifiedDateMapping, CswRecordMetacardType.CSW_IDENTIFIER);
 
@@ -603,7 +604,7 @@ public class TestCswCqlFilter {
         DateTime endDate = new DateTime(2013, 12, 31, 0, 0, 0, 0);
 
         String replacedTemporalProperty = "myEffectiveDate";
-        CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(false,
+        CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(CswAxisOrder.LAT_LON,
                 CswRecordMetacardType.CSW_TYPE, replacedTemporalProperty, createdDateMapping,
                 modifiedDateMapping, CswRecordMetacardType.CSW_IDENTIFIER);
 
@@ -628,7 +629,7 @@ public class TestCswCqlFilter {
         DateTime endDate = new DateTime(2013, 12, 31, 0, 0, 0, 0);
 
         String replacedTemporalProperty = "myCreatedDate";
-        CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(false,
+        CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(CswAxisOrder.LAT_LON,
                 CswRecordMetacardType.CSW_TYPE, effectiveDateMapping, replacedTemporalProperty,
                 modifiedDateMapping, CswRecordMetacardType.CSW_IDENTIFIER);
 
@@ -655,7 +656,7 @@ public class TestCswCqlFilter {
         DateTime endDate = new DateTime(2013, 12, 31, 0, 0, 0, 0);
 
         String replacedTemporalProperty = "myModifiedDate";
-        CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(false,
+        CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(CswAxisOrder.LAT_LON,
                 CswRecordMetacardType.CSW_TYPE, effectiveDateMapping, createdDateMapping,
                 replacedTemporalProperty, CswRecordMetacardType.CSW_IDENTIFIER);
 
@@ -679,7 +680,7 @@ public class TestCswCqlFilter {
     @Test
     public void testRelative() throws UnsupportedQueryException {
         long duration = 92000000000L;
-        CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(false,
+        CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(CswAxisOrder.LAT_LON,
                 CswRecordMetacardType.CSW_TYPE, effectiveDateMapping, createdDateMapping,
                 modifiedDateMapping, CswRecordMetacardType.CSW_IDENTIFIER);
         CswFilterDelegate localCswFilterDelegate = initDefaultCswFilterDelegate(
@@ -1414,21 +1415,21 @@ public class TestCswCqlFilter {
         return localCswFilterDelegate;
     }
 
-    private CswSourceConfiguration initCswSourceConfiguration(boolean isLonLatOrder,
+    private CswSourceConfiguration initCswSourceConfiguration(CswAxisOrder cswAxisOrder,
             String contentType) {
         CswSourceConfiguration cswSourceConfiguration = new CswSourceConfiguration();
         cswSourceConfiguration.setIdentifierMapping(CswRecordMetacardType.CSW_IDENTIFIER);
-        cswSourceConfiguration.setIsLonLatOrder(isLonLatOrder);
+        cswSourceConfiguration.setCswAxisOrder(cswAxisOrder);
         cswSourceConfiguration.setContentTypeMapping(contentType);
         return cswSourceConfiguration;
     }
 
-    private CswSourceConfiguration initCswSourceConfiguration(boolean isLonLatOrder,
+    private CswSourceConfiguration initCswSourceConfiguration(CswAxisOrder cswAxisOrder,
             String contentType, String effectiveDateMapping, String createdDateMapping,
             String modifiedDateMapping, String identifierMapping) {
         CswSourceConfiguration cswSourceConfiguration = new CswSourceConfiguration();
         cswSourceConfiguration.setIdentifierMapping(identifierMapping);
-        cswSourceConfiguration.setIsLonLatOrder(isLonLatOrder);
+        cswSourceConfiguration.setCswAxisOrder(cswAxisOrder);
         cswSourceConfiguration.setContentTypeMapping(contentType);
         cswSourceConfiguration.setEffectiveDateMapping(effectiveDateMapping);
         cswSourceConfiguration.setCreatedDateMapping(createdDateMapping);

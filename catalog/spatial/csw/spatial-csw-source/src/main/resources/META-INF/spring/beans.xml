@@ -57,7 +57,7 @@
             <beans:property name="username" value=""/>
             <beans:property name="password" value=""/>
             <beans:property name="disableCnCheck" value="false"/>
-            <beans:property name="isLonLatOrder" value="false"/>
+            <beans:property name="coordinateOrder" value="LON_LAT"/>
             <beans:property name="usePosList" value="false"/>
             <beans:property name="contentTypeMapping" value="type"/>
             <beans:property name="effectiveDateMapping" value=""/>
