@@ -44,7 +44,7 @@ public class CswSourceConfiguration {
 
     private String thumbnailMapping;
 
-    private boolean isLonLatOrder;
+    private CswAxisOrder cswAxisOrder;
 
     private boolean usePosList;
 
@@ -163,12 +163,12 @@ public class CswSourceConfiguration {
         this.metacardCswMappings = metacardCswMappings;
     }
 
-    public void setIsLonLatOrder(boolean isLonLatOrder) {
-        this.isLonLatOrder = isLonLatOrder;
+    public void setCswAxisOrder(CswAxisOrder cswAxisOrder) {
+        this.cswAxisOrder = cswAxisOrder;
     }
 
-    public boolean isLonLatOrder() {
-        return this.isLonLatOrder;
+    public CswAxisOrder getCswAxisOrder() {
+        return this.cswAxisOrder;
     }
 
     public boolean isSetUsePosList() {
