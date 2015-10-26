@@ -174,6 +174,7 @@ public class TestSecurity extends AbstractIntegrationTest {
 
     @BeforeExam
     public void beforeTest() throws Exception {
+        setPortsAndUrls();
         setLogLevels();
         waitForAllBundles();
         configurePDP();
@@ -210,7 +211,7 @@ public class TestSecurity extends AbstractIntegrationTest {
                 .statusCode(equalTo(200));
 
         //try to hit an admin restricted page and see that we are unauthorized
-        given().cookie("JSESSIONID", cookie).when().get("https://localhost:9993/admin/index.html")
+        given().cookie("JSESSIONID", cookie).when().get("https://localhost:" + HTTPS_PORT + "/admin/index.html")
                 .then().log().all().assertThat().statusCode(equalTo(403));
     }
 
@@ -237,7 +238,7 @@ public class TestSecurity extends AbstractIntegrationTest {
                 .statusCode(equalTo(200));
 
         //try that admin level sso token on a restricted resource and get in... sso works!
-        given().cookie("JSESSIONID", cookie).when().get("https://localhost:9993/admin/index.html")
+        given().cookie("JSESSIONID", cookie).when().get("https://localhost:" + HTTPS_PORT + "/admin/index.html")
                 .then().log().all().assertThat().statusCode(equalTo(200));
     }
 
@@ -512,7 +513,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         //try that admin level assertion token on a restricted resource
         given().header(SecurityConstants.SAML_HEADER_NAME,
                 "SAML " + RestSecurity.deflateAndBase64Encode(assertionHeader)).when()
-                .get("https://localhost:9993/admin/index.html").then().log().all().assertThat()
+                .get("https://localhost:" + HTTPS_PORT + "/admin/index.html").then().log().all().assertThat()
                 .statusCode(equalTo(200));
     }
 
