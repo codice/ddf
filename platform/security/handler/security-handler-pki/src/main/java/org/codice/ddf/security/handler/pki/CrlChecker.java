@@ -23,7 +23,6 @@ import java.security.cert.X509Certificate;
 import java.util.Properties;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletResponse;
 
 import org.apache.wss4j.common.crypto.Merlin;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
@@ -52,7 +51,7 @@ public class CrlChecker {
         setCrlLocation(encryptionProperties.getProperty(CRL_PROPERTY_KEY));
     }
 
-    public HandlerResult check(HttpServletResponse httpResponse, BaseAuthenticationToken token,
+    public HandlerResult check(BaseAuthenticationToken token,
             X509Certificate[] certs, HandlerResult handlerResult) throws ServletException {
         if (crl == null) {
             String errorMsg = "CRL is not set. Skipping CRL check";
@@ -63,22 +62,20 @@ public class CrlChecker {
             return handlerResult;
         }
         LOGGER.trace("Checking request certs against CRL.");
-        return checkAgainstCrl(httpResponse, token, certs, handlerResult);
+        return checkAgainstCrl(token, certs, handlerResult);
     }
 
     /**
      * Checks the certificates against the CRL. If it is in the CRL, send a 401 error and return a HandlerResult with
      * the status of REDIRECTED. Otherwise, set appropriate tokens on the HandlerResult and return with status of COMPLETED
      *
-     * @param httpResponse  HttpServletResponse to send 401 error if needed
      * @param token         BaseAuthenticationToken containing the auth data to be attached to the HandlerResult if it passes the CRL
      * @param certs         Certificates extracted from the request to check against the CRL
      * @param handlerResult HandlerResult to modify and return
      * @return returns the modified handler result. REDIRECTED status if it failed the CRL check or COMPLETED if it passed
      */
 
-    private HandlerResult checkAgainstCrl(HttpServletResponse httpResponse,
-            BaseAuthenticationToken token, X509Certificate[] certs, HandlerResult handlerResult)
+    private HandlerResult checkAgainstCrl(BaseAuthenticationToken token, X509Certificate[] certs, HandlerResult handlerResult)
             throws ServletException {
         if (passesCrl(certs)) {
             handlerResult.setToken(token);
@@ -86,15 +83,9 @@ public class CrlChecker {
         } else {
             // cert is present and listed as revoked in the CRL - set handlerResult to REDIRECTED and return 401
             handlerResult.setStatus(HandlerResult.Status.REDIRECTED);
-            try {
-                httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-                httpResponse.flushBuffer();
-            } catch (IOException e) {
-                String errorMsg = "Unable to send 401 response to client.";
-                LOGGER.error(errorMsg);
-                throw new ServletException(errorMsg, e);
-            }
+            String errorMsg = "The certificate used to complete the request has been revoked.";
+            LOGGER.error(errorMsg);
+            throw new ServletException(errorMsg);
         }
         return handlerResult;
     }

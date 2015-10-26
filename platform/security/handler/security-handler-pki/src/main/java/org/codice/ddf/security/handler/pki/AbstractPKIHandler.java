@@ -94,7 +94,7 @@ public abstract class AbstractPKIHandler implements AuthenticationHandler {
         }
 
         // CRL was specified, check against CRL and return the result
-        handlerResult = crlChecker.check(httpResponse, token, certs, handlerResult);
+        handlerResult = crlChecker.check(token, certs, handlerResult);
         return handlerResult;
     }
 
