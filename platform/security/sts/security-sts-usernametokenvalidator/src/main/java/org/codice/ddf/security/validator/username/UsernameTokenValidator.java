@@ -1,17 +1,17 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * <p/>
- * <p/>
+ * <p>
+ * <p>
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -19,44 +19,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
- * <p/>
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- * <p/>
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations
- * under the License.
- * <p/>
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements. See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership. The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License. You may obtain a copy of the License at
- * <p/>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p/>
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements. See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership. The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License. You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -69,7 +34,6 @@ package org.codice.ddf.security.validator.username;
 import java.security.Principal;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -82,16 +46,13 @@ import javax.xml.bind.Marshaller;
 import org.apache.cxf.common.jaxb.JAXBContextCache;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.sts.QNameConstants;
-import org.apache.cxf.sts.STSConstants;
 import org.apache.cxf.sts.STSPropertiesMBean;
 import org.apache.cxf.sts.request.ReceivedToken;
-import org.apache.cxf.sts.token.realm.UsernameTokenRealmCodec;
 import org.apache.cxf.sts.token.validator.TokenValidator;
 import org.apache.cxf.sts.token.validator.TokenValidatorParameters;
 import org.apache.cxf.sts.token.validator.TokenValidatorResponse;
 import org.apache.cxf.ws.security.sts.provider.model.ObjectFactory;
 import org.apache.cxf.ws.security.sts.provider.model.secext.UsernameTokenType;
-import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.karaf.jaas.config.JaasRealm;
 import org.apache.wss4j.common.crypto.Crypto;
 import org.apache.wss4j.common.ext.WSSecurityException;
@@ -122,8 +83,6 @@ public class UsernameTokenValidator implements TokenValidator {
 
     protected Map<String, Validator> validators = new ConcurrentHashMap<>();
 
-    private UsernameTokenRealmCodec usernameTokenRealmCodec;
-
     public void addRealm(ServiceReference<JaasRealm> serviceReference) {
         Bundle bundle = FrameworkUtil.getBundle(UsernameTokenValidator.class);
         if (null != bundle) {
@@ -142,15 +101,6 @@ public class UsernameTokenValidator implements TokenValidator {
             LOGGER.trace("Removing validator for JaasRealm {}", realm.getName());
             validators.remove(realm.getName());
         }
-    }
-
-    /**
-     * Set the UsernameTokenRealmCodec instance to use to return a realm from a validated token
-     * @param usernameTokenRealmCodec the UsernameTokenRealmCodec instance to use to return a
-     *                                realm from a validated token
-     */
-    public void setUsernameTokenRealmCodec(UsernameTokenRealmCodec usernameTokenRealmCodec) {
-        this.usernameTokenRealmCodec = usernameTokenRealmCodec;
     }
 
     /**
@@ -239,69 +189,29 @@ public class UsernameTokenValidator implements TokenValidator {
                 return response;
             }
 
-            // See if the UsernameToken is stored in the cache
-            int hash = ut.hashCode();
-            SecurityToken secToken = null;
-            if (tokenParameters.getTokenStore() != null) {
-                secToken = tokenParameters.getTokenStore().getToken(Integer.toString(hash));
-                if (secToken != null && secToken.getTokenHash() != hash) {
-                    secToken = null;
+            Credential credential = new Credential();
+            credential.setUsernametoken(ut);
+            //Only this section is new, the rest is copied from the apache class
+            Set<Map.Entry<String, Validator>> entries = validators.entrySet();
+            for (Map.Entry<String, Validator> entry : entries) {
+                try {
+                    entry.getValue().validate(credential, requestData);
+                    validateTarget.setState(ReceivedToken.STATE.VALID);
+                    break;
+                } catch (WSSecurityException ex) {
+                    LOGGER.debug("Unable to validate user against {}" + entry.getKey(), ex);
                 }
             }
-
-            if (secToken == null) {
-                Credential credential = new Credential();
-                credential.setUsernametoken(ut);
-                //Only this section is new, the rest is copied from the apache class
-                Set<Map.Entry<String, Validator>> entries = validators.entrySet();
-                for (Map.Entry<String, Validator> entry : entries) {
-                    try {
-                        entry.getValue().validate(credential, requestData);
-                        validateTarget.setState(ReceivedToken.STATE.VALID);
-                        break;
-                    } catch (WSSecurityException ex) {
-                        LOGGER.debug("Unable to validate user against {}" + entry.getKey(), ex);
-                    }
-                }
-                if (ReceivedToken.STATE.INVALID.equals(validateTarget.getState())) {
-                    return response;
-                }
-                //end new section
+            if (ReceivedToken.STATE.INVALID.equals(validateTarget.getState())) {
+                return response;
             }
+            //end new section
 
             Principal principal = createPrincipal(ut.getName(), ut.getPassword(),
                     ut.getPasswordType(), ut.getNonce(), ut.getCreated());
 
-            // Get the realm of the UsernameToken
-            String tokenRealm = null;
-            if (usernameTokenRealmCodec != null) {
-                tokenRealm = usernameTokenRealmCodec.getRealmFromToken(ut);
-                // verify the realm against the cached token
-                if (secToken != null) {
-                    Properties props = secToken.getProperties();
-                    if (props != null) {
-                        String cachedRealm = props.getProperty(STSConstants.TOKEN_REALM);
-                        if (!tokenRealm.equals(cachedRealm)) {
-                            validateTarget.setState(ReceivedToken.STATE.INVALID);
-                            return response;
-                        }
-                    }
-                }
-            }
-
-            // Store the successfully validated token in the cache
-            if (tokenParameters.getTokenStore() != null && secToken == null
-                    && ReceivedToken.STATE.VALID.equals(validateTarget.getState())) {
-                secToken = new SecurityToken(ut.getID());
-                secToken.setToken(ut.getElement());
-                int hashCode = ut.hashCode();
-                String identifier = Integer.toString(hashCode);
-                secToken.setTokenHash(hashCode);
-                tokenParameters.getTokenStore().add(identifier, secToken);
-            }
-
             response.setPrincipal(principal);
-            response.setTokenRealm(tokenRealm);
+            response.setTokenRealm(null);
             validateTarget.setState(ReceivedToken.STATE.VALID);
             validateTarget.setPrincipal(principal);
         } catch (WSSecurityException ex) {
