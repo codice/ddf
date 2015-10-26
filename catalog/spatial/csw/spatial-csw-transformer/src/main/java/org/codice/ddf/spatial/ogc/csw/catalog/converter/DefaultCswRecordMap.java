@@ -144,7 +144,7 @@ public class DefaultCswRecordMap {
         MAPPING = new DefaultCswRecordMap();
     }
 
-    private DefaultCswRecordMap(){
+    private DefaultCswRecordMap() {
     }
 
     public static DefaultCswRecordMap getDefaultCswRecordMap() {

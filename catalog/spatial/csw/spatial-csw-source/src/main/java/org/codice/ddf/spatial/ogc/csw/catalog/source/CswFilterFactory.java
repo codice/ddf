@@ -37,6 +37,7 @@ import javax.xml.bind.Unmarshaller;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswAxisOrder;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants.BinarySpatialOperand;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswJAXBElementProvider;
@@ -89,23 +90,23 @@ public class CswFilterFactory {
 
     private net.opengis.gml.v_3_1_1.ObjectFactory gmlObjectFactory = new net.opengis.gml.v_3_1_1.ObjectFactory();
 
-    private boolean isLonLatOrder;
+    private CswAxisOrder cswAxisOrder;
 
     private boolean isSetUsePosList;
 
     /**
      * Constructor for CswFilterFactory.
      *
-     * @param isLonLatOrder
-     *            True if coordinate order is longitude, latitude; False, otherwise.
+     * @param cswAxisOrder
+     *            The order that axes are provided in.
      *
      * @param isSetUsePosList
      *            True if a single <posList> element, rather than a set of <pos>
      *            elements, should be used in LinearRings when constructing XML 
      *            Filter strings.
      */
-    public CswFilterFactory(boolean isLonLatOrder, boolean isSetUsePosList) {
-        this.isLonLatOrder = isLonLatOrder;
+    public CswFilterFactory(CswAxisOrder cswAxisOrder, boolean isSetUsePosList) {
+        this.cswAxisOrder = cswAxisOrder;
         this.isSetUsePosList = isSetUsePosList;
     }
 
@@ -707,7 +708,7 @@ public class CswFilterFactory {
      */
     private String convertWktToLatLonOrdering(String wktInLonLat) {
 
-        if (!isLonLatOrder) {
+        if (cswAxisOrder != CswAxisOrder.LON_LAT) {
             LOGGER.debug(
                     "Converting WKT from LON/LAT coordinate ordering to LAT/LON coordinate ordering.");
 
