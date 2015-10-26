@@ -187,7 +187,7 @@ public class LoginFilterTest {
         HttpSession session = mock(HttpSession.class);
         when(servletRequest.getSession(true)).thenReturn(session);
         when(session.getAttribute(SecurityConstants.SAML_ASSERTION))
-                .thenReturn(new SecurityTokenHolder(null));
+                .thenReturn(new SecurityTokenHolder());
 
         Subject subject = mock(Subject.class, RETURNS_DEEP_STUBS);
         when(securityManager.getSubject(token)).thenReturn(subject);

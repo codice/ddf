@@ -30,6 +30,9 @@ import javax.servlet.http.HttpSession;
 
 import org.junit.Test;
 
+import ddf.security.SecurityConstants;
+import ddf.security.common.util.SecurityTokenHolder;
+
 public class TestLogoutServlet {
     @Test
     public void testLogout() {
@@ -45,6 +48,8 @@ public class TestLogoutServlet {
         when(request.getSession(anyBoolean())).thenReturn(httpSession);
         when(request.getSession(anyBoolean()).getId()).thenReturn("id");
         when(request.getRequestURL()).thenReturn(new StringBuffer("http://foo.bar"));
+        SecurityTokenHolder securityTokenHolder = mock(SecurityTokenHolder.class);
+        when(httpSession.getAttribute(SecurityConstants.SAML_ASSERTION)).thenReturn(securityTokenHolder);
         try {
             logoutServlet.doGet(request, response);
         } catch (ServletException | IOException e) {
