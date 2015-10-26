@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -31,6 +31,7 @@ import javax.xml.bind.Unmarshaller;
 import org.apache.cxf.common.jaxb.JAXBContextCache;
 import org.apache.cxf.sts.STSPropertiesMBean;
 import org.apache.cxf.sts.request.ReceivedToken;
+import org.apache.cxf.sts.token.realm.UsernameTokenRealmCodec;
 import org.apache.cxf.sts.token.validator.TokenValidatorParameters;
 import org.apache.cxf.sts.token.validator.TokenValidatorResponse;
 import org.apache.cxf.ws.security.sts.provider.model.ObjectFactory;
@@ -38,6 +39,7 @@ import org.apache.karaf.jaas.config.JaasRealm;
 import org.apache.wss4j.common.crypto.Crypto;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.dom.handler.RequestData;
+import org.apache.wss4j.dom.message.token.UsernameToken;
 import org.apache.wss4j.dom.validate.Credential;
 import org.apache.wss4j.dom.validate.JAASUsernameTokenValidator;
 import org.junit.Before;
@@ -121,6 +123,8 @@ public class TestUsernameTokenValidator {
                 validators.put("myrealm", meanValidator);
             }
         };
+        UsernameTokenRealmCodec usernameTokenRealmCodec = mock(UsernameTokenRealmCodec.class);
+        usernameTokenValidator.setUsernameTokenRealmCodec(usernameTokenRealmCodec);
         usernameTokenValidator.addRealm(null);
 
         TokenValidatorParameters tokenValidatorParameters = mock(TokenValidatorParameters.class);
@@ -132,6 +136,8 @@ public class TestUsernameTokenValidator {
         doCallRealMethod().when(receivedToken).getState();
         when(receivedToken.isUsernameToken()).thenReturn(true);
         when(tokenValidatorParameters.getToken()).thenReturn(receivedToken);
+        when(usernameTokenRealmCodec.getRealmFromToken(any(UsernameToken.class)))
+                .thenReturn("myrealm");
 
         Set<Class<?>> classes = new HashSet<>();
         classes.add(ObjectFactory.class);
@@ -174,6 +180,8 @@ public class TestUsernameTokenValidator {
                 validators.put("myrealm", niceValidator);
             }
         };
+        UsernameTokenRealmCodec usernameTokenRealmCodec = mock(UsernameTokenRealmCodec.class);
+        usernameTokenValidator.setUsernameTokenRealmCodec(usernameTokenRealmCodec);
         usernameTokenValidator.addRealm(null);
 
         TokenValidatorParameters tokenValidatorParameters = mock(TokenValidatorParameters.class);
@@ -185,6 +193,8 @@ public class TestUsernameTokenValidator {
         doCallRealMethod().when(receivedToken).getState();
         when(receivedToken.isUsernameToken()).thenReturn(true);
         when(tokenValidatorParameters.getToken()).thenReturn(receivedToken);
+        when(usernameTokenRealmCodec.getRealmFromToken(any(UsernameToken.class)))
+                .thenReturn("myrealm");
 
         Set<Class<?>> classes = new HashSet<>();
         classes.add(ObjectFactory.class);

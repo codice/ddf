@@ -93,45 +93,39 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
         // check for full SAML assertions coming in (federated requests, etc.)
         if (authHeader != null) {
             String[] tokenizedAuthHeader = authHeader.split(" ");
-            if (tokenizedAuthHeader.length != 2) {
-                LOGGER.warn("Unexpected error - Authorization header tokenized incorrectly.");
-                return handlerResult;
-            }
-            if (!tokenizedAuthHeader[0].equals("SAML")) {
-                LOGGER.trace("Header is not a SAML assertion.");
-                return handlerResult;
-            }
-            String encodedSamlAssertion = tokenizedAuthHeader[1];
-            LOGGER.trace("Header retrieved");
-            try {
-                String tokenString = RestSecurity.inflateBase64(encodedSamlAssertion);
-                LOGGER.trace("Header value: {}", tokenString);
-                securityToken = new SecurityToken();
+            if (tokenizedAuthHeader.length == 2 && tokenizedAuthHeader[0].equals("SAML")) {
+                String encodedSamlAssertion = tokenizedAuthHeader[1];
+                LOGGER.trace("Header retrieved");
+                try {
+                    String tokenString = RestSecurity.inflateBase64(encodedSamlAssertion);
+                    LOGGER.trace("Header value: {}", tokenString);
+                    securityToken = new SecurityToken();
 
-                Element thisToken = null;
+                    Element thisToken = null;
 
-                if (tokenString.contains(SAML_NAMESPACE)) {
-                    try {
-                        thisToken = StaxUtils.read(new StringReader(tokenString))
-                                .getDocumentElement();
-                    } catch (XMLStreamException e) {
-                        LOGGER.warn(
-                                "Unexpected error converting XML string to element - proceeding without SAML token.",
-                                e);
+                    if (tokenString.contains(SAML_NAMESPACE)) {
+                        try {
+                            thisToken = StaxUtils.read(new StringReader(tokenString))
+                                    .getDocumentElement();
+                        } catch (XMLStreamException e) {
+                            LOGGER.warn(
+                                    "Unexpected error converting XML string to element - proceeding without SAML token.",
+                                    e);
+                        }
+                    } else {
+                        thisToken = parseAssertionWithoutNamespace(tokenString);
                     }
-                } else {
-                    thisToken = parseAssertionWithoutNamespace(tokenString);
-                }
 
-                securityToken.setToken(thisToken);
-                SAMLAuthenticationToken samlToken = new SAMLAuthenticationToken(null, securityToken,
-                        realm);
-                handlerResult.setToken(samlToken);
-                handlerResult.setStatus(HandlerResult.Status.COMPLETED);
-            } catch (IOException e) {
-                LOGGER.warn("Unexpected error converting header value to string", e);
+                    securityToken.setToken(thisToken);
+                    SAMLAuthenticationToken samlToken = new SAMLAuthenticationToken(null,
+                            securityToken, realm);
+                    handlerResult.setToken(samlToken);
+                    handlerResult.setStatus(HandlerResult.Status.COMPLETED);
+                } catch (IOException e) {
+                    LOGGER.warn("Unexpected error converting header value to string", e);
+                }
+                return handlerResult;
             }
-            return handlerResult;
         }
 
         // Check for legacy SAML cookie
@@ -172,8 +166,8 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
             //If so, create a SAMLAuthenticationToken using the sessionId
             SecurityTokenHolder savedToken = (SecurityTokenHolder) session
                     .getAttribute(SecurityConstants.SAML_ASSERTION);
-            if (savedToken != null && savedToken.getSecurityToken() != null) {
-                SecurityAssertionImpl assertion = new SecurityAssertionImpl(savedToken.getSecurityToken());
+            if (savedToken != null && savedToken.getSecurityToken(realm) != null) {
+                SecurityAssertionImpl assertion = new SecurityAssertionImpl(savedToken.getSecurityToken(realm));
                 if (assertion.getNotOnOrAfter() == null
                         || assertion.getNotOnOrAfter().getTime() - System.currentTimeMillis() > 0) {
                     LOGGER.trace("Creating SAML authentication token with session.");
@@ -184,7 +178,7 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
                 } else {
                     LOGGER.trace(
                             "SAML token in session has expired - removing from session and returning with no results");
-                    savedToken.setSecurityToken(null);
+                    savedToken.remove(realm);
                 }
             } else {
                 LOGGER.trace("No SAML token located in session - returning with no results");

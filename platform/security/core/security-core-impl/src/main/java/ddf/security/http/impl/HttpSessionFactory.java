@@ -33,7 +33,7 @@ public class HttpSessionFactory implements SessionFactory {
     public synchronized HttpSession getOrCreateSession(HttpServletRequest httpRequest) {
         HttpSession session = httpRequest.getSession(true);
         if (session.getAttribute(SecurityConstants.SAML_ASSERTION) == null) {
-            session.setAttribute(SecurityConstants.SAML_ASSERTION, new SecurityTokenHolder(null));
+            session.setAttribute(SecurityConstants.SAML_ASSERTION, new SecurityTokenHolder());
         }
         return session;
     }

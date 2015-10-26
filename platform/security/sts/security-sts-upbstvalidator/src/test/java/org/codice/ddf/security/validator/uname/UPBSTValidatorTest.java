@@ -135,7 +135,7 @@ public class UPBSTValidatorTest {
             @Override
             public SecurityToken getToken(String identifier) {
                 SecurityToken securityToken = new SecurityToken();
-                securityToken.setTokenHash(-1432225335);
+                securityToken.setTokenHash(584149325);
                 return securityToken;
             }
         });
