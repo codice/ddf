@@ -238,9 +238,10 @@ public class UsernameTokenValidator implements TokenValidator {
             if (ut.getPassword() == null) {
                 return response;
             }
+            String tokenId = String.format("%s:%s:%s", ut.getName(), ut.getPassword(), usernameTokenRealmCodec.getRealmFromToken(ut));
 
             // See if the UsernameToken is stored in the cache
-            int hash = ut.hashCode();
+            int hash = tokenId.hashCode();
             SecurityToken secToken = null;
             if (tokenParameters.getTokenStore() != null) {
                 secToken = tokenParameters.getTokenStore().getToken(Integer.toString(hash));
@@ -294,7 +295,7 @@ public class UsernameTokenValidator implements TokenValidator {
                     && ReceivedToken.STATE.VALID.equals(validateTarget.getState())) {
                 secToken = new SecurityToken(ut.getID());
                 secToken.setToken(ut.getElement());
-                int hashCode = ut.hashCode();
+                int hashCode = tokenId.hashCode();
                 String identifier = Integer.toString(hashCode);
                 secToken.setTokenHash(hashCode);
                 tokenParameters.getTokenStore().add(identifier, secToken);

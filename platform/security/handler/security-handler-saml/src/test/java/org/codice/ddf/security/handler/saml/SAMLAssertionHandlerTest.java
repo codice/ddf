@@ -15,6 +15,7 @@ package org.codice.ddf.security.handler.saml;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -176,7 +177,7 @@ public class SAMLAssertionHandlerTest {
         SecurityTokenHolder tokenHolder = mock(SecurityTokenHolder.class);
         when(session.getAttribute(SecurityConstants.SAML_ASSERTION)).thenReturn(tokenHolder);
         SecurityToken securityToken = mock(SecurityToken.class);
-        when(tokenHolder.getSecurityToken()).thenReturn(securityToken);
+        when(tokenHolder.getSecurityToken(anyString())).thenReturn(securityToken);
         when(securityToken.getToken()).thenReturn(readDocument("/saml.xml").getDocumentElement());
 
         HandlerResult result = handler.getNormalizedToken(request, response, chain, true);

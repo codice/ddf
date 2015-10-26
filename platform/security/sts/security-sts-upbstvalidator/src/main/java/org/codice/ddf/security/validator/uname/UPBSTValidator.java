@@ -268,9 +268,10 @@ public class UPBSTValidator implements TokenValidator {
             if (ut.getPassword() == null) {
                 return response;
             }
+            String tokenId = String.format("%s:%s:%s",ut.getName(), ut.getPassword(), usernameToken.getRealm());
 
             // See if the UsernameToken is stored in the cache
-            int hash = ut.hashCode();
+            int hash = tokenId.hashCode();
             SecurityToken secToken = null;
             if (tokenParameters.getTokenStore() != null) {
                 secToken = tokenParameters.getTokenStore().getToken(Integer.toString(hash));
@@ -339,7 +340,7 @@ public class UPBSTValidator implements TokenValidator {
                     .equals(validateTarget.getState())) {
                 secToken = new SecurityToken(ut.getID());
                 secToken.setToken(ut.getElement());
-                int hashCode = ut.hashCode();
+                int hashCode = tokenId.hashCode();
                 String identifier = Integer.toString(hashCode);
                 secToken.setTokenHash(hashCode);
                 tokenParameters.getTokenStore().add(identifier, secToken);
