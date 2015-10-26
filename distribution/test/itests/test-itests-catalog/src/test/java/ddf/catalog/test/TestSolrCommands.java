@@ -52,6 +52,7 @@ public class TestSolrCommands extends AbstractIntegrationTest {
 
     @BeforeExam
     public void beforeExam() throws Exception {
+        setPortsAndUrls();
         setLogLevels();
         waitForAllBundles();
         waitForCatalogProvider();
