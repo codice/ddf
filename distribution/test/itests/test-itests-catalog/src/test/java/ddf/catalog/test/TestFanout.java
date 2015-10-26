@@ -33,6 +33,7 @@ public class TestFanout extends AbstractIntegrationTest {
 
     @BeforeExam
     public void beforeExam() throws Exception {
+        setPortsAndUrls();
         getAdminConfig().setLogLevels();
         getServiceManager().waitForAllBundles();
         getCatalogBundle().setFanout(true);
