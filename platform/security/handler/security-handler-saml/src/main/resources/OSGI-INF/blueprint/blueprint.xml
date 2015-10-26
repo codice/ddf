@@ -16,7 +16,10 @@
   http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
     <bean id="handler" class="org.codice.ddf.security.handler.saml.SAMLAssertionHandler">
-
+        <argument>
+            <reference interface="ddf.security.http.SessionFactory"
+                       filter="(id=http)"/>
+        </argument>
     </bean>
 
     <service ref="handler" interface="org.codice.ddf.security.handler.api.AuthenticationHandler"
