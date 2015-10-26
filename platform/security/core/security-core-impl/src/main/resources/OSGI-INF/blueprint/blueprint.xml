@@ -36,4 +36,11 @@
     <service id="serviceManager" ref="securityManagerImpl"
              interface="ddf.security.service.SecurityManager"/>
 
+    <service interface="ddf.security.http.SessionFactory">
+        <service-properties>
+            <entry key="id" value="http"/>
+        </service-properties>
+        <bean class="ddf.security.http.impl.HttpSessionFactory"/>
+    </service>
+
 </blueprint>

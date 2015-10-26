@@ -48,6 +48,7 @@ import org.xml.sax.SAXException;
 import ddf.security.SecurityConstants;
 import ddf.security.assertion.impl.SecurityAssertionImpl;
 import ddf.security.common.util.SecurityTokenHolder;
+import ddf.security.http.SessionFactory;
 
 /**
  * Checks for a SAML assertion that has been returned to us in the ddf security cookie. If it exists, it
@@ -67,8 +68,7 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
 
     private static final Pattern SAML_PREFIX = Pattern.compile("<(?<prefix>\\w+?):Assertion\\s.*");
 
-    // Interned string literal lock for creating new HTTP sessions
-    private final Object newSessionLock = "org.codice.ddf.security.NewHttpSession";
+    private SessionFactory sessionFactory;
 
     public SAMLAssertionHandler() {
         LOGGER.debug("Creating SAML Assertion handler.");
@@ -165,12 +165,7 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
 
         HttpSession session = httpRequest.getSession(false);
         if (session == null && httpRequest.getRequestedSessionId() != null) {
-            synchronized (newSessionLock) {
-                session = httpRequest.getSession(true);
-                if (session.getAttribute(SecurityConstants.SAML_ASSERTION) == null) {
-                    session.setAttribute(SecurityConstants.SAML_ASSERTION, new SecurityTokenHolder(null));
-                }
-            }
+            session = sessionFactory.getOrCreateSession(httpRequest);
         }
         if (session != null) {
             //Check if there is a SAML Assertion in the session
@@ -231,6 +226,10 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
         return result;
     }
 
+    public void setSessionFactory(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
+    }
+
     /**
      * If an error occured during the processing of the request, this method will get called. Since
      * SAML handling is typically processed first, then we can assume that there was an error with
@@ -272,5 +271,6 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
         }
         result.setStatus(HandlerResult.Status.REDIRECTED);
         return result;
+
     }
 }

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -77,6 +77,7 @@ import ddf.security.assertion.SecurityAssertion;
 import ddf.security.assertion.impl.SecurityAssertionImpl;
 import ddf.security.common.audit.SecurityLogger;
 import ddf.security.common.util.SecurityTokenHolder;
+import ddf.security.http.SessionFactory;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
 
@@ -120,9 +121,6 @@ public class LoginFilter implements Filter {
 
     private final Object lock = new Object();
 
-    // Interned string literal lock for creating new HTTP sessions
-    private final Object newSessionLock = "org.codice.ddf.security.NewHttpSession";
-
     private final SystemBaseUrl baseUrl;
 
     private SecurityManager securityManager;
@@ -132,6 +130,8 @@ public class LoginFilter implements Filter {
     private Crypto signatureCrypto;
 
     private Validator assertionValidator = new SamlAssertionValidator();
+
+    private SessionFactory sessionFactory;
 
     /**
      * Default expiration value is 31 minutes
@@ -220,6 +220,10 @@ public class LoginFilter implements Filter {
         }
 
         return status;
+    }
+
+    public void setSessionFactory(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
     }
 
     @Override
@@ -510,7 +514,7 @@ public class LoginFilter implements Filter {
         Subject subject;
 
         synchronized (lock) {
-            HttpSession session = getOrCreateSession(httpRequest);
+            HttpSession session = sessionFactory.getOrCreateSession(httpRequest);
             //if we already have an assertion inside the session and it has not expired, then use that instead
             SecurityToken sessionToken = getSecurityToken(session);
 
@@ -527,9 +531,10 @@ public class LoginFilter implements Filter {
                     for (Object principal : subject.getPrincipals().asList()) {
                         if (principal instanceof SecurityAssertion) {
                             if (LOGGER.isTraceEnabled()) {
-                                Element samlToken = ((SecurityAssertion) principal).getSecurityToken()
-                                        .getToken();
-                                LOGGER.trace("SAML assertion returned: {}", XMLUtils.getStrFromNode(samlToken));
+                                Element samlToken = ((SecurityAssertion) principal)
+                                        .getSecurityToken().getToken();
+                                LOGGER.trace("SAML assertion returned: {}",
+                                        XMLUtils.getStrFromNode(samlToken));
                             }
                             SecurityToken securityToken = ((SecurityAssertion) principal)
                                     .getSecurityToken();
@@ -542,8 +547,8 @@ public class LoginFilter implements Filter {
                 }
             } else {
                 LOGGER.trace("Creating SAML authentication token with session.");
-                SAMLAuthenticationToken samlToken = new SAMLAuthenticationToken(null, session.getId(),
-                        token.getRealm());
+                SAMLAuthenticationToken samlToken = new SAMLAuthenticationToken(null,
+                        session.getId(), token.getRealm());
                 return handleAuthenticationToken(httpRequest, samlToken);
 
             }
@@ -551,20 +556,10 @@ public class LoginFilter implements Filter {
         return subject;
     }
 
-    private HttpSession getOrCreateSession(HttpServletRequest httpRequest) {
-        synchronized (newSessionLock) {
-            HttpSession session = httpRequest.getSession(true);
-            if (session.getAttribute(SecurityConstants.SAML_ASSERTION) == null) {
-                session.setAttribute(SecurityConstants.SAML_ASSERTION,
-                        new SecurityTokenHolder(null));
-            }
-            return session;
-        }
-    }
-
     private SecurityToken getSecurityToken(HttpSession session) {
         if (session.getAttribute(SecurityConstants.SAML_ASSERTION) == null) {
-            LOGGER.error("Security token holder missing from session. New session created improperly.");
+            LOGGER.error(
+                    "Security token holder missing from session. New session created improperly.");
             return null;
         }
 
@@ -575,8 +570,8 @@ public class LoginFilter implements Filter {
 
         if (token != null) {
             SecurityAssertionImpl assertion = new SecurityAssertionImpl(token);
-            if (assertion.getNotOnOrAfter() != null && assertion.getNotOnOrAfter().getTime() - System
-                    .currentTimeMillis() < 0) {
+            if (assertion.getNotOnOrAfter() != null
+                    && assertion.getNotOnOrAfter().getTime() - System.currentTimeMillis() < 0) {
                 LOGGER.debug("Session SAML token has expired.  Removing from session.");
                 tokenHolder.setSecurityToken(null);
                 return null;
@@ -606,7 +601,7 @@ public class LoginFilter implements Filter {
         }
 
         synchronized (lock) {
-            HttpSession session = getOrCreateSession(httpRequest);
+            HttpSession session = sessionFactory.getOrCreateSession(httpRequest);
             SecurityToken sessionToken = getSecurityToken(session);
             if (sessionToken == null) {
                 addSecurityToken(session, securityToken);
