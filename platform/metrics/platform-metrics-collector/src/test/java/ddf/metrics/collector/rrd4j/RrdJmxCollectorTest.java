@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -19,6 +19,7 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,7 +27,9 @@ import java.util.Calendar;
 import java.util.TimeZone;
 
 import org.junit.After;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 import org.rrd4j.ConsolFun;
 import org.rrd4j.DsType;
 import org.rrd4j.core.Archive;
@@ -41,6 +44,9 @@ import org.slf4j.LoggerFactory;
 import ddf.metrics.collector.CollectorException;
 
 public class RrdJmxCollectorTest {
+
+    @Rule
+    public TestName name = new TestName();
 
     private static final transient Logger LOGGER = LoggerFactory
             .getLogger(RrdJmxCollectorTest.class);
@@ -78,7 +84,7 @@ public class RrdJmxCollectorTest {
             if (status) {
                 LOGGER.debug("Successfully deleted rrdFile {}", path);
             } else {
-                LOGGER.debug("Unable to delete rrdFile {}", path);
+                fail("Unable to delete rrdFile " + path);
             }
         } else {
             LOGGER.debug("rrdFile {} does not exist - cannot delete", path);
@@ -88,7 +94,7 @@ public class RrdJmxCollectorTest {
     @Test
     public void testConstruction() {
         RrdJmxCollector jmxCollector = new RrdJmxCollector("java.lang:type=Runtime", "Uptime",
-                "jvmUptime");
+                name.getMethodName());
         assertThat(jmxCollector, not(nullValue()));
         assertThat(jmxCollector.getRrdDataSourceType(),
                 is(RrdJmxCollector.DERIVE_DATA_SOURCE_TYPE));
@@ -98,7 +104,7 @@ public class RrdJmxCollectorTest {
     public void testRrdFileCreationForDeriveDataSource() throws Exception {
         // Set sample rate to 1 sec (default is 60 seconds) so that unit test runs quickly
         String mbeanAttributeName = "Uptime";
-        String metricName = "jvmUptime";
+        String metricName = name.getMethodName();
         int sampleRate = 1;
         createJmxCollector(mbeanAttributeName, metricName, RrdJmxCollector.DERIVE_DATA_SOURCE_TYPE,
                 sampleRate);
@@ -145,7 +151,7 @@ public class RrdJmxCollectorTest {
     public void testRrdFileCreationForGaugeDataSource() throws Exception {
         // Set sample rate to 1 sec (default is 60 seconds) so that unit test runs quickly
         String mbeanAttributeName = "Uptime";
-        String metricName = "jvmUptime";
+        String metricName = name.getMethodName();
         int sampleRate = 1;
         createJmxCollector(mbeanAttributeName, metricName, RrdJmxCollector.GAUGE_DATA_SOURCE_TYPE,
                 sampleRate);
@@ -198,7 +204,7 @@ public class RrdJmxCollectorTest {
     public void testRrdFileCreationWhenRrdFileAlreadyExists() throws Exception {
         // Set sample rate to 1 sec (default is 60 seconds) so that unit test runs quickly
         String mbeanAttributeName = "Uptime";
-        String metricName = "jvmUptime";
+        String metricName = name.getMethodName();
         int sampleRate = 1;
         createJmxCollector(mbeanAttributeName, metricName, RrdJmxCollector.DERIVE_DATA_SOURCE_TYPE,
                 sampleRate);
@@ -237,8 +243,7 @@ public class RrdJmxCollectorTest {
         dataSourceName = mbeanAttributeName.toLowerCase();
         rrdPath = dataSourceName + ".rrd";
 
-        jmxCollector = new RrdJmxCollector("java.lang:type=Runtime", mbeanAttributeName,
-                "jvmUptime", RrdJmxCollector.DERIVE_DATA_SOURCE_TYPE, dataSourceName);
+        jmxCollector = new RrdJmxCollector("java.lang:type=Runtime", mbeanAttributeName, name.getMethodName(), RrdJmxCollector.DERIVE_DATA_SOURCE_TYPE, dataSourceName);
         jmxCollector.setRrdPath(rrdPath);
         jmxCollector.setSampleRate(1);
         jmxCollector.setMetricsDir(TEST_DIR);
@@ -291,7 +296,7 @@ public class RrdJmxCollectorTest {
     @Test
     public void testCounterDataSourceCollection() throws Exception {
         // Set sample rate to 1 sec (default is 60 seconds) so that unit test runs quickly
-        createJmxCollector("Uptime", "jvmUptime", RrdJmxCollector.DERIVE_DATA_SOURCE_TYPE, 1);
+        createJmxCollector("Uptime", name.getMethodName(), RrdJmxCollector.DERIVE_DATA_SOURCE_TYPE, 1);
 
         // Wait for "n" iterations of RRDB's sample rate, then see if MBean value was collected
         collectData(4);
@@ -300,7 +305,7 @@ public class RrdJmxCollectorTest {
     @Test
     public void testGaugeDataSourceCollection() throws Exception {
         // Set sample rate to 1 sec (default is 60 seconds) so that unit test runs quickly
-        createJmxCollector("Uptime", "jvmUptime", RrdJmxCollector.GAUGE_DATA_SOURCE_TYPE, 1);
+        createJmxCollector("Uptime", name.getMethodName(), RrdJmxCollector.GAUGE_DATA_SOURCE_TYPE, 1);
 
         // Wait for "n" iterations of RRDB's sample rate, then see if MBean value was collected
         collectData(4);
@@ -308,7 +313,7 @@ public class RrdJmxCollectorTest {
 
     @Test
     public void testManyUpdatesInRapidSuccession() throws Exception {
-        createJmxCollector("Uptime", "jvmUptime", RrdJmxCollector.DERIVE_DATA_SOURCE_TYPE, 1);
+        createJmxCollector("Uptime", name.getMethodName(), RrdJmxCollector.DERIVE_DATA_SOURCE_TYPE, 1);
 
         // Set high update delta time so that samples will be skipped
         jmxCollector.setMinimumUpdateTimeDelta(3);
