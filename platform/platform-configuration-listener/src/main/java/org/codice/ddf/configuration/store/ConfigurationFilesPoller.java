@@ -54,17 +54,19 @@ public class ConfigurationFilesPoller implements Runnable {
     }
 
     public void init() {
+        LOGGER.debug("Starting {}...", ConfigurationFilesPoller.class.getName());
         executorService.execute(this);
     }
 
     @Override
     public void run() {
         try {
-            Path path = configurationDirectory.getDirectoryPath();
+            Path configurationDirectoryPath = configurationDirectory.getDirectoryPath();
             try {
-                path.register(watchService, ENTRY_CREATE);
+                LOGGER.debug("Registering path [{}] with Watch Service.", configurationDirectoryPath.toString());
+                configurationDirectoryPath.register(watchService, ENTRY_CREATE);
             } catch (IOException e) {
-                LOGGER.error("ERROR", e);
+                LOGGER.error("Unable to register path [{}] with Watch Service", configurationDirectoryPath.toString(), e);
                 return;
             }
 
@@ -83,19 +85,19 @@ public class ConfigurationFilesPoller implements Runnable {
 
                     Path filename = (Path) genericEvent.context();
 
-                    if (!filename.endsWith(fileExtension)) {
-                        LOGGER.debug("Skipping event for [{}] due to unsupported file extension.",
-                                filename);
+                    if (!filename.toString().endsWith(fileExtension)) {
+                        LOGGER.debug("Skipping event for [{}] due to unsupported file extension of [{}].",
+                                filename, fileExtension);
                         continue; // just skip to the next event
                     }
 
                     ConfigurationFile configFile = null;
                     try {
-                        LOGGER.debug("Processing [{}] event for for [{}].", kind, filename);
-                        configFile = configurationFileFactory.createConfigurationFile(filename);
+                        LOGGER.debug("Processing [{}] event for for [{}].", kind, configurationDirectoryPath.resolve(filename));
+                        configFile = configurationFileFactory.createConfigurationFile(configurationDirectoryPath.resolve(filename));
                         configFile.createConfig();
                     } catch (IOException e) {
-                        LOGGER.error("ERROR", e);
+                        LOGGER.error("Unable to create configuration file [{}].", configurationDirectoryPath.resolve(filename), e);
                     }
                 }
 

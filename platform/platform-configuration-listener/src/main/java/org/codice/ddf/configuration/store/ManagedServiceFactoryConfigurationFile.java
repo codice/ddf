@@ -29,11 +29,12 @@ public class ManagedServiceFactoryConfigurationFile extends ConfigurationFile {
             .getLogger(ManagedServiceFactoryConfigurationFile.class);
 
     public ManagedServiceFactoryConfigurationFile(Path configFilePath, Path processedDirectory,
-            Path failedDirectory, Dictionary<String, Object> properties) {
+            Path failedDirectory, Dictionary<String, Object> properties, ConfigurationAdmin configAdmin) {
         this.properties = properties;
         this.configFile = configFilePath;
         this.processedDirectory = processedDirectory;
         this.failedDirectory = failedDirectory;
+        this.configAdmin = configAdmin;
     }
 
     @Override

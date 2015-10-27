@@ -16,7 +16,6 @@ package org.codice.ddf.configuration.store;
 import static org.apache.commons.lang.Validate.isTrue;
 import static org.apache.commons.lang.Validate.notNull;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -43,6 +42,10 @@ public class ConfigurationFileDirectory {
 
     private Path configurationDirectory;
 
+    private Path processedDirectory;
+
+    private Path failedDirectory;
+
     private String fileExtension;
 
     private ConfigurationFileFactory configurationFileFactory;
@@ -59,6 +62,7 @@ public class ConfigurationFileDirectory {
      *             thrown if any of the arguments is invalid
      */
     public ConfigurationFileDirectory(@NotNull Path configurationDirectory,
+            Path processedDirectory, Path failedDirectory,
             @NotNull @Min(2) String fileExtension, ConfigurationFileFactory configurationFileFactory) {
         notNull(configurationDirectory, "Configuration directory cannot be null");
         notNull(fileExtension, "File extension is required");
@@ -69,16 +73,22 @@ public class ConfigurationFileDirectory {
                 "Directory does not exist or is not readable/writable: ", configurationDirectory);
 
         this.configurationDirectory = configurationDirectory;
+        this.processedDirectory = processedDirectory;
+        this.failedDirectory = failedDirectory;
         this.fileExtension = fileExtension;
         this.configurationFileFactory = configurationFileFactory;
     }
 
     public void init() {
+        createProcessedDirectory();
+        createFailedDirectory();
         Collection<ConfigurationFile> configFiles = null;
         try {
             configFiles = getConfigurationFiles();
         } catch (IOException e) {
-            LOGGER.error("ERROR", e);
+            LOGGER.error(
+                    "Unable to get configuration files with extension [{}] from directory [{}].",
+                    fileExtension, configurationDirectory.toString(), e);
             return;
         }
 
@@ -98,8 +108,7 @@ public class ConfigurationFileDirectory {
      * @throws IOException
      * @throws FileNotFoundException
      */
-    private Collection<ConfigurationFile> getConfigurationFiles() throws FileNotFoundException,
-        IOException {
+    private Collection<ConfigurationFile> getConfigurationFiles() throws IOException {
         Collection<Path> files = listFiles();
         Collection<ConfigurationFile> configurationFiles = new ArrayList<>(files.size());
         for (Path file : files) {
@@ -124,5 +133,32 @@ public class ConfigurationFileDirectory {
             }
         }
         return fileNames;
+    }
+
+    private void createProcessedDirectory() {
+        if (!Files.exists(processedDirectory)) {
+            LOGGER.debug(
+                    "Creating directory [{}] to move configuration files to after processing.",
+                    processedDirectory.toString());
+            try {
+                Files.createDirectory(processedDirectory);
+            } catch (IOException e) {
+                LOGGER.error("Unable to create processed directory [{}].",
+                        processedDirectory.toString());
+            }
+        }
+    }
+
+    private void createFailedDirectory() {
+        if (!Files.exists(failedDirectory)) {
+            LOGGER.debug(
+                    "Creating directory [{}] to move configuration files to after processing failure.",
+                    failedDirectory.toString());
+            try {
+                Files.createDirectory(failedDirectory);
+            } catch (IOException e) {
+                LOGGER.error("Unable to create failed directory [{}].", failedDirectory.toString());
+            }
+        }
     }
 }
