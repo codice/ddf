@@ -126,6 +126,37 @@ public class SecureCxfClientFactory<T> {
     }
 
     /**
+     * Constructs a factory that will return security-aware cxf clients. Once constructed,
+     * use the getClient* methods to retrieve a fresh client  with the same configuration.
+     * <p>
+     * This factory can and should be cached. The clients it constructs should not be.
+     * <p>
+     * This constructor represents a quick fix only.
+     *
+     * @param endpointUrl       the remote url to connect to
+     * @param interfaceClass    an interface representing the resource at the remote url
+     * @param providers         optional list of providers to further configure the client
+     * @param interceptor       optional message interceptor for the client
+     * @param disableCnCheck    disable ssl check for common name / host name match
+     * @param connectionTimeout timeout for the connection
+     * @param receiveTimeout    timeout for receiving responses
+     * @param username          a String representing the username
+     * @param password          a String representing a password
+     */
+    public SecureCxfClientFactory(String endpointUrl, Class<T> interfaceClass, List<?> providers,
+            Interceptor<? extends Message> interceptor, boolean disableCnCheck,
+            Integer connectionTimeout, Integer receiveTimeout, String username, String password) {
+
+        this(endpointUrl, interfaceClass, providers, interceptor, disableCnCheck);
+
+        this.connectionTimeout = connectionTimeout;
+
+        this.receiveTimeout = receiveTimeout;
+        this.clientFactory.setPassword(password);
+        this.clientFactory.setUsername(username);
+    }
+
+    /**
      * Clients produced by this method will be secured with two-way ssl
      * and the provided security subject.
      * <p>
