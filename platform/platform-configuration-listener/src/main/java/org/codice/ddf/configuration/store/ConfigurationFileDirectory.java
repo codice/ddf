@@ -16,16 +16,19 @@ package org.codice.ddf.configuration.store;
 import static org.apache.commons.lang.Validate.isTrue;
 import static org.apache.commons.lang.Validate.notNull;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FilenameFilter;
+import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Class that provides utility methods to access the configuration files in the configuration
@@ -36,138 +39,90 @@ import javax.validation.constraints.NotNull;
  */
 public class ConfigurationFileDirectory {
 
-    private File configurationDirectory;
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationFileDirectory.class);
+
+    private Path configurationDirectory;
 
     private String fileExtension;
+
+    private ConfigurationFileFactory configurationFileFactory;
 
     /**
      * Constructor.
      *
-     * @param configurationDirectory directory that contains the configuration files.
-     *                               The directory must exist and be readable and writable.
-     * @param fileExtension          configuration files extension with preceding period, e.g.,
-     *                               ".cfg"
-     * @throws IllegalArgumentException thrown if any of the arguments is invalid
+     * @param configurationDirectory
+     *            directory that contains the configuration files. The directory must exist and be
+     *            readable and writable.
+     * @param fileExtension
+     *            configuration files extension with preceding period, e.g., ".cfg"
+     * @throws IllegalArgumentException
+     *             thrown if any of the arguments is invalid
      */
-    public ConfigurationFileDirectory(@NotNull File configurationDirectory,
-            @NotNull @Min(2) String fileExtension) {
+    public ConfigurationFileDirectory(@NotNull Path configurationDirectory,
+            @NotNull @Min(2) String fileExtension, ConfigurationFileFactory configurationFileFactory) {
         notNull(configurationDirectory, "Configuration directory cannot be null");
         notNull(fileExtension, "File extension is required");
         isTrue(fileExtension.length() >= 2, "Invalid file extension: ", fileExtension);
-        isTrue(configurationDirectory.exists() && configurationDirectory.canRead()
-                        && configurationDirectory.canWrite(),
+        isTrue(configurationDirectory.toFile().exists()
+                && configurationDirectory.toFile().canRead()
+                && configurationDirectory.toFile().canWrite(),
                 "Directory does not exist or is not readable/writable: ", configurationDirectory);
 
         this.configurationDirectory = configurationDirectory;
         this.fileExtension = fileExtension;
+        this.configurationFileFactory = configurationFileFactory;
     }
 
-    /**
-     * Creates a {@link FileInputStream} that can be used to read the configuration file associated
-     * with a specific PID.
-     *
-     * @param pid persistent ID of the configuration file to read
-     * @return input stream
-     * @throws FileNotFoundException thrown if the {@link FileInputStream} couldn't be created
-     */
-    public FileInputStream createFileInputStream(String pid) throws FileNotFoundException {
-        return new FileInputStream(getFileNameFromPid(pid));
+    public void init() {
+        Collection<ConfigurationFile> configFiles = null;
+        try {
+            configFiles = getConfigurationFiles();
+        } catch (IOException e) {
+            LOGGER.error("ERROR", e);
+            return;
+        }
+
+        for (ConfigurationFile configFile : configFiles) {
+            configFile.createConfig();
+        }
     }
 
-    /**
-     * Creates a {@link FileOutputStream} that can be used to write to the configuration file
-     * associated with a specific PID.
-     *
-     * @param pid persistent ID of the configuration file to write
-     * @return output stream
-     * @throws FileNotFoundException thrown if the {@link FileOutputStream} couldn't be created
-     */
-    public FileOutputStream createFileOutputStream(String pid) throws FileNotFoundException {
-        return new FileOutputStream(getFileNameFromPid(pid));
+    public Path getDirectoryPath() {
+        return this.configurationDirectory;
     }
 
     /**
      * Gets the list of configuration file PIDs in the configuration directory.
      *
      * @return list of configuration file PIDs
+     * @throws IOException
+     * @throws FileNotFoundException
      */
-    public Collection<String> listFiles() {
-        final Collection<String> pids = new ArrayList<>();
+    private Collection<ConfigurationFile> getConfigurationFiles() throws FileNotFoundException,
+        IOException {
+        Collection<Path> files = listFiles();
+        Collection<ConfigurationFile> configurationFiles = new ArrayList<>(files.size());
+        for (Path file : files) {
+            ConfigurationFile configFile = configurationFileFactory.createConfigurationFile(file);
+            configurationFiles.add(configFile);
 
-        configurationDirectory.listFiles(createFilenameFilter(pids));
-
-        return pids;
-    }
-
-    /**
-     * Tells whether a configuration file exists for a specific PID
-     *
-     * @param pid persistence ID of the configuration file
-     * @return {@code true} if a configuration file exists for the PID provided, {@code false}
-     * otherwise
-     */
-    public boolean exists(String pid) {
-        return getFileNameFromPid(pid).exists();
-    }
-
-    /**
-     * Deletes the configuration file associated with a persistence ID.
-     *
-     * @param pid persistence ID of the configuration file to delete
-     * @return {@code true} if the file was successfully deleted, {@code false} otherwise
-     */
-    public boolean delete(String pid) {
-        return getFileNameFromPid(pid).delete();
-    }
-
-    // Package-private for unit testing purposes
-    ConfigurationFileFilter createFilenameFilter(Collection<String> pids) {
-        return new ConfigurationFileFilter(pids, fileExtension);
-    }
-
-    private File getFileNameFromPid(String pid) {
-        return new File(
-                configurationDirectory.getAbsolutePath() + File.separator + pid + fileExtension);
-    }
-
-    /**
-     * Filter used to get the list of configuration files that have a specific extension.
-     * <p/>
-     * Package-private for unit testing purposes.
-     */
-    static class ConfigurationFileFilter implements FilenameFilter {
-        private final Collection<String> pids;
-
-        private String fileExtension;
-
-        /**
-         * Constructor.
-         *
-         * @param pids          collection that will contain the list of PIDs for which a
-         *                      configuration file exists
-         * @param fileExtension configuration file extension to look for
-         */
-        public ConfigurationFileFilter(Collection<String> pids, String fileExtension) {
-            this.pids = pids;
-            this.fileExtension = fileExtension;
         }
+        return configurationFiles;
+    }
 
-        /**
-         * {@inheritDoc}
-         * <p/>
-         * Returns {@code true} only if the file has the proper file extension.
-         */
-        @Override
-        public boolean accept(File dir, String name) {
-            if (name.endsWith(fileExtension)) {
-                pids.add(getPidFromFileName(name));
-                return true;
+    private Collection<Path> listFiles() throws IOException {
+        Collection<Path> fileNames = new ArrayList<>();
+        if (Files.isDirectory(configurationDirectory)) {
+            try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(
+                    configurationDirectory, "*" + fileExtension)) {
+                for (Path path : directoryStream) {
+                    fileNames.add(path);
+                }
+            } catch (IOException e) {
+                throw new IOException("Unable to list files with extension " + fileExtension
+                        + " in directory " + configurationDirectory, e);
             }
-            return false;
         }
-
-        private String getPidFromFileName(String fileName) {
-            return fileName.substring(0, fileName.lastIndexOf("."));
-        }
+        return fileNames;
     }
 }
