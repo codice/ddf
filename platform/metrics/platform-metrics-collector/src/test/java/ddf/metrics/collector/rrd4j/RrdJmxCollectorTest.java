@@ -26,6 +26,7 @@ import java.util.Calendar;
 import java.util.TimeZone;
 
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.rrd4j.ConsolFun;
 import org.rrd4j.DsType;
@@ -142,6 +143,7 @@ public class RrdJmxCollectorTest {
     }
 
     @Test
+    @Ignore
     public void testRrdFileCreationForGaugeDataSource() throws Exception {
         // Set sample rate to 1 sec (default is 60 seconds) so that unit test runs quickly
         String mbeanAttributeName = "Uptime";
