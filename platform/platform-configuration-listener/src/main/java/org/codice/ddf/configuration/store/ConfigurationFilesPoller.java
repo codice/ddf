@@ -18,116 +18,97 @@ import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
-import static org.codice.ddf.configuration.store.ChangeListener.ChangeType.CREATED;
-import static org.codice.ddf.configuration.store.ChangeListener.ChangeType.DELETED;
-import static org.codice.ddf.configuration.store.ChangeListener.ChangeType.UPDATED;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.WatchEvent;
-import java.nio.file.WatchEvent.Kind;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.codice.ddf.configuration.listener.ConfigurationFileListener;
-import org.codice.ddf.configuration.store.ChangeListener.ChangeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.ImmutableMap;
 
 public class ConfigurationFilesPoller implements Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationFilesPoller.class);
 
-    private static final Map<Kind, ChangeType> KIND_CHANGE_TYPE_MAP = ImmutableMap
-            .of(ENTRY_CREATE, CREATED, ENTRY_MODIFY, UPDATED, ENTRY_DELETE, DELETED);
-
     private final WatchService watchService;
 
-    private final ExecutorService watchThread;
+    private final ExecutorService executorService;
 
-    private final Path configurationDirectory;
+    private ConfigurationFileFactory configurationFileFactory;
+
+    private final ConfigurationFileDirectory configurationDirectory;
 
     private final String fileExtension;
 
-    private ChangeListener listener;
-
-    public ConfigurationFilesPoller(Path configurationDirectory, String fileExtension,
-            WatchService watchService, ExecutorService watchThread) {
+    public ConfigurationFilesPoller(ConfigurationFileDirectory configurationDirectory,
+            ConfigurationFileFactory configurationFileFactory, String fileExtension,
+            WatchService watchService, ExecutorService executorService) {
         this.configurationDirectory = configurationDirectory;
+        this.configurationFileFactory = configurationFileFactory;
         this.watchService = watchService;
-        this.watchThread = watchThread;
+        this.executorService = executorService;
         this.fileExtension = fileExtension;
-        this.listener = null;
-        LOGGER.debug(
-                "Configuration directory for [{}] is [{}].  Files with an extension of [{}] will be observed.",
-                ConfigurationFileListener.class.getName(), configurationDirectory, fileExtension);
     }
 
-    public void register(ChangeListener listener) throws IOException {
-        LOGGER.debug(
-                "{} initializing by reading/updating all the configurations in [{}] with the file extension of [{}]",
-                getClass().getSimpleName(), configurationDirectory, fileExtension);
-
-        this.listener = listener;
-        this.configurationDirectory
-                .register(watchService, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
-        watchThread.execute(this);
-
-        LOGGER.debug(
-                "Starting the Configuration Observer.  From this point onward, any updates to files with the extension of [{}] in [{}] will be detected and acted on.",
-                fileExtension, configurationDirectory);
+    public void init() {
+        executorService.execute(this);
     }
 
     @Override
     public void run() {
         try {
-            WatchKey key;
+            Path path = configurationDirectory.getDirectoryPath();
+            try {
+                path.register(watchService, ENTRY_CREATE);
+            } catch (IOException e) {
+                LOGGER.error("ERROR", e);
+                return;
+            }
+
+            WatchKey key = null;
             while (!Thread.currentThread().isInterrupted()) {
-                key = watchService.take();  //blocking
+                key = watchService.take(); // blocking
                 LOGGER.debug("Key has been signalled.  Looping over events.");
 
                 for (WatchEvent<?> genericEvent : key.pollEvents()) {
                     WatchEvent.Kind<?> kind = genericEvent.kind();
 
-                    if (kind.equals(OVERFLOW)) {
-                        LOGGER.debug("Skipping event due to overflow");
+                    if (kind == OVERFLOW || kind == ENTRY_MODIFY || kind == ENTRY_DELETE) {
+                        LOGGER.debug("Skipping event [{}]", kind);
                         continue;
                     }
 
-                    String filename = genericEvent.context().toString();
+                    Path filename = (Path) genericEvent.context();
 
                     if (!filename.endsWith(fileExtension)) {
-                        LOGGER.debug("Skipping event for [{}] due to file extension.", filename);
-                        continue;  //just skip to the next event
+                        LOGGER.debug("Skipping event for [{}] due to unsupported file extension.",
+                                filename);
+                        continue; // just skip to the next event
                     }
 
-                    LOGGER.debug("Processing [{}] event for for [{}].", kind, filename);
-
-                    String pid = filename.substring(0, filename.lastIndexOf("."));
-
+                    ConfigurationFile configFile = null;
                     try {
-                        listener.update(pid, KIND_CHANGE_TYPE_MAP.get(kind));
-                    } catch (RuntimeException e) {
-                        LOGGER.error(
-                                "Runtime exception occurred when calling listener.update() for PID [{}], filename [{}]",
-                                pid, filename, e);
+                        LOGGER.debug("Processing [{}] event for for [{}].", kind, filename);
+                        configFile = configurationFileFactory.createConfigurationFile(filename);
+                        configFile.createConfig();
+                    } catch (IOException e) {
+                        LOGGER.error("ERROR", e);
                     }
                 }
 
-                // Reset key, shutdown watcher if directory no able to be observed
+                // Reset key, shutdown watcher if directory not able to be observed
                 // (possibly deleted)
                 if (!key.reset()) {
                     LOGGER.warn("Configurations in [{}] are no longer able to be observed.",
-                            configurationDirectory);
+                            configurationDirectory.getDirectoryPath());
                     break;
                 }
             }
-        } catch (InterruptedException | RuntimeException ex) {
-            LOGGER.error("The Configuration Observer was interrupted.", ex);
+        } catch (InterruptedException | RuntimeException e) {
+            LOGGER.error("The Configuration Observer was interrupted.", e);
             Thread.currentThread().interrupt();
         }
     }
@@ -135,16 +116,16 @@ public class ConfigurationFilesPoller implements Runnable {
     public void destroy() {
         try {
             watchService.close();
-            watchThread.shutdown();
+            executorService.shutdown();
 
-            if (!watchThread.awaitTermination(10, TimeUnit.SECONDS)) {
-                watchThread.shutdownNow();
-                if (!watchThread.awaitTermination(10, TimeUnit.SECONDS)) {
+            if (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
+                executorService.shutdownNow();
+                if (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
                     LOGGER.error("[{}] did not terminate correctly.", getClass().getName());
                 }
             }
-        } catch (IOException | InterruptedException ex) {
-            watchThread.shutdownNow();
+        } catch (IOException | InterruptedException e) {
+            executorService.shutdownNow();
             Thread.currentThread().interrupt();
         }
     }
