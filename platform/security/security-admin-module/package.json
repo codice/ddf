@@ -3,20 +3,14 @@
   "author": "Codice",
   "description": "A frontend UI for security configuration on DDF.",
   "version": "0.1.0",
-  "license": "LGPL",
+  "license": "LGPL-3.0",
   "keywords": [
     "backbone",
     "express"
   ],
-  "contributors": [
-    {
-      "name": "Scott Tustison",
-      "email": "scott.tustison@gmail.com"
-    }
-  ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/codice/ddf-platform.git"
+    "url": "https://github.com/codice/ddf.git"
   },
   "engines": {
     "node": ">=0.10.5"
