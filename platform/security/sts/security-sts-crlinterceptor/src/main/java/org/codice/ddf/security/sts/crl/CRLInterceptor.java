@@ -35,7 +35,7 @@ public class CRLInterceptor extends AbstractPhaseInterceptor<Message> {
     protected CrlChecker crlChecker;
 
     /**
-     * Creates a new crl interceptor. Sets loads in CRL from the CRL file pointed to by
+     * Creates a new crl interceptor. Loads in a CRL from the CRL file pointed to by
      * the encryption.properties file.
      */
     public CRLInterceptor() {
