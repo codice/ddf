@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.security.validator.anonymous;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -31,6 +33,8 @@ import org.codice.ddf.security.handler.api.BSTAuthenticationToken;
 import org.junit.Before;
 import org.junit.Test;
 import org.opensaml.xml.util.Base64;
+
+import ddf.security.principal.AnonymousPrincipal;
 
 public class AnonymousValidatorTest {
 
@@ -156,6 +160,8 @@ public class AnonymousValidatorTest {
         TokenValidatorResponse response = validator.validateToken(parameters);
 
         assertEquals(ReceivedToken.STATE.VALID, response.getToken().getState());
+
+        assertThat(response.getToken().getPrincipal(), instanceOf(AnonymousPrincipal.class));
     }
 
     @Test

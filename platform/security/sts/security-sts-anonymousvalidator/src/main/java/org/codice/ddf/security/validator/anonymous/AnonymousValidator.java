@@ -22,7 +22,6 @@ import org.apache.cxf.sts.token.validator.TokenValidatorParameters;
 import org.apache.cxf.sts.token.validator.TokenValidatorResponse;
 import org.apache.cxf.ws.security.sts.provider.model.secext.BinarySecurityTokenType;
 import org.apache.wss4j.common.ext.WSSecurityException;
-import org.apache.wss4j.common.principal.CustomTokenPrincipal;
 import org.codice.ddf.security.handler.api.AnonymousAuthenticationToken;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.slf4j.Logger;
@@ -104,27 +103,27 @@ public class AnonymousValidator implements TokenValidator {
         TokenValidatorResponse response = new TokenValidatorResponse();
         ReceivedToken validateTarget = tokenParameters.getToken();
         validateTarget.setState(ReceivedToken.STATE.INVALID);
-        response.setToken(validateTarget);
-        response.setPrincipal(
-                new CustomTokenPrincipal(AnonymousAuthenticationToken.ANONYMOUS_CREDENTIALS));
+
         AnonymousAuthenticationToken anonToken = getAnonTokenFromTarget(validateTarget);
 
+        response.setToken(validateTarget);
+
         if (anonToken != null) {
+            response.setPrincipal(new AnonymousPrincipal(anonToken.getIpAddress()));
+
             if (anonToken.getRealm() != null) {
                 if ((supportedRealm.contains(anonToken.getRealm()) || "*"
                         .equals(anonToken.getRealm())) && anonToken.getCredentials()
                         .equals(AnonymousAuthenticationToken.ANONYMOUS_CREDENTIALS)
                         && validIpAddress(anonToken.getIpAddress())) {
                     validateTarget.setState(ReceivedToken.STATE.VALID);
-                    validateTarget.setPrincipal(new CustomTokenPrincipal(
-                            AnonymousAuthenticationToken.ANONYMOUS_CREDENTIALS));
+                    validateTarget.setPrincipal(new AnonymousPrincipal(anonToken.getIpAddress()));
                 }
             } else if (anonToken.getCredentials()
                     .equals(AnonymousAuthenticationToken.ANONYMOUS_CREDENTIALS) && validIpAddress(
                     anonToken.getIpAddress())) {
                 validateTarget.setState(ReceivedToken.STATE.VALID);
-                validateTarget.setPrincipal(new CustomTokenPrincipal(
-                        AnonymousAuthenticationToken.ANONYMOUS_CREDENTIALS));
+                validateTarget.setPrincipal(new AnonymousPrincipal(anonToken.getIpAddress()));
             }
         }
         return response;

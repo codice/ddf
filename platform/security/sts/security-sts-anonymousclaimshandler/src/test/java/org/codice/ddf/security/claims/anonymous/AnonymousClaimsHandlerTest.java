@@ -27,6 +27,7 @@ import org.apache.cxf.rt.security.claims.ClaimCollection;
 import org.apache.cxf.sts.claims.ClaimsParameters;
 import org.apache.cxf.sts.claims.ProcessedClaim;
 import org.apache.cxf.sts.claims.ProcessedClaimCollection;
+import org.apache.wss4j.common.principal.CustomTokenPrincipal;
 import org.junit.Test;
 
 import ddf.security.principal.AnonymousPrincipal;
@@ -145,5 +146,18 @@ public class AnonymousClaimsHandlerTest {
             }
             assertFalse(claim.getClaimType().equals(fooURI));
         }
+
+        claimsParameters = new ClaimsParameters();
+        claimsCollection = claimsHandler
+                .retrieveClaimValues(requestClaims, claimsParameters);
+
+        assertEquals(2, claimsCollection.size());
+
+        claimsParameters = new ClaimsParameters();
+        claimsParameters.setPrincipal(new CustomTokenPrincipal("SomeValue"));
+        claimsCollection = claimsHandler
+                .retrieveClaimValues(requestClaims, claimsParameters);
+
+        assertEquals(2, claimsCollection.size());
     }
 }
