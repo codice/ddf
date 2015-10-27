@@ -3,28 +3,14 @@
   "author": "Codice",
   "description": "A frontend UI for DDF",
   "version": "0.0.1",
-  "license": "LGPL",
+  "license": "LGPL-3.0",
   "keywords": [
     "backbone",
     "express"
   ],
-  "contributors": [
-    {
-      "name": "Scott Tustison",
-      "email": "scott.tustison@gmail.com"
-    },
-    {
-      "name": "Phillip Klinefelter",
-      "email": "phillip.klinefelter@gmail.com"
-    },
-    {
-      "name": "Mike Macaulay",
-      "email": "michael.macaulayy@aviture.us.com"
-    }
-  ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/codice/ddf-ui.git"
+    "url": "https://github.com/codice/ddf.git"
   },
   "engines": {
     "node": ">=0.10.5"

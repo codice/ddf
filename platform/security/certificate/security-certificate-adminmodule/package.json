@@ -3,7 +3,7 @@
   "author": "Codice",
   "description": "Certificate modification",
   "version": "0.0.1",
-  "license": "LGPL",
+  "license": "LGPL-3.0",
   "keywords": [
     "backbone",
     "express"

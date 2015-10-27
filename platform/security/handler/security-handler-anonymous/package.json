@@ -3,20 +3,14 @@
   "author": "Codice",
   "description": "Simple login for DDF",
   "version": "0.0.1",
-  "license": "LGPL",
+  "license": "LGPL-3.0",
   "keywords": [
     "backbone",
     "express"
   ],
-  "contributors": [
-    {
-      "name": "Dave Willison",
-      "email": "dave.willison@aviture.us.com"
-    }
-  ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/codice/ddf-platform.git"
+    "url": "https://github.com/codice/ddf.git"
   },
   "engines": {
     "node": ">=0.10.5"
@@ -26,7 +20,7 @@
     "grunt-cli": "0.1.13",
     "bower": "~1.4.1",
     "grunt-bower-task": "0.4.0",
-    "grunt-casperjs": "git+https://github.com/codice/grunt-casperjs.git",
+    "grunt-casperjs": "git+https://github.com/djblue/grunt-casperjs.git",
     "grunt-contrib-jshint": "0.3.0",
     "grunt-contrib-clean": "0.4.0",
     "grunt-contrib-watch": "0.4.4",
@@ -44,6 +38,6 @@
     "node-fs": "0.1.7",
     "node-options": "0.0.3",
     "path": "0.4.9",
-    "casperjs": "~1.1.0"
+    "casperjs": "^1.1.0-beta3"
   }
 }

@@ -68,7 +68,7 @@
 
         <!-- Properties for the frontend-maven-plugin -->
         <node.version>v0.10.40</node.version>
-        <npm.version>1.4.28</npm.version>
+        <npm.version>2.14.8</npm.version>
 
         <camel.version>2.14.2</camel.version>
         <commons-io.version>2.1</commons-io.version>
