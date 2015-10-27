@@ -138,8 +138,8 @@ public class AnonymousClaimsHandler implements ClaimsHandler, RealmSupport {
             }
         }
 
-        if (principal != null) {
-            String ipAddress = AnonymousPrincipal.parseAddressFromName(principal.getName());
+        if (principal != null && principal instanceof AnonymousPrincipal) {
+            String ipAddress = ((AnonymousPrincipal)principal).getAddress();
             if (ipAddress != null) {
                 try {
                     ProcessedClaim ipClaim = new ProcessedClaim();
