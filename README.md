@@ -12,7 +12,7 @@
 -->
 <img src="https://tools.codice.org/wiki/download/attachments/1179800/ddf.jpg"/>
 # [Distributed Data Framework \(DDF\)](http://ddf.codice.org/)
-[![Build Status](https://travis-ci.org/codice/ddf.png)](https://travis-ci.org/codice/ddf?branch=master)
+[![Join the chat at https://gitter.im/codice/ddf](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/codice/ddf?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/3703/badge.svg)](https://scan.coverity.com/projects/3703)
 
 
