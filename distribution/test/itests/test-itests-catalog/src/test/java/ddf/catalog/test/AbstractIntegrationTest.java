@@ -82,43 +82,109 @@ public abstract class AbstractIntegrationTest {
 
     protected static final String KARAF_VERSION = "2.4.3";
 
-    // TODO: Use the Camel AvailablePortFinder.getNextAvailable() test method
+    protected static final String OPENSEARCH_SOURCE_ID = "openSearchSource";
+
+    protected static final String CSW_SOURCE_ID = "cswSource";
 
     protected static ServerSocket placeHolderSocket;
 
-    protected Integer basePort;
-
-    protected static String HTTP_PORT = "9081";
-
-    protected static String HTTPS_PORT = "9993";
-
-    protected static String SSH_PORT = "9101";
-
-    protected static String RMI_SERVER_PORT = "44445";
-
-    protected static String RMI_REG_PORT = "1100";
-
-    protected static String SECURE_ROOT;
-
-    protected static String SERVICE_ROOT;
-
-    protected static String INSECURE_ROOT;
-
-    protected static String INSECURE_SERVICE_ROOT;
-
-    protected static String REST_PATH;
-
-    protected static String OPENSEARCH_PATH;
-
-    protected static String CSW_PATH;
-
-    protected static String OPENSEARCH_SOURCE_ID;
-
-    protected static String CSW_SOURCE_ID;
+    protected static Integer basePort;
 
     protected static final String DDF_HOME_PROPERTY = "ddf.home";
 
     protected static String ddfHome;
+
+    public enum Port {
+        BASE_PORT("org.codice.ddf.system.basePort"), HTTP_PORT(
+                "org.codice.ddf.system.httpPort"), HTTPS_PORT(
+                "org.codice.ddf.system.httpPort"), SSH_PORT, RMI_SERVER_PORT, RMI_REG_PORT;
+
+        private final String systemProperty;
+
+        Port() {
+            this.systemProperty = null;
+        }
+
+        Port(String systemProperty) {
+            this.systemProperty = systemProperty;
+        }
+
+        String getSystemProperty() {
+            return this.systemProperty;
+        }
+
+        String getPort(Integer basePort) {
+            return String.valueOf(basePort + this.ordinal());
+        }
+
+        String getPort() {
+            return String.valueOf(basePort + this.ordinal());
+        }
+
+        String getUrl(Integer basePort) {
+            return this.getPort(basePort);
+        }
+
+    }
+
+    public enum Url {
+        SECURE_ROOT("https://localhost:"),
+        SERVICE_ROOT(SECURE_ROOT, Port.HTTPS_PORT, "/services"),
+        INSECURE_ROOT("http://localhost:"),
+        INSECURE_SERVICE_ROOT(INSECURE_ROOT, Port.HTTP_PORT, "/services"),
+        REST_PATH(SERVICE_ROOT, "/catalog/"),
+        OPENSEARCH_PATH(REST_PATH, "query"),
+        CSW_PATH(SERVICE_ROOT, "/csw"),
+        ADMIN_ALL_SOURCES_PATH(SECURE_ROOT, Port.HTTPS_PORT,
+                "/jolokia/exec/org.codice.ddf.catalog.admin.plugin.AdminSourcePollerServiceBean:service=admin-source-poller-service/allSourceInfo"),
+        ADMIN_STATUS_PATH(SECURE_ROOT, Port.HTTPS_PORT,
+                "/jolokia/exec/org.codice.ddf.catalog.admin.plugin.AdminSourcePollerServiceBean:service=admin-source-poller-service/sourceStatus/");
+
+        private final String root;
+
+        private final Enum[] pieces = new Enum[2];
+
+        Url(String base) {
+            this.root = base;
+        }
+
+        Url(Enum piece, String base) {
+            this.pieces[0] = piece;
+            this.root = base;
+        }
+
+        Url(Enum piece0, Enum piece1, String base) {
+            this.pieces[0] = piece0;
+            this.pieces[1] = piece1;
+            this.root = base;
+        }
+
+        String getUrl(Integer basePort) {
+            String returnUrl = "";
+            for (int i = 0; i < pieces.length; i++) {
+                if (null != pieces[i] && pieces[i] instanceof Port) {
+                    returnUrl += ((Port) pieces[i]).getPort(basePort);
+                } else if (null != pieces[i] && pieces[i] instanceof Url) {
+                    returnUrl += ((Url) pieces[i]).getUrl(basePort);
+                }
+            }
+            returnUrl += root;
+            return returnUrl;
+        }
+
+        String getUrl() {
+            String returnUrl = "";
+            for (int i = 0; i < pieces.length; i++) {
+                if (null != pieces[i] && pieces[i] instanceof Port) {
+                    returnUrl += ((Port) pieces[i]).getPort(basePort);
+                } else if (null != pieces[i] && pieces[i] instanceof Url) {
+                    returnUrl += ((Url) pieces[i]).getUrl(basePort);
+                }
+            }
+            returnUrl += root;
+            return returnUrl;
+        }
+    }
 
     static {
         // Make Pax URL use the maven.repo.local setting if present
@@ -173,15 +239,6 @@ public abstract class AbstractIntegrationTest {
     @org.ops4j.pax.exam.Configuration
     public Option[] config() throws URISyntaxException {
         basePort = findPortNumber(20000);
-
-        HTTP_PORT = String.valueOf(basePort + 1);
-        HTTPS_PORT = String.valueOf(basePort + 2);
-        SSH_PORT = String.valueOf(basePort + 3);
-        RMI_SERVER_PORT = String.valueOf(basePort + 4);
-        RMI_REG_PORT = String.valueOf(basePort + 5);
-        LOGGER.debug(HTTP_PORT + " " + HTTPS_PORT + " " + SSH_PORT + " " + RMI_SERVER_PORT + " "
-                + RMI_REG_PORT);
-
         return combineOptions(configureCustom(), configureDistribution(), configurePaxExam(),
                 configureAdditionalBundles(), configureConfigurationPorts(), configureMavenRepos(),
                 configureSystemSettings(), configureVmOptions(), configureStartScript());
@@ -288,14 +345,17 @@ public abstract class AbstractIntegrationTest {
     protected Option[] configureConfigurationPorts() throws URISyntaxException {
         return options(editConfigurationFilePut("etc/system.properties", "urlScheme", "https"),
                 editConfigurationFilePut("etc/system.properties", "host", "localhost"),
-                editConfigurationFilePut("etc/system.properties", "jetty.port", HTTPS_PORT),
+                editConfigurationFilePut("etc/system.properties", "jetty.port",
+                        Port.HTTPS_PORT.getPort(basePort)),
                 editConfigurationFilePut("etc/system.properties", "hostContext", "/solr"),
                 editConfigurationFilePut("etc/system.properties", "ddf.home", "${karaf.home}"),
 
-                editConfigurationFilePut("etc/system.properties", "org.codice.ddf.system.httpPort",
-                        HTTP_PORT),
-                editConfigurationFilePut("etc/system.properties", "org.codice.ddf.system.httpsPort",
-                        HTTPS_PORT),
+                editConfigurationFilePut("etc/system.properties",
+                        Port.HTTP_PORT.getSystemProperty(), Port.HTTP_PORT.getPort(basePort)),
+                editConfigurationFilePut("etc/system.properties",
+                        Port.HTTPS_PORT.getSystemProperty(), Port.HTTPS_PORT.getPort(basePort)),
+                editConfigurationFilePut("etc/system.properties",
+                        Port.BASE_PORT.getSystemProperty(), Port.BASE_PORT.getPort(basePort)),
 
                 // DDF-1572: Disables the periodic backups of .bundlefile. In itests, having those
                 // backups serves no purpose and it appears that intermittent failures have occurred
@@ -304,20 +364,24 @@ public abstract class AbstractIntegrationTest {
                 editConfigurationFilePut("etc/system.properties", "eclipse.enableStateSaver",
                         Boolean.FALSE.toString()),
 
-                editConfigurationFilePut("etc/org.apache.karaf.shell.cfg", "sshPort", SSH_PORT),
-                editConfigurationFilePut("etc/ddf.platform.config.cfg", "port", HTTPS_PORT),
+                editConfigurationFilePut("etc/org.apache.karaf.shell.cfg", "sshPort",
+                        Port.SSH_PORT.getPort(basePort)),
+                editConfigurationFilePut("etc/ddf.platform.config.cfg", "port",
+                        Port.HTTPS_PORT.getPort(basePort)),
                 editConfigurationFilePut("etc/ddf.platform.config.cfg", "host", "localhost"),
                 editConfigurationFilePut("etc/org.ops4j.pax.web.cfg", "org.osgi.service.http.port",
-                        HTTP_PORT), editConfigurationFilePut("etc/org.ops4j.pax.web.cfg",
-                        "org.osgi.service.http.port.secure", HTTPS_PORT),
+                        Port.HTTP_PORT.getPort(basePort)),
+                editConfigurationFilePut("etc/org.ops4j.pax.web.cfg",
+                        "org.osgi.service.http.port.secure", Port.HTTPS_PORT.getPort(basePort)),
                 editConfigurationFilePut("etc/org.apache.karaf.management.cfg", "rmiRegistryPort",
-                        RMI_REG_PORT),
+                        Port.RMI_REG_PORT.getPort(basePort)),
                 editConfigurationFilePut("etc/org.apache.karaf.management.cfg", "rmiServerPort",
-                        RMI_SERVER_PORT), replaceConfigurationFile("etc/hazelcast.xml",
+                        Port.RMI_SERVER_PORT.getPort(basePort)),
+                replaceConfigurationFile("etc/hazelcast.xml",
                         new File(this.getClass().getResource("/hazelcast.xml").toURI())),
                 editConfigurationFilePut("etc/ddf.security.sts.client.configuration.cfg", "address",
-                        "https://localhost:" + HTTPS_PORT + "/services/SecurityTokenService?wsdl"),
-                replaceConfigurationFile(
+                        "https://localhost:" + Port.HTTPS_PORT.getPort(basePort)
+                                + "/services/SecurityTokenService?wsdl"), replaceConfigurationFile(
                         "etc/ddf.catalog.solr.external.SolrHttpCatalogProvider.cfg", new File(
                                 this.getClass().getResource(
                                         "/ddf.catalog.solr.external.SolrHttpCatalogProvider.cfg")
@@ -368,18 +432,8 @@ public abstract class AbstractIntegrationTest {
                         "featuresRepositories", featuresUrl));
     }
 
-    protected void setPortsAndUrls() {
-        HTTP_PORT = System.getProperty("org.codice.ddf.system.httpPort");
-        HTTPS_PORT = System.getProperty("org.codice.ddf.system.httpsPort");
-        SECURE_ROOT = "https://localhost:";
-        SERVICE_ROOT = SECURE_ROOT + HTTPS_PORT + "/services";
-        INSECURE_ROOT = "http://localhost:";
-        INSECURE_SERVICE_ROOT = INSECURE_ROOT + HTTP_PORT + "/services";
-        REST_PATH = SERVICE_ROOT + "/catalog/";
-        OPENSEARCH_PATH = REST_PATH + "query";
-        CSW_PATH = SERVICE_ROOT + "/csw";
-        OPENSEARCH_SOURCE_ID = "openSearchSource";
-        CSW_SOURCE_ID = "cswSource";
+    protected Integer getBasePort() {
+        return Integer.parseInt(System.getProperty(Port.BASE_PORT.getSystemProperty()));
     }
 
     /**
@@ -476,7 +530,7 @@ public abstract class AbstractIntegrationTest {
      */
     @Deprecated
     protected void waitForSourcesToBeAvailable(String... sources) throws InterruptedException {
-        serviceManager.waitForSourcesToBeAvailable(REST_PATH, sources);
+        serviceManager.waitForSourcesToBeAvailable(Url.REST_PATH.getUrl(), sources);
     }
 
     /**
@@ -545,7 +599,7 @@ public abstract class AbstractIntegrationTest {
             this.putAll(getMetatypeDefaults(SYMBOLIC_NAME, FACTORY_PID));
 
             this.put("shortname", sourceId);
-            this.put("endpointUrl", OPENSEARCH_PATH);
+            this.put("endpointUrl", Url.OPENSEARCH_PATH.getUrl());
         }
 
     }
@@ -560,7 +614,7 @@ public abstract class AbstractIntegrationTest {
             this.putAll(getMetatypeDefaults(SYMBOLIC_NAME, FACTORY_PID));
 
             this.put("id", sourceId);
-            this.put("cswUrl", CSW_PATH);
+            this.put("cswUrl", Url.CSW_PATH.getUrl());
             this.put("pollInterval", 1);
         }
 
@@ -576,7 +630,7 @@ public abstract class AbstractIntegrationTest {
             this.putAll(getMetatypeDefaults(SYMBOLIC_NAME, FACTORY_PID));
 
             this.put("id", sourceId);
-            this.put("cswUrl", CSW_PATH);
+            this.put("cswUrl", Url.CSW_PATH.getUrl());
             this.put("pollInterval", 1);
         }
 
