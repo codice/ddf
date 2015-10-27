@@ -446,7 +446,7 @@ which is short for "list all." 
 
 [WARNING]
 ====
-Since the kernel does not include all apps, if you were to do a "`list`" instead of "`la`," no results would be returned at this point. 
+Since the kernel does not include all apps, if you were to do a "`list`" instead of "`la`," no results would be returned at this point.
 ====
 . Verify that all bundles are `Active`. 
 . Deploy the Embedded LDAP app by copying the `ldap-embedded-app-<VERSION>.kar` file into the `<DISTRIBUTION_HOME>/deploy` directory. You can verify that theLDAP server is installed by checking the DDF log or by performing an `la` and verifying that the OpenDJ bundle is in the Active state. Additionally, it should be responding to LDAP requests on the default ports, 1389 and 1636.
@@ -1017,7 +1017,7 @@ The DDF Security STS LDAP Claims Handler bundle adds functionality to the STS se
 
 ==== Installation
 
-This bundle is not installed by default and can be added by installing the 
+This bundle is not installed by default and can be added by installing the
 `security-sts-server`
  feature.
 
@@ -1457,26 +1457,9 @@ These bundles are not installed by default, they can be started by installing th
 
 The IdP client that interacts with the specified Identity Provider.
 
-==== Configuration
-
-. Navigate to Admin Console -> DDF Security -> Configuration -> IdP Client
-. Populate IdP Metadata field with an HTTPS URL (https://), file URL (file:), or XML block to refer to desired metadata (e.g., https://localhost:8993/services/idp/login/metadata)
-
 === Security IdP Server
 
 An internal Identity Provider solution.
-
-==== Configuration
-
-. Navigate to Admin Console -> DDF Security -> Configuration -> IdP Server
-. Click the + next to SP Metadata to add a new entry
-. Populate the new entry with an HTTPS URL (https://), file URL (file:), or XML block to refer to desired metadata (e.g., https://localhost:8993/services/saml/sso/metadata)
-
-=== Related Configuration
-
-. Navigate to Admin Console -> DDF Security -> Configuration -> Web Context Policy Manager
-. Under Authentication Types, set the IDP authentication type as necessary. Note that it should _only_ be used on context paths that will be accessed by users via web browsers. For example:
-- /search=SAML|IDP
 
 === Limitations
 
