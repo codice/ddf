@@ -3,20 +3,14 @@
   "author": "Codice",
   "description": "The Metrics Module",
   "version": "2.5.0",
-  "license": "LGPL",
+  "license": "LGPL-3.0",
   "keywords": [
     "backbone",
     "express"
   ],
-  "contributors": [
-    {
-      "name": "Brendan Hofmann",
-      "email": "brendan.hofmann@connexta.com"
-    }
-  ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/codice/ddf-platform.git"
+    "url": "https://github.com/codice/ddf.git"
   },
   "engines": {
     "node": ">=0.10.5"
