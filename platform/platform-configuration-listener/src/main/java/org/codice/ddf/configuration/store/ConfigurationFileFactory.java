@@ -37,9 +37,14 @@ public class ConfigurationFileFactory {
 
     private Path failedDirectory;
 
+    private ConfigurationAdmin configAdmin;
+
     public ConfigurationFileFactory(PersistenceStrategy pesistenceStrategy,
-            Path processedDirectory, Path failedDirectory) {
+            Path processedDirectory, Path failedDirectory, ConfigurationAdmin configAdmin) {
         this.pesistenceStrategy = pesistenceStrategy;
+        this.processedDirectory = processedDirectory;
+        this.failedDirectory = failedDirectory;
+        this.configAdmin = configAdmin;
     }
 
     public ConfigurationFile createConfigurationFile(Path configurationFile) throws IOException {
@@ -47,12 +52,15 @@ public class ConfigurationFileFactory {
                 .read(getInputStream(configurationFile));
         if (isManagedServiceFactoryConfiguration(properties)) {
             return new ManagedServiceFactoryConfigurationFile(configurationFile,
-                    processedDirectory, failedDirectory, properties);
+                    processedDirectory, failedDirectory, properties, configAdmin);
         } else if (isManagedServiceConfiguration(properties)) {
             return new ManagedServiceConfigurationFile(configurationFile, processedDirectory,
-                    failedDirectory, properties);
+                    failedDirectory, properties, configAdmin);
         } else {
-            LOGGER.error("ERROR");
+            LOGGER.error(
+                    "Unable to determine type of configuration. Unable to find property [{}] or property [{}] in [{}].",
+                    Constants.SERVICE_PID, ConfigurationAdmin.SERVICE_FACTORYPID,
+                    configurationFile.toString());
             return null;
         }
     }
