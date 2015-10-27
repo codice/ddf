@@ -40,8 +40,7 @@ public abstract class ConfigurationFile {
     protected Path failedDirectory;
 
     protected void processed() throws IOException {
-        Files.move(configFile.toFile().getCanonicalFile(), processedDirectory.toAbsolutePath()
-                .resolve(configFile.getFileName()).toFile().getCanonicalFile());
+        Files.move(configFile.toFile().getCanonicalFile(), processedDirectory.resolve(configFile.getFileName()).toFile().getCanonicalFile());
     }
 
     protected void failed() {
@@ -49,12 +48,13 @@ public abstract class ConfigurationFile {
         File destination = null;
         try {
             source = configFile.toFile().getCanonicalFile();
-            destination = failedDirectory.toAbsolutePath().resolve(configFile.getFileName())
+            destination = failedDirectory.resolve(configFile.getFileName())
                     .toFile().getCanonicalFile();
+            LOGGER.debug("Moving [{}] to [{}].", source, destination);
             Files.move(source, destination);
         } catch (IOException e) {
             LOGGER.error("Unable to move file [{}] to the failed directory [{}].", source,
-                    destination);
+                    destination, e);
         }
     }
 

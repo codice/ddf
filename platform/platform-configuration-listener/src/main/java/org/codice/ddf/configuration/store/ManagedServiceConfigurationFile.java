@@ -20,6 +20,7 @@ import java.util.Dictionary;
 
 import org.osgi.framework.Constants;
 import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,11 +30,12 @@ public class ManagedServiceConfigurationFile extends ConfigurationFile {
             .getLogger(ManagedServiceConfigurationFile.class);
 
     public ManagedServiceConfigurationFile(Path configFilePath, Path processedDirectory,
-            Path failedDirectory, Dictionary<String, Object> properties) {
+            Path failedDirectory, Dictionary<String, Object> properties, ConfigurationAdmin configAdmin) {
         this.properties = properties;
         this.configFile = configFilePath;
         this.processedDirectory = processedDirectory;
         this.failedDirectory = failedDirectory;
+        this.configAdmin = configAdmin;
     }
 
     @Override
