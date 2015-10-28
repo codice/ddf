@@ -94,18 +94,18 @@ public abstract class AbstractIntegrationTest {
 
     protected static String ddfHome;
 
-    public enum Port {
+    public enum DynamicPort {
         BASE_PORT("org.codice.ddf.system.basePort"), HTTP_PORT(
                 "org.codice.ddf.system.httpPort"), HTTPS_PORT(
-                "org.codice.ddf.system.httpPort"), SSH_PORT, RMI_SERVER_PORT, RMI_REG_PORT;
+                "org.codice.ddf.system.httpsPort"), SSH_PORT, RMI_SERVER_PORT, RMI_REG_PORT;
 
         private final String systemProperty;
 
-        Port() {
+        DynamicPort() {
             this.systemProperty = null;
         }
 
-        Port(String systemProperty) {
+        DynamicPort(String systemProperty) {
             this.systemProperty = systemProperty;
         }
 
@@ -120,71 +120,75 @@ public abstract class AbstractIntegrationTest {
         String getPort() {
             return String.valueOf(basePort + this.ordinal());
         }
-
-        String getUrl(Integer basePort) {
-            return this.getPort(basePort);
-        }
-
     }
 
-    public enum Url {
-        SECURE_ROOT("https://localhost:"),
-        SERVICE_ROOT(SECURE_ROOT, Port.HTTPS_PORT, "/services"),
-        INSECURE_ROOT("http://localhost:"),
-        INSECURE_SERVICE_ROOT(INSECURE_ROOT, Port.HTTP_PORT, "/services"),
-        REST_PATH(SERVICE_ROOT, "/catalog/"),
-        OPENSEARCH_PATH(REST_PATH, "query"),
-        CSW_PATH(SERVICE_ROOT, "/csw"),
-        ADMIN_ALL_SOURCES_PATH(SECURE_ROOT, Port.HTTPS_PORT,
-                "/jolokia/exec/org.codice.ddf.catalog.admin.plugin.AdminSourcePollerServiceBean:service=admin-source-poller-service/allSourceInfo"),
-        ADMIN_STATUS_PATH(SECURE_ROOT, Port.HTTPS_PORT,
-                "/jolokia/exec/org.codice.ddf.catalog.admin.plugin.AdminSourcePollerServiceBean:service=admin-source-poller-service/sourceStatus/");
+    public static class Url {
+        public static final String SECURE_ROOT = "https://localhost:";
+        public static final String INSECURE_ROOT = "http://localhost:";
 
         private final String root;
 
-        private final Enum[] pieces = new Enum[2];
+        private final List<Object> pieces = new ArrayList<>();
 
         Url(String base) {
             this.root = base;
         }
 
         Url(Enum piece, String base) {
-            this.pieces[0] = piece;
+            this.pieces.add(piece);
+            this.root = base;
+        }
+
+        Url(String piece, String base) {
+            this.pieces.add(piece);
+            this.root = base;
+        }
+
+        Url(Url piece, String base) {
+            this.pieces.add(piece);
+            this.root = base;
+        }
+
+        Url(String piece0, Enum piece1, String base) {
+            this.pieces.add(piece0);
+            this.pieces.add(piece1);
             this.root = base;
         }
 
         Url(Enum piece0, Enum piece1, String base) {
-            this.pieces[0] = piece0;
-            this.pieces[1] = piece1;
+            this.pieces.add(piece0);
+            this.pieces.add(piece1);
             this.root = base;
         }
 
-        String getUrl(Integer basePort) {
-            String returnUrl = "";
-            for (int i = 0; i < pieces.length; i++) {
-                if (null != pieces[i] && pieces[i] instanceof Port) {
-                    returnUrl += ((Port) pieces[i]).getPort(basePort);
-                } else if (null != pieces[i] && pieces[i] instanceof Url) {
-                    returnUrl += ((Url) pieces[i]).getUrl(basePort);
-                }
-            }
-            returnUrl += root;
-            return returnUrl;
+        String getUrl() {
+            return this.getUrl(basePort);
         }
 
-        String getUrl() {
-            String returnUrl = "";
-            for (int i = 0; i < pieces.length; i++) {
-                if (null != pieces[i] && pieces[i] instanceof Port) {
-                    returnUrl += ((Port) pieces[i]).getPort(basePort);
-                } else if (null != pieces[i] && pieces[i] instanceof Url) {
-                    returnUrl += ((Url) pieces[i]).getUrl(basePort);
-                }
-            }
-            returnUrl += root;
-            return returnUrl;
+        String getUrl(Integer basePort) {
+            return pieces.stream().map(p -> {
+                    if (p instanceof DynamicPort) {
+                        return ((DynamicPort) p).getPort(basePort);
+                    } else if (p instanceof Url) {
+                        return ((Url) p).getUrl(basePort);
+                    } else if (p instanceof String) {
+                        return p.toString();
+                    }
+                    return "";
+                }).reduce("", (acc, val) -> acc + val) + root;
         }
+
     }
+
+    public static final Url SERVICE_ROOT = new Url(Url.SECURE_ROOT, DynamicPort.HTTPS_PORT, "/services");
+    public static final Url INSECURE_SERVICE_ROOT = new Url(Url.INSECURE_ROOT, DynamicPort.HTTP_PORT, "/services");
+    public static final Url REST_PATH = new Url(SERVICE_ROOT, "/catalog/");
+    public static final Url OPENSEARCH_PATH = new Url(REST_PATH, "query");
+    public static final Url CSW_PATH = new Url(SERVICE_ROOT, "/csw");
+    public static final Url ADMIN_ALL_SOURCES_PATH = new Url(Url.SECURE_ROOT, DynamicPort.HTTPS_PORT,
+            "/jolokia/exec/org.codice.ddf.catalog.admin.plugin.AdminSourcePollerServiceBean:service=admin-source-poller-service/allSourceInfo");
+    public static final Url ADMIN_STATUS_PATH = new Url(Url.SECURE_ROOT, DynamicPort.HTTPS_PORT,
+            "/jolokia/exec/org.codice.ddf.catalog.admin.plugin.AdminSourcePollerServiceBean:service=admin-source-poller-service/sourceStatus/");
 
     static {
         // Make Pax URL use the maven.repo.local setting if present
@@ -346,16 +350,19 @@ public abstract class AbstractIntegrationTest {
         return options(editConfigurationFilePut("etc/system.properties", "urlScheme", "https"),
                 editConfigurationFilePut("etc/system.properties", "host", "localhost"),
                 editConfigurationFilePut("etc/system.properties", "jetty.port",
-                        Port.HTTPS_PORT.getPort(basePort)),
+                        DynamicPort.HTTPS_PORT.getPort()),
                 editConfigurationFilePut("etc/system.properties", "hostContext", "/solr"),
                 editConfigurationFilePut("etc/system.properties", "ddf.home", "${karaf.home}"),
 
                 editConfigurationFilePut("etc/system.properties",
-                        Port.HTTP_PORT.getSystemProperty(), Port.HTTP_PORT.getPort(basePort)),
+                        DynamicPort.HTTP_PORT.getSystemProperty(), DynamicPort.HTTP_PORT.getPort(
+                        )),
                 editConfigurationFilePut("etc/system.properties",
-                        Port.HTTPS_PORT.getSystemProperty(), Port.HTTPS_PORT.getPort(basePort)),
+                        DynamicPort.HTTPS_PORT.getSystemProperty(), DynamicPort.HTTPS_PORT.getPort(
+                        )),
                 editConfigurationFilePut("etc/system.properties",
-                        Port.BASE_PORT.getSystemProperty(), Port.BASE_PORT.getPort(basePort)),
+                        DynamicPort.BASE_PORT.getSystemProperty(), DynamicPort.BASE_PORT.getPort(
+                        )),
 
                 // DDF-1572: Disables the periodic backups of .bundlefile. In itests, having those
                 // backups serves no purpose and it appears that intermittent failures have occurred
@@ -365,22 +372,22 @@ public abstract class AbstractIntegrationTest {
                         Boolean.FALSE.toString()),
 
                 editConfigurationFilePut("etc/org.apache.karaf.shell.cfg", "sshPort",
-                        Port.SSH_PORT.getPort(basePort)),
+                        DynamicPort.SSH_PORT.getPort()),
                 editConfigurationFilePut("etc/ddf.platform.config.cfg", "port",
-                        Port.HTTPS_PORT.getPort(basePort)),
+                        DynamicPort.HTTPS_PORT.getPort()),
                 editConfigurationFilePut("etc/ddf.platform.config.cfg", "host", "localhost"),
                 editConfigurationFilePut("etc/org.ops4j.pax.web.cfg", "org.osgi.service.http.port",
-                        Port.HTTP_PORT.getPort(basePort)),
+                        DynamicPort.HTTP_PORT.getPort()),
                 editConfigurationFilePut("etc/org.ops4j.pax.web.cfg",
-                        "org.osgi.service.http.port.secure", Port.HTTPS_PORT.getPort(basePort)),
+                        "org.osgi.service.http.port.secure", DynamicPort.HTTPS_PORT.getPort()),
                 editConfigurationFilePut("etc/org.apache.karaf.management.cfg", "rmiRegistryPort",
-                        Port.RMI_REG_PORT.getPort(basePort)),
+                        DynamicPort.RMI_REG_PORT.getPort()),
                 editConfigurationFilePut("etc/org.apache.karaf.management.cfg", "rmiServerPort",
-                        Port.RMI_SERVER_PORT.getPort(basePort)),
+                        DynamicPort.RMI_SERVER_PORT.getPort()),
                 replaceConfigurationFile("etc/hazelcast.xml",
                         new File(this.getClass().getResource("/hazelcast.xml").toURI())),
                 editConfigurationFilePut("etc/ddf.security.sts.client.configuration.cfg", "address",
-                        "https://localhost:" + Port.HTTPS_PORT.getPort(basePort)
+                        Url.SECURE_ROOT + DynamicPort.HTTPS_PORT.getPort()
                                 + "/services/SecurityTokenService?wsdl"), replaceConfigurationFile(
                         "etc/ddf.catalog.solr.external.SolrHttpCatalogProvider.cfg", new File(
                                 this.getClass().getResource(
@@ -433,7 +440,7 @@ public abstract class AbstractIntegrationTest {
     }
 
     protected Integer getBasePort() {
-        return Integer.parseInt(System.getProperty(Port.BASE_PORT.getSystemProperty()));
+        return Integer.parseInt(System.getProperty(DynamicPort.BASE_PORT.getSystemProperty()));
     }
 
     /**
@@ -530,7 +537,7 @@ public abstract class AbstractIntegrationTest {
      */
     @Deprecated
     protected void waitForSourcesToBeAvailable(String... sources) throws InterruptedException {
-        serviceManager.waitForSourcesToBeAvailable(Url.REST_PATH.getUrl(), sources);
+        serviceManager.waitForSourcesToBeAvailable(REST_PATH.getUrl(), sources);
     }
 
     /**
@@ -599,7 +606,7 @@ public abstract class AbstractIntegrationTest {
             this.putAll(getMetatypeDefaults(SYMBOLIC_NAME, FACTORY_PID));
 
             this.put("shortname", sourceId);
-            this.put("endpointUrl", Url.OPENSEARCH_PATH.getUrl());
+            this.put("endpointUrl", OPENSEARCH_PATH.getUrl());
         }
 
     }
@@ -614,7 +621,7 @@ public abstract class AbstractIntegrationTest {
             this.putAll(getMetatypeDefaults(SYMBOLIC_NAME, FACTORY_PID));
 
             this.put("id", sourceId);
-            this.put("cswUrl", Url.CSW_PATH.getUrl());
+            this.put("cswUrl", CSW_PATH.getUrl());
             this.put("pollInterval", 1);
         }
 
@@ -630,7 +637,7 @@ public abstract class AbstractIntegrationTest {
             this.putAll(getMetatypeDefaults(SYMBOLIC_NAME, FACTORY_PID));
 
             this.put("id", sourceId);
-            this.put("cswUrl", Url.CSW_PATH.getUrl());
+            this.put("cswUrl", CSW_PATH.getUrl());
             this.put("pollInterval", 1);
         }
 
