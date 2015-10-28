@@ -37,24 +37,20 @@ public class ConfigurationFilesPoller implements Runnable {
 
     private final ExecutorService executorService;
 
-    private ConfigurationFileFactory configurationFileFactory;
-
     private final ConfigurationFileDirectory configurationDirectory;
 
     private final String fileExtension;
 
     public ConfigurationFilesPoller(ConfigurationFileDirectory configurationDirectory,
-            ConfigurationFileFactory configurationFileFactory, String fileExtension,
-            WatchService watchService, ExecutorService executorService) {
+            String fileExtension, WatchService watchService, ExecutorService executorService) {
         this.configurationDirectory = configurationDirectory;
-        this.configurationFileFactory = configurationFileFactory;
         this.watchService = watchService;
         this.executorService = executorService;
         this.fileExtension = fileExtension;
     }
 
     public void init() {
-        LOGGER.debug("Starting {}...", ConfigurationFilesPoller.class.getName());
+        LOGGER.debug("Starting {}...", this.getClass().getName());
         executorService.execute(this);
     }
 
@@ -91,14 +87,10 @@ public class ConfigurationFilesPoller implements Runnable {
                         continue; // just skip to the next event
                     }
 
-                    ConfigurationFile configFile = null;
-                    try {
-                        LOGGER.debug("Processing [{}] event for for [{}].", kind, configurationDirectoryPath.resolve(filename));
-                        configFile = configurationFileFactory.createConfigurationFile(configurationDirectoryPath.resolve(filename));
-                        configFile.createConfig();
-                    } catch (IOException e) {
-                        LOGGER.error("Unable to create configuration file [{}].", configurationDirectoryPath.resolve(filename), e);
-                    }
+                    LOGGER.debug("Notifying [{}] of event [{}] for file [{}].",
+                            ConfigurationFileDirectory.class.getName(), kind,
+                            configurationDirectoryPath.resolve(filename));
+                    configurationDirectory.notify(configurationDirectoryPath.resolve(filename));
                 }
 
                 // Reset key, shutdown watcher if directory not able to be observed
@@ -110,7 +102,7 @@ public class ConfigurationFilesPoller implements Runnable {
                 }
             }
         } catch (InterruptedException | RuntimeException e) {
-            LOGGER.error("The Configuration Observer was interrupted.", e);
+            LOGGER.error("The [{}] was interrupted.", this.getClass().getName(), e);
             Thread.currentThread().interrupt();
         }
     }
