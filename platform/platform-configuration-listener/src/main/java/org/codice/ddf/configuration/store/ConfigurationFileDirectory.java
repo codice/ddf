@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -36,7 +37,7 @@ import org.slf4j.LoggerFactory;
  * Note: Since this class is meant to only be used by {@link FileHandlerImpl} and is package
  * private, it assumes that all input validation has already been performed.
  */
-public class ConfigurationFileDirectory {
+public class ConfigurationFileDirectory implements ChangeListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationFileDirectory.class);
 
@@ -79,21 +80,18 @@ public class ConfigurationFileDirectory {
         this.configurationFileFactory = configurationFileFactory;
     }
 
-    public void init() {
+    public void init() throws IOException {
         createProcessedDirectory();
         createFailedDirectory();
         Collection<ConfigurationFile> configFiles = null;
-        try {
-            configFiles = getConfigurationFiles();
-        } catch (IOException e) {
-            LOGGER.error(
-                    "Unable to get configuration files with extension [{}] from directory [{}].",
-                    fileExtension, configurationDirectory.toString(), e);
-            return;
-        }
-
+        configFiles = getConfigurationFiles();
         for (ConfigurationFile configFile : configFiles) {
-            configFile.createConfig();
+            try {
+                configFile.createConfig();
+                moveToProcessedDirectory(configFile);
+            } catch (ConfigurationFileException e) {
+                moveToFailedDirectory(configFile.getConfigFilePath());
+            }
         }
     }
 
@@ -112,9 +110,14 @@ public class ConfigurationFileDirectory {
         Collection<Path> files = listFiles();
         Collection<ConfigurationFile> configurationFiles = new ArrayList<>(files.size());
         for (Path file : files) {
-            ConfigurationFile configFile = configurationFileFactory.createConfigurationFile(file);
-            configurationFiles.add(configFile);
-
+            ConfigurationFile configFile = null;
+            try {
+                configFile = configurationFileFactory.createConfigurationFile(file);
+                configurationFiles.add(configFile);
+            } catch (ConfigurationFileException e) {
+                LOGGER.error(e.getMessage(), e);
+                moveToFailedDirectory(file);
+            }
         }
         return configurationFiles;
     }
@@ -135,7 +138,7 @@ public class ConfigurationFileDirectory {
         return fileNames;
     }
 
-    private void createProcessedDirectory() {
+    private void createProcessedDirectory() throws IOException {
         if (!Files.exists(processedDirectory)) {
             LOGGER.debug(
                     "Creating directory [{}] to move configuration files to after processing.",
@@ -143,13 +146,12 @@ public class ConfigurationFileDirectory {
             try {
                 Files.createDirectory(processedDirectory);
             } catch (IOException e) {
-                LOGGER.error("Unable to create processed directory [{}].",
-                        processedDirectory.toString());
+                throw new IOException("Unable to create failed directory [" + processedDirectory.toString() + "].", e);
             }
         }
     }
 
-    private void createFailedDirectory() {
+    private void createFailedDirectory() throws IOException {
         if (!Files.exists(failedDirectory)) {
             LOGGER.debug(
                     "Creating directory [{}] to move configuration files to after processing failure.",
@@ -157,8 +159,50 @@ public class ConfigurationFileDirectory {
             try {
                 Files.createDirectory(failedDirectory);
             } catch (IOException e) {
-                LOGGER.error("Unable to create failed directory [{}].", failedDirectory.toString());
+                throw new IOException("Unable to create failed directory [" + failedDirectory.toString() + "].", e);
             }
+        }
+    }
+
+    private void moveToFailedDirectory(Path file) {
+        Path source = null;
+        Path destination = null;
+        try {
+            source = Paths.get(file.toFile().getCanonicalPath());
+            destination = Paths.get(failedDirectory.resolve(file.getFileName()).toFile()
+                    .getCanonicalPath());
+            LOGGER.debug("Moving [{}] to [{}].", source, destination);
+            Files.move(source, destination);
+        } catch (IOException e) {
+            LOGGER.error("Unable to move file [{}] to the failed directory [{}].", source,
+                    destination, e);
+        }
+    }
+
+    protected void moveToProcessedDirectory(ConfigurationFile configFile) {
+        Path source = null;
+        Path destination = null;
+        try {
+            source = Paths.get(configFile.getConfigFilePath().toFile().getCanonicalPath());
+            destination = Paths.get(processedDirectory
+                    .resolve(configFile.getConfigFilePath().getFileName()).toFile()
+                    .getCanonicalPath());
+            Files.move(source, destination);
+        } catch (IOException e) {
+            LOGGER.error("Unable to move file [{}] to the processed directory [{}].", source,
+                    destination, e);
+        }
+    }
+
+    @Override
+    public void notify(Path file) {
+        ConfigurationFile configFile = null;
+        try {
+            configFile = configurationFileFactory.createConfigurationFile(file);
+            configFile.createConfig();
+            moveToProcessedDirectory(configFile);
+        } catch (ConfigurationFileException e) {
+            moveToFailedDirectory(file);
         }
     }
 }

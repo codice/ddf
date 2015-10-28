@@ -29,24 +29,26 @@ public class ManagedServiceConfigurationFile extends ConfigurationFile {
     private static final Logger LOGGER = LoggerFactory
             .getLogger(ManagedServiceConfigurationFile.class);
 
-    public ManagedServiceConfigurationFile(Path configFilePath, Path processedDirectory,
-            Path failedDirectory, Dictionary<String, Object> properties, ConfigurationAdmin configAdmin) {
+    public ManagedServiceConfigurationFile(Path configFilePath,
+            Dictionary<String, Object> properties, ConfigurationAdmin configAdmin) {
         this.properties = properties;
-        this.configFile = configFilePath;
-        this.processedDirectory = processedDirectory;
-        this.failedDirectory = failedDirectory;
+        this.configFilePath = configFilePath;
         this.configAdmin = configAdmin;
     }
 
     @Override
-    public void createConfig() {
+    public void createConfig() throws ConfigurationFileException {
+        if (properties == null) {
+            throw new ConfigurationFileException("Properties are null for configuration file ["
+                    + configFilePath + "].");
+        }
         String servicePid = getServicePid();
         try {
             Configuration configuration = configAdmin.getConfiguration(servicePid, null);
             configuration.update(properties);
-            processed();
         } catch (IOException e) {
-            failed();
+            throw new ConfigurationFileException("Unable to update Configuration Admin for pid ["
+                    + servicePid + "].", e);
         }
     }
 

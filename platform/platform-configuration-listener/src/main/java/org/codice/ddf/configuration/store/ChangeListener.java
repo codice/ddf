@@ -14,6 +14,7 @@
 
 package org.codice.ddf.configuration.store;
 
+import java.nio.file.Path;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -24,17 +25,12 @@ import javax.validation.constraints.NotNull;
 public interface ChangeListener {
 
     /**
-     * Update types enumeration
-     */
-    enum ChangeType {
-        CREATED, UPDATED, DELETED
-    }
-
-    /**
      * Method called when the properties associated with a configuration PID have changed.
      *
-     * @param configurationPid persistence identifier (PID) of the configuration that has changed
-     * @param changeType       type of change that occurred
+     * @param configurationPid
+     *            persistence identifier (PID) of the configuration that has changed
+     * @param changeType
+     *            type of change that occurred
      */
-    void update(@NotNull String configurationPid, @NotNull ChangeType changeType);
+    void notify(@NotNull Path file);
 }
