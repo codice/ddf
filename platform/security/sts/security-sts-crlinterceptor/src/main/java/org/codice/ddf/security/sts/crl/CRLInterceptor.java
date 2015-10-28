@@ -32,7 +32,7 @@ import org.codice.ddf.security.handler.pki.CrlChecker;
  */
 public class CRLInterceptor extends AbstractPhaseInterceptor<Message> {
 
-    protected CrlChecker crlChecker;
+    private CrlChecker crlChecker;
 
     /**
      * Creates a new crl interceptor. Loads in a CRL from the CRL file pointed to by
@@ -55,6 +55,14 @@ public class CRLInterceptor extends AbstractPhaseInterceptor<Message> {
             throw new AccessDeniedException(
                     "Cannot complete request, certificate was revoked by CRL.");
         }
+    }
+
+    /**
+     * Overwrite the CrlChecker set in the constructor. For unit testing.
+     * @param crlChecker Fully configured crlChecker to inject.
+     */
+    void setCrlChecker(CrlChecker crlChecker) {
+        this.crlChecker = crlChecker;
     }
 
 }

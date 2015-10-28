@@ -17,6 +17,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -25,7 +26,6 @@ import java.io.InputStream;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.util.Properties;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -46,56 +46,14 @@ public class PKIHandlerTest {
     @Test
     public void testGetNormalizedTokenSuccessNoCrlPki()
             throws java.security.cert.CertificateException, ServletException {
-        for (AbstractPKIHandler handler : new AbstractPKIHandler[] {new PKIHandler(),
-                new WssPKIHandler()}) {
-            PKIAuthenticationTokenFactory tokenFactory = new PKIAuthenticationTokenFactory();
-            tokenFactory.setSignaturePropertiesPath("signatures.properties");
-            tokenFactory.init();
-            handler.setTokenFactory(tokenFactory);
-
-            HttpServletRequest request = mock(HttpServletRequest.class);
-            HttpServletResponse response = mock(HttpServletResponse.class);
-            FilterChain chain = mock(FilterChain.class);
-
-            String certificateString = getLocalhostCert();
-
-            InputStream stream = new ByteArrayInputStream(
-                    Base64.decodeBase64(certificateString.getBytes()));
-            CertificateFactory factory = CertificateFactory.getInstance("X.509");
-            X509Certificate cert = (X509Certificate) factory.generateCertificate(stream);
-            X509Certificate[] certs = new X509Certificate[1];
-            certs[0] = cert;
-            when(request.getAttribute(("javax.servlet.request.X509Certificate"))).thenReturn(certs);
-
-            /**
-             * Note that the getNormalizedToken() method for PKI handlers do not
-             * use the resolve tag.
-             */
-            HandlerResult result = null;
-            result = handler.getNormalizedToken(request, response, chain, true);
-
-            assertThat(result, is(notNullValue()));
-            assertThat(result.getStatus(), equalTo(HandlerResult.Status.COMPLETED));
-        }
-    }
-
-    /**
-     * This test ensures the proper functionality of PKIHandler's method,
-     * getNormalizedToken(), when given a valid HTTPServletRequest with
-     * invalid data.
-     */
-    @Test
-    public void testGetNormalizedTokenFailureNoCertBytes()
-            throws java.security.cert.CertificateException, ServletException {
-        PKIHandler handler = new PKIHandler();
-        PKIAuthenticationTokenFactory tokenFactory = new PKIAuthenticationTokenFactory();
-        tokenFactory.setSignaturePropertiesPath("signatures.properties");
-        tokenFactory.init();
-        handler.setTokenFactory(tokenFactory);
+        PKIHandler handler = getPKIHandlerWithMockedCrl("signature.properties", true);
 
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
         FilterChain chain = mock(FilterChain.class);
+
+        when(request.getAttribute(("javax.servlet.request.X509Certificate")))
+                .thenReturn(getTestCerts());
 
         /**
          * Note that the getNormalizedToken() method for PKI handlers do not
@@ -105,7 +63,7 @@ public class PKIHandlerTest {
         result = handler.getNormalizedToken(request, response, chain, true);
 
         assertThat(result, is(notNullValue()));
-        assertThat(result.getStatus(), equalTo(HandlerResult.Status.NO_ACTION));
+        assertThat(result.getStatus(), equalTo(HandlerResult.Status.COMPLETED));
     }
 
     /**
@@ -113,18 +71,15 @@ public class PKIHandlerTest {
      * getNormalizedToken(), when given an invalid HTTPServletRequest.
      */
     @Test
-    public void testGetNormalizedTokenFailureNoCerts() throws ServletException {
-        PKIHandler handler = new PKIHandler();
-        PKIAuthenticationTokenFactory tokenFactory = new PKIAuthenticationTokenFactory();
-        tokenFactory.setSignaturePropertiesPath("signatures.properties");
-        tokenFactory.init();
-        handler.setTokenFactory(tokenFactory);
+    public void testGetNormalizedTokenFailureNoCerts()
+            throws ServletException, CertificateException {
+        PKIHandler handler = getPKIHandlerWithMockedCrl("signature.properties", false);
 
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
         FilterChain chain = mock(FilterChain.class);
 
-        when(request.getAttribute("javax.servlet.request.X509Certificate")).thenReturn(null);
+        when(request.getAttribute(("javax.servlet.request.X509Certificate"))).thenReturn(null);
 
         /**
          * Note that the getNormalizedToken() method for PKI handlers do not
@@ -141,52 +96,18 @@ public class PKIHandlerTest {
      * Tests that the PKIHandler trows a ServletException when the cert fails to pass the CRL check
      */
     @Test(expected = ServletException.class)
-    public void testGetNormalizedTokenFailsWhenInCRL()
+    public void testGetNormalizedTokenFailsWhenCrlFails()
             throws ServletException, CertificateException {
-        PKIHandler handler = configurePKIHandlerWithCRL("signature.properties",
-                "encryption-crl-revoked.properties");
+        PKIHandler handler = getPKIHandlerWithMockedCrl("signature.properties", false);
 
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
         FilterChain chain = mock(FilterChain.class);
 
-        String certificateString = getLocalhostCert();
-
-        InputStream stream = new ByteArrayInputStream(
-                Base64.decodeBase64(certificateString.getBytes()));
-        CertificateFactory factory = CertificateFactory.getInstance("X.509");
-        X509Certificate cert = (X509Certificate) factory.generateCertificate(stream);
-        X509Certificate[] certs = new X509Certificate[1];
-        certs[0] = cert;
-        when(request.getAttribute(("javax.servlet.request.X509Certificate"))).thenReturn(certs);
+        when(request.getAttribute(("javax.servlet.request.X509Certificate")))
+                .thenReturn(getTestCerts());
 
         handler.getNormalizedToken(request, response, chain, true);
-    }
-
-    /**
-     * Tests that the certificate gets through when CRL checking is enabled but
-     * the cert is not listed in the CRL
-     *
-     * @throws java.security.cert.CertificateException
-     * @throws ServletException
-     */
-    @Test
-    public void testCertPassesCRLCheckWhenNotListedInCRL()
-            throws java.security.cert.CertificateException, ServletException {
-
-        PKIHandler handler = configurePKIHandlerWithCRL("signature.properties",
-                "encryption-crl-valid.properties");
-
-        String certificateString = getLocalhostCert();
-
-        InputStream stream = new ByteArrayInputStream(
-                Base64.decodeBase64(certificateString.getBytes()));
-        CertificateFactory factory = CertificateFactory.getInstance("X.509");
-        X509Certificate cert = (X509Certificate) factory.generateCertificate(stream);
-        X509Certificate[] certs = new X509Certificate[1];
-        certs[0] = cert;
-
-        assertThat(handler.crlChecker.passesCrlCheck(certs), equalTo(true));
     }
 
     /**
@@ -200,17 +121,7 @@ public class PKIHandlerTest {
     public void testNoActionWhenHttpResponseIsNull()
             throws java.security.cert.CertificateException, ServletException {
 
-        PKIHandler handler = configurePKIHandlerWithCRL("signature.properties",
-                "encryption-crl-valid.properties");
-
-        String certificateString = getLocalhostCert();
-
-        InputStream stream = new ByteArrayInputStream(
-                Base64.decodeBase64(certificateString.getBytes()));
-        CertificateFactory factory = CertificateFactory.getInstance("X.509");
-        X509Certificate cert = (X509Certificate) factory.generateCertificate(stream);
-        X509Certificate[] certs = new X509Certificate[1];
-        certs[0] = cert;
+        PKIHandler handler = getPKIHandlerWithMockedCrl("signature.properties", true);
 
         HttpServletResponse httpResponse = null;
         HttpServletRequest httpRequest = mock(HttpServletRequest.class);
@@ -221,101 +132,15 @@ public class PKIHandlerTest {
     }
 
     /**
-     * Tests that the certificate is not let through when it is listed in the CRL
-     *
-     * @throws java.security.cert.CertificateException
-     * @throws ServletException
-     */
-    @Test
-    public void testCertFailsCRLCheckWhenListedInCRL()
-            throws java.security.cert.CertificateException, ServletException {
-
-        PKIHandler handler = configurePKIHandlerWithCRL("signature.properties",
-                "encryption-crl-revoked.properties");
-
-        String certificateString = getLocalhostCert();
-
-        InputStream stream = new ByteArrayInputStream(
-                Base64.decodeBase64(certificateString.getBytes()));
-        CertificateFactory factory = CertificateFactory.getInstance("X.509");
-        X509Certificate cert = (X509Certificate) factory.generateCertificate(stream);
-        X509Certificate[] certs = new X509Certificate[1];
-        certs[0] = cert;
-
-        assertThat(handler.crlChecker.passesCrlCheck(certs), equalTo(false));
-    }
-
-    /**
-     * Tests that the CRL check passes if there are no certs when it is called.
-     *
-     * @throws java.security.cert.CertificateException
-     * @throws ServletException
-     */
-    @Test
-    public void testPassesCRLCheckWhenNoCertsArePresent()
-            throws java.security.cert.CertificateException, ServletException {
-
-        PKIHandler handler = configurePKIHandlerWithCRL("signature.properties",
-                "encryption-crl-revoked.properties");
-
-        X509Certificate[] certs = null;
-
-        assertThat(handler.crlChecker.passesCrlCheck(certs), equalTo(true));
-
-    }
-
-    /**
      * Tests that the request is set to COMPLETED when CRL is not set (not enabled)
      *
      * @throws java.security.cert.CertificateException
      * @throws ServletException
      */
     @Test
-    public void testPassesCRLCheckWhenNoCRLIsDefined()
-            throws java.security.cert.CertificateException, ServletException {
+    public void testErrorHandling() throws CertificateException, ServletException {
 
-        PKIHandler handler = new PKIHandler();
-        PKIAuthenticationTokenFactory tokenFactory = new PKIAuthenticationTokenFactory();
-        tokenFactory.setSignaturePropertiesPath("signature.properties");
-        tokenFactory.init();
-        handler.setTokenFactory(tokenFactory);
-
-        String certificateString = getLocalhostCert();
-
-        InputStream stream = new ByteArrayInputStream(
-                Base64.decodeBase64(certificateString.getBytes()));
-        CertificateFactory factory = CertificateFactory.getInstance("X.509");
-        X509Certificate cert = (X509Certificate) factory.generateCertificate(stream);
-        X509Certificate[] certs = new X509Certificate[1];
-        certs[0] = cert;
-
-        assertThat(handler.crlChecker.passesCrlCheck(certs), equalTo(true));
-    }
-
-    /**
-     * Tests that the request is set to COMPLETED when CRL is not set (not enabled)
-     *
-     * @throws java.security.cert.CertificateException
-     * @throws ServletException
-     */
-    @Test
-    public void testErrorHandling()
-            throws java.security.cert.CertificateException, ServletException {
-
-        PKIHandler handler = new PKIHandler();
-        PKIAuthenticationTokenFactory tokenFactory = new PKIAuthenticationTokenFactory();
-        tokenFactory.setSignaturePropertiesPath("signature.properties");
-        tokenFactory.init();
-        handler.setTokenFactory(tokenFactory);
-
-        String certificateString = getLocalhostCert();
-
-        InputStream stream = new ByteArrayInputStream(
-                Base64.decodeBase64(certificateString.getBytes()));
-        CertificateFactory factory = CertificateFactory.getInstance("X.509");
-        X509Certificate cert = (X509Certificate) factory.generateCertificate(stream);
-        X509Certificate[] certs = new X509Certificate[1];
-        certs[0] = cert;
+        PKIHandler handler = getPKIHandlerWithMockedCrl("signature.properties", true);
 
         HttpServletResponse httpResponse = mock(HttpServletResponse.class);
         HttpServletRequest httpRequest = mock(HttpServletRequest.class);
@@ -327,33 +152,28 @@ public class PKIHandlerTest {
     }
 
     /**
-     * Makes sure that when a CRL is populated, certs that aren't in the CRL are still let through
+     * Creates a PKIHandler with a mocked CrlChecker that always returns true or false
      *
-     * @throws java.security.cert.CertificateException
-     * @throws ServletException
+     * @param returnedValue Boolean value that the mocked CrlChecker will always return
+     * @return A PKIHandler with a mocked CrlChecker
      */
-    @Test
-    public void testCertPassesCRLCheckWhenADifferentCertIsInCRL()
-            throws java.security.cert.CertificateException, ServletException {
+    private PKIHandler getPKIHandlerWithMockedCrl(String signatureProperties,
+            boolean returnedValue) {
+        PKIHandler handler = new PKIHandler();
+        PKIAuthenticationTokenFactory tokenFactory = new PKIAuthenticationTokenFactory();
+        tokenFactory.setSignaturePropertiesPath(signatureProperties);
+        tokenFactory.init();
+        handler.setTokenFactory(tokenFactory);
 
-        PKIHandler handler = configurePKIHandlerWithCRL("signature.properties",
-                "encryption-crl-revoked.properties");
+        CrlChecker crlChecker = mock(CrlChecker.class);
+        when(crlChecker.passesCrlCheck(any())).thenReturn(returnedValue);
+        handler.crlChecker = crlChecker;
 
-        String certificateString =
-                "MIIC5DCCAk2gAwIBAgIJAKj7ROPHjo1yMA0GCSqGSIb3DQEBCwUAMIGKMQswCQYDVQQGEwJVUzEQ"
-                        + "MA4GA1UECAwHQXJpem9uYTERMA8GA1UEBwwIR29vZHllYXIxGDAWBgNVBAoMD0xvY2toZWVkIE1h"
-                        + "cnRpbjENMAsGA1UECwwESTRDRTEPMA0GA1UEAwwGY2xpZW50MRwwGgYJKoZIhvcNAQkBFg1pNGNl"
-                        + "QGxtY28uY29tMB4XDTEyMDYyMDE5NDMwOVoXDTIyMDYxODE5NDMwOVowgYoxCzAJBgNVBAYTAlVT"
-                        + "MRAwDgYDVQQIDAdBcml6b25hMREwDwYDVQQHDAhHb29keWVhcjEYMBYGA1UECgwPTG9ja2hlZWQg"
-                        + "TWFydGluMQ0wCwYDVQQLDARJNENFMQ8wDQYDVQQDDAZjbGllbnQxHDAaBgkqhkiG9w0BCQEWDWk0"
-                        + "Y2VAbG1jby5jb20wgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAIpHxCBLYE7xfDLcITS9SsPG"
-                        + "4Q04Z6S32/+TriGsRgpGTj/7GuMG7oJ98m6Ws5cTYl7nyunyHTkZuP7rBzy4esDIHheyx18EgdSJ"
-                        + "vvACgGVCnEmHndkf9bWUlAOfNaxW+vZwljUkRUVdkhPbPdPwOcMdKg/SsLSNjZfsQIjoWd4rAgMB"
-                        + "AAGjUDBOMB0GA1UdDgQWBBQx11VLtYXLvFGpFdHnhlNW9+lxBDAfBgNVHSMEGDAWgBQx11VLtYXL"
-                        + "vFGpFdHnhlNW9+lxBDAMBgNVHRMEBTADAQH/MA0GCSqGSIb3DQEBCwUAA4GBAHYs2OI0K6yVXzyS"
-                        + "sKcv2fmfw6XCICGTnyA7BOdAjYoqq6wD+33dHJUCFDqye7AWdcivuc7RWJt9jnlfJZKIm2BHcDTR"
-                        + "Hhk6CvjJ14Gf40WQdeMHoX8U8b0diq7Iy5Ravx+zRg7SdiyJUqFYjRh/O5tywXRT1+freI3bwAN0"
-                        + "L6tQ";
+        return handler;
+    }
+
+    private X509Certificate[] getTestCerts() throws CertificateException {
+        String certificateString = getTestCertString();
 
         InputStream stream = new ByteArrayInputStream(
                 Base64.decodeBase64(certificateString.getBytes()));
@@ -362,26 +182,10 @@ public class PKIHandlerTest {
         X509Certificate[] certs = new X509Certificate[1];
         certs[0] = cert;
 
-        assertThat(handler.crlChecker.passesCrlCheck(certs), equalTo(true));
+        return certs;
     }
 
-    private PKIHandler configurePKIHandlerWithCRL(String signatureProperties,
-            String encryptionProperties) {
-        PKIHandler handler = new PKIHandler();
-        PKIAuthenticationTokenFactory tokenFactory = new PKIAuthenticationTokenFactory();
-        tokenFactory.setSignaturePropertiesPath(signatureProperties);
-        tokenFactory.init();
-        handler.setTokenFactory(tokenFactory);
-
-        Properties prop = handler.crlChecker.loadProperties(encryptionProperties);
-        String crlRelativePath = "/" + prop.getProperty(handler.crlChecker.CRL_PROPERTY_KEY);
-        String crlAbsolutePath = PKIHandlerTest.class.getResource(crlRelativePath).getPath();
-        handler.crlChecker.setCrlLocation(crlAbsolutePath);
-
-        return handler;
-    }
-
-    private String getLocalhostCert() {
+    private String getTestCertString() {
         String certificateString =
                 "MIIDEzCCAnygAwIBAgIJAIzc4FYrIp9mMA0GCSqGSIb3DQEBBQUAMHcxCzAJBgNV\n"
                         + "BAYTAlVTMQswCQYDVQQIDAJBWjEMMAoGA1UECgwDRERGMQwwCgYDVQQLDANEZXYx\n"
@@ -402,6 +206,5 @@ public class PKIHandlerTest {
                         + "GAZ6EMTZCfT9m07XduxjsmDz0hlSGV0";
         return certificateString;
     }
-
 }
 
