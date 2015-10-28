@@ -54,6 +54,8 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import ddf.security.samlp.SimpleSign;
+
 /**
  * Handler for SAML 2.0 IdP based authentication. Unauthenticated clients will be redirected to the
  * configured IdP for authentication.

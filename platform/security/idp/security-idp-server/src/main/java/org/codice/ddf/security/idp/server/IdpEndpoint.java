@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -13,24 +13,15 @@
  */
 package org.codice.ddf.security.idp.server;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.UUID;
 
 import javax.servlet.ServletException;
@@ -46,22 +37,13 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Transformer;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.rs.security.saml.sso.SSOConstants;
-import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
-import org.apache.wss4j.common.crypto.Crypto;
-import org.apache.wss4j.common.crypto.CryptoFactory;
 import org.apache.wss4j.common.crypto.CryptoType;
-import org.apache.wss4j.common.crypto.Merlin;
-import org.apache.wss4j.common.crypto.PasswordEncryptor;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.apache.wss4j.common.saml.builder.SAML2Constants;
@@ -76,31 +58,30 @@ import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.api.PKIAuthenticationTokenFactory;
 import org.codice.ddf.security.handler.basic.BasicAuthenticationHandler;
 import org.codice.ddf.security.handler.pki.PKIHandler;
+import org.codice.ddf.security.idp.binding.api.Binding;
+import org.codice.ddf.security.idp.binding.api.ResponseCreator;
+import org.codice.ddf.security.idp.binding.api.impl.ResponseCreatorImpl;
+import org.codice.ddf.security.idp.binding.post.PostBinding;
+import org.codice.ddf.security.idp.binding.redirect.RedirectBinding;
+import org.codice.ddf.security.idp.cache.CookieCache;
 import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.opensaml.saml2.core.Assertion;
-import org.opensaml.saml2.core.AuthnContextClassRef;
-import org.opensaml.saml2.core.AuthnContextComparisonTypeEnumeration;
 import org.opensaml.saml2.core.AuthnRequest;
 import org.opensaml.saml2.core.StatusCode;
-import org.opensaml.saml2.metadata.AssertionConsumerService;
 import org.opensaml.saml2.metadata.EntityDescriptor;
-import org.opensaml.saml2.metadata.KeyDescriptor;
-import org.opensaml.saml2.metadata.SPSSODescriptor;
-import org.opensaml.xml.XMLObject;
-import org.opensaml.xml.security.credential.UsageType;
 import org.opensaml.xml.validation.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import ddf.security.PropertiesLoader;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
 import ddf.security.encryption.EncryptionService;
 import ddf.security.samlp.MetadataConfigurationParser;
 import ddf.security.samlp.SamlProtocol;
 import ddf.security.samlp.SimpleSign;
+import ddf.security.samlp.SystemCrypto;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
 
@@ -109,47 +90,15 @@ public class IdpEndpoint implements Idp {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IdpEndpoint.class);
 
-    private static final String IDP_STATE_OBJ = "IDP_STATE_OBJ";
+    private static final String CERTIFICATES_ATTR = "javax.servlet.request.X509Certificate";
 
-    private static final String PKI = "pki";
-
-    private static final String GUEST = "guest";
-
-    private static final String USER_PASS = "up";
-
-    private static final String SAML_RESPONSE = "SAMLResponse";
-
-    private static final String ACS_URL = "ACSURL";
-
-    private static final String HTTP_POST_BINDING = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST";
-
-    private static final String SAML_SOAP_BINDING = "urn:oasis:names:tc:SAML:2.0:bindings:SOAP";
-
-    private static final String PAOS_BINDING = "urn:oasis:names:tc:SAML:2.0:bindings:PAOS";
-
-    private static final String HTTP_REDIRECT_BINDING = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect";
-
-    private static final String HTTP_ARTIFACT_BINDING = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact";
-
-    private static final String COOKIE = "org.codice.ddf.security.idp.session";
-
-    private CookieCache cookieCache = new CookieCache();
+    protected CookieCache cookieCache = new CookieCache();
 
     private SystemBaseUrl systemBaseUrl = new SystemBaseUrl();
 
     private PKIAuthenticationTokenFactory tokenFactory;
 
     private SecurityManager securityManager;
-
-    private Crypto signatureCrypto;
-
-    private Crypto encryptionCrypto;
-
-    private EncryptionService encryptionService;
-
-    private String signaturePropertiesPath;
-
-    private String encryptionPropertiesPath;
 
     private Map<String, EntityDescriptor> serviceProviders = new HashMap<>();
 
@@ -161,6 +110,14 @@ public class IdpEndpoint implements Idp {
 
     private Boolean strictSignature = true;
 
+    private SystemCrypto systemCrypto;
+
+    public IdpEndpoint(String signaturePropertiesPath, String encryptionPropertiesPath,
+            EncryptionService encryptionService) {
+        systemCrypto = new SystemCrypto(signaturePropertiesPath, encryptionPropertiesPath,
+                encryptionService);
+    }
+
     public void init() {
         try {
             indexHtml = IOUtils.toString(IdpEndpoint.class.getResourceAsStream("/html/index.html"));
@@ -171,12 +128,14 @@ public class IdpEndpoint implements Idp {
         } catch (Exception e) {
             LOGGER.error("Unable to load index page for IDP.", e);
         }
+        OpenSAMLUtil.initSamlEngine();
     }
 
-    private void parseSpMetadata(List<String> spMetadata) {
-        if (spMetadata != null) {
+    private void parseServiceProviderMetadata(List<String> serviceProviderMetadata) {
+        if (serviceProviderMetadata != null) {
             try {
-                serviceProviders = MetadataConfigurationParser.buildEntityDescriptors(spMetadata);
+                serviceProviders = MetadataConfigurationParser
+                        .buildEntityDescriptors(serviceProviderMetadata);
             } catch (IOException e) {
                 LOGGER.error("Unable to parse SP metadata configuration.", e);
             }
@@ -188,7 +147,8 @@ public class IdpEndpoint implements Idp {
             @FormParam(RELAY_STATE) String relayState, @Context HttpServletRequest request)
             throws WSSecurityException {
         LOGGER.debug("Recevied POST IdP request.");
-        return showLoginPage(samlRequest, relayState, null, null, request, true);
+        return showLoginPage(samlRequest, relayState, null, null, request,
+                new PostBinding(systemCrypto, serviceProviders), submitForm);
     }
 
     @GET
@@ -199,46 +159,47 @@ public class IdpEndpoint implements Idp {
             @Context HttpServletRequest request) throws WSSecurityException {
         LOGGER.debug("Recevied GET IdP request.");
         return showLoginPage(samlRequest, relayState, signatureAlgorithm, signature, request,
-                false);
+                new RedirectBinding(systemCrypto, serviceProviders), redirectPage);
     }
 
     private Response showLoginPage(String samlRequest, String relayState, String signatureAlgorithm,
-            String signature, HttpServletRequest request, boolean isPost)
+            String signature, HttpServletRequest request, Binding binding, String template)
             throws WSSecurityException {
         String responseStr;
         AuthnRequest authnRequest = null;
         try {
             Map<String, Object> responseMap = new HashMap<>();
-            validateRelayState(relayState, isPost);
-            authnRequest = unwrapAuthnRequest(samlRequest, isPost);
-            validateAuthnRequest(authnRequest, samlRequest, relayState, signatureAlgorithm,
-                    signature, isPost);
-            X509Certificate[] certs = (X509Certificate[]) request
-                    .getAttribute("javax.servlet.request.X509Certificate");
+            binding.validator().validateRelayState(relayState);
+            authnRequest = binding.decoder().decodeRequest(samlRequest);
+            binding.validator()
+                    .validateAuthnRequest(authnRequest, samlRequest, relayState, signatureAlgorithm,
+                            signature, strictSignature);
+            X509Certificate[] certs = (X509Certificate[]) request.getAttribute(CERTIFICATES_ATTR);
             boolean hasCerts = (certs != null && certs.length > 0);
             boolean hasCookie = exchangeCookieForAssertion(request) != null;
             if ((authnRequest.isPassive() && hasCerts) || hasCookie) {
                 LOGGER.debug("Received Passive & PKI AuthnRequest.");
                 org.opensaml.saml2.core.Response samlpResponse;
                 try {
-                    samlpResponse = handleLogin(authnRequest, PKI, request,
+                    samlpResponse = handleLogin(authnRequest, Idp.PKI, request,
                             authnRequest.isPassive(), hasCookie);
                     LOGGER.debug("Passive & PKI AuthnRequest logged in successfully.");
                 } catch (SecurityServiceException e) {
                     LOGGER.error(e.getMessage(), e);
-                    return getErrorResponse(relayState, authnRequest, StatusCode.AUTHN_FAILED_URI);
+                    return getErrorResponse(relayState, authnRequest, StatusCode.AUTHN_FAILED_URI,
+                            binding);
                 } catch (WSSecurityException e) {
                     LOGGER.error(e.getMessage(), e);
-                    return getErrorResponse(relayState, authnRequest,
-                            StatusCode.REQUEST_DENIED_URI);
+                    return getErrorResponse(relayState, authnRequest, StatusCode.REQUEST_DENIED_URI,
+                            binding);
                 } catch (SimpleSign.SignatureException e) {
                     LOGGER.error(e.getMessage(), e);
                     return getErrorResponse(relayState, authnRequest,
-                            StatusCode.REQUEST_UNSUPPORTED_URI);
+                            StatusCode.REQUEST_UNSUPPORTED_URI, binding);
                 }
                 LOGGER.debug("Returning Passive & PKI SAML Response.");
-                return getSamlpResponse(relayState, authnRequest, samlpResponse,
-                        createCookie(request, samlpResponse));
+                return binding.creator().getSamlpResponse(relayState, authnRequest, samlpResponse,
+                        createCookie(request, samlpResponse), template);
             } else {
                 LOGGER.debug("Building the JSON map to embed in the index.html page for login.");
                 Document doc = DOMUtils.createDocument();
@@ -246,10 +207,11 @@ public class IdpEndpoint implements Idp {
                 String authn = DOM2Writer
                         .nodeToString(OpenSAMLUtil.toDom(authnRequest, doc, false));
                 String encodedAuthn = RestSecurity.deflateAndBase64Encode(authn);
-                responseMap.put("pki", hasCerts);
+                responseMap.put(PKI, hasCerts);
                 responseMap.put(SAML_REQ, encodedAuthn);
                 responseMap.put(RELAY_STATE, relayState);
-                String assertionConsumerServiceURL = getAssertionConsumerServiceURL(authnRequest);
+                String assertionConsumerServiceURL = ((ResponseCreatorImpl) binding.creator())
+                        .getAssertionConsumerServiceURL(authnRequest);
                 responseMap.put(ACS_URL, assertionConsumerServiceURL);
                 responseMap.put(SSOConstants.SIG_ALG, signatureAlgorithm);
                 responseMap.put(SSOConstants.SIGNATURE, signature);
@@ -265,7 +227,7 @@ public class IdpEndpoint implements Idp {
             if (authnRequest != null) {
                 try {
                     return getErrorResponse(relayState, authnRequest,
-                            StatusCode.REQUEST_UNSUPPORTED_URI);
+                            StatusCode.REQUEST_UNSUPPORTED_URI, binding);
                 } catch (IOException | SimpleSign.SignatureException e1) {
                     LOGGER.error(e1.getMessage(), e1);
                 }
@@ -275,7 +237,7 @@ public class IdpEndpoint implements Idp {
             if (authnRequest != null) {
                 try {
                     return getErrorResponse(relayState, authnRequest,
-                            StatusCode.UNSUPPORTED_BINDING_URI);
+                            StatusCode.UNSUPPORTED_BINDING_URI, binding);
                 } catch (IOException | SimpleSign.SignatureException e1) {
                     LOGGER.error(e1.getMessage(), e1);
                 }
@@ -292,218 +254,25 @@ public class IdpEndpoint implements Idp {
     }
 
     private Response getErrorResponse(String relayState, AuthnRequest authnRequest,
-            String statusCode)
+            String statusCode, Binding binding)
             throws WSSecurityException, IOException, SimpleSign.SignatureException {
         LOGGER.debug("Creating SAML Response for error condition.");
         org.opensaml.saml2.core.Response samlResponse = SamlProtocol.createResponse(
                 SamlProtocol.createIssuer(systemBaseUrl.constructUrl("/idp/login", true)),
                 SamlProtocol.createStatus(statusCode), authnRequest.getID(), null);
         LOGGER.debug("Encoding error SAML Response for post or redirect.");
-        return getSamlpResponse(relayState, authnRequest, samlResponse, null);
-    }
-
-    private Response getSamlpResponse(@QueryParam(RELAY_STATE) String relayState,
-            AuthnRequest authnRequest, org.opensaml.saml2.core.Response samlResponse,
-            NewCookie cookie)
-            throws WSSecurityException, IOException, SimpleSign.SignatureException {
-        if (authnRequest.getProtocolBinding().equals(HTTP_POST_BINDING)) {
-            LOGGER.debug("Configuring SAML Response for POST.");
-            Document doc = DOMUtils.createDocument();
-            doc.appendChild(doc.createElement("root"));
-            LOGGER.debug("Signing SAML POST Response.");
-            signSamlPostResponse(samlResponse);
-            LOGGER.debug("Converting SAML Response to DOM");
-            String assertionResponse = DOM2Writer
-                    .nodeToString(OpenSAMLUtil.toDom(samlResponse, doc));
-            String encodedSamlResponse = new String(
-                    Base64.encodeBase64(assertionResponse.getBytes()));
-            String assertionConsumerServiceURL = getAssertionConsumerServiceURL(authnRequest);
-            String submitFormUpdated = submitForm
-                    .replace("{{" + ACS_URL + "}}", assertionConsumerServiceURL);
-            submitFormUpdated = submitFormUpdated
-                    .replace("{{" + SAML_RESPONSE + "}}", encodedSamlResponse);
-            submitFormUpdated = submitFormUpdated.replace("{{" + RELAY_STATE + "}}", relayState);
-            Response.ResponseBuilder ok = Response.ok(submitFormUpdated);
-            if (cookie != null) {
-                ok = ok.cookie(cookie);
-            }
-            return ok.build();
-        } else if (authnRequest.getProtocolBinding().equals(HTTP_REDIRECT_BINDING)) {
-            LOGGER.debug("Configuring SAML Response for Redirect.");
-            Document doc = DOMUtils.createDocument();
-            doc.appendChild(doc.createElement("root"));
-            URI location = signSamlGetResponse(samlResponse, authnRequest, relayState);
-            String redirectUpdated = redirectPage.replace("{{redirect}}", location.toString());
-            Response.ResponseBuilder ok = Response.ok(redirectUpdated);
-            if (cookie != null) {
-                ok = ok.cookie(cookie);
-            }
-            return ok.build();
+        String template = "";
+        String assertionConsumerServiceBinding = ResponseCreator
+                .getAssertionConsumerServiceBinding(authnRequest, serviceProviders);
+        if (authnRequest.getProtocolBinding().equals(HTTP_POST_BINDING) || HTTP_POST_BINDING
+                .equals(assertionConsumerServiceBinding)) {
+            template = submitForm;
+        } else if (authnRequest.getProtocolBinding().equals(HTTP_REDIRECT_BINDING)
+                || HTTP_REDIRECT_BINDING.equals(assertionConsumerServiceBinding)) {
+            template = redirectPage;
         }
-        throw new UnsupportedOperationException("Must use HTTP POST or Redirect bindings.");
-    }
-
-    protected AuthnRequest unwrapAuthnRequest(String samlRequest, boolean isPost) {
-        LOGGER.debug("Creating AuthnRequest object from SAMLRequest string.");
-        if (StringUtils.isEmpty(samlRequest)) {
-            throw new IllegalArgumentException("Missing SAMLRequest on IdP request.");
-        }
-        String decodedRequest;
-        if (isPost) {
-            decodedRequest = new String(Base64.decodeBase64(samlRequest));
-        } else {
-            try {
-                decodedRequest = RestSecurity.inflateBase64(samlRequest);
-            } catch (IOException e) {
-                throw new IllegalArgumentException("Unable to decode SAMLRequest: base64/inflate.");
-            }
-        }
-        ByteArrayInputStream tokenStream = new ByteArrayInputStream(decodedRequest.getBytes());
-        Document authnDoc;
-        try {
-            authnDoc = StaxUtils.read(new InputStreamReader(tokenStream, "UTF-8"));
-        } catch (Exception ex) {
-            throw new IllegalArgumentException("Unable to read SAMLRequest as XML.");
-        }
-        XMLObject authnXmlObj;
-        try {
-            authnXmlObj = OpenSAMLUtil.fromDom(authnDoc.getDocumentElement());
-        } catch (WSSecurityException ex) {
-            throw new IllegalArgumentException(
-                    "Unable to convert AuthnRequest document to XMLObject.");
-        }
-        if (!(authnXmlObj instanceof AuthnRequest)) {
-            throw new IllegalArgumentException("SAMLRequest object is not AuthnRequest.");
-        }
-        LOGGER.debug("Created AuthnRequest object successfully.");
-        return (AuthnRequest) authnXmlObj;
-    }
-
-    protected void validateAuthnRequest(AuthnRequest authnRequest, String samlRequest,
-            String relayState, String signatureAlgorithm, String signature, boolean isPost)
-            throws SimpleSign.SignatureException, ValidationException {
-        LOGGER.debug("Validating AuthnRequest required attributes and signature");
-        if (isPost) {
-            if (strictSignature) {
-                if (authnRequest.getSignature() != null) {
-                    SimpleSign.validateSignature(authnRequest.getSignature(),
-                            authnRequest.getDOM().getOwnerDocument(), getSignatureCrypto());
-                } else {
-                    throw new SimpleSign.SignatureException(
-                            "No signature present on AuthnRequest.");
-                }
-            }
-        } else {
-            if (strictSignature) {
-                if (!StringUtils.isEmpty(signature) && !StringUtils.isEmpty(signatureAlgorithm)) {
-                    String signedParts;
-                    try {
-                        signedParts = SSOConstants.SAML_REQUEST + "=" + URLEncoder
-                                .encode(samlRequest, "UTF-8") + "&" + SSOConstants.RELAY_STATE + "="
-                                + relayState + "&" + SSOConstants.SIG_ALG + "=" + URLEncoder
-                                .encode(signatureAlgorithm, "UTF-8");
-                    } catch (UnsupportedEncodingException e) {
-                        throw new SimpleSign.SignatureException(
-                                "Unable to construct signed query parts.", e);
-                    }
-                    EntityDescriptor entityDescriptor = serviceProviders
-                            .get(authnRequest.getIssuer().getValue());
-                    SPSSODescriptor spssoDescriptor = entityDescriptor
-                            .getSPSSODescriptor(SamlProtocol.SUPPORTED_PROTOCOL);
-                    String encryptionCertificate = null;
-                    String signingCertificate = null;
-                    if (spssoDescriptor != null) {
-                        for (KeyDescriptor key : spssoDescriptor.getKeyDescriptors()) {
-                            String certificate = null;
-                            if (key.getKeyInfo().getX509Datas().size() > 0 &&
-                                    key.getKeyInfo().getX509Datas().get(0).getX509Certificates()
-                                            .size() > 0) {
-                                certificate = key.getKeyInfo().getX509Datas().get(0)
-                                        .getX509Certificates().get(0).getValue();
-                            }
-                            if (StringUtils.isBlank(certificate)) {
-                                break;
-                            }
-
-                            if (UsageType.UNSPECIFIED.equals(key.getUse())) {
-                                encryptionCertificate = certificate;
-                                signingCertificate = certificate;
-                            }
-
-                            if (UsageType.ENCRYPTION.equals(key.getUse())) {
-                                encryptionCertificate = certificate;
-                            }
-
-                            if (UsageType.SIGNING.equals(key.getUse())) {
-                                signingCertificate = certificate;
-                            }
-                        }
-                        if (signingCertificate == null) {
-                            throw new ValidationException(
-                                    "Unable to find signing certificate in metadata. Please check metadata.");
-                        }
-                    } else {
-                        throw new ValidationException(
-                                "Unable to find supported protocol in metadata SPSSODescriptors.");
-                    }
-                    boolean result = SimpleSign
-                            .validateSignature(signedParts, signature, signingCertificate);
-                    if (!result) {
-                        throw new ValidationException(
-                                "Signature verification failed for redirect binding.");
-                    }
-                } else {
-                    throw new SimpleSign.SignatureException(
-                            "No signature present for AuthnRequest.");
-                }
-            }
-        }
-
-        if (strictSignature && authnRequest.getAssertionConsumerServiceURL() != null && (
-                authnRequest.getSignature() == null && signature == null)) {
-            throw new IllegalArgumentException(
-                    "Invalid AuthnRequest, defined an AssertionConsumerServiceURL, but contained no identifying signature.");
-        }
-
-        if (authnRequest.getRequestedAuthnContext() != null) {
-            Collection authNContextClasses = CollectionUtils.transformedCollection(
-                    authnRequest.getRequestedAuthnContext().getAuthnContextClassRefs(),
-                    new AuthnContextClassTransformer());
-            if (authnRequest.isPassive() && authnRequest.getRequestedAuthnContext().getComparison()
-                    .equals(AuthnContextComparisonTypeEnumeration.EXACT) && !CollectionUtils
-                    .containsAny(authNContextClasses,
-                            Arrays.asList(SAML2Constants.AUTH_CONTEXT_CLASS_REF_X509,
-                                    SAML2Constants.AUTH_CONTEXT_CLASS_REF_SMARTCARD_PKI,
-                                    SAML2Constants.AUTH_CONTEXT_CLASS_REF_SOFTWARE_PKI,
-                                    SAML2Constants.AUTH_CONTEXT_CLASS_REF_SPKI,
-                                    SAML2Constants.AUTH_CONTEXT_CLASS_REF_TLS_CLIENT))) {
-                throw new IllegalArgumentException(
-                        "Unable to passively log user in when not specifying PKI AuthnContextClassRef");
-            }
-        }
-
-        if (!(authnRequest.getProtocolBinding().equals(HTTP_POST_BINDING) || authnRequest
-                .getProtocolBinding().equals(HTTP_REDIRECT_BINDING))) {
-            throw new UnsupportedOperationException(
-                    "Only HTTP-POST and HTTP-Redirect bindings are supported");
-        }
-    }
-
-    protected void validateRelayState(String relayState, boolean isPost) {
-        LOGGER.debug("Validating RelayState");
-        if (relayState == null) {
-            throw new IllegalArgumentException("Missing RelayState on IdP request.");
-        }
-        if (!isPost) {
-            try {
-                relayState = URLDecoder.decode(relayState, "UTF-8");
-            } catch (UnsupportedEncodingException e) {
-                LOGGER.debug("Unable to URL decode relay state.", e);
-            }
-        }
-        if (relayState.getBytes().length < 0 || relayState.getBytes().length > 80) {
-            LOGGER.warn("RelayState has invalid size: {}", relayState.getBytes().length);
-        }
+        return binding.creator()
+                .getSamlpResponse(relayState, authnRequest, samlResponse, null, template);
     }
 
     @GET
@@ -517,15 +286,33 @@ public class IdpEndpoint implements Idp {
                 "Processing login request: [ authMethod {} ], [ sigAlg {} ], [ relayState {} ]",
                 authMethod, signatureAlgorithm, relayState);
         try {
-            AuthnRequest authnRequest = unwrapAuthnRequest(samlRequest, false);
-            validateAuthnRequest(authnRequest, samlRequest, relayState, signatureAlgorithm,
-                    signature,
-                    (StringUtils.isEmpty(signatureAlgorithm) || StringUtils.isEmpty(signature)));
+            Binding binding;
+            String template;
+            //the authn request is always encoded as if it came in via redirect when coming from the web app
+            Binding redirectBinding = new RedirectBinding(systemCrypto, serviceProviders);
+            AuthnRequest authnRequest = redirectBinding.decoder().decodeRequest(samlRequest);
+            String assertionConsumerServiceBinding = ResponseCreator
+                    .getAssertionConsumerServiceBinding(authnRequest, serviceProviders);
+            if (authnRequest.getProtocolBinding().equals(HTTP_POST_BINDING) || HTTP_POST_BINDING
+                    .equals(assertionConsumerServiceBinding)) {
+                binding = new PostBinding(systemCrypto, serviceProviders);
+                template = submitForm;
+            } else if (authnRequest.getProtocolBinding().equals(HTTP_REDIRECT_BINDING)
+                    || HTTP_REDIRECT_BINDING.equals(assertionConsumerServiceBinding)) {
+                binding = redirectBinding;
+                template = redirectPage;
+            } else {
+                throw new UnsupportedOperationException("Must use HTTP POST or Redirect bindings.");
+            }
+            binding.validator()
+                    .validateAuthnRequest(authnRequest, samlRequest, relayState, signatureAlgorithm,
+                            signature, strictSignature);
             org.opensaml.saml2.core.Response encodedSaml = handleLogin(authnRequest, authMethod,
                     request, false, false);
             LOGGER.debug("Returning SAML Response for relayState: {}" + relayState);
-            return getSamlpResponse(relayState, authnRequest, encodedSaml,
-                    createCookie(request, encodedSaml));
+
+            return binding.creator().getSamlpResponse(relayState, authnRequest, encodedSaml,
+                    createCookie(request, encodedSaml), template);
         } catch (SecurityServiceException e) {
             LOGGER.warn("Unable to retrieve subject for user.", e);
             return Response.status(Response.Status.UNAUTHORIZED).build();
@@ -546,12 +333,14 @@ public class IdpEndpoint implements Idp {
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
     }
 
-    protected org.opensaml.saml2.core.Response handleLogin(AuthnRequest authnRequest,
+    protected synchronized org.opensaml.saml2.core.Response handleLogin(AuthnRequest authnRequest,
             String authMethod, HttpServletRequest request, boolean passive, boolean hasCookie)
             throws SecurityServiceException, WSSecurityException, SimpleSign.SignatureException {
+        LOGGER.debug("Performing login for user. passive: {}, cookie: {}", passive, hasCookie);
         BaseAuthenticationToken token = null;
         request.setAttribute(ContextPolicy.ACTIVE_REALM, BaseAuthenticationToken.ALL_REALM);
-        if (PKI.equals(authMethod)) {
+        if (Idp.PKI.equals(authMethod)) {
+            LOGGER.debug("Logging user in via PKI.");
             PKIHandler pkiHandler = new PKIHandler();
             pkiHandler.setTokenFactory(tokenFactory);
             try {
@@ -564,6 +353,7 @@ public class IdpEndpoint implements Idp {
                 LOGGER.warn("Encountered an exception while checking for PKI auth info.", e);
             }
         } else if (USER_PASS.equals(authMethod)) {
+            LOGGER.debug("Logging user in via BASIC auth.");
             BasicAuthenticationHandler basicAuthenticationHandler = new BasicAuthenticationHandler();
             HandlerResult handlerResult = basicAuthenticationHandler
                     .getNormalizedToken(request, null, null, false);
@@ -571,8 +361,8 @@ public class IdpEndpoint implements Idp {
                 token = handlerResult.getToken();
             }
         } else if (GUEST.equals(authMethod)) {
-            token = new AnonymousAuthenticationToken(BaseAuthenticationToken.ALL_REALM,
-                    request.getRemoteAddr());
+            LOGGER.debug("Logging user in as Guest.");
+            token = new AnonymousAuthenticationToken(BaseAuthenticationToken.ALL_REALM);
         } else {
             throw new IllegalArgumentException("Auth method is not supported.");
         }
@@ -584,6 +374,7 @@ public class IdpEndpoint implements Idp {
             statusCode = StatusCode.SUCCESS_URI;
         } else {
             try {
+                statusCode = StatusCode.AUTHN_FAILED_URI;
                 Subject subject = securityManager.getSubject(token);
                 for (Object principal : subject.getPrincipals().asList()) {
                     if (principal instanceof SecurityAssertion) {
@@ -592,7 +383,9 @@ public class IdpEndpoint implements Idp {
                         samlToken = securityToken.getToken();
                     }
                 }
-                statusCode = StatusCode.SUCCESS_URI;
+                if (samlToken != null) {
+                    statusCode = StatusCode.SUCCESS_URI;
+                }
             } catch (SecurityServiceException e) {
                 if (!passive) {
                     throw e;
@@ -601,7 +394,7 @@ public class IdpEndpoint implements Idp {
                 }
             }
         }
-
+        LOGGER.debug("User log in successful.");
         return SamlProtocol.createResponse(
                 SamlProtocol.createIssuer(systemBaseUrl.constructUrl("/idp/login", true)),
                 SamlProtocol.createStatus(statusCode), authnRequest.getID(), samlToken);
@@ -612,6 +405,7 @@ public class IdpEndpoint implements Idp {
         Map<String, Cookie> cookies = HttpUtils.getCookieMap(request);
         Cookie cookie = cookies.get(COOKIE);
         if (cookie != null) {
+            LOGGER.debug("Retrieving cookie from cache.");
             samlToken = cookieCache.get(cookie.getValue());
         }
         return samlToken;
@@ -619,217 +413,27 @@ public class IdpEndpoint implements Idp {
 
     private synchronized NewCookie createCookie(HttpServletRequest request,
             org.opensaml.saml2.core.Response response) {
-        Assertion assertion = response.getAssertions().get(0);
-        if (assertion != null) {
-            UUID uuid = UUID.randomUUID();
+        LOGGER.debug("Creating cookie for user.");
+        if (response.getAssertions() != null && response.getAssertions().size() > 0) {
+            Assertion assertion = response.getAssertions().get(0);
+            if (assertion != null) {
+                UUID uuid = UUID.randomUUID();
 
-            cookieCache.put(uuid.toString(), assertion.getDOM());
-            URL url;
-            try {
-                url = new URL(request.getRequestURL().toString());
-                return new NewCookie(COOKIE, uuid.toString(), null, url.getHost(),
-                        NewCookie.DEFAULT_VERSION, null, -1, true);
-            } catch (MalformedURLException e) {
-                LOGGER.warn("Unable to create session cookie. Client will need to log in again.",
-                        e);
-            }
-        }
-        return null;
-    }
-
-    protected void signSamlPostResponse(org.opensaml.saml2.core.Response samlResponse)
-            throws WSSecurityException, SimpleSign.SignatureException {
-        SimpleSign.signSamlObject(samlResponse, getSignatureCrypto(),
-                getSignatureCrypto().getDefaultX509Identifier(), getSignaturePassword());
-    }
-
-    protected URI signSamlGetResponse(org.opensaml.saml2.core.Response samlResponse,
-            AuthnRequest authnRequest, String relayState)
-            throws WSSecurityException, SimpleSign.SignatureException, IOException {
-        Document doc = DOMUtils.createDocument();
-        doc.appendChild(doc.createElement("root"));
-        String encodedResponse = URLEncoder.encode(RestSecurity.deflateAndBase64Encode(
-                DOM2Writer.nodeToString(OpenSAMLUtil.toDom(samlResponse, doc, false))), "UTF-8");
-        String requestToSign =
-                SSOConstants.SAML_RESPONSE + "=" + encodedResponse + "&" + SSOConstants.RELAY_STATE
-                        + "=" + relayState;
-        String assertionConsumerServiceURL = getAssertionConsumerServiceURL(authnRequest);
-        UriBuilder uriBuilder = UriBuilder.fromUri(assertionConsumerServiceURL);
-        uriBuilder.queryParam(SSOConstants.SAML_RESPONSE, encodedResponse);
-        uriBuilder.queryParam(SSOConstants.RELAY_STATE, relayState);
-        SimpleSign.signUriString(requestToSign, uriBuilder, getSignatureCrypto(),
-                getSignatureCrypto().getDefaultX509Identifier(), getSignaturePassword());
-        return uriBuilder.build();
-    }
-
-    private String getAssertionConsumerServiceURL(AuthnRequest authnRequest) {
-        String assertionConsumerServiceURL = null;
-        LOGGER.debug("Attempting to determine AssertionConsumerServiceURL.");
-        //if the AuthnRequest specifies a URL, use that
-        if (authnRequest.getAssertionConsumerServiceURL() != null) {
-            LOGGER.debug("Using AssertionConsumerServiceURL from AuthnRequest: {}",
-                    authnRequest.getAssertionConsumerServiceURL());
-            assertionConsumerServiceURL = authnRequest.getAssertionConsumerServiceURL();
-        } else {
-            //check metadata
-            EntityDescriptor entityDescriptor = serviceProviders
-                    .get(authnRequest.getIssuer().getValue());
-            SPSSODescriptor spssoDescriptor = entityDescriptor
-                    .getSPSSODescriptor(SamlProtocol.SUPPORTED_PROTOCOL);
-            AssertionConsumerService defaultAssertionConsumerService = spssoDescriptor
-                    .getDefaultAssertionConsumerService();
-            //see if the default service uses our supported bindings, and then use that
-            if (defaultAssertionConsumerService.getBinding().equals(HTTP_POST_BINDING)
-                    || defaultAssertionConsumerService.getBinding().equals(HTTP_REDIRECT_BINDING)) {
-                LOGGER.debug(
-                        "Using AssertionConsumerServiceURL from default assertion consumer service: {}",
-                        defaultAssertionConsumerService.getLocation());
-                assertionConsumerServiceURL = defaultAssertionConsumerService.getLocation();
-            } else {
-                //if default doesn't work, check any others that are defined and use the first one that supports our bindings
-                for (AssertionConsumerService assertionConsumerService : spssoDescriptor
-                        .getAssertionConsumerServices()) {
-                    if (assertionConsumerService.getBinding().equals(HTTP_POST_BINDING)
-                            || assertionConsumerService.getBinding()
-                            .equals(HTTP_REDIRECT_BINDING)) {
-                        LOGGER.debug("Using AssertionConsumerServiceURL from supported binding: {}",
-                                assertionConsumerService.getLocation());
-                        assertionConsumerServiceURL = assertionConsumerService.getLocation();
-                        break;
-                    }
-                }
-            }
-
-        }
-        if (assertionConsumerServiceURL == null) {
-            throw new IllegalArgumentException(
-                    "No valid AssertionConsumerServiceURL available for given AuthnRequest.");
-        }
-        return assertionConsumerServiceURL;
-    }
-
-    protected Crypto getSignatureCrypto() {
-        if (signatureCrypto == null && signaturePropertiesPath != null) {
-            Properties sigProperties = PropertiesLoader.loadProperties(signaturePropertiesPath);
-            if (sigProperties != null) {
+                cookieCache.put(uuid.toString(), assertion.getDOM());
+                URL url;
                 try {
-                    PasswordEncryptor passwordEncryptor = new PasswordEncryptor() {
-                        @Override
-                        public String encrypt(String password) {
-                            return encryptionService.encrypt(password);
-                        }
-
-                        @Override
-                        public String decrypt(String encryptedPassword) {
-                            return encryptionService.decrypt(encryptedPassword);
-                        }
-                    };
-                    signatureCrypto = CryptoFactory
-                            .getInstance(sigProperties, IdpEndpoint.class.getClassLoader(),
-                                    passwordEncryptor);
-                } catch (WSSecurityException e) {
-                    LOGGER.debug("Error in loading the signature Crypto object: ", e);
+                    url = new URL(request.getRequestURL().toString());
+                    LOGGER.debug("Returning new cookie for user.");
+                    return new NewCookie(COOKIE, uuid.toString(), null, url.getHost(),
+                            NewCookie.DEFAULT_VERSION, null, -1, true);
+                } catch (MalformedURLException e) {
+                    LOGGER.warn(
+                            "Unable to create session cookie. Client will need to log in again.",
+                            e);
                 }
-            } else {
-                LOGGER.debug("Cannot load signature properties using: " + signaturePropertiesPath);
-            }
-        }
-        return signatureCrypto;
-    }
-
-    protected Crypto getEncryptionCrypto() {
-        if (encryptionCrypto == null && encryptionPropertiesPath != null) {
-            Properties sigProperties = PropertiesLoader.loadProperties(encryptionPropertiesPath);
-            if (sigProperties != null) {
-                try {
-                    PasswordEncryptor passwordEncryptor = new PasswordEncryptor() {
-                        @Override
-                        public String encrypt(String password) {
-                            return encryptionService.encrypt(password);
-                        }
-
-                        @Override
-                        public String decrypt(String encryptedPassword) {
-                            return encryptionService.decrypt(encryptedPassword);
-                        }
-                    };
-                    encryptionCrypto = CryptoFactory
-                            .getInstance(sigProperties, IdpEndpoint.class.getClassLoader(),
-                                    passwordEncryptor);
-                } catch (WSSecurityException e) {
-                    LOGGER.debug("Error in loading the signature Crypto object: ", e);
-                }
-            } else {
-                LOGGER.debug("Cannot load signature properties using: " + encryptionPropertiesPath);
-            }
-        }
-        return encryptionCrypto;
-    }
-
-    protected String getSignaturePassword() {
-        if (signaturePropertiesPath != null) {
-            Properties sigProperties = PropertiesLoader.loadProperties(signaturePropertiesPath);
-            if (sigProperties != null) {
-                String password = sigProperties
-                        .getProperty(Merlin.PREFIX + Merlin.KEYSTORE_PRIVATE_PASSWORD);
-                if (password == null) {
-                    password = sigProperties
-                            .getProperty(Merlin.OLD_PREFIX + Merlin.KEYSTORE_PRIVATE_PASSWORD);
-                }
-                if (password != null) {
-                    password = password.trim();
-                    password = decryptPassword(password, encryptionService);
-                }
-                return password;
             }
         }
         return null;
-    }
-
-    protected String getEncryptionPassword() {
-        if (encryptionPropertiesPath != null) {
-            Properties encProperties = PropertiesLoader.loadProperties(encryptionPropertiesPath);
-            if (encProperties != null) {
-                String password = encProperties
-                        .getProperty(Merlin.PREFIX + Merlin.KEYSTORE_PRIVATE_PASSWORD);
-                if (password == null) {
-                    password = encProperties
-                            .getProperty(Merlin.OLD_PREFIX + Merlin.KEYSTORE_PRIVATE_PASSWORD);
-                }
-                if (password != null) {
-                    password = password.trim();
-                    password = decryptPassword(password, encryptionService);
-                }
-                return password;
-            }
-        }
-        return null;
-    }
-
-    protected String decryptPassword(String password, EncryptionService passwordEncryptor) {
-        if (password.startsWith(Merlin.ENCRYPTED_PASSWORD_PREFIX) && password
-                .endsWith(Merlin.ENCRYPTED_PASSWORD_SUFFIX)) {
-            if (passwordEncryptor == null) {
-                LOGGER.debug("No PasswordEncryptor is configured!");
-                return password;
-            }
-            String substring = password
-                    .substring(Merlin.ENCRYPTED_PASSWORD_PREFIX.length(), password.length() - 1);
-            return passwordEncryptor.decrypt(substring);
-        }
-
-        return password;
-    }
-
-    private static class AuthnContextClassTransformer implements Transformer {
-
-        @Override
-        public Object transform(Object o) {
-            if (o instanceof AuthnContextClassRef) {
-                return ((AuthnContextClassRef) o).getAuthnContextClassRef();
-            }
-            return o;
-        }
     }
 
     @GET
@@ -841,13 +445,13 @@ public class IdpEndpoint implements Idp {
         nameIdFormats.add(SAML2Constants.NAMEID_FORMAT_UNSPECIFIED);
         nameIdFormats.add(SAML2Constants.NAMEID_FORMAT_X509_SUBJECT_NAME);
         CryptoType cryptoType = new CryptoType(CryptoType.TYPE.ALIAS);
-        cryptoType.setAlias(getSignatureCrypto().getDefaultX509Identifier());
-        X509Certificate[] certs = getSignatureCrypto().getX509Certificates(cryptoType);
+        cryptoType.setAlias(systemCrypto.getSignatureCrypto().getDefaultX509Identifier());
+        X509Certificate[] certs = systemCrypto.getSignatureCrypto().getX509Certificates(cryptoType);
         X509Certificate issuerCert = certs[0];
 
         cryptoType = new CryptoType(CryptoType.TYPE.ALIAS);
-        cryptoType.setAlias(getEncryptionCrypto().getDefaultX509Identifier());
-        certs = getEncryptionCrypto().getX509Certificates(cryptoType);
+        cryptoType.setAlias(systemCrypto.getEncryptionCrypto().getDefaultX509Identifier());
+        certs = systemCrypto.getEncryptionCrypto().getX509Certificates(cryptoType);
         X509Certificate encryptionCert = certs[0];
         EntityDescriptor entityDescriptor = SamlProtocol
                 .createIdpMetadata(systemBaseUrl.constructUrl("/idp/login", true),
@@ -867,24 +471,12 @@ public class IdpEndpoint implements Idp {
         this.securityManager = securityManager;
     }
 
-    public void setSignaturePropertiesPath(String signaturePropertiesPath) {
-        this.signaturePropertiesPath = signaturePropertiesPath;
-    }
-
-    public void setEncryptionPropertiesPath(String encryptionPropertiesPath) {
-        this.encryptionPropertiesPath = encryptionPropertiesPath;
-    }
-
     public void setTokenFactory(PKIAuthenticationTokenFactory tokenFactory) {
         this.tokenFactory = tokenFactory;
     }
 
-    public void setEncryptionService(EncryptionService encryptionService) {
-        this.encryptionService = encryptionService;
-    }
-
     public void setSpMetadata(List<String> spMetadata) {
-        parseSpMetadata(spMetadata);
+        parseServiceProviderMetadata(spMetadata);
     }
 
     public void setStrictSignature(Boolean strictSignature) {
