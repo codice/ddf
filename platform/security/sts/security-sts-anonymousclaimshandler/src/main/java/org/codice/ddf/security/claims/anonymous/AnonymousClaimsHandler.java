@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -33,10 +33,14 @@ import org.apache.cxf.sts.token.realm.RealmSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ddf.security.principal.AnonymousPrincipal;
+
 /**
  * Provides claims for an anonymous auth token.
  */
 public class AnonymousClaimsHandler implements ClaimsHandler, RealmSupport {
+
+    public static final String IP_ADDRESS_CLAIMS_KEY = "IpAddress";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AnonymousClaimsHandler.class);
 
@@ -134,6 +138,22 @@ public class AnonymousClaimsHandler implements ClaimsHandler, RealmSupport {
             }
         }
 
+        if (principal != null && principal instanceof AnonymousPrincipal) {
+            String ipAddress = ((AnonymousPrincipal)principal).getAddress();
+            if (ipAddress != null) {
+                try {
+                    ProcessedClaim ipClaim = new ProcessedClaim();
+                    ipClaim.setClaimType(new URI(IP_ADDRESS_CLAIMS_KEY));
+                    ipClaim.setPrincipal(principal);
+                    ipClaim.addValue(ipAddress);
+                    claimsColl.add(ipClaim);
+                } catch (URISyntaxException e) {
+                    LOGGER.warn(
+                            "Claims mapping cannot be converted to a URI. Ip claim will be excluded",
+                            e);
+                }
+            }
+        }
         return claimsColl;
     }
 

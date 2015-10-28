@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.security.validator.anonymous;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -32,11 +34,17 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opensaml.xml.util.Base64;
 
+import ddf.security.principal.AnonymousPrincipal;
+
 public class AnonymousValidatorTest {
 
     ReceivedToken receivedToken;
 
     ReceivedToken receivedBadToken;
+
+    ReceivedToken receivedTokenIpv6;
+
+    ReceivedToken receivedTokenBadIp;
 
     AnonymousValidator validator;
 
@@ -49,10 +57,16 @@ public class AnonymousValidatorTest {
         validator = new AnonymousValidator();
         validator.setSupportedRealm(Arrays.asList("DDF"));
         AnonymousAuthenticationToken anonymousAuthenticationToken = new AnonymousAuthenticationToken(
-                "DDF");
+                "DDF", "127.0.0.1");
 
         AnonymousAuthenticationToken anonymousAuthenticationTokenAnyRealm = new AnonymousAuthenticationToken(
-                "*");
+                "*", "127.0.0.1");
+
+        AnonymousAuthenticationToken anonymousAuthenticationTokenIpv6 = new AnonymousAuthenticationToken(
+                "*", "0:0:0:0:0:0:0:1");
+
+        AnonymousAuthenticationToken anonymousAuthenticationTokenBadIp = new AnonymousAuthenticationToken(
+                "*", "123.abc.45.def");
 
         BinarySecurityTokenType binarySecurityTokenType = new BinarySecurityTokenType();
         binarySecurityTokenType
@@ -92,9 +106,37 @@ public class AnonymousValidatorTest {
                         "BinarySecurityToken"), BinarySecurityTokenType.class,
                 binarySecurityTokenType3);
 
+        BinarySecurityTokenType binarySecurityTokenType4 = new BinarySecurityTokenType();
+        binarySecurityTokenType4
+                .setValueType(AnonymousAuthenticationToken.ANONYMOUS_TOKEN_VALUE_TYPE);
+        binarySecurityTokenType4.setEncodingType(BSTAuthenticationToken.BASE64_ENCODING);
+        binarySecurityTokenType4.setId(AnonymousAuthenticationToken.BST_ANONYMOUS_LN);
+        binarySecurityTokenType4
+                .setValue(anonymousAuthenticationTokenIpv6.getEncodedCredentials());
+        JAXBElement<BinarySecurityTokenType> binarySecurityTokenElement4 = new JAXBElement<BinarySecurityTokenType>(
+                new QName(
+                        "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",
+                        "BinarySecurityToken"), BinarySecurityTokenType.class,
+                binarySecurityTokenType4);
+
+        BinarySecurityTokenType binarySecurityTokenType5 = new BinarySecurityTokenType();
+        binarySecurityTokenType5
+                .setValueType(AnonymousAuthenticationToken.ANONYMOUS_TOKEN_VALUE_TYPE);
+        binarySecurityTokenType5.setEncodingType(BSTAuthenticationToken.BASE64_ENCODING);
+        binarySecurityTokenType5.setId(AnonymousAuthenticationToken.BST_ANONYMOUS_LN);
+        binarySecurityTokenType5
+                .setValue(anonymousAuthenticationTokenBadIp.getEncodedCredentials());
+        JAXBElement<BinarySecurityTokenType> binarySecurityTokenElement5 = new JAXBElement<BinarySecurityTokenType>(
+                new QName(
+                        "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",
+                        "BinarySecurityToken"), BinarySecurityTokenType.class,
+                binarySecurityTokenType5);
+
         receivedToken = new ReceivedToken(binarySecurityTokenElement);
         receivedAnyRealmToken = new ReceivedToken(binarySecurityTokenElement3);
         receivedBadToken = new ReceivedToken(binarySecurityTokenElement2);
+        receivedTokenIpv6 = new ReceivedToken(binarySecurityTokenElement4);
+        receivedTokenBadIp = new ReceivedToken(binarySecurityTokenElement5);
         parameters = new TokenValidatorParameters();
         parameters.setToken(receivedToken);
     }
@@ -118,6 +160,8 @@ public class AnonymousValidatorTest {
         TokenValidatorResponse response = validator.validateToken(parameters);
 
         assertEquals(ReceivedToken.STATE.VALID, response.getToken().getState());
+
+        assertThat(response.getToken().getPrincipal(), instanceOf(AnonymousPrincipal.class));
     }
 
     @Test
@@ -127,6 +171,24 @@ public class AnonymousValidatorTest {
         TokenValidatorResponse response = validator.validateToken(params);
 
         assertEquals(ReceivedToken.STATE.VALID, response.getToken().getState());
+    }
+
+    @Test
+    public void testCanValidateIpv6Token() {
+        TokenValidatorParameters params = new TokenValidatorParameters();
+        params.setToken(receivedTokenIpv6);
+        TokenValidatorResponse response = validator.validateToken(params);
+
+        assertEquals(ReceivedToken.STATE.VALID, response.getToken().getState());
+    }
+
+    @Test
+    public void testCanValidateBadIpToken() {
+        TokenValidatorParameters params = new TokenValidatorParameters();
+        params.setToken(receivedTokenBadIp);
+        TokenValidatorResponse response = validator.validateToken(params);
+
+        assertEquals(ReceivedToken.STATE.INVALID, response.getToken().getState());
     }
 
     @Test
