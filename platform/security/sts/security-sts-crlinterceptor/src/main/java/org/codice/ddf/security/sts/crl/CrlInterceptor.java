@@ -30,7 +30,7 @@ import org.codice.ddf.security.handler.pki.CrlChecker;
  * Interceptor that checks an incoming message against a defined certification
  * revocation list (CRL).
  */
-public class CRLInterceptor extends AbstractPhaseInterceptor<Message> {
+public class CrlInterceptor extends AbstractPhaseInterceptor<Message> {
 
     private CrlChecker crlChecker;
 
@@ -38,7 +38,7 @@ public class CRLInterceptor extends AbstractPhaseInterceptor<Message> {
      * Creates a new crl interceptor. Loads in a CRL from the CRL file pointed to by
      * the encryption.properties file.
      */
-    public CRLInterceptor() {
+    public CrlInterceptor() {
         super(Phase.PRE_PROTOCOL);
         getAfter().add(SAAJInInterceptor.class.getName());
         crlChecker = new CrlChecker();
