@@ -142,10 +142,6 @@ public class ClaimsHandlerManager {
         String truststorePass = System.getProperty("javax.net.ssl.trustStorePassword");
         String keystoreLoc = System.getProperty("javax.net.ssl.keyStore");
         String keystorePass = System.getProperty("javax.net.ssl.keyStorePassword");
-        if (encryptService != null) {
-            keystorePass = encryptService.decryptValue(keystorePass);
-            truststorePass = encryptService.decryptValue(truststorePass);
-        }
 
         lo.setUseStartTLS(useTls);
         lo.addEnabledCipherSuite(System.getProperty("https.cipherSuites").split(","));
