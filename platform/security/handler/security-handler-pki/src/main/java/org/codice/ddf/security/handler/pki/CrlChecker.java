@@ -105,7 +105,7 @@ public class CrlChecker {
             LOGGER.warn(errorMsg);
             crl = null;
         } else {
-            crl = createCRL(location);
+            crl = createCrl(location);
         }
     }
 
@@ -115,7 +115,7 @@ public class CrlChecker {
      * @param location Path to the CRL file
      * @return A CRL object constructed from the given file path. Null if an error occurred while attempting to read the file.
      */
-    private CRL createCRL(String location) {
+    private CRL createCrl(String location) {
         try (FileInputStream fis = new FileInputStream(new File(location))) {
             CertificateFactory cf = CertificateFactory.getInstance("X.509");
             return cf.generateCRL(fis);
