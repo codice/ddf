@@ -178,7 +178,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         setLogLevels();
         waitForAllBundles();
         configurePDP();
-        waitForHttpEndpoint(Url.SERVICE_ROOT.getUrl() + "/catalog/query");
+        waitForHttpEndpoint(SERVICE_ROOT.getUrl() + "/catalog/query");
     }
 
     public void configurePDP() throws Exception {
@@ -199,7 +199,7 @@ public class TestSecurity extends AbstractIntegrationTest {
 
     @Test
     public void testAnonymousRestAccess() throws Exception {
-        String url = Url.SERVICE_ROOT.getUrl() + "/catalog/query?q=*";
+        String url = SERVICE_ROOT.getUrl() + "/catalog/query?q=*";
 
         //test that anonymous works and check that we get an sso token
         String cookie = when().get(url).then().log().all().assertThat().statusCode(equalTo(200))
@@ -212,13 +212,13 @@ public class TestSecurity extends AbstractIntegrationTest {
 
         //try to hit an admin restricted page and see that we are unauthorized
         given().cookie("JSESSIONID", cookie).when()
-                .get("https://localhost:" + Port.HTTPS_PORT.getPort() + "/admin/index.html").then()
+                .get(Url.SECURE_ROOT + DynamicPort.HTTPS_PORT.getPort() + "/admin/index.html").then()
                 .log().all().assertThat().statusCode(equalTo(403));
     }
 
     @Test
     public void testBasicRestAccess() throws Exception {
-        String url = Url.SERVICE_ROOT.getUrl() + "/catalog/query?q=*";
+        String url = SERVICE_ROOT.getUrl() + "/catalog/query?q=*";
 
         configureRestForBasic();
 
@@ -240,7 +240,7 @@ public class TestSecurity extends AbstractIntegrationTest {
 
         //try that admin level sso token on a restricted resource and get in... sso works!
         given().cookie("JSESSIONID", cookie).when()
-                .get("https://localhost:" + Port.HTTPS_PORT.getPort() + "/admin/index.html").then()
+                .get(Url.SECURE_ROOT + DynamicPort.HTTPS_PORT.getPort() + "/admin/index.html").then()
                 .log().all().assertThat().statusCode(equalTo(200));
     }
 
@@ -259,7 +259,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         waitForFederatedSource(OPENSEARCH_SAML_SOURCE_ID);
 
         String openSearchQuery =
-                Url.SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=" + OPENSEARCH_SAML_SOURCE_ID;
+                SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=" + OPENSEARCH_SAML_SOURCE_ID;
         given().auth().basic("admin", "admin").when().get(openSearchQuery).then().log().all()
                 .assertThat().statusCode(equalTo(200)).assertThat().body(hasXPath(
                 "//metacard/string[@name='" + Metacard.TITLE + "']/value[text()='myTitle']"));
@@ -289,12 +289,12 @@ public class TestSecurity extends AbstractIntegrationTest {
         waitForFederatedSource(CSW_SOURCE_ID);
 
         String openSearchQuery =
-                Url.SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=" + OPENSEARCH_SOURCE_ID;
+                SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=" + OPENSEARCH_SOURCE_ID;
         given().auth().basic("admin", "admin").when().get(openSearchQuery).then().log().all()
                 .assertThat().statusCode(equalTo(200)).assertThat().body(hasXPath(
                 "//metacard/string[@name='" + Metacard.TITLE + "']/value[text()='myTitle']"));
 
-        String cswQuery = Url.SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=" + CSW_SOURCE_ID;
+        String cswQuery = SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=" + CSW_SOURCE_ID;
         given().auth().basic("admin", "admin").when().get(cswQuery).then().log().all().assertThat()
                 .statusCode(equalTo(200)).assertThat().body(hasXPath(
                 "//metacard/string[@name='" + Metacard.TITLE + "']/value[text()='myTitle']"));
@@ -307,7 +307,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         createManagedService(CswSourceProperties.FACTORY_PID, cswProperties);
 
         String cswQueryUnavail =
-                Url.SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=" + unavailableCswSourceId;
+                SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=" + unavailableCswSourceId;
         given().auth().basic("admin", "admin").when().get(cswQueryUnavail).then().log().all()
                 .assertThat().statusCode(equalTo(500));
 
@@ -321,7 +321,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         waitForFederatedSource(unavailableOpenSourceId);
 
         String unavailableOpenSearchQuery =
-                Url.SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=" + unavailableOpenSourceId;
+                SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=" + unavailableOpenSourceId;
 
         given().auth().basic("admin", "admin").when().get(unavailableOpenSearchQuery).then().log()
                 .all().assertThat().statusCode(equalTo(200)).assertThat().body(not(hasXPath(
@@ -341,7 +341,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         //we are only testing anonymous because that hits the most code, testing with an assertion would be mostly testing the same stuff that this is hitting
         given().log().all().body(body).header("Content-Type", "text/xml; charset=utf-8")
                 .header("SOAPAction", "helloWorld").expect().statusCode(equalTo(200)).when()
-                .post(Url.SERVICE_ROOT.getUrl() + "/sdk/SoapService").then().log().all()
+                .post(SERVICE_ROOT.getUrl() + "/sdk/SoapService").then().log().all()
                 .assertThat().body(HasXPath
                 .hasXPath("//*[local-name()='helloWorldResponse']/result/text()",
                         containsString("Anonymous")));
@@ -359,7 +359,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         //we are only testing anonymous because that hits the most code, testing with an assertion would be mostly testing the same stuff that this is hitting
         given().log().all().body(body).header("Content-Type", "text/xml; charset=utf-8")
                 .header("SOAPAction", "helloWorld").expect().statusCode(equalTo(200)).when()
-                .post(Url.INSECURE_SERVICE_ROOT.getUrl() + "/sdk/SoapService").then().log().all()
+                .post(INSECURE_SERVICE_ROOT.getUrl() + "/sdk/SoapService").then().log().all()
                 .assertThat().body(HasXPath
                 .hasXPath("//*[local-name()='helloWorldResponse']/result/text()",
                         containsString("Anonymous")));
@@ -385,7 +385,7 @@ public class TestSecurity extends AbstractIntegrationTest {
                 .log().all().body(body).header("Content-Type", "text/xml; charset=utf-8")
                 .header("SOAPAction", "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue")
                 .expect().statusCode(equalTo(200)).when()
-                .post(Url.SERVICE_ROOT.getUrl() + "/SecurityTokenService").then().log().all()
+                .post(SERVICE_ROOT.getUrl() + "/SecurityTokenService").then().log().all()
                 .assertThat().body(HasXPath.hasXPath("//*[local-name()='Assertion']"));
     }
 
@@ -404,7 +404,7 @@ public class TestSecurity extends AbstractIntegrationTest {
                 log().all().body(body).header("Content-Type", "text/xml; charset=utf-8")
                 .header("SOAPAction", "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue")
                 .expect().statusCode(equalTo(500)).when()
-                .post(Url.SERVICE_ROOT.getUrl() + "/SecurityTokenService").then().log().all();
+                .post(SERVICE_ROOT.getUrl() + "/SecurityTokenService").then().log().all();
     }
 
     @Test
@@ -420,7 +420,7 @@ public class TestSecurity extends AbstractIntegrationTest {
                 log().all().body(body).header("Content-Type", "text/xml; charset=utf-8")
                 .header("SOAPAction", "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue")
                 .expect().statusCode(equalTo(500)).when()
-                .post(Url.SERVICE_ROOT.getUrl() + "/SecurityTokenService").then().log().all();
+                .post(SERVICE_ROOT.getUrl() + "/SecurityTokenService").then().log().all();
 
     }
 
@@ -438,7 +438,7 @@ public class TestSecurity extends AbstractIntegrationTest {
                 .log().all().body(body).header("Content-Type", "text/xml; charset=utf-8")
                 .header("SOAPAction", "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue")
                 .expect().statusCode(equalTo(200)).when()
-                .post(Url.SERVICE_ROOT.getUrl() + "/SecurityTokenService").then().log().all()
+                .post(SERVICE_ROOT.getUrl() + "/SecurityTokenService").then().log().all()
                 .assertThat().body(HasXPath.hasXPath("//*[local-name()='Assertion']"));
 
     }
@@ -457,7 +457,7 @@ public class TestSecurity extends AbstractIntegrationTest {
                 .log().all().body(body).header("Content-Type", "text/xml; charset=utf-8")
                 .header("SOAPAction", "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue")
                 .expect().statusCode(equalTo(200)).when()
-                .post(Url.SERVICE_ROOT.getUrl() + "/SecurityTokenService").then().log().all()
+                .post(SERVICE_ROOT.getUrl() + "/SecurityTokenService").then().log().all()
                 .assertThat().body(HasXPath.hasXPath("//*[local-name()='Assertion']"));
 
     }
@@ -474,7 +474,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         given().log().all().body(body).header("Content-Type", "text/xml; charset=utf-8")
                 .header("SOAPAction", "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue")
                 .expect().statusCode(equalTo(500)).when()
-                .post(Url.SERVICE_ROOT.getUrl() + "/SecurityTokenService").then().log().all();
+                .post(SERVICE_ROOT.getUrl() + "/SecurityTokenService").then().log().all();
 
     }
 
@@ -490,7 +490,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         given().log().all().body(body).header("Content-Type", "text/xml; charset=utf-8")
                 .header("SOAPAction", "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue")
                 .expect().statusCode(equalTo(500)).when()
-                .post(Url.SERVICE_ROOT.getUrl() + "/SecurityTokenService").then().log().all();
+                .post(SERVICE_ROOT.getUrl() + "/SecurityTokenService").then().log().all();
 
     }
 
@@ -509,7 +509,7 @@ public class TestSecurity extends AbstractIntegrationTest {
                 .log().all().body(body).header("Content-Type", "text/xml; charset=utf-8")
                 .header("SOAPAction", "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue")
                 .expect().statusCode(equalTo(200)).when()
-                .post(Url.SERVICE_ROOT.getUrl() + "/SecurityTokenService").then().extract()
+                .post(SERVICE_ROOT.getUrl() + "/SecurityTokenService").then().extract()
                 .response().asString();
         assertionHeader = assertionHeader.substring(assertionHeader.indexOf("<saml2:Assertion"),
                 assertionHeader.indexOf("</saml2:Assertion>") + "</saml2:Assertion>".length());
@@ -519,7 +519,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         //try that admin level assertion token on a restricted resource
         given().header(SecurityConstants.SAML_HEADER_NAME,
                 "SAML " + RestSecurity.deflateAndBase64Encode(assertionHeader)).when()
-                .get("https://localhost:" + Port.HTTPS_PORT.getPort() + "/admin/index.html").then()
+                .get(Url.SECURE_ROOT + DynamicPort.HTTPS_PORT.getPort() + "/admin/index.html").then()
                 .log().all().assertThat().statusCode(equalTo(200));
     }
 
@@ -563,7 +563,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         String commonName = "pangalactic";
         String expectedValue = "CN=" + commonName;
         String featureName = "security-certificate-generator";
-        String certGenPath = Url.SECURE_ROOT.getUrl() + Port.HTTPS_PORT.getPort()
+        String certGenPath = Url.SECURE_ROOT + DynamicPort.HTTPS_PORT.getPort()
                 + "/jolokia/exec/org.codice.ddf.security.certificate.generator.CertificateGenerator:service=certgenerator";
         getBackupKeystoreFile();
         try {
