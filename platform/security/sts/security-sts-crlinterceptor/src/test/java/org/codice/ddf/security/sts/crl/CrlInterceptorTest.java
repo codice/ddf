@@ -38,7 +38,7 @@ import org.junit.Test;
  *
  *
  */
-public class CRLInterceptorTest {
+public class CrlInterceptorTest {
 
     /**
      * Tests that the interceptor will NOT throw an error if the cert passes the CrlChecker
@@ -46,7 +46,7 @@ public class CRLInterceptorTest {
     @Test
     public void testErrorNotThrownWithPassingCert() throws CertificateException {
         Message message = createMockMessageWithCert(getTestCert());
-        CRLInterceptor crlInterceptor = getCrlInterceptorWithMockedCrl(true);
+        CrlInterceptor crlInterceptor = getCrlInterceptorWithMockedCrl(true);
 
         crlInterceptor.handleMessage(message);
     }
@@ -57,7 +57,7 @@ public class CRLInterceptorTest {
     @Test(expected = AccessDeniedException.class)
     public void testErrorThrownWithFailedCert() throws CertificateException {
         Message message = createMockMessageWithCert(getTestCert());
-        CRLInterceptor crlInterceptor = getCrlInterceptorWithMockedCrl(false);
+        CrlInterceptor crlInterceptor = getCrlInterceptorWithMockedCrl(false);
 
         crlInterceptor.handleMessage(message);
     }
@@ -65,7 +65,7 @@ public class CRLInterceptorTest {
     /**
      * Creates a mock message with a cert attached
      * @param certificateString The string of the certificate to attach
-     * @return A message object to be passed to the CRLInterceptor for testing
+     * @return A message object to be passed to the CrlInterceptor for testing
      * @throws CertificateException
      */
     private Message createMockMessageWithCert(String certificateString)
@@ -87,15 +87,15 @@ public class CRLInterceptorTest {
     }
 
     /**
-     * Creates a CRLInterceptor with a mocked CrlChecker that always returns true or false
+     * Creates a CrlInterceptor with a mocked CrlChecker that always returns true or false
      * @param returnedValue Boolean value that the mocked CrlChecker will always return
-     * @return A CRLInterceptor with a mocked CrlChecker
+     * @return A CrlInterceptor with a mocked CrlChecker
      */
-    private CRLInterceptor getCrlInterceptorWithMockedCrl(boolean returnedValue) {
+    private CrlInterceptor getCrlInterceptorWithMockedCrl(boolean returnedValue) {
         CrlChecker crlChecker = mock(CrlChecker.class);
         when(crlChecker.passesCrlCheck(anyObject())).thenReturn(returnedValue);
 
-        CRLInterceptor crlInterceptor = new CRLInterceptor();
+        CrlInterceptor crlInterceptor = new CrlInterceptor();
         crlInterceptor.setCrlChecker(crlChecker);
 
         return crlInterceptor;
