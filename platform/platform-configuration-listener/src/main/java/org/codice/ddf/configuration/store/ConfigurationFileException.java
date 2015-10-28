@@ -17,7 +17,9 @@ package org.codice.ddf.configuration.store;
 /**
  * Exception thrown when a configuration file processing error occurs.
  */
-public class ConfigurationFileException extends RuntimeException {
+public class ConfigurationFileException extends Exception {
+
+    private static final long serialVersionUID = 1L;
 
     public ConfigurationFileException(String message) {
         super(message);
