@@ -56,7 +56,7 @@ public class TestSolrCommands extends AbstractIntegrationTest {
         setLogLevels();
         waitForAllBundles();
         waitForCatalogProvider();
-        waitForHttpEndpoint(Url.SERVICE_ROOT.getUrl() + "/catalog/query");
+        waitForHttpEndpoint(SERVICE_ROOT.getUrl() + "/catalog/query");
         console = new KarafConsole(bundleCtx);
     }
 
