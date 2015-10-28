@@ -21,6 +21,8 @@ import org.opensaml.xml.validation.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ddf.security.samlp.SimpleSign;
+
 public class AuthnResponseValidator implements Validator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthnResponseValidator.class);

@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.security.idp.server;
+package org.codice.ddf.security.idp.cache;
 
 import java.util.concurrent.TimeUnit;
 

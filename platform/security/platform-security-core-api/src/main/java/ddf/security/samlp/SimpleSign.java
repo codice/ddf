@@ -29,7 +29,6 @@ import javax.ws.rs.core.UriBuilder;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.cxf.rs.security.saml.sso.SSOConstants;
-import org.apache.wss4j.common.crypto.Crypto;
 import org.apache.wss4j.common.crypto.CryptoType;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
@@ -43,6 +42,7 @@ import org.apache.wss4j.dom.validate.Credential;
 import org.apache.wss4j.dom.validate.SignatureTrustValidator;
 import org.apache.wss4j.dom.validate.Validator;
 import org.opensaml.common.SignableSAMLObject;
+import org.opensaml.common.impl.SAMLObjectContentReference;
 import org.opensaml.saml2.core.Assertion;
 import org.opensaml.saml2.core.Response;
 import org.opensaml.security.SAMLSignatureProfileValidator;
@@ -61,42 +61,17 @@ public class SimpleSign {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SimpleSign.class);
 
-    public static void signSamlObject(SignableSAMLObject samlObject, Crypto signatureCrypto,
-            String signatureUser, String signaturePassword) throws SignatureException {
-        if (signatureCrypto == null) {
-            throw new IllegalArgumentException("Null crypto object is not allowed.");
-        }
-        if (signatureUser == null) {
-            throw new IllegalArgumentException("Null signature user is not allowed.");
-        }
+    private final SystemCrypto crypto;
 
-        CryptoType cryptoType = new CryptoType(CryptoType.TYPE.ALIAS);
-        cryptoType.setAlias(signatureUser);
-        X509Certificate[] issuerCerts;
-        try {
-            issuerCerts = signatureCrypto.getX509Certificates(cryptoType);
-        } catch (WSSecurityException e) {
-            throw new SignatureException(e);
-        }
-        if (issuerCerts == null) {
-            throw new SignatureException(
-                    "No issuer certs were found to sign the request using name: " + signatureUser);
-        }
+    public SimpleSign(SystemCrypto systemCrypto) {
+        crypto = systemCrypto;
+    }
 
-        String sigAlgo = SSOConstants.RSA_SHA1;
-        String pubKeyAlgo = issuerCerts[0].getPublicKey().getAlgorithm();
-        if (pubKeyAlgo.equalsIgnoreCase("DSA")) {
-            sigAlgo = SSOConstants.DSA_SHA1;
-        }
-        LOGGER.debug("Using Signature algorithm {}", sigAlgo);
+    public void signSamlObject(SignableSAMLObject samlObject) throws SignatureException {
 
-        // Get the private key
-        PrivateKey privateKey;
-        try {
-            privateKey = signatureCrypto.getPrivateKey(signatureUser, signaturePassword);
-        } catch (WSSecurityException e) {
-            throw new SignatureException(e);
-        }
+        X509Certificate[] certificates = getSignatureCertificates();
+        String sigAlgo = getSignatureAlgorithm(certificates[0]);
+        PrivateKey privateKey = getSignaturePrivateKey();
 
         // Create the signature
         Signature signature = OpenSAMLUtil.buildSignature();
@@ -104,7 +79,7 @@ public class SimpleSign {
         signature.setSignatureAlgorithm(sigAlgo);
 
         BasicX509Credential signingCredential = new BasicX509Credential();
-        signingCredential.setEntityCertificate(issuerCerts[0]);
+        signingCredential.setEntityCertificate(certificates[0]);
         signingCredential.setPrivateKey(privateKey);
 
         signature.setSigningCredential(signingCredential);
@@ -127,48 +102,56 @@ public class SimpleSign {
         }
 
         samlObject.setSignature(signature);
+        SAMLObjectContentReference contentRef =
+                (SAMLObjectContentReference)signature.getContentReferences().get(0);
+        contentRef.setDigestAlgorithm(SignatureConstants.ALGO_ID_DIGEST_SHA1);
         samlObject.releaseDOM();
         samlObject.releaseChildrenDOM(true);
     }
 
-    public static void signUriString(String stringToSign, UriBuilder uriBuilder,
-            Crypto signatureCrypto, String signatureUser, String signaturePassword)
+    public void signUriString(String queryParams, UriBuilder uriBuilder)
             throws SignatureException {
-        if (signatureCrypto == null) {
-            throw new IllegalArgumentException("Null crypto object is not allowed.");
-        }
-        if (signatureUser == null) {
-            throw new IllegalArgumentException("Null signature user is not allowed.");
-        }
+        X509Certificate[] certificates = getSignatureCertificates();
+        String sigAlgo = getSignatureAlgorithm(certificates[0]);
+        PrivateKey privateKey = getSignaturePrivateKey();
+        java.security.Signature signature = getSignature(certificates[0], privateKey);
 
-        CryptoType cryptoType = new CryptoType(CryptoType.TYPE.ALIAS);
-        cryptoType.setAlias(signatureUser);
-        X509Certificate[] issuerCerts;
+        String requestToSign;
         try {
-            issuerCerts = signatureCrypto.getX509Certificates(cryptoType);
-        } catch (WSSecurityException e) {
+            requestToSign = queryParams + "&" + SSOConstants.SIG_ALG + "=" + URLEncoder
+                    .encode(sigAlgo, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
             throw new SignatureException(e);
         }
-        if (issuerCerts == null) {
-            throw new SignatureException(
-                    "No issuer certs were found to sign the request using name: " + signatureUser);
+
+        try {
+            signature.update(requestToSign.getBytes("UTF-8"));
+        } catch (java.security.SignatureException | UnsupportedEncodingException e) {
+            throw new SignatureException(e);
         }
 
-        String sigAlgo = SSOConstants.RSA_SHA1;
-        String pubKeyAlgo = issuerCerts[0].getPublicKey().getAlgorithm();
+        byte[] signatureBytes;
+        try {
+            signatureBytes = signature.sign();
+        } catch (java.security.SignatureException e) {
+            throw new SignatureException(e);
+        }
+
+        try {
+            uriBuilder.queryParam(SSOConstants.SIG_ALG, URLEncoder.encode(sigAlgo, "UTF-8"));
+            uriBuilder.queryParam(SSOConstants.SIGNATURE,
+                    URLEncoder.encode(Base64.encodeBase64String(signatureBytes), "UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            throw new SignatureException(e);
+        }
+
+    }
+
+    private java.security.Signature getSignature(X509Certificate certificate, PrivateKey privateKey)
+            throws SignatureException {
         String jceSigAlgo = "SHA1withRSA";
-        if (pubKeyAlgo.equalsIgnoreCase("DSA")) {
-            sigAlgo = SSOConstants.DSA_SHA1;
+        if ("DSA".equalsIgnoreCase(certificate.getPublicKey().getAlgorithm())) {
             jceSigAlgo = "SHA1withDSA";
-        }
-        LOGGER.debug("Using Signature algorithm {}", sigAlgo);
-
-        // Get the private key
-        PrivateKey privateKey;
-        try {
-            privateKey = signatureCrypto.getPrivateKey(signatureUser, signaturePassword);
-        } catch (WSSecurityException e) {
-            throw new SignatureException(e);
         }
 
         java.security.Signature signature;
@@ -182,36 +165,52 @@ public class SimpleSign {
         } catch (InvalidKeyException e) {
             throw new SignatureException(e);
         }
-
-        String requestToSign;
-        try {
-            requestToSign = stringToSign + "&" + SSOConstants.SIG_ALG + "=" + URLEncoder
-                    .encode(sigAlgo, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            throw new SignatureException(e);
-        }
-
-        try {
-            signature.update(requestToSign.getBytes("UTF-8"));
-        } catch (java.security.SignatureException | UnsupportedEncodingException e) {
-            throw new SignatureException(e);
-        }
-        byte[] signatureBytes;
-        try {
-            signatureBytes = signature.sign();
-        } catch (java.security.SignatureException e) {
-            throw new SignatureException(e);
-        }
-        try {
-            uriBuilder.queryParam(SSOConstants.SIG_ALG, URLEncoder.encode(sigAlgo, "UTF-8"));
-            uriBuilder.queryParam(SSOConstants.SIGNATURE,
-                    URLEncoder.encode(Base64.encodeBase64String(signatureBytes), "UTF-8"));
-        } catch (UnsupportedEncodingException e) {
-            throw new SignatureException(e);
-        }
+        return signature;
     }
 
-    public static boolean validateSignature(String queryParams, String encodedSignature,
+    private String getSignatureAlgorithm(X509Certificate certificate) {
+        String sigAlgo = SSOConstants.RSA_SHA1;
+        String pubKeyAlgo = certificate.getPublicKey().getAlgorithm();
+
+        if (pubKeyAlgo.equalsIgnoreCase("DSA")) {
+            sigAlgo = SSOConstants.DSA_SHA1;
+        }
+
+        LOGGER.debug("Using Signature algorithm {}", sigAlgo);
+
+        return sigAlgo;
+    }
+
+    private X509Certificate[] getSignatureCertificates() throws SignatureException {
+        CryptoType cryptoType = new CryptoType(CryptoType.TYPE.ALIAS);
+        cryptoType.setAlias(crypto.getSignatureAlias());
+        X509Certificate[] issuerCerts;
+
+        try {
+            issuerCerts = crypto.getSignatureCrypto().getX509Certificates(cryptoType);
+        } catch (WSSecurityException e) {
+            throw new SignatureException(e);
+        }
+
+        if (issuerCerts == null) {
+            throw new SignatureException("No certs were found to sign the request using name: " + crypto.getSignatureAlias());
+        }
+
+        return issuerCerts;
+    }
+
+    private PrivateKey getSignaturePrivateKey() throws SignatureException {
+        PrivateKey privateKey;
+        try {
+            privateKey = crypto.getSignatureCrypto().getPrivateKey(crypto.getSignatureAlias(),
+                    crypto.getSignaturePassword());
+        } catch (WSSecurityException e) {
+            throw new SignatureException(e);
+        }
+        return privateKey;
+    }
+
+    public boolean validateSignature(String queryParamsToValidate, String encodedSignature,
             String encodedPublicKey) throws SignatureException {
         try {
             CertificateFactory certificateFactory = CertificateFactory.getInstance("X509");
@@ -225,17 +224,17 @@ public class SimpleSign {
 
             java.security.Signature sig = java.security.Signature.getInstance(jceSigAlgo);
             sig.initVerify(certificate.getPublicKey());
-            sig.update(queryParams.getBytes("UTF-8"));
+            sig.update(queryParamsToValidate.getBytes("UTF-8"));
             return sig.verify(Base64.decodeBase64(encodedSignature));
-        } catch (NoSuchAlgorithmException | InvalidKeyException | CertificateException | UnsupportedEncodingException | java.security.SignatureException e) {
+        } catch (NoSuchAlgorithmException | InvalidKeyException | CertificateException | UnsupportedEncodingException
+                | java.security.SignatureException e) {
             throw new SignatureException(e);
         }
     }
 
-    public static void validateSignature(Signature signature, Document doc, Crypto sigCrypto)
-            throws SignatureException {
+    public void validateSignature(Signature signature, Document doc) throws SignatureException {
         RequestData requestData = new RequestData();
-        requestData.setSigVerCrypto(sigCrypto);
+        requestData.setSigVerCrypto(crypto.getSignatureCrypto());
         WSSConfig wssConfig = WSSConfig.getNewInstance();
         requestData.setWssConfig(wssConfig);
 
@@ -245,7 +244,8 @@ public class SimpleSign {
         if (keyInfo != null) {
             try {
                 samlKeyInfo = SAMLUtil.getCredentialFromKeyInfo(keyInfo.getDOM(),
-                        new WSSSAMLKeyInfoProcessor(requestData, new WSDocInfo(doc)), sigCrypto);
+                        new WSSSAMLKeyInfoProcessor(requestData, new WSDocInfo(doc)),
+                        crypto.getSignatureCrypto());
             } catch (WSSecurityException e) {
                 throw new SignatureException("Unable to get KeyInfo.", e);
             }
@@ -268,8 +268,7 @@ public class SimpleSign {
         }
     }
 
-    private static void validateSignatureAndSamlKey(Signature signature, SAMLKeyInfo samlKeyInfo)
-            throws SignatureException {
+    private void validateSignatureAndSamlKey(Signature signature, SAMLKeyInfo samlKeyInfo) throws SignatureException {
         SAMLSignatureProfileValidator validator = new SAMLSignatureProfileValidator();
         try {
             validator.validate(signature);
@@ -283,8 +282,7 @@ public class SimpleSign {
         } else if (samlKeyInfo.getPublicKey() != null) {
             credential.setPublicKey(samlKeyInfo.getPublicKey());
         } else {
-            throw new SignatureException(
-                    "Can't get X509Certificate or PublicKey to verify signature.");
+            throw new SignatureException("Can't get X509Certificate or PublicKey to verify signature.");
         }
         SignatureValidator sigValidator = new SignatureValidator(credential);
         try {

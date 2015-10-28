@@ -36,6 +36,30 @@ public interface Idp {
 
     String AUTH_METHOD = "AuthMethod";
 
+    String ACS_URL = "ACSURL";
+
+    String SAML_RESPONSE = "SAMLResponse";
+
+    String IDP_STATE_OBJ = "IDP_STATE_OBJ";
+
+    String PKI = "pki";
+
+    String GUEST = "guest";
+
+    String USER_PASS = "up";
+
+    String HTTP_POST_BINDING = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST";
+
+    String SAML_SOAP_BINDING = "urn:oasis:names:tc:SAML:2.0:bindings:SOAP";
+
+    String PAOS_BINDING = "urn:oasis:names:tc:SAML:2.0:bindings:PAOS";
+
+    String HTTP_REDIRECT_BINDING = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect";
+
+    String HTTP_ARTIFACT_BINDING = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact";
+
+    String COOKIE = "org.codice.ddf.security.idp.session";
+
     @POST
     Response showPostLogin(@FormParam(SAML_REQ) String samlRequest,
             @FormParam(RELAY_STATE) String relayState, @Context HttpServletRequest request)

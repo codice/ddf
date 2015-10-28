@@ -67,6 +67,8 @@ import org.w3c.dom.Document;
 
 import ddf.security.http.SessionFactory;
 import ddf.security.samlp.SamlProtocol;
+import ddf.security.samlp.SimpleSign;
+import ddf.security.samlp.SystemCrypto;
 
 @Path("sso")
 public class AssertionConsumerService {
