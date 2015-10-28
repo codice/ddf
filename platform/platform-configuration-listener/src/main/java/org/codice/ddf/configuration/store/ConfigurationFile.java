@@ -14,16 +14,12 @@
 
 package org.codice.ddf.configuration.store;
 
-import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Dictionary;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.io.Files;
 
 public abstract class ConfigurationFile {
 
@@ -33,30 +29,11 @@ public abstract class ConfigurationFile {
 
     protected ConfigurationAdmin configAdmin;
 
-    protected Path configFile;
+    protected Path configFilePath;
 
-    protected Path processedDirectory;
-
-    protected Path failedDirectory;
-
-    protected void processed() throws IOException {
-        Files.move(configFile.toFile().getCanonicalFile(), processedDirectory.resolve(configFile.getFileName()).toFile().getCanonicalFile());
+    public Path getConfigFilePath() {
+        return configFilePath;
     }
-
-    protected void failed() {
-        File source = null;
-        File destination = null;
-        try {
-            source = configFile.toFile().getCanonicalFile();
-            destination = failedDirectory.resolve(configFile.getFileName())
-                    .toFile().getCanonicalFile();
-            LOGGER.debug("Moving [{}] to [{}].", source, destination);
-            Files.move(source, destination);
-        } catch (IOException e) {
-            LOGGER.error("Unable to move file [{}] to the failed directory [{}].", source,
-                    destination, e);
-        }
-    }
-
-    public abstract void createConfig();
+    
+    public abstract void createConfig() throws ConfigurationFileException;
 }

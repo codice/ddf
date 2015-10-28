@@ -33,35 +33,32 @@ public class ConfigurationFileFactory {
 
     private PersistenceStrategy pesistenceStrategy;
 
-    private Path processedDirectory;
-
-    private Path failedDirectory;
-
     private ConfigurationAdmin configAdmin;
 
     public ConfigurationFileFactory(PersistenceStrategy pesistenceStrategy,
-            Path processedDirectory, Path failedDirectory, ConfigurationAdmin configAdmin) {
+            ConfigurationAdmin configAdmin) {
         this.pesistenceStrategy = pesistenceStrategy;
-        this.processedDirectory = processedDirectory;
-        this.failedDirectory = failedDirectory;
         this.configAdmin = configAdmin;
     }
 
-    public ConfigurationFile createConfigurationFile(Path configurationFile) throws IOException {
-        Dictionary<String, Object> properties = pesistenceStrategy
-                .read(getInputStream(configurationFile));
+    public ConfigurationFile createConfigurationFile(Path configurationFile)
+        throws ConfigurationFileException {
+        Dictionary<String, Object> properties = read(configurationFile);
         if (isManagedServiceFactoryConfiguration(properties)) {
-            return new ManagedServiceFactoryConfigurationFile(configurationFile,
-                    processedDirectory, failedDirectory, properties, configAdmin);
+            return new ManagedServiceFactoryConfigurationFile(configurationFile, properties,
+                    configAdmin);
         } else if (isManagedServiceConfiguration(properties)) {
-            return new ManagedServiceConfigurationFile(configurationFile, processedDirectory,
-                    failedDirectory, properties, configAdmin);
+            return new ManagedServiceConfigurationFile(configurationFile, properties, configAdmin);
         } else {
             LOGGER.error(
                     "Unable to determine type of configuration. Unable to find property [{}] or property [{}] in [{}].",
                     Constants.SERVICE_PID, ConfigurationAdmin.SERVICE_FACTORYPID,
                     configurationFile.toString());
-            return null;
+            throw new ConfigurationFileException(
+                    "Unable to determine type of configuration. Unable to find property ["
+                            + Constants.SERVICE_PID + "] or property ["
+                            + ConfigurationAdmin.SERVICE_FACTORYPID + "] in ["
+                            + configurationFile.toString() + "].");
         }
     }
 
@@ -77,5 +74,17 @@ public class ConfigurationFileFactory {
 
     private InputStream getInputStream(Path path) throws FileNotFoundException {
         return new FileInputStream(path.toFile());
+    }
+
+    private Dictionary<String, Object> read(Path configurationFile)
+        throws ConfigurationFileException {
+        Dictionary<String, Object> properties = null;
+        try {
+            properties = pesistenceStrategy.read(getInputStream(configurationFile));
+        } catch (IOException e) {
+            throw new ConfigurationFileException("Unable to read configuration file ["
+                    + configurationFile.toString() + "].", e);
+        }
+        return properties;
     }
 }
