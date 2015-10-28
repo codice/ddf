@@ -164,7 +164,7 @@
         <property name="tokenStore" ref="defaultTokenStore"/>
     </bean>
 
-    <bean id="crlInterceptor" class="org.codice.ddf.security.sts.crl.CRLInterceptor">
+    <bean id="crlInterceptor" class="org.codice.ddf.security.sts.crl.CrlInterceptor">
     </bean>
 
     <bean id="SubjectDNConstraintsInterceptor"
