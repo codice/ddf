@@ -446,7 +446,7 @@ which is short for "list all." 
 
 [WARNING]
 ====
-Since the kernel does not include all apps, if you were to do a "`list`" instead of "`la`," no results would be returned at this point. 
+Since the kernel does not include all apps, if you were to do a "`list`" instead of "`la`," no results would be returned at this point.
 ====
 . Verify that all bundles are `Active`. 
 . Deploy the Embedded LDAP app by copying the `ldap-embedded-app-<VERSION>.kar` file into the `<DISTRIBUTION_HOME>/deploy` directory. You can verify that theLDAP server is installed by checking the DDF log or by performing an `la` and verifying that the OpenDJ bundle is in the Active state. Additionally, it should be responding to LDAP requests on the default ports, 1389 and 1636.
@@ -1013,11 +1013,18 @@ This allows one to select which STS address will be used (e.g. in SOAP sources) 
 
 === Security STS LDAP Claims Handler
 
-The DDF Security STS LDAP Claims Handler bundle adds functionality to the STS server that allows it to retrieve claims from an LDAP server. It also adds mappings for the LDAP attributes to the STS SAML claims.
+The DDF Security STS LDAP Claims Handler bundle adds functionality to the STS server that allows it to retrieve claims from an LDAP server.
+It also adds mappings for the LDAP attributes to the STS SAML claims.
+
+[NOTE]
+====
+All claims handlers are queried for user attributes regardless of realm.
+This means that two different users with the same username in different LDAP servers will end up with both of their claims in each of their individual assertions.
+====
 
 ==== Installation
 
-This bundle is not installed by default and can be added by installing the 
+This bundle is not installed by default and can be added by installing the
 `security-sts-server`
  feature.
 
