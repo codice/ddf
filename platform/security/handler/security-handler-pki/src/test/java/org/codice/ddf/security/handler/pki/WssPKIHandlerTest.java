@@ -11,9 +11,13 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.security.sts.crl;
+package org.codice.ddf.security.handler.pki;
 
-import static org.mockito.Matchers.anyObject;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -23,89 +27,80 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
-import org.apache.cxf.interceptor.security.AccessDeniedException;
-import org.apache.cxf.message.Message;
-import org.apache.cxf.transport.http.AbstractHTTPDestination;
-import org.codice.ddf.security.handler.pki.CrlChecker;
+import org.codice.ddf.security.handler.api.HandlerResult;
+import org.codice.ddf.security.handler.api.PKIAuthenticationTokenFactory;
 import org.jasypt.contrib.org.apache.commons.codec_1_3.binary.Base64;
 import org.junit.Test;
 
-/**
- * Tests the CRL Interceptor by using use cases where a certificate gets revoked
- * or passes.
- *
- *
- */
-public class CRLInterceptorTest {
+public class WssPKIHandlerTest {
 
     /**
-     * Tests that the interceptor will NOT throw an error if the cert passes the CrlChecker
+     * This test ensures the proper functionality of WssHandler's method,
+     * getNormalizedToken(), when given a valid HTTPServletRequest.
      */
     @Test
-    public void testErrorNotThrownWithPassingCert() throws CertificateException {
-        Message message = createMockMessageWithCert(getTestCert());
-        CRLInterceptor crlInterceptor = getCrlInterceptorWithMockedCrl(true);
+    public void testGetNormalizedTokenSuccessNoCrlPki()
+            throws java.security.cert.CertificateException, ServletException {
+        WssPKIHandler handler = getWssHandlerWithMockedCrl("signature.properties", true);
 
-        crlInterceptor.handleMessage(message);
-    }
-
-    /**
-     * Tests that the interceptor will throw an error if the cert fails the CrlChecker
-     */
-    @Test(expected = AccessDeniedException.class)
-    public void testErrorThrownWithFailedCert() throws CertificateException {
-        Message message = createMockMessageWithCert(getTestCert());
-        CRLInterceptor crlInterceptor = getCrlInterceptorWithMockedCrl(false);
-
-        crlInterceptor.handleMessage(message);
-    }
-
-    /**
-     * Creates a mock message with a cert attached
-     * @param certificateString The string of the certificate to attach
-     * @return A message object to be passed to the CRLInterceptor for testing
-     * @throws CertificateException
-     */
-    private Message createMockMessageWithCert(String certificateString)
-            throws CertificateException {
-        // create mock objects
-        Message message = mock(Message.class);
         HttpServletRequest request = mock(HttpServletRequest.class);
-        when(message.get(AbstractHTTPDestination.HTTP_REQUEST)).thenReturn(request);
+        HttpServletResponse response = mock(HttpServletResponse.class);
+        FilterChain chain = mock(FilterChain.class);
 
-        // add in certificate
+        when(request.getAttribute(("javax.servlet.request.X509Certificate")))
+                .thenReturn(getTestCerts());
+
+        /**
+         * Note that the getNormalizedToken() method for PKI handlers do not
+         * use the resolve tag.
+         */
+        HandlerResult result = null;
+        result = handler.getNormalizedToken(request, response, chain, true);
+
+        assertThat(result, is(notNullValue()));
+        assertThat(result.getStatus(), equalTo(HandlerResult.Status.COMPLETED));
+    }
+
+    /**
+     * Creates a WssPKIHandler with a mocked CrlChecker that always returns true or false
+     *
+     * @param returnedValue Boolean value that the mocked CrlChecker will always return
+     * @return A WssPKIHandler with a mocked CrlChecker
+     */
+    private WssPKIHandler getWssHandlerWithMockedCrl(String signatureProperties,
+            boolean returnedValue) {
+        WssPKIHandler handler = new WssPKIHandler();
+        PKIAuthenticationTokenFactory tokenFactory = new PKIAuthenticationTokenFactory();
+        tokenFactory.setSignaturePropertiesPath(signatureProperties);
+        tokenFactory.init();
+        handler.setTokenFactory(tokenFactory);
+
+        CrlChecker crlChecker = mock(CrlChecker.class);
+        when(crlChecker.passesCrlCheck(any())).thenReturn(returnedValue);
+        handler.crlChecker = crlChecker;
+
+        return handler;
+    }
+
+    private X509Certificate[] getTestCerts() throws CertificateException {
+        String certificateString = getTestCertString();
+
         InputStream stream = new ByteArrayInputStream(
                 Base64.decodeBase64(certificateString.getBytes()));
         CertificateFactory factory = CertificateFactory.getInstance("X.509");
         X509Certificate cert = (X509Certificate) factory.generateCertificate(stream);
-        X509Certificate[] certs = new X509Certificate[] {cert};
-        when(request.getAttribute(("javax.servlet.request.X509Certificate"))).thenReturn(certs);
+        X509Certificate[] certs = new X509Certificate[1];
+        certs[0] = cert;
 
-        return message;
+        return certs;
     }
 
-    /**
-     * Creates a CRLInterceptor with a mocked CrlChecker that always returns true or false
-     * @param returnedValue Boolean value that the mocked CrlChecker will always return
-     * @return A CRLInterceptor with a mocked CrlChecker
-     */
-    private CRLInterceptor getCrlInterceptorWithMockedCrl(boolean returnedValue) {
-        CrlChecker crlChecker = mock(CrlChecker.class);
-        when(crlChecker.passesCrlCheck(anyObject())).thenReturn(returnedValue);
-
-        CRLInterceptor crlInterceptor = new CRLInterceptor();
-        crlInterceptor.setCrlChecker(crlChecker);
-
-        return crlInterceptor;
-    }
-
-    /**
-     * Returns a valid cert string
-     * @return Cert String
-     */
-    private String getTestCert() {
+    private String getTestCertString() {
         String certificateString =
                 "MIIDEzCCAnygAwIBAgIJAIzc4FYrIp9mMA0GCSqGSIb3DQEBBQUAMHcxCzAJBgNV\n"
                         + "BAYTAlVTMQswCQYDVQQIDAJBWjEMMAoGA1UECgwDRERGMQwwCgYDVQQLDANEZXYx\n"
@@ -127,3 +122,4 @@ public class CRLInterceptorTest {
         return certificateString;
     }
 }
+
