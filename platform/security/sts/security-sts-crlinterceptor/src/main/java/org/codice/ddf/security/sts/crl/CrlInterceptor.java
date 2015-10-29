@@ -38,10 +38,10 @@ public class CrlInterceptor extends AbstractPhaseInterceptor<Message> {
      * Creates a new crl interceptor. Loads in a CRL from the CRL file pointed to by
      * the encryption.properties file.
      */
-    public CrlInterceptor() {
+    public CrlInterceptor(CrlChecker crlChecker) {
         super(Phase.PRE_PROTOCOL);
         getAfter().add(SAAJInInterceptor.class.getName());
-        crlChecker = new CrlChecker();
+        this.crlChecker = crlChecker;
     }
 
     @Override
@@ -56,13 +56,4 @@ public class CrlInterceptor extends AbstractPhaseInterceptor<Message> {
                     "Cannot complete request, certificate was revoked by CRL.");
         }
     }
-
-    /**
-     * Overwrite the CrlChecker set in the constructor. For unit testing.
-     * @param crlChecker Fully configured crlChecker to inject.
-     */
-    void setCrlChecker(CrlChecker crlChecker) {
-        this.crlChecker = crlChecker;
-    }
-
 }

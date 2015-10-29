@@ -95,8 +95,7 @@ public class CrlInterceptorTest {
         CrlChecker crlChecker = mock(CrlChecker.class);
         when(crlChecker.passesCrlCheck(anyObject())).thenReturn(returnedValue);
 
-        CrlInterceptor crlInterceptor = new CrlInterceptor();
-        crlInterceptor.setCrlChecker(crlChecker);
+        CrlInterceptor crlInterceptor = new CrlInterceptor(crlChecker);
 
         return crlInterceptor;
     }
