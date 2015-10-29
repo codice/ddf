@@ -19,6 +19,8 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
@@ -64,6 +66,8 @@ public class PKIHandlerTest {
 
         assertThat(result, is(notNullValue()));
         assertThat(result.getStatus(), equalTo(HandlerResult.Status.COMPLETED));
+
+        verify(handler.crlChecker).passesCrlCheck(getTestCerts());
     }
 
     /**
@@ -90,6 +94,9 @@ public class PKIHandlerTest {
 
         assertThat(result, is(notNullValue()));
         assertThat(result.getStatus(), equalTo(HandlerResult.Status.NO_ACTION));
+
+        verify(handler.crlChecker, never()).passesCrlCheck(getTestCerts());
+
     }
 
     /**
@@ -107,6 +114,7 @@ public class PKIHandlerTest {
         when(request.getAttribute(("javax.servlet.request.X509Certificate")))
                 .thenReturn(getTestCerts());
 
+        // should throw ServletException from the CrlChecker failing
         handler.getNormalizedToken(request, response, chain, true);
     }
 
@@ -129,10 +137,12 @@ public class PKIHandlerTest {
 
         HandlerResult result = handler.getNormalizedToken(httpRequest, httpResponse, chain, true);
         assertThat(result.getStatus(), equalTo(HandlerResult.Status.NO_ACTION));
+
+        verify(handler.crlChecker, never()).passesCrlCheck(getTestCerts());
     }
 
     /**
-     * Tests that the request is set to COMPLETED when CRL is not set (not enabled)
+     * Tests Error Handling
      *
      * @throws java.security.cert.CertificateException
      * @throws ServletException

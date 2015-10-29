@@ -165,11 +165,13 @@
     </bean>
 
     <bean id="crlInterceptor" class="org.codice.ddf.security.sts.crl.CrlInterceptor">
+        <argument>
+            <bean class="org.codice.ddf.security.handler.pki.CrlChecker"></bean>
+        </argument>
     </bean>
 
     <bean id="SubjectDNConstraintsInterceptor"
           class="ddf.security.sts.SubjectDNConstraintsInterceptor">
-
     </bean>
 
     <bean id="service"

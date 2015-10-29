@@ -42,7 +42,6 @@ public class CrlCheckerTest {
         certificateString = getUnrevokedCert();
         certs = extractX509CertsFromString(certificateString);
         assertThat(crlChecker.passesCrlCheck(certs), equalTo(true));
-
     }
 
     @Test
@@ -84,12 +83,39 @@ public class CrlCheckerTest {
     }
 
     @Test
-    public void testEnabledCrlFileNoCertsGivenPasses() throws CertificateException {
+    public void testEnabledCrlFileNullCertsPass() throws CertificateException {
 
         CrlChecker crlChecker = getConfiguredCrlChecker("encryption-crl-revoked.properties");
 
-        // Unrevoked cert
+        // Null cert
         X509Certificate[] certs = null;
+        assertThat(crlChecker.passesCrlCheck(certs), equalTo(true));
+    }
+
+    @Test
+    public void testEnabledCrlFileEmptyCertsPass() throws CertificateException {
+
+        CrlChecker crlChecker = getConfiguredCrlChecker("encryption-crl-revoked.properties");
+
+        // Empty cert
+        X509Certificate[] certs = new X509Certificate[0];
+        assertThat(crlChecker.passesCrlCheck(certs), equalTo(true));
+    }
+
+    @Test
+    public void testGetPropertiesFailsBothCertsPass() throws CertificateException {
+
+        // should be unable to read default location during unit testing
+        CrlChecker crlChecker = new CrlChecker();
+
+        // First cert
+        String certificateString = getRevokedCert();
+        X509Certificate[] certs = extractX509CertsFromString(certificateString);
+        assertThat(crlChecker.passesCrlCheck(certs), equalTo(true));
+
+        // Second cert
+        certificateString = getUnrevokedCert();
+        certs = extractX509CertsFromString(certificateString);
         assertThat(crlChecker.passesCrlCheck(certs), equalTo(true));
     }
 

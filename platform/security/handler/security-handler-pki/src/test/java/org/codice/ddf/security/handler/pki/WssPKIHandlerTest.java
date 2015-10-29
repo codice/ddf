@@ -19,6 +19,7 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
@@ -64,6 +65,8 @@ public class WssPKIHandlerTest {
 
         assertThat(result, is(notNullValue()));
         assertThat(result.getStatus(), equalTo(HandlerResult.Status.COMPLETED));
+
+        verify(handler.crlChecker).passesCrlCheck(getTestCerts());
     }
 
     /**

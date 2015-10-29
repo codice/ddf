@@ -15,6 +15,7 @@ package org.codice.ddf.security.sts.crl;
 
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
@@ -35,8 +36,6 @@ import org.junit.Test;
 /**
  * Tests the CRL Interceptor by using use cases where a certificate gets revoked
  * or passes.
- *
- *
  */
 public class CrlInterceptorTest {
 
@@ -45,10 +44,14 @@ public class CrlInterceptorTest {
      */
     @Test
     public void testErrorNotThrownWithPassingCert() throws CertificateException {
-        Message message = createMockMessageWithCert(getTestCert());
-        CrlInterceptor crlInterceptor = getCrlInterceptorWithMockedCrl(true);
+        Message message = createMockMessageWithCert(getTestCertString());
+
+        CrlChecker crlChecker = mock(CrlChecker.class);
+        when(crlChecker.passesCrlCheck(anyObject())).thenReturn(true);
+        CrlInterceptor crlInterceptor = new CrlInterceptor(crlChecker);
 
         crlInterceptor.handleMessage(message);
+        verify(crlChecker).passesCrlCheck(getTestCerts());
     }
 
     /**
@@ -56,14 +59,19 @@ public class CrlInterceptorTest {
      */
     @Test(expected = AccessDeniedException.class)
     public void testErrorThrownWithFailedCert() throws CertificateException {
-        Message message = createMockMessageWithCert(getTestCert());
-        CrlInterceptor crlInterceptor = getCrlInterceptorWithMockedCrl(false);
+        Message message = createMockMessageWithCert(getTestCertString());
+
+        CrlChecker crlChecker = mock(CrlChecker.class);
+        when(crlChecker.passesCrlCheck(anyObject())).thenReturn(false);
+        CrlInterceptor crlInterceptor = new CrlInterceptor(crlChecker);
 
         crlInterceptor.handleMessage(message);
+        verify(crlChecker).passesCrlCheck(getTestCerts());
     }
 
     /**
      * Creates a mock message with a cert attached
+     *
      * @param certificateString The string of the certificate to attach
      * @return A message object to be passed to the CrlInterceptor for testing
      * @throws CertificateException
@@ -86,26 +94,25 @@ public class CrlInterceptorTest {
         return message;
     }
 
-    /**
-     * Creates a CrlInterceptor with a mocked CrlChecker that always returns true or false
-     * @param returnedValue Boolean value that the mocked CrlChecker will always return
-     * @return A CrlInterceptor with a mocked CrlChecker
-     */
-    private CrlInterceptor getCrlInterceptorWithMockedCrl(boolean returnedValue) {
-        CrlChecker crlChecker = mock(CrlChecker.class);
-        when(crlChecker.passesCrlCheck(anyObject())).thenReturn(returnedValue);
+    private X509Certificate[] getTestCerts() throws CertificateException {
+        String certificateString = getTestCertString();
 
-        CrlInterceptor crlInterceptor = new CrlInterceptor();
-        crlInterceptor.setCrlChecker(crlChecker);
+        InputStream stream = new ByteArrayInputStream(
+                Base64.decodeBase64(certificateString.getBytes()));
+        CertificateFactory factory = CertificateFactory.getInstance("X.509");
+        X509Certificate cert = (X509Certificate) factory.generateCertificate(stream);
+        X509Certificate[] certs = new X509Certificate[1];
+        certs[0] = cert;
 
-        return crlInterceptor;
+        return certs;
     }
 
     /**
      * Returns a valid cert string
+     *
      * @return Cert String
      */
-    private String getTestCert() {
+    private String getTestCertString() {
         String certificateString =
                 "MIIDEzCCAnygAwIBAgIJAIzc4FYrIp9mMA0GCSqGSIb3DQEBBQUAMHcxCzAJBgNV\n"
                         + "BAYTAlVTMQswCQYDVQQIDAJBWjEMMAoGA1UECgwDRERGMQwwCgYDVQQLDANEZXYx\n"

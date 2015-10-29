@@ -134,7 +134,7 @@ public class CrlChecker {
      * @param location location of properties file
      * @return Properties from the file
      */
-    public Properties loadProperties(String location) {
+    Properties loadProperties(String location) {
         return PropertiesLoader.loadProperties(location);
     }
 
