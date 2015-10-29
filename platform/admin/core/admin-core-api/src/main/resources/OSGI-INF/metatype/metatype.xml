@@ -17,7 +17,7 @@
          id="ddf.ui.admin.api">
 
         <AD name="Default Configuration Filter List:" id="filterList" required="true"
-            type="String" cardinality="-100"
+            type="String" cardinality="100"
             default="OpenSearchSource,CDDAOpenSearchSource,ddf.catalog.source.solr.SolrCatalogProvider"/>
 
     </OCD>
