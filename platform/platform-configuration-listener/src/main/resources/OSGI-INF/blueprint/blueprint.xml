@@ -66,14 +66,10 @@
     <bean id="configurationFilesPoller"
         class="org.codice.ddf.configuration.store.ConfigurationFilesPoller"
         init-method="init" destroy-method="destroy">
-        <argument ref="configurationFileDirectory" />
+        <argument ref="configDirectoryPath" />
         <argument value="${configFileExtension}" />
         <argument ref="watchService" />
         <argument ref="watchThread" />
-    </bean>
-
-    <bean id="configDirectory" class="java.io.File">
-        <argument value="${configFileDirectory}" />
     </bean>
 
     <bean id="configurationFileDirectory"
@@ -84,5 +80,7 @@
         <argument ref="failedDirectoryPath" />
         <argument value="${configFileExtension}" />
         <argument ref="configurationFileFactory" />
+        <argument ref="configurationFilesPoller" />
     </bean>
+
 </blueprint>

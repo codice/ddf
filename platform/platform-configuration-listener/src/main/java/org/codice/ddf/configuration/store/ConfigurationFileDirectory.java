@@ -51,6 +51,8 @@ public class ConfigurationFileDirectory implements ChangeListener {
 
     private ConfigurationFileFactory configurationFileFactory;
 
+    private ConfigurationFilesPoller poller;
+
     /**
      * Constructor.
      *
@@ -63,8 +65,8 @@ public class ConfigurationFileDirectory implements ChangeListener {
      *             thrown if any of the arguments is invalid
      */
     public ConfigurationFileDirectory(@NotNull Path configurationDirectory,
-            Path processedDirectory, Path failedDirectory,
-            @NotNull @Min(2) String fileExtension, ConfigurationFileFactory configurationFileFactory) {
+            Path processedDirectory, Path failedDirectory, @NotNull @Min(2) String fileExtension,
+            ConfigurationFileFactory configurationFileFactory, ConfigurationFilesPoller poller) {
         notNull(configurationDirectory, "Configuration directory cannot be null");
         notNull(fileExtension, "File extension is required");
         isTrue(fileExtension.length() >= 2, "Invalid file extension: ", fileExtension);
@@ -78,6 +80,7 @@ public class ConfigurationFileDirectory implements ChangeListener {
         this.failedDirectory = failedDirectory;
         this.fileExtension = fileExtension;
         this.configurationFileFactory = configurationFileFactory;
+        this.poller = poller;
     }
 
     public void init() throws IOException {
@@ -93,10 +96,9 @@ public class ConfigurationFileDirectory implements ChangeListener {
                 moveToFailedDirectory(configFile.getConfigFilePath());
             }
         }
-    }
 
-    public Path getDirectoryPath() {
-        return this.configurationDirectory;
+        LOGGER.debug("Registering with [{}] for directory changes.", poller.getClass().getName());
+        poller.register(this);
     }
 
     /**
