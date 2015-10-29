@@ -11,6 +11,11 @@
     <!-- styles -->
     <link href="/landing/assets/css/bootstrap.min.css" rel="stylesheet">
     <style type="text/css">
+        body {
+            background-color: {{background}};
+            color: {{foreground}};
+        }
+
         .scrollable-list {
             height: auto;
             max-height: 600px;
@@ -46,6 +51,14 @@
             bottom: 0px;
             overflow: auto;
         }
+
+        .jumbotron {
+            background-color: rgba(0, 0, 0, 0.25);
+        }
+
+        .panel {
+            color: black;
+        }
     </style>
     <link href="/landing/assets/css/bootstrap-theme.min.css" rel="stylesheet">
 
@@ -70,7 +83,7 @@
     <div class="jumbotron">
         <div class="container">
             <div class="row">
-                <img class="col-md-3" src="data:image/png;base64,{{productImage}}"/>
+                <img class="col-md-3" id="logo" src="data:image/png;base64,{{logoToUse}}"/>
 
                 <div class="col-md-9">
                     <h1>{{title}}</h1>
@@ -103,30 +116,32 @@
                          give a unique ID to each element in the accordion list, which is necessary to get the
                          desired behavior. -->
                     {{#each announcements}}
-                    <div class="panel panel-default">
-                        <div class="panel-heading" role="tab" id="heading{{@index}}">
-                            <h4 class="panel-title">
-                                <!-- 'expanded' is a custom helper defined in LandingPage.java (it's used to make the first item in
-                                     the accordion be open by default) -->
-                                <a role="button" data-toggle="collapse" href="#collapse{{@index}}"
-                                   aria-expanded="{{expanded @index}}"
-                                   aria-controls="collapse{{@index}}">
-                                    <!-- 'extractDate' is a custom helper defined in LandingPage.java -->
-                                    {{extractDate this true}}
-                                </a>
-                            </h4>
-                        </div>
-                        <!-- 'in' is a custom helper defined in LandingPage.java (it's used to make the first item in the
-                             accordion be open by default) -->
-                        <div id="collapse{{@index}}" class="panel-collapse collapse {{in @index}}"
-                             role="tabpanel"
-                             aria-labelledby="heading{{@index}}">
-                            <div class="panel-body">
-                                <!-- 'extractAnnouncement' is a custom helper defined in LandingPage.java -->
-                                {{extractAnnouncement this}}
+                        <div class="panel panel-default">
+                            <div class="panel-heading" role="tab" id="heading{{@index}}">
+                                <h4 class="panel-title">
+                                    <!-- 'expanded' is a custom helper defined in LandingPage.java (it's used to make the first item in
+                                         the accordion be open by default) -->
+                                    <a role="button" data-toggle="collapse"
+                                       href="#collapse{{@index}}"
+                                       aria-expanded="{{expanded @index}}"
+                                       aria-controls="collapse{{@index}}">
+                                        <!-- 'extractDate' is a custom helper defined in LandingPage.java -->
+                                        {{extractDate this true}}
+                                    </a>
+                                </h4>
+                            </div>
+                            <!-- 'in' is a custom helper defined in LandingPage.java (it's used to make the first item in the
+                                 accordion be open by default) -->
+                            <div id="collapse{{@index}}"
+                                 class="panel-collapse collapse {{in @index}}"
+                                 role="tabpanel"
+                                 aria-labelledby="heading{{@index}}">
+                                <div class="panel-body">
+                                    <!-- 'extractAnnouncement' is a custom helper defined in LandingPage.java -->
+                                    {{extractAnnouncement this}}
+                                </div>
                             </div>
                         </div>
-                    </div>
                     {{/each}}
                 </div>
             </div>

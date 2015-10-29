@@ -28,10 +28,13 @@
         <argument ref="resourceProvider"/>
         <property name="branding" ref="branding"/>
         <property name="description"
-                  value="DDF is a free and open-source common data layer that abstracts services and business logic from the underlying data structures to enable rapid integration of new data sources."/>
+                  value="As a common data layer, DDF provides secure enterprise-wide data access for both users and systems."/>
         <property name="phone" value=""/>
         <property name="email" value=""/>
         <property name="externalUrl" value=""/>
+        <property name="background" value=""/>
+        <property name="foreground" value=""/>
+        <property name="logo" value=""/>
         <property name="announcements">
             <list></list>
         </property>
