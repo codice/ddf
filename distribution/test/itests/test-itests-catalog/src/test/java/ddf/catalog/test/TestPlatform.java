@@ -13,6 +13,7 @@
  */
 package ddf.catalog.test;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
@@ -32,7 +33,6 @@ import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
-import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,15 +63,6 @@ public class TestPlatform extends AbstractIntegrationTest {
             return String.format("/%s.config", pid);
         }
 
-        public void assertConfigurationPropertiesSet(ConfigurationAdmin configAdmin)
-                throws Exception {
-            Configuration configuration = configAdmin.getConfiguration(pid, null);
-            assertThat("No Configuration object exist for PID " + pid, configuration,
-                    is(notNullValue()));
-            assertThat("Configuration properties do not match for PID " + pid,
-                    configuration.getProperties(), equalToConfigurationProperties(getProperties()));
-        }
-
         public void addConfigurationFile() throws IOException {
             FileUtils.copyInputStreamToFile(getResourceAsStream(), getFile());
         }
@@ -80,20 +71,38 @@ public class TestPlatform extends AbstractIntegrationTest {
             addConfigurationFile();
 
             new WaitCondition("Waiting for Configuration properties for PID " + pid + " to be set")
-                    .waitFor(new GetConfigurationProperties(configAdmin, pid),
+                    .timeoutAfter(20, SECONDS)
+                    .waitFor(new GetConfigurationProperties(configAdmin, "id", pid),
                             equalToConfigurationProperties(getProperties()));
         }
 
+        public void assertConfigurationPropertiesSet(ConfigurationAdmin configAdmin)
+                throws Exception {
+            Dictionary<String, Object> properties = new GetConfigurationProperties(configAdmin,
+                    "id", pid).call();
+            assertThat("No Configuration object exist for PID " + pid, properties,
+                    is(notNullValue()));
+            assertPropertiesMatch(properties, getProperties());
+        }
+
         public void assertFileMovedToProcessedDirectory() {
+            new WaitCondition("Waiting for file to be moved to /etc/processed directory")
+                    .timeoutAfter(20, SECONDS).waitFor(() -> getProcessedFile().exists());
             assertThat(String.format("Configuration file %s has not been removed",
                     getFile().getAbsolutePath()), getFile().exists(), is(false));
-            assertThat(String.format("Configuration file %s has not been moved to /etc/processed",
-                    getFile().getAbsolutePath()), getProcessedFile().exists(), is(true));
         }
 
         public void assertFileMovedToFailedDirectory() {
             new WaitCondition("Waiting for file to be moved to /etc/failed directory")
-                    .waitFor(() -> getFailedFile().exists());
+                    .timeoutAfter(20, SECONDS).waitFor(() -> getFailedFile().exists());
+            assertThat(String.format("Configuration file %s has not been removed",
+                    getFile().getAbsolutePath()), getFile().exists(), is(false));
+        }
+
+        protected void assertPropertiesMatch(Dictionary<String, Object> actualProperties,
+                Dictionary<String, Object> expectedProperties) throws IOException {
+            assertThat("Configuration properties do not match for PID " + pid, actualProperties,
+                    equalToConfigurationProperties(expectedProperties));
         }
 
         @SuppressWarnings("unchecked")
@@ -131,17 +140,11 @@ public class TestPlatform extends AbstractIntegrationTest {
             this.factoryPid = pid.substring(0, pid.lastIndexOf('.'));
         }
 
-        public void assertConfigurationPropertiesSet(ConfigurationAdmin configAdmin)
-                throws Exception {
-            Configuration[] configurations = configAdmin
-                    .listConfigurations("(service.pid=" + factoryPid + "*)");
-            Configuration configuration = configurations[0];
-            assertThat("No Configuration object exist for PID " + pid, configuration,
-                    is(notNullValue()));
-            assertThat("Configuration properties do not match for PID " + pid,
-                    configuration.getProperties(),
+        protected void assertPropertiesMatch(Dictionary<String, Object> actualProperties,
+                Dictionary<String, Object> expectedProperties) throws IOException {
+            assertThat("Configuration properties do not match for PID " + pid, actualProperties,
                     new ManagedServiceFactoryConfigurationPropertiesEqualTo(factoryPid,
-                            getProperties()));
+                            expectedProperties));
         }
 
         @Override
@@ -152,7 +155,8 @@ public class TestPlatform extends AbstractIntegrationTest {
 
             new WaitCondition(
                     "Waiting for Configuration expectedProperties for PID " + pid + " to be set")
-                    .waitFor(new GetConfigurationProperties(configAdmin, pid),
+                    .timeoutAfter(20, SECONDS)
+                    .waitFor(new GetConfigurationProperties(configAdmin, "id", pid),
                             new ManagedServiceFactoryConfigurationPropertiesEqualTo(factoryPid,
                                     expectedProperties));
         }

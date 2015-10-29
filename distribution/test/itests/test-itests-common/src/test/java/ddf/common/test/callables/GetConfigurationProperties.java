@@ -18,41 +18,64 @@ import java.util.concurrent.Callable;
 
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * {@link Callable} that retrieves the properties of a {@link Configuration} object.
+ * {@link Callable} that retrieves the properties of a {@link Configuration} object. The search is
+ * done by looking for the {@link Configuration} object that has a property set to a specific value.
+ * If multiple objects match the criteria, an {@link IllegalArgumentException} will be thrown.
+ * For that reason, care should be taken to use a property name whose value is known to be unique.
  */
 public class GetConfigurationProperties implements Callable<Dictionary<String, Object>> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GetConfigurationProperties.class);
+
     private ConfigurationAdmin configAdmin;
 
-    private String configurationPid;
+    private String propertyName;
+
+    private String propertyValue;
 
     /**
      * Constructor.
      *
-     * @param configAdmin      reference to the container's {@link ConfigurationAdmin}
-     * @param configurationPid persistence ID of the {@link Configuration} object to retrieve the
-     *                         properties for
+     * @param configAdmin   reference to the container's {@link ConfigurationAdmin}
+     * @param propertyName  name of the property to use for the search
+     * @param propertyValue property value to search for
      */
-    public GetConfigurationProperties(ConfigurationAdmin configAdmin, String configurationPid) {
+    public GetConfigurationProperties(ConfigurationAdmin configAdmin, String propertyName,
+            String propertyValue) {
         this.configAdmin = configAdmin;
-        this.configurationPid = configurationPid;
+        this.propertyName = propertyName;
+        this.propertyValue = propertyValue;
     }
 
     /**
      * Retrieves the {@link Configuration} object's properties.
      *
-     * @return {@link Configuration} object's properties. Null if the {@link Configuration} object
-     * does not exist or has no properties.
-     * @throws Exception thrown if the call fails
+     * @return {@link Configuration} object's properties. {@code null} if the {@link Configuration}
+     * object does not exist or has no properties.
+     * @throws IllegalArgumentException thrown if multiple {@link Configuration} objects match the
+     *                                  search criteria, i.e., have the same property name/value pair
+     * @throws Exception                thrown for any other reasons
      */
     @Override
     public Dictionary<String, Object> call() throws Exception {
-        Configuration configuration = configAdmin.getConfiguration(configurationPid);
 
-        if (configuration == null) {
+        String query = String.format("(%s=%s)", propertyName, propertyValue);
+        Configuration[] configurations = configAdmin.listConfigurations(query);
+
+        if ((configurations == null) || (configurations.length == 0)) {
             return null;
         }
+
+        if (configurations.length > 1) {
+            LOGGER.error(
+                    String.format("Multiple Configuration objects returned for query %s", query));
+            throw new IllegalArgumentException("Property name/value pair isn't unique");
+        }
+
+        Configuration configuration = configurations[0];
 
         return configuration.getProperties();
     }
