@@ -37,13 +37,15 @@ public class ConfigurationFilesPoller implements Runnable {
 
     private final ExecutorService executorService;
 
-    private final ConfigurationFileDirectory configurationDirectory;
+    private ChangeListener configurationDirectory;
+
+    private final Path configurationDirectoryPath;
 
     private final String fileExtension;
 
-    public ConfigurationFilesPoller(ConfigurationFileDirectory configurationDirectory,
-            String fileExtension, WatchService watchService, ExecutorService executorService) {
-        this.configurationDirectory = configurationDirectory;
+    public ConfigurationFilesPoller(Path configurationDirectoryPath, String fileExtension,
+            WatchService watchService, ExecutorService executorService) {
+        this.configurationDirectoryPath = configurationDirectoryPath;
         this.watchService = watchService;
         this.executorService = executorService;
         this.fileExtension = fileExtension;
@@ -54,15 +56,20 @@ public class ConfigurationFilesPoller implements Runnable {
         executorService.execute(this);
     }
 
+    public void register(ChangeListener listener) {
+        configurationDirectory = listener;
+    }
+
     @Override
     public void run() {
         try {
-            Path configurationDirectoryPath = configurationDirectory.getDirectoryPath();
             try {
-                LOGGER.debug("Registering path [{}] with Watch Service.", configurationDirectoryPath.toString());
+                LOGGER.debug("Registering path [{}] with Watch Service.",
+                        configurationDirectoryPath.toString());
                 configurationDirectoryPath.register(watchService, ENTRY_CREATE);
             } catch (IOException e) {
-                LOGGER.error("Unable to register path [{}] with Watch Service", configurationDirectoryPath.toString(), e);
+                LOGGER.error("Unable to register path [{}] with Watch Service",
+                        configurationDirectoryPath.toString(), e);
                 return;
             }
 
@@ -82,22 +89,25 @@ public class ConfigurationFilesPoller implements Runnable {
                     Path filename = (Path) genericEvent.context();
 
                     if (!filename.toString().endsWith(fileExtension)) {
-                        LOGGER.debug("Skipping event for [{}] due to unsupported file extension of [{}].",
+                        LOGGER.debug(
+                                "Skipping event for [{}] due to unsupported file extension of [{}].",
                                 filename, fileExtension);
                         continue; // just skip to the next event
                     }
 
-                    LOGGER.debug("Notifying [{}] of event [{}] for file [{}].",
-                            ConfigurationFileDirectory.class.getName(), kind,
-                            configurationDirectoryPath.resolve(filename));
-                    configurationDirectory.notify(configurationDirectoryPath.resolve(filename));
+                    if (configurationDirectory != null) {
+                        LOGGER.debug("Notifying [{}] of event [{}] for file [{}].",
+                                configurationDirectory.getClass().getName(), kind,
+                                configurationDirectoryPath.resolve(filename));
+                        configurationDirectory.notify(configurationDirectoryPath.resolve(filename));
+                    }
                 }
 
                 // Reset key, shutdown watcher if directory not able to be observed
                 // (possibly deleted)
                 if (!key.reset()) {
                     LOGGER.warn("Configurations in [{}] are no longer able to be observed.",
-                            configurationDirectory.getDirectoryPath());
+                            configurationDirectoryPath);
                     break;
                 }
             }
