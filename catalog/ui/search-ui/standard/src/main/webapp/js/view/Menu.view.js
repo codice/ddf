@@ -360,8 +360,8 @@ define([
                     type: "GET",
                     url: document.URL,
                     async: false,
-                    username: "",
-                    password: "",
+                    username: "1",
+                    password: "1",
                     error: function() {
                         document.location.reload();
                     },
