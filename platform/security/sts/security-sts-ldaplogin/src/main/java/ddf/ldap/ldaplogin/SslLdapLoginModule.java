@@ -15,11 +15,13 @@
 package ddf.ldap.ldaplogin;
 
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.net.ssl.SSLContext;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -91,6 +93,8 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
     public static final String SSL_TIMEOUT = "ssl.timeout";
 
     public static final String SSL_STARTTLS = "ssl.starttls";
+
+    public static final String PROTOCOL = "TLS";
 
     static final long CREATE_SSL_FACTORY_ARG_6 = 10000;
 
@@ -408,15 +412,33 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
         boolean useTls = !url.startsWith("ldaps") && startTls;
 
         LDAPOptions lo = new LDAPOptions();
-        if (null != bundleContext) {
-            ServiceReference<org.apache.karaf.jaas.config.KeystoreManager> ref = bundleContext
-                    .getServiceReference(
-                            org.apache.karaf.jaas.config.KeystoreManager.class);
-            org.apache.karaf.jaas.config.KeystoreManager manager = bundleContext
-                    .getService(ref);
-        } else {
-            LOGGER.error("Unable to retrieve Bundle Context!");
+
+        try {
+            if (useSsl || useTls) {
+                SSLContext sslContext = SSLContext.getInstance(PROTOCOL);
+                if (sslKeystore != null && sslTrustStore != null) {
+                    BundleContext bundleContext = getContext();
+                    if (null != bundleContext) {
+                        ServiceReference<org.apache.karaf.jaas.config.KeystoreManager> ref = bundleContext
+                                .getServiceReference(
+                                        org.apache.karaf.jaas.config.KeystoreManager.class);
+                        org.apache.karaf.jaas.config.KeystoreManager manager = bundleContext
+                                .getService(ref);
+                        sslContext = manager
+                                .createSSLContext(sslProvider, sslProtocol, sslAlgorithm,
+                                        sslKeystore, sslKeyAlias, sslTrustStore, sslTimeout);
+                    } else {
+                        LOGGER.error("Unable to retrieve Bundle Context!");
+                    }
+                }
+
+                lo.setSSLContext(sslContext);
+            }
+        } catch (GeneralSecurityException e) {
+            LOGGER.error("Error encountered while configuring SSL. Secure connection will fail.",
+                    e);
         }
+
         lo.setUseStartTLS(useTls);
         lo.addEnabledCipherSuite(System.getProperty("https.cipherSuites").split(","));
         lo.addEnabledProtocol(System.getProperty("https.protocols").split(","));
