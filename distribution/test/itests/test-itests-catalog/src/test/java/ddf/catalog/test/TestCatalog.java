@@ -25,6 +25,7 @@ import static org.junit.Assert.fail;
 import static com.jayway.restassured.RestAssured.delete;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
+import static ddf.common.test.WaitCondition.expect;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -62,7 +63,6 @@ import com.jayway.restassured.response.Response;
 import com.jayway.restassured.response.ValidatableResponse;
 
 import ddf.common.test.BeforeExam;
-import ddf.common.test.WaitCondition;
 
 /**
  * Tests the Catalog framework components. Includes helper methods at the Catalog level.
@@ -716,9 +716,8 @@ public class TestCatalog extends AbstractIntegrationTest {
             assertThat(pstore.get(PersistentStore.WORKSPACE_TYPE), is(empty()));
             pstore.add(PersistentStore.WORKSPACE_TYPE, item);
 
-            new WaitCondition("Wait for the solr core to be spun up and the item to be persisted")
-                    .timeoutAfter(5, TimeUnit.MINUTES)
-                    .waitFor(() -> pstore.get(PersistentStore.WORKSPACE_TYPE).size(), equalTo(1));
+            expect("Solr core to be spun up and item to be persisted").within(5, TimeUnit.MINUTES)
+                    .until(() -> pstore.get(PersistentStore.WORKSPACE_TYPE).size(), equalTo(1));
 
             List<Map<String, Object>> storedWs = pstore
                     .get(PersistentStore.WORKSPACE_TYPE, "id = 'itest'");
@@ -726,9 +725,8 @@ public class TestCatalog extends AbstractIntegrationTest {
             assertThat(storedWs.get(0).get("user_txt"), is("itest"));
         } finally {
             pstore.delete(PersistentStore.WORKSPACE_TYPE, "id = 'itest'");
-            new WaitCondition("Wait for workspace to be empty")
-                    .timeoutAfter(5, TimeUnit.MINUTES)
-                    .waitFor(() -> pstore.get(PersistentStore.WORKSPACE_TYPE).size(), equalTo(0));
+            expect("Workspace to be empty").within(5, TimeUnit.MINUTES)
+                    .until(() -> pstore.get(PersistentStore.WORKSPACE_TYPE).size(), equalTo(0));
         }
     }
 

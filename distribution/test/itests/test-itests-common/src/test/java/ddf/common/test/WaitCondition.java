@@ -28,7 +28,17 @@ import org.slf4j.LoggerFactory;
 /**
  * Class used to wait for a certain condition to be {@code true} or a timeout to expire. The
  * condition is checked at regular interval. Both the timeout and polling interval can be
- * configured.
+ * configured using the {@link #within(long, TimeUnit)} and {@link #checkEvery(long, TimeUnit)}
+ * methods respectively.
+ * <p/>
+ * Usage examples (using Java 8 lambda expressions):
+ * <pre>
+ *     expect("Query response contains 5 elements").until(() -&gt; runQuery(), hasSize(5));
+ *     expect("Configuration object exists").
+ *         within(30, SECONDS).
+ *         checkEvery(1, SECONDS).
+ *         until(() -&gt; configAdmin.getConfiguration(pid, null) != null);
+ * </pre>
  */
 public class WaitCondition {
     private static final Logger LOGGER = LoggerFactory.getLogger(WaitCondition.class);
@@ -43,13 +53,20 @@ public class WaitCondition {
 
     private long pollingIntervalMs;
 
-    /**
-     * Creates a instance of this class using the default timeout (5s) and polling interval (500ms).
-     */
-    public WaitCondition(String description) {
+    private WaitCondition(String description) {
         this.description = description;
         this.timeoutMs = DEFAULT_TIMEOUT;
         this.pollingIntervalMs = DEFAULT_POLLING_INTERVAL;
+    }
+
+    /**
+     * Creates a instance of this class using the default timeout (5s) and polling interval (500ms).
+     *
+     * @param description short description of what the wait condition is expecting
+     * @return new {@link WaitCondition} instance
+     */
+    public static WaitCondition expect(String description) {
+        return new WaitCondition(description);
     }
 
     /**
@@ -59,7 +76,7 @@ public class WaitCondition {
      * @param unit    timeout unit
      * @return the current {@link WaitCondition} object
      */
-    public WaitCondition timeoutAfter(long timeout, TimeUnit unit) {
+    public WaitCondition within(long timeout, TimeUnit unit) {
         this.timeoutMs = unit.toMillis(timeout);
         return this;
     }
@@ -72,7 +89,7 @@ public class WaitCondition {
      * @param unit            polling interval unit
      * @return the current {@link WaitCondition} object
      */
-    public WaitCondition pollEvery(long pollingInterval, TimeUnit unit) {
+    public WaitCondition checkEvery(long pollingInterval, TimeUnit unit) {
         this.pollingIntervalMs = unit.toMillis(pollingInterval);
         return this;
     }
@@ -88,7 +105,7 @@ public class WaitCondition {
      * @param matchCondition        matcher used to determine whether the condition has been
      *                              met or not
      */
-    public <T> void waitFor(Callable<T> currentValueRetriever, Matcher<T> matchCondition) {
+    public <T> void until(Callable<T> currentValueRetriever, Matcher<T> matchCondition) {
         long timeoutLimit = System.currentTimeMillis() + timeoutMs;
 
         try {
@@ -96,14 +113,14 @@ public class WaitCondition {
                 Thread.sleep(pollingIntervalMs);
 
                 if (System.currentTimeMillis() > timeoutLimit) {
-                    fail(String.format("%s: timed out after %d seconds", description,
+                    fail(String.format("%s: expectation not met after %d seconds", description,
                             TimeUnit.MILLISECONDS.toSeconds(timeoutMs)));
                 }
             }
         } catch (Exception e) {
             String message = String
-                    .format("%s: Unexpected exception [%s] caught while waiting", description,
-                            e.getMessage());
+                    .format("%s: Unexpected exception [%s] caught while waiting for expectation to be met",
+                            description, e.getMessage());
             LOGGER.error(message);
             fail(message);
         }
@@ -116,7 +133,7 @@ public class WaitCondition {
      *
      * @param condition object that indicates whether the wait condition has been met or not
      */
-    public void waitFor(Callable<Boolean> condition) {
-        waitFor(condition, is(true));
+    public void until(Callable<Boolean> condition) {
+        until(condition, is(true));
     }
 }
