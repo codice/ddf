@@ -212,7 +212,8 @@ public class TestSecurity extends AbstractIntegrationTest {
 
         //try to hit an admin restricted page and see that we are unauthorized
         given().cookie("JSESSIONID", cookie).when()
-                .get(Url.SECURE_ROOT + DynamicPort.HTTPS_PORT.getPort() + "/admin/index.html").then()
+                .get(DynamicString.SECURE_ROOT + DynamicPort.HTTPS_PORT.getPort()
+                        + "/admin/index.html").then()
                 .log().all().assertThat().statusCode(equalTo(403));
     }
 
@@ -240,7 +241,8 @@ public class TestSecurity extends AbstractIntegrationTest {
 
         //try that admin level sso token on a restricted resource and get in... sso works!
         given().cookie("JSESSIONID", cookie).when()
-                .get(Url.SECURE_ROOT + DynamicPort.HTTPS_PORT.getPort() + "/admin/index.html").then()
+                .get(DynamicString.SECURE_ROOT + DynamicPort.HTTPS_PORT.getPort()
+                        + "/admin/index.html").then()
                 .log().all().assertThat().statusCode(equalTo(200));
     }
 
@@ -342,8 +344,8 @@ public class TestSecurity extends AbstractIntegrationTest {
         given().log().all().body(body).header("Content-Type", "text/xml; charset=utf-8")
                 .header("SOAPAction", "helloWorld").expect().statusCode(equalTo(200)).when()
                 .post(SERVICE_ROOT.getUrl() + "/sdk/SoapService").then().log().all()
-                .assertThat().body(HasXPath
-                .hasXPath("//*[local-name()='helloWorldResponse']/result/text()",
+                .assertThat().body(
+                HasXPath.hasXPath("//*[local-name()='helloWorldResponse']/result/text()",
                         containsString("Anonymous")));
     }
 
@@ -360,8 +362,8 @@ public class TestSecurity extends AbstractIntegrationTest {
         given().log().all().body(body).header("Content-Type", "text/xml; charset=utf-8")
                 .header("SOAPAction", "helloWorld").expect().statusCode(equalTo(200)).when()
                 .post(INSECURE_SERVICE_ROOT.getUrl() + "/sdk/SoapService").then().log().all()
-                .assertThat().body(HasXPath
-                .hasXPath("//*[local-name()='helloWorldResponse']/result/text()",
+                .assertThat().body(
+                HasXPath.hasXPath("//*[local-name()='helloWorldResponse']/result/text()",
                         containsString("Anonymous")));
 
         stopFeature(false, "platform-http-proxy");
@@ -519,7 +521,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         //try that admin level assertion token on a restricted resource
         given().header(SecurityConstants.SAML_HEADER_NAME,
                 "SAML " + RestSecurity.deflateAndBase64Encode(assertionHeader)).when()
-                .get(Url.SECURE_ROOT + DynamicPort.HTTPS_PORT.getPort() + "/admin/index.html").then()
+                .get(DynamicString.SECURE_ROOT + DynamicPort.HTTPS_PORT.getPort() + "/admin/index.html").then()
                 .log().all().assertThat().statusCode(equalTo(200));
     }
 
@@ -563,7 +565,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         String commonName = "pangalactic";
         String expectedValue = "CN=" + commonName;
         String featureName = "security-certificate-generator";
-        String certGenPath = Url.SECURE_ROOT + DynamicPort.HTTPS_PORT.getPort()
+        String certGenPath = DynamicString.SECURE_ROOT + DynamicPort.HTTPS_PORT.getPort()
                 + "/jolokia/exec/org.codice.ddf.security.certificate.generator.CertificateGenerator:service=certgenerator";
         getBackupKeystoreFile();
         try {
