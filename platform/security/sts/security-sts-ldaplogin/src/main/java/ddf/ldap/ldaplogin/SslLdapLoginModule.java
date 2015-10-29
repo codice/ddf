@@ -408,7 +408,15 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
         boolean useTls = !url.startsWith("ldaps") && startTls;
 
         LDAPOptions lo = new LDAPOptions();
-
+        if (null != bundleContext) {
+            ServiceReference<org.apache.karaf.jaas.config.KeystoreManager> ref = bundleContext
+                    .getServiceReference(
+                            org.apache.karaf.jaas.config.KeystoreManager.class);
+            org.apache.karaf.jaas.config.KeystoreManager manager = bundleContext
+                    .getService(ref);
+        } else {
+            LOGGER.error("Unable to retrieve Bundle Context!");
+        }
         lo.setUseStartTLS(useTls);
         lo.addEnabledCipherSuite(System.getProperty("https.cipherSuites").split(","));
         lo.addEnabledProtocol(System.getProperty("https.protocols").split(","));
