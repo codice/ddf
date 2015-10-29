@@ -160,8 +160,9 @@ define([
             removeSearch: function() {
                 this.model.collection.remove(this.model);
             },
-            showSearch: function() {
-                if(!this.model.get('editing')) {
+            showSearch: function(event) {
+                if(['edit','remove'].indexOf(event.target.id) === -1) {
+                    wreqr.vent.trigger('workspace:editcancel');
                     var progressFunction = function (value, model) {
                         model.mergeLatest();
                         wreqr.vent.trigger('map:clear');
