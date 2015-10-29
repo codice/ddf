@@ -214,6 +214,12 @@ body {
     border-color: #575757;
 }
 
+.btn-default.active {
+    color: #ffffff;
+    background-color: #282828;
+    border-color: #575757;
+}
+
 #toolbar {
     margin: 5px;
     padding: 2px 5px;
