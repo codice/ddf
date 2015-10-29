@@ -15,7 +15,6 @@
 
 	<bean id="encryptionService" class="ddf.security.encryption.impl.EncryptionServiceImpl">
 	    <!-- The key used to encrypt and decrypt -->
-        <property name="key" value="secret"/>
 	</bean>
 
 	<service ref="encryptionService" interface="ddf.security.encryption.EncryptionService"/>

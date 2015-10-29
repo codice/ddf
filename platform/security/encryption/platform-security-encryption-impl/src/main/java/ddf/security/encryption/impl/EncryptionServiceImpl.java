@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -13,10 +13,12 @@
  */
 package ddf.security.encryption.impl;
 
+import java.io.File;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.jasypt.util.text.BasicTextEncryptor;
+import org.keyczar.Crypter;
+import org.keyczar.KeyczarTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,41 +27,59 @@ import ddf.security.encryption.EncryptionService;
 public class EncryptionServiceImpl implements EncryptionService {
     private static final Logger LOGGER = LoggerFactory.getLogger(EncryptionServiceImpl.class);
 
-    private String key;
+    private static String passwordDirectory;
+
+    static Crypter crypter;
 
     public EncryptionServiceImpl() {
     }
 
-    /**
+    static {
+        passwordDirectory = System.getProperty("ddf.home").concat("/etc/certs");
+
+        if (!new File(System.getProperty("ddf.home").concat("/etc/certs/meta")).exists()) {
+            KeyczarTool keyczarTool = new KeyczarTool();
+            keyczarTool.main(new String[] {"create", "--location=" + passwordDirectory,
+                    "--purpose=crypt", "--name=Password"});
+            keyczarTool.main(new String[] {"addkey", "--location=" + passwordDirectory,
+                    "--status=primary"});
+        }
+        try {
+            crypter = new Crypter(passwordDirectory);
+        } catch (Exception e) {
+            LOGGER.warn(e.getMessage());
+        }
+    }
+
+    /**We'r
      * Encrypts a plain text value using jasypt.
      *
-     * @param plainTextValue
-     *            The value to encrypt.
+     * @param plainTextValue The value to encrypt.
      */
     public String encrypt(String plainTextValue) {
-        BasicTextEncryptor encryptor = new BasicTextEncryptor();
-        encryptor.setPassword(this.key);
-        return encryptor.encrypt(plainTextValue);
+        try {
+            return crypter.encrypt(plainTextValue);
+
+        } catch (Exception e) {
+            LOGGER.error("Key and encryption service failed to set up. Failed to encrypt.");
+            LOGGER.error(e.getMessage());
+            return plainTextValue;
+        }
     }
 
     /**
      * Decrypts a plain text value using jasypt.
      *
-     * @param encryptedValue
-     *            The value to decrypt.
+     * @param encryptedValue The value to decrypt.
      */
     public String decrypt(String encryptedValue) {
-        BasicTextEncryptor dencryptor = new BasicTextEncryptor();
-        dencryptor.setPassword(this.key);
-        return dencryptor.decrypt(encryptedValue);
-    }
-
-    /**
-     * @param key
-     *            The master key used for encryption and decryption.
-     */
-    public void setKey(String key) {
-        this.key = key;
+        try {
+            return crypter.decrypt(encryptedValue);
+        } catch (Exception e) {
+            LOGGER.error("Key and encryption service failed to set up. Failed to decrypt.");
+            LOGGER.error(e.getMessage());
+            return encryptedValue;
+        }
     }
 
     // @formatter:off

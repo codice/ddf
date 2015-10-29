@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -16,6 +16,9 @@ package ddf.security.encryption.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+import java.io.File;
+
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,14 +28,42 @@ public class EncryptionServiceImplTest {
 
     private static final String KEY = "secret";
 
+    @BeforeClass
+    public static void setUp() throws Exception {
+        System.setProperty("ddf.home", "src/test");
+        String path = new File(System.getProperty("ddf.home").concat("/etc/certs"))
+                .getCanonicalPath();
+        new File(path).mkdirs();
+    }
+
     @Test
-    public void testEncryptDecrypt() {
+    public void testBadSetup() throws Exception {
+        System.setProperty("ddf.home", "");
+        final String unencryptedPassword = "protect";
+
+        final EncryptionServiceImpl encryptionService = new EncryptionServiceImpl();
+
+        final String encryptedPassword = encryptionService.encrypt(unencryptedPassword);
+        assertEquals(unencryptedPassword, encryptedPassword);
+
+        final String decryptedPassword = encryptionService.decrypt(encryptedPassword);
+        assertEquals(decryptedPassword, encryptedPassword);
+
+        final String wrappedPassword = "ENC(" + unencryptedPassword + ")";
+        final String unWrappedDecryptedPassword = encryptionService.decryptValue(wrappedPassword);
+
+        assertEquals(unWrappedDecryptedPassword, unencryptedPassword);
+    }
+
+
+    @Test
+    public void testEncryptDecrypt() throws Exception {
         final String unencryptedPassword = "protect";
 
         LOGGER.debug("Unencrypted Password: {}", unencryptedPassword);
 
         final EncryptionServiceImpl encryptionService = new EncryptionServiceImpl();
-        encryptionService.setKey(KEY);
+
         final String encryptedPassword = encryptionService.encrypt(unencryptedPassword);
         LOGGER.debug("Encrypted Password: {}", encryptedPassword);
 
@@ -43,14 +74,14 @@ public class EncryptionServiceImplTest {
     }
 
     @Test
-    public void testUnwrapDecrypt() {
-        final String wrappedEncryptedValue = "ENC(OItcdA9Z79ZSyc8eczWfaw==)";
+    public void testUnwrapDecrypt() throws Exception {
         final String expectedDecryptedValue = "test";
+        final EncryptionServiceImpl encryptionService = new EncryptionServiceImpl();
+
+        final String wrappedEncryptedValue = "ENC("
+                .concat(encryptionService.encrypt(expectedDecryptedValue)).concat(")");
 
         LOGGER.debug("Original wrapped encrypted value is: {}", wrappedEncryptedValue);
-
-        final EncryptionServiceImpl encryptionService = new EncryptionServiceImpl();
-        encryptionService.setKey(KEY);
 
         final String decryptedValue = encryptionService.decryptValue(wrappedEncryptedValue);
         LOGGER.debug("Unwrapped decrypted value is: {}", decryptedValue);
@@ -59,13 +90,12 @@ public class EncryptionServiceImplTest {
     }
 
     @Test
-    public void testUnwrapDecryptNull() {
+    public void testUnwrapDecryptNull() throws Exception {
         final String wrappedEncryptedValue = null;
 
         LOGGER.debug("Original wrapped encrypted value is: null");
 
         final EncryptionServiceImpl encryptionService = new EncryptionServiceImpl();
-        encryptionService.setKey(KEY);
 
         final String decryptedValue = encryptionService.decryptValue(wrappedEncryptedValue);
 
@@ -73,13 +103,12 @@ public class EncryptionServiceImplTest {
     }
 
     @Test
-    public void testUnwrapDecryptEmpty() {
+    public void testUnwrapDecryptEmpty() throws Exception {
         final String wrappedEncryptedValue = "";
 
         LOGGER.debug("Original wrapped encrypted value is: <blank>");
 
         final EncryptionServiceImpl encryptionService = new EncryptionServiceImpl();
-        encryptionService.setKey(KEY);
 
         final String decryptedValue = encryptionService.decryptValue(wrappedEncryptedValue);
 
@@ -87,17 +116,17 @@ public class EncryptionServiceImplTest {
     }
 
     @Test
-    public void testUnwrapDecryptPlainText() {
+    public void testUnwrapDecryptPlainText() throws Exception {
         final String wrappedEncryptedValue = "plaintext";
 
         LOGGER.debug("Original value is: {}", wrappedEncryptedValue);
 
         final EncryptionServiceImpl encryptionService = new EncryptionServiceImpl();
-        encryptionService.setKey(KEY);
 
         final String decryptedValue = encryptionService.decryptValue(wrappedEncryptedValue);
         LOGGER.debug("Unwrapped decrypted value is: {}", decryptedValue);
 
         assertEquals(wrappedEncryptedValue, decryptedValue);
     }
+
 }
