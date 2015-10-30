@@ -18,6 +18,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.ops4j.pax.exam.CoreOptions.options;
+import static ddf.common.test.WaitCondition.expect;
 import static ddf.common.test.matchers.ConfigurationPropertiesEqualTo.equalToConfigurationProperties;
 
 import java.io.File;
@@ -38,7 +39,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.common.test.BeforeExam;
-import ddf.common.test.WaitCondition;
 import ddf.common.test.callables.GetConfigurationProperties;
 import ddf.common.test.matchers.ConfigurationPropertiesEqualTo;
 
@@ -70,9 +70,8 @@ public class TestPlatform extends AbstractIntegrationTest {
         public void addConfigurationFileAndWait(ConfigurationAdmin configAdmin) throws IOException {
             addConfigurationFile();
 
-            new WaitCondition("Waiting for Configuration properties for PID " + pid + " to be set")
-                    .timeoutAfter(20, SECONDS)
-                    .waitFor(new GetConfigurationProperties(configAdmin, "id", pid),
+            expect("Configuration properties for PID " + pid + " to be set").within(20, SECONDS)
+                    .until(new GetConfigurationProperties(configAdmin, "id", pid),
                             equalToConfigurationProperties(getProperties()));
         }
 
@@ -86,15 +85,15 @@ public class TestPlatform extends AbstractIntegrationTest {
         }
 
         public void assertFileMovedToProcessedDirectory() {
-            new WaitCondition("Waiting for file to be moved to /etc/processed directory")
-                    .timeoutAfter(20, SECONDS).waitFor(() -> getProcessedFile().exists());
+            expect("File to be moved to /etc/processed directory").within(20, SECONDS)
+                    .until(() -> getProcessedFile().exists());
             assertThat(String.format("Configuration file %s has not been removed",
                     getFile().getAbsolutePath()), getFile().exists(), is(false));
         }
 
         public void assertFileMovedToFailedDirectory() {
-            new WaitCondition("Waiting for file to be moved to /etc/failed directory")
-                    .timeoutAfter(20, SECONDS).waitFor(() -> getFailedFile().exists());
+            expect("Waiting for file to be moved to /etc/failed directory").within(20, SECONDS)
+                    .until(() -> getFailedFile().exists());
             assertThat(String.format("Configuration file %s has not been removed",
                     getFile().getAbsolutePath()), getFile().exists(), is(false));
         }
@@ -153,10 +152,9 @@ public class TestPlatform extends AbstractIntegrationTest {
 
             final Dictionary<String, Object> expectedProperties = getProperties();
 
-            new WaitCondition(
-                    "Waiting for Configuration expectedProperties for PID " + pid + " to be set")
-                    .timeoutAfter(20, SECONDS)
-                    .waitFor(new GetConfigurationProperties(configAdmin, "id", pid),
+            expect("Waiting for Configuration expectedProperties for PID " + pid + " to be set")
+                    .within(20, SECONDS)
+                    .until(new GetConfigurationProperties(configAdmin, "id", pid),
                             new ManagedServiceFactoryConfigurationPropertiesEqualTo(factoryPid,
                                     expectedProperties));
         }
