@@ -107,7 +107,7 @@
                         <phase>test</phase>
                         <configuration>
                             <skip>${skipTests}</skip>
-                            <arguments>test --force</arguments>
+                            <arguments>test</arguments>
                         </configuration>
                     </execution>
                 </executions>
