@@ -86,6 +86,14 @@ public class LandingPage extends HttpServlet {
 
     private String favicon;
 
+    private String background;
+
+    private String foreground;
+
+    private String logo;
+
+    private String logoToUse;
+
     private BrandingResourceProvider provider;
 
     public String getTitle() {
@@ -172,6 +180,18 @@ public class LandingPage extends HttpServlet {
         sortAnnouncementsByDate();
     }
 
+    public void setBackground(String background) {
+        this.background = background;
+    }
+
+    public void setForeground(String foreground) {
+        this.foreground = foreground;
+    }
+
+    public void setLogo(String logo) {
+        this.logo = logo;
+    }
+
     private void sortAnnouncementsByDate() {
         Collections.sort(announcements, new Comparator<String>() {
             @Override
@@ -216,12 +236,13 @@ public class LandingPage extends HttpServlet {
 
     // package-private for unit testing
     String compileTemplateWithProperties() {
+        logoToUse = StringUtils.isNotEmpty(logo) ? logo : productImage;
         // FieldValueResolver so this class' fields can be accessed in the template.
         // MapValueResolver so we can access {{@index}} in the #each helper in the template.
         final Context context = Context.newBuilder(this)
                 .resolver(FieldValueResolver.INSTANCE, MapValueResolver.INSTANCE).build();
-        // The template is "index.html".
-        final TemplateLoader templateLoader = new ClassPathTemplateLoader("/", ".html");
+        // The template is "index.handlebars".
+        final TemplateLoader templateLoader = new ClassPathTemplateLoader("/", ".handlebars");
         final Handlebars handlebars = new Handlebars(templateLoader);
         // extractDate(), extractAnnouncement(), expanded(), and in() are helper functions used in the template.
         handlebars.registerHelpers(this);
@@ -236,7 +257,7 @@ public class LandingPage extends HttpServlet {
         return landingPageHtml;
     }
 
-    // A helper function used in the Handlebars template (index.html). Also used locally.
+    // A helper function used in the Handlebars template (index.handlebars). Also used locally.
     public String extractDate(String announcement, boolean reformat) {
         announcement = announcement.trim();
 
@@ -262,7 +283,7 @@ public class LandingPage extends HttpServlet {
         return NO_DATE;
     }
 
-    // A helper function used in the Handlebars template (index.html).
+    // A helper function used in the Handlebars template (index.handlebars).
     public String extractAnnouncement(String announcement) {
         // Try and grab the date from the beginning of the announcement.
         final String date = extractDate(announcement, false);
@@ -279,17 +300,17 @@ public class LandingPage extends HttpServlet {
         return announcement.trim();
     }
 
-    // A helper function used in the Handlebars template (index.html).
+    // A helper function used in the Handlebars template (index.handlebars).
     public String expanded(int index) {
         return index == 0 ? "true" : "false";
     }
 
-    // A helper function used in the Handlebars template (index.html).
+    // A helper function used in the Handlebars template (index.handlebars).
     public String in(int index) {
         return index == 0 ? "in" : "";
     }
 
-    // A helper function used in the Handlebars template (index.html).
+    // A helper function used in the Handlebars template (index.handlebars).
     public String noAnnouncements(List<String> announcements) {
         if (announcements.size() == 0) {
             return "No announcements";

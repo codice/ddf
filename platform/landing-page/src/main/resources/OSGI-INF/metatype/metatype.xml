@@ -18,7 +18,7 @@
         <AD
                 description="Specifies the description to display on the landing page."
                 name="Description" id="description" required="true" type="String"
-                default="DDF is a free and open-source common data layer that abstracts services and business logic from the underlying data structures to enable rapid integration of new data sources."
+                default="As a common data layer, DDF provides secure enterprise-wide data access for both users and systems."
                 />
         <AD
                 description="Specifies the phone number to display on the landing page."
@@ -38,7 +38,22 @@
         <AD
                 description="Announcements that will be displayed on the landing page."
                 name="Announcements" id="announcements" required="true" type="String"
-                cardinality="-100"
+                cardinality="100"
+                />
+        <AD
+                description="Specifies the landing page Background Color.  Use html css colors or #rrggbb."
+                name="Branding Background" id="background" required="true" type="String"
+                default=""
+                />
+        <AD
+                description="Specifies the landing page Foreground Color.  Use html css colors or #rrggbb."
+                name="Branding Foreground" id="foreground" required="true" type="String"
+                default=""
+                />
+        <AD
+                description="Specifies the landing page Logo.  Use a base64 encoded image."
+                name="Branding Logo" id="logo" required="true" type="String"
+                default=""
                 />
     </OCD>
 
