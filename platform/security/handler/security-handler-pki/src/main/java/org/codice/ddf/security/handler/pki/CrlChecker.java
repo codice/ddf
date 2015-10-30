@@ -22,11 +22,7 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Properties;
 
-import javax.servlet.ServletException;
-
 import org.apache.wss4j.common.crypto.Merlin;
-import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
-import org.codice.ddf.security.handler.api.HandlerResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,42 +47,21 @@ public class CrlChecker {
         setCrlLocation(encryptionProperties.getProperty(CRL_PROPERTY_KEY));
     }
 
-    public HandlerResult check(BaseAuthenticationToken token,
-            X509Certificate[] certs, HandlerResult handlerResult) throws ServletException {
+    /**
+     * Checks the given certs against the CRL. The CRL is configured in this class's constructor method.
+     *
+     * @param certs certificates to be checked against the CRL
+     * @return true if one of the certs passes the CRL or if CRL revocation is disabled, false if they are all revoked.
+     */
+    public boolean passesCrlCheck(X509Certificate[] certs) {
         if (crl == null) {
             String errorMsg = "CRL is not set. Skipping CRL check";
             LOGGER.trace(errorMsg);
             SecurityLogger.logTrace(errorMsg);
-            handlerResult.setToken(token);
-            handlerResult.setStatus(HandlerResult.Status.COMPLETED);
-            return handlerResult;
+            return true;
         }
         LOGGER.trace("Checking request certs against CRL.");
-        return checkAgainstCrl(token, certs, handlerResult);
-    }
-
-    /**
-     * Checks the certificates against the CRL. If it is in the CRL, send a 401 error and return a HandlerResult with
-     * the status of REDIRECTED. Otherwise, set appropriate tokens on the HandlerResult and return with status of COMPLETED
-     *
-     * @param token         BaseAuthenticationToken containing the auth data to be attached to the HandlerResult if it passes the CRL
-     * @param certs         Certificates extracted from the request to check against the CRL
-     * @param handlerResult HandlerResult to modify and return
-     * @return returns the modified handler result. REDIRECTED status if it failed the CRL check or COMPLETED if it passed
-     */
-
-    private HandlerResult checkAgainstCrl(BaseAuthenticationToken token, X509Certificate[] certs, HandlerResult handlerResult)
-            throws ServletException {
-        if (passesCrl(certs)) {
-            handlerResult.setToken(token);
-            handlerResult.setStatus(HandlerResult.Status.COMPLETED);
-        } else {
-            // cert is present and listed as revoked in the CRL - throw a ServletException so the error message is displayed to the user
-            String errorMsg = "The certificate used to complete the request has been revoked.";
-            LOGGER.error(errorMsg);
-            throw new ServletException(errorMsg);
-        }
-        return handlerResult;
+        return passesCrl(certs);
     }
 
     /**
@@ -122,7 +97,7 @@ public class CrlChecker {
      * @param location Location of the DER-encoded CRL file that should be used to
      *                 check certificate revocation.
      */
-    protected void setCrlLocation(String location) {
+    public void setCrlLocation(String location) {
         if (location == null) {
             String errorMsg = "CRL property in " + encryptionPropertiesLocation
                     + "is not set. Certs will not be checked against a CRL";
@@ -130,7 +105,7 @@ public class CrlChecker {
             LOGGER.warn(errorMsg);
             crl = null;
         } else {
-            crl = createCRL(location);
+            crl = createCrl(location);
         }
     }
 
@@ -140,7 +115,7 @@ public class CrlChecker {
      * @param location Path to the CRL file
      * @return A CRL object constructed from the given file path. Null if an error occurred while attempting to read the file.
      */
-    private CRL createCRL(String location) {
+    private CRL createCrl(String location) {
         try (FileInputStream fis = new FileInputStream(new File(location))) {
             CertificateFactory cf = CertificateFactory.getInstance("X.509");
             return cf.generateCRL(fis);
@@ -154,10 +129,10 @@ public class CrlChecker {
     }
 
     /**
-     * Abstracted for unit tests to allow test class to set a specific property location
+     * Loads the properties from a given location.
      *
      * @param location location of properties file
-     * @return Properties from
+     * @return Properties from the file
      */
     Properties loadProperties(String location) {
         return PropertiesLoader.loadProperties(location);
