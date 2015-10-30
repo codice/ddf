@@ -51,14 +51,20 @@
             <div class="btn-group btn-group-xs margin-bottom-large" data-toggle="buttons">
                 <label id="created" class="btn btn-default {{#is timeType 'created'}}active{{/is}}" >
                     <input type="radio" name="createdTimeButton" value="created">
+                    <i class="fa fa-circle"></i>
+                    <i class="fa fa-circle-o"></i>
                     Created
                 </label>
                 <label id="modified" class="btn btn-default {{#is timeType 'modified'}}active{{/is}}">
                     <input type="radio" name="modifiedTimeButton" value="modified">
+                    <i class="fa fa-circle"></i>
+                    <i class="fa fa-circle-o"></i>
                     Modified
                 </label>
                 <label id="effective" class="btn btn-default {{#is timeType 'effective'}}active{{/is}}">
                     <input type="radio" name="effectiveTimeButton" value="effective">
+                    <i class="fa fa-circle"></i>
+                    <i class="fa fa-circle-o"></i>
                     Effective
                 </label>
             </div>
@@ -66,14 +72,20 @@
             <div class="btn-group btn-group-xs margin-bottom-large" data-toggle="buttons">
                 <label class="btn btn-default time {{#ifNotOr dtoffset dtend dtstart}}active{{/ifNotOr}}" data-toggle="tab" data-target="#notemporal">
                     <input type="radio" name="noTemporalButton">
+                    <i class="fa fa-circle"></i>
+                    <i class="fa fa-circle-o"></i>
                     Any
                 </label>
                 <label class="btn btn-default time {{#if dtoffset}}active{{/if}}" data-target="#time_relative" data-toggle="tab">
                     <input type="radio" name="relativeTimeButton">
+                    <i class="fa fa-circle"></i>
+                    <i class="fa fa-circle-o"></i>
                     Relative
                 </label>
                 <label class="btn btn-default time {{#ifAnd dtend dtstart}}active{{/ifAnd}}" data-target="#time_absolute" data-toggle="tab">
                     <input type="radio" name="absoluteTimeButton">
+                    <i class="fa fa-circle"></i>
+                    <i class="fa fa-circle-o"></i>
                     Absolute
                 </label>
             </div>
@@ -122,10 +134,14 @@
             <div class="btn-group btn-group-xs margin-bottom-large" data-toggle="buttons">
                 <label id="latlon" class="btn btn-default {{#is locationType 'latlon'}}active{{/is}}">
                     <input type="radio" name="latLonButton" value="latlon">
+                    <i class="fa fa-circle"></i>
+                    <i class="fa fa-circle-o"></i>
                     Lat / Lon
                 </label>
                 <label id="usng" class="btn btn-default {{#is locationType 'usng'}}active{{/is}}">
                     <input type="radio" name="usngButton" value="usng">
+                    <i class="fa fa-circle"></i>
+                    <i class="fa fa-circle-o"></i>
                     USNG / MGRS
                 </label>
             </div>
@@ -133,26 +149,36 @@
             <div class="btn-group btn-group-xs margin-bottom-large" data-toggle="buttons">
                 <label id="locationAny" class="btn btn-default location {{#ifNotOr radius bbox polygon}}active{{/ifNotOr}}" data-target="#nogeo" data-toggle="tab">
                     <input type="radio" name="noLocationButton">
+                    <i class="fa fa-circle"></i>
+                    <i class="fa fa-circle-o"></i>
                     Any
                 </label>
                 {{#if is2D}}
                     <label id="locationPolygon" class="btn btn-default location {{#if polygon}}active{{/if}}" data-target="#polygonTab" data-toggle="tab">
                         <input type="radio" name="polygonButton">
+                        <i class="fa fa-circle"></i>
+                        <i class="fa fa-circle-o"></i>
                         Polygon
                     </label>
                 {{else}}
                     <label id="locationPolygon" class="btn btn-default location {{#if polygon}}active{{/if}}" data-target="#polygonTab" data-toggle="tab">
                         <input type="radio" name="polygonButton">
+                        <i class="fa fa-circle"></i>
+                        <i class="fa fa-circle-o"></i>
                         Polygon
                     </label>
                     <label id="locationPoint" class="btn btn-default location {{#if radius}}active{{/if}}" data-target="#pointradius" data-toggle="tab">
                         <input type="radio" name="pointRadiusButton">
+                        <i class="fa fa-circle"></i>
+                        <i class="fa fa-circle-o"></i>
                         Point-Radius
                     </label>
                 {{/if}}
 
                 <label id="locationBbox" class="btn btn-default location {{#if bbox}}active{{/if}}" data-target="#boundingbox" data-toggle="tab">
                     <input type="radio" name="bboxButton">
+                    <i class="fa fa-circle"></i>
+                    <i class="fa fa-circle-o"></i>
                     Bounding Box
                 </label>
             </div>
@@ -248,10 +274,14 @@
             <div class="btn-group btn-group-xs margin-bottom-large" data-toggle="buttons">
                 <label class="btn btn-default type {{#ifNotOr type}}active{{/ifNotOr}}" data-target="#noTypeTab" data-toggle="tab">
                     <input type="radio" name="noTypeButton">
+                    <i class="fa fa-circle"></i>
+                    <i class="fa fa-circle-o"></i>
                     Any
                 </label>
                 <label class="btn btn-default type {{#if type}}active{{/if}}" data-target="#typeTab" data-toggle="tab">
                     <input type="radio" name="typeButton">
+                    <i class="fa fa-circle"></i>
+                    <i class="fa fa-circle-o"></i>
                     Specific Types
                 </label>
             </div>
@@ -273,32 +303,46 @@
             <div class="btn-group btn-group-xs margin-bottom-large" data-toggle="buttons">
                 <label id="modifiedSort" class="btn btn-default {{#is sortField 'modified'}}active{{/is}}">
                     <input type="radio" name="modifiedSortButton" value="modified">
+                    <i class="fa fa-circle"></i>
+                    <i class="fa fa-circle-o"></i>
                     Modified
                 </label>
                 <label id="createdSort" class="btn btn-default {{#is sortField 'created'}}active{{/is}}" >
                     <input type="radio" name="createdSortButton" value="created">
+                    <i class="fa fa-circle"></i>
+                    <i class="fa fa-circle-o"></i>
                     Created
                 </label>
                 <label id="effectiveSort" class="btn btn-default {{#is sortField 'effective'}}active{{/is}}">
                     <input type="radio" name="effectiveSortButton" value="effective">
+                    <i class="fa fa-circle"></i>
+                    <i class="fa fa-circle-o"></i>
                     Effective
                 </label>
                 <label id="relevanceSort" class="btn btn-default {{#is sortField 'RELEVANCE'}}active{{/is}}" >
                     <input type="radio" name="relevanceSortButton" value="RELEVANCE">
+                    <i class="fa fa-circle"></i>
+                    <i class="fa fa-circle-o"></i>
                     Relevance
                 </label>
                 <label id="distanceSort" class="btn btn-default {{#is sortField 'DISTANCE'}}active{{/is}}" >
                     <input type="radio" name="distanceSortButton" value="DISTANCE">
+                    <i class="fa fa-circle"></i>
+                    <i class="fa fa-circle-o"></i>
                     Distance
                 </label>
             </div>
             <div class="btn-group btn-group-xs margin-bottom-large" data-toggle="buttons">
                 <label id="descendingSort" class="btn btn-default {{#is sortOrder 'desc'}}active{{/is}}" >
                     <input type="radio" name="descendingSortButton" value="desc">
+                    <i class="fa fa-circle"></i>
+                    <i class="fa fa-circle-o"></i>
                     Descending
                 </label>
                 <label id="ascendingSort" class="btn btn-default {{#is sortOrder 'asc'}}active{{/is}}" >
                     <input type="radio" name="ascendingSortButton" value="asc">
+                    <i class="fa fa-circle"></i>
+                    <i class="fa fa-circle-o"></i>
                     Ascending
                 </label>
             </div>
@@ -312,14 +356,20 @@
             <div class="btn-group btn-group-xs margin-bottom-large" data-toggle="buttons">
                 <label id="federationAll" class="btn btn-default {{#is federation 'enterprise'}}active{{/is}}" data-target="#nofed" data-toggle="tab">
                     <input type="radio" name="enterpriseFederationButton">
+                    <i class="fa fa-circle"></i>
+                    <i class="fa fa-circle-o"></i>
                     All Sources
                 </label>
                 <label id="federationSelected" class="btn btn-default {{#is federation 'selected'}}active{{/is}}" data-target="#sources" data-toggle="tab">
                     <input type="radio" name="selectedFederationButton">
+                    <i class="fa fa-circle"></i>
+                    <i class="fa fa-circle-o"></i>
                     Specific Sources
                 </label>
                 <label id="federationNo" class="btn btn-default {{#is federation 'local'}}active{{/is}}" data-target="#local" data-toggle="tab">
                     <input type="radio" name="noFederationButton">
+                    <i class="fa fa-circle"></i>
+                    <i class="fa fa-circle-o"></i>
                     None
                 </label>
             </div>

@@ -112,6 +112,22 @@ body {
     margin-bottom: 0;
 }
 
+div.btn-group input[type=radio]~.fa-circle {
+    display: none;
+}
+
+div.btn-group label.active input[type=radio]~.fa-circle {
+    display: inline-block;
+}
+
+div.btn-group input[type=radio]~.fa-circle-o {
+    display: inline-block;
+}
+
+div.btn-group label.active input[type=radio]~.fa-circle-o {
+    display: none;
+}
+
 #content {
     position: relative;
 }
