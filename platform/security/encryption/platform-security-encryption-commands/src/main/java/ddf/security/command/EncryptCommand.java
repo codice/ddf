@@ -36,7 +36,9 @@ public class EncryptCommand extends OsgiCommandSupport {
             return null;
         }
 
-        String encryptedValue = encryptionService.encrypt(plainTextValue);
+        String encryptedValue = "ENC(";
+        encryptedValue.concat(encryptionService.encrypt(plainTextValue));
+        encryptedValue.concat(")");
         System.out.print(Ansi.ansi().fg(Ansi.Color.YELLOW).toString());
         System.out.println(encryptedValue);
         System.out.print(Ansi.ansi().reset().toString());
