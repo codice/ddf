@@ -15,12 +15,16 @@
 
 package org.codice.ddf.configuration.store;
 
+import static org.apache.commons.lang.Validate.notNull;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Dictionary;
+
+import javax.validation.constraints.NotNull;
 
 import org.osgi.framework.Constants;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -35,14 +39,17 @@ public class ConfigurationFileFactory {
 
     private ConfigurationAdmin configAdmin;
 
-    public ConfigurationFileFactory(PersistenceStrategy pesistenceStrategy,
-            ConfigurationAdmin configAdmin) {
+    public ConfigurationFileFactory(@NotNull PersistenceStrategy pesistenceStrategy,
+            @NotNull ConfigurationAdmin configAdmin) {
+        notNull(pesistenceStrategy, "pesistenceStrategy cannot be null");
+        notNull(configAdmin, "configAdmin cannot be null");
         this.pesistenceStrategy = pesistenceStrategy;
         this.configAdmin = configAdmin;
     }
 
-    public ConfigurationFile createConfigurationFile(Path configurationFile)
+    public ConfigurationFile createConfigurationFile(@NotNull Path configurationFile)
         throws ConfigurationFileException {
+        notNull(configurationFile, "configurationFile cannot be null");
         Dictionary<String, Object> properties = read(configurationFile);
         if (isManagedServiceFactoryConfiguration(properties)) {
             return new ManagedServiceFactoryConfigurationFile(configurationFile, properties,
@@ -72,19 +79,20 @@ public class ConfigurationFileFactory {
         return servicePid != null;
     }
 
-    private InputStream getInputStream(Path path) throws FileNotFoundException {
-        return new FileInputStream(path.toFile());
-    }
-
     private Dictionary<String, Object> read(Path configurationFile)
         throws ConfigurationFileException {
         Dictionary<String, Object> properties = null;
         try {
-            properties = pesistenceStrategy.read(getInputStream(configurationFile));
+            InputStream inputStream = getInputStream(configurationFile);
+            properties = pesistenceStrategy.read(inputStream);
         } catch (IOException e) {
             throw new ConfigurationFileException("Unable to read configuration file ["
                     + configurationFile.toString() + "].", e);
         }
         return properties;
+    }
+
+    InputStream getInputStream(Path path) throws FileNotFoundException {
+        return new FileInputStream(path.toFile());
     }
 }
