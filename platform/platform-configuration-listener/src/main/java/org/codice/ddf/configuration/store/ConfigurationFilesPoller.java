@@ -18,6 +18,7 @@ import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
+import static org.apache.commons.lang.Validate.notNull;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -26,6 +27,8 @@ import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
+
+import javax.validation.constraints.NotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,14 +40,19 @@ public class ConfigurationFilesPoller implements Runnable {
 
     private final ExecutorService executorService;
 
-    private ChangeListener configurationDirectory;
-
     private final Path configurationDirectoryPath;
 
     private final String fileExtension;
 
-    public ConfigurationFilesPoller(Path configurationDirectoryPath, String fileExtension,
-            WatchService watchService, ExecutorService executorService) {
+    private ChangeListener configurationDirectory;
+
+    public ConfigurationFilesPoller(@NotNull Path configurationDirectoryPath,
+            @NotNull String fileExtension, @NotNull WatchService watchService,
+            @NotNull ExecutorService executorService) {
+        notNull(configurationDirectoryPath, "configurationDirectoryPath cannot be null");
+        notNull(fileExtension, "fileExtension cannot be null");
+        notNull(watchService, "watchService cannot be null");
+        notNull(executorService, "executorService cannot be null");
         this.configurationDirectoryPath = configurationDirectoryPath;
         this.watchService = watchService;
         this.executorService = executorService;
@@ -56,7 +64,8 @@ public class ConfigurationFilesPoller implements Runnable {
         executorService.execute(this);
     }
 
-    public void register(ChangeListener listener) {
+    public void register(@NotNull ChangeListener listener) {
+        notNull(listener, "ChangeListener cannot be null");
         configurationDirectory = listener;
     }
 
@@ -107,7 +116,7 @@ public class ConfigurationFilesPoller implements Runnable {
                 // (possibly deleted)
                 if (!key.reset()) {
                     LOGGER.warn("Configurations in [{}] are no longer able to be observed.",
-                            configurationDirectoryPath);
+                            configurationDirectoryPath.toString());
                     break;
                 }
             }
