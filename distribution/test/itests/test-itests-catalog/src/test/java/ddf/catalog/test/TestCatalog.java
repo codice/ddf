@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -25,6 +25,7 @@ import static org.junit.Assert.fail;
 import static com.jayway.restassured.RestAssured.delete;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
+import static ddf.common.test.WaitCondition.expect;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -37,7 +38,6 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 import javax.ws.rs.core.MediaType;
@@ -716,13 +716,8 @@ public class TestCatalog extends AbstractIntegrationTest {
             assertThat(pstore.get(PersistentStore.WORKSPACE_TYPE), is(empty()));
             pstore.add(PersistentStore.WORKSPACE_TYPE, item);
 
-            // Wait for the solr core to be spun up and the item to be persisted
-            waitFor(300, "Object not persisted", new Callable<Boolean>() {
-                @Override
-                public Boolean call() throws Exception {
-                    return pstore.get(PersistentStore.WORKSPACE_TYPE).size() == 1;
-                }
-            });
+            expect("Solr core to be spun up and item to be persisted").within(5, TimeUnit.MINUTES)
+                    .until(() -> pstore.get(PersistentStore.WORKSPACE_TYPE).size(), equalTo(1));
 
             List<Map<String, Object>> storedWs = pstore
                     .get(PersistentStore.WORKSPACE_TYPE, "id = 'itest'");
@@ -730,28 +725,8 @@ public class TestCatalog extends AbstractIntegrationTest {
             assertThat(storedWs.get(0).get("user_txt"), is("itest"));
         } finally {
             pstore.delete(PersistentStore.WORKSPACE_TYPE, "id = 'itest'");
-            waitFor(300, "Object not removed from persistent store", new Callable<Boolean>() {
-                @Override
-                public Boolean call() throws Exception {
-                    return pstore.get(PersistentStore.WORKSPACE_TYPE).size() == 0;
-                }
-            });
-        }
-    }
-
-    private void waitFor(long secondsToWait, String msg, Callable<Boolean> waitTest)
-            throws Exception {
-        long timeoutLimit = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(secondsToWait);
-        while (true) {
-            if (waitTest.call()) {
-                break;
-            } else {
-                if (System.currentTimeMillis() > timeoutLimit) {
-                    fail(msg);
-                } else {
-                    TimeUnit.SECONDS.sleep(1);
-                }
-            }
+            expect("Workspace to be empty").within(5, TimeUnit.MINUTES)
+                    .until(() -> pstore.get(PersistentStore.WORKSPACE_TYPE).size(), equalTo(0));
         }
     }
 
