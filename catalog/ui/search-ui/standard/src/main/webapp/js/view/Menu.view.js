@@ -422,6 +422,9 @@ define([
                         if(this.isNotGuestUser()){
                             this.model.set({name: Application.UserModel.get('user').get('username')});
                         }
+                        else if (!this.isNotGuestUser() && properties.externalAuthentication){
+                            this.model.set({name: Application.UserModel.get('user').get('username').split("@")[0]});
+                        }
                         this.listenTo(Application.UserModel, 'change', this.updateUser);
                     },
                     updateUser: function() {
@@ -434,7 +437,7 @@ define([
                         return Application.UserModel && Application.UserModel.get('user') && Application.UserModel.get('user').get('username') && !Application.UserModel.get('user').isGuestUser();
                     },
                     onRender: function() {
-                        if(this.isNotGuestUser()) {
+                        if(this.isNotGuestUser() || properties.externalAuthentication) {
                             this.children.show(new Menu.LogoutForm());
                         }
 
