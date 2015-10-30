@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 
-package org.codice.ddf.configuration.listener;
+package org.codice.ddf.configuration.store;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -32,8 +32,6 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.codice.ddf.configuration.store.ChangeListener;
-import org.codice.ddf.configuration.store.ConfigurationFilesPoller;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
