@@ -6,9 +6,9 @@ var shared = require('./shared');
 
 var convertLLtoUSNG = function (browser, lat1, lon1, lat2, lon2) {
     return browser
-        .waitForElementById('latlon',shared.timeout)
-        .safeExecute('$("#latlon").click()')
+        .waitForElementById('locationBbox',shared.timeout)
         .safeExecute('$("#locationBbox").click()')
+        .safeExecute('$("#latlon").click()')
         .safeExecute('$("#mapNorth").val('+lat1+').trigger("change")')
         .safeExecute('$("#mapSouth").val('+lat2+').trigger("change")')
         .safeExecute('$("#mapEast").val('+lon1+').trigger("change")')
@@ -19,9 +19,9 @@ var convertLLtoUSNG = function (browser, lat1, lon1, lat2, lon2) {
 
 var convertUSNGtoLL = function (browser, usng) {
     return browser
-        .waitForElementById('usng', shared.timeout)
-        .safeExecute('$("#usng").click()')
+        .waitForElementById('locationBbox', shared.timeout)
         .safeExecute('$("#locationBbox").click()')
+        .safeExecute('$("#usng").click()')
         .safeExecute('$("#usngbb").val("'+usng+'").trigger("change")')
         .safeExecute('$("#latlon").click()')
         .waitForElementById('latlon', shared.timeout);

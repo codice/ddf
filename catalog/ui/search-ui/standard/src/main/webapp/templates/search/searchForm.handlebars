@@ -49,27 +49,6 @@
         </li>
         <li>
             <div class="btn-group btn-group-xs margin-bottom-large" data-toggle="buttons">
-                <label id="created" class="btn btn-default {{#is timeType 'created'}}active{{/is}}" >
-                    <input type="radio" name="createdTimeButton" value="created">
-                    <i class="fa fa-circle"></i>
-                    <i class="fa fa-circle-o"></i>
-                    Created
-                </label>
-                <label id="modified" class="btn btn-default {{#is timeType 'modified'}}active{{/is}}">
-                    <input type="radio" name="modifiedTimeButton" value="modified">
-                    <i class="fa fa-circle"></i>
-                    <i class="fa fa-circle-o"></i>
-                    Modified
-                </label>
-                <label id="effective" class="btn btn-default {{#is timeType 'effective'}}active{{/is}}">
-                    <input type="radio" name="effectiveTimeButton" value="effective">
-                    <i class="fa fa-circle"></i>
-                    <i class="fa fa-circle-o"></i>
-                    Effective
-                </label>
-            </div>
-            <br />
-            <div class="btn-group btn-group-xs margin-bottom-large" data-toggle="buttons">
                 <label class="btn btn-default time {{#ifNotOr dtoffset dtend dtstart}}active{{/ifNotOr}}" data-toggle="tab" data-target="#notemporal">
                     <input type="radio" name="noTemporalButton">
                     <i class="fa fa-circle"></i>
@@ -91,6 +70,28 @@
             </div>
             <div class="tab-content form-group">
                 <div id="notemporal" class="tab-pane {{#ifNotOr dtoffset dtend dtstart}}active{{/ifNotOr}}"></div>
+                <div class="temporal-types col-lg-10">
+                    <div class="btn-group btn-group-xs margin-bottom-large" data-toggle="buttons">
+                        <label id="created" class="btn btn-default {{#is timeType 'created'}}active{{/is}}" >
+                            <input type="radio" name="createdTimeButton" value="created">
+                            <i class="fa fa-circle"></i>
+                            <i class="fa fa-circle-o"></i>
+                            Created
+                        </label>
+                        <label id="modified" class="btn btn-default {{#is timeType 'modified'}}active{{/is}}">
+                            <input type="radio" name="modifiedTimeButton" value="modified">
+                            <i class="fa fa-circle"></i>
+                            <i class="fa fa-circle-o"></i>
+                            Modified
+                        </label>
+                        <label id="effective" class="btn btn-default {{#is timeType 'effective'}}active{{/is}}">
+                            <input type="radio" name="effectiveTimeButton" value="effective">
+                            <i class="fa fa-circle"></i>
+                            <i class="fa fa-circle-o"></i>
+                            Effective
+                        </label>
+                    </div>
+                </div>
                 <div id="time_relative" class="tab-pane {{#if dtoffset}}active{{/if}}">
                     <input name="dtoffset" type="hidden" />
                     <div class="col-lg-10">
@@ -132,21 +133,6 @@
         </li>
         <li>
             <div class="btn-group btn-group-xs margin-bottom-large" data-toggle="buttons">
-                <label id="latlon" class="btn btn-default {{#is locationType 'latlon'}}active{{/is}}">
-                    <input type="radio" name="latLonButton" value="latlon">
-                    <i class="fa fa-circle"></i>
-                    <i class="fa fa-circle-o"></i>
-                    Lat / Lon
-                </label>
-                <label id="usng" class="btn btn-default {{#is locationType 'usng'}}active{{/is}}">
-                    <input type="radio" name="usngButton" value="usng">
-                    <i class="fa fa-circle"></i>
-                    <i class="fa fa-circle-o"></i>
-                    USNG / MGRS
-                </label>
-            </div>
-            <br />
-            <div class="btn-group btn-group-xs margin-bottom-large" data-toggle="buttons">
                 <label id="locationAny" class="btn btn-default location {{#ifNotOr radius bbox polygon}}active{{/ifNotOr}}" data-target="#nogeo" data-toggle="tab">
                     <input type="radio" name="noLocationButton">
                     <i class="fa fa-circle"></i>
@@ -184,7 +170,22 @@
             </div>
             <div class="tab-content form-group">
                 <div id="nogeo" class="tab-pane {{#ifNotOr radius bbox polygon}}active{{/ifNotOr}}"></div>
-
+                <div class="geo-types col-lg-10">
+                    <div class="btn-group btn-group-xs margin-bottom-large" data-toggle="buttons">
+                        <label id="latlon" class="btn btn-default {{#is locationType 'latlon'}}active{{/is}}">
+                            <input type="radio" name="latLonButton" value="latlon">
+                            <i class="fa fa-circle"></i>
+                            <i class="fa fa-circle-o"></i>
+                            Lat / Lon
+                        </label>
+                        <label id="usng" class="btn btn-default {{#is locationType 'usng'}}active{{/is}}">
+                            <input type="radio" name="usngButton" value="usng">
+                            <i class="fa fa-circle"></i>
+                            <i class="fa fa-circle-o"></i>
+                            USNG / MGRS
+                        </label>
+                    </div>
+                </div>
                 <div id="pointradius" class="tab-pane {{#if radius}}active{{/if}}">
                     <input type="hidden" name="radius" value="">
 
