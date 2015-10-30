@@ -72,13 +72,18 @@
         <argument ref="watchThread" />
     </bean>
 
+    <bean id="configDirectoryStream" class="java.nio.file.Files"
+          factory-method="newDirectoryStream">
+        <argument ref="configDirectoryPath"/>
+        <argument value="*${configFileExtension}"/>
+    </bean>
+
     <bean id="configurationFileDirectory"
         class="org.codice.ddf.configuration.store.ConfigurationFileDirectory"
         init-method="init">
-        <argument ref="configDirectoryPath" />
+        <argument ref="configDirectoryStream" />
         <argument ref="processedDirectoryPath" />
         <argument ref="failedDirectoryPath" />
-        <argument value="${configFileExtension}" />
         <argument ref="configurationFileFactory" />
         <argument ref="configurationFilesPoller" />
     </bean>
