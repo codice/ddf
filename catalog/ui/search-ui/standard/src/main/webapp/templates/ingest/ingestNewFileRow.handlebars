@@ -12,9 +12,11 @@
 **/
 --}}
 <div class="file-info-area">
-    <div class="btn btn-danger btn-xs remove-upload">
-        <i class="fa fa-times remove-upload"></i>
-    </div>
+    {{#cancellable}}
+        <div class="btn btn-danger btn-xs remove-upload">
+            <i class="fa fa-times remove-upload"></i>
+        </div>
+    {{/cancellable}}
     File: {{name}}
 </div>
 <div class="ingest-upload-buttons">
@@ -26,6 +28,11 @@
     {{#is state 'failed'}}
         <div class="label label-danger" data-toggle="tooltip" data-placement="left" title="{{error}}">
             Error!
+        </div>
+    {{/is}}
+    {{#is state 'cancelled'}}
+        <div class="label label-warning">
+            Cancelled
         </div>
     {{/is}}
     {{#is state 'uploading'}}

@@ -46,6 +46,9 @@ public class Notification extends HashMap<String, String> {
     public static final String NOTIFICATION_TOPIC_DOWNLOADS =
             NOTIFICATION_TOPIC_ROOT + "/catalog/downloads";
 
+    public static final String NOTIFICATION_TOPIC_PUBLISH =
+            NOTIFICATION_TOPIC_ROOT + "/publish";
+
     private static final long serialVersionUID = -2531844838114289515L;
 
     /**
@@ -56,7 +59,7 @@ public class Notification extends HashMap<String, String> {
      *
      * @param sessionId The new unique session ID of the {@code Notification}
      *
-     * @param application The name of the application that triggered the 
+     * @param application The name of the application that triggered the
      *                    generation of this {@code Notification}
      *
      * @param title The title of this {@code Notification}
@@ -81,14 +84,14 @@ public class Notification extends HashMap<String, String> {
      *
      * @param sessionId The new unique session ID of the {@code Notification}
      *
-     * @param application The name of the application that triggered the 
+     * @param application The name of the application that triggered the
      *                    generation of this {@code Notification}
      *
      * @param title The title of this {@code Notification}
      *
      * @param message The message associated with this {@code Notification}
      *
-     * @param timestamp A <code>long</code> representing the number of 
+     * @param timestamp A <code>long</code> representing the number of
      *                  milliseconds between January 1, 1970, 00:00:00 GMT and
      *                  the point at which the event triggering this
      *                  {@code Notification} was generated.
@@ -106,16 +109,16 @@ public class Notification extends HashMap<String, String> {
      *
      * @param sessionId The new unique session ID of the {@code Notification}
      *
-     * @param application The name of the application that triggered the 
+     * @param application The name of the application that triggered the
      *                    generation of this {@code Notification}
      *
      * @param title The title of this {@code Notification}
      *
      * @param message The message associated with this {@code Notification}
      *
-     * @param timestamp A <code>long</code> representing the number of 
-     *                  milliseconds between January 1, 1970, 00:00:00 GMT and 
-     *                  the point at which the event triggering this 
+     * @param timestamp A <code>long</code> representing the number of
+     *                  milliseconds between January 1, 1970, 00:00:00 GMT and
+     *                  the point at which the event triggering this
      *                  {@code Notification} was generated.
      *
      * @param userId The id of the user to which this {@code Notification}
@@ -134,7 +137,7 @@ public class Notification extends HashMap<String, String> {
      *
      * @param sessionId The new unique session ID of the {@code Notification}
      *
-     * @param application The name of the application that triggered the 
+     * @param application The name of the application that triggered the
      *                    generation of this {@code Notification}
      *
      * @param title The title of this {@code Notification}
@@ -264,8 +267,8 @@ public class Notification extends HashMap<String, String> {
      * triggered this {@code Notification} occurred.
      *
      * @return A {@code String} representing the number of milliseconds
-     *         between January 1, 1970, 00:00:00 GMT and the point at 
-     *         which the event that triggered this {@code Notification}  
+     *         between January 1, 1970, 00:00:00 GMT and the point at
+     *         which the event that triggered this {@code Notification}
      *         occurred.
      */
     public String getTimestampString() {
@@ -277,8 +280,8 @@ public class Notification extends HashMap<String, String> {
      * triggered this {@code Notification} occurred.
      *
      * @return A <code>long</code> representing the number of milliseconds
-     *         between January 1, 1970, 00:00:00 GMT and the point at 
-     *         which the event that triggered this {@code Notification} 
+     *         between January 1, 1970, 00:00:00 GMT and the point at
+     *         which the event that triggered this {@code Notification}
      *         occurred.
      */
     public Long getTimestampLong() {
@@ -335,10 +338,10 @@ public class Notification extends HashMap<String, String> {
     }
 
     /**
-     * Returns the id of the user to whom this {@code Notification} is 
+     * Returns the id of the user to whom this {@code Notification} is
      * addressed.
      *
-     * @return The id of the user to whom this {@code Notification} is 
+     * @return The id of the user to whom this {@code Notification} is
      *         addressed.
      */
     public String getUserId() {

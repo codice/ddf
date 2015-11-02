@@ -1,36 +1,53 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.ui.searchui.query.controller;
 
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.startsWith;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.codice.ddf.notifications.Notification;
 import org.codice.ddf.persistence.PersistentStore;
+import org.cometd.bayeux.Message;
 import org.cometd.bayeux.server.ServerMessage;
 import org.cometd.bayeux.server.ServerSession;
-import org.junit.After;
+import org.cometd.common.HashMapMessage;
+import org.joda.time.format.ISODateTimeFormat;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
@@ -41,6 +58,19 @@ import org.osgi.service.event.EventAdmin;
 public class NotificationControllerTest {
     // NOTE: The ServerSession ID == The ClientSession ID
     private static final String MOCK_SESSION_ID = "1234-5678-9012-3456";
+
+    private static final String MOCK_APPLICATION = "Downloads";
+
+    private static final String MOCK_TITLE = "SUCCESS - Download Complete - JPEG of San Francisco";
+
+    private static final String MOCK_MESSAGE = "The download of the 1024 byte JPEG of San "
+            + "Francisco that you requested has completed with a status of: SUCCESS";
+
+    private static final long MOCK_TIMESTAMP = new Date().getTime();
+
+    private static final String MOCK_USER_ID = UUID.randomUUID().toString();
+
+    private static final String EXPECTED_COMETD_NOTIFICATIONS_CHANNEL_PREFIX = "/ddf/notifications/";
 
     private NotificationController notificationController;
 
@@ -60,36 +90,19 @@ public class NotificationControllerTest {
 
         when(mockServerSession.getId()).thenReturn(MOCK_SESSION_ID);
 
-        testEventProperties = new HashMap<String, Object>();
-        testEventProperties.put(Notification.NOTIFICATION_KEY_APPLICATION, "Downloads");
-        testEventProperties.put(Notification.NOTIFICATION_KEY_TITLE,
-                "SUCCESS - Download Complete - JPEG " + "of San Francisco");
-        testEventProperties.put(Notification.NOTIFICATION_KEY_MESSAGE,
-                "The download of the 1024 byte JPEG "
-                        + "of San Francisco that you requested has completed with a "
-                        + "status of: SUCCESS");
-        testEventProperties.put(Notification.NOTIFICATION_KEY_TIMESTAMP, new Date().getTime());
-        testEventProperties
-                .put(Notification.NOTIFICATION_KEY_USER_ID, UUID.randomUUID().toString());
-
-        // TODO: which of these need to be added to Notifications class?
-        testEventProperties.put("status", "SUCCESS");
-        testEventProperties.put("bytes", 1024);
-        testEventProperties.put("option", "test");
-    }
-
-    /**
-     * @throws java.lang.Exception
-     */
-    @After
-    public void tearDown() throws Exception {
+        testEventProperties = new HashMap<>();
+        testEventProperties.put(Notification.NOTIFICATION_KEY_APPLICATION, MOCK_APPLICATION);
+        testEventProperties.put(Notification.NOTIFICATION_KEY_TITLE, MOCK_TITLE);
+        testEventProperties.put(Notification.NOTIFICATION_KEY_MESSAGE, MOCK_MESSAGE);
+        testEventProperties.put(Notification.NOTIFICATION_KEY_TIMESTAMP, MOCK_TIMESTAMP);
+        testEventProperties.put(Notification.NOTIFICATION_KEY_USER_ID, MOCK_USER_ID);
     }
 
     /**
      * Test method for
      * {@link NotificationController#registerUserSession(ServerSession, ServerMessage)}.
-     *
-     * Verifies that method throws {@code NullPointerException} when ServerSession is null.
+     * <p>
+     * Verifies that method throws {@code IllegalArgumentException} when ServerSession is null.
      */
     @Test(expected = IllegalArgumentException.class)
     public void testRegisterUserSessionWithNullServerSessionThrowsException() {
@@ -100,8 +113,8 @@ public class NotificationControllerTest {
     /**
      * Test method for
      * {@link NotificationController#registerUserSession(ServerSession, ServerMessage)}.
-     *
-     * Verifies that method throws {@code NullPointerException} when ServerSession ID is null.
+     * <p>
+     * Verifies that method throws {@code IllegalArgumentException} when ServerSession ID is null.
      */
     @Test(expected = IllegalArgumentException.class)
     public void testRegisterUserSessionWithNullServerSessionIdThrowsException() {
@@ -120,13 +133,13 @@ public class NotificationControllerTest {
         // Test traditional handshake
         notificationController.registerUserSession(mockServerSession, mockServerMessage);
         assertEquals(NotificationController.class.getName()
-                + " did not return correctly store a user-id-based "
-                + "referece to the ServerSession", MOCK_SESSION_ID,
+                        + " did not return correctly store a user-id-based "
+                        + "reference to the ServerSession", MOCK_SESSION_ID,
                 notificationController.getSessionByUserId(MOCK_SESSION_ID).getId());
     }
 
     /**
-     * Test method for {@link NotificationController#getServerSessionByUserId(java.util.String)}
+     * Test method for {@link NotificationController#getSessionByUserId(java.lang.String)}
      */
     @Test
     public void testGetServerSessionByUserId() {
@@ -147,19 +160,19 @@ public class NotificationControllerTest {
     /**
      * Test method for
      * {@link NotificationController#deregisterUserSession(ServerSession, ServerMessage)}
-     *
-     * Verifies that {@code NullPointerException} is thrown when {@code ServerSession} is null.
+     * <p>
+     * Verifies that {@code IllegalArgumentException} is thrown when {@code ServerSession} is null.
      */
     @Test(expected = IllegalArgumentException.class)
-    public void testDeregisterUserSessionWithNullServerSessonThrowsException() {
+    public void testDeregisterUserSessionWithNullServerSessionThrowsException() {
         notificationController.deregisterUserSession(null, mockServerMessage);
     }
 
     /**
      * Test method for
      * {@link NotificationController#deregisterUserSession(ServerSession, ServerMessage)}
-     *
-     * Verifies that {@code NullPointerException} is thrown when {@code ServerSession} ID is null.
+     * <p>
+     * Verifies that {@code IllegalArgumentException} is thrown when {@code ServerSession} ID is null.
      */
     @Test(expected = IllegalArgumentException.class)
     public void testDeregisterUserSessionWithNullServerSessionIdThrowsException() {
@@ -170,7 +183,7 @@ public class NotificationControllerTest {
     /**
      * Test method for
      * {@link NotificationController#deregisterUserSession(ServerSession, ServerMessage)}
-     *
+     * <p>
      * Verifies that a the method removes the client's user from the {@code NotificationController}
      * 's known clients.
      */
@@ -185,7 +198,7 @@ public class NotificationControllerTest {
 
     /**
      * Test method for {@link NotificationController#handleEvent(org.osgi.service.event.Event)}
-     *
+     * <p>
      * Verifies that {@code IllegalArgumentException} is thrown when {@code Event}'s
      * {@link Notification#NOTIFICATION_KEY_APPLICATION} property is empty.
      */
@@ -198,7 +211,7 @@ public class NotificationControllerTest {
 
     /**
      * Test method for {@link NotificationController#handleEvent(org.osgi.service.event.Event)}
-     *
+     * <p>
      * Verifies that {@code IllegalArgumentException} is thrown when {@code Event}'s
      * {@link Notification#NOTIFICATION_KEY_MESSAGE} property is empty.
      */
@@ -211,7 +224,7 @@ public class NotificationControllerTest {
 
     /**
      * Test method for {@link NotificationController#handleEvent(org.osgi.service.event.Event)}
-     *
+     * <p>
      * Verifies that {@code IllegalArgumentException} is thrown when {@code Event}'s
      * {@link Notification#NOTIFICATION_KEY_TITLE property is empty.
      */
@@ -224,7 +237,7 @@ public class NotificationControllerTest {
 
     /**
      * Test method for {@link NotificationController#handleEvent(org.osgi.service.event.Event)}
-     *
+     * <p>
      * Verifies that {@code IllegalArgumentException} is thrown when {@code Event}'s
      * {@link Notification#NOTIFICATION_KEY_USER_ID} property is empty.
      */
@@ -237,7 +250,7 @@ public class NotificationControllerTest {
 
     /**
      * Test method for {@link NotificationController#handleEvent(org.osgi.service.event.Event)}
-     *
+     * <p>
      * Verifies that {@code IllegalArgumentException} is thrown when {@code Event}'s
      * {@link Notification#NOTIFICATION_KEY_APPLICATION} property is null.
      */
@@ -250,7 +263,7 @@ public class NotificationControllerTest {
 
     /**
      * Test method for {@link NotificationController#handleEvent(org.osgi.service.event.Event)}
-     *
+     * <p>
      * Verifies that {@code IllegalArgumentException} is thrown when {@code Event}'s
      * {@link Notification#NOTIFICATION_KEY_MESSAGE} property is null.
      */
@@ -263,7 +276,7 @@ public class NotificationControllerTest {
 
     /**
      * Test method for {@link NotificationController#handleEvent(org.osgi.service.event.Event)}
-     *
+     * <p>
      * Verifies that {@code IllegalArgumentException} is thrown when {@code Event}'s
      * {@link Notification#NOTIFICATION_KEY_TIMESTAMP} property is null.
      */
@@ -276,7 +289,7 @@ public class NotificationControllerTest {
 
     /**
      * Test method for {@link NotificationController#handleEvent(org.osgi.service.event.Event)}
-     *
+     * <p>
      * Verifies that {@code IllegalArgumentException} is thrown when {@code Event}'s
      * {@link Notification#NOTIFICATION_KEY_TITLE} property is null.
      */
@@ -289,7 +302,7 @@ public class NotificationControllerTest {
 
     /**
      * Test method for {@link NotificationController#handleEvent(org.osgi.service.event.Event)}
-     *
+     * <p>
      * Verifies that {@code IllegalArgumentException} is thrown when {@code Event}'s
      * {@link Notification#NOTIFICATION_KEY_USER_ID} property is null.
      */
@@ -303,7 +316,7 @@ public class NotificationControllerTest {
     /**
      * Test method for deletePersistentNotification(ServerSession serverSession, ServerMessage
      * serverMessage)
-     *
+     * <p>
      * Verifies that {@code IllegalArgumentException} is thrown when serverSession is null.
      */
     @Test(expected = IllegalArgumentException.class)
@@ -314,11 +327,68 @@ public class NotificationControllerTest {
     /**
      * Test method for deletePersistentNotification(ServerSession serverSession, ServerMessage
      * serverMessage)
-     *
+     * <p>
      * Verifies that {@code IllegalArgumentException} is thrown when serverMessage is null.
      */
     @Test(expected = IllegalArgumentException.class)
     public void testDeletePersistentNotificationThrowsIllegalArgumentOnNullUserId() {
         notificationController.deletePersistentNotification(mockServerSession, null);
+    }
+
+    private void verifyGetPersistedNotificationsWithMessageData(Map<String, Object> messageData,
+            boolean notificationPublished) {
+        Message message = new HashMapMessage();
+        message.put(Message.DATA_FIELD, messageData);
+
+        List<Map<String, Object>> notifications = new ArrayList<>();
+        notifications.add(testEventProperties);
+
+        NotificationController spyNotificationController = spy(notificationController);
+
+        doReturn(notifications).when(spyNotificationController)
+                .getNotificationsForUser(anyString());
+        // Don't want queuePersistedMessages to start up a new thread.
+        doNothing().when(spyNotificationController).queuePersistedMessages(any(ServerSession.class),
+                Matchers.<List<Map<String, Object>>>any(), anyString());
+
+        spyNotificationController.getPersistedNotifications(mockServerSession, message);
+
+        if (notificationPublished) {
+            ArgumentCaptor<Event> eventArgumentCaptor = ArgumentCaptor.forClass(Event.class);
+            verify(spyNotificationController.eventAdmin, times(1))
+                    .postEvent(eventArgumentCaptor.capture());
+
+            Event event = eventArgumentCaptor.getValue();
+
+            assertThat(event.getProperty(Notification.NOTIFICATION_KEY_APPLICATION),
+                    is(MOCK_APPLICATION));
+            assertThat(event.getProperty(Notification.NOTIFICATION_KEY_MESSAGE), is(MOCK_MESSAGE));
+            assertThat(event.getProperty(Notification.NOTIFICATION_KEY_TIMESTAMP),
+                    is(ISODateTimeFormat.dateTime().print(MOCK_TIMESTAMP)));
+            assertThat(event.getProperty(Notification.NOTIFICATION_KEY_TITLE), is(MOCK_TITLE));
+            assertThat(event.getProperty(Notification.NOTIFICATION_KEY_SESSION_ID),
+                    is(MOCK_SESSION_ID));
+            assertThat(event.getProperty(Notification.NOTIFICATION_KEY_USER_ID),
+                    is(MOCK_SESSION_ID));
+        } else {
+            verify(spyNotificationController, times(1)).
+                    queuePersistedMessages(eq(mockServerSession), eq(notifications),
+                            startsWith(EXPECTED_COMETD_NOTIFICATIONS_CHANNEL_PREFIX));
+        }
+    }
+
+    @Test
+    public void testGetPersistedNotificationsWithNullData() {
+        verifyGetPersistedNotificationsWithMessageData(null, false);
+    }
+
+    @Test
+    public void testGetPersistedNotificationsWithEmptyData() {
+        verifyGetPersistedNotificationsWithMessageData(new HashMap<>(), false);
+    }
+
+    @Test
+    public void testGetPersistedNotificationsWithData() {
+        verifyGetPersistedNotificationsWithMessageData(testEventProperties, true);
     }
 }
