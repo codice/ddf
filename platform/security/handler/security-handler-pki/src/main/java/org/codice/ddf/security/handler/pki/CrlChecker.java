@@ -87,9 +87,11 @@ public class CrlChecker {
             // cert is present and listed as revoked in the CRL - set handlerResult to REDIRECTED and return 401
             handlerResult.setStatus(HandlerResult.Status.REDIRECTED);
             try {
-                httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-                httpResponse.flushBuffer();
+                if (httpResponse != null) {
+                    httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    httpResponse.flushBuffer();
+                }
             } catch (IOException e) {
                 String errorMsg = "Unable to send 401 response to client.";
                 LOGGER.error(errorMsg);
