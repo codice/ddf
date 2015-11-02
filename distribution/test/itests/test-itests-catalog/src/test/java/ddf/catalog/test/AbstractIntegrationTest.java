@@ -199,6 +199,7 @@ public abstract class AbstractIntegrationTest {
     public static final DynamicPort HTTP_PORT = new DynamicPort("org.codice.ddf.system.httpPort", 1);
     public static final DynamicPort HTTPS_PORT = new DynamicPort(
             "org.codice.ddf.system.httpsPort", 2);
+    public static final DynamicPort DEFAULT_PORT = new DynamicPort("org.codice.ddf.system.port", 2);
     public static final DynamicPort SSH_PORT = new DynamicPort(3);
     public static final DynamicPort RMI_SERVER_PORT = new DynamicPort(4);
     public static final DynamicPort RMI_REG_PORT = new DynamicPort(5);
@@ -389,6 +390,8 @@ public abstract class AbstractIntegrationTest {
                         HTTP_PORT.getPort()),
                 editConfigurationFilePut("etc/system.properties", HTTPS_PORT.getSystemProperty(),
                         HTTPS_PORT.getPort()),
+                editConfigurationFilePut("etc/system.properties", DEFAULT_PORT.getSystemProperty(),
+                        DEFAULT_PORT.getPort()),
                 editConfigurationFilePut("etc/system.properties", BASE_PORT.getSystemProperty(),
                         BASE_PORT.getPort()),
 

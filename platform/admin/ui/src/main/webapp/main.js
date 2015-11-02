@@ -29,8 +29,8 @@
             underscore: 'lib/lodash/dist/lodash.underscore.min',
             marionette: 'lib/marionette/lib/backbone.marionette.min',
             // TODO test combining
-            modelbinder: 'lib/backbone.modelbinder/Backbone.ModelBinder.min',
-            collectionbinder: 'lib/backbone.modelbinder/Backbone.CollectionBinder.min',
+            modelbinder: 'lib/backbone.modelbinder/Backbone.ModelBinder',
+            collectionbinder: 'lib/backbone.modelbinder/Backbone.CollectionBinder',
             poller: 'lib/backbone-poller/backbone.poller',
 
             // ddf
