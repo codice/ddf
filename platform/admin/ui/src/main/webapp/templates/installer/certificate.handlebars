@@ -1,0 +1,88 @@
+<div class="cert-errors" style="display: none">
+    <label>The following issues were found with your certificates:</label>
+    <ul class="fa-ul">
+        {{#each certErrors}}
+            <li><i class="fa-li fa fa-exclamation-triangle fa-lg"></i> {{this}}</li>
+        {{/each}}
+    </ul>
+</div>
+<div class="store-div">
+    <label class="store-title">Add Keystore</label>
+    <a href='#' class='keystore-info'>
+        <i class="fa fa-question-circle fa-lg"></i>
+    </a>
+
+    <div>
+        <div class="drop-zone" id="keystore-drop-zone">
+            <form class="keystore-fileupload">
+                    <span class="btn btn-default fileinput-button">
+                        <i class="glyphicon glyphicon-plus"></i>
+                        <span>Select file to upload</span>
+                        <input id="inputFile" type="file" name="files[]">
+                    </span>
+                OR drag file to this window.
+            </form>
+        </div>
+        <label class="store-file">Keystore File: {{keystoreFileName}}</label>
+
+        <table>
+            <tr>
+                <td>
+                    <label for="alias" class="store-label control-label">Keystore
+                        Password</label>
+                </td>
+                <td>
+                    <div class="store-password ">
+                        <input type="password" class="form-control" id="keystorepass"
+                               name="keystorePass">
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="alias" class="store-label control-label">Private Key Password</label>
+                </td>
+                <td>
+                    <div class="store-password ">
+                        <input type="password" class="form-control" id="keypass" name="keyPass">
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="store-div">
+    <label class="store-title">Add Truststore</label>
+    <a href='#' class='truststore-info'>
+        <i class="fa fa-question-circle fa-lg"></i>
+    </a>
+
+    <div>
+        <div class="drop-zone" id="truststore-drop-zone">
+            <form class="truststore-fileupload">
+                    <span class="btn btn-default fileinput-button">
+                        <i class="glyphicon glyphicon-plus"></i>
+                        <span>Select file to upload</span>
+                        <input type="file" name="files[]">
+                    </span>
+                OR drag file to this window.
+            </form>
+        </div>
+        <label class="store-file">Truststore File: {{truststoreFileName}}</label>
+
+        <table>
+            <tr>
+                <td>
+                    <label for="alias" class="store-label control-label">Truststore
+                        Password</label>
+                </td>
+                <td>
+                    <div class="store-password ">
+                        <input type="password" class="form-control" id="truststorepass"
+                               name="truststorePass">
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>

@@ -173,7 +173,7 @@ module.exports = function (grunt) {
     grunt.registerTask('test:sauce', ['express:test', 'mochaWebdriver:sauce']);
 
     grunt.registerTask('build', ['bower-offline-install', 'sed', 'newer:less',
-        'newer:cssmin', 'newer:jshint']);
+        'newer:cssmin'/*, 'newer:jshint'*/]);
 
     grunt.registerTask('default', ['build','express:server','watch']);
 

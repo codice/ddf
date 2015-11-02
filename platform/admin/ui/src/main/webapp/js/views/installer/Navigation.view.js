@@ -32,7 +32,8 @@ define([
         events: {
             'click .previous': 'previous',
             'click .next': 'next',
-            'click .finish': 'finish'
+            'click .restart-later': 'finish',
+            'click .restart-now': 'restart'
         },
         initialize: function() {
             this.listenTo(this.model, 'change', this.updateProgress);
@@ -67,7 +68,16 @@ define([
             this.model.save().fail(function() {
                 alert('Final installation failed, please check application logs for details.');
             });
-        }
+         },
+         restart: function() {
+            this.model.trigger('block');
+            this.model.set({message: 'Restarting.... If not automatically redirected in a little while click the link above.'});
+            this.model.save(true)
+            .fail(function(){
+                alert('Final installation failed, please check application logs for details.');
+            });
+         }
+
     });
 
     return WelcomeView;

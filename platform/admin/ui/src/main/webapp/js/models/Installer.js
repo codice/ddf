@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define , location */
+/*global define , location , alert , window*/
 define([
     'backbone',
     'underscore',
@@ -53,6 +53,7 @@ define([
         url: '/jolokia/exec/org.apache.karaf:type=features,name=root/',
         installUrl:'/jolokia/exec/org.apache.karaf:type=features,name=root/installFeature(java.lang.String)/',
         uninstallUrl: '/jolokia/exec/org.apache.karaf:type=features,name=root/uninstallFeature(java.lang.String)/',
+        rebootUrl:    '/jolokia/exec/org.apache.karaf:type=system,name=root/reboot()',
         defaults: function () {
             return {
                 hasNext: true,
@@ -126,7 +127,7 @@ define([
         previousStep: function() {
             this.set(_step.call(this, -1));
         },
-        save: function() {
+        save: function(reboot) {
             var that = this;
             wreqr.vent.trigger('modulePoller:stop');
             return $.ajax({
@@ -139,7 +140,41 @@ define([
                     url: that.installUrl + 'admin-post-install-modules/',
                     dataType: 'JSON'
                 }).then(function(){
-                    location.reload();
+                    if (reboot) {
+                        var rebootAjax = $.ajax({
+                            type: 'GET',
+                            url: that.rebootUrl,
+                            dataType: 'JSON'
+                        });
+
+                        rebootAjax.fail(function () {
+                            alert("Error trying to restart system. Please manually restart the system.");
+                        });
+
+                        rebootAjax.done(function () {
+                            (function poll() {
+                                window.setTimeout(function () {
+                                    $.ajax({
+                                        type: 'GET',
+                                        url: that.get("redirectUrl"),
+                                        statusCode: {
+                                            200: function () {
+                                                window.setTimeout(function () {
+                                                    window.location.href = that.get("redirectUrl");
+                                                }, 2000);
+                                            }
+                                        },
+                                        error: function () {
+                                            poll();
+                                        }
+                                    });
+                                }, 1000);
+                            })();
+                        });
+
+                    }else {
+                        location.reload();
+                    }
                 });
             });
         }
