@@ -128,7 +128,7 @@ public abstract class AbstractIntegrationTest {
         }
     }
 
-    public static class DynamicString {
+    public static class DynamicUrl {
         public static final String SECURE_ROOT = "https://localhost:";
 
         public static final String INSECURE_ROOT = "http://localhost:";
@@ -139,20 +139,20 @@ public abstract class AbstractIntegrationTest {
 
         private final DynamicPort port;
 
-        private final DynamicString url;
+        private final DynamicUrl url;
 
-        public DynamicString(String root, DynamicPort port) {
+        public DynamicUrl(String root, DynamicPort port) {
             this(root, port, "");
         }
 
-        public DynamicString(String root, DynamicPort port, String tail) {
+        public DynamicUrl(String root, DynamicPort port, String tail) {
             this.root = root;
             this.port = port;
             this.url = null;
             this.tail = tail;
         }
 
-        public DynamicString(DynamicString url, String tail) {
+        public DynamicUrl(DynamicUrl url, String tail) {
             this.root = null;
             this.port = null;
             this.url = url;
@@ -177,74 +177,24 @@ public abstract class AbstractIntegrationTest {
 
     }
 
-    //    public static class DynamicString {
-    //        public static final String SECURE_ROOT = "https://localhost:";
-    //        public static final String INSECURE_ROOT = "http://localhost:";
-    //
-    //        private final String root;
-    //
-    //        private final List<Object> pieces = new ArrayList<>();
-    //
-    //        public DynamicString(String base) {
-    //            this.root = base;
-    //        }
-    //
-    //        public DynamicString(Object piece, String base) {
-    //            this.pieces.add(piece);
-    //            this.root = base;
-    //        }
-    //
-    //        public DynamicString(Object piece0, Object piece1, String base) {
-    //            this.pieces.add(piece0);
-    //            this.pieces.add(piece1);
-    //            this.root = base;
-    //        }
-    //
-    //        public String getUrl() {
-    //            return this.getUrl(basePort);
-    //        }
-    //
-    //        public String getUrl(Integer basePort) {
-    //            return pieces.stream().map(p -> {
-    //                    if (p instanceof DynamicPort) {
-    //                    return ((DynamicPort) p).getPort(basePort);
-    //                } else if (p instanceof DynamicString) {
-    //                    return ((DynamicString) p).getUrl(basePort);
-    //                } else if (p instanceof String) {
-    //                    return p.toString();
-    //                }
-    //                return "";
-    //                }).reduce("", (acc, val) -> acc + val) + root;
-    //        }
-    //
-    //        /**
-    //         * @return the same String as {@link #getUrl()}
-    //         */
-    //        @Override
-    //        public String toString() {
-    //            return this.getUrl();
-    //        }
-    //
-    //    }
-
-    public static final DynamicString SERVICE_ROOT = new DynamicString(DynamicString.SECURE_ROOT,
+    public static final DynamicUrl SERVICE_ROOT = new DynamicUrl(DynamicUrl.SECURE_ROOT,
             HTTPS_PORT, "/services");
 
-    public static final DynamicString INSECURE_SERVICE_ROOT = new DynamicString(
-            DynamicString.INSECURE_ROOT, HTTP_PORT, "/services");
+    public static final DynamicUrl INSECURE_SERVICE_ROOT = new DynamicUrl(
+            DynamicUrl.INSECURE_ROOT, HTTP_PORT, "/services");
 
-    public static final DynamicString REST_PATH = new DynamicString(SERVICE_ROOT, "/catalog/");
+    public static final DynamicUrl REST_PATH = new DynamicUrl(SERVICE_ROOT, "/catalog/");
 
-    public static final DynamicString OPENSEARCH_PATH = new DynamicString(REST_PATH, "query");
+    public static final DynamicUrl OPENSEARCH_PATH = new DynamicUrl(REST_PATH, "query");
 
-    public static final DynamicString CSW_PATH = new DynamicString(SERVICE_ROOT, "/csw");
+    public static final DynamicUrl CSW_PATH = new DynamicUrl(SERVICE_ROOT, "/csw");
 
-    public static final DynamicString ADMIN_ALL_SOURCES_PATH = new DynamicString(
-            DynamicString.SECURE_ROOT, HTTPS_PORT,
+    public static final DynamicUrl ADMIN_ALL_SOURCES_PATH = new DynamicUrl(
+            DynamicUrl.SECURE_ROOT, HTTPS_PORT,
             "/jolokia/exec/org.codice.ddf.catalog.admin.plugin.AdminSourcePollerServiceBean:service=admin-source-poller-service/allSourceInfo");
 
-    public static final DynamicString ADMIN_STATUS_PATH = new DynamicString(
-            DynamicString.SECURE_ROOT, HTTPS_PORT,
+    public static final DynamicUrl ADMIN_STATUS_PATH = new DynamicUrl(
+            DynamicUrl.SECURE_ROOT, HTTPS_PORT,
             "/jolokia/exec/org.codice.ddf.catalog.admin.plugin.AdminSourcePollerServiceBean:service=admin-source-poller-service/sourceStatus/");
 
     static {
@@ -442,7 +392,7 @@ public abstract class AbstractIntegrationTest {
                         this.getClass().getResource("/ddf.security.sts.client.configuration.cfg")
                                 .toURI())),
                 editConfigurationFilePut("etc/ddf.security.sts.client.configuration.cfg", "address",
-                        DynamicString.SECURE_ROOT + HTTPS_PORT.getPort()
+                        DynamicUrl.SECURE_ROOT + HTTPS_PORT.getPort()
                                 + "/services/SecurityTokenService?wsdl"), replaceConfigurationFile(
                         "etc/ddf.catalog.solr.external.SolrHttpCatalogProvider.cfg", new File(
                                 this.getClass().getResource(
