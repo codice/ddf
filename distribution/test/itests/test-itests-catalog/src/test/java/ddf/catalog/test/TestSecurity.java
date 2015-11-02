@@ -172,10 +172,10 @@ public class TestSecurity extends AbstractIntegrationTest {
 
     private static final String OPENSEARCH_SAML_SOURCE_ID = "openSearchSamlSource";
 
-    private static final DynamicString SECURE_ROOT_AND_PORT = new DynamicString(
-            DynamicString.SECURE_ROOT, DynamicPort.HTTPS_PORT);
+    private static final DynamicUrl SECURE_ROOT_AND_PORT = new DynamicUrl(
+            DynamicUrl.SECURE_ROOT, DynamicPort.HTTPS_PORT);
 
-    private static final DynamicString ADMIN_PATH = new DynamicString(SECURE_ROOT_AND_PORT,
+    private static final DynamicUrl ADMIN_PATH = new DynamicUrl(SECURE_ROOT_AND_PORT,
             "/admin/index.html");
 
     @BeforeExam
