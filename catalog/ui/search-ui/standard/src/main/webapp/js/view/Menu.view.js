@@ -22,7 +22,6 @@ define([
     'underscore',
     'text!templates/menu/menubarLogin.handlebars',
     'text!templates/menu/menubarLogout.handlebars',
-    'text!templates/menu/menubarLoginExternal.handlebars',
     'text!templates/tasks/task.menu.handlebars',
     'text!templates/tasks/task.category.handlebars',
     'text!templates/menu/help.handlebars',
@@ -37,7 +36,7 @@ define([
     'backbonecometd',
     'progressbar'
 ], function(Marionette, ich, menubarTemplate, menubarItemTemplate, Backbone, notificationMenuTemplate,
-        notificationCategoryTemplate, wreqr, _, loginTemplate, logoutTemplate, loginExternalTemplate,
+        notificationCategoryTemplate, wreqr, _, loginTemplate, logoutTemplate,
         taskTemplate, taskCategoryTemplate, helpTemplate, Cometd, $, IngestMenu, PreferencesMenu, Application, properties) {
 
     if (!ich.menubarItemTemplate) {
@@ -53,8 +52,6 @@ define([
     ich.addTemplate('loginTemplate', loginTemplate);
 
     ich.addTemplate('logoutTemplate', logoutTemplate);
-
-    ich.addTemplate('loginExternalTemplate', loginExternalTemplate);
 
     ich.addTemplate('taskTemplate', taskTemplate);
 
@@ -385,23 +382,6 @@ define([
         }
     });
 
-    Menu.LoginExternalForm = Marionette.ItemView.extend({
-            template: 'loginExternalTemplate',
-            events: {
-                'click .btn-loginExternal': 'logOutUser'
-            },
-            logOutUser: function() {
-
-                $.ajax({
-                    type: "GET",
-                    url: '/logout',
-                    async: false,
-                    error: document.location.reload(),
-                    success: document.location.reload()
-                });
-            }
-        });
-
     Menu.Bar = Marionette.LayoutView.extend({
         template: 'menubarTemplate',
         className: 'container-fluid navbar',
@@ -423,7 +403,7 @@ define([
                             this.model.set({name: Application.UserModel.get('user').get('username')});
                         }
                         else if (!this.isNotGuestUser() && properties.externalAuthentication){
-                            this.model.set({name: Application.UserModel.get('user').get('username').split("@")[0]});
+                            this.model.set({name: typeof Application.UserModel.get('user').get('username') === 'undefined' ? "ERROR" : Application.UserModel.get('user').get('username').split("@")[0]});
                         }
                         this.listenTo(Application.UserModel, 'change', this.updateUser);
                     },
