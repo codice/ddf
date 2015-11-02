@@ -35,6 +35,8 @@ import static ddf.catalog.test.AbstractIntegrationTest.DynamicPort.HTTP_PORT;
 import static ddf.catalog.test.AbstractIntegrationTest.DynamicPort.RMI_REG_PORT;
 import static ddf.catalog.test.AbstractIntegrationTest.DynamicPort.RMI_SERVER_PORT;
 import static ddf.catalog.test.AbstractIntegrationTest.DynamicPort.SSH_PORT;
+import static ddf.catalog.test.AbstractIntegrationTest.DynamicUrl.INSECURE_ROOT;
+import static ddf.catalog.test.AbstractIntegrationTest.DynamicUrl.SECURE_ROOT;
 
 import java.io.File;
 import java.io.IOException;
@@ -73,9 +75,6 @@ import ddf.common.test.PaxExamRule;
 import ddf.common.test.PostTestConstruct;
 import ddf.common.test.ServiceManager;
 
-import static ddf.catalog.test.AbstractIntegrationTest.DynamicUrl.SECURE_ROOT;
-import static ddf.catalog.test.AbstractIntegrationTest.DynamicUrl.INSECURE_ROOT;
-
 /**
  * Abstract integration test with helper methods and configuration at the container level
  */
@@ -105,6 +104,12 @@ public abstract class AbstractIntegrationTest {
 
     protected static String ddfHome;
 
+    /**
+     * An enum that returns a port number based on the class variable {@link #basePort}. Used to allow parallel itests
+     * and dynamic allocation of ports to prevent conflicts on hard coded port numbers.
+     * {@link #basePort} needs to be set in the {@link @BeforeExam} method of every test class that uses DynamicPort or
+     * {@link DynamicUrl}. E.g. 'basePort = {@link #getBasePort()}`
+     */
     public enum DynamicPort {
         BASE_PORT("org.codice.ddf.system.basePort"), HTTP_PORT(
                 "org.codice.ddf.system.httpPort"), HTTPS_PORT(
@@ -133,6 +138,11 @@ public abstract class AbstractIntegrationTest {
         }
     }
 
+    /**
+     * A class used to give a dynamic {@link String} that evaluates when called rather than at compile time.
+     * Used to allow parallel itests and dynamic URLs to prevent conflicts on hard coded port numbers and endpoint, source, etc URLs.
+     * Constructed with a {@link ddf.catalog.test.AbstractIntegrationTest.DynamicPort}
+     */
     public static class DynamicUrl {
         public static final String SECURE_ROOT = "https://localhost:";
 
@@ -188,11 +198,11 @@ public abstract class AbstractIntegrationTest {
 
     }
 
-    public static final DynamicUrl SERVICE_ROOT = new DynamicUrl(SECURE_ROOT,
-            HTTPS_PORT, "/services");
+    public static final DynamicUrl SERVICE_ROOT = new DynamicUrl(SECURE_ROOT, HTTPS_PORT,
+            "/services");
 
-    public static final DynamicUrl INSECURE_SERVICE_ROOT = new DynamicUrl(
-            INSECURE_ROOT, HTTP_PORT, "/services");
+    public static final DynamicUrl INSECURE_SERVICE_ROOT = new DynamicUrl(INSECURE_ROOT, HTTP_PORT,
+            "/services");
 
     public static final DynamicUrl REST_PATH = new DynamicUrl(SERVICE_ROOT, "/catalog/");
 
@@ -200,12 +210,10 @@ public abstract class AbstractIntegrationTest {
 
     public static final DynamicUrl CSW_PATH = new DynamicUrl(SERVICE_ROOT, "/csw");
 
-    public static final DynamicUrl ADMIN_ALL_SOURCES_PATH = new DynamicUrl(
-            SECURE_ROOT, HTTPS_PORT,
+    public static final DynamicUrl ADMIN_ALL_SOURCES_PATH = new DynamicUrl(SECURE_ROOT, HTTPS_PORT,
             "/jolokia/exec/org.codice.ddf.catalog.admin.plugin.AdminSourcePollerServiceBean:service=admin-source-poller-service/allSourceInfo");
 
-    public static final DynamicUrl ADMIN_STATUS_PATH = new DynamicUrl(
-            SECURE_ROOT, HTTPS_PORT,
+    public static final DynamicUrl ADMIN_STATUS_PATH = new DynamicUrl(SECURE_ROOT, HTTPS_PORT,
             "/jolokia/exec/org.codice.ddf.catalog.admin.plugin.AdminSourcePollerServiceBean:service=admin-source-poller-service/sourceStatus/");
 
     static {
@@ -403,8 +411,8 @@ public abstract class AbstractIntegrationTest {
                         this.getClass().getResource("/ddf.security.sts.client.configuration.cfg")
                                 .toURI())),
                 editConfigurationFilePut("etc/ddf.security.sts.client.configuration.cfg", "address",
-                        SECURE_ROOT + HTTPS_PORT.getPort()
-                                + "/services/SecurityTokenService?wsdl"), replaceConfigurationFile(
+                        SECURE_ROOT + HTTPS_PORT.getPort() + "/services/SecurityTokenService?wsdl"),
+                replaceConfigurationFile(
                         "etc/ddf.catalog.solr.external.SolrHttpCatalogProvider.cfg", new File(
                                 this.getClass().getResource(
                                         "/ddf.catalog.solr.external.SolrHttpCatalogProvider.cfg")
