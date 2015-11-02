@@ -86,6 +86,14 @@ public class KeyStoreFile {
         }
     }
 
+    public boolean isKey(String alias) {
+        try {
+            return keyStore.isKeyEntry(alias);
+        } catch (KeyStoreException e) {
+            throw new CertificateGeneratorException("Could not determine if alias is a key", e);
+        }
+    }
+
     /**
      * Retrieve keystore entry, given the entry's alias. If the entry is encrypted, this method
      * tries to decrypt it using the keystore's password.

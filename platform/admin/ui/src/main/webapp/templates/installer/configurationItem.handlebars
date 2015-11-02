@@ -11,22 +11,36 @@
  *
  **/
  --}}
-<div class="form-group has-feedback">
-    <div class="input-group btn-group col-xs-4 item">
-        <span class="input-group-addon">{{name}}</span>
+<div class="input-group">
+    <label for="{{key}}" class="input-group-addon property-label">
+        {{title}}
 
-        {{#is optionValues.length 0}}
-            <input type="{{#is type 1}}text{{/is}}{{#is type 5}}text{{/is}}{{#is type 6}}text{{/is}}{{#is type 7}}text{{/is}}{{#is type 8}}text{{/is}}{{#is type 9}}text{{/is}}{{#is type 10}}text{{/is}}{{#is type 12}}password{{/is}}{{#is type 11}}checkbox{{/is}}{{#is type 2}}number{{/is}}{{#is type 3}}number{{/is}}{{#is type 4}}number{{/is}}"
-                   class="form-control" name="{{id}}" placeholder="{{#defaultValue}}{{.}}{{/defaultValue}}" value="{{#defaultValue}}{{.}}{{/defaultValue}}">
-        {{/is}}
-        {{#isnt optionValues.length 0}}
-            <select id="{{id}}" name="{{id}}">
-                {{#each optionLabels}}
-                    <option value="{{lookup ../optionValues @index}}" {{#is @index 0}}selected="selected" {{/is}}>{{.}}</option>
-                {{/each}}
-            </select>
-        {{/isnt}}
-    </div>
-    <span class="error-text" name="{{id}}Error" style="display: none"></span>
-    <span class="description">{{description}}</span>
+        <a style="float:right" href='#' tabindex="-1" data-toggle="{{key}}-popover">
+            <i class="fa fa-question-circle fa-lg"></i>
+        </a>
+
+    </label>
+
+    {{#unless options.length}}
+        {{#if errorMessage}}
+            <input type="text" class="form-control error-border" id={{key}} name="value"
+                   placeholder="{{#defaultValue}}{{.}}{{/defaultValue}}"
+                   value="{{#value}}{{.}}{{/value}}">
+        {{else}}
+            <input type="text" class="form-control" id={{key}} name="value"
+                   placeholder="{{#defaultValue}}{{.}}{{/defaultValue}}"
+                   value="{{#value}}{{.}}{{/value}}">
+        {{/if}}
+
+    {{else}}
+        <select id="{{key}}" name="value" class="form-control">
+            {{#each options}}
+                <option value="{{lookup ../options @index}}">{{.}}</option>
+            {{/each}}
+        </select>
+    {{/unless}}
+
 </div>
+{{#if errorMessage}}
+    <span class="error-text-table">{{errorMessage}}</span>
+{{/if}}

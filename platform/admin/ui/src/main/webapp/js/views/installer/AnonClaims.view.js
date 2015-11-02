@@ -81,8 +81,6 @@ define([
                 this.valObj.get("claims").availableClaims = this.valObj.get("claims").availableClaims.sort();
                 this.valObj.get("claims").availableClaims.push("Add Custom Attribute...");
             }
-
-            Backbone.ModelBinder.SetOptions({modelSetOptions: {validate: true}});
         },
         checkConfig: function() {
             if(this.model.get('value').at(0).get('configurations').length === 0) {
