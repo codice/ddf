@@ -999,9 +999,7 @@ button.ui-multiselect {
 
 .logout-container {
     margin: 10px auto;
-    min-width: 75%;
-    padding-left: 19px;
-    padding-right: 19px;
+    width: 75%;
 }
 
 .full-screen-search {

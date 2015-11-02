@@ -9,7 +9,8 @@ describe('external authentication Login', function() {
     it("should have 'Sign In With Credentials' button", function() {
         return this.browser
         .waitForElementById('signin',shared.timeout).click()
-        .waitForElementByClassName('btn-loginExternal', shared.timeout)
+        
+        .waitForElementByClassName('btn-logout', shared.timeout)
         .takeScreenshot().saveScreenshot(shared.getPathForScreenshot('sign-in-with-credentials.png'));
     });
 });
