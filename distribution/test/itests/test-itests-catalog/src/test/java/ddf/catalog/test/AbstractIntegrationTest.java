@@ -63,6 +63,8 @@ import org.osgi.service.metatype.MetaTypeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sun.istack.NotNull;
+
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.FederatedSource;
@@ -70,6 +72,9 @@ import ddf.common.test.AdminConfig;
 import ddf.common.test.PaxExamRule;
 import ddf.common.test.PostTestConstruct;
 import ddf.common.test.ServiceManager;
+
+import static ddf.catalog.test.AbstractIntegrationTest.DynamicUrl.SECURE_ROOT;
+import static ddf.catalog.test.AbstractIntegrationTest.DynamicUrl.INSECURE_ROOT;
 
 /**
  * Abstract integration test with helper methods and configuration at the container level
@@ -141,18 +146,24 @@ public abstract class AbstractIntegrationTest {
 
         private final DynamicUrl url;
 
-        public DynamicUrl(String root, DynamicPort port) {
+        public DynamicUrl(String root, @NotNull DynamicPort port) {
             this(root, port, "");
         }
 
-        public DynamicUrl(String root, DynamicPort port, String tail) {
+        public DynamicUrl(String root, @NotNull DynamicPort port, String tail) {
+            if (null == port) {
+                throw new IllegalArgumentException("Port cannot be null");
+            }
             this.root = root;
             this.port = port;
             this.url = null;
             this.tail = tail;
         }
 
-        public DynamicUrl(DynamicUrl url, String tail) {
+        public DynamicUrl(@NotNull DynamicUrl url, String tail) {
+            if (null == url) {
+                throw new IllegalArgumentException("Url cannot be null");
+            }
             this.root = null;
             this.port = null;
             this.url = url;
@@ -177,11 +188,11 @@ public abstract class AbstractIntegrationTest {
 
     }
 
-    public static final DynamicUrl SERVICE_ROOT = new DynamicUrl(DynamicUrl.SECURE_ROOT,
+    public static final DynamicUrl SERVICE_ROOT = new DynamicUrl(SECURE_ROOT,
             HTTPS_PORT, "/services");
 
     public static final DynamicUrl INSECURE_SERVICE_ROOT = new DynamicUrl(
-            DynamicUrl.INSECURE_ROOT, HTTP_PORT, "/services");
+            INSECURE_ROOT, HTTP_PORT, "/services");
 
     public static final DynamicUrl REST_PATH = new DynamicUrl(SERVICE_ROOT, "/catalog/");
 
@@ -190,11 +201,11 @@ public abstract class AbstractIntegrationTest {
     public static final DynamicUrl CSW_PATH = new DynamicUrl(SERVICE_ROOT, "/csw");
 
     public static final DynamicUrl ADMIN_ALL_SOURCES_PATH = new DynamicUrl(
-            DynamicUrl.SECURE_ROOT, HTTPS_PORT,
+            SECURE_ROOT, HTTPS_PORT,
             "/jolokia/exec/org.codice.ddf.catalog.admin.plugin.AdminSourcePollerServiceBean:service=admin-source-poller-service/allSourceInfo");
 
     public static final DynamicUrl ADMIN_STATUS_PATH = new DynamicUrl(
-            DynamicUrl.SECURE_ROOT, HTTPS_PORT,
+            SECURE_ROOT, HTTPS_PORT,
             "/jolokia/exec/org.codice.ddf.catalog.admin.plugin.AdminSourcePollerServiceBean:service=admin-source-poller-service/sourceStatus/");
 
     static {
@@ -392,7 +403,7 @@ public abstract class AbstractIntegrationTest {
                         this.getClass().getResource("/ddf.security.sts.client.configuration.cfg")
                                 .toURI())),
                 editConfigurationFilePut("etc/ddf.security.sts.client.configuration.cfg", "address",
-                        DynamicUrl.SECURE_ROOT + HTTPS_PORT.getPort()
+                        SECURE_ROOT + HTTPS_PORT.getPort()
                                 + "/services/SecurityTokenService?wsdl"), replaceConfigurationFile(
                         "etc/ddf.catalog.solr.external.SolrHttpCatalogProvider.cfg", new File(
                                 this.getClass().getResource(
