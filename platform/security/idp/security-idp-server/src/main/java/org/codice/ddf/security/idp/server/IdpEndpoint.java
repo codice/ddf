@@ -362,7 +362,8 @@ public class IdpEndpoint implements Idp {
             }
         } else if (GUEST.equals(authMethod)) {
             LOGGER.debug("Logging user in as Guest.");
-            token = new AnonymousAuthenticationToken(BaseAuthenticationToken.ALL_REALM);
+            token = new AnonymousAuthenticationToken(BaseAuthenticationToken.ALL_REALM,
+                    request.getRemoteAddr());
         } else {
             throw new IllegalArgumentException("Auth method is not supported.");
         }
