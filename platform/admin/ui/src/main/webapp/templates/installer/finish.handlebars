@@ -13,12 +13,28 @@
  --}}
 <h3>Finished</h3>
 
-<div>
+<div class="main-content">
     <div class="well white">
         <p class="lead">Congratulations! Your system is now configured.
             <br/>
             <br/>
-            Click the Finish button below to conclude the setup.
+            Click the 'Restart Now' button below to conclude the setup and restart the system.
+            <br/>
+            Click the 'Restart Later' button below to conclude the setup. A manually restart will be needed for changes to take effect.
         </p>
+    </div>
+</div>
+<div class="loading-overlay">
+    <div class="block">
+        <div class="centered">
+            <i class="fa fa-spinner fa-spin fa-5x"></i>
+            <br>
+            <br>
+            <br>
+            <label>Redirecting to </label>
+            <label>
+                <a href="{{redirectUrl}}">{{redirectUrl}}</a>
+            </label>
+        </div>
     </div>
 </div>

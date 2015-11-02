@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -35,6 +35,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.Security;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
@@ -68,6 +69,7 @@ import org.bouncycastle.asn1.x500.style.IETFUtils;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder;
 import org.bouncycastle.cms.CMSEnvelopedData;
+import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openssl.PEMEncryptedKeyPair;
 import org.bouncycastle.openssl.PEMKeyPair;
@@ -190,6 +192,43 @@ public class KeystoreEditor implements KeystoreEditorMBean {
         return getKeyStoreInfo(trustStore);
     }
 
+    @Override
+    public void reInitializeKeystores() {
+        init();
+    }
+
+    @Override
+    public boolean keystoreContainsEntry(String target, String storePassword, String data,
+            String type, String fileName)
+            throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException,
+            KeyStoreException, IOException, NoSuchProviderException, CMSException,
+            KeystoreEditorException {
+        KeyStore ks = getKeyStore(storePassword, data, type, fileName);
+        Enumeration<String> aliases = ks.aliases();
+        while (aliases.hasMoreElements()) {
+            if (target.equals(aliases.nextElement())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public void addAllKeystoreEntries(String keyPassword, String storePassword, String data,
+            String type, String fileName)
+            throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException,
+            KeyStoreException, IOException, NoSuchProviderException, CMSException,
+            KeystoreEditorException {
+
+        KeyStore ks = getKeyStore(storePassword, data, type, fileName);
+        Enumeration<String> aliases = ks.aliases();
+        while (aliases.hasMoreElements()) {
+            String alias = aliases.nextElement();
+            this.deletePrivateKey(alias);
+            this.addPrivateKey(alias, keyPassword, storePassword, data, type, fileName);
+        }
+    }
+
     private List<Map<String, Object>> getKeyStoreInfo(KeyStore store) {
         List<Map<String, Object>> storeEntries = new ArrayList<>();
         try {
@@ -212,6 +251,34 @@ public class KeystoreEditor implements KeystoreEditorMBean {
         return storeEntries;
     }
 
+    private KeyStore getKeyStore(String storePassword, String data, String type, String fileName)
+            throws KeystoreEditorException {
+        if (StringUtils.isEmpty(fileName) || StringUtils.isEmpty(data) || StringUtils
+                .isEmpty(storePassword)) {
+            throw new KeystoreEditorException("Missing required parameters");
+        }
+        KeyStore ks = null;
+        try {
+            if (PKCS12_TYPE.equals(type) || StringUtils.endsWithIgnoreCase(fileName, ".p12")) {
+                ks = KeyStore.getInstance("PKCS12");
+            } else if (JKS_TYPE.equals(type) || StringUtils.endsWithIgnoreCase(fileName, ".jks")) {
+                ks = KeyStore.getInstance("JKS");
+            } else {
+                throw new KeystoreEditorException("Not a supported keystore type");
+            }
+
+            ks.load(new ByteArrayInputStream(Base64.decode(data)), storePassword.toCharArray());
+        } catch (KeyStoreException e) {
+            LOGGER.warn("Unable to create keystore instance.", e);
+            throw new KeystoreEditorException("Unable to create keystore instance.", e);
+        } catch (NoSuchAlgorithmException | CertificateException | IOException e) {
+            LOGGER.warn("Unable to read keystore data from {}", fileName, e);
+            throw new KeystoreEditorException("Unable to read keystore data from " + fileName, e);
+        }
+
+        return ks;
+    }
+
     @Override
     public void addPrivateKey(String alias, String keyPassword, String storePassword, String data,
             String type, String fileName) throws KeystoreEditorException {
@@ -228,6 +295,21 @@ public class KeystoreEditor implements KeystoreEditorMBean {
     }
 
     @Override
+    public void addAllTruststoreEntries(String keyPassword, String storePassword, String data,
+            String type, String fileName)
+            throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException,
+            KeyStoreException, IOException, NoSuchProviderException, CMSException,
+            KeystoreEditorException {
+        KeyStore ks = getKeyStore(storePassword, data, type, fileName);
+        Enumeration<String> aliases = ks.aliases();
+        while (aliases.hasMoreElements()) {
+            String alias = aliases.nextElement();
+            this.deleteTrustedCertificate(alias);
+            this.addTrustedCertificate(alias, keyPassword, storePassword, data, type, fileName);
+        }
+    }
+
+    @Override
     public void addTrustedCertificate(String alias, String keyPassword, String storePassword,
             String data, String type, String fileName) throws KeystoreEditorException {
         LOGGER.info("Adding alias {} to trust store", alias);
@@ -238,13 +320,13 @@ public class KeystoreEditor implements KeystoreEditorMBean {
             trustStoreFile = Paths.get(ddfHomePath.toString(), trustStoreFile.toString());
         }
         String trustStorePassword = System.getProperty("javax.net.ssl.trustStorePassword");
-        addToStore(alias, keyPassword, storePassword, data, type, fileName, trustStoreFile.toString(),
-                trustStorePassword, trustStore);
+        addToStore(alias, keyPassword, storePassword, data, type, fileName,
+                trustStoreFile.toString(), trustStorePassword, trustStore);
     }
 
-    private synchronized void addToStore(String alias, String keyPassword, String storePassword, String data,
-            String type, String fileName, String path, String storepass, KeyStore store)
-            throws KeystoreEditorException {
+    private synchronized void addToStore(String alias, String keyPassword, String storePassword,
+            String data, String type, String fileName, String path, String storepass,
+            KeyStore store) throws KeystoreEditorException {
         OutputStream fos = null;
         try (InputStream inputStream = new ByteArrayInputStream(Base64.decode(data))) {
             if (StringUtils.isBlank(alias)) {
@@ -270,13 +352,16 @@ public class KeystoreEditor implements KeystoreEditorMBean {
                 Enumeration<String> aliases = jks.aliases();
                 while (aliases.hasMoreElements()) {
                     String jksAlias = aliases.nextElement();
-                    if (jks.isKeyEntry(jksAlias)) {
-                        Key key = jks.getKey(jksAlias, keyPassword.toCharArray());
-                        Certificate[] certificateChain = jks.getCertificateChain(jksAlias);
-                        store.setKeyEntry(alias, key, keyPassword.toCharArray(), certificateChain);
-                    } else {
-                        Certificate certificate = jks.getCertificate(alias);
-                        store.setCertificateEntry(alias, certificate);
+                    if (alias.equals(jksAlias)) {
+                        if (jks.isKeyEntry(jksAlias)) {
+                            Key key = jks.getKey(jksAlias, keyPassword.toCharArray());
+                            Certificate[] certificateChain = jks.getCertificateChain(jksAlias);
+                            store.setKeyEntry(alias, key, keyPassword.toCharArray(),
+                                    certificateChain);
+                        } else {
+                            Certificate certificate = jks.getCertificate(alias);
+                            store.setCertificateEntry(alias, certificate);
+                        }
                     }
                 }
                 fos = Files.newOutputStream(storeFile);
@@ -511,7 +596,8 @@ public class KeystoreEditor implements KeystoreEditorMBean {
         deleteFromStore(alias, trustStoreFile.toString(), trustStorePassword, trustStore);
     }
 
-    private synchronized void deleteFromStore(String alias, String path, String pass, KeyStore store) {
+    private synchronized void deleteFromStore(String alias, String path, String pass,
+            KeyStore store) {
         if (alias == null) {
             throw new IllegalArgumentException("Alias cannot be null.");
         }
