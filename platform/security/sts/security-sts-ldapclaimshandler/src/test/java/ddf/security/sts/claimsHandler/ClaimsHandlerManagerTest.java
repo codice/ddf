@@ -84,7 +84,7 @@ public class ClaimsHandlerManagerTest {
         manager.setLdapBindUserDn("cn=admin");
         manager.setObjectClass("ou=users,dc=example,dc=com");
         manager.setMemberNameAttribute("member");
-        manager.setPassword("ENC(c+GitDfYAMTDRESXSDDsMw==)");
+        manager.setPassword("secret");
         manager.setPropertyFileLocation("etc/ws-security/attributeMap.properties");
         manager.configure();
 
