@@ -176,7 +176,8 @@ center {
         background-color: darken(#7f9293,15%);
     }
 }
-#warning-div {
+
+.error-div-box {
     font-size: 12pt;
     border-radius: 3px;
     background-color: @warning-background-color;
@@ -189,6 +190,9 @@ center {
     ul {
         margin-bottom: 0 !important;
     }
+}
+#warning-div {
+    .error-div-box;
 }
 
 
@@ -239,5 +243,52 @@ center {
     .minus-button {
         .claim-button;
     }
+
+}
+
+
+
+.store-div {
+    float:left;
+    position:relative;
+    width: 49%;
+    padding-left: 20px;
+    padding-right: 20px;
+
+    table {
+        width: 100%;
+        .store-password {
+            width: 100%;
+        }
+
+        td {
+            padding: 5px 0px;
+        }
+    }
+    .error-border {
+        border-color: @error-background-color !important;
+    }
+    .drop-zone {
+        text-align: center;
+        border: dashed medium black;
+        padding-top: 15px;
+        padding-bottom: 15px;
+    }
+    .store-label {
+        padding-right: 10px;
+    }
+    .store-title {
+        font-size: large;
+    }
+
+    .store-file {
+        padding: 5px 0px;
+    }
+}
+
+
+.cert-errors {
+    .error-div-box;
+    background-color: @error-background-color;
 
 }
