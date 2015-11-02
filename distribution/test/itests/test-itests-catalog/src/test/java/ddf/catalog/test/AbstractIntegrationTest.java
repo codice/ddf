@@ -29,6 +29,12 @@ import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.keepRunti
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.logLevel;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.replaceConfigurationFile;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.useOwnExamBundlesStartLevel;
+import static ddf.catalog.test.AbstractIntegrationTest.DynamicPort.BASE_PORT;
+import static ddf.catalog.test.AbstractIntegrationTest.DynamicPort.HTTPS_PORT;
+import static ddf.catalog.test.AbstractIntegrationTest.DynamicPort.HTTP_PORT;
+import static ddf.catalog.test.AbstractIntegrationTest.DynamicPort.RMI_REG_PORT;
+import static ddf.catalog.test.AbstractIntegrationTest.DynamicPort.RMI_SERVER_PORT;
+import static ddf.catalog.test.AbstractIntegrationTest.DynamicPort.SSH_PORT;
 
 import java.io.File;
 import java.io.IOException;
@@ -124,58 +130,41 @@ public abstract class AbstractIntegrationTest {
 
     public static class DynamicString {
         public static final String SECURE_ROOT = "https://localhost:";
+
         public static final String INSECURE_ROOT = "http://localhost:";
 
         private final String root;
 
-        private final List<Object> pieces = new ArrayList<>();
+        private final String tail;
 
-        public DynamicString(String base) {
-            this.root = base;
+        private final DynamicPort port;
+
+        private final DynamicString url;
+
+        public DynamicString(String root, DynamicPort port) {
+            this(root, port, "");
         }
 
-        public DynamicString(Object piece, String base) {
-            this.pieces.add(piece);
-            this.root = base;
+        public DynamicString(String root, DynamicPort port, String tail) {
+            this.root = root;
+            this.port = port;
+            this.url = null;
+            this.tail = tail;
         }
 
-//        public DynamicString(String piece, String base) {
-//            this.pieces.add(piece);
-//            this.root = base;
-//        }
-//
-//        public DynamicString(DynamicString piece, String base) {
-//            this.pieces.add(piece);
-//            this.root = base;
-//        }
-
-        public DynamicString(Object piece0, Object piece1, String base) {
-            this.pieces.add(piece0);
-            this.pieces.add(piece1);
-            this.root = base;
+        public DynamicString(DynamicString url, String tail) {
+            this.root = null;
+            this.port = null;
+            this.url = url;
+            this.tail = tail;
         }
-
-//        public DynamicString(Enum piece0, Enum piece1, String base) {
-//            this.pieces.add(piece0);
-//            this.pieces.add(piece1);
-//            this.root = base;
-//        }
 
         public String getUrl() {
-            return this.getUrl(basePort);
-        }
-
-        public String getUrl(Integer basePort) {
-            return pieces.stream().map(p -> {
-                    if (p instanceof DynamicPort) {
-                        return ((DynamicPort) p).getPort(basePort);
-                    } else if (p instanceof DynamicString) {
-                        return ((DynamicString) p).getUrl(basePort);
-                    } else if (p instanceof String) {
-                        return p.toString();
-                    }
-                    return "";
-                }).reduce("", (acc, val) -> acc + val) + root;
+            if (null != port) {
+                return root + port.getPort() + tail;
+            } else {
+                return url.getUrl() + tail;
+            }
         }
 
         /**
@@ -188,14 +177,74 @@ public abstract class AbstractIntegrationTest {
 
     }
 
-    public static final DynamicString SERVICE_ROOT = new DynamicString(DynamicString.SECURE_ROOT, DynamicPort.HTTPS_PORT, "/services");
-    public static final DynamicString INSECURE_SERVICE_ROOT = new DynamicString(DynamicString.INSECURE_ROOT, DynamicPort.HTTP_PORT, "/services");
+    //    public static class DynamicString {
+    //        public static final String SECURE_ROOT = "https://localhost:";
+    //        public static final String INSECURE_ROOT = "http://localhost:";
+    //
+    //        private final String root;
+    //
+    //        private final List<Object> pieces = new ArrayList<>();
+    //
+    //        public DynamicString(String base) {
+    //            this.root = base;
+    //        }
+    //
+    //        public DynamicString(Object piece, String base) {
+    //            this.pieces.add(piece);
+    //            this.root = base;
+    //        }
+    //
+    //        public DynamicString(Object piece0, Object piece1, String base) {
+    //            this.pieces.add(piece0);
+    //            this.pieces.add(piece1);
+    //            this.root = base;
+    //        }
+    //
+    //        public String getUrl() {
+    //            return this.getUrl(basePort);
+    //        }
+    //
+    //        public String getUrl(Integer basePort) {
+    //            return pieces.stream().map(p -> {
+    //                    if (p instanceof DynamicPort) {
+    //                    return ((DynamicPort) p).getPort(basePort);
+    //                } else if (p instanceof DynamicString) {
+    //                    return ((DynamicString) p).getUrl(basePort);
+    //                } else if (p instanceof String) {
+    //                    return p.toString();
+    //                }
+    //                return "";
+    //                }).reduce("", (acc, val) -> acc + val) + root;
+    //        }
+    //
+    //        /**
+    //         * @return the same String as {@link #getUrl()}
+    //         */
+    //        @Override
+    //        public String toString() {
+    //            return this.getUrl();
+    //        }
+    //
+    //    }
+
+    public static final DynamicString SERVICE_ROOT = new DynamicString(DynamicString.SECURE_ROOT,
+            HTTPS_PORT, "/services");
+
+    public static final DynamicString INSECURE_SERVICE_ROOT = new DynamicString(
+            DynamicString.INSECURE_ROOT, HTTP_PORT, "/services");
+
     public static final DynamicString REST_PATH = new DynamicString(SERVICE_ROOT, "/catalog/");
+
     public static final DynamicString OPENSEARCH_PATH = new DynamicString(REST_PATH, "query");
+
     public static final DynamicString CSW_PATH = new DynamicString(SERVICE_ROOT, "/csw");
-    public static final DynamicString ADMIN_ALL_SOURCES_PATH = new DynamicString(DynamicString.SECURE_ROOT, DynamicPort.HTTPS_PORT,
+
+    public static final DynamicString ADMIN_ALL_SOURCES_PATH = new DynamicString(
+            DynamicString.SECURE_ROOT, HTTPS_PORT,
             "/jolokia/exec/org.codice.ddf.catalog.admin.plugin.AdminSourcePollerServiceBean:service=admin-source-poller-service/allSourceInfo");
-    public static final DynamicString ADMIN_STATUS_PATH = new DynamicString(DynamicString.SECURE_ROOT, DynamicPort.HTTPS_PORT,
+
+    public static final DynamicString ADMIN_STATUS_PATH = new DynamicString(
+            DynamicString.SECURE_ROOT, HTTPS_PORT,
             "/jolokia/exec/org.codice.ddf.catalog.admin.plugin.AdminSourcePollerServiceBean:service=admin-source-poller-service/sourceStatus/");
 
     static {
@@ -358,19 +407,16 @@ public abstract class AbstractIntegrationTest {
         return options(editConfigurationFilePut("etc/system.properties", "urlScheme", "https"),
                 editConfigurationFilePut("etc/system.properties", "host", "localhost"),
                 editConfigurationFilePut("etc/system.properties", "jetty.port",
-                        DynamicPort.HTTPS_PORT.getPort()),
+                        HTTPS_PORT.getPort()),
                 editConfigurationFilePut("etc/system.properties", "hostContext", "/solr"),
                 editConfigurationFilePut("etc/system.properties", "ddf.home", "${karaf.home}"),
 
-                editConfigurationFilePut("etc/system.properties",
-                        DynamicPort.HTTP_PORT.getSystemProperty(), DynamicPort.HTTP_PORT.getPort(
-                        )),
-                editConfigurationFilePut("etc/system.properties",
-                        DynamicPort.HTTPS_PORT.getSystemProperty(), DynamicPort.HTTPS_PORT.getPort(
-                        )),
-                editConfigurationFilePut("etc/system.properties",
-                        DynamicPort.BASE_PORT.getSystemProperty(), DynamicPort.BASE_PORT.getPort(
-                        )),
+                editConfigurationFilePut("etc/system.properties", HTTP_PORT.getSystemProperty(),
+                        HTTP_PORT.getPort()),
+                editConfigurationFilePut("etc/system.properties", HTTPS_PORT.getSystemProperty(),
+                        HTTPS_PORT.getPort()),
+                editConfigurationFilePut("etc/system.properties", BASE_PORT.getSystemProperty(),
+                        BASE_PORT.getPort()),
 
                 // DDF-1572: Disables the periodic backups of .bundlefile. In itests, having those
                 // backups serves no purpose and it appears that intermittent failures have occurred
@@ -380,27 +426,24 @@ public abstract class AbstractIntegrationTest {
                         Boolean.FALSE.toString()),
 
                 editConfigurationFilePut("etc/org.apache.karaf.shell.cfg", "sshPort",
-                        DynamicPort.SSH_PORT.getPort()),
+                        SSH_PORT.getPort()),
                 editConfigurationFilePut("etc/ddf.platform.config.cfg", "port",
-                        DynamicPort.HTTPS_PORT.getPort()),
+                        HTTPS_PORT.getPort()),
                 editConfigurationFilePut("etc/ddf.platform.config.cfg", "host", "localhost"),
                 editConfigurationFilePut("etc/org.ops4j.pax.web.cfg", "org.osgi.service.http.port",
-                        DynamicPort.HTTP_PORT.getPort()),
-                editConfigurationFilePut("etc/org.ops4j.pax.web.cfg",
-                        "org.osgi.service.http.port.secure", DynamicPort.HTTPS_PORT.getPort()),
+                        HTTP_PORT.getPort()), editConfigurationFilePut("etc/org.ops4j.pax.web.cfg",
+                        "org.osgi.service.http.port.secure", HTTPS_PORT.getPort()),
                 editConfigurationFilePut("etc/org.apache.karaf.management.cfg", "rmiRegistryPort",
-                        DynamicPort.RMI_REG_PORT.getPort()),
+                        RMI_REG_PORT.getPort()),
                 editConfigurationFilePut("etc/org.apache.karaf.management.cfg", "rmiServerPort",
-                        DynamicPort.RMI_SERVER_PORT.getPort()),
-                replaceConfigurationFile("etc/hazelcast.xml",
+                        RMI_SERVER_PORT.getPort()), replaceConfigurationFile("etc/hazelcast.xml",
                         new File(this.getClass().getResource("/hazelcast.xml").toURI())),
                 replaceConfigurationFile("etc/ddf.security.sts.client.configuration.cfg", new File(
                         this.getClass().getResource("/ddf.security.sts.client.configuration.cfg")
                                 .toURI())),
                 editConfigurationFilePut("etc/ddf.security.sts.client.configuration.cfg", "address",
-                        DynamicString.SECURE_ROOT + DynamicPort.HTTPS_PORT.getPort()
-                                + "/services/SecurityTokenService?wsdl"),
-                replaceConfigurationFile(
+                        DynamicString.SECURE_ROOT + HTTPS_PORT.getPort()
+                                + "/services/SecurityTokenService?wsdl"), replaceConfigurationFile(
                         "etc/ddf.catalog.solr.external.SolrHttpCatalogProvider.cfg", new File(
                                 this.getClass().getResource(
                                         "/ddf.catalog.solr.external.SolrHttpCatalogProvider.cfg")
@@ -418,14 +461,16 @@ public abstract class AbstractIntegrationTest {
                                 + "http://repository.springsource.com/maven/bundles/release@id=springsource,"
                                 + "http://repository.springsource.com/maven/bundles/external@id=springsourceext,"
                                 + "http://oss.sonatype.org/content/repositories/releases/@id=sonatype"),
-                when(System.getProperty("maven.repo.local") != null).useOptions(editConfigurationFilePut("etc/org.ops4j.pax.url.mvn.cfg",
+                when(System.getProperty("maven.repo.local") != null).useOptions(
+                        editConfigurationFilePut("etc/org.ops4j.pax.url.mvn.cfg",
                                 "org.ops4j.pax.url.mvn.localRepository",
                                 System.getProperty("maven.repo.local"))));
     }
 
     protected Option[] configureSystemSettings() {
         return options(when(System.getProperty(TEST_LOGLEVEL_PROPERTY) != null).useOptions(
-                        systemProperty(TEST_LOGLEVEL_PROPERTY).value(System.getProperty(TEST_LOGLEVEL_PROPERTY, ""))),
+                        systemProperty(TEST_LOGLEVEL_PROPERTY)
+                                .value(System.getProperty(TEST_LOGLEVEL_PROPERTY, ""))),
                 when(Boolean.getBoolean("isDebugEnabled")).useOptions(
                         vmOption("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005")),
                 when(System.getProperty("maven.repo.local") != null).useOptions(
@@ -450,7 +495,7 @@ public abstract class AbstractIntegrationTest {
     }
 
     protected Integer getBasePort() {
-        return Integer.parseInt(System.getProperty(DynamicPort.BASE_PORT.getSystemProperty()));
+        return Integer.parseInt(System.getProperty(BASE_PORT.getSystemProperty()));
     }
 
     /**
