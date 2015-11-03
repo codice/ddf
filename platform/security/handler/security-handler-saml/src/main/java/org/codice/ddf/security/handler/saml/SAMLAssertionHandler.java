@@ -166,9 +166,9 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
             //If so, create a SAMLAuthenticationToken using the sessionId
             SecurityTokenHolder savedToken = (SecurityTokenHolder) session
                     .getAttribute(SecurityConstants.SAML_ASSERTION);
-            if (savedToken != null && savedToken.getSecurityToken() != null) {
+            if (savedToken != null && savedToken.getSecurityToken(realm) != null) {
                 SecurityAssertionImpl assertion = new SecurityAssertionImpl(
-                        savedToken.getSecurityToken());
+                        savedToken.getSecurityToken(realm));
                 if (assertion.getNotOnOrAfter() == null
                         || assertion.getNotOnOrAfter().getTime() - System.currentTimeMillis() > 0) {
                     LOGGER.trace("Creating SAML authentication token with session.");
@@ -180,7 +180,7 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
                 } else {
                     LOGGER.trace(
                             "SAML token in session has expired - removing from session and returning with no results");
-                    savedToken.setSecurityToken(null);
+                    savedToken.remove(realm);
                 }
             } else {
                 LOGGER.trace("No SAML token located in session - returning with no results");

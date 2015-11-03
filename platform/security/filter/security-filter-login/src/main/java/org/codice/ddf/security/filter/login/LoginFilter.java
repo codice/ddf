@@ -341,7 +341,8 @@ public class LoginFilter implements Filter {
                 }
                 SecurityToken savedToken = null;
                 try {
-                    savedToken = ((SecurityTokenHolder) sessionToken).getSecurityToken();
+                    savedToken = ((SecurityTokenHolder) sessionToken)
+                            .getSecurityToken(token.getRealm());
                 } catch (ClassCastException e) {
                     httpRequest.getSession(false).invalidate();
                 }
@@ -416,7 +417,7 @@ public class LoginFilter implements Filter {
                 // if it is all good, then we'll create our subject
                 subject = securityManager.getSubject(securityToken);
 
-                addSamlToSession(httpRequest, securityToken);
+                addSamlToSession(httpRequest, token.getRealm(), securityToken);
             }
         } catch (SecurityServiceException e) {
             LOGGER.error("Unable to get subject from SAML request.", e);
@@ -478,7 +479,7 @@ public class LoginFilter implements Filter {
                                 }
                                 ((SecurityTokenHolder) session
                                         .getAttribute(SecurityConstants.SAML_ASSERTION))
-                                        .setSecurityToken(token);
+                                        .addSecurityToken(savedToken.getRealm(), token);
 
                                 SecurityAssertion assertion = new SecurityAssertionImpl(
                                         ((SecurityToken) savedToken.getCredentials()));
@@ -512,11 +513,10 @@ public class LoginFilter implements Filter {
     private Subject handleAuthenticationToken(HttpServletRequest httpRequest,
             BaseAuthenticationToken token) throws ServletException {
         Subject subject;
-
         synchronized (lock) {
             HttpSession session = sessionFactory.getOrCreateSession(httpRequest);
             //if we already have an assertion inside the session and it has not expired, then use that instead
-            SecurityToken sessionToken = getSecurityToken(session);
+            SecurityToken sessionToken = getSecurityToken(session, token.getRealm());
 
             if (sessionToken == null) {
 
@@ -538,7 +538,7 @@ public class LoginFilter implements Filter {
                             }
                             SecurityToken securityToken = ((SecurityAssertion) principal)
                                     .getSecurityToken();
-                            addSamlToSession(httpRequest, securityToken);
+                            addSamlToSession(httpRequest, token.getRealm(), securityToken);
                         }
                     }
                 } catch (SecurityServiceException e) {
@@ -556,7 +556,7 @@ public class LoginFilter implements Filter {
         return subject;
     }
 
-    private SecurityToken getSecurityToken(HttpSession session) {
+    private SecurityToken getSecurityToken(HttpSession session, String realm) {
         if (session.getAttribute(SecurityConstants.SAML_ASSERTION) == null) {
             LOGGER.error(
                     "Security token holder missing from session. New session created improperly.");
@@ -566,14 +566,14 @@ public class LoginFilter implements Filter {
         SecurityTokenHolder tokenHolder = ((SecurityTokenHolder) session
                 .getAttribute(SecurityConstants.SAML_ASSERTION));
 
-        SecurityToken token = tokenHolder.getSecurityToken();
+        SecurityToken token = tokenHolder.getSecurityToken(realm);
 
         if (token != null) {
             SecurityAssertionImpl assertion = new SecurityAssertionImpl(token);
             if (assertion.getNotOnOrAfter() != null
                     && assertion.getNotOnOrAfter().getTime() - System.currentTimeMillis() < 0) {
                 LOGGER.debug("Session SAML token has expired.  Removing from session.");
-                tokenHolder.setSecurityToken(null);
+                tokenHolder.remove(realm);
                 return null;
             }
         }
@@ -581,11 +581,11 @@ public class LoginFilter implements Filter {
         return token;
     }
 
-    private void addSecurityToken(HttpSession session, SecurityToken token) {
+    private void addSecurityToken(HttpSession session, String realm, SecurityToken token) {
         SecurityTokenHolder holder = (SecurityTokenHolder) session
                 .getAttribute(SecurityConstants.SAML_ASSERTION);
 
-        holder.setSecurityToken(token);
+        holder.addSecurityToken(realm, token);
     }
 
     /**
@@ -594,7 +594,8 @@ public class LoginFilter implements Filter {
      * @param httpRequest   the http request object for this request
      * @param securityToken the SecurityToken object representing the SAML assertion
      */
-    private void addSamlToSession(HttpServletRequest httpRequest, SecurityToken securityToken) {
+    private void addSamlToSession(HttpServletRequest httpRequest, String realm,
+            SecurityToken securityToken) {
         if (securityToken == null) {
             LOGGER.debug("Cannot add null security token to session.");
             return;
@@ -602,9 +603,9 @@ public class LoginFilter implements Filter {
 
         synchronized (lock) {
             HttpSession session = sessionFactory.getOrCreateSession(httpRequest);
-            SecurityToken sessionToken = getSecurityToken(session);
+            SecurityToken sessionToken = getSecurityToken(session, realm);
             if (sessionToken == null) {
-                addSecurityToken(session, securityToken);
+                addSecurityToken(session, realm, securityToken);
 
                 SecurityAssertion assertion = new SecurityAssertionImpl(securityToken);
 
