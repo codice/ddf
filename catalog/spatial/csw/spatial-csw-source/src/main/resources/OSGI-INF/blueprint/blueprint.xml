@@ -43,7 +43,7 @@
             <property name="username" value=""/>
             <property name="password" value=""/>
             <property name="disableCnCheck" value="false"/>
-            <property name="isLonLatOrder" value="false"/>
+            <property name="coordinateOrder" value="LON_LAT"/>
             <property name="usePosList" value="false"/>
             <property name="contentTypeMapping" value="type"/>
             <property name="effectiveDateMapping" value=""/>
@@ -82,7 +82,7 @@
             <property name="id" value=""/>
             <property name="password" value=""/>
             <property name="disableCnCheck" value="false"/>
-            <property name="isLonLatOrder" value="false"/>
+            <property name="coordinateOrder" value="LON_LAT"/>
             <property name="usePosList" value="false"/>
             <property name="contentTypeMapping" value="type"/>
             <property name="effectiveDateMapping" value=""/>

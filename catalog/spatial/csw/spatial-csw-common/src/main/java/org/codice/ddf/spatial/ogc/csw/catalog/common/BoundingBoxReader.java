@@ -44,20 +44,20 @@ public class BoundingBoxReader {
 
     private HierarchicalStreamReader reader;
 
-    private boolean isLonLatOrder;
+    private CswAxisOrder cswAxisOrder;
 
-    public BoundingBoxReader(HierarchicalStreamReader reader, boolean isLonLatOrder) {
+    public BoundingBoxReader(HierarchicalStreamReader reader, CswAxisOrder cswAxisOrder) {
         this.reader = reader;
-        this.isLonLatOrder = isLonLatOrder;
+        this.cswAxisOrder = cswAxisOrder;
     }
 
-    public String getWkt() {
+    public String getWkt() throws CswException {
         String wkt = null;
 
         // reader should initially be positioned at <ows:BoundingBox> element
         LOGGER.debug("Initial node name = {}", reader.getNodeName());
         if (!reader.getNodeName().contains("BoundingBox")) {
-            return null;
+            throw new CswException("BoundingBoxReader.getWkt(): supplied reader does not contain a BoundingBox.");
         }
 
         String crs = reader.getAttribute("crs");
@@ -75,7 +75,7 @@ public class BoundingBoxReader {
         String[] lowerCornerPosition = null;
         if (reader.getNodeName().contains("LowerCorner")) {
             String value = reader.getValue();
-            lowerCornerPosition = getCoordinates(value, isLonLatOrder);
+            lowerCornerPosition = getCoordinates(value, this.cswAxisOrder);
         }
 
         // Move back up to the <BoundingBox> parent tag
@@ -89,7 +89,7 @@ public class BoundingBoxReader {
         String[] upperCornerPosition = null;
         if (reader.getNodeName().contains("UpperCorner")) {
             String value = reader.getValue();
-            upperCornerPosition = getCoordinates(value, isLonLatOrder);
+            upperCornerPosition = getCoordinates(value, this.cswAxisOrder);
         }
 
         // If both corner positions parsed, then compute other 2 corner
@@ -103,6 +103,8 @@ public class BoundingBoxReader {
              * the metacard location field.
              */
             wkt = createWkt(lowerCornerPosition, upperCornerPosition);
+        } else {
+            throw new CswException("BoundingBoxReader.getWkt(): could not find either LowerCorner or UpperCorner tags.");
         }
 
         // Move position back up to the parent <BoundingBox> tag, where we
@@ -136,24 +138,27 @@ public class BoundingBoxReader {
     /**
      * @param coords
      *            The latitude and longitude coordinates (in no particular order).
-     * @param areCoordsInLonLatOrder
-     *            True if the source returns the coordinates in LON/LAT order; false, otherwise.
+     * @param axisOrder
+     *            The order that the axes are represented.
      * @return The coordinates in LON/LAT order.
      */
-    private String[] getCoordinates(String coords, boolean areCoordsInLonLatOrder) {
+    private String[] getCoordinates(String coords, CswAxisOrder axisOrder) {
 
-        if (!areCoordsInLonLatOrder) {
+        switch (axisOrder) {
+        case LAT_LON: {
             /**
              * We want to create WKT in LON/LAT order. Since the response has the coords in LAT/LON
              * order, we need to reverse them.
              */
             return StringUtils.reverseDelimited(coords, SPACE.charAt(0)).split(SPACE);
-        } else {
+        }
+        default: {
             /**
              * We want to create WKT in LON/LAT order. Since this is the order of the coords in the
              * response, we use them as-is.
              */
             return coords.split(SPACE);
+        }
         }
     }
 }

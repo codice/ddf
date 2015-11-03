@@ -103,7 +103,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         super(getRecordsOp, outputFormatValues, resultTypesValues);
         this.metacardType = metacardType;
         this.cswSourceConfiguration = cswSourceConfiguration;
-        this.cswFilterFactory = new CswFilterFactory(cswSourceConfiguration.isLonLatOrder(),
+        this.cswFilterFactory = new CswFilterFactory(cswSourceConfiguration.getCswAxisOrder(),
                 cswSourceConfiguration.isSetUsePosList());
         updateAllowedOperations(filterCapabilities);
     }

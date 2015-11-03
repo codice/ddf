@@ -207,7 +207,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         ingestCswRecord();
 
         ValidatableResponse response = given().header("Content-Type", MediaType.APPLICATION_XML)
-                .body(Library.getCswCqlDelete()).post(CSW_PATH).then();
+                .body(Library.getCswCqlDelete()).post(CSW_PATH).then().log().all();
         response.body(hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("1")),
                 hasXPath("//TransactionResponse/TransactionSummary/totalInserted", is("0")),
                 hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("0")));
@@ -298,15 +298,15 @@ public class TestCatalog extends AbstractIntegrationTest {
                         hasXPath("//metacard/string[@name='subject']/value", is("Updated Subject")),
                         hasXPath(
                                 "(//metacard/geometry[@name='location']/value/Polygon/exterior/LinearRing/pos)[1]",
-                                is("2.0 1.0")), hasXPath(
+                                is("1.0 2.0")), hasXPath(
                                 "(//metacard/geometry[@name='location']/value/Polygon/exterior/LinearRing/pos)[2]",
-                                is("4.0 1.0")), hasXPath(
+                                is("3.0 2.0")), hasXPath(
                                 "(//metacard/geometry[@name='location']/value/Polygon/exterior/LinearRing/pos)[3]",
-                                is("4.0 3.0")), hasXPath(
+                                is("3.0 4.0")), hasXPath(
                                 "(//metacard/geometry[@name='location']/value/Polygon/exterior/LinearRing/pos)[4]",
-                                is("2.0 3.0")), hasXPath(
+                                is("1.0 4.0")), hasXPath(
                                 "(//metacard/geometry[@name='location']/value/Polygon/exterior/LinearRing/pos)[5]",
-                                is("2.0 1.0")));
+                                is("1.0 2.0")));
 
         deleteMetacard(id);
     }
@@ -511,7 +511,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         final String url =
                 CSW_PATH + Library.getGetRecordByIdUrl().replace("placeholder_id", requestIds);
 
-        final ValidatableResponse response = when().get(url).then();
+        final ValidatableResponse response = when().get(url).then().log().all();
 
         verifyGetRecordByIdResponse(response, firstId, secondId);
 
@@ -546,9 +546,9 @@ public class TestCatalog extends AbstractIntegrationTest {
         final String xPathValidateTitleWithId =
                 xPathGetRecordWithId + "/title[text()=\"Aliquam fermentum purus quis arcu\"]";
         final String xPathValidateBboxLowerWithId =
-                xPathGetRecordWithId + "/BoundingBox/LowerCorner[text()=\"-6.171 44.792\"]";
+                xPathGetRecordWithId + "/BoundingBox/LowerCorner[text()=\"44.792 -6.171\"]";
         final String xPathValidateBboxUpperWithId =
-                xPathGetRecordWithId + "/BoundingBox/UpperCorner[text()=\"-2.228 51.126\"]";
+                xPathGetRecordWithId + "/BoundingBox/UpperCorner[text()=\"51.126 -2.228\"]";
 
         final String xPathValidateId = "//GetRecordByIdResponse/Record/identifier[text()=\"%s\"]";
 
