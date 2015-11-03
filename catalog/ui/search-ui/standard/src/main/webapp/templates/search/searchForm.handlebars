@@ -27,7 +27,7 @@
         {{/is}}
 
         <li class="heading-with-help-tip keyword-heading-with-help-tip" style="clear:both">
-            <h6>Keywords</h6>
+            <h6>Text</h6>
             <i class="fa fa-question-circle" data-toggle="keyword-popover"></i>
         </li>
         <li>
@@ -301,51 +301,18 @@
             <i class="fa fa-question-circle" data-toggle="sorting-popover"></i>
         </li>
         <li>
-            <div class="btn-group btn-group-xs margin-bottom-large" data-toggle="buttons">
-                <label id="modifiedSort" class="btn btn-default {{#is sortField 'modified'}}active{{/is}}">
-                    <input type="radio" name="modifiedSortButton" value="modified">
-                    <i class="fa fa-circle"></i>
-                    <i class="fa fa-circle-o"></i>
-                    Modified
-                </label>
-                <label id="createdSort" class="btn btn-default {{#is sortField 'created'}}active{{/is}}" >
-                    <input type="radio" name="createdSortButton" value="created">
-                    <i class="fa fa-circle"></i>
-                    <i class="fa fa-circle-o"></i>
-                    Created
-                </label>
-                <label id="effectiveSort" class="btn btn-default {{#is sortField 'effective'}}active{{/is}}">
-                    <input type="radio" name="effectiveSortButton" value="effective">
-                    <i class="fa fa-circle"></i>
-                    <i class="fa fa-circle-o"></i>
-                    Effective
-                </label>
-                <label id="relevanceSort" class="btn btn-default {{#is sortField 'RELEVANCE'}}active{{/is}}" >
-                    <input type="radio" name="relevanceSortButton" value="RELEVANCE">
-                    <i class="fa fa-circle"></i>
-                    <i class="fa fa-circle-o"></i>
-                    Relevance
-                </label>
-                <label id="distanceSort" class="btn btn-default {{#is sortField 'DISTANCE'}}active{{/is}}" >
-                    <input type="radio" name="distanceSortButton" value="DISTANCE">
-                    <i class="fa fa-circle"></i>
-                    <i class="fa fa-circle-o"></i>
-                    Distance
-                </label>
-            </div>
-            <div class="btn-group btn-group-xs margin-bottom-large" data-toggle="buttons">
-                <label id="descendingSort" class="btn btn-default {{#is sortOrder 'desc'}}active{{/is}}" >
-                    <input type="radio" name="descendingSortButton" value="desc">
-                    <i class="fa fa-circle"></i>
-                    <i class="fa fa-circle-o"></i>
-                    Descending
-                </label>
-                <label id="ascendingSort" class="btn btn-default {{#is sortOrder 'asc'}}active{{/is}}" >
-                    <input type="radio" name="ascendingSortButton" value="asc">
-                    <i class="fa fa-circle"></i>
-                    <i class="fa fa-circle-o"></i>
-                    Ascending
-                </label>
+            <div class="margin-bottom-large">
+                <select id="sortOrderSelected">
+                    <option {{#isAnd sortField 'RELEVANCE' sortOrder 'desc'}}selected="selected"{{/isAnd}} value="desc:RELEVANCE">Best Text Match</option>
+                    <option {{#isAnd sortField 'DISTANCE' sortOrder 'asc'}}selected="selected"{{/isAnd}} value="asc:DISTANCE">Shortest Distance</option>
+                    <option {{#isAnd sortField 'DISTANCE' sortOrder 'desc'}}selected="selected"{{/isAnd}} value="desc:DISTANCE">Furthest Distance</option>
+                    <option {{#isAnd sortField 'modified' sortOrder 'desc'}}selected="selected"{{/isAnd}} value="desc:modified">Latest Modified</option>
+                    <option {{#isAnd sortField 'modified' sortOrder 'asc'}}selected="selected"{{/isAnd}} value="asc:modified">Earliest Modified</option>
+                    <option {{#isAnd sortField 'created' sortOrder 'desc'}}selected="selected"{{/isAnd}} value="desc:created">Latest Created</option>
+                    <option {{#isAnd sortField 'created' sortOrder 'asc'}}selected="selected"{{/isAnd}} value="asc:created">Earliest Created</option>
+                    <option {{#isAnd sortField 'effective' sortOrder 'desc'}}selected="selected"{{/isAnd}} value="desc:effective">Latest Effective</option>
+                    <option {{#isAnd sortField 'effective' sortOrder 'asc'}}selected="selected"{{/isAnd}} value="asc:effective">Earliest Effective</option>
+                </select>
             </div>
         </li>
 

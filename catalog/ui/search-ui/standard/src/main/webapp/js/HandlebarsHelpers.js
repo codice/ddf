@@ -186,6 +186,25 @@ define([
                     return options.inverse(this);
                 }
             },
+            isAnd: function () {
+                var args = _.flatten(arguments);
+                var items = _.initial(args);
+                var result = true;
+                var block = _.last(args);
+                _.each(items, function(item, i) {
+                    if (i % 2 === 0) {
+                        if (item !== items[i+1]) {
+                            result = false;
+                        }
+                    }
+                });
+                if (result) {
+                    return block.fn(this);
+                }
+                else {
+                    return block.inverse(this);
+                }
+            },
             isUrl: function (value, options) {
                 if (value && value !== "" && _.isString(value)) {
                     var protocol = value.toLowerCase().split("/")[0];

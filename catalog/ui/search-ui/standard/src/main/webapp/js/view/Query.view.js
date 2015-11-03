@@ -60,16 +60,10 @@ define([
                 'keypress input[name=q]': 'filterOnEnter',
                 'change #radiusUnits': 'onRadiusUnitsChanged',
                 'change #offsetTimeUnits': 'onTimeUnitsChanged',
+                'change #sortOrderSelected': 'onSortOrderChanged',
                 'click #scheduledNo': 'updateScheduling',
                 'click #scheduledYes': 'updateScheduling',
-                'click #saveButton': 'saveSearch',
-                'click #ascendingSort': 'updateSortOrder',
-                'click #descendingSort': 'updateSortOrder',
-                'click #relevanceSort': 'updateSortField',
-                'click #distanceSort': 'updateSortField',
-                'click #createdSort': 'updateSortField',
-                'click #modifiedSort': 'updateSortField',
-                'click #effectiveSort': 'updateSortField'
+                'click #saveButton': 'saveSearch'
             },
 
             modelEvents: {
@@ -237,30 +231,6 @@ define([
                 }
             },
 
-            updateSortField: function(e) {
-                switch(e.target.id) {
-                    case 'relevanceSort':
-                        this.model.set('sortField', 'RELEVANCE');
-                        break;
-                    case 'distanceSort':
-                        this.model.set('sortField', 'DISTANCE');
-                        break;
-                    case 'createdSort':
-                        this.model.set('sortField', 'created');
-                        break;
-                    case 'modifiedSort':
-                        this.model.set('sortField', 'modified');
-                        break;
-                    case 'effectiveSort':
-                        this.model.set('sortField', 'effective');
-                        break;
-                }
-            },
-
-            updateSortOrder: function(e) {
-                this.model.set('sortOrder', e.target.id === 'ascendingSort' ? 'asc' : 'desc');
-            },
-
             updateScrollbar: function () {
                 var view = this;
                 // defer seems to be necessary for this to update correctly
@@ -426,6 +396,10 @@ define([
                 this.$('#offsetTimeUnits').multiselect(singleselectOptions);
 
                 this.$('#scheduleUnits').multiselect(singleselectOptions);
+
+                this.$('#sortOrderSelected').selectpicker({
+                    width: '200px'
+                });
 
                 this.setupPopOver('[data-toggle="keyword-popover"]', 'Search by free text using the grammar of the underlying source. For wildcard searches, use % or * after partial keywords (e.g. earth%).');
                 this.setupPopOver('[data-toggle="time-popover"]', 'Search based on relative or absolute time of the created, modified, or effective date.');
@@ -611,7 +585,8 @@ define([
                 // to the model
                 $('.select-types').selectpicker('refresh');
                 $('.select-sources').selectpicker('refresh');
-                $('#radiusUnits').multiselect("refresh");
+                $('#radiusUnits').multiselect('refresh');
+                $('#sortOrderSelected').selectpicker('refresh');
 
                 wreqr.vent.trigger('search:clear');
                 wreqr.vent.trigger('map:clear');
@@ -629,6 +604,20 @@ define([
                 var timeInMillis = this.getTimeInMillis(this.model.get('dtoffset'), this.$('#offsetTimeUnits').val());
                 // silently set it so as not to trigger a modelbinder update
                 this.model.set('dtoffset', timeInMillis, {silent:true});
+            },
+
+            onSortOrderChanged: function () {
+                var value = this.$('#sortOrderSelected').val();
+                if (_.isString(value)) {
+                    var sort = value.split(':');
+
+                    if (sort.length === 2) {
+                        this.model.set({
+                            sortOrder: sort[0],
+                            sortField: sort[1]
+                        });
+                    }
+                }
             },
 
             getDistanceInMeters: function (distance, units) {

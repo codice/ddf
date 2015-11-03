@@ -48,7 +48,7 @@ The Search UI queries a Catalog using the following criteria.
 |Criteria	
 |Description
 
-|Keywords	
+|Text
 |Search by free text using the grammar of the underlying endpoint/Catalog.
 
 |Time	
