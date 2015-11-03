@@ -6,7 +6,7 @@ var shared = require('./shared');
 
 describe('external authentication Login', function() {
     shared.setup(this);
-    it("should have 'Sign In With Credentials' button", function() {
+    it("should have 'Logout button", function() {
         return this.browser
         .waitForElementById('signin',shared.timeout).click()
         
