@@ -90,7 +90,7 @@ public class CometdEndpoint {
     public CometdEndpoint(CometdServlet cometdServlet, CatalogFramework framework,
             FilterBuilder filterBuilder, FilterAdapter filterAdapter, PersistentStore persistentStore,
             BundleContext bundleContext, EventAdmin eventAdmin, ActionRegistry actionRegistry,
-                          ExecutorService executorService) {            
+            ExecutorService executorService) {
         LOGGER.trace("Constructing Cometd Endpoint");
         this.bundleContext = bundleContext;
         this.cometdServlet = cometdServlet;

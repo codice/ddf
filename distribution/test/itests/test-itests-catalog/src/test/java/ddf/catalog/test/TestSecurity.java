@@ -174,10 +174,10 @@ public class TestSecurity extends AbstractIntegrationTest {
 
     @BeforeExam
     public void beforeTest() throws Exception {
-        setLogLevels();
-        waitForAllBundles();
+        getAdminConfig().setLogLevels();
+        getServiceManager().waitForAllBundles();
         configurePDP();
-        waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query");
+        getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query");
     }
 
     public void configurePDP() throws Exception {
@@ -251,9 +251,9 @@ public class TestSecurity extends AbstractIntegrationTest {
         // use the subject in the request to create a SAML authentication token
         OpenSearchSourceProperties openSearchProperties = new OpenSearchSourceProperties(
                 OPENSEARCH_SAML_SOURCE_ID);
-        createManagedService(OpenSearchSourceProperties.FACTORY_PID, openSearchProperties);
+        getServiceManager().createManagedService(OpenSearchSourceProperties.FACTORY_PID, openSearchProperties);
 
-        waitForFederatedSource(OPENSEARCH_SAML_SOURCE_ID);
+        getCatalogBundle().waitForFederatedSource(OPENSEARCH_SAML_SOURCE_ID);
 
         String openSearchQuery =
                 SERVICE_ROOT + "/catalog/query?q=*&src=" + OPENSEARCH_SAML_SOURCE_ID;
@@ -275,15 +275,15 @@ public class TestSecurity extends AbstractIntegrationTest {
                 OPENSEARCH_SOURCE_ID);
         openSearchProperties.put("username", "admin");
         openSearchProperties.put("password", "admin");
-        createManagedService(OpenSearchSourceProperties.FACTORY_PID, openSearchProperties);
+        getServiceManager().createManagedService(OpenSearchSourceProperties.FACTORY_PID, openSearchProperties);
 
         CswSourceProperties cswProperties = new CswSourceProperties(CSW_SOURCE_ID);
         cswProperties.put("username", "admin");
         cswProperties.put("password", "admin");
-        createManagedService(CswSourceProperties.FACTORY_PID, cswProperties);
+        getServiceManager().createManagedService(CswSourceProperties.FACTORY_PID, cswProperties);
 
-        waitForFederatedSource(OPENSEARCH_SOURCE_ID);
-        waitForFederatedSource(CSW_SOURCE_ID);
+        getCatalogBundle().waitForFederatedSource(OPENSEARCH_SOURCE_ID);
+        getCatalogBundle().waitForFederatedSource(CSW_SOURCE_ID);
 
         String openSearchQuery = SERVICE_ROOT + "/catalog/query?q=*&src=" + OPENSEARCH_SOURCE_ID;
         given().auth().basic("admin", "admin").when().get(openSearchQuery).then().log().all()
@@ -300,7 +300,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         cswProperties = new CswSourceProperties(unavailableCswSourceId);
         cswProperties.put("username", "bad");
         cswProperties.put("password", "auth");
-        createManagedService(CswSourceProperties.FACTORY_PID, cswProperties);
+        getServiceManager().createManagedService(CswSourceProperties.FACTORY_PID, cswProperties);
 
         String cswQueryUnavail = SERVICE_ROOT + "/catalog/query?q=*&src=" + unavailableCswSourceId;
         given().auth().basic("admin", "admin").when().get(cswQueryUnavail).then().log().all()
@@ -312,8 +312,8 @@ public class TestSecurity extends AbstractIntegrationTest {
                 unavailableOpenSourceId);
         openSearchUnavailProp.put("username", "bad");
         openSearchUnavailProp.put("password", "auth");
-        createManagedService(OpenSearchSourceProperties.FACTORY_PID, openSearchUnavailProp);
-        waitForFederatedSource(unavailableOpenSourceId);
+        getServiceManager().createManagedService(OpenSearchSourceProperties.FACTORY_PID, openSearchUnavailProp);
+        getCatalogBundle().waitForFederatedSource(unavailableOpenSourceId);
 
         String unavailableOpenSearchQuery =
                 SERVICE_ROOT + "/catalog/query?q=*&src=" + unavailableOpenSourceId;
@@ -343,7 +343,7 @@ public class TestSecurity extends AbstractIntegrationTest {
 
     @Test
     public void testAnonymousSoapAccessHttp() throws Exception {
-        startFeature(true, "platform-http-proxy");
+        getServiceManager().startFeature(true, "platform-http-proxy");
 
         String body =
                 "<soapenv:Envelope xmlns:hel=\"http://ddf.sdk/soap/hello\" xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\">\n"
@@ -357,7 +357,7 @@ public class TestSecurity extends AbstractIntegrationTest {
                 .body(HasXPath.hasXPath("//*[local-name()='helloWorldResponse']/result/text()",
                         containsString("Anonymous")));
 
-        stopFeature(false, "platform-http-proxy");
+        getServiceManager().stopFeature(false, "platform-http-proxy");
     }
 
     /* These STS tests are here to prove out functionality that doesn't get hit when accessing internal services. The standard UsernameToken and BinarySecurityToken elements are supported

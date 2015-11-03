@@ -52,7 +52,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.security.common.audit.SecurityLogger;
-import ddf.security.common.util.CommonSSLFactory;
 import ddf.security.encryption.EncryptionService;
 
 public class SslLdapLoginModule extends AbstractKarafLoginModule {
@@ -94,6 +93,8 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
     public static final String SSL_TIMEOUT = "ssl.timeout";
 
     public static final String SSL_STARTTLS = "ssl.starttls";
+
+    public static final String PROTOCOL = "TLS";
 
     static final long CREATE_SSL_FACTORY_ARG_6 = 10000;
 
@@ -414,7 +415,7 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
 
         try {
             if (useSsl || useTls) {
-                SSLContext sslContext = SSLContext.getInstance(CommonSSLFactory.PROTOCOL);
+                SSLContext sslContext = SSLContext.getInstance(PROTOCOL);
                 if (sslKeystore != null && sslTrustStore != null) {
                     BundleContext bundleContext = getContext();
                     if (null != bundleContext) {

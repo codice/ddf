@@ -471,7 +471,11 @@ The configuration options are located on the standard DDF configuration web cons
 |Sets the port for LDAPS. 0 will disable the port.
 
 |Base LDIF File
-|Location on the server for a LDIF file. This file will be loaded into the LDAP and overwrite any existing entries. This option should be used when updating the default groups/users with a new LDIF file for testing. The LDIF file being loaded may contain any LDAP entries (schemas, users, groups, etc.). If the location is left blank, the default base LDIF file will be used that comes with DDF.
+|Location on the server for a LDIF file.
+This file will be loaded into the LDAP and overwrite any existing entries.
+This option should be used when updating the default groups/users with a new LDIF file for testing.
+The LDIF file being loaded may contain any LDAP entries (schemas, users, groups, etc.).
+If the location is left blank, the default base LDIF file will be used that comes with DDF.
 
 |===
 
