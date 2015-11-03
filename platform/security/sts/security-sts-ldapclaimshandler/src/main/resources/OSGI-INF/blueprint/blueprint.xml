@@ -49,7 +49,7 @@
         <property name="url" value="ldaps://${org.codice.ddf.system.hostname}:1636"/>
         <property name="startTls" value="false"/>
         <property name="ldapBindUserDn" value="cn=admin"/>
-        <property name="password" value="ENC(c+GitDfYAMTDRESXSDDsMw==)"/>
+        <property name="password" value="secret"/>
         <property name="userNameAttribute" value="uid"/>
         <property name="userBaseDn" value="ou=users,dc=example,dc=com"/>
         <property name="objectClass" value="groupOfNames"/>
