@@ -348,7 +348,7 @@ public class TestFederation extends AbstractIntegrationTest {
     public void testFederatedRetrieveProductInvalidResourceUrlWithBackReferences()
             throws Exception {
         // Setup
-        String fileName = testName.getMethodName() + DynamicPort.HTTPS_PORT.getPort() + ".txt";
+        String fileName = testName.getMethodName() + HTTPS_PORT.getPort() + ".txt";
         String fileNameWithBackReferences =
                 ".." + File.separator + ".." + File.separator + fileName;
         resourcesToDelete.add(fileNameWithBackReferences);
