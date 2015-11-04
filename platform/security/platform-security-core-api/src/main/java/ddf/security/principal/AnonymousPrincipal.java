@@ -18,11 +18,11 @@ import java.security.Principal;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * Principal that designates a {@link ddf.security.Subject} as anonymous
+ * Principal that designates a {@link ddf.security.Subject} as guest
  */
 public class AnonymousPrincipal implements Principal {
 
-    public static final String ANONYMOUS_NAME_PREFIX = "Anonymous";
+    public static final String ANONYMOUS_NAME_PREFIX = "Guest";
 
     public static final String NAME_DELIMITER = "@";
 
@@ -52,7 +52,7 @@ public class AnonymousPrincipal implements Principal {
 
     /**
      * Parses the ip address out of an anonymous principal name that has the format
-     * Anonymous@127.0.0.1
+     * Guest@127.0.0.1
      * @param fullName
      * @return
      */

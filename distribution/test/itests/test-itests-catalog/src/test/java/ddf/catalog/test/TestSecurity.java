@@ -347,7 +347,7 @@ public class TestSecurity extends AbstractIntegrationTest {
                 .header("SOAPAction", "helloWorld").expect().statusCode(equalTo(200)).when()
                 .post(SERVICE_ROOT.getUrl() + "/sdk/SoapService").then().log().all().assertThat()
                 .body(HasXPath.hasXPath("//*[local-name()='helloWorldResponse']/result/text()",
-                                containsString("Anonymous")));
+                        containsString("Guest")));
     }
 
     @Test
@@ -365,7 +365,7 @@ public class TestSecurity extends AbstractIntegrationTest {
                 .post(INSECURE_SERVICE_ROOT.getUrl() + "/sdk/SoapService").then().log().all()
                 .assertThat()
                 .body(HasXPath.hasXPath("//*[local-name()='helloWorldResponse']/result/text()",
-                                containsString("Anonymous")));
+                        containsString("Guest")));
 
         getServiceManager().stopFeature(false, "platform-http-proxy");
     }
