@@ -61,7 +61,7 @@ public class AnonymousHandlerTest {
         assertNotNull(result);
         assertEquals(HandlerResult.Status.COMPLETED, result.getStatus());
         assertTrue(result.getToken() instanceof AnonymousAuthenticationToken);
-        assertEquals("Anonymous", result.getToken().getCredentials());
+        assertEquals("Guest", result.getToken().getCredentials());
         assertEquals(null, result.getToken().getRealm());
         assertEquals("null-AnonymousHandler", result.getSource());
     }

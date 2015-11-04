@@ -131,7 +131,7 @@ public class AnonymousValidator implements TokenValidator {
 
     /**
      * Set the realm that this validator supports. This can be used to differentiate between
-     * two instances of this validator where each contains a differnent token validator.
+     * two instances of this validator where each contains a different token validator.
      *
      * @param supportedRealm string representing the realm supported by this validator
      */
