@@ -29,12 +29,6 @@ import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.keepRunti
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.logLevel;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.replaceConfigurationFile;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.useOwnExamBundlesStartLevel;
-import static ddf.catalog.test.AbstractIntegrationTest.DynamicPort.BASE_PORT;
-import static ddf.catalog.test.AbstractIntegrationTest.DynamicPort.HTTPS_PORT;
-import static ddf.catalog.test.AbstractIntegrationTest.DynamicPort.HTTP_PORT;
-import static ddf.catalog.test.AbstractIntegrationTest.DynamicPort.RMI_REG_PORT;
-import static ddf.catalog.test.AbstractIntegrationTest.DynamicPort.RMI_SERVER_PORT;
-import static ddf.catalog.test.AbstractIntegrationTest.DynamicPort.SSH_PORT;
 import static ddf.catalog.test.AbstractIntegrationTest.DynamicUrl.INSECURE_ROOT;
 import static ddf.catalog.test.AbstractIntegrationTest.DynamicUrl.SECURE_ROOT;
 
@@ -110,19 +104,19 @@ public abstract class AbstractIntegrationTest {
      * {@link #basePort} needs to be set in the {@link @BeforeExam} method of every test class that uses DynamicPort or
      * {@link DynamicUrl}. E.g. 'basePort = {@link #getBasePort()}`
      */
-    public enum DynamicPort {
-        BASE_PORT("org.codice.ddf.system.basePort"), HTTP_PORT(
-                "org.codice.ddf.system.httpPort"), HTTPS_PORT(
-                "org.codice.ddf.system.httpsPort"), SSH_PORT, RMI_SERVER_PORT, RMI_REG_PORT;
+    public static class DynamicPort {
 
         private final String systemProperty;
+        private final Integer ordinal;
 
-        DynamicPort() {
+        public DynamicPort(Integer ordinal) {
             this.systemProperty = null;
+            this.ordinal = ordinal;
         }
 
-        DynamicPort(String systemProperty) {
+        public DynamicPort(String systemProperty, Integer ordinal) {
             this.systemProperty = systemProperty;
+            this.ordinal = ordinal;
         }
 
         String getSystemProperty() {
@@ -135,6 +129,10 @@ public abstract class AbstractIntegrationTest {
 
         public String getPort() {
             return String.valueOf(basePort + this.ordinal());
+        }
+
+        Integer ordinal() {
+            return this.ordinal;
         }
     }
 
@@ -197,6 +195,13 @@ public abstract class AbstractIntegrationTest {
         }
 
     }
+    public static final DynamicPort BASE_PORT = new DynamicPort("org.codice.ddf.system.basePort", 0);
+    public static final DynamicPort HTTP_PORT = new DynamicPort("org.codice.ddf.system.httpPort", 1);
+    public static final DynamicPort HTTPS_PORT = new DynamicPort(
+            "org.codice.ddf.system.httpsPort", 2);
+    public static final DynamicPort SSH_PORT = new DynamicPort(3);
+    public static final DynamicPort RMI_SERVER_PORT = new DynamicPort(4);
+    public static final DynamicPort RMI_REG_PORT = new DynamicPort(5);
 
     public static final DynamicUrl SERVICE_ROOT = new DynamicUrl(SECURE_ROOT, HTTPS_PORT,
             "/services");
