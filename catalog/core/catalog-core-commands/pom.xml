@@ -129,10 +129,12 @@
                             ddf.catalog.data.impl,
                             ddf.catalog.operation.impl,
                             ddf.catalog.util.impl,
-                            ddf.catalog.filter.impl
+                            ddf.catalog.filter.impl,
+                            ddf.catalog.source.impl
                         </Private-Package>
                         <Export-Package />
                         <Import-Package>
+                            !org.mockito*,
                             ddf.catalog.filter,
                             org.apache.felix.service.command,
                             org.apache.felix.gogo.commands,

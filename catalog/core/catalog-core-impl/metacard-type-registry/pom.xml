@@ -54,12 +54,12 @@
                         <Embed-Dependency>catalog-core-api-impl</Embed-Dependency>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Import-Package>
-                            *,
                             ddf.catalog.data,
                             org.osgi.framework,
                             org.osgi.service.blueprint,
                             org.slf4j,
-                            org.slf4j.ext
+                            org.slf4j.ext,
+                            *
                         </Import-Package>
                     </instructions>
                 </configuration>

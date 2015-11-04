@@ -90,6 +90,11 @@
             <artifactId>catalog-core-standardframework</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.catalog.transformer</groupId>
+            <artifactId>catalog-transformer-attribute</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
 

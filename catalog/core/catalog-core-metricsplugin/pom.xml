@@ -71,6 +71,10 @@
             <artifactId>common-system</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -95,8 +99,6 @@
                             sun.misc;resolution:=optional,
                             sun.nio.ch;resolution:=optional,
                             com.sun.image.codec.jpeg;resolution:=optional,
-                            <!-- END: imports specific for embedding rrd4j -->
-                            org.joda.time;version="[1.6.0,3.0.0)",
                             *
                         </Import-Package>
                         <Export-Package>
