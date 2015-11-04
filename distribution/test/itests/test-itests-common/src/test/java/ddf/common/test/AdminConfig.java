@@ -79,6 +79,7 @@ public class AdminConfig {
      * @return {@link Configuration} object
      * @throws IOException          thrown if the {@link Configuration} object cannot be accessed
      * @throws InterruptedException thrown if the wait times out
+     * @deprecated Use {@link WaitCondition} instead.
      */
     public Configuration waitForConfiguration(String pid, ConfigurationPredicate predicate,
             long timeoutMs) throws IOException, InterruptedException {
