@@ -1763,6 +1763,15 @@ https.protocols=TLSv1,TLSv1.1,TLSv1.2
 *** Select the *Web Context Policy Manager*.
 *** Remove `/system/console` from the Whitelisted Contexts
 
+=== Configuring DDF to use an LDAP server
+[WARNING]
+====
+The configurations for Security STS LDAP and Roles Claims Handler and Security STS LDAP Login contain plain text default passwords for the embedded LDAP, which is insecure to use in production.
+====
+Use the encryption service, described in <<Encryption Service>>, on the command line to set passwords for your LDAP server.
+Then change the LDAP Bind User Password in the configurations to use the encrypted password.
+
+
 === Configuring Solr Catalog Provider
 
 ==== Configure the Solr Catalog Provider Data Directory

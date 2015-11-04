@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -16,8 +16,13 @@ package ddf.security.command;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
+import java.io.File;
 import java.lang.reflect.Field;
+import java.nio.file.Files;
 
+import org.apache.commons.io.FileUtils;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,14 +32,27 @@ import ddf.security.encryption.impl.EncryptionServiceImpl;
 public class EncryptCommandTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(EncryptCommandTest.class);
 
+    private static File ddfHome;
+
+    @Before
+    public void setUp() throws Exception {
+        ddfHome = Files.createTempDirectory("encrypt").toFile();
+        System.setProperty("ddf.home", ddfHome.toString());
+        String path = new File(System.getProperty("ddf.home").concat("/etc/certs"))
+                .getCanonicalPath();
+        new File(path).mkdirs();
+    }
+
+    @After
+    public void cleanUp() throws Exception {
+        FileUtils.deleteDirectory(ddfHome);
+    }
+
     @Test
     public void testDoExecuteNonNullPlainTextValue() {
-        final String key = "secret";
         final String plainTextValue = "protect";
-        LOGGER.debug("key: {}", key);
 
         final EncryptionServiceImpl encryptionService = new EncryptionServiceImpl();
-        encryptionService.setKey(key);
         final EncryptCommand encryptCommand = new EncryptCommand();
         encryptCommand.setEncryptionService(encryptionService);
         setPlainTextValueField(encryptCommand, plainTextValue);
@@ -55,12 +73,9 @@ public class EncryptCommandTest {
 
     @Test
     public void testDoExecuteNullPlainTextValue() {
-        final String key = "secret";
         final String plainTextValue = null;
-        LOGGER.debug("key: {}", key);
 
         final EncryptionServiceImpl encryptionService = new EncryptionServiceImpl();
-        encryptionService.setKey(key);
         final EncryptCommand encryptCommand = new EncryptCommand();
         encryptCommand.setEncryptionService(encryptionService);
         setPlainTextValueField(encryptCommand, plainTextValue);

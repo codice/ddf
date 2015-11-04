@@ -24,7 +24,7 @@
                                update-method="update"/>
         <!-- Default properties -->
         <property name="ldapBindUserDn" value="cn=admin"/>
-        <property name="ldapBindUserPass" value="ENC(c+GitDfYAMTDRESXSDDsMw==)"/>
+        <property name="ldapBindUserPass" value="secret"/>
         <property name="ldapUrl" value="ldaps://${org.codice.ddf.system.hostname}:1636"/>
         <property name="userBaseDn" value="ou=users,dc=example,dc=com"/>
         <property name="groupBaseDn" value="ou=groups,dc=example,dc=com"/>

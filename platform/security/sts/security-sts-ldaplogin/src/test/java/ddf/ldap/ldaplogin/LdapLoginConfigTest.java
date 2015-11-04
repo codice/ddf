@@ -71,7 +71,7 @@ public class LdapLoginConfigTest {
             }
         };
         ldapConfig.setLdapBindUserDn("cn=admin");
-        ldapConfig.setLdapBindUserPass("ENC(c+GitDfYAMTDRESXSDDsMw==)");
+        ldapConfig.setLdapBindUserPass("password");
         ldapConfig.setLdapUrl("ldaps://ldap:1636");
         ldapConfig.setUserBaseDn("ou=users,dc=example,dc=com");
         ldapConfig.setGroupBaseDn("ou=groups,dc=example,dc=com");
@@ -83,7 +83,7 @@ public class LdapLoginConfigTest {
                 Matchers.<Dictionary<String, Object>>any());
 
         ldapProps.put(LdapLoginConfig.LDAP_BIND_USER_DN, "cn=admin");
-        ldapProps.put(LdapLoginConfig.LDAP_BIND_USER_PASS, "ENC(c+GitDfYAMTDRESXSDDsMw==)");
+        ldapProps.put(LdapLoginConfig.LDAP_BIND_USER_PASS, "secret");
         ldapProps.put(LdapLoginConfig.USER_BASE_DN, "ou=users,dc=example,dc=com");
         ldapProps.put(LdapLoginConfig.GROUP_BASE_DN, "ou=groups,dc=example,dc=com");
         ldapProps.put(LdapLoginConfig.KEY_ALIAS, "server");
