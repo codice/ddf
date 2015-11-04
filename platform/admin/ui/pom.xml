@@ -60,6 +60,10 @@
             <artifactId>platform-error-servlet</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-server</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -102,11 +106,9 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Export-Package />
                         <Import-Package>
-                            *,
-                            org.eclipse.jetty.server;version="8.1.9.v20130131",
-                            org.eclipse.jetty.server.handler;version="8.1.9.v20130131",
                             javax.servlet.http;version="[3,4)",
-                            javax.servlet;version="[3,4)"
+                            javax.servlet;version="[3,4)",
+                            *
                         </Import-Package>
                     </instructions>
                 </configuration>
