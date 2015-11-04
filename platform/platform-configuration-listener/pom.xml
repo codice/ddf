@@ -104,12 +104,6 @@
                             <rules>
                                 <rule>
                                     <element>BUNDLE</element>
-                                    <!-- Because of some JaCoCo limitations related to
-                                         try-with-resources, the branch and complexity coverage
-                                         thresholds have to be set lower than 75% even though all
-                                         the exception paths are being covered and the actual
-                                         coverage is much higher.
-                                         See https://github.com/jacoco/jacoco/issues/82 -->
                                     <limits>
                                         <limit>
                                             <counter>INSTRUCTION</counter>
