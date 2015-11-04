@@ -20,12 +20,14 @@ define([
     'underscore',
     'backbone',
     'js/wreqr.js',
+    'spin',
+    'jquery',
     'text!templates/configuration/configurationEdit.handlebars',
     'text!templates/configuration/configurationItem.handlebars',
     'text!templates/configuration/textTypeListHeader.handlebars',
     'text!templates/configuration/textTypeList.handlebars'
-    ], function (Marionette, ich, _, Backbone, wreqr, configurationEdit, configurationItem, textTypeListHeader, textTypeList ) {
-	
+], function (Marionette, ich, _, Backbone, wreqr, Spinner, $, configurationEdit, configurationItem, textTypeListHeader, textTypeList) {
+
     var ConfigurationEditView = {};
     var passwordType = 12;
 
@@ -85,7 +87,7 @@ define([
         },
         modelEvents: {
             "change": "updateValues"
-        },        
+        },
         initialize: function(options) {
             _.bindAll(this);
             this.configuration = options.configuration;
@@ -135,7 +137,7 @@ define([
          */
         plusButton: function() {
             this.addItem('');
-        }        
+        }
     });
 
     ConfigurationEditView.ConfigurationItem = Marionette.ItemView.extend({
@@ -180,7 +182,7 @@ define([
         className: 'modal-dialog',
         regions: {
             configurationItems: '#config-div'
-        },        
+        },
         /**
          * Button events, right now there's a submit button
          * I do not know where to go with the cancel button.
@@ -191,7 +193,7 @@ define([
             "click .enable-checkbox" : "toggleEnable",
             "change .sourceTypesSelect" : "render"
         },
-        
+
         /**
          * Initialize  the binder with the ManagedServiceFactory model.
          * @param options
@@ -255,9 +257,29 @@ define([
         /**
          * Submit to the backend.
          */
-        submitData: function() {
+        submitData: function () {
+            var spinner = new Spinner(define({
+                lines: 13, // The number of lines to draw
+                length: 12, // The length of each line
+                scale: 5, // The size of the spinner
+                width: 10, // The line thickness
+                radius: 30, // The radius of the inner circle
+                corners: 1, // Corner roundness (0..1)
+                rotate: 0, // The rotation offset
+                direction: 1, // 1: clockwise, -1: counterclockwise
+                color: '#000000', // #rgb or #rrggbb or array of colors
+                speed: 1, // Rounds per second
+                trail: 60, // Afterglow percentage
+                shadow: false, // Whether to render a shadow
+                hwaccel: false, // Whether to use hardware acceleration
+                className: 'spinner', // The CSS class to assign to the spinner
+                zIndex: 2e9, // The z-index (defaults to 2000000000)
+                top: 'auto', // Top position relative to parent in px
+                left: 'auto' // Left position relative to parent in px
+            }));
             wreqr.vent.trigger('beforesave');
             var view = this;
+            spinner.spin(view.el);
 
             if(this.service) {
                 if (!this.model.get('properties').has('service.pid')) {
@@ -274,14 +296,23 @@ define([
                 });
             }
 
-            this.model.save();
+            this.model.save().done(function () {
+                spinner.stop();
+                $('#config-modal').modal('hide');
+                // due to a bug in bootstrap, the backdrop does not get removed
+                // when calling 'hide' on the modal programmatically
+                $('.modal-backdrop').remove();
+                view.close();
+                wreqr.vent.trigger('refreshConfigurations');
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                spinner.stop();
+                $('#error-message').text(errorThrown.error);
+                $('#error-details').text(errorThrown.stacktrace);
+                $('#error-result').show();
+            });
             wreqr.vent.trigger('sync');
             wreqr.vent.trigger('poller:start');
 
-            _.defer(function() {
-                view.close();
-                wreqr.vent.trigger('refreshConfigurations');
-            });
         },
         /**
          * unbind the model and dom during close.
@@ -317,7 +348,7 @@ define([
         /**
          * This will set the defaults and set values for properties with cardinality of nonzero
          */
-        
+
         refresh: function() {
             wreqr.vent.trigger('refreshConfigurations');
         }
