@@ -14,10 +14,10 @@
 -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-	<OCD description="Anonymous Claims Handler Configuration"
-         name="Security STS Anonymous Claims Handler" id="ddf.security.sts.anonymousclaims">
+	<OCD description="Guest Claims Handler Configuration"
+         name="Security STS Guest Claims Handler" id="ddf.security.sts.anonymousclaims">
 	    <AD name="Attributes" id="attributes" required="true" type="String"
-            default="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier=anonymous,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=anonymous"
+            default="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier=guest,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest"
             cardinality="1000"
             description="The attributes to be returned for any Anonymous user.">
 	    </AD>

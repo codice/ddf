@@ -71,7 +71,7 @@ public class AnonymousHandler implements AuthenticationHandler {
         HandlerResult result = new HandlerResult();
 
         String realm = (String) request.getAttribute(ContextPolicy.ACTIVE_REALM);
-        // For anonymous - if credentials were provided, return them, if not, then return guest credentials
+        // For guest - if credentials were provided, return them, if not, then return guest credentials
         BaseAuthenticationToken authToken = getAuthToken((HttpServletRequest) request,
                 (HttpServletResponse) response, chain);
 

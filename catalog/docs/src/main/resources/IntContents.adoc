@@ -93,20 +93,21 @@ The RESTful CRUD Endpoint provides the capability to query, create, update, and 
 |create
 |HTTP POST
 |HTTP request body contains the input to be ingested. See InputTransformers for more information.
-|`http://<DISTRIBUTION_HOST>:<DISTRIBUTION_PORT>/services/catalog`
+|\http://<DISTRIBUTION_HOST>:<DISTRIBUTION_PORT>/services/catalog
 
 |update
 |HTTP PUT
 |The ID of the Metacard to be updated is appended to the end of the URL. +
 The updated metadata is contained in the HTTP body.
 
-|`http://<DISTRIBUTION_HOST>:<DISTRIBUTION_PORT>/services/catalog/<metacardId>`+
+|\http://<DISTRIBUTION_HOST>:<DISTRIBUTION_PORT>/services/catalog/<metacardId>
+
 where `<metacardId>` is the Metacard.ID of the metacard to be updated
 
 |delete
 |HTTP DELETE
 |The ID of the Metacard to be deleted is appended to the end of the URL.
-|`http://<DISTRIBUTION_HOST>:<DISTRIBUTION_PORT>/services/catalog/<metacardId>`
+|\http://<DISTRIBUTION_HOST>:<DISTRIBUTION_PORT>/services/catalog/<metacardId>
 
 where `<metacardId>` is the Metacard.ID of the metacard to be deleted
 
@@ -116,21 +117,23 @@ where `<metacardId>` is the Metacard.ID of the metacard to be deleted
 |The ID of the Metacard to be retrieved is appended to the end of the URL. +
 By default, the response body will include the XML representation of the Metacard.
 
-|`http://<DISTRIBUTION_HOST>:<DISTRIBUTION_PORT>/services/catalog/<metacardId>`+
+|\http://<DISTRIBUTION_HOST>:<DISTRIBUTION_PORT>/services/catalog/<metacardId>
+
 where <metacardId> is the Metacard.ID of the metacard to be retrieved
 
 |federated read
 |HTTP GET
 |The SOURCE ID of a federated source is appended in the URL before the ID of the Metacard to be retrieved is appended to the end.
 
-|`http://<DISTRIBUTION_HOST>:<DISTRIBUTION_PORT>/services/catalog/sources/<sourceId>/<metacardId>` +
+|\http://<DISTRIBUTION_HOST>:<DISTRIBUTION_PORT>/services/catalog/sources/<sourceId>/<metacardId>
+
 where <sourceid> is the FEDERATED SOURCE ID and <metacardId> is the Metacard.ID of the Metacard to be retrieved
 
 |sources
 |HTTP GET
 |Retrieves information about federated sources, including sourceid, availability, contentTypes,and version.
 
-|`http://<DISTRIBUTION_HOST>:<DISTRIBUTION_PORT>/services/catalog/sources/`
+|\http://<DISTRIBUTION_HOST>:<DISTRIBUTION_PORT>/services/catalog/sources/
 
 |===
 
@@ -180,13 +183,13 @@ Example:
 
 [source,http]
 ----
-http://<DISTRIBUTION_HOST>:<DISTRIBUTION_PORT>/services/catalog/<metacardId>?transform=<TRANSFORMER_ID>
+\http://<DISTRIBUTION_HOST>:<DISTRIBUTION_PORT>/services/catalog/<metacardId>?transform=<TRANSFORMER_ID>
 ----
 
 [TIP]
 ====
 Transforms also work on read operations for metacards in federated sources.
-http://<DISTRIBUTION_HOST>:<DISTRIBUTION_PORT>/services/catalog/sources/<sourceId>/<metacardId>?transform=<TRANSFORMER_ID>
+\http://<DISTRIBUTION_HOST>:<DISTRIBUTION_PORT>/services/catalog/sources/<sourceId>/<metacardId>?transform=<TRANSFORMER_ID>
 ====
 
 ===== Metacard Transforms Available in DDF

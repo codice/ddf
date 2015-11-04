@@ -18,7 +18,7 @@
                                update-strategy="container-managed" />
         <property name="permissionStrings">
             <array>
-                <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=anonymous</value>
+                <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest</value>
             </array>
         </property>
     </bean>
