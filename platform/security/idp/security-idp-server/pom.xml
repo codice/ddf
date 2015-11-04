@@ -139,7 +139,6 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
                             boon,
-                            handlebars,
                             ddf-security-common,
                             antlr4-runtime,
                             commons-lang3,

@@ -80,7 +80,8 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            hazelcast, notifications
+                            hazelcast;scope=runtime|compile,
+                            notifications
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                         <Export-Package />

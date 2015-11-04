@@ -29,7 +29,6 @@
         <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-api-impl</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
@@ -50,18 +49,11 @@
         </dependency>
 
         <!-- JAR of the test classes in catalog-api, namely its mock objects -->
-        <dependency>
-            <groupId>ddf.catalog.core</groupId>
-            <artifactId>catalog-core-api-impl</artifactId>
-            <type>test-jar</type>
-            <scope>test</scope>
-        </dependency>
 
         <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-standardframework</artifactId>
             <version>${project.version}</version>
-            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -73,14 +65,21 @@
         <dependency>
             <groupId>org.powermock</groupId>
             <artifactId>powermock-module-junit4</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.powermock</groupId>
             <artifactId>powermock-api-mockito</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.powermock</groupId>
             <artifactId>powermock-module-junit4-rule-agent</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
         </dependency>
     </dependencies>
 
@@ -100,15 +99,12 @@
                         <Bundle-SymbolicName>
                             ${project.artifactId};blueprint.graceperiod:=true;blueprint.timeout:=604800000
                         </Bundle-SymbolicName>
-                        <Embed-Dependency>metrics-core;scope=compile|runtime;inline=true
+                        <Embed-Dependency>
+                            catalog-core-api-impl
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
-                        <Private-Package>
-                            ddf.catalog.operation.impl,ddf.catalog.util.impl,ddf.catalog.federation.base
-                        </Private-Package>
                         <Import-Package>
                             sun.misc;resolution:=optional,
-                            org.joda.time;version="[1.6.0,3.0.0)",
                             *
                         </Import-Package>
                         <Export-Package>

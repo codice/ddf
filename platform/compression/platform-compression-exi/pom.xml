@@ -84,7 +84,8 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Transitive>false</Embed-Transitive>
                         <Embed-Dependency>
-                            nagasena*
+                            nagasena,
+                            nagasena-rta
                         </Embed-Dependency>
                     </instructions>
                 </configuration>
