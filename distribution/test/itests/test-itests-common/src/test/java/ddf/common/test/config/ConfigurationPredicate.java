@@ -17,6 +17,8 @@ import org.osgi.service.cm.Configuration;
 
 /**
  * Base interface for all {@link Configuration} related predicates.
+ *
+ * @deprecated Use {@link ddf.common.test.WaitCondition} instead.
  */
 public interface ConfigurationPredicate {
     /**
