@@ -864,7 +864,9 @@ They are passed in the AuthorizationInfo of the Subject along with the Permissio
 |Handler for PKI based authentication. X509 chain will be extracted from the HTTP request and converted to a BinarySecurityToken.
 
 |org.codice.ddf.security.handler.anonymous.AnonymousHandler
-|Handler that allows anonymous user access via a guest user account. The guest account credentials are configured via the org.codice.ddf.security.claims.anonymous.AnonymousClaimsHandler. The AnonymousHandler also checks for the existence of basic auth credentials or PKI credentials that might be able to override the use of the anonymous user.
+|Handler that allows anonymous user access via a guest user account.
+The guest account credentials are configured via the org.codice.ddf.security.claims.anonymous.AnonymousClaimsHandler.
+The AnonymousHandler also checks for the existence of basic auth credentials or PKI credentials that might be able to override the use of the anonymous user.
 
 |org.codice.ddf.security.filter.login.LoginFilter
 |This filter runs immediately after the WebSSOFilter and exchanges any authentication information found in the request with a Subject via Shiro.

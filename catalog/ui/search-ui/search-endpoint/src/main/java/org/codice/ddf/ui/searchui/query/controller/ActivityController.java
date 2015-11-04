@@ -114,7 +114,7 @@ public class ActivityController extends AbstractEventController {
         }
 
         String userId = (String) event.getProperty(ActivityEvent.USER_ID_KEY);
-        // Blank user ID is allowed as this indicates the anonymous user
+        // Blank user ID is allowed as this indicates the guest user
         if (null == userId) {
             throw new IllegalArgumentException("Activity Event \"" + ActivityEvent.USER_ID_KEY
                     + "\" property is null or empty");
@@ -235,7 +235,7 @@ public class ActivityController extends AbstractEventController {
 
                 if (action != null) {
                     if (REMOVE_ACTION.equals(action)) {
-                        //You can have a blank id for anonymous
+                        //You can have a blank id for guest
                         if (id != null) {
                             try {
                                 this.persistentStore
