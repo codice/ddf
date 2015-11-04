@@ -1,0 +1,22 @@
+{
+  "name": "ddf-cometd-browser-client",
+  "description": "Example of how to interact with ddf over cometd",
+  "main": "index.js",
+  "authors": [
+    "Michael O'Connor <michael.oconnor@connexta.com>"
+  ],
+  "license": "LGPL-3.0",
+  "moduleType": [],
+  "homepage": "",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "cometd-js-jquery": "~2.6.0"
+  }
+}
