@@ -124,6 +124,8 @@ public class ConfigurationStore {
 
     private String helpUrl = "help.html";
 
+    private Boolean isExternalAuthentication = false;
+
     private Map<String, Set<String>> typeNameMapping = new HashMap<String, Set<String>>();
 
     public ConfigurationStore() {
@@ -170,6 +172,7 @@ public class ConfigurationStore {
         config.put("projection", projection);
         config.put("helpUrl", helpUrl);
         config.put("bingKey", bingKey);
+        config.put("externalAuthentication", isExternalAuthentication);
 
         String configJson = toJson(config);
         BinaryContent content = new BinaryContentImpl(
@@ -443,4 +446,8 @@ public class ConfigurationStore {
     public void setHelpUrl(String helpUrl) {
         this.helpUrl = helpUrl;
     }
+
+    public Boolean getExternalAuthentication() {return isExternalAuthentication; }
+
+    public void setExternalAuthentication(Boolean isExternalAuthentication) { this.isExternalAuthentication = isExternalAuthentication; }
 }

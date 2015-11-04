@@ -35,8 +35,9 @@ define([
     'perfectscrollbar',
     'backbonecometd',
     'progressbar'
-], function(Marionette, ich, menubarTemplate, menubarItemTemplate, Backbone, notificationMenuTemplate, notificationCategoryTemplate, wreqr, _, loginTemplate, logoutTemplate, taskTemplate, taskCategoryTemplate, helpTemplate, Cometd, $,
-        IngestMenu, PreferencesMenu, Application, properties) {
+], function(Marionette, ich, menubarTemplate, menubarItemTemplate, Backbone, notificationMenuTemplate,
+        notificationCategoryTemplate, wreqr, _, loginTemplate, logoutTemplate,
+        taskTemplate, taskCategoryTemplate, helpTemplate, Cometd, $, IngestMenu, PreferencesMenu, Application, properties) {
 
     if (!ich.menubarItemTemplate) {
         ich.addTemplate('menubarItemTemplate', menubarItemTemplate);
@@ -401,6 +402,9 @@ define([
                         if(this.isNotGuestUser()){
                             this.model.set({name: Application.UserModel.get('user').get('username')});
                         }
+                        else if (!this.isNotGuestUser() && properties.externalAuthentication){
+                            this.model.set({name: typeof Application.UserModel.get('user').get('username') === 'undefined' ? "ERROR" : Application.UserModel.get('user').get('username').split("@")[0]});
+                        }
                         this.listenTo(Application.UserModel, 'change', this.updateUser);
                     },
                     updateUser: function() {
@@ -413,8 +417,12 @@ define([
                         return Application.UserModel && Application.UserModel.get('user') && Application.UserModel.get('user').get('username') && !Application.UserModel.get('user').isGuestUser();
                     },
                     onRender: function() {
-                        if(this.isNotGuestUser()) {
+                        if(this.isNotGuestUser() || properties.externalAuthentication) {
                             this.children.show(new Menu.LogoutForm());
+                        }
+
+                        else if ( properties.externalAuthentication ) {
+                            this.children.show(new Menu.LoginExternalForm());
                         }
                         else {
                             this.children.show(new Menu.LoginForm());
