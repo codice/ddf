@@ -34,7 +34,7 @@
 	    </AD>
 
 	    <AD name="LDAP Bind User Password:" id="password" required="true" type="Password"
-            default="ENC(c+GitDfYAMTDRESXSDDsMw==)"
+            default="secret"
             description="Password used to bind user with LDAP.">
 	    </AD>
 
