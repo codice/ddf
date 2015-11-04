@@ -2708,7 +2708,7 @@ For example, installing the `security-sts-ldaplogin` feature adds an ldap realm.
 |Activates public key infrastructure authentication
 
 |anon(anonymous)
-|provides anonymous access
+|provides anonymous/guest access
 
 |===
 
