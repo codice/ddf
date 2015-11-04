@@ -126,6 +126,7 @@
             <groupId>org.powermock</groupId>
             <artifactId>powermock-module-junit4-rule-agent</artifactId>
             <version>${powermock.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

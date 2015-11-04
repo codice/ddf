@@ -60,6 +60,10 @@
             <artifactId>security-handler-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -70,10 +74,6 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Import-Package>
-                            *,
-                            org.joda.time;version="[1.6.0,3.0.0)"
-                        </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>
