@@ -23,9 +23,9 @@ import ddf.security.principal.AnonymousPrincipal;
  */
 public class AnonymousAuthenticationToken extends BSTAuthenticationToken {
 
-    public static final String ANONYMOUS_CREDENTIALS = "Anonymous";
+    public static final String ANONYMOUS_CREDENTIALS = "Guest";
 
-    public static final String BST_ANONYMOUS_LN = "Anonymous";
+    public static final String BST_ANONYMOUS_LN = "Guest";
 
     public static final String ANONYMOUS_TOKEN_VALUE_TYPE =
             BSTAuthenticationToken.BST_NS + BSTAuthenticationToken.TOKEN_VALUE_SEPARATOR
