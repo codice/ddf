@@ -40,7 +40,6 @@
         <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -55,10 +54,6 @@
                         </Private-Package>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Export-Package />
-                        <Import-Package>
-                            *,
-                            org.joda.time;version="[1.6.0,3.0.0)"
-                        </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>

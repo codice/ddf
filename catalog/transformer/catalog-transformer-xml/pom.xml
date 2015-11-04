@@ -96,6 +96,11 @@
             <artifactId>commons-collections</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+        </dependency>
+
     </dependencies>
     <build>
         <plugins>
@@ -124,10 +129,6 @@
                         <Export-Package>
                             ddf.catalog.transformer.api
                         </Export-Package>
-                        <Import-Package>
-                            org.joda.time;version="[1.6.0,3.0.0)",
-                            *
-                        </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>
