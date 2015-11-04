@@ -1192,14 +1192,22 @@ be processed again when the system is restarted. Files that could not be process
 As soon as a new file is detected, it is read, processed and moved to the appropriate directory based on
 whether it was successfully processed or not.
 
-==== Configuring Manage Service Factory bundles
+==== Configuring Managed Service Factory bundles
 
 Services that are created using a Managed Service Factory can be configured using `.config` files as well.
 The configuration files follow a different naming convention however. The files must start with the
-Managed Service Factory PID, be followed by a sequential number and have a `.config` extension. For instance,
-assuming that the Managed Service Factory PID is `org.codice.ddf.factory.pid` and two instances of the
-service need to be configured, files `org.codice.ddf.factory.pid.1.config` and `org.codice.ddf.factory.pid.2.config`
-need to be created and added to `<DDF_HOME>/etc`.
+Managed Service Factory PID, be followed by a unique, usually sequential number and have a `.config`
+extension. For instance, assuming that the Managed Service Factory PID is `org.codice.ddf.factory.pid`
+and two instances of the service need to be configured, files `org.codice.ddf.factory.pid.1.config`
+and `org.codice.ddf.factory.pid.2.config` should be created and added to `<DDF_HOME>/etc`.
+
+[IMPORTANT]
+====
+The numbers used in the file names have no impact on the order in which the configuration files are
+processed. No specific processing order should be assumed. Also, a new service will be created
+and configured every time a configuration file matching the Managed Service Factory PID is added
+to the directory, regardless of the number used.
+====
 
 These configuration files must also contain a `service.factoryPid` property set to the factory PID
 (without the sequential number). They should not however contain the `service.pid` property.
