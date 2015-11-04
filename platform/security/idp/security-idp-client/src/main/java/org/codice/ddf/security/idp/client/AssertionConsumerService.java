@@ -100,6 +100,10 @@ public class AssertionConsumerService {
 
     private SessionFactory sessionFactory;
 
+    static {
+        OpenSAMLUtil.initSamlEngine();
+    }
+
     public AssertionConsumerService(SimpleSign simpleSign, IdpMetadata metadata,
             SystemCrypto crypto, SystemBaseUrl systemBaseUrl, RelayStates relayStates) {
         this.simpleSign = simpleSign;
@@ -340,4 +344,7 @@ public class AssertionConsumerService {
         this.loginFilter = loginFilter;
     }
 
+    public void setRequest(HttpServletRequest request) {
+        this.request = request;
+    }
 }

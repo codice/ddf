@@ -75,6 +75,10 @@ public class IdpHandler implements AuthenticationHandler {
 
     private static XMLObjectBuilderFactory builderFactory = Configuration.getBuilderFactory();
 
+    static {
+        OpenSAMLUtil.initSamlEngine();
+    }
+
     @SuppressWarnings("unchecked")
     private static SAMLObjectBuilder<AuthnRequest> authnRequestBuilder = (SAMLObjectBuilder<AuthnRequest>) builderFactory
             .getBuilder(AuthnRequest.DEFAULT_ELEMENT_NAME);
