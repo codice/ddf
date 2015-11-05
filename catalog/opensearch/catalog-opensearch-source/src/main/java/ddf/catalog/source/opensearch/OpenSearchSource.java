@@ -737,17 +737,8 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
         return parameters;
     }
 
-    public void setParameters(String parameters) {
-        this.parameters = Arrays.asList(parameters.split(","));
-    }
-
     public void setParameters(List<String> parameters) {
-        // workaround for KARAF-1701
-        if (parameters.size() == 1 && parameters.get(0).contains(",")) {
-            this.parameters = Arrays.asList(parameters.get(0).split(","));
-        } else {
-            this.parameters = parameters;
-        }
+        this.parameters = parameters;
     }
 
     public String getUsername() {
