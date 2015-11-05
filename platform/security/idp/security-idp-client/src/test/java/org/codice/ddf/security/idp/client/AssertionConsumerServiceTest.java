@@ -199,7 +199,7 @@ public class AssertionConsumerServiceTest {
     }
 
     @Test
-    public void testProcessSamlResponseFailure() throws Exception {
+    public void testProcessSamlResponseAuthnFailure() throws Exception {
         String failureRequest = cannedResponse.replace(StatusCode.SUCCESS_URI,
                 StatusCode.AUTHN_FAILED_URI);
         Response response = assertionConsumerService.processSamlResponse(failureRequest,
@@ -207,6 +207,37 @@ public class AssertionConsumerServiceTest {
         assertThat("The http response was not 500 SEVER ERROR", response.getStatus(),
                 is(HttpStatus.SC_INTERNAL_SERVER_ERROR));
     }
+
+    @Test
+    public void testProcessSamlResponseRequestDenied() throws Exception {
+        String failureRequest = cannedResponse.replace(StatusCode.SUCCESS_URI,
+                StatusCode.REQUEST_DENIED_URI);
+        Response response = assertionConsumerService.processSamlResponse(failureRequest,
+                RELAY_STATE_VAL);
+        assertThat("The http response was not 500 SEVER ERROR", response.getStatus(),
+                is(HttpStatus.SC_INTERNAL_SERVER_ERROR));
+    }
+
+    @Test
+    public void testProcessSamlResponseRequestUnsupported() throws Exception {
+        String failureRequest = cannedResponse.replace(StatusCode.SUCCESS_URI,
+                StatusCode.REQUEST_UNSUPPORTED_URI);
+        Response response = assertionConsumerService.processSamlResponse(failureRequest,
+                RELAY_STATE_VAL);
+        assertThat("The http response was not 500 SEVER ERROR", response.getStatus(),
+                is(HttpStatus.SC_INTERNAL_SERVER_ERROR));
+    }
+
+    @Test
+    public void testProcessSamlResponseUnsupportedBinding() throws Exception {
+        String failureRequest = cannedResponse.replace(StatusCode.SUCCESS_URI,
+                StatusCode.UNSUPPORTED_BINDING_URI);
+        Response response = assertionConsumerService.processSamlResponse(failureRequest,
+                RELAY_STATE_VAL);
+        assertThat("The http response was not 500 SEVER ERROR", response.getStatus(),
+                is(HttpStatus.SC_INTERNAL_SERVER_ERROR));
+    }
+
 
     @Test
     public void testProcessSamlResponseNoAssertion() throws Exception {
