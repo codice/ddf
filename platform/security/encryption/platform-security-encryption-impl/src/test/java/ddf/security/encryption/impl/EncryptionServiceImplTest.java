@@ -34,7 +34,7 @@ public class EncryptionServiceImplTest {
     @Before
     public void setUp() throws Exception {
         ddfHome = Files.createTempDirectory("encrypt").toFile();
-        System.setProperty("ddf.home", ddfHome.toString());
+        System.setProperty("ddf.home", ddfHome.getAbsolutePath());
         String path = new File(System.getProperty("ddf.home").concat("/etc/certs"))
                 .getCanonicalPath();
         new File(path).mkdirs();
@@ -47,7 +47,7 @@ public class EncryptionServiceImplTest {
 
     @Test
     public void testBadSetup() throws Exception {
-        cleanUp();
+        System.setProperty("ddf.home", ddfHome.getAbsolutePath() + System.nanoTime());
         final String unencryptedPassword = "protect";
 
         final EncryptionServiceImpl encryptionService = new EncryptionServiceImpl();

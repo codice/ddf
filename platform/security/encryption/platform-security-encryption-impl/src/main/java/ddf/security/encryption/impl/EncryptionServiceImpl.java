@@ -27,27 +27,26 @@ import ddf.security.encryption.EncryptionService;
 public class EncryptionServiceImpl implements EncryptionService {
     private static final Logger LOGGER = LoggerFactory.getLogger(EncryptionServiceImpl.class);
 
-    private static String passwordDirectory;
-
-    static Crypter crypter;
+    private final Crypter crypter;
 
     public EncryptionServiceImpl() {
-    }
+        String passwordDirectory = System.getProperty("ddf.home").concat("/etc/certs");
 
-    static {
-        passwordDirectory = System.getProperty("ddf.home").concat("/etc/certs");
+        synchronized (EncryptionServiceImpl.class) {
+            if (!new File(passwordDirectory.concat("/meta")).exists()) {
+                KeyczarTool.main(new String[] {"create", "--location=" + passwordDirectory,
+                        "--purpose=crypt", "--name=Password"});
+                KeyczarTool.main(new String[] {"addkey", "--location=" + passwordDirectory,
+                        "--status=primary"});
+            }
+            Crypter crypter = null;
+            try {
+                crypter = new Crypter(passwordDirectory);
+            } catch (Exception e) {
+                LOGGER.error(e.getMessage());
+            }
 
-        if (!new File(passwordDirectory.concat("/meta")).exists()) {
-            KeyczarTool keyczarTool = new KeyczarTool();
-            keyczarTool.main(new String[] {"create", "--location=" + passwordDirectory,
-                    "--purpose=crypt", "--name=Password"});
-            keyczarTool.main(new String[] {"addkey", "--location=" + passwordDirectory,
-                    "--status=primary"});
-        }
-        try {
-            crypter = new Crypter(passwordDirectory);
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage());
+            this.crypter = crypter;
         }
     }
 
