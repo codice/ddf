@@ -18,6 +18,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ddf.catalog.cache.CacheException;
 import ddf.catalog.cache.ResourceCacheInterface;
 import ddf.catalog.cache.impl.CacheKey;
 import ddf.catalog.data.Attribute;
@@ -65,7 +66,7 @@ public class MetacardResourceSizePlugin implements PostQueryPlugin {
                     } finally {
                         Thread.currentThread().setContextClassLoader(tccl);
                     }
-                } catch (Exception e) {
+                } catch (CacheException e) {
                     LOGGER.debug("Unable to retrieve cached resource for metacard id = {}",
                             metacard.getId());
                 }

@@ -15,6 +15,7 @@ package ddf.catalog.cache.impl;
 
 import java.util.Set;
 
+import ddf.catalog.cache.CacheException;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.ResourceRequest;
 
@@ -36,15 +37,16 @@ public class CacheKey {
      * {@code <sourceId>-<metacardId>[-<RESOURCE_OPTION>]}
      *
      * @return key
+     * @throws CacheException if the metatcard or resourceRequest are null
      */
-    public String generateKey() {
+    public String generateKey() throws CacheException {
 
         if (metacard == null) {
-            throw new IllegalArgumentException("Metacard must not be null.");
+            throw new CacheException("Metacard must not be null.");
         }
 
         if (resourceRequest == null) {
-            throw new IllegalArgumentException("ResourceRequest must not be null.");
+            throw new CacheException("ResourceRequest must not be null.");
         }
 
         Set<String> names = resourceRequest.getPropertyNames();
