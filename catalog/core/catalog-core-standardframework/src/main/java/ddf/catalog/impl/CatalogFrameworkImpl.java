@@ -1488,24 +1488,23 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 resourceSourceName = resolvedSourceId;
             }
 
-            String key;
-            try {
-                key = new CacheKey(metacard, resourceRequest).generateKey();
-            } catch (Exception e1) {
-                LOGGER.error("resource not found", e1);
-                throw new ResourceNotFoundException(e1);
+            String key = new CacheKey(metacard, resourceRequest).generateKey();
+            if (key == null) {
+                LOGGER.error("Resource not found", resourceRequest);
+                throw new ResourceNotFoundException("Resource not found : " + resourceRequest);
             }
+
             if (productCache != null && productCache.containsValid(key, metacard)) {
-                try {
-                    Resource resource = productCache.getValid(key, metacard);
+                Resource resource = productCache.getValid(key, metacard);
+                if (resource != null) {
                     resourceResponse = new ResourceResponseImpl(resourceRequest, requestProperties,
                             resource);
                     LOGGER.info("Successfully retrieved product from cache for metacard ID = {}",
                             metacard.getId());
-                } catch (Exception ce) {
+                } else {
                     LOGGER.info(
                             "Unable to get resource from cache. Have to retrieve it from source {}",
-                            resourceSourceName, ce);
+                            resourceSourceName);
                 }
             }
 

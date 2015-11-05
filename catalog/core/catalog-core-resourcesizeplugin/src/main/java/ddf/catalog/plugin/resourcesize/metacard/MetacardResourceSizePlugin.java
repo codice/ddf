@@ -56,19 +56,22 @@ public class MetacardResourceSizePlugin implements PostQueryPlugin {
                 CacheKey cacheKey = new CacheKey(metacard, resourceRequest);
                 String key = null;
                 ReliableResource cachedResource = null;
+
+
+                key = cacheKey.generateKey();
+                ClassLoader tccl = Thread.currentThread().getContextClassLoader();
                 try {
-                    key = cacheKey.generateKey();
-                    ClassLoader tccl = Thread.currentThread().getContextClassLoader();
-                    try {
-                        Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
-                        cachedResource = (ReliableResource) cache.getValid(key, metacard);
-                    } finally {
-                        Thread.currentThread().setContextClassLoader(tccl);
-                    }
-                } catch (Exception e) {
+                    Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
+                    cachedResource = (ReliableResource) cache.getValid(key, metacard);
+                } finally {
+                    Thread.currentThread().setContextClassLoader(tccl);
+                }
+
+                if(key == null) {
                     LOGGER.debug("Unable to retrieve cached resource for metacard id = {}",
                             metacard.getId());
                 }
+
                 if (cachedResource != null) {
                     long resourceSize = cachedResource.getSize();
                     if (resourceSize > 0 && cachedResource.hasProduct()) {

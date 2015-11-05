@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -162,14 +162,12 @@ public class ReliableResourceDownloader implements Runnable {
 
         if (downloaderConfig.isCacheEnabled()) {
             CacheKey keyMaker = new CacheKey(metacard, resourceResponse.getRequest());
-            String key = null;
-            try {
-                key = keyMaker.generateKey();
-            } catch (Exception e) {
+            String key = keyMaker.generateKey();
+
+            if (key == null) {
                 LOGGER.info("Cannot create cache key for resource with metacard ID = {}",
                         metacard.getId());
-            }
-            if (key != null && !resourceCache.isPending(key)) {
+            } else if (!resourceCache.isPending(key)) {
 
                 // Fully qualified path to cache file that will be written to.
                 // Example:
@@ -256,8 +254,8 @@ public class ReliableResourceDownloader implements Runnable {
                     downloadStarted.set(Boolean.TRUE);
                     reliableResourceStatus = downloadFuture.get();
                 } catch (InterruptedException | CancellationException | ExecutionException e) {
-                    LOGGER.error("{} - Unable to store product file {}", e.getClass().getSimpleName(),
-                            filePath, e);
+                    LOGGER.error("{} - Unable to store product file {}",
+                            e.getClass().getSimpleName(), filePath, e);
                     reliableResourceStatus = reliableResourceCallable.getReliableResourceStatus();
                 }
 
@@ -281,16 +279,11 @@ public class ReliableResourceDownloader implements Runnable {
                                 true);
                     }
                     if (doCaching) {
-                        try {
-                            LOGGER.debug("Setting reliableResource size");
-                            reliableResource.setSize(reliableResourceStatus.getBytesRead());
-                            LOGGER.debug("Adding caching key = {} to cache map",
-                                    reliableResource.getKey());
-                            resourceCache.put(reliableResource);
-                        } catch (Exception e) {
-                            LOGGER.info("Unable to add cached resource to cache with key = {}",
-                                    reliableResource.getKey(), e);
-                        }
+                        LOGGER.debug("Setting reliableResource size");
+                        reliableResource.setSize(reliableResourceStatus.getBytesRead());
+                        LOGGER.debug("Adding caching key = {} to cache map",
+                                reliableResource.getKey());
+                        resourceCache.put(reliableResource);
                     }
                     break;
                 } else {

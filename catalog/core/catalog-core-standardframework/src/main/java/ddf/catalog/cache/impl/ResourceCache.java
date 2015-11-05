@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -78,9 +78,11 @@ public class ResourceCache implements ResourceCacheInterface {
 
     private String xmlConfigFilename;
 
-    //called after all parameters are set
+    /**
+     * Called after all parameters are set
+     */
     public void setCache(HazelcastInstance instance) {
-        LOGGER.debug("In setCache");
+        LOGGER.trace("ENTERING: setCache()");
         this.instance = instance;
         if (this.instance == null) {
             Config cfg = getHazelcastConfig(context, xmlConfigFilename);
@@ -268,9 +270,9 @@ public class ResourceCache implements ResourceCacheInterface {
     @Override
     public void removePendingCacheEntry(String cacheKey) {
         if (!pendingCache.remove(cacheKey)) {
-            LOGGER.debug("Did not find pending cache entry with key = {}", cacheKey);
+            LOGGER.info("Did not find pending cache entry with key = {}", cacheKey);
         } else {
-            LOGGER.debug("Removed pending cache entry with key = {}", cacheKey);
+            LOGGER.info("Removed pending cache entry with key = {}", cacheKey);
         }
     }
 
@@ -278,9 +280,9 @@ public class ResourceCache implements ResourceCacheInterface {
     public void addPendingCacheEntry(ReliableResource reliableResource) {
         String cacheKey = reliableResource.getKey();
         if (isPending(cacheKey)) {
-            LOGGER.debug("Cache entry with key = {} is already pending", cacheKey);
+            LOGGER.info("Cache entry with key = {} is already pending", cacheKey);
         } else if (containsValid(cacheKey, reliableResource.getMetacard())) {
-            LOGGER.debug("Cache entry with key = {} is already in cache", cacheKey);
+            LOGGER.info("Cache entry with key = {} is already in cache", cacheKey);
         } else {
             pendingCache.add(cacheKey);
         }
@@ -292,7 +294,7 @@ public class ResourceCache implements ResourceCacheInterface {
      */
     @Override
     public Resource getValid(String key, Metacard latestMetacard) {
-        LOGGER.debug("ENTERING: get()");
+        LOGGER.trace("ENTERING: get()");
         if (key == null) {
             throw new IllegalArgumentException("Must specify non-null key");
         }
@@ -308,26 +310,25 @@ public class ResourceCache implements ResourceCacheInterface {
         // cache directory has had files deleted from it.
         if (cachedResource != null) {
             if (!validateCacheEntry(cachedResource, latestMetacard)) {
-                throw new IllegalArgumentException(
-                        "Entry found in cache was out-of-date or otherwise invalid.  Will need to be re-cached.  Entry key: "
+                LOGGER.info(
+                        "Entry found in cache was out-of-date or otherwise invalid.  Will need to be re-cached.  Entry key: {} "
                                 + key);
+                return null;
             }
 
             if (cachedResource.hasProduct()) {
-                LOGGER.debug("EXITING: get() for key {}", key);
+                LOGGER.trace("EXITING: get() for key {}", key);
                 return cachedResource;
             } else {
-                LOGGER.debug(
-                        "Entry found in the cache, but no product found in cache directory for key = {}",
-                        key);
                 cache.remove(key);
-                throw new IllegalArgumentException(
-                        "Entry found in the cache, but no product found in cache directory for key = "
+                LOGGER.info(
+                        "Entry found in the cache, but no product found in cache directory for key = {} "
                                 + key);
+                return null;
             }
         } else {
-            LOGGER.debug("No product found in cache for key = {}", key);
-            throw new IllegalArgumentException("No product found in cache for key = " + key);
+            LOGGER.info("No product found in cache for key = {}", key);
+            return null;
         }
 
     }
@@ -344,18 +345,9 @@ public class ResourceCache implements ResourceCacheInterface {
             return false;
         }
         ReliableResource cachedResource = (ReliableResource) cache.get(key);
-
-        boolean result;
-        try {
-            result = cachedResource != null ?
-                    (validateCacheEntry(cachedResource, latestMetacard)) :
-                    false;
-        } catch (IllegalArgumentException e) {
-            LOGGER.debug(e.getMessage());
-            return false;
-        }
-
-        return result;
+        return cachedResource != null ?
+                (validateCacheEntry(cachedResource, latestMetacard)) :
+                false;
     }
 
     /**
@@ -366,10 +358,8 @@ public class ResourceCache implements ResourceCacheInterface {
      * @param cachedResource
      * @param latestMetacard
      * @return true if the cached ReliableResource still matches the most recent Metacard from the Catalog, false otherwise
-     * @throws IllegalArgumentException if parameters are null
      */
-    protected boolean validateCacheEntry(ReliableResource cachedResource, Metacard latestMetacard)
-            throws IllegalArgumentException {
+    protected boolean validateCacheEntry(ReliableResource cachedResource, Metacard latestMetacard) {
         LOGGER.trace("ENTERING: validateCacheEntry");
         if (cachedResource == null || latestMetacard == null) {
             throw new IllegalArgumentException(
