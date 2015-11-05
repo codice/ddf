@@ -36,10 +36,9 @@ import ddf.catalog.operation.ResourceRequest;
  * Tests that keys are unique and proper for use with a Cache implementation
  */
 public class CacheKeyTest {
-    //dummy comment
 
-    @Test(expected = Exception.class)
-    public void testNullMetacard() throws Exception {
+    @Test(expected = IllegalArgumentException.class)
+    public void testNullMetacard() {
 
         // given
         CacheKey cacheKey = new CacheKey(null, mock(ResourceRequest.class));
@@ -51,8 +50,8 @@ public class CacheKeyTest {
         // throws an exception
     }
 
-    @Test(expected = Exception.class)
-    public void testNullResourceRequest() throws Exception {
+    @Test(expected = IllegalArgumentException.class)
+    public void testNullResourceRequest() {
 
         // given
         CacheKey cacheKey = new CacheKey(mock(Metacard.class), null);
@@ -64,8 +63,8 @@ public class CacheKeyTest {
         // throws an exception
     }
 
-    @Test()
-    public void testKeyGeneration() throws Exception {
+    @Test
+    public void testKeyGeneration() {
 
         // given
         CacheKey cacheKey = new CacheKey(getMetacardStub("sampleId"), getResourceRequestStub());
@@ -80,7 +79,7 @@ public class CacheKeyTest {
     }
 
     @Test()
-    public void testKeyUniquenessMetacardId() throws Exception {
+    public void testKeyUniquenessMetacardId() {
 
         // given
         CacheKey cacheKey1 = new CacheKey(getMetacardStub("sampleId"), getResourceRequestStub());
@@ -96,7 +95,7 @@ public class CacheKeyTest {
     }
 
     @Test()
-    public void testKeyUniquenessFromSources() throws Exception {
+    public void testKeyUniquenessFromSources() {
 
         // given
         CacheKey cacheKey1 = new CacheKey(getMetacardStub("sampleId", "source1"),
@@ -114,7 +113,7 @@ public class CacheKeyTest {
     }
 
     @Test()
-    public void testKeyUniquenessFromSourcesAndIds() throws Exception {
+    public void testKeyUniquenessFromSourcesAndIds() {
 
         // given
         CacheKey cacheKey1 = new CacheKey(getMetacardStub("sampleId1", "source1"),
@@ -135,7 +134,7 @@ public class CacheKeyTest {
      * Tests the key will be unique if given a different property in the ResourceRequest.
      */
     @Test()
-    public void testKeyUniquenessProperty() throws Exception {
+    public void testKeyUniquenessProperty() {
 
         // given
         Map<String, Serializable> propertyMap = new HashMap<String, Serializable>();
@@ -158,7 +157,7 @@ public class CacheKeyTest {
      * Tests keys will be unique if given different properties in the ResourceRequest.
      */
     @Test()
-    public void testKeyUniquenessProperties() throws Exception {
+    public void testKeyUniquenessProperties() {
 
         // given
         Map<String, Serializable> propertyMap1 = new HashMap<String, Serializable>();
@@ -180,7 +179,7 @@ public class CacheKeyTest {
     }
 
     @Test()
-    public void testKeyConsistency() throws Exception {
+    public void testKeyConsistency() {
 
         // given
         Map<String, Serializable> propertyMap = new HashMap<String, Serializable>();
