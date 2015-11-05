@@ -528,6 +528,11 @@
     </feature>
     <!-- End CXF Features -->
 
+    <feature name ="platform-configuration-listener" install="manual" version="${project.version}"
+             description="Listens for new configuration files and updates configuration admin with the new configurations.">
+        <bundle>mvn:ddf.platform/platform-configuration-listener/${project.version}</bundle>
+    </feature>
+
     <feature name="platform-scheduler" install="manual" version="${project.version}"
              description="Schedules tasks">
         <bundle>mvn:ddf.platform/platform-scheduler/${project.version}</bundle>
@@ -834,6 +839,10 @@
 
     <feature name="platform-app" install="auto" version="${project.version}"
              description="Installs the DDF platform boot features which all other applications depend upon.\nPlatform features installed by default include Apache CXF, Apache Camel, Action Framework, MIME Framework, Metrics, Security Core API and Security Encryption::DDF Platform">
+        <!-- This feature handles Felix style configuration files for DDF and MUST be the first
+             one in the platform-app feature
+        -->
+        <feature>platform-configuration-listener</feature>
         <feature>platform-security-session</feature>
         <feature>cxf</feature>
         <feature>camel</feature>
