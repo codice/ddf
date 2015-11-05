@@ -74,7 +74,7 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     public static void deleteMetacard(String id) {
         LOGGER.info("Deleting metacard {}", id);
-        delete(REST_PATH + id).then().assertThat().statusCode(200).log().all();
+        delete(REST_PATH.getUrl() + id).then().assertThat().statusCode(200).log().all();
     }
 
     public static String ingestGeoJson(String json) {
@@ -84,11 +84,12 @@ public class TestCatalog extends AbstractIntegrationTest {
     public static String ingest(String data, String mimeType) {
         LOGGER.info("Ingesting data of type {}:\n{}", mimeType, data);
         return given().body(data).header("Content-Type", mimeType).expect().log().all()
-                .statusCode(201).when().post(REST_PATH).getHeader("id");
+                .statusCode(201).when().post(REST_PATH.getUrl()).getHeader("id");
     }
 
     @BeforeExam
     public void beforeExam() throws Exception {
+        basePort = getBasePort();
         getAdminConfig().setLogLevels();
         getServiceManager().waitForAllBundles();
         getCatalogBundle().waitForCatalogProvider();
@@ -99,7 +100,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     public void testMetacardTransformersFromRest() {
         String id = ingestGeoJson(Library.getSimpleGeoJson());
 
-        String url = REST_PATH + id;
+        String url = REST_PATH.getUrl() + id;
         LOGGER.info("Getting response to {}", url);
         when().get(url).then().log().all().assertThat()
                 .body(hasXPath("/metacard[@id='" + id + "']"));
@@ -154,7 +155,7 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     private Response ingestCswRecord() {
         return given().header("Content-Type", MediaType.APPLICATION_XML)
-                .body(Library.getCswIngest()).post(CSW_PATH);
+                .body(Library.getCswIngest()).post(CSW_PATH.getUrl());
     }
 
     private String getMetacardIdFromCswInsertResponse(Response response)
@@ -196,7 +197,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         ingestCswRecord();
 
         ValidatableResponse response = given().header("Content-Type", MediaType.APPLICATION_XML)
-                .body(Library.getCswFilterDelete()).post(CSW_PATH).then();
+                .body(Library.getCswFilterDelete()).post(CSW_PATH.getUrl()).then();
         response.body(hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("1")),
                 hasXPath("//TransactionResponse/TransactionSummary/totalInserted", is("0")),
                 hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("0")));
@@ -207,7 +208,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         ingestCswRecord();
 
         ValidatableResponse response = given().header("Content-Type", MediaType.APPLICATION_XML)
-                .body(Library.getCswCqlDelete()).post(CSW_PATH).then().log().all();
+                .body(Library.getCswCqlDelete()).post(CSW_PATH.getUrl()).then();
         response.body(hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("1")),
                 hasXPath("//TransactionResponse/TransactionSummary/totalInserted", is("0")),
                 hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("0")));
@@ -219,7 +220,7 @@ public class TestCatalog extends AbstractIntegrationTest {
 
         ValidatableResponse validatableResponse = given()
                 .header("Content-Type", MediaType.APPLICATION_XML)
-                .body(Library.getCswCqlDeleteNone()).post(CSW_PATH).then();
+                .body(Library.getCswCqlDeleteNone()).post(CSW_PATH.getUrl()).then();
         validatableResponse
                 .body(hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("0")),
                         hasXPath("//TransactionResponse/TransactionSummary/totalInserted", is("0")),
@@ -240,7 +241,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         // The record being inserted in this transaction request will be deleted at the end of the
         // test.
         Response response = given().header("Content-Type", MediaType.APPLICATION_XML)
-                .body(Library.getCombinedCswInsertAndDelete()).post(CSW_PATH);
+                .body(Library.getCombinedCswInsertAndDelete()).post(CSW_PATH.getUrl());
         ValidatableResponse validatableResponse = response.then();
         validatableResponse
                 .body(hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("1")),
@@ -260,7 +261,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         ingestCswRecord();
 
         ValidatableResponse response = given().header("Content-Type", MediaType.APPLICATION_XML)
-                .body(Library.getCswFilterDelete()).post(CSW_PATH).then();
+                .body(Library.getCswFilterDelete()).post(CSW_PATH.getUrl()).then();
         response.body(hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("2")),
                 hasXPath("//TransactionResponse/TransactionSummary/totalInserted", is("0")),
                 hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("0")));
@@ -284,14 +285,14 @@ public class TestCatalog extends AbstractIntegrationTest {
         requestXml = requestXml.replace("identifier placeholder", id);
 
         ValidatableResponse validatableResponse = given()
-                .header("Content-Type", MediaType.APPLICATION_XML).body(requestXml).post(CSW_PATH)
-                .then();
+                .header("Content-Type", MediaType.APPLICATION_XML).body(requestXml)
+                .post(CSW_PATH.getUrl()).then();
         validatableResponse
                 .body(hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("0")),
                         hasXPath("//TransactionResponse/TransactionSummary/totalInserted", is("0")),
                         hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("1")));
 
-        String url = REST_PATH + id;
+        String url = REST_PATH.getUrl() + id;
         when().get(url).then().log().all().assertThat()
                 .body(hasXPath("//metacard/dateTime[@name='date']/value", startsWith("2015-08-10")),
                         hasXPath("//metacard/string[@name='title']/value", is("Updated Title")),
@@ -314,7 +315,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     @Test
     public void testCswUpdateByNewRecordNoExistingMetacards() {
         ValidatableResponse response = given().header("Content-Type", MediaType.APPLICATION_XML)
-                .body(Library.getCswUpdateByNewRecord()).post(CSW_PATH).then();
+                .body(Library.getCswUpdateByNewRecord()).post(CSW_PATH.getUrl()).then();
         response.body(hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("0")),
                 hasXPath("//TransactionResponse/TransactionSummary/totalInserted", is("0")),
                 hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("0")));
@@ -326,7 +327,7 @@ public class TestCatalog extends AbstractIntegrationTest {
 
         ValidatableResponse validatableResponse = given()
                 .header("Content-Type", MediaType.APPLICATION_XML)
-                .body(Library.getCswUpdateByNewRecord()).post(CSW_PATH).then();
+                .body(Library.getCswUpdateByNewRecord()).post(CSW_PATH.getUrl()).then();
         validatableResponse
                 .body(hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("0")),
                         hasXPath("//TransactionResponse/TransactionSummary/totalInserted", is("0")),
@@ -346,7 +347,7 @@ public class TestCatalog extends AbstractIntegrationTest {
 
         ValidatableResponse validatableResponse = given()
                 .header("Content-Type", MediaType.APPLICATION_XML)
-                .body(Library.getCswUpdateByFilterConstraint()).post(CSW_PATH).then();
+                .body(Library.getCswUpdateByFilterConstraint()).post(CSW_PATH.getUrl()).then();
         validatableResponse
                 .body(hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("0")),
                         hasXPath("//TransactionResponse/TransactionSummary/totalInserted", is("0")),
@@ -363,7 +364,7 @@ public class TestCatalog extends AbstractIntegrationTest {
             return;
         }
 
-        String firstUrl = REST_PATH + firstId;
+        String firstUrl = REST_PATH.getUrl() + firstId;
         when().get(firstUrl).then().log().all().assertThat()
                 // Check that the updated attributes were changed.
                 .body(hasXPath("//metacard/dateTime[@name='date']/value", startsWith("2015-08-25")),
@@ -373,7 +374,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                         hasXPath("//metacard/string[@name='subject']/value",
                                 is("Hydrography--Dictionaries")));
 
-        String secondUrl = REST_PATH + secondId;
+        String secondUrl = REST_PATH.getUrl() + secondId;
         when().get(secondUrl).then().log().all().assertThat()
                 // Check that the updated attributes were changed.
                 .body(hasXPath("//metacard/dateTime[@name='date']/value", startsWith("2015-08-25")),
@@ -390,7 +391,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     @Test
     public void testCswUpdateByFilterConstraintNoExistingMetacards() {
         ValidatableResponse response = given().header("Content-Type", MediaType.APPLICATION_XML)
-                .body(Library.getCswUpdateByFilterConstraint()).post(CSW_PATH).then();
+                .body(Library.getCswUpdateByFilterConstraint()).post(CSW_PATH.getUrl()).then();
         response.body(hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("0")),
                 hasXPath("//TransactionResponse/TransactionSummary/totalInserted", is("0")),
                 hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("0")));
@@ -407,7 +408,7 @@ public class TestCatalog extends AbstractIntegrationTest {
 
         ValidatableResponse validatableResponse = given()
                 .header("Content-Type", MediaType.APPLICATION_XML).body(updateRequest)
-                .post(CSW_PATH).then();
+                .post(CSW_PATH.getUrl()).then();
         validatableResponse
                 .body(hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("0")),
                         hasXPath("//TransactionResponse/TransactionSummary/totalInserted", is("0")),
@@ -438,15 +439,15 @@ public class TestCatalog extends AbstractIntegrationTest {
 
         //test with resultType="results" first
         ValidatableResponse validatableResponse = given()
-                .header("Content-Type", MediaType.APPLICATION_XML).body(query).post(CSW_PATH)
-                .then();
+                .header("Content-Type", MediaType.APPLICATION_XML).body(query)
+                .post(CSW_PATH.getUrl()).then();
 
         validatableResponse.body(hasXPath("/GetRecordsResponse/SearchResults/Record"));
 
         //test with resultType="hits"
         query = query.replace("results", "hits");
         validatableResponse = given().header("Content-Type", MediaType.APPLICATION_XML).body(query)
-                .post(CSW_PATH).then();
+                .post(CSW_PATH.getUrl()).then();
         //assert that no records have been returned
         validatableResponse.body(not(hasXPath("//Record")));
 
@@ -471,7 +472,7 @@ public class TestCatalog extends AbstractIntegrationTest {
             return;
         }
 
-        String url = REST_PATH + id;
+        String url = REST_PATH.getUrl() + id;
         when().get(url).then().log().all().assertThat()
                 // Check that the attributes about to be removed in the update are present.
                 .body(hasXPath("//metacard/dateTime[@name='date']"),
@@ -480,7 +481,8 @@ public class TestCatalog extends AbstractIntegrationTest {
 
         ValidatableResponse validatableResponse = given()
                 .header("Content-Type", MediaType.APPLICATION_XML)
-                .body(Library.getCswUpdateRemoveAttributesByCqlConstraint()).post(CSW_PATH).then();
+                .body(Library.getCswUpdateRemoveAttributesByCqlConstraint())
+                .post(CSW_PATH.getUrl()).then();
         validatableResponse
                 .body(hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("0")),
                         hasXPath("//TransactionResponse/TransactionSummary/totalInserted", is("0")),
@@ -508,8 +510,8 @@ public class TestCatalog extends AbstractIntegrationTest {
         final String requestIds = firstId + "," + secondId;
 
         // Request the records we just added.
-        final String url =
-                CSW_PATH + Library.getGetRecordByIdUrl().replace("placeholder_id", requestIds);
+        final String url = CSW_PATH.getUrl() + Library.getGetRecordByIdUrl()
+                .replace("placeholder_id", requestIds);
 
         final ValidatableResponse response = when().get(url).then().log().all();
 
@@ -531,8 +533,8 @@ public class TestCatalog extends AbstractIntegrationTest {
                 .replace("placeholder_id_2", secondId);
 
         final ValidatableResponse response = given()
-                .header("Content-Type", MediaType.APPLICATION_XML).body(requestXml).post(CSW_PATH)
-                .then();
+                .header("Content-Type", MediaType.APPLICATION_XML).body(requestXml)
+                .post(CSW_PATH.getUrl()).then();
 
         verifyGetRecordByIdResponse(response, firstId, secondId);
 
@@ -634,7 +636,7 @@ public class TestCatalog extends AbstractIntegrationTest {
 
         //try ingesting again - it should fail this time
         given().body(Library.getSimpleGeoJson()).header("Content-Type", "application/json").expect()
-                .log().all().statusCode(500).when().post(REST_PATH);
+                .log().all().statusCode(500).when().post(REST_PATH.getUrl());
 
         //verify query for first id works
         response = executeOpenSearch("xml", "q=*");
@@ -731,8 +733,8 @@ public class TestCatalog extends AbstractIntegrationTest {
     }
 
     private ValidatableResponse executeOpenSearch(String format, String... query) {
-        StringBuilder buffer = new StringBuilder(OPENSEARCH_PATH).append("?").append("format=")
-                .append(format);
+        StringBuilder buffer = new StringBuilder(OPENSEARCH_PATH.getUrl()).append("?")
+                .append("format=").append(format);
 
         for (String term : query) {
             buffer.append("&").append(term);
@@ -745,8 +747,8 @@ public class TestCatalog extends AbstractIntegrationTest {
     }
 
     private ValidatableResponse executeAdminOpenSearch(String format, String... query) {
-        StringBuilder buffer = new StringBuilder(OPENSEARCH_PATH).append("?").append("format=")
-                .append(format);
+        StringBuilder buffer = new StringBuilder(OPENSEARCH_PATH.getUrl()).append("?")
+                .append("format=").append(format);
 
         for (String term : query) {
             buffer.append("&").append(term);
