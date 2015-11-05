@@ -33,6 +33,12 @@
         <osgi.version>5.0.0</osgi.version>
         <shiro.version>1.2.3</shiro.version>
         <cas.client.version>3.1.10</cas.client.version>
+        <javax.inject.version>1</javax.inject.version>
+
+        <!--  Third-party bundle versions. These should only be used in the features.xml file.
+              Any bundle dependent on classes from these jars should depend on the jar itself -
+              not on the bundlized version. -->
+        <javax.inject.bundle.version>${javax.inject.version}_2</javax.inject.bundle.version>
         <cas.client.bundle.version>${cas.client.version}_1</cas.client.bundle.version>
     </properties>
 
