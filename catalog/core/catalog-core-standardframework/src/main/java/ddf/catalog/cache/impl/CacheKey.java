@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -25,6 +25,15 @@ public class CacheKey {
     private ResourceRequest resourceRequest;
 
     public CacheKey(Metacard metacard, ResourceRequest resourceRequest) {
+
+        if (metacard == null) {
+            throw new IllegalArgumentException("Metacard must not be null.");
+        }
+
+        if (resourceRequest == null) {
+            throw new IllegalArgumentException("ResourceRequest must not be null.");
+        }
+
         this.metacard = metacard;
         this.resourceRequest = resourceRequest;
     }
@@ -38,14 +47,6 @@ public class CacheKey {
      * @return key
      */
     public String generateKey() {
-
-        if (metacard == null) {
-            throw new IllegalArgumentException("Metacard must not be null.");
-        }
-
-        if (resourceRequest == null) {
-            throw new IllegalArgumentException("ResourceRequest must not be null.");
-        }
 
         Set<String> names = resourceRequest.getPropertyNames();
 

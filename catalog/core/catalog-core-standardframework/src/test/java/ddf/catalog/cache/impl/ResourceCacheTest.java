@@ -15,6 +15,7 @@ package ddf.catalog.cache.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -29,10 +30,8 @@ import java.net.URL;
 import java.util.Calendar;
 
 import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.shiro.cache.CacheException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,9 +40,6 @@ import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IMap;
-
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.data.ReliableResource;
@@ -51,15 +47,11 @@ import ddf.catalog.resource.data.ReliableResource;
 public class ResourceCacheTest {
     private static final String TEST_PATH = "/src/main/resources/";
 
-    private static Logger logger = LoggerFactory.getLogger(ResourceCacheTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ResourceCacheTest.class);
 
     public String workingDir;
 
     public ResourceCache resourceCache;
-
-    private HazelcastInstance instance;
-
-    private IMap cache;
 
     private String defaultProductCacheDirectory;
 
@@ -71,7 +63,6 @@ public class ResourceCacheTest {
         String xmlConfigLocation = System.getProperty("user.dir") + TEST_PATH + xmlConfigFilename;
 
         // Simulates how DDF script starts up setting KARAF_HOME
-        //        workingDir = System.getProperty("user.dir") + File.separator + "target";
         workingDir = System.getProperty("user.dir");
         System.setProperty("karaf.home", workingDir);
 
@@ -79,10 +70,6 @@ public class ResourceCacheTest {
                 workingDir + File.separator + ResourceCache.DEFAULT_PRODUCT_CACHE_DIRECTORY;
 
         // Simulates how blueprint creates the ResourceCache instance
-        //        instance = mock(HazelcastInstance.class);
-        //        cache = mock(IMap.class);
-        //        when(instance.getMap(anyString())).thenReturn(cache);
-
         Bundle bundle = mock(Bundle.class);
         URL url = new URL("file:///" + new File(xmlConfigLocation).getAbsolutePath());
         when(bundle.getResource(anyString())).thenReturn(url);
@@ -101,7 +88,7 @@ public class ResourceCacheTest {
         try {
             FileUtils.cleanDirectory(new File(defaultProductCacheDirectory));
         } catch (IOException e) {
-            logger.warn("unable to clean directory");
+            LOGGER.warn("unable to clean directory");
         }
     }
 
@@ -134,12 +121,9 @@ public class ResourceCacheTest {
     /**
      * Verifies that put() method works.
      *
-     * @throws CacheException
-     * @throws MimeTypeParseException
-     * @throws IOException
      */
     @Test
-    public void testPutThenGet() throws CacheException, MimeTypeParseException, IOException {
+    public void testPutThenGet() {
         String fileName = "15bytes.txt";
         String productLocation = System.getProperty("user.dir") + "/src/test/resources/" + fileName;
         File rrCachedFile = new File(productLocation);
@@ -147,9 +131,6 @@ public class ResourceCacheTest {
         MetacardImpl metacard = new MetacardImpl();
         ReliableResource reliableResource = new ReliableResource(key,
                 rrCachedFile.getAbsolutePath(), new MimeType(), fileName, metacard);
-
-        // Return null when adding as pending entry; return resource when doing get(key)
-        //        when(cache.get(key)).thenReturn(null).thenReturn(reliableResource);
 
         resourceCache.addPendingCacheEntry(reliableResource);
         assertTrue(resourceCache.isPending(key));
@@ -163,13 +144,9 @@ public class ResourceCacheTest {
      * Verifies that put() method works even if entry being added was never
      * in the pending cache list.
      *
-     * @throws CacheException
-     * @throws MimeTypeParseException
-     * @throws IOException
      */
     @Test
-    public void testPutThenGetNotPending()
-            throws CacheException, MimeTypeParseException, IOException {
+    public void testPutThenGetNotPending() {
         String fileName = "15bytes.txt";
         String productLocation = System.getProperty("user.dir") + "/src/test/resources/" + fileName;
         File rrCachedFile = new File(productLocation);
@@ -184,34 +161,27 @@ public class ResourceCacheTest {
                 resourceCache.getValid(key, metacard)));
     }
 
-    @Test(expected = Exception.class)
-    public void testGetWhenNullKey() throws Exception, MimeTypeParseException, IOException {
+    @Test(expected = IllegalArgumentException.class)
+    public void testGetWhenNullKey() {
         resourceCache.getValid(null, new MetacardImpl());
     }
 
-    @Test(expected = Exception.class)
-    public void testGetWhenNoProductInCache()
-            throws Exception, MimeTypeParseException, IOException {
+    @Test
+    public void testGetWhenNoProductInCache() {
         String key = "ddf-1-abc123";
-        resourceCache.getValid(key, new MetacardImpl());
+        assertNull(resourceCache.getValid(key, new MetacardImpl()));
     }
 
     /**
      * Verifies that if there is a entry in the cache but no associated product file in the cache directory,
-     * when a get() is done on that cached entry that the missing product is detected, the cache entry is removed,
-     * and a CacheException is thrown.
-     *
-     * @throws MimeTypeParseException
-     * @throws IOException
+     * when a get() is done on that cached entry that the missing product is detected, the cache entry is removed.
      */
-    @Test(expected = Exception.class)
-    public void testGetWhenNoProductInCacheDirectory()
-            throws Exception, MimeTypeParseException, IOException {
-        ReliableResource reliableResource = mock(ReliableResource.class);
+    @Test
+    public void testGetWhenNoProductInCacheDirectory() {
         String key = "ddf-1-abc123";
         MetacardImpl metacard = new MetacardImpl();
 
-        resourceCache.getValid(key, metacard);
+        assertNull(resourceCache.getValid(key, metacard));
     }
 
     @Test
@@ -261,7 +231,7 @@ public class ResourceCacheTest {
     }
 
     @Test
-    public void testContainsTrueValid() throws URISyntaxException, Exception {
+    public void testContainsTrueValid() throws URISyntaxException {
         MetacardImpl cachedMetacard = generateMetacard();
         MetacardImpl latestMetacard = generateMetacard();
 
@@ -278,8 +248,8 @@ public class ResourceCacheTest {
         assertFalse(resourceCache.containsValid(key, latestMetacard));
     }
 
-    @Test
-    public void testContainsNullLatestMetacard() throws URISyntaxException, Exception {
+    @Test(expected = IllegalArgumentException.class)
+    public void testContainsNullLatestMetacard() throws URISyntaxException {
         MetacardImpl cachedMetacard = generateMetacard();
 
         String cacheKey = "cacheKey1";
@@ -288,7 +258,7 @@ public class ResourceCacheTest {
     }
 
     @Test
-    public void testContainsTrueInvalid() throws URISyntaxException, IOException, Exception {
+    public void testContainsTrueInvalid() throws URISyntaxException, IOException {
         MetacardImpl cachedMetacard = generateMetacard();
         MetacardImpl latestMetacard = generateMetacard();
         latestMetacard.setId("different-id");
@@ -308,7 +278,7 @@ public class ResourceCacheTest {
     }
 
     @Test
-    public void testContainsTrueInvalid2CantFindFile() throws URISyntaxException, Exception {
+    public void testContainsTrueInvalid2CantFindFile() throws URISyntaxException {
         MetacardImpl cachedMetacard = generateMetacard();
         cachedMetacard.setId("different-id");
         MetacardImpl latestMetacard = generateMetacard();
@@ -346,7 +316,7 @@ public class ResourceCacheTest {
         return metacard;
     }
 
-    /*
+    /**
      * Check the values of the ReliableResource objects since equals fails once they've been serialized and
      * reconstituted.
      */
