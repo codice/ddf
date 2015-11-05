@@ -64,10 +64,10 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Import-Package>
-                            *,
                             javax.servlet; version="[2.5.0,3.0.0)",
                             javax.servlet.http; version="[2.5.0,3.0.0)",
-                            org.eclipse.jetty.servlet;version="[8,9)"
+                            org.eclipse.jetty.servlet;version="[8,9)",
+                            *
                         </Import-Package>
                         <Export-Package />
                     </instructions>
