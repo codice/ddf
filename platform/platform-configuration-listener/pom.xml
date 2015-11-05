@@ -24,8 +24,7 @@
     </parent>
     <artifactId>platform-configuration-listener</artifactId>
     <name>DDF :: Platform :: Configuration :: Listener</name>
-    <description>Listens for configuration changes and writes them to configuration files
-    </description>
+    <description>Reads in configuration files at startup and provisions DDF</description>
     <packaging>bundle</packaging>
 
     <dependencies>
@@ -86,7 +85,11 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Dependency>commons-lang,validation-api,guava</Embed-Dependency>
+                        <Embed-Dependency>
+                            commons-lang,
+                            guava,
+                            validation-api
+                        </Embed-Dependency>
                     </instructions>
                 </configuration>
             </plugin>

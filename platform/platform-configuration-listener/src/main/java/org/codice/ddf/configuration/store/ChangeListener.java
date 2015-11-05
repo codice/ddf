@@ -15,22 +15,20 @@
 package org.codice.ddf.configuration.store;
 
 import java.nio.file.Path;
+
 import javax.validation.constraints.NotNull;
 
 /**
  * Interface configuration file change listener must implement.
  *
- * @see FileHandler#registerForChanges(ChangeListener)
+ * @see ConfigurationFilesPoller#register(ChangeListener)
  */
 public interface ChangeListener {
 
     /**
-     * Method called when the properties associated with a configuration PID have changed.
+     * Method called when a new file has been created.
      *
-     * @param configurationPid
-     *            persistence identifier (PID) of the configuration that has changed
-     * @param changeType
-     *            type of change that occurred
+     * @param file file that was created
      */
     void notify(@NotNull Path file);
 }

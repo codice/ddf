@@ -18,22 +18,42 @@ import java.nio.file.Path;
 import java.util.Dictionary;
 
 import org.osgi.service.cm.ConfigurationAdmin;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+/**
+ * Base class for configuration file objects. Configuration file objects can be created using the
+ * {@link ConfigurationFileFactory} class.
+ */
 public abstract class ConfigurationFile {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationFile.class);
+    protected final Dictionary<String, Object> properties;
 
-    protected Dictionary<String, Object> properties;
+    protected final ConfigurationAdmin configAdmin;
 
-    protected ConfigurationAdmin configAdmin;
+    protected final Path configFilePath;
 
-    protected Path configFilePath;
+    /**
+     * Constructor called by {@link ConfigurationFileFactory}. Assumes that none of the parameters
+     * are {@code null}.
+     *
+     * @param configFilePath path to the configuration file
+     * @param properties     properties associated with the configuration file
+     * @param configAdmin    reference to OSGi's {@link ConfigurationAdmin}
+     */
+    ConfigurationFile(Path configFilePath, Dictionary<String, Object> properties,
+            ConfigurationAdmin configAdmin) {
+        this.configFilePath = configFilePath;
+        this.properties = properties;
+        this.configAdmin = configAdmin;
+    }
 
+    /**
+     * Gets the configuration file location
+     *
+     * @return configuration file location
+     */
     public Path getConfigFilePath() {
         return configFilePath;
     }
-    
+
     public abstract void createConfig() throws ConfigurationFileException;
 }

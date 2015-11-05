@@ -23,32 +23,34 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Class that encapsulates a Managed Service Factory configuration file. Created by the
+ * {@link ConfigurationFileFactory} class.
+ */
 public class ManagedServiceFactoryConfigurationFile extends ConfigurationFile {
 
     private static final Logger LOGGER = LoggerFactory
             .getLogger(ManagedServiceFactoryConfigurationFile.class);
 
-    public ManagedServiceFactoryConfigurationFile(Path configFilePath,
+    ManagedServiceFactoryConfigurationFile(Path configFilePath,
             Dictionary<String, Object> properties, ConfigurationAdmin configAdmin) {
-        this.properties = properties;
-        this.configFilePath = configFilePath;
-        this.configAdmin = configAdmin;
+        super(configFilePath, properties, configAdmin);
     }
 
     @Override
     public void createConfig() throws ConfigurationFileException {
-        if (properties == null) {
-            throw new ConfigurationFileException("Properties are null for configuration file ["
-                    + configFilePath + "].");
-        }
-        Configuration configuration = null;
+
         String factoryPid = getFactoryPid();
+
         try {
-            configuration = configAdmin.createFactoryConfiguration(factoryPid, null);
+            Configuration configuration = configAdmin.createFactoryConfiguration(factoryPid, null);
             configuration.update(properties);
         } catch (IOException e) {
-            throw new ConfigurationFileException("Unable to update Configuration Admin for pid ["
-                    + factoryPid + "].", e);
+            String message = String
+                    .format("Unable to get or update Configuration for factory pid [%s].",
+                            factoryPid);
+            LOGGER.error(message, e);
+            throw new ConfigurationFileException(message, e);
         }
     }
 

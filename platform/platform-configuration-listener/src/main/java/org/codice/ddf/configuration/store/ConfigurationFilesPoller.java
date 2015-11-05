@@ -18,6 +18,7 @@ import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.commons.lang.Validate.notNull;
 
 import java.io.IOException;
@@ -26,13 +27,15 @@ import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import javax.validation.constraints.NotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Class that monitors changes to files with a specific extension in a directory.
+ */
 public class ConfigurationFilesPoller implements Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationFilesPoller.class);
 
@@ -46,6 +49,14 @@ public class ConfigurationFilesPoller implements Runnable {
 
     private ChangeListener configurationDirectory;
 
+    /**
+     * Constructor.
+     *
+     * @param configurationDirectoryPath directory to watch for changes
+     * @param fileExtension              extension of of the files to watch
+     * @param watchService               watch service to use
+     * @param executorService            executor service used to create the watch thread
+     */
     public ConfigurationFilesPoller(@NotNull Path configurationDirectoryPath,
             @NotNull String fileExtension, @NotNull WatchService watchService,
             @NotNull ExecutorService executorService) {
@@ -53,6 +64,7 @@ public class ConfigurationFilesPoller implements Runnable {
         notNull(fileExtension, "fileExtension cannot be null");
         notNull(watchService, "watchService cannot be null");
         notNull(executorService, "executorService cannot be null");
+
         this.configurationDirectoryPath = configurationDirectoryPath;
         this.watchService = watchService;
         this.executorService = executorService;
@@ -82,7 +94,8 @@ public class ConfigurationFilesPoller implements Runnable {
                 return;
             }
 
-            WatchKey key = null;
+            WatchKey key;
+
             while (!Thread.currentThread().isInterrupted()) {
                 key = watchService.take(); // blocking
                 LOGGER.debug("Key has been signalled.  Looping over events.");
@@ -131,9 +144,10 @@ public class ConfigurationFilesPoller implements Runnable {
             watchService.close();
             executorService.shutdown();
 
-            if (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
+            if (!executorService.awaitTermination(10, SECONDS)) {
                 executorService.shutdownNow();
-                if (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
+
+                if (!executorService.awaitTermination(10, SECONDS)) {
                     LOGGER.error("[{}] did not terminate correctly.", getClass().getName());
                 }
             }

@@ -24,36 +24,37 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Class that encapsulates a Managed Service configuration file. Created by the
+ * {@link ConfigurationFileFactory} class.
+ */
 public class ManagedServiceConfigurationFile extends ConfigurationFile {
 
     private static final Logger LOGGER = LoggerFactory
             .getLogger(ManagedServiceConfigurationFile.class);
 
-    public ManagedServiceConfigurationFile(Path configFilePath,
-            Dictionary<String, Object> properties, ConfigurationAdmin configAdmin) {
-        this.properties = properties;
-        this.configFilePath = configFilePath;
-        this.configAdmin = configAdmin;
+    ManagedServiceConfigurationFile(Path configFilePath, Dictionary<String, Object> properties,
+            ConfigurationAdmin configAdmin) {
+        super(configFilePath, properties, configAdmin);
     }
 
     @Override
     public void createConfig() throws ConfigurationFileException {
-        if (properties == null) {
-            throw new ConfigurationFileException("Properties are null for configuration file ["
-                    + configFilePath + "].");
-        }
+
         String servicePid = getServicePid();
+
         try {
             Configuration configuration = configAdmin.getConfiguration(servicePid, null);
             configuration.update(properties);
         } catch (IOException e) {
-            throw new ConfigurationFileException("Unable to update Configuration Admin for pid ["
-                    + servicePid + "].", e);
+            String message = String
+                    .format("Unable to get or update Configuration for pid [%s].", servicePid);
+            LOGGER.error(message, e);
+            throw new ConfigurationFileException(message, e);
         }
     }
 
     private String getServicePid() {
-        String servicePid = (String) properties.get(Constants.SERVICE_PID);
-        return servicePid;
+        return (String) properties.get(Constants.SERVICE_PID);
     }
 }

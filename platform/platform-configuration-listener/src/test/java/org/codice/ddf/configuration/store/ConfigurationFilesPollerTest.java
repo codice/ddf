@@ -33,9 +33,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
+@RunWith(MockitoJUnitRunner.class)
 public class ConfigurationFilesPollerTest {
 
     private static final String FILE_EXT = ".config";
@@ -43,6 +45,12 @@ public class ConfigurationFilesPollerTest {
     private static final String INVALID_FILE_EXT = ".invalid";
 
     private static final String PID = "my.pid";
+
+    @Mock
+    private ExecutorService mockExecutorService;
+
+    @Mock
+    private ChangeListener mockChangeListener;
 
     /**
      * Verify that poller gets started by the ExecutorService.
@@ -56,8 +64,8 @@ public class ConfigurationFilesPollerTest {
         List<WatchEvent<?>> watchEvents = getSingleMockWatchEvent(mockWatchEvent);
         WatchKey mockWatchKey = getMockWatchKey(watchEvents);
         WatchService mockWatchService = getMockWatchService(mockWatchKey);
-        ExecutorService mockExecutorService = mock(ExecutorService.class);
-        Path mockConfigurationDirectory = getMockConfigurationDirectoryPath(mockPath, mock(Path.class));
+        Path mockConfigurationDirectory = getMockConfigurationDirectoryPath(mockPath,
+                mock(Path.class));
         ConfigurationFilesPoller configurationFilesPoller = new ConfigurationFilesPoller(
                 mockConfigurationDirectory, FILE_EXT, mockWatchService, mockExecutorService);
 
@@ -81,8 +89,8 @@ public class ConfigurationFilesPollerTest {
         List<WatchEvent<?>> watchEvents = getSingleMockWatchEvent(mockWatchEvent);
         WatchKey mockWatchKey = getMockWatchKey(watchEvents);
         WatchService mockWatchService = getMockWatchService(mockWatchKey);
-        ExecutorService mockExecutorService = mock(ExecutorService.class);
-        Path mockConfigurationDirectory = getMockConfigurationDirectoryPath(mockPath, mock(Path.class));
+        Path mockConfigurationDirectory = getMockConfigurationDirectoryPath(mockPath,
+                mock(Path.class));
         ConfigurationFilesPoller configurationFilesPoller = new ConfigurationFilesPoller(
                 mockConfigurationDirectory, FILE_EXT, mockWatchService, mockExecutorService);
 
@@ -102,11 +110,10 @@ public class ConfigurationFilesPollerTest {
         List<WatchEvent<?>> watchEvents = getSingleMockWatchEvent(mockWatchEvent);
         WatchKey mockWatchKey = getMockWatchKey(watchEvents);
         WatchService mockWatchService = getMockWatchService(mockWatchKey);
-        ExecutorService mockExecutorService = mock(ExecutorService.class);
-        Path mockConfigurationDirectory = getMockConfigurationDirectoryPath(mockPath, mock(Path.class));
+        Path mockConfigurationDirectory = getMockConfigurationDirectoryPath(mockPath,
+                mock(Path.class));
         ConfigurationFilesPoller configurationFilesPoller = new ConfigurationFilesPoller(
                 mockConfigurationDirectory, FILE_EXT, mockWatchService, mockExecutorService);
-        ChangeListener mockChangeListener = getMockChangeListener();
         configurationFilesPoller.register(mockChangeListener);
 
         // Perform Test
@@ -123,15 +130,15 @@ public class ConfigurationFilesPollerTest {
     public void testRunOverflowChangeListenerNotNotified() throws Exception {
         // Setup
         Path mockPath = getMockPath(PID, FILE_EXT);
-        WatchEvent<?> mockWatchEvent = getMockWatchEvent(mockPath, StandardWatchEventKinds.OVERFLOW);
+        WatchEvent<?> mockWatchEvent = getMockWatchEvent(mockPath,
+                StandardWatchEventKinds.OVERFLOW);
         List<WatchEvent<?>> watchEvents = getSingleMockWatchEvent(mockWatchEvent);
         WatchKey mockWatchKey = getMockWatchKey(watchEvents);
         WatchService mockWatchService = getMockWatchService(mockWatchKey);
-        ExecutorService mockExecutorService = mock(ExecutorService.class);
-        Path mockConfigurationDirectory = getMockConfigurationDirectoryPath(mockPath, mock(Path.class));
+        Path mockConfigurationDirectory = getMockConfigurationDirectoryPath(mockPath,
+                mock(Path.class));
         ConfigurationFilesPoller configurationFilesPoller = new ConfigurationFilesPoller(
                 mockConfigurationDirectory, FILE_EXT, mockWatchService, mockExecutorService);
-        ChangeListener mockChangeListener = getMockChangeListener();
         configurationFilesPoller.register(mockChangeListener);
 
         // Perform Test
@@ -153,11 +160,10 @@ public class ConfigurationFilesPollerTest {
         List<WatchEvent<?>> watchEvents = getSingleMockWatchEvent(mockWatchEvent);
         WatchKey mockWatchKey = getMockWatchKey(watchEvents);
         WatchService mockWatchService = getMockWatchService(mockWatchKey);
-        ExecutorService mockExecutorService = mock(ExecutorService.class);
-        Path mockConfigurationDirectory = getMockConfigurationDirectoryPath(mockPath, mock(Path.class));
+        Path mockConfigurationDirectory = getMockConfigurationDirectoryPath(mockPath,
+                mock(Path.class));
         ConfigurationFilesPoller configurationFilesPoller = new ConfigurationFilesPoller(
                 mockConfigurationDirectory, FILE_EXT, mockWatchService, mockExecutorService);
-        ChangeListener mockChangeListener = getMockChangeListener();
         configurationFilesPoller.register(mockChangeListener);
 
         // Perform Test
@@ -179,12 +185,10 @@ public class ConfigurationFilesPollerTest {
         List<WatchEvent<?>> watchEvents = getSingleMockWatchEvent(mockWatchEvent);
         WatchKey mockWatchKey = getMockWatchKey(watchEvents);
         WatchService mockWatchService = getMockWatchService(mockWatchKey);
-        ExecutorService mockExecutorService = mock(ExecutorService.class);
         Path resolvedPath = mock(Path.class);
         Path mockConfigurationDirectory = getMockConfigurationDirectoryPath(mockPath, resolvedPath);
         ConfigurationFilesPoller configurationFilesPoller = new ConfigurationFilesPoller(
                 mockConfigurationDirectory, FILE_EXT, mockWatchService, mockExecutorService);
-        ChangeListener mockChangeListener = getMockChangeListener();
         configurationFilesPoller.register(mockChangeListener);
 
         // Perform Test
@@ -193,7 +197,7 @@ public class ConfigurationFilesPollerTest {
         // Verify
         verify(mockChangeListener).notify(resolvedPath);
     }
-    
+
     /**
      * Verify that the ChangeListener is not notified for creation events
      * involving invalid file extensions.
@@ -207,11 +211,10 @@ public class ConfigurationFilesPollerTest {
         List<WatchEvent<?>> watchEvents = getSingleMockWatchEvent(mockWatchEvent);
         WatchKey mockWatchKey = getMockWatchKey(watchEvents);
         WatchService mockWatchService = getMockWatchService(mockWatchKey);
-        ExecutorService mockExecutorService = mock(ExecutorService.class);
-        Path mockConfigurationDirectory = getMockConfigurationDirectoryPath(mockPath, mock(Path.class));
+        Path mockConfigurationDirectory = getMockConfigurationDirectoryPath(mockPath,
+                mock(Path.class));
         ConfigurationFilesPoller configurationFilesPoller = new ConfigurationFilesPoller(
                 mockConfigurationDirectory, FILE_EXT, mockWatchService, mockExecutorService);
-        ChangeListener mockChangeListener = getMockChangeListener();
         configurationFilesPoller.register(mockChangeListener);
 
         // Perform Test
@@ -220,7 +223,7 @@ public class ConfigurationFilesPollerTest {
         // Verify
         verify(mockChangeListener, times(0)).notify(any(Path.class));
     }
-    
+
     /**
      * Verify that when the configurationDirectoryPath fails to register with the WatchService,
      * the run method exits and the WatchService does not attempt to take any watch keys.
@@ -234,12 +237,12 @@ public class ConfigurationFilesPollerTest {
         List<WatchEvent<?>> watchEvents = getSingleMockWatchEvent(mockWatchEvent);
         WatchKey mockWatchKey = getMockWatchKey(watchEvents);
         WatchService mockWatchService = getMockWatchService(mockWatchKey);
-        ExecutorService mockExecutorService = mock(ExecutorService.class);
         Path mockConfigurationDirectory = mock(Path.class);
-        when(mockConfigurationDirectory.register(mockWatchService, StandardWatchEventKinds.ENTRY_CREATE)).thenThrow(new IOException());
+        when(mockConfigurationDirectory
+                .register(mockWatchService, StandardWatchEventKinds.ENTRY_CREATE))
+                .thenThrow(new IOException());
         ConfigurationFilesPoller configurationFilesPoller = new ConfigurationFilesPoller(
                 mockConfigurationDirectory, FILE_EXT, mockWatchService, mockExecutorService);
-        ChangeListener mockChangeListener = getMockChangeListener();
         configurationFilesPoller.register(mockChangeListener);
 
         // Perform Test
@@ -248,7 +251,7 @@ public class ConfigurationFilesPollerTest {
         // Verify
         verify(mockWatchService, times(0)).take();
     }
-    
+
     /**
      * Verify that when no listener is registered, an attempt is not made to call its
      * notify method.
@@ -262,11 +265,10 @@ public class ConfigurationFilesPollerTest {
         List<WatchEvent<?>> watchEvents = getSingleMockWatchEvent(mockWatchEvent);
         WatchKey mockWatchKey = getMockWatchKey(watchEvents);
         WatchService mockWatchService = getMockWatchService(mockWatchKey);
-        ExecutorService mockExecutorService = mock(ExecutorService.class);
-        Path mockConfigurationDirectory = getMockConfigurationDirectoryPath(mockPath, mock(Path.class));
+        Path mockConfigurationDirectory = getMockConfigurationDirectoryPath(mockPath,
+                mock(Path.class));
         ConfigurationFilesPoller configurationFilesPoller = new ConfigurationFilesPoller(
                 mockConfigurationDirectory, FILE_EXT, mockWatchService, mockExecutorService);
-        ChangeListener mockChangeListener = getMockChangeListener();
 
         // Perform Test
         configurationFilesPoller.run();
@@ -274,8 +276,7 @@ public class ConfigurationFilesPollerTest {
         // Verify
         verify(mockChangeListener, times(0)).notify(any(Path.class));
     }
-    
-    
+
     @Test
     public void testDestroyShutsdownAfterAwaitingTermination() throws Exception {
         // Setup
@@ -285,9 +286,9 @@ public class ConfigurationFilesPollerTest {
         List<WatchEvent<?>> watchEvents = getSingleMockWatchEvent(mockWatchEvent);
         WatchKey mockWatchKey = getMockWatchKey(watchEvents);
         WatchService mockWatchService = getMockWatchService(mockWatchKey);
-        ExecutorService mockExecutorService = mock(ExecutorService.class);
         when(mockExecutorService.awaitTermination(10, TimeUnit.SECONDS)).thenReturn(true);
-        Path mockConfigurationDirectory = getMockConfigurationDirectoryPath(mockPath, mock(Path.class));
+        Path mockConfigurationDirectory = getMockConfigurationDirectoryPath(mockPath,
+                mock(Path.class));
         ConfigurationFilesPoller configurationFilesPoller = new ConfigurationFilesPoller(
                 mockConfigurationDirectory, FILE_EXT, mockWatchService, mockExecutorService);
 
@@ -299,7 +300,7 @@ public class ConfigurationFilesPollerTest {
         verify(mockExecutorService).shutdown();
         verify(mockExecutorService).awaitTermination(10, TimeUnit.SECONDS);
     }
-    
+
     @Test
     public void testDestroyShutsdownAfterSecondAwaitTermination() throws Exception {
         // Setup
@@ -309,9 +310,9 @@ public class ConfigurationFilesPollerTest {
         List<WatchEvent<?>> watchEvents = getSingleMockWatchEvent(mockWatchEvent);
         WatchKey mockWatchKey = getMockWatchKey(watchEvents);
         WatchService mockWatchService = getMockWatchService(mockWatchKey);
-        ExecutorService mockExecutorService = mock(ExecutorService.class);
         when(mockExecutorService.awaitTermination(10, TimeUnit.SECONDS)).thenReturn(false, true);
-        Path mockConfigurationDirectory = getMockConfigurationDirectoryPath(mockPath, mock(Path.class));
+        Path mockConfigurationDirectory = getMockConfigurationDirectoryPath(mockPath,
+                mock(Path.class));
         ConfigurationFilesPoller configurationFilesPoller = new ConfigurationFilesPoller(
                 mockConfigurationDirectory, FILE_EXT, mockWatchService, mockExecutorService);
 
@@ -330,17 +331,18 @@ public class ConfigurationFilesPollerTest {
         when(mockPath.toString()).thenReturn(baseFileName + extension);
         return mockPath;
     }
-    
+
     private Path getMockConfigurationDirectoryPath(Path mockPath, Path mockResolvedPath) {
         Path mockConfigurationDirectory = mock(Path.class);
         when(mockConfigurationDirectory.resolve(mockPath)).thenReturn(mockResolvedPath);
         return mockConfigurationDirectory;
     }
 
-    private <T> WatchEvent<?> getMockWatchEvent(T mockPath, Kind<?> mockKind) {
-        WatchEvent<?> mockWatchEvent = mock(WatchEvent.class);
-        when(mockWatchEvent.context()).thenAnswer(createAnswer(mockPath));
-        when(mockWatchEvent.kind()).thenAnswer(createAnswer(mockKind));
+    private <T> WatchEvent<T> getMockWatchEvent(T mockPath, Kind<T> mockKind) {
+        @SuppressWarnings("unchecked")
+        WatchEvent<T> mockWatchEvent = mock(WatchEvent.class);
+        when(mockWatchEvent.context()).thenReturn(mockPath);
+        when(mockWatchEvent.kind()).thenReturn(mockKind);
         return mockWatchEvent;
     }
 
@@ -361,20 +363,5 @@ public class ConfigurationFilesPollerTest {
         List<WatchEvent<?>> watchEvents = new ArrayList<>(1);
         watchEvents.add(mockWatchEvent);
         return watchEvents;
-    }
-
-    private ChangeListener getMockChangeListener() {
-        ChangeListener mockChangeListener = mock(ChangeListener.class);
-        return mockChangeListener;
-    }
-
-    private <T> Answer<T> createAnswer(T value) {
-        Answer<T> answer = new Answer<T>() {
-            @Override
-            public T answer(InvocationOnMock invocation) throws Throwable {
-                return value;
-            }
-        };
-        return answer;
     }
 }

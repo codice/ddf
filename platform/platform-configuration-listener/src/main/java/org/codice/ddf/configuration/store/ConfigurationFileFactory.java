@@ -1,4 +1,3 @@
-
 /**
  * Copyright (c) Codice Foundation
  * <p/>
@@ -31,65 +30,86 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Factory class used to create the proper {@link ConfigurationFile} sub-class based on a
+ * configuration file content.
+ */
 public class ConfigurationFileFactory {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationFileFactory.class);
 
-    private PersistenceStrategy pesistenceStrategy;
+    private final PersistenceStrategy persistenceStrategy;
 
-    private ConfigurationAdmin configAdmin;
+    private final ConfigurationAdmin configAdmin;
 
-    public ConfigurationFileFactory(@NotNull PersistenceStrategy pesistenceStrategy,
+    /**
+     * Constructor.
+     *
+     * @param persistenceStrategy object used to read in the configuration file content
+     * @param configAdmin         configuration admin that will be used to create Managed Service Factory
+     *                            configuration objects
+     */
+    public ConfigurationFileFactory(@NotNull PersistenceStrategy persistenceStrategy,
             @NotNull ConfigurationAdmin configAdmin) {
-        notNull(pesistenceStrategy, "pesistenceStrategy cannot be null");
+        notNull(persistenceStrategy, "persistenceStrategy cannot be null");
         notNull(configAdmin, "configAdmin cannot be null");
-        this.pesistenceStrategy = pesistenceStrategy;
+
+        this.persistenceStrategy = persistenceStrategy;
         this.configAdmin = configAdmin;
     }
 
+    /**
+     * Instantiates a new {@link ConfigurationFile} sub-class based on the content of the
+     * configuration file provided.
+     *
+     * @param configurationFile path to the configuration file that will be used to create the new
+     *                          {@link ConfigurationFile} object
+     * @return new {@link ConfigurationFile} object of the proper type. Never {@code null},
+     * @throws ConfigurationFileException thrown if the {@link ConfigurationFile} object couldn't
+     *                                    be created because the type could not be determined or
+     *                                    the configuration file couldn't be read
+     * @throws IllegalArgumentException   thrown if the path provided is {@code null}
+     */
     public ConfigurationFile createConfigurationFile(@NotNull Path configurationFile)
-        throws ConfigurationFileException {
+            throws ConfigurationFileException {
         notNull(configurationFile, "configurationFile cannot be null");
+
         Dictionary<String, Object> properties = read(configurationFile);
+
         if (isManagedServiceFactoryConfiguration(properties)) {
             return new ManagedServiceFactoryConfigurationFile(configurationFile, properties,
                     configAdmin);
         } else if (isManagedServiceConfiguration(properties)) {
             return new ManagedServiceConfigurationFile(configurationFile, properties, configAdmin);
         } else {
-            LOGGER.error(
-                    "Unable to determine type of configuration. Unable to find property [{}] or property [{}] in [{}].",
-                    Constants.SERVICE_PID, ConfigurationAdmin.SERVICE_FACTORYPID,
-                    configurationFile.toString());
-            throw new ConfigurationFileException(
-                    "Unable to determine type of configuration. Unable to find property ["
-                            + Constants.SERVICE_PID + "] or property ["
-                            + ConfigurationAdmin.SERVICE_FACTORYPID + "] in ["
-                            + configurationFile.toString() + "].");
+            String message = String
+                    .format("Unable to determine type of configuration. Unable to find property [%s] or property [%s] in [%s].",
+                            Constants.SERVICE_PID, ConfigurationAdmin.SERVICE_FACTORYPID,
+                            configurationFile.toString());
+            LOGGER.error(message);
+            throw new ConfigurationFileException(message);
         }
     }
 
     private boolean isManagedServiceFactoryConfiguration(Dictionary<String, Object> properties) {
-        String factoryPid = (String) properties.get(ConfigurationAdmin.SERVICE_FACTORYPID);
-        return factoryPid != null;
+        return properties.get(ConfigurationAdmin.SERVICE_FACTORYPID) != null;
     }
 
     private boolean isManagedServiceConfiguration(Dictionary<String, Object> properties) {
-        String servicePid = (String) properties.get(Constants.SERVICE_PID);
-        return servicePid != null;
+        return properties.get(Constants.SERVICE_PID) != null;
     }
 
     private Dictionary<String, Object> read(Path configurationFile)
-        throws ConfigurationFileException {
-        Dictionary<String, Object> properties = null;
+            throws ConfigurationFileException {
         try {
             InputStream inputStream = getInputStream(configurationFile);
-            properties = pesistenceStrategy.read(inputStream);
+            return persistenceStrategy.read(inputStream);
         } catch (IOException e) {
-            throw new ConfigurationFileException("Unable to read configuration file ["
-                    + configurationFile.toString() + "].", e);
+            String message = String.format("Unable to read configuration file [%s].",
+                    configurationFile.toString());
+            LOGGER.error(message, e);
+            throw new ConfigurationFileException(message, e);
         }
-        return properties;
     }
 
     InputStream getInputStream(Path path) throws FileNotFoundException {
