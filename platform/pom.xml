@@ -328,9 +328,9 @@
         <module>mime</module>
         <module>metrics</module>
         <module>platform-scheduler</module>
+        <module>util</module>
         <module>security</module>
         <module>platform-commands</module>
-        <module>util</module>
         <module>platform-filter-delegate</module>
         <module>error</module>
         <module>platform-http-proxy</module>

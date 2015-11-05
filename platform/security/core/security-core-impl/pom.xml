@@ -74,6 +74,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util-unavailableurls</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.security.handler</groupId>
             <artifactId>security-handler-api</artifactId>
         </dependency>
@@ -162,11 +167,14 @@
                         </Import-Package>
                         <Export-Package>
                             ddf.security.impl;version=${project.version},
+                            ddf.security.soap.impl;version=${project.version},
                             ddf.security.assertion.impl;version=${project.version},
                             ddf.security.common.util;version=${project.version},
                             ddf.security.service.impl;version=${project.version},
-                            ddf.security.ws.policy.impl;version=${project.version}
+                            ddf.security.ws.policy.impl;version=${project.version},
+                            ddf.security.http.impl;version=${project.version}
                         </Export-Package>
+                        <Private-Package>org.codice.ddf.platform.util.http</Private-Package>
                     </instructions>
                 </configuration>
             </plugin>

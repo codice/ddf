@@ -30,6 +30,29 @@ public class HttpUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpUtils.class);
 
     /**
+     * Strip a query string from a url. If the url is not valid, it will be returned as is.
+     *
+     * NOTE: a url with multiple query strings is still considered valid.
+     *
+     * @param url valid url
+     * @return url query parameters removed
+     */
+    public static String stripQueryString(String url) {
+        try {
+            URL u = new URL(url);
+            if (u.getPort() == -1) {
+                return String.format("%s://%s%s", u.getProtocol(), u.getHost(), u.getPath());
+            } else {
+                return String.format("%s://%s:%s%s", u.getProtocol(), u.getHost(), u.getPort(),
+                        u.getPath());
+            }
+        } catch (MalformedURLException ex) {
+            LOGGER.warn("Tried to strip query string from invalid url, {}", url);
+            return url;
+        }
+    }
+
+    /**
      * Sends the given response code back to the caller.
      *
      * @param code     HTTP response code for this request
