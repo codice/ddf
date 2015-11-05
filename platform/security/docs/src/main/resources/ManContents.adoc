@@ -232,6 +232,6 @@ If you have configured /search to use IDP, ensure to select the "External Authen
 ==== Limitations
 
 The internal Identity Provider solution should be used in favor of any external solutions until the IdP Service Provider fully satisfies the SAML 2.0 Web SSO profile.
-=======
+
 
 

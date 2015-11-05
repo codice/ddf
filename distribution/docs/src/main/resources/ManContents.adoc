@@ -1771,7 +1771,6 @@ The configurations for Security STS LDAP and Roles Claims Handler and Security S
 Use the encryption service, described in <<Encryption Service>>, on the command line to set passwords for your LDAP server.
 Then change the LDAP Bind User Password in the configurations to use the encrypted password.
 
-
 === Configuring Solr Catalog Provider
 
 ==== Configure the Solr Catalog Provider Data Directory
