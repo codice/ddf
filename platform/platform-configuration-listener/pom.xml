@@ -24,7 +24,9 @@
     </parent>
     <artifactId>platform-configuration-listener</artifactId>
     <name>DDF :: Platform :: Configuration :: Listener</name>
-    <description>Reads in configuration files at startup and provisions DDF</description>
+    <description>
+        Provisions DDF based on configuration files existing at startup in /etc directory or added afterwards
+    </description>
     <packaging>bundle</packaging>
 
     <dependencies>
