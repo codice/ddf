@@ -176,7 +176,8 @@ public class IdpEndpoint implements Idp {
     private void parseSpMetadata(List<String> spMetadata) {
         if (spMetadata != null) {
             try {
-                serviceProviders = MetadataConfigurationParser.buildEntityDescriptors(spMetadata);
+                MetadataConfigurationParser metadataConfigurationParser = new MetadataConfigurationParser(spMetadata);
+                serviceProviders = metadataConfigurationParser.getEntryDescriptions();
             } catch (IOException e) {
                 LOGGER.error("Unable to parse SP metadata configuration.", e);
             }
