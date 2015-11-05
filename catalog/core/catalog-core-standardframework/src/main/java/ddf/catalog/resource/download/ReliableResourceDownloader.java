@@ -38,6 +38,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.io.CountingOutputStream;
 import com.google.common.io.FileBackedOutputStream;
 
+import ddf.catalog.cache.CacheException;
 import ddf.catalog.cache.impl.CacheKey;
 import ddf.catalog.cache.impl.ResourceCache;
 import ddf.catalog.data.Metacard;
@@ -165,7 +166,7 @@ public class ReliableResourceDownloader implements Runnable {
             String key = null;
             try {
                 key = keyMaker.generateKey();
-            } catch (Exception e) {
+            } catch (CacheException e) {
                 LOGGER.info("Cannot create cache key for resource with metacard ID = {}",
                         metacard.getId());
             }
@@ -287,7 +288,7 @@ public class ReliableResourceDownloader implements Runnable {
                             LOGGER.debug("Adding caching key = {} to cache map",
                                     reliableResource.getKey());
                             resourceCache.put(reliableResource);
-                        } catch (Exception e) {
+                        } catch (CacheException e) {
                             LOGGER.info("Unable to add cached resource to cache with key = {}",
                                     reliableResource.getKey(), e);
                         }

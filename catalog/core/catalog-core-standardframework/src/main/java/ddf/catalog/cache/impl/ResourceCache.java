@@ -36,6 +36,7 @@ import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 
+import ddf.catalog.cache.CacheException;
 import ddf.catalog.cache.ResourceCacheInterface;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
@@ -254,9 +255,10 @@ public class ResourceCache implements ResourceCacheInterface {
      * cached to disk and is ready to be added to the cache map.
      *
      * @param reliableResource the resource to add to the cache map
+     * @throws CacheException on a failed add to cache map
      */
     @Override
-    public void put(ReliableResource reliableResource) {
+    public void put(ReliableResource reliableResource) throws CacheException {
         LOGGER.trace("ENTERING: put(ReliableResource)");
         reliableResource.setLastTouchedMillis(System.currentTimeMillis());
         cache.put(reliableResource.getKey(), reliableResource);
@@ -289,15 +291,17 @@ public class ResourceCache implements ResourceCacheInterface {
     /**
      * @param key
      * @return Resource, {@code null} if not found.
+     * @throws CacheException if the key or latestMetacard are null, or when a bad product is found
+     * in the cache directory.
      */
     @Override
-    public Resource getValid(String key, Metacard latestMetacard) {
+    public Resource getValid(String key, Metacard latestMetacard) throws CacheException {
         LOGGER.debug("ENTERING: get()");
         if (key == null) {
-            throw new IllegalArgumentException("Must specify non-null key");
+            throw new CacheException("Must specify non-null key");
         }
         if (latestMetacard == null) {
-            throw new IllegalArgumentException("Must specify non-null metacard");
+            throw new CacheException("Must specify non-null metacard");
         }
         LOGGER.debug("key {}", key);
 
@@ -308,7 +312,7 @@ public class ResourceCache implements ResourceCacheInterface {
         // cache directory has had files deleted from it.
         if (cachedResource != null) {
             if (!validateCacheEntry(cachedResource, latestMetacard)) {
-                throw new IllegalArgumentException(
+                throw new CacheException(
                         "Entry found in cache was out-of-date or otherwise invalid.  Will need to be re-cached.  Entry key: "
                                 + key);
             }
@@ -321,13 +325,13 @@ public class ResourceCache implements ResourceCacheInterface {
                         "Entry found in the cache, but no product found in cache directory for key = {}",
                         key);
                 cache.remove(key);
-                throw new IllegalArgumentException(
+                throw new CacheException(
                         "Entry found in the cache, but no product found in cache directory for key = "
                                 + key);
             }
         } else {
             LOGGER.debug("No product found in cache for key = {}", key);
-            throw new IllegalArgumentException("No product found in cache for key = " + key);
+            throw new CacheException("No product found in cache for key = " + key);
         }
 
     }
@@ -350,7 +354,7 @@ public class ResourceCache implements ResourceCacheInterface {
             result = cachedResource != null ?
                     (validateCacheEntry(cachedResource, latestMetacard)) :
                     false;
-        } catch (IllegalArgumentException e) {
+        } catch (CacheException e) {
             LOGGER.debug(e.getMessage());
             return false;
         }
@@ -366,13 +370,13 @@ public class ResourceCache implements ResourceCacheInterface {
      * @param cachedResource
      * @param latestMetacard
      * @return true if the cached ReliableResource still matches the most recent Metacard from the Catalog, false otherwise
-     * @throws IllegalArgumentException if parameters are null
+     * @throws CacheException if parameters are null
      */
     protected boolean validateCacheEntry(ReliableResource cachedResource, Metacard latestMetacard)
-            throws IllegalArgumentException {
+            throws CacheException {
         LOGGER.trace("ENTERING: validateCacheEntry");
         if (cachedResource == null || latestMetacard == null) {
-            throw new IllegalArgumentException(
+            throw new CacheException(
                     "Neither the cachedResource nor the metacard retrieved from the catalog can be null.");
         }
 

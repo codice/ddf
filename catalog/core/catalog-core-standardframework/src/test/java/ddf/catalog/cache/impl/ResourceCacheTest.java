@@ -32,7 +32,6 @@ import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.shiro.cache.CacheException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,6 +43,7 @@ import org.slf4j.LoggerFactory;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 
+import ddf.catalog.cache.CacheException;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.data.ReliableResource;
@@ -215,7 +215,7 @@ public class ResourceCacheTest {
     }
 
     @Test
-    public void testValidationEqualMetacards() throws URISyntaxException {
+    public void testValidationEqualMetacards() throws URISyntaxException, CacheException {
         MetacardImpl metacard = generateMetacard();
         MetacardImpl metacard1 = generateMetacard();
 
@@ -224,25 +224,25 @@ public class ResourceCacheTest {
 
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testValidationNullResource() throws URISyntaxException {
+    @Test(expected = CacheException.class)
+    public void testValidationNullResource() throws URISyntaxException, CacheException {
         resourceCache.validateCacheEntry(null, generateMetacard());
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testValidationNullMetacard() throws URISyntaxException {
+    @Test(expected = CacheException.class)
+    public void testValidationNullMetacard() throws URISyntaxException, CacheException {
         MetacardImpl metacard = generateMetacard();
         ReliableResource cachedResource = new ReliableResource("key", "", null, null, metacard);
         resourceCache.validateCacheEntry(cachedResource, null);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testValidationNullParams() throws URISyntaxException {
+    @Test(expected = CacheException.class)
+    public void testValidationNullParams() throws URISyntaxException, CacheException {
         resourceCache.validateCacheEntry(null, null);
     }
 
     @Test
-    public void testValidationNotEqual() throws URISyntaxException, IOException {
+    public void testValidationNotEqual() throws URISyntaxException, IOException, CacheException {
         MetacardImpl metacard = generateMetacard();
         MetacardImpl metacard1 = generateMetacard();
         metacard1.setId("differentId");

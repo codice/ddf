@@ -41,6 +41,7 @@ import org.slf4j.ext.XLogger;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.Constants;
+import ddf.catalog.cache.CacheException;
 import ddf.catalog.cache.impl.CacheKey;
 import ddf.catalog.cache.impl.ResourceCache;
 import ddf.catalog.data.BinaryContent;
@@ -1491,7 +1492,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             String key;
             try {
                 key = new CacheKey(metacard, resourceRequest).generateKey();
-            } catch (Exception e1) {
+            } catch (CacheException e1) {
                 LOGGER.error("resource not found", e1);
                 throw new ResourceNotFoundException(e1);
             }
@@ -1502,7 +1503,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                             resource);
                     LOGGER.info("Successfully retrieved product from cache for metacard ID = {}",
                             metacard.getId());
-                } catch (Exception ce) {
+                } catch (CacheException ce) {
                     LOGGER.info(
                             "Unable to get resource from cache. Have to retrieve it from source {}",
                             resourceSourceName, ce);

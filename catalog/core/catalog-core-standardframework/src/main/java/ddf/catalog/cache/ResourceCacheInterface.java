@@ -28,8 +28,9 @@ public interface ResourceCacheInterface {
      * Adds a resource to the cache.
      *
      * @param reliableResource
+     * @throws CacheException when the resource fails to be added to the cache.
      */
-    void put(ReliableResource reliableResource);
+    void put(ReliableResource reliableResource) throws CacheException;
 
     /**
      * Gets a valid resource from the cache.
@@ -39,8 +40,9 @@ public interface ResourceCacheInterface {
      *
      * @param key
      * @return Resource obtained from cache
+     * @throws CacheException when no valid resource is found in the cache.
      */
-    Resource getValid(String key, Metacard latestMetacard);
+    Resource getValid(String key, Metacard latestMetacard) throws CacheException;
 
     /**
      * Queries cache to determine if it contains a valid resource with the provided key.
