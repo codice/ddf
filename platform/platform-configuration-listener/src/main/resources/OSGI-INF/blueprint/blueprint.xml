@@ -12,64 +12,64 @@
  **/ -->
 
 <blueprint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0" xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.2.0"
-    xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.2.0"
+           xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
     <ext:property-placeholder>
         <ext:default-properties>
-            <ext:property name="configFileExtension" value=".config" />
-            <ext:property name="configFileDirectory" value="${ddf.home}/etc" />
-            <ext:property name="processedDirectory" value="${ddf.home}/etc/processed" />
-            <ext:property name="failedDirectory" value="${ddf.home}/etc/failed" />
+            <ext:property name="configFileExtension" value=".config"/>
+            <ext:property name="configFileDirectory" value="${ddf.home}/etc"/>
+            <ext:property name="processedDirectory" value="${ddf.home}/etc/processed"/>
+            <ext:property name="failedDirectory" value="${ddf.home}/etc/failed"/>
         </ext:default-properties>
     </ext:property-placeholder>
 
-    <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin" />
+    <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
 
     <bean id="watchThread" class="java.util.concurrent.Executors"
-        factory-method="newSingleThreadExecutor">
+          factory-method="newSingleThreadExecutor">
     </bean>
 
     <bean id="defaultFileSystem" class="java.nio.file.FileSystems"
-        factory-method="getDefault">
+          factory-method="getDefault">
     </bean>
 
     <bean id="watchService" factory-ref="defaultFileSystem"
-        factory-method="newWatchService">
+          factory-method="newWatchService">
     </bean>
 
     <bean id="persistenceStrategy"
-        class="org.codice.ddf.configuration.store.FelixPersistenceStrategy">
-    </bean>
+          class="org.codice.ddf.configuration.store.felix.FelixPersistenceStrategy"/>
 
     <bean id="configDirectoryPath" class="java.nio.file.Paths"
-        factory-method="get">
-        <argument value="file://${configFileDirectory}" />
+          factory-method="get">
+        <argument value="file://${configFileDirectory}"/>
     </bean>
 
     <bean id="processedDirectoryPath" class="java.nio.file.Paths"
-        factory-method="get">
-        <argument value="file://${processedDirectory}" />
+          factory-method="get">
+        <argument value="file://${processedDirectory}"/>
     </bean>
 
     <bean id="failedDirectoryPath" class="java.nio.file.Paths"
-        factory-method="get">
-        <argument value="file://${failedDirectory}" />
+          factory-method="get">
+        <argument value="file://${failedDirectory}"/>
     </bean>
 
     <bean id="configurationFileFactory"
-        class="org.codice.ddf.configuration.store.ConfigurationFileFactory">
-        <argument ref="persistenceStrategy" />
-        <argument ref="configurationAdmin" />
+          class="org.codice.ddf.configuration.store.ConfigurationFileFactory">
+        <argument ref="persistenceStrategy"/>
+        <argument ref="configurationAdmin"/>
     </bean>
 
     <bean id="configurationFilesPoller"
-        class="org.codice.ddf.configuration.store.ConfigurationFilesPoller"
-        init-method="init" destroy-method="destroy">
-        <argument ref="configDirectoryPath" />
-        <argument value="${configFileExtension}" />
-        <argument ref="watchService" />
-        <argument ref="watchThread" />
+          class="org.codice.ddf.configuration.store.ConfigurationFilesPoller"
+          init-method="init" destroy-method="destroy">
+        <argument ref="configDirectoryPath"/>
+        <argument value="${configFileExtension}"/>
+        <argument ref="watchService"/>
+        <argument ref="watchThread"/>
     </bean>
 
     <bean id="configDirectoryStream" class="java.nio.file.Files"
@@ -79,13 +79,13 @@
     </bean>
 
     <bean id="configurationFileDirectory"
-        class="org.codice.ddf.configuration.store.ConfigurationFileDirectory"
-        init-method="init">
-        <argument ref="configDirectoryStream" />
-        <argument ref="processedDirectoryPath" />
-        <argument ref="failedDirectoryPath" />
-        <argument ref="configurationFileFactory" />
-        <argument ref="configurationFilesPoller" />
+          class="org.codice.ddf.configuration.store.ConfigurationFileDirectory"
+          init-method="init">
+        <argument ref="configDirectoryStream"/>
+        <argument ref="processedDirectoryPath"/>
+        <argument ref="failedDirectoryPath"/>
+        <argument ref="configurationFileFactory"/>
+        <argument ref="configurationFilesPoller"/>
     </bean>
 
 </blueprint>
