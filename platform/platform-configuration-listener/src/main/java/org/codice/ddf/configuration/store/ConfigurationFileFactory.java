@@ -82,10 +82,10 @@ public class ConfigurationFileFactory {
         } else if (isManagedServiceConfiguration(properties)) {
             return new ManagedServiceConfigurationFile(configurationFile, properties, configAdmin);
         } else {
-            String message = String
-                    .format("Unable to determine type of configuration. Unable to find property [%s] or property [%s] in [%s].",
-                            Constants.SERVICE_PID, ConfigurationAdmin.SERVICE_FACTORYPID,
-                            configurationFile.toString());
+            String message = String.format("Unable to determine type of configuration. "
+                            + "Unable to find property [%s] or property [%s] in file [%s] that contained [%s].",
+                    Constants.SERVICE_PID, ConfigurationAdmin.SERVICE_FACTORYPID,
+                    configurationFile.toString(), properties);
             LOGGER.error(message);
             throw new ConfigurationFileException(message);
         }
