@@ -62,7 +62,7 @@ public class ConfigurationFileDirectory implements ChangeListener {
      *                                 files have been created
      * @throws IllegalArgumentException thrown if any of the arguments is invalid
      */
-    public ConfigurationFileDirectory(@NotNull DirectoryStream<Path> directoryStream,
+    public ConfigurationFileDirectory(@NotNull DirectoryStream directoryStream,
             @NotNull Path processedDirectory, @NotNull Path failedDirectory,
             @NotNull ConfigurationFileFactory configurationFileFactory,
             @NotNull ConfigurationFilesPoller poller) {
