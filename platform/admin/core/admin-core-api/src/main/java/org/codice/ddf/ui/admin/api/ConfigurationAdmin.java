@@ -443,7 +443,7 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
         List<Map<String, Object>> tempMetatype = null;
         for (Map<String, Object> service : services) {
             String id = String.valueOf(service.get(ConfigurationAdminExt.MAP_ENTRY_ID));
-            if (id.equals(config.getPid()) || (id.equals(config.getFactoryPid()) && Boolean
+            if (id.equals(config.getPid()) || ((id.equals(config.getFactoryPid()) || (id + "_disabled").equals(config.getFactoryPid())) && Boolean
                     .valueOf(String.valueOf(service.get(ConfigurationAdminExt.MAP_FACTORY))))) {
                 @SuppressWarnings("unchecked")
                 List<Map<String, Object>> mapList = (List<Map<String, Object>>) service

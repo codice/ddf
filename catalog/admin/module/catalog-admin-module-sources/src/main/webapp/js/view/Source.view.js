@@ -81,8 +81,8 @@ function (ich,Marionette,_,$,Q,ModalSource,EmptyView,Service,Status,wreqr,Utils,
         },
         editSource: function(evt) {
             evt.stopPropagation();
-            var model = this.model;
-            wreqr.vent.trigger('editSource', model);
+            var service = this.model;
+            wreqr.vent.trigger('editSource', service);
         },
         changeConfiguration: function(evt) {
             var model = this.model;
@@ -171,11 +171,11 @@ function (ich,Marionette,_,$,Q,ModalSource,EmptyView,Service,Status,wreqr,Utils,
                 }
             });
         },
-        editSource: function(model) {
+        editSource: function(service) {
             wreqr.vent.trigger("showModal",
                 new ModalSource.View({
-                    model: model,
-                    parentModel: this.model,
+                    model: service,
+                    source: this.model,
                     mode: 'edit'
                 })
             );
@@ -195,7 +195,7 @@ function (ich,Marionette,_,$,Q,ModalSource,EmptyView,Service,Status,wreqr,Utils,
                 wreqr.vent.trigger("showModal",
                     new ModalSource.View({
                         model: this.model.getSourceModelWithServices(),
-                        parentModel: this.model,
+                        source: this.model,
                         mode: 'add'
                     })
                 );
@@ -238,7 +238,44 @@ function (ich,Marionette,_,$,Q,ModalSource,EmptyView,Service,Status,wreqr,Utils,
         itemView: SourceView.DeleteItem,
         itemViewContainer: '.modal-body',
         events: {
-            'click .submit-button' : 'deleteSources'
+            'click .submit-button' : 'deleteSources',
+            'click .deleteSource' : 'toggleChecks',
+            'click .selectSourceDelete' : 'toggleChecks'
+        },
+        toggleChecks: function(e) {
+            var view = this;
+            var checked = e.target.checked;
+            // Loop through all the source views available to get the one relevant to the click.
+            // We don't want to go deleting/checking the wrong source/service.
+            var sourceView = view.children.find(function (childView) {
+                return (childView.model.get("name") === e.target.value);
+            });
+
+            // Check to see if user clicked the source (top-level) checkbox or a service checkbox.
+            if (e.target.className === "deleteSource") {
+                // If user clicked source checkbox, toggle all services underneath to match it.
+                sourceView.$(".selectSourceDelete").each( function() {
+                    this.checked = checked;
+                });
+            } else if (e.target.className === "selectSourceDelete") {
+                // If user deselected a service checkbox, make sure to also deselect the source checkbox.
+                if (!checked) {
+                    sourceView.$(".deleteSource")[0].checked = false;
+                }
+                else if (checked) {
+                // Check to see if a user has manually selected all the services in a source, if they have,
+                // also select the source checkbox.
+                    checked = false;
+                    sourceView.$(".selectSourceDelete").each( function() {
+                         checked = this.checked;
+                         if (checked === false) {
+                            return;
+                         }
+                    });
+                    sourceView.$(".deleteSource")[0].checked = checked;
+                }
+            }
+
         },
         deleteSources: function() {
             var view = this;
@@ -250,11 +287,11 @@ function (ich,Marionette,_,$,Q,ModalSource,EmptyView,Service,Status,wreqr,Utils,
                     if (content.checked) {
 
                         var id = currentConfig ? currentConfig.get('id') : null;
-                        if (id === content.value) {
+                        if (id === content.id) {
                             toDelete.push(view.createDeletePromise(item, currentConfig));
                         } else if (disableConfigs) {
                             disableConfigs.each(function (disabledConfig) {
-                                if (disabledConfig.get('id') === content.value) {
+                                if (disabledConfig.get('id') === content.id) {
                                     toDelete.push(view.createDeletePromise(item, disabledConfig));
                                 }
                             });

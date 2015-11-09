@@ -51,6 +51,13 @@ function (wreqr, Service, Backbone, _, poller, Status) {
             }
         },
         setCurrentConfiguration: function(configuration) {
+            // check to see if the source already has a 'currentConfiguration'
+            // if it does, make the currentConfiguration disabled and move it to the disabledConfiguration
+            // list
+            if (this.has('currentConfiguration')) {
+                this.get('currentConfiguration').makeDisableCall();
+                this.addDisabledConfiguration(this.get('currentConfiguration'));
+            }
             this.set({currentConfiguration: configuration});
 
             var pid = configuration.id;

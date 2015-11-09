@@ -95,7 +95,7 @@ define(function (require) {
         makeEnableCall: function(){
             var model = this;
             var deferred = $.Deferred();
-            var pid = model.getServicePid();
+            var pid = model.get('id');
             var url = [model.configUrl, "enableConfiguration", pid].join("/");
             if(pid){
                 $.ajax({
@@ -122,7 +122,7 @@ define(function (require) {
         makeDisableCall: function(){
             var model = this;
             var deferred = $.Deferred();
-            var pid = model.getServicePid();
+            var pid = model.get('id');
             var url = [model.configUrl, "disableConfiguration", pid].join("/");
             if(pid){
                 $.ajax({
@@ -134,7 +134,7 @@ define(function (require) {
                         model.destroy();
                         deferred.resolve();
                     }).fail(function(){
-                        deferred.reject(new Error('Could not disable configuratoin ' + pid));
+                        deferred.reject(new Error('Could not disable configuration ' + pid));
                         deferred.resolve();
                     });
             } else {
@@ -144,17 +144,26 @@ define(function (require) {
             return deferred;
         },
 
-        getServicePid: function(){
-            var props = this.get('properties');
-            if (props) {
-                var config = props.parents[0];
-                if (config) {
-                    return config.id;
-                }
-            }
-            return null;
-        },
+        // Used to make a call to the backend to disable the service that corresponds to the pid.
+        // Note: this does NOT affect the service the function is called on.
+        // Treat this as a static function
+        makeDisableCallByPid: function(pid){
+           var deferred = $.Deferred();
+           var url = [this.configUrl, "disableConfiguration", pid].join("/");
+           if(pid){
+               $.ajax({
+                   url: url,
+                   dataType: 'json'
+               }).then(function(){
+                   deferred.resolve();
+               }).fail(function(){
+                 deferred.reject(new Error('Could not disable configuration ' + pid));
+                 deferred.resolve();
+               });
+           }
 
+           return deferred;
+        },
 
         /**
          * When a model calls save the sync is called in Backbone.  I override it because this isn't a typical backbone
@@ -163,26 +172,24 @@ define(function (require) {
          */
         sync: function () {
             var deferred = $.Deferred(),
-                model = this,
-                addUrl = [model.configUrl, "add"].join("/");
+                model = this;
             //if it has a pid we are editing an existing record
-            if(model.parents.length > 0 && model.parents[0].get('id')) {
-                var collect = model.parents[0].get('id');
+            if(model.id) {
+                var collect = model.collectedData(model.id);
                 var jData = JSON.stringify(collect);
 
                 return $.ajax({
                     type: 'POST',
                     contentType: 'application/json',
                     data: jData,
-                    url: addUrl
+                    url: model.configUrl
                 }).done(function (result) {
                         deferred.resolve(result);
                     }).fail(function (error) {
                         deferred.fail(error);
                     });
-            }
-            else //no pid means this is a new record
-            {
+             //no pid means this is a new record
+            } else {
                 model.makeConfigCall(model).done(function (data) {
                     var collect = model.collectedData(JSON.parse(data).value);
                     var jData = JSON.stringify(collect);
@@ -191,7 +198,7 @@ define(function (require) {
                         type: 'POST',
                         contentType: 'application/json',
                         data: jData,
-                        url: addUrl
+                        url: model.configUrl
                     }).done(function (result) {
                         deferred.resolve(result);
                     }).fail(function (error) {
