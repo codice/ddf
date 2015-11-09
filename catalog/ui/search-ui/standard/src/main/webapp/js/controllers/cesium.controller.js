@@ -66,6 +66,8 @@ define(['underscore',
                     geocoder: properties.gazetteer,
                     homeButton: true,
                     sceneModePicker: true,
+		    selectionIndicator: false,
+		    infoBox: false,
 
                     // Hide the base layer picker
                     baseLayerPicker: false
