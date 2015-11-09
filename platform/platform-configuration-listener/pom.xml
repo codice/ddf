@@ -57,7 +57,7 @@
             <version>18.0</version>
         </dependency>
         <dependency>
-            <groupId>ddf.platform</groupId>
+            <groupId>ddf.platform.util</groupId>
             <artifactId>platform-util</artifactId>
         </dependency>
         <dependency>
