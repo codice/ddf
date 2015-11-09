@@ -73,7 +73,7 @@ function (ich,Marionette,Backbone,ConfigurationEdit,Service,Utils,wreqr,_,$,moda
          */
         initialize: function(options) {
             _.bindAll(this);
-            this.parentModel = options.parentModel;
+            this.source = options.source;
             this.modelBinder = new Backbone.ModelBinder();
             this.mode = options.mode;
         },
@@ -152,34 +152,53 @@ function (ich,Marionette,Backbone,ConfigurationEdit,Service,Utils,wreqr,_,$,moda
         submitData: function() {
             wreqr.vent.trigger('beforesave');
             var view = this;
-            var model = view.model.get('editConfig');
-            if (model) {
-                var fpid = model.get("fpid");
-                var idx = fpid.indexOf("_disabled");
-                if (idx > 0) {
-                    model.set("fpid", fpid.substring(0, idx));
-                }
-                model.save().then(function() {
-                    var needsRefresh = true;
-                    var existingSource = view.parentModel.get('collection').find(function(item) {
-                        var config = item.get('currentConfiguration');
-                        return (config && config.id === model.id);
-                    });
-                    if (existingSource) {
-                        var toDisable = existingSource.get('currentConfiguration');
-                        if (toDisable) {
-                            $.when(toDisable.makeDisableCall()).then(function() {
-                                wreqr.vent.trigger('refreshSources');
-                                view.closeAndUnbind();
-                            });
-                            needsRefresh = false;
-                        }
-                    }
-                    if (needsRefresh) {
-                        wreqr.vent.trigger('refreshSources');
-                        view.closeAndUnbind();
-                    }
-                },
+            var service = view.model.get('editConfig');
+           if (service) {
+               var fpid = service.get("fpid");
+               var idx = fpid.indexOf("_disabled");
+               if (idx > 0) {
+                   service.set("fpid", fpid.substring(0, idx));
+               }
+               service.save().then(function(response) {
+                   var needsRefresh = true;
+                   // check to see if the service corresponds to an existing source
+                   // if it does, return the source
+                   var existingSource = view.source.get('collection').find(function(item) {
+                       var config = item.get('currentConfiguration');
+                       return (config && config.get('properties').id === service.get('properties').id);
+                   });
+                   var jsonResult;
+                   // Logic to check if the service we are adding is going to be a member of an already existing source;
+                   // if it is, we need to disable the new service as soon at is created.
+                   if (existingSource && view.mode === 'add') {
+                       try {
+                               jsonResult = JSON.parse(response.toString().trim());
+                           } catch (e) {
+                               // https://codice.atlassian.net/browse/DDF-1642
+                               // this works around an issue in json-simple where the .toString() of an array
+                               // is returned in the arguments field of configs with array attributes,
+                               // causing the JSON string from jolokia to be unparseable, so we remove it,
+                               // since we don't care about the arguments for our parsing needs
+                               response = response.replace(/\[L[\w\.;@]*/g, '""');
+                               jsonResult = JSON.parse(response.toString().trim());
+                           }
+                       var toDisable = existingSource.get('currentConfiguration');
+                       if (toDisable && service !== toDisable) {
+                           // Since the source we are editing has a currentConfig already, we don't want to disable it.
+                           // Using the response from the creation of the new service, disable the newly created service
+                           // with a call to makeDisableCallByPid.
+                           $.when(Service.Configuration.prototype.makeDisableCallByPid(jsonResult.request['arguments'][0])).then(function() {
+                               wreqr.vent.trigger('refreshSources');
+                               view.closeAndUnbind();
+                           });
+                           needsRefresh = false;
+                       }
+                   }
+                   if (needsRefresh) {
+                       wreqr.vent.trigger('refreshSources');
+                       view.closeAndUnbind();
+                   }
+               },
                 function() {
                     wreqr.vent.trigger('refreshSources');
                 }).always(function() {
@@ -255,7 +274,7 @@ function (ich,Marionette,Backbone,ConfigurationEdit,Service,Utils,wreqr,_,$,moda
         },
         nameIsValid: function(name, fpid) {
             var valid = false;
-            var configs = this.parentModel.get('collection');
+            var configs = this.source.get('collection');
             var match = configs.find(function(sourceConfig) {
                 return sourceConfig.get('name') === name;
             });
@@ -274,13 +293,13 @@ function (ich,Marionette,Backbone,ConfigurationEdit,Service,Utils,wreqr,_,$,moda
             if (!_.isUndefined(modelConfig) && (modelConfig.get('fpid') === fpid || modelConfig.get('fpid') + "_disabled" === fpid)) {
                 matchFound = true;
             } else if (!_.isUndefined(disabledConfigs)) {
-                matchFound = !_.isUndefined(disabledConfigs.find(function(modelConfig) {
+                matchFound = !_.isUndefined(disabledConfigs.find(function(modelDisableConfig) {
                     //check the ID property to ensure that the config we're checking exists server side
                     //otherwise assume it's a template/placeholder for filling in the default modal form data
-                    if (_.isUndefined(modelConfig.id)) {
+                    if (_.isUndefined(modelDisableConfig.id)) {
                         return false;
                     } else {
-                        return modelConfig.get('fpid') === fpid;
+                        return (modelDisableConfig.get('fpid') === fpid || modelDisableConfig.get('fpid') + "_disabled" === fpid);
                     }
                 }));
             }
