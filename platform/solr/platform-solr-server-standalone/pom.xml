@@ -135,6 +135,16 @@
                                     </outputDirectory>
                                 </artifactItem>
                                 <artifactItem>
+                                    <groupId>org.codehaus.woodstox</groupId>
+                                    <artifactId>woodstox-core-asl</artifactId>
+                                    <version>${lux.woodstox.version}</version>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>
+                                        ${project.build.directory}/${project.artifactId}-${project.version}/WEB-INF/lib
+                                    </outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
                                     <groupId>com.google.guava</groupId>
                                     <artifactId>guava</artifactId>
                                     <version>14.0.1</version>
@@ -245,11 +255,7 @@
                             WEB-INF/lib/Saxon-HE-${saxon.version}.jar,
                             WEB-INF/lib/solr-xpath-${project.version}.jar,
                             WEB-INF/lib/stax2-api-3.1.1.jar,
-                            WEB-INF/lib/woodstox-core-asl-${woodstox.version}.jar,
-                            WEB-INF/lib/metrics-core-3.0.1.jar,
-                            WEB-INF/lib/lz4-1.2.0.jar,
-                            WEB-INF/lib/netty-3.6.6.Final.jar,
-                            WEB-INF/lib/snappy-java-1.1.0.1.jar,
+                            WEB-INF/lib/woodstox-core-asl-${lux.woodstox.version}.jar,
 
                             <!-- Solr WAR libs -->
                             WEB-INF/lib/antlr-runtime-3.5.jar,
@@ -295,7 +301,6 @@
                             WEB-INF/lib/solr-core-4.10.4.jar,
                             WEB-INF/lib/solr-solrj-4.10.4.jar,
                             WEB-INF/lib/spatial4j-0.4.1.jar,
-                            WEB-INF/lib/wstx-asl-3.2.7.jar,
                             WEB-INF/lib/zookeeper-3.4.6.jar,
                         </Bundle-ClassPath>
                         <Private-Package>
