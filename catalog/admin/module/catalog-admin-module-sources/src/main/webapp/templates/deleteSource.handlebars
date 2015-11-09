@@ -11,14 +11,17 @@
  *
  **/
  --}}
-<div class="delete-source-name">{{name}}</div>
+<div class="delete-source-name">
+    <input class="deleteSource" type="checkbox" value="{{name}}"> {{name}}
+
+</div>
 {{#if currentConfiguration}}
     <div class="delete-source-config">
-        <input class="selectSourceDelete" type="checkbox" value="{{currentConfiguration.attributes.id}}"> {{currentConfiguration.attributes.name}}
+        <input class="selectSourceDelete" type="checkbox" id="{{currentConfiguration.attributes.id}}" value="{{name}}"> {{currentConfiguration.attributes.name}}
     </div>
 {{/if}}
 {{#each disabledConfigurations.models}}
     <div class="delete-source-config">
-        <input class="selectSourceDelete" type="checkbox" value="{{attributes.id}}"> {{attributes.service.attributes.name}} <span class="label label-danger">Disabled</label>
+        <input class="selectSourceDelete" type="checkbox" id="{{attributes.id}}" value="{{attributes.properties.attributes.id}}"> {{attributes.service.attributes.name}} <span class="label label-danger">Disabled</label>
     </div>
 {{/each}}
