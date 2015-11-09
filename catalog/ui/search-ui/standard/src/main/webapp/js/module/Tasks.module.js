@@ -29,7 +29,7 @@ define(['application',
             TaskModule.addInitializer(function() {
 
                 this.subscription = Cometd.Comet.subscribe("/ddf/activities/**", function(resp) {
-                    var task = new Task.Model(resp, {validate: true, parse: true});
+                    var task = new Task.Model(resp.data, {validate: true});
 
                     if(!task.validationError){
                         var model = tasks.updateTask(task);
@@ -37,7 +37,7 @@ define(['application',
                     }
                 });
 
-                Cometd.Comet.publish("/ddf/activities", null);
+                Cometd.Comet.publish("/ddf/activities", {});
             });
         });
 

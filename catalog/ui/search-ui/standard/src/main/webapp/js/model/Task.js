@@ -12,16 +12,21 @@
 /*global define*/
 define([
     'backbone',
-    'jquery',
-    'underscore'
-], function(Backbone, $, _) {
+    'underscore',
+    'moment'
+], function(Backbone, _, moment) {
     var Task = {};
 
     Task.Model = Backbone.Model.extend({
         url: '/service/action',
         useAjaxSync: false,
-        initialize : function(){
-            this.set("timestamp", parseInt(this.get("timestamp"), 10));
+        initialize : function() {
+            this.set("timestamp", moment(this.get("timestamp")));
+
+            var operations = this.get("operations");
+            // Extract any operations we don't have predefined actions for in the template.
+            var operationsExt = _.omit(operations, 'download', 'retry', 'cancel', 'pause', 'remove', 'resume');
+            this.set("operationsExt", operationsExt);
         },
         validate : function(attrs) {
             if(!attrs.id)
@@ -30,23 +35,6 @@ define([
                 return "Task must have message.";
             if(!attrs.timestamp)
                 return "Task must have timestamp.";
-        },
-        parse : function(resp){
-            if(!_.isEmpty(resp.data)) {
-                var json = $.parseJSON(resp.data);
-                if(json.operations) {
-                    //remove the stuff that we have pre-defined actions for in the template
-                    json.operationsExt = this.pluck(json.operations, ['download', 'retry', 'cancel', 'pause', 'remove', 'resume']);
-                }
-                return json;
-            }
-        },
-        pluck: function(object, items) {
-            var newObject = _.clone(object), i;
-            for(i = 0; i < items.length; i++) {
-                delete newObject[items[i]];
-            }
-            return newObject;
         }
     });
 
