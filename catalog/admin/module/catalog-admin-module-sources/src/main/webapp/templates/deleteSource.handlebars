@@ -11,7 +11,10 @@
  *
  **/
  --}}
-<div class="delete-source-name">{{name}}</div>
+<div class="delete-source-name"><span style="margin-right: 2em">{{name}}</span>
+    <input class="deleteSource" type="checkbox" value={{name}}> Delete Source
+
+</div>
 {{#if currentConfiguration}}
     <div class="delete-source-config">
         <input class="selectSourceDelete" type="checkbox" value="{{currentConfiguration.attributes.id}}"> {{currentConfiguration.attributes.name}}

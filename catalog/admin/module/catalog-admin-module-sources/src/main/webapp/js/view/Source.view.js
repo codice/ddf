@@ -81,8 +81,8 @@ function (ich,Marionette,_,$,Q,ModalSource,EmptyView,Service,Status,wreqr,Utils,
         },
         editSource: function(evt) {
             evt.stopPropagation();
-            var model = this.model;
-            wreqr.vent.trigger('editSource', model);
+            var service = this.model;
+            wreqr.vent.trigger('editSource', service);
         },
         changeConfiguration: function(evt) {
             var model = this.model;
@@ -171,11 +171,11 @@ function (ich,Marionette,_,$,Q,ModalSource,EmptyView,Service,Status,wreqr,Utils,
                 }
             });
         },
-        editSource: function(model) {
+        editSource: function(service) {
             wreqr.vent.trigger("showModal",
                 new ModalSource.View({
-                    model: model,
-                    parentModel: this.model,
+                    model: service,
+                    source: this.model,
                     mode: 'edit'
                 })
             );
@@ -195,7 +195,7 @@ function (ich,Marionette,_,$,Q,ModalSource,EmptyView,Service,Status,wreqr,Utils,
                 wreqr.vent.trigger("showModal",
                     new ModalSource.View({
                         model: this.model.getSourceModelWithServices(),
-                        parentModel: this.model,
+                        source: this.model,
                         mode: 'add'
                     })
                 );
@@ -243,6 +243,20 @@ function (ich,Marionette,_,$,Q,ModalSource,EmptyView,Service,Status,wreqr,Utils,
         deleteSources: function() {
             var view = this;
             var toDelete = [];
+            view.children.each(function (childView) {
+                if (childView.$(".deleteSource").prop("checked")) {
+                    var currentConfig = childView.model.get('currentConfiguration');
+                    var disableConfigs = childView.model.get('disabledConfigurations');
+                    if (currentConfig) {
+                        toDelete.push(view.createDeletePromise(childView.model, currentConfig));
+                    }
+                    if (disableConfigs) {
+                        disableConfigs.each(function (disabledConfig) {
+                            toDelete.push(view.createDeletePromise(childView.model, disabledConfig));
+                        });
+                    }
+                }
+            });
             view.collection.each(function (item) {
                 var currentConfig = item.get('currentConfiguration');
                 var disableConfigs = item.get('disabledConfigurations');
