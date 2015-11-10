@@ -123,12 +123,12 @@ main.container {
     margin-top: 30px;
 }
 
-#alerts .panel-title {
+.alerts .panel-title {
     color: #ffffff;
 }
 
-#alerts .alerts-table {
-    color: #2c3e50; 
+.alerts .alerts-table {
+    color: #2c3e50;
     background-color: #ebccd1;
     margin-right: 30px;
 }
@@ -137,19 +137,36 @@ table.alerts-table td {
     padding-top: 8px;
     padding-bottom: 8px;
     padding-left: 18px;
+    word-wrap: break-word;
 }
 
-#alerts {
+.main-content-wrapper > .container > .alerts {
     padding-left: 20px;
     padding-right: 0px;
 }
 
-#alerts > table {
+.alerts {
+    text-align: left;
+    max-width: 100%;
+}
+
+.alerts > table {
+    table-layout: fixed;
     width: 100%;
 }
 
-h4.panel-title > a {
+h4.panel-title > button,
+h4.panel-title > button:hover,
+h4.panel-title > button:visited {
     padding-left: 10px;
+    color: white;
+    padding-top: 0;
+    padding-bottom: 0;
+    font-size: inherit;
+    text-decoration: underline;
+    vertical-align: inherit;
+    float: right;
+    line-height: inherit;
 }
 
 h4.panel-title > i {
@@ -160,8 +177,10 @@ h4.panel-title > i {
     width: inherit;
 }
 
-#collapseAlerts {
-      background: #ebccd1;
+.collapseAlerts {
+    background: #ebccd1;
+    overflow: auto;
+    max-height: 200px;
 }
 
 .fa-chevron-circle-right {

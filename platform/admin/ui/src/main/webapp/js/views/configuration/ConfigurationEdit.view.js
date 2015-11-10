@@ -22,11 +22,13 @@ define([
     'js/wreqr.js',
     'spin',
     'jquery',
+    'js/models/Alerts.js',
+    'js/views/Alerts.view',
     'text!templates/configuration/configurationEdit.handlebars',
     'text!templates/configuration/configurationItem.handlebars',
     'text!templates/configuration/textTypeListHeader.handlebars',
     'text!templates/configuration/textTypeList.handlebars'
-], function (Marionette, ich, _, Backbone, wreqr, Spinner, $, configurationEdit, configurationItem, textTypeListHeader, textTypeList) {
+], function (Marionette, ich, _, Backbone, wreqr, Spinner, $, AlertsModel, AlertsView, configurationEdit, configurationItem, textTypeListHeader, textTypeList) {
 
     var ConfigurationEditView = {};
     var passwordType = 12;
@@ -181,7 +183,8 @@ define([
         tagName: 'div',
         className: 'modal-dialog',
         regions: {
-            configurationItems: '#config-div'
+            configurationItems: '#config-div',
+            jolokiaError: '.alerts'
         },
         /**
          * Button events, right now there's a submit button
@@ -297,18 +300,15 @@ define([
             }
 
             this.model.save().done(function () {
-                spinner.stop();
                 $('#config-modal').modal('hide');
                 // due to a bug in bootstrap, the backdrop does not get removed
                 // when calling 'hide' on the modal programmatically
                 $('.modal-backdrop').remove();
                 view.close();
                 wreqr.vent.trigger('refreshConfigurations');
-            }).fail(function (jqXHR, textStatus, errorThrown) {
+            }).always(function (dataOrjqXHR, textStatus, jqXHROrerrorThrown) {
                 spinner.stop();
-                $('#error-message').text(errorThrown.error);
-                $('#error-details').text(errorThrown.stacktrace);
-                $('#error-result').show();
+                view.jolokiaError.show(new AlertsView.View({'model': AlertsModel.Jolokia(jqXHROrerrorThrown)}));
             });
             wreqr.vent.trigger('sync');
             wreqr.vent.trigger('poller:start');
