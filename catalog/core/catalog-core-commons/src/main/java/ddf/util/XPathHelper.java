@@ -89,8 +89,7 @@ public class XPathHelper {
         this(xmlToString(document));
     }
 
-    public XPathHelper(Document document, boolean cloneAndNormalize) // throws NullPointerException
-    {
+    public XPathHelper(Document document, boolean cloneAndNormalize) {
         this();
 
         if (cloneAndNormalize) {

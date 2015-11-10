@@ -253,8 +253,8 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
                     returnPredicate = and(returnPredicate, currentContentTypePred);
                 }
 
-            } else // if Spatial Predicate, Temporal Predicate, Contextual, or Entry Predicate
-            {
+            } else { // if Spatial Predicate, Temporal Predicate, Contextual, or Entry Predicate
+
                 if (returnPredicate == null) {
                     LOGGER.debug("first return predicate");
                     returnPredicate = p;
