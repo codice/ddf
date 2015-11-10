@@ -33,12 +33,18 @@
         <bundle>mvn:ddf.catalog.security/catalog-security-filter/${project.version}</bundle>
     </feature>
 
+    <feature name="sdk-rest" version="${project.version}" install="manual"
+             description="SDK Sample rest service whoami">
+        <bundle>mvn:ddf.distribution/sample-rest-endpoint/${project.version}</bundle>
+    </feature>
+
     <feature name="sdk-app" version="${project.version}" description="SDK app.">
         <feature>security-expansion</feature>
         <feature>security-pep-serviceauthz</feature>
         <feature>security-pep-user-attributes</feature>
         <feature>security-pep-metacard-attributes</feature>
         <feature>sdk-soap</feature>
+        <feature>sdk-rest</feature>
     </feature>
 
 </features>
