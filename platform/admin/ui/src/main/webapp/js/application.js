@@ -26,9 +26,8 @@ define([
     'text!templates/appHeader.handlebars',
     'text!templates/header.handlebars',
     'text!templates/footer.handlebars',
-    'text!templates/moduleTab.handlebars',
-    'text!templates/alerts.handlebars'
-    ],function (_, Backbone, Marionette, ich, $, poller, wreqr, Module, AppModel, tabs, appHeader, header, footer, moduleTab, alerts) {
+    'text!templates/moduleTab.handlebars'
+    ],function (_, Backbone, Marionette, ich, $, poller, wreqr, Module, AppModel, tabs, appHeader, header, footer, moduleTab) {
     'use strict';
 
     var Application = {};
@@ -46,7 +45,6 @@ define([
     ich.addTemplate('headerLayout', header);
     ich.addTemplate('footerLayout', footer);
     ich.addTemplate('moduleTab', moduleTab);
-    ich.addTemplate('alertsLayout', alerts);
 
     Application.App = new Marionette.Application();
 
@@ -57,7 +55,7 @@ define([
         footerRegion: 'footer',
         mainRegion: 'main',
         appHeader: '#appHeader',
-        alertsRegion: '#alerts'
+        alertsRegion: '.alerts'
     });
 
     //setup models

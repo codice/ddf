@@ -12,23 +12,30 @@
  **/
  --}}
 {{#notEmpty items}}
-<div class="panel panel-danger" id="accordion">
-  <div class="panel-heading">
-    <h4 class="panel-title">
-        <i class="fa fa-exclamation-triangle"></i>
-        The system is insecure because default configuration values are in use.
-        <a id="details" data-toggle="collapse" data-parent="#accordion" href="#collapseAlerts">Show details</a>
-    </h4>
-  </div>
-  <div id="collapseAlerts" class="panel-collapse collapse">
-    <table class="alerts-table">
-      {{#each items}}
-      <tr>
-       <td><i class="fa fa-chevron-circle-right"></i></td>
-       <td>{{this.message}}</td>
-      </tr>
-      {{/each}}
-    </table>
-  </div>
-</div>
+    <div class="panel panel-danger accordion">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <i class="fa fa-exclamation-triangle"></i>
+                {{message}}
+                <button type="button" class="btn btn-link details" data-toggle="collapse"
+                        data-parent=".accordion" data-target="#{{collapseId}}">{{button}} details
+                </button>
+
+            </h4>
+        </div>
+        <div class="panel-collapse collapse {{collapse}} collapseAlerts" id="{{collapseId}}">
+            <table class="alerts-table">
+                {{#each items}}
+                    <tr>
+                        <td><i class="fa fa-chevron-circle-right"></i></td>
+                        <td>{{#if this.message}}
+                            {{this.message}}
+                        {{else}}
+                            {{this}}
+                        {{/if}}</td>
+                    </tr>
+                {{/each}}
+            </table>
+        </div>
+    </div>
 {{/notEmpty}}

@@ -124,12 +124,14 @@
         'icanhaz',
         'js/application',
         'js/views/Module.view',
+        'js/models/Alerts.js',
+        'js/views/Alerts.view',
         'properties',
         'js/HandlebarsHelpers',
         'modelbinder',
         'bootstrap',
         'templateConfig'
-    ], function ($, Backbone, Marionette, ich, Application, ModuleView, Properties) {
+    ], function ($, Backbone, Marionette, ich, Application, ModuleView, AlertsModel, AlertsView, Properties) {
 
         var app = Application.App;
 
@@ -153,35 +155,13 @@
             }));
         });
 
-        //setup insecure defaults alerts
-        var AlertsModel = Backbone.Model.extend({
-            url: "/jolokia/exec/org.codice.ddf.admin.insecure.defaults.service.InsecureDefaultsServiceBean:service=insecure-defaults-service/validate",
-            parse: function (resp) {
-                return resp.value;
-            }
-        });
-        var alerts = new AlertsModel();
-
-        var AlertsView = Backbone.Marionette.ItemView.extend({
-            template: 'alertsLayout',
-            tagName: 'table',
-            events: {
-                'click #details': 'toggleDetailsMsg'
-            },
-            toggleDetailsMsg: function () {
-                if (!$('#collapseAlerts').hasClass('collapsing')) {
-                    $('#details').text(function (i, v) {
-                        return v === 'Show details' ? 'Hide details' : 'Show details';
-                    });
-                }
-            }
-        });
+        var alerts = new AlertsModel.InsecureAlerts();
 
         alerts.fetch({
             success: function () {
                 app.addInitializer(function () {
-                    Application.App.alertsRegion.show(new AlertsView({
-                        collection: alerts
+                    Application.App.alertsRegion.show(new AlertsView.View({
+                        model: alerts
                     }));
                 });
             }
