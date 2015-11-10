@@ -71,8 +71,7 @@ public class MockMimeTypeResolver implements MimeTypeResolver {
     }
 
     @Override
-    public String getFileExtensionForMimeType(String contentType) // throws MimeTypeException
-    {
+    public String getFileExtensionForMimeType(String contentType) {
         String fileExtension = customMimeTypesToFileExtensionsMap.get(contentType);
 
         if (fileExtension != null && !fileExtension.isEmpty()) {

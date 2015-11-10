@@ -72,8 +72,7 @@ public class Jpeg2000ThumbnailConverter implements PostQueryPlugin {
                         in.readInt() != OFFICIAL_JP2_SIGNATURE) { // Not a JP2 file
                     in.seek(0);
 
-                    if (in.readShort() != START_OF_CODESTREAM_MARKER) //Standard syntax marker found
-                    {
+                    if (in.readShort() != START_OF_CODESTREAM_MARKER) { //Standard syntax marker found
                         continue;
                     }
                 }

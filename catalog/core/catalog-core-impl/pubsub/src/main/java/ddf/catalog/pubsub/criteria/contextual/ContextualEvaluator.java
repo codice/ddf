@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -78,7 +78,6 @@ public final class ContextualEvaluator {
      * @param cec
      *
      * @return
-     *
      * @throws IOException
      * @throws ParseException
      */
@@ -319,8 +318,8 @@ public final class ContextualEvaluator {
 
                         sbuilder.append(attribute.getNodeValue() + " ");
 
-                    // On each element node detected, traverse all of its children. Look for
-                    // any Text nodes it has, adding their text values to the list of indexable text
+                        // On each element node detected, traverse all of its children. Look for
+                        // any Text nodes it has, adding their text values to the list of indexable text
                     } else if (node.getNodeType() == Node.ELEMENT_NODE) {
                         Element elem = (Element) node;
                         traverse(elem, indexedText);

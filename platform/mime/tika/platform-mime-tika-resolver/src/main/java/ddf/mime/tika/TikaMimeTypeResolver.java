@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -27,11 +27,9 @@ import ddf.mime.MimeTypeResolver;
  * Apache Tika mime type resolution packaged as a {@link MimeTypeResolver} OSGi service that can map
  * a list of file extensions to their corresponding mime types, and vice versa.
  *
- * @since 2.1.0
- *
  * @author Hugh Rodgers, Lockheed Martin
  * @author ddf.isgs@lmco.com
- *
+ * @since 2.1.0
  */
 public class TikaMimeTypeResolver implements MimeTypeResolver {
     private static final Logger LOGGER = LoggerFactory.getLogger(TikaMimeTypeResolver.class);
@@ -82,8 +80,7 @@ public class TikaMimeTypeResolver implements MimeTypeResolver {
      * This is desired so that any custom {@link MimeTypeResolver}s that may override Tika's
      * handling of a mime type will be processed first.
      *
-     * @param priority
-     *            the priority
+     * @param priority the priority
      */
     public void setPriority(int priority) {
         LOGGER.debug("Setting priority = {}", priority);
@@ -101,8 +98,7 @@ public class TikaMimeTypeResolver implements MimeTypeResolver {
     }
 
     @Override
-    public String getFileExtensionForMimeType(String contentType) // throws MimeTypeException
-    {
+    public String getFileExtensionForMimeType(String contentType) {
         LOGGER.trace("ENTERING: getFileExtensionForMimeType()");
 
         MimeTypes mimeTypes = config.getMimeRepository();
