@@ -66,6 +66,11 @@ public class Jpeg2000ThumbnailConverter implements PostQueryPlugin {
             ) {
                 IISRandomAccessIO in = new IISRandomAccessIO(
                         ImageIO.createImageInputStream(original));
+
+                if (in.length() == 0) {
+                    continue;
+                }
+
                 // extracted from jj2000.j2k.fileformat.reader.FileFormatReader
                 if (in.readInt() != OTHER_JP2_SIGNATURE ||
                         in.readInt() != JP2_SIGNATURE_BOX ||

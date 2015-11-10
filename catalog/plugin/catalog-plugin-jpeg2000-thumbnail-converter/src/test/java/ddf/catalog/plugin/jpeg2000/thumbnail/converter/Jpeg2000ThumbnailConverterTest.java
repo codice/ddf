@@ -65,4 +65,18 @@ public class Jpeg2000ThumbnailConverterTest {
         // verify the plugin ignored  the non-j2k
         assertTrue(Arrays.equals(output.toByteArray(), metacard.getThumbnail()));
     }
+
+    @Test
+    public void testEmptyThumbnail() throws Exception {
+        Metacard metacard = new MetacardImpl();
+        metacard.setAttribute(new AttributeImpl(Metacard.THUMBNAIL, new byte[0]));
+
+        List<Result> resultList = new ArrayList<>();
+        resultList.add(new ResultImpl(metacard));
+        QueryResponseImpl queryResponse = new QueryResponseImpl(null, resultList, 1);
+
+        jpeg2000ThumbnailConverter.process(queryResponse);
+    }
+
+
 }
