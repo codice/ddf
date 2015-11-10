@@ -13,12 +13,8 @@
  */
 package org.codice.ddf.security.idp.binding.api.impl;
 
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Map;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Transformer;
 import org.apache.wss4j.common.saml.builder.SAML2Constants;
 import org.codice.ddf.security.idp.binding.api.Validator;
 import org.codice.ddf.security.idp.server.Idp;
@@ -30,6 +26,8 @@ import org.opensaml.xml.validation.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableSet;
+
 import ddf.security.samlp.SimpleSign;
 import ddf.security.samlp.SystemCrypto;
 
@@ -37,13 +35,21 @@ public abstract class ValidatorImpl implements Validator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ValidatorImpl.class);
 
+    protected static final ImmutableSet<String> PKI_SAML_CONTEXTS = ImmutableSet.of(
+            SAML2Constants.AUTH_CONTEXT_CLASS_REF_X509,
+            SAML2Constants.AUTH_CONTEXT_CLASS_REF_SMARTCARD_PKI,
+            SAML2Constants.AUTH_CONTEXT_CLASS_REF_SOFTWARE_PKI,
+            SAML2Constants.AUTH_CONTEXT_CLASS_REF_SPKI,
+            SAML2Constants.AUTH_CONTEXT_CLASS_REF_TLS_CLIENT);
+
     protected final SystemCrypto systemCrypto;
 
     protected SimpleSign simpleSign;
 
     private Map<String, EntityDescriptor> serviceProviders;
 
-    public ValidatorImpl(SystemCrypto systemCrypto, Map<String, EntityDescriptor> serviceProviders) {
+    public ValidatorImpl(SystemCrypto systemCrypto,
+            Map<String, EntityDescriptor> serviceProviders) {
         this.systemCrypto = systemCrypto;
         this.serviceProviders = serviceProviders;
         this.simpleSign = new SimpleSign(systemCrypto);
@@ -60,24 +66,22 @@ public abstract class ValidatorImpl implements Validator {
         }
 
         if (authnRequest.getRequestedAuthnContext() != null) {
-            Collection authNContextClasses = CollectionUtils.transformedCollection(
-                    authnRequest.getRequestedAuthnContext().getAuthnContextClassRefs(),
-                    new AuthnContextClassTransformer());
-            if (authnRequest.isPassive() && authnRequest.getRequestedAuthnContext().getComparison()
-                    .equals(AuthnContextComparisonTypeEnumeration.EXACT) && !CollectionUtils
-                    .containsAny(authNContextClasses,
-                            Arrays.asList(SAML2Constants.AUTH_CONTEXT_CLASS_REF_X509,
-                                    SAML2Constants.AUTH_CONTEXT_CLASS_REF_SMARTCARD_PKI,
-                                    SAML2Constants.AUTH_CONTEXT_CLASS_REF_SOFTWARE_PKI,
-                                    SAML2Constants.AUTH_CONTEXT_CLASS_REF_SPKI,
-                                    SAML2Constants.AUTH_CONTEXT_CLASS_REF_TLS_CLIENT))) {
+            if (authnRequest.isPassive() && authnRequest.getRequestedAuthnContext()
+                    .getComparison()
+                    .equals(AuthnContextComparisonTypeEnumeration.EXACT)
+                    && authnRequest.getRequestedAuthnContext()
+                    .getAuthnContextClassRefs()
+                    .stream()
+                    .map(AuthnContextClassRef::getAuthnContextClassRef)
+                    .anyMatch(PKI_SAML_CONTEXTS::contains)) {
                 throw new IllegalArgumentException(
                         "Unable to passively log user in when not specifying PKI AuthnContextClassRef");
             }
         }
 
-        if (!(authnRequest.getProtocolBinding().equals(Idp.HTTP_POST_BINDING) || authnRequest
-                .getProtocolBinding().equals(Idp.HTTP_REDIRECT_BINDING))) {
+        if (!(authnRequest.getProtocolBinding()
+                .equals(Idp.HTTP_POST_BINDING) || authnRequest.getProtocolBinding()
+                .equals(Idp.HTTP_REDIRECT_BINDING))) {
             throw new UnsupportedOperationException(
                     "Only HTTP-POST and HTTP-Redirect bindings are supported");
         }
@@ -91,17 +95,6 @@ public abstract class ValidatorImpl implements Validator {
         }
         if (relayState.getBytes().length < 0 || relayState.getBytes().length > 80) {
             LOGGER.warn("RelayState has invalid size: {}", relayState.getBytes().length);
-        }
-    }
-
-    public static class AuthnContextClassTransformer implements Transformer {
-
-        @Override
-        public Object transform(Object o) {
-            if (o instanceof AuthnContextClassRef) {
-                return ((AuthnContextClassRef) o).getAuthnContextClassRef();
-            }
-            return o;
         }
     }
 

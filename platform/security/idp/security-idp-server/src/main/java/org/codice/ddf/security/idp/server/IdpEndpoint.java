@@ -134,8 +134,8 @@ public class IdpEndpoint implements Idp {
     private void parseServiceProviderMetadata(List<String> serviceProviderMetadata) {
         if (serviceProviderMetadata != null) {
             try {
-                serviceProviders = MetadataConfigurationParser
-                        .buildEntityDescriptors(serviceProviderMetadata);
+                serviceProviders = MetadataConfigurationParser.buildEntityDescriptors(
+                        serviceProviderMetadata);
             } catch (IOException e) {
                 LOGGER.error("Unable to parse SP metadata configuration.", e);
             }
@@ -169,8 +169,10 @@ public class IdpEndpoint implements Idp {
         AuthnRequest authnRequest = null;
         try {
             Map<String, Object> responseMap = new HashMap<>();
-            binding.validator().validateRelayState(relayState);
-            authnRequest = binding.decoder().decodeRequest(samlRequest);
+            binding.validator()
+                    .validateRelayState(relayState);
+            authnRequest = binding.decoder()
+                    .decodeRequest(samlRequest);
             binding.validator()
                     .validateAuthnRequest(authnRequest, samlRequest, relayState, signatureAlgorithm,
                             signature, strictSignature);
@@ -198,20 +200,21 @@ public class IdpEndpoint implements Idp {
                             StatusCode.REQUEST_UNSUPPORTED_URI, binding);
                 }
                 LOGGER.debug("Returning Passive & PKI SAML Response.");
-                return binding.creator().getSamlpResponse(relayState, authnRequest, samlpResponse,
-                        createCookie(request, samlpResponse), template);
+                return binding.creator()
+                        .getSamlpResponse(relayState, authnRequest, samlpResponse,
+                                createCookie(request, samlpResponse), template);
             } else {
                 LOGGER.debug("Building the JSON map to embed in the index.html page for login.");
                 Document doc = DOMUtils.createDocument();
                 doc.appendChild(doc.createElement("root"));
-                String authn = DOM2Writer
-                        .nodeToString(OpenSAMLUtil.toDom(authnRequest, doc, false));
+                String authn = DOM2Writer.nodeToString(
+                        OpenSAMLUtil.toDom(authnRequest, doc, false));
                 String encodedAuthn = RestSecurity.deflateAndBase64Encode(authn);
                 responseMap.put(PKI, hasCerts);
                 responseMap.put(SAML_REQ, encodedAuthn);
                 responseMap.put(RELAY_STATE, relayState);
-                String assertionConsumerServiceURL = ((ResponseCreatorImpl) binding.creator())
-                        .getAssertionConsumerServiceURL(authnRequest);
+                String assertionConsumerServiceURL = ((ResponseCreatorImpl) binding.creator()).getAssertionConsumerServiceURL(
+                        authnRequest);
                 responseMap.put(ACS_URL, assertionConsumerServiceURL);
                 responseMap.put(SSOConstants.SIG_ALG, signatureAlgorithm);
                 responseMap.put(SSOConstants.SIGNATURE, signature);
@@ -221,7 +224,8 @@ public class IdpEndpoint implements Idp {
 
             LOGGER.debug("Returning index.html page.");
             responseStr = indexHtml.replace(IDP_STATE_OBJ, json);
-            return Response.ok(responseStr).build();
+            return Response.ok(responseStr)
+                    .build();
         } catch (IllegalArgumentException e) {
             LOGGER.error(e.getMessage(), e);
             if (authnRequest != null) {
@@ -250,7 +254,8 @@ public class IdpEndpoint implements Idp {
             LOGGER.error("AuthnRequest schema validation failed.", e);
         }
 
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                .build();
     }
 
     private Response getErrorResponse(String relayState, AuthnRequest authnRequest,
@@ -262,13 +267,11 @@ public class IdpEndpoint implements Idp {
                 SamlProtocol.createStatus(statusCode), authnRequest.getID(), null);
         LOGGER.debug("Encoding error SAML Response for post or redirect.");
         String template = "";
-        String assertionConsumerServiceBinding = ResponseCreator
-                .getAssertionConsumerServiceBinding(authnRequest, serviceProviders);
-        if (authnRequest.getProtocolBinding().equals(HTTP_POST_BINDING) || HTTP_POST_BINDING
-                .equals(assertionConsumerServiceBinding)) {
+        String assertionConsumerServiceBinding = ResponseCreator.getAssertionConsumerServiceBinding(
+                authnRequest, serviceProviders);
+        if (HTTP_POST_BINDING.equals(assertionConsumerServiceBinding)) {
             template = submitForm;
-        } else if (authnRequest.getProtocolBinding().equals(HTTP_REDIRECT_BINDING)
-                || HTTP_REDIRECT_BINDING.equals(assertionConsumerServiceBinding)) {
+        } else if (HTTP_REDIRECT_BINDING.equals(assertionConsumerServiceBinding)) {
             template = redirectPage;
         }
         return binding.creator()
@@ -290,15 +293,14 @@ public class IdpEndpoint implements Idp {
             String template;
             //the authn request is always encoded as if it came in via redirect when coming from the web app
             Binding redirectBinding = new RedirectBinding(systemCrypto, serviceProviders);
-            AuthnRequest authnRequest = redirectBinding.decoder().decodeRequest(samlRequest);
-            String assertionConsumerServiceBinding = ResponseCreator
-                    .getAssertionConsumerServiceBinding(authnRequest, serviceProviders);
-            if (authnRequest.getProtocolBinding().equals(HTTP_POST_BINDING) || HTTP_POST_BINDING
-                    .equals(assertionConsumerServiceBinding)) {
+            AuthnRequest authnRequest = redirectBinding.decoder()
+                    .decodeRequest(samlRequest);
+            String assertionConsumerServiceBinding = ResponseCreator.getAssertionConsumerServiceBinding(
+                    authnRequest, serviceProviders);
+            if (HTTP_POST_BINDING.equals(assertionConsumerServiceBinding)) {
                 binding = new PostBinding(systemCrypto, serviceProviders);
                 template = submitForm;
-            } else if (authnRequest.getProtocolBinding().equals(HTTP_REDIRECT_BINDING)
-                    || HTTP_REDIRECT_BINDING.equals(assertionConsumerServiceBinding)) {
+            } else if (HTTP_REDIRECT_BINDING.equals(assertionConsumerServiceBinding)) {
                 binding = redirectBinding;
                 template = redirectPage;
             } else {
@@ -311,26 +313,31 @@ public class IdpEndpoint implements Idp {
                     request, false, false);
             LOGGER.debug("Returning SAML Response for relayState: {}" + relayState);
 
-            return binding.creator().getSamlpResponse(relayState, authnRequest, encodedSaml,
-                    createCookie(request, encodedSaml), template);
+            return binding.creator()
+                    .getSamlpResponse(relayState, authnRequest, encodedSaml,
+                            createCookie(request, encodedSaml), template);
         } catch (SecurityServiceException e) {
             LOGGER.warn("Unable to retrieve subject for user.", e);
-            return Response.status(Response.Status.UNAUTHORIZED).build();
+            return Response.status(Response.Status.UNAUTHORIZED)
+                    .build();
         } catch (WSSecurityException e) {
             LOGGER.error("Unable to encode SAMLP response.", e);
         } catch (SimpleSign.SignatureException e) {
             LOGGER.error("Unable to sign SAML response.", e);
         } catch (IllegalArgumentException e) {
             LOGGER.error(e.getMessage(), e);
-            return Response.status(Response.Status.BAD_REQUEST).build();
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .build();
         } catch (ValidationException e) {
             LOGGER.error("AuthnRequest schema validation failed.", e);
-            return Response.status(Response.Status.BAD_REQUEST).build();
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .build();
         } catch (IOException e) {
             LOGGER.error("Unable to create SAML Response.", e);
         }
 
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                .build();
     }
 
     protected synchronized org.opensaml.saml2.core.Response handleLogin(AuthnRequest authnRequest,
@@ -344,9 +351,10 @@ public class IdpEndpoint implements Idp {
             PKIHandler pkiHandler = new PKIHandler();
             pkiHandler.setTokenFactory(tokenFactory);
             try {
-                HandlerResult handlerResult = pkiHandler
-                        .getNormalizedToken(request, null, null, false);
-                if (handlerResult.getStatus().equals(HandlerResult.Status.COMPLETED)) {
+                HandlerResult handlerResult = pkiHandler.getNormalizedToken(request, null, null,
+                        false);
+                if (handlerResult.getStatus()
+                        .equals(HandlerResult.Status.COMPLETED)) {
                     token = handlerResult.getToken();
                 }
             } catch (ServletException e) {
@@ -355,9 +363,10 @@ public class IdpEndpoint implements Idp {
         } else if (USER_PASS.equals(authMethod)) {
             LOGGER.debug("Logging user in via BASIC auth.");
             BasicAuthenticationHandler basicAuthenticationHandler = new BasicAuthenticationHandler();
-            HandlerResult handlerResult = basicAuthenticationHandler
-                    .getNormalizedToken(request, null, null, false);
-            if (handlerResult.getStatus().equals(HandlerResult.Status.COMPLETED)) {
+            HandlerResult handlerResult = basicAuthenticationHandler.getNormalizedToken(request,
+                    null, null, false);
+            if (handlerResult.getStatus()
+                    .equals(HandlerResult.Status.COMPLETED)) {
                 token = handlerResult.getToken();
             }
         } else if (GUEST.equals(authMethod)) {
@@ -377,10 +386,10 @@ public class IdpEndpoint implements Idp {
             try {
                 statusCode = StatusCode.AUTHN_FAILED_URI;
                 Subject subject = securityManager.getSubject(token);
-                for (Object principal : subject.getPrincipals().asList()) {
+                for (Object principal : subject.getPrincipals()
+                        .asList()) {
                     if (principal instanceof SecurityAssertion) {
-                        SecurityToken securityToken = ((SecurityAssertion) principal)
-                                .getSecurityToken();
+                        SecurityToken securityToken = ((SecurityAssertion) principal).getSecurityToken();
                         samlToken = securityToken.getToken();
                     }
                 }
@@ -415,15 +424,18 @@ public class IdpEndpoint implements Idp {
     private synchronized NewCookie createCookie(HttpServletRequest request,
             org.opensaml.saml2.core.Response response) {
         LOGGER.debug("Creating cookie for user.");
-        if (response.getAssertions() != null && response.getAssertions().size() > 0) {
-            Assertion assertion = response.getAssertions().get(0);
+        if (response.getAssertions() != null && response.getAssertions()
+                .size() > 0) {
+            Assertion assertion = response.getAssertions()
+                    .get(0);
             if (assertion != null) {
                 UUID uuid = UUID.randomUUID();
 
                 cookieCache.put(uuid.toString(), assertion.getDOM());
                 URL url;
                 try {
-                    url = new URL(request.getRequestURL().toString());
+                    url = new URL(request.getRequestURL()
+                            .toString());
                     LOGGER.debug("Returning new cookie for user.");
                     return new NewCookie(COOKIE, uuid.toString(), null, url.getHost(),
                             NewCookie.DEFAULT_VERSION, null, -1, true);
@@ -446,25 +458,29 @@ public class IdpEndpoint implements Idp {
         nameIdFormats.add(SAML2Constants.NAMEID_FORMAT_UNSPECIFIED);
         nameIdFormats.add(SAML2Constants.NAMEID_FORMAT_X509_SUBJECT_NAME);
         CryptoType cryptoType = new CryptoType(CryptoType.TYPE.ALIAS);
-        cryptoType.setAlias(systemCrypto.getSignatureCrypto().getDefaultX509Identifier());
-        X509Certificate[] certs = systemCrypto.getSignatureCrypto().getX509Certificates(cryptoType);
+        cryptoType.setAlias(systemCrypto.getSignatureCrypto()
+                .getDefaultX509Identifier());
+        X509Certificate[] certs = systemCrypto.getSignatureCrypto()
+                .getX509Certificates(cryptoType);
         X509Certificate issuerCert = certs[0];
 
         cryptoType = new CryptoType(CryptoType.TYPE.ALIAS);
-        cryptoType.setAlias(systemCrypto.getEncryptionCrypto().getDefaultX509Identifier());
-        certs = systemCrypto.getEncryptionCrypto().getX509Certificates(cryptoType);
+        cryptoType.setAlias(systemCrypto.getEncryptionCrypto()
+                .getDefaultX509Identifier());
+        certs = systemCrypto.getEncryptionCrypto()
+                .getX509Certificates(cryptoType);
         X509Certificate encryptionCert = certs[0];
-        EntityDescriptor entityDescriptor = SamlProtocol
-                .createIdpMetadata(systemBaseUrl.constructUrl("/idp/login", true),
-                        Base64.encodeBase64String(issuerCert.getEncoded()),
-                        Base64.encodeBase64String(encryptionCert.getEncoded()), nameIdFormats,
-                        systemBaseUrl.constructUrl("/idp/login", true),
-                        systemBaseUrl.constructUrl("/idp/login", true),
-                        systemBaseUrl.constructUrl("/logout"));
+        EntityDescriptor entityDescriptor = SamlProtocol.createIdpMetadata(
+                systemBaseUrl.constructUrl("/idp/login", true),
+                Base64.encodeBase64String(issuerCert.getEncoded()),
+                Base64.encodeBase64String(encryptionCert.getEncoded()), nameIdFormats,
+                systemBaseUrl.constructUrl("/idp/login", true),
+                systemBaseUrl.constructUrl("/idp/login", true),
+                systemBaseUrl.constructUrl("/logout"));
         Document doc = DOMUtils.createDocument();
         doc.appendChild(doc.createElement("root"));
-        return Response
-                .ok(DOM2Writer.nodeToString(OpenSAMLUtil.toDom(entityDescriptor, doc, false)))
+        return Response.ok(
+                DOM2Writer.nodeToString(OpenSAMLUtil.toDom(entityDescriptor, doc, false)))
                 .build();
     }
 

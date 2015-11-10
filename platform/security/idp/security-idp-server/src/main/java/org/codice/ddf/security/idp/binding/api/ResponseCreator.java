@@ -29,32 +29,58 @@ import org.opensaml.saml2.metadata.SPSSODescriptor;
 import ddf.security.samlp.SamlProtocol;
 import ddf.security.samlp.SimpleSign;
 
+/**
+ * Creates a SAML 2 Web SSO Response.
+ */
 public interface ResponseCreator {
 
+    /**
+     * Returns the JAXRS Response appropriate for the given arguments.
+     *
+     * @param relayState       - encoded relay state
+     * @param authnRequest     - unencoded authnRequest
+     * @param samlResponse     - initialized SAML 2 Response object
+     * @param cookie           - cookie associated with the login
+     * @param responseTemplate - response template to be used when generating the response
+     * @return javax.ws.rs.core.Response
+     * @throws IOException
+     * @throws SimpleSign.SignatureException
+     * @throws WSSecurityException
+     */
     Response getSamlpResponse(String relayState, AuthnRequest authnRequest,
             org.opensaml.saml2.core.Response samlResponse, NewCookie cookie,
             String responseTemplate)
             throws IOException, SimpleSign.SignatureException, WSSecurityException;
 
+    /**
+     * Returns the assertion consumer service binding that is appropriate by parsing the
+     * AuthnRequest as well as the metadata for the given SP
+     *
+     * @param authnRequest
+     * @param serviceProviders
+     * @return String
+     */
     static String getAssertionConsumerServiceBinding(AuthnRequest authnRequest,
             Map<String, EntityDescriptor> serviceProviders) {
-        EntityDescriptor entityDescriptor = serviceProviders
-                .get(authnRequest.getIssuer().getValue());
-        SPSSODescriptor spssoDescriptor = entityDescriptor
-                .getSPSSODescriptor(SamlProtocol.SUPPORTED_PROTOCOL);
-        AssertionConsumerService defaultAssertionConsumerService = spssoDescriptor
-                .getDefaultAssertionConsumerService();
+        if (authnRequest.getProtocolBinding() != null) {
+            return authnRequest.getProtocolBinding();
+        }
+        EntityDescriptor entityDescriptor = serviceProviders.get(authnRequest.getIssuer()
+                .getValue());
+        SPSSODescriptor spssoDescriptor = entityDescriptor.getSPSSODescriptor(
+                SamlProtocol.SUPPORTED_PROTOCOL);
+        AssertionConsumerService defaultAssertionConsumerService = spssoDescriptor.getDefaultAssertionConsumerService();
         //see if the default service uses our supported bindings, and then use that
         //as we add more bindings, we'll need to update this
-        if (defaultAssertionConsumerService.getBinding().equals(Idp.HTTP_POST_BINDING)
-                || defaultAssertionConsumerService.getBinding().equals(Idp.HTTP_REDIRECT_BINDING)) {
+        if (defaultAssertionConsumerService.getBinding()
+                .equals(Idp.HTTP_POST_BINDING) || defaultAssertionConsumerService.getBinding()
+                .equals(Idp.HTTP_REDIRECT_BINDING)) {
             return defaultAssertionConsumerService.getBinding();
         } else {
             //if default doesn't work, check any others that are defined and use the first one that supports our bindings
-            for (AssertionConsumerService assertionConsumerService : spssoDescriptor
-                    .getAssertionConsumerServices()) {
-                if (assertionConsumerService.getBinding().equals(Idp.HTTP_POST_BINDING)
-                        || assertionConsumerService.getBinding()
+            for (AssertionConsumerService assertionConsumerService : spssoDescriptor.getAssertionConsumerServices()) {
+                if (assertionConsumerService.getBinding()
+                        .equals(Idp.HTTP_POST_BINDING) || assertionConsumerService.getBinding()
                         .equals(Idp.HTTP_REDIRECT_BINDING)) {
                     return assertionConsumerService.getBinding();
                 }

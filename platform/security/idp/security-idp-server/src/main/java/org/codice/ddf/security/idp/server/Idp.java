@@ -27,6 +27,9 @@ import javax.ws.rs.core.Response;
 import org.apache.cxf.rs.security.saml.sso.SSOConstants;
 import org.apache.wss4j.common.ext.WSSecurityException;
 
+/**
+ * IdP endpoint interface
+ */
 @Path("/")
 public interface Idp {
 
@@ -60,11 +63,31 @@ public interface Idp {
 
     String COOKIE = "org.codice.ddf.security.idp.session";
 
+    /**
+     * Returns the IdP login form.
+     *
+     * @param samlRequest
+     * @param relayState
+     * @param request
+     * @return Response
+     * @throws WSSecurityException
+     */
     @POST
     Response showPostLogin(@FormParam(SAML_REQ) String samlRequest,
             @FormParam(RELAY_STATE) String relayState, @Context HttpServletRequest request)
             throws WSSecurityException;
 
+    /**
+     * Returns the IdP login form.
+     *
+     * @param samlRequest
+     * @param relayState
+     * @param signatureAlgorithm
+     * @param signature
+     * @param request
+     * @return Response
+     * @throws WSSecurityException
+     */
     @GET
     Response showGetLogin(@QueryParam(SAML_REQ) String samlRequest,
             @QueryParam(RELAY_STATE) String relayState,
@@ -72,6 +95,17 @@ public interface Idp {
             @QueryParam(SSOConstants.SIGNATURE) String signature,
             @Context HttpServletRequest request) throws WSSecurityException;
 
+    /**
+     * Processes a login attempt from the IdP login web app.
+     *
+     * @param samlRequest
+     * @param relayState
+     * @param authMethod
+     * @param signatureAlgorithm
+     * @param signature
+     * @param request
+     * @return Response
+     */
     @GET
     @Path("/sso")
     Response processLogin(@QueryParam(SAML_REQ) String samlRequest,
@@ -80,6 +114,13 @@ public interface Idp {
             @QueryParam(SSOConstants.SIGNATURE) String signature,
             @Context HttpServletRequest request);
 
+    /**
+     * Returns the metadata associated with this IdP.
+     *
+     * @return Response
+     * @throws WSSecurityException
+     * @throws CertificateEncodingException
+     */
     @GET
     @Path("/metadata")
     Response retrieveMetadata() throws WSSecurityException, CertificateEncodingException;
