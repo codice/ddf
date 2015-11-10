@@ -18,6 +18,9 @@
 (function($) {
     var cometd = $.cometd;
     cometd.websocketEnabled=false;
+    
+    // CometD endpoint is assumed to be at localhost, change if otherwise
+    var cometURL = "https://localhost:8993/cometd";
 
     $(document).ready(function() {
 
@@ -186,7 +189,7 @@
           cometd.disconnect(true);
       });
 
-      var cometURL = "https://localhost:8993/cometd";
+
       cometd.configure({
           url: cometURL,
           logLevel: 'debug'
