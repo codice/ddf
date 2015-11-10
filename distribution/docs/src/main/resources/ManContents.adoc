@@ -1196,12 +1196,12 @@ whether it was successfully processed or not.
 
 Services that are created using a Managed Service Factory can be configured using `.config` files as well.
 The configuration files follow a different naming convention however. The files must start with the
-Managed Service Factory PID, be followed by a unique, usually sequential number and have a `.config`
+Managed Service Factory PID, be followed by a unique identifier and have a `.config`
 extension. For instance, assuming that the Managed Service Factory PID is `org.codice.ddf.factory.pid`
-and two instances of the service need to be configured, files `org.codice.ddf.factory.pid.1.config`
-and `org.codice.ddf.factory.pid.2.config` should be created and added to `<DDF_HOME>/etc`.
+and two instances of the service need to be configured, files `org.codice.ddf.factory.pid.uniqueID1.config`
+and `org.codice.ddf.factory.pid.uniqueID2.config` should be created and added to `<DDF_HOME>/etc`.
 
-The numbers used in the file names have no impact on the order in which the configuration files are
+The unique identifiers used in the file names have no impact on the order in which the configuration files are
 processed. No specific processing order should be assumed. Also, a new service will be created
 and configured every time a configuration file matching the Managed Service Factory PID is added
 to the directory, regardless of the number used.
