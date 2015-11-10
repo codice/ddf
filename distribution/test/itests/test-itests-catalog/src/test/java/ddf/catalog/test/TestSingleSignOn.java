@@ -23,7 +23,7 @@ import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.core.AllOf.allOf;
 import static org.hamcrest.core.CombinableMatcher.both;
-import static org.mockito.AdditionalMatchers.not;
+import static org.hamcrest.Matchers.not;
 import static com.jayway.restassured.RestAssured.get;
 import static com.jayway.restassured.RestAssured.given;
 
