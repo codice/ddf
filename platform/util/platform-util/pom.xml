@@ -13,44 +13,34 @@
  **/
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
     <parent>
-        <groupId>ddf.platform</groupId>
-        <artifactId>platform</artifactId>
+        <groupId>ddf.platform.util</groupId>
+        <artifactId>util</artifactId>
         <version>2.9.0-SNAPSHOT</version>
     </parent>
 
-    <modelVersion>4.0.0</modelVersion>
-
-    <name>DDF :: Platform :: Filter Delegate</name>
-    <artifactId>platform-filter-delegate</artifactId>
+    <artifactId>platform-util</artifactId>
+    <name>DDF :: Platform :: Util :: Utilities</name>
     <packaging>bundle</packaging>
 
     <dependencies>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.platform.util</groupId>
-            <artifactId>platform-util</artifactId>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.compendium</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>3.0.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-ext</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-servlet</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>0.9.24</version>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.configadmin</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -60,16 +50,13 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Import-Package>
-                            javax.servlet; version="[2.5.0,3.0.0)",
-                            javax.servlet.http; version="[2.5.0,3.0.0)",
-                            org.eclipse.jetty.servlet;version="[8,9)",
-                            *
-                        </Import-Package>
-                        <Export-Package />
+                        <Export-Package>
+                            org.codice.ddf.platform.util
+                        </Export-Package>
                     </instructions>
                 </configuration>
             </plugin>
@@ -91,22 +78,22 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.32</minimum>
+                                            <minimum>0.1</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.28</minimum>
+                                            <minimum>0.4</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.16</minimum>
+                                            <minimum>0.1</minimum>
                                         </limit>
                                         <limit>
                                             <counter>LINE</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.34</minimum>
+                                            <minimum>0.1</minimum>
                                         </limit>
                                     </limits>
                                 </rule>
