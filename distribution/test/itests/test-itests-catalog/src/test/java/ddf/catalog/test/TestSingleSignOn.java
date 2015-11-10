@@ -27,8 +27,6 @@ import static org.mockito.AdditionalMatchers.not;
 import static com.jayway.restassured.RestAssured.get;
 import static com.jayway.restassured.RestAssured.given;
 
-import java.io.FileWriter;
-import java.io.PrintWriter;
 import java.io.StringReader;
 import java.net.URI;
 import java.net.URL;
@@ -67,7 +65,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
     public static final String IDP_AUTH_TYPES = "/=SAML|ANON,/search=SAML|IDP,/solr=SAML|PKI|basic";
 
     private static final DynamicUrl SEARCH_URL = new DynamicUrl(DynamicUrl.SECURE_ROOT, HTTPS_PORT,
-            "/search");//"https://localhost:9993/search";
+            "/search");
 
     private static final DynamicUrl WHO_AM_I_URL = new DynamicUrl(SERVICE_ROOT, "/whoami");
 
@@ -162,9 +160,6 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
 
     @Test
     public void testBadUsernamePassword() throws Exception {
-
-        PrintWriter printWriter = new PrintWriter(
-                new FileWriter(System.getProperty("user.home") + "/Desktop/responses.txt"), true);
 
         // Request search service
         Response searchResponse = given().
