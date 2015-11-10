@@ -107,7 +107,7 @@ define([
                 if(status === "Uninstalled") {
                     var install = featureModel.install();
                     if(install){
-                        install.success(function() {
+                        install.done(function() {
                            self.showAppFeatures();
                         }).fail(function() {
                             if(console) {
@@ -118,7 +118,7 @@ define([
                 }else{
                     var uninstall = featureModel.uninstall();
                     if(uninstall){
-                        uninstall.success(function() {
+                        uninstall.done(function() {
                             self.showAppFeatures();
                         }).fail(function() {
                             if(console) {

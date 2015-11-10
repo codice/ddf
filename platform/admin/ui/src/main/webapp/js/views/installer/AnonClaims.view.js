@@ -143,7 +143,7 @@ define([
             var view = this;
             var saved = this.configObj.save();
             if (saved) {
-                saved.success(function () {
+                saved.done(function () {
                     view.navigationModel.nextStep('', 100);
                 }).fail(function () {
                     view.navigationModel.nextStep('Unable to Save Configuration: check logs', 0);
