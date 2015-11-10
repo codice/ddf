@@ -191,6 +191,7 @@
         <dependency>
             <groupId>org.codehaus.woodstox</groupId>
             <artifactId>woodstox-core-asl</artifactId>
+            <version>${lux.woodstox.version}</version>
         </dependency>
         <dependency>
             <groupId>org.codehaus.woodstox</groupId>
