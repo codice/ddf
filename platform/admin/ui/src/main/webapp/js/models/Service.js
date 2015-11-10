@@ -102,10 +102,11 @@ define(['backbone', 'jquery','backboneassociations'],function (Backbone, $) {
                 try {
                     jsonResult = JSON.parse(jsonString.toString().trim());
                 } catch (e) {
-                    // this works around an issue in jolokia where the .toString() of an array
+                    // https://codice.atlassian.net/browse/DDF-1642
+                    // this works around an issue in json-simple where the .toString() of an array
                     // is returned in the arguments field of configs with array attributes,
-                    // causing the JSON string to be unparseable, so we remove it, since we
-                    // don't care about the arguments for our parsing needs
+                    // causing the JSON string from jolokia to be unparseable, so we remove it,
+                    // since we don't care about the arguments for our parsing needs
                     jsonString = jsonString.replace(/\[L[\w\.;@]*/g, '""');
                     jsonResult = JSON.parse(jsonString.toString().trim());
                 }
