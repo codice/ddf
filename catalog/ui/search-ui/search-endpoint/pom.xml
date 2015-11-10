@@ -323,12 +323,6 @@
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpcore</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>com.google.collections</groupId>
-            <artifactId>google-collections</artifactId>
-            <version>1.0</version>
-        </dependency>
     </dependencies>
 
     <build>
@@ -375,7 +369,6 @@
                             httpmime,
                             noggit,
                             zookeeper,
-                            google-collections,
                             <!-- End of Solr dependencies -->
 
                             gt-cql,
