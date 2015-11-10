@@ -36,9 +36,24 @@
         </AD>
         
 	</OCD>
+
+	<OCD description="STS Server Token Endpoint" name="STS Server Token Endpoint" id="ddf.security.sts.StsStaticService">
+
+        <AD name="" id="endpoints" required="true" type="String"
+			default=".*" cardinality="100"
+			description="The list of endpoint addresses that correspond to this service">
+        </AD>
+
+	</OCD>
 	
 	<Designate pid="ddf.security.sts">
 	    <Object ocdref="ddf.security.sts"/>
   	</Designate>
+
+	<Designate pid="ddf.security.sts.StsStaticService">
+	    <Object ocdref="ddf.security.sts.StsStaticService"/>
+  	</Designate>
+
+
     
 </metatype:MetaData>
