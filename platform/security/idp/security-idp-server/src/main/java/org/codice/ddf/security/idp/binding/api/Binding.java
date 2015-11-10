@@ -13,11 +13,29 @@
  */
 package org.codice.ddf.security.idp.binding.api;
 
+/**
+ * Describes a SAML 2 Web SSO binding and associated pieces.
+ */
 public interface Binding {
 
+    /**
+     * Returns the request decoder appropriate for this binding.
+     *
+     * @return RequestDecoder
+     */
     RequestDecoder decoder();
 
+    /**
+     * Returns the response creator appropriate for this binding.
+     *
+     * @return ResponseCreator
+     */
     ResponseCreator creator();
 
+    /**
+     * Returns the request validator appropriate for this binding.
+     *
+     * @return Validator
+     */
     Validator validator();
 }

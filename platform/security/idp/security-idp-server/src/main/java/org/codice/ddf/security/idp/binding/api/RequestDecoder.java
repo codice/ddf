@@ -15,6 +15,15 @@ package org.codice.ddf.security.idp.binding.api;
 
 import org.opensaml.saml2.core.AuthnRequest;
 
+/**
+ * Decodes the AuthnRequest.
+ */
 public interface RequestDecoder {
+    /**
+     * Returns the decoded AuthnRequest object.
+     *
+     * @param samlRequest - encoded AuthnRequest
+     * @return AuthnRequest
+     */
     AuthnRequest decodeRequest(String samlRequest);
 }

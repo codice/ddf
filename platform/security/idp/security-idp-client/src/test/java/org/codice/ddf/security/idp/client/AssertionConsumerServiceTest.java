@@ -49,7 +49,8 @@ import com.google.common.io.Resources;
 
 import ddf.security.encryption.EncryptionService;
 import ddf.security.http.SessionFactory;
-
+import ddf.security.samlp.SimpleSign;
+import ddf.security.samlp.SystemCrypto;
 
 public class AssertionConsumerServiceTest {
 

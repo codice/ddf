@@ -18,11 +18,32 @@ import org.opensaml.xml.validation.ValidationException;
 
 import ddf.security.samlp.SimpleSign;
 
+/**
+ * Validates an AuthnRequest
+ */
 public interface Validator {
 
+    /**
+     * Validates the given AuthnRequest using the provided signatureAlgorithm and signature, if
+     * applicable.
+     *
+     * @param authnRequest
+     * @param samlRequest
+     * @param relayState
+     * @param signatureAlgorithm
+     * @param signature
+     * @param strictSignature
+     * @throws SimpleSign.SignatureException
+     * @throws ValidationException
+     */
     void validateAuthnRequest(AuthnRequest authnRequest, String samlRequest, String relayState,
             String signatureAlgorithm, String signature, boolean strictSignature)
             throws SimpleSign.SignatureException, ValidationException;
 
+    /**
+     * Validates the given relayState.
+     *
+     * @param relayState
+     */
     void validateRelayState(String relayState);
 }

@@ -35,6 +35,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import ddf.security.encryption.EncryptionService;
+import ddf.security.samlp.SimpleSign;
+import ddf.security.samlp.SystemCrypto;
 
 public class IdpHandlerTest {
 
