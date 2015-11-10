@@ -412,15 +412,17 @@ public abstract class AbstractIntegrationTest {
                 editConfigurationFilePut("etc/org.apache.karaf.management.cfg", "rmiServerPort",
                         RMI_SERVER_PORT.getPort()), replaceConfigurationFile("etc/hazelcast.xml",
                         new File(this.getClass().getResource("/hazelcast.xml").toURI())),
-                replaceConfigurationFile("etc/ddf.security.sts.client.configuration.cfg", new File(
-                        this.getClass().getResource("/ddf.security.sts.client.configuration.cfg")
+                replaceConfigurationFile("etc/ddf.security.sts.client.configuration.config",
+                        new File(this.getClass()
+                                .getResource("/ddf.security.sts.client.configuration.config")
                                 .toURI())),
-                editConfigurationFilePut("etc/ddf.security.sts.client.configuration.cfg", "address",
-                        SECURE_ROOT + HTTPS_PORT.getPort() + "/services/SecurityTokenService?wsdl"),
+                editConfigurationFilePut("etc/ddf.security.sts.client.configuration.config",
+                        "address", "\"" + SECURE_ROOT + HTTPS_PORT.getPort()
+                                + "/services/SecurityTokenService?wsdl" + "\""),
                 replaceConfigurationFile(
-                        "etc/ddf.catalog.solr.external.SolrHttpCatalogProvider.cfg", new File(
+                        "etc/ddf.catalog.solr.external.SolrHttpCatalogProvider.config", new File(
                                 this.getClass().getResource(
-                                        "/ddf.catalog.solr.external.SolrHttpCatalogProvider.cfg")
+                                        "/ddf.catalog.solr.external.SolrHttpCatalogProvider.config")
                                         .toURI())));
     }
 
