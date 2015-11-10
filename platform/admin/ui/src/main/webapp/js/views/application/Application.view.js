@@ -228,7 +228,7 @@ define([
         },
         saveChanges: function() {
             var view = this;
-            mvnUrlColl.save().success(function() {
+            mvnUrlColl.save().done(function() {
                 mvnUrlColl.reset();
                 view.response.fetch({
                     success: function(model){

@@ -105,8 +105,8 @@ define([
 
     Application.AppModel = new AppModel();
     Application.ModuleModel = new Module.Model();
-    Application.ModuleModel.fetch().success(addModuleRegions);
-    Application.AppModel.fetch().success(setHeader);
+    Application.ModuleModel.fetch().done(addModuleRegions);
+    Application.AppModel.fetch().done(setHeader);
 
     var modulePoller = poller.get(Application.ModuleModel, options);
     modulePoller.on('success', addModuleRegions);
