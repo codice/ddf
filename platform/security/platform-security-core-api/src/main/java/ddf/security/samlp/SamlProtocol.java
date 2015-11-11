@@ -276,6 +276,7 @@ public class SamlProtocol {
                     .buildObject();
             assertionConsumerService.setBinding(REDIRECT_BINDING);
             assertionConsumerService.setLocation(assertionConsumerServiceLocationRedirect);
+            assertionConsumerService.setIndex(0);
             spSsoDescriptor.getAssertionConsumerServices().add(assertionConsumerService);
         }
 
@@ -284,6 +285,7 @@ public class SamlProtocol {
                     .buildObject();
             assertionConsumerService.setBinding(POST_BINDING);
             assertionConsumerService.setLocation(assertionConsumerServiceLocationPost);
+            assertionConsumerService.setIndex(0);
             spSsoDescriptor.getAssertionConsumerServices().add(assertionConsumerService);
         }
 
