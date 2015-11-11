@@ -91,8 +91,6 @@ public class LoginFilter implements Filter {
 
     private static final String DDF_AUTHENTICATION_TOKEN = "ddf.security.token";
 
-    private static final String SAML_EXPIRATION = "saml.expiration";
-
     private static final ThreadLocal<DocumentBuilder> BUILDER = new ThreadLocal<DocumentBuilder>() {
         @Override
         protected DocumentBuilder initialValue() {
@@ -431,7 +429,6 @@ public class LoginFilter implements Filter {
 
     private SAMLAuthenticationToken renewSecurityToken(HttpSession session,
             SAMLAuthenticationToken savedToken) throws ServletException, WSSecurityException {
-        long timeoutSeconds = -1;
         if (session != null) {
             SecurityAssertion savedAssertion = new SecurityAssertionImpl(
                     ((SecurityToken) savedToken.getCredentials()));
@@ -441,15 +438,12 @@ public class LoginFilter implements Filter {
                 return null;
             }
 
-            Long afterMil = (Long) session.getAttribute(SAML_EXPIRATION);
-
-            if (afterMil == null && savedAssertion.getNotOnOrAfter() != null) {
-                afterMil = savedAssertion.getNotOnOrAfter().getTime();
+            if (savedAssertion.getNotOnOrAfter() == null) {
+                return null;
             }
 
-            if (afterMil != null) {
-                timeoutSeconds = (afterMil - System.currentTimeMillis()) / 1000;
-            }
+            long afterMil = savedAssertion.getNotOnOrAfter().getTime();
+            long timeoutSeconds = (afterMil - System.currentTimeMillis()) / 1000;
 
             if (timeoutSeconds < 0) {
                 String msg = "SAML assertion has expired.";
@@ -481,14 +475,6 @@ public class LoginFilter implements Filter {
                                         .getAttribute(SecurityConstants.SAML_ASSERTION))
                                         .addSecurityToken(savedToken.getRealm(), token);
 
-                                SecurityAssertion assertion = new SecurityAssertionImpl(
-                                        ((SecurityToken) savedToken.getCredentials()));
-
-                                if (assertion.getNotOnOrAfter() != null) {
-                                    afterMil = assertion.getNotOnOrAfter().getTime();
-                                }
-
-                                session.setAttribute(SAML_EXPIRATION, afterMil);
                                 LOGGER.debug("Saved new user assertion to session.");
 
                                 return samlAuthenticationToken;
@@ -606,13 +592,6 @@ public class LoginFilter implements Filter {
             SecurityToken sessionToken = getSecurityToken(session, realm);
             if (sessionToken == null) {
                 addSecurityToken(session, realm, securityToken);
-
-                SecurityAssertion assertion = new SecurityAssertionImpl(securityToken);
-
-                if (assertion.getNotOnOrAfter() != null) {
-                    long afterMil = assertion.getNotOnOrAfter().getTime();
-                    session.setAttribute(SAML_EXPIRATION, afterMil);
-                }
             }
             int minutes = getExpirationTime();
             //we just want to set this to some non-zero value if the configuration is messed up
