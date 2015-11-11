@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.configuration.store.felix;
 
+import static org.apache.commons.lang.Validate.notNull;
+
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -36,6 +38,8 @@ public class FelixPersistenceStrategy implements PersistenceStrategy {
     @Override
     @SuppressWarnings("unchecked")
     public Dictionary<String, Object> read(InputStream inputStream) throws IOException {
+        notNull(inputStream, "InputStream cannot be null");
+
         final StringBuilder filteredOutput = new StringBuilder();
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
@@ -51,6 +55,9 @@ public class FelixPersistenceStrategy implements PersistenceStrategy {
     @Override
     public void write(OutputStream outputStream, Dictionary<String, Object> properties)
             throws IOException {
+        notNull(outputStream, "OutputStream cannot be null");
+        notNull(properties, "Properties cannot be null");
+
         ConfigurationHandler.write(outputStream, properties);
     }
 
