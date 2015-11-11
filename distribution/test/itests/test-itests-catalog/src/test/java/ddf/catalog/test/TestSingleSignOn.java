@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -20,10 +20,11 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isEmptyOrNullString;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.core.AllOf.allOf;
 import static org.hamcrest.core.CombinableMatcher.both;
-import static org.hamcrest.Matchers.not;
+import static org.junit.Assert.fail;
 import static com.jayway.restassured.RestAssured.get;
 import static com.jayway.restassured.RestAssured.given;
 
@@ -117,13 +118,12 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
     }
 
     private String getRedirectUrl(Response response) {
-        String fullUrl = "";
+        String fullUrl = null;
 
         // We can either get a legit redirect from the header, or we can have javascript redirect us.
         // Whenever javascript redirects us, we have to do ugly, fragile parsing of the HTML.
         if (response.headers().hasHeaderWithName("Location")) {
             fullUrl = response.header("Location");
-            // TODO: Figure out how to do this using xpath
         } else if (response.getBody().asString()
                 .contains("<title>Redirect</title>")) { // Javascript redirect
             Pattern pattern = Pattern.compile("encoded *= *\"(.*)\"", Pattern.CASE_INSENSITIVE);
@@ -131,19 +131,15 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
             matcher.find();
             fullUrl = matcher.group(1);
         } else {
-            // TODO: this is unexpected. Log an error?
+            fail("Unable to extract the redirect URL from the HTTP response. "
+                    + "No redirect found in header and body does not match "
+                    + "regular expression [encoded *= *\"(.*)\"]");
         }
         return fullUrl;
     }
 
     private String parseUrl(Response response) {
-        String url = getRedirectUrl(response);
-
-        // We want just the base url, not all of the parameters
-        if (url.contains("?")) {
-            url = url.substring(0, url.indexOf('?'));
-        }
-        return url;
+        return getRedirectUrl(response).split("[?]")[0];
     }
 
     private Map<String, String> parseParams(Response response) throws Exception {
@@ -172,16 +168,20 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
                 get(SEARCH_URL.getUrl());
 
         // Pass bad credentials to IDP
-        Response IDPResponse = given().auth().preemptive().basic("definitely", "notright")
-                .param("AuthMethod", "up").params(parseParams(searchResponse))
+        Response idpResponse = given().
+                auth().preemptive().basic("definitely", "notright").
+                param("AuthMethod", "up").
+                params(parseParams(searchResponse)).
 
-                // TODO: This should be a 401, not 500
-                .expect().statusCode(500).body(containsString("could not be authenticated"))
+                expect().
+                statusCode(500). // TODO: This should be a 401, not 500
+                body(containsString("could not be authenticated")).
 
-                .when().get(parseUrl(searchResponse) + "/sso");
+                when().
+                get(parseUrl(searchResponse) + "/sso");
     }
 
-    private void checkSaml(Map<String, String> samlParams) throws Exception {
+    private void validateSamlResponse(Map<String, String> samlParams) throws Exception {
         String samlResponse = RestSecurity.inflateBase64(samlParams.get("SAMLResponse"));
 
         assertThat(samlParams.get("SigAlg"), not(isEmptyOrNullString()));
@@ -196,6 +196,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
     @Test
     public void testIdpAuth() throws Exception {
 
+        // Negative test to make sure we aren't admin yet
         Response initialWhoamiResponse = given().
                 expect().
                 statusCode(200).
@@ -216,39 +217,43 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
 
         // Pass our credentials to the IDP, it should redirect us to the Assertion Consumer Service.
         // The redirect is currently done via javascript and not an HTTP redirect.
-        Response IDPResponse = given().auth().preemptive().basic("admin", "admin")
-                .param("AuthMethod", "up").params(parseParams(searchResponse))
+        Response idpResponse = given().
+                auth().preemptive().basic("admin", "admin").
+                param("AuthMethod", "up").params(parseParams(searchResponse)).
 
-                .expect().statusCode(200).body(containsString("<title>Redirect</title>"))
+                expect().
+                statusCode(200).body(containsString("<title>Redirect</title>")).
 
-                .when().get(parseUrl(searchResponse) + "/sso");
+                when().
+                get(parseUrl(searchResponse) + "/sso");
 
-        checkSaml(parseParams(IDPResponse));
+        // Make sure we pass a valid SAML assertion to the ACS
+        validateSamlResponse(parseParams(idpResponse));
 
         // After passing the SAML Assertion to the ACS, we should be redirected back to Search.
-        Response ACSResponse = given().
-                params(parseParams(IDPResponse)).
+        Response acsResponse = given().
+                params(parseParams(idpResponse)).
                 redirects().follow(false).
 
                 expect().
                 statusCode(anyOf(is(303), is(302))).
 
                 when().
-                get(parseUrl(IDPResponse));
+                get(parseUrl(idpResponse));
 
         // Access search again, but now as an authenticated user.
         Response authnSearchResponse = given().
-                cookies(ACSResponse.getCookies()).
+                cookies(acsResponse.getCookies()).
 
                 expect().
                 statusCode(200).
 
                 when().
-                get(parseUrl(ACSResponse));
+                get(parseUrl(acsResponse));
 
         // Make sure we are logged in as admin.
         Response whoamiResponse = given().
-                cookies(ACSResponse.getCookies()).
+                cookies(acsResponse.getCookies()).
 
                 expect().
                 statusCode(200).
@@ -256,6 +261,5 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
 
                 when().
                 get(WHO_AM_I_URL.getUrl());
-
     }
 }
