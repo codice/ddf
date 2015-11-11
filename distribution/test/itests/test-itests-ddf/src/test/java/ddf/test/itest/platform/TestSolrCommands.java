@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.test;
+package ddf.test.itest.platform;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
@@ -35,6 +35,7 @@ import com.google.common.collect.Sets;
 
 import ddf.common.test.BeforeExam;
 import ddf.common.test.KarafConsole;
+import ddf.test.itest.AbstractIntegrationTest;
 
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)

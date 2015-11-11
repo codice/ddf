@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.test;
+package ddf.test.itest.catalog;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
@@ -48,6 +48,9 @@ import com.jayway.restassured.http.ContentType;
 
 import ddf.catalog.data.Metacard;
 import ddf.common.test.BeforeExam;
+import ddf.test.itest.AbstractIntegrationTest;
+import ddf.test.itest.common.Library;
+import ddf.test.itest.common.UrlResourceReaderConfigurator;
 
 /**
  * Tests Federation aspects.

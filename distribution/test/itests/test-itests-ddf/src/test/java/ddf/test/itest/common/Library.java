@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-package ddf.catalog.test;
+package ddf.test.itest.common;
 
 import org.apache.commons.lang.StringUtils;
 

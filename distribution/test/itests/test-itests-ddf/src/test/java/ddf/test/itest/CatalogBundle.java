@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  **/
-package ddf.catalog.test;
+package ddf.test.itest;
 
 import static org.junit.Assert.fail;
 

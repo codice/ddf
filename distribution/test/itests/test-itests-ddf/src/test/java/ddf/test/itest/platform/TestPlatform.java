@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.test;
+package ddf.test.itest.platform;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.hamcrest.Matchers.is;
@@ -42,6 +42,7 @@ import org.slf4j.LoggerFactory;
 import ddf.common.test.BeforeExam;
 import ddf.common.test.callables.GetConfigurationProperties;
 import ddf.common.test.matchers.ConfigurationPropertiesEqualTo;
+import ddf.test.itest.AbstractIntegrationTest;
 
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
@@ -199,22 +200,22 @@ public class TestPlatform extends AbstractIntegrationTest {
     }
 
     private static ManagedServiceConfigFile managedServiceStartupConfig = new ManagedServiceConfigFile(
-            "ddf.catalog.test.TestPlatform.startup");
+            "ddf.test.itest.platform.TestPlatform.startup");
 
     private static ManagedServiceConfigFile managedServiceNewConfig = new ManagedServiceConfigFile(
-            "ddf.catalog.test.TestPlatform.new");
+            "ddf.test.itest.platform.TestPlatform.new");
 
     private static ManagedServiceConfigFile managedServiceFactoryStartupConfig = new ManagedServiceFactoryConfigFile(
-            "ddf.catalog.test.TestPlatform.msf.1");
+            "ddf.test.itest.platform.TestPlatform.msf.1");
 
     private static ManagedServiceConfigFile managedServiceFactoryNewConfig = new ManagedServiceFactoryConfigFile(
-            "ddf.catalog.test.TestPlatform.msf.2");
+            "ddf.test.itest.platform.TestPlatform.msf.2");
 
     private static ManagedServiceConfigFile configWithNoPid = new ManagedServiceConfigFile(
-            "ddf.catalog.test.TestPlatform.nopid");
+            "ddf.test.itest.platform.TestPlatform.nopid");
 
     private static ManagedServiceConfigFile invalidConfig = new ManagedServiceConfigFile(
-            "ddf.catalog.test.TestPlatform.invalid");
+            "ddf.test.itest.platform.TestPlatform.invalid");
 
     @BeforeExam
     @SuppressWarnings("unchecked")
@@ -268,7 +269,7 @@ public class TestPlatform extends AbstractIntegrationTest {
 
     @Test
     public void testStartUpWithInvalidFile() {
-        // TODO - Make sure things still come up when one of the startup files is invalid.
+        // TODO - Make sure things come up when one of the startup files is invalid.
     }
 
     @Test

@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.test;
+package ddf.test.itest.catalog;
 
 import static org.hamcrest.Matchers.containsString;
 import static com.jayway.restassured.RestAssured.get;
@@ -24,6 +24,7 @@ import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
 
 import ddf.common.test.BeforeExam;
+import ddf.test.itest.AbstractIntegrationTest;
 
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)

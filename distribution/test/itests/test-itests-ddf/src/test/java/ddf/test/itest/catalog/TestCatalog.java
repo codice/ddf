@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  **/
-package ddf.catalog.test;
+package ddf.test.itest.catalog;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -63,6 +63,8 @@ import com.jayway.restassured.response.Response;
 import com.jayway.restassured.response.ValidatableResponse;
 
 import ddf.common.test.BeforeExam;
+import ddf.test.itest.AbstractIntegrationTest;
+import ddf.test.itest.common.Library;
 
 /**
  * Tests the Catalog framework components. Includes helper methods at the Catalog level.

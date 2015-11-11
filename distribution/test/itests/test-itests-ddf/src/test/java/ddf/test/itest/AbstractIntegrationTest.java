@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.test;
+package ddf.test.itest;
 
 import static org.ops4j.pax.exam.CoreOptions.junitBundles;
 import static org.ops4j.pax.exam.CoreOptions.maven;
@@ -29,8 +29,8 @@ import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.keepRunti
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.logLevel;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.replaceConfigurationFile;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.useOwnExamBundlesStartLevel;
-import static ddf.catalog.test.AbstractIntegrationTest.DynamicUrl.INSECURE_ROOT;
-import static ddf.catalog.test.AbstractIntegrationTest.DynamicUrl.SECURE_ROOT;
+import static ddf.test.itest.AbstractIntegrationTest.DynamicUrl.INSECURE_ROOT;
+import static ddf.test.itest.AbstractIntegrationTest.DynamicUrl.SECURE_ROOT;
 
 import java.io.File;
 import java.io.IOException;
@@ -68,6 +68,8 @@ import ddf.common.test.AdminConfig;
 import ddf.common.test.PaxExamRule;
 import ddf.common.test.PostTestConstruct;
 import ddf.common.test.ServiceManager;
+import ddf.test.itest.common.SecurityPolicyConfigurator;
+import ddf.test.itest.common.UrlResourceReaderConfigurator;
 
 /**
  * Abstract integration test with helper methods and configuration at the container level
@@ -139,7 +141,7 @@ public abstract class AbstractIntegrationTest {
     /**
      * A class used to give a dynamic {@link String} that evaluates when called rather than at compile time.
      * Used to allow parallel itests and dynamic URLs to prevent conflicts on hard coded port numbers and endpoint, source, etc URLs.
-     * Constructed with a {@link ddf.catalog.test.AbstractIntegrationTest.DynamicPort}
+     * Constructed with a {@link AbstractIntegrationTest.DynamicPort}
      */
     public static class DynamicUrl {
         public static final String SECURE_ROOT = "https://localhost:";
