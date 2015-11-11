@@ -95,3 +95,11 @@
 .banner-text-black {
     color: black;
 }
+
+.pickerNoRaise, .pickerNoLower {
+    display: none;
+}
+
+.miniMap {
+    height: 415px;
+}

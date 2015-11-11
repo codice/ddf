@@ -48,6 +48,7 @@ require.config({
         spinnerConfig : 'js/spinnerConfig',
         wreqr: 'js/wreqr',
         user: 'js/user',
+        newuser: 'js/model/newuser',
         properties: 'properties',
 
         // jquery
