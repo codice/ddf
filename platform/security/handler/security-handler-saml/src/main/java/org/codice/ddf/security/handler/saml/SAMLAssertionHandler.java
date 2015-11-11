@@ -80,8 +80,8 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
     }
 
     @Override
-    public HandlerResult getNormalizedToken(ServletRequest request,
-                                            ServletResponse response, FilterChain chain, boolean resolve) {
+    public HandlerResult getNormalizedToken(ServletRequest request, ServletResponse response,
+            FilterChain chain, boolean resolve) {
         HandlerResult handlerResult = new HandlerResult();
         String realm = (String) request.getAttribute(ContextPolicy.ACTIVE_REALM);
 
@@ -93,45 +93,39 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
         // check for full SAML assertions coming in (federated requests, etc.)
         if (authHeader != null) {
             String[] tokenizedAuthHeader = authHeader.split(" ");
-            if (tokenizedAuthHeader.length != 2) {
-                LOGGER.warn("Unexpected error - Authorization header tokenized incorrectly.");
-                return handlerResult;
-            }
-            if (!tokenizedAuthHeader[0].equals("SAML")) {
-                LOGGER.trace("Header is not a SAML assertion.");
-                return handlerResult;
-            }
-            String encodedSamlAssertion = tokenizedAuthHeader[1];
-            LOGGER.trace("Header retrieved");
-            try {
-                String tokenString = RestSecurity.inflateBase64(encodedSamlAssertion);
-                LOGGER.trace("Header value: {}", tokenString);
-                securityToken = new SecurityToken();
+            if (tokenizedAuthHeader.length == 2 && tokenizedAuthHeader[0].equals("SAML")) {
+                String encodedSamlAssertion = tokenizedAuthHeader[1];
+                LOGGER.trace("Header retrieved");
+                try {
+                    String tokenString = RestSecurity.inflateBase64(encodedSamlAssertion);
+                    LOGGER.trace("Header value: {}", tokenString);
+                    securityToken = new SecurityToken();
 
-                Element thisToken = null;
+                    Element thisToken = null;
 
-                if (tokenString.contains(SAML_NAMESPACE)) {
-                    try {
-                        thisToken = StaxUtils.read(new StringReader(tokenString))
-                                .getDocumentElement();
-                    } catch (XMLStreamException e) {
-                        LOGGER.warn(
-                                "Unexpected error converting XML string to element - proceeding without SAML token.",
-                                e);
+                    if (tokenString.contains(SAML_NAMESPACE)) {
+                        try {
+                            thisToken = StaxUtils.read(new StringReader(tokenString))
+                                    .getDocumentElement();
+                        } catch (XMLStreamException e) {
+                            LOGGER.warn(
+                                    "Unexpected error converting XML string to element - proceeding without SAML token.",
+                                    e);
+                        }
+                    } else {
+                        thisToken = parseAssertionWithoutNamespace(tokenString);
                     }
-                } else {
-                    thisToken = parseAssertionWithoutNamespace(tokenString);
-                }
 
-                securityToken.setToken(thisToken);
-                SAMLAuthenticationToken samlToken = new SAMLAuthenticationToken(null, securityToken,
-                        realm);
-                handlerResult.setToken(samlToken);
-                handlerResult.setStatus(HandlerResult.Status.COMPLETED);
-            } catch (IOException e) {
-                LOGGER.warn("Unexpected error converting header value to string", e);
+                    securityToken.setToken(thisToken);
+                    SAMLAuthenticationToken samlToken = new SAMLAuthenticationToken(null,
+                            securityToken, realm);
+                    handlerResult.setToken(samlToken);
+                    handlerResult.setStatus(HandlerResult.Status.COMPLETED);
+                } catch (IOException e) {
+                    LOGGER.warn("Unexpected error converting header value to string", e);
+                }
+                return handlerResult;
             }
-            return handlerResult;
         }
 
         // Check for legacy SAML cookie
@@ -178,11 +172,13 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
             SecurityTokenHolder savedToken = (SecurityTokenHolder) session
                     .getAttribute(SecurityConstants.SAML_ASSERTION);
             if (savedToken != null && savedToken.getSecurityToken() != null) {
-                SecurityAssertionImpl assertion = new SecurityAssertionImpl(savedToken.getSecurityToken());
+                SecurityAssertionImpl assertion = new SecurityAssertionImpl(
+                        savedToken.getSecurityToken());
                 if (assertion.getNotOnOrAfter() == null
                         || assertion.getNotOnOrAfter().getTime() - System.currentTimeMillis() > 0) {
                     LOGGER.trace("Creating SAML authentication token with session.");
-                    SAMLAuthenticationToken samlToken = new SAMLAuthenticationToken(null, session.getId(), realm);
+                    SAMLAuthenticationToken samlToken = new SAMLAuthenticationToken(null,
+                            session.getId(), realm);
                     handlerResult.setToken(samlToken);
                     handlerResult.setStatus(HandlerResult.Status.COMPLETED);
                     return handlerResult;
@@ -245,8 +241,8 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
      * @throws ServletException
      */
     @Override
-    public HandlerResult handleError(ServletRequest servletRequest,
-                                     ServletResponse servletResponse, FilterChain chain) throws ServletException {
+    public HandlerResult handleError(ServletRequest servletRequest, ServletResponse servletResponse,
+            FilterChain chain) throws ServletException {
         HandlerResult result = new HandlerResult();
 
         HttpServletRequest httpRequest = servletRequest instanceof HttpServletRequest ?
