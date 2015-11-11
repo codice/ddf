@@ -41,7 +41,9 @@ class PropertyConverter implements Consumer<String> {
             String.format("^%s=%s%s", PROPERTY_NAME_REGEX, PROPERTY_TYPE_REGEX,
                     PROPERTY_VALUE_REGEX));
 
-    private static final Map<String, PropertyValueConverter> VALUE_CONVERTERS = ImmutableMap
+    private static final String NEW_LINE = "\r\n";
+
+    private static Map<String, PropertyValueConverter> valueConverters = ImmutableMap
             .of("f", new FloatValueConverter(), "d", new DoubleValueConverter());
 
     private final StringBuilder filteredOutput;
@@ -69,17 +71,23 @@ class PropertyConverter implements Consumer<String> {
                 newLine.append(propertyType);
             }
 
-            if (propertyType != null && VALUE_CONVERTERS.containsKey(propertyType.toLowerCase())) {
-                VALUE_CONVERTERS.get(propertyType.toLowerCase()).convert(propertyValue, newLine);
+            if (propertyType != null && !propertyValue.isEmpty() && valueConverters
+                    .containsKey(propertyType.toLowerCase())) {
+                valueConverters.get(propertyType.toLowerCase()).convert(propertyValue, newLine);
             } else {
                 LOGGER.debug("Property value {} for line {} doesn't need conversion", propertyValue,
                         line);
                 newLine.append(propertyValue);
             }
 
-            filteredOutput.append(newLine).append('\n');
+            filteredOutput.append(newLine).append(NEW_LINE);
         } else {
-            filteredOutput.append(line).append('\n');
+            filteredOutput.append(line).append(NEW_LINE);
         }
+    }
+
+    // For unit testing purposes
+    void setValueConverters(Map<String, PropertyValueConverter> valueConverters) {
+        PropertyConverter.valueConverters = valueConverters;
     }
 }
