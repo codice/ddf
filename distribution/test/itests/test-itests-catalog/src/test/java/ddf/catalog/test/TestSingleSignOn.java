@@ -96,7 +96,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
 
         // TODO: The server metadata requires an "index" attribute to validate properly
         validator.validate(new StreamSource(new StringReader(clientMetadata)));
-        //        validator.validate(new StreamSource(new StringReader(serverMetadata)));
+        validator.validate(new StreamSource(new StringReader(serverMetadata)));
 
         // To find the right inputs for the settings, go into the metatype.xml file.
         // The key is the "id" and the value type is determined by the cardinality as such:
