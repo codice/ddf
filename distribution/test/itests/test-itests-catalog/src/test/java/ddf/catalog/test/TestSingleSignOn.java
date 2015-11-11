@@ -158,27 +158,15 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
     public void testBadUsernamePassword() throws Exception {
 
         // Request search service
-        Response searchResponse = given().
-                redirects().follow(false).
-
-                expect().
-                statusCode(302).
-
-                when().
-                get(SEARCH_URL.getUrl());
+        Response searchResponse = given().redirects().follow(false).expect().statusCode(302).when()
+                .get(SEARCH_URL.getUrl());
 
         // Pass bad credentials to IDP
-        Response idpResponse = given().
-                auth().preemptive().basic("definitely", "notright").
-                param("AuthMethod", "up").
-                params(parseParams(searchResponse)).
-
-                expect().
-                statusCode(500). // TODO: This should be a 401, not 500
-                body(containsString("could not be authenticated")).
-
-                when().
-                get(parseUrl(searchResponse) + "/sso");
+        // TODO: This should be a 401, not 500
+        given().auth().preemptive().basic("definitely", "notright").param("AuthMethod", "up")
+                .params(parseParams(searchResponse)).expect().statusCode(500)
+                .body(containsString("could not be authenticated")).when()
+                .get(parseUrl(searchResponse) + "/sso");
     }
 
     private void validateSamlResponse(Map<String, String> samlParams) throws Exception {
@@ -197,69 +185,33 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
     public void testIdpAuth() throws Exception {
 
         // Negative test to make sure we aren't admin yet
-        Response initialWhoamiResponse = given().
-                expect().
-                statusCode(200).
-                body(not(containsString("admin"))).
-
-                when().
-                get(WHO_AM_I_URL.getUrl());
+        given().expect().statusCode(200).body(not(containsString("admin"))).when()
+                .get(WHO_AM_I_URL.getUrl());
 
         // First time hitting search, expect to get redirected to the Identity Provider.
-        Response searchResponse = given().
-                redirects().follow(false).
-
-                expect().
-                statusCode(302).
-
-                when().
-                get(SEARCH_URL.getUrl());
+        Response searchResponse = given().redirects().follow(false).expect().statusCode(302).when()
+                .get(SEARCH_URL.getUrl());
 
         // Pass our credentials to the IDP, it should redirect us to the Assertion Consumer Service.
         // The redirect is currently done via javascript and not an HTTP redirect.
-        Response idpResponse = given().
-                auth().preemptive().basic("admin", "admin").
-                param("AuthMethod", "up").params(parseParams(searchResponse)).
-
-                expect().
-                statusCode(200).body(containsString("<title>Redirect</title>")).
-
-                when().
-                get(parseUrl(searchResponse) + "/sso");
+        Response idpResponse = given().auth().preemptive().basic("admin", "admin")
+                .param("AuthMethod", "up").params(parseParams(searchResponse)).expect()
+                .statusCode(200).body(containsString("<title>Redirect</title>")).when()
+                .get(parseUrl(searchResponse) + "/sso");
 
         // Make sure we pass a valid SAML assertion to the ACS
         validateSamlResponse(parseParams(idpResponse));
 
         // After passing the SAML Assertion to the ACS, we should be redirected back to Search.
-        Response acsResponse = given().
-                params(parseParams(idpResponse)).
-                redirects().follow(false).
-
-                expect().
-                statusCode(anyOf(is(303), is(302))).
-
-                when().
-                get(parseUrl(idpResponse));
+        Response acsResponse = given().params(parseParams(idpResponse)).redirects().follow(false)
+                .expect().statusCode(anyOf(is(303), is(302))).when().get(parseUrl(idpResponse));
 
         // Access search again, but now as an authenticated user.
-        Response authnSearchResponse = given().
-                cookies(acsResponse.getCookies()).
-
-                expect().
-                statusCode(200).
-
-                when().
-                get(parseUrl(acsResponse));
+        given().cookies(acsResponse.getCookies()).expect().statusCode(200).when()
+                .get(parseUrl(acsResponse));
 
         // Make sure we are logged in as admin.
-        Response whoamiResponse = given().
-                cookies(acsResponse.getCookies()).
-
-                expect().
-                statusCode(200).
-                body(containsString("admin")).
-
-                when().
-                get(WHO_AM_I_URL.getUrl());
+        given().cookies(acsResponse.getCookies()).expect().statusCode(200)
+                .body(containsString("admin")).when().get(WHO_AM_I_URL.getUrl());
     }
 }
