@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.test;
+package ddf.test.itests.catalog;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
@@ -48,6 +48,9 @@ import com.jayway.restassured.http.ContentType;
 
 import ddf.catalog.data.Metacard;
 import ddf.common.test.BeforeExam;
+import ddf.test.itests.AbstractIntegrationTest;
+import ddf.test.itests.common.Library;
+import ddf.test.itests.common.UrlResourceReaderConfigurator;
 
 /**
  * Tests Federation aspects.
@@ -330,16 +333,16 @@ public class TestFederation extends AbstractIntegrationTest {
      * <p/>
      * For example:
      * The resource uri in the metacard is:
-     * file:/Users/andrewreynolds/projects/ddf-projects/ddf/distribution/test/itests/test-itests-catalog/target/exam/e59b02bf-5774-489f-8aa9-53cf99c25d25/../../testFederatedRetrieveProductInvalidResourceUrlWithBackReferences.txt
+     * file:/Users/andrewreynolds/projects/ddf-projects/ddf/distribution/test/itests/test-itests-ddf/target/exam/e59b02bf-5774-489f-8aa9-53cf99c25d25/../../testFederatedRetrieveProductInvalidResourceUrlWithBackReferences.txt
      * which really means:
-     * file:/Users/andrewreynolds/projects/ddf-projects/ddf/distribution/test/itests/test-itests-catalog/target/testFederatedRetrieveProductInvalidResourceUrlWithBackReferences.txt
+     * file:/Users/andrewreynolds/projects/ddf-projects/ddf/distribution/test/itests/test-itests-ddf/target/testFederatedRetrieveProductInvalidResourceUrlWithBackReferences.txt
      * <p/>
      * The URLResourceReader's root resource directories are:
      * <ddf.home>/data/products
      * and
-     * /Users/andrewreynolds/projects/ddf-projects/ddf/distribution/test/itests/test-itests-catalog/target/exam/e59b02bf-5774-489f-8aa9-53cf99c25d25
+     * /Users/andrewreynolds/projects/ddf-projects/ddf/distribution/test/itests/test-itests-ddf/target/exam/e59b02bf-5774-489f-8aa9-53cf99c25d25
      * <p/>
-     * So the product (/Users/andrewreynolds/projects/ddf-projects/ddf/distribution/test/itests/test-itests-catalog/target/testFederatedRetrieveProductInvalidResourceUrlWithBackReferences.txt) is
+     * So the product (/Users/andrewreynolds/projects/ddf-projects/ddf/distribution/test/itests/test-itests-ddf/target/testFederatedRetrieveProductInvalidResourceUrlWithBackReferences.txt) is
      * not located under either of the URLResourceReader's root resource directories.
      *
      * @throws Exception

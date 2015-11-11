@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.test;
+package ddf.test.itests.platform;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -49,6 +49,9 @@ import com.jayway.restassured.response.Response;
 import ddf.catalog.data.Metacard;
 import ddf.common.test.BeforeExam;
 import ddf.security.SecurityConstants;
+import ddf.test.itests.AbstractIntegrationTest;
+import ddf.test.itests.catalog.TestCatalog;
+import ddf.test.itests.common.Library;
 
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
@@ -172,8 +175,8 @@ public class TestSecurity extends AbstractIntegrationTest {
 
     private static final String OPENSEARCH_SAML_SOURCE_ID = "openSearchSamlSource";
 
-    private static final DynamicUrl SECURE_ROOT_AND_PORT = new DynamicUrl(
-            DynamicUrl.SECURE_ROOT, HTTPS_PORT);
+    private static final DynamicUrl SECURE_ROOT_AND_PORT = new DynamicUrl(DynamicUrl.SECURE_ROOT,
+            HTTPS_PORT);
 
     private static final DynamicUrl ADMIN_PATH = new DynamicUrl(SECURE_ROOT_AND_PORT,
             "/admin/index.html");
@@ -258,7 +261,8 @@ public class TestSecurity extends AbstractIntegrationTest {
         // use the subject in the request to create a SAML authentication token
         OpenSearchSourceProperties openSearchProperties = new OpenSearchSourceProperties(
                 OPENSEARCH_SAML_SOURCE_ID);
-        getServiceManager().createManagedService(OpenSearchSourceProperties.FACTORY_PID, openSearchProperties);
+        getServiceManager()
+                .createManagedService(OpenSearchSourceProperties.FACTORY_PID, openSearchProperties);
 
         getCatalogBundle().waitForFederatedSource(OPENSEARCH_SAML_SOURCE_ID);
 
@@ -282,7 +286,8 @@ public class TestSecurity extends AbstractIntegrationTest {
                 OPENSEARCH_SOURCE_ID);
         openSearchProperties.put("username", "admin");
         openSearchProperties.put("password", "admin");
-        getServiceManager().createManagedService(OpenSearchSourceProperties.FACTORY_PID, openSearchProperties);
+        getServiceManager()
+                .createManagedService(OpenSearchSourceProperties.FACTORY_PID, openSearchProperties);
 
         CswSourceProperties cswProperties = new CswSourceProperties(CSW_SOURCE_ID);
         cswProperties.put("username", "admin");
@@ -321,7 +326,8 @@ public class TestSecurity extends AbstractIntegrationTest {
                 unavailableOpenSourceId);
         openSearchUnavailProp.put("username", "bad");
         openSearchUnavailProp.put("password", "auth");
-        getServiceManager().createManagedService(OpenSearchSourceProperties.FACTORY_PID, openSearchUnavailProp);
+        getServiceManager().createManagedService(OpenSearchSourceProperties.FACTORY_PID,
+                openSearchUnavailProp);
         getCatalogBundle().waitForFederatedSource(unavailableOpenSourceId);
 
         String unavailableOpenSearchQuery =
@@ -347,7 +353,7 @@ public class TestSecurity extends AbstractIntegrationTest {
                 .header("SOAPAction", "helloWorld").expect().statusCode(equalTo(200)).when()
                 .post(SERVICE_ROOT.getUrl() + "/sdk/SoapService").then().log().all().assertThat()
                 .body(HasXPath.hasXPath("//*[local-name()='helloWorldResponse']/result/text()",
-                                containsString("Anonymous")));
+                        containsString("Anonymous")));
     }
 
     @Test
@@ -363,9 +369,9 @@ public class TestSecurity extends AbstractIntegrationTest {
         given().log().all().body(body).header("Content-Type", "text/xml; charset=utf-8")
                 .header("SOAPAction", "helloWorld").expect().statusCode(equalTo(200)).when()
                 .post(INSECURE_SERVICE_ROOT.getUrl() + "/sdk/SoapService").then().log().all()
-                .assertThat()
-                .body(HasXPath.hasXPath("//*[local-name()='helloWorldResponse']/result/text()",
-                                containsString("Anonymous")));
+                .assertThat().body(HasXPath
+                .hasXPath("//*[local-name()='helloWorldResponse']/result/text()",
+                        containsString("Anonymous")));
 
         getServiceManager().stopFeature(false, "platform-http-proxy");
     }
@@ -562,7 +568,7 @@ public class TestSecurity extends AbstractIntegrationTest {
     //at runtime. The actual functionality of these operations is proved in unit tests.
     @Test
     public void testCertificateGeneratorService() throws Exception {
-        String commonName = "pangalactic";
+        String commonName = "myCn";
         String expectedValue = "CN=" + commonName;
         String featureName = "security-certificate-generator";
         String certGenPath = SECURE_ROOT_AND_PORT

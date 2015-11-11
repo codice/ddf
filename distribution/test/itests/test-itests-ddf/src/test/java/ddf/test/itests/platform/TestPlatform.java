@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.test;
+package ddf.test.itests.platform;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.hamcrest.Matchers.is;
@@ -43,6 +43,7 @@ import org.slf4j.LoggerFactory;
 import ddf.common.test.BeforeExam;
 import ddf.common.test.callables.GetConfigurationProperties;
 import ddf.common.test.matchers.ConfigurationPropertiesEqualTo;
+import ddf.test.itests.AbstractIntegrationTest;
 
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
@@ -246,7 +247,7 @@ public class TestPlatform extends AbstractIntegrationTest {
         /**
          * {@inheritDoc}
          * <p/>
-         * Overridden to use {@link ddf.catalog.test.TestPlatform.ManagedServiceFactoryConfigurationPropertiesEqualTo}.
+         * Overridden to use {@link ddf.test.itests.TestPlatform.ManagedServiceFactoryConfigurationPropertiesEqualTo}.
          */
         @Override
         protected void assertPropertiesMatch(Dictionary<String, Object> actualProperties,
@@ -259,7 +260,7 @@ public class TestPlatform extends AbstractIntegrationTest {
         /**
          * {@inheritDoc}
          * <p/>
-         * Overridden to use {@link ddf.catalog.test.TestPlatform.ManagedServiceFactoryConfigurationPropertiesEqualTo}.
+         * Overridden to use {@link ddf.test.itests.TestPlatform.ManagedServiceFactoryConfigurationPropertiesEqualTo}.
          */
         @Override
         public void addConfigurationFileAndWait(ConfigurationAdmin configAdmin) throws IOException {
@@ -320,25 +321,25 @@ public class TestPlatform extends AbstractIntegrationTest {
     }
 
     private static ManagedServiceConfigFile managedServiceStartupConfig = new ManagedServiceConfigFile(
-            "ddf.catalog.test.TestPlatform.startup");
+            "ddf.test.itests.platform.TestPlatform.startup");
 
     private static ManagedServiceConfigFile managedServiceNewConfig = new ManagedServiceConfigFile(
-            "ddf.catalog.test.TestPlatform.new");
+            "ddf.test.itests.platform.TestPlatform.new");
 
     private static ManagedServiceConfigFile managedServiceFactoryStartupConfig = new ManagedServiceFactoryConfigFile(
-            "ddf.catalog.test.TestPlatform.msf.1");
+            "ddf.test.itests.platform.TestPlatform.msf.1");
 
     private static ManagedServiceConfigFile managedServiceFactoryNewConfig = new ManagedServiceFactoryConfigFile(
-            "ddf.catalog.test.TestPlatform.msf.2");
+            "ddf.test.itests.platform.TestPlatform.msf.2");
 
     private static ManagedServiceConfigFile configWithNoPid = new ManagedServiceConfigFile(
-            "ddf.catalog.test.TestPlatform.nopid");
+            "ddf.test.itests.platform.TestPlatform.nopid");
 
     private static ManagedServiceConfigFile invalidConfig = new ManagedServiceConfigFile(
-            "ddf.catalog.test.TestPlatform.invalid");
+            "ddf.test.itests.platform.TestPlatform.invalid");
 
     private static ManagedServiceConfigFile invalidStartupConfigFile = new ManagedServiceConfigFile(
-            "ddf.catalog.test.TestPlatform.startup.invalid");
+            "ddf.test.itests.platform.TestPlatform.startup.invalid");
 
     @BeforeExam
     @SuppressWarnings("unchecked")
