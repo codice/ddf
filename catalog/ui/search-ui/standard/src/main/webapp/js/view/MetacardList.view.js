@@ -260,7 +260,17 @@ define([
                 if (this.model.has('results')) {
                     count = this.model.get('results').length;
                 }
-                return _.extend(this.model.toJSON(), {resultCount: properties.resultCount, count: count});
+
+                var error = false;
+                if (this.model.has('status')) {
+                    error = this.model.get('status').where({state: 'FAILED'}).length > 0;
+                }
+
+                return _.extend(this.model.toJSON(), {
+                    resultCount: properties.resultCount,
+                    count: count,
+                    error: error
+                });
             },
             getTemplate: function() {
                 if (!_.isUndefined(this.model.get('hits'))) {
