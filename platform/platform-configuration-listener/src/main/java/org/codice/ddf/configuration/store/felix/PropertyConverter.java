@@ -33,9 +33,9 @@ class PropertyConverter implements Consumer<String> {
 
     private static final String PROPERTY_NAME_REGEX = "(\\s*[\\w-]+(?:\\.[\\w-]+)*\\s*)";
 
-    private static final String PROPERTY_TYPE_REGEX = "\\s*([A-Za-z])?\\s*";
+    private static final String PROPERTY_TYPE_REGEX = "([A-Za-z])*";
 
-    private static final String PROPERTY_VALUE_REGEX = "\\s*(.*)";
+    private static final String PROPERTY_VALUE_REGEX = "([\"\\[\\(]+.*)";
 
     private static final Pattern PROPERTY_PATTERN = Pattern.compile(
             String.format("^%s=%s%s", PROPERTY_NAME_REGEX, PROPERTY_TYPE_REGEX,
