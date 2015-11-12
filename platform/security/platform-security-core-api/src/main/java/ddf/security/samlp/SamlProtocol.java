@@ -271,10 +271,13 @@ public class SamlProtocol {
             spSsoDescriptor.getSingleLogoutServices().add(singleLogoutServicePost);
         }
 
+        int acsIndex = 0;
+
         if (StringUtils.isNotBlank(assertionConsumerServiceLocationRedirect)) {
             AssertionConsumerService assertionConsumerService = assertionConsumerServiceBuilder
                     .buildObject();
             assertionConsumerService.setBinding(REDIRECT_BINDING);
+            assertionConsumerService.setIndex(acsIndex++);
             assertionConsumerService.setLocation(assertionConsumerServiceLocationRedirect);
             spSsoDescriptor.getAssertionConsumerServices().add(assertionConsumerService);
         }
@@ -283,6 +286,7 @@ public class SamlProtocol {
             AssertionConsumerService assertionConsumerService = assertionConsumerServiceBuilder
                     .buildObject();
             assertionConsumerService.setBinding(POST_BINDING);
+            assertionConsumerService.setIndex(acsIndex++);
             assertionConsumerService.setLocation(assertionConsumerServiceLocationPost);
             spSsoDescriptor.getAssertionConsumerServices().add(assertionConsumerService);
         }
