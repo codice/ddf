@@ -27,6 +27,7 @@ import static org.hamcrest.core.CombinableMatcher.both;
 import static org.junit.Assert.fail;
 import static com.jayway.restassured.RestAssured.get;
 import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.authentication.CertificateAuthSettings.certAuthSettings;
 
 import java.io.StringReader;
 import java.net.URI;
@@ -47,6 +48,7 @@ import javax.xml.validation.Validator;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
+import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -62,6 +64,10 @@ import ddf.common.test.BeforeExam;
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
 public class TestSingleSignOn extends AbstractIntegrationTest {
+
+    protected static final String KEY_STORE_PATH = System.getProperty("javax.net.ssl.keyStore");
+
+    protected static final String PASSWORD = System.getProperty("javax.net.ssl.trustStorePassword");
 
     public static final String IDP_AUTH_TYPES = "/=SAML|ANON,/search=SAML|IDP,/solr=SAML|PKI|basic";
 
@@ -84,27 +90,26 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
 
         // Create a validator from the metadata schema so that we can validate the metadata
         // TODO: Maybe don't go out to the internet for this? The schema itself is going to go out to the internet anyway though.
-        URL schemaFile = new URL(
-                "http://docs.oasis-open.org/security/saml/v2.0/saml-schema-metadata-2.0.xsd");
+        URL schemaFile = new URL("http://docs.oasis-open.org/security/saml/v2.0/saml-schema-metadata-2.0.xsd");
         SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
         Schema schema = schemaFactory.newSchema(schemaFile);
         Validator validator = schema.newValidator();
 
         // Get the metadata
-        String clientMetadata = get(SERVICE_ROOT + "/idp/login/metadata").asString();
-        String serverMetadata = get(SERVICE_ROOT + "/saml/sso/metadata").asString();
+        String serverMetadata = get(SERVICE_ROOT + "/idp/login/metadata").asString();
+        String clientMetadata = get(SERVICE_ROOT + "/saml/sso/metadata").asString();
 
-        // TODO: The server metadata requires an "index" attribute to validate properly
+        // Ensure the metadata is valid according to the SAML Metadata schema
         validator.validate(new StreamSource(new StringReader(clientMetadata)));
-        //        validator.validate(new StreamSource(new StringReader(serverMetadata)));
+        validator.validate(new StreamSource(new StringReader(serverMetadata)));
 
         // To find the right inputs for the settings, go into the metatype.xml file.
         // The key is the "id" and the value type is determined by the cardinality as such:
         // Positive = array, negative = vector, 0 (none) = single variable
         Dictionary<String, Object> clientSettings = new Hashtable<>();
-        clientSettings.put("metadata", clientMetadata);
+        clientSettings.put("metadata", serverMetadata);
         Dictionary<String, Object> serverSettings = new Hashtable<>();
-        serverSettings.put("spMetadata", new String[] {serverMetadata});
+        serverSettings.put("spMetadata", new String[] {clientMetadata});
 
         // Update the client and server with the metadata
         Configuration clientConfig = getAdminConfig()
@@ -124,10 +129,10 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
         // Whenever javascript redirects us, we have to do ugly, fragile parsing of the HTML.
         if (response.headers().hasHeaderWithName("Location")) {
             fullUrl = response.header("Location");
-        } else if (response.getBody().asString()
+        } else if (response.body().asString()
                 .contains("<title>Redirect</title>")) { // Javascript redirect
             Pattern pattern = Pattern.compile("encoded *= *\"(.*)\"", Pattern.CASE_INSENSITIVE);
-            Matcher matcher = pattern.matcher(response.getBody().asString());
+            Matcher matcher = pattern.matcher(response.body().asString());
             matcher.find();
             fullUrl = matcher.group(1);
         } else {
@@ -154,19 +159,16 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
         return jsonParams;
     }
 
-    @Test
-    public void testBadUsernamePassword() throws Exception {
+    private Response getSearchResponse() {
+        return given().redirects().follow(false).expect().statusCode(302).when().get(SEARCH_URL.getUrl());
+    }
 
-        // Request search service
-        Response searchResponse = given().redirects().follow(false).expect().statusCode(302).when()
-                .get(SEARCH_URL.getUrl());
+    private String getUserName(Map<String, String> cookies) {
+        return given().cookies(cookies).when().get(WHO_AM_I_URL.getUrl()).body().asString();
+    }
 
-        // Pass bad credentials to IDP
-        // TODO: This should be a 401, not 500
-        given().auth().preemptive().basic("definitely", "notright").param("AuthMethod", "up")
-                .params(parseParams(searchResponse)).expect().statusCode(500)
-                .body(containsString("could not be authenticated")).when()
-                .get(parseUrl(searchResponse) + "/sso");
+    private String getUserName() {
+        return get(WHO_AM_I_URL.getUrl()).body().asString();
     }
 
     private void validateSamlResponse(Map<String, String> samlParams) throws Exception {
@@ -182,36 +184,97 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
     }
 
     @Test
+    public void testBadUsernamePassword() throws Exception {
+        Response searchResponse = getSearchResponse();
+
+        // We're using an AJAX call, so anything other than 200 means not authenticated
+        given().
+                auth().preemptive().basic("definitely", "notright").
+                param("AuthMethod", "up").
+                params(parseParams(searchResponse)).
+        when().
+                get(parseUrl(searchResponse) + "/sso").
+        then().
+                assertThat().
+                statusCode(not(200));
+    }
+
+    @Test
+    public void testPkiAuth() throws Exception {
+        Response searchResponse = getSearchResponse();
+
+        given().
+                auth().
+                certificate(KEY_STORE_PATH, PASSWORD,
+                        certAuthSettings().sslSocketFactory(
+                                SSLSocketFactory.getSystemSocketFactory())).
+                param("AuthMethod", "pki").
+                params(parseParams(searchResponse)).
+        when().
+                get(parseUrl(searchResponse) + "/sso").
+        then().
+                assertThat().
+                statusCode(200);
+    }
+
+    @Test
+    public void testGuestAuth() throws Exception {
+        Response searchResponse = getSearchResponse();
+
+        given().
+                param("AuthMethod", "guest").
+                params(parseParams(searchResponse)).
+        when().
+                get(parseUrl(searchResponse) + "/sso").
+        then().
+                assertThat().
+                statusCode(200);
+    }
+
+    @Test
     public void testIdpAuth() throws Exception {
 
         // Negative test to make sure we aren't admin yet
-        given().expect().statusCode(200).body(not(containsString("admin"))).when()
-                .get(WHO_AM_I_URL.getUrl());
+        assertThat(getUserName(),not("admin"));
 
         // First time hitting search, expect to get redirected to the Identity Provider.
-        Response searchResponse = given().redirects().follow(false).expect().statusCode(302).when()
-                .get(SEARCH_URL.getUrl());
+        Response searchResponse = getSearchResponse();
 
         // Pass our credentials to the IDP, it should redirect us to the Assertion Consumer Service.
         // The redirect is currently done via javascript and not an HTTP redirect.
-        Response idpResponse = given().auth().preemptive().basic("admin", "admin")
-                .param("AuthMethod", "up").params(parseParams(searchResponse)).expect()
-                .statusCode(200).body(containsString("<title>Redirect</title>")).when()
-                .get(parseUrl(searchResponse) + "/sso");
+        Response idpResponse =
+                given().
+                        auth().preemptive().basic("admin", "admin").
+                        param("AuthMethod", "up").params(parseParams(searchResponse)).
+                expect().
+                        statusCode(200).
+                        body(containsString("<title>Redirect</title>")).
+                when().
+                        get(parseUrl(searchResponse) + "/sso");
 
         // Make sure we pass a valid SAML assertion to the ACS
         validateSamlResponse(parseParams(idpResponse));
 
         // After passing the SAML Assertion to the ACS, we should be redirected back to Search.
-        Response acsResponse = given().params(parseParams(idpResponse)).redirects().follow(false)
-                .expect().statusCode(anyOf(is(303), is(302))).when().get(parseUrl(idpResponse));
+        Response acsResponse =
+                given().
+                        params(parseParams(idpResponse)).
+                        redirects().follow(false).
+                expect().
+                        statusCode(anyOf(is(302),is(303))).
+                when().
+                        get(parseUrl(idpResponse));
 
         // Access search again, but now as an authenticated user.
-        given().cookies(acsResponse.getCookies()).expect().statusCode(200).when()
-                .get(parseUrl(acsResponse));
+        given().
+                cookies(acsResponse.getCookies()).
+        when().
+                get(parseUrl(acsResponse)).
+        then().
+                assertThat().
+                statusCode(200);
 
         // Make sure we are logged in as admin.
-        given().cookies(acsResponse.getCookies()).expect().statusCode(200)
-                .body(containsString("admin")).when().get(WHO_AM_I_URL.getUrl());
+        assertThat(getUserName(acsResponse.getCookies()),is("admin"));
     }
 }
