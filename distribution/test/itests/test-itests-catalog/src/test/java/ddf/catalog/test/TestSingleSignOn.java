@@ -234,7 +234,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
     public void testIdpAuth() throws Exception {
 
         // Negative test to make sure we aren't admin yet
-        assertThat(getUserName(),not("admin"));
+        assertThat(getUserName(), not("admin"));
 
         // First time hitting search, expect to get redirected to the Identity Provider.
         Response searchResponse = getSearchResponse();
@@ -260,7 +260,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
                         params(parseParams(idpResponse)).
                         redirects().follow(false).
                 expect().
-                        statusCode(anyOf(is(302),is(303))).
+                        statusCode(anyOf(is(302), is(303))).
                 when().
                         get(parseUrl(idpResponse));
 
@@ -273,6 +273,6 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
                 get(parseUrl(acsResponse));
 
         // Make sure we are logged in as admin.
-        assertThat(getUserName(acsResponse.getCookies()),is("admin"));
+        assertThat(getUserName(acsResponse.getCookies()), is("admin"));
     }
 }
