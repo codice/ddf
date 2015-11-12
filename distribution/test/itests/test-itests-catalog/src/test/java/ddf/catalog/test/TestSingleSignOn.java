@@ -31,7 +31,6 @@ import static com.jayway.restassured.authentication.CertificateAuthSettings.cert
 
 import java.io.StringReader;
 import java.net.URI;
-import java.net.URL;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -69,7 +68,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
 
     protected static final String PASSWORD = System.getProperty("javax.net.ssl.trustStorePassword");
 
-    public static final String IDP_AUTH_TYPES = "/=SAML|ANON,/search=SAML|IDP,/solr=SAML|PKI|basic";
+    public static final String IDP_AUTH_TYPES = "/=SAML|ANON,/search=SAML|IDP|PKI,/solr=SAML|PKI|basic";
 
     private static final DynamicUrl SEARCH_URL = new DynamicUrl(DynamicUrl.SECURE_ROOT, HTTPS_PORT,
             "/search");
@@ -89,10 +88,9 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
         getServiceManager().startFeature(true, "security-idp", "search-ui-app");
 
         // Create a validator from the metadata schema so that we can validate the metadata
-        // TODO: Maybe don't go out to the internet for this? The schema itself is going to go out to the internet anyway though.
-        URL schemaFile = new URL("http://docs.oasis-open.org/security/saml/v2.0/saml-schema-metadata-2.0.xsd");
+//        URL schemaFile = new URL("http://docs.oasis-open.org/security/saml/v2.0/saml-schema-metadata-2.0.xsd");
         SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-        Schema schema = schemaFactory.newSchema(schemaFile);
+        Schema schema = schemaFactory.newSchema(getClass().getClassLoader().getResource("saml-schema-metadata-2.0.xsd"));
         Validator validator = schema.newValidator();
 
         // Get the metadata
@@ -192,11 +190,10 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
                 auth().preemptive().basic("definitely", "notright").
                 param("AuthMethod", "up").
                 params(parseParams(searchResponse)).
+        expect().
+                statusCode(not(200)).
         when().
-                get(parseUrl(searchResponse) + "/sso").
-        then().
-                assertThat().
-                statusCode(not(200));
+                get(parseUrl(searchResponse) + "/sso");
     }
 
     @Test
@@ -210,11 +207,10 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
                                 SSLSocketFactory.getSystemSocketFactory())).
                 param("AuthMethod", "pki").
                 params(parseParams(searchResponse)).
+        expect().
+                statusCode(200).
         when().
-                get(parseUrl(searchResponse) + "/sso").
-        then().
-                assertThat().
-                statusCode(200);
+                get(parseUrl(searchResponse) + "/sso");
     }
 
     @Test
@@ -224,11 +220,10 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
         given().
                 param("AuthMethod", "guest").
                 params(parseParams(searchResponse)).
+        expect().
+                statusCode(200).
         when().
-                get(parseUrl(searchResponse) + "/sso").
-        then().
-                assertThat().
-                statusCode(200);
+                get(parseUrl(searchResponse) + "/sso");
     }
 
     @Test
@@ -268,11 +263,10 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
         // Access search again, but now as an authenticated user.
         given().
                 cookies(acsResponse.getCookies()).
+        expect().
+                statusCode(200).
         when().
-                get(parseUrl(acsResponse)).
-        then().
-                assertThat().
-                statusCode(200);
+                get(parseUrl(acsResponse));
 
         // Make sure we are logged in as admin.
         assertThat(getUserName(acsResponse.getCookies()),is("admin"));
