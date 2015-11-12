@@ -73,7 +73,7 @@ public class WorkspaceService {
         }
 
         // Only persist/retrieve workspaces if this is a logged in user.
-        // No workspaces persisted for an anonymous user (whose username="")
+        // No workspaces persisted for an guest user (whose username="")
         if (StringUtils.isNotBlank(username)) {
             if (data == null || data.isEmpty() || data.get("workspaces") == null) {
                 List<Map<String, Object>> workspacesList = new ArrayList<Map<String, Object>>();

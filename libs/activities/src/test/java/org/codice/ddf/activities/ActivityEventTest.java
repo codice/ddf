@@ -92,7 +92,7 @@ public class ActivityEventTest {
     }
 
     /**
-     * Anonymous user will have empty string as their user ID - verify can create
+     * Anonymous/guest user will have empty string as their user ID - verify can create
      * an ActivityEvent with an empty string for the user ID.
      */
     @Test

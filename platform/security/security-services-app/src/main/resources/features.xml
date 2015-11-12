@@ -219,7 +219,7 @@
     </feature>
 
     <feature name="security-interceptor-anonymous" install="manual" version="${project.version}"
-             description="Injects anonymous user information into incoming SOAP messages.">
+             description="Injects anonymous/guest user information into incoming SOAP messages.">
         <bundle>mvn:ddf.security.interceptor/security-interceptor-anonymous/${project.version}
         </bundle>
     </feature>
