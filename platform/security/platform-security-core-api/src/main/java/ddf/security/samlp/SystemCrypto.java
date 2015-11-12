@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.security.idp.client;
+package ddf.security.samlp;
 
 import java.util.Properties;
 
@@ -19,18 +19,18 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.wss4j.common.crypto.Crypto;
 import org.apache.wss4j.common.crypto.CryptoFactory;
 import org.apache.wss4j.common.crypto.Merlin;
+import org.apache.wss4j.common.crypto.PasswordEncryptor;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.security.PropertiesLoader;
-import ddf.security.encryption.EncryptionService;
 
 public class SystemCrypto {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SystemCrypto.class);
 
-    private final EncryptionService passwordEncryption;
+    private final PasswordEncryptor passwordEncryption;
 
     private final Crypto signatureCrypto;
 
@@ -45,7 +45,7 @@ public class SystemCrypto {
     private final String encryptionAlias;
 
     public SystemCrypto(String encryptionPropertiesPath, String signaturePropertiesPath,
-            EncryptionService passwordEncryption) {
+            PasswordEncryptor passwordEncryption) {
         this.passwordEncryption = passwordEncryption;
 
         Properties sigProperties = PropertiesLoader.loadProperties(signaturePropertiesPath);

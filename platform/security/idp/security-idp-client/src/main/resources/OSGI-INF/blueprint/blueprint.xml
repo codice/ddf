@@ -31,14 +31,14 @@
 
     <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
 
-    <bean id="crypto" class="org.codice.ddf.security.idp.client.SystemCrypto">
+    <bean id="crypto" class="ddf.security.samlp.SystemCrypto">
         <argument value="${ddf.home}/etc/ws-security/server/encryption.properties"/>
         <argument value="${ddf.home}/etc/ws-security/server/signature.properties"/>
         <argument ref="encryptionService"/>
     </bean>
 
-    <bean id="simpleSign" class="org.codice.ddf.security.idp.client.SimpleSign">
-        <argument ref="crypto"/>
+    <bean id="simpleSign" class="ddf.security.samlp.SimpleSign">
+        <argument ref="crypto" />
     </bean>
 
     <bean id="relayStates" class="org.codice.ddf.security.idp.client.RelayStates"/>

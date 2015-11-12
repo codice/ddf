@@ -83,7 +83,7 @@ public abstract class AbstractPKIHandler implements AuthenticationHandler {
                 null;
 
         // The httpResponse was null, return no action and try to process with other handlers
-        if (httpResponse == null) {
+        if (httpResponse == null && resolve) {
             LOGGER.error("HTTP Response was null for request {}", path);
             return handlerResult;
         }
