@@ -299,16 +299,16 @@ define([
                 });
             }
 
-            this.model.save().done(function () {
+            this.model.save().always(function (dataOrjqXHR, textStatus, jqXHROrerrorThrown) {
+                spinner.stop();
+                view.jolokiaError.show(new AlertsView.View({'model': AlertsModel.Jolokia(jqXHROrerrorThrown)}));
+            }).done(function () {
                 $('#config-modal').modal('hide');
                 // due to a bug in bootstrap, the backdrop does not get removed
                 // when calling 'hide' on the modal programmatically
                 $('.modal-backdrop').remove();
                 view.close();
                 wreqr.vent.trigger('refreshConfigurations');
-            }).always(function (dataOrjqXHR, textStatus, jqXHROrerrorThrown) {
-                spinner.stop();
-                view.jolokiaError.show(new AlertsView.View({'model': AlertsModel.Jolokia(jqXHROrerrorThrown)}));
             });
             wreqr.vent.trigger('sync');
             wreqr.vent.trigger('poller:start');

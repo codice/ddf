@@ -40,7 +40,15 @@ define([
             'banner': 'Unable to save your changes.'
         }),
         parse: function (response) {
-            this.set('items', response.stacktrace.split(/\n/));
+            if (response.stacktrace) {
+                var json = {'items': response.stacktrace.split(/\n/)};
+                if (response.stacktrace === 'Forbidden') {
+                    json.banner = 'Your session has expired. Please <a href="/login/index.html?prevurl=/admin/">log in</a> again.';
+                }
+                return json;
+            } else {
+                return response;
+            }
         }
     });
 
