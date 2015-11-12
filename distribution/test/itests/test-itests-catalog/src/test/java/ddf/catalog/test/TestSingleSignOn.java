@@ -29,6 +29,8 @@ import static com.jayway.restassured.RestAssured.get;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.authentication.CertificateAuthSettings.certAuthSettings;
 
+import static ddf.common.test.WaitCondition.expect;
+
 import java.io.StringReader;
 import java.net.URI;
 import java.util.Dictionary;
@@ -36,6 +38,7 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -88,7 +91,6 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
         getServiceManager().startFeature(true, "security-idp", "search-ui-app");
 
         // Create a validator from the metadata schema so that we can validate the metadata
-//        URL schemaFile = new URL("http://docs.oasis-open.org/security/saml/v2.0/saml-schema-metadata-2.0.xsd");
         SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
         Schema schema = schemaFactory.newSchema(getClass().getClassLoader().getResource("saml-schema-metadata-2.0.xsd"));
         Validator validator = schema.newValidator();
@@ -116,8 +118,10 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
                 .getConfiguration("org.codice.ddf.security.idp.server.IdpEndpoint", null);
         clientConfig.update(clientSettings);
         serverConfig.update(serverSettings);
-        assertThat(clientConfig.getProperties(), notNullValue());
-        assertThat(serverConfig.getProperties(), notNullValue());
+        expect("Configs to update").within(2, TimeUnit.MINUTES)
+                .until(clientConfig::getProperties, notNullValue());
+        expect("Configs to update").within(2, TimeUnit.MINUTES)
+                .until(serverConfig::getProperties, notNullValue());
     }
 
     private String getRedirectUrl(Response response) {
