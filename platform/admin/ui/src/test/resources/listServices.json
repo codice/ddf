@@ -2146,7 +2146,7 @@
           "properties": {
             "profile": "Default",
             "felix.fileinstall.filename": "file:ddf-2.8.0-SNAPSHOT/etc/ddf.security.sts.anonymousclaims.cfg",
-            "attributes": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier=anonymous,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=anonymous",
+            "attributes": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier=guest,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest",
             "service.pid": "ddf.security.sts.anonymousclaims"
           },
           "enabled": true
@@ -2156,8 +2156,8 @@
       "metatype": [
         {
           "defaultValue": [
-            "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier=anonymous",
-            "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=anonymous"
+            "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier=guest",
+            "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest"
           ],
           "optionLabels": [],
           "name": "Attributes",
