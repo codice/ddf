@@ -60,7 +60,7 @@ for (var i = 0; i < shared.iterations; i++) {
                 .waitForConditionInBrowser('document.querySelectorAll(".fa-spin").length === 0', shared.timeout)
                 .waitForElementByClassName('workspace-row').click()
                 .waitForElementById('low-count')
-                .waitForConditionInBrowser('document.querySelector("#low-count").innerHTML.indexOf("0") === 0', shared.timeout)
+                .waitForConditionInBrowser('document.querySelector("#low-count").innerHTML.indexOf("0") !== -1', shared.timeout)
                 .waitForElementById('Workspace').click()
                 .waitForElementById('Edit').click()
                 .waitForElementById('edit').click()
