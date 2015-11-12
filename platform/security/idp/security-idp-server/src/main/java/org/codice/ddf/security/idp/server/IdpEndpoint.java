@@ -477,8 +477,7 @@ public class IdpEndpoint implements Idp {
                 Base64.encodeBase64String(issuerCert.getEncoded()),
                 Base64.encodeBase64String(encryptionCert.getEncoded()), nameIdFormats,
                 systemBaseUrl.constructUrl("/idp/login", true),
-                systemBaseUrl.constructUrl("/idp/login", true),
-                systemBaseUrl.constructUrl("/logout"));
+                systemBaseUrl.constructUrl("/idp/login", true), null);
         Document doc = DOMUtils.createDocument();
         doc.appendChild(doc.createElement("root"));
         return Response.ok(

@@ -40,6 +40,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpStatus;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.opensaml.saml2.core.StatusCode;
 import org.w3c.dom.Document;
@@ -316,6 +317,11 @@ public class AssertionConsumerServiceTest {
                 is(HttpStatus.SC_INTERNAL_SERVER_ERROR));
     }
 
+    /*
+    We cannot assume the presence of the SingleLogout Service
+    DDF-1605
+     */
+    @Ignore
     @Test
     public void testRetrieveMetadata() throws Exception {
         Response response = assertionConsumerService.retrieveMetadata();
