@@ -63,6 +63,8 @@ import org.opengis.filter.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.util.concurrent.Futures;
+
 import ddf.action.ActionProvider;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Result;
@@ -102,7 +104,7 @@ public class SearchControllerTest {
 
         searchController = new SearchController(framework,
                 new ActionRegistryImpl(Collections.<ActionProvider>emptyList()),
-                new GeotoolsFilterAdapterImpl(), new SequentialExectorService());
+                new GeotoolsFilterAdapterImpl(), new SequentialExecutorService());
 
         mockServerSession = mock(ServerSession.class);
 
@@ -110,7 +112,7 @@ public class SearchControllerTest {
     }
 
     @Test
-    public void testMetacardTypeValuesCacheDisabled() {
+    public void testMetacardTypeValuesCacheDisabled() throws Exception {
 
         final String ID = "id";
         Set<String> srcIds = new HashSet<String>();
@@ -123,7 +125,7 @@ public class SearchControllerTest {
 
         when(bayeuxServer.getChannel(any(String.class))).thenReturn(channel);
 
-        SearchRequest request = new SearchRequest(srcIds, mock(Query.class), ID);
+        SearchRequest request = new SearchRequest(srcIds, getQueryRequest("title LIKE 'Meta*'"), ID);
 
         searchController.setBayeuxServer(bayeuxServer);
         // Disable Cache
@@ -166,7 +168,7 @@ public class SearchControllerTest {
         Filter filter = ECQL.toFilter(cql);
 
         return new QueryImpl(filter, 1, 200, new SortByImpl(Result.TEMPORAL, SortOrder.DESCENDING),
-                true, 30000);
+                true, 1000);
     }
 
     @Test
@@ -188,6 +190,38 @@ public class SearchControllerTest {
 
         assertThat(modes.size(), is(3));
         assertThat(modes, hasItems("cache", "update", "update"));
+    }
+
+    @Test
+    public void testFailingQuery() throws Exception {
+        // Setup
+        framework = mock(CatalogFramework.class);
+
+        QueryResponse response = mock(QueryResponse.class);
+        when(response.getResults()).thenThrow(new RuntimeException("Getting results failed"));
+
+        when(framework.query(any(QueryRequest.class))).thenReturn(response);
+
+        searchController = new SearchController(framework,
+                new ActionRegistryImpl(Collections.<ActionProvider>emptyList()),
+                new GeotoolsFilterAdapterImpl(), new SequentialExecutorService());
+
+        final String ID = "id";
+        Set<String> srcIds = new HashSet<>();
+        srcIds.add(ID);
+
+        SearchRequest request = new SearchRequest(srcIds, getQueryRequest("anyText LIKE '*'"), "queryId");
+        BayeuxServer bayeuxServer = mock(BayeuxServer.class);
+        ServerChannel channel = mock(ServerChannel.class);
+        when(bayeuxServer.getChannel(any(String.class))).thenReturn(channel);
+        searchController.setBayeuxServer(bayeuxServer);
+        searchController.setCacheDisabled(true);
+
+        // Perform Test
+        searchController.executeQuery(request, mockServerSession, null);
+
+        // Verify
+        verify(channel, times(1)).publish(any(), any(), any());
     }
 
     private List<String> cacheQuery(Set<String> srcIds, int queryRequestCount)
@@ -230,7 +264,7 @@ public class SearchControllerTest {
         final String ID = "id";
         Set<String> srcIds = new HashSet<>(1);
         srcIds.add(ID);
-        SearchRequest request = new SearchRequest(srcIds, mock(Query.class), ID);
+        SearchRequest request = new SearchRequest(srcIds, getQueryRequest("title LIKE 'Meta*'"), ID);
         BayeuxServer bayeuxServer = mock(BayeuxServer.class);
         ServerChannel channel = mock(ServerChannel.class);
         when(bayeuxServer.getChannel(any(String.class))).thenReturn(channel);
@@ -334,10 +368,11 @@ public class SearchControllerTest {
      * we use this Mock ExecutorService to ensure that all operations for a test happen in the same thread as
      * each JUnit test case.
      */
-    private class SequentialExectorService implements ExecutorService {
+    private class SequentialExecutorService implements ExecutorService {
 
         @Override
         public void execute(Runnable command) {
+            submit(command);
         }
 
         @Override
@@ -406,12 +441,21 @@ public class SearchControllerTest {
 
         @Override
         public <T> Future<T> submit(Runnable task, T result) {
-            return null;
+            try {
+                task.run();
+            } catch (Throwable t) {
+                return Futures.immediateFailedFuture(t);
+            }
+            return Futures.immediateFuture(result);
         }
 
         @Override
         public Future<?> submit(Runnable task) {
-            task.run();
+            try {
+                task.run();
+            } catch (Throwable t) {
+                return Futures.immediateFailedFuture(t);
+            }
             return new Future<Object>() {
                 @Override
                 public boolean cancel(boolean mayInterruptIfRunning) {
