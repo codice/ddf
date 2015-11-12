@@ -42,12 +42,6 @@
                         <autoVersionSubmodules>true</autoVersionSubmodules>
                         <preparationGoals>clean verify install</preparationGoals>
                         <pushChanges>false</pushChanges>
-                        <instructions>
-                            <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                            <Embed-Dependency>
-                                joda-time
-                            </Embed-Dependency>
-                        </instructions>
                     </configuration>
                 </plugin>
             </plugins>
