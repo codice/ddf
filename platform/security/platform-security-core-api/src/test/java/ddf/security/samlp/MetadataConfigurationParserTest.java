@@ -23,6 +23,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpException;
@@ -56,7 +57,8 @@ public class MetadataConfigurationParserTest {
         MockitoAnnotations.initMocks(this);
         OpenSAMLUtil.initSamlEngine();
 
-        descriptorPath = Paths.get(getClass().getResource("/etc/metadata/entityDescriptor.xml").toURI());
+        descriptorPath = Paths
+                .get(getClass().getResource("/etc/metadata/entityDescriptor.xml").toURI());
         System.setProperty("ddf.home", "");
 
         server = new LocalTestServer(null, null);
@@ -77,24 +79,27 @@ public class MetadataConfigurationParserTest {
     public void testMetadataFolder() throws Exception {
         System.setProperty("ddf.home",
                 descriptorPath.getParent().getParent().getParent().toString());
-        Map<String, EntityDescriptor> entities = MetadataConfigurationParser
-                .buildEntityDescriptors(Collections.<String>emptyList());
+        MetadataConfigurationParser metadataConfigurationParser = new MetadataConfigurationParser(
+                Collections.<String>emptyList());
+        Map<String, EntityDescriptor> entities = metadataConfigurationParser.getEntryDescriptions();
 
         assertThat(entities.size(), is(1));
     }
 
     @Test
     public void testMetadataFile() throws Exception {
-        Map<String, EntityDescriptor> entities = MetadataConfigurationParser.buildEntityDescriptors(
+        MetadataConfigurationParser metadataConfigurationParser = new MetadataConfigurationParser(
                 Collections.singletonList("file:" + descriptorPath.toString()));
+        Map<String, EntityDescriptor> entities = metadataConfigurationParser.getEntryDescriptions();
 
         assertThat(entities.size(), is(1));
     }
 
     @Test
     public void testMetadataString() throws Exception {
-        Map<String, EntityDescriptor> entities = MetadataConfigurationParser.buildEntityDescriptors(
+        MetadataConfigurationParser metadataConfigurationParser = new MetadataConfigurationParser(
                 Collections.singletonList(IOUtils.toString(descriptorPath.toUri())));
+        Map<String, EntityDescriptor> entities = metadataConfigurationParser.getEntryDescriptions();
 
         assertThat(entities.size(), is(1));
     }
@@ -103,34 +108,34 @@ public class MetadataConfigurationParserTest {
     public void testMetadataHttp() throws Exception {
         serverRespondsWith(IOUtils.toString(descriptorPath.toUri()));
 
-        Map<String, EntityDescriptor> entities = MetadataConfigurationParser.buildEntityDescriptors(
+        MetadataConfigurationParser metadataConfigurationParser = new MetadataConfigurationParser(
                 Collections.singletonList("http://" + serverAddress));
+
+        Map<String, EntityDescriptor> entities = metadataConfigurationParser.getEntryDescriptions();
+
+        while(entities.size() != 1) {
+            TimeUnit.MILLISECONDS.sleep(10);
+        }
 
         assertThat(entities.size(), is(1));
     }
 
     @Test
     public void testMetadataBadString() throws Exception {
-        Map<String, EntityDescriptor> entities = MetadataConfigurationParser.buildEntityDescriptors(
+        MetadataConfigurationParser metadataConfigurationParser = new MetadataConfigurationParser(
                 Collections.singletonList("bad xml"));
+        Map<String, EntityDescriptor> entities = metadataConfigurationParser.getEntryDescriptions();
 
         assertThat(entities.size(), is(0));
     }
 
     @Test
     public void testMetadataBadFile() throws Exception {
-        Map<String, EntityDescriptor> entities = MetadataConfigurationParser.buildEntityDescriptors(
+        MetadataConfigurationParser metadataConfigurationParser = new MetadataConfigurationParser(
                 Collections.singletonList("file:bad path"));
+        Map<String, EntityDescriptor> entities = metadataConfigurationParser.getEntryDescriptions();
 
         assertThat(entities.size(), is(0));
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testMetadataBadHttpResponse() throws Exception {
-        serverRespondsWith("bad xml");
-
-        MetadataConfigurationParser
-                .buildEntityDescriptors(Collections.singletonList("http://" + serverAddress));
     }
 
     private void serverRespondsWith(String message) throws HttpException, IOException {
