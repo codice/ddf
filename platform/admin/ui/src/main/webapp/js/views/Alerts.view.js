@@ -42,7 +42,7 @@ define([
             },
             serializeData: function () {
                 var json = this.model.toJSON();
-                json.collapseId = parseInt((Math.random() * Math.pow(2, 32)), 10);
+                json.collapseId = 'alertCollapse_' + parseInt((Math.random() * Math.pow(2, 32)), 10);
                 return json;
             }
         });
