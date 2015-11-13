@@ -39,6 +39,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
+import javax.xml.stream.XMLStreamException;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
@@ -553,18 +554,9 @@ public class IdpEndpoint implements Idp {
 
             // TODO (RCZ) - Extract
             if (logoutObject instanceof LogoutRequest) {
-                // Initial Logout Request
-                if (logoutState != null) {
-                    // this means that they have a logout in progress and resent another logout
-                    // request. Either that or we have an old LogoutState which could happen if
-                    // a logout never actually finished
-                    throw new InvalidStateException("Weird state");
-                }
-                LogoutRequest logoutRequest = (LogoutRequest) logoutObject;
-                Set<SPSSODescriptor> activeSPs = new HashSet<>();
-                logoutState = new LogoutState(activeSPs);
-                logoutStates.encode(getCookie(request).getValue(), logoutState);
-                return continueLogout(logoutState, assertion);
+                return handleLogoutRequest(request, logoutState, (LogoutRequest) logoutObject,
+                        assertion);
+
             } else if (logoutObject instanceof LogoutResponse) {
                 LogoutResponse logoutResponse = (LogoutResponse) logoutObject;
 
@@ -601,6 +593,22 @@ public class IdpEndpoint implements Idp {
         // TODO (RCZ) 11/10/15 - Respond
 
         return null;
+    }
+
+    Response handleLogoutRequest(@Context HttpServletRequest request, LogoutState logoutState,
+            LogoutRequest logoutObject, Element assertion) {
+        // Initial Logout Request
+        if (logoutState != null) {
+            // this means that they have a logout in progress and resent another logout
+            // request. Either that or we have an old LogoutState which could happen if
+            // a logout never actually finished
+            throw new InvalidStateException("Weird state");
+        }
+        LogoutRequest logoutRequest = logoutObject;
+        Set<SPSSODescriptor> activeSPs = new HashSet<>();
+        logoutState = new LogoutState(activeSPs);
+        logoutStates.encode(getCookie(request).getValue(), logoutState);
+        return continueLogout(logoutState, assertion);
     }
 
     private Response continueLogout(LogoutState state, Element assertion) {
