@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -49,6 +49,7 @@ import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.codice.ddf.security.handler.api.PKIAuthenticationTokenFactory;
 import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -192,6 +193,11 @@ public class IdpEndpointTest {
                 .toString(), containsString("ACSURL"));
     }
 
+    /*
+    This test is currently ignored there's no logout service there
+    DDF-1605
+     */
+    @Ignore
     @Test
     public void testRetrieveMetadata() throws WSSecurityException, CertificateEncodingException {
         Response response = idpEndpoint.retrieveMetadata();
@@ -218,7 +224,7 @@ public class IdpEndpointTest {
         Response response = idpEndpoint.processLogin(samlRequest, relayState, Idp.USER_PASS,
                 signatureAlgorithm, signature, request);
         assertThat(response.getEntity()
-                .toString(),
+                        .toString(),
                 containsString("https://localhost:8993/services/saml/sso?SAMLResponse="));
         assertThat(response.getEntity()
                 .toString(), containsString("RelayState="));
@@ -243,7 +249,7 @@ public class IdpEndpointTest {
         Response response = idpEndpoint.processLogin(samlRequest, relayState, Idp.PKI,
                 signatureAlgorithm, signature, request);
         assertThat(response.getEntity()
-                .toString(),
+                        .toString(),
                 containsString("https://localhost:8993/services/saml/sso?SAMLResponse="));
         assertThat(response.getEntity()
                 .toString(), containsString("RelayState="));
@@ -287,7 +293,7 @@ public class IdpEndpointTest {
         Response response = idpEndpoint.processLogin(samlRequest, relayState, Idp.GUEST,
                 signatureAlgorithm, signature, request);
         assertThat(response.getEntity()
-                .toString(),
+                        .toString(),
                 containsString("https://localhost:8993/services/saml/sso?SAMLResponse="));
         assertThat(response.getEntity()
                 .toString(), containsString("RelayState="));
@@ -311,7 +317,7 @@ public class IdpEndpointTest {
         Response response = idpEndpoint.showGetLogin(samlRequest, relayState, signatureAlgorithm,
                 signature, request);
         assertThat(response.getEntity()
-                .toString(),
+                        .toString(),
                 containsString("https://localhost:8993/services/saml/sso?SAMLResponse="));
         assertThat(response.getEntity()
                 .toString(), containsString("RelayState="));
@@ -385,7 +391,7 @@ public class IdpEndpointTest {
         Response response = idpEndpoint.showGetLogin(samlRequest, relayState, signatureAlgorithm,
                 signature, request);
         assertThat(response.getEntity()
-                .toString(),
+                        .toString(),
                 containsString("https://localhost:8993/services/saml/sso?SAMLResponse="));
         assertThat(response.getEntity()
                 .toString(), containsString("RelayState="));
@@ -508,7 +514,7 @@ public class IdpEndpointTest {
         when(x509Certificate.getEncoded()).thenReturn(new byte[48]);
         Response response = idpEndpoint.showPostLogin(samlRequest, relayState, request);
         String responseStr = StringUtils.substringBetween(response.getEntity()
-                .toString(), "SAMLResponse\" value=\"",
+                        .toString(), "SAMLResponse\" value=\"",
                 "\" />\n" + "     <input type=\"hidden\" name=\"RelayState");
         responseStr = URLDecoder.decode(responseStr, "UTF-8");
         responseStr = new String(Base64.decodeBase64(responseStr));
