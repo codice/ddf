@@ -21,9 +21,14 @@ class FloatValueConverter extends PropertyValueConverter {
 
     @Override
     public void convertSingleValue(String propertyValue, StringBuilder output) {
-        float value = Float.parseFloat(propertyValue);
-        Integer intBits = Float.floatToIntBits(value);
-        output.append(intBits.toString());
-        LOGGER.debug("Converted float value {} to {}", propertyValue, intBits);
+        try {
+            float value = Float.parseFloat(propertyValue);
+            Integer intBits = Float.floatToIntBits(value);
+            output.append(intBits.toString());
+            LOGGER.debug("Converted float value {} to {}", propertyValue, intBits);
+        } catch (NumberFormatException e) {
+            output.append(propertyValue);
+            LOGGER.warn("Float value conversion failed for {}, leaving as-is", propertyValue, e);
+        }
     }
 }

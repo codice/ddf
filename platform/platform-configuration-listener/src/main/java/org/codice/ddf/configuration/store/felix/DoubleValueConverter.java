@@ -21,9 +21,14 @@ public class DoubleValueConverter extends PropertyValueConverter {
 
     @Override
     public void convertSingleValue(String propertyValue, StringBuilder output) {
-        double value = Double.parseDouble(propertyValue);
-        Long longBits = Double.doubleToLongBits(value);
-        output.append(longBits.toString());
-        LOGGER.debug("Converted double value {} to {}", propertyValue, longBits);
+        try {
+            double value = Double.parseDouble(propertyValue);
+            Long longBits = Double.doubleToLongBits(value);
+            output.append(longBits.toString());
+            LOGGER.debug("Converted double value {} to {}", propertyValue, longBits);
+        } catch (NumberFormatException e) {
+            output.append(propertyValue);
+            LOGGER.warn("Double value conversion failed for {}, leaving as-is", propertyValue, e);
+        }
     }
 }

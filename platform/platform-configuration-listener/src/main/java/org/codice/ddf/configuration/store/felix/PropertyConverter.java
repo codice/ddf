@@ -52,6 +52,20 @@ class PropertyConverter implements Consumer<String> {
         this.filteredOutput = filteredOutput;
     }
 
+    /**
+     * Converts the line provided if necessary and appends the line back to the
+     * {@code filteredOutput} provided in the constructor.
+     * <p/>
+     * This method will delegate the property value conversion to the proper
+     * {@link PropertyValueConverter} based on the type of property and whether a property converter
+     * can be found for that type.
+     * <p/>
+     * Before calling the property converter, this method will remove all leading and trailing
+     * white spaces and make sure that the value starts with either a quote ("), square bracket ([)
+     * or opening parenthesis and is not {@code null}.
+     *
+     * @param line line to convert
+     */
     @Override
     public void accept(String line) {
         Matcher matcher = PROPERTY_PATTERN.matcher(line);

@@ -30,7 +30,6 @@ import java.util.Vector;
 
 import org.apache.commons.io.FileUtils;
 import org.codice.ddf.configuration.store.felix.FelixPersistenceStrategy;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -379,7 +378,6 @@ public class TestPlatform extends AbstractIntegrationTest {
         managedServiceStartupConfig.assertFileMovedToProcessedDirectory();
     }
 
-    @Ignore
     @Test
     public void testCreateNewManagedServiceConfigurationFile() throws IOException {
         managedServiceNewConfig.addConfigurationFileAndWait(configAdmin);
@@ -392,7 +390,6 @@ public class TestPlatform extends AbstractIntegrationTest {
         managedServiceFactoryStartupConfig.assertFileMovedToProcessedDirectory();
     }
 
-    @Ignore
     @Test
     public void testCreateNewManagedServiceFactoryConfigurationFile() throws IOException {
         managedServiceFactoryNewConfig.addConfigurationFileAndWait(configAdmin);

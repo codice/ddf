@@ -13,9 +13,9 @@
  */
 package org.codice.ddf.configuration.store.felix;
 
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,23 +26,35 @@ abstract class PropertyValueConverter {
 
     static final Logger LOGGER = LoggerFactory.getLogger(PropertyValueConverter.class);
 
-    private static final String SINGLE_VALUE_REGEX = "\".*\"";
+    private static final String SINGLE_VALUE_REGEX = "(\"[^\"]*\")";
 
-    private static final String EMPTY_ARRAY_REGEX = "\\[\\]";
+    private static final String ARRAY_REGEX = "\\[\\s*(\"[^\"]*\")(\\s*,\\s*\"[^\"]*\")*\\s*\\]";
 
-    private static final String EMPTY_VECTOR_REGEX = "\\(\\)";
+    private static final String VECTOR_REGEX = "\\(\\s*(\"[^\"]*\")(\\s*,\\s*\"[^\"]*\")*\\s*\\)";
 
-    private static final String ARRAY_REGEX = "\\[(\".*\")(,\".*\")*\\]";
+    private static final Pattern PROPERTY_VALUE_PATTERN = Pattern
+            .compile(String.format("%s|%s|%s", SINGLE_VALUE_REGEX, ARRAY_REGEX, VECTOR_REGEX));
 
-    private static final String VECTOR_REGEX = "\\((\".*\")(,\".*\")*\\)";
-
-    private static final Pattern PROPERTY_VALUE_PATTERN = Pattern.compile(
-            String.format("%s|%s|%s|%s|%s", SINGLE_VALUE_REGEX, EMPTY_ARRAY_REGEX,
-                    EMPTY_VECTOR_REGEX, ARRAY_REGEX, VECTOR_REGEX));
-
+    /**
+     * Converts a property value (which can be a single value or an array or list of values) to a
+     * different format. Sub-classes are responsible for the conversion of individual values by
+     * implementing the {@link #convertSingleValue(String, StringBuilder)}.
+     * <p/>
+     * Note that values will be converted only if their format follows the Felix format for values
+     * which can be "value", ["value1", "value2", ...] or ("value1", "value2", ...). Any value
+     * that doesn't match that format will just be output as-is and not converted.
+     *
+     * @param propertyValue property value to convert. Assumes that the value provided has been
+     *                      trimmed, starts with a quote ("), square bracket ([) or parenthesis
+     *                      and is not {@code null}.
+     * @param output        {@link StringBuilder} to append the value to. Assumes that this is
+     *                      never {@code null}.
+     */
     public void convert(String propertyValue, StringBuilder output) {
 
-        if (!PROPERTY_VALUE_PATTERN.matcher(propertyValue).matches()) {
+        Matcher matcher = PROPERTY_VALUE_PATTERN.matcher(propertyValue);
+
+        if (!matcher.matches()) {
             LOGGER.debug("Property value {} doesn't seem valid, skipping", propertyValue);
             output.append(propertyValue);
             return;
@@ -53,36 +65,61 @@ abstract class PropertyValueConverter {
             output.append('"');
             convertSingleValue(propertyValue.trim().replaceAll("\"", ""), output);
             output.append('"');
-        } else if (propertyValue.startsWith("[")) {
+        } else if (propertyValue.startsWith("[") && propertyValue.endsWith("]")) {
             LOGGER.debug("Converting values in array {}", propertyValue);
             processMultipleValues("[", propertyValue, "]", output);
-        } else if (propertyValue.startsWith("(")) {
+        } else if (propertyValue.startsWith("(") && propertyValue.endsWith(")")) {
             LOGGER.debug("Converting values in vector {}", propertyValue);
             processMultipleValues("(", propertyValue, ")", output);
-        } else {
-            LOGGER.warn("Property value {} matched valid pattern but couldn't be processed. "
-                    + "Leaving as-is.");
-            output.append(propertyValue);
         }
 
         LOGGER.debug("Configuration property after value conversion: {}", output.toString());
     }
 
+    /**
+     * Converts a single property value to a new format if needed.  If the conversion
+     * fails or the value cannot or does not need to be converted, the original value
+     * should be appended back. Unless part of the conversion logic, the returned
+     * value should not be quoted.
+     *
+     * @param value  value to convert. The value will never have any leading or trailing white
+     *               spaces or quotes (") and will never be {@code null}.
+     * @param output {@link StringBuilder} to use to output the converted value. Will never be
+     *               {@code null}.
+     */
     protected abstract void convertSingleValue(String value, StringBuilder output);
 
     private void processMultipleValues(String openingBracket, String propertyValues,
             String closingBracket, StringBuilder output) {
-        String propertyValuesWithoutBrackets = StringUtils
-                .removeEnd(StringUtils.removeStart(propertyValues, openingBracket), closingBracket);
         output.append(openingBracket);
 
-        for (String value : propertyValuesWithoutBrackets.split(",")) {
+        String propertyValuesWithoutBrackets = removeSurroundingCharacters(propertyValues,
+                openingBracket, closingBracket);
+
+        for (String value : propertyValuesWithoutBrackets.split("\"\\s*,\\s*\"")) {
+            String trimmedValue = value.trim();
+            String unquotedValue = removeSurroundingCharacters(trimmedValue, "\"", "\"");
+
             output.append('"');
-            convertSingleValue(value.trim().replaceAll("\"", ""), output);
+            convertSingleValue(unquotedValue, output);
             output.append("\",");
         }
 
         output.deleteCharAt(output.length() - 1);
         output.append(closingBracket);
+    }
+
+    private String removeSurroundingCharacters(String value, String left, String right) {
+        String cleanedUpValue = value.trim();
+
+        if (cleanedUpValue.startsWith(left)) {
+            cleanedUpValue = cleanedUpValue.substring(1);
+        }
+
+        if (cleanedUpValue.endsWith(right)) {
+            cleanedUpValue = cleanedUpValue.substring(0, cleanedUpValue.length() - 1);
+        }
+
+        return cleanedUpValue;
     }
 }
