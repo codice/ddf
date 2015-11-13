@@ -27,6 +27,7 @@ import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import javax.validation.constraints.NotNull;
 
@@ -47,7 +48,7 @@ public class ConfigurationFilesPoller implements Runnable {
 
     private final String fileExtension;
 
-    private ChangeListener configurationDirectory;
+    private ChangeListener changeListener;
 
     /**
      * Constructor.
@@ -78,7 +79,7 @@ public class ConfigurationFilesPoller implements Runnable {
 
     public void register(@NotNull ChangeListener listener) {
         notNull(listener, "ChangeListener cannot be null");
-        configurationDirectory = listener;
+        changeListener = listener;
     }
 
     @Override
@@ -117,11 +118,14 @@ public class ConfigurationFilesPoller implements Runnable {
                         continue; // just skip to the next event
                     }
 
-                    if (configurationDirectory != null) {
+                    if (changeListener != null) {
+                        // Sleeping before notifying the listener to make sure file is
+                        // done writing, otherwise the listener may read the file too soon.
+                        TimeUnit.SECONDS.sleep(1);
                         LOGGER.debug("Notifying [{}] of event [{}] for file [{}].",
-                                configurationDirectory.getClass().getName(), kind,
+                                changeListener.getClass().getName(), kind,
                                 configurationDirectoryPath.resolve(filename));
-                        configurationDirectory.notify(configurationDirectoryPath.resolve(filename));
+                        changeListener.notify(configurationDirectoryPath.resolve(filename));
                     }
                 }
 

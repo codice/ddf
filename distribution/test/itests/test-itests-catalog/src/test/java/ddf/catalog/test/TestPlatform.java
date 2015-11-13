@@ -25,10 +25,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Dictionary;
+import java.util.Hashtable;
+import java.util.Vector;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.felix.cm.file.ConfigurationHandler;
-import org.junit.Ignore;
+import org.codice.ddf.configuration.store.felix.FelixPersistenceStrategy;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -52,6 +53,12 @@ public class TestPlatform extends AbstractIntegrationTest {
     /**
      * Class that provides utility and assertion methods for a Managed Service Felix configuration
      * file.
+     * <p/>
+     * Note: Since we have custom code in the @{link FelixPersistenceStrategy} class to convert
+     * floats and doubles, we cannot simply rely on what we read from the file to assert that the
+     * Configuration object has the right properties. For this reason, we need to create our own
+     * Dictionary of properties in {@link #getExpectedProperties()} and use that when doing our
+     * assertions.
      */
     private static class ManagedServiceConfigFile {
         protected String pid;
@@ -64,61 +71,157 @@ public class TestPlatform extends AbstractIntegrationTest {
             return String.format("/%s.config", pid);
         }
 
+        /**
+         * Copies the configuration file to the /etc directory.
+         */
         public void addConfigurationFile() throws IOException {
-            FileUtils.copyInputStreamToFile(getResourceAsStream(), getFile());
+            FileUtils.copyInputStreamToFile(getResourceAsStream(), getPathToEtcDirectory());
         }
 
+        /**
+         * Copies the configuration file to the /etc directory and waits for the
+         * {@link org.osgi.service.cm.Configuration} object to be initialized with all the values
+         * found in the configuration file.
+         */
         public void addConfigurationFileAndWait(ConfigurationAdmin configAdmin) throws IOException {
             addConfigurationFile();
 
             expect("Configuration properties for PID " + pid + " to be set").within(20, SECONDS)
                     .until(new GetConfigurationProperties(configAdmin, "id", pid),
-                            equalToConfigurationProperties(getProperties()));
+                            equalToConfigurationProperties(getFileProperties()));
         }
 
+        /**
+         * Asserts that the {@link org.osgi.service.cm.Configuration} object for the current PID
+         * contains the expected properties.
+         */
         public void assertConfigurationPropertiesSet(ConfigurationAdmin configAdmin)
                 throws Exception {
             Dictionary<String, Object> properties = new GetConfigurationProperties(configAdmin,
                     "id", pid).call();
             assertThat("No Configuration object exist for PID " + pid, properties,
                     is(notNullValue()));
-            assertPropertiesMatch(properties, getProperties());
+            assertPropertiesMatch(properties, getExpectedProperties());
         }
 
+        /**
+         * Asserts that the configuration file has been moved to the /etc/processed directory.
+         */
         public void assertFileMovedToProcessedDirectory() {
             expect("File to be moved to /etc/processed directory").within(20, SECONDS)
-                    .until(() -> getProcessedFile().exists());
+                    .until(() -> getPathToProcessedDirectory().exists());
             assertThat(String.format("Configuration file %s has not been removed",
-                    getFile().getAbsolutePath()), getFile().exists(), is(false));
+                            getPathToEtcDirectory().getAbsolutePath()),
+                    getPathToEtcDirectory().exists(), is(false));
         }
 
+        /**
+         * Asserts that the configuration file has been moved to the /etc/failed directory.
+         */
         public void assertFileMovedToFailedDirectory() {
             expect("Waiting for file to be moved to /etc/failed directory").within(20, SECONDS)
-                    .until(() -> getFailedFile().exists());
+                    .until(() -> getPathToFailedDirectory().exists());
             assertThat(String.format("Configuration file %s has not been removed",
-                    getFile().getAbsolutePath()), getFile().exists(), is(false));
+                            getPathToEtcDirectory().getAbsolutePath()),
+                    getPathToEtcDirectory().exists(), is(false));
         }
 
+        /**
+         * Asserts that the properties in the {@link org.osgi.service.cm.Configuration} object
+         * match what' expected.
+         */
         protected void assertPropertiesMatch(Dictionary<String, Object> actualProperties,
                 Dictionary<String, Object> expectedProperties) throws IOException {
             assertThat("Configuration properties do not match for PID " + pid, actualProperties,
                     equalToConfigurationProperties(expectedProperties));
         }
 
-        @SuppressWarnings("unchecked")
-        protected Dictionary<String, Object> getProperties() throws IOException {
-            return ConfigurationHandler.read(getResourceAsStream());
+        /**
+         * Gets the properties from the configuration file using the
+         * {@link FelixPersistenceStrategy#read(InputStream)} method. This is used when waiting for
+         * the {@link #addConfigurationFileAndWait(ConfigurationAdmin)} when waiting for the
+         * {@link org.osgi.service.cm.Configuration} object to be initialized.
+         */
+        protected Dictionary<String, Object> getFileProperties() throws IOException {
+            return new FelixPersistenceStrategy().read(getResourceAsStream());
         }
 
-        private File getProcessedFile() {
+        /**
+         * Adds the {@code service.pid} property to the list of expected properties. Needed
+         * because MSF configuration files do not have that property.
+         */
+        protected void addToExpectedProperties(Dictionary<String, Object> expectedProperties) {
+            expectedProperties.put("service.pid", pid);
+        }
+
+        private Dictionary<String, Object> getExpectedProperties() {
+            Dictionary<String, Object> properties = new Hashtable<>();
+
+            addToExpectedProperties(properties);
+
+            properties.put("id", pid);
+
+            properties.put("property.string", "string");
+            properties.put("property.boolean.true", true);
+            properties.put("property.boolean.false", false);
+            properties.put("property.int", 10);
+            properties.put("property.long", 100L);
+            properties.put("property.float", 10.5f);
+            properties.put("property.double", 100.1234d);
+            properties.put("property.array.strings", new String[] {"A", "B", "C"});
+            properties.put("property.array.booleans", new Boolean[] {Boolean.TRUE, Boolean.FALSE});
+            properties.put("property.array.ints", new Integer[] {10, 20, 30});
+            properties.put("property.array.longs", new Long[] {100L, 200L, 300L});
+            properties.put("property.array.floats", new Float[] {1.1f, 2.2f, 3.3f});
+            properties.put("property.array.doubles", new Double[] {1.123, 2.234, 3.345});
+
+            Vector<String> strings = new Vector<>();
+            strings.add("A");
+            strings.add("B");
+            strings.add("C");
+            properties.put("property.vector.strings", strings);
+
+            Vector<Boolean> booleans = new Vector<>();
+            booleans.add(Boolean.TRUE);
+            booleans.add(Boolean.FALSE);
+            properties.put("property.vector.booleans", booleans);
+
+            Vector<Integer> ints = new Vector<>();
+            ints.add(10);
+            ints.add(20);
+            ints.add(30);
+            properties.put("property.vector.ints", ints);
+
+            Vector<Long> longs = new Vector<>();
+            longs.add(100l);
+            longs.add(200l);
+            longs.add(300l);
+            properties.put("property.vector.longs", longs);
+
+            Vector<Float> floats = new Vector<>();
+            floats.add(1.1f);
+            floats.add(2.2f);
+            floats.add(3.3f);
+            properties.put("property.vector.floats", floats);
+
+            Vector<Double> doubles = new Vector<>();
+            doubles.add(1.123);
+            doubles.add(2.234);
+            doubles.add(3.345);
+            properties.put("property.vector.doubles", doubles);
+
+            return properties;
+        }
+
+        private File getPathToProcessedDirectory() {
             return new File(String.format("%s/etc/processed%s", ddfHome, getResourcePath()));
         }
 
-        private File getFailedFile() {
+        private File getPathToFailedDirectory() {
             return new File(String.format("%s/etc/failed%s", ddfHome, getResourcePath()));
         }
 
-        private File getFile() {
+        private File getPathToEtcDirectory() {
             return new File(String.format("%s/etc%s", ddfHome, getResourcePath()));
         }
 
@@ -140,6 +243,12 @@ public class TestPlatform extends AbstractIntegrationTest {
             this.factoryPid = pid.substring(0, pid.lastIndexOf('.'));
         }
 
+        /**
+         * {@inheritDoc}
+         * <p/>
+         * Overridden to use {@link ddf.catalog.test.TestPlatform.ManagedServiceFactoryConfigurationPropertiesEqualTo}.
+         */
+        @Override
         protected void assertPropertiesMatch(Dictionary<String, Object> actualProperties,
                 Dictionary<String, Object> expectedProperties) throws IOException {
             assertThat("Configuration properties do not match for PID " + pid, actualProperties,
@@ -147,23 +256,35 @@ public class TestPlatform extends AbstractIntegrationTest {
                             expectedProperties));
         }
 
+        /**
+         * {@inheritDoc}
+         * <p/>
+         * Overridden to use {@link ddf.catalog.test.TestPlatform.ManagedServiceFactoryConfigurationPropertiesEqualTo}.
+         */
         @Override
         public void addConfigurationFileAndWait(ConfigurationAdmin configAdmin) throws IOException {
             addConfigurationFile();
-
-            final Dictionary<String, Object> expectedProperties = getProperties();
 
             expect("Waiting for Configuration expectedProperties for PID " + pid + " to be set")
                     .within(20, SECONDS)
                     .until(new GetConfigurationProperties(configAdmin, "id", pid),
                             new ManagedServiceFactoryConfigurationPropertiesEqualTo(factoryPid,
-                                    expectedProperties));
+                                    getFileProperties()));
+        }
+
+        /**
+         * Adds the {@code service.factoryPid} property to the list of expected properties. Needed
+         * because MSF configuration files use that property instead of {@code service.pid}.
+         */
+        @Override
+        protected void addToExpectedProperties(Dictionary<String, Object> expectedProperties) {
+            expectedProperties.put("service.factoryPid", factoryPid);
         }
     }
 
     /**
-     * Hamcrest {@link org.hamcrest.Matcher} class for Managed Service Factory properties. Compares
-     * all the attributes except for the {@code service.pid} one.
+     * Hamcrest {@link org.hamcrest.Matcher} class for Managed Service Factory properties. Ensures
+     * that the {@code service.pid} property starts with the {@code factoryPid}.
      */
     private static class ManagedServiceFactoryConfigurationPropertiesEqualTo
             extends ConfigurationPropertiesEqualTo {
@@ -216,6 +337,9 @@ public class TestPlatform extends AbstractIntegrationTest {
     private static ManagedServiceConfigFile invalidConfig = new ManagedServiceConfigFile(
             "ddf.catalog.test.TestPlatform.invalid");
 
+    private static ManagedServiceConfigFile invalidStartupConfigFile = new ManagedServiceConfigFile(
+            "ddf.catalog.test.TestPlatform.startup.invalid");
+
     @BeforeExam
     @SuppressWarnings("unchecked")
     public void beforeExam() throws Exception {
@@ -223,19 +347,27 @@ public class TestPlatform extends AbstractIntegrationTest {
         getServiceManager().waitForAllBundles();
     }
 
+    /**
+     * Installs the configuration files needed at startup.
+     */
     @Override
     protected Option[] configureCustom() {
+        String managedServiceConfigPath = managedServiceStartupConfig.getResourcePath();
+        String managedServiceFactoryConfigPath = managedServiceFactoryStartupConfig
+                .getResourcePath();
+        String invalidConfigPath = invalidStartupConfigFile.getResourcePath();
+
         try {
-            return options(installStartupFile(getClass().getResourceAsStream(
-                                    managedServiceStartupConfig.getResourcePath()),
-                            "/etc" + managedServiceStartupConfig.getResourcePath()),
-                    installStartupFile(getClass().getResourceAsStream(
-                                    managedServiceFactoryStartupConfig.getResourcePath()),
-                            "/etc" + managedServiceFactoryStartupConfig.getResourcePath()));
+            return options(
+                    installStartupFile(getClass().getResourceAsStream(managedServiceConfigPath),
+                            "/etc" + managedServiceConfigPath), installStartupFile(
+                            getClass().getResourceAsStream(managedServiceFactoryConfigPath),
+                            "/etc" + managedServiceFactoryConfigPath),
+                    installStartupFile(getClass().getResourceAsStream(invalidConfigPath),
+                            "/etc" + invalidConfigPath));
         } catch (Exception e) {
-            LOGGER.error("Could not copy config files {} and {} to /etc directory",
-                    managedServiceStartupConfig.getResourcePath(),
-                    managedServiceFactoryStartupConfig.getResourcePath());
+            LOGGER.error("Could not copy config files {}, {} and {} to /etc directory",
+                    managedServiceConfigPath, managedServiceFactoryConfigPath, invalidConfigPath);
             return null;
         }
     }
@@ -246,7 +378,6 @@ public class TestPlatform extends AbstractIntegrationTest {
         managedServiceStartupConfig.assertFileMovedToProcessedDirectory();
     }
 
-    @Ignore
     @Test
     public void testCreateNewManagedServiceConfigurationFile() throws IOException {
         managedServiceNewConfig.addConfigurationFileAndWait(configAdmin);
@@ -259,7 +390,6 @@ public class TestPlatform extends AbstractIntegrationTest {
         managedServiceFactoryStartupConfig.assertFileMovedToProcessedDirectory();
     }
 
-    @Ignore
     @Test
     public void testCreateNewManagedServiceFactoryConfigurationFile() throws IOException {
         managedServiceFactoryNewConfig.addConfigurationFileAndWait(configAdmin);
@@ -268,7 +398,7 @@ public class TestPlatform extends AbstractIntegrationTest {
 
     @Test
     public void testStartUpWithInvalidFile() {
-        // TODO - Make sure things still come up when one of the startup files is invalid.
+        invalidStartupConfigFile.assertFileMovedToFailedDirectory();
     }
 
     @Test
