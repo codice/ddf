@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -544,25 +544,28 @@ public class IdpEndpoint implements Idp {
             @QueryParam(SSOConstants.SIGNATURE) String signature,
             @Context HttpServletRequest request) throws WSSecurityException {
         // TODO (RCZ) 11/2/15 - Implement Server HTTP-Redirect logout
+
         try {
             LogoutState logoutState = getLogoutState(request);
             XMLObject logoutObject = logoutService.extractXmlObject(samlRequest);
             Element assertion = getSamlAssertion(request);
             // TODO (RCZ) - Validate (relay + request). Might need to val inside each logouttype
             Binding binding = new RedirectBinding(systemCrypto, serviceProviders);
-            binding.validator().validateRelayState(relayState);
+            binding.validator()
+                    .validateRelayState(relayState);
 
-            // TODO (RCZ) - Extract
             if (logoutObject instanceof LogoutRequest) {
                 return handleLogoutRequest(request, logoutState, (LogoutRequest) logoutObject,
                         assertion);
 
             } else if (logoutObject instanceof LogoutResponse) {
                 LogoutResponse logoutResponse = (LogoutResponse) logoutObject;
-
+                return handleLogoutResponse(request, logoutState, (LogoutResponse) logoutObject,
+                        assertion);
             } else { // Unsupported object type
                 // TODO (RCZ) 11/11/15 - Log some unsupported exception?
                 // Even if their object is bad we might be able to finish rest of logouts
+                continueLogout(logoutState, assertion);
             }
 
                 /*// just for reference
@@ -579,12 +582,8 @@ public class IdpEndpoint implements Idp {
                 return Response.ok(logoutResponseStr)
                         .build();*/
 
-        } catch (IOException e) {
-            LOGGER.error("Unable to decode AuthRequest", e);
         } catch (XMLStreamException e) {
             LOGGER.error("Unable to extract Saml object", e);
-        } catch (SimpleSign.SignatureException e) {
-            LOGGER.error("Unabled to sign saml object", e);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -593,6 +592,12 @@ public class IdpEndpoint implements Idp {
         // TODO (RCZ) 11/10/15 - Respond
 
         return null;
+    }
+
+    private Response handleLogoutResponse(HttpServletRequest request, LogoutState logoutState,
+            LogoutResponse logoutObject, Element assertion) {
+        // TODO (RCZ) - logic
+        return continueLogout(logoutState, assertion);
     }
 
     Response handleLogoutRequest(@Context HttpServletRequest request, LogoutState logoutState,
@@ -612,6 +617,7 @@ public class IdpEndpoint implements Idp {
     }
 
     private Response continueLogout(LogoutState state, Element assertion) {
+        // TODO (RCZ) - Do we handle nulls here or specify the contract that caller does?
         return null;
     }
 
