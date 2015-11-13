@@ -1804,7 +1804,7 @@
           ],
           "optionLabels": [],
           "name": "Roles",
-          "description": "Comma-delimited list of roles that a user could have in order to be permitted for restricted actions. Defaults to admin,anonymous.",
+          "description": "Comma-delimited list of roles that a user could have in order to be permitted for restricted actions. Defaults to admin.",
           "id": "accessRoleList",
           "type": 1,
           "cardinality": 0,

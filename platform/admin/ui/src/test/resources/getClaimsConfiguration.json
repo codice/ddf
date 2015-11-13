@@ -51,7 +51,7 @@
         ],
         "optionLabels": [],
         "name": "Attributes",
-        "description": "The attributes to be returned for any Anonymous user.",
+        "description": "The attributes to be returned for any Guest user.",
         "id": "attributes",
         "type": 1,
         "cardinality": 1000,
