@@ -272,7 +272,7 @@ public abstract class AbstractIntegrationTest {
      * @return list of pax exam options
      */
     @org.ops4j.pax.exam.Configuration
-    public Option[] config() throws URISyntaxException {
+    public Option[] config() throws URISyntaxException, IOException {
         basePort = findPortNumber(20000);
         return combineOptions(configureCustom(), configureDistribution(), configurePaxExam(),
                 configureAdditionalBundles(), configureConfigurationPorts(), configureMavenRepos(),
@@ -377,7 +377,7 @@ public abstract class AbstractIntegrationTest {
                         .exports("*;version=18.0"));
     }
 
-    protected Option[] configureConfigurationPorts() throws URISyntaxException {
+    protected Option[] configureConfigurationPorts() throws URISyntaxException, IOException {
         return options(editConfigurationFilePut("etc/system.properties", "urlScheme", "https"),
                 editConfigurationFilePut("etc/system.properties", "host", "localhost"),
                 editConfigurationFilePut("etc/system.properties", "jetty.port",
@@ -410,18 +410,17 @@ public abstract class AbstractIntegrationTest {
                 editConfigurationFilePut("etc/org.apache.karaf.management.cfg", "rmiRegistryPort",
                         RMI_REG_PORT.getPort()),
                 editConfigurationFilePut("etc/org.apache.karaf.management.cfg", "rmiServerPort",
-                        RMI_SERVER_PORT.getPort()), replaceConfigurationFile("etc/hazelcast.xml",
-                        new File(this.getClass().getResource("/hazelcast.xml").toURI())),
-                replaceConfigurationFile("etc/ddf.security.sts.client.configuration.cfg", new File(
-                        this.getClass().getResource("/ddf.security.sts.client.configuration.cfg")
-                                .toURI())),
-                editConfigurationFilePut("etc/ddf.security.sts.client.configuration.cfg", "address",
-                        SECURE_ROOT + HTTPS_PORT.getPort() + "/services/SecurityTokenService?wsdl"),
-                replaceConfigurationFile(
-                        "etc/ddf.catalog.solr.external.SolrHttpCatalogProvider.cfg", new File(
-                                this.getClass().getResource(
-                                        "/ddf.catalog.solr.external.SolrHttpCatalogProvider.cfg")
-                                        .toURI())));
+                        RMI_SERVER_PORT.getPort()),
+                installStartupFile(getClass().getResourceAsStream("/hazelcast.xml"),
+                        "/etc/hazelcast.xml"), installStartupFile(getClass().getResourceAsStream(
+                                "/ddf.security.sts.client.configuration.config"),
+                        "/etc/ddf.security.sts.client.configuration.config"),
+                editConfigurationFilePut("etc/ddf.security.sts.client.configuration.config",
+                        "address", "\"" + SECURE_ROOT + HTTPS_PORT.getPort()
+                                + "/services/SecurityTokenService?wsdl" + "\""), installStartupFile(
+                        getClass().getResourceAsStream(
+                                "/ddf.catalog.solr.external.SolrHttpCatalogProvider.config"),
+                        "/etc/ddf.catalog.solr.external.SolrHttpCatalogProvider.config"));
     }
 
     protected Option[] configureMavenRepos() {
