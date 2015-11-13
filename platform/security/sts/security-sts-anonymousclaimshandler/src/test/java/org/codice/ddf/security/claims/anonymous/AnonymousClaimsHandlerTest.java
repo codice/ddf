@@ -74,27 +74,6 @@ public class AnonymousClaimsHandlerTest {
     }
 
     @Test
-    public void testSettingClaimsMapString() throws URISyntaxException {
-        AnonymousClaimsHandler claimsHandler = new AnonymousClaimsHandler();
-        claimsHandler.setAttributes(
-                "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier=Anonymous,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress=Anonymous@anon.com,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname=Anon");
-
-        Map<URI, List<String>> claimsMap = claimsHandler.getClaimsMap();
-
-        List<String> value = claimsMap.get(new URI(
-                "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"));
-        assertEquals("Anonymous", value.get(0));
-
-        value = claimsMap
-                .get(new URI("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"));
-        assertEquals("Anonymous@anon.com", value.get(0));
-
-        value = claimsMap
-                .get(new URI("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname"));
-        assertEquals("Anon", value.get(0));
-    }
-
-    @Test
     public void testRetrieveClaims() throws URISyntaxException {
         AnonymousClaimsHandler claimsHandler = new AnonymousClaimsHandler();
         claimsHandler.setAttributes(Arrays.asList(

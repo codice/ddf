@@ -99,6 +99,9 @@ public class TestOpenSearchSource {
 
     private static final String BYTES_TO_SKIP = "BytesToSkip";
 
+    private static final List<String> DEFAULT_PARAMETERS = Arrays.asList("q", "src", "mr", "start", "count", "mt", "dn",
+            "lat", "lon", "radius", "bbox", "polygon", "dtstart", "dtend", "dateName", "filter", "sort");
+
     private static FilterBuilder filterBuilder = new GeotoolsFilterBuilder();
 
     private static InputStream getSampleAtomStream() {
@@ -296,8 +299,7 @@ public class TestOpenSearchSource {
         source.setInputTransformer(getMockInputTransformer());
         source.setEndpointUrl("http://localhost:8181/services/catalog/query");
         source.init();
-        source.setParameters(
-                "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort");
+        source.setParameters(DEFAULT_PARAMETERS);
         source.factory = factory;
 
         Filter filter = filterBuilder.attribute(Metacard.ID).equalTo().text(SAMPLE_ID);
@@ -350,8 +352,7 @@ public class TestOpenSearchSource {
         source.setInputTransformer(getMockInputTransformer());
         source.setEndpointUrl("http://localhost:8181/services/catalog/query");
         source.init();
-        source.setParameters(
-                "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort");
+        source.setParameters(DEFAULT_PARAMETERS);
         source.factory = factory;
 
         Filter filter = filterBuilder.attribute(Metacard.METADATA).like()
@@ -388,8 +389,7 @@ public class TestOpenSearchSource {
         source.setInputTransformer(getMockInputTransformer());
         source.setEndpointUrl("http://localhost:8181/services/catalog/query");
         source.init();
-        source.setParameters(
-                "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort");
+        source.setParameters(DEFAULT_PARAMETERS);
 
         source.factory = factory;
 
@@ -443,8 +443,7 @@ public class TestOpenSearchSource {
         source.setInputTransformer(inputTransformer);
         source.setEndpointUrl("http://localhost:8181/services/catalog/query");
         source.init();
-        source.setParameters(
-                "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort");
+        source.setParameters(DEFAULT_PARAMETERS);
 
         source.factory = factory;
 
@@ -492,8 +491,7 @@ public class TestOpenSearchSource {
         source.setInputTransformer(inputTransformer);
         source.setEndpointUrl("http://localhost:8181/services/catalog/query");
         source.init();
-        source.setParameters(
-                "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort");
+        source.setParameters(DEFAULT_PARAMETERS);
 
         source.factory = factory;
 
@@ -526,8 +524,7 @@ public class TestOpenSearchSource {
         source.setInputTransformer(getMockInputTransformer());
         source.setEndpointUrl("http://localhost:8181/services/catalog/query");
         source.init();
-        source.setParameters(
-                "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort");
+        source.setParameters(DEFAULT_PARAMETERS);
         source.factory = factory;
 
         Filter filter = filterBuilder.attribute(Metacard.ANY_TEXT).like()
@@ -554,8 +551,7 @@ public class TestOpenSearchSource {
         source.setInputTransformer(getMockInputTransformer());
         source.setEndpointUrl("http://localhost:8181/services/catalog/query");
         source.init();
-        source.setParameters(
-                "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort");
+        source.setParameters(DEFAULT_PARAMETERS);
         source.factory = factory;
 
         Filter filter = filterBuilder.attribute(Metacard.ANY_TEXT).like()
@@ -634,8 +630,7 @@ public class TestOpenSearchSource {
         source.setInputTransformer(getMockInputTransformer());
         source.setEndpointUrl("http://localhost:8181/services/catalog/query");
         source.init();
-        source.setParameters(
-                "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort");
+        source.setParameters(DEFAULT_PARAMETERS);
 
         source.factory = factory;
 
@@ -676,8 +671,7 @@ public class TestOpenSearchSource {
         source.setInputTransformer(getMockInputTransformer());
         source.setEndpointUrl("http://localhost:8181/services/catalog/query");
         source.init();
-        source.setParameters(
-                "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort");
+        source.setParameters(DEFAULT_PARAMETERS);
 
         source.factory = factory;
 
@@ -778,8 +772,7 @@ public class TestOpenSearchSource {
 
         OverriddenOpenSearchSource source = new OverriddenOpenSearchSource(FILTER_ADAPTER);
         source.setEndpointUrl("http://localhost:8181/services/catalog/query");
-        source.setParameters(
-                "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort");
+        source.setParameters(DEFAULT_PARAMETERS);
         source.init();
         source.setLocalQueryOnly(true);
         source.setInputTransformer(getMockInputTransformer());
