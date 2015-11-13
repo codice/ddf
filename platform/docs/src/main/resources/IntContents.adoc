@@ -169,7 +169,7 @@ Configuration can be performed using the processes described in the Configuring 
 |description
 |String
 |Specifies the description to display on the landing page.
-|DDF is a free and open-source common data layer that abstracts services and business logic from the underlying data structures to enable rapid integration of new data sources.
+|As a common data layer, DDF provides secure enterprise-wide data access for both users and systems.
 |yes
 
 |Phone Number
@@ -197,6 +197,27 @@ Configuration can be performed using the processes described in the Configuring 
 |announcements
 |String
 |Announcements that will be displayed on the landing page. Can be prefixed with a date of the form mm/dd/yy, leading zeroes not required.
+|
+|yes
+
+|Branding Background
+|background
+|String
+|Specifies the landing page Background Color.  Use html css colors or #rrggbb.
+|
+|yes
+
+|Branding Foreground
+|foreground
+|String
+|Specifies the landing page Foreground Color.  Use html css colors or #rrggbb.
+|
+|yes
+
+|Branding Logo
+|logo
+|String
+|Specifies the landing page Logo.  Use a base64 encoded image.
 |
 |yes
 
