@@ -203,6 +203,9 @@ public interface ConfigurationAdminMBean {
     /**
      * Update the configuration with the supplied properties For each property entry, the following
      * row is supplied
+     *
+     * It is necessary to have a return value so that the ajax call to Jolokia waits for it to finish
+     * and we get any errors returned
      * <p/>
      *
      * @see org.osgi.jmx.JmxConstants#PROPERTIES_TYPE for the details of the TabularType
@@ -214,7 +217,7 @@ public interface ConfigurationAdminMBean {
      * @throws IOException
      *             if the operation fails
      */
-    void update(String pid, Map<String, Object> configurationTable) throws IOException;
+    boolean update(String pid, Map<String, Object> configurationTable) throws IOException;
 
     /**
      * Update the configuration with the supplied properties For each property entry, the following

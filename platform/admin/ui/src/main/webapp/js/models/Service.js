@@ -86,6 +86,41 @@ define(['backbone', 'jquery','backboneassociations'],function (Backbone, $) {
         },
 
         /**
+         * Since jolokia always returns a 200, we need to parse the response
+         * to determine whether the request succeeded or failed, and trigger
+         * the corresponding callback
+         */
+        handleResult: function (result, deferred) {
+            // per ajax api, should be three args with the first
+            // either a string or a jqxhr object
+            if (!(result.length === 3 && (typeof result[0] === 'string' || result[0].setRequestHeader))) {
+                throw "Unexpected result contents";
+            }
+            var jsonResult;
+            var jsonString = result[0];
+            if (typeof jsonString === 'string') {
+                try {
+                    jsonResult = JSON.parse(jsonString.toString().trim());
+                } catch (e) {
+                    // https://codice.atlassian.net/browse/DDF-1642
+                    // this works around an issue in json-simple where the .toString() of an array
+                    // is returned in the arguments field of configs with array attributes,
+                    // causing the JSON string from jolokia to be unparseable, so we remove it,
+                    // since we don't care about the arguments for our parsing needs
+                    jsonString = jsonString.replace(/\[L[\w\.;@]*/g, '""');
+                    jsonResult = JSON.parse(jsonString.toString().trim());
+                }
+            } else {
+                jsonResult = {'error': result[1], 'stacktrace': result[2]};
+            }
+            if (typeof jsonResult.error === 'undefined') {
+                deferred.resolve.apply(null, result);
+            } else {
+                deferred.reject.call(null, result[2], 'fail', jsonResult);
+            }
+        },
+
+        /**
          * When a model calls save the sync is called in Backbone.  I override it because this isn't a typical backbone
          * object
          * @return Return a deferred which is a handler with the success and failure callback.
@@ -102,35 +137,29 @@ define(['backbone', 'jquery','backboneassociations'],function (Backbone, $) {
                 var collect = model.collectedData(model.get('properties').get("service.pid") || model.parents[0].get('id'));
                 var jData = JSON.stringify(collect);
 
-                return $.ajax({
+                $.ajax({
                     type: 'POST',
                     contentType: 'application/json',
                     data: jData,
                     url: addUrl
-                }).done(function (result) {
-                        deferred.resolve(result);
-                    }).fail(function (error) {
-                        deferred.fail(error);
-                    });
+                }).always(function () {
+                    model.handleResult(arguments, deferred);
+                });
             } else {
                 //no pid means this is a new record
                 model.makeConfigCall(model).done(function (data) {
                     var collect = model.collectedData(JSON.parse(data).value);
                     var jData = JSON.stringify(collect);
 
-                    return $.ajax({
+                    $.ajax({
                         type: 'POST',
                         contentType: 'application/json',
                         data: jData,
                         url: addUrl
-                    }).done(function (result) {
-                            deferred.resolve(result);
-                        }).fail(function (error) {
-                            deferred.fail(error);
-                        });
-                }).fail(function (error) {
-                        deferred.fail(error);
+                    }).always(function () {
+                        model.handleResult(arguments, deferred);
                     });
+                });
             }
             return deferred;
         },
