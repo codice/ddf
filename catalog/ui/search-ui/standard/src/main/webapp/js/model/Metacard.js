@@ -286,6 +286,7 @@ define([
                 }
             }
         });
+
         return MetaCard;
 
     });

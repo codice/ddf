@@ -18,11 +18,13 @@ import java.util.List;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
 import org.codice.ddf.spatial.geocoder.GeoCoder;
 import org.codice.ddf.spatial.geocoder.GeoResult;
+import org.codice.ddf.spatial.geocoding.context.NearbyLocation;
 import org.opengis.geometry.DirectPosition;
 import org.opengis.geometry.primitive.Point;
 
@@ -75,6 +77,19 @@ public class GeoCoderEndpoint {
         }
 
         return jsonObject;
+    }
+
+    @GET
+    @Path("nearby/cities/{wkt}")
+    public Response getNearbyCities(@PathParam("wkt") String wkt) {
+
+        GeoCoder geoCoder = geoCoderFactory.getService();
+        NearbyLocation nearbyLocation = geoCoder.getNearbyCity(wkt);
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("direction", nearbyLocation.getCardinalDirection());
+        jsonObject.put("distance", nearbyLocation.getDistance());
+        jsonObject.put("name", nearbyLocation.getName());
+        return Response.ok(jsonObject.toJSONString()).build();
     }
 
     void transformGeoResult(GeoResult geoResult, JSONArray resources) {

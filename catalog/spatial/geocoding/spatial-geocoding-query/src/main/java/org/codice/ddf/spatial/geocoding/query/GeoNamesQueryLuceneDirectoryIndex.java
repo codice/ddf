@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -16,6 +16,7 @@ package org.codice.ddf.spatial.geocoding.query;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.text.ParseException;
 import java.util.List;
 
 import org.apache.lucene.index.DirectoryReader;
@@ -28,7 +29,8 @@ import org.codice.ddf.spatial.geocoding.GeoEntryQueryException;
 import org.codice.ddf.spatial.geocoding.context.NearbyLocation;
 import org.codice.ddf.spatial.geocoding.index.GeoNamesLuceneIndexer;
 
-import ddf.catalog.data.Metacard;
+import com.spatial4j.core.context.SpatialContext;
+import com.spatial4j.core.shape.Shape;
 
 public class GeoNamesQueryLuceneDirectoryIndex extends GeoNamesQueryLuceneIndex {
     private String indexLocation;
@@ -79,10 +81,17 @@ public class GeoNamesQueryLuceneDirectoryIndex extends GeoNamesQueryLuceneIndex 
     }
 
     @Override
-    public List<NearbyLocation> getNearestCities(final Metacard metacard, final int radiusInKm,
-            final int maxResults) {
+    public List<NearbyLocation> getNearestCities(final String location, final int radiusInKm,
+            final int maxResults) throws ParseException {
+
+        if (location == null) {
+            throw new IllegalArgumentException(
+                    "GeoNamesQueryLuceneDirectoryIndex.getNearestCities(): argument 'location' may not be null.");
+        }
+
+        Shape shape = SpatialContext.GEO.readShapeFromWkt(location);
         final Directory directory = openDirectoryAndCheckForIndex();
 
-        return doGetNearestCities(metacard, radiusInKm, maxResults, directory);
+        return doGetNearestCities(shape, radiusInKm, maxResults, directory);
     }
 }

@@ -14,6 +14,7 @@
 
 package org.codice.ddf.spatial.geocoder.geonames;
 
+import java.text.ParseException;
 import java.util.List;
 
 import org.codice.ddf.spatial.geocoder.GeoCoder;
@@ -22,10 +23,14 @@ import org.codice.ddf.spatial.geocoder.GeoResultCreator;
 import org.codice.ddf.spatial.geocoding.GeoEntry;
 import org.codice.ddf.spatial.geocoding.GeoEntryQueryException;
 import org.codice.ddf.spatial.geocoding.GeoEntryQueryable;
+import org.codice.ddf.spatial.geocoding.context.NearbyLocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class GeoNamesLocalIndex implements GeoCoder {
+    private static final int SEARCH_RADIUS = 50;
+    private static final int SEARCH_RESULT_LIMIT = 1;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(GeoNamesLocalIndex.class);
 
     private GeoEntryQueryable geoEntryQueryable;
@@ -52,6 +57,22 @@ public class GeoNamesLocalIndex implements GeoCoder {
             }
         } catch (GeoEntryQueryException e) {
             LOGGER.error("Error querying the local GeoNames index", e);
+        }
+
+        return null;
+    }
+
+    public NearbyLocation getNearbyCity(String location) {
+
+        try {
+            List<NearbyLocation> locations = geoEntryQueryable
+                    .getNearestCities(location, SEARCH_RADIUS, SEARCH_RESULT_LIMIT);
+
+            if (locations.size() > 0) {
+                return locations.get(0);
+            }
+        } catch (ParseException parseException) {
+            LOGGER.error(String.format("Error parsing the supplied wkt: %s", location), parseException);
         }
 
         return null;

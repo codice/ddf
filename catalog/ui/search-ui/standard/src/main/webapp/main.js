@@ -81,7 +81,9 @@ require.config({
         cesium: 'lib/cesiumjs/Cesium/Cesium',
         drawHelper: 'lib/cesium-drawhelper/DrawHelper',
         openlayers: 'lib/openlayers3/build/ol',
-        usngs: 'lib/usng.js/usng'
+        usngs: 'lib/usng.js/usng',
+
+        wellknown: 'lib/wellknown/wellknown'
     },
 
     shim: {
@@ -157,6 +159,7 @@ require.config({
         },
 
         bootstrapselect: ['bootstrap']
+
     },
 
     waitSeconds: 0

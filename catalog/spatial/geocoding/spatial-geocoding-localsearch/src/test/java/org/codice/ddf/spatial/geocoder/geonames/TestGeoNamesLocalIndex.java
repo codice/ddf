@@ -21,7 +21,9 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -30,6 +32,7 @@ import org.codice.ddf.spatial.geocoder.GeoResult;
 import org.codice.ddf.spatial.geocoding.GeoEntry;
 import org.codice.ddf.spatial.geocoding.GeoEntryQueryException;
 import org.codice.ddf.spatial.geocoding.GeoEntryQueryable;
+import org.codice.ddf.spatial.geocoding.context.NearbyLocation;
 import org.geotools.geometry.jts.spatialschema.geometry.DirectPositionImpl;
 import org.geotools.geometry.jts.spatialschema.geometry.primitive.PointImpl;
 import org.junit.Before;
@@ -93,5 +96,22 @@ public class TestGeoNamesLocalIndex {
 
         final GeoResult geoResult = geoNamesLocalIndex.getLocation("Arizona");
         assertThat(geoResult, is(nullValue()));
+    }
+
+    @Test
+    public void testGetNearbyCities() throws ParseException {
+        NearbyLocation mockNearbyLocation = mock(NearbyLocation.class);
+        when(mockNearbyLocation.getCardinalDirection()).thenReturn("W");
+        when(mockNearbyLocation.getDistance()).thenReturn(10.24);
+        when(mockNearbyLocation.getName()).thenReturn("The City");
+
+        List<NearbyLocation> nearbyLocations = mock(List.class);
+        when(nearbyLocations.size()).thenReturn(1);
+        when(nearbyLocations.get(0)).thenReturn(mockNearbyLocation);
+
+        when(geoEntryQueryable.getNearestCities("POINT(1.0 20)", 50, 1)).thenReturn(nearbyLocations);
+        NearbyLocation returnedNearbyLocation = geoNamesLocalIndex.getNearbyCity("POINT(1.0 20)");
+
+        assertThat(returnedNearbyLocation, equalTo(mockNearbyLocation));
     }
 }

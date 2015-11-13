@@ -39,6 +39,7 @@
     "cesium-drawhelper": "leforthomas/cesium-drawhelper#4fbe1776f50a8b9dee0252725eab93a8e68fb539",
     "limby-resize": "danschumann/limby-resize",
     "spectrum": "1.6.0",
+    "wellknown" : "connexta/wellknown#4d9ae612e7e308509ec76400b258c9db1581ea82",
     "bootstrap-select": "v1.6.4"
   },
   "resolutions": {

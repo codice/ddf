@@ -58,23 +58,9 @@
                             {{/isNotBlank}}
                             </li>
 
-                            <li class="attribute">
-                                <div class="attribute-label">Location</div>
-                                {{#isNotBlank geometry}}
-                                    <div class="attribute-value">
-                                        {{#if mapAvailable}}
-                                            <a href="#" class="location-link">Zoom and center</a>
-                                        {{else}}
-                                            <a href="/services/catalog/sources/{{encodeString properties.source-id}}/{{encodeString properties.id}}?transform=kml" target="_blank">KML</a>
-                                        {{/if}}
-                                    </div>
-                                {{else}}
-                                    <div class="attribute-value">None</div>
-                                {{/isNotBlank}}
-                            </li>
-
                         </ul>
                     </div>
+
                     <div class="col-sm-6 pull-right">
                         <ul class="list-group">
 
@@ -96,6 +82,29 @@
 
                         </ul>
                     </div>
+
+                    <div class="col-sm-12 holder-row">
+                        <ul class="list-group">
+                            <li class="attribute">
+                                <div class="attribute-label">Location</div>
+                                    <div class="attribute-value" id="nearby"></div>
+                                {{#isNotBlank geometry}}
+                                    <div class="attribute-value">
+                                    {{#if mapAvailable}}
+                                        <a href="#" class="location-link">Zoom and center</a>
+                                    {{else}}
+                                        <a href="/services/catalog/sources/{{encodeString properties.source-id}}/{{encodeString properties.id}}?transform=kml" target="_blank">KML</a>
+                                    {{/if}}
+                                    </div>
+                                {{else}}
+                                    <div class="attribute-value">None</div>
+                                {{/isNotBlank}}
+                            </li>
+
+
+                        </ul>
+                    </div>
+
 
                     {{#if properties.thumbnail}}
                         <div class="col-sm-12 holder-row">
