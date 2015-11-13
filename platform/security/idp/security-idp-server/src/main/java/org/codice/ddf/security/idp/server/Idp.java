@@ -73,6 +73,7 @@ public interface Idp {
      * @throws WSSecurityException
      */
     @POST
+    @Path("/login")
     Response showPostLogin(@FormParam(SAML_REQ) String samlRequest,
             @FormParam(RELAY_STATE) String relayState, @Context HttpServletRequest request)
             throws WSSecurityException;
@@ -89,6 +90,7 @@ public interface Idp {
      * @throws WSSecurityException
      */
     @GET
+    @Path("/login")
     Response showGetLogin(@QueryParam(SAML_REQ) String samlRequest,
             @QueryParam(RELAY_STATE) String relayState,
             @QueryParam(SSOConstants.SIG_ALG) String signatureAlgorithm,
@@ -107,7 +109,7 @@ public interface Idp {
      * @return Response
      */
     @GET
-    @Path("/sso")
+    @Path("/login/sso")
     Response processLogin(@QueryParam(SAML_REQ) String samlRequest,
             @QueryParam(RELAY_STATE) String relayState, @QueryParam(AUTH_METHOD) String authMethod,
             @QueryParam(SSOConstants.SIG_ALG) String signatureAlgorithm,
@@ -122,7 +124,21 @@ public interface Idp {
      * @throws CertificateEncodingException
      */
     @GET
-    @Path("/metadata")
+    @Path("/login/metadata")
     Response retrieveMetadata() throws WSSecurityException, CertificateEncodingException;
+
+    @GET
+    @Path("/logout")
+    Response processGetLogout(@QueryParam(SAML_REQ) String samlRequest,
+            @QueryParam(RELAY_STATE) String relayState,
+            @QueryParam(SSOConstants.SIG_ALG) String signatureAlgorithm,
+            @QueryParam(SSOConstants.SIGNATURE) String signature,
+            @Context HttpServletRequest request) throws WSSecurityException;
+
+    @POST
+    @Path("/logout")
+    Response processPostLogout(@FormParam(SAML_REQ) String samlRequest,
+            @FormParam(RELAY_STATE) String relayState, @Context HttpServletRequest request)
+            throws WSSecurityException;
 
 }

@@ -41,7 +41,7 @@
         <argument ref="crypto" />
     </bean>
 
-    <bean id="relayStates" class="org.codice.ddf.security.idp.client.RelayStates"/>
+    <bean id="relayStates" class="org.codice.ddf.security.session.RelayStates"/>
 
     <bean id="idpHandler" class="org.codice.ddf.security.idp.client.IdpHandler">
         <cm:managed-properties persistent-id="org.codice.ddf.security.idp.client.IdpHandler"

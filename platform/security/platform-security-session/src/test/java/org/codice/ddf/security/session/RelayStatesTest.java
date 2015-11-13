@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.security.idp.client;
+package org.codice.ddf.security.session;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -24,7 +24,7 @@ public class RelayStatesTest {
     @Test
     public void testEncodeAndDecode() throws Exception {
         String location = "test";
-        RelayStates relayStates = new RelayStates();
+        RelayStates<String> relayStates = new RelayStates<>();
         String id = relayStates.encode(location);
         assertThat(relayStates.decode(id), equalTo(location));
         assertThat(relayStates.decode(location), relayStates.decode("blah"), nullValue());

@@ -20,8 +20,10 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.servlet.ServletException;
@@ -65,10 +67,15 @@ import org.codice.ddf.security.idp.binding.post.PostBinding;
 import org.codice.ddf.security.idp.binding.redirect.RedirectBinding;
 import org.codice.ddf.security.idp.cache.CookieCache;
 import org.codice.ddf.security.policy.context.ContextPolicy;
+import org.codice.ddf.security.session.RelayStates;
 import org.opensaml.saml2.core.Assertion;
 import org.opensaml.saml2.core.AuthnRequest;
+import org.opensaml.saml2.core.LogoutRequest;
+import org.opensaml.saml2.core.LogoutResponse;
 import org.opensaml.saml2.core.StatusCode;
 import org.opensaml.saml2.metadata.EntityDescriptor;
+import org.opensaml.saml2.metadata.SPSSODescriptor;
+import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.validation.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,12 +85,14 @@ import org.w3c.dom.Element;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
 import ddf.security.encryption.EncryptionService;
+import ddf.security.samlp.LogoutService;
 import ddf.security.samlp.MetadataConfigurationParser;
 import ddf.security.samlp.SamlProtocol;
 import ddf.security.samlp.SimpleSign;
 import ddf.security.samlp.SystemCrypto;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
+import sun.plugin.dom.exception.InvalidStateException;
 
 @Path("/")
 public class IdpEndpoint implements Idp {
@@ -111,6 +120,10 @@ public class IdpEndpoint implements Idp {
     private Boolean strictSignature = true;
 
     private SystemCrypto systemCrypto;
+
+    private LogoutService logoutService;
+
+    private RelayStates<LogoutState> logoutStates;
 
     public IdpEndpoint(String signaturePropertiesPath, String encryptionPropertiesPath,
             EncryptionService encryptionService) {
@@ -412,15 +425,28 @@ public class IdpEndpoint implements Idp {
                 SamlProtocol.createStatus(statusCode), authnRequest.getID(), samlToken);
     }
 
+    private synchronized Cookie getCookie(HttpServletRequest request) {
+        Map<String, Cookie> cookies = HttpUtils.getCookieMap(request);
+        return cookies.get(COOKIE);
+    }
+
     private synchronized Element exchangeCookieForAssertion(HttpServletRequest request) {
         Element samlToken = null;
-        Map<String, Cookie> cookies = HttpUtils.getCookieMap(request);
-        Cookie cookie = cookies.get(COOKIE);
+        Cookie cookie = getCookie(request);
         if (cookie != null) {
             LOGGER.debug("Retrieving cookie from cache.");
             samlToken = cookieCache.get(cookie.getValue());
         }
         return samlToken;
+    }
+
+    private synchronized LogoutState getLogoutState(HttpServletRequest request) {
+        LogoutState logoutState = null;
+        Cookie cookie = getCookie(request);
+        if (cookie != null) {
+            logoutState = logoutStates.decode(cookie.getValue());
+        }
+        return logoutState;
     }
 
     private synchronized NewCookie createCookie(HttpServletRequest request,
@@ -485,6 +511,110 @@ public class IdpEndpoint implements Idp {
                 .build();
     }
 
+    // This should support Asynchronous (Front-Channel) HTTP Redirect and POST bindings
+    //     (meaning it comes from the user agent (browser)) as well as Synchronous
+    //     (Back-Channel) like a SOAP binding directly from the SP.
+    // Need to propagate a LogoutRequest to all other known SP's.
+
+    // Asynchronous
+    // -> all must provide RelayState mechanism that the sp may use to associate req with
+    //    original request.
+    // -> Logout Request must be signed if POST or Redirect binding is used
+
+    // Synchronous
+    // Will receive LogoutRequest directly from SP, then propagate to other SP's and respond
+    // to initial request when done
+
+    /**
+     * aka HTTP-Redirect
+     *
+     * @param samlRequest
+     * @param relayState
+     * @param signatureAlgorithm
+     * @param signature
+     * @param request
+     * @return
+     * @throws WSSecurityException
+     */
+    @Override
+    public Response processGetLogout(@QueryParam(SAML_REQ) String samlRequest,
+            @QueryParam(RELAY_STATE) String relayState,
+            @QueryParam(SSOConstants.SIG_ALG) String signatureAlgorithm,
+            @QueryParam(SSOConstants.SIGNATURE) String signature,
+            @Context HttpServletRequest request) throws WSSecurityException {
+        // TODO (RCZ) 11/2/15 - Implement Server HTTP-Redirect logout
+        try {
+            LogoutState logoutState = getLogoutState(request);
+            XMLObject logoutObject = logoutService.extractXmlObject(samlRequest);
+            Element assertion = getSamlAssertion(request);
+            // TODO (RCZ) - Validate (relay + request). Might need to val inside each logouttype
+            Binding binding = new RedirectBinding(systemCrypto, serviceProviders);
+            binding.validator().validateRelayState(relayState);
+
+            // TODO (RCZ) - Extract
+            if (logoutObject instanceof LogoutRequest) {
+                // Initial Logout Request
+                if (logoutState != null) {
+                    // this means that they have a logout in progress and resent another logout
+                    // request. Either that or we have an old LogoutState which could happen if
+                    // a logout never actually finished
+                    throw new InvalidStateException("Weird state");
+                }
+                LogoutRequest logoutRequest = (LogoutRequest) logoutObject;
+                Set<SPSSODescriptor> activeSPs = new HashSet<>();
+                logoutState = new LogoutState(activeSPs);
+                logoutStates.encode(getCookie(request).getValue(), logoutState);
+                return continueLogout(logoutState, assertion);
+            } else if (logoutObject instanceof LogoutResponse) {
+                LogoutResponse logoutResponse = (LogoutResponse) logoutObject;
+
+            } else { // Unsupported object type
+                // TODO (RCZ) 11/11/15 - Log some unsupported exception?
+                // Even if their object is bad we might be able to finish rest of logouts
+            }
+
+                /*// just for reference
+                String senderAddress = logoutRequest.getIssuer()
+                        .getValue();
+                String issuerAddress = "HOW DO I GET MY OWN ISSUER ADDRESS";
+                LogoutResponse logoutResponse = logoutService.buildLogoutResponse(issuerAddress,
+                        StatusCode.SUCCESS_URI);
+                SimpleSign simpleSign = new SimpleSign(systemCrypto);
+                URI encodedResponse = logoutService.signSamlGetResponse(logoutResponse,
+                        URI.create(senderAddress), relayState);
+                String logoutResponseStr = redirectPage.replace("{{redirect}}",
+                        encodedResponse.toString());
+                return Response.ok(logoutResponseStr)
+                        .build();*/
+
+        } catch (IOException e) {
+            LOGGER.error("Unable to decode AuthRequest", e);
+        } catch (XMLStreamException e) {
+            LOGGER.error("Unable to extract Saml object", e);
+        } catch (SimpleSign.SignatureException e) {
+            LOGGER.error("Unabled to sign saml object", e);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            // TODO (RCZ) - Make sure we don't throw away logout state on error possibly?
+        }
+        // TODO (RCZ) 11/10/15 - Respond
+
+        return null;
+    }
+
+    private Response continueLogout(LogoutState state, Element assertion) {
+        return null;
+    }
+
+    @Override
+    public Response processPostLogout(@FormParam(SAML_REQ) String samlRequest,
+            @FormParam(RELAY_STATE) String relayState, @Context HttpServletRequest request)
+            throws WSSecurityException {
+        // TODO (RCZ) 11/2/15 - Implement Server Post-Binding logout
+        return null;
+    }
+
     public void setSecurityManager(SecurityManager securityManager) {
         this.securityManager = securityManager;
     }
@@ -503,5 +633,13 @@ public class IdpEndpoint implements Idp {
 
     public void setExpirationTime(int expirationTime) {
         this.cookieCache.setExpirationTime(expirationTime);
+    }
+
+    public void setLogoutService(LogoutService logoutService) {
+        this.logoutService = logoutService;
+    }
+
+    public void setLogoutState(RelayStates<LogoutState> logoutStates) {
+        this.logoutStates = logoutStates;
     }
 }
