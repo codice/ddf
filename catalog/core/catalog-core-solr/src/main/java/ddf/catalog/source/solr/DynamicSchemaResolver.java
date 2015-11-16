@@ -341,7 +341,7 @@ public class DynamicSchemaResolver {
      * @return a list of possible Solr field names that match the given field. If none are found,
      *         then an empty list is returned
      */
-    public List<String> getAnonymousField(String field) {
+    public List<String> getGuestField(String field) {
         ArrayList<String> list = new ArrayList<>();
 
         for (AttributeFormat format : AttributeFormat.values()) {

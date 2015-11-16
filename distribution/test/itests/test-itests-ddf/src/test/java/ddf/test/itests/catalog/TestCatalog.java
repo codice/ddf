@@ -604,7 +604,7 @@ public class TestCatalog extends AbstractIntegrationTest {
             response = executeAdminOpenSearch("xml", "q=*");
             response.body(hasXPath(xPath));
 
-            getSecurityPolicy().configureRestForAnonymous();
+            getSecurityPolicy().configureRestForGuest();
 
             stopFeature(true, "sample-filter");
             stopFeature(true, "filter-plugin");

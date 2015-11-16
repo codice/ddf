@@ -134,8 +134,8 @@
         <feature>security-core</feature>
         <feature>security-policy-context</feature>
         <feature>security-web-sso-defaults</feature>
-        <feature>security-interceptor-anonymous-wrapper</feature>
-        <feature>security-anonymous</feature>
+        <feature>security-interceptor-guest-wrapper</feature>
+        <feature>security-guest</feature>
         <feature>security-certificate</feature>
     </feature>
 
@@ -176,9 +176,9 @@
         <bundle>mvn:ddf.security.handler/security-handler-saml/${project.version}</bundle>
     </feature>
 
-    <feature name="security-handler-anonymous" install="manual" version="${project.version}"
-             description="Anonymous Handler for web applications.">
-        <bundle>mvn:ddf.security.handler/security-handler-anonymous/${project.version}</bundle>
+    <feature name="security-handler-guest" install="manual" version="${project.version}"
+             description="Guest Handler for web applications.">
+        <bundle>mvn:ddf.security.handler/security-handler-guest/${project.version}</bundle>
     </feature>
 
     <feature name="security-filter-web-sso" install="manual" version="${project.version}"
@@ -202,15 +202,15 @@
         <bundle>mvn:ddf.security.sts/security-sts-upbstvalidator/${project.version}</bundle>
     </feature>
 
-    <feature name="security-sts-anonymousvalidator" install="manual" version="${project.version}"
-             description="Validates anonymous tokens.">
-        <bundle>mvn:ddf.security.sts/security-sts-anonymousvalidator/${project.version}</bundle>
+    <feature name="security-sts-guestvalidator" install="manual" version="${project.version}"
+             description="Validates guest tokens.">
+        <bundle>mvn:ddf.security.sts/security-sts-guestvalidator/${project.version}</bundle>
     </feature>
 
-    <feature name="security-sts-anonymousclaimshandler" install="manual"
+    <feature name="security-sts-guestclaimshandler" install="manual"
              version="${project.version}"
-             description="Retrieves the anonymous user claims.">
-        <bundle>mvn:ddf.security.sts/security-sts-anonymousclaimshandler/${project.version}</bundle>
+             description="Retrieves the guest user claims.">
+        <bundle>mvn:ddf.security.sts/security-sts-guestclaimshandler/${project.version}</bundle>
     </feature>
 
     <feature name="security-sts-propertyclaimshandler" install="manual" version="${project.version}"
@@ -218,17 +218,17 @@
         <bundle>mvn:ddf.security.sts/security-sts-propertyclaimshandler/${project.version}</bundle>
     </feature>
 
-    <feature name="security-interceptor-anonymous" install="manual" version="${project.version}"
-             description="Injects anonymous/guest user information into incoming SOAP messages.">
-        <bundle>mvn:ddf.security.interceptor/security-interceptor-anonymous/${project.version}
+    <feature name="security-interceptor-guest" install="manual" version="${project.version}"
+             description="Injects guest user information into incoming SOAP messages.">
+        <bundle>mvn:ddf.security.interceptor/security-interceptor-guest/${project.version}
         </bundle>
     </feature>
 
-    <feature name="security-interceptor-anonymous-wrapper" install="manual"
+    <feature name="security-interceptor-guest-wrapper" install="manual"
              version="${project.version}"
-             description="Wrapper for Security Interceptor Anonymous that injects anonymous user information into incoming SOAP messages.">
+             description="Wrapper for Security Interceptor Guest that injects guest user information into incoming SOAP messages.">
         <bundle>
-            mvn:ddf.security.interceptor/security-interceptor-anonymous-wrapper/${project.version}
+            mvn:ddf.security.interceptor/security-interceptor-guest-wrapper/${project.version}
         </bundle>
     </feature>
 
@@ -250,12 +250,12 @@
         </bundle>
     </feature>
 
-    <feature name="security-anonymous" install="manual" version="${project.version}"
-             description="Contains all of the anonymous security features.">
-        <feature>security-handler-anonymous</feature>
-        <feature>security-sts-anonymousvalidator</feature>
-        <feature>security-sts-anonymousclaimshandler</feature>
-        <feature>security-interceptor-anonymous</feature>
+    <feature name="security-guest" install="manual" version="${project.version}"
+             description="Contains all of the guest security features.">
+        <feature>security-handler-guest</feature>
+        <feature>security-sts-guestvalidator</feature>
+        <feature>security-sts-guestclaimshandler</feature>
+        <feature>security-interceptor-guest</feature>
     </feature>
 
     <feature name="security-servlet-logout" install="manual" version="${project.version}"

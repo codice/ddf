@@ -195,11 +195,11 @@ public class TestSecurity extends AbstractIntegrationTest {
 
     @Before
     public void before() throws Exception {
-        configureRestForAnonymous();
+        configureRestForGuest();
     }
 
-    private void configureRestForAnonymous() throws Exception {
-        getSecurityPolicy().configureRestForAnonymous(SDK_SOAP_CONTEXT);
+    private void configureRestForGuest() throws Exception {
+        getSecurityPolicy().configureRestForGuest(SDK_SOAP_CONTEXT);
     }
 
     private void configureRestForBasic() throws Exception {
@@ -207,10 +207,10 @@ public class TestSecurity extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testAnonymousRestAccess() throws Exception {
+    public void testGuestRestAccess() throws Exception {
         String url = SERVICE_ROOT.getUrl() + "/catalog/query?q=*";
 
-        //test that anonymous works and check that we get an sso token
+        //test that guest works and check that we get an sso token
         String cookie = when().get(url).then().log().all().assertThat().statusCode(equalTo(200))
                 .assertThat().header("Set-Cookie", containsString("JSESSIONID")).extract()
                 .cookie("JSESSIONID");
@@ -272,7 +272,7 @@ public class TestSecurity extends AbstractIntegrationTest {
                 .assertThat().statusCode(equalTo(200)).assertThat().body(hasXPath(
                 "//metacard/string[@name='" + Metacard.TITLE + "']/value[text()='myTitle']"));
 
-        configureRestForAnonymous();
+        configureRestForGuest();
         TestCatalog.deleteMetacard(recordId);
     }
 
@@ -337,18 +337,18 @@ public class TestSecurity extends AbstractIntegrationTest {
                 .all().assertThat().statusCode(equalTo(200)).assertThat().body(not(hasXPath(
                 "//metacard/string[@name='" + Metacard.TITLE + "']/value[text()='myTitle']")));
 
-        configureRestForAnonymous();
+        configureRestForGuest();
         TestCatalog.deleteMetacard(recordId);
     }
 
     @Test
-    public void testAnonymousSoapAccess() throws Exception {
+    public void testGuestSoapAccess() throws Exception {
         String body =
                 "<soapenv:Envelope xmlns:hel=\"http://ddf.sdk/soap/hello\" xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\">\n"
                         + "   <soapenv:Header>\n" + "   </soapenv:Header>\n" + "   <soapenv:Body>\n"
                         + "      <hel:helloWorld/>\n" + "   </soapenv:Body>\n"
                         + "</soapenv:Envelope>";
-        //we are only testing anonymous because that hits the most code, testing with an assertion would be mostly testing the same stuff that this is hitting
+        //we are only testing guest because that hits the most code, testing with an assertion would be mostly testing the same stuff that this is hitting
         given().log().all().body(body).header("Content-Type", "text/xml; charset=utf-8")
                 .header("SOAPAction", "helloWorld").expect().statusCode(equalTo(200)).when()
                 .post(SERVICE_ROOT.getUrl() + "/sdk/SoapService").then().log().all().assertThat()
@@ -357,7 +357,7 @@ public class TestSecurity extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testAnonymousSoapAccessHttp() throws Exception {
+    public void testGuestSoapAccessHttp() throws Exception {
         getServiceManager().startFeature(true, "platform-http-proxy");
 
         String body =
@@ -365,7 +365,7 @@ public class TestSecurity extends AbstractIntegrationTest {
                         + "   <soapenv:Header>\n" + "   </soapenv:Header>\n" + "   <soapenv:Body>\n"
                         + "      <hel:helloWorld/>\n" + "   </soapenv:Body>\n"
                         + "</soapenv:Envelope>";
-        //we are only testing anonymous because that hits the most code, testing with an assertion would be mostly testing the same stuff that this is hitting
+        //we are only testing guest because that hits the most code, testing with an assertion would be mostly testing the same stuff that this is hitting
         given().log().all().body(body).header("Content-Type", "text/xml; charset=utf-8")
                 .header("SOAPAction", "helloWorld").expect().statusCode(equalTo(200)).when()
                 .post(INSECURE_SERVICE_ROOT.getUrl() + "/sdk/SoapService").then().log().all()

@@ -2,7 +2,7 @@
   "request": {
     "mbean": "org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0",
     "arguments": [
-      "(service.pid=ddf.security.sts.anonymousclaims)"
+      "(service.pid=ddf.security.sts.guestclaims)"
     ],
     "type": "exec",
     "operation": "getClaimsConfiguration"
@@ -11,21 +11,21 @@
     "factory": false,
     "configurations": [
       {
-        "bundle_location": "mvn:ddf.security.sts/security-sts-anonymousclaimshandler/2.8.0-SNAPSHOT",
-        "name": "Security STS Anonymous Claims Handler",
-        "id": "ddf.security.sts.anonymousclaims",
-        "bundle_name": "DDF :: Security :: STS :: Anonymous Claims Handler",
+        "bundle_location": "mvn:ddf.security.sts/security-sts-guestclaimshandler/2.8.0-SNAPSHOT",
+        "name": "Security STS Guest Claims Handler",
+        "id": "ddf.security.sts.guestclaims",
+        "bundle_name": "DDF :: Security :: STS :: Guest Claims Handler",
         "bundle": 273,
         "properties": {
           "profile": "Default",
-          "felix.fileinstall.filename": "file:ddf-2.8.0-SNAPSHOT/etc/ddf.security.sts.anonymousclaims.cfg",
+          "felix.fileinstall.filename": "file:ddf-2.8.0-SNAPSHOT/etc/ddf.security.sts.guestclaims.cfg",
           "attributes": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier=guest,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest",
-          "service.pid": "ddf.security.sts.anonymousclaims"
+          "service.pid": "ddf.security.sts.guestclaims"
         },
         "enabled": true
       }
     ],
-    "name": "Security STS Anonymous Claims Handler",
+    "name": "Security STS Guest Claims Handler",
     "claims": {
       "availableClaims": [
         "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role",
@@ -58,7 +58,7 @@
         "optionValues": []
       }
     ],
-    "id": "ddf.security.sts.anonymousclaims"
+    "id": "ddf.security.sts.guestclaims"
   },
   "timestamp": 1441739787,
   "status": 200

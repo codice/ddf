@@ -237,7 +237,7 @@ public class SecureCxfClientFactoryTest {
         }
 
         @Override
-        public boolean isAnonymous() {
+        public boolean isGuest() {
             return false;
         }
     }

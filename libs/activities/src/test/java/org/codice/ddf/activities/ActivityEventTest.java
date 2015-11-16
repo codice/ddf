@@ -92,11 +92,11 @@ public class ActivityEventTest {
     }
 
     /**
-     * Anonymous/guest user will have empty string as their user ID - verify can create
+     * Guest user will have empty string as their user ID - verify can create
      * an ActivityEvent with an empty string for the user ID.
      */
     @Test
-    public void testCreateActivityEventForAnonymousUser() {
+    public void testCreateActivityEventForGuestUser() {
         String id = "12345";
         String sessionId = "09876";
         Date timestamp = new Date();

@@ -1128,12 +1128,12 @@ public class ConfigurationAdminTest {
         //check call before setting handler
         assertNotNull(configAdmin.getClaimsConfiguration(TEST_FILTER_1));
 
-        AnonClaimsHandlerExt ache = new AnonClaimsHandlerExt();
+        GuestClaimsHandlerExt ache = new GuestClaimsHandlerExt();
         ache.setAvailableClaimsFile("/this/path/is/a/file");
         ache.setProfileDir("/this/path/is/a/dir");
         ache.setImmutableClaims("testClaim1,testClaim2");
         ache.init();
-        configAdmin.setAnonClaimsHandlerExt(ache);
+        configAdmin.setGuestClaimsHandlerExt(ache);
 
         assertNotNull(configAdmin.getClaimsConfiguration(TEST_FILTER_1));
 

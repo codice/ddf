@@ -119,7 +119,7 @@ class FilteringDynamicSchemaResolverTest extends Specification {
 
         when:
         resolver.addFieldsFromServer(server)
-        resolver.getAnonymousField("title")
+        resolver.getGuestField("title")
         resolver.addFields(metacard, solrDoc)
 
         then:
@@ -129,7 +129,7 @@ class FilteringDynamicSchemaResolverTest extends Specification {
 
     def "Filter used anonymous fields that are unknown"() {
         when:
-        resolver.getAnonymousField("title")
+        resolver.getGuestField("title")
         resolver.addFields(metacard, solrDoc)
 
         then:
