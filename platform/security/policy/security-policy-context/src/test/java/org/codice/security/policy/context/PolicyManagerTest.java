@@ -45,7 +45,7 @@ public class PolicyManagerTest {
 
     private static final String REQ_ATTRS = "requiredAttributes";
 
-    private static final List<String> DEFAULT_AUTH_TYPES = Arrays.asList(new String[] {"SAML", "ANON"});
+    private static final List<String> DEFAULT_AUTH_TYPES = Arrays.asList(new String[] {"SAML", "GUEST"});
     private PolicyManager manager;
 
     private PolicyManager rollBackTestManager;
@@ -59,7 +59,7 @@ public class PolicyManagerTest {
             "/A/B/C/testContext7=" + DEFAULT_REALM_CONTEXT_VALUE, };
 
     private String[] rollBackAuthTypesValues = {
-            "/=SAML|ANON",
+            "/=SAML|GUEST",
             "/A=a",
             "/A/B/C/testContext4=abcTestContext4" };
 
@@ -80,7 +80,7 @@ public class PolicyManagerTest {
 
     private final Map<String, List<String>> expectedRollBackAuthTypes = new ImmutableMap.Builder<String, List<String>>()
             .put("/testContext", DEFAULT_AUTH_TYPES)
-            .put("/1/2/3/testContext2", Arrays.asList("SAML", "ANON"))
+            .put("/1/2/3/testContext2", Arrays.asList("SAML", "GUEST"))
             .put("/A/B/C/testContext3", Arrays.asList("a"))
             .put("/A/B/C/testContext4", Arrays.asList("abcTestContext4"))
             .build();
@@ -230,8 +230,8 @@ public class PolicyManagerTest {
     public void testConfiguration() {
         Map<String, Object> properties = new HashMap<>();
 
-        String[] authTypes = new String[] {"/=SAML|BASIC", "/search=SAML|BASIC|ANON", "/admin=SAML|BASIC", "/foo=BASIC",
-                "/blah=ANON", "/bleh=ANON", "/unprotected=", "/unprotected2="};
+        String[] authTypes = new String[] {"/=SAML|BASIC", "/search=SAML|BASIC|GUEST", "/admin=SAML|BASIC", "/foo=BASIC",
+                "/blah=GUEST", "/bleh=GUEST", "/unprotected=", "/unprotected2="};
         String[] requiredAttributes = new String[] {"/={}", "/blah=", "/search={role=user;control=foo;control=bar}",
                 "/admin={role=admin}"};
 
@@ -245,8 +245,8 @@ public class PolicyManagerTest {
 
     @Test
     public void testSetPropertiesIgnoresNullMap() {
-        String[] authTypes = new String[] {"/=SAML|BASIC", "/search=SAML|BASIC|ANON", "/admin=SAML|BASIC",
-                "/foo=BASIC", "/blah=ANON", "/unprotected=", "/unprotected2=", "/bleh=ANON"};
+        String[] authTypes = new String[] {"/=SAML|BASIC", "/search=SAML|BASIC|GUEST", "/admin=SAML|BASIC",
+                "/foo=BASIC", "/blah=GUEST", "/unprotected=", "/unprotected2=", "/bleh=GUEST"};
         String[] requiredAttributes = new String[] {"/={}", "/search={role=user;control=foo;control=bar}",
                 "/admin={role=admin|supervisor}"};
         manager.setAuthenticationTypes(
@@ -277,7 +277,7 @@ public class PolicyManagerTest {
             } else if (i == 1) {
                 Assert.assertEquals("BASIC", authIter.next());
             } else if (i == 2) {
-                Assert.assertEquals("ANON", authIter.next());
+                Assert.assertEquals("GUEST", authIter.next());
             }
 
             i++;

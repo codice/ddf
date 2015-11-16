@@ -18,7 +18,7 @@
 
     <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
 
-    <bean id="anonClaimsHandlerExt" class="org.codice.ddf.ui.admin.api.AnonClaimsHandlerExt"
+    <bean id="guestClaimsHandlerExt" class="org.codice.ddf.ui.admin.api.GuestClaimsHandlerExt"
           init-method="init">
         <property name="availableClaimsFile" value="etc/ws-security/attributeMap.properties"/>
         <property name="profileDir" value="etc/ws-security/profiles/"/>
@@ -32,7 +32,7 @@
         <argument ref="configurationAdmin"/>
         <property name="configurationAdminPluginList" ref="configurationAdminPluginList"/>
         <property name="moduleList" ref="moduleList"/>
-        <property name="anonClaimsHandlerExt" ref="anonClaimsHandlerExt"/>
+        <property name="guestClaimsHandlerExt" ref="guestClaimsHandlerExt"/>
     </bean>
 
     <reference-list id="configurationAdminPluginList"

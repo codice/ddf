@@ -39,7 +39,7 @@
                     wsdlLocation="classpath:META-INF/wsdl/sdk.wsdl"
                     address="/sdk/SoapService">
         <jaxws:inInterceptors>
-            <bean class="org.codice.ddf.security.interceptor.AnonymousInterceptorWrapper">
+            <bean class="org.codice.ddf.security.interceptor.GuestInterceptorWrapper">
             </bean>
             <bean class="ddf.security.pep.interceptor.PEPAuthorizingInterceptor">
                 <property name="securityManager" ref="securityManager"/>

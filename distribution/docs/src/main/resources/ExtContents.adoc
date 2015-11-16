@@ -3,7 +3,7 @@
 
 This guide discusses the several extension points and components permitted by the Distributed Data Framework (DDF) Catalog API. Using code examples, diagrams, and references to specific instances of the Catalog API, this guide provides details on how to develop and integrate various DDF components.
 
-== Building DDF 
+== Building DDF
 
 === Prerequisites
 
@@ -55,42 +55,42 @@ ddf-ui (https://github.com/codice/ddf-ui.git)
 # Build is run from the top level of the specified repository in a command line prompt or terminal.
 cd ddf-support
 mvn clean install
- 
+
 # At the end of the build, a BUILD SUCCESS will be displayed.
 ----
 * Build command example to build all repositories. This must be performed at the top level folder that contains all the repositories. A command list would look like this:
 
 ----
 # Build is run from the top level folder that contains all the repositories in a command line prompt or terminal.
- 
+
 cd ddf-support
 mvn clean install
- 
+
 cd ../ddf-parent
 mvn clean install
- 
-cd ../ddf-platform	
+
+cd ../ddf-platform
 mvn clean install
- 
+
 cd ../ddf-admin
 mvn clean install
 
 cd ../ddf-catalog
 mvn clean install
- 
+
 cd ../ddf-content
 mvn clean install
- 
+
 cd ../ddf-spatial
 MVN_HOME clean install
- 
+
 cd ../ddf-ui
 mvn clean install
- 
+
 cd ../ddf
 mvn clean install
 
-# This will fully compile each individual app. From here you may hot deploy the necessary apps on top of the DDF Kernel.  
+# This will fully compile each individual app. From here you may hot deploy the necessary apps on top of the DDF Kernel.
 ----
 
 [WARNING]
@@ -109,14 +109,14 @@ To use the updated apps in a DDF distribution, update the versions referenced in
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
- 
+
      <groupId>org.codice.ddf</groupId>
      <artifactId>reactor</artifactId>
      <version>1.0.0-SNAPSHOT</version>
      <packaging>pom</packaging>
      <name>DDF Reactor</name>
      <description>Distributed Data Framework (DDF) is an open source, modular integration framework</description>
- 
+
      <modules>
          <module>ddf-support</module>
          <module>ddf-parent</module>
@@ -130,7 +130,7 @@ To use the updated apps in a DDF distribution, update the versions referenced in
          <module>ddf-ui</module>
          <module>ddf</module>
      </modules>
- 
+
     <build>
          <plugins>
              <plugin>
@@ -144,13 +144,13 @@ To use the updated apps in a DDF distribution, update the versions referenced in
              </plugin>
          </plugins>
      </build>
-  
+
 </project>
 ----
 
 [NOTE]
 ====
-It may take several moments for Maven to download the required dependencies in the first build. Build times may vary based on network speed and machine specifications. 
+It may take several moments for Maven to download the required dependencies in the first build. Build times may vary based on network speed and machine specifications.
 ====
 
 [WARNING]
@@ -168,13 +168,13 @@ Currently, the developers are using the following tools:
 |Name
 |Version
 
-|bower	
+|bower
 |1.3.2
 
-|node.js	
+|node.js
 |v0.10.26
 
-|npm	
+|npm
 |1.4.3
 
 |===
@@ -183,7 +183,7 @@ Currently, the developers are using the following tools:
 ====
 There have been intermittent build issues during the bower install.  The error code that shows is an EPERM related to either 'renaming' files or 'unlinking' files.  This issue has been tracked multiple times on the bower github page.  The following link contains the most recent issue that was tracked:
 https://github.com/bower/bower/issues/991
- 
+
 This issue will be closely monitored for a full resolution. Until a proper solution is found, there are some options that may solve the issue.
 . Re-run the build. Occasionally, the issue occurs on first run and will resolve itself on the next.
 . Clean out the cache. There may be a memory issue, and a cache clean may help solve the issue.
@@ -224,11 +224,11 @@ DDF uses a small OSGi runtime to deploy components and applications. Before deve
 Documentation on OSGi can be viewed at the OSGi Alliance website (http://www.osgi.org). Helpful literature for beginners includes OSGi and Apache Felix 3.0 Beginner's Guide by Walid Joseph Gédéon and OSGi in Action: Creating Modular Applications in Java by Richard Hall, Karl Pauls, Stuart McCulloch, and David Savage. For specific code examples from DDF, source code can be seen in the OSGi Services section.
 
 === Getting Set Up
-To develop on DDF, access to the source code via Github is required. 
+To develop on DDF, access to the source code via Github is required.
 
 === Integrated Development Environments (IDE)
 The DDF source code is not tied to any particular IDE. However, if a developer is interested in setting up the Eclipse IDE, they can view the Sonatype guide (http://books.sonatype.com/m2eclipse-book/reference/) on developing with Eclipse.
- 
+
 === Additional Documentation
 Additional documentation on developing with the core technologies used by DDF can be found on their respective websites.
 
@@ -249,7 +249,7 @@ During DDF installation, the major directories shown in the table below are crea
 |bin
 |Scripts to start and stop DDF
 
-|data	
+|data
 |The working directory of the system – installed bundles and their data
 
 |data/log/ddf.log
@@ -258,7 +258,7 @@ During DDF installation, the major directories shown in the table below are crea
 |deploy
 |Hot-deploy directory – KARs and bundles added to this directory will be hot-deployed (Empty upon DDF installation)
 
-|docs	
+|docs
 |The DDF Catalog API Javadoc
 
 |etc
@@ -272,7 +272,7 @@ During DDF installation, the major directories shown in the table below are crea
 
 |lib
 |The system's bootstrap libraries. Includes the ddf-branding.jar file which is used to brand the system console with the DDF logo.
-|licenses	
+|licenses
 |Licensing information related to the system
 
 |system
@@ -283,11 +283,11 @@ During DDF installation, the major directories shown in the table below are crea
 == Formatting Source Code
 A code formatter for the Eclipse IDE that can be used across all DDF projects will allow developers to format code similarly and minimize merge issues in the future.
 
-DDF uses an updated version of the Apache ServiceMix Code Formatter (http://servicemix.apache.org/developers/building.html) for code formatting. 
+DDF uses an updated version of the Apache ServiceMix Code Formatter (http://servicemix.apache.org/developers/building.html) for code formatting.
 
-DOWNLOAD THIS FILE: link:ddf-eclipse-code-formatter.xml 
+DOWNLOAD THIS FILE: link:ddf-eclipse-code-formatter.xml
 
-. Follow the link. 
+. Follow the link.
 . Right-click on *Raw*.
 . Select *Save As*.
 
@@ -303,15 +303,15 @@ IntelliJ IDEA 13 is capable of importing Eclipse's Code Formatter directly from 
 
 . Open *IntelliJ* IDEA.
 . Select *File → Settings → Code Style → Java*.
-. Select *Manage*. 
+. Select *Manage*.
 . Select the *Import* button to Import ddf-eclipse-code-formatter.xml file.
 
-=== Format Your Source Code Using Eclipse 
+=== Format Your Source Code Using Eclipse
 A developer may write code and format it before saving.
 
 . Before the file is saved, highlight all of the source code in the IDE editor window.
 . Right-click on the highlighted code.
-. Select *Source → Format*. The code formatter is applied to the source code and the file can be saved. 
+. Select *Source → Format*. The code formatter is applied to the source code and the file can be saved.
 
 === Set Up Save Actions in Eclipse
 A developer can also set up Save Actions to format the source code automatically.
@@ -321,7 +321,7 @@ A developer can also set up Save Actions to format the source code automatically
 . Select *Java → Editor → Save Actions*.
 . Select *Perform the selected actions on save*.
 . Select *Format source code*.
-. Select *Format all lines* or *Format edited lines*, as necessary. 
+. Select *Format all lines* or *Format edited lines*, as necessary.
 . Optionally, select *Organize imports* (recommended).
 . Select the *Apply* button.
 . Select the *OK* button.
@@ -337,7 +337,7 @@ The DDF framework, like all software, will mature over time. Changes will be mad
 === Guidelines for Maintaining Compatibility
 
 ==== DDF Framework
-For components written at the DDF Framework level (see Developing at the Framework Level), adhere to the following specifications: 
+For components written at the DDF Framework level (see Developing at the Framework Level), adhere to the following specifications:
 
 [cols="2,1,5" options="header"]
 |===
@@ -346,13 +346,13 @@ For components written at the DDF Framework level (see Developing at the Framewo
 |Version
 |Current Implementation (subject to change)
 
-|OSGi Framework	
-|4.2	
+|OSGi Framework
+|4.2
 |Apache Karaf 2.x +
-Eclipse Equinox 
+Eclipse Equinox
 
-|OSGi Enterprise Specification	
-|4.2	
+|OSGi Enterprise Specification
+|4.2
 |Apache Aries (Blueprint) +
 Apache Felix FileInstall and ConfigurationAdmin and Web Console (for Metatype support)
 |===
@@ -372,15 +372,15 @@ For components written for the DDF Catalog (see Developing Catalog Components), 
 |Version Interval
 |Notes
 
-|DDF Catalog API	
-|[2.0, 3.0)	
+|DDF Catalog API
+|[2.0, 3.0)
 |Major version will be incremented (to 3.0) if/when compatibility is broken with the 2.x API.
 
 |===
 
 === DDF Software Versioning
 
-DDF follows the Semantic Versioning White Paper for bundle versioning (see Software Versioning).  
+DDF follows the Semantic Versioning White Paper for bundle versioning (see Software Versioning).
 
 === Third Party and Utility Bundles
 It is recommended to avoid building directly on included third party and utility bundles. These components do provide utility (e.g., JScience) and reuse potential; however, they may be upgraded or even replaced at anytime as bug fixes and new capabilities dictate. For example, Web services may be built using CXF. However, the distributions frequently upgrade CXF between releases to take advantage of new features. If building on these components, be aware of the version upgrades with each distribution release.
@@ -448,11 +448,11 @@ if (LOGGER.isTraceEnabled()) {
 //trace level is enabled
 LOGGER.trace("Executing search: {}", search);
 ----
- 
-=== Dependency Injection Frameworks
-It is highly recommended to use a dependency injection framework, such as Blueprint, Spring-DM, or iPojo for non-advanced OSGi tasks. Dependency injection frameworks allow for more modularity in code, keep the code's business logic clean of OSGi implementation details, and take the complexity out of the dynamic nature of OSGi. In OSGi, services can be added and removed at any time, and dependency injection frameworks are better suited to handle these types of situations. Allowing the code to be clean of OSGi packages also makes code easier to reuse outside of OSGi. These frameworks provide code conveniences of service registration, service tracking, configuration property management, and other OSGi core principles. 
 
-=== Basic Security 
+=== Dependency Injection Frameworks
+It is highly recommended to use a dependency injection framework, such as Blueprint, Spring-DM, or iPojo for non-advanced OSGi tasks. Dependency injection frameworks allow for more modularity in code, keep the code's business logic clean of OSGi implementation details, and take the complexity out of the dynamic nature of OSGi. In OSGi, services can be added and removed at any time, and dependency injection frameworks are better suited to handle these types of situations. Allowing the code to be clean of OSGi packages also makes code easier to reuse outside of OSGi. These frameworks provide code conveniences of service registration, service tracking, configuration property management, and other OSGi core principles.
+
+=== Basic Security
 (Provided by Pierre Parrend (http://www.slideshare.net/kaihackbarth/security-in-osgi-applications-robust-osgi-platforms-secure-bundles))
 
 * Bundles should
@@ -482,9 +482,9 @@ DDF uses resource injection to retrieve and register services to the OSGi regist
 <beans xmlns="http://www.springframework.org/schema/beans"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:osgi="http://www.springframework.org/schema/osgi">
- 
+
   <osgi:reference id="ddfCatalogFramework" interface="ddf.catalog.CatalogFramework" />
- 
+
   <bean class="my.sample.NiftyEndpoint">
      <constructor-arg ref="ddfCatalogFramework" />
   </bean>
@@ -497,10 +497,10 @@ DDF uses resource injection to retrieve and register services to the OSGi regist
 |Line #
 |Action
 
-|5	
+|5
 |Retrieves a Service from the Registry
 
-|8	
+|8
 |Instantiates a new object, injecting the retrieved Service as a constructor argument
 
 |===
@@ -511,13 +511,13 @@ DDF uses resource injection to retrieve and register services to the OSGi regist
 [source,xml,linenums]
 ----
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
- 
+
  <reference id="ddfCatalogFramework" interface="ddf.catalog.CatalogFramework" />
- 
+
  <bean class="my.sample.NiftyEndpoint" >
     <argument ref="ddfCatalogFramework" />
  </bean>
- 
+
 </blueprint>
 ----
 
@@ -527,10 +527,10 @@ DDF uses resource injection to retrieve and register services to the OSGi regist
 |Line #
 |Action
 
-|3	
+|3
 |Retrieves a Service from the Registry
 
-|6	
+|6
 |Instantiates a new object, injecting the retrieved Service as a constructor argument
 
 |===
@@ -541,11 +541,11 @@ DDF uses resource injection to retrieve and register services to the OSGi regist
 [source,xml,linenums]
 ----
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
- 
+
   <bean id="transformer" class="my.sample.NiftyTransformer"/>
- 
+
   <service ref="transformer" interface="ddf.catalog.transform.QueryResponseTransformer" />
- 
+
 </blueprint>
 ----
 
@@ -555,10 +555,10 @@ DDF uses resource injection to retrieve and register services to the OSGi regist
 |Line #
 |Action
 
-|3	
+|3
 |Instantiates a new object
 
-|5	
+|5
 |Registers the object instance created in Line 3 as a service that implements the `ddf.catalog.transform.QueryResponseTransformer` interface
 
 |===
@@ -578,12 +578,12 @@ See external links (below) for resources that give in-depth guides on creating b
 
 ====== Bundle Development Recommendations
 
-* Avoid creating bundles by hand or editing a manifest file. Many tools exist for creating bundles, notably the Maven Bundle plugin, which handle the details of OSGi configuration and automate the bundling process including generation of the manifest file. 
+* Avoid creating bundles by hand or editing a manifest file. Many tools exist for creating bundles, notably the Maven Bundle plugin, which handle the details of OSGi configuration and automate the bundling process including generation of the manifest file.
 
 * Always make a distinction on which imported packages are optional or required. Requiring every package when not necessary can cause an unnecessary dependency ripple effect among bundles.
 
 ====== Maven Bundle Plugin
-Below is a code snippet from a Maven pom.xml for creating an OSGi Bundle using the Maven Bundle plugin. 
+Below is a code snippet from a Maven pom.xml for creating an OSGi Bundle using the Maven Bundle plugin.
 
 .Maven pom.xml
 
@@ -703,7 +703,7 @@ The Catalog Components consist of Endpoints, Plugins, Catalog Frameworks, Source
 Capability:: A general term used to refer to an ability of the system
 Application:: One or more features that together form a cohesive collection of capabilities
 Component:: Represents a portion of an Application that can be extended
-Bundle:: Java Archives (JARs) with special OSGi manifest entries. 
+Bundle:: Java Archives (JARs) with special OSGi manifest entries.
 Feature:: One or more bundles that form an installable unit;  Defined by Apache Karaf but portable to other OSGi containers.
 
 === OSGi Core
@@ -722,7 +722,7 @@ OSGi is not an acronym, but if more context is desired the name Open Specificati
 
 More information on OSGi is available at http://www.osgi.org/.
 
-=== Built on Apache Karaf 
+=== Built on Apache Karaf
 Apache Karaf is a FOSS product that includes an OSGi framework and adds extra functionality, including:
 
 Web Administration Console:: Useful for configuring bundles, installing/uninstalling features, and viewing services.
@@ -751,15 +751,15 @@ Because of its modular nature, DDF may require a few or many system resources, d
 
 == Web Service Security Architecture
 
-The Web Service Security (WSS) functionality that comes with {branding} is integrated throughout the system. 
+The Web Service Security (WSS) functionality that comes with {branding} is integrated throughout the system.
 This is a central resource describing how all of the pieces work together and where they are located within the system.
 
-{branding} comes with a Security Framework and Security Services. 
+{branding} comes with a Security Framework and Security Services.
 The Security Framework is the set of APIs that define the integration with the {branding} framework and the Security Services are the reference implementations of those APIs built for a realistic end-to-end use case.
 
 === Security Framework
-The {branding} Security Framework utilizes http://shiro.apache.org/[Apache Shiro] as the underlying security framework. 
-The classes mentioned in this section will have their full package name listed, to make it easy to tell which classes come with the core Shiro framework and which are added by {branding}. 
+The {branding} Security Framework utilizes http://shiro.apache.org/[Apache Shiro] as the underlying security framework.
+The classes mentioned in this section will have their full package name listed, to make it easy to tell which classes come with the core Shiro framework and which are added by {branding}.
 
 ==== Subject
 
@@ -775,12 +775,12 @@ The Subject is the key object in the security framework. Most of the workflow an
 |Classname
 |Description
 
-|ddf.security.impl.SubjectImpl  
+|ddf.security.impl.SubjectImpl
 |Extends org.apache.shiro.subject.support.DelegatingSubject
 
 |===
 
-==== Security Manager 
+==== Security Manager
 
 `ddf.security.service.SecurityManager`
 
@@ -793,7 +793,7 @@ The Security Manager is a service that handles the creation of Subject objects. 
 |Classname
 |Description
 
-|ddf.security.service.SecurityManagerImpl   
+|ddf.security.service.SecurityManagerImpl
 |This implementation of the Security Manager handles taking in both `org.apache.shiro.authc`. AuthenticationToken and `org.apache.cxf.ws.security.tokenstore.SecurityToken` objects.
 
 |===
@@ -809,7 +809,7 @@ Authentication Tokens are used to verify authentication of a user when creating 
 |Classname
 |Description
 
-|ddf.security.service.impl.cas.CasAuthenticationToken   
+|ddf.security.service.impl.cas.CasAuthenticationToken
 |This Authentication Token is used for authenticating a user that has logged in with CAS. It takes in a proxy ticket which can be validated on the CAS server.
 
 |===
@@ -820,7 +820,7 @@ Authentication Tokens are used to verify authentication of a user when creating 
 `org.apache.shiro.realm.AuthenticatingRealm`
 Authenticating Realms are used to authenticate an incoming authentication token and create a Subject on successfully authentication.
 
-====== Implementations of Authenticating Realms that come with {branding}: 
+====== Implementations of Authenticating Realms that come with {branding}:
 
 [cols="1,2" options="header"]
 |===
@@ -828,7 +828,7 @@ Authenticating Realms are used to authenticate an incoming authentication token 
 |Classname
 |Description
 
-|ddf.security.realm.sts.StsRealm    
+|ddf.security.realm.sts.StsRealm
 |This realm delegates authentication to the Secure Token Service (STS). It creates a RequestSecurityToken message from the incoming Authentication Token and converts a successful STS response into a Subject.
 
 |===
@@ -836,7 +836,7 @@ Authenticating Realms are used to authenticate an incoming authentication token 
 ===== Authorizing Realms
 `org.apache.shiro.realm.AuthorizingRealm`
 
-Authorizing Realms are used to perform authorization on the current Subject. 
+Authorizing Realms are used to perform authorization on the current Subject.
 These are used when performing both Service AuthZ and Filtering.
 They are passed in the AuthorizationInfo of the Subject along with the Permissions of the object wanting to be accessed. The response from these realms is a true (if the Subject has permission to access) or false (if the Subject does not).
 
@@ -863,10 +863,10 @@ They are passed in the AuthorizationInfo of the Subject along with the Permissio
 |org.codice.ddf.security.handler.pki.PKIHandler
 |Handler for PKI based authentication. X509 chain will be extracted from the HTTP request and converted to a BinarySecurityToken.
 
-|org.codice.ddf.security.handler.anonymous.AnonymousHandler
-|Handler that allows anonymous user access via a guest user account.
-The guest account credentials are configured via the org.codice.ddf.security.claims.anonymous.AnonymousClaimsHandler.
-The AnonymousHandler also checks for the existence of basic auth credentials or PKI credentials that might be able to override the use of the anonymous user.
+|org.codice.ddf.security.handler.guest.GuestHandler
+|Handler that allows guest user access via a guest user account.
+The guest account credentials are configured via the org.codice.ddf.security.claims.guest.GuestClaimsHandler.
+The GuestHandler also checks for the existence of basic auth credentials or PKI credentials that might be able to override the use of the guest user.
 
 |org.codice.ddf.security.filter.login.LoginFilter
 |This filter runs immediately after the WebSSOFilter and exchanges any authentication information found in the request with a Subject via Shiro.
@@ -886,7 +886,7 @@ The AnonymousHandler also checks for the existence of basic auth credentials or 
 |ddf.security.pdp.realm.XACMLRealm
 |This realm delegates the authorization decision to a XACML-based Policy Decision Point (PDP) backend. It creates a XACML 3.0 request and looks on the OSGi framework for any service implementing ddf.security.pdp.api.PolicyDecisionPoint.
 
-|ddf.security.pdp.realm.SimpleAuthZRealm    
+|ddf.security.pdp.realm.SimpleAuthZRealm
 |This realm performs the authorization decision without delegating to an external service. It uses the incoming permissions to create a decision. However, it is possible to extend this realm using the ddf.security.policy.extension.PolicyExtension interface. This interface allows an integrator to add additional policy information to the PDP that can't be covered via its generic matching policies. This approach is often easier to configure for those that are not familiar with XACML. Note that no PolicyExtension implementations are provided out of the box.
 
 |org.codice.ddf.security.validator.*
@@ -952,12 +952,12 @@ An update was made to the SAML Assertion Handler to pass SAML assertions via hea
 +------------------------------------------------------------------------------------------------------------------------------------------------------------+
 ....
 
-The delegating servlet filter is topmost filter for all web contexts. It loads in all security filters. 
-The first filter used is the Web SSO filter. 
-It reads from the web context policy manager and functions as the first decision point. 
+The delegating servlet filter is topmost filter for all web contexts. It loads in all security filters.
+The first filter used is the Web SSO filter.
+It reads from the web context policy manager and functions as the first decision point.
 If the request is from a whitelisted context, no further authentication is needed and the request goes directly to the desired endpoint.
-If the context is not on the whitelist, the filter will attempt to get a handler for the context. 
-The filter loops through all configured context handlers until one signals that it has found authentication information that it can use to build a token. 
+If the context is not on the whitelist, the filter will attempt to get a handler for the context.
+The filter loops through all configured context handlers until one signals that it has found authentication information that it can use to build a token.
 This configuration can be changed by modifying the web context policy manager configuration.
 If unable to resolve the context, the filter will return an authentication error and the process stops.
 If a handler is successfully found, an auth token is assigned and the request continues to the login filter.
@@ -977,7 +977,7 @@ Below is an example of the security:encrypt command used to encrypt the plain te
 
 ----
 ddf@local>security:encrypt myPasswordToEncrypt
-  
+
 bR9mJpDVo8bTRwqGwIFxHJ5yFJzatKwjXjIo/8USWm8=
 ----
 
@@ -987,9 +987,9 @@ Metacard filtering is performed in a Post Query plugin that occurs after a query
 
 ==== How Filtering Works
 Each metacard result will contain security attributes that are pulled from the metadata record after being processed by a PostQueryPlugin (Not provided! You must create your own plugin for your specific metadata!) that populates this attribute.
-The security attribute is a HashMap containing a set of keys that map to lists of values. 
+The security attribute is a HashMap containing a set of keys that map to lists of values.
 The metacard is then processed by a filter plugin that creates a KeyValueCollectionPermission from the metacard's security attribute.
-This permission is then checked against the user subject to determine if the subject has the correct claims to view that metacard. 
+This permission is then checked against the user subject to determine if the subject has the correct claims to view that metacard.
 The decision to filter the metacard eventually relies on the installed PDP (features:install security-pdp-java OR features:install security-pdp-xacml).
 The PDP that is being used returns a decision, and the metacard will either be filtered or allowed to pass through.
 
@@ -1056,33 +1056,33 @@ The XACML PDP is explained in more detail in the XACML Policy Decision Point (PD
 To enable filtering on a new type of record, implement a PostQueryPlugin that is able to read the string metadata contained within the metacard record. The plugin must set the security attribute to a map of list of values extracted from the metacard. Note that in {branding}, there is no default plugin that populates the security attribute on the metacard. A plugin must be created to populate these fields in order for filtering to work correctly.
 
 === Security Token Service
-The Security Token Service (STS) is a service running in {branding} that allows clients to request SAML v2.0 assertions. 
-These assertions are then used to authenticate a client allowing them to issue other requests, such as ingests or queries to {branding} services.  
+The Security Token Service (STS) is a service running in {branding} that allows clients to request SAML v2.0 assertions.
+These assertions are then used to authenticate a client allowing them to issue other requests, such as ingests or queries to {branding} services.
 
-The STS is an extension of Apache CXF-STS. 
-It is a SOAP web service that utilizes WS-Security policies. 
-The generated SAML assertions contain attributes about a user and is used by the Policy Enforcement Point (PEP) in the secure endpoints. 
-Specific configuration details on the bundles that come with {branding} can be found on the Security STS application page. 
+The STS is an extension of Apache CXF-STS.
+It is a SOAP web service that utilizes WS-Security policies.
+The generated SAML assertions contain attributes about a user and is used by the Policy Enforcement Point (PEP) in the secure endpoints.
+Specific configuration details on the bundles that come with {branding} can be found on the Security STS application page.
 This page details all of the STS components that come out of the box with {branding}, along with configuration options, installation help, and which services they import and export.
 
 The STS server contains validators, claim handlers, and token issuers to process incoming requests.
-When a request is received, the validators first ensure that it is valid. 
-The validators verifies authentication against configured services, such as LDAP, DIAS, PKI. 
+When a request is received, the validators first ensure that it is valid.
+The validators verifies authentication against configured services, such as LDAP, DIAS, PKI.
 If the request is found to be invalid, the process ends and an error is returned.
 Next, the claims handlers determine how to handle the request, adding user attributes or properties as configured.
-The token issuer creates a SAML 2.0 assertion and associates it with the subject. 
+The token issuer creates a SAML 2.0 assertion and associates it with the subject.
 The STS server sends an assertion back to the requestor, which is used in both SOAP and REST cases.
 
 ==== Using the Security Token Service (STS)
-Once installed, the STS can be used to request SAML v2.0 assertions via a SOAP web service request. 
-Out of the box, the STS supports authentication from existing SAML tokens, CAS proxy tickets, username/password, and x509 certificates. 
+Once installed, the STS can be used to request SAML v2.0 assertions via a SOAP web service request.
+Out of the box, the STS supports authentication from existing SAML tokens, CAS proxy tickets, username/password, and x509 certificates.
 It also supports retrieving claims using LDAP.
 
 ===== Standalone Installation
-The STS cannot currently be installed on a kernel distribution of {branding}. 
-To run a STS-only {branding} installation, uninstall the catalog components that are not being used. 
-The following list displays the features that can be uninstalled to minimize the runtime size of {branding} in an STS-only mode. 
-This list is not a comprehensive list of every feature that can be uninstalled; it is a list of the larger components that can be uninstalled without impacting the STS functionality.  
+The STS cannot currently be installed on a kernel distribution of {branding}.
+To run a STS-only {branding} installation, uninstall the catalog components that are not being used.
+The following list displays the features that can be uninstalled to minimize the runtime size of {branding} in an STS-only mode.
+This list is not a comprehensive list of every feature that can be uninstalled; it is a list of the larger components that can be uninstalled without impacting the STS functionality.
 
 .Unnecessary Features
 * catalog-core-standardframework
@@ -1092,19 +1092,19 @@ This list is not a comprehensive list of every feature that can be uninstalled; 
 * catalog-rest-endpoint
 
 ==== STS Claims Handlers
-Claims handlers are classes that convert the incoming user credentials into a set of attribute claims that will be populated in the SAML assertion. 
-An example in action would be the LDAPClaimsHandler that takes in the user's credentials and retrieves the user's attributes from a backend LDAP server. 
-These attributes are then mapped and added to the SAML assertion being created. 
+Claims handlers are classes that convert the incoming user credentials into a set of attribute claims that will be populated in the SAML assertion.
+An example in action would be the LDAPClaimsHandler that takes in the user's credentials and retrieves the user's attributes from a backend LDAP server.
+These attributes are then mapped and added to the SAML assertion being created.
 Integrators and developers can add more claims handlers that can handle other types of external services that store user attributes.
 
 ===== Add a Custom Claims Handler
 
 ====== Description
-A claim is an additional piece of data about a subject that can be included in a token along with basic token data. 
+A claim is an additional piece of data about a subject that can be included in a token along with basic token data.
 A claims manager provides hooks for a developer to plug in claims handlers to ensure that the STS includes the specified claims in the issued token.
 
 ====== Motivation
-A developer may want to add a custom claims handler to retrieve attributes from an external attribute store. 
+A developer may want to add a custom claims handler to retrieve attributes from an external attribute store.
 
 ====== Steps
 The following steps define the procedure for adding a custom claims handler to the STS.
@@ -1131,21 +1131,21 @@ The following steps define the procedure for adding a custom claims handler to t
  * specific language governing permissions and limitations
  * under the License.
  */
- 
+
 package org.apache.cxf.sts.claims;
- 
+
 import java.net.URI;
 import java.util.List;
- 
+
 /**
  * This interface provides a pluggable way to handle Claims.
  */
 public interface ClaimsHandler {
- 
+
     List<URI> getSupportedClaimTypes();
- 
+
     ClaimCollection retrieveClaimValues(RequestClaimCollection claims, ClaimsParameters parameters);
- 
+
 }
 ----
 +
@@ -1155,11 +1155,11 @@ public interface ClaimsHandler {
 ----
 <?xml version="1.0" encoding="UTF-8"?>
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
- 
+
     <bean id="CustomClaimsHandler" class="security.sts.claimsHandler.CustomClaimsHandler" />
-     
+
     <service ref="customClaimsHandler" interface="org.apache.cxf.sts.claims.ClaimsHandler"/>
-   
+
 </blueprint>
 ----
 . Deploy the bundle.
@@ -1428,7 +1428,7 @@ Most endpoints that have been used in {branding} require the X.509 PublicKey SAM
         <MessageID xmlns="http://www.w3.org/2005/08/addressing">urn:uuid:60652909-faca-4e4a-a4a7-8a5ce243a7cb</MessageID>
         <To xmlns="http://www.w3.org/2005/08/addressing">https://server:8993/services/SecurityTokenService</To>
         <ReplyTo xmlns="http://www.w3.org/2005/08/addressing">
-            <Address>http://www.w3.org/2005/08/addressing/anonymous</Address>
+            <Address>http://www.w3.org/2005/08/addressing/guest</Address>
         </ReplyTo>
         <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" soap:mustUnderstand="1">
             <wsu:Timestamp wsu:Id="TS-1">
@@ -1632,9 +1632,9 @@ L6tQ</ds:X509Certificate>
 
 ===== UsernameToken Bearer SAML Security Token Request/Response
 
-To obtain a SAML assertion to use in secure communication to {branding}, a RequestSecurityToken (RST) request has to be made to the STS.  
+To obtain a SAML assertion to use in secure communication to {branding}, a RequestSecurityToken (RST) request has to be made to the STS.
 
-A Bearer SAML assertion is automatically trusted by the endpoint. The client doesn't have to prove it can own that SAML assertion. It is the simplest way to request a SAML assertion, but many endpoints won't accept a KeyType of Bearer. 
+A Bearer SAML assertion is automatically trusted by the endpoint. The client doesn't have to prove it can own that SAML assertion. It is the simplest way to request a SAML assertion, but many endpoints won't accept a KeyType of Bearer.
 
 ====== Request
 *Explanation*
@@ -1693,13 +1693,13 @@ A Bearer SAML assertion is automatically trusted by the endpoint. The client doe
 ----
 
 ====== Response
-This is the response from the STS containing the SAML assertion to be used in subsequent requests to QCRUD endpoints:  
+This is the response from the STS containing the SAML assertion to be used in subsequent requests to QCRUD endpoints:
 
-The `saml2:Assertion` block contains the entire SAML assertion.  
+The `saml2:Assertion` block contains the entire SAML assertion.
 
-The `Signature` block contains a signature from the STS's private key.  The endpoint receiving the SAML assertion will verify that it trusts the signer and ensure that the message wasn't tampered with.  
+The `Signature` block contains a signature from the STS's private key.  The endpoint receiving the SAML assertion will verify that it trusts the signer and ensure that the message wasn't tampered with.
 
-The `AttributeStatement` block contains all the Claims requested. 
+The `AttributeStatement` block contains all the Claims requested.
 
 The `Lifetime` block indicates the valid time interval in which the SAML assertion can be used.
 
@@ -1827,9 +1827,9 @@ HM0dPfiQLQ99ElWkv/0=</ds:X509Certificate>
 
 ===== X.509 PublicKey SAML Security Token Request/Response
 
-In order to obtain a SAML assertion to use in secure communication to {branding}, a RequestSecurityToken (RST) request has to be made to the STS. 
+In order to obtain a SAML assertion to use in secure communication to {branding}, a RequestSecurityToken (RST) request has to be made to the STS.
 
-An endpoint's policy will specify the type of security token needed.  Most of the endpoints that have been used with {branding} require a SAML v2.0 assertion with a required KeyType of http://docs.oasis-open.org/ws-sx/ws-trust/200512/PublicKey.  This means that the SAML assertion provided by the client to a {branding} endpoint must contain a SubjectConfirmation block with a type of "holder-of-key" containing the client's public key.  This is used to prove that the client can possess the SAML assertion returned by the STS. 
+An endpoint's policy will specify the type of security token needed.  Most of the endpoints that have been used with {branding} require a SAML v2.0 assertion with a required KeyType of http://docs.oasis-open.org/ws-sx/ws-trust/200512/PublicKey.  This means that the SAML assertion provided by the client to a {branding} endpoint must contain a SubjectConfirmation block with a type of "holder-of-key" containing the client's public key.  This is used to prove that the client can possess the SAML assertion returned by the STS.
 
 ====== Request
 *Explanation*
@@ -1841,7 +1841,7 @@ The STS that comes with {branding} requires the following to be in the RequestSe
 * KeyType of http://docs.oasis-open.org/ws-sx/ws-trust/200512/PublicKey
 * X509 Certificate as the Proof of Possession or POP.  This needs to be the certificate of the client that will be both requesting the SAML assertion and using the SAML assertion to issue a query
 * Claims (optional): Some endpoints may require that the SAML assertion include attributes of the user, such as an authenticated user's role, name identifier, email address, etc.  If the SAML assertion needs those attributes, the RequestSecurityToken must specify which ones to include.
-** UsernameToken: If Claims are required, the RequestSecurityToken security header must contain a UsernameToken element with a username and password. 
+** UsernameToken: If Claims are required, the RequestSecurityToken security header must contain a UsernameToken element with a username and password.
 
 .Sample Request
 [source,xml,linenums]
@@ -1856,7 +1856,7 @@ The STS that comes with {branding} requires the following to be in the RequestSe
             <wsu:Created>2014-02-19T17:30:40.771Z</wsu:Created>
             <wsu:Expires>2014-02-19T19:10:40.771Z</wsu:Expires>
          </wsu:Timestamp>
-         
+
          <!-- OPTIONAL: Only required if the endpoint that the SAML assertion will be sent to requires claims. -->
          <wsse:UsernameToken wsu:Id="UsernameToken-16">
             <wsse:Username>pparker</wsse:Username>
@@ -1870,7 +1870,7 @@ The STS that comes with {branding} requires the following to be in the RequestSe
       <wst:RequestSecurityToken xmlns:wst="http://docs.oasis-open.org/ws-sx/ws-trust/200512">
          <wst:TokenType>http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0</wst:TokenType>
          <wst:KeyType>http://docs.oasis-open.org/ws-sx/ws-trust/200512/PublicKey</wst:KeyType>
- 
+
          <!-- OPTIONAL: Only required if the endpoint that the SAML assertion will be sent to requires claims. -->
          <wst:Claims Dialect="http://schemas.xmlsoap.org/ws/2005/05/identity" xmlns:ic="http://schemas.xmlsoap.org/ws/2005/05/identity">
             <ic:ClaimType Optional="true" Uri="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role"/>
@@ -1921,14 +1921,14 @@ hwtE3xo6qQRRWlO3/clC4RnTev1crFVJQVBF3yfpRu8udJ2SOGdqU0vjUSu1h7aMkYJMHIu08Whj
 
 ====== Response
 *Explanation*
-This is the response from the STS containing the SAML assertion to be used in subsequent requests to QCRUD endpoints.  
+This is the response from the STS containing the SAML assertion to be used in subsequent requests to QCRUD endpoints.
 
-The `saml2:Assertion` block contains the entire SAML assertion.  
+The `saml2:Assertion` block contains the entire SAML assertion.
 
-The `Signature` block contains a signature from the STS's private key.  The endpoint receiving the SAML assertion will verify that it trusts the signer and ensure that the message wasn't tampered with.  
+The `Signature` block contains a signature from the STS's private key.  The endpoint receiving the SAML assertion will verify that it trusts the signer and ensure that the message wasn't tampered with.
 
-The `SubjectConfirmation` block contains the client's public key, so the server can verify that the client has permission to hold this SAML assertion.   
-The `AttributeStatement` block contains all of the claims requested.  
+The `SubjectConfirmation` block contains the client's public key, so the server can verify that the client has permission to hold this SAML assertion.
+The `AttributeStatement` block contains all of the claims requested.
 
 .Sample Response
 [source,xml,linenums]
@@ -2039,7 +2039,7 @@ hwtE3xo6qQRRWlO3/clC4RnTev1crFVJQVBF3yfpRu8udJ2SOGdqU0vjUSu1h7aMkYJMHIu08Whj
                         <saml2:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:unspecified</saml2:AuthnContextClassRef>
                      </saml2:AuthnContext>
                   </saml2:AuthnStatement>
- 
+
                   <!-- This block will only be included if Claims were requested in the RST. -->
                   <saml2:AttributeStatement>
                      <saml2:Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
@@ -2087,10 +2087,10 @@ hwtE3xo6qQRRWlO3/clC4RnTev1crFVJQVBF3yfpRu8udJ2SOGdqU0vjUSu1h7aMkYJMHIu08Whj
       </ns2:RequestSecurityTokenResponseCollection>
    </soap:Body>
 </soap:Envelope>
----- 
+----
 
 ==== Authz filter
-    
+
 The Authz filter determines authentication of the subject properties by calling the policy manager.
 It then sends the subject through Shiro to a SimpleAuthZ Realm
 
@@ -2105,16 +2105,16 @@ Upon receiving the correct value, the AuthZ filter allows access to the endpoint
 
 === XACML Policy Decision Point (PDP)
 
-After unzipping the {branding} distribution, place the desired XACML policy in the <distribution root>/etc/pdp/policies directory. 
-This is the directory in which the PDP will look for XACML policies every 60 seconds. 
-A sample XACML policy is located at the end of this page. 
+After unzipping the {branding} distribution, place the desired XACML policy in the <distribution root>/etc/pdp/policies directory.
+This is the directory in which the PDP will look for XACML policies every 60 seconds.
+A sample XACML policy is located at the end of this page.
 Information on specific bundle configurations and names can be found on the Security PDP application page.
 
 ==== Creating a Policy
-This document assumes familiarity with the XACML schema and does not go into detail on the XACML language. 
-There are some {branding}-specific items that need to be considered, when creating a policy, to be compatible with the XACMLRealm. 
-When creating a policy, a target is used to indicate that a certain action should be run only for one type of request. 
-Targets can be used on both the main policy element and any individual rules. 
+This document assumes familiarity with the XACML schema and does not go into detail on the XACML language.
+There are some {branding}-specific items that need to be considered, when creating a policy, to be compatible with the XACMLRealm.
+When creating a policy, a target is used to indicate that a certain action should be run only for one type of request.
+Targets can be used on both the main policy element and any individual rules.
 Generally targets are geared toward the actions that are set in the request.
 
 ===== Actions
@@ -2129,13 +2129,13 @@ For {branding}, these actions are populated by various components in the securit
 |Description
 
 |Filtering
-|filter 
-|security-pdp-xacmlrealm    
+|filter
+|security-pdp-xacmlrealm
 |When performing any filtering, the XACMLRealm will set the action-id to "filter".
 
-|Service    
-|<SOAPAction>   
-|security-pep-interceptor   
+|Service
+|<SOAPAction>
+|security-pep-interceptor
 |If the PEP Interceptor is added to any SOAP-based web services for service authorization, the action-id will be the SOAPAction of the incoming request. This allows the XACML policy to have specific rules for individual services within the system.
 
 |===
@@ -2151,10 +2151,10 @@ In the examples below, the policy has specified targets for the above type of ca
 Attributes for the XACML request are populated with the information in the calling subject and the resource being checked.
 
 ====== Subject
-The attributes for the subject are obtained from the SAML claims and populated within the XACMLRealm as individual attributes under the urn:oasis:names:tc:xacml:1.0:subject-category:access-subject category. The name of the claim is used for the *AttributeId* value. Examples of the items being populated are available at the end of this page.  
+The attributes for the subject are obtained from the SAML claims and populated within the XACMLRealm as individual attributes under the urn:oasis:names:tc:xacml:1.0:subject-category:access-subject category. The name of the claim is used for the *AttributeId* value. Examples of the items being populated are available at the end of this page.
 
 ====== Resource
-The attributes for resources are obtained through the permissions process. When checking permissions, the XACMLRealm retrieves a list of permissions that should be checked against the subject. These permissions are populated outside of the realm and should be populated with the security attributes located in the metacard security property. When the permissions are of a key-value type, the key being used is populated as the AttributeId value under the urn:oasis:names:tc:xacml:3.0:attribute-category:resource category. 
+The attributes for resources are obtained through the permissions process. When checking permissions, the XACMLRealm retrieves a list of permissions that should be checked against the subject. These permissions are populated outside of the realm and should be populated with the security attributes located in the metacard security property. When the permissions are of a key-value type, the key being used is populated as the AttributeId value under the urn:oasis:names:tc:xacml:3.0:attribute-category:resource category.
 
 ==== Example Requests and Responses
 The following items are a sample request, response, and the corresponding policy. For the XACML PDP, the request is made by the XACML realm (security-pdp-xacmlrealm), passed to the XACML processing engine (security-pdp-xacmlprocessor), which reads the policy and outputs a response.
@@ -2346,7 +2346,7 @@ This is the sample policy that was used for the following sample request and res
 ===== Metacard Authorization
 
 ====== Subject Permitted
-All of the resource's RESOURCE_ACCESS attributes were matched with the Subject's SUBJECT_ACCESS attributes. 
+All of the resource's RESOURCE_ACCESS attributes were matched with the Subject's SUBJECT_ACCESS attributes.
 
 .Request
 [source,xml,linenums]
@@ -2477,24 +2477,24 @@ Each instance of the expansion service consists of a collection of rule sets. Ea
 [cols="3" options="header"]
 |===
 
-|Key (Attribute)    
+|Key (Attribute)
 2.1+^|Rules (original → new)
 
-1.3+^|key1  
-|value1 
+1.3+^|key1
+|value1
 |replacement1
 
-|value2 
+|value2
 |replacement2
 
-|value3 
+|value3
 |replacement3
 
-1.2+^|key2  
-|value1 
+1.2+^|key2
+|value1
 |replacement1
 
-|value2 
+|value2
 |replacement2
 
 |===
@@ -2503,24 +2503,24 @@ The examples below use the following collection of rule sets:
 [cols="3" options="header"]
 |===
 
-|Key (Attribute)    
+|Key (Attribute)
 2.1+^|Rules (original → new)
 
-1.3+^|Location  
-|Goodyear   
+1.3+^|Location
+|Goodyear
 |Goodyear AZ
 
-|AZ 
+|AZ
 |AZ USA
 
-|CA 
+|CA
 |CA USA
 
-1.2+^|Title 
-|VP-Sales   
+1.2+^|Title
+|VP-Sales
 |VP-Sales VP Sales
 
-|VP-Engineering 
+|VP-Engineering
 |VP-Engineering VP Engineering
 
 |===
@@ -2536,12 +2536,12 @@ It is expected that multiple instances of the expansion service will be running 
 |Value
 |Description
 
-|mapping    
-|security.user.attribute.mapping    
+|mapping
+|security.user.attribute.mapping
 |This instance is configured with rules that expand the user's attribute values for security checking.
 
-|mapping    
-|security.metacard.attribute.mapping    
+|mapping
+|security.metacard.attribute.mapping
 |This instance is configured with rules that expand the metacard's security attributes before comparing with the user's attributes.
 
 |===
@@ -2558,7 +2558,7 @@ The following configuration file defines the rules shown above in the example ta
 # separator string and each resulting attributed added to the attribute set (duplicates are
 # suppressed). No value indicates the defualt value of ' ' (space).
 separator=
- 
+
 # The following rules define the attribute expansion to be performed. The rules are of the
 # form:
 #       <attribute name>:<original value>:<expanded value>
@@ -2579,8 +2579,8 @@ Title:VP-Engineering:VP-Engineering VP Engineering
 |Namespace
 |Description
 
-|{branding}::Security::Expansion::Commands  
-|security   
+|{branding}::Security::Expansion::Commands
+|security
 |The expansion commands provide detailed information about the expansion rules in place and the ability to see the results of expanding specific values against the active rule set.
 
 |===
@@ -2599,10 +2599,10 @@ Title:VP-Engineering:VP-Engineering VP Engineering
 |Command
 |Description
 
-|expand 
+|expand
 |Runs the expansion service on the provided data returning the expanded value.
 
-|expansions 
+|expansions
 |Dumps the ruleset for each active expansion service.
 
 |===
@@ -2684,7 +2684,7 @@ ddf@local>expand Title "VP-Engineering Manager"
 |                                                |   |       |       \-------------/         |
 | /--------\              /-------------\        |   |       |           ^    |              |
 | |        |              |             |        |   |       |           |    |              |
-| |  Dumb  |              |  Anonymous  |        |   |  c444 |           |    v              |
+| |  Dumb  |              |  Guest  |        |   |  c444 |           |    v              |
 | |  SOAP  |              | Interceptor |        |   | Shiro |       /----------=--\         |
 | | Client |call endpoint | /---------\ |        |   |       |       |             |         |
 | |        |------------->| |  Read   | |        |   |       |       | Expansion   |         |
@@ -2721,10 +2721,10 @@ When calling to an endpoint from a SOAP secure client, it first requests the WSD
 The client then calls to STS for authentication token to proceed.
 If the client receives the token, it makes a secure call to the endpoint and receives results.
 
-=== Dumb SOAP Client 
+=== Dumb SOAP Client
 
-If calling endpoint from a non-secure client, at the point the of the initial call, the Anonymous Interceptor catches the request and prepares it to be accepted by the endpoint.
-First, the interceptor reads the configured policy, builds a security header, and gets an anonymous SAML assertion. Using this, it makes a `getSubject` call which is sent through Shiro to the STS realm. Upon success, the STS realm returns the subject and the call is made to the endpoint.
+If calling endpoint from a non-secure client, at the point the of the initial call, the Guest Interceptor catches the request and prepares it to be accepted by the endpoint.
+First, the interceptor reads the configured policy, builds a security header, and gets an guest SAML assertion. Using this, it makes a `getSubject` call which is sent through Shiro to the STS realm. Upon success, the STS realm returns the subject and the call is made to the endpoint.
 
 == Developing DDF Applications
 The DDF applications are comprised of components, packaged as Karaf features, which are collections of OSGi bundles. These features can be installed/uninstalled using the Web Console or command line console. DDF applications also consist of one or more OSGi bundles and, possibly, supplemental external files. These applications are packaged as Karaf KAR files for easy download and installation. These applications can be stored on a file system or a Maven repository.
@@ -2758,7 +2758,7 @@ An example of using the create-kar goal is shown below:
 	            Otherwise, features.xml would appear twice in the kar file, hence installing the
 	            same feature twice.
 	            Refer to Karaf forum posting at http://karaf.922171.n3.nabble.com/Duplicate-feature-repository-entry-using-archive-kar-to-build-deployable-applications-td3650850.html
-	            -->                           
+	            -->
 	            <resourcesDir>${project.build.directory}/doesNotExist</resourcesDir>
 
 	            <!--
@@ -2800,7 +2800,7 @@ DDF originally had a custom query representation that some found difficult to un
 === OGC filter in the DDF Catalog
 The DDF Catalog Framework uses the implementation provided by Geotools, which provides a Java representation of the standard.
 
-Geotools originally provided standard Java classes for the OGC Filter Encoding 1.0, under the package name `org.opengis.filter`, which is where `org.opengis.filter.Filter` is located. Java developers should use the Java objects exclusively to complete query tasks, rather than parsing or viewing the XML representation.				
+Geotools originally provided standard Java classes for the OGC Filter Encoding 1.0, under the package name `org.opengis.filter`, which is where `org.opengis.filter.Filter` is located. Java developers should use the Java objects exclusively to complete query tasks, rather than parsing or viewing the XML representation.
 
 == Utilities
 
@@ -2815,7 +2815,7 @@ Provides utility that allows incoming traffic to be distributed over multiple in
 Contained within DDF is a Load Balancer utility that allows incoming traffic to be distributed over multiple instances of DDF. The DDF Load Balancer supports two protocols: HTTP and HTTPS. The Load Balancer can be configured to run one protocol or both at the same time. The DDF Load Balancer has been configured to utilize a "Round Robin" algorithm to distribute transactions. The load balancer is also equipped with a failover mechanism. When the load balancer attempts to access a server that is non-functional, it will receive an exception and move on to the next server on the list to complete the transaction. The action will try to be replayed on every server once before failing back to the client.
 
 ==== Set up the DDF Load Balancer
-The main method for installing the DDF Load Balancer is to install the application (.kar) file into the hot deploy folder of a full DDF distribution. 
+The main method for installing the DDF Load Balancer is to install the application (.kar) file into the hot deploy folder of a full DDF distribution.
 
 ==== Prerequisites
 Before the DDF Load Balancer can be installed:
@@ -2888,12 +2888,12 @@ features:install jetty
 . Restart DDF to ensure that all of the Jetty bundles are refreshed properly.
 
 ==== Configure the DDF Load Balancer
-The DDF Load Balancer can be configured to allow multiple DDF nodes to be balanced. It can also be configured with a port on which to accept connections. Configurations differ slightly between the HTTP- and HTTPS-based load balancers. All configurations are dynamic in that configuration settings are immediately applied, and it is not necessary to restart DDF. 
+The DDF Load Balancer can be configured to allow multiple DDF nodes to be balanced. It can also be configured with a port on which to accept connections. Configurations differ slightly between the HTTP- and HTTPS-based load balancers. All configurations are dynamic in that configuration settings are immediately applied, and it is not necessary to restart DDF.
 
 ===== Configure the HTTP Load Balancer
 Complete the following procedure to access the load balancer configuration.
 
-. Click the Configuration tab in the DDF management console. 
+. Click the Configuration tab in the DDF management console.
 . Scroll down to the configuration entry that is labeled Platform *HTTP Load Balancer*. The configuration for the load balancer contains two fields: *Load Balancer Port* and *IP Address and Port*.
 . In the *Load Balancer Port* field, enter the port number to be accessed when reaching other systems.
 . In the IP Address and Port field, enter a comma-delimited list of IP addresses and ports for each DDF node to be balanced. The format for IP address and port is <IP_ADDRESS>:<PORT> (e.g., 192.168.1.123:8181,192.168.1.22:8181).
@@ -2906,11 +2906,11 @@ It is possible to run the HTTPS load balancer by itself or run it in parallel wi
 
 . Find the SSL configurations and verify that the values are correct.
 . Click the Configuration tab in the DDF management console.
-. Scroll down to the configuration entry that is labeled *Pax Web Runtime*. 
-. Select *Pax Web Runtime*. 
-. Ensure that the displayed settings match what is configured in the DDF nodes to be balanced. 
+. Scroll down to the configuration entry that is labeled *Pax Web Runtime*.
+. Select *Pax Web Runtime*.
+. Ensure that the displayed settings match what is configured in the DDF nodes to be balanced.
 . Save the updated settings or close the window, as applicable.
-. In the configuration table, scroll down to the configuration entry labeled *Platform HTTPS Load Balancer*. 
+. In the configuration table, scroll down to the configuration entry labeled *Platform HTTPS Load Balancer*.
 . The configuration for the load balancer contains three fields: *Load Balancer Host*, *Load Balancer Port*, and *IP Address and Port*.
 . In the *Load Balancer Host* field, enter the host name or IP address to be used for the host load balancer machine.
 . In the *Load Balancer Port* field, enter the port number to be accessed on the load balancer to reach the other systems.
@@ -3030,7 +3030,7 @@ Update a previous subscription to last for three months instead of 90 hours:
   "queryString" : "anyText LIKE 'red car'"
 }
 ----
- 
+
 Delete the previous subscription:
 [source,javascript,linenums]
 ----
@@ -3069,7 +3069,7 @@ The messages sent over STOMP will be in JSON format. The messages used for subsc
 "required":false
 }
 },
- 
+
 "subscriptionId": {
 "type":"string",
 "id": "http://jsonschema.net/subscriptionId",

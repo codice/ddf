@@ -210,7 +210,7 @@ public class SolrMetacardClient {
                         resolver.getField(Metacard.EFFECTIVE, AttributeType.AttributeFormat.DATE,
                                 false), order);
             } else {
-                List<String> resolvedProperties = resolver.getAnonymousField(sortProperty);
+                List<String> resolvedProperties = resolver.getGuestField(sortProperty);
 
                 if (!resolvedProperties.isEmpty()) {
                     for (String sortField : resolvedProperties) {

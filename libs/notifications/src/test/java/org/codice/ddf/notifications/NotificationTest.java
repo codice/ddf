@@ -33,10 +33,10 @@ public class NotificationTest {
      *
      * Verifies that the constructor will set a
      * {@link Notification#NOTIFICATION_KEY_USER_ID} to an empty {@code String},
-     * which simulates an anonymous user.
+     * which simulates an guest user.
      */
     @Test
-    public void testNotificationSetAnonymousUserId() {
+    public void testNotificationSetGuestUserId() {
         Notification notification = new Notification("myId", "mySessionId", "myAppName", "testing",
                 "testing", new Date().getTime(), "");
         assertEquals("Notification constructor accepted empty userId", DEFAULT_USER_ID,

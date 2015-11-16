@@ -754,7 +754,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     /**
      * This builds a "is null" query based on the property name provided.
      *
-     * Since no type is provided with this method, we build a OR chained expression with anonymous field names.
+     * Since no type is provided with this method, we build a OR chained expression with guest field names.
      * The actually expression uses a negative ranged query expression.  The null query needs to be used in order for this
      * expression to play well with other nested expressions.  The query used is outlined in:
      * http://stackoverflow.com/questions/17044661/how-to-filter-search-by-values-that-are-not-available/17045097#17045097
@@ -764,10 +764,10 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
      */
     @Override
     public SolrQuery propertyIsNull(String propertyName) {
-        List<String> possibleFields = resolver.getAnonymousField(propertyName);
+        List<String> possibleFields = resolver.getGuestField(propertyName);
         if (possibleFields.isEmpty()) {
             throw new UnsupportedOperationException(
-                    "Anonymous Field Property does not exist. " + propertyName);
+                    "Guest Field Property does not exist. " + propertyName);
         }
         List<String> solrExpressions = new ArrayList<>();
         for (String possibleField : possibleFields) {
