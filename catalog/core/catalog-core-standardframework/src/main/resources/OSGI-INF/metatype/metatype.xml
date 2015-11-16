@@ -19,6 +19,7 @@
          name="Catalog Standard Framework"
          id="ddf.catalog.CatalogFrameworkImpl">
         <AD name="Enable Fanout Proxy" id="fanoutEnabled" required="true" type="Boolean"
+            default="false"
             description="When enabled the Framework acts as a proxy, federating requests to all available sources. All requests are executed as federated queries and resource retrievals, allowing the framework to be the sole component exposing the functionality of all of its Federated Sources."/>
         <AD name="Product Cache Directory" id="productCacheDirectory" required="false"
             type="String" default=""
