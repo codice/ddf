@@ -33,7 +33,7 @@ public class SecurityPolicyConfigurator {
 
     public static final String BASIC_AUTH_TYPES = "/=SAML|basic,/solr=SAML|PKI|basic";
 
-    public static final String ANON_AUTH_TYPES = "/=SAML|ANON,/admin=SAML|basic,/jolokia=SAML|basic,/system=SAML|basic,/solr=SAML|PKI|basic";
+    public static final String GUEST_AUTH_TYPES = "/=SAML|GUEST,/admin=SAML|basic,/jolokia=SAML|basic,/system=SAML|basic,/solr=SAML|PKI|basic";
 
     public static final String DEFAULT_WHITELIST = "/services/SecurityTokenService,/services/internal,/proxy";
 
@@ -46,11 +46,11 @@ public class SecurityPolicyConfigurator {
         this.configAdmin = configAdmin;
     }
 
-    public void configureRestForAnonymous() throws Exception {
-        configureRestForAnonymous(null);
+    public void configureRestForGuest() throws Exception {
+        configureRestForGuest(null);
     }
 
-    public void configureRestForAnonymous(String whitelist) throws Exception {
+    public void configureRestForGuest(String whitelist) throws Exception {
         configureWebContextPolicy(null, null, null, createWhitelist(whitelist));
     }
 

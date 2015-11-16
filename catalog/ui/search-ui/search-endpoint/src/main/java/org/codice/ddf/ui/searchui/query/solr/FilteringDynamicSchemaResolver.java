@@ -72,8 +72,8 @@ public class FilteringDynamicSchemaResolver extends DynamicSchemaResolver {
     }
 
     @Override
-    public List<String> getAnonymousField(String field) {
-        List<String> fields = super.getAnonymousField(field);
+    public List<String> getGuestField(String field) {
+        List<String> fields = super.getGuestField(field);
         usedFields.addAll(fields);
         return fields;
     }

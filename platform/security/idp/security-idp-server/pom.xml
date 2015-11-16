@@ -68,7 +68,7 @@
         </dependency>
         <dependency>
             <groupId>ddf.security.handler</groupId>
-            <artifactId>security-handler-anonymous</artifactId>
+            <artifactId>security-handler-guest</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

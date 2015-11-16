@@ -24,8 +24,8 @@ import java.io.Serializable;
 public interface Subject extends org.apache.shiro.subject.Subject, Serializable {
 
     /**
-     * Returns true if the Subject is anonymous
-     * @return true if Subject is anonymous
+     * Returns true if the Subject is guest
+     * @return true if Subject is guest
      */
-    public boolean isAnonymous();
+    public boolean isGuest();
 }
