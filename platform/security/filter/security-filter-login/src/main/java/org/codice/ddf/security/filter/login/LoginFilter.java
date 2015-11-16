@@ -14,6 +14,7 @@
 package org.codice.ddf.security.filter.login;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.security.PrivilegedExceptionAction;
 import java.util.HashSet;
 import java.util.Properties;
@@ -32,6 +33,12 @@ import javax.servlet.http.HttpSession;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.rs.security.saml.sso.SAMLProtocolResponseValidator;
@@ -48,7 +55,6 @@ import org.apache.wss4j.dom.saml.WSSSAMLKeyInfoProcessor;
 import org.apache.wss4j.dom.validate.Credential;
 import org.apache.wss4j.dom.validate.SamlAssertionValidator;
 import org.apache.wss4j.dom.validate.Validator;
-import org.apache.xml.security.utils.XMLUtils;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
@@ -498,7 +504,7 @@ public class LoginFilter implements Filter {
 
     private Subject handleAuthenticationToken(HttpServletRequest httpRequest,
             BaseAuthenticationToken token) throws ServletException {
-        Subject subject;
+        Subject subject = null;
         synchronized (lock) {
             HttpSession session = sessionFactory.getOrCreateSession(httpRequest);
             //if we already have an assertion inside the session and it has not expired, then use that instead
@@ -510,6 +516,8 @@ public class LoginFilter implements Filter {
                  * The user didn't have a SAML token from a previous authentication, but they do have the
                  * credentials to log in - perform that action here.
                  */
+                ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+                Thread.currentThread().setContextClassLoader(LoginFilter.class.getClassLoader());
                 try {
                     // login with the specified authentication credentials (AuthenticationToken)
                     subject = securityManager.getSubject(token);
@@ -519,8 +527,15 @@ public class LoginFilter implements Filter {
                             if (LOGGER.isTraceEnabled()) {
                                 Element samlToken = ((SecurityAssertion) principal)
                                         .getSecurityToken().getToken();
-                                LOGGER.trace("SAML assertion returned: {}",
-                                        XMLUtils.getStrFromNode(samlToken));
+
+                                TransformerFactory transFactory = TransformerFactory.newInstance();
+                                Transformer transformer = transFactory.newTransformer();
+                                StringWriter buffer = new StringWriter();
+                                transformer
+                                        .setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+                                transformer.transform(new DOMSource(samlToken),
+                                        new StreamResult(buffer));
+                                LOGGER.trace("SAML Assertion returned: {}", buffer.toString());
                             }
                             SecurityToken securityToken = ((SecurityAssertion) principal)
                                     .getSecurityToken();
@@ -530,6 +545,10 @@ public class LoginFilter implements Filter {
                 } catch (SecurityServiceException e) {
                     LOGGER.error("Unable to get subject from auth request.", e);
                     throw new ServletException(e);
+                } catch (TransformerException e) {
+                    LOGGER.warn("Unable to print SAML Assertion.", e);
+                } finally {
+                    Thread.currentThread().setContextClassLoader(tccl);
                 }
             } else {
                 LOGGER.trace("Creating SAML authentication token with session.");
