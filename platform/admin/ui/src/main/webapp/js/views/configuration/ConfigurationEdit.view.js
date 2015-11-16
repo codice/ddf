@@ -247,9 +247,13 @@ define([
                             case 'ViewToModel':
                                 return bindValue.toString();
                             case 'ModelToView':
-
+                                var bindValueString = "";
                                 if(bindValue && bindValue !== ""){
-                                    var bindValueString = "" + bindValue;
+                                    bindValueString = "" + bindValue;
+                                    return JSON.parse(bindValueString.toLowerCase());
+                                } else if (!bindValue) {
+                                    bindValue = false;
+                                    bindValueString = "false";
                                     return JSON.parse(bindValueString.toLowerCase());
                                 }
                                 return null;  // TODO determine if this is correct
