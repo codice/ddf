@@ -198,7 +198,10 @@ define(['backbone', 'jquery','backboneassociations'],function (Backbone, $) {
         initializeFromMetatype: function(metatype) {
             this.get('properties')
                 .set(metatype.reduce(function (defaults, obj) {
-                    var val = obj.get('defaultValue');
+                    var defaultVal = obj.get('defaultValue');
+                    // Check for existence of default value;
+                    // If it doesn't exist, and it should be a boolean (type: 11), then set it to "false"
+                    var val = (defaultVal || obj.get('type') !== 11) ? defaultVal : "false";
                     defaults[obj.get('id')] = (val) ? val.toString() : null;
                     return defaults;
                 }, {}));
