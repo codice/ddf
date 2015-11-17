@@ -1,4 +1,3 @@
-<!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -10,15 +9,16 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
--->
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-           xsi:schemaLocation="
-  http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
-    <bean id="metricsPlugin" class="org.codice.ddf.platform.ui.MetricsPlugin" />
-
-    <service interface="org.codice.ddf.admin.application.plugin.ApplicationPlugin"
-             ref="metricsPlugin"/>
-
-</blueprint>
+@font-face {
+    font-family: 'Droid Sans';
+    font-style: normal;
+    font-weight: 400;
+    src: local('Droid Sans'), local('DroidSans'), url(DroidSans.woff) format('woff');
+}
+@font-face {
+    font-family: 'Droid Sans';
+    font-style: normal;
+    font-weight: 700;
+    src: local('Droid Sans Bold'), local('DroidSans-Bold'), url(DroidSansBold.woff) format('woff');
+}

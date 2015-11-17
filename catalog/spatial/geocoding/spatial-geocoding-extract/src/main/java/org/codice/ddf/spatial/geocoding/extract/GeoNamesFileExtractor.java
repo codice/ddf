@@ -59,6 +59,7 @@ public class GeoNamesFileExtractor implements GeoEntryExtractor {
         this.geoEntryCreator = geoEntryCreator;
     }
 
+    @Override
     public void setUrl(String url) {
         if (!url.endsWith("/")) {
             this.url = url + "/";
@@ -113,7 +114,7 @@ public class GeoNamesFileExtractor implements GeoEntryExtractor {
             for (String line; (line = reader.readLine()) != null;) {
                 extractionCallback.extracted(extractGeoEntry(line));
                 bytesRead += line.getBytes(StandardCharsets.UTF_8).length;
-                extractionCallback.updateProgress((int) ((bytesRead / fileSize) * 100));
+                extractionCallback.updateProgress((int) (50 + (bytesRead / fileSize) * 50));
             }
             extractionCallback.updateProgress(100);
 
@@ -164,7 +165,7 @@ public class GeoNamesFileExtractor implements GeoEntryExtractor {
             } else if (resource.matches("((?i)cities[0-9]+)")) {
                 resource = resource.toLowerCase();
                 // Support case insensitive country codes
-            } else {
+            } else if(!resource.equalsIgnoreCase("allCountries")){
                 resource = resource.toUpperCase();
             }
 
@@ -191,7 +192,7 @@ public class GeoNamesFileExtractor implements GeoEntryExtractor {
      *                                         file could not be downloaded.
      */
     private InputStream getInputStreamFromUrl(String resource, Response response,
-            InputStream inputStream, final ProgressCallback progressCallback)
+            InputStream inputStream, ProgressCallback progressCallback)
             throws GeoNamesRemoteDownloadException {
         int responseCode = 0;
 
@@ -214,8 +215,12 @@ public class GeoNamesFileExtractor implements GeoEntryExtractor {
                 fileOutputStream.write(buffer, 0, bytesRead);
                 totalBytesRead += bytesRead;
                 if (progressCallback != null) {
-                    progressCallback.updateProgress((int) ((totalBytesRead / totalFileSize) * 100));
+                    progressCallback.updateProgress((int) ((totalBytesRead / totalFileSize) * 50));
                 }
+            }
+            
+            if (progressCallback != null) {
+                progressCallback.updateProgress(50);
             }
 
             ByteSource byteSource = fileOutputStream.asByteSource();

@@ -1,0 +1,50 @@
+{
+  "name": "spatial-geocoding-admin-module",
+  "author": "Codice",
+  "description": "A frontend UI for GeoNames offline configuration on DDF.",
+  "version": "0.1.0",
+  "license": "LGPL-3.0",
+  "keywords": [
+    "backbone",
+    "express"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/codice/ddf.git"
+  },
+  "engines": {
+    "node": ">=0.10.5"
+  },
+  "devDependencies": {
+    "backbone": "1.1.2",
+    "backbone.marionette": "2.4.1",
+    "bower": "1.3.12",
+    "chai": "1.10.0",
+    "colors": "1.1.2",
+    "connect-livereload": "0.3.2",
+    "grunt": "0.4.5",
+    "grunt-bower-task": "0.4.0",
+    "grunt-cli": "0.1.13",
+    "grunt-contrib-clean": "0.4.0",
+    "grunt-contrib-cssmin": "0.5.0",
+    "grunt-contrib-jshint": "0.10.0",
+    "grunt-contrib-watch": "0.4.4",
+    "grunt-mocha-test": "0.12.7",
+    "grunt-newer": "0.8.0",
+    "grunt-sed": "0.1.1",
+    "jquery": "2.1.4",
+    "jshint-stylish": "1.0.2",
+    "load-grunt-tasks": "1.0.0",
+    "mocha": "2.3.3",
+    "requirejs": "2.1.22",
+    "underscore": "1.7.0"
+  },
+  "dependencies": {
+    "amdefine": ">=0.1.0",
+    "lodash": "2.4.1",
+    "node-fs": "0.1.7",
+    "node-options": "0.0.3",
+    "path": "0.4.9",
+    "request": "2.49.0"
+  }
+}

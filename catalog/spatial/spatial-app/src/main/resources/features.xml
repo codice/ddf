@@ -88,6 +88,7 @@
         <bundle>mvn:org.codice.ddf.spatial/spatial-commands/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-geocoder/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-localsearch/${project.version}</bundle>
+        <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-admin-module/${project.version}</bundle>
     </feature>
 
     <feature name="spatial-app" install="auto" version="${project.version}"

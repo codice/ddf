@@ -11,8 +11,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-
- -->
+-->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>geocoding</artifactId>
@@ -20,70 +19,58 @@
         <version>2.9.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>spatial-geocoding-index</artifactId>
-    <name>DDF :: Spatial :: Geocoding :: Index</name>
+
+    <artifactId>spatial-geocoding-admin-module</artifactId>
+    <name>DDF :: Spatial :: Geocoding :: UI Module</name>
     <packaging>bundle</packaging>
+
     <dependencies>
         <dependency>
-            <groupId>org.codice.ddf.spatial</groupId>
-            <artifactId>spatial-geocoding-api</artifactId>
+            <groupId>ddf.admin.core</groupId>
+            <artifactId>admin-core-appservice</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-core</artifactId>
-            <version>${lucene.version}</version>
+            <groupId>ddf.platform.error</groupId>
+            <artifactId>platform-error-servlet</artifactId>
+            <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-analyzers-common</artifactId>
-            <version>${lucene.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-spatial</artifactId>
-            <version>${lucene.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-queries</artifactId>
-            <version>${lucene.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.spatial4j</groupId>
-            <artifactId>spatial4j</artifactId>
-        </dependency>
-        <!-- Test dependencies -->
         <dependency>
             <groupId>org.codice.ddf.spatial</groupId>
             <artifactId>spatial-geocoding-api</artifactId>
             <version>${project.version}</version>
-            <type>test-jar</type>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <scope>test</scope>
         </dependency>
     </dependencies>
+
     <build>
         <plugins>
             <plugin>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>grunt build</id>
+                        <goals>
+                            <goal>grunt</goal>
+                        </goals>
+
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
-                <extensions>true</extensions>
                 <configuration>
                     <instructions>
+                        <Web-ContextPath>/admin/spatial-config</Web-ContextPath>
+                        <_wab>src/main/webapp,${project.build.directory}/webapp</_wab>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Export-Package>org.codice.ddf.spatial.geocoding.index</Export-Package>
                         <Embed-Dependency>
-                            lucene-analyzers-common,
-                            lucene-spatial,
-                            lucene-queries,
-                            spatial4j
+                            platform-error-servlet
                         </Embed-Dependency>
+                        <Import-Package>
+                            *
+                        </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>
@@ -101,30 +88,26 @@
                             <rules>
                                 <rule>
                                     <element>BUNDLE</element>
-                                    <!-- The limit had to be lowered because the code being tested
-                                         uses try-with-resources, which generates branches that
-                                         can't be fully tested yet are included in JaCoCo's branch
-                                         count. See https://github.com/jacoco/jacoco/issues/82 -->
                                     <limits>
                                         <limit>
-                                            <counter>COMPLEXITY</counter>
+                                            <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.66</minimum>
+                                            <minimum>0.84</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.75</minimum>
+                                            <minimum>0.50</minimum>
                                         </limit>
                                         <limit>
-                                            <counter>INSTRUCTION</counter>
+                                            <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.83</minimum>
+                                            <minimum>0.81</minimum>
                                         </limit>
                                         <limit>
                                             <counter>LINE</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.90</minimum>
+                                            <minimum>0.83</minimum>
                                         </limit>
                                     </limits>
                                 </rule>
@@ -133,6 +116,35 @@
                     </execution>
                 </executions>
             </plugin>
+            <!-- After the doc directory is more consistent across all repositories
+                 there should not be a need for the gem-maven-plugin and
+                 maven-antrun-plugin in this pom file to generate docs -->
+            <plugin>
+                <groupId>de.saumya.mojo</groupId>
+                <artifactId>gem-maven-plugin</artifactId>
+                <version>1.0.5</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>grunt test</id>
+                        <goals>
+                            <goal>grunt</goal>
+                        </goals>
+                        <phase>test</phase>
+                        <configuration>
+                            <arguments>test</arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
+
 </project>
