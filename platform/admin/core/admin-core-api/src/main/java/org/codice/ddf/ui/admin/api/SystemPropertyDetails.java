@@ -21,19 +21,19 @@ public class SystemPropertyDetails implements Serializable {
 
     private String title;
     private String description;
-    private List<String> options = new ArrayList<String>();
+    private List<String> options = new ArrayList<>();
     private String key;
     private String value;
     private String defaultValue;
 
     public SystemPropertyDetails(String title, String description, List<String> options, String key,
-            String value, String defaultValue) {
+            String value) {
         this.title = title;
         this.description = description;
         this.options = options;
         this.key = key;
         this.value = value;
-        this.defaultValue = defaultValue;
+        this.defaultValue = value;
     }
 
     public String getTitle() {
@@ -78,10 +78,6 @@ public class SystemPropertyDetails implements Serializable {
 
     public String getDefaultValue() {
         return defaultValue;
-    }
-
-    public void setDefaultValue(String defaultValue) {
-        this.defaultValue = defaultValue;
     }
 }
 

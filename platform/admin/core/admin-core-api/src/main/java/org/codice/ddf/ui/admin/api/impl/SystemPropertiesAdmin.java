@@ -187,7 +187,7 @@ public class SystemPropertiesAdmin implements SystemPropertiesAdminMBean {
     private SystemPropertyDetails getSystemPropertyDetails(String key, String title,
             String description, List<String> options) {
         String property = System.getProperty(key, "");
-        return new SystemPropertyDetails(title, description, options, key, property, property);
+        return new SystemPropertyDetails(title, description, options, key, property);
     }
 
     private void updateProperty(String key, Map<String, String> updatedProperties,
