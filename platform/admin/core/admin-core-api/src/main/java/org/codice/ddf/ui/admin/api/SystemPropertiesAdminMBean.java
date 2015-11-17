@@ -16,12 +16,25 @@ package org.codice.ddf.ui.admin.api;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Interface for the System Properties Admin MBean. Allows exposing the system
+ * properties out via a JMX MBean interface.
+ *
+ */
 public interface SystemPropertiesAdminMBean {
     public static final String OBJECT_NAME = "org.codice.ddf.ui.admin.api:type=SystemPropertiesAdminMBean";
 
+    /**
+     * Reads and returns system properties
+     *
+     * @return A list of SystemPropertyDetails items.
+     */
     List<SystemPropertyDetails> readSystemProperties();
 
+    /**
+     * Updates System Properties
+     *
+     * @param updatedSystemProperties A key value mapping of property name and value to be written
+     */
     void writeSystemProperties(Map<String, String> updatedSystemProperties);
-
-    List<String> setSystemCerts(Map<String, Object> certProps);
 }

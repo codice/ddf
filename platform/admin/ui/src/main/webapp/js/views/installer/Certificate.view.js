@@ -20,8 +20,8 @@ define([
     'underscore',
     'backbone',
     'jquery',
-    '../../models/CertsModel',
-    '../../models/FileHelper',
+    '../../models/installer/CertsModel',
+    '../../models/installer/FileHelper',
     'text!templates/installer/certificate.handlebars',
     'modelbinder',
     'perfectscrollbar',
@@ -36,9 +36,10 @@ define([
         initialize: function () {
             this.modelBinder = new Backbone.ModelBinder();
         },
-        saveCerts: function () {
-            var view = this;
-            this.listenTo(this.model, 'invalid', function (model, errors) {
+
+        modelEvents: {
+            'invalid': function(model, errors) {
+                var view = this;
                 view.$('[name=keystorePass]').removeClass('error-border');
                 view.$('[name=keyPass]').removeClass('error-border');
                 view.$('[name=truststorePass]').removeClass('error-border');
@@ -49,42 +50,27 @@ define([
                         view.$('[id=' + errorItem.id + ']').addClass('error-border');
                     }
                 });
-            });
+            },
+            'certErrors': 'render'
+        },
 
-            var saved = this.model.save();
-            if (saved) {
-                saved.success(function () {
-                    if (view.hasErrors()) {
-                        view.showCertErrors();
-                    }
-                });
-            }
-            return saved;
-        },
-        hasErrors: function () {
-            if (this.model.get('certErrors').length !== 0) {
-               return true;
-            }
-            return false;
-        },
-        showCertErrors: function () {
-                this.render();
-                this.$('.cert-errors').show();
-        },
         onRender: function () {
             this.modelBinder.bind(this.model, this.el);
             this.addFileListener('keystore');
             this.addFileListener('truststore');
             this.setupPopOvers();
         },
+
         addFileListener: function (name) {
             var view = this;
-            this.$('.' + name + '-fileupload').fileupload({
+            var el = this.$('.' + name + '-fileupload');
+            el.fileupload({
                 url: '/services/content',
                 paramName: 'file',
                 dataType: 'json',
                 maxFileSize: 5000000,
                 maxNumberOfFiles: 1,
+                dropZone: el,
                 add: function (e, data) {
                     view.model.set(name + 'FileName', data.files[0].name);
                     var fileHelper = new FileHelper();
@@ -96,6 +82,7 @@ define([
                 }
             });
         },
+
         setupPopOvers: function () {
             var view = this;
 

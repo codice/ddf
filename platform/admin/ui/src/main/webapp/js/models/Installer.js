@@ -152,24 +152,9 @@ define([
                         });
 
                         rebootAjax.done(function () {
-                            (function poll() {
-                                window.setTimeout(function () {
-                                    $.ajax({
-                                        type: 'GET',
-                                        url: that.get("redirectUrl"),
-                                        statusCode: {
-                                            200: function () {
-                                                window.setTimeout(function () {
-                                                    window.location.href = that.get("redirectUrl");
-                                                }, 2000);
-                                            }
-                                        },
-                                        error: function () {
-                                            poll();
-                                        }
-                                    });
-                                }, 1000);
-                            })();
+                            window.setTimeout(function () {
+                                window.location.href = that.get("redirectUrl");
+                            }, 30000);
                         });
 
                     }else {

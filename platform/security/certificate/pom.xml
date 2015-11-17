@@ -29,6 +29,4 @@
         <module>security-certificate-keystoreeditor</module>
         <module>security-certificate-generator</module>
     </modules>
-
-
 </project>
