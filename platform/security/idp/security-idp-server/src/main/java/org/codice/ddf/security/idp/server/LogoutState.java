@@ -14,6 +14,7 @@
 package org.codice.ddf.security.idp.server;
 
 import java.util.Collections;
+import java.util.Optional;
 import java.util.Set;
 
 import org.opensaml.saml2.metadata.SPSSODescriptor;
@@ -38,13 +39,12 @@ public class LogoutState {
         spDescriptors.remove(descriptor);
     }
 
-    public synchronized SPSSODescriptor getNextTarget() {
-        SPSSODescriptor item =  spDescriptors.stream()
-                .findFirst()
-                .orElse(null);
+    public synchronized Optional<SPSSODescriptor> getNextTarget() {
+        Optional<SPSSODescriptor> item =  spDescriptors.stream()
+                .findFirst();
 
-        if (item != null) {
-            spDescriptors.remove(item);
+        if (item.isPresent()) {
+            spDescriptors.remove(item.get());
         }
         return item;
     }

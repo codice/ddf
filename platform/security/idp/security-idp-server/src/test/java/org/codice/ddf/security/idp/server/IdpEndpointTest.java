@@ -157,7 +157,8 @@ public class IdpEndpointTest {
         pkiAuthenticationTokenFactory.setSignaturePropertiesPath(signatureFile.getAbsolutePath());
         pkiAuthenticationTokenFactory.init();
         idpEndpoint.setTokenFactory(pkiAuthenticationTokenFactory);
-        idpEndpoint.cookieCache.put("1", readDocument("/saml.xml").getDocumentElement());
+        idpEndpoint.cookieCache.cacheSamlAssertion("1",
+                readDocument("/saml.xml").getDocumentElement());
         idpEndpoint.setExpirationTime(30);
     }
 

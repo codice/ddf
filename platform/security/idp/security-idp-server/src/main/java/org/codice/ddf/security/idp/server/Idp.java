@@ -129,7 +129,7 @@ public interface Idp {
 
     @GET
     @Path("/logout")
-    Response processGetLogout(@QueryParam(SAML_REQ) String samlRequest,
+    Response processRedirectLogout(@QueryParam(SAML_REQ) String samlRequest,
             @QueryParam(RELAY_STATE) String relayState,
             @QueryParam(SSOConstants.SIG_ALG) String signatureAlgorithm,
             @QueryParam(SSOConstants.SIGNATURE) String signature,

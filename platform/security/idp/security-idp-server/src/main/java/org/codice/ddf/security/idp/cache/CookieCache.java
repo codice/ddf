@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.security.idp.cache;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -31,9 +33,10 @@ public class CookieCache {
 
     private int currentExpiration = DEFAULT_EXPIRATION_MINUTES;
 
-    private Cache<String, Element> cache = CacheBuilder.newBuilder()
-            .expireAfterWrite(DEFAULT_EXPIRATION_MINUTES,
-                    TimeUnit.MINUTES).removalListener(new RemovalListenerLogger()).build();
+    private Cache<String, DataWrapper> cache = CacheBuilder.newBuilder()
+            .expireAfterWrite(DEFAULT_EXPIRATION_MINUTES, TimeUnit.MINUTES)
+            .removalListener(new RemovalListenerLogger())
+            .build();
 
     public void clearCache() {
         cache.invalidateAll();
@@ -45,8 +48,17 @@ public class CookieCache {
      * @param key key corresponding to the SAML assertion
      * @param token the SAML assertion to be cached
      */
-    public void put(String key, Element token) {
-        cache.put(key, token);
+    public void cacheSamlAssertion(String key, Element token) {
+        cache.put(key, new DataWrapper(token));
+    }
+
+    public void addActiveSp(String key, String activeSp) {
+        DataWrapper data = cache.getIfPresent(key);
+        if (data == null) {
+            LOGGER.error("Cannot add sp [{}] for [{}]: does not exist", activeSp, key);
+            return;
+        }
+        data.activeSpSet.add(activeSp);
     }
 
     /**
@@ -55,8 +67,20 @@ public class CookieCache {
      * @param key the corresponding key for the assertion
      * @return the SecurityToken object associated with the reference, or null
      */
-    public Element get(String key) {
-        return cache.getIfPresent(key);
+    public Element getSamlAssertion(String key) {
+        DataWrapper dataWrapper = cache.getIfPresent(key);
+        if (dataWrapper != null) {
+            return dataWrapper.element;
+        }
+        return null;
+    }
+
+    public Set<String> getActiveSpSet(String key) {
+        DataWrapper dataWrapper = cache.getIfPresent(key);
+        if (dataWrapper != null) {
+            return new HashSet<>(dataWrapper.activeSpSet);
+        }
+        return new HashSet<>();
     }
 
     /**
@@ -70,9 +94,10 @@ public class CookieCache {
             LOGGER.debug(
                     "New expiration value passed in. Changing cache to expire every {} minutes instead of every {}.",
                     expirationMinutes, currentExpiration);
-            Cache<String, Element> tmpCache = CacheBuilder.newBuilder()
+            Cache<String, DataWrapper> tmpCache = CacheBuilder.newBuilder()
                     .expireAfterWrite(expirationMinutes, TimeUnit.MINUTES)
-                    .removalListener(new RemovalListenerLogger()).build();
+                    .removalListener(new RemovalListenerLogger())
+                    .build();
             tmpCache.putAll(cache.asMap());
             LOGGER.debug("All cache items updated to expire after {} minutes.", expirationMinutes);
             cache = tmpCache;
@@ -86,13 +111,25 @@ public class CookieCache {
     /**
      * Listens for removal notifications from the cache and logs each time a removal is performed.
      */
-    private class RemovalListenerLogger implements RemovalListener<String, Element> {
+    private class RemovalListenerLogger implements RemovalListener<String, DataWrapper> {
 
         @Override
-        public void onRemoval(RemovalNotification<String, Element> notification) {
-            LOGGER.debug("Expiring SAML ref:assertion {}:{} due to {}.",
-                    notification.getKey(),
-                    notification.getValue(), notification.getCause().toString());
+        public void onRemoval(RemovalNotification<String, DataWrapper> notification) {
+            LOGGER.debug("Expiring SAML ref:assertion {}:{} due to {}.", notification.getKey(),
+                    notification.getValue(), notification.getCause()
+                    .toString());
         }
     }
+
+    private static class DataWrapper {
+        private final Element element;
+
+        private final Set<String> activeSpSet;
+
+        private DataWrapper(Element element) {
+            this.element = element;
+            this.activeSpSet = new HashSet<>();
+        }
+    }
+
 }

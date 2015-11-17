@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -225,9 +226,21 @@ public class IdpEndpoint implements Idp {
                             StatusCode.REQUEST_UNSUPPORTED_URI, binding);
                 }
                 LOGGER.debug("Returning Passive & PKI SAML Response.");
+                NewCookie cookie = null;
+                if (hasCookie) {
+                    cookieCache.addActiveSp(getCookie(request).getValue(), authnRequest.getIssuer()
+                            .getValue());
+                } else {
+                    cookie = createCookie(request, samlpResponse);
+                    if (cookie != null) {
+                        cookieCache.addActiveSp(cookie.getValue(), authnRequest.getIssuer()
+                                .getValue());
+                    }
+                }
+
                 return binding.creator()
-                        .getSamlpResponse(relayState, authnRequest, samlpResponse,
-                                createCookie(request, samlpResponse), template);
+                        .getSamlpResponse(relayState, authnRequest, samlpResponse, cookie,
+                                template);
             } else {
                 LOGGER.debug("Building the JSON map to embed in the index.html page for login.");
                 Document doc = DOMUtils.createDocument();
@@ -337,10 +350,16 @@ public class IdpEndpoint implements Idp {
             org.opensaml.saml2.core.Response encodedSaml = handleLogin(authnRequest, authMethod,
                     request, false, false);
             LOGGER.debug("Returning SAML Response for relayState: {}" + relayState);
-
-            return binding.creator()
-                    .getSamlpResponse(relayState, authnRequest, encodedSaml,
-                            createCookie(request, encodedSaml), template);
+            NewCookie newCookie = createCookie(request, encodedSaml);
+            Response response = binding.creator()
+                    .getSamlpResponse(relayState, authnRequest, encodedSaml, newCookie, template);
+            if (newCookie != null) {
+                cookieCache.addActiveSp(newCookie.getValue(), authnRequest.getIssuer()
+                        .getValue());
+            }
+            LOGGER.debug("Adding SP to activeSP list: {}", authnRequest.getIssuer()
+                    .getValue());
+            return response;
         } catch (SecurityServiceException e) {
             LOGGER.warn("Unable to retrieve subject for user.", e);
             return Response.status(Response.Status.UNAUTHORIZED)
@@ -429,6 +448,7 @@ public class IdpEndpoint implements Idp {
                 }
             }
         }
+
         LOGGER.debug("User log in successful.");
         return SamlProtocol.createResponse(
                 SamlProtocol.createIssuer(systemBaseUrl.constructUrl("/idp/login", true)),
@@ -445,7 +465,7 @@ public class IdpEndpoint implements Idp {
         Cookie cookie = getCookie(request);
         if (cookie != null) {
             LOGGER.debug("Retrieving cookie from cache.");
-            samlToken = cookieCache.get(cookie.getValue());
+            samlToken = cookieCache.getSamlAssertion(cookie.getValue());
         }
         return samlToken;
     }
@@ -469,7 +489,7 @@ public class IdpEndpoint implements Idp {
             if (assertion != null) {
                 UUID uuid = UUID.randomUUID();
 
-                cookieCache.put(uuid.toString(), assertion.getDOM());
+                cookieCache.cacheSamlAssertion(uuid.toString(), assertion.getDOM());
                 URL url;
                 try {
                     url = new URL(request.getRequestURL()
@@ -547,7 +567,7 @@ public class IdpEndpoint implements Idp {
      * @throws WSSecurityException
      */
     @Override
-    public Response processGetLogout(@QueryParam(SAML_REQ) String samlRequest,
+    public Response processRedirectLogout(@QueryParam(SAML_REQ) String samlRequest,
             @QueryParam(RELAY_STATE) String relayState,
             @QueryParam(SSOConstants.SIG_ALG) String signatureAlgorithm,
             @QueryParam(SSOConstants.SIGNATURE) String signature,
@@ -563,12 +583,14 @@ public class IdpEndpoint implements Idp {
                     .validateRelayState(relayState);
 
             if (logoutObject instanceof LogoutRequest) {
+                // LogoutRequest is the initial request coming from the SP that initiated the chain
                 LogoutRequest logoutRequest = ((LogoutRequest) logoutObject);
                 validateGetLogoutObject(logoutRequest, samlRequest, logoutRequest.getIssuer()
                         .getValue(), relayState, signatureAlgorithm, signature, strictSignature);
                 return handleLogoutRequest(cookie, logoutState, (LogoutRequest) logoutObject);
 
             } else if (logoutObject instanceof LogoutResponse) {
+                // LogoutResponse is one of the SP's responding to the logout request
                 LogoutResponse logoutResponse = ((LogoutResponse) logoutObject);
                 validateGetLogoutObject(logoutResponse, samlRequest, logoutResponse.getIssuer()
                         .getValue(), relayState, signatureAlgorithm, signature, strictSignature);
@@ -579,21 +601,6 @@ public class IdpEndpoint implements Idp {
                 // Even if their object is bad we might be able to finish rest of logouts
                 continueLogout(logoutState);
             }
-
-                /*// just for reference
-                String senderAddress = logoutRequest.getIssuer()
-                        .getValue();
-                String issuerAddress = "HOW DO I GET MY OWN ISSUER ADDRESS";
-                LogoutResponse logoutResponse = logoutService.buildLogoutResponse(issuerAddress,
-                        StatusCode.SUCCESS_URI);
-                SimpleSign simpleSign = new SimpleSign(systemCrypto);
-                URI encodedResponse = logoutService.signSamlGetResponse(logoutResponse,
-                        URI.create(senderAddress), relayState);
-                String logoutResponseStr = redirectPage.replace("{{redirect}}",
-                        encodedResponse.toString());
-                return Response.ok(logoutResponseStr)
-                        .build();*/
-
         } catch (XMLStreamException e) {
             LOGGER.error("Unable to extract Saml object", e);
         } catch (SimpleSign.SignatureException e) {
@@ -624,32 +631,35 @@ public class IdpEndpoint implements Idp {
             throw new InvalidStateException("Weird state");
         }
 
-        Set<SPSSODescriptor> activeSPs = new HashSet<>(); // TODO (RCZ) - Track active SP's
-        logoutState = new LogoutState(activeSPs);
+        logoutState = new LogoutState(getActiveSps());
         logoutState.setOriginalIssuer(logoutRequest.getIssuer()
                 .getValue());
-        logoutState.setNameId(logoutRequest.getNameID().getValue());
+        logoutState.setNameId(logoutRequest.getNameID()
+                .getValue());
         logoutStates.encode(cookie.getValue(), logoutState);
         return continueLogout(logoutState);
     }
 
-    private Response continueLogout(LogoutState logoutState)
-            throws IdpException {
+    private Response continueLogout(LogoutState logoutState) throws IdpException {
         if (logoutState == null) {
             throw new IdpException("Cannot continue a Logout that doesn't exist!");
         }
         try {
-            SPSSODescriptor nextTarget = logoutState.getNextTarget();
-            if (nextTarget != null) {
-                LogoutRequest logoutRequest = logoutService.buildLogoutRequest(logoutState.getNameId(), systemBaseUrl.constructUrl("/idp/logout", true));
+            Optional<SPSSODescriptor> nextTargetOpt = logoutState.getNextTarget();
+            if (nextTargetOpt.isPresent()) {
+                SPSSODescriptor nextTarget = nextTargetOpt.get();
+                // TODO (RCZ) - Is issuerId the metadata endpoint or the logout endpoint?
+                LogoutRequest logoutRequest = logoutService.buildLogoutRequest(
+                        logoutState.getNameId(), systemBaseUrl.constructUrl("/idp/logout", true));
                 if (supportsLogoutBinding(nextTarget, HTTP_REDIRECT_BINDING)) {
-                    SingleLogoutService singleLogoutService = nextTarget.getSingleLogoutServices()
+                    Optional<SingleLogoutService> singleLogoutService = nextTarget.getSingleLogoutServices()
                             .stream()
-                            .filter(sls -> HTTP_POST_BINDING.equals(sls.getBinding()))
-                            .findFirst()
-                            .orElse(null);
-                    // TODO (RCZ) - extract this + maybe just check for null
-                    return getSamlResponse(logoutRequest, singleLogoutService.getLocation(), "");
+                            .filter(sls -> HTTP_REDIRECT_BINDING.equals(sls.getBinding()))
+                            .findFirst();
+                    if (singleLogoutService.isPresent()) {
+                        return getSamlRedirectResponse(logoutRequest, singleLogoutService.get()
+                                .getLocation(), "");
+                    }
                 } else if (supportsLogoutBinding(nextTarget, HTTP_POST_BINDING)) {
                     // TODO (RCZ) - Post binding
                 } else {
@@ -672,7 +682,13 @@ public class IdpEndpoint implements Idp {
         return null;
     }
 
-    private Response getSamlResponse(XMLObject samlResponse, String targetUrl, String relayState)
+    public Set<SPSSODescriptor> getActiveSps() {
+        // TODO (RCZ) - Track active SP's
+        return new HashSet<>();
+    }
+
+    private Response getSamlRedirectResponse(XMLObject samlResponse, String targetUrl,
+            String relayState)
             throws IOException, SimpleSign.SignatureException, WSSecurityException {
         Document doc = DOMUtils.createDocument();
         doc.appendChild(doc.createElement("root"));
@@ -683,7 +699,7 @@ public class IdpEndpoint implements Idp {
     }
 
     private URI signSamlGetResponse(XMLObject samlResponse, String targetUrl, String relayState)
-            throws WSSecurityException, IOException, SimpleSign.SignatureException {
+            throws IOException, SimpleSign.SignatureException, WSSecurityException {
         LOGGER.debug("Signing SAML response for redirect.");
         Document doc = DOMUtils.createDocument();
         doc.appendChild(doc.createElement("root"));
