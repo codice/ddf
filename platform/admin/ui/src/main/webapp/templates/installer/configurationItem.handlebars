@@ -26,6 +26,8 @@
         {{/unless}}
 
     </div>
-    <span class="error-text" name="{{key}}Error" style="display: none"></span>
+    {{#if errorMessage}}
+        <span class="error-text">{{errorMessage}}</span>
+    {{/if}}
     <span class="description">{{description}}</span>
 </div>

@@ -76,16 +76,6 @@
             <artifactId>org.apache.felix.utils</artifactId>
             <version>1.2.0</version>
         </dependency>
-        <dependency>
-            <groupId>ddf.security.certificate</groupId>
-            <artifactId>security-certificate-keystoreeditor</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.security.certificate</groupId>
-            <artifactId>security-certificate-generator</artifactId>
-            <version>${project.version}</version>
-        </dependency>
     </dependencies>
 
     <artifactId>admin-core-api</artifactId>

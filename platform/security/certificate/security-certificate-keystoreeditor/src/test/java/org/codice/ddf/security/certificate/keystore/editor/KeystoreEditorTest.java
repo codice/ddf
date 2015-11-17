@@ -18,16 +18,10 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
-import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.util.encoders.Base64;
 import org.hamcrest.core.AnyOf;
 import org.hamcrest.core.Is;
@@ -71,6 +65,8 @@ public class KeystoreEditorTest {
     File systemKeystoreFile = null;
 
     File systemTruststoreFile = null;
+
+    String password = "changeit";
 
     @Before
     public void setup() throws IOException {
@@ -175,8 +171,8 @@ public class KeystoreEditorTest {
         System.setProperty("ddf.home", "");
         System.setProperty("javax.net.ssl.keyStore", keyStoreFile.getAbsolutePath());
         System.setProperty("javax.net.ssl.trustStore", trustStoreFile.getAbsolutePath());
-        System.setProperty("javax.net.ssl.keyStorePassword", "changeit");
-        System.setProperty("javax.net.ssl.trustStorePassword", "changeit");
+        System.setProperty("javax.net.ssl.keyStorePassword", password);
+        System.setProperty("javax.net.ssl.trustStorePassword", password);
     }
 
     @Test
@@ -245,7 +241,7 @@ public class KeystoreEditorTest {
         byte[] keyBytes = IOUtils.toByteArray(fileInputStream);
         IOUtils.closeQuietly(fileInputStream);
         keystoreEditor
-                .addPrivateKey("asdf", "changeit", "", new String(Base64.encode(keyBytes)), type,
+                .addPrivateKey("asdf", password, "", new String(Base64.encode(keyBytes)), type,
                         keyFile.toString());
     }
 
@@ -254,7 +250,7 @@ public class KeystoreEditorTest {
         FileInputStream fileInputStream = new FileInputStream(chainFile);
         byte[] crtBytes = IOUtils.toByteArray(fileInputStream);
         IOUtils.closeQuietly(fileInputStream);
-        keystoreEditor.addPrivateKey("asdf", "changeit", "", new String(Base64.encode(crtBytes)),
+        keystoreEditor.addPrivateKey("asdf", password, "", new String(Base64.encode(crtBytes)),
                 KeystoreEditor.PEM_TYPE, chainFile.toString());
     }
 
@@ -265,7 +261,7 @@ public class KeystoreEditorTest {
         byte[] keyBytes = IOUtils.toByteArray(fileInputStream);
         IOUtils.closeQuietly(fileInputStream);
         keystoreEditor
-                .addPrivateKey("asdf", "changeit", "changeit", new String(Base64.encode(keyBytes)),
+                .addPrivateKey("asdf", password, password, new String(Base64.encode(keyBytes)),
                         "", jksFile.toString());
         List<Map<String, Object>> keystore = keystoreEditor.getKeystore();
         Assert.assertThat(keystore.size(), Is.is(1));
@@ -282,7 +278,7 @@ public class KeystoreEditorTest {
         byte[] keyBytes = IOUtils.toByteArray(fileInputStream);
         IOUtils.closeQuietly(fileInputStream);
         keystoreEditor
-                .addPrivateKey("asdf", "changeit", "changeit", new String(Base64.encode(keyBytes)),
+                .addPrivateKey("asdf", password, password, new String(Base64.encode(keyBytes)),
                         KeystoreEditor.PKCS12_TYPE, pkcs12StoreFile.toString());
         List<Map<String, Object>> keystore = keystoreEditor.getKeystore();
         Assert.assertThat(keystore.size(), Is.is(1));
@@ -299,7 +295,7 @@ public class KeystoreEditorTest {
         byte[] crtBytes = IOUtils.toByteArray(fileInputStream);
         IOUtils.closeQuietly(fileInputStream);
         keystoreEditor
-                .addPrivateKey("localhost", "changeit", "", new String(Base64.encode(crtBytes)),
+                .addPrivateKey("localhost", password, "", new String(Base64.encode(crtBytes)),
                         KeystoreEditor.PEM_TYPE, localhostCrtFile.toString());
         List<Map<String, Object>> keystore = keystoreEditor.getKeystore();
         Assert.assertThat(keystore.size(), Is.is(1));
@@ -311,7 +307,7 @@ public class KeystoreEditorTest {
         fileInputStream = new FileInputStream(localhostKeyFile);
         byte[] keyBytes = IOUtils.toByteArray(fileInputStream);
         IOUtils.closeQuietly(fileInputStream);
-        keystoreEditor.addPrivateKey("localhost", "changeit", "changeit",
+        keystoreEditor.addPrivateKey("localhost", password, password,
                 new String(Base64.encode(keyBytes)), KeystoreEditor.PEM_TYPE,
                 localhostKeyFile.toString());
         keystore = keystoreEditor.getKeystore();
@@ -323,64 +319,99 @@ public class KeystoreEditorTest {
     }
 
     @Test
-    public void testAddAllKeystoreEntries()
-            throws KeystoreEditor.KeystoreEditorException, IOException, CertificateException,
-            UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException,
-            NoSuchProviderException, CMSException {
+    public void testReplaceSystemStores() throws Exception {
         KeystoreEditor keystoreEditor = new KeystoreEditor();
-        FileInputStream fileInputStream = new FileInputStream(systemKeystoreFile);
-        byte[] crtBytes = IOUtils.toByteArray(fileInputStream);
-        byte[] encodedBytes = Base64.encode(crtBytes);
-        IOUtils.closeQuietly(fileInputStream);
-        keystoreEditor.addAllKeystoreEntries("changeit", "changeit", new String(encodedBytes), null,
-                systemKeystoreFile.toString());
+        Assert.assertThat(keystoreEditor.getKeystore().size(), Is.is(0));
+        Assert.assertThat(keystoreEditor.getTruststore().size(), Is.is(0));
 
+        FileInputStream keystoreInputStream = new FileInputStream(systemKeystoreFile);
+        byte[] keystoreCrtBytes = IOUtils.toByteArray(keystoreInputStream);
+        byte[] keystoreEncodedBytes = Base64.encode(keystoreCrtBytes);
+        FileInputStream truststoreInputStream = new FileInputStream(systemTruststoreFile);
+        byte[] truststoreCrtBytes = IOUtils.toByteArray(truststoreInputStream);
+        byte[] truststoreEncodedBytes = Base64.encode(truststoreCrtBytes);
+        List<String> errors = keystoreEditor
+                .replaceSystemStores("localhost", password, password,
+                        new String(keystoreEncodedBytes), systemKeystoreFile.getName(), password,
+                        new String(truststoreEncodedBytes), systemTruststoreFile.getName());
+        Assert.assertThat(errors.size(), Is.is(0));
         List<Map<String, Object>> keystore = keystoreEditor.getKeystore();
+        List<Map<String, Object>> truststore = keystoreEditor.getTruststore();
         Assert.assertThat(keystore.size(), Is.is(2));
+        String alias1 = (String) keystore.get(0).get("alias");
+        String alias2 = (String) keystore.get(1).get("alias");
+        Assert.assertThat(alias1, AnyOf.anyOf(Is.is("localhost"), Is.is("ddf demo root ca")));
+        Assert.assertThat(alias2, AnyOf.anyOf(Is.is("localhost"), Is.is("ddf demo root ca")));
+        Assert.assertThat(truststore.get(0).get("alias"), Is.is("ddf demo root ca"));
     }
 
     @Test
-    public void testAddAllTruststoreEntries()
-            throws KeystoreEditor.KeystoreEditorException, IOException, CertificateException,
-            UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException,
-            NoSuchProviderException, CMSException {
+    public void testReplaceSystemStoresBadFqdn() throws Exception {
         KeystoreEditor keystoreEditor = new KeystoreEditor();
-        FileInputStream fileInputStream = new FileInputStream(systemTruststoreFile);
-        byte[] crtBytes = IOUtils.toByteArray(fileInputStream);
-        byte[] encodedBytes = Base64.encode(crtBytes);
-        IOUtils.closeQuietly(fileInputStream);
-        keystoreEditor.addAllKeystoreEntries(null, "changeit", new String(encodedBytes), null,
-                systemTruststoreFile.toString());
+        Assert.assertThat(keystoreEditor.getKeystore().size(), Is.is(0));
+        Assert.assertThat(keystoreEditor.getTruststore().size(), Is.is(0));
 
-        List<Map<String, Object>> keystore = keystoreEditor.getKeystore();
-        Assert.assertThat(keystore.size(), Is.is(1));
+        FileInputStream keystoreInputStream = new FileInputStream(systemKeystoreFile);
+        byte[] keystoreCrtBytes = IOUtils.toByteArray(keystoreInputStream);
+        byte[] keystoreEncodedBytes = Base64.encode(keystoreCrtBytes);
+        FileInputStream truststoreInputStream = new FileInputStream(systemTruststoreFile);
+        byte[] truststoreCrtBytes = IOUtils.toByteArray(truststoreInputStream);
+        byte[] truststoreEncodedBytes = Base64.encode(truststoreCrtBytes);
+        List<String> errors = keystoreEditor.replaceSystemStores("asdf", password, password,
+                new String(keystoreEncodedBytes), systemKeystoreFile.getName(), password,
+                new String(truststoreEncodedBytes), systemTruststoreFile.getName());
+        Assert.assertThat(errors.size(), Is.is(1));
     }
 
     @Test
-    public void testKeystoreContainsEntry()
-            throws IOException, CertificateException, KeystoreEditor.KeystoreEditorException,
-            UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException,
-            NoSuchProviderException, CMSException {
+    public void testReplaceSystemStoresEmptyFqdn() throws Exception {
         KeystoreEditor keystoreEditor = new KeystoreEditor();
-        FileInputStream fileInputStream = new FileInputStream(systemKeystoreFile);
-        byte[] crtBytes = IOUtils.toByteArray(fileInputStream);
-        byte[] encodedBytes = Base64.encode(crtBytes);
-        IOUtils.closeQuietly(fileInputStream);
+        Assert.assertThat(keystoreEditor.getKeystore().size(), Is.is(0));
+        Assert.assertThat(keystoreEditor.getTruststore().size(), Is.is(0));
 
-        boolean containsKey = keystoreEditor
-                .keystoreContainsEntry("localhost", "changeit", new String(encodedBytes), null,
-                        systemKeystoreFile.toString());
-        Assert.assertThat(containsKey, Is.is(true));
+        FileInputStream keystoreInputStream = new FileInputStream(systemKeystoreFile);
+        byte[] keystoreCrtBytes = IOUtils.toByteArray(keystoreInputStream);
+        byte[] keystoreEncodedBytes = Base64.encode(keystoreCrtBytes);
+        FileInputStream truststoreInputStream = new FileInputStream(systemTruststoreFile);
+        byte[] truststoreCrtBytes = IOUtils.toByteArray(truststoreInputStream);
+        byte[] truststoreEncodedBytes = Base64.encode(truststoreCrtBytes);
+        List<String> errors = keystoreEditor
+                .replaceSystemStores("", password, password, new String(keystoreEncodedBytes),
+                        systemKeystoreFile.getName(), password,
+                        new String(truststoreEncodedBytes), systemTruststoreFile.getName());
+        Assert.assertThat(errors.size(), Is.is(1));
+    }
 
-        containsKey = keystoreEditor
-                .keystoreContainsEntry("ddf demo root ca", "changeit", new String(encodedBytes),
-                        null, systemKeystoreFile.toString());
-        Assert.assertThat(containsKey, Is.is(true));
+    @Test
+    public void testReplaceSystemStoresBadInput() throws Exception {
+        KeystoreEditor keystoreEditor = new KeystoreEditor();
+        Assert.assertThat(keystoreEditor.getKeystore().size(), Is.is(0));
+        Assert.assertThat(keystoreEditor.getTruststore().size(), Is.is(0));
 
-        containsKey = keystoreEditor
-                .keystoreContainsEntry("badAlias", "changeit", new String(encodedBytes), null,
-                        systemKeystoreFile.toString());
-        Assert.assertThat(containsKey, Is.is(false));
+        List<String> errors = keystoreEditor
+                .replaceSystemStores("localhost", password, password, null,
+                        systemKeystoreFile.getName(), password, null,
+                        systemTruststoreFile.getName());
+        Assert.assertThat(errors.size(), Is.is(2));
+    }
+
+    @Test
+    public void testReplaceSystemStoresBadEncoding() throws Exception {
+        KeystoreEditor keystoreEditor = new KeystoreEditor();
+        Assert.assertThat(keystoreEditor.getKeystore().size(), Is.is(0));
+        Assert.assertThat(keystoreEditor.getTruststore().size(), Is.is(0));
+
+        FileInputStream keystoreInputStream = new FileInputStream(systemKeystoreFile);
+        byte[] keystoreCrtBytes = IOUtils.toByteArray(keystoreInputStream);
+
+        FileInputStream truststoreInputStream = new FileInputStream(systemTruststoreFile);
+        byte[] truststoreCrtBytes = IOUtils.toByteArray(truststoreInputStream);
+
+        List<String> errors = keystoreEditor
+                .replaceSystemStores("localhost", password, password,
+                        new String(keystoreCrtBytes), systemKeystoreFile.getName(), password,
+                        new String(truststoreCrtBytes), systemTruststoreFile.getName());
+        Assert.assertThat(errors.size(), Is.is(1));
     }
 
     @Test
@@ -390,7 +421,7 @@ public class KeystoreEditorTest {
         byte[] crtBytes = IOUtils.toByteArray(fileInputStream);
         IOUtils.closeQuietly(fileInputStream);
         keystoreEditor
-                .addTrustedCertificate("asdf", "changeit", "", new String(Base64.encode(crtBytes)),
+                .addTrustedCertificate("asdf", password, "", new String(Base64.encode(crtBytes)),
                         KeystoreEditor.PEM_TYPE, crtFile.toString());
         List<Map<String, Object>> truststore = keystoreEditor.getTruststore();
         Assert.assertThat(truststore.size(), Is.is(1));
@@ -419,7 +450,7 @@ public class KeystoreEditorTest {
         byte[] crtBytes = IOUtils.toByteArray(fileInputStream);
         IOUtils.closeQuietly(fileInputStream);
         keystoreEditor
-                .addTrustedCertificate("asdf", "changeit", "", new String(Base64.encode(crtBytes)),
+                .addTrustedCertificate("asdf", password, "", new String(Base64.encode(crtBytes)),
                         KeystoreEditor.PEM_TYPE, crtFile.toString());
         List<Map<String, Object>> truststore = keystoreEditor.getTruststore();
         Assert.assertThat(truststore.size(), Is.is(1));
@@ -457,7 +488,7 @@ public class KeystoreEditorTest {
         byte[] crtBytes = IOUtils.toByteArray(fileInputStream);
         IOUtils.closeQuietly(fileInputStream);
         keystoreEditor
-                .addTrustedCertificate("asdf", "changeit", "", new String(Base64.encode(crtBytes)),
+                .addTrustedCertificate("asdf", password, "", new String(Base64.encode(crtBytes)),
                         KeystoreEditor.PEM_TYPE, p7bFile.toString());
         List<Map<String, Object>> truststore = keystoreEditor.getTruststore();
         Assert.assertThat(truststore.size(), Is.is(1));
@@ -470,7 +501,7 @@ public class KeystoreEditorTest {
     @Test(expected = KeystoreEditor.KeystoreEditorException.class)
     public void testBadData() throws KeystoreEditor.KeystoreEditorException {
         KeystoreEditor keystoreEditor = new KeystoreEditor();
-        keystoreEditor.addPrivateKey("asdf", "changeit", "changeit", "", "", "file.pem");
+        keystoreEditor.addPrivateKey("asdf", password, password, "", "", "file.pem");
     }
 
     @Test(expected = KeystoreEditor.KeystoreEditorException.class)
@@ -516,7 +547,7 @@ public class KeystoreEditorTest {
         byte[] keyBytes = IOUtils.toByteArray(fileInputStream);
         IOUtils.closeQuietly(fileInputStream);
         keystoreEditor
-                .addPrivateKey(alias, "changeit", "blah", new String(Base64.encode(keyBytes)), "",
+                .addPrivateKey(alias, password, "blah", new String(Base64.encode(keyBytes)), "",
                         file.toString());
     }
 }

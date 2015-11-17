@@ -32,6 +32,7 @@ define([
         events: {
             'click .previous': 'previous',
             'click .next': 'next',
+            'click .finish': 'finish',
             'click .restart-later': 'finish',
             'click .restart-now': 'restart'
         },

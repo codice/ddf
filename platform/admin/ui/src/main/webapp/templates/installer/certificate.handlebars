@@ -1,11 +1,13 @@
-<div class="cert-errors" style="display: none">
-    <label>The following issues were found with your certificates:</label>
-    <ul class="fa-ul">
-        {{#each certErrors}}
-            <li><i class="fa-li fa fa-exclamation-triangle fa-lg"></i> {{this}}</li>
-        {{/each}}
-    </ul>
-</div>
+{{#if certErrors}}
+    <div class="cert-errors">
+        <label>The following issues were found with your certificates:</label>
+        <ul class="fa-ul">
+            {{#each certErrors}}
+                <li><i class="fa-li fa fa-exclamation-triangle fa-lg"></i> {{this}}</li>
+            {{/each}}
+        </ul>
+    </div>
+{{/if}}
 <div class="store-div">
     <label class="store-title">Add Keystore</label>
     <a href='#' class='keystore-info'>
@@ -20,7 +22,7 @@
                         <span>Select file to upload</span>
                         <input id="inputFile" type="file" name="files[]">
                     </span>
-                OR drag file to this window.
+                OR drag file to this box.
             </form>
         </div>
         <label class="store-file">Keystore File: {{keystoreFileName}}</label>
@@ -65,7 +67,7 @@
                         <span>Select file to upload</span>
                         <input type="file" name="files[]">
                     </span>
-                OR drag file to this window.
+                OR drag file to this box.
             </form>
         </div>
         <label class="store-file">Truststore File: {{truststoreFileName}}</label>
