@@ -24,13 +24,16 @@ define([
         './filter/FilterLayout.view',
         'text!templates/resultlist/resultListItem.handlebars',
         'text!templates/resultlist/resultList.handlebars',
+        'text!templates/resultlist/metacardTable.handlebars',
         'text!templates/resultlist/countlow.handlebars',
         'text!templates/resultlist/counthigh.handlebars',
         'text!templates/resultlist/statusItem.handlebars',
         'text!templates/resultlist/status.handlebars',
         'properties'
     ],
-    function (Marionette, Backbone, $, _, ich, dir, Spinner, spinnerConfig, wreqr, FilterLayoutView,resultListItemTemplate, resultListTemplate, countLowTemplate, countHighTemplate, statusItemTemplate, statusTemplate, properties) {
+    function (Marionette, Backbone, $, _, ich, dir, Spinner, spinnerConfig, wreqr, FilterLayoutView,
+              resultListItemTemplate, resultListTemplate, metacardTableTemplate, countLowTemplate,
+              countHighTemplate, statusItemTemplate, statusTemplate, properties) {
         "use strict";
 
         var List = {};
@@ -61,6 +64,7 @@ define([
 
         ich.addTemplate('resultListItem', resultListItemTemplate);
         ich.addTemplate('resultListTemplate', resultListTemplate);
+        ich.addTemplate('metacardTableTemplate', metacardTableTemplate);
         ich.addTemplate('countLowTemplate', countLowTemplate);
         ich.addTemplate('countHighTemplate', countHighTemplate);
         ich.addTemplate('statusItemTemplate', statusItemTemplate);
@@ -123,10 +127,10 @@ define([
 
         });
 
-        List.MetacardTable = Marionette.CollectionView.extend({
+        List.MetacardTable = Marionette.CompositeView.extend({
+            template: 'metacardTableTemplate',
             childView : List.MetacardRow,
-            tagName: 'table',
-            className: 'table resultTable',
+            childViewContainer: 'tbody',
             childViewOptions : function(model){
                 return {
                     model : model.get('metacard')
