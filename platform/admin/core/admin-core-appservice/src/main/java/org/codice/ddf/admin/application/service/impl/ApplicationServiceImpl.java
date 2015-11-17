@@ -196,14 +196,15 @@ public class ApplicationServiceImpl implements ApplicationService {
      * Sets the names of applications that this service should ignore when
      * checking status.
      *
-     * @param applicationNames Comma delimited list of application names, these names must
+     * @param applicationNames List of application names, these names must
      *                         exactly match the name of the application to ignore.
      */
-    public void setIgnoredApplications(String applicationNames) {
-        String[] names = applicationNames.split(",");
-        ignoredApplicationNames = new HashSet<String>(Arrays.asList(names));
-        logger.debug("Not ignoring applications with the following names: {}",
-                ignoredApplicationNames);
+    public void setIgnoredApplications(List<String> applicationNames) {
+        if (applicationNames != null) {
+            ignoredApplicationNames = new HashSet<String>(applicationNames);
+            logger.debug("Ignoring applications with the following names: {}",
+                    ignoredApplicationNames);
+        }
     }
 
     /**

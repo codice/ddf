@@ -17,7 +17,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.Principal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -57,27 +56,13 @@ public class AnonymousClaimsHandler implements ClaimsHandler, RealmSupport {
     public void setAttributes(List<String> attributes) {
         if (attributes != null) {
             LOGGER.debug("Attribute value list was set.");
-            List<String> attrs = new ArrayList<String>(attributes.size());
+            List<String> attrs = new ArrayList<>(attributes.size());
             for (String attr : attributes) {
-                if (attr.contains(",")) {
-                    String[] tmpAttrs = attr.split(",");
-                    attrs.addAll(Arrays.asList(tmpAttrs));
-                } else {
-                    attrs.add(attr);
-                }
+                attrs.add(attr);
             }
             initClaimsMap(attrs);
         } else {
             LOGGER.warn("Set attribute value list was null");
-        }
-    }
-
-    public void setAttributes(String attributes) {
-        if (attributes != null) {
-            String[] attrs = attributes.split(",");
-            setAttributes(Arrays.asList(attrs));
-        } else {
-            LOGGER.warn("Set attribute value was null");
         }
     }
 

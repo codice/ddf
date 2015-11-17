@@ -21,6 +21,7 @@ define([
     'backbone',
     'js/wreqr.js',
     'spin',
+    'spinnerConfig',
     'jquery',
     'js/models/Alerts.js',
     'js/views/Alerts.view',
@@ -28,9 +29,11 @@ define([
     'text!templates/configuration/configurationItem.handlebars',
     'text!templates/configuration/textTypeListHeader.handlebars',
     'text!templates/configuration/textTypeList.handlebars'
-], function (Marionette, ich, _, Backbone, wreqr, Spinner, $, AlertsModel, AlertsView, configurationEdit, configurationItem, textTypeListHeader, textTypeList) {
+], function (Marionette, ich, _, Backbone, wreqr, Spinner, spinnerConfig, $, AlertsModel, AlertsView, configurationEdit, configurationItem, textTypeListHeader, textTypeList) {
 
     var ConfigurationEditView = {};
+    ConfigurationEditView.spinnerConfig = _.clone(spinnerConfig);
+    ConfigurationEditView.spinnerConfig.color = '#000000';
     var passwordType = 12;
 
     if(!ich['configuration.configurationItem']) {
@@ -261,25 +264,7 @@ define([
          * Submit to the backend.
          */
         submitData: function () {
-            var spinner = new Spinner(define({
-                lines: 13, // The number of lines to draw
-                length: 12, // The length of each line
-                scale: 5, // The size of the spinner
-                width: 10, // The line thickness
-                radius: 30, // The radius of the inner circle
-                corners: 1, // Corner roundness (0..1)
-                rotate: 0, // The rotation offset
-                direction: 1, // 1: clockwise, -1: counterclockwise
-                color: '#000000', // #rgb or #rrggbb or array of colors
-                speed: 1, // Rounds per second
-                trail: 60, // Afterglow percentage
-                shadow: false, // Whether to render a shadow
-                hwaccel: false, // Whether to use hardware acceleration
-                className: 'spinner', // The CSS class to assign to the spinner
-                zIndex: 2e9, // The z-index (defaults to 2000000000)
-                top: 'auto', // Top position relative to parent in px
-                left: 'auto' // Left position relative to parent in px
-            }));
+            var spinner = new Spinner(ConfigurationEditView.spinnerConfig);
             wreqr.vent.trigger('beforesave');
             var view = this;
             spinner.spin(view.el);

@@ -931,21 +931,26 @@ public class ApplicationServiceImplTest {
         };
 
         // just ignore the first application
-        appService.setIgnoredApplications(noMainFeatureRepo1.getName());
+        List<String> ignoredApps1 = new ArrayList<>(1);
+        ignoredApps1.add(noMainFeatureRepo1.getName());
+        appService.setIgnoredApplications(ignoredApps1);
         Set<Application> applications = appService.getApplications();
         assertNotNull(applications);
         assertEquals(1, applications.size());
         assertEquals(noMainFeatureRepo2.getName(), applications.iterator().next().getName());
 
         // now ignore both applications
-        appService.setIgnoredApplications(
-                noMainFeatureRepo1.getName() + "," + noMainFeatureRepo2.getName());
+        List<String> ignoredApps2 = new ArrayList<>(2);
+        ignoredApps2.add(noMainFeatureRepo1.getName());
+        ignoredApps2.add(noMainFeatureRepo2.getName());
+        appService.setIgnoredApplications(ignoredApps2);
         applications = appService.getApplications();
         assertNotNull(applications);
         assertEquals(0, applications.size());
 
         // ignore none
-        appService.setIgnoredApplications("");
+        List<String> ignoredApps3 = new ArrayList<>(0);
+        appService.setIgnoredApplications(ignoredApps3);
         applications = appService.getApplications();
         assertNotNull(applications);
         assertEquals(2, applications.size());

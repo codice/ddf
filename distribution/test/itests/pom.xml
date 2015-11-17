@@ -26,7 +26,7 @@
 
     <modules>
         <module>test-itests-common</module>
-        <module>test-itests-catalog</module>
+        <module>test-itests-ddf</module>
     </modules>
 
     <properties>

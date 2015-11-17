@@ -14,23 +14,28 @@
 
  -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
-           xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+    xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0
            http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
            http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0
            http://aries.apache.org/schemas/blueprint-cm/blueprint-cm-1.1.0.xsd">
 
-<cm:managed-service-factory id="customMimeTypeResolver"
-                            factory-pid="DDF_Custom_Mime_Type_Resolver"
-                            interface="ddf.mime.MimeTypeResolver">
-    <cm:managed-component class="ddf.mime.custom.CustomMimeTypeResolver"
-                          init-method="init" destroy-method="destroy">
-        <property name="name" value="DDF Custom Mime Type Resolver"/>
-        <property name="priority" value="10"/>
-        <property name="customMimeTypes" value="nitf,nitf"/>
-        <cm:managed-properties persistent-id="" update-strategy="container-managed" />
-    </cm:managed-component>
-</cm:managed-service-factory>
+    <cm:managed-service-factory id="customMimeTypeResolver"
+        factory-pid="DDF_Custom_Mime_Type_Resolver" interface="ddf.mime.MimeTypeResolver">
+        <cm:managed-component class="ddf.mime.custom.CustomMimeTypeResolver"
+            init-method="init" destroy-method="destroy">
+            <property name="name" value="DDF Custom Mime Type Resolver" />
+            <property name="priority" value="10" />
+            <property name="customMimeTypes">
+                <list>
+                    <value>nitf=image/nitf</value>
+                    <value>ntf=image/nitf</value>
+                </list>
+            </property>
+            <cm:managed-properties persistent-id=""
+                update-strategy="container-managed" />
+        </cm:managed-component>
+    </cm:managed-service-factory>
 
 </blueprint>
