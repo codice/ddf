@@ -22,27 +22,18 @@ import java.util.Map;
 
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanServer;
-import javax.management.MBeanServerInvocationHandler;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.StandardMBean;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.felix.utils.properties.Properties;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.configuration.SystemInfo;
-import org.codice.ddf.security.certificate.generator.CertificateGenerator;
-import org.codice.ddf.security.certificate.generator.CertificateGeneratorMBean;
-import org.codice.ddf.security.certificate.keystore.editor.KeystoreEditor;
-import org.codice.ddf.security.certificate.keystore.editor.KeystoreEditorMBean;
 import org.codice.ddf.ui.admin.api.SystemPropertiesAdminMBean;
 import org.codice.ddf.ui.admin.api.SystemPropertyDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- */
 public class SystemPropertiesAdmin implements SystemPropertiesAdminMBean {
 
     private MBeanServer mbeanServer;
@@ -102,35 +93,10 @@ public class SystemPropertiesAdmin implements SystemPropertiesAdminMBean {
 
     private static final String VERSION_DESCRIPTION = "The version of this instance.";
 
-    private static final String KEYSTORE_FILE = "keystoreFile";
-
-    private static final String KEYSTORE_FILE_NAME = "keystoreFileName";
-
-    private static final String KEYSTORE_PASS = "keystorePass";
-
-    private static final String KEY_PASS = "keyPass";
-
-    private static final String TRUSTSTORE_FILE = "truststoreFile";
-
-    private static final String TRUSTSTORE_FILE_NAME = "truststoreFileName";
-
-    private static final String TRUSTSTORE_PASS = "truststorePass";
-
-    private static final String DEV_MODE = "devMode";
-
     private static final Logger LOGGER = LoggerFactory.getLogger(SystemPropertiesAdmin.class);
 
     public SystemPropertiesAdmin() {
-
-        try {
-            objectName = new ObjectName(SystemPropertiesAdminMBean.OBJECT_NAME);
-        } catch (MalformedObjectNameException e) {
-            LOGGER.warn("Exception while creating object name: "
-                    + SystemPropertiesAdminMBean.OBJECT_NAME, e);
-        }
-
         configureMBean();
-
     }
 
     @Override
@@ -220,14 +186,8 @@ public class SystemPropertiesAdmin implements SystemPropertiesAdminMBean {
 
     private SystemPropertyDetails getSystemPropertyDetails(String key, String title,
             String description, List<String> options) {
-        String defaultValue = "";
-        String value = "";
-        String property = System.getProperty(key);
-        if (property != null) {
-            defaultValue = property;
-            value = property;
-        }
-        return new SystemPropertyDetails(title, description, options, key, value, defaultValue);
+        String property = System.getProperty(key, "");
+        return new SystemPropertyDetails(title, description, options, key, property, property);
     }
 
     private void updateProperty(String key, Map<String, String> updatedProperties,
@@ -243,6 +203,13 @@ public class SystemPropertiesAdmin implements SystemPropertiesAdminMBean {
         mbeanServer = ManagementFactory.getPlatformMBeanServer();
 
         try {
+            objectName = new ObjectName(SystemPropertiesAdminMBean.OBJECT_NAME);
+        } catch (MalformedObjectNameException e) {
+            LOGGER.warn("Exception while creating object name: "
+                    + SystemPropertiesAdminMBean.OBJECT_NAME, e);
+        }
+
+        try {
             try {
                 mbeanServer.registerMBean(new StandardMBean(this, SystemPropertiesAdminMBean.class),
                         objectName);
@@ -252,113 +219,18 @@ public class SystemPropertiesAdmin implements SystemPropertiesAdminMBean {
                         objectName);
             }
         } catch (Exception e) {
-            // something here
+            LOGGER.error("Could not register mbean.", e);
         }
-    }
-
-    @Override
-    public List<String> setSystemCerts(Map<String, Object> certProps) {
-        List<String> errors = new ArrayList<>();
-        if (certProps == null) {
-            errors.add("No cert properties sent.");
-            return errors;
-        }
-        String keystoreFileName = (String) certProps.get(KEYSTORE_FILE_NAME);
-        String keystoreData = (String) certProps.get(KEYSTORE_FILE);
-        String keystorePass = (String) certProps.get(KEYSTORE_PASS);
-        String keyPass = (String) certProps.get(KEY_PASS);
-        String truststoreFileName = (String) certProps.get(TRUSTSTORE_FILE_NAME);
-        String truststoreData = (String) certProps.get(TRUSTSTORE_FILE);
-        String truststorePass = (String) certProps.get(TRUSTSTORE_PASS);
-        Boolean devMode = ((Boolean) certProps.get(DEV_MODE));
-
-        String fqdn = baseUrl.getHost();
-
-        if (devMode != null && devMode) {
-            try {
-                setupDevCerts(fqdn, oldHostName);
-            } catch (MalformedObjectNameException e) {
-                LOGGER.error("Failed to create dev certs.", e);
-                errors.add("Failed to create dev certificates. " + e.getMessage());
-            }
-            return errors;
-        }
-
-        if (StringUtils.isEmpty(keystoreFileName) || StringUtils.isEmpty(keystoreData)
-                || StringUtils.isEmpty(keystorePass) || StringUtils.isEmpty(keyPass)) {
-            errors.add("Some of the required keystore fields are missing");
-        }
-
-        if (StringUtils.isEmpty(truststoreFileName) || StringUtils.isEmpty(truststoreData)
-                || StringUtils.isEmpty(truststorePass)) {
-            errors.add("Some of the required truststore fields are missing");
-        }
-
-        if (errors.size() > 0) {
-            return errors;
-        }
-
-        try {
-            KeystoreEditorMBean keystoreMbeanProxy = getKeystorEditorMbean();
-
-            if (keystoreMbeanProxy.keystoreContainsEntry(fqdn, keystorePass, keystoreData, null,
-                    keystoreFileName)) {
-
-                keystoreMbeanProxy.addAllKeystoreEntries(keyPass, keystorePass, keystoreData, null,
-                        keystoreFileName);
-                keystoreMbeanProxy
-                        .addAllTruststoreEntries(null, truststorePass, truststoreData, null,
-                                truststoreFileName);
-
-                //remove old private key
-                if (!oldHostName.equals(fqdn)) {
-                    keystoreMbeanProxy.deletePrivateKey(oldHostName);
-                }
-            } else {
-                errors.add("Keystore does not contain the required key for " + fqdn);
-            }
-        } catch (KeystoreEditor.KeystoreEditorException e) {
-            errors.add("Error adding system key to keystore. " + e.getMessage());
-            LOGGER.error("Error adding system key to keystore.", e);
-        } catch (Exception e) {
-            errors.add("Error communicating with KeystoreEditorMBean. " + e.getMessage());
-            LOGGER.error("JMX error updating certs", e);
-        }
-        return errors;
-    }
-
-    private void setupDevCerts(String newHostname, String oldHostname)
-            throws MalformedObjectNameException {
-
-        if (!newHostname.equals(oldHostname)) {
-            CertificateGeneratorMBean certMbeanProxy = getCertificateGeneratorMBean();
-            certMbeanProxy.configureDemoCert(newHostname);
-
-            KeystoreEditorMBean keystoreMbeanProxy = getKeystorEditorMbean();
-            keystoreMbeanProxy.reInitializeKeystores();
-            keystoreMbeanProxy.deletePrivateKey(oldHostname);
-        }
-    }
-
-    protected KeystoreEditorMBean getKeystorEditorMbean() throws MalformedObjectNameException {
-        ObjectName keystoreMbeanName = new ObjectName(
-                KeystoreEditor.class.getName() + ":service=keystore");
-        KeystoreEditorMBean keystoreMbeanProxy = MBeanServerInvocationHandler
-                .newProxyInstance(mbeanServer, keystoreMbeanName, KeystoreEditorMBean.class, false);
-        return keystoreMbeanProxy;
-    }
-
-    protected CertificateGeneratorMBean getCertificateGeneratorMBean()
-            throws MalformedObjectNameException {
-        ObjectName certMbeanName = new ObjectName(
-                CertificateGenerator.class.getName() + ":service=certgenerator");
-        CertificateGeneratorMBean certMbeanProxy = MBeanServerInvocationHandler
-                .newProxyInstance(mbeanServer, certMbeanName, CertificateGeneratorMBean.class,
-                        false);
-        return certMbeanProxy;
     }
 
     public void shutdown() {
-        LOGGER.info("Shutdown");
+        try {
+            if (objectName != null && mbeanServer != null) {
+                mbeanServer.unregisterMBean(objectName);
+            }
+        } catch (Exception e) {
+            LOGGER.warn("Exception unregistering mbean: ", e);
+            throw new RuntimeException(e);
+        }
     }
 }

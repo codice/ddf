@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
+/*global define, location*/
 define([
     'marionette',
     'underscore',
@@ -22,6 +22,7 @@ define([
 
     var CertsModel = Backbone.Model.extend({
         defaults: {
+            hostName: undefined,
             keystoreFile: undefined,
             keystoreFileName: undefined,
             keystorePass: undefined,
@@ -30,7 +31,7 @@ define([
             truststoreFileName: undefined,
             truststorePass: undefined,
             certErrors: [],
-            devMode: Backbone.history.location.search.indexOf('dev=true') > -1 ? true : false
+            devMode: location.search.indexOf('dev=true') > -1 ? true : false
         },
         validate: function (attrs) {
             var validation = [];
@@ -74,32 +75,51 @@ define([
             return validation.length > 0 ? validation : undefined;
         },
         sync: function () {
-            var url = '/jolokia/exec/org.codice.ddf.ui.admin.api:type=SystemPropertiesAdminMBean/setSystemCerts';
             var deferred = $.Deferred(),
                 model = this;
 
-            var mbean = 'org.codice.ddf.ui.admin.api:type=SystemPropertiesAdminMBean';
-            var operation = 'setSystemCerts';
+            var data, jdata;
 
-            var data = {
-                type: 'EXEC',
-                mbean: mbean,
-                operation: operation,
-                arguments: [model]
-            };
+            if (this.get('devMode')) {
+                data = {
+                    type: 'EXEC',
+                    mbean: 'org.codice.ddf.security.certificate.generator.CertificateGenerator:service=certgenerator',
+                    operation: 'configureDemoCert',
+                    arguments: [this.get('hostName')]
+                };
+            } else {
+                data = {
+                    type: 'EXEC',
+                    mbean: 'org.codice.ddf.security.certificate.keystore.editor.KeystoreEditor:service=keystore',
+                    operation: 'replaceSystemStores',
+                    arguments: [
+                        this.get('hostName'),
+                        this.get('keyPass'),
+                        this.get('keystorePass'),
+                        this.get('keystoreFile'),
+                        this.get('keystoreFileName'),
+                        this.get('truststorePass'),
+                        this.get('truststoreFile'),
+                        this.get('truststoreFileName')
+                    ]
+                };
+            }
 
-            data = JSON.stringify(data);
+            jdata = JSON.stringify(data);
 
             return $.ajax({
                 type: 'POST',
                 contentType: 'application/json',
-                data: data,
-                url: url
+                data: jdata,
+                url: '/jolokia/exec/' + data.mbean + "/" + data.operation
             }).done(function (result) {
-                model.set('certErrors', JSON.parse(result).value);
+                if (!model.get('devMode')) {
+                    model.set('certErrors', JSON.parse(result).value);
+                }
                 if (model.get('certErrors').length === 0) {
                     deferred.resolve(result);
-                }else{
+                } else {
+                    model.trigger('certErrors', this);
                     deferred.fail(result);
                 }
             }).fail(function (error) {

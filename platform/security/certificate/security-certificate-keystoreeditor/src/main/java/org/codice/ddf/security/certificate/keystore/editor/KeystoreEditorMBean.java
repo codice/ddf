@@ -30,69 +30,33 @@ public interface KeystoreEditorMBean {
 
     List<Map<String, Object>> getTruststore();
 
-    void reInitializeKeystores();
-
-    /**
-     * Checks the given keystore for an alias matching the target parameter. If a matching alias
-     * exists return true otherwise false
-     * @param target - target alias to find
-     * @param storePassword - store password for the data
-     * @param data - Base64 encoded keystore data
-     * @param type - Keystore type. Either PKCS12 or JKS
-     * @param fileName - Name of the file the data came from
-     * @return
-     * @throws CertificateException
-     * @throws UnrecoverableKeyException
-     * @throws NoSuchAlgorithmException
-     * @throws KeyStoreException
-     * @throws IOException
-     * @throws NoSuchProviderException
-     * @throws CMSException
-     * @throws KeystoreEditor.KeystoreEditorException
-     */
-    boolean keystoreContainsEntry(String target, String storePassword, String data, String type,
-            String fileName)
-            throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException,
-            KeyStoreException, IOException, NoSuchProviderException, CMSException,
-            KeystoreEditor.KeystoreEditorException;
-
-    /**
-     * Adds all keystore entries in @prama data to the system keystore. If an entry with the same
-     * name already exists it will be overwritten.
-     * @param keyPassword - private key password
-     * @param storePassword - store password for the data
-     * @param data - Base64 encoded keystore data
-     * @param type - Keystore type. Either PKCS12 or JKS
-     * @param fileName - Name of the file the data came from
-     * @throws CertificateException
-     * @throws UnrecoverableKeyException
-     * @throws NoSuchAlgorithmException
-     * @throws KeyStoreException
-     * @throws IOException
-     * @throws NoSuchProviderException
-     * @throws CMSException
-     * @throws KeystoreEditor.KeystoreEditorException
-     */
-    void addAllKeystoreEntries(String keyPassword, String storePassword, String data, String type,
-            String fileName)
-            throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException,
-            KeyStoreException, IOException, NoSuchProviderException, CMSException,
-            KeystoreEditor.KeystoreEditorException;
-
     void addPrivateKey(String alias, String keyPassword, String storePassword, String data,
             String type, String fileName)
             throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException,
             KeyStoreException, IOException, NoSuchProviderException, CMSException,
             KeystoreEditor.KeystoreEditorException;
 
+    void addTrustedCertificate(String alias, String keyPassword, String storePassword, String data,
+            String type, String fileName)
+            throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException,
+            KeyStoreException, IOException, NoSuchProviderException, CMSException,
+            KeystoreEditor.KeystoreEditorException;
+
     /**
-     * Adds all keystore entries in @prama data to the system truststore. If an entry with the same
-     * name already exists it will be overwritten.
-     * @param keyPassword - private key password
-     * @param storePassword - store password for the data
-     * @param data - Base64 encoded keystore data
-     * @param type - Keystore type. Either PKCS12 or JKS
-     * @param fileName - Name of the file the data came from
+     * Replaces the system stores (keystore and truststore) with the passed in stores. All entries
+     * in the current stores will be lost.
+     *
+     * @param fqdn               fully qualified domain name used to validate the keystore. The keystore
+     *                           must contain a key with an alias matching the fqdn
+     * @param keyPassword        password for private key
+     * @param keystorePassword   password for the keystoreData
+     * @param keystoreData       keystore file data (base 64 encoded)
+     * @param keystoreFileName   keystore filename
+     * @param truststorePassword password for the truststoreData
+     * @param truststoreData     truststore file data (base 64 encoded)
+     * @param truststoreFileName truststore filename
+     * @return Returns a list containing any error messages. If call was successfull this will be an
+     * empty list.
      * @throws CertificateException
      * @throws UnrecoverableKeyException
      * @throws NoSuchAlgorithmException
@@ -102,14 +66,9 @@ public interface KeystoreEditorMBean {
      * @throws CMSException
      * @throws KeystoreEditor.KeystoreEditorException
      */
-    void addAllTruststoreEntries(String keyPassword, String storePassword, String data, String type,
-            String fileName)
-            throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException,
-            KeyStoreException, IOException, NoSuchProviderException, CMSException,
-            KeystoreEditor.KeystoreEditorException;
-
-    void addTrustedCertificate(String alias, String keyPassword, String storePassword, String data,
-            String type, String fileName)
+    List<String> replaceSystemStores(String fqdn, String keyPassword, String keystorePassword,
+            String keystoreData, String keystoreFileName, String truststorePassword,
+            String truststoreData, String truststoreFileName)
             throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException,
             KeyStoreException, IOException, NoSuchProviderException, CMSException,
             KeystoreEditor.KeystoreEditorException;
