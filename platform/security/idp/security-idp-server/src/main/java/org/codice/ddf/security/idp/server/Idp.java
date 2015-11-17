@@ -133,7 +133,7 @@ public interface Idp {
             @QueryParam(RELAY_STATE) String relayState,
             @QueryParam(SSOConstants.SIG_ALG) String signatureAlgorithm,
             @QueryParam(SSOConstants.SIGNATURE) String signature,
-            @Context HttpServletRequest request) throws WSSecurityException;
+            @Context HttpServletRequest request) throws WSSecurityException, IdpException;
 
     @POST
     @Path("/logout")
