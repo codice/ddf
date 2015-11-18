@@ -103,8 +103,6 @@ import ddf.security.samlp.SimpleSign;
 import ddf.security.samlp.SystemCrypto;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
-import sun.plugin.dom.exception.InvalidStateException;
-
 @Path("/")
 public class IdpEndpoint implements Idp {
 
@@ -629,7 +627,7 @@ public class IdpEndpoint implements Idp {
             // this means that they have a logout in progress and resent another logout
             // request. Either that or we have an old LogoutState which could happen if
             // a logout never actually finished
-            throw new InvalidStateException("Weird state");
+            throw new IllegalStateException("Weird state");
         }
 
         logoutState = new LogoutState(getActiveSps(cookie.getValue()));
