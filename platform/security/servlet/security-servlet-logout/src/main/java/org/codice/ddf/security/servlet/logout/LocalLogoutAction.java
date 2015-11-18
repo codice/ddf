@@ -1,0 +1,56 @@
+/**
+ * Copyright (c) Codice Foundation
+ * <p/>
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * <p/>
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ */
+package org.codice.ddf.security.servlet.logout;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+
+import org.codice.ddf.configuration.SystemBaseUrl;
+
+import ddf.action.Action;
+import ddf.action.ActionProvider;
+import ddf.action.impl.ActionImpl;
+
+/**
+ * Created by tbatie on 11/16/15.
+ */
+public class LocalLogoutAction implements ActionProvider {
+
+    private static final String ID = "security.logout.karaf";
+
+    private static final String TITLE = "Local Logout";
+
+    private static final String DESCRIPTION = "Dude, logging out of this bizz";
+
+    private static URL logoutUrl = null;
+
+    static {
+        try {
+            logoutUrl = new URL(new SystemBaseUrl().constructUrl("/logout/local"));
+        } catch (MalformedURLException e) {
+            //TODO: Handle exception from invalid URL
+        }
+    }
+
+    @Override
+    public <T> Action getAction(T subject) {
+        //TODO exception handling if subject is not of HttpSession
+        return new ActionImpl(ID, TITLE, DESCRIPTION, logoutUrl);
+    }
+
+    @Override
+    public String getId() {
+        return ID;
+    }
+}

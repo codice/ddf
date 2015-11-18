@@ -36,7 +36,7 @@ import ddf.security.common.util.SecurityTokenHolder;
 public class TestLogoutServlet {
     @Test
     public void testLogout() {
-        LogoutServlet logoutServlet = new LogoutServlet();
+        LocalLogoutServlet localLogoutServlet = new LocalLogoutServlet();
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
         try {
@@ -51,7 +51,7 @@ public class TestLogoutServlet {
         SecurityTokenHolder securityTokenHolder = mock(SecurityTokenHolder.class);
         when(httpSession.getAttribute(SecurityConstants.SAML_ASSERTION)).thenReturn(securityTokenHolder);
         try {
-            logoutServlet.doGet(request, response);
+            localLogoutServlet.doGet(request, response);
         } catch (ServletException | IOException e) {
             fail(e.getMessage());
         }

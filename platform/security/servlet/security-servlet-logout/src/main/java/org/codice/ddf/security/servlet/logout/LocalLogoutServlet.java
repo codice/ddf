@@ -25,7 +25,7 @@ import javax.servlet.http.HttpSession;
 import ddf.security.SecurityConstants;
 import ddf.security.common.util.SecurityTokenHolder;
 
-public class LogoutServlet extends HttpServlet {
+public class LocalLogoutServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -37,6 +37,7 @@ public class LogoutServlet extends HttpServlet {
         if (session != null) {
             SecurityTokenHolder savedToken = (SecurityTokenHolder) session
                     .getAttribute(SecurityConstants.SAML_ASSERTION);
+
             if (savedToken != null) {
                 savedToken.removeAll();
             }
