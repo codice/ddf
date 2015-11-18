@@ -61,6 +61,8 @@
                     </div>
                     <ul>
                         <li>Capabilities can be extended by developing and sharing new features.</li>
+                        <li>Built on top of Apache Karaf for OSGi support.</li>
+                        <li>Apache Camel and Apache CXF integration.</li>
                     </ul>
                 </div>
                 <div class="col-lg-4">
@@ -92,7 +94,33 @@
                     </div>
                     <ul>
                         <li>Unzip and run.</li>
-                        <li>Configuration is handled easily via a web console.</li>
+                        <li>Configuration and Installation via a modern Admin Web console.</li>
+                    </ul>
+                </div>
+                <div class="col-lg-4">
+                    <div class="centered-content">
+                        <img src="images/lock.svg" height="70px">
+                        <h2>Federated Open Geospatial Consortium (OGC) filter powered metadata catalog</h2>
+                    </div>
+                    <ul>
+                        <li>Enterprise Service Bus (ESB) performs transformation between query standards.</li>
+                        <li>
+                            Apache Solr integration.
+                            <ul>
+                                <li>Well Known Text (WKT) indexing and search for spatial awareness</li>
+                                <li>Full text search</li>
+                                <li>XPath searches</li>
+                                <li>XML indexing</li>
+                            </ul>
+                        </li>
+                        <li>Open Geospatial Consortium (OGC) KML, CSW, and WFS federated services.</li>
+                        <li>OpenSearch federated services.</li>
+                        <li>REST API for catalog operations.</li>
+                        <li>Integrated content framework to store actual products associated with the indexed metadata.</li>
+                        <li>Tika parser for extracting metadata from products.</li>
+                        <li>Plugin support for pre and post processing on all operations.</li>
+                        <li>Eventing for notifications</li>
+                        <li>Metrics</li>
                     </ul>
                 </div>
                 <div class="col-lg-4">
@@ -101,9 +129,60 @@
                         <h2>Security</h2>
                     </div>
                     <ul>
-                        <li>Web Security Service (WSS) functionality that comes with DDF is integrated throughout the system.</li>
+                        <li>
+                            Web Security Service (WSS) functionality that comes with DDF is integrated throughout the system.
+                            <ul>
+                                <li>SAML 2.0 Web Browser SSO Profile with included IdP server and client.</li>
+                                <li>SAML Security Token Service (STS) based on WS-Trust.</li>
+                                <li>Automatic protection and Single Sign On (SSO) for web applications without modifying the application itself.</li>
+                                <li>Extensible Java PDP and XACML PDP for authorization decisions.</li>
+                                <li>
+                                    LDAP integration.
+                                    <ul>
+                                        <li>Included OSGi enabled OpenDJ LDAP server.</li>
+                                    </ul>
+                                </li>
+                                <li>CAS integration</li>
+                                <li>X.509 authentication</li>
+                                <li>Basic authentication</li>
+                                <li>SAML authentication</li>
+                                <li>Guest login support</li>
+                                <li>Multiple realm login support to mix and match different authentication types and services between endpoints.</li>
+                                <li>WS-Security, WS-SecurityPolicy, WS-Policy, WS-Trust, WS-SecureConversation, WS-Addressing</li>
+                            </ul>
+                        </li>
                         <li>Provides a Security Framework (a set of APIs that define the integration with the DDF framework).</li>
                         <li>Provides Security Service reference implementations for a realistic end-to-end use case.</li>
+                        <li>Role and Attribute based access control.</li>
+                        <li>Attribute based filtering for searches performed throughout the system.</li>
+                        <li>Federated identity through metadata catalog.</li>
+                    </ul>
+                </div>
+                <div class="col-lg-4">
+                    <div class="centered-content">
+                        <img src="images/lock.svg" height="70px">
+                        <h2>Search user interface</h2>
+                    </div>
+                    <ul>
+                        <li>3D WebGL map built off of Cesium.</li>
+                        <li>2D map built off of OpenLayers 3.</li>
+                        <li>USNG/MGRS grid support.</li>
+                        <li>GeoNames geocoder integrated into both maps.</li>
+                        <li>CometD integration for push notifications.</li>
+                        <li>Upload and edit capability.</li>
+                        <li>Saved workspaces (searches and metadata artifacts).</li>
+                    </ul>
+                </div>
+                <div class="col-lg-4">
+                    <div class="centered-content">
+                        <img src="images/lock.svg" height="70px">
+                        <h2>Admin Web user interface</h2>
+                    </div>
+                    <ul>
+                        <li>Web based install wizard.</li>
+                        <li>Application grid to organize configurations.</li>
+                        <li>Pluggable configuration pages for applications to simplify configurations for complex scenarios.</li>
+                        <li>Metrics web application to view up to date system metrics.</li>
                     </ul>
                 </div>
             </div>
