@@ -141,23 +141,19 @@ define([
                     dataType: 'JSON'
                 }).then(function(){
                     if (reboot) {
-                        var rebootAjax = $.ajax({
+                        $.ajax({
                             type: 'GET',
                             url: that.rebootUrl,
                             dataType: 'JSON'
-                        });
-
-                        rebootAjax.fail(function () {
+                        }).done(function () {
+                            window.setTimeout(function () {
+                              window.location.href = that.get("redirectUrl");
+                            }, 30000);
+                        }).fail(function () {
                             alert("Error trying to restart system. Please manually restart the system.");
                         });
 
-                        rebootAjax.done(function () {
-                            window.setTimeout(function () {
-                                window.location.href = that.get("redirectUrl");
-                            }, 30000);
-                        });
-
-                    }else {
+                    } else {
                         location.reload();
                     }
                 });

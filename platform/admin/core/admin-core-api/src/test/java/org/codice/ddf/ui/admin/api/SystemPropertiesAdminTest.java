@@ -46,17 +46,28 @@ public class SystemPropertiesAdminTest {
 
     SystemInfo info = null;
 
+    int expectedSystemPropertiesCount = 0;
+
     @Before
     public void setUp() throws IOException {
         System.setProperty(SystemBaseUrl.HOST, "host");
+        expectedSystemPropertiesCount++;
         System.setProperty(SystemBaseUrl.PORT, "1234");
+        expectedSystemPropertiesCount++;
         System.setProperty(SystemBaseUrl.HTTP_PORT, "4567");
+        expectedSystemPropertiesCount++;
         System.setProperty(SystemBaseUrl.HTTPS_PORT, "8901");
+        expectedSystemPropertiesCount++;
         System.setProperty(SystemBaseUrl.PROTOCOL, "https://");
+        expectedSystemPropertiesCount++;
         System.setProperty(SystemInfo.ORGANIZATION, "org");
+        expectedSystemPropertiesCount++;
         System.setProperty(SystemInfo.SITE_CONTACT, "contact");
+        expectedSystemPropertiesCount++;
         System.setProperty(SystemInfo.SITE_NAME, "site");
+        expectedSystemPropertiesCount++;
         System.setProperty(SystemInfo.VERSION, "version");
+        expectedSystemPropertiesCount++;
 
         TemporaryFolder temporaryFolder = new TemporaryFolder();
         temporaryFolder.create();
@@ -83,6 +94,7 @@ public class SystemPropertiesAdminTest {
         assertThat(getDetailsValue(details, SystemInfo.SITE_CONTACT), equalTo("contact"));
         assertThat(getDetailsValue(details, SystemInfo.SITE_NAME), equalTo("site"));
         assertThat(getDetailsValue(details, SystemInfo.VERSION), equalTo("version"));
+        assertThat(details.size(), is(expectedSystemPropertiesCount));
     }
 
     @Test
@@ -99,7 +111,7 @@ public class SystemPropertiesAdminTest {
         assertThat(info.getSiteContatct(), equalTo("contact"));
         assertThat(info.getSiteName(), equalTo("site"));
         assertThat(info.getVersion(), equalTo("version"));
-        assertThat(details.size(), is(9));
+        assertThat(details.size(), is(expectedSystemPropertiesCount));
     }
 
     @Test
@@ -124,6 +136,8 @@ public class SystemPropertiesAdminTest {
         assertThat(info.getSiteContatct(), equalTo("contact"));
         assertThat(info.getSiteName(), equalTo("site"));
         assertThat(info.getVersion(), equalTo("version"));
+        assertThat(details.size(), is(expectedSystemPropertiesCount));
+
 
         //only writes out the changed props
         assertTrue(systemPropsFile.exists());

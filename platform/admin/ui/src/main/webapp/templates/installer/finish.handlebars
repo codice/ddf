@@ -26,11 +26,13 @@
             <br/>
             <br/>
             A system shutdown is required each time these files are modified in order for the changes to take effect.
-            <br/>
-            <br/>
-            Click the 'Restart Now' button below to conclude the setup and restart the system.
-            <br/>
-            Click the 'Restart Later' button below to conclude the setup. A manual restart will be needed for changes to take effect.
+            {{#if modified}}
+                <br/>
+                <br/>
+                Click the 'Restart Now' button below to conclude the setup and restart the system.
+                <br/>
+                Click the 'Restart Later' button below to conclude the setup. A manual restart will be needed for changes to take effect.
+            {{/if}}
         </p>
     </div>
 </div>

@@ -71,12 +71,12 @@ define([
                 });
             }
 
-
-            return validation.length > 0 ? validation : undefined;
+            if (validation.length > 0) {
+                return validation;
+            }
         },
         sync: function () {
-            var deferred = $.Deferred(),
-                model = this;
+                var model = this;
 
             var data, jdata;
 
@@ -116,14 +116,9 @@ define([
                 if (!model.get('devMode')) {
                     model.set('certErrors', JSON.parse(result).value);
                 }
-                if (model.get('certErrors').length === 0) {
-                    deferred.resolve(result);
-                } else {
+                if (model.get('certErrors').length > 0) {
                     model.trigger('certErrors', this);
-                    deferred.fail(result);
                 }
-            }).fail(function (error) {
-                deferred.fail(error);
             });
         }
     });
