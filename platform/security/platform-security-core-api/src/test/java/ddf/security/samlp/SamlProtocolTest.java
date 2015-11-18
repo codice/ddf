@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -19,6 +19,7 @@ import java.util.Arrays;
 
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.junit.Test;
+import org.opensaml.saml2.core.AttributeQuery;
 import org.opensaml.saml2.core.Response;
 import org.opensaml.saml2.metadata.EntityDescriptor;
 
@@ -85,5 +86,16 @@ public class SamlProtocolTest {
         assertEquals("logoutlocation",
                 entityDescriptor.getSPSSODescriptor(SamlProtocol.SUPPORTED_PROTOCOL)
                         .getSingleLogoutServices().get(0).getLocation());
+    }
+
+    @Test
+    public void testCreateAttributeQuery() {
+        AttributeQuery attributeQuery = SamlProtocol
+                .createAttributeQuery(SamlProtocol.createIssuer("myissuer"),
+                        SamlProtocol.createSubject(SamlProtocol.createNameID("mynameid")),
+                        "mydestination");
+        assertEquals("myissuer", attributeQuery.getIssuer().getValue());
+        assertEquals("mynameid", attributeQuery.getSubject().getNameID().getValue());
+        assertEquals("mydestination", attributeQuery.getDestination());
     }
 }

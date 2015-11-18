@@ -39,6 +39,12 @@ import org.opensaml.saml2.metadata.NameIDFormat;
 import org.opensaml.saml2.metadata.SPSSODescriptor;
 import org.opensaml.saml2.metadata.SingleLogoutService;
 import org.opensaml.saml2.metadata.SingleSignOnService;
+import org.opensaml.ws.soap.soap11.Body;
+import org.opensaml.ws.soap.soap11.Envelope;
+import org.opensaml.ws.soap.soap11.Header;
+import org.opensaml.ws.soap.soap11.impl.BodyBuilder;
+import org.opensaml.ws.soap.soap11.impl.EnvelopeBuilder;
+import org.opensaml.ws.soap.soap11.impl.HeaderBuilder;
 import org.opensaml.xml.XMLObjectBuilder;
 import org.opensaml.xml.XMLObjectBuilderFactory;
 import org.opensaml.xml.security.credential.UsageType;
@@ -78,7 +84,7 @@ public class SamlProtocol {
             .getBuilder(StatusCode.DEFAULT_ELEMENT_NAME);
 
     @SuppressWarnings("unchecked")
-    private static SAMLObjectBuilder subjectBuilder = (SAMLObjectBuilder) builderFactory
+    private static SAMLObjectBuilder<Subject> subjectBuilder = (SAMLObjectBuilder<Subject>) builderFactory
             .getBuilder(Subject.DEFAULT_ELEMENT_NAME);
 
     @SuppressWarnings("unchecked")
@@ -98,7 +104,7 @@ public class SamlProtocol {
             .getBuilder(KeyDescriptor.DEFAULT_ELEMENT_NAME);
 
     @SuppressWarnings("unchecked")
-    private static SAMLObjectBuilder<NameID> nameIdBuilder = (SAMLObjectBuilder) builderFactory
+    private static SAMLObjectBuilder<NameID> nameIdBuilder = (SAMLObjectBuilder<NameID>) builderFactory
             .getBuilder(NameID.DEFAULT_ELEMENT_NAME);
 
     @SuppressWarnings("unchecked")
@@ -133,6 +139,18 @@ public class SamlProtocol {
     private static SAMLObjectBuilder<AttributeQuery> attributeQueryBuilder = (SAMLObjectBuilder<AttributeQuery>) builderFactory
             .getBuilder(AttributeQuery.DEFAULT_ELEMENT_NAME);
 
+    @SuppressWarnings("unchecked")
+    private static HeaderBuilder soapHeaderBuilder = (HeaderBuilder) builderFactory
+            .getBuilder(Header.DEFAULT_ELEMENT_NAME);
+
+    @SuppressWarnings("unchecked")
+    private static BodyBuilder soapBodyBuilder = (BodyBuilder) builderFactory
+            .getBuilder(Body.DEFAULT_ELEMENT_NAME);
+
+    @SuppressWarnings("unchecked")
+    private static EnvelopeBuilder soapEnvelopeBuilder = (EnvelopeBuilder) builderFactory
+            .getBuilder(Envelope.DEFAULT_ELEMENT_NAME);
+
     private SamlProtocol() {
     }
 
@@ -160,14 +178,14 @@ public class SamlProtocol {
     }
 
     public static NameID createNameID(String nameIdValue) {
-        NameID nameId = (NameID) nameIdBuilder.buildObject();
+        NameID nameId = nameIdBuilder.buildObject();
         nameId.setValue(nameIdValue);
 
         return nameId;
     }
 
     public static Subject createSubject(NameID nameId) {
-        Subject subject = (Subject) subjectBuilder.buildObject();
+        Subject subject = subjectBuilder.buildObject();
         subject.setNameID(nameId);
 
         return subject;
