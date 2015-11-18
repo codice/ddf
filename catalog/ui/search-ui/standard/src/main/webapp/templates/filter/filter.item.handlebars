@@ -42,8 +42,8 @@
                             <option value="{{.}}">{{.}}</option>
                         {{/each}}
                     {{/is}}
-                    {{#is fieldType "anyGeo"}}
-                        {{#each operations.anyGeo}}
+                    {{#is fieldType "geometry"}}
+                        {{#each operations.geometry}}
                             <option value="{{.}}">{{.}}</option>
                         {{/each}}
                     {{/is}}
@@ -67,7 +67,7 @@
                 {{#is fieldType "number"}}
                     <input class="number-field form-control" type="text" placeholder="Enter a number" name="numberValue1"/>
                 {{/is}}
-                {{#is fieldType "anyGeo"}}
+                {{#is fieldType "geometry"}}
                     <select class="query-dropdown" name="geoType">
                         <option value="circle">Circle</option>
                         <option value="bbox">Bounding Box</option>
@@ -78,7 +78,7 @@
 
         </div>
         <div class="pull-right">
-            {{#is fieldType "anyGeo"}}
+            {{#is fieldType "geometry"}}
                 <div class="geo-button-group">
                     {{#if isValidGeo}}
                         <div class="btn btn-primary btn-xs draw">Redraw</div>
