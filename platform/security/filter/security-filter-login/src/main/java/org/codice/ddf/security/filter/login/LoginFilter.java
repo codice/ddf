@@ -14,7 +14,6 @@
 package org.codice.ddf.security.filter.login;
 
 import java.io.IOException;
-import java.io.StringWriter;
 import java.security.PrivilegedExceptionAction;
 import java.util.HashSet;
 import java.util.Properties;
@@ -34,11 +33,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.rs.security.saml.sso.SAMLProtocolResponseValidator;
@@ -56,6 +50,8 @@ import org.apache.wss4j.dom.validate.Credential;
 import org.apache.wss4j.dom.validate.SamlAssertionValidator;
 import org.apache.wss4j.dom.validate.Validator;
 import org.codice.ddf.configuration.SystemBaseUrl;
+import org.codice.ddf.platform.util.TransformerProperties;
+import org.codice.ddf.platform.util.XMLUtils;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.api.InvalidSAMLReceivedException;
@@ -516,8 +512,6 @@ public class LoginFilter implements Filter {
                  * The user didn't have a SAML token from a previous authentication, but they do have the
                  * credentials to log in - perform that action here.
                  */
-                ClassLoader tccl = Thread.currentThread().getContextClassLoader();
-                Thread.currentThread().setContextClassLoader(LoginFilter.class.getClassLoader());
                 try {
                     // login with the specified authentication credentials (AuthenticationToken)
                     subject = securityManager.getSubject(token);
@@ -528,14 +522,12 @@ public class LoginFilter implements Filter {
                                 Element samlToken = ((SecurityAssertion) principal)
                                         .getSecurityToken().getToken();
 
-                                TransformerFactory transFactory = TransformerFactory.newInstance();
-                                Transformer transformer = transFactory.newTransformer();
-                                StringWriter buffer = new StringWriter();
-                                transformer
-                                        .setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-                                transformer.transform(new DOMSource(samlToken),
-                                        new StreamResult(buffer));
-                                LOGGER.trace("SAML Assertion returned: {}", buffer.toString());
+                                TransformerProperties transformProperties = new TransformerProperties();
+                                transformProperties.addOutputProperty(OutputKeys.INDENT, "yes");
+                                transformProperties.addOutputProperty(
+                                        "{http://xml.apache.org/xslt}indent-amount", "2");
+                                LOGGER.trace("SAML Assertion returned: {}",
+                                        XMLUtils.transformToXml(samlToken, transformProperties));
                             }
                             SecurityToken securityToken = ((SecurityAssertion) principal)
                                     .getSecurityToken();
@@ -545,10 +537,6 @@ public class LoginFilter implements Filter {
                 } catch (SecurityServiceException e) {
                     LOGGER.error("Unable to get subject from auth request.", e);
                     throw new ServletException(e);
-                } catch (TransformerException e) {
-                    LOGGER.warn("Unable to print SAML Assertion.", e);
-                } finally {
-                    Thread.currentThread().setContextClassLoader(tccl);
                 }
             } else {
                 LOGGER.trace("Creating SAML authentication token with session.");

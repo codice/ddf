@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -23,12 +23,10 @@ import java.io.StringWriter;
 import java.util.Locale;
 
 import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
 import org.codice.ddf.configuration.SystemBaseUrl;
+import org.codice.ddf.platform.util.TransformerProperties;
+import org.codice.ddf.platform.util.XMLUtils;
 import org.custommonkey.xmlunit.HTMLDocumentBuilder;
 import org.custommonkey.xmlunit.TolerantSaxDocumentBuilder;
 import org.custommonkey.xmlunit.XMLTestCase;
@@ -199,14 +197,10 @@ public class MetricsWebConsolePluginTest extends XMLTestCase {
     }
 
     private String getXml(Document doc) throws Exception {
-        TransformerFactory tf = TransformerFactory.newInstance();
-        Transformer transformer = tf.newTransformer();
-        transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-        StringWriter writer = new StringWriter();
-        transformer.transform(new DOMSource(doc), new StreamResult(writer));
-        String xml = writer.getBuffer().toString();
+        TransformerProperties transformerProperties = new TransformerProperties();
+        transformerProperties.addOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
 
-        return xml;
+        return XMLUtils.transformToXml(doc, transformerProperties);
     }
 
     private void verifyWeeklyReportContent(Document doc, String expectedRowCount, String dateRange,
