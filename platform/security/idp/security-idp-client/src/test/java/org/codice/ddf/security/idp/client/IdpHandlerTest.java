@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.security.handler.api.HandlerResult;
+import org.codice.ddf.security.session.RelayStates;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -42,7 +43,7 @@ public class IdpHandlerTest {
 
     IdpHandler idpHandler;
 
-    private RelayStates relayStates;
+    private RelayStates<String> relayStates;
 
     private SystemBaseUrl baseUrl;
 
@@ -72,7 +73,7 @@ public class IdpHandlerTest {
         simpleSign = new SimpleSign(systemCrypto);
         idpMetadata = new IdpMetadata();
         baseUrl = new SystemBaseUrl();
-        relayStates = mock(RelayStates.class);
+        relayStates = (RelayStates<String>) mock(RelayStates.class);
         when(relayStates.encode(anyString())).thenReturn(RELAY_STATE_VAL);
         when(relayStates.decode(RELAY_STATE_VAL)).thenReturn(LOCATION);
         httpRequest = mock(HttpServletRequest.class);

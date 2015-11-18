@@ -58,6 +58,7 @@ import org.codice.ddf.security.filter.websso.WebSSOFilter;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.saml.SAMLAssertionHandler;
 import org.codice.ddf.security.policy.context.ContextPolicy;
+import org.codice.ddf.security.session.RelayStates;
 import org.opensaml.saml2.metadata.EntityDescriptor;
 import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.validation.ValidationException;
@@ -91,7 +92,7 @@ public class AssertionConsumerService {
 
     private final SystemBaseUrl baseUrl;
 
-    private final RelayStates relayStates;
+    private RelayStates<String> relayStates;
 
     @Context
     private HttpServletRequest request;
@@ -107,12 +108,11 @@ public class AssertionConsumerService {
     }
 
     public AssertionConsumerService(SimpleSign simpleSign, IdpMetadata metadata,
-            SystemCrypto crypto, SystemBaseUrl systemBaseUrl, RelayStates relayStates) {
+            SystemCrypto crypto, SystemBaseUrl systemBaseUrl) {
         this.simpleSign = simpleSign;
         idpMetadata = metadata;
         systemCrypto = crypto;
         baseUrl = systemBaseUrl;
-        this.relayStates = relayStates;
     }
 
     @POST
@@ -349,5 +349,9 @@ public class AssertionConsumerService {
 
     public void setRequest(HttpServletRequest request) {
         this.request = request;
+    }
+
+    public void setRelayStates(RelayStates<String> relayStates) {
+        this.relayStates = relayStates;
     }
 }

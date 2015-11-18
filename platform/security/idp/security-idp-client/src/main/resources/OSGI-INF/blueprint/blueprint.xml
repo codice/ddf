@@ -49,7 +49,7 @@
         <argument ref="simpleSign"/>
         <argument ref="idpMetadata"/>
         <argument ref="baseUrl"/>
-        <argument ref="relayStates"/>
+        <property ref="relayStates" name="relayStates"/>
     </bean>
 
     <service ref="idpHandler"
