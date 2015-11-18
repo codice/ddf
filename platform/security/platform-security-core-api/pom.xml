@@ -115,7 +115,8 @@
                             httpclient;scope=!test,
                             httpcore,
                             google-http-client,
-                            guava
+                            guava,
+                            validation-api
                         </Embed-Dependency>
                         <Export-Package>
                             ddf.security*;version=${project.version}

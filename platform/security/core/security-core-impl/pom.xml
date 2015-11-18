@@ -83,6 +83,10 @@
             <artifactId>security-handler-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>ddf.security</groupId>
+            <artifactId>ddf-security-common</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
         </dependency>
@@ -114,6 +118,19 @@
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.compendium</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+            <version>1.1.0.Final</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpcore</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
         </dependency>
         <dependency>
             <groupId>org.powermock</groupId>
@@ -149,6 +166,12 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Embed-Dependency>
+                            validation-api,
+                            httpcore,
+                            httpclient,
+                            ddf-security-common
+                        </Embed-Dependency>
                         <Import-Package>
                             javax.servlet.http; version="[2.5.0,3.0.0)",
                             <!--
@@ -173,7 +196,8 @@
                             ddf.security.common.util;version=${project.version},
                             ddf.security.service.impl;version=${project.version},
                             ddf.security.ws.policy.impl;version=${project.version},
-                            ddf.security.http.impl;version=${project.version}
+                            ddf.security.http.impl;version=${project.version},
+                            ddf.security.samlp.impl;version=${project.version}
                         </Export-Package>
                         <Private-Package>org.codice.ddf.platform.util.http</Private-Package>
                     </instructions>
