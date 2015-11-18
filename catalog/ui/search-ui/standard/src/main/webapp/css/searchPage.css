@@ -274,6 +274,12 @@ div.btn-group label.active input[type=radio]~.fa-circle-o {
     table-layout: fixed;
 }
 
+.resultTable .result-header {
+    border-bottom: 3px solid #444;
+    color: grey;
+    font-weight: bold;
+}
+
 .result-list {
     margin: 0px 10px;
 }

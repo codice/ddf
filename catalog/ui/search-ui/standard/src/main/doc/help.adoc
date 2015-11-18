@@ -109,7 +109,7 @@ Title – The title of the record is displayed in blue text. Select the title of
 more details.
 
 Source – The gray text displayed below the record title is the data source (e.g., ddf.distribution)
-and the amount of time that has passed since the record was created (e.g., an hour ago).
+and the amount of time that has passed since the record was modified (e.g., an hour ago).
 
 |===
 
