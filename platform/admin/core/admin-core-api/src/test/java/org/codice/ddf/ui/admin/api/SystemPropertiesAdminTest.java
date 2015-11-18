@@ -90,6 +90,15 @@ public class SystemPropertiesAdminTest {
         SystemPropertiesAdmin spa = new SystemPropertiesAdmin();
         spa.writeSystemProperties(null);
         List<SystemPropertyDetails> details = spa.readSystemProperties();
+        assertThat(sbu.getHost(), equalTo("host"));
+        assertThat(sbu.getPort(), equalTo("1234"));
+        assertThat(sbu.getHttpPort(), equalTo("4567"));
+        assertThat(sbu.getHttpsPort(), equalTo("8901"));
+        assertThat(sbu.getProtocol(), equalTo("https://"));
+        assertThat(info.getOrganization(), equalTo("org"));
+        assertThat(info.getSiteContatct(), equalTo("contact"));
+        assertThat(info.getSiteName(), equalTo("site"));
+        assertThat(info.getVersion(), equalTo("version"));
         assertThat(details.size(), is(9));
     }
 
