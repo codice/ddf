@@ -18,24 +18,70 @@
 
 Distributed Data Framework (DDF) is an open source, modular integration framework. 
 
-## Advantages
+## Features
  * Standardization
     - Building on established Free and Open Source Software (FOSS) and open standards avoids vendor lock-in
  * Extensibility
     - Capabilities can be extended by developing and sharing new features
+    - Built on top of Apache Karaf for OSGi support
+    - Apache Camel and Apache CXF integration
  * Flexibility
     - Only features required can be deployed
+ * Federated Open Geospatial Consortium (OGC) filter powered metadata catalog
+     - Enterprise Service Bus (ESB) performs transformation between query standards
+     - Apache Solr integration
+        - Well Known Text (WKT) indexing and search for spatial awareness
+        - Full text search
+        - XPath searches
+        - XML indexing
+     - Open Geospatial Consortium (OGC) KML, CSW, and WFS federated services
+     - OpenSearch federated services
+     - REST api for catalog operations
+     - Integrated content framework to store actual products associated with the indexed metadata
+     - Tika parser for extracting metadata from products
+     - Plugin support for pre and post processing on all operations
+     - Eventing for notifications
+     - Metrics
+ * Security
+     - Web Service Security (WSS) functionality that comes with DDF is integrated throughout the system
+         - SAML 2.0 Web Browser SSO Profile with included IdP server and client
+         - SAML Security Token Service (STS) based on WS-Trust
+         - Automatic protection and Single Sign On (SSO) for web applications without modifying the application itself
+         - Extensible Java PDP and XACML PDP for authorization decisions
+         - LDAP integration
+             - Included OSGi enabled OpenDJ LDAP server
+         - CAS integration
+         - X.509 authentication
+         - Basic authentication
+         - SAML authentication
+         - Guest login support
+         - Multiple realm login support to mix and match different authentication types and services between endpoints
+         - WS-Security, WS-SecurityPolicy, WS-Policy, WS-Trust, WS-SecureConversation, WS-Addressing
+     - Provides a pluggable and extensible Security Framework (a set of APIs that define the integration with the DDF framework)
+     - Provides Security Service reference implementations for a realistic end-to-end use case.
+     - Role and Attribute based access control
+     - Attribute based filtering for searches performed throughout the system
+     - Federated identity through metadata catalog
+ * Search user interface
+    - 3D WebGL map built off of Cesium
+    - 2D map built off of OpenLayers 3
+    - USNG/MGRS grid support
+    - GeoNames geocoder integrated into both maps
+    - CometD integration for push notifications
+    - Upload and edit capability
+    - Saved workspaces (searches and metadata artifacts)
+ * Admin Web user interface
+    - Web based install wizard
+    - Application grid to organize configurations
+    - Pluggable configuration pages for applications to simplify configurations for complex scenarios
+    - Metrics web application to view up to date system metrics
  * Simplicity of installation and operation
     - Unzip and run
-    - Configuration via a Web console
+    - Configuration and Installation via a modern Admin Web console
  * Simplicity of Development
     - Build simple Java Objects and wire them in via a choice of dependency injection frameworks
     - Make use of widely available documentation and components for DDF's underlying technologies
     - Modular development supports multi-organizational and multi-regional teams
- * Security
-    - Web Service Security (WSS) functionality that comes with DDF is integrated throughout the system
-    - Provides a Security Framework (a set of APIs that define the integration with the DDF framework)
-    - Provides Security Service reference implementations for a realistic end-to-end use case.
  
 ## Building
 ### What you need ###
