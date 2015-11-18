@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:mc="urn:catalog:metacard" xmlns="urn:catalog:result"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:catalog:result"
+        elementFormDefault="qualified" attributeFormDefault="unqualified"
+        version="1.0.0">
+
+	<!-- bring in other schemas -->
+    <xsd:import schemaLocation="metacard.xsd" namespace="mc"/>
+
+    <xsd:element name="result">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="relevance" type="xsd:double" minOccurs="0"/>
+				<xsd:element name="distance" type="xsd:double" minOccurs="0"/>
+				<xsd:element ref="mc:metacard"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="results">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="result"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+
+</xsd:schema>
