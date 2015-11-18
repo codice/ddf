@@ -572,7 +572,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
 
         StringBuilder queryBuilder = new StringBuilder();
 
-        List<String> mappedNames = resolver.getGuestField(attributeName);
+        List<String> mappedNames = resolver.getAnonymousField(attributeName);
 
         if (mappedNames.isEmpty()) {
             throw new IngestException("Could not resolve attribute name [" + attributeName + "]");

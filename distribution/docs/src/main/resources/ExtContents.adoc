@@ -2684,7 +2684,7 @@ ddf@local>expand Title "VP-Engineering Manager"
 |                                                |   |       |       \-------------/         |
 | /--------\              /-------------\        |   |       |           ^    |              |
 | |        |              |             |        |   |       |           |    |              |
-| |  Dumb  |              |  Guest  |        |   |  c444 |           |    v              |
+| |  Dumb  |              |    Guest    |        |   |  c444 |           |    v              |
 | |  SOAP  |              | Interceptor |        |   | Shiro |       /----------=--\         |
 | | Client |call endpoint | /---------\ |        |   |       |       |             |         |
 | |        |------------->| |  Read   | |        |   |       |       | Expansion   |         |
