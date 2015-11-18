@@ -23,12 +23,12 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
@@ -356,9 +356,10 @@ public class IdpEndpoint implements Idp {
             if (newCookie != null) {
                 cookieCache.addActiveSp(newCookie.getValue(), authnRequest.getIssuer()
                         .getValue());
+                LOGGER.debug("Adding SP to activeSP list: {}", authnRequest.getIssuer()
+                        .getValue());
             }
-            LOGGER.debug("Adding SP to activeSP list: {}", authnRequest.getIssuer()
-                    .getValue());
+
             return response;
         } catch (SecurityServiceException e) {
             LOGGER.warn("Unable to retrieve subject for user.", e);
@@ -631,7 +632,7 @@ public class IdpEndpoint implements Idp {
             throw new InvalidStateException("Weird state");
         }
 
-        logoutState = new LogoutState(getActiveSps());
+        logoutState = new LogoutState(getActiveSps(cookie.getValue()));
         logoutState.setOriginalIssuer(logoutRequest.getIssuer()
                 .getValue());
         logoutState.setNameId(logoutRequest.getNameID()
@@ -682,9 +683,12 @@ public class IdpEndpoint implements Idp {
         return null;
     }
 
-    public Set<SPSSODescriptor> getActiveSps() {
-        // TODO (RCZ) - Track active SP's
-        return new HashSet<>();
+    public Set<SPSSODescriptor> getActiveSps(String cacheId) {
+        return cookieCache.getActiveSpSet(cacheId)
+                .stream()
+                .map(serviceProviders::get)
+                .map(ed -> ed.getSPSSODescriptor(SamlProtocol.SUPPORTED_PROTOCOL))
+                .collect(Collectors.toSet());
     }
 
     private Response getSamlRedirectResponse(XMLObject samlResponse, String targetUrl,
