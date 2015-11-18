@@ -259,6 +259,14 @@ public class AssertionConsumerService {
                 }
                 return super.getHeader(name);
             }
+
+            @Override
+            public Object getAttribute(String name) {
+                if (ContextPolicy.ACTIVE_REALM.equals(name)) {
+                    return "idp";
+                }
+                return super.getAttribute(name);
+            }
         };
 
         SAMLAssertionHandler samlAssertionHandler = new SAMLAssertionHandler();
@@ -301,6 +309,7 @@ public class AssertionConsumerService {
         String rootContext = baseUrl.getRootContext();
 
         String entityId = String.format("https://%s:%s%s/saml", hostname, port, rootContext);
+
         // Currently no real logout location - DFF-1605
         String logoutLocation = null; //String.format("https://%s:%s/logout", hostname, port);
         String assertionConsumerServiceLocation = String.format("https://%s:%s%s/saml/sso",

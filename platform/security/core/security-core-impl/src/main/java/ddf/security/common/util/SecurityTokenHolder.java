@@ -20,6 +20,7 @@ import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 
 public class SecurityTokenHolder {
 
+    //TODO: Make this immutable
     final Map<String, SecurityToken> realmTokenMap = new ConcurrentHashMap<>();
 
     public SecurityToken getSecurityToken(String realm) {
@@ -28,6 +29,10 @@ public class SecurityTokenHolder {
 
     public void addSecurityToken(String realm, SecurityToken securityToken) {
         realmTokenMap.put(realm, securityToken);
+    }
+
+    public Map<String, SecurityToken> getRealmTokenMap() {
+        return realmTokenMap;
     }
 
     public void remove(String realm) {
