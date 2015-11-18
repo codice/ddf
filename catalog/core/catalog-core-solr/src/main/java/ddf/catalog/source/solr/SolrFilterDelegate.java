@@ -764,7 +764,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
      */
     @Override
     public SolrQuery propertyIsNull(String propertyName) {
-        List<String> possibleFields = resolver.getGuestField(propertyName);
+        List<String> possibleFields = resolver.getAnonymousField(propertyName);
         if (possibleFields.isEmpty()) {
             throw new UnsupportedOperationException(
                     "Guest Field Property does not exist. " + propertyName);

@@ -243,7 +243,7 @@
                 id          ID                     #IMPLIED
                 %sequenceAttrs;>
 
-        <!-- an guest grouping in a model, or
+        <!-- an anonymous grouping in a model, or
              a top-level named group definition, or a reference to same -->
 
         <!-- Note that if order is 'all', group is not allowed inside.
