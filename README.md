@@ -36,7 +36,7 @@ Distributed Data Framework (DDF) is an open source, modular integration framewor
         - XML indexing
      - Open Geospatial Consortium (OGC) KML, CSW, and WFS federated services
      - OpenSearch federated services
-     - REST api for catalog operations
+     - REST API for catalog operations
      - Integrated content framework to store actual products associated with the indexed metadata
      - Tika parser for extracting metadata from products
      - Plugin support for pre and post processing on all operations
