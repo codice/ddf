@@ -21,6 +21,7 @@ import org.osgi.framework.BundleContext;
 import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
+import ddf.catalog.data.MetacardTypeRegistry;
 import ddf.content.ContentFramework;
 import ddf.content.ContentFrameworkException;
 import ddf.content.data.ContentItem;
@@ -43,6 +44,8 @@ import ddf.content.operation.impl.ReadRequestImpl;
 import ddf.content.operation.impl.UpdateResponseImpl;
 import ddf.content.plugin.ContentPlugin;
 import ddf.content.plugin.PluginExecutionException;
+import ddf.content.plugin.PostCreateStoragePlugin;
+import ddf.content.plugin.PreCreateStoragePlugin;
 import ddf.content.storage.StorageException;
 import ddf.content.storage.StorageProvider;
 
@@ -61,6 +64,20 @@ public class ContentFrameworkImpl implements ContentFramework {
      */
     protected List<ContentPlugin> contentPlugins;
 
+    /**
+     * The {@link List} of storage plugins to execute on the ingest response before content has been
+     * persisted to the filesystem.
+     */
+    protected List<PreCreateStoragePlugin> preCreateStoragePlugins;
+
+    /**
+     * The {@link List} of storage plugins to execute on the ingest response after content has been
+     * persisted to the filesystem.
+     */
+    protected List<PostCreateStoragePlugin> postCreateStoragePlugins;
+
+    protected MetacardTypeRegistry metacardTypeRegistry;
+
     private BundleContext context;
 
     private StorageProvider provider;
@@ -74,14 +91,18 @@ public class ContentFrameworkImpl implements ContentFramework {
      *                       operation.
      */
     public ContentFrameworkImpl(BundleContext context, StorageProvider provider,
-            List<ContentPlugin> contentPlugins) {
+            List<ContentPlugin> contentPlugins, List<PreCreateStoragePlugin> preCreateStoragePlugins,
+            List<PostCreateStoragePlugin> postCreateStoragePlugins) {
         LOGGER.trace("ENTERING: ContentFrameworkImpl constructor");
 
         this.context = context;
         this.provider = provider;
         this.contentPlugins = contentPlugins;
-
+        this.preCreateStoragePlugins = preCreateStoragePlugins;
+        this.postCreateStoragePlugins = postCreateStoragePlugins;
         LOGGER.trace("EXITING: ContentFrameworkImpl constructor");
+
+
     }
 
     @Override
@@ -118,7 +139,29 @@ public class ContentFrameworkImpl implements ContentFramework {
 
         if (directive == Directive.STORE || directive == Directive.STORE_AND_PROCESS) {
             try {
+
+                for (final PreCreateStoragePlugin plugin : preCreateStoragePlugins) {
+                    try {
+                        createRequest = plugin.process(createRequest);
+                    } catch (PluginExecutionException e) {
+                        LOGGER.info(
+                                "Plugin processing failed. This is allowable. Skipping to next plugin.",
+                                e);
+                    }
+                }
+
                 createResponse = provider.create(createRequest);
+
+                for (final PostCreateStoragePlugin plugin : postCreateStoragePlugins) {
+                    try {
+                        createResponse = plugin.process(createResponse);
+                    } catch (PluginExecutionException e) {
+                        LOGGER.info(
+                                "Plugin processing failed. This is allowable. Skipping to next plugin.",
+                                e);
+                    }
+                }
+
             } catch (StorageException e) {
                 throw new ContentFrameworkException(e);
             } catch (Exception e) {
