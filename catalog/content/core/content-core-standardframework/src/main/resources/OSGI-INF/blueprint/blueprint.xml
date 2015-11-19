@@ -22,6 +22,8 @@
 		<argument ref="blueprintBundleContext"/>
 		<argument ref="storageProvider"/>
 		<argument ref="contentPluginList"/>
+		<argument ref="preCreateStoragePluginList"/>
+		<argument ref="postCreateStoragePluginList"/>
 	</bean>
 
 
@@ -34,5 +36,18 @@
 	<reference-list id="contentPluginList" interface="ddf.content.plugin.ContentPlugin"
                     availability="optional">
 	</reference-list>
+
+	<reference-list id="preCreateStoragePluginList" interface="ddf.content.plugin.PreCreateStoragePlugin"
+					availability="optional">
+	</reference-list>
+
+	<reference-list id="postCreateStoragePluginList" interface="ddf.content.plugin.PostCreateStoragePlugin"
+					availability="optional">
+	</reference-list>
+
+	<service interface="ddf.catalog.data.MetacardType" >
+		<bean class="ddf.content.data.impl.ContentMetacardType"/>
+	</service>
+
 	
 </blueprint>	

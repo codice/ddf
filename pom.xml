@@ -280,6 +280,7 @@
                     <configuration>
                         <autoVersionSubmodules>true</autoVersionSubmodules>
                         <preparationGoals>clean verify install</preparationGoals>
+                        <pushChanges>false</pushChanges>
                         <arguments>-Pjavadoc-unpack ${arguments}</arguments>
                     </configuration>
                 </plugin>

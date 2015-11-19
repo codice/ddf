@@ -41,11 +41,23 @@
 				</tr>
 				<tr>
 					<td class='property-td'>Created</td>
-					<td class='value-td'><div class=value-div>{{formatDate properties.created}}</div></td>
+					<td class='value-td'><div class=value-div>
+					{{#if properties.created}}
+						{{formatDate properties.created}}
+					{{else}}
+						<i>No date available</i>
+					{{/if}}
+					</div></td>
 				</tr>
 				<tr>
 					<td class='property-td'>Last Modified</td>
-					<td class='value-td'><div class=value-div>{{formatDate properties.modified}}</div></td>
+					<td class='value-td'><div class=value-div>
+					{{#if properties.modified}}
+						{{formatDate properties.modified}}
+					{{else}}
+						<i>No date available</i>
+					{{/if}}
+					</div></td>
 				</tr>
 				<tr>
 					<td class='property-td'>Resource</td><td class='value-td'><div class=value-div>
