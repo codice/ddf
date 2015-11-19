@@ -98,10 +98,9 @@ public class IdpHandler implements AuthenticationHandler {
 
     private final SystemBaseUrl baseUrl;
 
-    private final RelayStates relayStates;
+    private RelayStates relayStates;
 
-    public IdpHandler(SimpleSign simpleSign, IdpMetadata metadata, SystemBaseUrl baseUrl,
-            RelayStates relayStates) throws IOException {
+    public IdpHandler(SimpleSign simpleSign, IdpMetadata metadata, SystemBaseUrl baseUrl) throws IOException {
         LOGGER.debug("Creating IdP handler.");
 
         this.simpleSign = simpleSign;
@@ -109,7 +108,6 @@ public class IdpHandler implements AuthenticationHandler {
 
         this.baseUrl = baseUrl;
 
-        this.relayStates = relayStates;
 
         postBindingTemplate = IOUtils
                 .toString(IdpHandler.class.getResourceAsStream("/post-binding.html"));
@@ -290,4 +288,7 @@ public class IdpHandler implements AuthenticationHandler {
         return result;
     }
 
+    public void setRelayStates(RelayStates relayStates) {
+        this.relayStates = relayStates;
+    }
 }
