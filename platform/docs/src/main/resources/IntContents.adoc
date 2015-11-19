@@ -217,7 +217,9 @@ Configuration can be performed using the processes described in the Configuring 
 |Branding Logo
 |logo
 |String
-|Specifies the landing page Logo.  Use a base64 encoded image.
+|Specifies the landing page Logo.  Use a base64 encoded image. You can use openssl to encode an image. +
+`openssl base64 -in <infile> -out <outfile>` +
+The contents of `<outfile>` should be pasted into this field.
 |
 |yes
 
