@@ -260,6 +260,7 @@
 
     <feature name="security-servlet-logout" install="manual" version="${project.version}"
              description="Logout servlet.">
+        <feature>security-core</feature>
         <bundle>mvn:ddf.security.servlet/security-servlet-logout/${project.version}</bundle>
     </feature>
 

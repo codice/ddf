@@ -15,6 +15,7 @@ $(function () {
 });
 
 $.get("/services/logout/actions", function (data) {
+    console.log(data);
     var actions = JSON.parse(data);
 
     var logoutDivs = actions.map(function (action) {

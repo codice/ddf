@@ -21,8 +21,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
@@ -32,8 +35,10 @@ import org.slf4j.LoggerFactory;
 import ddf.action.Action;
 import ddf.action.ActionProvider;
 import ddf.security.SecurityConstants;
+import ddf.security.assertion.impl.SecurityAssertionImpl;
 import ddf.security.common.util.SecurityTokenHolder;
-import ddf.security.http.impl.HttpSessionFactory;
+import ddf.security.http.SessionFactory;
+
 
 @Path("/")
 public class LogoutService {
@@ -41,28 +46,35 @@ public class LogoutService {
 
     private List<ActionProvider> logoutActionProviders;
 
-    private HttpSessionFactory httpSessionFactory;
+    private SessionFactory httpSessionFactory;
 
-    public void setLogoutActionProviders(List<ActionProvider> logoutActionProviders) {
-        this.logoutActionProviders = logoutActionProviders;
+    public void setHttpSessionFactory(SessionFactory httpSessionFactory) {
+        this.httpSessionFactory = httpSessionFactory;
     }
 
     @GET
     @Path("/actions")
-    public Response getActionProviders() {
+    public Response getActionProviders(@Context HttpServletRequest request) {
 
         //TODO Filter from greatest to least using ranks
+        //TODO: Update docs for idp realm changes
         // ((SecurityTokenHolder) session.getAttribute(SecurityConstants.SAML_ASSERTION)) -> get realm to token list -> SecurityAssertionImpl -> getPrincipal -> SubjectUtils.getName
+       //pass securityToken to SecurityAssertionImpl -> getPrincipcal instead ->
         Response response;
         List<Map<String, String>> realmsAndActions = new ArrayList<>();
-        Map<String, SecurityToken> realmTokenMap = ((SecurityTokenHolder) httpSessionFactory
-                .getOrCreateSession(null).getAttribute(SecurityConstants.SAML_ASSERTION))
-                .getRealmTokenMap();
+        Map<String, SecurityToken> realmTokenMap;
+
+        HttpSession session = httpSessionFactory.getOrCreateSession(request);
+
+
+        realmTokenMap = ((SecurityTokenHolder) session
+                .getAttribute(SecurityConstants.SAML_ASSERTION)).getRealmTokenMap();
 
         for (String realm : realmTokenMap.keySet()) {
-            Map<String, String> realmNameMap = new HashMap<>();
-            realmNameMap.put(realm, realmTokenMap.get(realm).getPrincipal().getName());
-            realmsAndActions.add(realmNameMap);
+            Map<String, String> realmToNameMap = new HashMap<>();
+
+            realmToNameMap.put(realm,    new SecurityAssertionImpl(realmTokenMap.get(realm)).getPrincipal().getName());
+            realmsAndActions.add(realmToNameMap);
         }
 
         for (ActionProvider actionProvider : logoutActionProviders) {
@@ -82,7 +94,8 @@ public class LogoutService {
         return response;
     }
 
-    public void setHttpSessionFactory(HttpSessionFactory httpSessionFactory) {
-        this.httpSessionFactory = httpSessionFactory;
+    public void setLogoutActionProviders(List<ActionProvider> logoutActionProviders) {
+        this.logoutActionProviders = logoutActionProviders;
     }
+
 }
