@@ -80,11 +80,11 @@ public class IdpHandlerTest {
         when(httpRequest.getRequestURL()).thenReturn(new StringBuffer("https://localhost:8993"));
         httpResponse = mock(HttpServletResponse.class);
 
-        idpHandler = new IdpHandler(simpleSign, idpMetadata, baseUrl, relayStates);
+        idpHandler = new IdpHandler(simpleSign, idpMetadata, baseUrl);
+        idpHandler.setRelayStates(relayStates);
 
         StringWriter writer = new StringWriter();
-        InputStream inputStream = this.getClass()
-                .getResourceAsStream("/IDPmetadata.xml");
+        InputStream inputStream = this.getClass()                .getResourceAsStream("/IDPmetadata.xml");
         IOUtils.copy(inputStream, writer, "UTF-8");
         metadata = writer.toString();
         idpMetadata.setMetadata(metadata);

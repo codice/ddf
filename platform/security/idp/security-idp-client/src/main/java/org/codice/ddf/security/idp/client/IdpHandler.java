@@ -98,7 +98,7 @@ public class IdpHandler implements AuthenticationHandler {
 
     private final SystemBaseUrl baseUrl;
 
-    private RelayStates relayStates;
+    private RelayStates<String> relayStates;
 
     public IdpHandler(SimpleSign simpleSign, IdpMetadata metadata, SystemBaseUrl baseUrl) throws IOException {
         LOGGER.debug("Creating IdP handler.");
@@ -288,7 +288,7 @@ public class IdpHandler implements AuthenticationHandler {
         return result;
     }
 
-    public void setRelayStates(RelayStates relayStates) {
+    public void setRelayStates(RelayStates<String> relayStates) {
         this.relayStates = relayStates;
     }
 }
