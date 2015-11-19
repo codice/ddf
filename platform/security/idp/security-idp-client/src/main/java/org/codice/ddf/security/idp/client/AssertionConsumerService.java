@@ -92,7 +92,7 @@ public class AssertionConsumerService {
 
     private final SystemBaseUrl baseUrl;
 
-    private RelayStates<String> relayStates;
+    private final RelayStates<String> relayStates;
 
     @Context
     private HttpServletRequest request;
@@ -108,11 +108,12 @@ public class AssertionConsumerService {
     }
 
     public AssertionConsumerService(SimpleSign simpleSign, IdpMetadata metadata,
-            SystemCrypto crypto, SystemBaseUrl systemBaseUrl) {
+            SystemCrypto crypto, SystemBaseUrl systemBaseUrl, RelayStates<String> relayStates) {
         this.simpleSign = simpleSign;
         idpMetadata = metadata;
         systemCrypto = crypto;
         baseUrl = systemBaseUrl;
+        this.relayStates = relayStates;
     }
 
     @POST
@@ -349,9 +350,5 @@ public class AssertionConsumerService {
 
     public void setRequest(HttpServletRequest request) {
         this.request = request;
-    }
-
-    public void setRelayStates(RelayStates<String> relayStates) {
-        this.relayStates = relayStates;
     }
 }
