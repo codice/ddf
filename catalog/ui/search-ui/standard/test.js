@@ -48,7 +48,7 @@ app.listen = function() {
                 "successful": true,
                 "user": {
                     "username": "Guest",
-                    "isAnonymous": "true"
+                    "isGuest": "true"
                 }
             });
         }

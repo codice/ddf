@@ -368,7 +368,7 @@ public class GuestInterceptor extends AbstractWSS4JInterceptor {
                     } else {
                         if (overrideEndpointPolicies) {
                             LOGGER.debug(
-                                    "WS Policy is null, override is true - an guest assertion will be generated");
+                                    "WS Policy is null, override is true - a guest assertion will be generated");
                         } else {
                             LOGGER.warn(
                                     "WS Policy is null, override flag is false - no guest assertion will be generated.");
@@ -377,7 +377,7 @@ public class GuestInterceptor extends AbstractWSS4JInterceptor {
                 } else {
                     if (overrideEndpointPolicies) {
                         LOGGER.debug(
-                                "Effective WS Policy is null, override is true - an guest assertion will be generated");
+                                "Effective WS Policy is null, override is true - a guest assertion will be generated");
                     } else {
                         LOGGER.warn(
                                 "Effective WS Policy is null, override flag is false - no guest assertion will be generated.");

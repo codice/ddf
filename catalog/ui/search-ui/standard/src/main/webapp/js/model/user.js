@@ -59,12 +59,12 @@ define([
         ],
         defaults: function() {
             return {
-                isAnonymous: true,
+                isGuest: true,
                 preferences: new User.Preferences()
             };
         },
         isGuestUser: function() {
-            return this.get('isAnonymous') === 'true' || this.get('isAnonymous') === true;
+            return this.get('isGuest') === 'true' || this.get('isGuest') === true;
         }
     });
 

@@ -19,7 +19,7 @@ import ddf.security.common.audit.SecurityLogger;
 import ddf.security.principal.GuestPrincipal;
 
 /**
- * Authentication token representing an guest user's credentials
+ * Authentication token representing a guest user's credentials
  */
 public class GuestAuthenticationToken extends BSTAuthenticationToken {
 

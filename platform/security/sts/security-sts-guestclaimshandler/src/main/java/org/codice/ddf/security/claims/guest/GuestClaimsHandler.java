@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 import ddf.security.principal.GuestPrincipal;
 
 /**
- * Provides claims for an guest auth token.
+ * Provides claims for a guest auth token.
  */
 public class GuestClaimsHandler implements ClaimsHandler, RealmSupport {
 
