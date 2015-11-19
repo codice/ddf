@@ -60,17 +60,17 @@ describe('Installation', function () {
         });
     });
 
-    describe('configure anonymous claims attributes  page', function () {
+    describe('configure guest claims attributes  page', function () {
         it('should contain configure general settings', function () {
             return this.browser
-                .waitForElementById('anonClaims', asserters.textInclude('Configure anonymous claims attributes'), shared.timeout);
+                .waitForElementById('guestClaims', asserters.textInclude('Configure guest claims attributes'), shared.timeout);
         });
 
         it('should contain a profile dropdown', function() {
             return this.browser
                 .waitForElementByCssSelector('button[title="Default"]', shared.timeout).click()
                 .waitForElementByClassName('dropdown-menu', asserters.isDisplayed, shared.timeout)
-                .waitForElementById('anonClaims', shared.timeout).click()
+                .waitForElementById('guestClaims', shared.timeout).click()
         });
 
         it('should have the default attributes', function() {
@@ -90,7 +90,7 @@ describe('Installation', function () {
                 .waitForElementByCssSelector('li[value="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role"]', shared.timeout)
                 .waitForElementByCssSelector('li[value="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname"]', shared.timeout)
                 .waitForElementByCssSelector('li[value="Add Custom Attribute..."]', shared.timeout)
-                .waitForElementById('anonClaims', shared.timeout).click();
+                .waitForElementById('guestClaims', shared.timeout).click();
         });
 
         it('should be able to add and remove attributes', function() {
@@ -105,7 +105,7 @@ describe('Installation', function () {
             return this.browser
                 .waitForElementByLinkText('Add Attribute', shared.timeout).click()
                 .waitForElementById('nextStep', shared.timeout).click()
-                .waitForElementById('anonClaims', asserters.textInclude('Configure anonymous claims attributes'), shared.timeout)
+                .waitForElementById('guestClaims', asserters.textInclude('Configure guest claims attributes'), shared.timeout)
                 .waitForElementByName('claimName3Error', asserters.textInclude('Claim name is required'), shared.timeout)
                 .waitForElementByName('claimValue3Error', asserters.textInclude('Claim value is required'), shared.timeout)
                 .waitForElementsByClassName('minus-button', shared.timeout).last().click();
@@ -116,8 +116,8 @@ describe('Installation', function () {
             return this.browser
                 .waitForElementByClassName('minus-button', shared.timeout).click()
                 .waitForElementByClassName('minus-button', shared.timeout).click()
-                .waitForElementById('warning-div', asserters.textInclude('By removing the required claim http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier, anonymous access will effectively be disabled'), shared.timeout)
-                .waitForElementById('warning-div', asserters.textInclude('By removing the required claim http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role, anonymous access will effectively be disabled'), shared.timeout)
+                .waitForElementById('warning-div', asserters.textInclude('By removing the required claim http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier, guest access will effectively be disabled'), shared.timeout)
+                .waitForElementById('warning-div', asserters.textInclude('By removing the required claim http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role, guest access will effectively be disabled'), shared.timeout)
                 .refresh()
                 .waitForElementById('startStep', shared.timeout).click()
                 .waitForElementById('nextStep', shared.timeout).click();
@@ -127,7 +127,7 @@ describe('Installation', function () {
             return this.browser
                 .waitForElementByLinkText('Add Attribute', shared.timeout).click()
                 .waitForElementsByName('claimName', shared.timeout).last().type('http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier')
-                .waitForElementById('anonClaims', shared.timeout).click()
+                .waitForElementById('guestClaims', shared.timeout).click()
                 .waitForElementById('warning-div', asserters.isDisplayed, shared.timeout)
                 .waitForElementsByClassName('minus-button', shared.timeout).last().click();
         });

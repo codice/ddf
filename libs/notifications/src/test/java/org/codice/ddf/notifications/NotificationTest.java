@@ -33,7 +33,7 @@ public class NotificationTest {
      *
      * Verifies that the constructor will set a
      * {@link Notification#NOTIFICATION_KEY_USER_ID} to an empty {@code String},
-     * which simulates an guest user.
+     * which simulates a guest user.
      */
     @Test
     public void testNotificationSetGuestUserId() {

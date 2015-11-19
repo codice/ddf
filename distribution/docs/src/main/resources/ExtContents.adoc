@@ -930,7 +930,7 @@ An update was made to the SAML Assertion Handler to pass SAML assertions via hea
 |       |                         |        |  |                |  |  |    |    |   |       |                                                                 |
 |       |                         v        |  \----------------/  |  |    v    |   |  c555 |                                                                 |
 |       |                  /------------\  |                      |  \---------/   |       |                                                                 |
-|       |                  |Anon Handler|  |                      |       |        |       |                                                                 |
+|       |                  |GuestHandler|  |                      |       |        |       |                                                                 |
 |       |                  \------------/  |                      |       v        |       |                                                                 |
 |       |                         |        |                      |  /---------\   |       |                                                                 |
 |       |                         v        |                      |  |    |cDEF|   |       |                                                                 |
@@ -2701,12 +2701,12 @@ ddf@local>expand Title "VP-Engineering Manager"
 |                         |      v      |        |   |       |                               |
 |                         | /---------\ |        |   |       |                               |
 |                         | |   Get   | |        |   |       |                               |
-|                         | |Anon SAML| |        |   |       |                               |
+|                         | |GuestSAML| |        |   |       |                               |
 |                         | \---------/ |--------/   |       |                               |
 |                         |      | cDEF |            |       |                               |
 |                         |      v      |            |       |                               |
 |                         \-------------/            |       |                               |
-|                            ^   |    Anon Token     |       |                               |
+|                            ^   |    Guest Token    |       |                               |
 |                            |   \------------------>|       |                               |
 |                            |         Subject       |       |                               |
 |                            \-----------------------|       |                               |
@@ -2724,7 +2724,7 @@ If the client receives the token, it makes a secure call to the endpoint and rec
 === Dumb SOAP Client
 
 If calling endpoint from a non-secure client, at the point the of the initial call, the Guest Interceptor catches the request and prepares it to be accepted by the endpoint.
-First, the interceptor reads the configured policy, builds a security header, and gets an guest SAML assertion. Using this, it makes a `getSubject` call which is sent through Shiro to the STS realm. Upon success, the STS realm returns the subject and the call is made to the endpoint.
+First, the interceptor reads the configured policy, builds a security header, and gets a guest SAML assertion. Using this, it makes a `getSubject` call which is sent through Shiro to the STS realm. Upon success, the STS realm returns the subject and the call is made to the endpoint.
 
 == Developing DDF Applications
 The DDF applications are comprised of components, packaged as Karaf features, which are collections of OSGi bundles. These features can be installed/uninstalled using the Web Console or command line console. DDF applications also consist of one or more OSGi bundles and, possibly, supplemental external files. These applications are packaged as Karaf KAR files for easy download and installation. These applications can be stored on a file system or a Maven repository.

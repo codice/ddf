@@ -51,7 +51,7 @@ public class GuestPrincipal implements Principal {
     }
 
     /**
-     * Parses the ip address out of an guest principal name that has the format
+     * Parses the ip address out of a guest principal name that has the format
      * Guest@127.0.0.1
      * @param fullName
      * @return

@@ -1408,35 +1408,35 @@ org.apache.shiro.authz.Authorizer
 
 |===
 
-== Anonymous Interceptor
+== Guest Interceptor
 
-The goal of the AnonymousInterceptor is to allow non-secure clients (SOAP requests without security headers) to access secure service endpoints. 
+The goal of the GuestInterceptor is to allow non-secure clients (SOAP requests without security headers) to access secure service endpoints. 
 
 All requests to secure endpoints must include, as part of the incoming message, a user's credentials in the form of a SAML assertion or a reference to a SAML assertion. For REST/HTTP requests, either the assertion itself or the session reference (that contains the assertion) is included. For SOAP requests, the assertion is included in the SOAP header. 
 
-Rather than reject requests without user credentials, the anonymous interceptor detects the missing credentials and inserts an assertion that represents the "anonymous" user. The attributes included in this anonymous user assertion are configured by the administrator to represent any unknown user on the current network.
+Rather than reject requests without user credentials, the guest interceptor detects the missing credentials and inserts an assertion that represents the "guest" user. The attributes included in this guest user assertion are configured by the administrator to represent any unknown user on the current network.
 
 === Installing
 
-The `AnonymousInterceptor` is installed by default with DDF Security Application.
+The `GuestInterceptor` is installed by default with DDF Security Application.
 
 === Configuring
 
 ==== Configuring via the Admin Console
 
 . Navigate to the DDF Admin Console -> Configuration
-. Select “ Security STS Anonymous Claims Handler”
+. Select “ Security STS Guest Claims Handler”
 . Click the + next to Attributes to add a new attribute
 . Add the following attribute: +
- “http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier=anonymous”
+ “http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier=guest”
 . Repeat the steps above to add another new attribute: +
- “http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier=anonymous”
+ “http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier=guest”
 . Click save
 . Now select “Security Simple AuthZ Realm”
-. Under role, add anonymous so Roles value is: “admin,anonymous”
+. Under role, add guest so Roles value is: “admin,guest”
 . Click save.
 
-Once these configurations have been added, the AnonymousInterceptor is ready for use. Both secure and non-secure requests will be accepted by all secure DDF service endpoints.
+Once these configurations have been added, the GuestInterceptor is ready for use. Both secure and non-secure requests will be accepted by all secure DDF service endpoints.
 
 == Security IdP
 

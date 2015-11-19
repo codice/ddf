@@ -55,7 +55,7 @@ public class GuestHandler implements AuthenticationHandler {
     }
 
     /**
-     * This method takes an guest request and attaches a username token
+     * This method takes a guest request and attaches a username token
      * to the HTTP request to allow access. The method also allows the user to
      * sign-in and authenticate.
      *
