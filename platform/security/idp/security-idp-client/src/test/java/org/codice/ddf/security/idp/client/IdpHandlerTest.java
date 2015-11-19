@@ -87,7 +87,8 @@ public class IdpHandlerTest {
                 .getResourceAsStream("/IDPmetadata.xml");
         IOUtils.copy(inputStream, writer, "UTF-8");
         metadata = writer.toString();
-        idpMetadata.setMetadata(metadata);    }
+        idpMetadata.setMetadata(metadata);
+    }
 
     @Test
     public void testGetNormalizedToken() throws Exception {
