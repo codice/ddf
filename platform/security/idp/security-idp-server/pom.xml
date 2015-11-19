@@ -182,7 +182,8 @@
                             ddf-security-common,
                             antlr4-runtime,
                             commons-lang3,
-                            guava
+                            guava,
+                            platform-security-session
                         </Embed-Dependency>
                         <Import-Package>!org.abego.treelayout.*, *</Import-Package>
                         <Export-Package />
