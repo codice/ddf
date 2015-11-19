@@ -83,7 +83,7 @@ public class SystemPropertiesAdmin implements SystemPropertiesAdminMBean {
 
     private static final String SITE_CONTACT_TITLE = "Site Contact";
 
-    private static final String SITE_CONTACT_DESCRIPTION = "The email address of the site contact";
+    private static final String SITE_CONTACT_DESCRIPTION = "The email address of the site contact.";
 
     private static final String SITE_NAME_TITLE = "Site Name";
 

@@ -149,14 +149,25 @@ define([
 * Item View
 */
 var SystemPropertyView = Marionette.ItemView.extend({
-    className: 'well well-sm white',
     template: 'configurationItemTemplate',
     initialize: function () {
         this.modelBinder = new Backbone.ModelBinder();
     },
+    setupPopOvers: function() {
+
+        var tooltipOptions = {
+            content: this.model.get('description'),
+            placement: 'bottom',
+            trigger: 'hover'
+        };
+
+        var tooltipSelector = '[data-toggle="' + this.model.get('key') + '-popover"]';
+        this.$el.find(tooltipSelector).popover(tooltipOptions);
+    },
     onRender: function () {
         var bindings = Backbone.ModelBinder.createDefaultBindings(this.el, 'name');
         this.modelBinder.bind(this.model, this.el, bindings, {modelSetOptions: {validate: true}});
+        this.setupPopOvers();
     },
     modelEvents: {
         'change': 'render'

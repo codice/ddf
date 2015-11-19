@@ -25,6 +25,24 @@ define([
 * MODEL
 */
     Configuration.SystemProperty = Backbone.Model.extend({
+        initialize: function() {
+            // Get the description provided by the back end and split it.
+            // First sentence will be set as the short description anything after that will be set to description
+            var description = this.get('description');
+
+            // Set the short description as the first sentence looking for '.'
+            // If there isn't one just set it to the description
+            var shortDescription = description.substring(0, description.indexOf('.') + 1) || description;
+
+            // Set the description as everything after the first sentence
+            description = (description.substring(description.indexOf('.') +1)).trim();
+
+            // Set the short description on the model
+            this.set('shortDescription', shortDescription);
+
+            // Update the description on the model
+            this.set('description', description);
+        },
         validate: function(attrs) {
             var validation = [];
             var errorMessage = '';

@@ -247,44 +247,47 @@ center {
 }
 
 
+#system-configuration-settings {
+    .store-div {
+        float:left;
+        position:relative;
+        width: 49%;
+        padding-left: 20px;
+        padding-right: 20px;
 
-.store-div {
-    float:left;
-    position:relative;
-    width: 49%;
-    padding-left: 20px;
-    padding-right: 20px;
-
-    table {
-        width: 100%;
-        .store-password {
-            width: 100%;
+        .error-border {
+            border-color: @error-background-color !important;
+        }
+        .drop-zone {
+            text-align: center;
+            border: dashed medium black;
+            padding-top: 15px;
+            padding-bottom: 15px;
         }
 
-        td {
+        .store-title {
+            font-size: large;
+        }
+
+        .store-file {
             padding: 5px 0px;
         }
     }
-    .error-border {
-        border-color: @error-background-color !important;
+    .row {
+        width: 100%;
     }
-    .drop-zone {
-        text-align: center;
-        border: dashed medium black;
-        padding-top: 15px;
-        padding-bottom: 15px;
+    .property-label {
+        min-width:150px;
+        text-align:left;
     }
-    .store-label {
-        padding-right: 10px;
-    }
-    .store-title {
-        font-size: large;
+    .cert-label {
+        min-width:180px;
+        text-align:left;
     }
 
-    .store-file {
-        padding: 5px 0px;
-    }
 }
+
+
 
 
 .cert-errors {
