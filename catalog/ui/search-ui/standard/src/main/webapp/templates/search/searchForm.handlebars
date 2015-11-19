@@ -82,7 +82,7 @@
                             <input type="radio" name="modifiedTimeButton" value="modified">
                             <i class="fa fa-circle"></i>
                             <i class="fa fa-circle-o"></i>
-                            Modified
+                             Modified
                         </label>
                         <label id="effective" class="btn btn-default {{#is timeType 'effective'}}active{{/is}}">
                             <input type="radio" name="effectiveTimeButton" value="effective">
@@ -97,7 +97,7 @@
                     <div class="col-lg-10">
                         <div class="input-group input-group-sm">
                             <span class="input-group-addon">Last&nbsp;</span>
-                            <input id="offsetTime" name="offsetTime" class="form-control" type="number"/>
+                            <input class="form-control" id="offsetTime" type="number" min="0" step="any" placeholder="" name="offsetTime"/>
                             <span class="input-group-btn">
                                 <select id="offsetTimeUnits" name="offsetTimeUnits" class="input-group-addon">
                                     <option value="seconds">seconds</option>
