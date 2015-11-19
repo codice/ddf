@@ -116,6 +116,7 @@
                         <Embed-Dependency>
                             common-system,
                             ddf-security-common,
+                            platform-security-session,
                             guava
                         </Embed-Dependency>
                     </instructions>
