@@ -106,12 +106,10 @@ public class AssertionConsumerServiceTest {
         idpMetadata = new IdpMetadata();
 
         assertionConsumerService = new AssertionConsumerService(simpleSign, idpMetadata,
-                systemCrypto, baseUrl);
-        assertionConsumerService.setRelayStates(relayStates);
+                systemCrypto, baseUrl, relayStates);
         assertionConsumerService.setRequest(httpRequest);
         assertionConsumerService.setLoginFilter(loginFilter);
         assertionConsumerService.setSessionFactory(sessionFactory);
-
         cannedResponse = Resources.toString(Resources.getResource(getClass(), "/SAMLResponse.xml"),
                 Charsets.UTF_8);
 

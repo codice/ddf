@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -83,12 +83,12 @@ public class IdpHandler implements AuthenticationHandler {
     }
 
     @SuppressWarnings("unchecked")
-    private static SAMLObjectBuilder<AuthnRequest> authnRequestBuilder = (SAMLObjectBuilder<AuthnRequest>) builderFactory
-            .getBuilder(AuthnRequest.DEFAULT_ELEMENT_NAME);
+    private static SAMLObjectBuilder<AuthnRequest> authnRequestBuilder = (SAMLObjectBuilder<AuthnRequest>) builderFactory.getBuilder(
+            AuthnRequest.DEFAULT_ELEMENT_NAME);
 
     @SuppressWarnings("unchecked")
-    private static SAMLObjectBuilder<Issuer> issuerBuilder = (SAMLObjectBuilder<Issuer>)
-            builderFactory.getBuilder(Issuer.DEFAULT_ELEMENT_NAME);
+    private static SAMLObjectBuilder<Issuer> issuerBuilder = (SAMLObjectBuilder<Issuer>) builderFactory.getBuilder(
+            Issuer.DEFAULT_ELEMENT_NAME);
 
     private final String postBindingTemplate;
 
@@ -98,19 +98,20 @@ public class IdpHandler implements AuthenticationHandler {
 
     private final SystemBaseUrl baseUrl;
 
-    private RelayStates<String> relayStates;
+    private final RelayStates<String> relayStates;
 
-    public IdpHandler(SimpleSign simpleSign, IdpMetadata metadata, SystemBaseUrl baseUrl) throws IOException {
+    public IdpHandler(SimpleSign simpleSign, IdpMetadata metadata, SystemBaseUrl baseUrl,
+            RelayStates<String> relayStates) throws IOException {
         LOGGER.debug("Creating IdP handler.");
 
         this.simpleSign = simpleSign;
         idpMetadata = metadata;
 
         this.baseUrl = baseUrl;
+        this.relayStates = relayStates;
 
-
-        postBindingTemplate = IOUtils
-                .toString(IdpHandler.class.getResourceAsStream("/post-binding.html"));
+        postBindingTemplate = IOUtils.toString(
+                IdpHandler.class.getResourceAsStream("/post-binding.html"));
     }
 
     @Override
@@ -141,7 +142,8 @@ public class IdpHandler implements AuthenticationHandler {
         LOGGER.debug("Doing IdP authentication and authorization for path {}", path);
 
         // Default to HTTP-Redirect if binding is null
-        if (idpMetadata.getSingleSignOnBinding() == null || idpMetadata.getSingleSignOnBinding().endsWith("Redirect")) {
+        if (idpMetadata.getSingleSignOnBinding() == null || idpMetadata.getSingleSignOnBinding()
+                .endsWith("Redirect")) {
             doHttpRedirectBinding((HttpServletRequest) request, (HttpServletResponse) response);
         } else {
             doHttpPostBinding((HttpServletRequest) request, (HttpServletResponse) response);
@@ -150,7 +152,8 @@ public class IdpHandler implements AuthenticationHandler {
         return handlerResult;
     }
 
-    private void doHttpRedirectBinding(HttpServletRequest request, HttpServletResponse response) throws ServletException {
+    private void doHttpRedirectBinding(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException {
 
         String redirectUrl;
         String idpRequest = null;
@@ -163,7 +166,8 @@ public class IdpHandler implements AuthenticationHandler {
 
             simpleSign.signUriString(queryParams, idpUri);
 
-            redirectUrl = idpUri.build().toString();
+            redirectUrl = idpUri.build()
+                    .toString();
         } catch (UnsupportedEncodingException e) {
             LOGGER.warn("Unable to encode relay state: " + relayState, e);
             throw new ServletException("Unable to create return location");
@@ -185,10 +189,12 @@ public class IdpHandler implements AuthenticationHandler {
         }
     }
 
-    private void doHttpPostBinding(HttpServletRequest request, HttpServletResponse response) throws ServletException {
+    private void doHttpPostBinding(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException {
         try {
-            response.getWriter().printf(postBindingTemplate, idpMetadata.getSingleSignOnLocation(), createAuthnRequest(true),
-                    createRelayState(request));
+            response.getWriter()
+                    .printf(postBindingTemplate, idpMetadata.getSingleSignOnLocation(),
+                            createAuthnRequest(true), createRelayState(request));
             response.setStatus(200);
             response.flushBuffer();
         } catch (IOException e) {
@@ -211,16 +217,16 @@ public class IdpHandler implements AuthenticationHandler {
 
         authnRequest.setAssertionConsumerServiceURL(spAssertionConsumerServiceUrl);
 
-        authnRequest.setID("_" + UUID.randomUUID().toString());
+        authnRequest.setID("_" + UUID.randomUUID()
+                .toString());
         authnRequest.setVersion(SAMLVersion.VERSION_20);
         authnRequest.setIssueInstant(new DateTime());
 
         authnRequest.setDestination(idpMetadata.getSingleSignOnLocation());
 
         authnRequest.setProtocolBinding(idpMetadata.getSingleSignOnBinding());
-        authnRequest.setNameIDPolicy(SamlpRequestComponentBuilder
-                .createNameIDPolicy(true, SAML2Constants.NAMEID_FORMAT_PERSISTENT,
-                        spIssuerId));
+        authnRequest.setNameIDPolicy(SamlpRequestComponentBuilder.createNameIDPolicy(true,
+                SAML2Constants.NAMEID_FORMAT_PERSISTENT, spIssuerId));
 
         return serializeAndSign(isPost, authnRequest);
     }
@@ -274,7 +280,9 @@ public class IdpHandler implements AuthenticationHandler {
         if (queryString == null) {
             return requestURL.toString();
         } else {
-            return requestURL.append('?').append(queryString).toString();
+            return requestURL.append('?')
+                    .append(queryString)
+                    .toString();
         }
     }
 
@@ -286,9 +294,5 @@ public class IdpHandler implements AuthenticationHandler {
         result.setSource(realm + "-" + SOURCE);
         LOGGER.debug("In error handler for idp - no action taken.");
         return result;
-    }
-
-    public void setRelayStates(RelayStates<String> relayStates) {
-        this.relayStates = relayStates;
     }
 }
