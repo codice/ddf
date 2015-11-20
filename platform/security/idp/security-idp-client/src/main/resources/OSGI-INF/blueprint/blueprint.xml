@@ -77,6 +77,19 @@
                                filter="(id=http)"/>
                 </property>
             </bean>
+            <bean id="logoutRequestService"
+                  class=" org.codice.ddf.security.idp.client.LogoutRequestService" init-method="init">
+                <argument ref="simpleSign"/>
+                <argument ref="idpMetadata"/>
+                <argument ref="crypto"/>
+                <property name="sessionFactory">
+                    <reference interface="ddf.security.http.SessionFactory"
+                               filter="(id=http)"/>
+                </property>
+                <property name="logoutService">
+                    <reference interface="ddf.security.samlp.LogoutService" />
+                </property>
+            </bean>
         </jaxrs:serviceBeans>
     </jaxrs:server>
 
