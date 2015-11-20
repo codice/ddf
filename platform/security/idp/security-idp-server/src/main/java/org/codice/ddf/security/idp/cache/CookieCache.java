@@ -53,12 +53,14 @@ public class CookieCache {
     }
 
     public void addActiveSp(String key, String activeSp) {
-        DataWrapper data = cache.getIfPresent(key);
-        if (data == null) {
+        DataWrapper dataWrapper = cache.getIfPresent(key);
+        if (dataWrapper == null) {
             LOGGER.error("Cannot add sp [{}] for [{}]: does not exist", activeSp, key);
             return;
         }
-        data.activeSpSet.add(activeSp);
+        synchronized (dataWrapper) {
+            dataWrapper.activeSpSet.add(activeSp);
+        }
     }
 
     /**
@@ -75,10 +77,20 @@ public class CookieCache {
         return null;
     }
 
+    public void removeSamlAssertion(String key) {
+        DataWrapper dataWrapper = cache.getIfPresent(key);
+        if (dataWrapper != null) {
+            LOGGER.debug("Expiring Saml assertion due to LogoutRequest\n[{}:{}]", key, dataWrapper.element);
+            dataWrapper.element = null;
+        }
+    }
+
     public Set<String> getActiveSpSet(String key) {
         DataWrapper dataWrapper = cache.getIfPresent(key);
         if (dataWrapper != null) {
-            return new HashSet<>(dataWrapper.activeSpSet);
+            synchronized(dataWrapper) {
+                return new HashSet<>(dataWrapper.activeSpSet);
+            }
         }
         return new HashSet<>();
     }
@@ -122,8 +134,11 @@ public class CookieCache {
     }
 
     private static class DataWrapper {
-        private final Element element;
+        private Element element;
 
+        /**
+         * Data access to this variable should be synchronized
+         */
         private final Set<String> activeSpSet;
 
         private DataWrapper(Element element) {

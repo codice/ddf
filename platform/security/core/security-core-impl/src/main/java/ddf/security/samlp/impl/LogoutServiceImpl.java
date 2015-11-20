@@ -17,6 +17,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URLEncoder;
+import java.util.UUID;
 
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.core.UriBuilder;
@@ -38,7 +39,9 @@ import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.apache.wss4j.common.util.DOM2Writer;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
+import org.joda.time.DateTime;
 import org.opensaml.common.SAMLObject;
+import org.opensaml.common.SAMLVersion;
 import org.opensaml.saml2.core.Issuer;
 import org.opensaml.saml2.core.LogoutRequest;
 import org.opensaml.saml2.core.LogoutResponse;
@@ -154,20 +157,52 @@ public class LogoutServiceImpl implements LogoutService {
 
     // TODO (RCZ) 11/11/15 - Hide instance of + dom efficiency in here somehow? DDF-1605
 
+    /**
+     * Returns a new <code>LogoutRequest</code> with a randomly generated ID, the current time
+     * for the <code>IssueInstant</code>, and <code>Version</code> set to <code>"2.0"</code>
+     *
+     * @param nameIdString     NameId of user to log out
+     * @param issuerOrEntityId The Issuer of the LogoutRequest
+     * @return the built <code>LogoutRequest</code>
+     */
     public LogoutRequest buildLogoutRequest(String nameIdString, String issuerOrEntityId) {
+        return buildLogoutRequest(nameIdString, issuerOrEntityId, UUID.randomUUID()
+                .toString());
+    }
+
+    public LogoutRequest buildLogoutRequest(String nameIdString, String issuerOrEntityId,
+            String id) {
         LogoutRequest logoutRequest = logoutRequestBuilder.buildObject();
 
         NameID nameID = nameIDBuilder.buildObject();
         nameID.setValue(nameIdString);
         logoutRequest.setNameID(nameID);
 
+        logoutRequest.setID(id);
+
         Issuer issuer = issuerBuilder.buildObject();
         issuer.setValue(issuerOrEntityId);
         logoutRequest.setIssuer(issuer);
+
+        // TODO (RCZ) - What do about jodatime/java 8 java.time ?
+        logoutRequest.setIssueInstant(DateTime.now());
+
+        logoutRequest.setVersion(SAMLVersion.VERSION_20);
         return logoutRequest;
     }
 
     public LogoutResponse buildLogoutResponse(String issuerOrEntityId, String statusCodeValue) {
+        return buildLogoutResponse(issuerOrEntityId, statusCodeValue, null);
+    }
+
+    public LogoutResponse buildLogoutResponse(String issuerOrEntityId, String statusCodeValue,
+            String inResponseTo) {
+        return buildLogoutResponse(issuerOrEntityId, statusCodeValue, inResponseTo,
+                UUID.randomUUID().toString());
+    }
+
+    public LogoutResponse buildLogoutResponse(String issuerOrEntityId, String statusCodeValue,
+            String inResponseTo, String id) {
         LogoutResponse logoutResponse = logoutResponseBuilder.buildObject();
 
         Issuer issuer = issuerBuilder.buildObject();
@@ -179,6 +214,14 @@ public class LogoutServiceImpl implements LogoutService {
         statusCode.setValue(statusCodeValue);
         status.setStatusCode(statusCode);
         logoutResponse.setStatus(status);
+
+        if (inResponseTo != null) {
+            logoutResponse.setInResponseTo(inResponseTo);
+        }
+
+        logoutResponse.setIssueInstant(DateTime.now());
+
+        logoutResponse.setVersion(SAMLVersion.VERSION_20);
         return logoutResponse;
     }
 

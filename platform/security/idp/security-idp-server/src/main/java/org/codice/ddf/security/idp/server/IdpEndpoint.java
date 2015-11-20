@@ -598,7 +598,7 @@ public class IdpEndpoint implements Idp {
             } else { // Unsupported object type
                 // TODO (RCZ) 11/11/15 - Log some unsupported exception?
                 // Even if their object is bad we might be able to finish rest of logouts
-                continueLogout(logoutState);
+                continueLogout(logoutState, cookie);
             }
         } catch (XMLStreamException e) {
             LOGGER.error("Unable to extract Saml object", e);
@@ -616,8 +616,11 @@ public class IdpEndpoint implements Idp {
 
     private Response handleLogoutResponse(Cookie cookie, LogoutState logoutState,
             LogoutResponse logoutObject) throws IdpException {
-        // TODO (RCZ) - logic
-        return continueLogout(logoutState);
+        // TODO (RCZ) - Do we want to remove each SP from Active SP's (not logoutState set)?
+        // Might be good idea in case of the wierd state where they send logoutrequest but st1ll
+        // have a logoutstate
+
+        return continueLogout(logoutState, cookie);
     }
 
     Response handleLogoutRequest(Cookie cookie, LogoutState logoutState,
@@ -636,10 +639,10 @@ public class IdpEndpoint implements Idp {
         logoutState.setNameId(logoutRequest.getNameID()
                 .getValue());
         logoutStates.encode(cookie.getValue(), logoutState);
-        return continueLogout(logoutState);
+        return continueLogout(logoutState, cookie);
     }
 
-    private Response continueLogout(LogoutState logoutState) throws IdpException {
+    private Response continueLogout(LogoutState logoutState, Cookie cookie) throws IdpException {
         if (logoutState == null) {
             throw new IdpException("Cannot continue a Logout that doesn't exist!");
         }
@@ -666,13 +669,10 @@ public class IdpEndpoint implements Idp {
                 }
             } else {
                 // TODO (RCZ) - finished, redirect to originating SP
+                cookieCache.removeSamlAssertion(cookie.getValue());
 
             }
-        } catch (WSSecurityException e) {
-            throw new IdpException(e);
-        } catch (SimpleSign.SignatureException e) {
-            throw new IdpException(e);
-        } catch (IOException e) {
+        } catch (WSSecurityException | SimpleSign.SignatureException | IOException e) {
             throw new IdpException(e);
         } finally {
             // TODO (RCZ) - if we need to keep keep going don't forget to re-store logout state
