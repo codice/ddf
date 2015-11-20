@@ -31,6 +31,8 @@ public class LogoutState {
 
     private String nameId;
 
+    private String originalRequestId;
+
     public LogoutState(Set<SPSSODescriptor> spDescriptors) {
         this.spDescriptors = Collections.synchronizedSet(spDescriptors);
     }
@@ -79,5 +81,13 @@ public class LogoutState {
 
     public void setNameId(String nameId) {
         this.nameId = nameId;
+    }
+
+    public void setOriginalRequestId(String originalRequestId) {
+        this.originalRequestId = originalRequestId;
+    }
+
+    public String getOriginalRequestId() {
+        return originalRequestId;
     }
 }

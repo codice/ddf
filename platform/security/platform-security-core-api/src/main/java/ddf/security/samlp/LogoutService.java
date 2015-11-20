@@ -49,6 +49,9 @@ public interface LogoutService {
 
     LogoutResponse buildLogoutResponse(String issuerOrEntityId, String statusCodeValue);
 
+    public LogoutResponse buildLogoutResponse(String issuerOrEntityId, String statusCodeValue,
+            String inResponseTo);
+
     Element getElementFromSaml(XMLObject xmlObject) throws WSSecurityException;
 
     String sendSamlLogoutRequest(@NotNull LogoutRequest request, String targetUri)

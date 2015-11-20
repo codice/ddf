@@ -103,6 +103,8 @@ import ddf.security.samlp.SimpleSign;
 import ddf.security.samlp.SystemCrypto;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
 @Path("/")
 public class IdpEndpoint implements Idp {
 
@@ -136,17 +138,18 @@ public class IdpEndpoint implements Idp {
 
     public IdpEndpoint(String signaturePropertiesPath, String encryptionPropertiesPath,
             EncryptionService encryptionService) {
-        systemCrypto = new SystemCrypto(signaturePropertiesPath, encryptionPropertiesPath,
+        systemCrypto = new SystemCrypto(signaturePropertiesPath,
+                encryptionPropertiesPath,
                 encryptionService);
     }
 
     public void init() {
         try {
             indexHtml = IOUtils.toString(IdpEndpoint.class.getResourceAsStream("/html/index.html"));
-            submitForm = IOUtils.toString(
-                    IdpEndpoint.class.getResourceAsStream("/templates/submitForm.handlebars"));
-            redirectPage = IOUtils.toString(
-                    IdpEndpoint.class.getResourceAsStream("/templates/redirect.handlebars"));
+            submitForm = IOUtils.toString(IdpEndpoint.class.getResourceAsStream(
+                    "/templates/submitForm.handlebars"));
+            redirectPage = IOUtils.toString(IdpEndpoint.class.getResourceAsStream(
+                    "/templates/redirect.handlebars"));
         } catch (Exception e) {
             LOGGER.error("Unable to load index page for IDP.", e);
         }
@@ -171,8 +174,9 @@ public class IdpEndpoint implements Idp {
             @FormParam(RELAY_STATE) String relayState, @Context HttpServletRequest request)
             throws WSSecurityException {
         LOGGER.debug("Recevied POST IdP request.");
-        return showLoginPage(samlRequest, relayState, null, null, request,
-                new PostBinding(systemCrypto, serviceProviders), submitForm);
+        return showLoginPage(samlRequest, relayState, null, null, request, new PostBinding(
+                systemCrypto,
+                serviceProviders), submitForm);
     }
 
     @GET
@@ -182,8 +186,13 @@ public class IdpEndpoint implements Idp {
             @QueryParam(SSOConstants.SIGNATURE) String signature,
             @Context HttpServletRequest request) throws WSSecurityException {
         LOGGER.debug("Recevied GET IdP request.");
-        return showLoginPage(samlRequest, relayState, signatureAlgorithm, signature, request,
-                new RedirectBinding(systemCrypto, serviceProviders), redirectPage);
+        return showLoginPage(samlRequest,
+                relayState,
+                signatureAlgorithm,
+                signature,
+                request,
+                new RedirectBinding(systemCrypto, serviceProviders),
+                redirectPage);
     }
 
     private Response showLoginPage(String samlRequest, String relayState, String signatureAlgorithm,
@@ -198,8 +207,12 @@ public class IdpEndpoint implements Idp {
             authnRequest = binding.decoder()
                     .decodeRequest(samlRequest);
             binding.validator()
-                    .validateAuthnRequest(authnRequest, samlRequest, relayState, signatureAlgorithm,
-                            signature, strictSignature);
+                    .validateAuthnRequest(authnRequest,
+                            samlRequest,
+                            relayState,
+                            signatureAlgorithm,
+                            signature,
+                            strictSignature);
             X509Certificate[] certs = (X509Certificate[]) request.getAttribute(CERTIFICATES_ATTR);
             boolean hasCerts = (certs != null && certs.length > 0);
             boolean hasCookie = getSamlAssertion(request) != null;
@@ -207,44 +220,59 @@ public class IdpEndpoint implements Idp {
                 LOGGER.debug("Received Passive & PKI AuthnRequest.");
                 org.opensaml.saml2.core.Response samlpResponse;
                 try {
-                    samlpResponse = handleLogin(authnRequest, Idp.PKI, request,
-                            authnRequest.isPassive(), hasCookie);
+                    samlpResponse = handleLogin(authnRequest,
+                            Idp.PKI,
+                            request,
+                            authnRequest.isPassive(),
+                            hasCookie);
                     LOGGER.debug("Passive & PKI AuthnRequest logged in successfully.");
                 } catch (SecurityServiceException e) {
                     LOGGER.error(e.getMessage(), e);
-                    return getErrorResponse(relayState, authnRequest, StatusCode.AUTHN_FAILED_URI,
+                    return getErrorResponse(relayState,
+                            authnRequest,
+                            StatusCode.AUTHN_FAILED_URI,
                             binding);
                 } catch (WSSecurityException e) {
                     LOGGER.error(e.getMessage(), e);
-                    return getErrorResponse(relayState, authnRequest, StatusCode.REQUEST_DENIED_URI,
+                    return getErrorResponse(relayState,
+                            authnRequest,
+                            StatusCode.REQUEST_DENIED_URI,
                             binding);
                 } catch (SimpleSign.SignatureException e) {
                     LOGGER.error(e.getMessage(), e);
-                    return getErrorResponse(relayState, authnRequest,
-                            StatusCode.REQUEST_UNSUPPORTED_URI, binding);
+                    return getErrorResponse(relayState,
+                            authnRequest,
+                            StatusCode.REQUEST_UNSUPPORTED_URI,
+                            binding);
                 }
                 LOGGER.debug("Returning Passive & PKI SAML Response.");
                 NewCookie cookie = null;
                 if (hasCookie) {
-                    cookieCache.addActiveSp(getCookie(request).getValue(), authnRequest.getIssuer()
-                            .getValue());
+                    cookieCache.addActiveSp(getCookie(request).getValue(),
+                            authnRequest.getIssuer()
+                                    .getValue());
                 } else {
                     cookie = createCookie(request, samlpResponse);
                     if (cookie != null) {
-                        cookieCache.addActiveSp(cookie.getValue(), authnRequest.getIssuer()
-                                .getValue());
+                        cookieCache.addActiveSp(cookie.getValue(),
+                                authnRequest.getIssuer()
+                                        .getValue());
                     }
                 }
 
                 return binding.creator()
-                        .getSamlpResponse(relayState, authnRequest, samlpResponse, cookie,
+                        .getSamlpResponse(relayState,
+                                authnRequest,
+                                samlpResponse,
+                                cookie,
                                 template);
             } else {
                 LOGGER.debug("Building the JSON map to embed in the index.html page for login.");
                 Document doc = DOMUtils.createDocument();
                 doc.appendChild(doc.createElement("root"));
-                String authn = DOM2Writer.nodeToString(
-                        OpenSAMLUtil.toDom(authnRequest, doc, false));
+                String authn = DOM2Writer.nodeToString(OpenSAMLUtil.toDom(authnRequest,
+                        doc,
+                        false));
                 String encodedAuthn = RestSecurity.deflateAndBase64Encode(authn);
                 responseMap.put(PKI, hasCerts);
                 responseMap.put(SAML_REQ, encodedAuthn);
@@ -266,8 +294,10 @@ public class IdpEndpoint implements Idp {
             LOGGER.error(e.getMessage(), e);
             if (authnRequest != null) {
                 try {
-                    return getErrorResponse(relayState, authnRequest,
-                            StatusCode.REQUEST_UNSUPPORTED_URI, binding);
+                    return getErrorResponse(relayState,
+                            authnRequest,
+                            StatusCode.REQUEST_UNSUPPORTED_URI,
+                            binding);
                 } catch (IOException | SimpleSign.SignatureException e1) {
                     LOGGER.error(e1.getMessage(), e1);
                 }
@@ -276,8 +306,10 @@ public class IdpEndpoint implements Idp {
             LOGGER.error(e.getMessage(), e);
             if (authnRequest != null) {
                 try {
-                    return getErrorResponse(relayState, authnRequest,
-                            StatusCode.UNSUPPORTED_BINDING_URI, binding);
+                    return getErrorResponse(relayState,
+                            authnRequest,
+                            StatusCode.UNSUPPORTED_BINDING_URI,
+                            binding);
                 } catch (IOException | SimpleSign.SignatureException e1) {
                     LOGGER.error(e1.getMessage(), e1);
                 }
@@ -298,13 +330,14 @@ public class IdpEndpoint implements Idp {
             String statusCode, Binding binding)
             throws WSSecurityException, IOException, SimpleSign.SignatureException {
         LOGGER.debug("Creating SAML Response for error condition.");
-        org.opensaml.saml2.core.Response samlResponse = SamlProtocol.createResponse(
-                SamlProtocol.createIssuer(systemBaseUrl.constructUrl("/idp/login", true)),
-                SamlProtocol.createStatus(statusCode), authnRequest.getID(), null);
+        org.opensaml.saml2.core.Response samlResponse = SamlProtocol.createResponse(SamlProtocol.createIssuer(
+                systemBaseUrl.constructUrl("/idp/login", true)), SamlProtocol.createStatus(
+                statusCode), authnRequest.getID(), null);
         LOGGER.debug("Encoding error SAML Response for post or redirect.");
         String template = "";
         String assertionConsumerServiceBinding = ResponseCreator.getAssertionConsumerServiceBinding(
-                authnRequest, serviceProviders);
+                authnRequest,
+                serviceProviders);
         if (HTTP_POST_BINDING.equals(assertionConsumerServiceBinding)) {
             template = submitForm;
         } else if (HTTP_REDIRECT_BINDING.equals(assertionConsumerServiceBinding)) {
@@ -321,9 +354,10 @@ public class IdpEndpoint implements Idp {
             @QueryParam(SSOConstants.SIG_ALG) String signatureAlgorithm,
             @QueryParam(SSOConstants.SIGNATURE) String signature,
             @Context HttpServletRequest request) {
-        LOGGER.debug(
-                "Processing login request: [ authMethod {} ], [ sigAlg {} ], [ relayState {} ]",
-                authMethod, signatureAlgorithm, relayState);
+        LOGGER.debug("Processing login request: [ authMethod {} ], [ sigAlg {} ], [ relayState {} ]",
+                authMethod,
+                signatureAlgorithm,
+                relayState);
         try {
             Binding binding;
             String template;
@@ -332,7 +366,8 @@ public class IdpEndpoint implements Idp {
             AuthnRequest authnRequest = redirectBinding.decoder()
                     .decodeRequest(samlRequest);
             String assertionConsumerServiceBinding = ResponseCreator.getAssertionConsumerServiceBinding(
-                    authnRequest, serviceProviders);
+                    authnRequest,
+                    serviceProviders);
             if (HTTP_POST_BINDING.equals(assertionConsumerServiceBinding)) {
                 binding = new PostBinding(systemCrypto, serviceProviders);
                 template = submitForm;
@@ -343,19 +378,28 @@ public class IdpEndpoint implements Idp {
                 throw new UnsupportedOperationException("Must use HTTP POST or Redirect bindings.");
             }
             binding.validator()
-                    .validateAuthnRequest(authnRequest, samlRequest, relayState, signatureAlgorithm,
-                            signature, strictSignature);
-            org.opensaml.saml2.core.Response encodedSaml = handleLogin(authnRequest, authMethod,
-                    request, false, false);
+                    .validateAuthnRequest(authnRequest,
+                            samlRequest,
+                            relayState,
+                            signatureAlgorithm,
+                            signature,
+                            strictSignature);
+            org.opensaml.saml2.core.Response encodedSaml = handleLogin(authnRequest,
+                    authMethod,
+                    request,
+                    false,
+                    false);
             LOGGER.debug("Returning SAML Response for relayState: {}" + relayState);
             NewCookie newCookie = createCookie(request, encodedSaml);
             Response response = binding.creator()
                     .getSamlpResponse(relayState, authnRequest, encodedSaml, newCookie, template);
             if (newCookie != null) {
-                cookieCache.addActiveSp(newCookie.getValue(), authnRequest.getIssuer()
-                        .getValue());
-                LOGGER.debug("Adding SP to activeSP list: {}", authnRequest.getIssuer()
-                        .getValue());
+                cookieCache.addActiveSp(newCookie.getValue(),
+                        authnRequest.getIssuer()
+                                .getValue());
+                LOGGER.debug("Adding SP to activeSP list: {}",
+                        authnRequest.getIssuer()
+                                .getValue());
             }
 
             return response;
@@ -394,7 +438,9 @@ public class IdpEndpoint implements Idp {
             PKIHandler pkiHandler = new PKIHandler();
             pkiHandler.setTokenFactory(tokenFactory);
             try {
-                HandlerResult handlerResult = pkiHandler.getNormalizedToken(request, null, null,
+                HandlerResult handlerResult = pkiHandler.getNormalizedToken(request,
+                        null,
+                        null,
                         false);
                 if (handlerResult.getStatus()
                         .equals(HandlerResult.Status.COMPLETED)) {
@@ -407,7 +453,9 @@ public class IdpEndpoint implements Idp {
             LOGGER.debug("Logging user in via BASIC auth.");
             BasicAuthenticationHandler basicAuthenticationHandler = new BasicAuthenticationHandler();
             HandlerResult handlerResult = basicAuthenticationHandler.getNormalizedToken(request,
-                    null, null, false);
+                    null,
+                    null,
+                    false);
             if (handlerResult.getStatus()
                     .equals(HandlerResult.Status.COMPLETED)) {
                 token = handlerResult.getToken();
@@ -449,9 +497,9 @@ public class IdpEndpoint implements Idp {
         }
 
         LOGGER.debug("User log in successful.");
-        return SamlProtocol.createResponse(
-                SamlProtocol.createIssuer(systemBaseUrl.constructUrl("/idp/login", true)),
-                SamlProtocol.createStatus(statusCode), authnRequest.getID(), samlToken);
+        return SamlProtocol.createResponse(SamlProtocol.createIssuer(systemBaseUrl.constructUrl(
+                "/idp/login",
+                true)), SamlProtocol.createStatus(statusCode), authnRequest.getID(), samlToken);
     }
 
     private synchronized Cookie getCookie(HttpServletRequest request) {
@@ -494,11 +542,16 @@ public class IdpEndpoint implements Idp {
                     url = new URL(request.getRequestURL()
                             .toString());
                     LOGGER.debug("Returning new cookie for user.");
-                    return new NewCookie(COOKIE, uuid.toString(), null, url.getHost(),
-                            NewCookie.DEFAULT_VERSION, null, -1, true);
+                    return new NewCookie(COOKIE,
+                            uuid.toString(),
+                            null,
+                            url.getHost(),
+                            NewCookie.DEFAULT_VERSION,
+                            null,
+                            -1,
+                            true);
                 } catch (MalformedURLException e) {
-                    LOGGER.warn(
-                            "Unable to create session cookie. Client will need to log in again.",
+                    LOGGER.warn("Unable to create session cookie. Client will need to log in again.",
                             e);
                 }
             }
@@ -527,16 +580,20 @@ public class IdpEndpoint implements Idp {
         certs = systemCrypto.getEncryptionCrypto()
                 .getX509Certificates(cryptoType);
         X509Certificate encryptionCert = certs[0];
-        EntityDescriptor entityDescriptor = SamlProtocol.createIdpMetadata(
-                systemBaseUrl.constructUrl("/idp/login", true),
+        EntityDescriptor entityDescriptor = SamlProtocol.createIdpMetadata(systemBaseUrl.constructUrl(
+                        "/idp/login",
+                        true),
                 Base64.encodeBase64String(issuerCert.getEncoded()),
-                Base64.encodeBase64String(encryptionCert.getEncoded()), nameIdFormats,
+                Base64.encodeBase64String(encryptionCert.getEncoded()),
+                nameIdFormats,
                 systemBaseUrl.constructUrl("/idp/login", true),
-                systemBaseUrl.constructUrl("/idp/login", true), null);
+                systemBaseUrl.constructUrl("/idp/login", true),
+                null);
         Document doc = DOMUtils.createDocument();
         doc.appendChild(doc.createElement("root"));
-        return Response.ok(
-                DOM2Writer.nodeToString(OpenSAMLUtil.toDom(entityDescriptor, doc, false)))
+        return Response.ok(DOM2Writer.nodeToString(OpenSAMLUtil.toDom(entityDescriptor,
+                doc,
+                false)))
                 .build();
     }
 
@@ -584,15 +641,27 @@ public class IdpEndpoint implements Idp {
             if (logoutObject instanceof LogoutRequest) {
                 // LogoutRequest is the initial request coming from the SP that initiated the chain
                 LogoutRequest logoutRequest = ((LogoutRequest) logoutObject);
-                validateGetLogoutObject(logoutRequest, samlRequest, logoutRequest.getIssuer()
-                        .getValue(), relayState, signatureAlgorithm, signature, strictSignature);
+                validateGetLogoutObject(logoutRequest,
+                        samlRequest,
+                        logoutRequest.getIssuer()
+                                .getValue(),
+                        relayState,
+                        signatureAlgorithm,
+                        signature,
+                        strictSignature);
                 return handleLogoutRequest(cookie, logoutState, (LogoutRequest) logoutObject);
 
             } else if (logoutObject instanceof LogoutResponse) {
                 // LogoutResponse is one of the SP's responding to the logout request
                 LogoutResponse logoutResponse = ((LogoutResponse) logoutObject);
-                validateGetLogoutObject(logoutResponse, samlRequest, logoutResponse.getIssuer()
-                        .getValue(), relayState, signatureAlgorithm, signature, strictSignature);
+                validateGetLogoutObject(logoutResponse,
+                        samlRequest,
+                        logoutResponse.getIssuer()
+                                .getValue(),
+                        relayState,
+                        signatureAlgorithm,
+                        signature,
+                        strictSignature);
                 return handleLogoutResponse(cookie, logoutState, (LogoutResponse) logoutObject);
 
             } else { // Unsupported object type
@@ -606,10 +675,8 @@ public class IdpEndpoint implements Idp {
             // TODO (RCZ) - exception
         } catch (ValidationException e) {
             // TODO (RCZ) - exception
-        } finally {
-            // TODO (RCZ) - Make sure we don't throw away logout state on error possibly?
         }
-        // TODO (RCZ) 11/10/15 - Respond
+        // TODO (RCZ) - Respond
 
         return null;
     }
@@ -638,7 +705,10 @@ public class IdpEndpoint implements Idp {
                 .getValue());
         logoutState.setNameId(logoutRequest.getNameID()
                 .getValue());
+        logoutState.setOriginalRequestId(logoutRequest.getID());
         logoutStates.encode(cookie.getValue(), logoutState);
+
+        cookieCache.removeSamlAssertion(cookie.getValue());
         return continueLogout(logoutState, cookie);
     }
 
@@ -646,36 +716,71 @@ public class IdpEndpoint implements Idp {
         if (logoutState == null) {
             throw new IdpException("Cannot continue a Logout that doesn't exist!");
         }
+
         try {
             Optional<SPSSODescriptor> nextTargetOpt = logoutState.getNextTarget();
             if (nextTargetOpt.isPresent()) {
                 SPSSODescriptor nextTarget = nextTargetOpt.get();
                 // TODO (RCZ) - Is issuerId the metadata endpoint or the logout endpoint?
-                LogoutRequest logoutRequest = logoutService.buildLogoutRequest(
-                        logoutState.getNameId(), systemBaseUrl.constructUrl("/idp/logout", true));
+                LogoutRequest logoutRequest = logoutService.buildLogoutRequest(logoutState.getNameId(),
+                        systemBaseUrl.constructUrl("/idp/logout", true));
                 if (supportsLogoutBinding(nextTarget, HTTP_REDIRECT_BINDING)) {
                     Optional<SingleLogoutService> singleLogoutService = nextTarget.getSingleLogoutServices()
                             .stream()
                             .filter(sls -> HTTP_REDIRECT_BINDING.equals(sls.getBinding()))
                             .findFirst();
                     if (singleLogoutService.isPresent()) {
-                        return getSamlRedirectResponse(logoutRequest, singleLogoutService.get()
-                                .getLocation(), "");
+                        return getSamlRedirectResponse(logoutRequest,
+                                singleLogoutService.get()
+                                        .getLocation(),
+                                "");
                     }
                 } else if (supportsLogoutBinding(nextTarget, HTTP_POST_BINDING)) {
                     // TODO (RCZ) - Post binding
+                    throw new NotImplementedException();
                 } else {
                     // TODO (RCZ) - No supported binding
+                    LOGGER.debug("No supported binding available for SP [{}].", nextTarget.getID());
+                    return continueLogout(logoutState, cookie);
                 }
             } else {
                 // TODO (RCZ) - finished, redirect to originating SP
-                cookieCache.removeSamlAssertion(cookie.getValue());
 
+                // TODO (RCZ) - StatusCode Partial when not everyone was logged out. Also this formatting >_<
+                LogoutResponse logoutResponse = logoutService.buildLogoutResponse(systemBaseUrl.constructUrl(
+                        "/idp/logout",
+                        true), StatusCode.SUCCESS_URI, logoutState.getOriginalRequestId());
+
+                Optional<SingleLogoutService> redirectBindingService = serviceProviders.get(
+                        logoutState.getOriginalIssuer())
+                        .getSPSSODescriptor(SamlProtocol.SUPPORTED_PROTOCOL)
+                        .getSingleLogoutServices()
+                        .stream()
+                        .filter(sls -> SamlProtocol.REDIRECT_BINDING.equals(sls.getBinding()))
+                        .findFirst();
+                if (redirectBindingService.isPresent()) {
+                    // TODO (RCZ) - is the issuer the url to redirect them finally to? or is it logout
+                    return getSamlRedirectResponse(logoutResponse,
+                            redirectBindingService.get()
+                                    .getLocation(),
+                            logoutState.getInitialRelayState());
+                }
+
+                Optional<SingleLogoutService> postBindingService = serviceProviders.get(logoutState.getOriginalIssuer())
+                        .getSPSSODescriptor(SamlProtocol.SUPPORTED_PROTOCOL)
+                        .getSingleLogoutServices()
+                        .stream()
+                        .filter(sls -> SamlProtocol.REDIRECT_BINDING.equals(sls.getBinding()))
+                        .findFirst();
+                if (postBindingService.isPresent()) {
+                    // TODO (RCZ) - post binding
+                    return null;
+                }
             }
         } catch (WSSecurityException | SimpleSign.SignatureException | IOException e) {
-            throw new IdpException(e);
-        } finally {
-            // TODO (RCZ) - if we need to keep keep going don't forget to re-store logout state
+            // TODO (RCZ) - are any of these exceptions short circuiting or warrant a reason to not
+            // continue trying the other remaining SP targets to log out
+            return continueLogout(logoutState, cookie);
         }
 
         return null;
@@ -705,9 +810,10 @@ public class IdpEndpoint implements Idp {
         LOGGER.debug("Signing SAML response for redirect.");
         Document doc = DOMUtils.createDocument();
         doc.appendChild(doc.createElement("root"));
-        String encodedResponse = URLEncoder.encode(RestSecurity.deflateAndBase64Encode(
-                DOM2Writer.nodeToString(OpenSAMLUtil.toDom(samlResponse, doc, false))), "UTF-8");
-        String requestToSign = String.format("SAMLResponse=%s&RelayState=%s", encodedResponse,
+        String encodedResponse = URLEncoder.encode(RestSecurity.deflateAndBase64Encode(DOM2Writer.nodeToString(
+                OpenSAMLUtil.toDom(samlResponse, doc, false))), "UTF-8");
+        String requestToSign = String.format("SAMLResponse=%s&RelayState=%s",
+                encodedResponse,
                 relayState);
         UriBuilder uriBuilder = UriBuilder.fromUri(targetUrl);
         uriBuilder.queryParam(SSOConstants.SAML_RESPONSE, encodedResponse);
@@ -732,15 +838,16 @@ public class IdpEndpoint implements Idp {
                 String signedParts;
                 try {
                     signedParts = String.format("SAMLRequest=%s&RelayState=%s&SigAlg=%s",
-                            URLEncoder.encode(samlRequest, "UTF-8"), relayState,
+                            URLEncoder.encode(samlRequest, "UTF-8"),
+                            relayState,
                             URLEncoder.encode(signatureAlgorithm, "UTF-8"));
                 } catch (UnsupportedEncodingException e) {
                     throw new SimpleSign.SignatureException(
-                            "Unable to construct signed query parts.", e);
+                            "Unable to construct signed query parts.",
+                            e);
                 }
                 EntityDescriptor entityDescriptor = serviceProviders.get(issuer);
-                SPSSODescriptor spssoDescriptor = entityDescriptor.getSPSSODescriptor(
-                        SamlProtocol.SUPPORTED_PROTOCOL);
+                SPSSODescriptor spssoDescriptor = entityDescriptor.getSPSSODescriptor(SamlProtocol.SUPPORTED_PROTOCOL);
                 String encryptionCertificate = null;
                 String signingCertificate = null;
                 if (spssoDescriptor != null) {
@@ -786,7 +893,8 @@ public class IdpEndpoint implements Idp {
                             "Unable to find supported protocol in metadata SPSSODescriptors.");
                 }
                 boolean result = new SimpleSign(systemCrypto).validateSignature(signedParts,
-                        signature, signingCertificate);
+                        signature,
+                        signingCertificate);
                 if (!result) {
                     throw new ValidationException(
                             "Signature verification failed for redirect binding.");

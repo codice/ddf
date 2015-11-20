@@ -219,6 +219,8 @@ public class LogoutServiceImpl implements LogoutService {
             logoutResponse.setInResponseTo(inResponseTo);
         }
 
+        logoutResponse.setID(id);
+
         logoutResponse.setIssueInstant(DateTime.now());
 
         logoutResponse.setVersion(SAMLVersion.VERSION_20);
