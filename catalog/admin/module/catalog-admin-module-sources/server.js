@@ -20,8 +20,8 @@ var app = express();
 app.use(require('connect-livereload')());
 
 // our compiled css gets moved to /target/webapp/css so use it there
-app.use('/sources',express.static(__dirname + '/target/webapp'));
-app.use('/sources',express.static(__dirname + '/src/main/webapp'));
+app.use('/admin/sources',express.static(__dirname + '/target/webapp'));
+app.use('/admin/sources',express.static(__dirname + '/src/main/webapp'));
 
 //if we're mocking, it is being run by grunt
 console.log('setting up proxy only');

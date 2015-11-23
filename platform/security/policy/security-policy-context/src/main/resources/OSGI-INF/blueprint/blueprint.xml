@@ -28,7 +28,6 @@
                 <value>/jolokia=SAML|basic</value>
                 <value>/system=basic</value>
                 <value>/solr=SAML|PKI|basic</value>
-                <value>/sources=SAML|basic</value>
                 <value>/security-config=SAML|basic</value>
             </array>
         </property>
@@ -44,7 +43,6 @@
                 <value>/solr={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin}</value>
                 <value>/jolokia={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin}</value>
                 <value>/system={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin}</value>
-                <value>/sources={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin}</value>
                 <value>/security-config={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin}</value>
             </array>
         </property>
