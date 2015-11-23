@@ -94,7 +94,7 @@ public class TestPlatform extends AbstractIntegrationTest {
          * {@link org.osgi.service.cm.Configuration} object to be initialized with all the values
          * found in the configuration file.
          */
-        public void addConfigurationFileAndWait(ConfigurationAdmin configAdmin) throws IOException {
+        public void addConfigurationFileAndWait(ConfigurationAdmin configAdmin) throws Exception {
             addConfigurationFile();
 
             expect("Configuration properties for PID " + pid + " to be set").within(20, SECONDS)
@@ -109,8 +109,10 @@ public class TestPlatform extends AbstractIntegrationTest {
         public void assertConfigurationPropertiesSet(ConfigurationAdmin configAdmin)
                 throws Exception {
             Dictionary<String, Object> properties = new GetConfigurationProperties(configAdmin,
-                    "id", pid).call();
-            assertThat("No Configuration object exist for PID " + pid, properties,
+                    "id",
+                    pid).call();
+            assertThat("No Configuration object exist for PID " + pid,
+                    properties,
                     is(notNullValue()));
             assertPropertiesMatch(properties, getExpectedProperties());
         }
@@ -122,8 +124,9 @@ public class TestPlatform extends AbstractIntegrationTest {
             expect("File to be moved to /etc/processed directory").within(20, SECONDS)
                     .until(() -> getPathToProcessedDirectory().exists());
             assertThat(String.format("Configuration file %s has not been removed",
-                            getPathToEtcDirectory().getAbsolutePath()),
-                    getPathToEtcDirectory().exists(), is(false));
+                    getPathToEtcDirectory().getAbsolutePath()),
+                    getPathToEtcDirectory().exists(),
+                    is(false));
         }
 
         /**
@@ -133,8 +136,9 @@ public class TestPlatform extends AbstractIntegrationTest {
             expect("Waiting for file to be moved to /etc/failed directory").within(20, SECONDS)
                     .until(() -> getPathToFailedDirectory().exists());
             assertThat(String.format("Configuration file %s has not been removed",
-                            getPathToEtcDirectory().getAbsolutePath()),
-                    getPathToEtcDirectory().exists(), is(false));
+                    getPathToEtcDirectory().getAbsolutePath()),
+                    getPathToEtcDirectory().exists(),
+                    is(false));
         }
 
         /**
@@ -143,7 +147,8 @@ public class TestPlatform extends AbstractIntegrationTest {
          */
         protected void assertPropertiesMatch(Dictionary<String, Object> actualProperties,
                 Dictionary<String, Object> expectedProperties) throws IOException {
-            assertThat("Configuration properties do not match for PID " + pid, actualProperties,
+            assertThat("Configuration properties do not match for PID " + pid,
+                    actualProperties,
                     equalToConfigurationProperties(expectedProperties));
         }
 
@@ -153,7 +158,7 @@ public class TestPlatform extends AbstractIntegrationTest {
          * the {@link #addConfigurationFileAndWait(ConfigurationAdmin)} when waiting for the
          * {@link org.osgi.service.cm.Configuration} object to be initialized.
          */
-        protected Dictionary<String, Object> getFileProperties() throws IOException {
+        protected Dictionary<String, Object> getFileProperties() throws Exception {
             return new FelixPersistenceStrategy().read(getResourceAsStream());
         }
 
@@ -204,9 +209,9 @@ public class TestPlatform extends AbstractIntegrationTest {
             properties.put("property.vector.ints", ints);
 
             Vector<Long> longs = new Vector<>();
-            longs.add(100l);
-            longs.add(200l);
-            longs.add(300l);
+            longs.add(100L);
+            longs.add(200L);
+            longs.add(300L);
             properties.put("property.vector.longs", longs);
 
             Vector<Float> floats = new Vector<>();
@@ -257,12 +262,13 @@ public class TestPlatform extends AbstractIntegrationTest {
         /**
          * {@inheritDoc}
          * <p/>
-         * Overridden to use {@link ddf.test.itests.TestPlatform.ManagedServiceFactoryConfigurationPropertiesEqualTo}.
+         * Overridden to use {@link ManagedServiceFactoryConfigurationPropertiesEqualTo}.
          */
         @Override
         protected void assertPropertiesMatch(Dictionary<String, Object> actualProperties,
                 Dictionary<String, Object> expectedProperties) throws IOException {
-            assertThat("Configuration properties do not match for PID " + pid, actualProperties,
+            assertThat("Configuration properties do not match for PID " + pid,
+                    actualProperties,
                     new ManagedServiceFactoryConfigurationPropertiesEqualTo(factoryPid,
                             expectedProperties));
         }
@@ -270,14 +276,14 @@ public class TestPlatform extends AbstractIntegrationTest {
         /**
          * {@inheritDoc}
          * <p/>
-         * Overridden to use {@link ddf.test.itests.TestPlatform.ManagedServiceFactoryConfigurationPropertiesEqualTo}.
+         * Overridden to use {@link ManagedServiceFactoryConfigurationPropertiesEqualTo}.
          */
         @Override
-        public void addConfigurationFileAndWait(ConfigurationAdmin configAdmin) throws IOException {
+        public void addConfigurationFileAndWait(ConfigurationAdmin configAdmin) throws Exception {
             addConfigurationFile();
 
-            expect("Waiting for Configuration expectedProperties for PID " + pid + " to be set")
-                    .within(20, SECONDS)
+            expect("Waiting for Configuration expectedProperties for PID " + pid
+                    + " to be set").within(20, SECONDS)
                     .until(new GetConfigurationProperties(configAdmin, "id", pid),
                             new ManagedServiceFactoryConfigurationPropertiesEqualTo(factoryPid,
                                     getFileProperties()));
@@ -330,17 +336,17 @@ public class TestPlatform extends AbstractIntegrationTest {
         }
     }
 
-    private static ManagedServiceConfigFile managedServiceStartupConfig = new ManagedServiceConfigFile(
-            "ddf.test.itests.platform.TestPlatform.startup");
+    private static ManagedServiceConfigFile managedServiceStartupConfig =
+            new ManagedServiceConfigFile("ddf.test.itests.platform.TestPlatform.startup");
 
     private static ManagedServiceConfigFile managedServiceNewConfig = new ManagedServiceConfigFile(
             "ddf.test.itests.platform.TestPlatform.new");
 
-    private static ManagedServiceConfigFile managedServiceFactoryStartupConfig = new ManagedServiceFactoryConfigFile(
-            "ddf.test.itests.platform.TestPlatform.msf.1");
+    private static ManagedServiceConfigFile managedServiceFactoryStartupConfig =
+            new ManagedServiceFactoryConfigFile("ddf.test.itests.platform.TestPlatform.msf.1");
 
-    private static ManagedServiceConfigFile managedServiceFactoryNewConfig = new ManagedServiceFactoryConfigFile(
-            "ddf.test.itests.platform.TestPlatform.msf.2");
+    private static ManagedServiceConfigFile managedServiceFactoryNewConfig =
+            new ManagedServiceFactoryConfigFile("ddf.test.itests.platform.TestPlatform.msf.2");
 
     private static ManagedServiceConfigFile configWithNoPid = new ManagedServiceConfigFile(
             "ddf.test.itests.platform.TestPlatform.nopid");
@@ -365,21 +371,23 @@ public class TestPlatform extends AbstractIntegrationTest {
     @Override
     protected Option[] configureCustom() {
         String managedServiceConfigPath = managedServiceStartupConfig.getResourcePath();
-        String managedServiceFactoryConfigPath = managedServiceFactoryStartupConfig
-                .getResourcePath();
+        String managedServiceFactoryConfigPath =
+                managedServiceFactoryStartupConfig.getResourcePath();
         String invalidConfigPath = invalidStartupConfigFile.getResourcePath();
 
         try {
-            return options(
-                    installStartupFile(getClass().getResourceAsStream(managedServiceConfigPath),
-                            "/etc" + managedServiceConfigPath), installStartupFile(
-                            getClass().getResourceAsStream(managedServiceFactoryConfigPath),
+            return options(installStartupFile(getClass().getResourceAsStream(
+                    managedServiceConfigPath), "/etc" + managedServiceConfigPath),
+                    installStartupFile(getClass().getResourceAsStream(
+                            managedServiceFactoryConfigPath),
                             "/etc" + managedServiceFactoryConfigPath),
                     installStartupFile(getClass().getResourceAsStream(invalidConfigPath),
                             "/etc" + invalidConfigPath));
         } catch (Exception e) {
             LOGGER.error("Could not copy config files {}, {} and {} to /etc directory",
-                    managedServiceConfigPath, managedServiceFactoryConfigPath, invalidConfigPath);
+                    managedServiceConfigPath,
+                    managedServiceFactoryConfigPath,
+                    invalidConfigPath);
             return null;
         }
     }
@@ -391,7 +399,7 @@ public class TestPlatform extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testCreateNewManagedServiceConfigurationFile() throws IOException {
+    public void testCreateNewManagedServiceConfigurationFile() throws Exception {
         managedServiceNewConfig.addConfigurationFileAndWait(configAdmin);
         managedServiceNewConfig.assertFileMovedToProcessedDirectory();
     }
@@ -403,7 +411,7 @@ public class TestPlatform extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testCreateNewManagedServiceFactoryConfigurationFile() throws IOException {
+    public void testCreateNewManagedServiceFactoryConfigurationFile() throws Exception {
         managedServiceFactoryNewConfig.addConfigurationFileAndWait(configAdmin);
         managedServiceFactoryNewConfig.assertFileMovedToProcessedDirectory();
     }

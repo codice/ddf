@@ -73,7 +73,8 @@ public class ConfigurationFileFactoryTest {
         PersistenceStrategy mockPersistenceStrategy = getMockPersistenceStrategy(mockInputStream,
                 properties);
         ConfigurationFileFactory factory = new ConfigurationFileFactoryUnderTest(
-                mockPersistenceStrategy, configAdmin);
+                mockPersistenceStrategy,
+                configAdmin);
 
         // Perform Test
         ConfigurationFile configFile = factory.createConfigurationFile(mockPath);
@@ -91,7 +92,8 @@ public class ConfigurationFileFactoryTest {
         PersistenceStrategy mockPersistenceStrategy = getMockPersistenceStrategy(mockInputStream,
                 properties);
         ConfigurationFileFactory factory = new ConfigurationFileFactoryUnderTest(
-                mockPersistenceStrategy, configAdmin);
+                mockPersistenceStrategy,
+                configAdmin);
 
         // Perform Test
         ConfigurationFile configFile = factory.createConfigurationFile(mockPath);
@@ -126,19 +128,36 @@ public class ConfigurationFileFactoryTest {
         PersistenceStrategy mockPersistenceStrategy = getMockPersistenceStrategy(mockInputStream,
                 properties);
         ConfigurationFileFactory factory = new ConfigurationFileFactoryUnderTest(
-                mockPersistenceStrategy, configAdmin);
+                mockPersistenceStrategy,
+                configAdmin);
 
         // Perform Test
         factory.createConfigurationFile(mockPath);
     }
 
     @Test(expected = ConfigurationFileException.class)
-    public void testCreateConfigurationFileIOExceptionOnReadOfConfigFile() throws Exception {
+    public void testCreateConfigurationFileWhenConfigFileReadThrowsIOException() throws Exception {
         // Setup
         PersistenceStrategy mockPersistenceStrategy = mock(PersistenceStrategy.class);
         when(mockPersistenceStrategy.read(mockInputStream)).thenThrow(new IOException());
         ConfigurationFileFactory factory = new ConfigurationFileFactoryUnderTest(
-                mockPersistenceStrategy, configAdmin);
+                mockPersistenceStrategy,
+                configAdmin);
+
+        // Perform Test
+        factory.createConfigurationFile(mockPath);
+    }
+
+    @Test(expected = ConfigurationFileException.class)
+    public void testCreateConfigurationFileWhenConfigFileReadThrowsConfigurationFileException()
+            throws Exception {
+        // Setup
+        PersistenceStrategy mockPersistenceStrategy = mock(PersistenceStrategy.class);
+        when(mockPersistenceStrategy.read(mockInputStream)).thenThrow(new ConfigurationFileException(
+                ""));
+        ConfigurationFileFactory factory = new ConfigurationFileFactoryUnderTest(
+                mockPersistenceStrategy,
+                configAdmin);
 
         // Perform Test
         factory.createConfigurationFile(mockPath);

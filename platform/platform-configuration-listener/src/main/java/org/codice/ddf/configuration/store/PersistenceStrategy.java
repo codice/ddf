@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -30,10 +30,12 @@ public interface PersistenceStrategy {
      *
      * @param inputStream input stream to read the properties from
      * @return {@link Dictionary} of properties
-     * @throws IOException thrown if the properties couldn't be read
+     * @throws ConfigurationFileException thrown if there was a problem with the property format
+     * @throws IOException                thrown if the properties couldn't be read
      */
     @NotNull
-    Dictionary<String, Object> read(@NotNull InputStream inputStream) throws IOException;
+    Dictionary<String, Object> read(@NotNull InputStream inputStream)
+            throws ConfigurationFileException, IOException;
 
     /**
      * Writes the configuration properties to an {@link OutputStream}.

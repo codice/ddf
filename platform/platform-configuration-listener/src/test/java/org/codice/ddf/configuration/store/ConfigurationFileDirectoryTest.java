@@ -528,6 +528,32 @@ public class ConfigurationFileDirectoryTest {
     }
 
     @Test
+    public void testNotifyWhenFileReadThrowsRuntimeException() throws Exception {
+        when(configurationFileFactory.createConfigurationFile(configPath1)).thenReturn(configFile1);
+        doThrow(new RuntimeException()).when(configFile1)
+                .createConfig();
+
+        ConfigurationFileDirectoryUnderTest configurationFileDirectory =
+                new ConfigurationFileDirectoryUnderTest(configurationDirectoryStream,
+                        processedDirectoryPath,
+                        failedDirectoryPath,
+                        configurationFileFactory,
+                        configurationFilePoller,
+                        configurationAdmin,
+                        configurationFileExtension);
+        configurationFileDirectory.notify(configPath1);
+
+        verify(configurationFileFactory).createConfigurationFile(configPath1);
+        verify(configFile1).createConfig();
+        assertThat("Too many files moved",
+                configurationFileDirectory.filesMoved.keySet(),
+                hasSize(1));
+        assertThat("Configuration file 1 not moved to the failed directory",
+                configurationFileDirectory.filesMoved,
+                hasEntry(configPath1, failedDirectoryPath));
+    }
+
+    @Test
     public void testNotifyFailsToMoveFileToProcessedDirectory() throws Exception {
         when(configurationFileFactory.createConfigurationFile(configPath1)).thenReturn(configFile1);
 
