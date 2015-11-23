@@ -103,7 +103,6 @@ import ddf.security.samlp.SimpleSign;
 import ddf.security.samlp.SystemCrypto;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 @Path("/")
 public class IdpEndpoint implements Idp {
@@ -160,8 +159,8 @@ public class IdpEndpoint implements Idp {
     private void parseServiceProviderMetadata(List<String> serviceProviderMetadata) {
         if (serviceProviderMetadata != null) {
             try {
-                MetadataConfigurationParser metadataConfigurationParser = new MetadataConfigurationParser(
-                        serviceProviderMetadata);
+                MetadataConfigurationParser metadataConfigurationParser =
+                        new MetadataConfigurationParser(serviceProviderMetadata);
                 serviceProviders = metadataConfigurationParser.getEntryDescriptions();
             } catch (IOException e) {
                 LOGGER.error("Unable to parse SP metadata configuration.", e);
@@ -277,8 +276,9 @@ public class IdpEndpoint implements Idp {
                 responseMap.put(PKI, hasCerts);
                 responseMap.put(SAML_REQ, encodedAuthn);
                 responseMap.put(RELAY_STATE, relayState);
-                String assertionConsumerServiceURL = ((ResponseCreatorImpl) binding.creator()).getAssertionConsumerServiceURL(
-                        authnRequest);
+                String assertionConsumerServiceURL =
+                        ((ResponseCreatorImpl) binding.creator()).getAssertionConsumerServiceURL(
+                                authnRequest);
                 responseMap.put(ACS_URL, assertionConsumerServiceURL);
                 responseMap.put(SSOConstants.SIG_ALG, signatureAlgorithm);
                 responseMap.put(SSOConstants.SIGNATURE, signature);
@@ -330,9 +330,10 @@ public class IdpEndpoint implements Idp {
             String statusCode, Binding binding)
             throws WSSecurityException, IOException, SimpleSign.SignatureException {
         LOGGER.debug("Creating SAML Response for error condition.");
-        org.opensaml.saml2.core.Response samlResponse = SamlProtocol.createResponse(SamlProtocol.createIssuer(
-                systemBaseUrl.constructUrl("/idp/login", true)), SamlProtocol.createStatus(
-                statusCode), authnRequest.getID(), null);
+        org.opensaml.saml2.core.Response samlResponse =
+                SamlProtocol.createResponse(SamlProtocol.createIssuer(systemBaseUrl.constructUrl(
+                        "/idp/login",
+                        true)), SamlProtocol.createStatus(statusCode), authnRequest.getID(), null);
         LOGGER.debug("Encoding error SAML Response for post or redirect.");
         String template = "";
         String assertionConsumerServiceBinding = ResponseCreator.getAssertionConsumerServiceBinding(
@@ -365,9 +366,9 @@ public class IdpEndpoint implements Idp {
             Binding redirectBinding = new RedirectBinding(systemCrypto, serviceProviders);
             AuthnRequest authnRequest = redirectBinding.decoder()
                     .decodeRequest(samlRequest);
-            String assertionConsumerServiceBinding = ResponseCreator.getAssertionConsumerServiceBinding(
-                    authnRequest,
-                    serviceProviders);
+            String assertionConsumerServiceBinding =
+                    ResponseCreator.getAssertionConsumerServiceBinding(authnRequest,
+                            serviceProviders);
             if (HTTP_POST_BINDING.equals(assertionConsumerServiceBinding)) {
                 binding = new PostBinding(systemCrypto, serviceProviders);
                 template = submitForm;
@@ -451,7 +452,8 @@ public class IdpEndpoint implements Idp {
             }
         } else if (USER_PASS.equals(authMethod)) {
             LOGGER.debug("Logging user in via BASIC auth.");
-            BasicAuthenticationHandler basicAuthenticationHandler = new BasicAuthenticationHandler();
+            BasicAuthenticationHandler basicAuthenticationHandler =
+                    new BasicAuthenticationHandler();
             HandlerResult handlerResult = basicAuthenticationHandler.getNormalizedToken(request,
                     null,
                     null,
@@ -480,7 +482,8 @@ public class IdpEndpoint implements Idp {
                 for (Object principal : subject.getPrincipals()
                         .asList()) {
                     if (principal instanceof SecurityAssertion) {
-                        SecurityToken securityToken = ((SecurityAssertion) principal).getSecurityToken();
+                        SecurityToken securityToken =
+                                ((SecurityAssertion) principal).getSecurityToken();
                         samlToken = securityToken.getToken();
                     }
                 }
@@ -580,15 +583,14 @@ public class IdpEndpoint implements Idp {
         certs = systemCrypto.getEncryptionCrypto()
                 .getX509Certificates(cryptoType);
         X509Certificate encryptionCert = certs[0];
-        EntityDescriptor entityDescriptor = SamlProtocol.createIdpMetadata(systemBaseUrl.constructUrl(
-                        "/idp/login",
-                        true),
-                Base64.encodeBase64String(issuerCert.getEncoded()),
-                Base64.encodeBase64String(encryptionCert.getEncoded()),
-                nameIdFormats,
-                systemBaseUrl.constructUrl("/idp/login", true),
-                systemBaseUrl.constructUrl("/idp/login", true),
-                null);
+        EntityDescriptor entityDescriptor =
+                SamlProtocol.createIdpMetadata(systemBaseUrl.constructUrl("/idp/login", true),
+                        Base64.encodeBase64String(issuerCert.getEncoded()),
+                        Base64.encodeBase64String(encryptionCert.getEncoded()),
+                        nameIdFormats,
+                        systemBaseUrl.constructUrl("/idp/login", true),
+                        systemBaseUrl.constructUrl("/idp/login", true),
+                        null);
         Document doc = DOMUtils.createDocument();
         doc.appendChild(doc.createElement("root"));
         return Response.ok(DOM2Writer.nodeToString(OpenSAMLUtil.toDom(entityDescriptor,
@@ -722,13 +724,15 @@ public class IdpEndpoint implements Idp {
             if (nextTargetOpt.isPresent()) {
                 SPSSODescriptor nextTarget = nextTargetOpt.get();
                 // TODO (RCZ) - Is issuerId the metadata endpoint or the logout endpoint?
-                LogoutRequest logoutRequest = logoutService.buildLogoutRequest(logoutState.getNameId(),
-                        systemBaseUrl.constructUrl("/idp/logout", true));
+                LogoutRequest logoutRequest =
+                        logoutService.buildLogoutRequest(logoutState.getNameId(),
+                                systemBaseUrl.constructUrl("/idp/logout", true));
                 if (supportsLogoutBinding(nextTarget, HTTP_REDIRECT_BINDING)) {
-                    Optional<SingleLogoutService> singleLogoutService = nextTarget.getSingleLogoutServices()
-                            .stream()
-                            .filter(sls -> HTTP_REDIRECT_BINDING.equals(sls.getBinding()))
-                            .findFirst();
+                    Optional<SingleLogoutService> singleLogoutService =
+                            nextTarget.getSingleLogoutServices()
+                                    .stream()
+                                    .filter(sls -> HTTP_REDIRECT_BINDING.equals(sls.getBinding()))
+                                    .findFirst();
                     if (singleLogoutService.isPresent()) {
                         return getSamlRedirectResponse(logoutRequest,
                                 singleLogoutService.get()
@@ -737,7 +741,7 @@ public class IdpEndpoint implements Idp {
                     }
                 } else if (supportsLogoutBinding(nextTarget, HTTP_POST_BINDING)) {
                     // TODO (RCZ) - Post binding
-                    throw new NotImplementedException();
+                    throw new UnsupportedOperationException();
                 } else {
                     // TODO (RCZ) - No supported binding
                     LOGGER.debug("No supported binding available for SP [{}].", nextTarget.getID());
@@ -746,10 +750,10 @@ public class IdpEndpoint implements Idp {
             } else {
                 // TODO (RCZ) - finished, redirect to originating SP
 
-                // TODO (RCZ) - StatusCode Partial when not everyone was logged out. Also this formatting >_<
-                LogoutResponse logoutResponse = logoutService.buildLogoutResponse(systemBaseUrl.constructUrl(
-                        "/idp/logout",
-                        true), StatusCode.SUCCESS_URI, logoutState.getOriginalRequestId());
+                // TODO (RCZ) - StatusCode Partial when not everyone was logged out.
+                LogoutResponse logoutResponse =
+                        logoutService.buildLogoutResponse(systemBaseUrl.constructUrl("/idp/logout",
+                                true), StatusCode.SUCCESS_URI, logoutState.getOriginalRequestId());
 
                 Optional<SingleLogoutService> redirectBindingService = serviceProviders.get(
                         logoutState.getOriginalIssuer())
@@ -766,12 +770,13 @@ public class IdpEndpoint implements Idp {
                             logoutState.getInitialRelayState());
                 }
 
-                Optional<SingleLogoutService> postBindingService = serviceProviders.get(logoutState.getOriginalIssuer())
-                        .getSPSSODescriptor(SamlProtocol.SUPPORTED_PROTOCOL)
-                        .getSingleLogoutServices()
-                        .stream()
-                        .filter(sls -> SamlProtocol.REDIRECT_BINDING.equals(sls.getBinding()))
-                        .findFirst();
+                Optional<SingleLogoutService> postBindingService =
+                        serviceProviders.get(logoutState.getOriginalIssuer())
+                                .getSPSSODescriptor(SamlProtocol.SUPPORTED_PROTOCOL)
+                                .getSingleLogoutServices()
+                                .stream()
+                                .filter(sls -> SamlProtocol.REDIRECT_BINDING.equals(sls.getBinding()))
+                                .findFirst();
                 if (postBindingService.isPresent()) {
                     // TODO (RCZ) - post binding
                     return null;
@@ -810,8 +815,9 @@ public class IdpEndpoint implements Idp {
         LOGGER.debug("Signing SAML response for redirect.");
         Document doc = DOMUtils.createDocument();
         doc.appendChild(doc.createElement("root"));
-        String encodedResponse = URLEncoder.encode(RestSecurity.deflateAndBase64Encode(DOM2Writer.nodeToString(
-                OpenSAMLUtil.toDom(samlResponse, doc, false))), "UTF-8");
+        String encodedResponse =
+                URLEncoder.encode(RestSecurity.deflateAndBase64Encode(DOM2Writer.nodeToString(
+                        OpenSAMLUtil.toDom(samlResponse, doc, false))), "UTF-8");
         String requestToSign = String.format("SAMLResponse=%s&RelayState=%s",
                 encodedResponse,
                 relayState);
@@ -847,7 +853,8 @@ public class IdpEndpoint implements Idp {
                             e);
                 }
                 EntityDescriptor entityDescriptor = serviceProviders.get(issuer);
-                SPSSODescriptor spssoDescriptor = entityDescriptor.getSPSSODescriptor(SamlProtocol.SUPPORTED_PROTOCOL);
+                SPSSODescriptor spssoDescriptor =
+                        entityDescriptor.getSPSSODescriptor(SamlProtocol.SUPPORTED_PROTOCOL);
                 String encryptionCertificate = null;
                 String signingCertificate = null;
                 if (spssoDescriptor != null) {
