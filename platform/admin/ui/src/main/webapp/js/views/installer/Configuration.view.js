@@ -150,6 +150,7 @@ define([
 */
 var SystemPropertyView = Marionette.ItemView.extend({
     template: 'configurationItemTemplate',
+    className: 'col-md-6',
     initialize: function () {
         this.modelBinder = new Backbone.ModelBinder();
     },
@@ -178,6 +179,7 @@ var SystemPropertyView = Marionette.ItemView.extend({
      * Collection View
      */
     var SystemPropertiesView = Marionette.CollectionView.extend({
+        className: 'row',
         itemView: SystemPropertyView
     });
 

@@ -12,38 +12,30 @@
  **/
  --}}
 <div class="form-group">
-    <div class="row">
-        <div class="col-md-5">
-            <div class="input-group btn-group item">
-                <label for="{{key}}" class="input-group-addon property-label">
-                    {{title}}
-                </label>
+    <div class="input-group btn-group item">
+        <label for="{{key}}" class="input-group-addon property-label">
+            {{title}}
 
-                {{#unless options.length}}
-                    <input type="text" class="form-control" id={{key}} name="value" placeholder="{{#defaultValue}}{{.}}{{/defaultValue}}" value="{{#value}}{{.}}{{/value}}">
-                {{else}}
-                    <select id="{{key}}" name="value" class="form-control">
-                        {{#each options}}
-                            <option value="{{lookup ../options @index}}" >{{.}}</option>
-                        {{/each}}
-                    </select>
-                {{/unless}}
+            <a style="float:right" href='#' tabindex="-1" data-toggle="{{key}}-popover">
+                <i class="fa fa-question-circle fa-lg"></i>
+            </a>
 
-            </div>
-            {{#if errorMessage}}
-                <span class="error-text">{{errorMessage}}</span>
-            {{/if}}
-        </div>
+        </label>
 
-        <div class="col-md-7">
-            <span class="description">{{shortDescription}}</span>
-            {{#if description}}
-                <a href='#' tabindex="-1" data-toggle="{{key}}-popover">
-                    <i class="fa fa-question-circle fa-lg"></i>
-                </a>
-            {{/if}}
-        </div>
+        {{#unless options.length}}
+            <input type="text" class="form-control" id={{key}} name="value"
+                   placeholder="{{#defaultValue}}{{.}}{{/defaultValue}}"
+                   value="{{#value}}{{.}}{{/value}}">
+        {{else}}
+            <select id="{{key}}" name="value" class="form-control">
+                {{#each options}}
+                    <option value="{{lookup ../options @index}}">{{.}}</option>
+                {{/each}}
+            </select>
+        {{/unless}}
 
     </div>
-
+    {{#if errorMessage}}
+        <span class="error-text">{{errorMessage}}</span>
+    {{/if}}
 </div>
