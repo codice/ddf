@@ -126,7 +126,16 @@
                         <executions>
                             <execution>
                                 <id>copy-docs</id>
-                                <phase>prepare-package</phase>
+                                <!--
+                                The unpack needs to run in an earlier phase than the copy,
+                                due to a recurring bug in maven that causes plugins in the
+                                same lifecycle phase to run in orders other than that which
+                                they were declared in.
+
+                                See https://issues.apache.org/jira/browse/MNG-5799 as well
+                                as the related tickets for more details.
+                                -->
+                                <phase>process-resources</phase>
                                 <goals>
                                     <goal>unpack</goal>
                                 </goals>
