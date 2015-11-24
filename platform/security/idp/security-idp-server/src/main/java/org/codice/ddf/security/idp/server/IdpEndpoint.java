@@ -137,8 +137,7 @@ public class IdpEndpoint implements Idp {
 
     public IdpEndpoint(String signaturePropertiesPath, String encryptionPropertiesPath,
             EncryptionService encryptionService) {
-        systemCrypto = new SystemCrypto(signaturePropertiesPath,
-                encryptionPropertiesPath,
+        systemCrypto = new SystemCrypto(encryptionPropertiesPath, signaturePropertiesPath,
                 encryptionService);
     }
 
