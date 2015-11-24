@@ -19,6 +19,7 @@ import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -339,7 +340,7 @@ public class AtomTransformer implements QueryResponseTransformer {
             if (metacardTransformer != null) {
 
                 try {
-                    binaryContent = metacardTransformer.transform(metacard, null);
+                    binaryContent = metacardTransformer.transform(metacard, new HashMap<>());
 
                     // If the transformer cannot handle the data appropriately
                 } catch (CatalogTransformerException e) {

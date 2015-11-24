@@ -92,7 +92,7 @@ public class InsecureDefaultsServiceBean implements InsecureDefaultsServiceBeanM
             mBeanServer = ManagementFactory.getPlatformMBeanServer();
         } catch (MalformedObjectNameException e) {
             LOGGER.error("Unable to create Insecure Defaults Service MBean with name [{}].",
-                    objectName.toString(), e);
+                    MBEAN_NAME, e);
         }
     }
 

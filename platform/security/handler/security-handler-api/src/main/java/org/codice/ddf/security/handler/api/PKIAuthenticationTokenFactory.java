@@ -57,6 +57,9 @@ public class PKIAuthenticationTokenFactory {
     public PKIAuthenticationToken getTokenFromBytes(byte[] certBytes, String realm) {
         PKIAuthenticationToken token = null;
         try {
+            if (certBytes == null || certBytes.length == 0) {
+                throw new WSSecurityException(WSSecurityException.ErrorCode.INVALID_SECURITY_TOKEN);
+            }
             X509Certificate[] certs = merlin.getCertificatesFromBytes(certBytes);
             token = new PKIAuthenticationToken(certs[0].getSubjectDN(), certBytes, realm);
         } catch (WSSecurityException e) {

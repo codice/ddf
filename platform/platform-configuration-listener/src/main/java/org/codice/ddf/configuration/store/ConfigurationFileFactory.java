@@ -101,8 +101,7 @@ public class ConfigurationFileFactory {
 
     private Dictionary<String, Object> read(Path configurationFile)
             throws ConfigurationFileException {
-        try {
-            InputStream inputStream = getInputStream(configurationFile);
+        try (InputStream inputStream = getInputStream(configurationFile)) {
             return persistenceStrategy.read(inputStream);
         } catch (IOException e) {
             String message = String.format("Unable to read configuration file [%s].",

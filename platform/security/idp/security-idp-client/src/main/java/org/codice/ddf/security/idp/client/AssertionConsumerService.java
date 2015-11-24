@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -24,10 +24,7 @@ import java.security.cert.X509Certificate;
 import java.util.Map;
 
 import javax.servlet.Filter;
-import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
@@ -136,10 +133,14 @@ public class AssertionConsumerService {
             } catch (IOException e) {
                 String msg = "Unable to decode and inflate AuthN response.";
                 LOGGER.warn(msg, e);
-                return Response.serverError().entity(msg).build();
+                return Response.serverError()
+                        .entity(msg)
+                        .build();
             }
         } else {
-            return Response.serverError().entity("Invalid AuthN response signature.").build();
+            return Response.serverError()
+                    .entity("Invalid AuthN response signature.")
+                    .build();
         }
 
     }
@@ -175,21 +176,28 @@ public class AssertionConsumerService {
 
         org.opensaml.saml2.core.Response samlResponse = extractSamlResponse(authnResponse);
         if (samlResponse == null) {
-            return Response.serverError().entity("Unable to parse AuthN response.").build();
+            return Response.serverError()
+                    .entity("Unable to parse AuthN response.")
+                    .build();
         }
 
         if (!validateResponse(samlResponse)) {
-            return Response.serverError().entity("AuthN response failed validation.").build();
+            return Response.serverError()
+                    .entity("AuthN response failed validation.")
+                    .build();
         }
 
         String redirectLocation = relayStates.decode(relayState);
         if (StringUtils.isBlank(redirectLocation)) {
             return Response.serverError()
-                    .entity("AuthN response returned unknown or expired relay state.").build();
+                    .entity("AuthN response returned unknown or expired relay state.")
+                    .build();
         }
 
         if (!login(samlResponse)) {
-            return Response.serverError().entity(UNABLE_TO_LOGIN).build();
+            return Response.serverError()
+                    .entity(UNABLE_TO_LOGIN)
+                    .build();
         }
 
         URI relayUri;
@@ -197,12 +205,14 @@ public class AssertionConsumerService {
             relayUri = new URI(redirectLocation);
         } catch (URISyntaxException e) {
             LOGGER.warn("Unable to parse relay state.", e);
-            return Response.serverError().entity("Unable to redirect back to original location.")
+            return Response.serverError()
+                    .entity("Unable to redirect back to original location.")
                     .build();
         }
 
         LOGGER.trace("Successfully logged in.  Redirecting to {}", relayUri.toString());
-        return Response.seeOther(relayUri).build();
+        return Response.seeOther(relayUri)
+                .build();
     }
 
     private boolean validateResponse(org.opensaml.saml2.core.Response samlResponse) {
@@ -224,10 +234,12 @@ public class AssertionConsumerService {
     private boolean login(org.opensaml.saml2.core.Response samlResponse) {
         Map<String, Cookie> cookieMap = HttpUtils.getCookieMap(request);
         if (cookieMap.containsKey("JSESSIONID")) {
-            sessionFactory.getOrCreateSession(request).invalidate();
+            sessionFactory.getOrCreateSession(request)
+                    .invalidate();
         }
-        String assertionValue = DOM2Writer
-                .nodeToString(samlResponse.getAssertions().get(0).getDOM());
+        String assertionValue = DOM2Writer.nodeToString(samlResponse.getAssertions()
+                .get(0)
+                .getDOM());
 
         String encodedAssertion;
         try {
@@ -252,8 +264,8 @@ public class AssertionConsumerService {
         SAMLAssertionHandler samlAssertionHandler = new SAMLAssertionHandler();
 
         LOGGER.trace("Processing SAML assertion with SAML Handler.");
-        HandlerResult samlResult = samlAssertionHandler
-                .getNormalizedToken(wrappedRequest, null, null, false);
+        HandlerResult samlResult = samlAssertionHandler.getNormalizedToken(wrappedRequest, null,
+                null, false);
 
         if (samlResult.getStatus() != HandlerResult.Status.COMPLETED) {
             LOGGER.debug("Failed to handle SAML assertion.");
@@ -265,11 +277,7 @@ public class AssertionConsumerService {
 
         try {
             LOGGER.trace("Trying to login with provided SAML assertion.");
-            loginFilter.doFilter(wrappedRequest, null, new FilterChain() {
-                @Override
-                public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse)
-                        throws IOException, ServletException {
-                }
+            loginFilter.doFilter(wrappedRequest, null, (servletRequest, servletResponse) -> {
             });
         } catch (IOException | ServletException e) {
             LOGGER.debug("Failed to apply login filter to SAML assertion", e);
@@ -295,18 +303,18 @@ public class AssertionConsumerService {
         String entityId = String.format("https://%s:%s%s/saml", hostname, port, rootContext);
         // Currently no real logout location - DFF-1605
         String logoutLocation = null; //String.format("https://%s:%s/logout", hostname, port);
-        String assertionConsumerServiceLocation = String
-                .format("https://%s:%s%s/saml/sso", hostname, port, rootContext);
+        String assertionConsumerServiceLocation = String.format("https://%s:%s%s/saml/sso",
+                hostname, port, rootContext);
 
-        EntityDescriptor entityDescriptor = SamlProtocol
-                .createSpMetadata(entityId, Base64.encodeBase64String(issuerCert.getEncoded()),
-                        Base64.encodeBase64String(encryptionCert.getEncoded()), logoutLocation,
-                        assertionConsumerServiceLocation, assertionConsumerServiceLocation);
+        EntityDescriptor entityDescriptor = SamlProtocol.createSpMetadata(entityId,
+                Base64.encodeBase64String(issuerCert.getEncoded()),
+                Base64.encodeBase64String(encryptionCert.getEncoded()), logoutLocation,
+                assertionConsumerServiceLocation, assertionConsumerServiceLocation);
 
         Document doc = DOMUtils.createDocument();
         doc.appendChild(doc.createElement("root"));
-        return Response
-                .ok(DOM2Writer.nodeToString(OpenSAMLUtil.toDom(entityDescriptor, doc, false)))
+        return Response.ok(
+                DOM2Writer.nodeToString(OpenSAMLUtil.toDom(entityDescriptor, doc, false)))
                 .build();
     }
 
@@ -315,14 +323,18 @@ public class AssertionConsumerService {
         CryptoType cryptoType = new CryptoType(CryptoType.TYPE.ALIAS);
         cryptoType.setAlias(alias);
         X509Certificate[] certs = crypto.getX509Certificates(cryptoType);
+        if (certs == null) {
+            throw new WSSecurityException(WSSecurityException.ErrorCode.SECURITY_ERROR,
+                    "Unable to retrieve certificate");
+        }
         return certs[0];
     }
 
     private org.opensaml.saml2.core.Response extractSamlResponse(String samlResponse) {
         org.opensaml.saml2.core.Response response = null;
         try {
-            Document responseDoc = StaxUtils
-                    .read(new ByteArrayInputStream(samlResponse.getBytes()));
+            Document responseDoc = StaxUtils.read(
+                    new ByteArrayInputStream(samlResponse.getBytes()));
             XMLObject responseXmlObject = OpenSAMLUtil.fromDom(responseDoc.getDocumentElement());
 
             if (responseXmlObject instanceof org.opensaml.saml2.core.Response) {

@@ -14,6 +14,7 @@
 package ddf.catalog.solr.external;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 import java.util.Set;
 
@@ -64,9 +65,9 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
     private static Properties describableProperties = new Properties();
 
     static {
-        try {
-            describableProperties.load(SolrHttpCatalogProvider.class
-                    .getResourceAsStream(DESCRIBABLE_PROPERTIES_FILE));
+        try (InputStream propertiesStream = SolrHttpCatalogProvider.class
+                .getResourceAsStream(DESCRIBABLE_PROPERTIES_FILE)) {
+            describableProperties.load(propertiesStream);
         } catch (IOException e) {
             LOGGER.info("Did not load properties properly.", e);
         }

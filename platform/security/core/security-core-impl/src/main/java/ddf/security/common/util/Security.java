@@ -155,14 +155,16 @@ public class Security {
 
         KeyStore keyStore = getSystemKeyStore();
         String alias = null;
-        Certificate cert;
+        Certificate cert = null;
         try {
-            if (keyStore.size() == 1) {
-                alias = keyStore.aliases().nextElement();
-            } else if (keyStore.size() > 1) {
-                alias = getCertificateAlias();
+            if (keyStore != null) {
+                if (keyStore.size() == 1) {
+                    alias = keyStore.aliases().nextElement();
+                } else if (keyStore.size() > 1) {
+                    alias = getCertificateAlias();
+                }
+                cert = keyStore.getCertificate(alias);
             }
-            cert = keyStore.getCertificate(alias);
         } catch (KeyStoreException e) {
             LOGGER.error("Unable to get certificate for alias [{}]", alias, e);
             return null;

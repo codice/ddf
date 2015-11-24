@@ -75,6 +75,9 @@ public class SimpleSign {
 
         // Create the signature
         Signature signature = OpenSAMLUtil.buildSignature();
+        if (signature == null) {
+            throw new SignatureException("Unable to build signature.");
+        }
         signature.setCanonicalizationAlgorithm(SignatureConstants.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
         signature.setSignatureAlgorithm(sigAlgo);
 

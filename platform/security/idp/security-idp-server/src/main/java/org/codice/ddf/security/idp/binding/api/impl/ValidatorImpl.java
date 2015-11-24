@@ -79,7 +79,7 @@ public abstract class ValidatorImpl implements Validator {
             }
         }
 
-        if (!(authnRequest.getProtocolBinding()
+        if (authnRequest.getProtocolBinding() != null && !(authnRequest.getProtocolBinding()
                 .equals(Idp.HTTP_POST_BINDING) || authnRequest.getProtocolBinding()
                 .equals(Idp.HTTP_REDIRECT_BINDING))) {
             throw new UnsupportedOperationException(

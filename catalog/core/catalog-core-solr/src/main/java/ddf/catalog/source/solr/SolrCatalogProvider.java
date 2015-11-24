@@ -14,6 +14,7 @@
 package ddf.catalog.source.solr;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -92,9 +93,9 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
     private static Properties describableProperties = new Properties();
 
     static {
-        try {
-            describableProperties.load(ddf.catalog.source.solr.SolrCatalogProvider.class
-                    .getResourceAsStream(DESCRIBABLE_PROPERTIES_FILE));
+        try (InputStream propertiesStream = ddf.catalog.source.solr.SolrCatalogProvider.class
+                .getResourceAsStream(DESCRIBABLE_PROPERTIES_FILE)) {
+            describableProperties.load(propertiesStream);
         } catch (IOException e) {
             LOGGER.info("IO exception loading describable properties", e);
         }

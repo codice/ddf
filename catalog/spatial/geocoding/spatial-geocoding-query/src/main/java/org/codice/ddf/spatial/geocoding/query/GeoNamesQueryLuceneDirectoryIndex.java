@@ -48,6 +48,7 @@ public class GeoNamesQueryLuceneDirectoryIndex extends GeoNamesQueryLuceneIndex 
         try {
             directory = openDirectory();
             if (!indexExists(directory)) {
+                directory.close();
                 throw new GeoEntryQueryException("There is no index at " + indexLocation);
             }
 

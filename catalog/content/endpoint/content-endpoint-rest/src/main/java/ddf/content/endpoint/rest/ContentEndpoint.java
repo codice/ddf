@@ -212,8 +212,10 @@ public class ContentEndpoint {
             contentType = contentPart.getContentType().toString();
         }
 
-        filename = contentPart.getContentDisposition()
-                .getParameter(FILENAME_CONTENT_DISPOSITION_PARAMETER_NAME);
+        if (contentPart.getContentDisposition() != null) {
+            filename = contentPart.getContentDisposition()
+                    .getParameter(FILENAME_CONTENT_DISPOSITION_PARAMETER_NAME);
+        }
 
         // Only interested in attachments for file uploads. Any others should be covered by
         // the FormParam arguments.

@@ -288,7 +288,7 @@ public class DumpCommand extends CatalogCommands {
                     getOutputFile(dumpLocation, metacard))) {
                 if (metacard != null) {
                     for (MetacardTransformer transformer : transformers) {
-                        binaryContent = transformer.transform(metacard, null);
+                        binaryContent = transformer.transform(metacard, new HashMap<>());
                         if (binaryContent != null) {
                             fos.write(binaryContent.getByteArray());
                             break;
