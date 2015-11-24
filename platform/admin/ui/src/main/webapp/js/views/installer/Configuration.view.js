@@ -150,7 +150,7 @@ define([
 */
 var SystemPropertyView = Marionette.ItemView.extend({
     template: 'configurationItemTemplate',
-    className: 'col-md-6',
+    className: 'property-item col-md-6',
     initialize: function () {
         this.modelBinder = new Backbone.ModelBinder();
     },

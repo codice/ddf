@@ -255,9 +255,7 @@ center {
         padding-left: 20px;
         padding-right: 20px;
 
-        .error-border {
-            border-color: @error-background-color !important;
-        }
+
         .drop-zone {
             text-align: center;
             border: dashed medium black;
@@ -273,12 +271,18 @@ center {
             padding: 5px 0px;
         }
     }
+    .error-border {
+        border-color: @error-background-color !important;
+    }
     .row {
         width: 100%;
     }
     .property-label {
         min-width:170px;
         text-align:left;
+    }
+    .property-item {
+        height: 80px;
     }
     .cert-label {
         min-width:180px;
