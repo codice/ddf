@@ -13,7 +13,6 @@
  */
 package org.codice.ddf.configuration;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Dictionary;
@@ -21,7 +20,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.felix.utils.properties.Properties;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
@@ -188,7 +186,7 @@ public class ConfigurationManager {
         this.systemBaseUrl = sbu;
         this.systemInfo = info;
 
-        this.readOnlySettings = new HashMap<String, String>();
+        this.readOnlySettings = new HashMap<>();
         if (System.getenv(DDF_HOME_ENVIRONMENT_VARIABLE) != null) {
             readOnlySettings.put(HOME_DIR, System.getenv(DDF_HOME_ENVIRONMENT_VARIABLE));
         } else {
@@ -205,7 +203,7 @@ public class ConfigurationManager {
         readOnlySettings.put(TRUST_STORE_PASSWORD,
                 System.getProperty(SSL_TRUSTSTORE_PASSWORD_JAVA_PROPERTY));
 
-        this.configuration = new HashMap<String, String>();
+        this.configuration = new HashMap<>();
 
         // Append the read-only settings to the DDF System Settings so that all
         // settings are pushed to registered listeners
@@ -271,45 +269,16 @@ public class ConfigurationManager {
         if (updatedConfig != null && !updatedConfig.isEmpty()) {
             configuration.clear();
 
-            //NOTE: logic to load/save system properties is only temporary until new configuration
-            //      mbean is merged in DDF-1525. Once that happens only need to add system properties
-            //      and read only configuration
-            File systemPropsFile = new File(
-                    readOnlySettings.get(HOME_DIR) + "/etc/system.properties");
-            Properties props = new Properties();
-            boolean propsLoaded = false;
-            try {
-                props.load(systemPropsFile);
-                propsLoaded = true;
-            } catch (IOException e) {
-                LOGGER.warn("Could not load system.properties.", e);
-            }
-
             for (Map.Entry<String, ?> entry : updatedConfig.entrySet()) {
                 if (entry.getValue() != null) {
-                    if (propertyMapping.containsKey(entry.getKey())) {
-                        props.put(propertyMapping.get(entry.getKey()), (String) entry.getValue());
-                        System.setProperty(propertyMapping.get(entry.getKey()),
-                                (String) entry.getValue());
-                    }
                     configuration.put(entry.getKey(), entry.getValue().toString());
                 }
             }
 
-            // Add the system properties
-            configuration.putAll(getSystemProperties());
-
             // Add the read-only settings to list to be pushed out to watchers
             configuration.putAll(readOnlySettings);
-
-            try {
-                if (propsLoaded) {
-                    props.save(systemPropsFile);
-                }
-            } catch (IOException e) {
-                LOGGER.warn("Could not save system.properties.", e);
-            }
         }
+
         Map<String, String> readOnlyConfig = Collections.unmodifiableMap(this.configuration);
         for (ConfigurationWatcher service : services) {
             service.configurationUpdateCallback(readOnlyConfig);

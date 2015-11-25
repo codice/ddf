@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -24,10 +24,13 @@ import org.joda.time.DateTime;
 import org.opensaml.Configuration;
 import org.opensaml.common.SAMLObjectBuilder;
 import org.opensaml.common.SAMLVersion;
+import org.opensaml.saml2.core.AttributeQuery;
 import org.opensaml.saml2.core.Issuer;
+import org.opensaml.saml2.core.NameID;
 import org.opensaml.saml2.core.Response;
 import org.opensaml.saml2.core.Status;
 import org.opensaml.saml2.core.StatusCode;
+import org.opensaml.saml2.core.Subject;
 import org.opensaml.saml2.metadata.AssertionConsumerService;
 import org.opensaml.saml2.metadata.EntityDescriptor;
 import org.opensaml.saml2.metadata.IDPSSODescriptor;
@@ -36,6 +39,12 @@ import org.opensaml.saml2.metadata.NameIDFormat;
 import org.opensaml.saml2.metadata.SPSSODescriptor;
 import org.opensaml.saml2.metadata.SingleLogoutService;
 import org.opensaml.saml2.metadata.SingleSignOnService;
+import org.opensaml.ws.soap.soap11.Body;
+import org.opensaml.ws.soap.soap11.Envelope;
+import org.opensaml.ws.soap.soap11.Header;
+import org.opensaml.ws.soap.soap11.impl.BodyBuilder;
+import org.opensaml.ws.soap.soap11.impl.EnvelopeBuilder;
+import org.opensaml.ws.soap.soap11.impl.HeaderBuilder;
 import org.opensaml.xml.XMLObjectBuilder;
 import org.opensaml.xml.XMLObjectBuilderFactory;
 import org.opensaml.xml.security.credential.UsageType;
@@ -75,6 +84,10 @@ public class SamlProtocol {
             .getBuilder(StatusCode.DEFAULT_ELEMENT_NAME);
 
     @SuppressWarnings("unchecked")
+    private static SAMLObjectBuilder<Subject> subjectBuilder = (SAMLObjectBuilder<Subject>) builderFactory
+            .getBuilder(Subject.DEFAULT_ELEMENT_NAME);
+
+    @SuppressWarnings("unchecked")
     private static SAMLObjectBuilder<EntityDescriptor> entityDescriptorBuilder = (SAMLObjectBuilder<EntityDescriptor>) builderFactory
             .getBuilder(EntityDescriptor.DEFAULT_ELEMENT_NAME);
 
@@ -89,6 +102,10 @@ public class SamlProtocol {
     @SuppressWarnings("unchecked")
     private static SAMLObjectBuilder<KeyDescriptor> keyDescriptorBuilder = (SAMLObjectBuilder<KeyDescriptor>) builderFactory
             .getBuilder(KeyDescriptor.DEFAULT_ELEMENT_NAME);
+
+    @SuppressWarnings("unchecked")
+    private static SAMLObjectBuilder<NameID> nameIdBuilder = (SAMLObjectBuilder<NameID>) builderFactory
+            .getBuilder(NameID.DEFAULT_ELEMENT_NAME);
 
     @SuppressWarnings("unchecked")
     private static SAMLObjectBuilder<NameIDFormat> nameIdFormatBuilder = (SAMLObjectBuilder<NameIDFormat>) builderFactory
@@ -118,6 +135,22 @@ public class SamlProtocol {
     private static XMLObjectBuilder<X509Certificate> x509CertificateBuilder = (XMLObjectBuilder<X509Certificate>) builderFactory
             .getBuilder(X509Certificate.DEFAULT_ELEMENT_NAME);
 
+    @SuppressWarnings("unchecked")
+    private static SAMLObjectBuilder<AttributeQuery> attributeQueryBuilder = (SAMLObjectBuilder<AttributeQuery>) builderFactory
+            .getBuilder(AttributeQuery.DEFAULT_ELEMENT_NAME);
+
+    @SuppressWarnings("unchecked")
+    private static HeaderBuilder soapHeaderBuilder = (HeaderBuilder) builderFactory
+            .getBuilder(Header.DEFAULT_ELEMENT_NAME);
+
+    @SuppressWarnings("unchecked")
+    private static BodyBuilder soapBodyBuilder = (BodyBuilder) builderFactory
+            .getBuilder(Body.DEFAULT_ELEMENT_NAME);
+
+    @SuppressWarnings("unchecked")
+    private static EnvelopeBuilder soapEnvelopeBuilder = (EnvelopeBuilder) builderFactory
+            .getBuilder(Envelope.DEFAULT_ELEMENT_NAME);
+
     private SamlProtocol() {
     }
 
@@ -142,6 +175,20 @@ public class SamlProtocol {
         issuer.setValue(issuerValue);
 
         return issuer;
+    }
+
+    public static NameID createNameID(String nameIdValue) {
+        NameID nameId = nameIdBuilder.buildObject();
+        nameId.setValue(nameIdValue);
+
+        return nameId;
+    }
+
+    public static Subject createSubject(NameID nameId) {
+        Subject subject = subjectBuilder.buildObject();
+        subject.setNameID(nameId);
+
+        return subject;
     }
 
     public static Status createStatus(String statusValue) {
@@ -191,9 +238,9 @@ public class SamlProtocol {
         }
 
         if (StringUtils.isNotBlank(singleSignOnLocationRedirect)) {
-            SingleSignOnService singleSignOnServiceRedirect = singleSignOnServiceBuilder.buildObject();
-            singleSignOnServiceRedirect
-                    .setBinding(REDIRECT_BINDING);
+            SingleSignOnService singleSignOnServiceRedirect = singleSignOnServiceBuilder
+                    .buildObject();
+            singleSignOnServiceRedirect.setBinding(REDIRECT_BINDING);
             singleSignOnServiceRedirect.setLocation(singleSignOnLocationRedirect);
             idpssoDescriptor.getSingleSignOnServices().add(singleSignOnServiceRedirect);
         }
@@ -207,8 +254,7 @@ public class SamlProtocol {
 
         if (StringUtils.isNotBlank(singleLogOutLocation)) {
             SingleLogoutService singleLogoutServiceRedir = singleLogOutServiceBuilder.buildObject();
-            singleLogoutServiceRedir
-                    .setBinding(REDIRECT_BINDING);
+            singleLogoutServiceRedir.setBinding(REDIRECT_BINDING);
             singleLogoutServiceRedir.setLocation(singleLogOutLocation);
             idpssoDescriptor.getSingleLogoutServices().add(singleLogoutServiceRedir);
 
@@ -260,7 +306,8 @@ public class SamlProtocol {
         spSsoDescriptor.getKeyDescriptors().add(encKeyDescriptor);
 
         if (StringUtils.isNotBlank(singleLogOutLocation)) {
-            SingleLogoutService singleLogoutServiceRedirect = singleLogOutServiceBuilder.buildObject();
+            SingleLogoutService singleLogoutServiceRedirect = singleLogOutServiceBuilder
+                    .buildObject();
             singleLogoutServiceRedirect.setBinding(REDIRECT_BINDING);
             singleLogoutServiceRedirect.setLocation(singleLogOutLocation);
             spSsoDescriptor.getSingleLogoutServices().add(singleLogoutServiceRedirect);
@@ -296,5 +343,18 @@ public class SamlProtocol {
         entityDescriptor.getRoleDescriptors().add(spSsoDescriptor);
 
         return entityDescriptor;
+    }
+
+    public static AttributeQuery createAttributeQuery(Issuer issuer, Subject subject,
+            String destination) {
+        AttributeQuery attributeQuery = attributeQueryBuilder.buildObject();
+        attributeQuery.setID(UUID.randomUUID().toString());
+        attributeQuery.setIssueInstant(new DateTime());
+        attributeQuery.setIssuer(issuer);
+        attributeQuery.setSubject(subject);
+        attributeQuery.setVersion(SAMLVersion.VERSION_20);
+        attributeQuery.setDestination(destination);
+
+        return attributeQuery;
     }
 }

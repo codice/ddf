@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -238,13 +238,82 @@ public class KeystoreEditor implements KeystoreEditorMBean {
             trustStoreFile = Paths.get(ddfHomePath.toString(), trustStoreFile.toString());
         }
         String trustStorePassword = System.getProperty("javax.net.ssl.trustStorePassword");
-        addToStore(alias, keyPassword, storePassword, data, type, fileName, trustStoreFile.toString(),
-                trustStorePassword, trustStore);
+        addToStore(alias, keyPassword, storePassword, data, type, fileName,
+                trustStoreFile.toString(), trustStorePassword, trustStore);
     }
 
-    private synchronized void addToStore(String alias, String keyPassword, String storePassword, String data,
-            String type, String fileName, String path, String storepass, KeyStore store)
+    @Override
+    public List<String> replaceSystemStores(String fqdn, String keyPassword,
+            String keystorePassword, String keystoreData, String keystoreFileName,
+            String truststorePassword, String truststoreData, String truststoreFileName)
             throws KeystoreEditorException {
+
+        List<String> errors = new ArrayList<>();
+
+        if (StringUtils.isEmpty(keystoreFileName) || StringUtils.isEmpty(keystoreData)
+                || StringUtils.isEmpty(keystorePassword) || StringUtils.isEmpty(keyPassword)) {
+            errors.add("Some of the required keystore fields are missing");
+        }
+
+        if (StringUtils.isEmpty(truststoreFileName) || StringUtils.isEmpty(truststoreData)
+                || StringUtils.isEmpty(truststorePassword)) {
+            errors.add("Some of the required truststore fields are missing");
+        }
+
+        if (errors.size() > 0) {
+            return errors;
+        }
+
+        try {
+            if (StringUtils.isEmpty(fqdn) || !validKeystoreAlias(fqdn, keystorePassword,
+                    keystoreData, keystoreFileName)) {
+                errors.add("Keystore does not contain the required key for " + fqdn);
+                return errors;
+            }
+
+            deleteAllSystemStoreEntries();
+
+            addPrivateKey(fqdn, keyPassword, keystorePassword, keystoreData, null,
+                    keystoreFileName);
+
+            addTrustedCertificate(fqdn, null, truststorePassword, truststoreData, null,
+                    truststoreFileName);
+        } catch (Exception e) {
+            LOGGER.error("Unable to replace system stores.", e);
+            errors.add(
+                    "Unable to replace system stores. Most likely due to invalid password or invalid store type");
+        }
+        return errors;
+    }
+
+    private boolean validKeystoreAlias(String alias, String keystorePassword, String keystoreData,
+            String keystoreFileName) throws KeystoreEditorException {
+        boolean valid = false;
+        try (InputStream inputStream = new ByteArrayInputStream(Base64.decode(keystoreData))) {
+            if (StringUtils.isBlank(alias)) {
+                throw new IllegalArgumentException("Alias cannot be null.");
+            }
+            KeyStore ks = null;
+            if (StringUtils.endsWithIgnoreCase(keystoreFileName, ".p12")) {
+                ks = KeyStore.getInstance("PKCS12");
+            } else if (StringUtils.endsWithIgnoreCase(keystoreFileName, ".jks")) {
+                ks = KeyStore.getInstance("jks");
+            }
+
+            if (ks != null) {
+                ks.load(inputStream, keystorePassword.toCharArray());
+                valid = ks.containsAlias(alias);
+            }
+        } catch (Exception e) {
+            LOGGER.error("Unable read keystore data.", e);
+            throw new KeystoreEditorException("Unable read keystore data.", e);
+        }
+        return valid;
+    }
+
+    private synchronized void addToStore(String alias, String keyPassword, String storePassword,
+            String data, String type, String fileName, String path, String storepass,
+            KeyStore store) throws KeystoreEditorException {
         OutputStream fos = null;
         try (InputStream inputStream = new ByteArrayInputStream(Base64.decode(data))) {
             if (StringUtils.isBlank(alias)) {
@@ -268,17 +337,22 @@ public class KeystoreEditor implements KeystoreEditorMBean {
                 KeyStore jks = KeyStore.getInstance("jks");
                 jks.load(inputStream, storePassword.toCharArray());
                 Enumeration<String> aliases = jks.aliases();
+
+                //we are going to store all entries from the jks regardless of the passed in alias
                 while (aliases.hasMoreElements()) {
                     String jksAlias = aliases.nextElement();
+
                     if (jks.isKeyEntry(jksAlias)) {
                         Key key = jks.getKey(jksAlias, keyPassword.toCharArray());
                         Certificate[] certificateChain = jks.getCertificateChain(jksAlias);
-                        store.setKeyEntry(alias, key, keyPassword.toCharArray(), certificateChain);
+                        store.setKeyEntry(jksAlias, key, keyPassword.toCharArray(),
+                                certificateChain);
                     } else {
-                        Certificate certificate = jks.getCertificate(alias);
-                        store.setCertificateEntry(alias, certificate);
+                        Certificate certificate = jks.getCertificate(jksAlias);
+                        store.setCertificateEntry(jksAlias, certificate);
                     }
                 }
+
                 fos = Files.newOutputStream(storeFile);
                 store.store(fos, storepass.toCharArray());
                 //need to parse der separately from pem, der has the same mime type but is binary hence checking both
@@ -511,7 +585,8 @@ public class KeystoreEditor implements KeystoreEditorMBean {
         deleteFromStore(alias, trustStoreFile.toString(), trustStorePassword, trustStore);
     }
 
-    private synchronized void deleteFromStore(String alias, String path, String pass, KeyStore store) {
+    private synchronized void deleteFromStore(String alias, String path, String pass,
+            KeyStore store) {
         if (alias == null) {
             throw new IllegalArgumentException("Alias cannot be null.");
         }
@@ -521,6 +596,17 @@ public class KeystoreEditor implements KeystoreEditorMBean {
             store.store(fos, pass.toCharArray());
         } catch (KeyStoreException | IOException | CertificateException | NoSuchAlgorithmException e) {
             LOGGER.error("Unable to remove entry {} from store", alias, e);
+        }
+    }
+
+    private void deleteAllSystemStoreEntries() throws KeyStoreException {
+        Enumeration<String> aliases = keyStore.aliases();
+        while (aliases.hasMoreElements()) {
+            deletePrivateKey(aliases.nextElement());
+        }
+        aliases = trustStore.aliases();
+        while (aliases.hasMoreElements()) {
+            deleteTrustedCertificate(aliases.nextElement());
         }
     }
 

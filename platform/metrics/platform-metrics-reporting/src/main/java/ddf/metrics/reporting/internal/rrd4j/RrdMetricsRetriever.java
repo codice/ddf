@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -18,7 +18,6 @@ import java.awt.Rectangle;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -28,12 +27,6 @@ import java.util.concurrent.TimeUnit;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
@@ -51,6 +44,7 @@ import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.codice.ddf.platform.util.XMLUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.MutableDateTime;
@@ -75,7 +69,7 @@ import ddf.metrics.reporting.internal.MetricsRetriever;
 /**
  * Retrieves metrics historical data from an RRD file and formats that data in a variety of formats
  * over a specified time range.
- * <p/>
+ * <p>
  * The supported formats include:
  * <ul>
  * <li>a PNG graph of the data (returned to the client as a byte array)</li>
@@ -85,7 +79,7 @@ import ddf.metrics.reporting.internal.MetricsRetriever;
  * <li>as XML (no schema provided)</li>
  * <li>a JSON-formatted string</li>
  * </ul>
- * <p/>
+ * <p>
  * Aggregate reports, which include the data for all metrics, over a specified time range are also
  * supported in XLS (Excel) and PPT (PowerPoint) format. For example, if there are 10 metrics that
  * are having data collected, then an aggregate report in XLS would be a spreadsheet with a separate
@@ -137,7 +131,7 @@ public class RrdMetricsRetriever implements MetricsRetriever {
     /**
      * Formats timestamp (in seconds since Unix epoch) into human-readable format of MMM DD YYYY
      * hh:mm:ss.
-     * <p/>
+     * <p>
      * Example: Apr 10 2013 09:14:43
      *
      * @param timestamp time in seconds since Unix epoch of Jan 1, 1970 12:00:00
@@ -337,12 +331,12 @@ public class RrdMetricsRetriever implements MetricsRetriever {
 
         MetricData metricData = getMetricData(rrdFilename, startTime, endTime);
 
-        StringWriter sw = new StringWriter();
-
         String displayableMetricName = convertCamelCase(metricName);
 
         String title = displayableMetricName + " for " + getCalendarTime(startTime) + " to "
                 + getCalendarTime(endTime);
+
+        String xmlString = null;
 
         try {
             DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
@@ -384,25 +378,17 @@ public class RrdMetricsRetriever implements MetricsRetriever {
                 dataElement.appendChild(totalCountElement);
             }
 
-            // write the content into xml stringwriter
-            TransformerFactory transformerFactory = TransformerFactory.newInstance();
-            Transformer transformer = transformerFactory.newTransformer();
-            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-            DOMSource source = new DOMSource(doc);
-            StreamResult result = new StreamResult(sw);
-            transformer.transform(source, result);
+            // Write the content into xml stringwriter
+            xmlString = XMLUtils.prettyFormat(doc);
         } catch (ParserConfigurationException pce) {
             LOGGER.error("Parsing error while creating xml data", pce);
-        } catch (TransformerException tfe) {
-            LOGGER.error("Transformer error wile creating xml data", tfe);
         }
 
-        LOGGER.trace("xml = {}", sw.toString());
+        LOGGER.trace("xml = {}", xmlString);
 
         LOGGER.trace("EXITING: createXmlData");
 
-        return sw.toString();
+        return xmlString;
     }
 
     @Override

@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define , location */
+/*global define , location , alert , window*/
 define([
     'backbone',
     'underscore',
@@ -53,6 +53,7 @@ define([
         url: '/jolokia/exec/org.apache.karaf:type=features,name=root/',
         installUrl:'/jolokia/exec/org.apache.karaf:type=features,name=root/installFeature(java.lang.String)/',
         uninstallUrl: '/jolokia/exec/org.apache.karaf:type=features,name=root/uninstallFeature(java.lang.String)/',
+        rebootUrl:    '/jolokia/exec/org.apache.karaf:type=system,name=root/reboot()',
         defaults: function () {
             return {
                 hasNext: true,
@@ -126,7 +127,7 @@ define([
         previousStep: function() {
             this.set(_step.call(this, -1));
         },
-        save: function() {
+        save: function(reboot) {
             var that = this;
             wreqr.vent.trigger('modulePoller:stop');
             return $.ajax({
@@ -139,7 +140,22 @@ define([
                     url: that.installUrl + 'admin-post-install-modules/',
                     dataType: 'JSON'
                 }).then(function(){
-                    location.reload();
+                    if (reboot) {
+                        $.ajax({
+                            type: 'GET',
+                            url: that.rebootUrl,
+                            dataType: 'JSON'
+                        }).done(function () {
+                            window.setTimeout(function () {
+                              window.location.href = that.get("redirectUrl");
+                            }, 30000);
+                        }).fail(function () {
+                            alert("Error trying to restart system. Please manually restart the system.");
+                        });
+
+                    } else {
+                        location.reload();
+                    }
                 });
             });
         }

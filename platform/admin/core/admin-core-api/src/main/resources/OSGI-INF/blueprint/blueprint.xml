@@ -35,6 +35,8 @@
         <property name="anonClaimsHandlerExt" ref="anonClaimsHandlerExt"/>
     </bean>
 
+    <bean id="systemProperties" class="org.codice.ddf.ui.admin.api.impl.SystemPropertiesAdmin" destroy-method="shutdown" />
+
     <reference-list id="configurationAdminPluginList"
                     interface="org.codice.ddf.ui.admin.api.plugin.ConfigurationAdminPlugin"
                     availability="optional"/>

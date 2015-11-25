@@ -72,6 +72,12 @@
             <groupId>org.geotools</groupId>
             <artifactId>gt-jts-wrapper</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

@@ -80,7 +80,7 @@ define([
                 // default all field
                 var array = [
                     {name: 'anyText', type: 'string', displayName: 'Any Text'},
-                    {name: 'anyGeo', type: 'anyGeo', displayName: 'Any Geo'}
+                    {name: 'anyGeo', type: 'geometry', displayName: 'Any Geo'}
                 ];
                 var facetCounts = {};
 
