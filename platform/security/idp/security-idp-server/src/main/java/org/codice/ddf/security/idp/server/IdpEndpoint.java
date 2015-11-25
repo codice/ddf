@@ -18,6 +18,7 @@ import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -183,9 +184,13 @@ public class IdpEndpoint implements Idp {
             @FormParam(RELAY_STATE) String relayState, @Context HttpServletRequest request)
             throws WSSecurityException {
         LOGGER.debug("Recevied POST IdP request.");
-        return showLoginPage(samlRequest, relayState, null, null, request, new PostBinding(
-                systemCrypto,
-                serviceProviders), submitForm);
+        return showLoginPage(samlRequest,
+                relayState,
+                null,
+                null,
+                request,
+                new PostBinding(systemCrypto, serviceProviders),
+                submitForm);
     }
 
     @GET
@@ -649,42 +654,23 @@ public class IdpEndpoint implements Idp {
                     throw new SimpleSign.SignatureException("No signature present for AuthnRequest.");
                 }
 
-                String signedParts = String.format("SAMLRequest=%s&RelayState=%s&SigAlg=%s",
-                        URLEncoder.encode(samlRequest, "UTF-8"),
+                SPSSODescriptor spssoDescriptor = getSpssoDescriptor(issuer);
+
+                String signingCertificate = spssoDescriptor.getKeyDescriptors()
+                        .stream()
+                        .filter(Objects::nonNull)
+                        .filter(kd -> nonNull(kd.getUse()))
+                        .filter(kd -> USAGE_TYPES.contains(kd.getUse()))
+                        .reduce((acc, val) -> val.getUse()
+                                .equals(UsageType.SIGNING) || acc == null ? val : acc)
+                        .map(this::extractCertificate)
+                        .orElse(null);
+
+                validateSignature(samlRequest,
                         relayState,
-                        URLEncoder.encode(signatureAlgorithm, "UTF-8"));
-                EntityDescriptor entityDescriptor = serviceProviders.get(issuer);
-                SPSSODescriptor spssoDescriptor =
-                        entityDescriptor.getSPSSODescriptor(SamlProtocol.SUPPORTED_PROTOCOL);
-                String signingCertificate = null;
-                if (spssoDescriptor != null) {
-
-                    signingCertificate = spssoDescriptor.getKeyDescriptors()
-                            .stream()
-                            .filter(Objects::nonNull)
-                            .filter(kd -> nonNull(kd.getUse()))
-                            .filter(kd -> USAGE_TYPES.contains(kd.getUse()))
-                            .reduce(null, (String acc, KeyDescriptor kd) -> {
-                                return kd.getUse()
-                                        .equals(UsageType.SIGNING) || acc == null ?
-                                        extractCertificate(kd) :
-                                        acc;
-                            }, (acc, val) -> acc);
-
-                    if (signingCertificate == null) {
-                        throw new ValidationException(
-                                "Unable to find signing certificate in metadata. Please check metadata.");
-                    }
-                } else {
-                    throw new ValidationException(
-                            "Unable to find supported protocol in metadata SPSSODescriptors.");
-                }
-                if (!new SimpleSign(systemCrypto).validateSignature(signedParts,
+                        signatureAlgorithm,
                         signature,
-                        signingCertificate)) {
-                    throw new ValidationException(
-                            "Signature verification failed for redirect binding.");
-                }
+                        signingCertificate);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -699,6 +685,17 @@ public class IdpEndpoint implements Idp {
         return null;
     }
 
+    private SPSSODescriptor getSpssoDescriptor(String issuer) throws ValidationException {
+        EntityDescriptor entityDescriptor = serviceProviders.get(issuer);
+        SPSSODescriptor spssoDescriptor =
+                entityDescriptor.getSPSSODescriptor(SamlProtocol.SUPPORTED_PROTOCOL);
+        if (spssoDescriptor == null) {
+            throw new ValidationException(
+                    "Unable to find supported protocol in metadata SPSSODescriptors.");
+        }
+        return spssoDescriptor;
+    }
+
     private String extractCertificate(KeyDescriptor kd) {
         return kd.getKeyInfo()
                 .getX509Datas()
@@ -709,6 +706,27 @@ public class IdpEndpoint implements Idp {
                 .filter(StringUtils::isNotBlank)
                 .findFirst()
                 .orElse(null);
+    }
+
+    private void validateSignature(String samlRequest, String relayState, String signatureAlgorithm,
+            String signature, String signingCertificate)
+            throws UnsupportedEncodingException, SimpleSign.SignatureException,
+            ValidationException {
+
+        if (signingCertificate == null) {
+            throw new ValidationException(
+                    "Unable to find signing certificate in metadata. Please check metadata.");
+        }
+
+        String signedParts = String.format("SAMLRequest=%s&RelayState=%s&SigAlg=%s",
+                URLEncoder.encode(samlRequest, "UTF-8"),
+                relayState,
+                URLEncoder.encode(signatureAlgorithm, "UTF-8"));
+        if (!new SimpleSign(systemCrypto).validateSignature(signedParts,
+                signature,
+                signingCertificate)) {
+            throw new ValidationException("Signature verification failed for redirect binding.");
+        }
     }
 
     @Override
