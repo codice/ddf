@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
  **/
 package org.codice.ddf.ui;
 
@@ -24,16 +23,12 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.platform.util.XMLUtils;
 import org.jasig.cas.client.authentication.AttributePrincipal;
 import org.opengis.filter.Filter;
 import org.slf4j.Logger;
@@ -61,9 +56,8 @@ import ddf.security.service.impl.cas.CasAuthenticationToken;
 /**
  * This a a very simple example of a servlet protected by CAS that can be used to query for
  * metacards using metacard ids.
- * 
+ * <p>
  * The query page that displays a metacard in xml format.
- * 
  */
 public class Query extends HttpServlet {
     private static final long serialVersionUID = 1L;
@@ -99,32 +93,32 @@ public class Query extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-        throws ServletException, IOException {
+            throws ServletException, IOException {
         doPost(request, response);
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-        throws ServletException, IOException {
+            throws ServletException, IOException {
         response.setContentType("text/html");
         PrintWriter writer = response.getWriter();
-        LOGGER.debug("serviceticket request parameter: {}", request.getParameter(PROXY_TICKET_REQUEST_PARAM));
+        LOGGER.debug("serviceticket request parameter: {}",
+                request.getParameter(PROXY_TICKET_REQUEST_PARAM));
         LOGGER.debug("query request parameter: {}", request.getParameter(QUERY_REQUEST_PARAM));
         String html = createPage(request);
         writer.println(html);
     }
 
     /**
-     * 
-     * @param request
-     *            The Http servlet request.
+     * @param request The Http servlet request.
      * @return Returns the html representation of the query page which includes the xml
-     *         representation of the metacard.
+     * representation of the metacard.
      */
     private String createPage(HttpServletRequest request) {
         StringBuilder sb = new StringBuilder();
         sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-        sb.append("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"DTD/xhtml1-strict.dtd\">");
+        sb.append(
+                "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"DTD/xhtml1-strict.dtd\">");
         sb.append("<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\" lang=\"en\">");
         sb.append("<head>");
         sb.append("<title>");
@@ -156,21 +150,20 @@ public class Query extends HttpServlet {
         sb.append("</html>");
 
         StringBuilder message = new StringBuilder();
-        message.append("\n########################################################################\n");
+        message.append(
+                "\n########################################################################\n");
         message.append(" Query result html:\n");
         message.append(sb.toString());
-        message.append("\n########################################################################\n");
+        message.append(
+                "\n########################################################################\n");
         LOGGER.debug(message.toString());
 
         return sb.toString();
     }
 
     /**
-     * 
-     * @param searchPhrase
-     *            The search phrase used to query for the metacard.
-     * @param proxyTicket
-     *            The CAS proxy ticket that will be used by the STS to get a SAML assertion.
+     * @param searchPhrase The search phrase used to query for the metacard.
+     * @param proxyTicket  The CAS proxy ticket that will be used by the STS to get a SAML assertion.
      * @return
      */
     private String getMetacardForId(String searchPhrase, String proxyTicket) {
@@ -183,7 +176,8 @@ public class Query extends HttpServlet {
 
         try {
             Subject subject = securityManager.getSubject(new CasAuthenticationToken(proxyTicket));
-            LOGGER.info("Adding {} property with value {} to request", SecurityConstants.SECURITY_SUBJECT, subject);
+            LOGGER.info("Adding {} property with value {} to request",
+                    SecurityConstants.SECURITY_SUBJECT, subject);
             request.getProperties().put(SecurityConstants.SECURITY_SUBJECT, subject);
         } catch (SecurityServiceException se) {
             LOGGER.error("Could not retrieve subject from securitymanager.", se);
@@ -193,16 +187,19 @@ public class Query extends HttpServlet {
         try {
             LOGGER.debug("About to query the catalog framework with query {}", filter.toString());
             QueryResponse queryResponse = catalogFramework.query(request, null);
-            LOGGER.debug("Got query response from catalog framework for query {}", filter.toString());
+            LOGGER.debug("Got query response from catalog framework for query {}",
+                    filter.toString());
             List<Result> results = queryResponse.getResults();
             if (results != null) {
-                String message = "The query for " + filter.toString() + " returned "
-                        + results.size() + " results.";
+                String message =
+                        "The query for " + filter.toString() + " returned " + results.size()
+                                + " results.";
                 responseString.append(message);
                 LOGGER.debug(message);
                 for (Result curResult : results) {
                     Metacard metacard = curResult.getMetacard();
-                    LOGGER.debug("Transforming the metacard with id [{}] to xml.", metacard.getId());
+                    LOGGER.debug("Transforming the metacard with id [{}] to xml.",
+                            metacard.getId());
                     BinaryContent content = catalogFramework.transform(metacard, "xml", null);
                     StringWriter writer = new StringWriter();
                     IOUtils.copy(content.getInputStream(), writer, "UTF8");
@@ -231,9 +228,8 @@ public class Query extends HttpServlet {
 
     /**
      * Gets the CAS proxy ticket that will be used by the STS to get a SAML assertion.
-     * 
-     * @param request
-     *            The Http servlet request.
+     *
+     * @param request The Http servlet request.
      * @return Returns the CAS proxy ticket that will be used by the STS to get a SAML assertion.
      */
     private String getProxyTicket(HttpServletRequest request) {
@@ -254,41 +250,21 @@ public class Query extends HttpServlet {
     }
 
     /**
-     * 
-     * @param unformattedXml
-     *            Unformatted xml.
+     * @param unformattedXml Unformatted xml.
      * @return Returns formatted xml.
      */
     private String format(String unformattedXml) {
         Source xmlInput = new StreamSource(new StringReader(unformattedXml));
-        StringWriter stringWriter = new StringWriter();
-        StreamResult xmlOutput = new StreamResult(stringWriter);
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        String formattedXml;
 
-        Transformer transformer = null;
-        String formattedXml = null;
-
-        try {
-            transformer = transformerFactory.newTransformer();
-            LOGGER.debug("transformer class: {}", transformer.getClass());
-            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-            transformer.transform(xmlInput, xmlOutput);
-            formattedXml = xmlOutput.getWriter().toString();
-        } catch (TransformerConfigurationException e) {
-            String message = "Unable to transform xml:\n" + unformattedXml
-                    + "\nUsing unformatted xml.";
-            LOGGER.error(message, e);
-            formattedXml = unformattedXml;
-        } catch (TransformerException e) {
-            String message = "Unable to transform xml:\n" + unformattedXml
-                    + "\nUsing unformatted xml.";
-            LOGGER.error(message, e);
-            formattedXml = unformattedXml;
-        }
+        formattedXml = XMLUtils.prettyFormat(xmlInput);
 
         LOGGER.debug("Formatted xml:\n{}", formattedXml);
 
+        if (StringUtils.isBlank(formattedXml)) {
+            // Did not format so return unformatted xml
+            formattedXml = unformattedXml;
+        }
         return formattedXml;
     }
 

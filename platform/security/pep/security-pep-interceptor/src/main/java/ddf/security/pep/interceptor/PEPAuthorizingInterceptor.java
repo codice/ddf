@@ -13,16 +13,7 @@
  */
 package ddf.security.pep.interceptor;
 
-import java.io.StringWriter;
-
 import javax.xml.namespace.QName;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import javax.xml.ws.handler.MessageContext;
 
 import org.apache.commons.lang.StringUtils;
@@ -37,6 +28,7 @@ import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.ws.addressing.JAXWSAConstants;
 import org.apache.cxf.ws.addressing.Names;
 import org.apache.shiro.util.ThreadContext;
+import org.codice.ddf.platform.util.XMLUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -53,7 +45,6 @@ import ddf.security.service.impl.SecurityAssertionStore;
 
 /**
  * Interceptor used to perform service authentication.
- *
  */
 public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message> {
 
@@ -254,29 +245,6 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
             return null;
         }
 
-        StreamResult xmlOutput = new StreamResult(new StringWriter());
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-
-        Transformer transformer = null;
-        String formattedXml = null;
-
-        try {
-            transformer = transformerFactory.newTransformer();
-            logger.trace("transformer class: {}", transformer.getClass());
-            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-            transformer.transform(new DOMSource(unformattedXml), xmlOutput);
-            formattedXml = xmlOutput.getWriter().toString();
-        } catch (TransformerConfigurationException e) {
-            String message =
-                    "Unable to transform xml:\n" + unformattedXml + "\nUsing unformatted xml.";
-            logger.error(message, e);
-        } catch (TransformerException e) {
-            String message =
-                    "Unable to transform xml:\n" + unformattedXml + "\nUsing unformatted xml.";
-            logger.error(message, e);
-        }
-
-        return formattedXml;
+        return XMLUtils.prettyFormat(unformattedXml);
     }
 }

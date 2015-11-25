@@ -48,8 +48,8 @@ import org.apache.wss4j.dom.saml.WSSSAMLKeyInfoProcessor;
 import org.apache.wss4j.dom.validate.Credential;
 import org.apache.wss4j.dom.validate.SamlAssertionValidator;
 import org.apache.wss4j.dom.validate.Validator;
-import org.apache.xml.security.utils.XMLUtils;
 import org.codice.ddf.configuration.SystemBaseUrl;
+import org.codice.ddf.platform.util.XMLUtils;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.api.InvalidSAMLReceivedException;
@@ -498,7 +498,7 @@ public class LoginFilter implements Filter {
 
     private Subject handleAuthenticationToken(HttpServletRequest httpRequest,
             BaseAuthenticationToken token) throws ServletException {
-        Subject subject;
+        Subject subject = null;
         synchronized (lock) {
             HttpSession session = sessionFactory.getOrCreateSession(httpRequest);
             //if we already have an assertion inside the session and it has not expired, then use that instead
@@ -519,8 +519,9 @@ public class LoginFilter implements Filter {
                             if (LOGGER.isTraceEnabled()) {
                                 Element samlToken = ((SecurityAssertion) principal)
                                         .getSecurityToken().getToken();
-                                LOGGER.trace("SAML assertion returned: {}",
-                                        XMLUtils.getStrFromNode(samlToken));
+
+                                LOGGER.trace("SAML Assertion returned: {}",
+                                        XMLUtils.prettyFormat(samlToken));
                             }
                             SecurityToken securityToken = ((SecurityAssertion) principal)
                                     .getSecurityToken();
