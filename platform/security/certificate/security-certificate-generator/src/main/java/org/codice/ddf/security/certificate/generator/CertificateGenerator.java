@@ -41,7 +41,7 @@ public class CertificateGenerator implements CertificateGeneratorMBean {
      * Generates new signed certificate. The hostname is used as the certificate's common name.
      * Postcondition is the server keystore is updated to include a private entry. The private
      * entry has the new certificate chain  that connects the server to the Demo CA. The matching
-     * private key is also stored in the entry.
+     * private key is also stored in the entry. All other private keys will be removed.
      *
      * @return the string used as the common name in the new certificate
      */
@@ -53,9 +53,9 @@ public class CertificateGenerator implements CertificateGeneratorMBean {
      * Generates new signed certificate. The input parameter is used as the certificate's common name.
      * Postcondition is the server keystore is updated to include a private entry. The private
      * entry has the new certificate chain  that connects the server to the Demo CA. The matching
-     * private key is also stored in the entry.
+     * private key is also stored in the entry. All other private keys will be removed.
      *
-     * @param commonName string to use as the common name in the new certificate
+     * @param commonName string to use as the common name in the new certificate.
      * @return the string used as the common name in the new certificate
      */
     public String configureDemoCert(String commonName) {
@@ -64,6 +64,11 @@ public class CertificateGenerator implements CertificateGeneratorMBean {
         csr.setCommonName(commonName);
         KeyStore.PrivateKeyEntry pkEntry = demoCa.sign(csr);
         KeyStoreFile ksFile = getKeyStoreFile();
+        for (String alias : ksFile.aliases()) {
+            if (ksFile.isKey(alias)) {
+                ksFile.deleteEntry(alias);
+            }
+        }
         ksFile.setEntry(commonName, pkEntry);
         ksFile.save();
         String distinguishedName = ((X509Certificate) pkEntry.getCertificate()).getSubjectDN()
@@ -71,12 +76,12 @@ public class CertificateGenerator implements CertificateGeneratorMBean {
         return distinguishedName;
     }
 
-    private KeyStoreFile getKeyStoreFile() {
+    protected KeyStoreFile getKeyStoreFile() {
         return KeyStoreFile.openFile(System.getProperty("javax.net.ssl.keyStore"),
                 System.getProperty("javax.net.ssl.keyStorePassword").toCharArray());
     }
 
-    private void registerMbean() {
+    protected void registerMbean() {
         ObjectName objectName = null;
         MBeanServer mBeanServer = null;
         try {

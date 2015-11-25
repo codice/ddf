@@ -16,6 +16,7 @@ package org.codice.ddf.security.certificate.generator;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
@@ -139,6 +140,7 @@ public class KeyStoreFileTest {
                 .getEntry(ALIAS_DEMO_CA);
         assertThat("Could not retrieve Demo CA from keystore", demoCa,
                 instanceOf(KeyStore.TrustedCertificateEntry.class));
+        assertThat(ksFile.isKey(ALIAS_DEMO_CA), is(false));
 
         //Delete a cert from the file
         ksFile.deleteEntry(ALIAS_DEMO_CA);
@@ -152,6 +154,7 @@ public class KeyStoreFileTest {
         String alias = "temp";
         ksFile.setEntry(alias, pkEntry);
         assertThat("Did not add key to file as expected", ksFile.aliases(), hasItem(alias));
+        assertThat(ksFile.isKey(alias), is(true));
 
         //Save and reload file
         ksFile.save();

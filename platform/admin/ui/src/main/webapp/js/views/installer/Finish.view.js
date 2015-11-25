@@ -31,17 +31,23 @@ define([
             this.navigationModel = options.navigationModel;
             this.listenTo(this.navigationModel,'next', this.next);
             this.listenTo(this.navigationModel,'previous', this.previous);
+            this.model = this.navigationModel;
         },
         onClose: function() {
             this.stopListening(this.navigationModel);
         },
         next: function() {
+            this.showLoading();
             //this is your hook to perform any validation you need to do before going to the next step
             this.navigationModel.nextStep();
         },
         previous: function() {
             //this is your hook to perform any teardown that must be done before going to the previous step
             this.navigationModel.previousStep();
+        },
+        showLoading: function(){
+            this.$('.main-content').hide();
+            this.$('.loading-overlay').toggleClass('active', true);
         }
     });
 

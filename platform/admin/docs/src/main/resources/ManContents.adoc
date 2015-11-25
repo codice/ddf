@@ -100,12 +100,29 @@ The application installer module enables a user to install and remove applicatio
 
 . Open a web browser and navigate to the Installation page. +
 `http://DDF_HOST:DDF_PORT/admin`
+- Adding the `?dev=true` query string will auto generate the certificates +
+`http://DDF_HOST:DDF_PORT/admin/index.html?dev=true`
 
 . Log in with the default username of "admin" (no quotes) and the default password of "admin" (no quotes).
 
-. Select the Installation tab if not already selected.
+. Select the Setup tab if not already selected.
 
-===== UI Basics
+====== Example Screenshots
+
+The following are examples of what the Installation Steps/Pages look like:
+
+Welcome Page
+
+image::welcome_page.png[Welcome Page,${image.width}]
+
+Anonymous Claims page
+
+image::anon_claims.png[Anonymous Claims, ${image.width}]
+
+Installation Profile Page
+
+image::installation_profile.png[Installation Profile,${image.width}]
+
 [IMPORTANT]
 ====
 Do NOT deselect/uninstall the Platform App or the Admin App. Doing so will disable the use of this installer and the ability to install/uninstall other applications.
@@ -124,45 +141,45 @@ Do NOT deselect/uninstall the Platform App or the Admin App. Doing so will disab
 
 * When an application is unselected, dependent applications will automatically be unselected.
 
+Custom Installation
+
 image::application_details.png[Application Details]
 
 * If apps are preselected when the Select applications to install page is reached, they will be uninstalled if unselected.
 
 * Applications can also be installed using kar deployment as stated in Application Installation.
 
-====== Display the Features File in the Installer 
-
-To ensure that the installer can correctly interpret and display application details, there are several guidelines that should be followed when creating the features file for the application.
-
-* Be sure that only one feature (in the features.xml) has the auto-install tag (install='auto'). This is the feature that the installer displays to the user (name, description, version, etc.). It is typically named after the application itself, and the description provides a complete application description.
-
-* Verify that the one feature specified to auto-install has a complete list of all of its dependencies to ensure the dependency tree can be constructed correctly.
-
-====== Example Screenshots
-
-The following are examples of what the Installation Steps/Pages look like:
-
-Welcome Page
-
-image::welcome_page.png[Welcome Page,${image.width}]
+[WARNING]
+====
+Platform App, Admin App, and Security Services App CANNOT be selected or unselected as it is installed by default and can cause errors if removed.
+**Security Services App appears to be unselected upon first view of the tree structure, but it is in fact automatically installed with a later part of the installation process.
+====
 
 General Configuration Page
 
 image::general_configuration.png[General Configuration,${image.width}]
 
-Installation Profile Page
+General Configuration Page (Certificates)
 
-image::installation_profile.png[Installation Profile,${image.width}]
-
-[WARNING]
-====
-Platform App, Admin App, and Security Services App CANNOT be selected or unselected as it is installed by default and can cause errors if removed.
-**Security Services App appears to be unselected upon first view of the tree structure, but it is in fact automatically installed with a later part of the installation process.
-==== 
+image::general_configuration_certs.png[General Configuration Certificates,${image.width}]
+[NOTE]
+===============================
+Certificate information needs to be provided if the host is changed.
+If the `?dev=true` query string was provided, the certificate information will be auto generated using a demo CA
+===============================
 
 Final Page
 
 image::final_page.png[Final Page,${image.width}]
+
+Restart Page
+
+image::restart_page.png[Restart Page,${image.width}]
+[NOTE]
+===============================
+The redirect will only work if the certificates are configured in the browser. +
+Otherwise the redirect link must be used.
+===============================
 
 ==== Configuration Module
 The configuration module allows administrators to change bundle and service configurations.
