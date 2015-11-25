@@ -353,7 +353,9 @@ public class SamlProtocol {
         attributeQuery.setIssuer(issuer);
         attributeQuery.setSubject(subject);
         attributeQuery.setVersion(SAMLVersion.VERSION_20);
-        attributeQuery.setDestination(destination);
+        if (StringUtils.isNotBlank(destination)) {
+            attributeQuery.setDestination(destination);
+        }
 
         return attributeQuery;
     }
