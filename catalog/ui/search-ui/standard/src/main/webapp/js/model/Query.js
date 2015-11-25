@@ -248,7 +248,7 @@ define([
                 if (north && south && east && west) {
                     filters.push(new Filter.Model({
                         fieldName: 'anyGeo',
-                        fieldType: 'anyGeo',
+                        fieldType: 'geometry',
                         fieldOperator: 'intersects',
                         geoType: 'bbox',
                         north: north,
@@ -260,7 +260,7 @@ define([
                 } else if (polygon) {
                     filters.push(new Filter.Model({
                         fieldName: 'anyGeo',
-                        fieldType: 'anyGeo',
+                        fieldType: 'geometry',
                         fieldOperator: 'intersects',
                         geoType: 'polygon',
                         polygon: polygon
@@ -268,7 +268,7 @@ define([
                 }else if (lat && lon && radius) {
                     filters.push(new Filter.Model({
                         fieldName: 'anyGeo',
-                        fieldType: 'anyGeo',
+                        fieldType: 'geometry',
                         fieldOperator: 'intersects',
                         geoType: 'circle',
                         lon: lon,

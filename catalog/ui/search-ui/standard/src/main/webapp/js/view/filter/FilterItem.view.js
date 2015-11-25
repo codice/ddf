@@ -26,7 +26,7 @@ define([
 
         ich.addTemplate('filterItemTemplate', filterItemTemplate);
 
-        var FilteItemView = Marionette.ItemView.extend({
+        var FilterItemView = Marionette.ItemView.extend({
             className: 'item',
             tagName: 'tr',
             template: 'filterItemTemplate',
@@ -153,6 +153,6 @@ define([
             }
         });
 
-        return FilteItemView;
+        return FilterItemView;
 
     });

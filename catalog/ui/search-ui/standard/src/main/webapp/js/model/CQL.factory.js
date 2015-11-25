@@ -150,7 +150,7 @@ define([
                 return Filter.CQLFactory.formatFieldName(filter.get('fieldName')) + ' <= ' + filter.get('numberValue1');
             }
         },
-        anyGeo: {
+        geometry: {
             'intersects': function(filter) {
                 var geoType = filter.get('geoType');
                 if(geoType === 'bbox'){
@@ -168,7 +168,7 @@ define([
                         ', ' + west + ' ' + south +
                         '))';
 
-                    return 'INTERSECTS(anyGeo, ' + bbox + ')';
+                    return 'INTERSECTS(' + filter.get('fieldName') + ', ' + bbox + ')';
                 } else if(geoType === 'polygon'){
                     // build the polygon value.
                     var polygon = filter.get('polygon');
@@ -188,7 +188,7 @@ define([
                     }
 
                     poly += '))';
-                    return 'INTERSECTS(anyGeo, ' + poly + ')';
+                    return 'INTERSECTS(' + filter.get('fieldName') + ', ' + poly + ')';
                 } else if(geoType === 'circle'){
                     // build the circle cql value.
                     var lon = filter.get('lon'),
@@ -196,7 +196,7 @@ define([
                         radius = filter.get('radius');
                     var point = 'POINT(' + lon + ' ' + lat + ')';
 
-                    return 'DWITHIN(anyGeo, ' + point + ',' + radius + ', meters)';
+                    return 'DWITHIN(' + filter.get('fieldName') + ', ' + point + ',' + radius + ', meters)';
                 }
                 return null;
             }

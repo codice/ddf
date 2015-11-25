@@ -30,14 +30,14 @@ define(function (require) {
         filters: {
             METADATA_CONTENT_TYPE: 'metadata-content-type',
             SOURCE_ID: 'source-id',
-            ANY_GEO: 'anyGeo',
+            ANY_GEO: 'geometry',
             ANY_TEXT: 'anyText',
             OPERATIONS : {
                 'string': ['contains', 'matchcase','equals'],
                 'xml': ['contains', 'matchcase','equals'],
                 'date': ['before','after'],
                 'number': ['=','>','>=','<','<='],
-                'anyGeo': ['intersects']
+                'geometry': ['intersects']
             },
             numberTypes : ['float','short', 'long','double', 'integer']
         },

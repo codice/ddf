@@ -98,7 +98,7 @@ define([
                 var hasString = (type === 'string' || type === 'xml') && stringValue1 && stringValue1 !== '';
                 var hasNumber = type === 'number' && numberValue1 && numberValue1 !== '';
                 var hasDate = type === 'date' && dateValue1 && dateValue1 !== '';
-                var hasGeo = type === 'anyGeo' && geoType && filter.isValidGeo();
+                var hasGeo = type === 'geometry' && geoType && filter.isValidGeo();
                 if(hasNumber || hasString || hasDate || hasGeo){
                     return false; // no value value.
                 }
