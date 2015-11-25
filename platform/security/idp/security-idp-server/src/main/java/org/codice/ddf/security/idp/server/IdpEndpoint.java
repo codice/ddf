@@ -13,6 +13,10 @@
  */
 package org.codice.ddf.security.idp.server;
 
+import static java.util.Objects.nonNull;
+import static java.util.stream.Collectors.toSet;
+import static org.apache.commons.lang.StringUtils.isEmpty;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -25,10 +29,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
+import java.util.function.BiConsumer;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
@@ -86,12 +91,15 @@ import org.opensaml.saml2.metadata.KeyDescriptor;
 import org.opensaml.saml2.metadata.SPSSODescriptor;
 import org.opensaml.saml2.metadata.SingleLogoutService;
 import org.opensaml.xml.XMLObject;
+import org.opensaml.xml.schema.XSBase64Binary;
 import org.opensaml.xml.security.credential.UsageType;
 import org.opensaml.xml.validation.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
+import com.google.common.collect.ImmutableSet;
 
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
@@ -135,9 +143,13 @@ public class IdpEndpoint implements Idp {
 
     private RelayStates<LogoutState> logoutStates;
 
+    public static final ImmutableSet<UsageType> USAGE_TYPES = ImmutableSet.of(UsageType.UNSPECIFIED,
+            UsageType.SIGNING);
+
     public IdpEndpoint(String signaturePropertiesPath, String encryptionPropertiesPath,
             EncryptionService encryptionService) {
-        systemCrypto = new SystemCrypto(encryptionPropertiesPath, signaturePropertiesPath,
+        systemCrypto = new SystemCrypto(encryptionPropertiesPath,
+                signaturePropertiesPath,
                 encryptionService);
     }
 
@@ -624,32 +636,128 @@ public class IdpEndpoint implements Idp {
      * @throws WSSecurityException
      */
     @Override
-    public Response processRedirectLogout(@QueryParam(SAML_REQ) String samlRequest,
-            @QueryParam(RELAY_STATE) String relayState,
-            @QueryParam(SSOConstants.SIG_ALG) String signatureAlgorithm,
-            @QueryParam(SSOConstants.SIGNATURE) String signature,
-            @Context HttpServletRequest request) throws WSSecurityException, IdpException {
-        // TODO (RCZ) 11/2/15 - Implement Server HTTP-Redirect logout
+    public Response processRedirectLogout(@QueryParam(SAML_REQ) final String samlRequest,
+            @QueryParam(RELAY_STATE) final String relayState,
+            @QueryParam(SSOConstants.SIG_ALG) final String signatureAlgorithm,
+            @QueryParam(SSOConstants.SIGNATURE) final String signature,
+            @Context final HttpServletRequest request) throws WSSecurityException, IdpException {
 
+        RedirectBinding binding = new RedirectBinding(systemCrypto, serviceProviders);
+        BiConsumer<String, SignableSAMLObject> validator = (issuer, samlObject) -> {
+            LOGGER.debug("Validating AuthnRequest required attributes and signature");
+            try {
+                if (isEmpty(signature) || isEmpty(signatureAlgorithm) || isEmpty(issuer)) {
+                    throw new SimpleSign.SignatureException("No signature present for AuthnRequest.");
+                }
+
+                String signedParts = String.format("SAMLRequest=%s&RelayState=%s&SigAlg=%s",
+                        URLEncoder.encode(samlRequest, "UTF-8"),
+                        relayState,
+                        URLEncoder.encode(signatureAlgorithm, "UTF-8"));
+                EntityDescriptor entityDescriptor = serviceProviders.get(issuer);
+                SPSSODescriptor spssoDescriptor =
+                        entityDescriptor.getSPSSODescriptor(SamlProtocol.SUPPORTED_PROTOCOL);
+                String signingCertificate = null;
+                if (spssoDescriptor != null) {
+
+                    signingCertificate = spssoDescriptor.getKeyDescriptors()
+                            .stream()
+                            .filter(Objects::nonNull)
+                            .filter(kd -> nonNull(kd.getUse()))
+                            .filter(kd -> USAGE_TYPES.contains(kd.getUse()))
+                            .reduce(null, (String acc, KeyDescriptor kd) -> {
+                                return kd.getUse()
+                                        .equals(UsageType.SIGNING) || acc == null ?
+                                        extractCertificate(kd) :
+                                        acc;
+                            }, (acc, val) -> acc);
+
+                    if (signingCertificate == null) {
+                        throw new ValidationException(
+                                "Unable to find signing certificate in metadata. Please check metadata.");
+                    }
+                } else {
+                    throw new ValidationException(
+                            "Unable to find supported protocol in metadata SPSSODescriptors.");
+                }
+                if (!new SimpleSign(systemCrypto).validateSignature(signedParts,
+                        signature,
+                        signingCertificate)) {
+                    throw new ValidationException(
+                            "Signature verification failed for redirect binding.");
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        };
+
+        try {
+            return processLogout(request, samlRequest, relayState, binding, validator);
+        } catch (RuntimeException e) {
+
+        }
+        // TODO (RCZ) - default return value. 500?
+        return null;
+    }
+
+    private String extractCertificate(KeyDescriptor kd) {
+        return kd.getKeyInfo()
+                .getX509Datas()
+                .stream()
+                .flatMap(datas -> datas.getX509Certificates()
+                        .stream())
+                .map(XSBase64Binary::getValue)
+                .filter(StringUtils::isNotBlank)
+                .findFirst()
+                .orElse(null);
+    }
+
+    @Override
+    public Response processPostLogout(@FormParam(SAML_REQ) String samlRequest,
+            @FormParam(RELAY_STATE) String relayState, @Context HttpServletRequest request)
+            throws WSSecurityException, IdpException {
+        PostBinding binding = new PostBinding(systemCrypto, serviceProviders);
+        processLogout(request, samlRequest, relayState, binding, (issuer, samlObject) -> {
+            LOGGER.debug("Validating AuthnRequest required attributes and signature");
+            try {
+                if (samlObject.getSignature() != null) {
+                    new SimpleSign(systemCrypto).validateSignature(samlObject.getSignature(),
+                            samlObject.getDOM()
+                                    .getOwnerDocument());
+                } else {
+                    throw new SimpleSign.SignatureException("No signature present on AuthnRequest.");
+                }
+            } catch (SimpleSign.SignatureException e) {
+                // TODO (RCZ) - exception
+            }
+        });
+
+        return null;
+    }
+
+    private Response processLogout(final HttpServletRequest request, final String samlRequest,
+            String relayState, Binding binding, BiConsumer<String, SignableSAMLObject> signatureValidator)
+            throws IdpException {
+        // TODO (RCZ) - Make sure to validate time within restraint + latency
+        // TODO (RCZ) - validate entity id exists in sps
+        // TODO (RCZ) - if present, destination must match
+        // TODO (RCZ) - validate required fields exist
+        // TODO (RCZ) - Check saml version (saml2)
+        // TODO (RCZ) - if ID present in req, must include InResponseTo
         try {
             LogoutState logoutState = getLogoutState(request);
             Cookie cookie = getCookie(request);
-            XMLObject logoutObject = logoutService.extractXmlObject(samlRequest);
-            Binding binding = new RedirectBinding(systemCrypto, serviceProviders);
+            SignableSAMLObject logoutObject = logoutService.extractXmlObject(samlRequest);
             binding.validator()
                     .validateRelayState(relayState);
 
             if (logoutObject instanceof LogoutRequest) {
                 // LogoutRequest is the initial request coming from the SP that initiated the chain
                 LogoutRequest logoutRequest = ((LogoutRequest) logoutObject);
-                validateGetLogoutObject(logoutRequest,
-                        samlRequest,
-                        logoutRequest.getIssuer()
-                                .getValue(),
-                        relayState,
-                        signatureAlgorithm,
-                        signature,
-                        strictSignature);
+                if (strictSignature) {
+                    signatureValidator.accept(logoutRequest.getIssuer()
+                            .getValue(), logoutObject);
+                }
                 return handleLogoutRequest(cookie, logoutState, (LogoutRequest) logoutObject);
 
             } else if (logoutObject instanceof LogoutResponse) {
@@ -676,9 +784,9 @@ public class IdpEndpoint implements Idp {
             // TODO (RCZ) - exception
         } catch (ValidationException e) {
             // TODO (RCZ) - exception
+        } catch (WSSecurityException e) {
+            // TODO (RCZ) - exception
         }
-        // TODO (RCZ) - Respond
-
         return null;
     }
 
@@ -795,7 +903,7 @@ public class IdpEndpoint implements Idp {
                 .stream()
                 .map(serviceProviders::get)
                 .map(ed -> ed.getSPSSODescriptor(SamlProtocol.SUPPORTED_PROTOCOL))
-                .collect(Collectors.toSet());
+                .collect(toSet());
     }
 
     private Response getSamlRedirectResponse(XMLObject samlResponse, String targetUrl,
@@ -839,7 +947,7 @@ public class IdpEndpoint implements Idp {
             boolean strictSignature) throws SimpleSign.SignatureException, ValidationException {
         LOGGER.debug("Validating AuthnRequest required attributes and signature");
         if (strictSignature) {
-            if (!StringUtils.isEmpty(signature) && !StringUtils.isEmpty(signatureAlgorithm)) {
+            if (!isEmpty(signature) && !isEmpty(signatureAlgorithm)) {
                 String signedParts;
                 try {
                     signedParts = String.format("SAMLRequest=%s&RelayState=%s&SigAlg=%s",
@@ -859,13 +967,7 @@ public class IdpEndpoint implements Idp {
                 if (spssoDescriptor != null) {
                     for (KeyDescriptor key : spssoDescriptor.getKeyDescriptors()) {
                         String certificate = null;
-                        if (key.getKeyInfo()
-                                .getX509Datas()
-                                .size() > 0 && key.getKeyInfo()
-                                .getX509Datas()
-                                .get(0)
-                                .getX509Certificates()
-                                .size() > 0) {
+                        if (hasCertificate(key)) {
                             certificate = key.getKeyInfo()
                                     .getX509Datas()
                                     .get(0)
@@ -915,14 +1017,6 @@ public class IdpEndpoint implements Idp {
             throw new IllegalArgumentException(
                     "Invalid LogoutRequest, contained no identifying signature.");
         }
-    }
-
-    @Override
-    public Response processPostLogout(@FormParam(SAML_REQ) String samlRequest,
-            @FormParam(RELAY_STATE) String relayState, @Context HttpServletRequest request)
-            throws WSSecurityException {
-        // TODO (RCZ) 11/2/15 - Implement Server Post-Binding logout
-        return null;
     }
 
     public void setSecurityManager(SecurityManager securityManager) {

@@ -42,6 +42,7 @@ import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.joda.time.DateTime;
 import org.opensaml.common.SAMLObject;
 import org.opensaml.common.SAMLVersion;
+import org.opensaml.common.SignableSAMLObject;
 import org.opensaml.saml2.core.Issuer;
 import org.opensaml.saml2.core.LogoutRequest;
 import org.opensaml.saml2.core.LogoutResponse;
@@ -128,11 +129,15 @@ public class LogoutServiceImpl implements LogoutService {
         return DOM2Writer.nodeToString(e.getDOM());
     }
 
-    public XMLObject extractXmlObject(String samlLogoutResponse)
+    public SignableSAMLObject extractXmlObject(String samlLogoutResponse)
             throws WSSecurityException, XMLStreamException {
         Document responseDoc = StaxUtils.read(
                 new ByteArrayInputStream(samlLogoutResponse.getBytes()));
-        return OpenSAMLUtil.fromDom(responseDoc.getDocumentElement());
+        XMLObject xmlObject = OpenSAMLUtil.fromDom(responseDoc.getDocumentElement());
+        if (xmlObject instanceof  SignableSAMLObject) {
+            return (SignableSAMLObject) xmlObject;
+        }
+        return null;
     }
 
     private <T extends SAMLObject> T extract(String samlObject, Class<T> clazz)

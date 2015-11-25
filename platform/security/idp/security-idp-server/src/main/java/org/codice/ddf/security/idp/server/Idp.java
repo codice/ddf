@@ -139,6 +139,6 @@ public interface Idp {
     @Path("/logout")
     Response processPostLogout(@FormParam(SAML_REQ) String samlRequest,
             @FormParam(RELAY_STATE) String relayState, @Context HttpServletRequest request)
-            throws WSSecurityException;
+            throws WSSecurityException, IdpException;
 
 }

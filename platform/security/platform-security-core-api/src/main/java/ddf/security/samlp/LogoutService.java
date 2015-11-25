@@ -22,6 +22,7 @@ import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.opensaml.common.SAMLObject;
+import org.opensaml.common.SignableSAMLObject;
 import org.opensaml.saml2.core.LogoutRequest;
 import org.opensaml.saml2.core.LogoutResponse;
 import org.opensaml.saml2.metadata.IDPSSODescriptor;
@@ -36,7 +37,7 @@ public interface LogoutService {
 
     String insertMsgIntoSoap(Element element);
 
-    public XMLObject extractXmlObject(String samlLogoutResponse)
+    public SignableSAMLObject extractXmlObject(String samlLogoutResponse)
             throws WSSecurityException, XMLStreamException;
 
     LogoutResponse extractSamlLogoutResponse(String samlLogoutResponse)
