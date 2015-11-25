@@ -30,6 +30,7 @@ import com.google.common.collect.ImmutableSet;
 
 import ddf.security.samlp.SimpleSign;
 import ddf.security.samlp.SystemCrypto;
+import ddf.security.samlp.impl.EntityInformation;
 
 public abstract class ValidatorImpl implements Validator {
 
@@ -46,10 +47,10 @@ public abstract class ValidatorImpl implements Validator {
 
     protected SimpleSign simpleSign;
 
-    private Map<String, EntityDescriptor> serviceProviders;
+    private Map<String, EntityInformation> serviceProviders;
 
     public ValidatorImpl(SystemCrypto systemCrypto,
-            Map<String, EntityDescriptor> serviceProviders) {
+            Map<String, EntityInformation> serviceProviders) {
         this.systemCrypto = systemCrypto;
         this.serviceProviders = serviceProviders;
         this.simpleSign = new SimpleSign(systemCrypto);
@@ -106,7 +107,7 @@ public abstract class ValidatorImpl implements Validator {
         return simpleSign;
     }
 
-    protected Map<String, EntityDescriptor> getServiceProviders() {
+    protected Map<String, EntityInformation> getServiceProviders() {
         return serviceProviders;
     }
 }

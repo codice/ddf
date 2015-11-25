@@ -25,13 +25,14 @@ import org.slf4j.LoggerFactory;
 
 import ddf.security.samlp.SimpleSign;
 import ddf.security.samlp.SystemCrypto;
+import ddf.security.samlp.impl.EntityInformation;
 
 public class PostValidator extends ValidatorImpl implements Validator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PostValidator.class);
 
     public PostValidator(SystemCrypto systemCrypto,
-            Map<String, EntityDescriptor> serviceProviders) {
+            Map<String, EntityInformation> serviceProviders) {
         super(systemCrypto, serviceProviders);
     }
 

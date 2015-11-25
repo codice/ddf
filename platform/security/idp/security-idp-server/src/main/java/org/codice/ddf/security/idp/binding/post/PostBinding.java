@@ -22,6 +22,7 @@ import org.codice.ddf.security.idp.binding.api.Validator;
 import org.opensaml.saml2.metadata.EntityDescriptor;
 
 import ddf.security.samlp.SystemCrypto;
+import ddf.security.samlp.impl.EntityInformation;
 
 public class PostBinding implements Binding {
 
@@ -31,7 +32,7 @@ public class PostBinding implements Binding {
 
     private final PostValidator validator;
 
-    public PostBinding(SystemCrypto systemCrypto, Map<String, EntityDescriptor> serviceProviders) {
+    public PostBinding(SystemCrypto systemCrypto, Map<String, EntityInformation> serviceProviders) {
         decoder = new PostRequestDecoder();
         creator = new PostResponseCreator(systemCrypto, serviceProviders);
         validator = new PostValidator(systemCrypto, serviceProviders);

@@ -22,6 +22,7 @@ import org.codice.ddf.security.idp.binding.api.Validator;
 import org.opensaml.saml2.metadata.EntityDescriptor;
 
 import ddf.security.samlp.SystemCrypto;
+import ddf.security.samlp.impl.EntityInformation;
 
 public class RedirectBinding implements Binding {
 
@@ -31,7 +32,7 @@ public class RedirectBinding implements Binding {
 
     private final RedirectValidator validator;
 
-    public RedirectBinding(SystemCrypto systemCrypto, Map<String, EntityDescriptor> serviceProviders) {
+    public RedirectBinding(SystemCrypto systemCrypto, Map<String, EntityInformation> serviceProviders) {
         decoder = new RedirectRequestDecoder();
         creator = new RedirectResponseCreator(systemCrypto, serviceProviders);
         validator = new RedirectValidator(systemCrypto, serviceProviders);

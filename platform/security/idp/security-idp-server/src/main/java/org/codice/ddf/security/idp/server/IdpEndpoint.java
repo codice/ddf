@@ -34,6 +34,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
@@ -100,6 +101,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
 
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
@@ -109,6 +111,7 @@ import ddf.security.samlp.MetadataConfigurationParser;
 import ddf.security.samlp.SamlProtocol;
 import ddf.security.samlp.SimpleSign;
 import ddf.security.samlp.SystemCrypto;
+import ddf.security.samlp.impl.EntityInformation;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
 
@@ -127,7 +130,7 @@ public class IdpEndpoint implements Idp {
 
     private SecurityManager securityManager;
 
-    private Map<String, EntityDescriptor> serviceProviders = new HashMap<>();
+    private Map<String, EntityInformation> serviceProviders = new HashMap<>();
 
     private String indexHtml;
 
@@ -172,7 +175,15 @@ public class IdpEndpoint implements Idp {
             try {
                 MetadataConfigurationParser metadataConfigurationParser =
                         new MetadataConfigurationParser(serviceProviderMetadata);
-                serviceProviders = metadataConfigurationParser.getEntryDescriptions();
+
+                serviceProviders = metadataConfigurationParser.getEntryDescriptions()
+                        .entrySet()
+                        .stream()
+                        .map(e -> Maps.immutableEntry(e.getKey(),
+                                new EntityInformation.Builder(e.getValue()).build()))
+                        .filter(e -> nonNull(e.getValue()))
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
             } catch (IOException e) {
                 LOGGER.error("Unable to parse SP metadata configuration.", e);
             }
@@ -184,13 +195,9 @@ public class IdpEndpoint implements Idp {
             @FormParam(RELAY_STATE) String relayState, @Context HttpServletRequest request)
             throws WSSecurityException {
         LOGGER.debug("Recevied POST IdP request.");
-        return showLoginPage(samlRequest,
-                relayState,
-                null,
-                null,
-                request,
-                new PostBinding(systemCrypto, serviceProviders),
-                submitForm);
+        return showLoginPage(samlRequest, relayState, null, null, request, new PostBinding(
+                systemCrypto,
+                serviceProviders), submitForm);
     }
 
     @GET
@@ -351,9 +358,9 @@ public class IdpEndpoint implements Idp {
                         true)), SamlProtocol.createStatus(statusCode), authnRequest.getID(), null);
         LOGGER.debug("Encoding error SAML Response for post or redirect.");
         String template = "";
-        String assertionConsumerServiceBinding = ResponseCreator.getAssertionConsumerServiceBinding(
-                authnRequest,
-                serviceProviders);
+        String assertionConsumerServiceBinding = serviceProviders.get(authnRequest.getIssuer()
+                .getValue())
+                .getAssertionConsumerServiceBinding();
         if (HTTP_POST_BINDING.equals(assertionConsumerServiceBinding)) {
             template = submitForm;
         } else if (HTTP_REDIRECT_BINDING.equals(assertionConsumerServiceBinding)) {
@@ -628,6 +635,8 @@ public class IdpEndpoint implements Idp {
     // Will receive LogoutRequest directly from SP, then propagate to other SP's and respond
     // to initial request when done
 
+    // TODO (RCZ) - Remember to switch constants to using SamlProtocol
+
     /**
      * aka HTTP-Redirect
      *
@@ -653,14 +662,13 @@ public class IdpEndpoint implements Idp {
                 if (isEmpty(signature) || isEmpty(signatureAlgorithm) || isEmpty(issuer)) {
                     throw new SimpleSign.SignatureException("No signature present for AuthnRequest.");
                 }
-
                 SPSSODescriptor spssoDescriptor = getSpssoDescriptor(issuer);
-
                 String signingCertificate = spssoDescriptor.getKeyDescriptors()
                         .stream()
                         .filter(Objects::nonNull)
                         .filter(kd -> nonNull(kd.getUse()))
                         .filter(kd -> USAGE_TYPES.contains(kd.getUse()))
+                        .filter(kd -> nonNull(extractCertificate(kd)))
                         .reduce((acc, val) -> val.getUse()
                                 .equals(UsageType.SIGNING) || acc == null ? val : acc)
                         .map(this::extractCertificate)

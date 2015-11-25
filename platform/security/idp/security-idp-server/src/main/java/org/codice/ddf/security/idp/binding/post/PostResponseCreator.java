@@ -34,13 +34,14 @@ import org.w3c.dom.Document;
 
 import ddf.security.samlp.SimpleSign;
 import ddf.security.samlp.SystemCrypto;
+import ddf.security.samlp.impl.EntityInformation;
 
 public class PostResponseCreator extends ResponseCreatorImpl implements ResponseCreator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PostResponseCreator.class);
 
     public PostResponseCreator(SystemCrypto systemCrypto,
-            Map<String, EntityDescriptor> serviceProviders) {
+            Map<String, EntityInformation> serviceProviders) {
         super(systemCrypto, serviceProviders);
     }
 
