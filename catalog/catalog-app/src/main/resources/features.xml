@@ -222,7 +222,7 @@
         <bundle>mvn:ddf.catalog.security/catalog-security-ingestplugin/${project.version}</bundle>
     </feature>
     
-    <feature name="catalog-admin-module-sources" install="manual" vrsion="${project.version}"
+    <feature name="catalog-admin-module-sources" install="manual" version="${project.version}"
              description="DDF Admin Module">
         <bundle>mvn:ddf.catalog.admin/catalog-admin-module-sources/${project.version}</bundle>
     </feature>
@@ -250,6 +250,11 @@
         <feature>catalog-admin-module-sources</feature>
         <feature>catalog-core-backupplugin</feature>
         <feature>catalog-plugin-jpeg2000</feature>
-    </feature>   
+    </feature>
+
+    <feature name="catalog-plugin-metacard-validation" install="manual" version="${project.version}"
+             description="DDF Metacard Validator Plugins">
+        <bundle>mvn:ddf.catalog.plugin/catalog-plugin-metacard-validation/${project.version}</bundle>
+    </feature>
         
 </features>

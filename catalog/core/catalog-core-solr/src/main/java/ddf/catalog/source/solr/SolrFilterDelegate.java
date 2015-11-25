@@ -304,6 +304,12 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     }
 
     @Override
+    public SolrQuery propertyIsEqualTo(String propertyName, boolean literal) {
+        String mappedPropertyName = getMappedPropertyName(propertyName, AttributeFormat.BOOLEAN, true);
+        return new SolrQuery(mappedPropertyName + ":" + literal);
+    }
+
+    @Override
     public SolrQuery propertyIsGreaterThan(String propertyName, Date startDate) {
         String formattedStartDate = formatDate(startDate);
         return buildDateQuery(propertyName, SOLR_EXCLUSIVE_START, formattedStartDate,

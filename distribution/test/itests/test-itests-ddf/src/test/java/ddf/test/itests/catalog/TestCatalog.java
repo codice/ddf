@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -25,7 +25,12 @@ import static org.junit.Assert.fail;
 import static com.jayway.restassured.RestAssured.delete;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
+import static ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin.VALIDATION_WARNINGS;
 import static ddf.common.test.WaitCondition.expect;
+import static ddf.test.itests.common.CswQueryBuilder.NOT;
+import static ddf.test.itests.common.CswQueryBuilder.OR;
+import static ddf.test.itests.common.CswQueryBuilder.PROPERTY_IS_EQUAL_TO;
+import static ddf.test.itests.common.CswQueryBuilder.PROPERTY_IS_LIKE;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -33,6 +38,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -64,6 +70,7 @@ import com.jayway.restassured.response.ValidatableResponse;
 
 import ddf.common.test.BeforeExam;
 import ddf.test.itests.AbstractIntegrationTest;
+import ddf.test.itests.common.CswQueryBuilder;
 import ddf.test.itests.common.Library;
 
 /**
@@ -87,6 +94,16 @@ public class TestCatalog extends AbstractIntegrationTest {
         LOGGER.info("Ingesting data of type {}:\n{}", mimeType, data);
         return given().body(data).header("Content-Type", mimeType).expect().log().all()
                 .statusCode(201).when().post(REST_PATH.getUrl()).getHeader("id");
+    }
+
+    public static String ingest(String data, String mimeType, boolean checkResponse) {
+        if (checkResponse) {
+            return ingest(data, mimeType);
+        } else {
+            LOGGER.info("Ingesting data of type {}:\n{}", mimeType, data);
+            return given().body(data).header("Content-Type", mimeType).when()
+                    .post(REST_PATH.getUrl()).getHeader("id");
+        }
     }
 
     @BeforeExam
@@ -483,8 +500,8 @@ public class TestCatalog extends AbstractIntegrationTest {
 
         ValidatableResponse validatableResponse = given()
                 .header("Content-Type", MediaType.APPLICATION_XML)
-                .body(Library.getCswUpdateRemoveAttributesByCqlConstraint())
-                .post(CSW_PATH.getUrl()).then();
+                .body(Library.getCswUpdateRemoveAttributesByCqlConstraint()).post(CSW_PATH.getUrl())
+                .then();
         validatableResponse
                 .body(hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("0")),
                         hasXPath("//TransactionResponse/TransactionSummary/totalInserted", is("0")),
@@ -645,8 +662,8 @@ public class TestCatalog extends AbstractIntegrationTest {
         response.body(hasXPath(xPath1));
 
         //revert to original configuration
-        configProps.put("permissionStrings", new String[] {
-                "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest"});
+        configProps.put("permissionStrings",
+                new String[] {"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest"});
         config.update(configProps);
         waitForAllBundles();
 
@@ -691,6 +708,172 @@ public class TestCatalog extends AbstractIntegrationTest {
     @Test
     public void persistObjectToWorkspace() throws Exception {
         persistToWorkspace(100);
+    }
+
+    @Test
+    public void testValidationEnforced() throws Exception {
+        getServiceManager().startFeature(true, "catalog-plugin-metacard-validation");
+
+        // Update metacardMarkerPlugin config with enforcedMetacardValidators
+        Configuration metacardMarker = configAdmin
+                .getConfiguration("ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin",
+                        null);
+        Dictionary<String, Object> properties = new Hashtable<>();
+        List<String> enforcedMetacardValidators = new ArrayList<>();
+        enforcedMetacardValidators.add("sample-validator");
+        properties.put("enforcedMetacardValidators", enforcedMetacardValidators);
+        metacardMarker.update(properties);
+
+        String id1 = ingestXmlFromResource("/metacard1.xml");
+        String id2 = ingestXmlFromResource("/metacard2.xml", false);
+
+        // Search for all entries, implicit "validation-warnings is null" and "validation-errors is null"
+        // should get added by MetacardValidityCheckerPlugin
+        String query = new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE, "AnyText", "*")
+                .getQuery();
+        ValidatableResponse response = given().header("Content-Type", MediaType.APPLICATION_XML)
+                .body(query).post(CSW_PATH.getUrl()).then();
+        // Assert Metacard1 is in results AND not Metacard2
+        response.body(hasXPath(
+                String.format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]", id1)));
+        response.body(not(hasXPath(
+                String.format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
+                        id2))));
+
+        // Search for all entries that have no validation warnings or errors
+        query = new CswQueryBuilder().addPropertyIsNullAttributeFilter(VALIDATION_WARNINGS)
+                .getQuery();
+        response = given().header("Content-Type", MediaType.APPLICATION_XML).body(query)
+                .post(CSW_PATH.getUrl()).then();
+        // Assert Metacard1 is in results AND not Metacard2
+        response.body(hasXPath(
+                String.format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]", id1)));
+        response.body(not(hasXPath(
+                String.format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
+                        id2))));
+
+        //Search for all entries that have validation-warnings from sample-validator or no validation warnings
+        //Only search that will actually return all entries
+
+        query = new CswQueryBuilder()
+                .addAttributeFilter(PROPERTY_IS_EQUAL_TO, VALIDATION_WARNINGS, "*")
+                .addPropertyIsNullAttributeFilter(VALIDATION_WARNINGS).addLogicalOperator(OR)
+                .getQuery();
+
+        response = given().header("Content-Type", MediaType.APPLICATION_XML).body(query)
+                .post(CSW_PATH.getUrl()).then();
+        // Assert Metacard1 and NOT metacard2 is in results
+        response.body(hasXPath(
+                String.format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]", id1)));
+        response.body(not(hasXPath(
+                String.format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
+                        id2))));
+
+        // Search for all metacards that have validation-warnings
+        query = new CswQueryBuilder()
+                .addAttributeFilter(PROPERTY_IS_EQUAL_TO, VALIDATION_WARNINGS, "*").getQuery();
+
+        response = given().header("Content-Type", MediaType.APPLICATION_XML).body(query)
+                .post(CSW_PATH.getUrl()).then();
+        // Assert Metacard1 and metacard2 are NOT in results
+        response.body(not(hasXPath(
+                String.format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
+                        id1))));
+        response.body(not(hasXPath(
+                String.format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
+                        id2))));
+
+        deleteMetacard(id1);
+        deleteMetacard(id2);
+        getServiceManager().stopFeature(true, "catalog-plugin-metacard-validation");
+
+    }
+
+    @Test
+    public void testValidationUnenforced() throws Exception {
+        getServiceManager().startFeature(true, "catalog-plugin-metacard-validation");
+
+        // Update metacardMarkerPlugin config with no enforcedMetacardValidators
+        Configuration metacardMarker = configAdmin
+                .getConfiguration("ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin",
+                        null);
+        Dictionary<String, Object> properties = new Hashtable<>();
+        List<String> enforcedMetacardValidators = new ArrayList<>();
+        enforcedMetacardValidators.add("");
+        properties.put("enforcedMetacardValidators", enforcedMetacardValidators);
+        metacardMarker.update(properties);
+
+        String id1 = ingestXmlFromResource("/metacard1.xml");
+        String id2 = ingestXmlFromResource("/metacard2.xml");
+
+        // Search for all entries, implicit "validation-warnings is null" and "validation-errors is null"
+        // should get added by MetacardValidityCheckerPlugin
+        String query = new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE, "AnyText", "*")
+                .getQuery();
+        ValidatableResponse response = given().header("Content-Type", MediaType.APPLICATION_XML)
+                .body(query).post(CSW_PATH.getUrl()).then();
+        // Assert Metacard1 is in results AND not Metacard2
+        response.body(hasXPath(
+                String.format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]", id1)));
+        response.body(not(hasXPath(
+                String.format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
+                        id2))));
+
+        // Search for all entries that have no validation warnings
+        query = new CswQueryBuilder().addPropertyIsNullAttributeFilter(VALIDATION_WARNINGS)
+                .getQuery();
+        response = given().header("Content-Type", MediaType.APPLICATION_XML).body(query)
+                .post(CSW_PATH.getUrl()).then();
+        // Assert Metacard1 is in results AND not Metacard2
+        response.body(hasXPath(
+                String.format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]", id1)));
+        response.body(not(hasXPath(
+                String.format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
+                        id2))));
+
+        //Search for all entries that have validation-warnings or no validation warnings
+        //Only search that will actually return all entries
+        query = new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE, VALIDATION_WARNINGS, "*")
+                .addPropertyIsNullAttributeFilter(VALIDATION_WARNINGS).addLogicalOperator(OR)
+                .getQuery();
+
+        response = given().header("Content-Type", MediaType.APPLICATION_XML).body(query)
+                .post(CSW_PATH.getUrl()).then();
+        // Assert Metacard2 is in results AND not Metacard1
+        response.body(hasXPath(
+                String.format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]", id1)));
+        response.body(hasXPath(
+                String.format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]", id2)));
+
+        // Search for all entries that are invalid
+        query = new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE, VALIDATION_WARNINGS, "*")
+                .getQuery();
+
+        response = given().header("Content-Type", MediaType.APPLICATION_XML).body(query)
+                .post(CSW_PATH.getUrl()).then();
+        // Assert Metacard2 is in results AND not Metacard1
+        response.body(hasXPath(
+                String.format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]", id2)));
+        response.body(not(hasXPath(
+                String.format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
+                        id1))));
+
+        query = new CswQueryBuilder().addPropertyIsNullAttributeFilter(VALIDATION_WARNINGS)
+                .addLogicalOperator(NOT).getQuery();
+
+        response = given().header("Content-Type", MediaType.APPLICATION_XML).body(query)
+                .post(CSW_PATH.getUrl()).then();
+        // Assert Metacard2 is in results AND not Metacard1
+        response.body(hasXPath(
+                String.format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]", id2)));
+        response.body(not(hasXPath(
+                String.format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
+                        id1))));
+
+        deleteMetacard(id1);
+        deleteMetacard(id2);
+        getServiceManager().stopFeature(true, "catalog-plugin-metacard-validation");
+
     }
 
     @Test
@@ -766,6 +949,17 @@ public class TestCatalog extends AbstractIntegrationTest {
         StringWriter writer = new StringWriter();
         IOUtils.copy(getClass().getResourceAsStream(resourceName), writer);
         return ingest(writer.toString(), "text/xml");
+    }
+
+    protected String ingestXmlFromResource(String resourceName, boolean checkResponse)
+            throws IOException {
+        if (checkResponse) {
+            return ingestXmlFromResource(resourceName);
+        } else {
+            StringWriter writer = new StringWriter();
+            IOUtils.copy(getClass().getResourceAsStream(resourceName), writer);
+            return ingest(writer.toString(), "text/xml", checkResponse);
+        }
     }
 
     public class PdpProperties extends HashMap<String, Object> {

@@ -32,10 +32,13 @@
              description="Catalog Filter Plugin for DDF">
         <bundle>mvn:ddf.catalog.security/catalog-security-filter/${project.version}</bundle>
     </feature>
-
     <feature name="sdk-rest" version="${project.version}" install="manual"
              description="SDK Sample rest service whoami">
         <bundle>mvn:ddf.distribution/sample-rest-endpoint/${project.version}</bundle>
+    </feature>
+    <feature name="sample-validator" version="${project.version}" install="manual"
+             description="SDK sample metacard validator">
+        <bundle>mvn:org.codice.ddf.sdk.validation.metacard/sdk-sample-metacard-validator/${project.version}</bundle>
     </feature>
 
     <feature name="sdk-app" version="${project.version}" description="SDK app.">
@@ -45,6 +48,7 @@
         <feature>security-pep-metacard-attributes</feature>
         <feature>sdk-soap</feature>
         <feature>sdk-rest</feature>
+        <feature>sample-validator</feature>
     </feature>
 
 </features>

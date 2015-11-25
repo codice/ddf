@@ -27,7 +27,6 @@ import ddf.catalog.data.MetacardType;
  * Constants for basic types, both {@link MetacardType} and {@link AttributeType}
  *
  * @author ddf.isgs@lmco.com
- *
  */
 public class BasicTypes {
 
@@ -95,6 +94,10 @@ public class BasicTypes {
      * A Constant for an {@link AttributeType} with {@link AttributeFormat#SHORT}.
      */
     public static final AttributeType<Short> SHORT_TYPE;
+
+    public static final String VALIDATION_WARNINGS = "validation-warnings";
+
+    public static final String VALIDATION_ERRORS = "validation-errors";
 
     static {
 
@@ -288,32 +291,42 @@ public class BasicTypes {
                 false /* tokenized */, false /* multivalued */, DATE_TYPE));
         descriptors.add(new AttributeDescriptorImpl(Metacard.CREATED, true /* indexed */, true /* stored */,
                 false /* tokenized */, false /* multivalued */, DATE_TYPE));
-        descriptors.add(new AttributeDescriptorImpl(Metacard.ID, true /* indexed */, true /* stored */,
-                false /* tokenized */, false /* multivalued */, STRING_TYPE));
+        descriptors
+                .add(new AttributeDescriptorImpl(Metacard.ID, true /* indexed */, true /* stored */,
+                        false /* tokenized */, false /* multivalued */, STRING_TYPE));
         descriptors.add(new AttributeDescriptorImpl(Metacard.TITLE, true /* indexed */, true /* stored */,
                 true /* tokenized */, false /* multivalued */, STRING_TYPE));
-        descriptors.add(new AttributeDescriptorImpl(Metacard.POINT_OF_CONTACT, true /* indexed */, true /* stored */,
-                false /* tokenized */, false /* multivalued */, STRING_TYPE));
+        descriptors
+                .add(new AttributeDescriptorImpl(Metacard.POINT_OF_CONTACT, true /* indexed */, true /* stored */,
+                        false /* tokenized */, false /* multivalued */, STRING_TYPE));
         descriptors.add(new AttributeDescriptorImpl(Metacard.CONTENT_TYPE, true /* indexed */, true /* stored */,
                 false /* tokenized */, false /* multivalued */, STRING_TYPE));
-        descriptors.add(new AttributeDescriptorImpl(Metacard.CONTENT_TYPE_VERSION, true /* indexed */,
-                true /* stored */, false /* tokenized */, false /* multivalued */, STRING_TYPE));
-        descriptors.add(new AttributeDescriptorImpl(Metacard.TARGET_NAMESPACE, true /* indexed */, true /* stored */,
-                false /* tokenized */, false /* multivalued */, STRING_TYPE));
+        descriptors
+                .add(new AttributeDescriptorImpl(Metacard.CONTENT_TYPE_VERSION, true /* indexed */,
+                        true /* stored */, false /* tokenized */, false /* multivalued */,
+                        STRING_TYPE));
+        descriptors
+                .add(new AttributeDescriptorImpl(Metacard.TARGET_NAMESPACE, true /* indexed */, true /* stored */,
+                        false /* tokenized */, false /* multivalued */, STRING_TYPE));
         descriptors.add(new AttributeDescriptorImpl(Metacard.METADATA, true /* indexed */, true /* stored */,
                 false /* tokenized */, false /* multivalued */, XML_TYPE));
         descriptors.add(new AttributeDescriptorImpl(Metacard.RESOURCE_URI, true /* indexed */, true /* stored */,
                 false /* tokenized */, false /* multivalued */, STRING_TYPE));
         descriptors.add(new AttributeDescriptorImpl(Metacard.RESOURCE_DOWNLOAD_URL, false /* indexed */,
                 false /* stored */, false /* tokenized */, false /* multivalued */, STRING_TYPE));
-        descriptors.add(new AttributeDescriptorImpl(Metacard.RESOURCE_SIZE, false /* indexed */, true /* stored */,
-                false /* tokenized */, false /* multivalued */, STRING_TYPE));
+        descriptors
+                .add(new AttributeDescriptorImpl(Metacard.RESOURCE_SIZE, false /* indexed */, true /* stored */,
+                        false /* tokenized */, false /* multivalued */, STRING_TYPE));
         descriptors.add(new AttributeDescriptorImpl(Metacard.THUMBNAIL, false /* indexed */, true /* stored */,
                 false /* tokenized */, false /* multivalued */, BINARY_TYPE));
         descriptors.add(new AttributeDescriptorImpl(Metacard.GEOGRAPHY, true /* indexed */, true /* stored */,
                 false /* tokenized */, false /* multivalued */, GEO_TYPE));
         descriptors.add(new AttributeDescriptorImpl(Metacard.DESCRIPTION, true /* indexed */, true /* stored */,
                 false /* tokenized */, false /* multivalued */, STRING_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(VALIDATION_WARNINGS, true /* indexed */, true /* stored */,
+                false /* tokenized */, true /* multivalued */, STRING_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(VALIDATION_ERRORS, true /* indexed */, true /* stored */,
+                false /* tokenized */, true /* multivalued */, STRING_TYPE));
 
         basic = new MetacardTypeImpl(MetacardType.DEFAULT_METACARD_TYPE_NAME, descriptors);
 

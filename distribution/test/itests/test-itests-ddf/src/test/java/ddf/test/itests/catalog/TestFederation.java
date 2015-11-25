@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
+import org.hamcrest.Matcher;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -49,6 +50,7 @@ import com.jayway.restassured.http.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.common.test.BeforeExam;
 import ddf.test.itests.AbstractIntegrationTest;
+import ddf.test.itests.common.CswQueryBuilder;
 import ddf.test.itests.common.Library;
 import ddf.test.itests.common.UrlResourceReaderConfigurator;
 
@@ -103,8 +105,8 @@ public class TestFederation extends AbstractIntegrationTest {
 
         OpenSearchSourceProperties openSearchProperties = new OpenSearchSourceProperties(
                 OPENSEARCH_SOURCE_ID);
-        getServiceManager().createManagedService(OpenSearchSourceProperties.FACTORY_PID, openSearchProperties);
-
+        getServiceManager()
+                .createManagedService(OpenSearchSourceProperties.FACTORY_PID, openSearchProperties);
 
         getServiceManager().waitForHttpEndpoint(CSW_PATH + "?_wadl");
         get(CSW_PATH + "?_wadl").prettyPrint();
@@ -120,8 +122,8 @@ public class TestFederation extends AbstractIntegrationTest {
         getCatalogBundle().waitForFederatedSource(CSW_SOURCE_ID);
         getCatalogBundle().waitForFederatedSource(CSW_SOURCE_WITH_METACARD_XML_ID);
 
-        getServiceManager().waitForSourcesToBeAvailable(REST_PATH.getUrl(), OPENSEARCH_SOURCE_ID, CSW_SOURCE_ID,
-                CSW_SOURCE_WITH_METACARD_XML_ID);
+        getServiceManager().waitForSourcesToBeAvailable(REST_PATH.getUrl(), OPENSEARCH_SOURCE_ID,
+                CSW_SOURCE_ID, CSW_SOURCE_WITH_METACARD_XML_ID);
 
         metacardIds[GEOJSON_RECORD_INDEX] = TestCatalog
                 .ingest(Library.getSimpleGeoJson(), "application/json");
@@ -165,16 +167,13 @@ public class TestFederation extends AbstractIntegrationTest {
      */
     @Test
     public void testFederatedQueryByWildCardSearchPhrase() throws Exception {
-        String queryUrl =
-                OPENSEARCH_PATH.getUrl() + "?q=*&format=xml&src=" + OPENSEARCH_SOURCE_ID;
+        String queryUrl = OPENSEARCH_PATH.getUrl() + "?q=*&format=xml&src=" + OPENSEARCH_SOURCE_ID;
 
-        when().get(queryUrl).then().log().all().assertThat()
-                .body(hasXPath("/metacards/metacard/string[@name='" + Metacard.TITLE
-                                + "']/value[text()='" + RECORD_TITLE_1 + "']"),
-                        hasXPath("/metacards/metacard/geometry/value"), hasXPath(
-                                "/metacards/metacard/string[@name='" + Metacard.TITLE
-                                        + "']/value[text()='" + RECORD_TITLE_2 + "']"),
-                        hasXPath("/metacards/metacard/stringxml"));
+        when().get(queryUrl).then().log().all().assertThat().body(hasXPath(
+                "/metacards/metacard/string[@name='" + Metacard.TITLE + "']/value[text()='"
+                        + RECORD_TITLE_1 + "']"), hasXPath("/metacards/metacard/geometry/value"),
+                hasXPath("/metacards/metacard/string[@name='" + Metacard.TITLE + "']/value[text()='"
+                        + RECORD_TITLE_2 + "']"), hasXPath("/metacards/metacard/stringxml"));
     }
 
     /**
@@ -185,8 +184,7 @@ public class TestFederation extends AbstractIntegrationTest {
      */
     @Test
     public void testAtomFederatedQueryByWildCardSearchPhrase() throws Exception {
-        String queryUrl =
-                OPENSEARCH_PATH.getUrl() + "?q=*&format=atom&src=" + OPENSEARCH_SOURCE_ID;
+        String queryUrl = OPENSEARCH_PATH.getUrl() + "?q=*&format=atom&src=" + OPENSEARCH_SOURCE_ID;
 
         when().get(queryUrl).then().log().all().assertThat()
                 .body(hasXPath("/feed/entry/title[text()='" + RECORD_TITLE_1 + "']"),
@@ -202,9 +200,8 @@ public class TestFederation extends AbstractIntegrationTest {
      */
     @Test
     public void testFederatedQueryBySearchPhrase() throws Exception {
-        String queryUrl =
-                OPENSEARCH_PATH.getUrl() + "?q=" + DEFAULT_KEYWORD + "&format=xml&src="
-                        + OPENSEARCH_SOURCE_ID;
+        String queryUrl = OPENSEARCH_PATH.getUrl() + "?q=" + DEFAULT_KEYWORD + "&format=xml&src="
+                + OPENSEARCH_SOURCE_ID;
 
         when().get(queryUrl).then().log().all().assertThat().body(hasXPath(
                 "/metacards/metacard/string[@name='" + Metacard.TITLE + "']/value[text()='"
@@ -237,9 +234,9 @@ public class TestFederation extends AbstractIntegrationTest {
      */
     @Test
     public void testFederatedNegativeSpatial() throws Exception {
-        String queryUrl = OPENSEARCH_PATH.getUrl()
-                + "?lat=-10.0&lon=-30.0&radius=1&spatialType=POINT_RADIUS" + "&format=xml&src="
-                + OPENSEARCH_SOURCE_ID;
+        String queryUrl =
+                OPENSEARCH_PATH.getUrl() + "?lat=-10.0&lon=-30.0&radius=1&spatialType=POINT_RADIUS"
+                        + "&format=xml&src=" + OPENSEARCH_SOURCE_ID;
         when().get(queryUrl).then().log().all().assertThat()
                 .body(not(containsString(RECORD_TITLE_1)), not(containsString(RECORD_TITLE_2)));
     }
@@ -294,9 +291,8 @@ public class TestFederation extends AbstractIntegrationTest {
         urlResourceReaderConfigurator.setUrlResourceReaderRootDirs(
                 new String[] {DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS, productDirectory});
 
-        String restUrl =
-                REST_PATH.getUrl() + "sources/" + OPENSEARCH_SOURCE_ID + "/" + metacardId
-                        + "?transform=resource";
+        String restUrl = REST_PATH.getUrl() + "sources/" + OPENSEARCH_SOURCE_ID + "/" + metacardId
+                + "?transform=resource";
 
         // Perform Test and Verify
         when().get(restUrl).then().log().all().assertThat().contentType("text/plain")
@@ -318,9 +314,8 @@ public class TestFederation extends AbstractIntegrationTest {
         urlResourceReaderConfigurator.setUrlResourceReaderRootDirs(
                 new String[] {DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS});
 
-        String restUrl =
-                REST_PATH.getUrl() + "sources/" + OPENSEARCH_SOURCE_ID + "/" + metacardId
-                        + "?transform=resource";
+        String restUrl = REST_PATH.getUrl() + "sources/" + OPENSEARCH_SOURCE_ID + "/" + metacardId
+                + "?transform=resource";
 
         // Perform Test and Verify
         when().get(restUrl).then().log().all().assertThat().contentType("text/html")
@@ -330,18 +325,18 @@ public class TestFederation extends AbstractIntegrationTest {
     /**
      * Tests Source CANNOT retrieve existing product. The product is NOT located in one of the
      * URLResourceReader's root resource directories, so it CANNOT be downloaded.
-     * <p/>
+     * <p>
      * For example:
      * The resource uri in the metacard is:
      * file:/Users/andrewreynolds/projects/ddf-projects/ddf/distribution/test/itests/test-itests-ddf/target/exam/e59b02bf-5774-489f-8aa9-53cf99c25d25/../../testFederatedRetrieveProductInvalidResourceUrlWithBackReferences.txt
      * which really means:
      * file:/Users/andrewreynolds/projects/ddf-projects/ddf/distribution/test/itests/test-itests-ddf/target/testFederatedRetrieveProductInvalidResourceUrlWithBackReferences.txt
-     * <p/>
+     * <p>
      * The URLResourceReader's root resource directories are:
      * <ddf.home>/data/products
      * and
      * /Users/andrewreynolds/projects/ddf-projects/ddf/distribution/test/itests/test-itests-ddf/target/exam/e59b02bf-5774-489f-8aa9-53cf99c25d25
-     * <p/>
+     * <p>
      * So the product (/Users/andrewreynolds/projects/ddf-projects/ddf/distribution/test/itests/test-itests-ddf/target/testFederatedRetrieveProductInvalidResourceUrlWithBackReferences.txt) is
      * not located under either of the URLResourceReader's root resource directories.
      *
@@ -362,9 +357,8 @@ public class TestFederation extends AbstractIntegrationTest {
         urlResourceReaderConfigurator.setUrlResourceReaderRootDirs(
                 new String[] {DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS, productDirectory});
 
-        String restUrl =
-                REST_PATH.getUrl() + "sources/" + OPENSEARCH_SOURCE_ID + "/" + metacardId
-                        + "?transform=resource";
+        String restUrl = REST_PATH.getUrl() + "sources/" + OPENSEARCH_SOURCE_ID + "/" + metacardId
+                + "?transform=resource";
 
         // Perform Test and Verify
         when().get(restUrl).then().log().all().assertThat().contentType("text/html")
@@ -378,9 +372,8 @@ public class TestFederation extends AbstractIntegrationTest {
         urlResourceReaderConfigurator.setUrlResourceReaderRootDirs(
                 new String[] {DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS, productDirectory});
 
-        String restUrl =
-                REST_PATH.getUrl() + "sources/" + CSW_SOURCE_ID + "/" + metacardIds[XML_RECORD_INDEX]
-                        + "?transform=resource";
+        String restUrl = REST_PATH.getUrl() + "sources/" + CSW_SOURCE_ID + "/"
+                + metacardIds[XML_RECORD_INDEX] + "?transform=resource";
         when().get(restUrl).then().log().all().assertThat().contentType("text/plain")
                 .body(is(SAMPLE_DATA));
     }
@@ -429,13 +422,46 @@ public class TestFederation extends AbstractIntegrationTest {
     }
 
     @Test
+    public void testCswQueryWithValidationCheckerPlugin() throws Exception {
+
+        // Construct a query to search for all metacards
+        String query = new CswQueryBuilder()
+                .addAttributeFilter(CswQueryBuilder.PROPERTY_IS_LIKE, "AnyText", "*").getQuery();
+
+        // Declare array of matchers so we can be sure we use the same matchers in each assertion
+        Matcher[] assertion = new Matcher[] {
+                hasXPath("/GetRecordsResponse/SearchResults/Record/identifier[text()='" +
+                        metacardIds[GEOJSON_RECORD_INDEX] + "']"),
+                hasXPath("/GetRecordsResponse/SearchResults/Record/identifier[text()='" +
+                        metacardIds[XML_RECORD_INDEX] + "']"),
+                hasXPath("/GetRecordsResponse/SearchResults/@numberOfRecordsReturned", is("2")),
+                hasXPath("/GetRecordsResponse/SearchResults/Record/relation",
+                        containsString("/services/catalog/sources/"))};
+
+        // Run a normal federated query to the CSW source and assert response
+        given().contentType(ContentType.XML).body(query).when().post(CSW_PATH.getUrl()).then().log()
+                .all().assertThat().body(assertion[0], assertion);
+
+        // Start metacard validation plugin; this will add on [validation-warnings = null] AND [validation-errors = null]
+        // filter to query
+        getServiceManager().startFeature(true, "catalog-plugin-metacard-validation");
+
+        // Assert that response is the same as without the plugin
+        given().contentType(ContentType.XML).body(query).when().post(CSW_PATH.getUrl()).then().log()
+                .all().assertThat().body(assertion[0], assertion);
+
+        // Turn off plugin to not interfere with other tests
+        getServiceManager().stopFeature(true, "catalog-plugin-metacard-validation");
+    }
+
+    @Test
     public void testCswQueryByTitle() throws Exception {
         String titleQuery = Library.getCswQuery("title", "myTitle");
 
-        given().contentType(ContentType.XML).body(titleQuery).when().post(CSW_PATH.getUrl())
-                .then().log().all().assertThat()
+        given().contentType(ContentType.XML).body(titleQuery).when().post(CSW_PATH.getUrl()).then()
+                .log().all().assertThat()
                 .body(hasXPath("/GetRecordsResponse/SearchResults/Record/identifier",
-                                is(metacardIds[GEOJSON_RECORD_INDEX])),
+                        is(metacardIds[GEOJSON_RECORD_INDEX])),
                         hasXPath("/GetRecordsResponse/SearchResults/@numberOfRecordsReturned",
                                 is("1")));
     }
@@ -444,10 +470,10 @@ public class TestFederation extends AbstractIntegrationTest {
     public void testCswQueryForMetacardXml() throws Exception {
         String titleQuery = Library.getCswQueryMetacardXml("title", "myTitle");
 
-        given().contentType(ContentType.XML).body(titleQuery).when().post(CSW_PATH.getUrl())
-                .then().log().all().assertThat()
+        given().contentType(ContentType.XML).body(titleQuery).when().post(CSW_PATH.getUrl()).then()
+                .log().all().assertThat()
                 .body(hasXPath("/GetRecordsResponse/SearchResults/metacard/@id",
-                                is(metacardIds[GEOJSON_RECORD_INDEX])),
+                        is(metacardIds[GEOJSON_RECORD_INDEX])),
                         hasXPath("/GetRecordsResponse/SearchResults/@numberOfRecordsReturned",
                                 is("1")),
                         hasXPath("/GetRecordsResponse/SearchResults/@recordSchema",
@@ -458,7 +484,8 @@ public class TestFederation extends AbstractIntegrationTest {
     public void testCswQueryForJson() throws Exception {
         String titleQuery = Library.getCswQueryJson("title", "myTitle");
 
-        given().headers("Accept", "application/json", "Content-Type", "application/xml").body(titleQuery).when().post(CSW_PATH.getUrl()).then().log().all().assertThat()
+        given().headers("Accept", "application/json", "Content-Type", "application/xml")
+                .body(titleQuery).when().post(CSW_PATH.getUrl()).then().log().all().assertThat()
                 .contentType(ContentType.JSON)
                 .body("results[0].metacard.properties.title", equalTo(RECORD_TITLE_1));
     }
@@ -466,9 +493,8 @@ public class TestFederation extends AbstractIntegrationTest {
     @Test
     public void testOpensearchToCswSourceToCswEndpointQuerywithCswRecordXml() throws Exception {
 
-        String queryUrl =
-                OPENSEARCH_PATH.getUrl() + "?q=" + DEFAULT_KEYWORD + "&format=xml&src="
-                        + CSW_SOURCE_ID;
+        String queryUrl = OPENSEARCH_PATH.getUrl() + "?q=" + DEFAULT_KEYWORD + "&format=xml&src="
+                + CSW_SOURCE_ID;
 
         when().get(queryUrl).then().log().all().assertThat()
                 .body(containsString(RECORD_TITLE_1), containsString(RECORD_TITLE_2), hasXPath(
@@ -480,9 +506,8 @@ public class TestFederation extends AbstractIntegrationTest {
     @Test
     public void testOpensearchToCswSourceToCswEndpointQuerywithMetacardXml() throws Exception {
 
-        String queryUrl =
-                OPENSEARCH_PATH.getUrl() + "?q=" + DEFAULT_KEYWORD + "&format=xml&src="
-                        + CSW_SOURCE_WITH_METACARD_XML_ID;
+        String queryUrl = OPENSEARCH_PATH.getUrl() + "?q=" + DEFAULT_KEYWORD + "&format=xml&src="
+                + CSW_SOURCE_WITH_METACARD_XML_ID;
 
         when().get(queryUrl).then().log().all().assertThat()
                 .body(containsString(RECORD_TITLE_1), containsString(RECORD_TITLE_2), hasXPath(
@@ -503,10 +528,9 @@ public class TestFederation extends AbstractIntegrationTest {
         }
         */
 
-        given().auth().basic("admin", "admin").when().get(ADMIN_ALL_SOURCES_PATH.getUrl())
-                .then().log().all().assertThat()
-                .body(containsString("\"fpid\":\"OpenSearchSource\""),
-                        containsString("\"fpid\":\"Csw_Federated_Source\"")/*,
+        given().auth().basic("admin", "admin").when().get(ADMIN_ALL_SOURCES_PATH.getUrl()).then()
+                .log().all().assertThat().body(containsString("\"fpid\":\"OpenSearchSource\""),
+                containsString("\"fpid\":\"Csw_Federated_Source\"")/*,
                 containsString("\"fpid\":\"Csw_Connected_Source\"")*/);
     }
 

@@ -90,7 +90,7 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>common-system</Embed-Dependency>
                         <Export-Package>
-                            ddf.catalog*;version=2.0.12
+                            ddf.catalog*
                         </Export-Package>
                     </instructions>
                 </configuration>
