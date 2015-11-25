@@ -35,6 +35,9 @@
         <property name="httpSessionFactory">
             <reference interface="ddf.security.http.SessionFactory" filter="(id=http)"/>
         </property>
+        <property name="encryptionService">
+            <reference interface="ddf.security.encryption.EncryptionService"/>
+        </property>
     </bean>
 
     <jaxrs:server id="restService" address="/logout">

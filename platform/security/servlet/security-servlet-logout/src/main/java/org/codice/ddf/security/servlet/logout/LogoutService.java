@@ -37,8 +37,8 @@ import ddf.action.ActionProvider;
 import ddf.security.SecurityConstants;
 import ddf.security.assertion.impl.SecurityAssertionImpl;
 import ddf.security.common.util.SecurityTokenHolder;
+import ddf.security.encryption.EncryptionService;
 import ddf.security.http.SessionFactory;
-
 
 @Path("/")
 public class LogoutService {
@@ -48,50 +48,62 @@ public class LogoutService {
 
     private SessionFactory httpSessionFactory;
 
-    public void setHttpSessionFactory(SessionFactory httpSessionFactory) {
-        this.httpSessionFactory = httpSessionFactory;
-    }
+    private EncryptionService encryptionService;
 
     @GET
     @Path("/actions")
     public Response getActionProviders(@Context HttpServletRequest request) {
 
-        //TODO Filter from greatest to least using ranks
         //TODO: Update docs for idp realm changes
         // ((SecurityTokenHolder) session.getAttribute(SecurityConstants.SAML_ASSERTION)) -> get realm to token list -> SecurityAssertionImpl -> getPrincipal -> SubjectUtils.getName
-       //pass securityToken to SecurityAssertionImpl -> getPrincipcal instead ->
-        Response response;
-        List<Map<String, String>> realmsAndActions = new ArrayList<>();
-        Map<String, SecurityToken> realmTokenMap;
-
+        //pass securityToken to SecurityAssertionImpl -> getPrincipcal instead ->
         HttpSession session = httpSessionFactory.getOrCreateSession(request);
+        Map<String, SecurityToken> realmTokenMap = ((SecurityTokenHolder) session.getAttribute(SecurityConstants.SAML_ASSERTION)).getRealmTokenMap();
+        List<Map<String, String>> realmToAuthMaps = new ArrayList<>();
 
-
-        realmTokenMap = ((SecurityTokenHolder) session
-                .getAttribute(SecurityConstants.SAML_ASSERTION)).getRealmTokenMap();
-
+        //create maps for realm -> auths
         for (String realm : realmTokenMap.keySet()) {
-            Map<String, String> realmToNameMap = new HashMap<>();
-
-            realmToNameMap.put(realm,    new SecurityAssertionImpl(realmTokenMap.get(realm)).getPrincipal().getName());
-            realmsAndActions.add(realmToNameMap);
+            Map<String, String> realmToAuth = new HashMap<>();
+            realmToAuth.put(realm, new SecurityAssertionImpl(realmTokenMap.get(realm)).getPrincipal().getName());
+            realmToAuthMaps.add(realmToAuth);
         }
+
+        List<Map<String, String>> realmToPropMaps = new ArrayList<>();
 
         for (ActionProvider actionProvider : logoutActionProviders) {
-            Action action = actionProvider.getAction(null);
-            Map<String, String> actionProperties = new HashMap<String, String>();
-            actionProperties.put("title", action.getTitle());
-            actionProperties.put("id", action.getId());
-            actionProperties.put("description", action.getDescription());
-            actionProperties.put("url", action.getUrl().toString());
+            Action action = actionProvider.getAction(request);
+            String realm = action.getId().substring(action.getId().lastIndexOf(".") + 1);
 
-            realmsAndActions.add(actionProperties);
+            if(!getRealmAuth(realmToAuthMaps, realm).contains("Anonymous")) {
+                Map<String, String> actionProperties = new HashMap<String, String>();
+                actionProperties.put("title", action.getTitle());
+                actionProperties.put("realm", realm);
+                actionProperties.put("auth", getRealmAuth(realmToAuthMaps, realm));
+                actionProperties.put("description", action.getDescription());
+                actionProperties.put("url", action.getUrl().toString());
+                realmToPropMaps.add(actionProperties);
+            }
         }
 
-        String configString = toJson(realmsAndActions);
-        response = Response.ok(new ByteArrayInputStream(configString.getBytes())).build();
+        return Response.ok(new ByteArrayInputStream(toJson(realmToPropMaps).getBytes())).build();
 
-        return response;
+    }
+
+    public String getRealmAuth(List<Map<String, String>> realmToAuthMaps, String realm) {
+        for (Map<String, String> realmToAuthMap : realmToAuthMaps) {
+            if (realmToAuthMap.get(realm) != null) {
+                return realmToAuthMap.get(realm);
+            }
+        }
+        return null;
+    }
+
+    public void setHttpSessionFactory(SessionFactory httpSessionFactory) {
+        this.httpSessionFactory = httpSessionFactory;
+    }
+
+    public void setEncryptionService(EncryptionService encryptionService) {
+        this.encryptionService = encryptionService;
     }
 
     public void setLogoutActionProviders(List<ActionProvider> logoutActionProviders) {

@@ -49,7 +49,7 @@ public class LocalLogoutServlet extends HttpServlet {
         //A user would most likely never see this as they will be redirected to some other
         //login page by a filter or just returned back to the same screen they were already viewing
         response.getWriter()
-                .print("You have successfully logged out. Please close your browser or tab.");
+                .print("You have successfully logged out.");
 
         response.getWriter().close();
     }

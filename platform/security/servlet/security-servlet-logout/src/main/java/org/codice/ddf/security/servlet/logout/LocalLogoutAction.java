@@ -17,6 +17,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import org.codice.ddf.configuration.SystemBaseUrl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.action.Action;
 import ddf.action.ActionProvider;
@@ -26,6 +28,8 @@ import ddf.action.impl.ActionImpl;
  * Created by tbatie on 11/16/15.
  */
 public class LocalLogoutAction implements ActionProvider {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(LocalLogoutAction.class);
 
     private static final String ID = "security.logout.karaf";
 
@@ -39,13 +43,12 @@ public class LocalLogoutAction implements ActionProvider {
         try {
             logoutUrl = new URL(new SystemBaseUrl().constructUrl("/logout/local"));
         } catch (MalformedURLException e) {
-            //TODO: Handle exception from invalid URL
+            LOGGER.info("Unable to resolve URL: {}", new SystemBaseUrl().constructUrl("/logout/local"));
         }
     }
 
     @Override
     public <T> Action getAction(T subject) {
-        //TODO exception handling if subject is not of HttpSession
         return new ActionImpl(ID, TITLE, DESCRIPTION, logoutUrl);
     }
 

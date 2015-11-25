@@ -16,24 +16,27 @@ $(function () {
 
 $.get("/services/logout/actions", function (data) {
     console.log(data);
-    var actions = JSON.parse(data);
 
+    var actions = JSON.parse(data);
+    if (actions.length === 0) {
+        $('<h2>').text('You are not currently logged in.').appendTo('#logouts');
+    }
     var logoutDivs = actions.map(function (action) {
-        var div = $('<div>');
+        var div = $('<div class="logout-div">');
+        $('<h2>').text('Logged in as ' + action.auth + " in " + action.realm).appendTo(div);
+        $('<hr>').appendTo(div);
         var iFrame = $('<iframe>').appendTo(div);
-        var button = $('<button>')
+       $('<p>').text('Description: ' + action.description).appendTo(div);
+        var button = $('<button class="btn logout-btn">')
             .html(action.title)
             .attr('title', action.description)
             .click(function () {
                 iFrame.attr('src', action.url).appendTo(div);
                 button.remove();
             });
-        return div;
+         div.append(button);
+         $('#logouts').append(div);
     });
-
-    $('#logouts').append(logoutDivs);
-
-    $('#logouts').append(test);
 
     /*if (logoutDivs.length === 1) {
         logoutDivs[0].find('button').click();
