@@ -18,7 +18,6 @@ import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -736,8 +735,8 @@ public class IdpEndpoint implements Idp {
     }
 
     private Response processLogout(final HttpServletRequest request, final String samlRequest,
-            String relayState, Binding binding, BiConsumer<String, SignableSAMLObject> signatureValidator)
-            throws IdpException {
+            String relayState, Binding binding,
+            BiConsumer<String, SignableSAMLObject> signatureValidator) throws IdpException {
         // TODO (RCZ) - Make sure to validate time within restraint + latency
         // TODO (RCZ) - validate entity id exists in sps
         // TODO (RCZ) - if present, destination must match
@@ -763,14 +762,8 @@ public class IdpEndpoint implements Idp {
             } else if (logoutObject instanceof LogoutResponse) {
                 // LogoutResponse is one of the SP's responding to the logout request
                 LogoutResponse logoutResponse = ((LogoutResponse) logoutObject);
-                validateGetLogoutObject(logoutResponse,
-                        samlRequest,
-                        logoutResponse.getIssuer()
-                                .getValue(),
-                        relayState,
-                        signatureAlgorithm,
-                        signature,
-                        strictSignature);
+                signatureValidator.accept(logoutResponse.getIssuer()
+                        .getValue(), logoutObject);
                 return handleLogoutResponse(cookie, logoutState, (LogoutResponse) logoutObject);
 
             } else { // Unsupported object type
@@ -780,10 +773,6 @@ public class IdpEndpoint implements Idp {
             }
         } catch (XMLStreamException e) {
             LOGGER.error("Unable to extract Saml object", e);
-        } catch (SimpleSign.SignatureException e) {
-            // TODO (RCZ) - exception
-        } catch (ValidationException e) {
-            // TODO (RCZ) - exception
         } catch (WSSecurityException e) {
             // TODO (RCZ) - exception
         }
@@ -940,83 +929,6 @@ public class IdpEndpoint implements Idp {
         return descriptor.getSingleLogoutServices()
                 .stream()
                 .anyMatch(sls -> binding.equals(sls.getBinding()));
-    }
-
-    public void validateGetLogoutObject(SignableSAMLObject samlObject, String samlRequest,
-            String issuer, String relayState, String signatureAlgorithm, String signature,
-            boolean strictSignature) throws SimpleSign.SignatureException, ValidationException {
-        LOGGER.debug("Validating AuthnRequest required attributes and signature");
-        if (strictSignature) {
-            if (!isEmpty(signature) && !isEmpty(signatureAlgorithm)) {
-                String signedParts;
-                try {
-                    signedParts = String.format("SAMLRequest=%s&RelayState=%s&SigAlg=%s",
-                            URLEncoder.encode(samlRequest, "UTF-8"),
-                            relayState,
-                            URLEncoder.encode(signatureAlgorithm, "UTF-8"));
-                } catch (UnsupportedEncodingException e) {
-                    throw new SimpleSign.SignatureException(
-                            "Unable to construct signed query parts.",
-                            e);
-                }
-                EntityDescriptor entityDescriptor = serviceProviders.get(issuer);
-                SPSSODescriptor spssoDescriptor =
-                        entityDescriptor.getSPSSODescriptor(SamlProtocol.SUPPORTED_PROTOCOL);
-                String encryptionCertificate = null;
-                String signingCertificate = null;
-                if (spssoDescriptor != null) {
-                    for (KeyDescriptor key : spssoDescriptor.getKeyDescriptors()) {
-                        String certificate = null;
-                        if (hasCertificate(key)) {
-                            certificate = key.getKeyInfo()
-                                    .getX509Datas()
-                                    .get(0)
-                                    .getX509Certificates()
-                                    .get(0)
-                                    .getValue();
-                        }
-                        if (StringUtils.isBlank(certificate)) {
-                            break;
-                        }
-
-                        if (UsageType.UNSPECIFIED.equals(key.getUse())) {
-                            encryptionCertificate = certificate;
-                            signingCertificate = certificate;
-                        }
-
-                        if (UsageType.ENCRYPTION.equals(key.getUse())) {
-                            encryptionCertificate = certificate;
-                        }
-
-                        if (UsageType.SIGNING.equals(key.getUse())) {
-                            signingCertificate = certificate;
-                        }
-                    }
-                    if (signingCertificate == null) {
-                        throw new ValidationException(
-                                "Unable to find signing certificate in metadata. Please check metadata.");
-                    }
-                } else {
-                    throw new ValidationException(
-                            "Unable to find supported protocol in metadata SPSSODescriptors.");
-                }
-                boolean result = new SimpleSign(systemCrypto).validateSignature(signedParts,
-                        signature,
-                        signingCertificate);
-                if (!result) {
-                    throw new ValidationException(
-                            "Signature verification failed for redirect binding.");
-                }
-            } else {
-                throw new SimpleSign.SignatureException("No signature present for AuthnRequest.");
-            }
-        }
-
-        if (strictSignature && issuer != null && (samlObject.getSignature() == null
-                && signature == null)) {
-            throw new IllegalArgumentException(
-                    "Invalid LogoutRequest, contained no identifying signature.");
-        }
     }
 
     public void setSecurityManager(SecurityManager securityManager) {
