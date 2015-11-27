@@ -25,7 +25,7 @@ import org.opensaml.saml2.metadata.SPSSODescriptor;
 public class LogoutState {
     private String initialRelayState;
 
-    private final Set<SPSSODescriptor> spDescriptors;
+    private final Set<String> spDescriptors;
 
     private String originalIssuer;
 
@@ -33,16 +33,18 @@ public class LogoutState {
 
     private String originalRequestId;
 
-    public LogoutState(Set<SPSSODescriptor> spDescriptors) {
+    private boolean partialLogout = false;
+
+    public LogoutState(Set<String> spDescriptors) {
         this.spDescriptors = Collections.synchronizedSet(spDescriptors);
     }
 
-    public synchronized void removeSpDescriptor(SPSSODescriptor descriptor) {
+    public synchronized void removeSpDescriptor(String descriptor) {
         spDescriptors.remove(descriptor);
     }
 
-    public synchronized Optional<SPSSODescriptor> getNextTarget() {
-        Optional<SPSSODescriptor> item =  spDescriptors.stream()
+    public synchronized Optional<String> getNextTarget() {
+        Optional<String> item =  spDescriptors.stream()
                 .findFirst();
 
         if (item.isPresent()) {
@@ -51,14 +53,6 @@ public class LogoutState {
         return item;
     }
 
-    /**
-     * Get the remaining SP Descriptors still needing to be logged out
-     *
-     * @return An unmodifiable copy of the descriptors
-     */
-    /*public Set<SPSSODescriptor> getSpDescriptors() {
-        return Collections.unmodifiableSet(new HashSet<>(spDescriptors));
-    }*/
     public String getInitialRelayState() {
         return initialRelayState;
     }
@@ -89,5 +83,13 @@ public class LogoutState {
 
     public String getOriginalRequestId() {
         return originalRequestId;
+    }
+
+    public boolean isPartialLogout() {
+        return partialLogout;
+    }
+
+    public void setPartialLogout(boolean partialLogout) {
+        this.partialLogout = partialLogout;
     }
 }

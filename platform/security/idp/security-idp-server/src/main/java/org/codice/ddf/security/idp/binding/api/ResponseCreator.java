@@ -28,6 +28,7 @@ import org.opensaml.saml2.metadata.SPSSODescriptor;
 
 import ddf.security.samlp.SamlProtocol;
 import ddf.security.samlp.SimpleSign;
+import ddf.security.samlp.impl.EntityInformation;
 
 /**
  * Creates a SAML 2 Web SSO Response.
@@ -61,31 +62,11 @@ public interface ResponseCreator {
      * @return String
      */
     static String getAssertionConsumerServiceBinding(AuthnRequest authnRequest,
-            Map<String, EntityDescriptor> serviceProviders) {
+            Map<String, EntityInformation> serviceProviders) {
         if (authnRequest.getProtocolBinding() != null) {
             return authnRequest.getProtocolBinding();
         }
-        EntityDescriptor entityDescriptor = serviceProviders.get(authnRequest.getIssuer()
-                .getValue());
-        SPSSODescriptor spssoDescriptor = entityDescriptor.getSPSSODescriptor(
-                SamlProtocol.SUPPORTED_PROTOCOL);
-        AssertionConsumerService defaultAssertionConsumerService = spssoDescriptor.getDefaultAssertionConsumerService();
-        //see if the default service uses our supported bindings, and then use that
-        //as we add more bindings, we'll need to update this
-        if (defaultAssertionConsumerService.getBinding()
-                .equals(Idp.HTTP_POST_BINDING) || defaultAssertionConsumerService.getBinding()
-                .equals(Idp.HTTP_REDIRECT_BINDING)) {
-            return defaultAssertionConsumerService.getBinding();
-        } else {
-            //if default doesn't work, check any others that are defined and use the first one that supports our bindings
-            for (AssertionConsumerService assertionConsumerService : spssoDescriptor.getAssertionConsumerServices()) {
-                if (assertionConsumerService.getBinding()
-                        .equals(Idp.HTTP_POST_BINDING) || assertionConsumerService.getBinding()
-                        .equals(Idp.HTTP_REDIRECT_BINDING)) {
-                    return assertionConsumerService.getBinding();
-                }
-            }
-        }
-        return null;
+        return serviceProviders.get(authnRequest.getIssuer()
+                .getValue()).getAssertionConsumerServiceBinding();
     }
 }

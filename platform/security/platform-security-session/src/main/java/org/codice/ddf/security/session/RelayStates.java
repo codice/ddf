@@ -38,13 +38,16 @@ public class RelayStates<T> {
     }
 
     public T decode(String relayState) {
+        return decode(relayState, true);
+    }
+
+    public T decode(String relayState, boolean pop) {
         T decodedRelayState = encodedRelayStates.getIfPresent(relayState);
 
-        if (decodedRelayState != null) {
+        if (pop && decodedRelayState != null) {
             encodedRelayStates.invalidate(relayState);
         }
 
         return decodedRelayState;
     }
-
 }

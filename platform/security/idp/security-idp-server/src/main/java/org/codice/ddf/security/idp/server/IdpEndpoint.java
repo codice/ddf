@@ -14,8 +14,9 @@
 package org.codice.ddf.security.idp.server;
 
 import static java.util.Objects.nonNull;
-import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang.StringUtils.isEmpty;
+import static ddf.security.samlp.SamlProtocol.POST_BINDING;
+import static ddf.security.samlp.SamlProtocol.REDIRECT_BINDING;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -29,7 +30,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -54,7 +54,6 @@ import javax.xml.stream.XMLStreamException;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.rs.security.saml.sso.SSOConstants;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
@@ -88,11 +87,8 @@ import org.opensaml.saml2.core.LogoutRequest;
 import org.opensaml.saml2.core.LogoutResponse;
 import org.opensaml.saml2.core.StatusCode;
 import org.opensaml.saml2.metadata.EntityDescriptor;
-import org.opensaml.saml2.metadata.KeyDescriptor;
 import org.opensaml.saml2.metadata.SPSSODescriptor;
-import org.opensaml.saml2.metadata.SingleLogoutService;
 import org.opensaml.xml.XMLObject;
-import org.opensaml.xml.schema.XSBase64Binary;
 import org.opensaml.xml.security.credential.UsageType;
 import org.opensaml.xml.validation.ValidationException;
 import org.slf4j.Logger;
@@ -546,7 +542,7 @@ public class IdpEndpoint implements Idp {
         LogoutState logoutState = null;
         Cookie cookie = getCookie(request);
         if (cookie != null) {
-            logoutState = logoutStates.decode(cookie.getValue());
+            logoutState = logoutStates.decode(cookie.getValue(), false);
         }
         return logoutState;
     }
@@ -662,17 +658,8 @@ public class IdpEndpoint implements Idp {
                 if (isEmpty(signature) || isEmpty(signatureAlgorithm) || isEmpty(issuer)) {
                     throw new SimpleSign.SignatureException("No signature present for AuthnRequest.");
                 }
-                SPSSODescriptor spssoDescriptor = getSpssoDescriptor(issuer);
-                String signingCertificate = spssoDescriptor.getKeyDescriptors()
-                        .stream()
-                        .filter(Objects::nonNull)
-                        .filter(kd -> nonNull(kd.getUse()))
-                        .filter(kd -> USAGE_TYPES.contains(kd.getUse()))
-                        .filter(kd -> nonNull(extractCertificate(kd)))
-                        .reduce((acc, val) -> val.getUse()
-                                .equals(UsageType.SIGNING) || acc == null ? val : acc)
-                        .map(this::extractCertificate)
-                        .orElse(null);
+                String signingCertificate = serviceProviders.get(issuer)
+                        .getSigningCertificate();
 
                 validateSignature(samlRequest,
                         relayState,
@@ -691,29 +678,6 @@ public class IdpEndpoint implements Idp {
         }
         // TODO (RCZ) - default return value. 500?
         return null;
-    }
-
-    private SPSSODescriptor getSpssoDescriptor(String issuer) throws ValidationException {
-        EntityDescriptor entityDescriptor = serviceProviders.get(issuer);
-        SPSSODescriptor spssoDescriptor =
-                entityDescriptor.getSPSSODescriptor(SamlProtocol.SUPPORTED_PROTOCOL);
-        if (spssoDescriptor == null) {
-            throw new ValidationException(
-                    "Unable to find supported protocol in metadata SPSSODescriptors.");
-        }
-        return spssoDescriptor;
-    }
-
-    private String extractCertificate(KeyDescriptor kd) {
-        return kd.getKeyInfo()
-                .getX509Datas()
-                .stream()
-                .flatMap(datas -> datas.getX509Certificates()
-                        .stream())
-                .map(XSBase64Binary::getValue)
-                .filter(StringUtils::isNotBlank)
-                .findFirst()
-                .orElse(null);
     }
 
     private void validateSignature(String samlRequest, String relayState, String signatureAlgorithm,
@@ -810,7 +774,10 @@ public class IdpEndpoint implements Idp {
         // TODO (RCZ) - Do we want to remove each SP from Active SP's (not logoutState set)?
         // Might be good idea in case of the wierd state where they send logoutrequest but st1ll
         // have a logoutstate
-
+        if (!StatusCode.SUCCESS_URI.equals(logoutObject.getStatus()
+                .getStatusCode().getValue())) {
+            logoutState.setPartialLogout(true);
+        }
         return continueLogout(logoutState, cookie);
     }
 
@@ -842,83 +809,49 @@ public class IdpEndpoint implements Idp {
         }
 
         try {
-            Optional<SPSSODescriptor> nextTargetOpt = logoutState.getNextTarget();
+            SignableSAMLObject logoutObject;
+            String relay = "";
+            String entityId = "";
+
+            Optional<String> nextTargetOpt = logoutState.getNextTarget();
             if (nextTargetOpt.isPresent()) {
-                SPSSODescriptor nextTarget = nextTargetOpt.get();
-                // TODO (RCZ) - Is issuerId the metadata endpoint or the logout endpoint?
-                LogoutRequest logoutRequest =
-                        logoutService.buildLogoutRequest(logoutState.getNameId(),
-                                systemBaseUrl.constructUrl("/idp/logout", true));
-                if (supportsLogoutBinding(nextTarget, HTTP_REDIRECT_BINDING)) {
-                    Optional<SingleLogoutService> singleLogoutService =
-                            nextTarget.getSingleLogoutServices()
-                                    .stream()
-                                    .filter(sls -> HTTP_REDIRECT_BINDING.equals(sls.getBinding()))
-                                    .findFirst();
-                    if (singleLogoutService.isPresent()) {
-                        return getSamlRedirectResponse(logoutRequest,
-                                singleLogoutService.get()
-                                        .getLocation(),
-                                "");
-                    }
-                } else if (supportsLogoutBinding(nextTarget, HTTP_POST_BINDING)) {
-                    // TODO (RCZ) - Post binding
-                    throw new UnsupportedOperationException();
-                } else {
-                    // TODO (RCZ) - No supported binding
-                    LOGGER.debug("No supported binding available for SP [{}].", nextTarget.getID());
-                    return continueLogout(logoutState, cookie);
-                }
+                entityId = nextTargetOpt.get();
+                logoutObject = logoutService.buildLogoutRequest(logoutState.getNameId(),
+                        systemBaseUrl.constructUrl("/idp/logout", true));
             } else {
-                // TODO (RCZ) - finished, redirect to originating SP
+                entityId = logoutState.getOriginalIssuer();
+                String status = logoutState.isPartialLogout() ?
+                        StatusCode.PARTIAL_LOGOUT_URI :
+                        StatusCode.SUCCESS_URI;
+                logoutObject = logoutService.buildLogoutResponse(systemBaseUrl.constructUrl(
+                        "/idp/logout",
+                        true), status, logoutState.getOriginalRequestId());
+                relay = logoutState.getInitialRelayState();
+                logoutStates.decode(cookie.getValue());
+            }
 
-                // TODO (RCZ) - StatusCode Partial when not everyone was logged out.
-                LogoutResponse logoutResponse =
-                        logoutService.buildLogoutResponse(systemBaseUrl.constructUrl("/idp/logout",
-                                true), StatusCode.SUCCESS_URI, logoutState.getOriginalRequestId());
+            EntityInformation entity = serviceProviders.get(entityId);
 
-                Optional<SingleLogoutService> redirectBindingService = serviceProviders.get(
-                        logoutState.getOriginalIssuer())
-                        .getSPSSODescriptor(SamlProtocol.SUPPORTED_PROTOCOL)
-                        .getSingleLogoutServices()
-                        .stream()
-                        .filter(sls -> SamlProtocol.REDIRECT_BINDING.equals(sls.getBinding()))
-                        .findFirst();
-                if (redirectBindingService.isPresent()) {
-                    // TODO (RCZ) - is the issuer the url to redirect them finally to? or is it logout
-                    return getSamlRedirectResponse(logoutResponse,
-                            redirectBindingService.get()
-                                    .getLocation(),
-                            logoutState.getInitialRelayState());
-                }
-
-                Optional<SingleLogoutService> postBindingService =
-                        serviceProviders.get(logoutState.getOriginalIssuer())
-                                .getSPSSODescriptor(SamlProtocol.SUPPORTED_PROTOCOL)
-                                .getSingleLogoutServices()
-                                .stream()
-                                .filter(sls -> SamlProtocol.REDIRECT_BINDING.equals(sls.getBinding()))
-                                .findFirst();
-                if (postBindingService.isPresent()) {
-                    // TODO (RCZ) - post binding
-                    return null;
-                }
+            if (REDIRECT_BINDING.equals(entity.getLogoutServiceBinding())) {
+                return getSamlRedirectResponse(logoutObject, entity.getLogoutServiceUrl(), relay);
+            } else if (POST_BINDING.equals(entity.getLogoutServiceBinding())) {
+                // TODO (RCZ) - Post binding
+            } else {
+                LOGGER.debug("No supported binding available for SP [{}].", entityId);
+                logoutState.setPartialLogout(true);
+                return continueLogout(logoutState, cookie);
             }
         } catch (WSSecurityException | SimpleSign.SignatureException | IOException e) {
-            // TODO (RCZ) - are any of these exceptions short circuiting or warrant a reason to not
-            // continue trying the other remaining SP targets to log out
+            // TODO (RCZ) - Should we keep trying, 500, or redirect back with failed?
+            LOGGER.debug("Error occured while processing logout", e);
             return continueLogout(logoutState, cookie);
         }
 
-        return null;
+        throw new IdpException("Server error while processing logout");
     }
 
-    public Set<SPSSODescriptor> getActiveSps(String cacheId) {
-        return cookieCache.getActiveSpSet(cacheId)
-                .stream()
-                .map(serviceProviders::get)
-                .map(ed -> ed.getSPSSODescriptor(SamlProtocol.SUPPORTED_PROTOCOL))
-                .collect(toSet());
+    public Set<String> getActiveSps(String cacheId) {
+        return cookieCache.getActiveSpSet(cacheId);
     }
 
     private Response getSamlRedirectResponse(XMLObject samlResponse, String targetUrl,
