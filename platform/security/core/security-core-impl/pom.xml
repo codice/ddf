@@ -38,6 +38,10 @@
         </dependency>
 
         <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
         </dependency>
@@ -170,7 +174,8 @@
                             validation-api,
                             httpcore,
                             httpclient,
-                            ddf-security-common
+                            ddf-security-common,
+                            guava
                         </Embed-Dependency>
                         <Import-Package>
                             javax.servlet.http; version="[2.5.0,3.0.0)",
