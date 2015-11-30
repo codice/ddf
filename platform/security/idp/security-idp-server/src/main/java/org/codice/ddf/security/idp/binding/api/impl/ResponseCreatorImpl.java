@@ -17,7 +17,6 @@ import java.util.Map;
 
 import org.codice.ddf.security.idp.binding.api.ResponseCreator;
 import org.opensaml.saml2.core.AuthnRequest;
-import org.opensaml.saml2.metadata.EntityDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

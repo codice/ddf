@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -21,7 +21,6 @@ import org.codice.ddf.security.idp.server.Idp;
 import org.opensaml.saml2.core.AuthnContextClassRef;
 import org.opensaml.saml2.core.AuthnContextComparisonTypeEnumeration;
 import org.opensaml.saml2.core.AuthnRequest;
-import org.opensaml.saml2.metadata.EntityDescriptor;
 import org.opensaml.xml.validation.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,12 +35,12 @@ public abstract class ValidatorImpl implements Validator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ValidatorImpl.class);
 
-    protected static final ImmutableSet<String> PKI_SAML_CONTEXTS = ImmutableSet.of(
-            SAML2Constants.AUTH_CONTEXT_CLASS_REF_X509,
-            SAML2Constants.AUTH_CONTEXT_CLASS_REF_SMARTCARD_PKI,
-            SAML2Constants.AUTH_CONTEXT_CLASS_REF_SOFTWARE_PKI,
-            SAML2Constants.AUTH_CONTEXT_CLASS_REF_SPKI,
-            SAML2Constants.AUTH_CONTEXT_CLASS_REF_TLS_CLIENT);
+    protected static final ImmutableSet<String> PKI_SAML_CONTEXTS =
+            ImmutableSet.of(SAML2Constants.AUTH_CONTEXT_CLASS_REF_X509,
+                    SAML2Constants.AUTH_CONTEXT_CLASS_REF_SMARTCARD_PKI,
+                    SAML2Constants.AUTH_CONTEXT_CLASS_REF_SOFTWARE_PKI,
+                    SAML2Constants.AUTH_CONTEXT_CLASS_REF_SPKI,
+                    SAML2Constants.AUTH_CONTEXT_CLASS_REF_TLS_CLIENT);
 
     protected final SystemCrypto systemCrypto;
 
