@@ -190,11 +190,9 @@ public class ReuterSolrImport implements Runnable {
 
     private Metacard readFile(File localFile) {
         MetacardImpl mc = null;
-        try {
-            FileInputStream fin = new FileInputStream(localFile);
-            ObjectInputStream ois = new ObjectInputStream(fin);
+        try (FileInputStream fin = new FileInputStream(localFile);
+                ObjectInputStream ois = new ObjectInputStream(fin)) {
             mc = (MetacardImpl) ois.readObject();
-            ois.close();
             if (mc.getLocation() != null && mc.getLocation().length() != 0) {
                 // solrProvider.create(new CreateRequestImpl(mc));
                 return mc;

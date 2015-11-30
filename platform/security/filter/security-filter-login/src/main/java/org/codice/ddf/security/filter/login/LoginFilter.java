@@ -221,7 +221,9 @@ public class LoginFilter implements Filter {
     }
 
     public void setSessionFactory(SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
+        synchronized (lock) {
+            this.sessionFactory = sessionFactory;
+        }
     }
 
     @Override

@@ -112,7 +112,9 @@ public class SecureProxyServiceFactoryImpl implements ProxyServiceFactory {
                 PrincipalCollection principals = ((Subject) securityAssertion).getPrincipals();
                 if (principals != null) {
                     SecurityAssertion assertion = principals.oneByType(SecurityAssertion.class);
-                    securityToken = assertion.getSecurityToken();
+                    if (assertion != null) {
+                        securityToken = assertion.getSecurityToken();
+                    }
                 }
             }
         }

@@ -166,7 +166,9 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet {
 
             Route route = camelContext.getRoute(endpointName);
             try {
-                connect((HttpConsumer) route.getConsumer());
+                if (route != null) {
+                    connect((HttpConsumer) route.getConsumer());
+                }
             } catch (Exception e) {
                 log.debug("Exception while creating consumer", e);
             }

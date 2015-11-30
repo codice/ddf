@@ -19,6 +19,7 @@ import java.util.Map;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.codice.ddf.security.idp.server.Idp;
 import org.opensaml.saml2.core.AuthnRequest;
@@ -62,7 +63,7 @@ public interface ResponseCreator {
      */
     static String getAssertionConsumerServiceBinding(AuthnRequest authnRequest,
             Map<String, EntityDescriptor> serviceProviders) {
-        if (authnRequest.getProtocolBinding() != null) {
+        if (StringUtils.isNotBlank(authnRequest.getProtocolBinding())) {
             return authnRequest.getProtocolBinding();
         }
         EntityDescriptor entityDescriptor = serviceProviders.get(authnRequest.getIssuer()

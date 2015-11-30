@@ -172,10 +172,12 @@ public class ApplicationUploadEndpoint {
      */
     private File createFileFromAttachement(Attachment attachment, Response response) {
         InputStream inputStream = null;
-        String filename;
+        String filename = null;
         File newFile = null;
-        filename = attachment.getContentDisposition()
-                .getParameter(FILENAME_CONTENT_DISPOSITION_PARAMETER_NAME);
+        if (attachment.getContentDisposition() != null) {
+            filename = attachment.getContentDisposition()
+                    .getParameter(FILENAME_CONTENT_DISPOSITION_PARAMETER_NAME);
+        }
 
         if (StringUtils.isEmpty(filename)) {
             logger.debug("Filename not found, using default.");

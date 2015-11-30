@@ -89,7 +89,8 @@ public abstract class BSTAuthenticationToken extends BaseAuthenticationToken {
         BaseAuthenticationToken baseAuthenticationToken = null;
         org.apache.xml.security.Init.init();
 
-        String unencodedCreds = isEncoded ? new String(Base64.decode(stringBST)) : stringBST;
+        byte[] token = Base64.decode(stringBST);
+        String unencodedCreds = isEncoded && token != null ? new String(token) : stringBST;
         if (!StringUtils.isEmpty(unencodedCreds) && unencodedCreds.startsWith(BST_PRINCIPAL)) {
             String[] components = unencodedCreds.split(NEWLINE);
             if (components.length == 3) {

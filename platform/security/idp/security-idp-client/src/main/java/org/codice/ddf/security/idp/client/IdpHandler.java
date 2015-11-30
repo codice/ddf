@@ -14,6 +14,7 @@
 package org.codice.ddf.security.idp.client;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -82,12 +83,12 @@ public class IdpHandler implements AuthenticationHandler {
     }
 
     @SuppressWarnings("unchecked")
-    private static SAMLObjectBuilder<AuthnRequest> authnRequestBuilder = (SAMLObjectBuilder<AuthnRequest>) builderFactory
-            .getBuilder(AuthnRequest.DEFAULT_ELEMENT_NAME);
+    private static SAMLObjectBuilder<AuthnRequest> authnRequestBuilder = (SAMLObjectBuilder<AuthnRequest>) builderFactory.getBuilder(
+            AuthnRequest.DEFAULT_ELEMENT_NAME);
 
     @SuppressWarnings("unchecked")
-    private static SAMLObjectBuilder<Issuer> issuerBuilder = (SAMLObjectBuilder<Issuer>)
-            builderFactory.getBuilder(Issuer.DEFAULT_ELEMENT_NAME);
+    private static SAMLObjectBuilder<Issuer> issuerBuilder = (SAMLObjectBuilder<Issuer>) builderFactory.getBuilder(
+            Issuer.DEFAULT_ELEMENT_NAME);
 
     private final String postBindingTemplate;
 
@@ -110,8 +111,10 @@ public class IdpHandler implements AuthenticationHandler {
 
         this.relayStates = relayStates;
 
-        postBindingTemplate = IOUtils
-                .toString(IdpHandler.class.getResourceAsStream("/post-binding.html"));
+        try (InputStream postFormStream = IdpHandler.class.getResourceAsStream(
+                "/post-binding.html")) {
+            postBindingTemplate = IOUtils.toString(postFormStream);
+        }
     }
 
     @Override
@@ -142,7 +145,8 @@ public class IdpHandler implements AuthenticationHandler {
         LOGGER.debug("Doing IdP authentication and authorization for path {}", path);
 
         // Default to HTTP-Redirect if binding is null
-        if (idpMetadata.getSingleSignOnBinding() == null || idpMetadata.getSingleSignOnBinding().endsWith("Redirect")) {
+        if (idpMetadata.getSingleSignOnBinding() == null || idpMetadata.getSingleSignOnBinding()
+                .endsWith("Redirect")) {
             doHttpRedirectBinding((HttpServletRequest) request, (HttpServletResponse) response);
         } else {
             doHttpPostBinding((HttpServletRequest) request, (HttpServletResponse) response);
@@ -151,7 +155,8 @@ public class IdpHandler implements AuthenticationHandler {
         return handlerResult;
     }
 
-    private void doHttpRedirectBinding(HttpServletRequest request, HttpServletResponse response) throws ServletException {
+    private void doHttpRedirectBinding(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException {
 
         String redirectUrl;
         String idpRequest = null;
@@ -164,7 +169,8 @@ public class IdpHandler implements AuthenticationHandler {
 
             simpleSign.signUriString(queryParams, idpUri);
 
-            redirectUrl = idpUri.build().toString();
+            redirectUrl = idpUri.build()
+                    .toString();
         } catch (UnsupportedEncodingException e) {
             LOGGER.warn("Unable to encode relay state: " + relayState, e);
             throw new ServletException("Unable to create return location");
@@ -186,10 +192,12 @@ public class IdpHandler implements AuthenticationHandler {
         }
     }
 
-    private void doHttpPostBinding(HttpServletRequest request, HttpServletResponse response) throws ServletException {
+    private void doHttpPostBinding(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException {
         try {
-            response.getWriter().printf(postBindingTemplate, idpMetadata.getSingleSignOnLocation(), createAuthnRequest(true),
-                    createRelayState(request));
+            response.getWriter()
+                    .printf(postBindingTemplate, idpMetadata.getSingleSignOnLocation(),
+                            createAuthnRequest(true), createRelayState(request));
             response.setStatus(200);
             response.flushBuffer();
         } catch (IOException e) {
@@ -212,16 +220,16 @@ public class IdpHandler implements AuthenticationHandler {
 
         authnRequest.setAssertionConsumerServiceURL(spAssertionConsumerServiceUrl);
 
-        authnRequest.setID("_" + UUID.randomUUID().toString());
+        authnRequest.setID("_" + UUID.randomUUID()
+                .toString());
         authnRequest.setVersion(SAMLVersion.VERSION_20);
         authnRequest.setIssueInstant(new DateTime());
 
         authnRequest.setDestination(idpMetadata.getSingleSignOnLocation());
 
         authnRequest.setProtocolBinding(idpMetadata.getSingleSignOnBinding());
-        authnRequest.setNameIDPolicy(SamlpRequestComponentBuilder
-                .createNameIDPolicy(true, SAML2Constants.NAMEID_FORMAT_PERSISTENT,
-                        spIssuerId));
+        authnRequest.setNameIDPolicy(SamlpRequestComponentBuilder.createNameIDPolicy(true,
+                SAML2Constants.NAMEID_FORMAT_PERSISTENT, spIssuerId));
 
         return serializeAndSign(isPost, authnRequest);
     }
@@ -275,7 +283,9 @@ public class IdpHandler implements AuthenticationHandler {
         if (queryString == null) {
             return requestURL.toString();
         } else {
-            return requestURL.append('?').append(queryString).toString();
+            return requestURL.append('?')
+                    .append(queryString)
+                    .toString();
         }
     }
 
