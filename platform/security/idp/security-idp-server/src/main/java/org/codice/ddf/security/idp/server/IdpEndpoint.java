@@ -772,7 +772,7 @@ public class IdpEndpoint implements Idp {
     private Response handleLogoutResponse(Cookie cookie, LogoutState logoutState,
             LogoutResponse logoutObject) throws IdpException {
         // TODO (RCZ) - Do we want to remove each SP from Active SP's (not logoutState set)?
-        // Might be good idea in case of the wierd state where they send logoutrequest but st1ll
+        // Might be good idea in case of the weird state where they send logout request but st1ll
         // have a logoutstate
         if (!StatusCode.SUCCESS_URI.equals(logoutObject.getStatus()
                 .getStatusCode()
