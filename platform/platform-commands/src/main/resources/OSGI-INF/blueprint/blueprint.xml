@@ -19,10 +19,16 @@
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
 
         <command name="platform/describe">
-            <action class="org.codice.ddf.commands.platform.DescribeCommand"/>
+            <action class="org.codice.ddf.commands.platform.DescribeCommand" />
         </command>
         <command name="platform/envlist">
-            <action class="org.codice.ddf.commands.platform.EnvListCommand"/>
+            <action class="org.codice.ddf.commands.platform.EnvListCommand" />
+        </command>
+        <command name="platform/config-status">
+            <action
+                class="org.codice.ddf.commands.platform.ConfigStatusCommand">
+                <argument ref="configStatusService" />
+            </action>
         </command>
         <command name="platform/config-export">
             <action class="org.codice.ddf.commands.platform.ExportCommand">
@@ -39,11 +45,11 @@
         </ext:default-properties>
     </ext:property-placeholder>
 
+    <reference id="configStatusService"
+        interface="org.codice.ddf.configuration.store.ConfigurationStatusService" />
+
     <reference id="configurationMigrationService"
                interface="org.codice.ddf.configuration.store.ConfigurationMigrationService"/>
-
-    <bean id="urlHelper" class="org.codice.ddf.configuration.SystemBaseUrl"/>
-    <bean id="systemInfo" class="org.codice.ddf.configuration.SystemInfo"/>
 
     <bean id="defaultExportDirectoryPath" class="java.nio.file.Paths"
           factory-method="get">
@@ -54,6 +60,9 @@
         <argument ref="configurationMigrationService"/>
         <argument ref="defaultExportDirectoryPath"/>
     </bean>
+
+    <bean id="urlHelper" class="org.codice.ddf.configuration.SystemBaseUrl" />
+    <bean id="systemInfo" class="org.codice.ddf.configuration.SystemInfo" />
 
     <bean id="platformDescribeCommand" class="org.codice.ddf.commands.platform.DescribeCommand">
         <property name="bundleContext" ref="blueprintBundleContext"/>

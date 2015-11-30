@@ -26,6 +26,8 @@ import java.util.Collection;
 
 import javax.validation.constraints.NotNull;
 
+import org.apache.commons.io.FileUtils;
+import org.codice.ddf.configuration.status.ConfigurationStatus;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -36,15 +38,17 @@ import org.slf4j.LoggerFactory;
  * Class that provides utility methods to access the configuration files in the configuration
  * directory.
  */
-public class ConfigurationFileDirectory implements ChangeListener, ConfigurationMigrationService {
+public class ConfigurationFileDirectory implements ChangeListener, ConfigurationStatusService, ConfigurationMigrationService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationFileDirectory.class);
+
+    private static final String FILE_FILTER = "*.config";
 
     private static final String FILTER = "(&(!(service.pid=jmx*))(!(service.pid=org.apache*))(!(service.pid=org.ops4j*)))";
 
     private String configurationFileExtension;
 
-    private DirectoryStream<Path> directoryStream;
+    private DirectoryStream<Path> configDirectoryStream;
 
     private Path processedDirectory;
 
@@ -59,7 +63,7 @@ public class ConfigurationFileDirectory implements ChangeListener, Configuration
     /**
      * Constructor.
      *
-     * @param directoryStream          reference to a {@link DirectoryStream} that will return the
+     * @param configDirectoryStream    reference to a {@link DirectoryStream} that will return the
      *                                 configuration files to read in upon startup
      * @param processedDirectory       directory where configuration files will be moved to after
      *                                 being successfully processed
@@ -71,14 +75,14 @@ public class ConfigurationFileDirectory implements ChangeListener, Configuration
      *                                 files have been created
      * @throws IllegalArgumentException thrown if any of the arguments is invalid
      */
-    public ConfigurationFileDirectory(@NotNull DirectoryStream directoryStream,
+    public ConfigurationFileDirectory(@NotNull DirectoryStream configDirectoryStream,
             @NotNull Path processedDirectory, @NotNull Path failedDirectory,
             @NotNull ConfigurationFileFactory configurationFileFactory,
             @NotNull ConfigurationFilesPoller poller,
             @NotNull ConfigurationAdmin configurationAdmin,
             @NotNull String configurationFileExtension) {
 
-        notNull(directoryStream, "Directory stream cannot be null");
+        notNull(configDirectoryStream, "Config directory stream cannot be null");
         notNull(processedDirectory, "Processed directory cannot be null");
         notNull(failedDirectory, "Failed directory cannot be null");
         notNull(configurationFileFactory, "Configuration file factory cannot be null");
@@ -86,7 +90,7 @@ public class ConfigurationFileDirectory implements ChangeListener, Configuration
         notNull(configurationAdmin, "ConfigurationAdmin cannot be null");
         notNull(configurationFileExtension, "ConfigFileExtension cannot be null");
 
-        this.directoryStream = directoryStream;
+        this.configDirectoryStream = configDirectoryStream;
         this.processedDirectory = processedDirectory;
         this.failedDirectory = failedDirectory;
         this.configurationFileFactory = configurationFileFactory;
@@ -102,9 +106,9 @@ public class ConfigurationFileDirectory implements ChangeListener, Configuration
      * {@code failedDirectory}. It will also register for file creation events which will
      * be handled by the {@link #notify(Path)} method.
      *
-     * @throws IOException thrown if an I/O error occurs during initialization
      */
     public void init() throws IOException {
+
         createDirectory(processedDirectory);
         LOGGER.info("created processed directory");
         createDirectory(failedDirectory);
@@ -127,6 +131,9 @@ public class ConfigurationFileDirectory implements ChangeListener, Configuration
 
     @Override
     public void notify(Path file) {
+        Path fileInFailedDirectory = failedDirectory.resolve(file.getFileName());
+        boolean result = deleteFileFromFailedDirectory(fileInFailedDirectory);
+        LOGGER.debug("Deleted file [{}]: {}", fileInFailedDirectory.toString(), result);
         try {
             ConfigurationFile configFile = configurationFileFactory.createConfigurationFile(file);
             configFile.createConfig();
@@ -134,6 +141,18 @@ public class ConfigurationFileDirectory implements ChangeListener, Configuration
         } catch (ConfigurationFileException | RuntimeException e) {
             moveConfigurationFile(file, failedDirectory);
         }
+    }
+
+    public Collection<ConfigurationStatus> getFailedConfigurationFiles() throws IOException {
+        Collection<ConfigurationStatus> configStatusMessages = new ArrayList<>();
+        try (DirectoryStream<Path> stream = getFailedDirectoryStream()) {
+            for (Path path : stream) {
+                ConfigurationStatus configStatus = new ConfigurationStatus(path.getFileName());
+                configStatusMessages.add(configStatus);
+                LOGGER.debug("Adding [{}] to the failed imports list.", path.toString());
+            }
+        }
+        return configStatusMessages;
     }
 
     @Override
@@ -205,11 +224,14 @@ public class ConfigurationFileDirectory implements ChangeListener, Configuration
 
     private Collection<Path> listFiles() throws IOException {
         Collection<Path> fileNames = new ArrayList<>();
-
-        for (Path path : directoryStream) {
-            fileNames.add(path);
+        try {
+            for (Path path : configDirectoryStream) {
+                fileNames.add(path);
+            }
+        } finally {
+            configDirectoryStream.close();
+            configDirectoryStream = null;
         }
-
         return fileNames;
     }
 
@@ -231,5 +253,13 @@ public class ConfigurationFileDirectory implements ChangeListener, Configuration
                 throw new IOException(String.format("Failed to create %s.", path.toString()));
             }
         }
+    }
+
+    boolean deleteFileFromFailedDirectory(Path file) {
+        return FileUtils.deleteQuietly(file.toFile());
+    }
+
+    DirectoryStream<Path> getFailedDirectoryStream() throws IOException {
+        return Files.newDirectoryStream(failedDirectory, FILE_FILTER);
     }
 }
