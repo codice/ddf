@@ -40,6 +40,7 @@ import org.apache.cxf.rs.security.saml.sso.SSOConstants;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.apache.wss4j.common.util.DOM2Writer;
+import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.opensaml.saml1.core.StatusCode;
 import org.opensaml.saml2.core.LogoutRequest;
@@ -49,11 +50,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
+import ddf.security.SecurityConstants;
+import ddf.security.common.util.SecurityTokenHolder;
 import ddf.security.http.SessionFactory;
 import ddf.security.samlp.LogoutService;
 import ddf.security.samlp.SimpleSign;
 import ddf.security.samlp.SystemCrypto;
-
 
 //TODO rename this class since it will have to handle requests and responses
 @Path("logout")
@@ -102,10 +104,13 @@ public class LogoutRequestService {
 
     private String redirectPage;
 
-    public LogoutRequestService(SimpleSign simpleSign, IdpMetadata idpMetadata, SystemCrypto systemCrypto) {
+    private SystemBaseUrl baseUrl;
+
+    public LogoutRequestService(SimpleSign simpleSign, IdpMetadata idpMetadata, SystemCrypto systemCrypto, SystemBaseUrl systemBaseUrl) {
         this.simpleSign = simpleSign;
         this.idpMetadata = idpMetadata;
         this.systemCrypto = systemCrypto;
+        this.baseUrl = systemBaseUrl;
 
     }
 
@@ -153,11 +158,16 @@ public class LogoutRequestService {
             @QueryParam(SIG_ALG) String signatureAlgorithm,
             @QueryParam(SIGNATURE) String signature) throws IdpClientException {
 
-        //validateSignature(deflatedSamlRequest, relayState, signatureAlgorithm, signature);//TODO figure out how to get simplesaml sp to sign requests
+        validateSignature(deflatedSamlRequest, relayState, signatureAlgorithm, signature);
         try {
             LogoutRequest logoutRequest = processSamlLogoutRequest(RestSecurity.inflateBase64(deflatedSamlRequest));
-            //TODO this seems inefficent since we have the issuer to pass in and the status is an enum
-            LogoutResponse logoutResponse = logoutService.buildLogoutResponse(logoutRequest.getIssuer().getValue(), StatusCode.SUCCESS.toString());
+            String hostname = baseUrl.getHost();
+            String port = baseUrl.getPort();
+            String rootContext = baseUrl.getRootContext();
+
+            String entityId = String.format("https://%s:%s%s/saml", hostname, port, rootContext);
+            //TODO this static url has to match the entityId for the SP is their a better way then recreating the url from scratch and it seems inefficent to pass the the status is string rather than enum
+            LogoutResponse logoutResponse = logoutService.buildLogoutResponse(entityId, StatusCode.SUCCESS.toString());
             try {
                 return getSamlpRedircetLogoutResponse(relayState, logoutRequest, logoutResponse,
                         redirectPage);
@@ -209,18 +219,17 @@ public class LogoutRequestService {
         //        }
 
 
-        //TODO don't do this do the securitytokenholder logic
-        synchronized (sessionFactory) {
-            HttpSession session = request.getSession(false);
-            if (session != null) {
-                session.invalidate();
-            }
-            //          //TODO if they are logged in as multiple users to this sp should we just log them out as the one that they requested to logout or all of them.
-            //            SecurityTokenHolder tokenHolder = ((SecurityTokenHolder) session
-            //                    .getAttribute(SecurityConstants.SAML_ASSERTION));
-            //
-            //            SecurityToken token = tokenHolder.getSecurityToken(realm);
-        }
+//        synchronized (sessionFactory) {
+        //TODO this logic should be in the session factory instead?
+        HttpSession session = request.getSession(false);
+//        if (session != null) {
+//            session.invalidate();
+//        }
+        SecurityTokenHolder tokenHolder = ((SecurityTokenHolder) session
+                .getAttribute(SecurityConstants.SAML_ASSERTION));
+        //TODO is their somewhere i can get this realm from?
+        tokenHolder.remove("IDP");
+//        }
         return logoutRequest;
     }
 

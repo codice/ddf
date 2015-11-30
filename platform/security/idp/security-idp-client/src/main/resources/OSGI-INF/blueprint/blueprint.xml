@@ -82,6 +82,7 @@
                 <argument ref="simpleSign"/>
                 <argument ref="idpMetadata"/>
                 <argument ref="crypto"/>
+                <argument ref="baseUrl"/>
                 <property name="sessionFactory">
                     <reference interface="ddf.security.http.SessionFactory"
                                filter="(id=http)"/>
