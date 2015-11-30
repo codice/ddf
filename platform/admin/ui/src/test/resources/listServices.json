@@ -1577,7 +1577,6 @@
             "/system=karaf",
             "/solr=karaf",
             "/jolokia=karaf",
-            "/sources=karaf",
             "/security-config=karaf"
           ],
           "optionLabels": [],
@@ -1595,7 +1594,6 @@
             "/jolokia=SAML|basic",
             "/system=basic",
             "/solr=SAML|PKI|basic",
-            "/sources=SAML|basic",
             "/security-config=SAML|basic"
           ],
           "optionLabels": [],
@@ -1613,7 +1611,6 @@
             "/solr={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin}",
             "/jolokia={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin}",
             "/system={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin}",
-            "/sources={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin}",
             "/security-config={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin}"
           ],
           "optionLabels": [],
