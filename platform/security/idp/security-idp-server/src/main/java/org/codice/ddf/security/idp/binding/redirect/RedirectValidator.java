@@ -22,7 +22,6 @@ import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.security.idp.binding.api.Validator;
 import org.codice.ddf.security.idp.binding.api.impl.ValidatorImpl;
 import org.opensaml.saml2.core.AuthnRequest;
-import org.opensaml.saml2.metadata.EntityDescriptor;
 import org.opensaml.xml.validation.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

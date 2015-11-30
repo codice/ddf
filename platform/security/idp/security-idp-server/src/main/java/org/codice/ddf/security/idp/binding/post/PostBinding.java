@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -19,7 +19,6 @@ import org.codice.ddf.security.idp.binding.api.Binding;
 import org.codice.ddf.security.idp.binding.api.RequestDecoder;
 import org.codice.ddf.security.idp.binding.api.ResponseCreator;
 import org.codice.ddf.security.idp.binding.api.Validator;
-import org.opensaml.saml2.metadata.EntityDescriptor;
 
 import ddf.security.samlp.SystemCrypto;
 import ddf.security.samlp.impl.EntityInformation;

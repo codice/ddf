@@ -17,8 +17,6 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 
-import org.opensaml.saml2.metadata.SPSSODescriptor;
-
 /**
  * LogoutState represents the current state of an in progress logout
  */
@@ -44,7 +42,7 @@ public class LogoutState {
     }
 
     public synchronized Optional<String> getNextTarget() {
-        Optional<String> item =  spDescriptors.stream()
+        Optional<String> item = spDescriptors.stream()
                 .findFirst();
 
         if (item.isPresent()) {
