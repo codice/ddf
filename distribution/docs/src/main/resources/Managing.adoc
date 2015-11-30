@@ -1,4 +1,6 @@
 = Managing {branding}
 include::config.adoc[]
 
+== Overview
+
 include::ManContents.adoc[]
