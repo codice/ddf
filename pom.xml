@@ -90,6 +90,7 @@
         <handlebars.version>2.0.0</handlebars.version>
         <antlr.version>4.3</antlr.version>
         <lux.woodstox.version>4.1.1</lux.woodstox.version>
+        <guava.version>18.0</guava.version>
     </properties>
 
     <!--

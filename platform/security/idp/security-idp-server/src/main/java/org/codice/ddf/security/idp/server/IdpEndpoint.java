@@ -190,7 +190,7 @@ public class IdpEndpoint implements Idp {
     public Response showPostLogin(@FormParam(SAML_REQ) String samlRequest,
             @FormParam(RELAY_STATE) String relayState, @Context HttpServletRequest request)
             throws WSSecurityException {
-        LOGGER.debug("Recevied POST IdP request.");
+        LOGGER.debug("Received POST IdP request.");
         return showLoginPage(samlRequest, relayState, null, null, request, new PostBinding(
                 systemCrypto,
                 serviceProviders), submitForm);
@@ -775,7 +775,8 @@ public class IdpEndpoint implements Idp {
         // Might be good idea in case of the wierd state where they send logoutrequest but st1ll
         // have a logoutstate
         if (!StatusCode.SUCCESS_URI.equals(logoutObject.getStatus()
-                .getStatusCode().getValue())) {
+                .getStatusCode()
+                .getValue())) {
             logoutState.setPartialLogout(true);
         }
         return continueLogout(logoutState, cookie);
@@ -813,12 +814,14 @@ public class IdpEndpoint implements Idp {
             String relay = "";
             String entityId = "";
 
-            Optional<String> nextTargetOpt = logoutState.getNextTarget();
-            if (nextTargetOpt.isPresent()) {
-                entityId = nextTargetOpt.get();
+            Optional<String> nextTarget = logoutState.getNextTarget();
+            if (nextTarget.isPresent()) {
+                // Another target exists, log them out
+                entityId = nextTarget.get();
                 logoutObject = logoutService.buildLogoutRequest(logoutState.getNameId(),
                         systemBaseUrl.constructUrl("/idp/logout", true));
             } else {
+                // No more targets, respond to original issuer
                 entityId = logoutState.getOriginalIssuer();
                 String status = logoutState.isPartialLogout() ?
                         StatusCode.PARTIAL_LOGOUT_URI :
@@ -835,7 +838,7 @@ public class IdpEndpoint implements Idp {
             if (REDIRECT_BINDING.equals(entity.getLogoutServiceBinding())) {
                 return getSamlRedirectResponse(logoutObject, entity.getLogoutServiceUrl(), relay);
             } else if (POST_BINDING.equals(entity.getLogoutServiceBinding())) {
-                // TODO (RCZ) - Post binding
+                return getSamlPostResponse(logoutObject, entity.getLogoutServiceUrl(), relay);
             } else {
                 LOGGER.debug("No supported binding available for SP [{}].", entityId);
                 logoutState.setPartialLogout(true);
@@ -844,7 +847,6 @@ public class IdpEndpoint implements Idp {
         } catch (WSSecurityException | SimpleSign.SignatureException | IOException e) {
             // TODO (RCZ) - Should we keep trying, 500, or redirect back with failed?
             LOGGER.debug("Error occured while processing logout", e);
-            return continueLogout(logoutState, cookie);
         }
 
         throw new IdpException("Server error while processing logout");
@@ -882,6 +884,23 @@ public class IdpEndpoint implements Idp {
         new SimpleSign(systemCrypto).signUriString(requestToSign, uriBuilder);
         LOGGER.debug("Signing successful.");
         return uriBuilder.build();
+    }
+
+    private Response getSamlPostResponse(SignableSAMLObject samlObject, String targetUrl,
+            String relayState) throws SimpleSign.SignatureException, WSSecurityException {
+        Document doc = DOMUtils.createDocument();
+        doc.appendChild(doc.createElement("root"));
+        LOGGER.debug("Signing SAML POST Response.");
+        new SimpleSign(systemCrypto).signSamlObject(samlObject);
+        LOGGER.debug("Converting SAML Response to DOM");
+        String assertionResponse = DOM2Writer.nodeToString(OpenSAMLUtil.toDom(samlObject, doc));
+        String encodedSamlResponse = new String(Base64.encodeBase64(assertionResponse.getBytes()));
+        String submitFormUpdated = submitForm
+                .replace("{{" + Idp.ACS_URL + "}}", targetUrl);
+        submitFormUpdated = submitFormUpdated
+                .replace("{{" + Idp.SAML_RESPONSE + "}}", encodedSamlResponse);
+        submitFormUpdated = submitFormUpdated.replace("{{" + Idp.RELAY_STATE + "}}", relayState);
+        return Response.ok(submitFormUpdated).build();
     }
 
     private boolean supportsLogoutBinding(SPSSODescriptor descriptor, String binding) {
