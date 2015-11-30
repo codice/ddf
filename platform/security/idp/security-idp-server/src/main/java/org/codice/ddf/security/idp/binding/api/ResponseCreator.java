@@ -19,6 +19,7 @@ import java.util.Map;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.opensaml.saml2.core.AuthnRequest;
 

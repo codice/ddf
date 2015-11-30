@@ -1412,7 +1412,7 @@ public class TestAtomTransformer {
         when(metacardTransformation.getByteArray()).thenReturn(
                 "<sample:note xmlns:sample=\"http://www.lockheedmartin.com/schema/sample\"><to>me</to><from>you</from></sample:note>"
                         .getBytes());
-        when(metacardTransformer.transform(isA(Metacard.class), isNull(Map.class)))
+        when(metacardTransformer.transform(isA(Metacard.class), isA(Map.class)))
                 .thenReturn(metacardTransformation);
         return metacardTransformer;
     }

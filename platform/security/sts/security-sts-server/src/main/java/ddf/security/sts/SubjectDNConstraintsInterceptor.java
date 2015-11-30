@@ -54,18 +54,19 @@ public class SubjectDNConstraintsInterceptor extends AbstractPhaseInterceptor<Me
             if (subjectDNConstraints == null) {
                 logger.warn(
                         "No Subject DN Certificate Constraints were defined. This could be a security issue");
-            }
-            Collection<Pattern> subjectDNPatterns = setSubjectDNPatterns(subjectDNConstraints);
-            X509Certificate[] cert;
-            cert = ((X509Certificate[]) (((Request) message.get("HTTP.REQUEST"))
-                    .getAttribute("javax.servlet.request.X509Certificate")));
-            if (cert == null) {
-                throw new AccessDeniedException("No certificate provided.");
-            }
-            if (!(matches(cert[0], subjectDNPatterns))) {
-                logger.warn("Certificate does not match Subject DN Certificate Constraints");
-                throw new AccessDeniedException(
-                        "Certificate DN does not match allowed pattern(s).");
+            } else {
+                Collection<Pattern> subjectDNPatterns = setSubjectDNPatterns(subjectDNConstraints);
+                X509Certificate[] cert;
+                cert = ((X509Certificate[]) (((Request) message.get("HTTP.REQUEST")).getAttribute(
+                        "javax.servlet.request.X509Certificate")));
+                if (cert == null) {
+                    throw new AccessDeniedException("No certificate provided.");
+                }
+                if (!(matches(cert[0], subjectDNPatterns))) {
+                    logger.warn("Certificate does not match Subject DN Certificate Constraints");
+                    throw new AccessDeniedException(
+                            "Certificate DN does not match allowed pattern(s).");
+                }
             }
         }
     }

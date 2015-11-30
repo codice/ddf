@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.configuration.PropertyResolver;
@@ -121,19 +122,20 @@ public class PolicyManager implements ContextPolicyManager {
         for (ContextPolicy contextPolicy : getPolicyStore().values()) {
             contextsToRealms.put(contextPolicy.getContextPath(), contextPolicy.getRealm());
             contextsToAttrs.put(contextPolicy.getContextPath(),
-                    new ArrayList(contextPolicy.getAllowedAttributes()));
+                    new ArrayList<>(contextPolicy.getAllowedAttributes()));
             contextsToAuths.put(contextPolicy.getContextPath(),
-                    new ArrayList(contextPolicy.getAuthenticationMethods()));
+                    new ArrayList<>(contextPolicy.getAuthenticationMethods()));
         }
 
         //duplicate and add the new context policy
         String newContextRealm = newContextPolicy.getRealm();
 
-        List<ContextAttributeMapping> newContextAttrs = new ArrayList<>();
-        for (ContextAttributeMapping contextAttribute : newContextPolicy.getAllowedAttributes()) {
-            newContextAttrs.add(new DefaultContextAttributeMapping(contextAttribute.getContext(),
-                    contextAttribute.getAttributeName(), contextAttribute.getAttributeValue()));
-        }
+        List<ContextAttributeMapping> newContextAttrs = newContextPolicy.getAllowedAttributes()
+                .stream()
+                .map(contextAttribute -> new DefaultContextAttributeMapping(
+                        contextAttribute.getContext(), contextAttribute.getAttributeName(),
+                        contextAttribute.getAttributeValue()))
+                .collect(Collectors.toList());
 
         Collection<String> newContextAuths = new ArrayList<>();
         newContextAuths.addAll(newContextPolicy.getAuthenticationMethods());
@@ -142,11 +144,9 @@ public class PolicyManager implements ContextPolicyManager {
             contextsToRealms.put(path, newContextRealm);
         }
         if (newContextAttrs != null) {
-            contextsToAttrs.put(path, new ArrayList(newContextAttrs));
+            contextsToAttrs.put(path, new ArrayList<>(newContextAttrs));
         }
-        if (newContextAuths != null) {
-            contextsToAuths.put(path, new ArrayList(newContextAuths));
-        }
+        contextsToAuths.put(path, new ArrayList<>(newContextAuths));
 
         setPolicyStore(contextsToRealms, contextsToAuths, contextsToAttrs);
     }
@@ -326,12 +326,12 @@ public class PolicyManager implements ContextPolicyManager {
 
         copiedAuthenticationMethods.addAll(contextPolicy.getAuthenticationMethods());
 
-        for (ContextAttributeMapping contextAttribute : contextPolicy.getAllowedAttributes()) {
-            copiedContextAttributes
-                    .add(new DefaultContextAttributeMapping(contextAttribute.getContext(),
-                            contextAttribute.getAttributeName(),
-                            contextAttribute.getAttributeValue()));
-        }
+        copiedContextAttributes.addAll(contextPolicy.getAllowedAttributes()
+                .stream()
+                .map(contextAttribute -> new DefaultContextAttributeMapping(
+                        contextAttribute.getContext(), contextAttribute.getAttributeName(),
+                        contextAttribute.getAttributeValue()))
+                .collect(Collectors.toList()));
 
         return new Policy(contextPolicy.getContextPath(), contextPolicy.getRealm(),
                 copiedAuthenticationMethods, copiedContextAttributes);

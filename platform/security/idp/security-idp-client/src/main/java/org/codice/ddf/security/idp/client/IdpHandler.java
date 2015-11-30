@@ -14,6 +14,7 @@
 package org.codice.ddf.security.idp.client;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -110,8 +111,10 @@ public class IdpHandler implements AuthenticationHandler {
         this.baseUrl = baseUrl;
         this.relayStates = relayStates;
 
-        postBindingTemplate = IOUtils.toString(
-                IdpHandler.class.getResourceAsStream("/post-binding.html"));
+        try (InputStream postFormStream = IdpHandler.class.getResourceAsStream(
+                "/post-binding.html")) {
+            postBindingTemplate = IOUtils.toString(postFormStream);
+        }
     }
 
     @Override

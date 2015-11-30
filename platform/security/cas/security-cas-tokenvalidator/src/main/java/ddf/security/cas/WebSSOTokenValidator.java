@@ -139,7 +139,12 @@ public class WebSSOTokenValidator implements TokenValidator {
         String ticket = null;
         String service = null;
         try {
-            String decodedToken = new String(Base64.decode(base64Token), Charset.forName("UTF-8"));
+            byte[] token = Base64.decode(base64Token);
+            if (token == null || token.length == 0) {
+                throw new WSSecurityException(WSSecurityException.ErrorCode.INVALID_SECURITY_TOKEN,
+                        "Binary security token NOT successfully decoded, is empty or null.");
+            }
+            String decodedToken = new String(token, Charset.forName("UTF-8"));
             if (StringUtils.isNotBlank(decodedToken)) {
                 LOGGER.debug("Binary security token successfully decoded: {}", decodedToken);
                 // Token is in the format ticket|service

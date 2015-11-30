@@ -14,7 +14,6 @@
 package org.codice.ddf.ui.admin.api;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -61,18 +60,17 @@ public class AnonClaimsHandlerExt {
         if (!StringUtils.isEmpty(profileDirPath)) {
             File dir = new File(profileDirPath);
             if (dir.exists()) {
-                File[] propertyFiles = dir.listFiles(new FilenameFilter() {
-                    @Override
-                    public boolean accept(File dir, String name) {
-                        return name.endsWith(".properties");
-                    }
+                File[] propertyFiles = dir.listFiles((dir1, name) -> {
+                    return name.endsWith(".properties");
                 });
-                for (File profileFile : propertyFiles) {
-                    Map<String, String> map = loadPropertiesFile(profileFile);
-                    String profileName = map.get(PROFILE_NAME_KEY);
-                    if (!StringUtils.isEmpty(profileName)) {
-                        map.remove(PROFILE_NAME_KEY);
-                        claimsProfilesMap.put(profileName, convertMapToList(map));
+                if (propertyFiles != null) {
+                    for (File profileFile : propertyFiles) {
+                        Map<String, String> map = loadPropertiesFile(profileFile);
+                        String profileName = map.get(PROFILE_NAME_KEY);
+                        if (!StringUtils.isEmpty(profileName)) {
+                            map.remove(PROFILE_NAME_KEY);
+                            claimsProfilesMap.put(profileName, convertMapToList(map));
+                        }
                     }
                 }
             }

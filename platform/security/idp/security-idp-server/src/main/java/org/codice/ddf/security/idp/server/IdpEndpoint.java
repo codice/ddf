@@ -20,6 +20,7 @@ import static ddf.security.samlp.SamlProtocol.REDIRECT_BINDING;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -153,12 +154,16 @@ public class IdpEndpoint implements Idp {
     }
 
     public void init() {
-        try {
-            indexHtml = IOUtils.toString(IdpEndpoint.class.getResourceAsStream("/html/index.html"));
-            submitForm = IOUtils.toString(IdpEndpoint.class.getResourceAsStream(
-                    "/templates/submitForm.handlebars"));
-            redirectPage = IOUtils.toString(IdpEndpoint.class.getResourceAsStream(
-                    "/templates/redirect.handlebars"));
+        try (
+                InputStream indexStream = IdpEndpoint.class.getResourceAsStream("/html/index.html");
+                InputStream submitFormStream = IdpEndpoint.class.getResourceAsStream(
+                        "/templates/submitForm.handlebars");
+                InputStream redirectPageStream = IdpEndpoint.class.getResourceAsStream(
+                        "/templates/redirect.handlebars")
+        ) {
+            indexHtml = IOUtils.toString(indexStream);
+            submitForm = IOUtils.toString(submitFormStream);
+            redirectPage = IOUtils.toString(redirectPageStream);
         } catch (Exception e) {
             LOGGER.error("Unable to load index page for IDP.", e);
         }
@@ -593,22 +598,27 @@ public class IdpEndpoint implements Idp {
                 .getDefaultX509Identifier());
         X509Certificate[] certs = systemCrypto.getSignatureCrypto()
                 .getX509Certificates(cryptoType);
-        X509Certificate issuerCert = certs[0];
+        X509Certificate issuerCert = null;
+        if (certs != null && certs.length > 0) {
+            issuerCert = certs[0];
+        }
 
         cryptoType = new CryptoType(CryptoType.TYPE.ALIAS);
         cryptoType.setAlias(systemCrypto.getEncryptionCrypto()
                 .getDefaultX509Identifier());
         certs = systemCrypto.getEncryptionCrypto()
                 .getX509Certificates(cryptoType);
-        X509Certificate encryptionCert = certs[0];
-        EntityDescriptor entityDescriptor =
-                SamlProtocol.createIdpMetadata(systemBaseUrl.constructUrl("/idp/login", true),
-                        Base64.encodeBase64String(issuerCert.getEncoded()),
-                        Base64.encodeBase64String(encryptionCert.getEncoded()),
-                        nameIdFormats,
-                        systemBaseUrl.constructUrl("/idp/login", true),
-                        systemBaseUrl.constructUrl("/idp/login", true),
-                        null);
+        X509Certificate encryptionCert = null;
+        if (certs != null && certs.length > 0) {
+            encryptionCert = certs[0];
+        }
+        EntityDescriptor entityDescriptor = SamlProtocol.createIdpMetadata(
+                systemBaseUrl.constructUrl("/idp/login", true), Base64.encodeBase64String(
+                        issuerCert != null ? issuerCert.getEncoded() : new byte[0]),
+                Base64.encodeBase64String(
+                        encryptionCert != null ? encryptionCert.getEncoded() : new byte[0]),
+                nameIdFormats, systemBaseUrl.constructUrl("/idp/login", true),
+                systemBaseUrl.constructUrl("/idp/login", true), null);
         Document doc = DOMUtils.createDocument();
         doc.appendChild(doc.createElement("root"));
         return Response.ok(DOM2Writer.nodeToString(OpenSAMLUtil.toDom(entityDescriptor,

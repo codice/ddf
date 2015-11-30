@@ -170,7 +170,7 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
         boolean empty = false;
         if (null != xacmlPoliciesDirectory && xacmlPoliciesDirectory.isDirectory()) {
             File[] files = xacmlPoliciesDirectory.listFiles();
-            empty = files.length == 0;
+            empty = files == null || files.length == 0;
         }
 
         return empty;

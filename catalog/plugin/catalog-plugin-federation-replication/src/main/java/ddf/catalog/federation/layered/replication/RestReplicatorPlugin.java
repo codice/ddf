@@ -15,6 +15,7 @@ package ddf.catalog.federation.layered.replication;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.ws.rs.core.MediaType;
@@ -192,7 +193,7 @@ public class RestReplicatorPlugin implements PostIngestPlugin {
 
         BinaryContent binaryContent;
         try {
-            binaryContent = transformer.transform(m, null);
+            binaryContent = transformer.transform(m, new HashMap<>());
             client.type(getValidMimeType(binaryContent.getMimeTypeValue()));
             return new String(binaryContent.getByteArray(), StandardCharsets.UTF_8);
         } catch (IOException e) {

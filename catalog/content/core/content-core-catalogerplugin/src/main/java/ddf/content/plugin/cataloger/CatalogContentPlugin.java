@@ -122,11 +122,9 @@ public class CatalogContentPlugin implements ContentPlugin {
             LOGGER.warn(e.getMessage(), e);
             throw new PluginExecutionException(e.getMessage(), e);
         } finally {
-            if (stream != null) {
-                try {
-                    stream.close();
-                } catch (IOException e) {
-                }
+            try {
+                stream.close();
+            } catch (IOException e) {
             }
         }
 

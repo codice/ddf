@@ -18,7 +18,6 @@ import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.isA;
-import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -142,7 +141,7 @@ public class TestPlugin {
         byte[] bytes = {86};
         try {
             when(bc.getByteArray()).thenReturn(bytes);
-            when(transformer.transform(isA(Metacard.class), isNull(Map.class))).thenReturn(bc);
+            when(transformer.transform(isA(Metacard.class), isA(Map.class))).thenReturn(bc);
         } catch (Exception e) {
             Assert.fail(e.getLocalizedMessage());
         }
@@ -236,7 +235,7 @@ public class TestPlugin {
             throws PluginExecutionException, CatalogTransformerException, IOException,
             IngestException, SourceUnavailableException {
         // given
-        when(transformer.transform(isA(Metacard.class), isNull(Map.class)))
+        when(transformer.transform(isA(Metacard.class), isA(Map.class)))
                 .thenThrow(CatalogTransformerException.class);
         CreateResponse createResponse = new CreateResponseImpl(new CreateRequestImpl(metacard),
                 null, Arrays.asList(metacard));
