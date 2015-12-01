@@ -143,6 +143,16 @@
                                             <value>COVEREDRATIO</value>
                                             <minimum>0.59</minimum>
                                         </limit>
+                                        <limit>
+                                            <counter>INSTRUCTION</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.77</minimum>
+                                        </limit>
+                                        <limit>
+                                            <counter>LINE</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.79</minimum>
+                                        </limit>
                                     </limits>
                                 </rule>
                             </rules>
