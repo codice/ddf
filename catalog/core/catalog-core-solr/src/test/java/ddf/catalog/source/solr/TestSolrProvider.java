@@ -699,7 +699,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
                 // Created Date
                 assertFalse(oldCard.getCreatedDate().after(new Date()));
                 assertFalse(newCard.getCreatedDate().after(new Date()));
-                assertTrue(newCard.getCreatedDate().equals(oldCard.getCreatedDate()));
+                assertTrue(newCard.getCreatedDate().after(oldCard.getCreatedDate()));
                 // Modified Date
                 assertTrue(newCard.getModifiedDate().after(oldCard.getModifiedDate()));
                 // Effective Date
@@ -737,7 +737,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
                 // Created Date
                 assertFalse(oldCard.getCreatedDate().after(new Date()));
                 assertFalse(newCard.getCreatedDate().after(new Date()));
-                assertTrue(newCard.getCreatedDate().equals(oldCard.getCreatedDate()));
+                assertTrue(newCard.getCreatedDate().after(oldCard.getCreatedDate()));
                 // Modified Date
                 assertTrue(newCard.getModifiedDate().after(oldCard.getModifiedDate()));
                 // Effective Date
