@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -36,9 +36,9 @@ import org.junit.Test;
 import ddf.security.SecurityConstants;
 import ddf.security.common.util.SecurityTokenHolder;
 
-public class TestLogoutServlet {
+public class TestLocalLogoutServlet {
     @Test
-    public void testLogout() {
+    public void testLocalLogout() {
 
         MockLocalLogoutServlet localLogoutServlet = new MockLocalLogoutServlet();
 
@@ -54,8 +54,7 @@ public class TestLogoutServlet {
         when(request.getSession(anyBoolean()).getId()).thenReturn("id");
         when(request.getRequestURL()).thenReturn(new StringBuffer("http://foo.bar"));
         SecurityTokenHolder securityTokenHolder = mock(SecurityTokenHolder.class);
-        when(httpSession.getAttribute(SecurityConstants.SAML_ASSERTION))
-                .thenReturn(securityTokenHolder);
+        when(httpSession.getAttribute(SecurityConstants.SAML_ASSERTION)).thenReturn(securityTokenHolder);
         try {
             localLogoutServlet.doGet(request, response);
         } catch (ServletException | IOException e) {
@@ -65,8 +64,7 @@ public class TestLogoutServlet {
     }
 
     //Since the servlet context is only set properly during startup, this mocks out the servlet context to avoid an exception during redirect
-    private class MockLocalLogoutServlet extends LocalLogoutServlet
-    {
+    private class MockLocalLogoutServlet extends LocalLogoutServlet {
         @Override
         public ServletContext getServletContext() {
             ServletContext servletContext = mock(ServletContext.class);

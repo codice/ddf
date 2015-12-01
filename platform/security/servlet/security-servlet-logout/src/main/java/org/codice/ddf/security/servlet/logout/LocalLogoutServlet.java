@@ -32,14 +32,12 @@ public class LocalLogoutServlet extends HttpServlet {
             throws ServletException, IOException {
         response.setHeader("Cache-Control", "no-cache, no-store");
         response.setHeader("Pragma", "no-cache");
-
         response.setContentType("text/html");
 
         HttpSession session = request.getSession(false);
         if (session != null) {
             SecurityTokenHolder savedToken = (SecurityTokenHolder) session
                     .getAttribute(SecurityConstants.SAML_ASSERTION);
-
             if (savedToken != null) {
                 savedToken.removeAll();
             }

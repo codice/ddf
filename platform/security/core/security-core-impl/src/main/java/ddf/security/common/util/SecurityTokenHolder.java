@@ -13,6 +13,7 @@
  */
 package ddf.security.common.util;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -20,7 +21,6 @@ import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 
 public class SecurityTokenHolder {
 
-    //TODO: Make this immutable
     final Map<String, SecurityToken> realmTokenMap = new ConcurrentHashMap<>();
 
     public SecurityToken getSecurityToken(String realm) {
@@ -32,7 +32,7 @@ public class SecurityTokenHolder {
     }
 
     public Map<String, SecurityToken> getRealmTokenMap() {
-        return realmTokenMap;
+        return Collections.unmodifiableMap(realmTokenMap);
     }
 
     public void remove(String realm) {

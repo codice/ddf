@@ -19,12 +19,10 @@ var proxy = httpProxy.createProxyServer({
     protocolRewrite: 'http'
 });
 
-// need to insecure the ddf secure cookies :) much delicious. dont ask
 proxy.on('proxyRes', function(proxyRes, req, res, options) {
     var cookies = proxyRes.headers['set-cookie'];
     if (cookies !== undefined) {
         cookies = cookies.map(function (cookie) { return cookie.replace(';Secure', ''); });
-        console.log(cookies);
         res.set('set-cookie', cookies);
         delete proxyRes.headers['set-cookie'];
     }

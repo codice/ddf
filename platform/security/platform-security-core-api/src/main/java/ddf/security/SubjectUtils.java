@@ -63,7 +63,6 @@ public final class SubjectUtils {
             if (principals != null) {
                 SecurityAssertion assertion = principals.oneByType(SecurityAssertion.class);
                 if (assertion != null) {
-                    //TODO Extract out and make a getName with a Principal as param
                     Principal principal = assertion.getPrincipal();
                     if (principal instanceof X500Principal) {
                         StringTokenizer st = new StringTokenizer(principal.getName(), ",");
