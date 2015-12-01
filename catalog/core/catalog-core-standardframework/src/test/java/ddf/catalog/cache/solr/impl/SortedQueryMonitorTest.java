@@ -24,6 +24,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -124,6 +125,12 @@ public class SortedQueryMonitorTest {
 
         assertThat(queryResponse.getHits()).isEqualTo(4);
         assertThat(queryResponse.getResults().size()).isEqualTo(4);
+        HashMap<String, Long> hitsPerSource = (HashMap<String, Long>) queryResponse.getProperties()
+                .get("hitsPerSource");
+        assertThat(hitsPerSource.size()).isEqualTo(3);
+        for (int[] idAndCount : new int[][] {{1, 3}, {2, 1}, {3, 0}}) {
+            assertThat(hitsPerSource.get("Source-" + idAndCount[0])).isEqualTo(idAndCount[1]);
+        }
 
         assertThat(queryResponse.getProcessingDetails()).extracting(byName("exception"))
                 .extracting(byName("class")).contains(NullPointerException.class);
@@ -160,6 +167,10 @@ public class SortedQueryMonitorTest {
 
         assertThat(queryResponse.getResults().size()).isEqualTo(3);
         assertThat(queryResponse.getHits()).isEqualTo(3);
+        HashMap<String, Long> hitsPerSource = (HashMap<String, Long>) queryResponse.getProperties()
+                .get("hitsPerSource");
+        assertThat(hitsPerSource.size()).isEqualTo(1);
+        assertThat(hitsPerSource.get("Source-1")).isEqualTo(3);
         assertThat(queryResponse.getProcessingDetails()).extracting(byName("exception"))
                 .extracting(byName("class")).contains(NullPointerException.class,
                 TimeoutException.class, TimeoutException.class);
@@ -192,6 +203,10 @@ public class SortedQueryMonitorTest {
         verify(completionService, never()).take();
 
         assertThat(queryResponse.getResults().size()).isEqualTo(3);
+        HashMap<String, Long> hitsPerSource = (HashMap<String, Long>) queryResponse.getProperties()
+                .get("hitsPerSource");
+        assertThat(hitsPerSource.size()).isEqualTo(1);
+        assertThat(hitsPerSource.get("Source-1")).isEqualTo(3);
         assertThat(queryResponse.getProcessingDetails()).extracting(byName("exception"))
                 .extracting(byName("class"))
                 .contains(NullPointerException.class, InterruptedException.class,

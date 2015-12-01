@@ -17,6 +17,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -109,6 +110,7 @@ class SortedQueryMonitor implements Runnable {
         Set<ProcessingDetails> processingDetails = returnResults.getProcessingDetails();
 
         Map<String, Serializable> returnProperties = returnResults.getProperties();
+        HashMap<String, Long> hitsPerSource = new HashMap<>();
 
         for (int i = futures.size(); i > 0; i--) {
             String sourceId = "Unknown Source";
@@ -139,7 +141,9 @@ class SortedQueryMonitor implements Runnable {
                             .add(new ProcessingDetailsImpl(sourceId, new NullPointerException()));
                 } else {
                     resultList.addAll(sourceResponse.getResults());
-                    totalHits += sourceResponse.getHits();
+                    long hits = sourceResponse.getHits();
+                    totalHits += hits;
+                    hitsPerSource.merge(sourceId, hits, (l1, l2) -> l1 + l2);
 
                     Map<String, Serializable> properties = sourceResponse.getProperties();
                     returnProperties.putAll(properties);
@@ -162,6 +166,7 @@ class SortedQueryMonitor implements Runnable {
                         new Exception(Exceptions.getFullMessage(e))));
             }
         }
+        returnProperties.put("hitsPerSource", hitsPerSource);
         logger.debug("All sources finished returning results: {}", resultList.size());
 
         returnResults.setHits(totalHits);
