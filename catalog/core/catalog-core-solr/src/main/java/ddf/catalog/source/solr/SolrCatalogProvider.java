@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -330,9 +329,6 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
             throw new IngestException(REQUEST_MUST_NOT_BE_NULL_MESSAGE);
         }
 
-        // for the modified date, possibly will be replaced by a plugin?
-        Date now = new Date();
-
         List<Entry<Serializable, Metacard>> updates = updateRequest.getUpdates();
 
         // the list of updates, both new and old metacards
@@ -441,7 +437,8 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
             // We need to skip because of partial updates such as one entry
             // matched but another did not
             if (oldMetacard != null) {
-                prepareForUpdate(now, oldMetacard.getId(), newMetacard, oldMetacard);
+                // overwrite the id, in case it has not been done properly/already
+                newMetacard.setId(oldMetacard.getId());
 
                 newMetacard.setSourceId(getId());
 
@@ -549,24 +546,6 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
             throw new IngestException(COULD_NOT_COMPLETE_DELETE_REQUEST_MESSAGE);
         }
         return solrResponse.getResults();
-    }
-
-    private void prepareForUpdate(Date now, String keyId, MetacardImpl newMetacard,
-            Metacard oldMetacard) {
-        // overwrite the id, in case it has not been done properly/already
-        newMetacard.setId(keyId);
-        // copy over the created date, we can only have that info from the old
-        // card
-        newMetacard.setCreatedDate(oldMetacard.getCreatedDate());
-        // overwrite the modified date, it should be replaced to the current
-        // time
-        newMetacard.setModifiedDate(now);
-        // copy over the effective date in case it is null, effective date must
-        // be populated
-        if (newMetacard.getEffectiveDate() == null) {
-            newMetacard.setEffectiveDate(now);
-        }
-
     }
 
     private String getQuery(String attributeName, List<String> ids) throws IngestException {
