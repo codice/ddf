@@ -19,7 +19,7 @@ import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.support.DelegatingSubject;
 
 import ddf.security.Subject;
-import ddf.security.principal.AnonymousPrincipal;
+import ddf.security.principal.GuestPrincipal;
 
 public class SubjectImpl extends DelegatingSubject implements Subject {
 
@@ -41,12 +41,12 @@ public class SubjectImpl extends DelegatingSubject implements Subject {
     }
 
     @Override
-    public boolean isAnonymous() {
+    public boolean isGuest() {
         PrincipalCollection collection = getPrincipals();
         for (Object principal : collection.asList()) {
-            if (principal instanceof AnonymousPrincipal) {
+            if (principal instanceof GuestPrincipal) {
                 return true;
-            } else if (principal.toString().startsWith(AnonymousPrincipal.ANONYMOUS_NAME_PREFIX)) {
+            } else if (principal.toString().startsWith(GuestPrincipal.GUEST_NAME_PREFIX)) {
                 return true;
             }
         }

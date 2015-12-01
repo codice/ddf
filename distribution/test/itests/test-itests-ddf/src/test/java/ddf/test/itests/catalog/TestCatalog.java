@@ -604,7 +604,7 @@ public class TestCatalog extends AbstractIntegrationTest {
             response = executeAdminOpenSearch("xml", "q=*");
             response.body(hasXPath(xPath));
 
-            getSecurityPolicy().configureRestForAnonymous();
+            getSecurityPolicy().configureRestForGuest();
 
             stopFeature(true, "sample-filter");
             stopFeature(true, "filter-plugin");
@@ -646,7 +646,7 @@ public class TestCatalog extends AbstractIntegrationTest {
 
         //revert to original configuration
         configProps.put("permissionStrings", new String[] {
-                "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=anonymous"});
+                "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest"});
         config.update(configProps);
         waitForAllBundles();
 

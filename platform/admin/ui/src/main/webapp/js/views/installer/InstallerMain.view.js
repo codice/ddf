@@ -19,7 +19,7 @@ define([
     './Welcome.view',
     './Navigation.view.js',
     './Configuration.view.js',
-    './AnonClaims.view.js',
+    './GuestClaims.view.js',
     './Application.view.js',
     './Finish.view.js',
     './Profile.view.js',
@@ -27,7 +27,7 @@ define([
     'text!templates/installer/main.handlebars',
     'js/models/Applications.js',
     'js/application'
-    ], function (Marionette, WelcomeView, NavigationView, ConfigurationView, AnonClaimsView, ApplicationView, FinishView,ProfileView, ich, mainTemplate, AppModel, Application) {
+    ], function (Marionette, WelcomeView, NavigationView, ConfigurationView, GuestClaimsView, ApplicationView, FinishView,ProfileView, ich, mainTemplate, AppModel, Application) {
 
     ich.addTemplate('mainTemplate', mainTemplate);
 
@@ -38,7 +38,7 @@ define([
         regions: {
             welcome: '#welcome',
             configuration: '#configuration',
-            anonClaims: '#anonClaims',
+            guestClaims: '#guestClaims',
             applications: '#applications',
             finish: '#finish',
             profiles: '#profiles',
@@ -51,17 +51,17 @@ define([
         },
         changePage: function() {
             //close whatever view is open
-            var welcomeStep = 0, anonClaimsStep = 1, configStep = null, profileStep = null, applicationStep = null, finishStep = null;
+            var welcomeStep = 0, guestClaimsStep = 1, configStep = null, profileStep = null, applicationStep = null, finishStep = null;
             if(this.model.get('showInstallProfileStep')){
                 // factor in profile step
-                profileStep = anonClaimsStep +1;
+                profileStep = guestClaimsStep +1;
                 applicationStep = profileStep +1;
                 configStep = applicationStep +1;
                 finishStep = configStep +1;
             } else {
                 // no profile step.
                 profileStep = null;
-                applicationStep = anonClaimsStep +1;
+                applicationStep = guestClaimsStep +1;
                 finishStep = applicationStep +1;
             }
             if(this.welcome.currentView && this.model.get('stepNumber') !== welcomeStep) {
@@ -70,8 +70,8 @@ define([
             if(this.configuration.currentView && this.model.get('stepNumber') !== configStep) {
                 this.hideConfiguration();
             }
-            if(this.anonClaims.currentView && this.model.get('stepNumber') !== anonClaimsStep) {
-                this.hideAnonClaims();
+            if(this.guestClaims.currentView && this.model.get('stepNumber') !== guestClaimsStep) {
+                this.hideGuestClaims();
             }
             if(this.profiles.currentView && this.model.get('stepNumber') !== profileStep) {
                 this.hideProfiles();
@@ -87,8 +87,8 @@ define([
                 this.showWelcome();
             } else if(!this.configuration.currentView && this.model.get('stepNumber') === configStep) {
                 this.showConfiguration();
-            } else if(!this.anonClaims.currentView && this.model.get('stepNumber') === anonClaimsStep) {
-                this.showAnonClaims();
+            } else if(!this.guestClaims.currentView && this.model.get('stepNumber') === guestClaimsStep) {
+                this.showGuestClaims();
             } else  if(!this.profiles.currentView && this.model.get('stepNumber') === profileStep) {
                 this.showProfiles();
             } else if(!this.applications.currentView && this.model.get('stepNumber') === applicationStep) {
@@ -113,13 +113,13 @@ define([
             }
             this.$(this.configuration.el).show();
         },
-        showAnonClaims: function() {
-            if(this.anonClaims.currentView) {
-                this.anonClaims.show();
+        showGuestClaims: function() {
+            if(this.guestClaims.currentView) {
+                this.guestClaims.show();
             } else {
-                this.anonClaims.show(new AnonClaimsView({navigationModel: this.model}));
+                this.guestClaims.show(new GuestClaimsView({navigationModel: this.model}));
             }
-            this.$(this.anonClaims.el).show();
+            this.$(this.guestClaims.el).show();
         },
         showApplications: function() {
             if(this.applications.currentView) {
@@ -170,9 +170,9 @@ define([
             this.configuration.close();
             this.$(this.configuration.el).hide();
         },
-        hideAnonClaims: function() {
-            this.anonClaims.close();
-            this.$(this.anonClaims.el).hide();
+        hideGuestClaims: function() {
+            this.guestClaims.close();
+            this.$(this.guestClaims.el).hide();
         },
         hideApplications: function() {
             this.applications.close();

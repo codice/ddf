@@ -71,7 +71,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
 
     protected static final String PASSWORD = System.getProperty("javax.net.ssl.trustStorePassword");
 
-    public static final String IDP_AUTH_TYPES = "/=SAML|ANON,/search=SAML|IDP|PKI,/solr=SAML|PKI|basic";
+    public static final String IDP_AUTH_TYPES = "/=SAML|GUEST,/search=SAML|IDP|PKI,/solr=SAML|PKI|basic";
 
     private static final DynamicUrl SEARCH_URL = new DynamicUrl(DynamicUrl.SECURE_ROOT, HTTPS_PORT,
             "/search");

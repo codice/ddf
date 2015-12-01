@@ -108,7 +108,7 @@ public class NotificationController extends AbstractEventController {
         }
 
         String userId = (String) event.getProperty(Notification.NOTIFICATION_KEY_USER_ID);
-        // Blank user ID is allowed as this indicates the anonymous user
+        // Blank user ID is allowed as this indicates the guest user
         if (null == userId) {
             throw new IllegalArgumentException("Event \"" + Notification.NOTIFICATION_KEY_USER_ID
                     + "\" property is null or empty");
@@ -214,7 +214,7 @@ public class NotificationController extends AbstractEventController {
 
                 if (action != null) {
                     if ("remove".equals(action)) {
-                        //You can have a blank id for anonymous
+                        //You can have a blank id for guest
                         if (id != null) {
                             try {
                                 this.persistentStore.delete(PersistentStore.NOTIFICATION_TYPE,

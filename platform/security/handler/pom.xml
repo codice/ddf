@@ -35,7 +35,7 @@
 
     <modules>
         <module>security-handler-api</module>
-        <module>security-handler-anonymous</module>
+        <module>security-handler-guest</module>
         <module>security-handler-basic</module>
         <module>security-handler-saml</module>
         <module>security-handler-pki</module>

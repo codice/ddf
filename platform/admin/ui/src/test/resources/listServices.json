@@ -1589,7 +1589,7 @@
         },
         {
           "defaultValue": [
-            "/=SAML|ANON",
+            "/=SAML|GUEST",
             "/admin=SAML|basic",
             "/jolokia=SAML|basic",
             "/system=basic",
@@ -1598,7 +1598,7 @@
           ],
           "optionLabels": [],
           "name": "Authentication Types",
-          "description": "List of authentication types required for each context. List of default valid authentication types are: SAML, BASIC, PKI, ANON. Example: /context=AUTH1|AUTH2|AUTH3",
+          "description": "List of authentication types required for each context. List of default valid authentication types are: SAML, BASIC, PKI, GUEST. Example: /context=AUTH1|AUTH2|AUTH3",
           "id": "authenticationTypes",
           "type": 1,
           "cardinality": 100,
@@ -1801,7 +1801,7 @@
           ],
           "optionLabels": [],
           "name": "Roles",
-          "description": "Comma-delimited list of roles that a user could have in order to be permitted for restricted actions. Defaults to admin,anonymous.",
+          "description": "Comma-delimited list of roles that a user could have in order to be permitted for restricted actions. Defaults to admin.",
           "id": "accessRoleList",
           "type": 1,
           "cardinality": 0,
@@ -2109,11 +2109,11 @@
           ]
         }
       ],
-      "id": "org.codice.ddf.security.handler.anonymous.configuration"
+      "id": "org.codice.ddf.security.handler.guest.configuration"
     },
     {
       "factory": false,
-      "name": "Security STS Anonymous Validator",
+      "name": "Security STS Guest Validator",
       "metatype": [
         {
           "defaultValue": [
@@ -2129,56 +2129,56 @@
           "optionValues": []
         }
       ],
-      "id": "ddf.security.sts.anonymousvalidator"
+      "id": "ddf.security.sts.guestvalidator"
     },
     {
       "factory": false,
       "configurations": [
         {
-          "bundle_location": "mvn:ddf.security.sts/security-sts-anonymousclaimshandler/2.8.0-SNAPSHOT",
-          "name": "Security STS Anonymous Claims Handler",
-          "id": "ddf.security.sts.anonymousclaims",
-          "bundle_name": "DDF :: Security :: STS :: Anonymous Claims Handler",
+          "bundle_location": "mvn:ddf.security.sts/security-sts-guestclaimshandler/2.8.0-SNAPSHOT",
+          "name": "Security STS Guest Claims Handler",
+          "id": "ddf.security.sts.guestclaims",
+          "bundle_name": "DDF :: Security :: STS :: Guest Claims Handler",
           "bundle": 273,
           "properties": {
             "profile": "Default",
-            "felix.fileinstall.filename": "file:ddf-2.8.0-SNAPSHOT/etc/ddf.security.sts.anonymousclaims.cfg",
-            "attributes": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier=anonymous,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=anonymous",
-            "service.pid": "ddf.security.sts.anonymousclaims"
+            "felix.fileinstall.filename": "file:ddf-2.8.0-SNAPSHOT/etc/ddf.security.sts.guestclaims.cfg",
+            "attributes": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier=guest,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest",
+            "service.pid": "ddf.security.sts.guestclaims"
           },
           "enabled": true
         }
       ],
-      "name": "Security STS Anonymous Claims Handler",
+      "name": "Security STS Guest Claims Handler",
       "metatype": [
         {
           "defaultValue": [
-            "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier=anonymous",
-            "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=anonymous"
+            "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier=guest",
+            "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest"
           ],
           "optionLabels": [],
           "name": "Attributes",
-          "description": "The attributes to be returned for any Anonymous user.",
+          "description": "The attributes to be returned for any Guest user.",
           "id": "attributes",
           "type": 1,
           "cardinality": 1000,
           "optionValues": []
         }
       ],
-      "id": "ddf.security.sts.anonymousclaims"
+      "id": "ddf.security.sts.guestclaims"
     },
     {
       "factory": false,
-      "name": "Security SOAP Anonymous Interceptor",
+      "name": "Security SOAP Guest Interceptor",
       "metatype": [
         {
           "defaultValue": [
             "false"
           ],
           "optionLabels": [],
-          "name": "Deny Anonymous Access",
-          "description": "If set to true, no anonymous access will be allowed via this anonymous interceptor. If set to             false, this interceptor will generate anonymous tokens for incoming requests that lack a WS-Security header.",
-          "id": "anonymousAccessDenied",
+          "name": "Deny Guest Access",
+          "description": "If set to true, no guest access will be allowed via this guest interceptor. If set to             false, this interceptor will generate guest tokens for incoming requests that lack a WS-Security header.",
+          "id": "guestAccessDenied",
           "type": 11,
           "cardinality": 0,
           "optionValues": []
@@ -2189,14 +2189,14 @@
           ],
           "optionLabels": [],
           "name": "Override Endpoint Policies",
-          "description": "If checked, forces anonymous tokens to be created and inserted into the incoming request regardless             of whether the policy requires an issued token. If set to false, if the endpoint policies cannot be satisfied,             no changes will be made to the incoming request. This only applies to incoming requests that lack a WS-Security             header - those with a WS-Security header are passed through unchanged.",
+          "description": "If checked, forces guest tokens to be created and inserted into the incoming request regardless             of whether the policy requires an issued token. If set to false, if the endpoint policies cannot be satisfied,             no changes will be made to the incoming request. This only applies to incoming requests that lack a WS-Security             header - those with a WS-Security header are passed through unchanged.",
           "id": "overrideEndpointPolicies",
           "type": 11,
           "cardinality": 0,
           "optionValues": []
         }
       ],
-      "id": "org.codice.ddf.security.interceptor.AnonymousInterceptor"
+      "id": "org.codice.ddf.security.interceptor.GuestInterceptor"
     },
     {
       "factory": false,

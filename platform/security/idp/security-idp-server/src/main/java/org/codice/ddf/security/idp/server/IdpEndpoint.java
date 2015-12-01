@@ -53,8 +53,8 @@ import org.boon.Boon;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.security.common.HttpUtils;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
-import org.codice.ddf.security.handler.api.AnonymousAuthenticationToken;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
+import org.codice.ddf.security.handler.api.GuestAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.api.PKIAuthenticationTokenFactory;
 import org.codice.ddf.security.handler.basic.BasicAuthenticationHandler;
@@ -378,7 +378,7 @@ public class IdpEndpoint implements Idp {
             }
         } else if (GUEST.equals(authMethod)) {
             LOGGER.debug("Logging user in as Guest.");
-            token = new AnonymousAuthenticationToken(BaseAuthenticationToken.ALL_REALM,
+            token = new GuestAuthenticationToken(BaseAuthenticationToken.ALL_REALM,
                     request.getRemoteAddr());
         } else {
             throw new IllegalArgumentException("Auth method is not supported.");

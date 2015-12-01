@@ -13,9 +13,6 @@
  */
 package ddf.security;
 
-import java.util.Arrays;
-import java.util.List;
-
 public final class SecurityConstants {
     /**
      * String used to retrieve the security logger in each class that wishes to
@@ -69,12 +66,7 @@ public final class SecurityConstants {
     public static final String TRUSTSTORE_PATH = "javax.net.ssl.trustStore";
 
     public static final String TRUSTSTORE_TYPE = "javax.net.ssl.trustStoreType";
-
-    public static final List<String> SSL_ALLOWED_ALGORITHMS = Arrays.asList(".*_WITH_AES_.*");
-
-    public static final List<String> SSL_DISALLOWED_ALGORITHMS = Arrays
-            .asList(".*_WITH_NULL_.*", ".*_DH_anon_.*");
-
+    
     private SecurityConstants() {
 
     }

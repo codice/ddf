@@ -318,7 +318,7 @@ public class FilterPluginTest {
         }
 
         @Override
-        public boolean isAnonymous() {
+        public boolean isGuest() {
             return false;
         }
     }
