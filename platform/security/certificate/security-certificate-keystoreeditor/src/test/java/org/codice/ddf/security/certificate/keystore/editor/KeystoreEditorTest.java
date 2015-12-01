@@ -130,14 +130,14 @@ public class KeystoreEditorTest {
 
         systemKeystoreFile = temporaryFolder.newFile("serverKeystore.jks");
         FileOutputStream systemKeyOutStream = new FileOutputStream(systemKeystoreFile);
-        InputStream systemKeyStream = KeystoreEditor.class
-                .getResourceAsStream("/serverKeystore.jks");
+        InputStream systemKeyStream =
+                KeystoreEditor.class.getResourceAsStream("/serverKeystore.jks");
         IOUtils.copy(systemKeyStream, systemKeyOutStream);
 
         systemTruststoreFile = temporaryFolder.newFile("serverTruststore.jks");
         FileOutputStream systemTrustOutStream = new FileOutputStream(systemTruststoreFile);
-        InputStream systemTrustStream = KeystoreEditor.class
-                .getResourceAsStream("/serverTruststore.jks");
+        InputStream systemTrustStream = KeystoreEditor.class.getResourceAsStream(
+                "/serverTruststore.jks");
         IOUtils.copy(systemTrustStream, systemTrustOutStream);
 
         IOUtils.closeQuietly(p12OutStream);
@@ -195,8 +195,10 @@ public class KeystoreEditorTest {
         addCertChain(keystoreEditor);
         List<Map<String, Object>> keystore = keystoreEditor.getKeystore();
         Assert.assertThat(keystore.size(), Is.is(2));
-        String alias1 = (String) keystore.get(0).get("alias");
-        String alias2 = (String) keystore.get(1).get("alias");
+        String alias1 = (String) keystore.get(0)
+                .get("alias");
+        String alias2 = (String) keystore.get(1)
+                .get("alias");
         Assert.assertThat(alias1, AnyOf.anyOf(Is.is("asdf"), Is.is("ddf demo root ca")));
         Assert.assertThat(alias2, AnyOf.anyOf(Is.is("asdf"), Is.is("ddf demo root ca")));
         List<Map<String, Object>> truststore = keystoreEditor.getTruststore();
@@ -205,8 +207,10 @@ public class KeystoreEditorTest {
         addPrivateKey(keystoreEditor, keyFile, "");
         keystore = keystoreEditor.getKeystore();
         Assert.assertThat(keystore.size(), Is.is(2));
-        alias1 = (String) keystore.get(0).get("alias");
-        alias2 = (String) keystore.get(1).get("alias");
+        alias1 = (String) keystore.get(0)
+                .get("alias");
+        alias2 = (String) keystore.get(1)
+                .get("alias");
         Assert.assertThat(alias1, AnyOf.anyOf(Is.is("asdf"), Is.is("ddf demo root ca")));
         Assert.assertThat(alias2, AnyOf.anyOf(Is.is("asdf"), Is.is("ddf demo root ca")));
         truststore = keystoreEditor.getTruststore();
@@ -219,7 +223,8 @@ public class KeystoreEditorTest {
         addPrivateKey(keystoreEditor, pemFile, KeystoreEditor.PEM_TYPE);
         List<Map<String, Object>> keystore = keystoreEditor.getKeystore();
         Assert.assertThat(keystore.size(), Is.is(1));
-        Assert.assertThat((String) keystore.get(0).get("alias"), Is.is("asdf"));
+        Assert.assertThat(keystore.get(0)
+                .get("alias"), Is.is("asdf"));
         List<Map<String, Object>> truststore = keystoreEditor.getTruststore();
         Assert.assertThat(truststore.size(), Is.is(0));
     }
@@ -230,7 +235,8 @@ public class KeystoreEditorTest {
         addPrivateKey(keystoreEditor, derFile, KeystoreEditor.DER_TYPE);
         List<Map<String, Object>> keystore = keystoreEditor.getKeystore();
         Assert.assertThat(keystore.size(), Is.is(1));
-        Assert.assertThat((String) keystore.get(0).get("alias"), Is.is("asdf"));
+        Assert.assertThat(keystore.get(0)
+                .get("alias"), Is.is("asdf"));
         List<Map<String, Object>> truststore = keystoreEditor.getTruststore();
         Assert.assertThat(truststore.size(), Is.is(0));
     }
@@ -240,9 +246,12 @@ public class KeystoreEditorTest {
         FileInputStream fileInputStream = new FileInputStream(keyFile);
         byte[] keyBytes = IOUtils.toByteArray(fileInputStream);
         IOUtils.closeQuietly(fileInputStream);
-        keystoreEditor
-                .addPrivateKey("asdf", password, "", new String(Base64.encode(keyBytes)), type,
-                        keyFile.toString());
+        keystoreEditor.addPrivateKey("asdf",
+                password,
+                "",
+                new String(Base64.encode(keyBytes)),
+                type,
+                keyFile.toString());
     }
 
     private void addCertChain(KeystoreEditor keystoreEditor)
@@ -250,8 +259,12 @@ public class KeystoreEditorTest {
         FileInputStream fileInputStream = new FileInputStream(chainFile);
         byte[] crtBytes = IOUtils.toByteArray(fileInputStream);
         IOUtils.closeQuietly(fileInputStream);
-        keystoreEditor.addPrivateKey("asdf", password, "", new String(Base64.encode(crtBytes)),
-                KeystoreEditor.PEM_TYPE, chainFile.toString());
+        keystoreEditor.addPrivateKey("asdf",
+                password,
+                "",
+                new String(Base64.encode(crtBytes)),
+                KeystoreEditor.PEM_TYPE,
+                chainFile.toString());
     }
 
     @Test
@@ -260,12 +273,16 @@ public class KeystoreEditorTest {
         FileInputStream fileInputStream = new FileInputStream(jksFile);
         byte[] keyBytes = IOUtils.toByteArray(fileInputStream);
         IOUtils.closeQuietly(fileInputStream);
-        keystoreEditor
-                .addPrivateKey("asdf", password, password, new String(Base64.encode(keyBytes)),
-                        "", jksFile.toString());
+        keystoreEditor.addPrivateKey("asdf",
+                password,
+                password,
+                new String(Base64.encode(keyBytes)),
+                "",
+                jksFile.toString());
         List<Map<String, Object>> keystore = keystoreEditor.getKeystore();
         Assert.assertThat(keystore.size(), Is.is(1));
-        Assert.assertThat((String) keystore.get(0).get("alias"), Is.is("asdf"));
+        Assert.assertThat((String) keystore.get(0)
+                .get("alias"), Is.is("asdf"));
 
         List<Map<String, Object>> truststore = keystoreEditor.getTruststore();
         Assert.assertThat(truststore.size(), Is.is(0));
@@ -277,12 +294,16 @@ public class KeystoreEditorTest {
         FileInputStream fileInputStream = new FileInputStream(pkcs12StoreFile);
         byte[] keyBytes = IOUtils.toByteArray(fileInputStream);
         IOUtils.closeQuietly(fileInputStream);
-        keystoreEditor
-                .addPrivateKey("asdf", password, password, new String(Base64.encode(keyBytes)),
-                        KeystoreEditor.PKCS12_TYPE, pkcs12StoreFile.toString());
+        keystoreEditor.addPrivateKey("asdf",
+                password,
+                password,
+                new String(Base64.encode(keyBytes)),
+                KeystoreEditor.PKCS12_TYPE,
+                pkcs12StoreFile.toString());
         List<Map<String, Object>> keystore = keystoreEditor.getKeystore();
         Assert.assertThat(keystore.size(), Is.is(1));
-        Assert.assertThat((String) keystore.get(0).get("alias"), Is.is("asdf"));
+        Assert.assertThat((String) keystore.get(0)
+                .get("alias"), Is.is("asdf"));
 
         List<Map<String, Object>> truststore = keystoreEditor.getTruststore();
         Assert.assertThat(truststore.size(), Is.is(0));
@@ -294,9 +315,12 @@ public class KeystoreEditorTest {
         FileInputStream fileInputStream = new FileInputStream(localhostCrtFile);
         byte[] crtBytes = IOUtils.toByteArray(fileInputStream);
         IOUtils.closeQuietly(fileInputStream);
-        keystoreEditor
-                .addPrivateKey("localhost", password, "", new String(Base64.encode(crtBytes)),
-                        KeystoreEditor.PEM_TYPE, localhostCrtFile.toString());
+        keystoreEditor.addPrivateKey("localhost",
+                password,
+                "",
+                new String(Base64.encode(crtBytes)),
+                KeystoreEditor.PEM_TYPE,
+                localhostCrtFile.toString());
         List<Map<String, Object>> keystore = keystoreEditor.getKeystore();
         Assert.assertThat(keystore.size(), Is.is(1));
 
@@ -307,12 +331,16 @@ public class KeystoreEditorTest {
         fileInputStream = new FileInputStream(localhostKeyFile);
         byte[] keyBytes = IOUtils.toByteArray(fileInputStream);
         IOUtils.closeQuietly(fileInputStream);
-        keystoreEditor.addPrivateKey("localhost", password, password,
-                new String(Base64.encode(keyBytes)), KeystoreEditor.PEM_TYPE,
+        keystoreEditor.addPrivateKey("localhost",
+                password,
+                password,
+                new String(Base64.encode(keyBytes)),
+                KeystoreEditor.PEM_TYPE,
                 localhostKeyFile.toString());
         keystore = keystoreEditor.getKeystore();
         Assert.assertThat(keystore.size(), Is.is(1));
-        Assert.assertThat((String) keystore.get(0).get("alias"), Is.is("localhost"));
+        Assert.assertThat((String) keystore.get(0)
+                .get("alias"), Is.is("localhost"));
 
         truststore = keystoreEditor.getTruststore();
         Assert.assertThat(truststore.size(), Is.is(0));
@@ -321,97 +349,124 @@ public class KeystoreEditorTest {
     @Test
     public void testReplaceSystemStores() throws Exception {
         KeystoreEditor keystoreEditor = new KeystoreEditor();
-        Assert.assertThat(keystoreEditor.getKeystore().size(), Is.is(0));
-        Assert.assertThat(keystoreEditor.getTruststore().size(), Is.is(0));
+        Assert.assertThat(keystoreEditor.getKeystore()
+                .size(), Is.is(0));
+        Assert.assertThat(keystoreEditor.getTruststore()
+                .size(), Is.is(0));
 
-        FileInputStream keystoreInputStream = new FileInputStream(systemKeystoreFile);
-        byte[] keystoreCrtBytes = IOUtils.toByteArray(keystoreInputStream);
-        byte[] keystoreEncodedBytes = Base64.encode(keystoreCrtBytes);
-        FileInputStream truststoreInputStream = new FileInputStream(systemTruststoreFile);
-        byte[] truststoreCrtBytes = IOUtils.toByteArray(truststoreInputStream);
-        byte[] truststoreEncodedBytes = Base64.encode(truststoreCrtBytes);
-        List<String> errors = keystoreEditor
-                .replaceSystemStores("localhost", password, password,
-                        new String(keystoreEncodedBytes), systemKeystoreFile.getName(), password,
-                        new String(truststoreEncodedBytes), systemTruststoreFile.getName());
-        Assert.assertThat(errors.size(), Is.is(0));
-        List<Map<String, Object>> keystore = keystoreEditor.getKeystore();
-        List<Map<String, Object>> truststore = keystoreEditor.getTruststore();
-        Assert.assertThat(keystore.size(), Is.is(2));
-        String alias1 = (String) keystore.get(0).get("alias");
-        String alias2 = (String) keystore.get(1).get("alias");
-        Assert.assertThat(alias1, AnyOf.anyOf(Is.is("localhost"), Is.is("ddf demo root ca")));
-        Assert.assertThat(alias2, AnyOf.anyOf(Is.is("localhost"), Is.is("ddf demo root ca")));
-        Assert.assertThat(truststore.get(0).get("alias"), Is.is("ddf demo root ca"));
+        try (
+                FileInputStream keystoreInputStream = new FileInputStream(systemKeystoreFile);
+                FileInputStream truststoreInputStream = new FileInputStream(systemTruststoreFile);
+        ) {
+            byte[] keystoreCrtBytes = IOUtils.toByteArray(keystoreInputStream);
+            byte[] keystoreEncodedBytes = Base64.encode(keystoreCrtBytes);
+            byte[] truststoreCrtBytes = IOUtils.toByteArray(truststoreInputStream);
+            byte[] truststoreEncodedBytes = Base64.encode(truststoreCrtBytes);
+            List<String> errors = keystoreEditor.replaceSystemStores("localhost",
+                    password,
+                    password,
+                    new String(keystoreEncodedBytes),
+                    systemKeystoreFile.getName(),
+                    password,
+                    new String(truststoreEncodedBytes),
+                    systemTruststoreFile.getName());
+            Assert.assertThat(errors.size(), Is.is(0));
+            List<Map<String, Object>> keystore = keystoreEditor.getKeystore();
+            List<Map<String, Object>> truststore = keystoreEditor.getTruststore();
+            Assert.assertThat(keystore.size(), Is.is(2));
+            String alias1 = (String) keystore.get(0)
+                    .get("alias");
+            String alias2 = (String) keystore.get(1)
+                    .get("alias");
+            Assert.assertThat(alias1, AnyOf.anyOf(Is.is("localhost"), Is.is("ddf demo root ca")));
+            Assert.assertThat(alias2, AnyOf.anyOf(Is.is("localhost"), Is.is("ddf demo root ca")));
+            Assert.assertThat(truststore.get(0)
+                    .get("alias"), Is.is("ddf demo root ca"));
+        }
     }
 
     @Test
     public void testReplaceSystemStoresBadFqdn() throws Exception {
-        KeystoreEditor keystoreEditor = new KeystoreEditor();
-        Assert.assertThat(keystoreEditor.getKeystore().size(), Is.is(0));
-        Assert.assertThat(keystoreEditor.getTruststore().size(), Is.is(0));
-
-        FileInputStream keystoreInputStream = new FileInputStream(systemKeystoreFile);
-        byte[] keystoreCrtBytes = IOUtils.toByteArray(keystoreInputStream);
-        byte[] keystoreEncodedBytes = Base64.encode(keystoreCrtBytes);
-        FileInputStream truststoreInputStream = new FileInputStream(systemTruststoreFile);
-        byte[] truststoreCrtBytes = IOUtils.toByteArray(truststoreInputStream);
-        byte[] truststoreEncodedBytes = Base64.encode(truststoreCrtBytes);
-        List<String> errors = keystoreEditor.replaceSystemStores("asdf", password, password,
-                new String(keystoreEncodedBytes), systemKeystoreFile.getName(), password,
-                new String(truststoreEncodedBytes), systemTruststoreFile.getName());
-        Assert.assertThat(errors.size(), Is.is(1));
+        replaceSystemStores("asdf");
     }
 
     @Test
     public void testReplaceSystemStoresEmptyFqdn() throws Exception {
-        KeystoreEditor keystoreEditor = new KeystoreEditor();
-        Assert.assertThat(keystoreEditor.getKeystore().size(), Is.is(0));
-        Assert.assertThat(keystoreEditor.getTruststore().size(), Is.is(0));
+        replaceSystemStores("");
+    }
 
-        FileInputStream keystoreInputStream = new FileInputStream(systemKeystoreFile);
-        byte[] keystoreCrtBytes = IOUtils.toByteArray(keystoreInputStream);
-        byte[] keystoreEncodedBytes = Base64.encode(keystoreCrtBytes);
-        FileInputStream truststoreInputStream = new FileInputStream(systemTruststoreFile);
-        byte[] truststoreCrtBytes = IOUtils.toByteArray(truststoreInputStream);
-        byte[] truststoreEncodedBytes = Base64.encode(truststoreCrtBytes);
-        List<String> errors = keystoreEditor
-                .replaceSystemStores("", password, password, new String(keystoreEncodedBytes),
-                        systemKeystoreFile.getName(), password,
-                        new String(truststoreEncodedBytes), systemTruststoreFile.getName());
-        Assert.assertThat(errors.size(), Is.is(1));
+    private void replaceSystemStores(String fqdn) throws Exception {
+        KeystoreEditor keystoreEditor = new KeystoreEditor();
+        Assert.assertThat(keystoreEditor.getKeystore()
+                .size(), Is.is(0));
+        Assert.assertThat(keystoreEditor.getTruststore()
+                .size(), Is.is(0));
+
+        try (
+                FileInputStream keystoreInputStream = new FileInputStream(systemKeystoreFile);
+                FileInputStream truststoreInputStream = new FileInputStream(systemTruststoreFile)
+        ) {
+            byte[] keystoreCrtBytes = IOUtils.toByteArray(keystoreInputStream);
+            byte[] keystoreEncodedBytes = Base64.encode(keystoreCrtBytes);
+            byte[] truststoreCrtBytes = IOUtils.toByteArray(truststoreInputStream);
+            byte[] truststoreEncodedBytes = Base64.encode(truststoreCrtBytes);
+            List<String> errors = keystoreEditor.replaceSystemStores(fqdn,
+                    password,
+                    password,
+                    new String(keystoreEncodedBytes),
+                    systemKeystoreFile.getName(),
+                    password,
+                    new String(truststoreEncodedBytes),
+                    systemTruststoreFile.getName());
+            Assert.assertThat(errors.size(), Is.is(1));
+        }
     }
 
     @Test
     public void testReplaceSystemStoresBadInput() throws Exception {
         KeystoreEditor keystoreEditor = new KeystoreEditor();
-        Assert.assertThat(keystoreEditor.getKeystore().size(), Is.is(0));
-        Assert.assertThat(keystoreEditor.getTruststore().size(), Is.is(0));
+        Assert.assertThat(keystoreEditor.getKeystore()
+                .size(), Is.is(0));
+        Assert.assertThat(keystoreEditor.getTruststore()
+                .size(), Is.is(0));
 
-        List<String> errors = keystoreEditor
-                .replaceSystemStores("localhost", password, password, null,
-                        systemKeystoreFile.getName(), password, null,
-                        systemTruststoreFile.getName());
+        List<String> errors = keystoreEditor.replaceSystemStores("localhost",
+                password,
+                password,
+                null,
+                systemKeystoreFile.getName(),
+                password,
+                null,
+                systemTruststoreFile.getName());
         Assert.assertThat(errors.size(), Is.is(2));
     }
 
     @Test
     public void testReplaceSystemStoresBadEncoding() throws Exception {
         KeystoreEditor keystoreEditor = new KeystoreEditor();
-        Assert.assertThat(keystoreEditor.getKeystore().size(), Is.is(0));
-        Assert.assertThat(keystoreEditor.getTruststore().size(), Is.is(0));
+        Assert.assertThat(keystoreEditor.getKeystore()
+                .size(), Is.is(0));
+        Assert.assertThat(keystoreEditor.getTruststore()
+                .size(), Is.is(0));
 
-        FileInputStream keystoreInputStream = new FileInputStream(systemKeystoreFile);
-        byte[] keystoreCrtBytes = IOUtils.toByteArray(keystoreInputStream);
+        try (
+                FileInputStream keystoreInputStream = new FileInputStream(systemKeystoreFile);
+                FileInputStream truststoreInputStream = new FileInputStream(systemTruststoreFile);
+        ) {
+            byte[] keystoreCrtBytes = IOUtils.toByteArray(keystoreInputStream);
 
-        FileInputStream truststoreInputStream = new FileInputStream(systemTruststoreFile);
-        byte[] truststoreCrtBytes = IOUtils.toByteArray(truststoreInputStream);
+            byte[] truststoreCrtBytes = IOUtils.toByteArray(truststoreInputStream);
 
-        List<String> errors = keystoreEditor
-                .replaceSystemStores("localhost", password, password,
-                        new String(keystoreCrtBytes), systemKeystoreFile.getName(), password,
-                        new String(truststoreCrtBytes), systemTruststoreFile.getName());
-        Assert.assertThat(errors.size(), Is.is(1));
+            List<String> errors = keystoreEditor.replaceSystemStores("localhost",
+                    password,
+                    password,
+                    new String(keystoreCrtBytes),
+                    systemKeystoreFile.getName(),
+                    password,
+                    new String(truststoreCrtBytes),
+                    systemTruststoreFile.getName());
+            Assert.assertThat(errors.size(), Is.is(1));
+        }
     }
 
     @Test
@@ -420,12 +475,16 @@ public class KeystoreEditorTest {
         FileInputStream fileInputStream = new FileInputStream(crtFile);
         byte[] crtBytes = IOUtils.toByteArray(fileInputStream);
         IOUtils.closeQuietly(fileInputStream);
-        keystoreEditor
-                .addTrustedCertificate("asdf", password, "", new String(Base64.encode(crtBytes)),
-                        KeystoreEditor.PEM_TYPE, crtFile.toString());
+        keystoreEditor.addTrustedCertificate("asdf",
+                password,
+                "",
+                new String(Base64.encode(crtBytes)),
+                KeystoreEditor.PEM_TYPE,
+                crtFile.toString());
         List<Map<String, Object>> truststore = keystoreEditor.getTruststore();
         Assert.assertThat(truststore.size(), Is.is(1));
-        Assert.assertThat((String) truststore.get(0).get("alias"), Is.is("asdf"));
+        Assert.assertThat(truststore.get(0)
+                .get("alias"), Is.is("asdf"));
 
         List<Map<String, Object>> keystore = keystoreEditor.getKeystore();
         Assert.assertThat(keystore.size(), Is.is(0));
@@ -449,9 +508,12 @@ public class KeystoreEditorTest {
         FileInputStream fileInputStream = new FileInputStream(crtFile);
         byte[] crtBytes = IOUtils.toByteArray(fileInputStream);
         IOUtils.closeQuietly(fileInputStream);
-        keystoreEditor
-                .addTrustedCertificate("asdf", password, "", new String(Base64.encode(crtBytes)),
-                        KeystoreEditor.PEM_TYPE, crtFile.toString());
+        keystoreEditor.addTrustedCertificate("asdf",
+                password,
+                "",
+                new String(Base64.encode(crtBytes)),
+                KeystoreEditor.PEM_TYPE,
+                crtFile.toString());
         List<Map<String, Object>> truststore = keystoreEditor.getTruststore();
         Assert.assertThat(truststore.size(), Is.is(1));
 
@@ -487,12 +549,16 @@ public class KeystoreEditorTest {
         FileInputStream fileInputStream = new FileInputStream(p7bFile);
         byte[] crtBytes = IOUtils.toByteArray(fileInputStream);
         IOUtils.closeQuietly(fileInputStream);
-        keystoreEditor
-                .addTrustedCertificate("asdf", password, "", new String(Base64.encode(crtBytes)),
-                        KeystoreEditor.PEM_TYPE, p7bFile.toString());
+        keystoreEditor.addTrustedCertificate("asdf",
+                password,
+                "",
+                new String(Base64.encode(crtBytes)),
+                KeystoreEditor.PEM_TYPE,
+                p7bFile.toString());
         List<Map<String, Object>> truststore = keystoreEditor.getTruststore();
         Assert.assertThat(truststore.size(), Is.is(1));
-        Assert.assertThat((String) truststore.get(0).get("alias"), Is.is("asdf"));
+        Assert.assertThat(truststore.get(0)
+                .get("alias"), Is.is("asdf"));
 
         List<Map<String, Object>> keystore = keystoreEditor.getKeystore();
         Assert.assertThat(keystore.size(), Is.is(0));
@@ -546,8 +612,11 @@ public class KeystoreEditorTest {
         FileInputStream fileInputStream = new FileInputStream(file);
         byte[] keyBytes = IOUtils.toByteArray(fileInputStream);
         IOUtils.closeQuietly(fileInputStream);
-        keystoreEditor
-                .addPrivateKey(alias, password, "blah", new String(Base64.encode(keyBytes)), "",
-                        file.toString());
+        keystoreEditor.addPrivateKey(alias,
+                password,
+                "blah",
+                new String(Base64.encode(keyBytes)),
+                "",
+                file.toString());
     }
 }
