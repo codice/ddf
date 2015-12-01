@@ -60,4 +60,7 @@ public interface LogoutService {
 
     URI signSamlGetResponse(SAMLObject samlObject, URI uriNameMeLater, String relayState)
             throws WSSecurityException, SimpleSign.SignatureException, IOException;
+
+    URI signSamlGetRequest(SAMLObject samlObject, URI uriNameMeLater, String relayState)
+            throws WSSecurityException, SimpleSign.SignatureException, IOException;
 }

@@ -13,7 +13,8 @@
  */
 package org.codice.ddf.security.idp.client;
 
-import org.opensaml.saml2.core.LogoutRequest;
+import org.opensaml.saml2.core.LogoutResponse;
+import org.opensaml.saml2.core.StatusCode;
 import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.validation.ValidationException;
 import org.opensaml.xml.validation.Validator;
@@ -23,32 +24,32 @@ import org.slf4j.LoggerFactory;
 import ddf.security.samlp.SimpleSign;
 
 //TODO move to the logoutservice?
-public class LogoutRequestValidator implements Validator {
+public class LogoutResponseValidator implements Validator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LogoutRequestValidator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LogoutResponseValidator.class);
 
     private final SimpleSign simpleSign;
 
-    public LogoutRequestValidator(SimpleSign simpleSign) {
+    public LogoutResponseValidator(SimpleSign simpleSign) {
         this.simpleSign = simpleSign;
     }
 
     @Override
     public void validate(XMLObject xmlObject) throws ValidationException {
-        if (!(xmlObject instanceof LogoutRequest)) {
+        if (!(xmlObject instanceof LogoutResponse)) {
             throw new ValidationException("Invalid LogoutRequest response XML.");
         }
         //TODO do more validation..
 
-        LogoutRequest logoutRequest = (LogoutRequest) xmlObject;
-        if(logoutRequest.getNotOnOrAfter()!=null && logoutRequest.getNotOnOrAfter().isBeforeNow())
-        {
-            throw new ValidationException("Invalid LogoutRequest the request was received after the NotOnOrAfter time.");
+        LogoutResponse logoutResponse = (LogoutResponse) xmlObject;
+        String status = logoutResponse.getStatus().getStatusCode().getValue();
+        if (!StatusCode.SUCCESS_URI.equals(status)) {
+            throw new ValidationException(
+                    "Logout request was unsuccessful.  Received response with status: " + status);
         }
-
-        if (logoutRequest.getSignature() != null) {
+        if (logoutResponse.getSignature() != null) {
             try {
-                simpleSign.validateSignature(logoutRequest.getSignature(), logoutRequest.getDOM().getOwnerDocument());
+                simpleSign.validateSignature(logoutResponse.getSignature(), logoutResponse.getDOM().getOwnerDocument());
             } catch (SimpleSign.SignatureException e) {
                 throw new ValidationException("Invalid or untrusted signature.");
             }
