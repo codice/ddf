@@ -26,11 +26,13 @@ import ddf.security.SecurityConstants;
 import ddf.security.common.util.SecurityTokenHolder;
 
 public class LocalLogoutServlet extends HttpServlet {
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setHeader("Cache-Control", "no-cache, no-store");
         response.setHeader("Pragma", "no-cache");
+
         response.setContentType("text/html");
 
         HttpSession session = request.getSession(false);
@@ -45,13 +47,7 @@ public class LocalLogoutServlet extends HttpServlet {
             deleteJSessionId(response);
         }
 
-        //This is just here to avoid a blank screen
-        //A user would most likely never see this as they will be redirected to some other
-        //login page by a filter or just returned back to the same screen they were already viewing
-        response.getWriter()
-                .print("You have successfully logged out.");
-
-        response.getWriter().close();
+        getServletContext().getContext("/logout").getRequestDispatcher("/local-logout-successful.html").forward(request, response);
     }
 
     private void deleteJSessionId(HttpServletResponse response) {

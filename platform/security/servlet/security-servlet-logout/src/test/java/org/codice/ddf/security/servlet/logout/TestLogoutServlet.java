@@ -14,6 +14,7 @@
 package org.codice.ddf.security.servlet.logout;
 
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -23,6 +24,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -36,7 +39,9 @@ import ddf.security.common.util.SecurityTokenHolder;
 public class TestLogoutServlet {
     @Test
     public void testLogout() {
-        LocalLogoutServlet localLogoutServlet = new LocalLogoutServlet();
+
+        MockLocalLogoutServlet localLogoutServlet = new MockLocalLogoutServlet();
+
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
         try {
@@ -49,12 +54,25 @@ public class TestLogoutServlet {
         when(request.getSession(anyBoolean()).getId()).thenReturn("id");
         when(request.getRequestURL()).thenReturn(new StringBuffer("http://foo.bar"));
         SecurityTokenHolder securityTokenHolder = mock(SecurityTokenHolder.class);
-        when(httpSession.getAttribute(SecurityConstants.SAML_ASSERTION)).thenReturn(securityTokenHolder);
+        when(httpSession.getAttribute(SecurityConstants.SAML_ASSERTION))
+                .thenReturn(securityTokenHolder);
         try {
             localLogoutServlet.doGet(request, response);
         } catch (ServletException | IOException e) {
             fail(e.getMessage());
         }
         verify(httpSession).invalidate();
+    }
+
+    //Since the servlet context is only set properly during startup, this mocks out the servlet context to avoid an exception during redirect
+    private class MockLocalLogoutServlet extends LocalLogoutServlet
+    {
+        @Override
+        public ServletContext getServletContext() {
+            ServletContext servletContext = mock(ServletContext.class);
+            when(servletContext.getContext(any(String.class))).thenReturn(servletContext);
+            when(servletContext.getRequestDispatcher(any(String.class))).thenReturn(mock(RequestDispatcher.class));
+            return servletContext;
+        }
     }
 }

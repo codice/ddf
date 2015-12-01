@@ -33,7 +33,7 @@
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
-            <artifactId>servlet-1api</artifactId>
+            <artifactId>servlet-api</artifactId>
         </dependency>
         <dependency>
             <groupId>ddf.security.core</groupId>
@@ -78,9 +78,11 @@
                 <configuration>
                     <instructions>
                         <Web-ContextPath>/logout</Web-ContextPath>
+                        <!--WEB-INF/classes=src/main/resources/html,-->
                         <_wab>src/main/webapp</_wab>
                         <Embed-Dependency>boon</Embed-Dependency>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <!--<Include-Resource/>-->
                     </instructions>
                 </configuration>
             </plugin>
