@@ -19,8 +19,8 @@ import static ddf.security.samlp.SamlProtocol.POST_BINDING;
 import static ddf.security.samlp.SamlProtocol.REDIRECT_BINDING;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -198,7 +198,7 @@ public class IdpEndpoint implements Idp {
         LOGGER.debug("Received POST IdP request.");
         return showLoginPage(samlRequest, relayState, null, null, request, new PostBinding(
                 systemCrypto,
-                serviceProviders), submitForm);
+                serviceProviders), submitForm, SamlProtocol.POST_BINDING);
     }
 
     @GET
@@ -214,12 +214,13 @@ public class IdpEndpoint implements Idp {
                 signature,
                 request,
                 new RedirectBinding(systemCrypto, serviceProviders),
-                redirectPage);
+                redirectPage,
+                SamlProtocol.REDIRECT_BINDING);
     }
 
     private Response showLoginPage(String samlRequest, String relayState, String signatureAlgorithm,
-            String signature, HttpServletRequest request, Binding binding, String template)
-            throws WSSecurityException {
+            String signature, HttpServletRequest request, Binding binding, String template,
+            String originalBinding) throws WSSecurityException {
         String responseStr;
         AuthnRequest authnRequest = null;
         try {
@@ -305,6 +306,7 @@ public class IdpEndpoint implements Idp {
                 responseMap.put(ACS_URL, assertionConsumerServiceURL);
                 responseMap.put(SSOConstants.SIG_ALG, signatureAlgorithm);
                 responseMap.put(SSOConstants.SIGNATURE, signature);
+                responseMap.put(ORIGINAL_BINDING, originalBinding);
             }
 
             String json = Boon.toJson(responseMap);
@@ -362,9 +364,9 @@ public class IdpEndpoint implements Idp {
         String assertionConsumerServiceBinding = serviceProviders.get(authnRequest.getIssuer()
                 .getValue())
                 .getAssertionConsumerServiceBinding();
-        if (HTTP_POST_BINDING.equals(assertionConsumerServiceBinding)) {
+        if (binding instanceof PostBinding) {
             template = submitForm;
-        } else if (HTTP_REDIRECT_BINDING.equals(assertionConsumerServiceBinding)) {
+        } else if (binding instanceof RedirectBinding) {
             template = redirectPage;
         }
         return binding.creator()
@@ -377,6 +379,7 @@ public class IdpEndpoint implements Idp {
             @QueryParam(RELAY_STATE) String relayState, @QueryParam(AUTH_METHOD) String authMethod,
             @QueryParam(SSOConstants.SIG_ALG) String signatureAlgorithm,
             @QueryParam(SSOConstants.SIGNATURE) String signature,
+            @QueryParam(ORIGINAL_BINDING) String originalBinding,
             @Context HttpServletRequest request) {
         LOGGER.debug("Processing login request: [ authMethod {} ], [ sigAlg {} ], [ relayState {} ]",
                 authMethod,
@@ -401,6 +404,7 @@ public class IdpEndpoint implements Idp {
             } else {
                 throw new UnsupportedOperationException("Must use HTTP POST or Redirect bindings.");
             }
+
             binding.validator()
                     .validateAuthnRequest(authnRequest,
                             samlRequest,
@@ -612,13 +616,16 @@ public class IdpEndpoint implements Idp {
         if (certs != null && certs.length > 0) {
             encryptionCert = certs[0];
         }
-        EntityDescriptor entityDescriptor = SamlProtocol.createIdpMetadata(
-                systemBaseUrl.constructUrl("/idp/login", true), Base64.encodeBase64String(
-                        issuerCert != null ? issuerCert.getEncoded() : new byte[0]),
-                Base64.encodeBase64String(
-                        encryptionCert != null ? encryptionCert.getEncoded() : new byte[0]),
-                nameIdFormats, systemBaseUrl.constructUrl("/idp/login", true),
-                systemBaseUrl.constructUrl("/idp/login", true), null);
+        EntityDescriptor entityDescriptor =
+                SamlProtocol.createIdpMetadata(systemBaseUrl.constructUrl("/idp/login", true),
+                        Base64.encodeBase64String(
+                                issuerCert != null ? issuerCert.getEncoded() : new byte[0]),
+                        Base64.encodeBase64String(
+                                encryptionCert != null ? encryptionCert.getEncoded() : new byte[0]),
+                        nameIdFormats,
+                        systemBaseUrl.constructUrl("/idp/login", true),
+                        systemBaseUrl.constructUrl("/idp/login", true),
+                        null);
         Document doc = DOMUtils.createDocument();
         doc.appendChild(doc.createElement("root"));
         return Response.ok(DOM2Writer.nodeToString(OpenSAMLUtil.toDom(entityDescriptor,
@@ -905,12 +912,12 @@ public class IdpEndpoint implements Idp {
         LOGGER.debug("Converting SAML Response to DOM");
         String assertionResponse = DOM2Writer.nodeToString(OpenSAMLUtil.toDom(samlObject, doc));
         String encodedSamlResponse = new String(Base64.encodeBase64(assertionResponse.getBytes()));
-        String submitFormUpdated = submitForm
-                .replace("{{" + Idp.ACS_URL + "}}", targetUrl);
-        submitFormUpdated = submitFormUpdated
-                .replace("{{" + Idp.SAML_RESPONSE + "}}", encodedSamlResponse);
+        String submitFormUpdated = submitForm.replace("{{" + Idp.ACS_URL + "}}", targetUrl);
+        submitFormUpdated = submitFormUpdated.replace("{{" + Idp.SAML_RESPONSE + "}}",
+                encodedSamlResponse);
         submitFormUpdated = submitFormUpdated.replace("{{" + Idp.RELAY_STATE + "}}", relayState);
-        return Response.ok(submitFormUpdated).build();
+        return Response.ok(submitFormUpdated)
+                .build();
     }
 
     private boolean supportsLogoutBinding(SPSSODescriptor descriptor, String binding) {

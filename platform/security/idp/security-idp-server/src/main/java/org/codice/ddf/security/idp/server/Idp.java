@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -63,6 +63,8 @@ public interface Idp {
 
     String COOKIE = "org.codice.ddf.security.idp.session";
 
+    String ORIGINAL_BINDING = "OriginalBinding";
+
     /**
      * Returns the IdP login form.
      *
@@ -114,6 +116,7 @@ public interface Idp {
             @QueryParam(RELAY_STATE) String relayState, @QueryParam(AUTH_METHOD) String authMethod,
             @QueryParam(SSOConstants.SIG_ALG) String signatureAlgorithm,
             @QueryParam(SSOConstants.SIGNATURE) String signature,
+            @QueryParam(IdpEndpoint.ORIGINAL_BINDING) String originalBinding,
             @Context HttpServletRequest request);
 
     /**

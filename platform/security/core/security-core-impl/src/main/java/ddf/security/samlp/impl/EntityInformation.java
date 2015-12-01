@@ -22,6 +22,7 @@ import java.util.function.Predicate;
 import javax.annotation.concurrent.Immutable;
 
 import org.apache.commons.lang.StringUtils;
+import org.opensaml.saml2.core.AuthnRequest;
 import org.opensaml.saml2.metadata.AssertionConsumerService;
 import org.opensaml.saml2.metadata.Endpoint;
 import org.opensaml.saml2.metadata.EntityDescriptor;
@@ -78,6 +79,10 @@ public class EntityInformation {
     public String getLogoutServiceBinding() {
         return logoutInfo.binding;
     }
+
+//    public String getLogoutService(AuthnRequest request) {
+//        request.getRequestedAuthnContext().
+//    }
 
     public static class Builder {
         private static final ImmutableSet<UsageType> SIGNING_TYPES =
@@ -195,7 +200,7 @@ public class EntityInformation {
         }
     }
 
-    private static class ServiceInfo {
+    public static class ServiceInfo {
         private final String url;
 
         private final String binding;
@@ -203,6 +208,14 @@ public class EntityInformation {
         ServiceInfo(String url, String binding) {
             this.url = url;
             this.binding = binding;
+        }
+
+        public String getUrl() {
+            return url;
+        }
+
+        public String getBinding() {
+            return binding;
         }
     }
 }
