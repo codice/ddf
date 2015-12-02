@@ -15,14 +15,14 @@ package org.codice.ddf.security.claims.attributequery;
 
 public class AttributeQueryException extends RuntimeException {
     /**
-     * Instantiates a new Deias exception.
+     * Instantiates a new AttributeQuery exception.
      */
     public AttributeQueryException() {
         super();
     }
 
     /**
-     * Instantiates a new Deias exception with the provided message.
+     * Instantiates a new AttributeQuery exception with the provided message.
      *
      * @param message the message
      */
@@ -31,7 +31,7 @@ public class AttributeQueryException extends RuntimeException {
     }
 
     /**
-     * Instantiates a new Deias exception with the provided message
+     * Instantiates a new AttributeQuery exception with the provided message
      * and {@link Throwable}.
      *
      * @param message   the message
@@ -42,7 +42,7 @@ public class AttributeQueryException extends RuntimeException {
     }
 
     /**
-     * Instantiates a new Deias exception with the provided
+     * Instantiates a new AttributeQuery exception with the provided
      * {@link Throwable}.
      *
      * @param throwable the throwable

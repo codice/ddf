@@ -356,7 +356,10 @@ public class SamlProtocol {
         if (StringUtils.isNotBlank(destination)) {
             attributeQuery.setDestination(destination);
         }
-
         return attributeQuery;
+    }
+
+    public static AttributeQuery createAttributeQuery(Issuer issuer, Subject subject) {
+        return createAttributeQuery(issuer, subject, null);
     }
 }
