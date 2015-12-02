@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.staxutils.StaxUtils;
@@ -67,8 +68,16 @@ public class MetadataConfigurationParser {
 
     private final Map<String, EntityDescriptor> entityDescriptorMap = new ConcurrentHashMap<>();
 
+    private final Consumer<EntityDescriptor> updateCallback;
+
     public MetadataConfigurationParser(List<String> entityDescriptions) throws IOException {
+        this(entityDescriptions, null);
+    }
+
+    public MetadataConfigurationParser(List<String> entityDescriptions,
+            Consumer<EntityDescriptor> updateCallback) throws IOException {
         parseEntityDescriptions(entityDescriptions);
+        this.updateCallback = updateCallback;
     }
 
     public Map<String, EntityDescriptor> getEntryDescriptions() {
@@ -85,10 +94,16 @@ public class MetadataConfigurationParser {
             for (Path path : directoryStream) {
                 if (Files.isReadable(path)) {
                     try (InputStream fileInputStream = Files.newInputStream(path)) {
-                        EntityDescriptor entityDescriptor = readEntityDescriptor(
-                                new InputStreamReader(fileInputStream, "UTF-8"));
+                        EntityDescriptor entityDescriptor =
+                                readEntityDescriptor(new InputStreamReader(fileInputStream,
+                                        "UTF-8"));
 
+                        LOGGER.error("parseEntityDescriptions:91 entityId = {}",
+                                entityDescriptor.getEntityID());
                         entityDescriptorMap.put(entityDescriptor.getEntityID(), entityDescriptor);
+                        if (updateCallback != null) {
+                            updateCallback.accept(entityDescriptor);
+                        }
                     }
                 }
             }
@@ -108,14 +123,13 @@ public class MetadataConfigurationParser {
             HttpTransport httpTransport = new ApacheHttpTransport();
             HttpRequest httpRequest = httpTransport.createRequestFactory()
                     .buildGetRequest(new GenericUrl(entityDescription));
-            httpRequest.setUnsuccessfulResponseHandler(
-                    new HttpBackOffUnsuccessfulResponseHandler(new ExponentialBackOff())
-                            .setBackOffRequired(
-                                    HttpBackOffUnsuccessfulResponseHandler.BackOffRequired.ALWAYS));
-            ListeningExecutorService service = MoreExecutors
-                    .listeningDecorator(Executors.newSingleThreadExecutor());
-            ListenableFuture<HttpResponse> httpResponseFuture = service
-                    .submit(httpRequest::execute);
+            httpRequest.setUnsuccessfulResponseHandler(new HttpBackOffUnsuccessfulResponseHandler(
+                            new ExponentialBackOff()).setBackOffRequired(
+                            HttpBackOffUnsuccessfulResponseHandler.BackOffRequired.ALWAYS));
+            ListeningExecutorService service =
+                    MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor());
+            ListenableFuture<HttpResponse> httpResponseFuture =
+                    service.submit(httpRequest::execute);
 
             Futures.addCallback(httpResponseFuture, new FutureCallback<HttpResponse>() {
                 @Override
@@ -126,7 +140,10 @@ public class MetadataConfigurationParser {
                             buildEntityDescriptor(parsedResponse);
                         } catch (IOException e) {
                             LOGGER.error("Unable to parse metadata from: {}",
-                                    httpResponse.getRequest().getUrl().toString(), e);
+                                    httpResponse.getRequest()
+                                            .getUrl()
+                                            .toString(),
+                                    e);
                         }
                     }
                 }
@@ -142,8 +159,8 @@ public class MetadataConfigurationParser {
             Path path = Paths.get(pathStr);
             if (Files.isReadable(path)) {
                 try (InputStream fileInputStream = Files.newInputStream(path)) {
-                    entityDescriptor = readEntityDescriptor(
-                            new InputStreamReader(fileInputStream, "UTF-8"));
+                    entityDescriptor = readEntityDescriptor(new InputStreamReader(fileInputStream,
+                            "UTF-8"));
                 }
             }
         } else if (entityDescription.startsWith("<") && entityDescription.endsWith(">")) {
@@ -154,6 +171,9 @@ public class MetadataConfigurationParser {
 
         if (entityDescriptor != null) {
             entityDescriptorMap.put(entityDescriptor.getEntityID(), entityDescriptor);
+            if (updateCallback != null) {
+                updateCallback.accept(entityDescriptor);
+            }
         }
     }
 

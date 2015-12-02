@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
@@ -124,7 +125,7 @@ public class IdpEndpoint implements Idp {
 
     private SecurityManager securityManager;
 
-    private Map<String, EntityInformation> serviceProviders = new HashMap<>();
+    private Map<String, EntityInformation> serviceProviders = new ConcurrentHashMap<>();
 
     private String indexHtml;
 
@@ -172,15 +173,17 @@ public class IdpEndpoint implements Idp {
         if (serviceProviderMetadata != null) {
             try {
                 MetadataConfigurationParser metadataConfigurationParser =
-                        new MetadataConfigurationParser(serviceProviderMetadata);
+                        new MetadataConfigurationParser(serviceProviderMetadata,
+                                ed -> serviceProviders.put(ed.getEntityID(),
+                                        new EntityInformation.Builder(ed).build()));
 
-                serviceProviders = metadataConfigurationParser.getEntryDescriptions()
+                serviceProviders.putAll(metadataConfigurationParser.getEntryDescriptions()
                         .entrySet()
                         .stream()
                         .map(e -> Maps.immutableEntry(e.getKey(),
                                 new EntityInformation.Builder(e.getValue()).build()))
                         .filter(e -> nonNull(e.getValue()))
-                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
 
             } catch (IOException e) {
                 LOGGER.error("Unable to parse SP metadata configuration.", e);
@@ -204,7 +207,7 @@ public class IdpEndpoint implements Idp {
             @QueryParam(SSOConstants.SIG_ALG) String signatureAlgorithm,
             @QueryParam(SSOConstants.SIGNATURE) String signature,
             @Context HttpServletRequest request) throws WSSecurityException {
-        LOGGER.debug("Recevied GET IdP request.");
+        LOGGER.debug("Received GET IdP request.");
         return showLoginPage(samlRequest,
                 relayState,
                 signatureAlgorithm,
