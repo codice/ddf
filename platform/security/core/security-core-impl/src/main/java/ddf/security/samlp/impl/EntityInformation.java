@@ -15,6 +15,7 @@ package ddf.security.samlp.impl;
 
 import static java.util.Objects.nonNull;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -101,20 +102,24 @@ public class EntityInformation {
     }
 
     public ServiceInfo getAssertionConsumerService(AuthnRequest request, Binding preferred) {
+        ServiceInfo si = null;
+        Binding binding = preferred != null ? preferred : PREFERRED_BINDING;
+        if (request != null && request.getProtocolBinding() != null && SUPPORTED_BINDINGS.contains(
+                Binding.from(request.getProtocolBinding()))) {
+            si = assertionConsumerServices.get(Binding.from(request.getProtocolBinding()));
+            if (si != null) {
+                return si;
+            }
+        }
+        si = assertionConsumerServices.get(binding);
+        if (si != null) {
+            return si;
+        }
+
         if (defaultAssertionConsumerService != null) {
             return defaultAssertionConsumerService;
         }
 
-        Binding binding = preferred != null ? preferred : PREFERRED_BINDING;
-        if (request != null && request.getProtocolBinding() != null && SUPPORTED_BINDINGS.contains(
-                Binding.from(request.getProtocolBinding()))) {
-            binding = Binding.from(request.getProtocolBinding());
-        }
-
-        ServiceInfo si = assertionConsumerServices.get(binding);
-        if (si != null) {
-            return si;
-        }
         return assertionConsumerServices.values()
                 .stream()
                 .findFirst()
@@ -133,9 +138,9 @@ public class EntityInformation {
 
         private ServiceInfo defaultAssertionConsumerService;
 
-        private Map<Binding, ServiceInfo> assertionConsumerServices;
+        private final Map<Binding, ServiceInfo> assertionConsumerServices = new HashMap<>();
 
-        private Map<Binding, ServiceInfo> logoutServices;
+        private final Map<Binding, ServiceInfo> logoutServices = new HashMap<>();
 
         public Builder(EntityDescriptor ed) {
             spssoDescriptor = getSpssoDescriptor(ed);
@@ -186,7 +191,6 @@ public class EntityInformation {
                         defaultACS.getLocation());
                 defaultAssertionConsumerService = new ServiceInfo(defaultACS.getLocation(),
                         Binding.from(defaultACS.getBinding()));
-                return this;
             }
 
             putAllSupported(assertionConsumerServices,

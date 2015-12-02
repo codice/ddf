@@ -65,7 +65,7 @@ public class SamlProtocol {
     public static final String POST_BINDING = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST";
 
     public enum Binding {
-        HTTP_POST("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Post"),
+        HTTP_POST("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"),
         HTTP_REDIRECT("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"),
         HTTP_ARTIFACT("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact"),
         SOAP("urn:oasis:names:tc:SAML:2.0:bindings:SOAP"),
