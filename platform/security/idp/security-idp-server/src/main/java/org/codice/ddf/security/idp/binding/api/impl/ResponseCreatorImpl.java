@@ -42,23 +42,14 @@ public abstract class ResponseCreatorImpl implements ResponseCreator {
     }
 
     public String getAssertionConsumerServiceURL(AuthnRequest authnRequest) {
-        String assertionConsumerServiceURL = null;
         LOGGER.debug("Attempting to determine AssertionConsumerServiceURL.");
-        //if the AuthnRequest specifies a URL, use that
-        if (authnRequest.getAssertionConsumerServiceURL() != null) {
-            LOGGER.debug("Using AssertionConsumerServiceURL from AuthnRequest: {}",
-                    authnRequest.getAssertionConsumerServiceURL());
-            assertionConsumerServiceURL = authnRequest.getAssertionConsumerServiceURL();
-        } else {
-            assertionConsumerServiceURL = serviceProviders.get(authnRequest.getIssuer()
-                    .getValue())
-                    .getAssertionConsumerServiceURL();
-        }
-        if (assertionConsumerServiceURL == null) {
+        EntityInformation.ServiceInfo assertionConsumerService = serviceProviders.get(authnRequest.getIssuer()
+                    .getValue()).getAssertionConsumerService(authnRequest, null);
+        if (assertionConsumerService == null) {
             throw new IllegalArgumentException(
                     "No valid AssertionConsumerServiceURL available for given AuthnRequest.");
         }
-        return assertionConsumerServiceURL;
+        return assertionConsumerService.getUrl();
     }
 
     protected SystemCrypto getSystemCrypto() {

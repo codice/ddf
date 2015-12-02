@@ -15,8 +15,6 @@ package org.codice.ddf.security.idp.server;
 
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang.StringUtils.isEmpty;
-import static ddf.security.samlp.SamlProtocol.POST_BINDING;
-import static ddf.security.samlp.SamlProtocol.REDIRECT_BINDING;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -88,7 +86,6 @@ import org.opensaml.saml2.core.LogoutRequest;
 import org.opensaml.saml2.core.LogoutResponse;
 import org.opensaml.saml2.core.StatusCode;
 import org.opensaml.saml2.metadata.EntityDescriptor;
-import org.opensaml.saml2.metadata.SPSSODescriptor;
 import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.security.credential.UsageType;
 import org.opensaml.xml.validation.ValidationException;
@@ -361,9 +358,6 @@ public class IdpEndpoint implements Idp {
                         true)), SamlProtocol.createStatus(statusCode), authnRequest.getID(), null);
         LOGGER.debug("Encoding error SAML Response for post or redirect.");
         String template = "";
-        String assertionConsumerServiceBinding = serviceProviders.get(authnRequest.getIssuer()
-                .getValue())
-                .getAssertionConsumerServiceBinding();
         if (binding instanceof PostBinding) {
             template = submitForm;
         } else if (binding instanceof RedirectBinding) {
@@ -689,7 +683,12 @@ public class IdpEndpoint implements Idp {
         };
 
         try {
-            return processLogout(request, samlRequest, relayState, binding, validator);
+            return processLogout(request,
+                    samlRequest,
+                    relayState,
+                    binding,
+                    SamlProtocol.Binding.HTTP_REDIRECT,
+                    validator);
         } catch (RuntimeException e) {
 
         }
@@ -723,26 +722,32 @@ public class IdpEndpoint implements Idp {
             @FormParam(RELAY_STATE) String relayState, @Context HttpServletRequest request)
             throws WSSecurityException, IdpException {
         PostBinding binding = new PostBinding(systemCrypto, serviceProviders);
-        processLogout(request, samlRequest, relayState, binding, (issuer, samlObject) -> {
-            LOGGER.debug("Validating AuthnRequest required attributes and signature");
-            try {
-                if (samlObject.getSignature() != null) {
-                    new SimpleSign(systemCrypto).validateSignature(samlObject.getSignature(),
-                            samlObject.getDOM()
-                                    .getOwnerDocument());
-                } else {
-                    throw new SimpleSign.SignatureException("No signature present on AuthnRequest.");
-                }
-            } catch (SimpleSign.SignatureException e) {
-                // TODO (RCZ) - exception
-            }
-        });
+        processLogout(request,
+                samlRequest,
+                relayState,
+                binding,
+                SamlProtocol.Binding.HTTP_POST,
+                (issuer, samlObject) -> {
+                    LOGGER.debug("Validating AuthnRequest required attributes and signature");
+                    try {
+                        if (samlObject.getSignature() != null) {
+                            new SimpleSign(systemCrypto).validateSignature(samlObject.getSignature(),
+                                    samlObject.getDOM()
+                                            .getOwnerDocument());
+                        } else {
+                            throw new SimpleSign.SignatureException(
+                                    "No signature present on AuthnRequest.");
+                        }
+                    } catch (SimpleSign.SignatureException e) {
+                        // TODO (RCZ) - exception
+                    }
+                });
 
         return null;
     }
 
     private Response processLogout(final HttpServletRequest request, final String samlRequest,
-            String relayState, Binding binding,
+            String relayState, Binding binding, SamlProtocol.Binding incomingBinding,
             BiConsumer<String, SignableSAMLObject> signatureValidator) throws IdpException {
         // TODO (RCZ) - Make sure to validate time within restraint + latency
         // TODO (RCZ) - validate entity id exists in sps
@@ -764,19 +769,25 @@ public class IdpEndpoint implements Idp {
                     signatureValidator.accept(logoutRequest.getIssuer()
                             .getValue(), logoutObject);
                 }
-                return handleLogoutRequest(cookie, logoutState, (LogoutRequest) logoutObject);
+                return handleLogoutRequest(cookie,
+                        logoutState,
+                        (LogoutRequest) logoutObject,
+                        incomingBinding);
 
             } else if (logoutObject instanceof LogoutResponse) {
                 // LogoutResponse is one of the SP's responding to the logout request
                 LogoutResponse logoutResponse = ((LogoutResponse) logoutObject);
                 signatureValidator.accept(logoutResponse.getIssuer()
                         .getValue(), logoutObject);
-                return handleLogoutResponse(cookie, logoutState, (LogoutResponse) logoutObject);
+                return handleLogoutResponse(cookie,
+                        logoutState,
+                        (LogoutResponse) logoutObject,
+                        incomingBinding);
 
             } else { // Unsupported object type
                 // TODO (RCZ) 11/11/15 - Log some unsupported exception?
                 // Even if their object is bad we might be able to finish rest of logouts
-                continueLogout(logoutState, cookie);
+                continueLogout(logoutState, cookie, incomingBinding);
             }
         } catch (XMLStreamException e) {
             LOGGER.error("Unable to extract Saml object", e);
@@ -787,7 +798,7 @@ public class IdpEndpoint implements Idp {
     }
 
     private Response handleLogoutResponse(Cookie cookie, LogoutState logoutState,
-            LogoutResponse logoutObject) throws IdpException {
+            LogoutResponse logoutObject, SamlProtocol.Binding incomingBinding) throws IdpException {
         // TODO (RCZ) - Do we want to remove each SP from Active SP's (not logoutState set)?
         // Might be good idea in case of the weird state where they send logout request but st1ll
         // have a logoutstate
@@ -796,11 +807,11 @@ public class IdpEndpoint implements Idp {
                 .getValue())) {
             logoutState.setPartialLogout(true);
         }
-        return continueLogout(logoutState, cookie);
+        return continueLogout(logoutState, cookie, incomingBinding);
     }
 
     Response handleLogoutRequest(Cookie cookie, LogoutState logoutState,
-            LogoutRequest logoutRequest) throws IdpException {
+            LogoutRequest logoutRequest, SamlProtocol.Binding incomingBinding) throws IdpException {
         // Initial Logout Request
         if (logoutState != null) {
             // this means that they have a logout in progress and resent another logout
@@ -818,10 +829,11 @@ public class IdpEndpoint implements Idp {
         logoutStates.encode(cookie.getValue(), logoutState);
 
         cookieCache.removeSamlAssertion(cookie.getValue());
-        return continueLogout(logoutState, cookie);
+        return continueLogout(logoutState, cookie, incomingBinding);
     }
 
-    private Response continueLogout(LogoutState logoutState, Cookie cookie) throws IdpException {
+    private Response continueLogout(LogoutState logoutState, Cookie cookie,
+            SamlProtocol.Binding incomingBinding) throws IdpException {
         if (logoutState == null) {
             throw new IdpException("Cannot continue a Logout that doesn't exist!");
         }
@@ -850,17 +862,23 @@ public class IdpEndpoint implements Idp {
                 logoutStates.decode(cookie.getValue());
             }
 
-            EntityInformation entity = serviceProviders.get(entityId);
-
-            if (REDIRECT_BINDING.equals(entity.getLogoutServiceBinding())) {
-                return getSamlRedirectResponse(logoutObject, entity.getLogoutServiceUrl(), relay);
-            } else if (POST_BINDING.equals(entity.getLogoutServiceBinding())) {
-                return getSamlPostResponse(logoutObject, entity.getLogoutServiceUrl(), relay);
-            } else {
+            EntityInformation.ServiceInfo entityServiceInfo = serviceProviders.get(entityId)
+                    .getLogoutService(incomingBinding);
+            if (entityServiceInfo == null) {
+                LOGGER.warn("Could not find entity service info for {}");
+                return continueLogout(logoutState, cookie, incomingBinding);
+            }
+            switch (entityServiceInfo.getBinding()) {
+            case HTTP_REDIRECT:
+                return getSamlRedirectResponse(logoutObject, entityServiceInfo.getUrl(), relay);
+            case HTTP_POST:
+                return getSamlPostResponse(logoutObject, entityServiceInfo.getUrl(), relay);
+            default:
                 LOGGER.debug("No supported binding available for SP [{}].", entityId);
                 logoutState.setPartialLogout(true);
-                return continueLogout(logoutState, cookie);
+                return continueLogout(logoutState, cookie, incomingBinding);
             }
+
         } catch (WSSecurityException | SimpleSign.SignatureException | IOException e) {
             // TODO (RCZ) - Should we keep trying, 500, or redirect back with failed?
             LOGGER.debug("Error occured while processing logout", e);
@@ -918,12 +936,6 @@ public class IdpEndpoint implements Idp {
         submitFormUpdated = submitFormUpdated.replace("{{" + Idp.RELAY_STATE + "}}", relayState);
         return Response.ok(submitFormUpdated)
                 .build();
-    }
-
-    private boolean supportsLogoutBinding(SPSSODescriptor descriptor, String binding) {
-        return descriptor.getSingleLogoutServices()
-                .stream()
-                .anyMatch(sls -> binding.equals(sls.getBinding()));
     }
 
     public void setSecurityManager(SecurityManager securityManager) {

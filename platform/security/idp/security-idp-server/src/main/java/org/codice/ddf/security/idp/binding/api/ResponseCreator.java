@@ -58,11 +58,13 @@ public interface ResponseCreator {
      */
     static String getAssertionConsumerServiceBinding(AuthnRequest authnRequest,
             Map<String, EntityInformation> serviceProviders) {
-        if (authnRequest.getProtocolBinding() != null) {
-            return authnRequest.getProtocolBinding();
+        EntityInformation.ServiceInfo assertionConsumerService =
+                serviceProviders.get(authnRequest.getIssuer()
+                        .getValue())
+                        .getAssertionConsumerService(authnRequest, null);
+        if (assertionConsumerService == null) {
+            return null;
         }
-        return serviceProviders.get(authnRequest.getIssuer()
-                .getValue())
-                .getAssertionConsumerServiceBinding();
+        return assertionConsumerService.getBinding().getUri();
     }
 }

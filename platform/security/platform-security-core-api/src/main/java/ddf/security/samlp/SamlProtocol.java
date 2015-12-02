@@ -89,8 +89,12 @@ public class SamlProtocol {
             return uri;
         }
 
-        public static Binding bindingFrom(String value) {
+        public static Binding from(String value) {
             return stringToBinding.get(value);
+        }
+
+        public boolean isEqual(String uri) {
+            return this.uri.equals(uri);
         }
     }
 

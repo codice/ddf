@@ -16,6 +16,7 @@ package ddf.security.samlp.impl;
 import static java.util.Objects.nonNull;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Predicate;
 
@@ -36,24 +37,33 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableSet;
 
 import ddf.security.samlp.SamlProtocol;
+import ddf.security.samlp.SamlProtocol.Binding;
 
 @Immutable
 public class EntityInformation {
     private static final Logger LOGGER = LoggerFactory.getLogger(EntityInformation.class);
 
+    private static final ImmutableSet<Binding> SUPPORTED_BINDINGS =
+            ImmutableSet.of(Binding.HTTP_POST, Binding.HTTP_REDIRECT);
+
+    private static final Binding PREFERRED_BINDING = Binding.HTTP_REDIRECT;
+
     private final String signingCertificate;
 
     private final String encryptionCertificate;
 
-    private final ServiceInfo assertionInfo;
+    private final ServiceInfo defaultAssertionConsumerService;
 
-    private final ServiceInfo logoutInfo;
+    private final Map<Binding, ServiceInfo> assertionConsumerServices;
+
+    private final Map<Binding, ServiceInfo> logoutServices;
 
     private EntityInformation(Builder builder) {
         signingCertificate = builder.signingCertificate;
         encryptionCertificate = builder.encryptionCertificate;
-        assertionInfo = builder.assertionConsumerServiceInfo;
-        logoutInfo = builder.logoutServiceInfo;
+        defaultAssertionConsumerService = builder.defaultAssertionConsumerService;
+        assertionConsumerServices = builder.assertionConsumerServices;
+        logoutServices = builder.logoutServices;
     }
 
     public String getSigningCertificate() {
@@ -64,32 +74,56 @@ public class EntityInformation {
         return encryptionCertificate;
     }
 
-    public String getAssertionConsumerServiceURL() {
-        return assertionInfo.url;
+    public ServiceInfo getLogoutService() {
+        return getLogoutService(null);
     }
 
-    public String getAssertionConsumerServiceBinding() {
-        return assertionInfo.binding;
+    public ServiceInfo getLogoutService(Binding preferred) {
+        Binding binding = getBinding(null, preferred);
+        ServiceInfo logoutServiceInfo = logoutServices.get(binding);
+        if (logoutServiceInfo == null) {
+            logoutServiceInfo = logoutServices.values()
+                    .stream()
+                    .findFirst()
+                    .orElse(null);
+        }
+
+        return logoutServiceInfo;
     }
 
-    public String getLogoutServiceUrl() {
-        return logoutInfo.url;
+    Binding getBinding(AuthnRequest request, Binding preferred) {
+        if (request != null && request.getProtocolBinding() != null && SUPPORTED_BINDINGS.contains(
+                Binding.from(request.getProtocolBinding()))) {
+            return Binding.from(request.getProtocolBinding());
+        }
+
+        return preferred != null ? preferred : PREFERRED_BINDING;
     }
 
-    public String getLogoutServiceBinding() {
-        return logoutInfo.binding;
-    }
+    public ServiceInfo getAssertionConsumerService(AuthnRequest request, Binding preferred) {
+        if (defaultAssertionConsumerService != null) {
+            return defaultAssertionConsumerService;
+        }
 
-//    public String getLogoutService(AuthnRequest request) {
-//        request.getRequestedAuthnContext().
-//    }
+        Binding binding = preferred != null ? preferred : PREFERRED_BINDING;
+        if (request != null && request.getProtocolBinding() != null && SUPPORTED_BINDINGS.contains(
+                Binding.from(request.getProtocolBinding()))) {
+            binding = Binding.from(request.getProtocolBinding());
+        }
+
+        ServiceInfo si = assertionConsumerServices.get(binding);
+        if (si != null) {
+            return si;
+        }
+        return assertionConsumerServices.values()
+                .stream()
+                .findFirst()
+                .orElse(null);
+    }
 
     public static class Builder {
         private static final ImmutableSet<UsageType> SIGNING_TYPES =
                 ImmutableSet.of(UsageType.UNSPECIFIED, UsageType.SIGNING);
-
-        private static final ImmutableSet<String> IDP_BINDING_TYPES =
-                ImmutableSet.of(SamlProtocol.POST_BINDING, SamlProtocol.REDIRECT_BINDING);
 
         private final SPSSODescriptor spssoDescriptor;
 
@@ -97,9 +131,11 @@ public class EntityInformation {
 
         private String encryptionCertificate;
 
-        private ServiceInfo assertionConsumerServiceInfo;
+        private ServiceInfo defaultAssertionConsumerService;
 
-        private ServiceInfo logoutServiceInfo;
+        private Map<Binding, ServiceInfo> assertionConsumerServices;
+
+        private Map<Binding, ServiceInfo> logoutServices;
 
         public Builder(EntityDescriptor ed) {
             spssoDescriptor = getSpssoDescriptor(ed);
@@ -113,7 +149,7 @@ public class EntityInformation {
             return new EntityInformation(this.parseSigningCertificate()
                     .parseEncryptionCertificate()
                     .parseAssertionConsumerServiceInfo()
-                    .parseLogoutServiceInfo());
+                    .parseLogoutServices());
         }
 
         SPSSODescriptor getSpssoDescriptor(EntityDescriptor ed) {
@@ -139,37 +175,46 @@ public class EntityInformation {
         }
 
         Builder parseAssertionConsumerServiceInfo() {
-            AssertionConsumerService defaultAssertionConsumerService =
+            AssertionConsumerService defaultACS =
                     spssoDescriptor.getDefaultAssertionConsumerService();
             //see if the default service uses our supported bindings, and then use that
             //as we add more bindings, we'll need to update this
-            if (defaultAssertionConsumerService != null && IDP_BINDING_TYPES.contains(
-                    defaultAssertionConsumerService.getBinding())) {
+            if (defaultACS != null
+                    && SUPPORTED_BINDINGS.contains(Binding.from(defaultACS.getBinding()))) {
                 LOGGER.debug(
                         "Using AssertionConsumerServiceURL from default assertion consumer service: {}",
-                        defaultAssertionConsumerService.getLocation());
-                assertionConsumerServiceInfo =
-                        new ServiceInfo(defaultAssertionConsumerService.getLocation(),
-                                defaultAssertionConsumerService.getBinding());
+                        defaultACS.getLocation());
+                defaultAssertionConsumerService = new ServiceInfo(defaultACS.getLocation(),
+                        Binding.from(defaultACS.getBinding()));
                 return this;
             }
 
-            assertionConsumerServiceInfo =
-                    parseServiceInfo(spssoDescriptor.getAssertionConsumerServices());
-
+            putAllSupported(assertionConsumerServices,
+                    spssoDescriptor.getAssertionConsumerServices());
             return this;
         }
 
-        Builder parseLogoutServiceInfo() {
-            logoutServiceInfo = parseServiceInfo(spssoDescriptor.getSingleLogoutServices());
+        Builder parseLogoutServices() {
+            putAllSupported(logoutServices, spssoDescriptor.getSingleLogoutServices());
             return this;
         }
 
-        <T> ServiceInfo parseServiceInfo(List<? extends Endpoint> services) {
+        void putAllSupported(Map<Binding, ServiceInfo> target, List<? extends Endpoint> services) {
+            for (Binding binding : SUPPORTED_BINDINGS) {
+                ServiceInfo serviceInfo = parseServiceInfo(services,
+                        e -> binding.isEqual(e.getBinding()));
+                if (serviceInfo.url != null) {
+                    target.put(binding, serviceInfo);
+                }
+            }
+        }
+
+        ServiceInfo parseServiceInfo(List<? extends Endpoint> services,
+                Predicate<Endpoint> bindingFilter) {
             return services.stream()
-                    .filter(si -> IDP_BINDING_TYPES.contains(si.getBinding()))
+                    .filter(bindingFilter)
                     .findFirst()
-                    .map(si -> new ServiceInfo(si.getLocation(), si.getBinding()))
+                    .map(si -> new ServiceInfo(si.getLocation(), Binding.from(si.getBinding())))
                     .orElse(new ServiceInfo(null, null));
         }
 
@@ -203,9 +248,9 @@ public class EntityInformation {
     public static class ServiceInfo {
         private final String url;
 
-        private final String binding;
+        private final Binding binding;
 
-        ServiceInfo(String url, String binding) {
+        ServiceInfo(String url, Binding binding) {
             this.url = url;
             this.binding = binding;
         }
@@ -214,7 +259,7 @@ public class EntityInformation {
             return url;
         }
 
-        public String getBinding() {
+        public Binding getBinding() {
             return binding;
         }
     }

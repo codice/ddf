@@ -45,7 +45,7 @@ public class CookieCache {
     /**
      * Puts the SAML assertion into the cache
      *
-     * @param key key corresponding to the SAML assertion
+     * @param key   key corresponding to the SAML assertion
      * @param token the SAML assertion to be cached
      */
     public void cacheSamlAssertion(String key, Element token) {
@@ -80,7 +80,9 @@ public class CookieCache {
     public void removeSamlAssertion(String key) {
         DataWrapper dataWrapper = cache.getIfPresent(key);
         if (dataWrapper != null) {
-            LOGGER.debug("Expiring Saml assertion due to LogoutRequest\n[{}:{}]", key, dataWrapper.element);
+            LOGGER.debug("Expiring Saml assertion due to LogoutRequest\n[{}:{}]",
+                    key,
+                    dataWrapper.element);
             dataWrapper.element = null;
         }
     }
@@ -88,7 +90,7 @@ public class CookieCache {
     public Set<String> getActiveSpSet(String key) {
         DataWrapper dataWrapper = cache.getIfPresent(key);
         if (dataWrapper != null) {
-            synchronized(dataWrapper) {
+            synchronized (dataWrapper) {
                 return new HashSet<>(dataWrapper.activeSpSet);
             }
         }
@@ -105,7 +107,8 @@ public class CookieCache {
         if (expirationMinutes != currentExpiration) {
             LOGGER.debug(
                     "New expiration value passed in. Changing cache to expire every {} minutes instead of every {}.",
-                    expirationMinutes, currentExpiration);
+                    expirationMinutes,
+                    currentExpiration);
             Cache<String, DataWrapper> tmpCache = CacheBuilder.newBuilder()
                     .expireAfterWrite(expirationMinutes, TimeUnit.MINUTES)
                     .removalListener(new RemovalListenerLogger())
@@ -127,9 +130,11 @@ public class CookieCache {
 
         @Override
         public void onRemoval(RemovalNotification<String, DataWrapper> notification) {
-            LOGGER.debug("Expiring SAML ref:assertion {}:{} due to {}.", notification.getKey(),
-                    notification.getValue(), notification.getCause()
-                    .toString());
+            LOGGER.debug("Expiring SAML ref:assertion {}:{} due to {}.",
+                    notification.getKey(),
+                    notification.getValue(),
+                    notification.getCause()
+                            .toString());
         }
     }
 
