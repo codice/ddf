@@ -425,6 +425,11 @@
                                 <rules>
                                     <rule>
                                         <element>BUNDLE</element>
+                                        <!--
+                                        When overriding the limits in child pom files make sure
+                                        to override all four limits. Limits that are excluded
+                                        will be set to 0 not 0.75
+                                        -->
                                         <limits>
                                             <limit>
                                                 <counter>INSTRUCTION</counter>
