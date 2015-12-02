@@ -120,7 +120,9 @@ public class SystemPropertiesAdminTest {
         Properties userProps = new Properties();
         userProps.put("admin", "admin,group,somethingelse");
         userProps.put("host", "host,group,somethingelse");
-        userProps.store(new FileOutputStream(userPropsFile), null);
+        try (FileOutputStream outProps = new FileOutputStream(userPropsFile)) {
+            userProps.store(outProps, null);
+        }
 
         SystemPropertiesAdmin spa = new SystemPropertiesAdmin();
         Map<String, String> map = new HashMap<>();
@@ -138,32 +140,38 @@ public class SystemPropertiesAdminTest {
         assertThat(info.getVersion(), equalTo("version"));
         assertThat(details.size(), is(expectedSystemPropertiesCount));
 
-
         //only writes out the changed props
         assertTrue(systemPropsFile.exists());
         Properties sysProps = new Properties();
-        sysProps.load(new FileReader(systemPropsFile));
-        assertThat(sysProps.size(), is(1));
-        assertThat(sysProps.getProperty(SystemBaseUrl.HOST), equalTo("newhost"));
+        try (FileReader sysPropsReader = new FileReader(systemPropsFile)) {
+            sysProps.load(sysPropsReader);
+            assertThat(sysProps.size(), is(1));
+            assertThat(sysProps.getProperty(SystemBaseUrl.HOST), equalTo("newhost"));
+        }
 
         userProps = new Properties();
-        userProps.load(new FileReader(userPropsFile));
-        assertThat(userProps.size(), is(2));
-        assertThat(userProps.getProperty("newhost"), equalTo("host,group,somethingelse"));
+        try (FileReader userPropsReader = new FileReader(userPropsFile)) {
+            userProps.load(userPropsReader);
+            assertThat(userProps.size(), is(2));
+            assertThat(userProps.getProperty("newhost"), equalTo("host,group,somethingelse"));
+        }
 
         map.put(SystemBaseUrl.HOST, "anotherhost");
         spa.writeSystemProperties(map);
         userProps = new Properties();
-        userProps.load(new FileReader(userPropsFile));
-        assertThat(userProps.size(), is(2));
-        assertThat(userProps.getProperty("anotherhost"), equalTo("host,group,somethingelse"));
-        assertNull(userProps.getProperty("newhost"));
-        assertNull(userProps.getProperty("host"));
+        try (FileReader userPropsReader = new FileReader(userPropsFile)) {
+            userProps.load(userPropsReader);
+            assertThat(userProps.size(), is(2));
+            assertThat(userProps.getProperty("anotherhost"), equalTo("host,group,somethingelse"));
+            assertNull(userProps.getProperty("newhost"));
+            assertNull(userProps.getProperty("host"));
+        }
     }
 
     private String getDetailsValue(List<SystemPropertyDetails> props, String key) {
         for (SystemPropertyDetails spd : props) {
-            if (spd.getKey().equals(key)) {
+            if (spd.getKey()
+                    .equals(key)) {
                 return spd.getValue();
             }
         }

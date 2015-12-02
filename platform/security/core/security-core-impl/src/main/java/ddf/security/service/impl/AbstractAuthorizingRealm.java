@@ -56,17 +56,15 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm {
      * Takes the security attributes about the subject of the incoming security token and builds
      * sets of permissions and roles for use in further checking.
      *
-     * @param principalCollection
-     *            holds the security assertions for the primary principal of this request
+     * @param principalCollection holds the security assertions for the primary principal of this request
      * @return a new collection of permissions and roles corresponding to the security assertions
-     * @throws AuthorizationException
-     *             if there are no security assertions associated with this principal collection or
-     *             if the token cannot be processed successfully.
+     * @throws AuthorizationException if there are no security assertions associated with this principal collection or
+     *                                if the token cannot be processed successfully.
      */
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principalCollection) {
         SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
-        LOGGER.debug("Retrieving authorizationinfo for {}",
+        LOGGER.debug("Retrieving authorization info for {}",
                 principalCollection.getPrimaryPrincipal());
         SecurityAssertion assertion = principalCollection.oneByType(SecurityAssertion.class);
         if (assertion == null) {
@@ -113,8 +111,7 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm {
      * Strings represent the possibly expanded set of attributes to be added to the current
      * permissions.
      *
-     * @param attribute
-     *            current attribute whose values are to be potentially expanded
+     * @param attribute current attribute whose values are to be potentially expanded
      * @return a set of potentially expanded values
      */
     private Set<String> expandAttributes(Attribute attribute) {

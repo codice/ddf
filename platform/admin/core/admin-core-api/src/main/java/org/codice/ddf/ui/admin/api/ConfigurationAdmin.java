@@ -75,7 +75,7 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
 
     private final ConfigurationAdminExt configurationAdminExt;
 
-    private AnonClaimsHandlerExt anonClaimsHandlerExt;
+    private GuestClaimsHandlerExt guestClaimsHandlerExt;
 
     private ObjectName objectName;
 
@@ -507,9 +507,9 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
     @Override
     public Map<String, Object> getClaimsConfiguration(String filter) {
         Map<String, Object> config = this.getService(filter);
-        if (config != null && anonClaimsHandlerExt != null) {
-            config.put("claims", anonClaimsHandlerExt.getClaims());
-            config.put("profiles", anonClaimsHandlerExt.getClaimsProfiles());
+        if (config != null && guestClaimsHandlerExt != null) {
+            config.put("claims", guestClaimsHandlerExt.getClaims());
+            config.put("profiles", guestClaimsHandlerExt.getClaimsProfiles());
         }
         return config;
     }
@@ -721,8 +721,8 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
         }
     }
 
-    public void setAnonClaimsHandlerExt(AnonClaimsHandlerExt anonClaimsHandlerExt) {
-        this.anonClaimsHandlerExt = anonClaimsHandlerExt;
+    public void setGuestClaimsHandlerExt(GuestClaimsHandlerExt guestClaimsHandlerExt) {
+        this.guestClaimsHandlerExt = guestClaimsHandlerExt;
     }
 
 }

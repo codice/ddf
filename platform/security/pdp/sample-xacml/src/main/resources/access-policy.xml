@@ -168,7 +168,7 @@
             <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-subset">
                 <AttributeDesignator AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
                 <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
-                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">anonymous</AttributeValue>
+                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">guest</AttributeValue>
                 </Apply>
             </Apply>
         </Condition>

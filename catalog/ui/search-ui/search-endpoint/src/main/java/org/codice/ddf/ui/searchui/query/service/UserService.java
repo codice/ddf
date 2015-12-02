@@ -76,8 +76,8 @@ public class UserService {
                 String username = SubjectUtils.getName(subject);
                 userMap.put("username", username);
                 if (subject instanceof ddf.security.Subject) {
-                    userMap.put("isAnonymous",
-                            String.valueOf(((ddf.security.Subject) subject).isAnonymous()));
+                    userMap.put("isGuest",
+                            String.valueOf(((ddf.security.Subject) subject).isGuest()));
                 }
                 List<Map<String, Object>> preferencesList;
                 try {

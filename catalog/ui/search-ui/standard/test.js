@@ -47,8 +47,8 @@ app.listen = function() {
             bayeux.getClient().publish('/service/user', {
                 "successful": true,
                 "user": {
-                    "username": "Anonymous",
-                    "isAnonymous": "true"
+                    "username": "Guest",
+                    "isGuest": "true"
                 }
             });
         }

@@ -161,7 +161,7 @@ public class Notification extends HashMap<String, String> {
         setMessage(message);
         setTimestamp(timestamp);
 
-        // Allow blank user ID (since that is the default user ID for anonymous user)
+        // Allow blank user ID (since that is the default user ID for guest user)
         if (null != userId) {
             setUserId(userId);
         }

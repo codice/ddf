@@ -243,6 +243,7 @@ define([
             _.each(bindObjs, function(value) {
                 if(view.$(value.selector).attr('type') === 'checkbox') {
                     value.converter = function(direction, bindValue) {
+                        bindValue = bindValue || false;
                         switch(direction) {
                             case 'ViewToModel':
                                 return bindValue.toString();

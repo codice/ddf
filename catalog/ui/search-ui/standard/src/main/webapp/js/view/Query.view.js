@@ -63,7 +63,9 @@ define([
                 'change #sortOrderSelected': 'onSortOrderChanged',
                 'click #scheduledNo': 'updateScheduling',
                 'click #scheduledYes': 'updateScheduling',
-                'click #saveButton': 'saveSearch'
+                'click #saveButton': 'saveSearch',
+                'keydown input[name=offsetTime]' : 'filterNonPositiveNumericValues',
+                'keydown input[id=radiusValue]' : 'filterNonPositiveNumericValues'
             },
 
             modelEvents: {
@@ -134,6 +136,21 @@ define([
                 this.model.unset('src');
                 this.model.set('federation','enterprise');
                 this.updateScrollbar();
+            },
+
+            filterNonPositiveNumericValues : function(e) {
+              var code = (e.keyCode ? e.keyCode : e.which);
+
+              if ((code < 48 || code > 57) && //digits
+                   code !== 190 &&            //period
+                   code !== 8 &&              //backspace
+                   code !== 46 &&             //delete
+                   (code < 37 || code > 40) &&  //arrows
+                   (code <96 || code > 103))  //numberpad
+              {
+                  e.preventDefault();
+                  e.stopPropagation();
+              }
             },
 
             setSelectedFederation : function () {
