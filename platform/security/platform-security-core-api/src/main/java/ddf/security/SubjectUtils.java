@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.security.assertion.SecurityAssertion;
+import ddf.security.principal.AnonymousPrincipal;
 
 /**
  * Utility class used to perform operations on Subjects.
@@ -40,11 +41,12 @@ public final class SubjectUtils {
      * Retrieves the user name from a given subject.
      *
      * @param subject Subject to get the user name from.
+     * @param returnDisplayName return formatted user name for displaying
      * @return String representation of the user name if available or null if no
      * user name could be found.
      */
-    public static String getName(org.apache.shiro.subject.Subject subject) {
-        return getName(subject, null);
+    public static String getName(org.apache.shiro.subject.Subject subject, boolean returnDisplayName) {
+        return getName(subject, null, returnDisplayName);
     }
 
     /**
@@ -52,11 +54,12 @@ public final class SubjectUtils {
      *
      * @param subject     Subject to get the user name from.
      * @param defaultName Name to send back if no user name was found.
+     * @param returnDisplayName return formatted user name for displaying
      * @return String representation of the user name if available or
      * defaultName if no user name could be found or incoming subject
      * was null.
      */
-    public static String getName(org.apache.shiro.subject.Subject subject, String defaultName) {
+    public static String getName(org.apache.shiro.subject.Subject subject, String defaultName, boolean returnDisplayName) {
         String name = defaultName;
         if (subject != null) {
             PrincipalCollection principals = subject.getPrincipals();
@@ -85,9 +88,16 @@ public final class SubjectUtils {
                         StringTokenizer st = new StringTokenizer(principal.getName(), "@");
                         st = new StringTokenizer(st.nextToken(), "/");
                         name = st.nextToken();
+                    } else if (principal instanceof AnonymousPrincipal) {
+                        name = "Guest";
                     } else {
-                        name = assertion.getPrincipal().getName();
+                        name = principal.getName();
                     }
+
+                    if(returnDisplayName) {
+                        name = getDisplayName(principal, defaultName);
+                    }
+
                 } else {
                     // send back the primary principal as a string
                     name = principals.getPrimaryPrincipal().toString();
@@ -105,5 +115,30 @@ public final class SubjectUtils {
 
         LOGGER.debug("Sending back name {}.", name);
         return name;
+    }
+
+    /**
+     *
+     * @param principal
+     * @param defaultName
+     * @return
+     */
+    private static String getDisplayName(Principal principal, String defaultName) {
+
+        String displayName = defaultName;
+
+        if(principal instanceof X500Principal)
+        {
+            //TODO: Implement X500 formatting
+        }
+        else if(principal instanceof AnonymousPrincipal)
+        {
+            displayName = "Guest";
+        }
+        else{
+            LOGGER.debug("No display name format identified for the name{}. Returning principal name", defaultName);
+        }
+
+        return displayName.toString();
     }
 }

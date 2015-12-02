@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -29,13 +30,16 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
+import org.apache.shiro.subject.SimplePrincipalCollection;
+import org.apache.shiro.subject.Subject;
+import org.apache.shiro.subject.Subject.Builder;
 
 import ddf.action.Action;
 import ddf.action.ActionProvider;
 import ddf.security.SecurityConstants;
+import ddf.security.SubjectUtils;
 import ddf.security.assertion.impl.SecurityAssertionImpl;
 import ddf.security.common.util.SecurityTokenHolder;
-import ddf.security.encryption.EncryptionService;
 import ddf.security.http.SessionFactory;
 
 @Path("/")
@@ -45,61 +49,44 @@ public class LogoutService {
 
     private SessionFactory httpSessionFactory;
 
-    private EncryptionService encryptionService;
-
     @GET
     @Path("/actions")
     public Response getActionProviders(@Context HttpServletRequest request) {
 
         //TODO: Update docs for idp realm changes
-        //TODO: Point admin logout to logout page
-        // ((SecurityTokenHolder) session.getAttribute(SecurityConstants.SAML_ASSERTION)) -> get realm to token list -> SecurityAssertionImpl -> getPrincipal -> SubjectUtils.getName
-        //pass securityToken to SecurityAssertionImpl -> getPrincipcal instead ->
-        HttpSession session = httpSessionFactory.getOrCreateSession(request);
-        Map<String, SecurityToken> realmTokenMap =
-                ((SecurityTokenHolder) session.getAttribute(SecurityConstants.SAML_ASSERTION)).getRealmTokenMap();
-        Map<String, String> realmToAuth = new HashMap<>();
+        //TODO: Convert to subject -> pass to SubjectUtils.getName (Add statement if AnonymousPrincipal, return guest) -> display pretty name but give getAction ugly name
 
-        //create maps for realm -> auths
+        HttpSession session = httpSessionFactory.getOrCreateSession(request);
+        Map<String, SecurityToken> realmTokenMap = ((SecurityTokenHolder) session.getAttribute(SecurityConstants.SAML_ASSERTION)).getRealmTokenMap();
+        Map<String, Subject> realmSubjectMap = new HashMap<>();
+
         for (String realm : realmTokenMap.keySet()) {
-            realmToAuth.put(realm,
-                    new SecurityAssertionImpl(realmTokenMap.get(realm)).getPrincipal()
-                            .getName());
+            SecurityAssertionImpl securityAssertion = new SecurityAssertionImpl(realmTokenMap.get(realm));
+            Subject subject = new Builder().principals(new SimplePrincipalCollection(securityAssertion, realm)).buildSubject();
+            realmSubjectMap.put(realm, subject);
         }
 
         List<Map<String, String>> realmToPropMaps = new ArrayList<>();
+        Function<String, String> getNameToEncrypt = (realm) -> SubjectUtils.getName(realmSubjectMap.get(realm), false);
 
         for (ActionProvider actionProvider : logoutActionProviders) {
-            Action action = actionProvider.getAction(request);
-            String realm = action.getId()
-                    .substring(action.getId()
-                            .lastIndexOf(".") + 1);
+            Action action = actionProvider.getAction(getNameToEncrypt);
+            String realm = action.getId().substring(action.getId().lastIndexOf(".") + 1);
 
-            if (realmToAuth.get(realm) != null && !realmToAuth.get(realm)
-                    .contains("Anonymous")) {
-                Map<String, String> actionProperties = new HashMap<String, String>();
-                actionProperties.put("title", action.getTitle());
-                actionProperties.put("realm", realm);
-                actionProperties.put("auth", realmToAuth.get(realm));
-                actionProperties.put("description", action.getDescription());
-                actionProperties.put("url",
-                        action.getUrl()
-                                .toString());
-                realmToPropMaps.add(actionProperties);
-            }
+            Map<String, String> actionProperties = new HashMap<String, String>();
+            actionProperties.put("title", action.getTitle());
+            actionProperties.put("realm", realm);
+            actionProperties.put("auth", SubjectUtils.getName(realmSubjectMap.get(realm), true));
+            actionProperties.put("description", action.getDescription());
+            actionProperties.put("url", action.getUrl().toString());
+            realmToPropMaps.add(actionProperties);
         }
 
-        return Response.ok(new ByteArrayInputStream(toJson(realmToPropMaps).getBytes()))
-                .build();
-
+        return Response.ok(new ByteArrayInputStream(toJson(realmToPropMaps).getBytes())).build();
     }
 
     public void setHttpSessionFactory(SessionFactory httpSessionFactory) {
         this.httpSessionFactory = httpSessionFactory;
-    }
-
-    public void setEncryptionService(EncryptionService encryptionService) {
-        this.encryptionService = encryptionService;
     }
 
     public void setLogoutActionProviders(List<ActionProvider> logoutActionProviders) {

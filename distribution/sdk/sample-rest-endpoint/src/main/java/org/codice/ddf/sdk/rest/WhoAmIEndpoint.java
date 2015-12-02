@@ -28,6 +28,6 @@ public class WhoAmIEndpoint {
     @GET
     @Produces("text/plain")
     public Response whoAmI() {
-        return Response.ok(SubjectUtils.getName(SecurityUtils.getSubject())).build();
+        return Response.ok(SubjectUtils.getName(SecurityUtils.getSubject(), false)).build();
     }
 }

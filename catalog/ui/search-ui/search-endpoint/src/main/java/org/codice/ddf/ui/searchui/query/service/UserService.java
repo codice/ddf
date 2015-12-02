@@ -73,7 +73,7 @@ public class UserService {
         if (subject != null) {
             if (data == null || data.isEmpty()) {
                 Map<String, Object> userMap = new HashMap<>();
-                String username = SubjectUtils.getName(subject);
+                String username = SubjectUtils.getName(subject, false);
                 userMap.put("username", username);
                 if (subject instanceof ddf.security.Subject) {
                     userMap.put("isGuest",
@@ -111,7 +111,7 @@ public class UserService {
                 JSONContext.Server jsonContext = new JacksonJSONContextServer();
                 String json = jsonContext.getGenerator().generate(data);
                 LOGGER.debug("preferences JSON text:\n {}", json);
-                String username = SubjectUtils.getName(subject);
+                String username = SubjectUtils.getName(subject, false);
                 PersistentItem item = new PersistentItem();
                 item.addIdProperty(username);
                 item.addProperty("user", username);

@@ -34,7 +34,6 @@ public class TestLogoutService {
         when(sessionFactory.getOrCreateSession(any(HttpServletRequest.class))).thenReturn(null);
         LogoutService logoutService = new LogoutService();
         logoutService.setHttpSessionFactory(sessionFactory);
-
     }
 
 

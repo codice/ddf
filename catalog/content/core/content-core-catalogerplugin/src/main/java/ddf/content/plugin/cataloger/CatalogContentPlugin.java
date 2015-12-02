@@ -257,7 +257,7 @@ public class CatalogContentPlugin implements ContentPlugin {
                         if (subject != null) {
                             contentMetacard.setAttribute(
                                     new AttributeImpl(Metacard.POINT_OF_CONTACT,
-                                            SubjectUtils.getName(subject)));
+                                            SubjectUtils.getName(subject, false)));
                         }
                     } catch (IllegalStateException e) {
                         LOGGER.debug("Unable to retrieve user from request.", e);

@@ -26,7 +26,6 @@ import ddf.security.SecurityConstants;
 import ddf.security.common.util.SecurityTokenHolder;
 
 public class LocalLogoutServlet extends HttpServlet {
-
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -45,6 +44,7 @@ public class LocalLogoutServlet extends HttpServlet {
             deleteJSessionId(response);
         }
 
+        //Redirect to logout success page
         getServletContext().getContext("/logout").getRequestDispatcher("/local-logout-successful.html").forward(request, response);
     }
 

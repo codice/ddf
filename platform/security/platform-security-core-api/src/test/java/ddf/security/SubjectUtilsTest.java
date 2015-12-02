@@ -38,7 +38,7 @@ public class SubjectUtilsTest {
         PrincipalCollection principals = new SimplePrincipalCollection(TEST_NAME, "testrealm");
         subject = new Subject.Builder(secManager).principals(principals)
                 .session(new SimpleSession()).authenticated(true).buildSubject();
-        assertEquals(TEST_NAME, SubjectUtils.getName(subject));
+        assertEquals(TEST_NAME, SubjectUtils.getName(subject, false));
     }
 
     @Test
@@ -48,8 +48,8 @@ public class SubjectUtilsTest {
         PrincipalCollection principals = new SimplePrincipalCollection();
         subject = new Subject.Builder(secManager).principals(principals)
                 .session(new SimpleSession()).authenticated(true).buildSubject();
-        assertEquals(DEFAULT_NAME, SubjectUtils.getName(subject, DEFAULT_NAME));
-        assertEquals(DEFAULT_NAME, SubjectUtils.getName(null, DEFAULT_NAME));
+        assertEquals(DEFAULT_NAME, SubjectUtils.getName(subject, DEFAULT_NAME, false));
+        assertEquals(DEFAULT_NAME, SubjectUtils.getName(null, DEFAULT_NAME, false));
     }
 
 }

@@ -67,7 +67,7 @@ public class WorkspaceService {
         String username = "";
         try {
             Subject subject = SecurityUtils.getSubject();
-            username = SubjectUtils.getName(subject);
+            username = SubjectUtils.getName(subject, false);
         } catch (Exception e) {
             LOGGER.debug("Unable to retrieve user from request.", e);
         }

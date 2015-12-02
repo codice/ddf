@@ -75,7 +75,7 @@ public class SecurityLoggingPlugin implements PreQueryPlugin, PreIngestPlugin, P
         String user;
         try {
             Subject subject = SecurityUtils.getSubject();
-            user = SubjectUtils.getName(subject, NO_USER);
+            user = SubjectUtils.getName(subject, NO_USER, false);
         } catch (Exception e) {
             user = NO_USER;
         }
