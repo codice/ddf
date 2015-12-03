@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.security.assertion.SecurityAssertion;
+import ddf.security.principal.GuestPrincipal;
 
 /**
  * Utility class used to perform operations on Subjects.
@@ -37,6 +38,30 @@ public final class SubjectUtils {
     }
 
     /**
+     *Converts the given principal name to a formatted display name.
+     * @param principal
+     * @param defaultName
+     * @return
+     */
+    private static String getDisplayName(Principal principal, String defaultName) {
+
+        String displayName = defaultName;
+
+        if(principal instanceof GuestPrincipal)
+        {
+            displayName = "Guest";
+        }
+        else if (principal instanceof X500Principal) {
+           getCommonName((X500Principal)principal);
+        }
+        else{
+            LOGGER.debug("No display name format identified for given principal. Returning principal name ", defaultName);
+        }
+
+        return displayName;
+    }
+
+    /**
      * Retrieves the user name from a given subject.
      *
      * @param subject Subject to get the user name from.
@@ -44,7 +69,18 @@ public final class SubjectUtils {
      * user name could be found.
      */
     public static String getName(org.apache.shiro.subject.Subject subject) {
-        return getName(subject, null);
+        return getName(subject, null, false);
+    }
+
+    /**
+     * Retrieves the user name from a given subject.
+     *
+     * @param subject Subject to get the user name from.
+     * @return String representation of the user name if available or null if no
+     * user name could be found.
+     */
+    public static String getName(org.apache.shiro.subject.Subject subject, String defaultName) {
+            return getName(subject, defaultName, false);
     }
 
     /**
@@ -52,11 +88,12 @@ public final class SubjectUtils {
      *
      * @param subject     Subject to get the user name from.
      * @param defaultName Name to send back if no user name was found.
+     * @param returnDisplayName return formatted user name for displaying
      * @return String representation of the user name if available or
      * defaultName if no user name could be found or incoming subject
      * was null.
      */
-    public static String getName(org.apache.shiro.subject.Subject subject, String defaultName) {
+    public static String getName(org.apache.shiro.subject.Subject subject, String defaultName, boolean returnDisplayName) {
         String name = defaultName;
         if (subject != null) {
             PrincipalCollection principals = subject.getPrincipals();
@@ -64,30 +101,18 @@ public final class SubjectUtils {
                 SecurityAssertion assertion = principals.oneByType(SecurityAssertion.class);
                 if (assertion != null) {
                     Principal principal = assertion.getPrincipal();
-                    if (principal instanceof X500Principal) {
-                        StringTokenizer st = new StringTokenizer(principal.getName(), ",");
-                        while (st.hasMoreElements()) {
-                            // token is in the format:
-                            // syntaxAndUniqueId
-                            // cn
-                            // ou
-                            // o
-                            // loc
-                            // state
-                            // country
-                            String[] strArr = st.nextToken().split("=");
-                            if (strArr.length > 1 && strArr[0].equalsIgnoreCase("cn")) {
-                                name = strArr[1];
-                                break;
-                            }
-                        }
-                    } else if (principal instanceof KerberosPrincipal) {
+                    if (principal instanceof KerberosPrincipal) {
                         StringTokenizer st = new StringTokenizer(principal.getName(), "@");
                         st = new StringTokenizer(st.nextToken(), "/");
                         name = st.nextToken();
                     } else {
-                        name = assertion.getPrincipal().getName();
+                        name = principal.getName();
                     }
+
+                    if(returnDisplayName) {
+                        name = getDisplayName(principal, name);
+                    }
+
                 } else {
                     // send back the primary principal as a string
                     name = principals.getPrimaryPrincipal().toString();
@@ -105,5 +130,30 @@ public final class SubjectUtils {
 
         LOGGER.debug("Sending back name {}.", name);
         return name;
+    }
+
+    public static String getCommonName(X500Principal principal)
+    {
+        //TODO: Stream this bizz
+        //TODO: Replace places that use this with this method
+        String commonName = null;
+        StringTokenizer st = new StringTokenizer(principal.getName(), ",");
+        while (st.hasMoreElements()) {
+            // token is in the format:
+            // syntaxAndUniqueId
+            // cn
+            // ou
+            // o
+            // loc
+            // state
+            // country
+            String[] strArr = st.nextToken().split("=");
+            if (strArr.length > 1 && strArr[0].equalsIgnoreCase("cn")) {
+                commonName = strArr[1];
+                break;
+            }
+        }
+
+        return commonName;
     }
 }

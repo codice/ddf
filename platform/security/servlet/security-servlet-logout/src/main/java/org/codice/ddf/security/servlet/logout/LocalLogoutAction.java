@@ -1,0 +1,59 @@
+/**
+ * Copyright (c) Codice Foundation
+ * <p/>
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * <p/>
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ */
+package org.codice.ddf.security.servlet.logout;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+
+import org.codice.ddf.configuration.SystemBaseUrl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import ddf.action.Action;
+import ddf.action.ActionProvider;
+import ddf.action.impl.ActionImpl;
+
+/**
+ * Created by tbatie on 11/16/15.
+ */
+public class LocalLogoutAction implements ActionProvider {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(LocalLogoutAction.class);
+
+    private static final String ID = "security.logout.karaf";
+
+    private static final String TITLE = "Local Logout";
+
+    private static final String DESCRIPTION = "Logging out of the karaf realm will only perform a local logout. Accounts signed into external sources will remain logged in.";
+
+    private static URL logoutUrl = null;
+
+    static {
+        try {
+            logoutUrl = new URL(new SystemBaseUrl().constructUrl("/logout/local"));
+        } catch (MalformedURLException e) {
+            LOGGER.info("Unable to resolve URL: {}", new SystemBaseUrl().constructUrl("/logout/local"));
+        }
+    }
+
+    @Override
+    public <T> Action getAction(T subject) {
+        return new ActionImpl(ID, TITLE, DESCRIPTION, logoutUrl);
+    }
+
+    @Override
+    public String getId() {
+        return ID;
+    }
+}

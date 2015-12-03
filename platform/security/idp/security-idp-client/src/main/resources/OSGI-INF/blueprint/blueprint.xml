@@ -55,6 +55,10 @@
         <argument ref="idpMetadata"/>
         <argument ref="baseUrl"/>
         <argument ref="relayStates"/>
+        <property name="sessionFactory">
+            <reference interface="ddf.security.http.SessionFactory"
+                       filter="(id=http)"/>
+        </property>
     </bean>
 
     <service ref="idpHandler"             interface="org.codice.ddf.security.handler.api.AuthenticationHandler"/>

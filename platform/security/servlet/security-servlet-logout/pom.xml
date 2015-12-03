@@ -41,15 +41,66 @@
             <groupId>ddf.security.core</groupId>
             <artifactId>security-core-impl</artifactId>
         </dependency>
+        <dependency>
+            <groupId>ddf.action.core</groupId>
+            <artifactId>action-core-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.action.core</groupId>
+            <artifactId>action-core-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.fastjson</groupId>
+            <artifactId>boon</artifactId>
+            <version>0.30</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-bundle</artifactId>
+            <version>2.7.8</version>
+        </dependency>
+        <dependency>
+            <groupId>com.jayway.restassured</groupId>
+            <artifactId>json-path</artifactId>
+            <version>2.4.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tika</groupId>
+            <artifactId>tika-core</artifactId>
+            <version>1.7</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
         <plugins>
             <plugin>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>grunt install</id>
+                        <goals>
+                            <goal>grunt</goal>
+                        </goals>
+                        <phase>install</phase>
+                        <configuration>
+                            <arguments>build</arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
                     <instructions>
+                        <Web-ContextPath>/logout</Web-ContextPath>
+                        <_wab>src/main/webapp,${project.build.directory}/webapp</_wab>
+                        <Embed-Dependency>boon</Embed-Dependency>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                     </instructions>
                 </configuration>
