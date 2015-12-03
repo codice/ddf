@@ -14,6 +14,8 @@
 
 package org.codice.ddf.configuration.store;
 
+import java.nio.file.Path;
+
 /**
  * Interface ConfigurationFileDirectory must implement.
  *
@@ -27,4 +29,9 @@ public interface ConfigurationMigrationService {
      * @throws ConfigurationFileException thrown if one or more Configurations couldn't be exported
      */
     void export() throws ConfigurationFileException;
+
+    /**
+     * Returns Path of directory that configurations will be exported to
+     */
+    Path getExportedDirectory();
 }

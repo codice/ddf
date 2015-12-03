@@ -172,6 +172,11 @@ public class ConfigurationFileDirectory implements ChangeListener, Configuration
         }
     }
 
+    @Override
+    public Path getExportedDirectory() {
+        return exportedDirectory;
+    }
+
     void moveFile(Path source, Path destination) throws IOException {
         Files.move(source, destination.resolve(source.getFileName()), REPLACE_EXISTING);
     }

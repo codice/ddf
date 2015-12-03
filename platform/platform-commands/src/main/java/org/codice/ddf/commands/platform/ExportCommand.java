@@ -33,6 +33,8 @@ public class ExportCommand extends PlatformCommands {
     @Override
     protected Object doExecute() throws Exception {
         configurationMigrationService.export();
+        System.out.println(String.format("Exporting current configurations to %s",
+                configurationMigrationService.getExportedDirectory()));
         return null;
     }
 
