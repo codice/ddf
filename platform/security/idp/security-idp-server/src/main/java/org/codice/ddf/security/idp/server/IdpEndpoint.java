@@ -392,16 +392,15 @@ public class IdpEndpoint implements Idp {
             String assertionConsumerServiceBinding =
                     ResponseCreator.getAssertionConsumerServiceBinding(authnRequest,
                             serviceProviders);
-            if (HTTP_POST_BINDING.equals(assertionConsumerServiceBinding)) {
+            if (HTTP_POST_BINDING.equals(originalBinding)) {
                 binding = new PostBinding(systemCrypto, serviceProviders);
                 template = submitForm;
-            } else if (HTTP_REDIRECT_BINDING.equals(assertionConsumerServiceBinding)) {
+            } else if (HTTP_REDIRECT_BINDING.equals(originalBinding)) {
                 binding = redirectBinding;
                 template = redirectPage;
             } else {
                 throw new UnsupportedOperationException("Must use HTTP POST or Redirect bindings.");
             }
-
             binding.validator()
                     .validateAuthnRequest(authnRequest,
                             samlRequest,
@@ -409,6 +408,16 @@ public class IdpEndpoint implements Idp {
                             signatureAlgorithm,
                             signature,
                             strictSignature);
+
+            if (HTTP_POST_BINDING.equals(assertionConsumerServiceBinding)) {
+                if (!(binding instanceof PostBinding)) {
+                    binding = new PostBinding(systemCrypto, serviceProviders);
+                }
+            }else if (HTTP_REDIRECT_BINDING.equals(assertionConsumerServiceBinding)) {
+                if (!(binding instanceof RedirectBinding)) {
+                    binding = new RedirectBinding(systemCrypto, serviceProviders);
+                }
+            }
             org.opensaml.saml2.core.Response encodedSaml = handleLogin(authnRequest,
                     authMethod,
                     request,
@@ -497,7 +506,7 @@ public class IdpEndpoint implements Idp {
         org.w3c.dom.Element samlToken = null;
         String statusCode;
         if (hasCookie) {
-            samlToken = getSamlAssertion(request);
+            samlToken = getSamlAssertion(request); // TODO (RCZ) - make sure assertion has not expired
             statusCode = StatusCode.SUCCESS_URI;
         } else {
             try {
@@ -862,7 +871,7 @@ public class IdpEndpoint implements Idp {
                         "/idp/logout",
                         true), status, logoutState.getOriginalRequestId());
                 relay = logoutState.getInitialRelayState();
-                logoutStates.decode(cookie.getValue());
+                LogoutState decode = logoutStates.decode(cookie.getValue(), false);
             }
 
             EntityInformation.ServiceInfo entityServiceInfo = serviceProviders.get(entityId)
