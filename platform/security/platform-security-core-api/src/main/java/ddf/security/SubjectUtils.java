@@ -13,6 +13,7 @@
  */
 package ddf.security;
 
+import java.io.IOException;
 import java.security.Principal;
 import java.util.StringTokenizer;
 
@@ -24,7 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.security.assertion.SecurityAssertion;
-import ddf.security.principal.AnonymousPrincipal;
+import ddf.security.principal.GuestPrincipal;
+import sun.security.x509.X500Name;
 
 /**
  * Utility class used to perform operations on Subjects.
@@ -41,14 +43,23 @@ public final class SubjectUtils {
      * Retrieves the user name from a given subject.
      *
      * @param subject Subject to get the user name from.
-     * @param returnDisplayName return formatted user name for displaying
      * @return String representation of the user name if available or null if no
      * user name could be found.
      */
-    public static String getName(org.apache.shiro.subject.Subject subject, boolean returnDisplayName) {
-        return getName(subject, null, returnDisplayName);
+    public static String getName(org.apache.shiro.subject.Subject subject) {
+        return getName(subject, null, false);
     }
 
+    /**
+     * Retrieves the user name from a given subject.
+     *
+     * @param subject Subject to get the user name from.
+     * @return String representation of the user name if available or null if no
+     * user name could be found.
+     */
+    public static String getName(org.apache.shiro.subject.Subject subject, String defaultName) {
+            return getName(subject, defaultName, false);
+    }
     /**
      * Retrieves the user name from a given subject.
      *
@@ -67,35 +78,16 @@ public final class SubjectUtils {
                 SecurityAssertion assertion = principals.oneByType(SecurityAssertion.class);
                 if (assertion != null) {
                     Principal principal = assertion.getPrincipal();
-                    if (principal instanceof X500Principal) {
-                        StringTokenizer st = new StringTokenizer(principal.getName(), ",");
-                        while (st.hasMoreElements()) {
-                            // token is in the format:
-                            // syntaxAndUniqueId
-                            // cn
-                            // ou
-                            // o
-                            // loc
-                            // state
-                            // country
-                            String[] strArr = st.nextToken().split("=");
-                            if (strArr.length > 1 && strArr[0].equalsIgnoreCase("cn")) {
-                                name = strArr[1];
-                                break;
-                            }
-                        }
-                    } else if (principal instanceof KerberosPrincipal) {
+                    if (principal instanceof KerberosPrincipal) {
                         StringTokenizer st = new StringTokenizer(principal.getName(), "@");
                         st = new StringTokenizer(st.nextToken(), "/");
                         name = st.nextToken();
-                    } else if (principal instanceof AnonymousPrincipal) {
-                        name = "Guest";
                     } else {
                         name = principal.getName();
                     }
 
                     if(returnDisplayName) {
-                        name = getDisplayName(principal, defaultName);
+                        name = getDisplayName(principal, name);
                     }
 
                 } else {
@@ -118,7 +110,7 @@ public final class SubjectUtils {
     }
 
     /**
-     *
+     *Converts the given principal name to a formatted display name.
      * @param principal
      * @param defaultName
      * @return
@@ -127,18 +119,21 @@ public final class SubjectUtils {
 
         String displayName = defaultName;
 
-        if(principal instanceof X500Principal)
-        {
-            //TODO: Implement X500 formatting
-        }
-        else if(principal instanceof AnonymousPrincipal)
+        if(principal instanceof GuestPrincipal)
         {
             displayName = "Guest";
         }
+        else if (principal instanceof X500Principal) {
+            try {
+                displayName = new X500Name(principal.getName()).getCommonName();
+            } catch (IOException e) {
+                LOGGER.debug("Unable to retrieve common name from X500Principal to create display name");
+            }
+        }
         else{
-            LOGGER.debug("No display name format identified for the name{}. Returning principal name", defaultName);
+            LOGGER.debug("No display name format identified for given principal. Returning principal name ", defaultName);
         }
 
-        return displayName.toString();
+        return displayName;
     }
 }

@@ -38,7 +38,7 @@ public class SoapEndpoint {
         String name = null;
         try {
             Subject subject = SecurityUtils.getSubject();
-            name = SubjectUtils.getName(subject, false);
+            name = SubjectUtils.getName(subject);
         } catch (Exception e) {
             LOGGER.debug("Unable to retrieve user from request.", e);
         }

@@ -53,8 +53,7 @@ public class LogoutService {
     @Path("/actions")
     public Response getActionProviders(@Context HttpServletRequest request) {
 
-        //TODO: Update docs for idp realm changes
-        //TODO: Convert to subject -> pass to SubjectUtils.getName (Add statement if AnonymousPrincipal, return guest) -> display pretty name but give getAction ugly name
+        //TODO: Update docs for idp realm changes. Also add documentation about the rollback of other poliy manager shizz
 
         HttpSession session = httpSessionFactory.getOrCreateSession(request);
         Map<String, SecurityToken> realmTokenMap = ((SecurityTokenHolder) session.getAttribute(SecurityConstants.SAML_ASSERTION)).getRealmTokenMap();
@@ -67,7 +66,7 @@ public class LogoutService {
         }
 
         List<Map<String, String>> realmToPropMaps = new ArrayList<>();
-        Function<String, String> getNameToEncrypt = (realm) -> SubjectUtils.getName(realmSubjectMap.get(realm), false);
+        Function<String, String> getNameToEncrypt = (realm) -> SubjectUtils.getName(realmSubjectMap.get(realm));
 
         for (ActionProvider actionProvider : logoutActionProviders) {
             Action action = actionProvider.getAction(getNameToEncrypt);
@@ -76,7 +75,7 @@ public class LogoutService {
             Map<String, String> actionProperties = new HashMap<String, String>();
             actionProperties.put("title", action.getTitle());
             actionProperties.put("realm", realm);
-            actionProperties.put("auth", SubjectUtils.getName(realmSubjectMap.get(realm), true));
+            actionProperties.put("auth", SubjectUtils.getName(realmSubjectMap.get(realm)));
             actionProperties.put("description", action.getDescription());
             actionProperties.put("url", action.getUrl().toString());
             realmToPropMaps.add(actionProperties);

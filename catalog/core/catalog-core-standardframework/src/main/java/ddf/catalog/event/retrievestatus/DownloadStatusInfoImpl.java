@@ -55,7 +55,7 @@ public class DownloadStatusInfoImpl implements DownloadStatusInfo {
             LOGGER.debug("Could not determine current user, using session id.");
         }
         String user = SubjectUtils
-                .getName(shiroSubject, getProperty(resourceResponse, ActivityEvent.USER_ID_KEY), false);
+                .getName(shiroSubject, getProperty(resourceResponse, ActivityEvent.USER_ID_KEY));
         downloadUsers.put(downloadIdentifier, user);
     }
 

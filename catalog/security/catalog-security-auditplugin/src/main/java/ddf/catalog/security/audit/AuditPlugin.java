@@ -54,7 +54,7 @@ public class AuditPlugin implements PreIngestPlugin, PostIngestPlugin, PreQueryP
         if (input != null) {
             Object subjectObj = input.getPropertyValue(SecurityConstants.SECURITY_SUBJECT);
             if (subjectObj instanceof Subject) {
-                String username = SubjectUtils.getName((Subject) subjectObj, false);
+                String username = SubjectUtils.getName((Subject) subjectObj);
                 String msg = "User [" + username + "] is attempting to ingest resource [" + input.toString() + "].";
                 SecurityLogger.logInfo(msg);
             }
@@ -68,7 +68,7 @@ public class AuditPlugin implements PreIngestPlugin, PostIngestPlugin, PreQueryP
         if (input != null) {
             Object subjectObj = input.getPropertyValue(SecurityConstants.SECURITY_SUBJECT);
             if (subjectObj instanceof Subject) {
-                String username = SubjectUtils.getName((Subject) subjectObj, false);
+                String username = SubjectUtils.getName((Subject) subjectObj);
                 String msg = "User [" + username + "] is attempting to update resource [" + input.UPDATE_BY_ID + "].";
                 SecurityLogger.logInfo(msg);
 
@@ -83,7 +83,7 @@ public class AuditPlugin implements PreIngestPlugin, PostIngestPlugin, PreQueryP
         if (input != null) {
             Object subjectObj = input.getPropertyValue(SecurityConstants.SECURITY_SUBJECT);
             if (subjectObj instanceof Subject) {
-                String username = SubjectUtils.getName((Subject) subjectObj, false);
+                String username = SubjectUtils.getName((Subject) subjectObj);
                 String msg = "User [" + username + "] is attempting to delete resource [" + input.DELETE_BY_ID + "].";
                 SecurityLogger.logInfo(msg);
             }
@@ -99,7 +99,7 @@ public class AuditPlugin implements PreIngestPlugin, PostIngestPlugin, PreQueryP
         if (input != null) {
             Object subjectObj = input.getPropertyValue(SecurityConstants.SECURITY_SUBJECT);
             if (subjectObj instanceof Subject) {
-                String username = SubjectUtils.getName((Subject) subjectObj, false);
+                String username = SubjectUtils.getName((Subject) subjectObj);
                 String msg = "User [" + username + "] successfully created [" + input.getCreatedMetacards() +"].";
                 SecurityLogger.logInfo(msg);
             }
@@ -112,7 +112,7 @@ public class AuditPlugin implements PreIngestPlugin, PostIngestPlugin, PreQueryP
         if (input != null) {
             Object subjectObj = input.getPropertyValue(SecurityConstants.SECURITY_SUBJECT);
             if (subjectObj instanceof Subject) {
-                String username = SubjectUtils.getName((Subject) subjectObj, false);
+                String username = SubjectUtils.getName((Subject) subjectObj);
                 String msg = "User [" + username + "] successfully updated [" + input.getUpdatedMetacards() + "].";
                 SecurityLogger.logInfo(msg);
             }
@@ -125,7 +125,7 @@ public class AuditPlugin implements PreIngestPlugin, PostIngestPlugin, PreQueryP
         if (input != null) {
             Object subjectObj = input.getPropertyValue(SecurityConstants.SECURITY_SUBJECT);
             if (subjectObj instanceof Subject) {
-                String username = SubjectUtils.getName((Subject) subjectObj, false);
+                String username = SubjectUtils.getName((Subject) subjectObj);
                 String msg = "User [" + username + "] successfully deleted [" + input.getDeletedMetacards() + "].";
                 SecurityLogger.logInfo(msg);
             }
@@ -143,7 +143,7 @@ public class AuditPlugin implements PreIngestPlugin, PostIngestPlugin, PreQueryP
         if (input != null) {
             Object subjectObj = input.getPropertyValue(SecurityConstants.SECURITY_SUBJECT);
             if (subjectObj instanceof Subject) {
-                String username = SubjectUtils.getName((Subject) subjectObj, false);
+                String username = SubjectUtils.getName((Subject) subjectObj);
                 String msg = "User [" + username + "] is attempting to query [" + input.getQuery() + "].";
                 SecurityLogger.logInfo(msg);
             }
@@ -159,7 +159,7 @@ public class AuditPlugin implements PreIngestPlugin, PostIngestPlugin, PreQueryP
         if (input != null) {
             Object subjectObj = input.getPropertyValue(SecurityConstants.SECURITY_SUBJECT);
             if (subjectObj instanceof Subject) {
-                String username = SubjectUtils.getName((Subject) subjectObj, false);
+                String username = SubjectUtils.getName((Subject) subjectObj);
                 String msg = "User [" + username + "] successfully executed query [" + input.getResults() + "].";
                 SecurityLogger.logInfo(msg);
             }
@@ -178,7 +178,7 @@ public class AuditPlugin implements PreIngestPlugin, PostIngestPlugin, PreQueryP
         if (input != null && source != null) {
             Object subjectObj = input.getPropertyValue(SecurityConstants.SECURITY_SUBJECT);
             if (subjectObj instanceof Subject) {
-                String username = SubjectUtils.getName((Subject) subjectObj, false);
+                String username = SubjectUtils.getName((Subject) subjectObj);
                 String msg = "User [" + username + "] is attempting to query [" + input.getQuery() + "] from [" + source.getId() + "].";
                 SecurityLogger.logInfo(msg);
             }
@@ -195,7 +195,7 @@ public class AuditPlugin implements PreIngestPlugin, PostIngestPlugin, PreQueryP
         if (input != null) {
             Object subjectObj = input.getPropertyValue(SecurityConstants.SECURITY_SUBJECT);
             if (subjectObj instanceof Subject) {
-                String username = SubjectUtils.getName((Subject) subjectObj, false);
+                String username = SubjectUtils.getName((Subject) subjectObj);
                 String msg = "User [" + username + "] is attempting to retrieve resource [" + input
                         .getAttributeValue() + "] by [" + input.getAttributeName() + "].";
                 SecurityLogger.logInfo(msg);
@@ -210,7 +210,7 @@ public class AuditPlugin implements PreIngestPlugin, PostIngestPlugin, PreQueryP
         if (input != null) {
             Object subjectObj = input.getPropertyValue(SecurityConstants.SECURITY_SUBJECT);
             if (subjectObj instanceof Subject) {
-                String username = SubjectUtils.getName((Subject) subjectObj, false);
+                String username = SubjectUtils.getName((Subject) subjectObj);
                 String msg = "User [" + username + "] successfully retrieved resource [" + input
                         .getRequest().getAttributeValue() + "] by [" + input.getRequest()
                         .getAttributeName() + "] with file name [" + input.getResource().getName()

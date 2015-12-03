@@ -15,11 +15,15 @@ package ddf.security;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.IOException;
+
 import org.apache.shiro.mgt.DefaultSecurityManager;
 import org.apache.shiro.session.mgt.SimpleSession;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.junit.Test;
+
+import sun.security.x509.X500Name;
 
 /**
  * Tests out the SubjectUtils class
@@ -38,7 +42,7 @@ public class SubjectUtilsTest {
         PrincipalCollection principals = new SimplePrincipalCollection(TEST_NAME, "testrealm");
         subject = new Subject.Builder(secManager).principals(principals)
                 .session(new SimpleSession()).authenticated(true).buildSubject();
-        assertEquals(TEST_NAME, SubjectUtils.getName(subject, false));
+        assertEquals(TEST_NAME, SubjectUtils.getName(subject));
     }
 
     @Test
@@ -48,8 +52,16 @@ public class SubjectUtilsTest {
         PrincipalCollection principals = new SimplePrincipalCollection();
         subject = new Subject.Builder(secManager).principals(principals)
                 .session(new SimpleSession()).authenticated(true).buildSubject();
-        assertEquals(DEFAULT_NAME, SubjectUtils.getName(subject, DEFAULT_NAME, false));
-        assertEquals(DEFAULT_NAME, SubjectUtils.getName(null, DEFAULT_NAME, false));
+        assertEquals(DEFAULT_NAME, SubjectUtils.getName(subject, DEFAULT_NAME));
+        assertEquals(DEFAULT_NAME, SubjectUtils.getName(null, DEFAULT_NAME));
     }
 
+
+    @Test
+    public void testDisplayName() throws IOException {
+        //TODO: Write displayname test
+        String dn = "cn=myxman,ou=someunit,o=someorg";
+        X500Name x500Name = new X500Name(dn);
+
+    }
 }

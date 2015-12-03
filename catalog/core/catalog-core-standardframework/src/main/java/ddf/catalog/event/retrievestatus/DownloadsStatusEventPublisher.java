@@ -127,7 +127,7 @@ public class DownloadsStatusEventPublisher {
         } catch (Exception e) {
             LOGGER.debug("Could not determine current user, using session id.");
         }
-        String user = SubjectUtils.getName(shiroSubject, "", false);
+        String user = SubjectUtils.getName(shiroSubject, "");
 
         if (notificationEnabled && sendNotification && (status
                 != ProductRetrievalStatus.IN_PROGRESS) && (status

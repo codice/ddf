@@ -68,7 +68,7 @@ import org.w3c.dom.Element;
 
 import ddf.security.SecurityConstants;
 import ddf.security.assertion.SecurityAssertion;
-import ddf.security.principal.AnonymousPrincipal;
+import ddf.security.principal.GuestPrincipal;
 
 /**
  * Implementation of the SecurityAssertion interface. This class wraps a SecurityToken.
@@ -321,8 +321,8 @@ public class SecurityAssertionImpl implements SecurityAssertion {
                     principal = new X500Principal(name);
                 } else if (SAML2Constants.AUTH_CONTEXT_CLASS_REF_KERBEROS.equals(authMethod)) {
                     principal = new KerberosPrincipal(name);
-                } else if (principal instanceof AnonymousPrincipal || name.startsWith(AnonymousPrincipal.ANONYMOUS_NAME_PREFIX)) {
-                    principal = new AnonymousPrincipal(name);
+                } else if (principal instanceof GuestPrincipal || name.startsWith(GuestPrincipal.GUEST_NAME_PREFIX)) {
+                    principal = new GuestPrincipal(name);
                 } else {
                     principal = new AssertionPrincipal(name);
                 }
