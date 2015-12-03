@@ -44,6 +44,9 @@ public class ManagedServiceConfigurationFileTest {
     private ConfigurationAdmin mockConfigAdmin;
 
     @Mock
+    private PersistenceStrategy persistenceStrategy;
+
+    @Mock
     private Configuration mockConfiguration;
 
     private Dictionary<String, Object> properties;
@@ -59,7 +62,7 @@ public class ManagedServiceConfigurationFileTest {
         // Setup
         when(mockConfigAdmin.getConfiguration(PID, null)).thenReturn(mockConfiguration);
         ConfigurationFile configFile = new ManagedServiceConfigurationFile(mockPath, properties,
-                mockConfigAdmin);
+                mockConfigAdmin, persistenceStrategy);
 
         // Perform Test
         configFile.createConfig();
@@ -73,7 +76,7 @@ public class ManagedServiceConfigurationFileTest {
         // Setup
         when(mockConfigAdmin.getConfiguration(PID, null)).thenThrow(new IOException());
         ConfigurationFile configFile = new ManagedServiceConfigurationFile(mockPath, properties,
-                mockConfigAdmin);
+                mockConfigAdmin, persistenceStrategy);
 
         // Perform Test
         configFile.createConfig();
@@ -85,7 +88,7 @@ public class ManagedServiceConfigurationFileTest {
         doThrow(IOException.class).when(mockConfiguration).update(properties);
         when(mockConfigAdmin.getConfiguration(PID, null)).thenReturn(mockConfiguration);
         ConfigurationFile configFile = new ManagedServiceConfigurationFile(mockPath, properties,
-                mockConfigAdmin);
+                mockConfigAdmin, persistenceStrategy);
 
         // Perform Test
         configFile.createConfig();

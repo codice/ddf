@@ -72,6 +72,12 @@
 
             <dependency>
                 <groupId>ddf.platform</groupId>
+                <artifactId>platform-configuration-listener</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>ddf.platform</groupId>
                 <artifactId>platform-commands</artifactId>
                 <version>${project.version}</version>
             </dependency>

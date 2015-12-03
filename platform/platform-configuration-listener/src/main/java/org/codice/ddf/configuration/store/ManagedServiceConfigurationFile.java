@@ -34,8 +34,8 @@ public class ManagedServiceConfigurationFile extends ConfigurationFile {
             .getLogger(ManagedServiceConfigurationFile.class);
 
     ManagedServiceConfigurationFile(Path configFilePath, Dictionary<String, Object> properties,
-            ConfigurationAdmin configAdmin) {
-        super(configFilePath, properties, configAdmin);
+            ConfigurationAdmin configAdmin, PersistenceStrategy persistenceStrategy) {
+        super(configFilePath, properties, configAdmin, persistenceStrategy);
     }
 
     @Override
@@ -56,5 +56,19 @@ public class ManagedServiceConfigurationFile extends ConfigurationFile {
 
     private String getServicePid() {
         return (String) properties.get(Constants.SERVICE_PID);
+    }
+
+    public static class ManagedServiceConfigurationFileBuilder extends ConfigurationFileBuilder {
+
+        public ManagedServiceConfigurationFileBuilder(ConfigurationAdmin configAdmin,
+                PersistenceStrategy persistenceStrategy) {
+            super(configAdmin, persistenceStrategy);
+        }
+
+        @Override
+        public ConfigurationFile build() {
+            return new ManagedServiceConfigurationFile(configFilePath, properties, configAdmin,
+                    persistenceStrategy);
+        }
     }
 }

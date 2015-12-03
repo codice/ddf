@@ -37,10 +37,14 @@ public class ConfigurationFileTest {
     @Mock
     private ConfigurationAdmin configAdmin;
 
+    @Mock
+    private PersistenceStrategy persistenceStrategy;
+
     private class ConfigurationFileUnderTest extends ConfigurationFile {
         public ConfigurationFileUnderTest(Path configFilePath,
-                Dictionary<String, Object> properties, ConfigurationAdmin configAdmin) {
-            super(configFilePath, properties, configAdmin);
+                Dictionary<String, Object> properties, ConfigurationAdmin configAdmin,
+                PersistenceStrategy persistenceStrategy) {
+            super(configFilePath, properties, configAdmin, persistenceStrategy);
         }
 
         @Override
@@ -51,7 +55,7 @@ public class ConfigurationFileTest {
     @Test
     public void constructor() {
         ConfigurationFileUnderTest configurationFile = new ConfigurationFileUnderTest(path,
-                properties, configAdmin);
+                properties, configAdmin, persistenceStrategy);
         assertThat(configurationFile.getConfigFilePath(), sameInstance(path));
     }
 }

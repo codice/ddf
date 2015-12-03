@@ -14,6 +14,8 @@
 
 package org.codice.ddf.configuration.store;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Dictionary;
 
@@ -31,19 +33,23 @@ public abstract class ConfigurationFile {
 
     protected final Path configFilePath;
 
+    protected final PersistenceStrategy persistenceStrategy;
+
     /**
      * Constructor called by {@link ConfigurationFileFactory}. Assumes that none of the parameters
      * are {@code null}.
      *
-     * @param configFilePath path to the configuration file
-     * @param properties     properties associated with the configuration file
-     * @param configAdmin    reference to OSGi's {@link ConfigurationAdmin}
+     * @param configFilePath      path to the configuration file
+     * @param properties          properties associated with the configuration file
+     * @param configAdmin         reference to OSGi's {@link ConfigurationAdmin}
+     * @param persistenceStrategy how to write out the file {@link PersistenceStrategy}
      */
     ConfigurationFile(Path configFilePath, Dictionary<String, Object> properties,
-            ConfigurationAdmin configAdmin) {
-        this.configFilePath = configFilePath;
-        this.properties = properties;
+            ConfigurationAdmin configAdmin, PersistenceStrategy persistenceStrategy) {
         this.configAdmin = configAdmin;
+        this.properties = properties;
+        this.configFilePath = configFilePath;
+        this.persistenceStrategy = persistenceStrategy;
     }
 
     /**
@@ -56,4 +62,49 @@ public abstract class ConfigurationFile {
     }
 
     public abstract void createConfig() throws ConfigurationFileException;
+
+    public void exportConfig(String destination) throws IOException {
+        persistenceStrategy.write(new FileOutputStream(destination), properties);
+    }
+
+    /**
+     * Provides a convenient way to construct {@link ConfigurationFile}.
+     *
+     * @param configAdmin         reference to OSGi's {@link ConfigurationAdmin}
+     * @param persistenceStrategy how to write out the file {@link PersistenceStrategy}
+     */
+    public abstract static class ConfigurationFileBuilder {
+        protected ConfigurationAdmin configAdmin;
+
+        protected Dictionary<String, Object> properties;
+
+        protected Path configFilePath;
+
+        protected PersistenceStrategy persistenceStrategy;
+
+        public ConfigurationFileBuilder(ConfigurationAdmin configAdmin,
+                PersistenceStrategy persistenceStrategy) {
+            this.configAdmin = configAdmin;
+            this.persistenceStrategy = persistenceStrategy;
+            this.reset();
+        }
+
+        public ConfigurationFileBuilder reset() {
+            this.properties = null;
+            this.configFilePath = null;
+            return this;
+        }
+
+        public ConfigurationFileBuilder properties(Dictionary<String, Object> properties) {
+            this.properties = properties;
+            return this;
+        }
+
+        public ConfigurationFileBuilder configFilePath(Path configFilePath) {
+            this.configFilePath = configFilePath;
+            return this;
+        }
+
+        public abstract ConfigurationFile build();
+    }
 }

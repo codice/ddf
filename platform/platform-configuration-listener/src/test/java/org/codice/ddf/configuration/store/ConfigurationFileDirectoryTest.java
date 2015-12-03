@@ -17,6 +17,8 @@ import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -26,6 +28,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Path;
+import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -37,6 +40,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.metatype.MetaTypeService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ConfigurationFileDirectoryTest {
@@ -57,10 +64,24 @@ public class ConfigurationFileDirectoryTest {
     private File failedDirectory;
 
     @Mock
+    private Path exportedDirectoryPath;
+
+    @Mock
+    private File exportedDirectory;
+
+    @Mock
     private ConfigurationFileFactory configurationFileFactory;
 
     @Mock
     private ConfigurationFilesPoller configurationFilePoller;
+
+    @Mock
+    private MetaTypeService metaTypeService;
+
+    @Mock
+    private ConfigurationAdmin configurationAdmin;
+
+    private String configurationFileExtension = ".config";
 
     @Mock
     private Iterator<Path> configFilesIterator;
@@ -77,16 +98,23 @@ public class ConfigurationFileDirectoryTest {
     @Mock
     private ConfigurationFile configFile2;
 
+    @Mock
+    private Configuration configuration;
+
     private static class ConfigurationFileDirectoryUnderTest extends ConfigurationFileDirectory {
 
         public final Map<Path, Path> filesMoved = new HashMap<>();
 
         public ConfigurationFileDirectoryUnderTest(
                 @NotNull DirectoryStream<Path> configurationDirectory, Path processedDirectory,
-                Path failedDirectory, @NotNull ConfigurationFileFactory configurationFileFactory,
-                @NotNull ConfigurationFilesPoller poller) {
-            super(configurationDirectory, processedDirectory, failedDirectory,
-                    configurationFileFactory, poller);
+                Path failedDirectory, Path exportedDirectory,
+                @NotNull ConfigurationFileFactory configurationFileFactory,
+                @NotNull ConfigurationFilesPoller poller,
+                @NotNull ConfigurationAdmin configurationAdmin,
+                @NotNull String configurationFileExtension) {
+            super(configurationDirectory, processedDirectory, failedDirectory, exportedDirectory,
+                    configurationFileFactory, poller, configurationAdmin,
+                    configurationFileExtension);
         }
 
         @Override
@@ -99,6 +127,7 @@ public class ConfigurationFileDirectoryTest {
     public void setUp() {
         when(processedDirectoryPath.toFile()).thenReturn(processedDirectory);
         when(failedDirectoryPath.toFile()).thenReturn(failedDirectory);
+        when(exportedDirectoryPath.toFile()).thenReturn(exportedDirectory);
         when(configFile1.getConfigFilePath()).thenReturn(configPath1);
         when(configFile2.getConfigFilePath()).thenReturn(configPath2);
     }
@@ -106,45 +135,75 @@ public class ConfigurationFileDirectoryTest {
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithNullDirectoryStream() {
         new ConfigurationFileDirectory(null, processedDirectoryPath, failedDirectoryPath,
-                configurationFileFactory, configurationFilePoller);
+                exportedDirectoryPath, configurationFileFactory, configurationFilePoller,
+                configurationAdmin, configurationFileExtension);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithNullProcessedDirectory() {
         new ConfigurationFileDirectory(configurationDirectoryStream, null, failedDirectoryPath,
-                configurationFileFactory, configurationFilePoller);
+                exportedDirectoryPath, configurationFileFactory, configurationFilePoller,
+                configurationAdmin, configurationFileExtension);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithNullFailedDirectory() {
         new ConfigurationFileDirectory(configurationDirectoryStream, processedDirectoryPath, null,
-                configurationFileFactory, configurationFilePoller);
+                exportedDirectoryPath, configurationFileFactory, configurationFilePoller,
+                configurationAdmin, configurationFileExtension);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructorWithNullExportedDirectory() {
+        new ConfigurationFileDirectory(configurationDirectoryStream, processedDirectoryPath,
+                failedDirectoryPath, null, configurationFileFactory, configurationFilePoller,
+                configurationAdmin, configurationFileExtension);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithNullConfigurationFileFactory() {
         new ConfigurationFileDirectory(configurationDirectoryStream, processedDirectoryPath,
-                failedDirectoryPath, null, configurationFilePoller);
+                exportedDirectoryPath, failedDirectoryPath, null, configurationFilePoller,
+                configurationAdmin, configurationFileExtension);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithNullConfigurationFilePoller() {
         new ConfigurationFileDirectory(configurationDirectoryStream, processedDirectoryPath,
-                failedDirectoryPath, configurationFileFactory, null);
+                exportedDirectoryPath, failedDirectoryPath, configurationFileFactory, null,
+                configurationAdmin, configurationFileExtension);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructorWithNullConfigurationAdmin() {
+        new ConfigurationFileDirectory(configurationDirectoryStream, processedDirectoryPath,
+                exportedDirectoryPath, failedDirectoryPath, configurationFileFactory,
+                configurationFilePoller, null, configurationFileExtension);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructorWithNullConfigurationFileExtension() {
+        new ConfigurationFileDirectory(configurationDirectoryStream, processedDirectoryPath,
+                exportedDirectoryPath, failedDirectoryPath, configurationFileFactory,
+                configurationFilePoller, configurationAdmin, null);
     }
 
     @Test
-    public void testInitDoesNotCreateExistingProcessedAndFailedDirectories() throws IOException {
+    public void testInitDoesNotCreateExistingProcessedAndFailedAndExportedDirectories()
+            throws IOException {
         when(processedDirectory.exists()).thenReturn(true);
         when(processedDirectory.isDirectory()).thenReturn(true);
         when(failedDirectory.exists()).thenReturn(true);
         when(failedDirectory.isDirectory()).thenReturn(true);
+        when(exportedDirectory.exists()).thenReturn(true);
+        when(exportedDirectory.isDirectory()).thenReturn(true);
 
         ConfigurationFileDirectory configurationFileDirectory = createConfigurationFileDirectoryWithNoFiles();
         configurationFileDirectory.init();
 
         verify(processedDirectory, never()).mkdir();
         verify(failedDirectory, never()).mkdir();
+        verify(exportedDirectory, never()).mkdir();
     }
 
     @Test(expected = IOException.class)
@@ -153,6 +212,8 @@ public class ConfigurationFileDirectoryTest {
         when(processedDirectory.isDirectory()).thenReturn(false);
         when(failedDirectory.exists()).thenReturn(true);
         when(failedDirectory.isDirectory()).thenReturn(true);
+        when(exportedDirectory.exists()).thenReturn(true);
+        when(exportedDirectory.isDirectory()).thenReturn(true);
 
         ConfigurationFileDirectory configurationFileDirectory = createConfigurationFileDirectoryWithNoFiles();
         configurationFileDirectory.init();
@@ -164,6 +225,21 @@ public class ConfigurationFileDirectoryTest {
         when(processedDirectory.isDirectory()).thenReturn(true);
         when(failedDirectory.exists()).thenReturn(true);
         when(failedDirectory.isDirectory()).thenReturn(false);
+        when(exportedDirectory.exists()).thenReturn(true);
+        when(exportedDirectory.isDirectory()).thenReturn(true);
+
+        ConfigurationFileDirectory configurationFileDirectory = createConfigurationFileDirectoryWithNoFiles();
+        configurationFileDirectory.init();
+    }
+
+    @Test(expected = IOException.class)
+    public void testInitFailsWhenExportedDirectoryExistsButIsNotADirectory() throws IOException {
+        when(processedDirectory.exists()).thenReturn(true);
+        when(processedDirectory.isDirectory()).thenReturn(true);
+        when(failedDirectory.exists()).thenReturn(true);
+        when(failedDirectory.isDirectory()).thenReturn(true);
+        when(exportedDirectory.exists()).thenReturn(true);
+        when(exportedDirectory.isDirectory()).thenReturn(false);
 
         ConfigurationFileDirectory configurationFileDirectory = createConfigurationFileDirectoryWithNoFiles();
         configurationFileDirectory.init();
@@ -175,6 +251,8 @@ public class ConfigurationFileDirectoryTest {
         when(processedDirectory.mkdir()).thenReturn(true);
         when(failedDirectory.exists()).thenReturn(true);
         when(failedDirectory.isDirectory()).thenReturn(true);
+        when(exportedDirectory.exists()).thenReturn(true);
+        when(exportedDirectory.isDirectory()).thenReturn(true);
 
         ConfigurationFileDirectory configurationFileDirectory = createConfigurationFileDirectoryWithNoFiles();
         configurationFileDirectory.init();
@@ -188,6 +266,8 @@ public class ConfigurationFileDirectoryTest {
         when(processedDirectory.isDirectory()).thenReturn(true);
         when(failedDirectory.exists()).thenReturn(false);
         when(failedDirectory.mkdir()).thenReturn(true);
+        when(exportedDirectory.exists()).thenReturn(true);
+        when(exportedDirectory.isDirectory()).thenReturn(true);
 
         ConfigurationFileDirectory configurationFileDirectory = createConfigurationFileDirectoryWithNoFiles();
         configurationFileDirectory.init();
@@ -195,11 +275,27 @@ public class ConfigurationFileDirectoryTest {
         verify(failedDirectory).mkdir();
     }
 
+    @Test
+    public void testInitCreatesExportedDirectory() throws IOException {
+        when(processedDirectory.exists()).thenReturn(true);
+        when(processedDirectory.isDirectory()).thenReturn(true);
+        when(failedDirectory.exists()).thenReturn(true);
+        when(failedDirectory.isDirectory()).thenReturn(true);
+        when(exportedDirectory.exists()).thenReturn(false);
+        when(exportedDirectory.mkdir()).thenReturn(true);
+
+        ConfigurationFileDirectory configurationFileDirectory = createConfigurationFileDirectoryWithNoFiles();
+        configurationFileDirectory.init();
+
+        verify(exportedDirectory).mkdir();
+    }
+
     @Test(expected = IOException.class)
     public void testInitFailsToCreateProcessedDirectory() throws IOException {
         when(processedDirectory.exists()).thenReturn(false);
         when(processedDirectory.mkdir()).thenReturn(false);
         when(failedDirectory.exists()).thenReturn(false);
+        when(exportedDirectory.exists()).thenReturn(false);
 
         ConfigurationFileDirectory configurationFileDirectory = createConfigurationFileDirectoryWithNoFiles();
         configurationFileDirectory.init();
@@ -210,6 +306,18 @@ public class ConfigurationFileDirectoryTest {
         when(processedDirectory.exists()).thenReturn(false);
         when(failedDirectory.exists()).thenReturn(false);
         when(failedDirectory.mkdir()).thenReturn(false);
+        when(exportedDirectory.exists()).thenReturn(false);
+
+        ConfigurationFileDirectory configurationFileDirectory = createConfigurationFileDirectoryWithNoFiles();
+        configurationFileDirectory.init();
+    }
+
+    @Test(expected = IOException.class)
+    public void testInitFailsToCreateExportedDirectory() throws IOException {
+        when(processedDirectory.exists()).thenReturn(false);
+        when(failedDirectory.exists()).thenReturn(false);
+        when(exportedDirectory.exists()).thenReturn(false);
+        when(exportedDirectory.mkdir()).thenReturn(false);
 
         ConfigurationFileDirectory configurationFileDirectory = createConfigurationFileDirectoryWithNoFiles();
         configurationFileDirectory.init();
@@ -233,7 +341,7 @@ public class ConfigurationFileDirectoryTest {
         configurationFileDirectory.init();
 
         verify(configurationDirectoryStream).iterator();
-        verify(configurationFileFactory, never()).createConfigurationFile(anyObject());
+        verify(configurationFileFactory, never()).createConfigurationFile((Path) anyObject());
     }
 
     @Test
@@ -244,7 +352,8 @@ public class ConfigurationFileDirectoryTest {
 
         ConfigurationFileDirectoryUnderTest configurationFileDirectory = new ConfigurationFileDirectoryUnderTest(
                 configurationDirectoryStream, processedDirectoryPath, failedDirectoryPath,
-                configurationFileFactory, configurationFilePoller);
+                exportedDirectoryPath, configurationFileFactory, configurationFilePoller,
+                configurationAdmin, configurationFileExtension);
 
         configurationFileDirectory.init();
 
@@ -263,7 +372,8 @@ public class ConfigurationFileDirectoryTest {
 
         ConfigurationFileDirectoryUnderTest configurationFileDirectory = new ConfigurationFileDirectoryUnderTest(
                 configurationDirectoryStream, processedDirectoryPath, failedDirectoryPath,
-                configurationFileFactory, configurationFilePoller);
+                exportedDirectoryPath, configurationFileFactory, configurationFilePoller,
+                configurationAdmin, configurationFileExtension);
 
         configurationFileDirectory.init();
 
@@ -288,7 +398,8 @@ public class ConfigurationFileDirectoryTest {
 
         ConfigurationFileDirectoryUnderTest configurationFileDirectory = new ConfigurationFileDirectoryUnderTest(
                 configurationDirectoryStream, processedDirectoryPath, failedDirectoryPath,
-                configurationFileFactory, configurationFilePoller);
+                exportedDirectoryPath, configurationFileFactory, configurationFilePoller,
+                configurationAdmin, configurationFileExtension);
 
         configurationFileDirectory.init();
 
@@ -309,7 +420,8 @@ public class ConfigurationFileDirectoryTest {
 
         ConfigurationFileDirectoryUnderTest configurationFileDirectory = new ConfigurationFileDirectoryUnderTest(
                 configurationDirectoryStream, processedDirectoryPath, failedDirectoryPath,
-                configurationFileFactory, configurationFilePoller);
+                exportedDirectoryPath, configurationFileFactory, configurationFilePoller,
+                configurationAdmin, configurationFileExtension);
 
         configurationFileDirectory.init();
 
@@ -331,7 +443,8 @@ public class ConfigurationFileDirectoryTest {
 
         ConfigurationFileDirectoryUnderTest configurationFileDirectory = new ConfigurationFileDirectoryUnderTest(
                 configurationDirectoryStream, processedDirectoryPath, failedDirectoryPath,
-                configurationFileFactory, configurationFilePoller);
+                exportedDirectoryPath, configurationFileFactory, configurationFilePoller,
+                configurationAdmin, configurationFileExtension);
 
         configurationFileDirectory.init();
 
@@ -354,7 +467,8 @@ public class ConfigurationFileDirectoryTest {
 
         ConfigurationFileDirectoryUnderTest configurationFileDirectory = new ConfigurationFileDirectoryUnderTest(
                 configurationDirectoryStream, processedDirectoryPath, failedDirectoryPath,
-                configurationFileFactory, configurationFilePoller);
+                exportedDirectoryPath, configurationFileFactory, configurationFilePoller,
+                configurationAdmin, configurationFileExtension);
 
         configurationFileDirectory.init();
 
@@ -375,7 +489,8 @@ public class ConfigurationFileDirectoryTest {
 
         ConfigurationFileDirectory configurationFileDirectory = new ConfigurationFileDirectory(
                 configurationDirectoryStream, processedDirectoryPath, failedDirectoryPath,
-                configurationFileFactory, configurationFilePoller) {
+                exportedDirectoryPath, configurationFileFactory, configurationFilePoller,
+                configurationAdmin, configurationFileExtension) {
             @Override
             void moveFile(Path source, Path destination) throws IOException {
                 throw new IOException();
@@ -404,7 +519,8 @@ public class ConfigurationFileDirectoryTest {
 
         ConfigurationFileDirectory configurationFileDirectory = new ConfigurationFileDirectory(
                 configurationDirectoryStream, processedDirectoryPath, failedDirectoryPath,
-                configurationFileFactory, configurationFilePoller) {
+                exportedDirectoryPath, configurationFileFactory, configurationFilePoller,
+                configurationAdmin, configurationFileExtension) {
             @Override
             void moveFile(Path source, Path destination) throws IOException {
                 throw new IOException();
@@ -424,7 +540,8 @@ public class ConfigurationFileDirectoryTest {
 
         ConfigurationFileDirectoryUnderTest configurationFileDirectory = new ConfigurationFileDirectoryUnderTest(
                 configurationDirectoryStream, processedDirectoryPath, failedDirectoryPath,
-                configurationFileFactory, configurationFilePoller);
+                exportedDirectoryPath, configurationFileFactory, configurationFilePoller,
+                configurationAdmin, configurationFileExtension);
         configurationFileDirectory.notify(configPath1);
 
         verify(configurationFileFactory).createConfigurationFile(configPath1);
@@ -443,7 +560,8 @@ public class ConfigurationFileDirectoryTest {
 
         ConfigurationFileDirectoryUnderTest configurationFileDirectory = new ConfigurationFileDirectoryUnderTest(
                 configurationDirectoryStream, processedDirectoryPath, failedDirectoryPath,
-                configurationFileFactory, configurationFilePoller);
+                exportedDirectoryPath, configurationFileFactory, configurationFilePoller,
+                configurationAdmin, configurationFileExtension);
         configurationFileDirectory.notify(configPath1);
 
         verify(configurationFileFactory).createConfigurationFile(configPath1);
@@ -461,7 +579,8 @@ public class ConfigurationFileDirectoryTest {
 
         ConfigurationFileDirectoryUnderTest configurationFileDirectory = new ConfigurationFileDirectoryUnderTest(
                 configurationDirectoryStream, processedDirectoryPath, failedDirectoryPath,
-                configurationFileFactory, configurationFilePoller);
+                exportedDirectoryPath, configurationFileFactory, configurationFilePoller,
+                configurationAdmin, configurationFileExtension);
         configurationFileDirectory.notify(configPath1);
 
         verify(configurationFileFactory).createConfigurationFile(configPath1);
@@ -478,7 +597,8 @@ public class ConfigurationFileDirectoryTest {
 
         ConfigurationFileDirectory configurationFileDirectory = new ConfigurationFileDirectory(
                 configurationDirectoryStream, processedDirectoryPath, failedDirectoryPath,
-                configurationFileFactory, configurationFilePoller) {
+                exportedDirectoryPath, configurationFileFactory, configurationFilePoller,
+                configurationAdmin, configurationFileExtension) {
             @Override
             void moveFile(Path source, Path destination) throws IOException {
                 throw new IOException();
@@ -498,7 +618,8 @@ public class ConfigurationFileDirectoryTest {
 
         ConfigurationFileDirectory configurationFileDirectory = new ConfigurationFileDirectory(
                 configurationDirectoryStream, processedDirectoryPath, failedDirectoryPath,
-                configurationFileFactory, configurationFilePoller) {
+                exportedDirectoryPath, configurationFileFactory, configurationFilePoller,
+                configurationAdmin, configurationFileExtension) {
             @Override
             void moveFile(Path source, Path destination) throws IOException {
                 throw new IOException();
@@ -511,12 +632,65 @@ public class ConfigurationFileDirectoryTest {
         verify(configFile1).createConfig();
     }
 
+    @Test(expected = ConfigurationFileException.class)
+    public void testExportListConfigurationsIOException()
+            throws IOException, InvalidSyntaxException, ConfigurationFileException {
+        doThrow(new IOException()).when(configurationAdmin).listConfigurations(anyString());
+        ConfigurationFileDirectory configurationFileDirectory = createConfigurationFileDirectoryWithNoFiles();
+        configurationFileDirectory.export();
+    }
+
+    @Test(expected = ConfigurationFileException.class)
+    public void testExportListConfigurationsInvalidSyntaxException()
+            throws IOException, InvalidSyntaxException, ConfigurationFileException {
+        doThrow(new InvalidSyntaxException("", "")).when(configurationAdmin)
+                .listConfigurations(anyString());
+        ConfigurationFileDirectory configurationFileDirectory = createConfigurationFileDirectoryWithNoFiles();
+        configurationFileDirectory.export();
+    }
+
+    @Test(expected = ConfigurationFileException.class)
+    public void testExportConfigurationFileException()
+            throws IOException, InvalidSyntaxException, ConfigurationFileException {
+        when(configurationAdmin.listConfigurations(anyString()))
+                .thenReturn(new Configuration[] {configuration});
+        ConfigurationFileDirectory configurationFileDirectory = createConfigurationFileDirectoryWithNoFiles();
+        when(configurationFileFactory
+                .createConfigurationFile((Dictionary<String, Object>) anyObject()))
+                .thenThrow(new ConfigurationFileException(""));
+        configurationFileDirectory.export();
+    }
+
+    @Test
+    public void testExportWhenNoConfigurations()
+            throws IOException, InvalidSyntaxException, ConfigurationFileException {
+        when(configurationAdmin.listConfigurations(anyString())).thenReturn(null);
+        ConfigurationFileDirectory configurationFileDirectory = createConfigurationFileDirectoryWithNoFiles();
+        configurationFileDirectory.export();
+        verify(configurationFileFactory, never())
+                .createConfigurationFile((Dictionary<String, Object>) anyObject());
+    }
+
+    @Test
+    public void testExport()
+            throws IOException, InvalidSyntaxException, ConfigurationFileException {
+        when(configurationAdmin.listConfigurations(anyString()))
+                .thenReturn(new Configuration[] {configuration});
+        ConfigurationFileDirectory configurationFileDirectory = createConfigurationFileDirectoryWithNoFiles();
+        when(configurationFileFactory
+                .createConfigurationFile((Dictionary<String, Object>) anyObject()))
+                .thenReturn(configFile1);
+        configurationFileDirectory.export();
+        verify(configFile1, atLeastOnce()).exportConfig(anyString());
+    }
+
     private ConfigurationFileDirectory createConfigurationFileDirectoryWithNoFiles() {
         when(configurationDirectoryStream.iterator()).thenReturn(configFilesIterator);
         when(configFilesIterator.hasNext()).thenReturn(false);
 
         return new ConfigurationFileDirectory(configurationDirectoryStream, processedDirectoryPath,
-                failedDirectoryPath, configurationFileFactory, configurationFilePoller);
+                failedDirectoryPath, exportedDirectoryPath, configurationFileFactory,
+                configurationFilePoller, configurationAdmin, configurationFileExtension);
     }
 
     private void setUpDefaultDirectoryExpectations() {
@@ -524,6 +698,8 @@ public class ConfigurationFileDirectoryTest {
         when(processedDirectory.mkdir()).thenReturn(true);
         when(failedDirectory.exists()).thenReturn(false);
         when(failedDirectory.mkdir()).thenReturn(true);
+        when(exportedDirectory.exists()).thenReturn(false);
+        when(exportedDirectory.mkdir()).thenReturn(true);
     }
 
     private void setUpTwoConfigFileIterator() {

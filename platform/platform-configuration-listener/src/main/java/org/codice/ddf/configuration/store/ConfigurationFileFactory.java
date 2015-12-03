@@ -15,6 +15,9 @@
 package org.codice.ddf.configuration.store;
 
 import static org.apache.commons.lang.Validate.notNull;
+import static org.codice.ddf.configuration.store.ConfigurationFile.ConfigurationFileBuilder;
+import static org.codice.ddf.configuration.store.ManagedServiceConfigurationFile.ManagedServiceConfigurationFileBuilder;
+import static org.codice.ddf.configuration.store.ManagedServiceFactoryConfigurationFile.ManagedServiceFactoryConfigurationFileBuilder;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -74,21 +77,41 @@ public class ConfigurationFileFactory {
             throws ConfigurationFileException {
         notNull(configurationFile, "configurationFile cannot be null");
 
-        Dictionary<String, Object> properties = read(configurationFile);
+        return getConfigurationFileBuilder(read(configurationFile))
+                .configFilePath(configurationFile).build();
+    }
 
+    /**
+     * Instantiates a new {@link ConfigurationFile} sub-class based on the content of the
+     * properties dictionary provided.
+     *
+     * @param properties dictionary of properties used to create the {@link ConfigurationFile} object
+     * @return new {@link ConfigurationFile} object of the proper type. Never {@code null},
+     * @throws ConfigurationFileException thrown if the {@link ConfigurationFile} object couldn't
+     *                                    be created because the type could not be determined
+     */
+    public ConfigurationFile createConfigurationFile(@NotNull Dictionary<String, Object> properties)
+            throws ConfigurationFileException {
+        return getConfigurationFileBuilder(properties).build();
+    }
+
+    private ConfigurationFileBuilder getConfigurationFileBuilder(
+            Dictionary<String, Object> properties) throws ConfigurationFileException {
+        ConfigurationFileBuilder configurationFileBuilder;
         if (isManagedServiceFactoryConfiguration(properties)) {
-            return new ManagedServiceFactoryConfigurationFile(configurationFile, properties,
-                    configAdmin);
+            configurationFileBuilder = new ManagedServiceFactoryConfigurationFileBuilder(
+                    configAdmin, persistenceStrategy);
         } else if (isManagedServiceConfiguration(properties)) {
-            return new ManagedServiceConfigurationFile(configurationFile, properties, configAdmin);
+            configurationFileBuilder = new ManagedServiceConfigurationFileBuilder(configAdmin,
+                    persistenceStrategy);
         } else {
             String message = String.format("Unable to determine type of configuration. "
-                            + "Unable to find property [%s] or property [%s] in file [%s] that contained [%s].",
-                    Constants.SERVICE_PID, ConfigurationAdmin.SERVICE_FACTORYPID,
-                    configurationFile.toString(), properties);
+                            + "Unable to find property [%s] or property [%s] that contained [%s].",
+                    Constants.SERVICE_PID, ConfigurationAdmin.SERVICE_FACTORYPID, properties);
             LOGGER.error(message);
             throw new ConfigurationFileException(message);
         }
+        return configurationFileBuilder.properties(properties);
     }
 
     private boolean isManagedServiceFactoryConfiguration(Dictionary<String, Object> properties) {
