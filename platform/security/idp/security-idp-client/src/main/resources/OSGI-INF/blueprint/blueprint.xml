@@ -77,7 +77,30 @@
                                filter="(id=http)"/>
                 </property>
             </bean>
+            <bean id="logoutRequestService"
+                  class=" org.codice.ddf.security.idp.client.LogoutRequestService" init-method="init">
+                <argument ref="simpleSign"/>
+                <argument ref="idpMetadata"/>
+                <argument ref="crypto"/>
+                <argument ref="baseUrl"/>
+                <argument ref="relayStates"/>
+                <property name="logoutService">
+                    <reference interface="ddf.security.samlp.LogoutService" />
+                </property>
+                <property name="encryptionService" ref="encryptionService"/>
+            </bean>
         </jaxrs:serviceBeans>
     </jaxrs:server>
+
+    <service interface="ddf.action.ActionProvider">
+        <service-properties>
+            <entry key="id" value="security.logout.idp"/>
+        </service-properties>
+        <bean class="org.codice.ddf.security.idp.client.IdpLogoutActionProvider">
+            <property name="encryptionService">
+                <reference interface="ddf.security.encryption.EncryptionService"/>
+            </property>
+        </bean>
+    </service>
 
 </blueprint>

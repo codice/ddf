@@ -46,6 +46,10 @@ public class IdpMetadata {
 
     private Map<String, EntityDescriptor> entryDescriptions;
 
+    private String redirectSingleLogoutLocation;
+
+    private String postSingleLogoutLocation;
+
     public void setMetadata(String metadata)
             throws WSSecurityException, XMLStreamException, SAMLException, IOException {
         MetadataConfigurationParser metadataConfigurationParser = new MetadataConfigurationParser(
@@ -64,6 +68,23 @@ public class IdpMetadata {
                     .forEach(service -> {
                         singleSignOnBinding = service.getBinding();
                         singleSignOnLocation = service.getLocation();
+                    });
+        }
+    }
+
+    private void initSingleSignOut() {
+        IDPSSODescriptor descriptor = getDescriptor();
+        if (descriptor != null) {
+
+
+            // Prefer HTTP-Redirect over HTTP-POST if both are present
+            descriptor.getSingleLogoutServices()
+                    .stream()
+                    .filter(service -> postSingleLogoutLocation == null || BINDINGS_HTTP_POST.equals(
+                            postSingleLogoutLocation))
+                    .forEach(service -> {
+                        postSingleLogoutLocation = service.getBinding();
+                        redirectSingleLogoutLocation = service.getLocation();
                     });
         }
     }
@@ -118,6 +139,10 @@ public class IdpMetadata {
         return null;
     }
 
+    private EntityDescriptor getEntityDescriptor(String issuer) {
+        return entryDescriptions.get(issuer);//.getIDPSSODescriptor(SAML_2_0_PROTOCOL);
+    }
+
     public IDPSSODescriptor getDescriptor() {
         EntityDescriptor entityDescriptor = getEntityDescriptor();
         if (entityDescriptor != null) {
@@ -134,6 +159,17 @@ public class IdpMetadata {
     public String getSingleSignOnBinding() {
         initSingleSignOn();
         return singleSignOnBinding;
+    }
+
+    public String getRedirectSingleLogoutLocation() {
+        initSingleSignOut();
+        return redirectSingleLogoutLocation;
+    }
+
+    public String getPostSingleLogoutLocation() {
+        initSingleSignOut();
+
+        return postSingleLogoutLocation;
     }
 
     public String getEntityId() {

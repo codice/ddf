@@ -254,17 +254,30 @@ public class LogoutServiceImpl implements LogoutService {
         }
     }
 
+    @Override
     public URI signSamlGetResponse(SAMLObject samlObject, URI uriNameMeLater, String relayState)
+            throws WSSecurityException, SimpleSign.SignatureException, IOException {
+
+        return signSamlGet(samlObject,uriNameMeLater,relayState,SSOConstants.SAML_RESPONSE);
+    }
+
+    @Override
+    public URI signSamlGetRequest(SAMLObject samlObject, URI uriNameMeLater, String relayState)
+            throws WSSecurityException, SimpleSign.SignatureException, IOException {
+
+        return signSamlGet(samlObject,uriNameMeLater,relayState,SSOConstants.SAML_REQUEST);
+    }
+
+    private URI signSamlGet(SAMLObject samlObject, URI uriNameMeLater, String relayState,String requestType)
             throws WSSecurityException, SimpleSign.SignatureException, IOException {
         Document doc = DOMUtils.createDocument();
         doc.appendChild(doc.createElement("root"));
         String encodedResponse = URLEncoder.encode(RestSecurity.deflateAndBase64Encode(
                 DOM2Writer.nodeToString(OpenSAMLUtil.toDom(samlObject, doc, false))), "UTF-8");
-        String requestToSign =
-                SSOConstants.SAML_RESPONSE + "=" + encodedResponse + "&" + SSOConstants.RELAY_STATE
+        String requestToSign = requestType + "=" + encodedResponse + "&" + SSOConstants.RELAY_STATE
                         + "=" + relayState;
         UriBuilder uriBuilder = UriBuilder.fromUri(uriNameMeLater);
-        uriBuilder.queryParam(SSOConstants.SAML_RESPONSE, encodedResponse);
+        uriBuilder.queryParam(requestType, encodedResponse);
         uriBuilder.queryParam(SSOConstants.RELAY_STATE, relayState);
         new SimpleSign(systemCrypto).signUriString(requestToSign, uriBuilder);
         return uriBuilder.build();
