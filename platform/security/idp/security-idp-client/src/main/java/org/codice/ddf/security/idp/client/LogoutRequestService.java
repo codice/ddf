@@ -154,10 +154,11 @@ public class LogoutRequestService {
         Document doc = DOMUtils.createDocument();
         doc.appendChild(doc.createElement("root"));
         URI location = logoutService.signSamlGetRequest(logoutRequest,
-                new URI(idpMetadata.getRedirectSingleLogoutLocation()), relayState);
+                new URI(idpMetadata.getRedirectSingleLogoutLocation()),
+                relayState);
         String redirectUpdated = responseTemplate.replace("{{redirect}}", location.toString());
-        Response.ResponseBuilder ok = Response.ok(
-                redirectUpdated);//TODO why cant we just use .seeOther
+        Response.ResponseBuilder ok =
+                Response.ok(redirectUpdated); //TODO why cant we just use .seeOther
         return ok.build();
     }
 
@@ -168,16 +169,16 @@ public class LogoutRequestService {
             @FormParam(RELAY_STATE) String relayState) throws IdpClientException {
 
         if (encodedSamlRequest != null) {
-            LogoutRequest logoutRequest = processSamlLogoutRequest(
-                    decodeBase64(encodedSamlRequest));
+            LogoutRequest logoutRequest =
+                    processSamlLogoutRequest(decodeBase64(encodedSamlRequest));
             if (logoutRequest.getSignature() == null) {
                 throw new IdpClientSignatureException(
                         "Could not validate signature. No signature was found.");
             }
 
-            LogoutResponse logoutResponse = logoutService.buildLogoutResponse(
-                    logoutRequest.getIssuer()
-                            .getValue(), StatusCode.SUCCESS.toString());
+            LogoutResponse logoutResponse =
+                    logoutService.buildLogoutResponse(logoutRequest.getIssuer()
+                                    .getValue(), StatusCode.SUCCESS.toString());
             try {
 
                 return getSamlpPostLogoutResponse(relayState, logoutResponse, submitForm);
@@ -203,11 +204,13 @@ public class LogoutRequestService {
             throws IdpClientException {
 
         if (deflatedSamlRequest != null) {
-            validateRequestSignature(deflatedSamlRequest, relayState, signatureAlgorithm,
+            validateRequestSignature(deflatedSamlRequest,
+                    relayState,
+                    signatureAlgorithm,
                     signature);
             try {
-                LogoutRequest logoutRequest = processSamlLogoutRequest(
-                        RestSecurity.inflateBase64(deflatedSamlRequest));
+                LogoutRequest logoutRequest = processSamlLogoutRequest(RestSecurity.inflateBase64(
+                        deflatedSamlRequest));
                 String entityId = getEntityId();
                 //TODO seems inefficient to pass the the status is string rather than enum
                 LogoutResponse logoutResponse = logoutService.buildLogoutResponse(entityId,
@@ -235,7 +238,9 @@ public class LogoutRequestService {
             //        }
         } else {
             try {
-                validateResponseSignature(deflatedSamlResponse, relayState, signatureAlgorithm,
+                validateResponseSignature(deflatedSamlResponse,
+                        relayState,
+                        signatureAlgorithm,
                         signature);
                 processSamlLogoutResponse(RestSecurity.inflateBase64(deflatedSamlResponse));
 
@@ -297,7 +302,7 @@ public class LogoutRequestService {
             logoutRequest = logoutService.extractSamlLogoutRequest(logoutRequestStr);
         } catch (XMLStreamException | WSSecurityException e) {
             throw new IdpClientParseException("Unable to parse logout request.",
-                    e);//TODO create an cxf exception mapper to handle all of these exceptions and create the appropriate response for the user also name the exceptions better.
+                    e); //TODO create an cxf exception mapper to handle all of these exceptions and create the appropriate response for the user also name the exceptions better.
             //            return Response.serverError()
             //                    .entity("Unable to parse logout request.")
             //                    .build();
@@ -357,24 +362,31 @@ public class LogoutRequestService {
         Document doc = DOMUtils.createDocument();
         doc.appendChild(doc.createElement("root"));
         URI location = logoutService.signSamlGetResponse(samlResponse,
-                new URI(idpMetadata.getRedirectSingleLogoutLocation()), relayState);
+                new URI(idpMetadata.getRedirectSingleLogoutLocation()),
+                relayState);
         String redirectUpdated = responseTemplate.replace("{{redirect}}", location.toString());
-        Response.ResponseBuilder ok = Response.ok(
-                redirectUpdated);//TODO why cant we just use .seeOther
+        Response.ResponseBuilder ok =
+                Response.ok(redirectUpdated); //TODO why cant we just use .seeOther
         return ok.build();
     }
 
     //TODO refactor to common area
     private void validateRequestSignature(String deflatedSamlrequest, String relayState,
             String signatureAlgorithm, String signature) throws IdpClientSignatureException {
-        this.validateSignature(deflatedSamlrequest, relayState, signatureAlgorithm, signature,
+        this.validateSignature(deflatedSamlrequest,
+                relayState,
+                signatureAlgorithm,
+                signature,
                 SAML_REQUEST);
 
     }
 
     private void validateResponseSignature(String deflatedSamlResponse, String relayState,
             String signatureAlgorithm, String signature) throws IdpClientSignatureException {
-        this.validateSignature(deflatedSamlResponse, relayState, signatureAlgorithm, signature,
+        this.validateSignature(deflatedSamlResponse,
+                relayState,
+                signatureAlgorithm,
+                signature,
                 SAML_RESPONSE);
 
     }
@@ -387,11 +399,15 @@ public class LogoutRequestService {
             if (StringUtils.isNotBlank(deflatedSamlResponse) && StringUtils.isNotBlank(relayState)
                     && StringUtils.isNotBlank(signatureAlgorithm)) {
                 try {
-                    String signedMessage = String.format("%s=%s&%s=%s&%s=%s", paramType,
-                            URLEncoder.encode(deflatedSamlResponse, "UTF-8"), RELAY_STATE,
-                            URLEncoder.encode(relayState, "UTF-8"), SIG_ALG,
+                    String signedMessage = String.format("%s=%s&%s=%s&%s=%s",
+                            paramType,
+                            URLEncoder.encode(deflatedSamlResponse, "UTF-8"),
+                            RELAY_STATE,
+                            URLEncoder.encode(relayState, "UTF-8"),
+                            SIG_ALG,
                             URLEncoder.encode(signatureAlgorithm, "UTF-8"));
-                    signaturePasses = simpleSign.validateSignature(signedMessage, signature,
+                    signaturePasses = simpleSign.validateSignature(signedMessage,
+                            signature,
                             idpMetadata.getSigningCertificate());
                     if (!signaturePasses) {
                         throw new IdpClientSignatureException(
@@ -400,7 +416,8 @@ public class LogoutRequestService {
                 } catch (SimpleSign.SignatureException | UnsupportedEncodingException e) {
                     LOGGER.debug("Failed to validate logout request signature.", e);
                     throw new IdpClientSignatureException(
-                            "Failed to validate logout request signature.", e);
+                            "Failed to validate logout request signature.",
+                            e);
                 }
             }
         } else {

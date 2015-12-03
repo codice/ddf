@@ -131,10 +131,10 @@ public class LogoutServiceImpl implements LogoutService {
 
     public SignableSAMLObject extractXmlObject(String samlLogoutResponse)
             throws WSSecurityException, XMLStreamException {
-        Document responseDoc = StaxUtils.read(
-                new ByteArrayInputStream(samlLogoutResponse.getBytes()));
+        Document responseDoc =
+                StaxUtils.read(new ByteArrayInputStream(samlLogoutResponse.getBytes()));
         XMLObject xmlObject = OpenSAMLUtil.fromDom(responseDoc.getDocumentElement());
-        if (xmlObject instanceof  SignableSAMLObject) {
+        if (xmlObject instanceof SignableSAMLObject) {
             return (SignableSAMLObject) xmlObject;
         }
         return null;
@@ -171,8 +171,10 @@ public class LogoutServiceImpl implements LogoutService {
      * @return the built <code>LogoutRequest</code>
      */
     public LogoutRequest buildLogoutRequest(String nameIdString, String issuerOrEntityId) {
-        return buildLogoutRequest(nameIdString, issuerOrEntityId, UUID.randomUUID()
-                .toString());
+        return buildLogoutRequest(nameIdString,
+                issuerOrEntityId,
+                UUID.randomUUID()
+                        .toString());
     }
 
     public LogoutRequest buildLogoutRequest(String nameIdString, String issuerOrEntityId,
@@ -202,8 +204,11 @@ public class LogoutServiceImpl implements LogoutService {
 
     public LogoutResponse buildLogoutResponse(String issuerOrEntityId, String statusCodeValue,
             String inResponseTo) {
-        return buildLogoutResponse(issuerOrEntityId, statusCodeValue, inResponseTo,
-                UUID.randomUUID().toString());
+        return buildLogoutResponse(issuerOrEntityId,
+                statusCodeValue,
+                inResponseTo,
+                UUID.randomUUID()
+                        .toString());
     }
 
     public LogoutResponse buildLogoutResponse(String issuerOrEntityId, String statusCodeValue,
@@ -258,24 +263,27 @@ public class LogoutServiceImpl implements LogoutService {
     public URI signSamlGetResponse(SAMLObject samlObject, URI uriNameMeLater, String relayState)
             throws WSSecurityException, SimpleSign.SignatureException, IOException {
 
-        return signSamlGet(samlObject,uriNameMeLater,relayState,SSOConstants.SAML_RESPONSE);
+        return signSamlGet(samlObject, uriNameMeLater, relayState, SSOConstants.SAML_RESPONSE);
     }
 
     @Override
     public URI signSamlGetRequest(SAMLObject samlObject, URI uriNameMeLater, String relayState)
             throws WSSecurityException, SimpleSign.SignatureException, IOException {
 
-        return signSamlGet(samlObject,uriNameMeLater,relayState,SSOConstants.SAML_REQUEST);
+        return signSamlGet(samlObject, uriNameMeLater, relayState, SSOConstants.SAML_REQUEST);
     }
 
-    private URI signSamlGet(SAMLObject samlObject, URI uriNameMeLater, String relayState,String requestType)
+    private URI signSamlGet(SAMLObject samlObject, URI uriNameMeLater, String relayState,
+            String requestType)
             throws WSSecurityException, SimpleSign.SignatureException, IOException {
         Document doc = DOMUtils.createDocument();
         doc.appendChild(doc.createElement("root"));
-        String encodedResponse = URLEncoder.encode(RestSecurity.deflateAndBase64Encode(
-                DOM2Writer.nodeToString(OpenSAMLUtil.toDom(samlObject, doc, false))), "UTF-8");
-        String requestToSign = requestType + "=" + encodedResponse + "&" + SSOConstants.RELAY_STATE
-                        + "=" + relayState;
+        String encodedResponse =
+                URLEncoder.encode(RestSecurity.deflateAndBase64Encode(DOM2Writer.nodeToString(
+                        OpenSAMLUtil.toDom(samlObject, doc, false))), "UTF-8");
+        String requestToSign =
+                requestType + "=" + encodedResponse + "&" + SSOConstants.RELAY_STATE + "="
+                        + relayState;
         UriBuilder uriBuilder = UriBuilder.fromUri(uriNameMeLater);
         uriBuilder.queryParam(requestType, encodedResponse);
         uriBuilder.queryParam(SSOConstants.RELAY_STATE, relayState);

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -34,7 +34,8 @@ public class IdpMetadata {
 
     private static final String SAML_2_0_PROTOCOL = "urn:oasis:names:tc:SAML:2.0:protocol";
 
-    private static final String BINDINGS_HTTP_POST = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST";
+    private static final String BINDINGS_HTTP_POST =
+            "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST";
 
     private String singleSignOnLocation;
 
@@ -76,12 +77,11 @@ public class IdpMetadata {
         IDPSSODescriptor descriptor = getDescriptor();
         if (descriptor != null) {
 
-
             // Prefer HTTP-Redirect over HTTP-POST if both are present
             descriptor.getSingleLogoutServices()
                     .stream()
-                    .filter(service -> postSingleLogoutLocation == null || BINDINGS_HTTP_POST.equals(
-                            postSingleLogoutLocation))
+                    .filter(service -> postSingleLogoutLocation == null
+                            || BINDINGS_HTTP_POST.equals(postSingleLogoutLocation))
                     .forEach(service -> {
                         postSingleLogoutLocation = service.getBinding();
                         redirectSingleLogoutLocation = service.getLocation();
@@ -140,7 +140,7 @@ public class IdpMetadata {
     }
 
     private EntityDescriptor getEntityDescriptor(String issuer) {
-        return entryDescriptions.get(issuer);//.getIDPSSODescriptor(SAML_2_0_PROTOCOL);
+        return entryDescriptions.get(issuer); //.getIDPSSODescriptor(SAML_2_0_PROTOCOL);
     }
 
     public IDPSSODescriptor getDescriptor() {
