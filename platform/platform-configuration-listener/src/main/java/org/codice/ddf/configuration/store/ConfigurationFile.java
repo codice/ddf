@@ -14,6 +14,7 @@
 
 package org.codice.ddf.configuration.store;
 
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -64,7 +65,13 @@ public abstract class ConfigurationFile {
     public abstract void createConfig() throws ConfigurationFileException;
 
     public void exportConfig(String destination) throws IOException {
-        persistenceStrategy.write(new FileOutputStream(destination), properties);
+        try (FileOutputStream fileOutputStream = getOutputStream(destination)) {
+            persistenceStrategy.write(fileOutputStream, properties);
+        }
+    }
+
+    FileOutputStream getOutputStream(String destination) throws FileNotFoundException {
+        return new FileOutputStream(destination);
     }
 
     /**
@@ -73,12 +80,12 @@ public abstract class ConfigurationFile {
      * @param configAdmin         reference to OSGi's {@link ConfigurationAdmin}
      * @param persistenceStrategy how to write out the file {@link PersistenceStrategy}
      */
-    public abstract static class ConfigurationFileBuilder {
+    protected abstract static class ConfigurationFileBuilder {
         protected ConfigurationAdmin configAdmin;
 
-        protected Dictionary<String, Object> properties;
+        protected Dictionary<String, Object> properties = null;
 
-        protected Path configFilePath;
+        protected Path configFilePath = null;
 
         protected PersistenceStrategy persistenceStrategy;
 
@@ -86,13 +93,6 @@ public abstract class ConfigurationFile {
                 PersistenceStrategy persistenceStrategy) {
             this.configAdmin = configAdmin;
             this.persistenceStrategy = persistenceStrategy;
-            this.reset();
-        }
-
-        public ConfigurationFileBuilder reset() {
-            this.properties = null;
-            this.configFilePath = null;
-            return this;
         }
 
         public ConfigurationFileBuilder properties(Dictionary<String, Object> properties) {

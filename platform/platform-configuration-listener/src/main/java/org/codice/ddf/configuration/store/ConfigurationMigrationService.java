@@ -22,8 +22,7 @@ package org.codice.ddf.configuration.store;
 public interface ConfigurationMigrationService {
 
     /**
-     * Instantiates a new {@link ConfigurationFile} sub-class based on the content of the
-     * configuration file provided.
+     * Exports configurations to a default directory
      *
      * @throws ConfigurationFileException thrown if one or more Configurations couldn't be exported
      */

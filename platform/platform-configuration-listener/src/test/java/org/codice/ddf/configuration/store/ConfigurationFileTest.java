@@ -15,7 +15,14 @@ package org.codice.ddf.configuration.store;
 
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.verify;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Dictionary;
 
@@ -40,6 +47,9 @@ public class ConfigurationFileTest {
     @Mock
     private PersistenceStrategy persistenceStrategy;
 
+    @Mock
+    private FileOutputStream fileOutputStream;
+
     private class ConfigurationFileUnderTest extends ConfigurationFile {
         public ConfigurationFileUnderTest(Path configFilePath,
                 Dictionary<String, Object> properties, ConfigurationAdmin configAdmin,
@@ -50,6 +60,11 @@ public class ConfigurationFileTest {
         @Override
         public void createConfig() throws ConfigurationFileException {
         }
+
+        @Override
+        public FileOutputStream getOutputStream(String destination) throws FileNotFoundException {
+            return fileOutputStream;
+        }
     }
 
     @Test
@@ -57,5 +72,13 @@ public class ConfigurationFileTest {
         ConfigurationFileUnderTest configurationFile = new ConfigurationFileUnderTest(path,
                 properties, configAdmin, persistenceStrategy);
         assertThat(configurationFile.getConfigFilePath(), sameInstance(path));
+    }
+
+    @Test
+    public void testExportConfig() throws IOException {
+        ConfigurationFileUnderTest configurationFile = new ConfigurationFileUnderTest(path,
+                properties, configAdmin, persistenceStrategy);
+        configurationFile.exportConfig("");
+        verify(persistenceStrategy, atLeastOnce()).write(any(FileOutputStream.class), (Dictionary<String, Object>) anyObject());
     }
 }
