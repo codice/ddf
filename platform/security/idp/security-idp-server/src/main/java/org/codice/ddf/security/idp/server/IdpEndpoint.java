@@ -399,7 +399,7 @@ public class IdpEndpoint implements Idp {
                 binding = redirectBinding;
                 template = redirectPage;
             } else {
-                throw new UnsupportedOperationException("Must use HTTP POST or Redirect bindings.");
+                throw new IdpException(new UnsupportedOperationException("Must use HTTP POST or Redirect bindings."));
             }
             binding.validator()
                     .validateAuthnRequest(authnRequest,
@@ -455,6 +455,9 @@ public class IdpEndpoint implements Idp {
                     .build();
         } catch (IOException e) {
             LOGGER.error("Unable to create SAML Response.", e);
+        } catch (IdpException e) {
+            LOGGER.error("", e);
+            return Response.status(Response.Status.BAD_REQUEST).build();
         }
 
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR)

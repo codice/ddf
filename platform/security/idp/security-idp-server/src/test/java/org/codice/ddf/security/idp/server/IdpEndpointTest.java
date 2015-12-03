@@ -629,8 +629,9 @@ public class IdpEndpointTest {
 
     private Document readDocument(String name)
             throws SAXException, IOException, ParserConfigurationException {
-        InputStream inStream = getClass().getResourceAsStream(name);
-        return readXml(inStream);
+        try (InputStream inStream = getClass().getResourceAsStream(name);) {
+            return readXml(inStream);
+        }
     }
 
     public static Document readXml(InputStream is)
