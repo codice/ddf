@@ -32,6 +32,7 @@ public class SecurityTokenHolder {
     }
 
     public Map<String, SecurityToken> getRealmTokenMap() {
+        //TODO: Create deep copy instead
         return Collections.unmodifiableMap(realmTokenMap);
     }
 

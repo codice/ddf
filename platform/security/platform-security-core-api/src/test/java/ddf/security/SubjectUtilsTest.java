@@ -15,15 +15,11 @@ package ddf.security;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.IOException;
-
 import org.apache.shiro.mgt.DefaultSecurityManager;
 import org.apache.shiro.session.mgt.SimpleSession;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.junit.Test;
-
-import sun.security.x509.X500Name;
 
 /**
  * Tests out the SubjectUtils class
@@ -56,12 +52,4 @@ public class SubjectUtilsTest {
         assertEquals(DEFAULT_NAME, SubjectUtils.getName(null, DEFAULT_NAME));
     }
 
-
-    @Test
-    public void testDisplayName() throws IOException {
-        //TODO: Write displayname test
-        String dn = "cn=myxman,ou=someunit,o=someorg";
-        X500Name x500Name = new X500Name(dn);
-
-    }
 }

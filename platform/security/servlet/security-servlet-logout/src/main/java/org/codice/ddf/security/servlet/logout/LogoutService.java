@@ -54,6 +54,8 @@ public class LogoutService {
     public Response getActionProviders(@Context HttpServletRequest request) {
 
         //TODO: Update docs for idp realm changes. Also add documentation about the rollback of other poliy manager shizz
+        //TODO: look for incorrect DDF version
+        //TODO: Make sure iframe has a scrollbar
 
         HttpSession session = httpSessionFactory.getOrCreateSession(request);
         Map<String, SecurityToken> realmTokenMap = ((SecurityTokenHolder) session.getAttribute(SecurityConstants.SAML_ASSERTION)).getRealmTokenMap();
@@ -75,7 +77,7 @@ public class LogoutService {
             Map<String, String> actionProperties = new HashMap<String, String>();
             actionProperties.put("title", action.getTitle());
             actionProperties.put("realm", realm);
-            actionProperties.put("auth", SubjectUtils.getName(realmSubjectMap.get(realm)));
+            actionProperties.put("auth", SubjectUtils.getName(realmSubjectMap.get(realm), "", true));
             actionProperties.put("description", action.getDescription());
             actionProperties.put("url", action.getUrl().toString());
             realmToPropMaps.add(actionProperties);

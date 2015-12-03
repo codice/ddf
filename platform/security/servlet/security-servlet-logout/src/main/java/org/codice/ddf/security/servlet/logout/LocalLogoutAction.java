@@ -35,7 +35,7 @@ public class LocalLogoutAction implements ActionProvider {
 
     private static final String TITLE = "Local Logout";
 
-    private static final String DESCRIPTION = "Logging out of the karaf realm will only perform a local logout. Accounts signed in external sources will remain logged in.";
+    private static final String DESCRIPTION = "Logging out of the karaf realm will only perform a local logout. Accounts signed into external sources will remain logged in.";
 
     private static URL logoutUrl = null;
 

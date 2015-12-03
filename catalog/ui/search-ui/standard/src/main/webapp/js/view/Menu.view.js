@@ -363,14 +363,12 @@ define([
                 username: "1",
                 password: "1",
                 error: function() {
-                    document.location.reload();
+                    window.location = '/logout';
                 },
                 success: function() {
-                    document.location.reload();
+                    window.location = '/logout';
                 }
             });
-
-            window.location = '/logout';
         }
     });
 

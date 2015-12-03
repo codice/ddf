@@ -24,7 +24,6 @@ import java.util.HashMap;
 
 import javax.servlet.http.HttpSession;
 
-import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.tika.io.IOUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -53,7 +52,7 @@ public class TestLogoutService {
 
         when(sessionFactory.getOrCreateSession(null)).thenReturn(httpSession);
         when(httpSession.getAttribute(SecurityConstants.SAML_ASSERTION)).thenReturn(securityTokenHolder);
-        when(securityTokenHolder.getRealmTokenMap()).thenReturn(new HashMap<String, SecurityToken>());
+        when(securityTokenHolder.getRealmTokenMap()).thenReturn(new HashMap<>());
     }
 
     @Test

@@ -40,8 +40,7 @@ public class TestLocalLogoutServlet {
     @Test
     public void testLocalLogout() {
 
-        MockLocalLogoutServlet localLogoutServlet = new MockLocalLogoutServlet();
-
+        LocalLogoutServlet localLogoutServlet = new MockLocalLogoutServlet();
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
         try {
