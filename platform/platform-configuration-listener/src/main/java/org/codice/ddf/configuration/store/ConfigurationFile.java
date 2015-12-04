@@ -76,9 +76,6 @@ public abstract class ConfigurationFile {
 
     /**
      * Provides a convenient way to construct {@link ConfigurationFile}.
-     *
-     * @param configAdmin         reference to OSGi's {@link ConfigurationAdmin}
-     * @param persistenceStrategy how to write out the file {@link PersistenceStrategy}
      */
     protected abstract static class ConfigurationFileBuilder {
         protected ConfigurationAdmin configAdmin;
@@ -89,6 +86,12 @@ public abstract class ConfigurationFile {
 
         protected PersistenceStrategy persistenceStrategy;
 
+        /**
+         * Constructs a ConfigurationFileBuilder.
+         *
+         * @param configAdmin         reference to OSGi's {@link ConfigurationAdmin}
+         * @param persistenceStrategy how to write out the file {@link PersistenceStrategy}
+         */
         public ConfigurationFileBuilder(ConfigurationAdmin configAdmin,
                 PersistenceStrategy persistenceStrategy) {
             this.configAdmin = configAdmin;

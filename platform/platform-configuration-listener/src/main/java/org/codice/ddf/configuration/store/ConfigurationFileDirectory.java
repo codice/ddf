@@ -50,8 +50,6 @@ public class ConfigurationFileDirectory implements ChangeListener, Configuration
 
     private Path failedDirectory;
 
-    private Path exportedDirectory;
-
     private ConfigurationFileFactory configurationFileFactory;
 
     private ConfigurationFilesPoller poller;
@@ -75,15 +73,14 @@ public class ConfigurationFileDirectory implements ChangeListener, Configuration
      */
     public ConfigurationFileDirectory(@NotNull DirectoryStream directoryStream,
             @NotNull Path processedDirectory, @NotNull Path failedDirectory,
-            @NotNull Path exportedDirectory,
             @NotNull ConfigurationFileFactory configurationFileFactory,
-            @NotNull ConfigurationFilesPoller poller, @NotNull ConfigurationAdmin configurationAdmin,
+            @NotNull ConfigurationFilesPoller poller,
+            @NotNull ConfigurationAdmin configurationAdmin,
             @NotNull String configurationFileExtension) {
 
         notNull(directoryStream, "Directory stream cannot be null");
         notNull(processedDirectory, "Processed directory cannot be null");
         notNull(failedDirectory, "Failed directory cannot be null");
-        notNull(exportedDirectory, "Exported directory cannot be null");
         notNull(configurationFileFactory, "Configuration file factory cannot be null");
         notNull(poller, "Directory poller cannot be null");
         notNull(configurationAdmin, "ConfigurationAdmin cannot be null");
@@ -92,7 +89,6 @@ public class ConfigurationFileDirectory implements ChangeListener, Configuration
         this.directoryStream = directoryStream;
         this.processedDirectory = processedDirectory;
         this.failedDirectory = failedDirectory;
-        this.exportedDirectory = exportedDirectory;
         this.configurationFileFactory = configurationFileFactory;
         this.poller = poller;
         this.configurationAdmin = configurationAdmin;
@@ -113,8 +109,6 @@ public class ConfigurationFileDirectory implements ChangeListener, Configuration
         LOGGER.info("created processed directory");
         createDirectory(failedDirectory);
         LOGGER.info("created failed directory");
-        createDirectory(exportedDirectory);
-        LOGGER.info("created exported directory");
 
         Collection<ConfigurationFile> configFiles = getConfigurationFiles();
 
@@ -143,22 +137,24 @@ public class ConfigurationFileDirectory implements ChangeListener, Configuration
     }
 
     @Override
-    public void export() throws ConfigurationFileException {
+    public void export(Path exportDirectory) throws ConfigurationFileException, IOException {
+        createDirectory(exportDirectory);
+        LOGGER.info("created export directory");
         try {
             Configuration[] configurations = configurationAdmin.listConfigurations(FILTER);
             if (configurations != null) {
                 for (Configuration configuration : configurations) {
-                    String exportPath = String
-                            .format("%s/%s%s", exportedDirectory, configuration.getPid(),
+                    String exportedFilePath = String
+                            .format("%s/%s%s", exportDirectory, configuration.getPid(),
                                     configurationFileExtension);
                     try {
                         configurationFileFactory
                                 .createConfigurationFile(configuration.getProperties())
-                                .exportConfig(exportPath);
+                                .exportConfig(exportedFilePath);
                     } catch (IOException | ConfigurationFileException e) {
                         LOGGER.error(String.format(
                                 "Failed to write out properties of %s configuration to %s.",
-                                configuration.getPid(), exportPath));
+                                configuration.getPid(), exportedFilePath));
                         throw new ConfigurationFileException("Failed to export configurations.", e);
                     }
                 }
@@ -170,11 +166,6 @@ public class ConfigurationFileDirectory implements ChangeListener, Configuration
             LOGGER.error(String.format("Invalid filter string %s", FILTER), e);
             throw new ConfigurationFileException("Failed to export configurations.", e);
         }
-    }
-
-    @Override
-    public Path getExportedDirectory() {
-        return exportedDirectory;
     }
 
     void moveFile(Path source, Path destination) throws IOException {

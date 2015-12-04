@@ -27,10 +27,17 @@
         <command name="platform/config-export">
             <action class="org.codice.ddf.commands.platform.ExportCommand">
                 <argument ref="configurationMigrationService"/>
+                <argument ref="defaultExportDirectoryPath"/>
             </action>
         </command>
 
     </command-bundle>
+
+    <ext:property-placeholder>
+        <ext:default-properties>
+            <ext:property name="defaultExportDirectory" value="${ddf.home}/etc/exported"/>
+        </ext:default-properties>
+    </ext:property-placeholder>
 
     <reference id="configurationMigrationService"
                interface="org.codice.ddf.configuration.store.ConfigurationMigrationService"/>
@@ -38,8 +45,14 @@
     <bean id="urlHelper" class="org.codice.ddf.configuration.SystemBaseUrl"/>
     <bean id="systemInfo" class="org.codice.ddf.configuration.SystemInfo"/>
 
+    <bean id="defaultExportDirectoryPath" class="java.nio.file.Paths"
+          factory-method="get">
+        <argument value="file://${defaultExportDirectory}"/>
+    </bean>
+
     <bean id="platformExportCommand" class="org.codice.ddf.commands.platform.ExportCommand">
         <argument ref="configurationMigrationService"/>
+        <argument ref="defaultExportDirectoryPath"/>
     </bean>
 
     <bean id="platformDescribeCommand" class="org.codice.ddf.commands.platform.DescribeCommand">

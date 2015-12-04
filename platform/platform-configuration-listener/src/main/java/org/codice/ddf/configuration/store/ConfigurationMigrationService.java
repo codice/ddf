@@ -14,24 +14,20 @@
 
 package org.codice.ddf.configuration.store;
 
+import java.io.IOException;
 import java.nio.file.Path;
 
 /**
- * Interface ConfigurationFileDirectory must implement.
- *
- * @see org.codice.ddf.commands.platform.ExportCommand#doExecute()
+ * Provides a way to migrate configurations from one instance of DDF to another.  This
+ * includes exporting and importing of configurations.
  */
 public interface ConfigurationMigrationService {
 
     /**
-     * Exports configurations to a default directory
+     * Exports configurations to specified path
      *
+     * @param exportDirectory Path to export configurations
      * @throws ConfigurationFileException thrown if one or more Configurations couldn't be exported
      */
-    void export() throws ConfigurationFileException;
-
-    /**
-     * Returns Path of directory that configurations will be exported to
-     */
-    Path getExportedDirectory();
+    void export(Path exportDirectory) throws ConfigurationFileException, IOException;
 }

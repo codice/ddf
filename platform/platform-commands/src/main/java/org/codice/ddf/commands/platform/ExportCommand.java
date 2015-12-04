@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.commands.platform;
 
+import java.nio.file.Path;
+
 import org.apache.felix.gogo.commands.Command;
 import org.codice.ddf.configuration.store.ConfigurationMigrationService;
 
@@ -26,15 +28,19 @@ public class ExportCommand extends PlatformCommands {
 
     protected final ConfigurationMigrationService configurationMigrationService;
 
-    public ExportCommand(ConfigurationMigrationService configurationMigrationService) {
+    protected final Path defaultExportDirectory;
+
+    public ExportCommand(ConfigurationMigrationService configurationMigrationService,
+            Path defaultExportDirectory) {
         this.configurationMigrationService = configurationMigrationService;
+        this.defaultExportDirectory = defaultExportDirectory;
     }
 
     @Override
     protected Object doExecute() throws Exception {
-        configurationMigrationService.export();
-        System.out.println(String.format("Exporting current configurations to %s",
-                configurationMigrationService.getExportedDirectory()));
+        configurationMigrationService.export(defaultExportDirectory);
+        System.out.println(
+                String.format("Exporting current configurations to %s", defaultExportDirectory));
         return null;
     }
 

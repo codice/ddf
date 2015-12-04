@@ -90,13 +90,13 @@
         <argument ref="configDirectoryStream"/>
         <argument ref="processedDirectoryPath"/>
         <argument ref="failedDirectoryPath"/>
-        <argument ref="exportedDirectoryPath"/>
         <argument ref="configurationFileFactory"/>
         <argument ref="configurationFilesPoller"/>
         <argument ref="configurationAdmin"/>
         <argument value="${configFileExtension}"/>
     </bean>
 
-    <service id="configurationFileDirectoryService" ref="configurationFileDirectory" auto-export="interfaces"/>
+    <service id="configurationFileDirectoryService" ref="configurationFileDirectory"
+             auto-export="interfaces"/>
 
 </blueprint>
