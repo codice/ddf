@@ -24,11 +24,13 @@ import static ddf.common.test.matchers.ConfigurationPropertiesEqualTo.equalToCon
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Vector;
 
 import org.apache.commons.io.FileUtils;
+import org.codice.ddf.configuration.store.ConfigurationFileException;
 import org.codice.ddf.configuration.store.felix.FelixPersistenceStrategy;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,6 +43,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.common.test.BeforeExam;
+import ddf.common.test.KarafConsole;
 import ddf.common.test.callables.GetConfigurationProperties;
 import ddf.common.test.matchers.ConfigurationPropertiesEqualTo;
 import ddf.test.itests.AbstractIntegrationTest;
@@ -50,6 +53,10 @@ import ddf.test.itests.AbstractIntegrationTest;
 public class TestPlatform extends AbstractIntegrationTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestPlatform.class);
+
+    private static KarafConsole console;
+
+    private static final String EXPORT_COMMAND = "platform:config-export";
 
     /**
      * Class that provides utility and assertion methods for a Managed Service Felix configuration
@@ -346,6 +353,7 @@ public class TestPlatform extends AbstractIntegrationTest {
     public void beforeExam() throws Exception {
         getAdminConfig().setLogLevels();
         getServiceManager().waitForAllBundles();
+        console = new KarafConsole(bundleCtx);
     }
 
     /**
@@ -412,5 +420,13 @@ public class TestPlatform extends AbstractIntegrationTest {
     public void testConfigurationFileWithInvalidFormat() throws IOException {
         invalidConfig.addConfigurationFile();
         invalidConfig.assertFileMovedToFailedDirectory();
+    }
+
+    @Test
+    public void testExport() throws ConfigurationFileException {
+        String exportedDirectory = String.format("%s/etc/exported", ddfHome);
+        console.runCommand(EXPORT_COMMAND);
+        assertThat(String.format("No files exported to %s.", exportedDirectory),
+                Arrays.asList(new File(exportedDirectory).listFiles()).isEmpty(), is(false));
     }
 }
