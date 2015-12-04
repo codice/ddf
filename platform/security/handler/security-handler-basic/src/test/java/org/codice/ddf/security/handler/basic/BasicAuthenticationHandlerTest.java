@@ -30,6 +30,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.HttpHeaders;
 
+import org.codice.ddf.parser.Parser;
+import org.codice.ddf.parser.xml.XmlParser;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.api.UPAuthenticationToken;
@@ -186,6 +188,7 @@ public class BasicAuthenticationHandlerTest {
 
     @Test
     public void testExtractAuthInfo() {
+        Parser parser = new XmlParser();
         BasicAuthenticationHandler handler = new BasicAuthenticationHandler();
         UPAuthenticationToken result = (UPAuthenticationToken) handler.extractAuthInfo(
                 "Basic " + Base64.getEncoder()
@@ -195,7 +198,7 @@ public class BasicAuthenticationHandlerTest {
         assertEquals("password", result.getPassword());
         assertEquals("TestRealm", result.getRealm());
 
-        WssBasicAuthenticationHandler wssHandler = new WssBasicAuthenticationHandler();
+        WssBasicAuthenticationHandler wssHandler = new WssBasicAuthenticationHandler(parser);
         BaseAuthenticationToken wssResult = wssHandler.extractAuthInfo(
                 "Basic " + Base64.getEncoder()
                         .encodeToString(CREDENTIALS.getBytes()), "TestRealm");
@@ -251,5 +254,20 @@ public class BasicAuthenticationHandlerTest {
         when(request.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(null);
         result = (UPAuthenticationToken) handler.extractAuthenticationInfo(request);
         assertNull(result);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testIllegalStateException() {
+        BasicAuthenticationHandler handler = new BasicAuthenticationHandler();
+        UPAuthenticationToken result = (UPAuthenticationToken) handler.extractAuthInfo(
+                "Basic " + Base64.getEncoder().encodeToString(CREDENTIALS.getBytes()), "TestRealm");
+        assertNotNull(result);
+        assertEquals("admin", result.getUsername());
+        assertEquals("password", result.getPassword());
+        assertEquals("TestRealm", result.getRealm());
+
+        WssBasicAuthenticationHandler wssHandler = new WssBasicAuthenticationHandler(null);
+        BaseAuthenticationToken wssResult = wssHandler.extractAuthInfo(
+                "Basic " + Base64.getEncoder().encodeToString(CREDENTIALS.getBytes()), "TestRealm");
     }
 }

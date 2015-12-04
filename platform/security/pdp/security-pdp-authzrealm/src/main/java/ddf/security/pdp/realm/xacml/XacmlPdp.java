@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -19,6 +19,7 @@ import java.util.List;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.Permission;
 import org.apache.shiro.util.CollectionUtils;
+import org.codice.ddf.parser.Parser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,30 +48,33 @@ public class XacmlPdp {
     /**
      * Creates a general
      */
-    public XacmlPdp(String dirPath) throws PdpException {
+    public XacmlPdp(String dirPath, Parser parser) throws PdpException {
         super();
-        pdp = new BalanaClient(dirPath);
+        pdp = new BalanaClient(dirPath, parser);
         LOGGER.debug("Creating new PDP-backed Authorizing Realm");
     }
 
     public boolean isPermitted(String primaryPrincipal, AuthorizationInfo info,
             KeyValueCollectionPermission curPermission) {
         boolean curResponse;
-        LOGGER.debug("Checking if {} has access for action {}", primaryPrincipal,
+        LOGGER.debug("Checking if {} has access for action {}",
+                primaryPrincipal,
                 curPermission.getAction());
 
         SecurityLogger.logInfo("Checking if [" + primaryPrincipal + "] has access for action "
                 + curPermission.getAction());
 
-        if (CollectionUtils.isEmpty(info.getObjectPermissions()) && CollectionUtils.isEmpty(
-                info.getStringPermissions()) && CollectionUtils.isEmpty(info.getRoles())
+        if (CollectionUtils.isEmpty(info.getObjectPermissions())
+                && CollectionUtils.isEmpty(info.getStringPermissions()) && CollectionUtils.isEmpty(
+                info.getRoles())
                 && !CollectionUtils.isEmpty(curPermission.getKeyValuePermissionList())) {
             return false;
         }
 
-        if ((!CollectionUtils.isEmpty(info.getObjectPermissions()) || !CollectionUtils.isEmpty(
-                info.getStringPermissions()) || !CollectionUtils.isEmpty(info.getRoles()))
-                && CollectionUtils.isEmpty(curPermission.getKeyValuePermissionList())) {
+        if ((!CollectionUtils.isEmpty(info.getObjectPermissions())
+                || !CollectionUtils.isEmpty(info.getStringPermissions())
+                || !CollectionUtils.isEmpty(info.getRoles())) && CollectionUtils.isEmpty(
+                curPermission.getKeyValuePermissionList())) {
             return true;
         }
 
@@ -84,7 +88,8 @@ public class XacmlPdp {
 
     protected RequestType createXACMLRequest(String subject, AuthorizationInfo info,
             CollectionPermission permission) {
-        LOGGER.debug("Creating XACML request for subject: {} and metacard permissions {}", subject,
+        LOGGER.debug("Creating XACML request for subject: {} and metacard permissions {}",
+                subject,
                 permission);
 
         RequestType xacmlRequestType = new RequestType();
@@ -120,7 +125,8 @@ public class XacmlPdp {
         metadataAttributes.setCategory(XACMLConstants.RESOURCE_CATEGORY);
 
         if (permission instanceof KeyValueCollectionPermission) {
-            List<KeyValuePermission> tmpList = ((KeyValueCollectionPermission) permission).getKeyValuePermissionList();
+            List<KeyValuePermission> tmpList =
+                    ((KeyValueCollectionPermission) permission).getKeyValuePermissionList();
             for (KeyValuePermission curPermission : tmpList) {
                 for (String curPermValue : curPermission.getValues()) {
                     AttributeType resourceAttribute = new AttributeType();
@@ -210,7 +216,9 @@ public class XacmlPdp {
                     subjAttr.setIncludeInResult(false);
                     subjAttrValue.setDataType(XACMLConstants.STRING_DATA_TYPE);
                     LOGGER.trace("Adding permission: {}:{} for subject: {}",
-                            ((KeyValuePermission) curPermission).getKey(), curPermValue, subject);
+                            ((KeyValuePermission) curPermission).getKey(),
+                            curPermValue,
+                            subject);
                     subjAttrValue.getContent()
                             .add(curPermValue);
                     subjAttr.getAttributeValue()

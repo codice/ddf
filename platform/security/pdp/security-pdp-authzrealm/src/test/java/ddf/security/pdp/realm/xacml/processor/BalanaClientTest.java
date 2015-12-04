@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -26,6 +26,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 
 import org.apache.commons.io.FileUtils;
+import org.codice.ddf.parser.xml.XmlParser;
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -45,21 +46,25 @@ import oasis.names.tc.xacml._3_0.core.schema.wd_17.ResponseType;
 public class BalanaClientTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(BalanaClientTest.class);
 
-    private static final String ROLE_CLAIM = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role";
+    private static final String ROLE_CLAIM =
+            "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role";
 
     private static final String STRING_DATA_TYPE = "http://www.w3.org/2001/XMLSchema#string";
 
-    private static final String ACTION_CATEGORY = "urn:oasis:names:tc:xacml:3.0:attribute-category:action";
+    private static final String ACTION_CATEGORY =
+            "urn:oasis:names:tc:xacml:3.0:attribute-category:action";
 
     private static final String ACTION_ID = "urn:oasis:names:tc:xacml:1.0:action:action-id";
 
-    private static final String SUBJECT_CATEGORY = "urn:oasis:names:tc:xacml:1.0:subject-category:access-subject";
+    private static final String SUBJECT_CATEGORY =
+            "urn:oasis:names:tc:xacml:1.0:subject-category:access-subject";
 
     private static final String SUBJECT_ID = "urn:oasis:names:tc:xacml:1.0:subject:subject-id";
 
     private static final String PERMISSIONS_CATEGORY = "http://example.com/category";
 
-    private static final String CITIZENSHIP_ATTRIBUTE = "http://www.opm.gov/feddata/CountryOfCitizenship";
+    private static final String CITIZENSHIP_ATTRIBUTE =
+            "http://www.opm.gov/feddata/CountryOfCitizenship";
 
     private static final String RELATIVE_POLICIES_DIR = "src/test/resources";
 
@@ -89,7 +94,8 @@ public class BalanaClientTest {
     @BeforeClass
     public static void init() {
         try {
-            projectHome = new File(".").getCanonicalFile().getPath();
+            projectHome = new File(".").getCanonicalFile()
+                    .getPath();
             LOGGER.debug("projectHome: {}", projectHome);
         } catch (IOException e) {
             LOGGER.debug(e.getMessage(), e);
@@ -120,9 +126,12 @@ public class BalanaClientTest {
             actionAttribute.setIncludeInResult(false);
             AttributeValueType actionValue = new AttributeValueType();
             actionValue.setDataType(STRING_DATA_TYPE);
-            actionValue.getContent().add(QUERY_ACTION);
-            actionAttribute.getAttributeValue().add(actionValue);
-            actionAttributes.getAttribute().add(actionAttribute);
+            actionValue.getContent()
+                    .add(QUERY_ACTION);
+            actionAttribute.getAttributeValue()
+                    .add(actionValue);
+            actionAttributes.getAttribute()
+                    .add(actionAttribute);
 
             AttributesType subjectAttributes = new AttributesType();
             subjectAttributes.setCategory(SUBJECT_CATEGORY);
@@ -131,18 +140,24 @@ public class BalanaClientTest {
             subjectAttribute.setIncludeInResult(false);
             AttributeValueType subjectValue = new AttributeValueType();
             subjectValue.setDataType(STRING_DATA_TYPE);
-            subjectValue.getContent().add(TEST_USER_1);
-            subjectAttribute.getAttributeValue().add(subjectValue);
-            subjectAttributes.getAttribute().add(subjectAttribute);
+            subjectValue.getContent()
+                    .add(TEST_USER_1);
+            subjectAttribute.getAttributeValue()
+                    .add(subjectValue);
+            subjectAttributes.getAttribute()
+                    .add(subjectAttribute);
 
             AttributeType roleAttribute = new AttributeType();
             roleAttribute.setAttributeId(ROLE_CLAIM);
             roleAttribute.setIncludeInResult(false);
             AttributeValueType roleValue = new AttributeValueType();
             roleValue.setDataType(STRING_DATA_TYPE);
-            roleValue.getContent().add(ROLE);
-            roleAttribute.getAttributeValue().add(roleValue);
-            subjectAttributes.getAttribute().add(roleAttribute);
+            roleValue.getContent()
+                    .add(ROLE);
+            roleAttribute.getAttributeValue()
+                    .add(roleValue);
+            subjectAttributes.getAttribute()
+                    .add(roleAttribute);
 
             AttributesType categoryAttributes = new AttributesType();
             categoryAttributes.setCategory(PERMISSIONS_CATEGORY);
@@ -151,15 +166,21 @@ public class BalanaClientTest {
             citizenshipAttribute.setIncludeInResult(false);
             AttributeValueType citizenshipValue = new AttributeValueType();
             citizenshipValue.setDataType(STRING_DATA_TYPE);
-            citizenshipValue.getContent().add(US_COUNTRY);
-            citizenshipAttribute.getAttributeValue().add(citizenshipValue);
-            categoryAttributes.getAttribute().add(citizenshipAttribute);
+            citizenshipValue.getContent()
+                    .add(US_COUNTRY);
+            citizenshipAttribute.getAttributeValue()
+                    .add(citizenshipValue);
+            categoryAttributes.getAttribute()
+                    .add(citizenshipAttribute);
 
-            xacmlRequestType.getAttributes().add(actionAttributes);
-            xacmlRequestType.getAttributes().add(subjectAttributes);
-            xacmlRequestType.getAttributes().add(categoryAttributes);
+            xacmlRequestType.getAttributes()
+                    .add(actionAttributes);
+            xacmlRequestType.getAttributes()
+                    .add(subjectAttributes);
+            xacmlRequestType.getAttributes()
+                    .add(categoryAttributes);
 
-            BalanaClient pdp = new BalanaClient(destDir.getCanonicalPath());
+            BalanaClient pdp = new BalanaClient(destDir.getCanonicalPath(), new XmlParser());
 
             // Perform Test
             ResponseType xacmlResponse = pdp.evaluate(xacmlRequestType);
@@ -171,7 +192,9 @@ public class BalanaClientTest {
             Writer writer = new StringWriter();
             marshaller.marshal(objectFactory.createResponse(xacmlResponse), writer);
             LOGGER.debug("\nXACML 3.0 Response:\n{}", writer.toString());
-            assertEquals(xacmlResponse.getResult().get(0).getDecision(), DecisionType.PERMIT);
+            assertEquals(xacmlResponse.getResult()
+                    .get(0)
+                    .getDecision(), DecisionType.PERMIT);
 
             // Cleanup
             LOGGER.debug("Deleting directory: " + destDir);
@@ -200,9 +223,12 @@ public class BalanaClientTest {
         actionAttribute.setIncludeInResult(false);
         AttributeValueType actionValue = new AttributeValueType();
         actionValue.setDataType(STRING_DATA_TYPE);
-        actionValue.getContent().add(QUERY_ACTION);
-        actionAttribute.getAttributeValue().add(actionValue);
-        actionAttributes.getAttribute().add(actionAttribute);
+        actionValue.getContent()
+                .add(QUERY_ACTION);
+        actionAttribute.getAttributeValue()
+                .add(actionValue);
+        actionAttributes.getAttribute()
+                .add(actionAttribute);
 
         AttributesType subjectAttributes = new AttributesType();
         subjectAttributes.setCategory(SUBJECT_CATEGORY);
@@ -211,18 +237,24 @@ public class BalanaClientTest {
         subjectAttribute.setIncludeInResult(false);
         AttributeValueType subjectValue = new AttributeValueType();
         subjectValue.setDataType(STRING_DATA_TYPE);
-        subjectValue.getContent().add(TEST_USER_2);
-        subjectAttribute.getAttributeValue().add(subjectValue);
-        subjectAttributes.getAttribute().add(subjectAttribute);
+        subjectValue.getContent()
+                .add(TEST_USER_2);
+        subjectAttribute.getAttributeValue()
+                .add(subjectValue);
+        subjectAttributes.getAttribute()
+                .add(subjectAttribute);
 
         AttributeType roleAttribute = new AttributeType();
         roleAttribute.setAttributeId(ROLE_CLAIM);
         roleAttribute.setIncludeInResult(false);
         AttributeValueType roleValue = new AttributeValueType();
         roleValue.setDataType(STRING_DATA_TYPE);
-        roleValue.getContent().add(ROLE);
-        roleAttribute.getAttributeValue().add(roleValue);
-        subjectAttributes.getAttribute().add(roleAttribute);
+        roleValue.getContent()
+                .add(ROLE);
+        roleAttribute.getAttributeValue()
+                .add(roleValue);
+        subjectAttributes.getAttribute()
+                .add(roleAttribute);
 
         AttributesType categoryAttributes = new AttributesType();
         categoryAttributes.setCategory(PERMISSIONS_CATEGORY);
@@ -231,15 +263,21 @@ public class BalanaClientTest {
         citizenshipAttribute.setIncludeInResult(false);
         AttributeValueType citizenshipValue = new AttributeValueType();
         citizenshipValue.setDataType(STRING_DATA_TYPE);
-        citizenshipValue.getContent().add(country);
-        citizenshipAttribute.getAttributeValue().add(citizenshipValue);
-        categoryAttributes.getAttribute().add(citizenshipAttribute);
+        citizenshipValue.getContent()
+                .add(country);
+        citizenshipAttribute.getAttributeValue()
+                .add(citizenshipValue);
+        categoryAttributes.getAttribute()
+                .add(citizenshipAttribute);
 
-        xacmlRequestType.getAttributes().add(actionAttributes);
-        xacmlRequestType.getAttributes().add(subjectAttributes);
-        xacmlRequestType.getAttributes().add(categoryAttributes);
+        xacmlRequestType.getAttributes()
+                .add(actionAttributes);
+        xacmlRequestType.getAttributes()
+                .add(subjectAttributes);
+        xacmlRequestType.getAttributes()
+                .add(categoryAttributes);
 
-        BalanaClient pdp = new BalanaClient(tempDir.getCanonicalPath());
+        BalanaClient pdp = new BalanaClient(tempDir.getCanonicalPath(), new XmlParser());
 
         // Perform Test
         ResponseType xacmlResponse = pdp.evaluate(xacmlRequestType);
@@ -251,7 +289,9 @@ public class BalanaClientTest {
         Writer writer = new StringWriter();
         marshaller.marshal(objectFactory.createResponse(xacmlResponse), writer);
         LOGGER.debug("\nXACML 3.0 Response:\n{}", writer.toString());
-        assertEquals(xacmlResponse.getResult().get(0).getDecision(), DecisionType.DENY);
+        assertEquals(xacmlResponse.getResult()
+                .get(0)
+                .getDecision(), DecisionType.DENY);
 
     }
 
@@ -261,7 +301,7 @@ public class BalanaClientTest {
 
         // Perform Test on new directory
         // Expect directory to be created
-        new BalanaClient(TEST_CREATION_DIR);
+        new BalanaClient(TEST_CREATION_DIR, new XmlParser());
 
         // Delete the directory that was just created
         FileUtils.forceDelete(new File(TEST_CREATION_DIR));
@@ -281,7 +321,7 @@ public class BalanaClientTest {
             assertTrue(isDirEmpty(dir));
 
             // Perform Test
-            new BalanaClient(dir.getCanonicalPath());
+            new BalanaClient(dir.getCanonicalPath(), new XmlParser());
 
             // Cleanup
             LOGGER.debug("Deleting directory: {}", dir.getPath());
@@ -299,7 +339,7 @@ public class BalanaClientTest {
 
         BalanaClient.defaultPollingIntervalInSeconds = 1;
         // Perform Test
-        BalanaClient pdp = new BalanaClient(policyDir.getCanonicalPath());
+        BalanaClient pdp = new BalanaClient(policyDir.getCanonicalPath(), new XmlParser());
 
         File srcFile = new File(
                 projectHome + File.separator + RELATIVE_POLICIES_DIR + File.separator
@@ -319,9 +359,12 @@ public class BalanaClientTest {
         actionAttribute.setIncludeInResult(false);
         AttributeValueType actionValue = new AttributeValueType();
         actionValue.setDataType(STRING_DATA_TYPE);
-        actionValue.getContent().add(QUERY_ACTION);
-        actionAttribute.getAttributeValue().add(actionValue);
-        actionAttributes.getAttribute().add(actionAttribute);
+        actionValue.getContent()
+                .add(QUERY_ACTION);
+        actionAttribute.getAttributeValue()
+                .add(actionValue);
+        actionAttributes.getAttribute()
+                .add(actionAttribute);
 
         AttributesType subjectAttributes = new AttributesType();
         subjectAttributes.setCategory(SUBJECT_CATEGORY);
@@ -330,18 +373,24 @@ public class BalanaClientTest {
         subjectAttribute.setIncludeInResult(false);
         AttributeValueType subjectValue = new AttributeValueType();
         subjectValue.setDataType(STRING_DATA_TYPE);
-        subjectValue.getContent().add(TEST_USER_1);
-        subjectAttribute.getAttributeValue().add(subjectValue);
-        subjectAttributes.getAttribute().add(subjectAttribute);
+        subjectValue.getContent()
+                .add(TEST_USER_1);
+        subjectAttribute.getAttributeValue()
+                .add(subjectValue);
+        subjectAttributes.getAttribute()
+                .add(subjectAttribute);
 
         AttributeType roleAttribute = new AttributeType();
         roleAttribute.setAttributeId(ROLE_CLAIM);
         roleAttribute.setIncludeInResult(false);
         AttributeValueType roleValue = new AttributeValueType();
         roleValue.setDataType(STRING_DATA_TYPE);
-        roleValue.getContent().add(ROLE);
-        roleAttribute.getAttributeValue().add(roleValue);
-        subjectAttributes.getAttribute().add(roleAttribute);
+        roleValue.getContent()
+                .add(ROLE);
+        roleAttribute.getAttributeValue()
+                .add(roleValue);
+        subjectAttributes.getAttribute()
+                .add(roleAttribute);
 
         AttributesType categoryAttributes = new AttributesType();
         categoryAttributes.setCategory(PERMISSIONS_CATEGORY);
@@ -350,13 +399,19 @@ public class BalanaClientTest {
         citizenshipAttribute.setIncludeInResult(false);
         AttributeValueType citizenshipValue = new AttributeValueType();
         citizenshipValue.setDataType(STRING_DATA_TYPE);
-        citizenshipValue.getContent().add(US_COUNTRY);
-        citizenshipAttribute.getAttributeValue().add(citizenshipValue);
-        categoryAttributes.getAttribute().add(citizenshipAttribute);
+        citizenshipValue.getContent()
+                .add(US_COUNTRY);
+        citizenshipAttribute.getAttributeValue()
+                .add(citizenshipValue);
+        categoryAttributes.getAttribute()
+                .add(citizenshipAttribute);
 
-        xacmlRequestType.getAttributes().add(actionAttributes);
-        xacmlRequestType.getAttributes().add(subjectAttributes);
-        xacmlRequestType.getAttributes().add(categoryAttributes);
+        xacmlRequestType.getAttributes()
+                .add(actionAttributes);
+        xacmlRequestType.getAttributes()
+                .add(subjectAttributes);
+        xacmlRequestType.getAttributes()
+                .add(categoryAttributes);
 
         // Perform Test
         ResponseType xacmlResponse = pdp.evaluate(xacmlRequestType);
@@ -368,9 +423,95 @@ public class BalanaClientTest {
         Writer writer = new StringWriter();
         marshaller.marshal(objectFactory.createResponse(xacmlResponse), writer);
         LOGGER.debug("\nXACML 3.0 Response:\n{}", writer.toString());
-        assertEquals(xacmlResponse.getResult().get(0).getDecision(), DecisionType.PERMIT);
+        assertEquals(xacmlResponse.getResult()
+                .get(0)
+                .getDecision(), DecisionType.PERMIT);
 
         FileUtils.deleteDirectory(policyDir);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testIllegalStateException() throws Exception {
+        LOGGER.debug("\n\n\n##### testExecption");
+
+        File policyDir = folder.newFolder("tempDir");
+
+        // Perform Test
+        BalanaClient pdp = new BalanaClient(policyDir.getCanonicalPath(), null);
+
+        File srcFile = new File(
+                projectHome + File.separator + RELATIVE_POLICIES_DIR + File.separator
+                        + POLICY_FILE);
+        FileUtils.copyFileToDirectory(srcFile, policyDir);
+
+        RequestType xacmlRequestType = new RequestType();
+        xacmlRequestType.setCombinedDecision(false);
+        xacmlRequestType.setReturnPolicyIdList(false);
+
+        AttributesType actionAttributes = new AttributesType();
+        actionAttributes.setCategory(ACTION_CATEGORY);
+        AttributeType actionAttribute = new AttributeType();
+        actionAttribute.setAttributeId(ACTION_ID);
+        actionAttribute.setIncludeInResult(false);
+        AttributeValueType actionValue = new AttributeValueType();
+        actionValue.setDataType(STRING_DATA_TYPE);
+        actionValue.getContent()
+                .add(QUERY_ACTION);
+        actionAttribute.getAttributeValue()
+                .add(actionValue);
+        actionAttributes.getAttribute()
+                .add(actionAttribute);
+
+        AttributesType subjectAttributes = new AttributesType();
+        subjectAttributes.setCategory(SUBJECT_CATEGORY);
+        AttributeType subjectAttribute = new AttributeType();
+        subjectAttribute.setAttributeId(SUBJECT_ID);
+        subjectAttribute.setIncludeInResult(false);
+        AttributeValueType subjectValue = new AttributeValueType();
+        subjectValue.setDataType(STRING_DATA_TYPE);
+        subjectValue.getContent()
+                .add(TEST_USER_1);
+        subjectAttribute.getAttributeValue()
+                .add(subjectValue);
+        subjectAttributes.getAttribute()
+                .add(subjectAttribute);
+
+        AttributeType roleAttribute = new AttributeType();
+        roleAttribute.setAttributeId(ROLE_CLAIM);
+        roleAttribute.setIncludeInResult(false);
+        AttributeValueType roleValue = new AttributeValueType();
+        roleValue.setDataType(STRING_DATA_TYPE);
+        roleValue.getContent()
+                .add(ROLE);
+        roleAttribute.getAttributeValue()
+                .add(roleValue);
+        subjectAttributes.getAttribute()
+                .add(roleAttribute);
+
+        AttributesType categoryAttributes = new AttributesType();
+        categoryAttributes.setCategory(PERMISSIONS_CATEGORY);
+        AttributeType citizenshipAttribute = new AttributeType();
+        citizenshipAttribute.setAttributeId(CITIZENSHIP_ATTRIBUTE);
+        citizenshipAttribute.setIncludeInResult(false);
+        AttributeValueType citizenshipValue = new AttributeValueType();
+        citizenshipValue.setDataType(STRING_DATA_TYPE);
+        citizenshipValue.getContent()
+                .add(US_COUNTRY);
+        citizenshipAttribute.getAttributeValue()
+                .add(citizenshipValue);
+        categoryAttributes.getAttribute()
+                .add(citizenshipAttribute);
+
+        xacmlRequestType.getAttributes()
+                .add(actionAttributes);
+        xacmlRequestType.getAttributes()
+                .add(subjectAttributes);
+        xacmlRequestType.getAttributes()
+                .add(categoryAttributes);
+
+        // Perform Test
+        pdp.evaluate(xacmlRequestType);
+
     }
 
     @After
@@ -398,16 +539,17 @@ public class BalanaClientTest {
     }
 
     private boolean isDirEmpty(File dir) {
-        return ((null != dir) && (dir.isDirectory()) && (null != dir
-                .listFiles(getXmlFilenameFilter())) && (dir.listFiles(getXmlFilenameFilter()).length
-                == 0));
+        return ((null != dir) && (dir.isDirectory()) && (null
+                != dir.listFiles(getXmlFilenameFilter())) && (
+                dir.listFiles(getXmlFilenameFilter()).length == 0));
     }
 
     private FilenameFilter getXmlFilenameFilter() {
         FilenameFilter filter = new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
-                return name.toLowerCase().endsWith(".xml");
+                return name.toLowerCase()
+                        .endsWith(".xml");
             }
         };
 

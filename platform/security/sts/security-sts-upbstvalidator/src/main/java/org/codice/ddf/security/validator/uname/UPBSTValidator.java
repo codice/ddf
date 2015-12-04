@@ -33,18 +33,15 @@ package org.codice.ddf.security.validator.uname;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Principal;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.security.auth.callback.CallbackHandler;
-import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 
-import org.apache.cxf.common.jaxb.JAXBContextCache;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.sts.QNameConstants;
 import org.apache.cxf.sts.STSPropertiesMBean;
@@ -53,7 +50,6 @@ import org.apache.cxf.sts.request.ReceivedToken.STATE;
 import org.apache.cxf.sts.token.validator.TokenValidator;
 import org.apache.cxf.sts.token.validator.TokenValidatorParameters;
 import org.apache.cxf.sts.token.validator.TokenValidatorResponse;
-import org.apache.cxf.ws.security.sts.provider.model.ObjectFactory;
 import org.apache.cxf.ws.security.sts.provider.model.secext.AttributedString;
 import org.apache.cxf.ws.security.sts.provider.model.secext.BinarySecurityTokenType;
 import org.apache.cxf.ws.security.sts.provider.model.secext.PasswordString;
@@ -72,6 +68,9 @@ import org.apache.wss4j.dom.message.token.UsernameToken;
 import org.apache.wss4j.dom.validate.Credential;
 import org.apache.wss4j.dom.validate.JAASUsernameTokenValidator;
 import org.apache.wss4j.dom.validate.Validator;
+import org.codice.ddf.parser.Parser;
+import org.codice.ddf.parser.ParserConfigurator;
+import org.codice.ddf.parser.ParserException;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.UPAuthenticationToken;
 import org.osgi.framework.Bundle;
@@ -88,7 +87,13 @@ import org.w3c.dom.Element;
 public class UPBSTValidator implements TokenValidator {
     private static final Logger LOGGER = LoggerFactory.getLogger(UPBSTValidator.class);
 
+    private final Parser parser;
+
     protected Map<String, Validator> validators = new ConcurrentHashMap<>();
+
+    public UPBSTValidator(Parser parser) {
+        this.parser = parser;
+    }
 
     public void addRealm(ServiceReference<JaasRealm> serviceReference) {
         Bundle bundle = FrameworkUtil.getBundle(UPBSTValidator.class);
@@ -166,6 +171,11 @@ public class UPBSTValidator implements TokenValidator {
      */
     public TokenValidatorResponse validateToken(TokenValidatorParameters tokenParameters) {
         LOGGER.trace("Validating UPBST Token");
+
+        if (null == parser) {
+            throw new IllegalStateException("XMLParser must be configured.");
+        }
+
         STSPropertiesMBean stsProperties = tokenParameters.getStsProperties();
         Crypto sigCrypto = stsProperties.getSignatureCrypto();
         CallbackHandler callbackHandler = stsProperties.getCallbackHandler();
@@ -201,28 +211,27 @@ public class UPBSTValidator implements TokenValidator {
         UsernameTokenType usernameTokenType = getUsernameTokenType(usernameToken);
         // Marshall the received JAXB object into a DOM Element
         Element usernameTokenElement = null;
+
+        JAXBElement<UsernameTokenType> tokenType = new JAXBElement<>(QNameConstants.USERNAME_TOKEN,
+                UsernameTokenType.class,
+                usernameTokenType);
+
+        Document doc = DOMUtils.createDocument();
+        Element rootElement = doc.createElement("root-element");
+
+        List<String> ctxPath = new ArrayList<>(1);
+        ctxPath.add(UsernameTokenType.class.getPackage()
+                .getName());
+
+        ParserConfigurator configurator = parser.configureParser(ctxPath,
+                UPBSTValidator.class.getClassLoader());
         try {
-            Set<Class<?>> classes = new HashSet<Class<?>>();
-            classes.add(ObjectFactory.class);
-            classes.add(org.apache.cxf.ws.security.sts.provider.model.wstrust14.ObjectFactory.class);
-
-            JAXBContextCache.CachedContextAndSchemas cache =
-                    JAXBContextCache.getCachedContextAndSchemas(classes, null, null, null, false);
-            JAXBContext jaxbContext = cache.getContext();
-
-            Marshaller marshaller = jaxbContext.createMarshaller();
-            Document doc = DOMUtils.createDocument();
-            Element rootElement = doc.createElement("root-element");
-            JAXBElement<UsernameTokenType> tokenType = new JAXBElement<UsernameTokenType>(
-                    QNameConstants.USERNAME_TOKEN,
-                    UsernameTokenType.class,
-                    usernameTokenType);
-            marshaller.marshal(tokenType, rootElement);
-            usernameTokenElement = (Element) rootElement.getFirstChild();
-        } catch (JAXBException ex) {
+            parser.marshal(configurator, tokenType, rootElement);
+        } catch (ParserException ex) {
             LOGGER.warn("", ex);
             return response;
         }
+        usernameTokenElement = (Element) rootElement.getFirstChild();
 
         //
         // Validate the token

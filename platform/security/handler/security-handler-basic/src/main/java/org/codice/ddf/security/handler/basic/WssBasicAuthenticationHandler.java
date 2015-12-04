@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -13,23 +13,22 @@
  */
 package org.codice.ddf.security.handler.basic;
 
-import java.io.StringWriter;
-import java.io.Writer;
-import java.util.HashSet;
-import java.util.Set;
+import java.io.ByteArrayOutputStream;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 
-import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 
-import org.apache.cxf.common.jaxb.JAXBContextCache;
 import org.apache.cxf.sts.QNameConstants;
 import org.apache.cxf.ws.security.sts.provider.model.ObjectFactory;
 import org.apache.cxf.ws.security.sts.provider.model.secext.AttributedString;
 import org.apache.cxf.ws.security.sts.provider.model.secext.PasswordString;
 import org.apache.cxf.ws.security.sts.provider.model.secext.UsernameTokenType;
 import org.apache.wss4j.dom.WSConstants;
+import org.codice.ddf.parser.Parser;
+import org.codice.ddf.parser.ParserConfigurator;
+import org.codice.ddf.parser.ParserException;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 
 public class WssBasicAuthenticationHandler extends AbstractBasicAuthenticationHandler {
@@ -38,42 +37,58 @@ public class WssBasicAuthenticationHandler extends AbstractBasicAuthenticationHa
      */
     private static final String AUTH_TYPE = "WSSBASIC";
 
+    private final Parser parser;
+
+    public WssBasicAuthenticationHandler(Parser parser) {
+        this.parser = parser;
+    }
+
     protected BaseAuthenticationToken getBaseAuthenticationToken(String realm, String username,
             String password) {
+        if (null == parser) {
+            throw new IllegalStateException("XMLParser must be configured.");
+        }
+
         UsernameTokenType usernameTokenType = new UsernameTokenType();
         AttributedString user = new AttributedString();
         user.setValue(username);
         usernameTokenType.setUsername(user);
+        String usernameToken = null;
 
         // Add a password
         PasswordString pass = new PasswordString();
         pass.setValue(password);
         pass.setType(WSConstants.PASSWORD_TEXT);
         JAXBElement<PasswordString> passwordType = new JAXBElement<>(QNameConstants.PASSWORD,
-                PasswordString.class, pass);
-        usernameTokenType.getAny().add(passwordType);
+                PasswordString.class,
+                pass);
+        usernameTokenType.getAny()
+                .add(passwordType);
+
         // Marshall the received JAXB object into a DOM Element
-        String usernameToken = null;
-        Writer writer = new StringWriter();
+        List<String> ctxPath = new ArrayList<>(2);
+        ctxPath.add(ObjectFactory.class.getPackage()
+                .getName());
+        ctxPath.add(org.apache.cxf.ws.security.sts.provider.model.wstrust14.ObjectFactory.class.getPackage()
+                .getName());
+
+        ParserConfigurator configurator = parser.configureParser(ctxPath,
+                WssBasicAuthenticationHandler.class.getClassLoader());
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+
+        JAXBElement<UsernameTokenType> tokenType = new JAXBElement<>(QNameConstants.USERNAME_TOKEN,
+                UsernameTokenType.class,
+                usernameTokenType);
+
         try {
-            Set<Class<?>> classes = new HashSet<>();
-            classes.add(ObjectFactory.class);
-            classes.add(
-                    org.apache.cxf.ws.security.sts.provider.model.wstrust14.ObjectFactory.class);
-
-            JAXBContextCache.CachedContextAndSchemas cache = JAXBContextCache
-                    .getCachedContextAndSchemas(classes, null, null, null, false);
-            JAXBContext jaxbContext = cache.getContext();
-
-            Marshaller marshaller = jaxbContext.createMarshaller();
-            JAXBElement<UsernameTokenType> tokenType = new JAXBElement<>(
-                    QNameConstants.USERNAME_TOKEN, UsernameTokenType.class, usernameTokenType);
-            marshaller.marshal(tokenType, writer);
-            usernameToken = writer.toString();
-        } catch (JAXBException ex) {
+            parser.marshal(configurator, tokenType, os);
+            usernameToken = os.toString("UTF-8");
+        } catch (ParserException | UnsupportedEncodingException ex) {
             LOGGER.warn("", ex);
         }
-        BaseAuthenticationToken baseAuthenticationToken = new BaseAuthenticationToken(null, "",
+
+        BaseAuthenticationToken baseAuthenticationToken = new BaseAuthenticationToken(null,
+                "",
                 usernameToken);
         baseAuthenticationToken.setUseWssSts(true);
         return baseAuthenticationToken;
