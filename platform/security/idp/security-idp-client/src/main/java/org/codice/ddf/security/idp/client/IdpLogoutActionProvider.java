@@ -15,6 +15,7 @@ package org.codice.ddf.security.idp.client;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.function.Function;
 
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.slf4j.Logger;
@@ -37,20 +38,26 @@ public class IdpLogoutActionProvider implements ActionProvider {
 
     EncryptionService encryptionService;
 
+    // TODO (RAP) - Add javadoc
     @Override
-    public <T> Action getAction(T subject) {
+    public <T> Action getAction(T var) {
+
         URL logoutUrl = null;
-        if (subject instanceof String) {
+        if (var instanceof Function) {
             try {
-                String nameId = (String) subject;
+                @SuppressWarnings("unchecked")
+                String nameId = ((Function<String, String>) var).apply("idp");
+
                 String nameIdTimestamp = nameId + "\n" + System.currentTimeMillis();
                 nameIdTimestamp = encryptionService.encrypt(nameIdTimestamp);
                 logoutUrl = new URL(new SystemBaseUrl().constructUrl(
-                        "/saml/logout/" + nameId + "?NameId=" + nameIdTimestamp, true));
+                        "/saml/logout/start" +  "?NameId=" + nameId + "&NameIdTimestamp" + nameIdTimestamp, true));
 
             } catch (MalformedURLException e) {
                 LOGGER.info("Unable to resolve URL: {}",
                         new SystemBaseUrl().constructUrl("/logout/local"));
+            } catch (ClassCastException e) {
+                LOGGER.debug("Unable to cast parameter to Function<String, String>, {}", var, e);
             }
         }
         return new ActionImpl(ID, TITLE, DESCRIPTION, logoutUrl);

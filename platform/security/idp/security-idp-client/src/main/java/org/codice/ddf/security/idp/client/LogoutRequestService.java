@@ -25,7 +25,6 @@ import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
@@ -125,9 +124,9 @@ public class LogoutRequestService {
 
     @GET
     //TODO hook tracys logout page up to this change it to post since its not idempotent and we don't want hte browser prefetching.
-    @Path("/{nameId}")//TODO is this okay for a url
-    public Response sendLogoutRequest(@PathParam("nameId") String nameId,
-            @QueryParam(NAME_ID) String encryptedNameIdTime) {
+    @Path("/start")//TODO is this okay for a url
+    public Response sendLogoutRequest(@QueryParam("NameId") String nameId,
+            @QueryParam("EncryptedNameIdTime") String encryptedNameIdTime) {
         //        String nameIdTime = encryptionService.decryptValue(encryptedNameIdTime);
         //        String[] nameIdTimeArray = StringUtils.split(nameIdTime,"\n");
         //        String name = nameIdTimeArray[0];
@@ -178,7 +177,7 @@ public class LogoutRequestService {
 
             LogoutResponse logoutResponse =
                     logoutService.buildLogoutResponse(logoutRequest.getIssuer()
-                                    .getValue(), StatusCode.SUCCESS.toString());
+                            .getValue(), StatusCode.SUCCESS.toString());
             try {
 
                 return getSamlpPostLogoutResponse(relayState, logoutResponse, submitForm);

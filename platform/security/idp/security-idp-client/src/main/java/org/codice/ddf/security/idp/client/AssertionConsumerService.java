@@ -312,7 +312,7 @@ public class AssertionConsumerService {
         String entityId = String.format("https://%s:%s%s/saml", hostname, port, rootContext);
 
         // Currently no real logout location - DFF-1605
-        String logoutLocation = null; //String.format("https://%s:%s/logout", hostname, port);
+        String logoutLocation = String.format("https://%s:%s%s/saml/logout", hostname, port, rootContext);
         String assertionConsumerServiceLocation = String.format("https://%s:%s%s/saml/sso",
                 hostname, port, rootContext);
 

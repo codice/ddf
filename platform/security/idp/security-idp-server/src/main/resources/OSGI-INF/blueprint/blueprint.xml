@@ -42,7 +42,7 @@
         <property name="strictSignature" value="true" />
     </bean>
 
-    <jaxrs:server id="idpService" address="/idp/login">
+    <jaxrs:server id="idpService" address="/idp">
         <jaxrs:serviceBeans>
             <ref component-id="idp"/>
         </jaxrs:serviceBeans>

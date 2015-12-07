@@ -371,7 +371,7 @@ public class IdpEndpoint implements Idp {
     }
 
     @GET
-    @Path("/sso")
+    @Path("/login/sso")
     public Response processLogin(@QueryParam(SAML_REQ) String samlRequest,
             @QueryParam(RELAY_STATE) String relayState, @QueryParam(AUTH_METHOD) String authMethod,
             @QueryParam(SSOConstants.SIG_ALG) String signatureAlgorithm,
@@ -599,7 +599,7 @@ public class IdpEndpoint implements Idp {
     }
 
     @GET
-    @Path("/metadata")
+    @Path("/login/metadata")
     @Produces("application/xml")
     public Response retrieveMetadata() throws WSSecurityException, CertificateEncodingException {
         List<String> nameIdFormats = new ArrayList<>();
@@ -634,7 +634,7 @@ public class IdpEndpoint implements Idp {
                         nameIdFormats,
                         systemBaseUrl.constructUrl("/idp/login", true),
                         systemBaseUrl.constructUrl("/idp/login", true),
-                        null);
+                        systemBaseUrl.constructUrl("/idp/logout", true));
         Document doc = DOMUtils.createDocument();
         doc.appendChild(doc.createElement("root"));
         return Response.ok(DOM2Writer.nodeToString(OpenSAMLUtil.toDom(entityDescriptor,
