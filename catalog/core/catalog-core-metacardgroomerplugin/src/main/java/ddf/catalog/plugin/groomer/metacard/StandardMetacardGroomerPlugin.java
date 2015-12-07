@@ -42,14 +42,22 @@ public class StandardMetacardGroomerPlugin extends AbstractMetacardGroomerPlugin
         LOGGER.debug("Applying standard rules on CreateRequest");
         aMetacard.setAttribute(
                 new AttributeImpl(Metacard.ID, UUID.randomUUID().toString().replaceAll("-", "")));
-        aMetacard.setAttribute(new AttributeImpl(Metacard.CREATED, now));
-        aMetacard.setAttribute(new AttributeImpl(Metacard.MODIFIED, now));
 
+        if (aMetacard.getCreatedDate() == null) {
+            aMetacard.setAttribute(new AttributeImpl(Metacard.CREATED, now));
+        }
+
+        if (aMetacard.getModifiedDate() == null) {
+            aMetacard.setAttribute(new AttributeImpl(Metacard.MODIFIED, now));
+        }
+
+        if (aMetacard.getEffectiveDate() == null) {
+            aMetacard.setAttribute(new AttributeImpl(Metacard.EFFECTIVE, now));
+        }
     }
 
     protected void applyUpdateOperationRules(UpdateRequest updateRequest,
             Entry<Serializable, Metacard> anUpdate, Metacard aMetacard, Date now) {
-        aMetacard.setAttribute(new AttributeImpl(Metacard.MODIFIED, now));
 
         if (UpdateRequest.UPDATE_BY_ID.equals(updateRequest.getAttributeName()) && !anUpdate
                 .getKey().toString().equals(aMetacard.getId())) {
@@ -66,6 +74,14 @@ public class StandardMetacardGroomerPlugin extends AbstractMetacardGroomerPlugin
                     "{} date should match the original metacard. Changing date to current timestamp so it is at least not null.",
                     Metacard.CREATED);
             aMetacard.setAttribute(new AttributeImpl(Metacard.CREATED, now));
+        }
+
+        if (aMetacard.getModifiedDate() == null) {
+            aMetacard.setAttribute(new AttributeImpl(Metacard.MODIFIED, now));
+        }
+
+        if (aMetacard.getEffectiveDate() == null) {
+            aMetacard.setAttribute(new AttributeImpl(Metacard.EFFECTIVE, now));
         }
 
     }
