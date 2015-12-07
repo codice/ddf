@@ -16,7 +16,7 @@ package org.codice.ddf.configuration.store;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 
@@ -79,6 +79,14 @@ public class ConfigurationFileTest {
         ConfigurationFileUnderTest configurationFile = new ConfigurationFileUnderTest(path,
                 properties, configAdmin, persistenceStrategy);
         configurationFile.exportConfig("");
-        verify(persistenceStrategy, atLeastOnce()).write(any(FileOutputStream.class), (Dictionary<String, Object>) anyObject());
+        verify(persistenceStrategy, atLeastOnce())
+                .write(any(FileOutputStream.class), same(properties));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testExportWithNullDestination() throws IOException {
+        ConfigurationFileUnderTest configurationFile = new ConfigurationFileUnderTest(path,
+                properties, configAdmin, persistenceStrategy);
+        configurationFile.exportConfig(null);
     }
 }

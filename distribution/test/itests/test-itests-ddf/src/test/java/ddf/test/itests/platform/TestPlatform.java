@@ -14,7 +14,10 @@
 package ddf.test.itests.platform;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.ops4j.pax.exam.CoreOptions.options;
@@ -426,7 +429,21 @@ public class TestPlatform extends AbstractIntegrationTest {
     public void testExport() throws ConfigurationFileException {
         String exportedDirectory = String.format("%s/etc/exported", ddfHome);
         console.runCommand(EXPORT_COMMAND);
+        File[] exportedFiles = new File(exportedDirectory).listFiles();
+        assertThat("Exported files should not be null.", exportedFiles, is(notNullValue()));
         assertThat(String.format("No files exported to %s.", exportedDirectory),
-                Arrays.asList(new File(exportedDirectory).listFiles()).isEmpty(), is(false));
+                Arrays.asList(exportedFiles), is(not(empty())));
+    }
+
+    @Test
+    public void testExportOnTopOfFile() throws ConfigurationFileException, IOException {
+        String exportedDirectory = String.format("%s/etc/exported", ddfHome);
+        File file = new File(exportedDirectory);
+        file.createNewFile();
+        assertThat(String.format("Should not have been able to export to %s.", exportedDirectory),
+                console.runCommand(EXPORT_COMMAND), containsString(
+                        String.format("Failed to export all configurations to %s",
+                                exportedDirectory)));
+        file.delete();
     }
 }

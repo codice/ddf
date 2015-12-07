@@ -43,7 +43,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
-import org.osgi.service.metatype.MetaTypeService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ConfigurationFileDirectoryTest {
@@ -74,9 +73,6 @@ public class ConfigurationFileDirectoryTest {
 
     @Mock
     private ConfigurationFilesPoller configurationFilePoller;
-
-    @Mock
-    private MetaTypeService metaTypeService;
 
     @Mock
     private ConfigurationAdmin configurationAdmin;
@@ -572,7 +568,14 @@ public class ConfigurationFileDirectoryTest {
         verify(configFile1).createConfig();
     }
 
-    @Test(expected = ConfigurationFileException.class)
+    @Test(expected = IllegalArgumentException.class)
+    public void testExportWithNullExportDirectory() throws IOException, ConfigurationFileException {
+        setUpDefaultDirectoryExpectations();
+        ConfigurationFileDirectory configurationFileDirectory = createConfigurationFileDirectoryWithNoFiles();
+        configurationFileDirectory.export(null);
+    }
+
+    @Test(expected = IOException.class)
     public void testExportListConfigurationsIOException()
             throws IOException, InvalidSyntaxException, ConfigurationFileException {
         setUpDefaultDirectoryExpectations();
@@ -601,6 +604,20 @@ public class ConfigurationFileDirectoryTest {
         when(configurationFileFactory
                 .createConfigurationFile((Dictionary<String, Object>) anyObject()))
                 .thenThrow(new ConfigurationFileException(""));
+        configurationFileDirectory.export(exportedDirectoryPath);
+    }
+
+    @Test(expected = IOException.class)
+    public void testConfigFileExportConfigIOException()
+            throws IOException, InvalidSyntaxException, ConfigurationFileException {
+        setUpDefaultDirectoryExpectations();
+        when(configurationAdmin.listConfigurations(anyString()))
+                .thenReturn(new Configuration[] {configuration});
+        ConfigurationFileDirectory configurationFileDirectory = createConfigurationFileDirectoryWithNoFiles();
+        when(configurationFileFactory
+                .createConfigurationFile((Dictionary<String, Object>) anyObject()))
+                .thenReturn(configFile1);
+        doThrow(new IOException()).when(configFile1).exportConfig(anyString());
         configurationFileDirectory.export(exportedDirectoryPath);
     }
 

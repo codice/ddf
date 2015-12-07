@@ -14,11 +14,15 @@
 
 package org.codice.ddf.configuration.store;
 
+import static org.apache.commons.lang.Validate.notNull;
+
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Dictionary;
+
+import javax.validation.constraints.NotNull;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 
@@ -64,7 +68,8 @@ public abstract class ConfigurationFile {
 
     public abstract void createConfig() throws ConfigurationFileException;
 
-    public void exportConfig(String destination) throws IOException {
+    public void exportConfig(@NotNull String destination) throws IOException {
+        notNull(destination, "destination cannot be null");
         try (FileOutputStream fileOutputStream = getOutputStream(destination)) {
             persistenceStrategy.write(fileOutputStream, properties);
         }

@@ -28,6 +28,7 @@ public interface ConfigurationMigrationService {
      *
      * @param exportDirectory Path to export configurations
      * @throws ConfigurationFileException thrown if one or more Configurations couldn't be exported
+     * @throws IOException                thrown if one or more Configurations couldn't be exported
      */
     void export(Path exportDirectory) throws ConfigurationFileException, IOException;
 }

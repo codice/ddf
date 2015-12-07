@@ -137,7 +137,9 @@ public class ConfigurationFileDirectory implements ChangeListener, Configuration
     }
 
     @Override
-    public void export(Path exportDirectory) throws ConfigurationFileException, IOException {
+    public void export(@NotNull Path exportDirectory)
+            throws ConfigurationFileException, IOException {
+        notNull(exportDirectory, "exportDirectory cannot be null");
         createDirectory(exportDirectory);
         LOGGER.info("created export directory");
         try {
@@ -151,17 +153,18 @@ public class ConfigurationFileDirectory implements ChangeListener, Configuration
                         configurationFileFactory
                                 .createConfigurationFile(configuration.getProperties())
                                 .exportConfig(exportedFilePath);
-                    } catch (IOException | ConfigurationFileException e) {
+                    } catch (ConfigurationFileException e) {
                         LOGGER.error(String.format(
-                                "Failed to write out properties of %s configuration to %s.",
-                                configuration.getPid(), exportedFilePath));
+                                "Could not create configuration file %s for configuration %s",
+                                exportedFilePath, configuration.getPid()));
                         throw new ConfigurationFileException("Failed to export configurations.", e);
+                    } catch (IOException e) {
+                        LOGGER.error(String.format("Could not export configuration %s to %s.",
+                                configuration.getPid(), exportedFilePath));
+                        throw new IOException("Failed to export configurations.", e);
                     }
                 }
             }
-        } catch (IOException e) {
-            LOGGER.error("Access to persistent storage failed", e);
-            throw new ConfigurationFileException("Failed to export configurations.", e);
         } catch (InvalidSyntaxException e) {
             LOGGER.error(String.format("Invalid filter string %s", FILTER), e);
             throw new ConfigurationFileException("Failed to export configurations.", e);
