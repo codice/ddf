@@ -43,7 +43,6 @@ import javax.ws.rs.Encoded;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
-import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
@@ -110,7 +109,6 @@ import ddf.security.samlp.impl.EntityInformation;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
 
-@Path("/")
 public class IdpEndpoint implements Idp {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IdpEndpoint.class);
@@ -371,7 +369,6 @@ public class IdpEndpoint implements Idp {
     }
 
     @GET
-    @Path("/login/sso")
     public Response processLogin(@QueryParam(SAML_REQ) String samlRequest,
             @QueryParam(RELAY_STATE) String relayState, @QueryParam(AUTH_METHOD) String authMethod,
             @QueryParam(SSOConstants.SIG_ALG) String signatureAlgorithm,
@@ -399,7 +396,8 @@ public class IdpEndpoint implements Idp {
                 binding = redirectBinding;
                 template = redirectPage;
             } else {
-                throw new IdpException(new UnsupportedOperationException("Must use HTTP POST or Redirect bindings."));
+                throw new IdpException(new UnsupportedOperationException(
+                        "Must use HTTP POST or Redirect bindings."));
             }
             binding.validator()
                     .validateAuthnRequest(authnRequest,
@@ -413,7 +411,7 @@ public class IdpEndpoint implements Idp {
                 if (!(binding instanceof PostBinding)) {
                     binding = new PostBinding(systemCrypto, serviceProviders);
                 }
-            }else if (HTTP_REDIRECT_BINDING.equals(assertionConsumerServiceBinding)) {
+            } else if (HTTP_REDIRECT_BINDING.equals(assertionConsumerServiceBinding)) {
                 if (!(binding instanceof RedirectBinding)) {
                     binding = new RedirectBinding(systemCrypto, serviceProviders);
                 }
@@ -457,7 +455,8 @@ public class IdpEndpoint implements Idp {
             LOGGER.error("Unable to create SAML Response.", e);
         } catch (IdpException e) {
             LOGGER.error("", e);
-            return Response.status(Response.Status.BAD_REQUEST).build();
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .build();
         }
 
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
@@ -509,7 +508,8 @@ public class IdpEndpoint implements Idp {
         org.w3c.dom.Element samlToken = null;
         String statusCode;
         if (hasCookie) {
-            samlToken = getSamlAssertion(request); // TODO (RCZ) - make sure assertion has not expired
+            samlToken =
+                    getSamlAssertion(request); // TODO (RCZ) - make sure assertion has not expired
             statusCode = StatusCode.SUCCESS_URI;
         } else {
             try {
@@ -599,7 +599,6 @@ public class IdpEndpoint implements Idp {
     }
 
     @GET
-    @Path("/login/metadata")
     @Produces("application/xml")
     public Response retrieveMetadata() throws WSSecurityException, CertificateEncodingException {
         List<String> nameIdFormats = new ArrayList<>();
