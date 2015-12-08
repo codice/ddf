@@ -76,6 +76,7 @@
             <groupId>com.googlecode.pojosr</groupId>
             <artifactId>de.kalpatec.pojosr.framework</artifactId>
             <version>0.1.8</version>
+            <scope>test</scope>
             <exclusions>
                 <exclusion>
                     <groupId>org.osgi</groupId>
