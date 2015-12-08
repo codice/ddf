@@ -48,6 +48,7 @@ for (var i = 0; i < shared.iterations; i++) {
             it("should return different results after editing search keyword", function () {
                 return this.browser
                     .waitForElementByClassName('backNavText').click()
+                    .waitForConditionInBrowser("document.querySelectorAll('#searchButton').length > 0")
                     .waitForConditionInBrowser('document.querySelector("#searchButton").getBoundingClientRect().left > 0')
                     .waitForElementByCssSelector('form#searchForm input[name="q"]', shared.timeout)
                     .elementByCssSelector('input[name="q"]').clear().type('notfound')
@@ -57,6 +58,7 @@ for (var i = 0; i < shared.iterations; i++) {
                     .waitForElementByCssSelector('.result-count i', asserters.textInclude('results'), shared.timeout)
                     .waitForConditionInBrowser('document.querySelectorAll("a.metacard-link").length === 0', shared.timeout)
                     .waitForElementByClassName('backNavText').click()
+                    .waitForConditionInBrowser("document.querySelectorAll('#searchButton').length > 0")
                     .waitForConditionInBrowser('document.querySelector("#searchButton").getBoundingClientRect().left > 0')
                     .waitForElementByCssSelector('form#searchForm input[name="q"]', shared.timeout)
                     .elementByCssSelector('input[name="q"]').clear().type('*')
