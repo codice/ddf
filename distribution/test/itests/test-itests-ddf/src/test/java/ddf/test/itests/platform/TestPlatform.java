@@ -14,7 +14,10 @@
 package ddf.test.itests.platform;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.ops4j.pax.exam.CoreOptions.options;
@@ -24,11 +27,13 @@ import static ddf.common.test.matchers.ConfigurationPropertiesEqualTo.equalToCon
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Vector;
 
 import org.apache.commons.io.FileUtils;
+import org.codice.ddf.configuration.store.ConfigurationFileException;
 import org.codice.ddf.configuration.store.felix.FelixPersistenceStrategy;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,6 +46,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.common.test.BeforeExam;
+import ddf.common.test.KarafConsole;
 import ddf.common.test.callables.GetConfigurationProperties;
 import ddf.common.test.matchers.ConfigurationPropertiesEqualTo;
 import ddf.test.itests.AbstractIntegrationTest;
@@ -50,6 +56,10 @@ import ddf.test.itests.AbstractIntegrationTest;
 public class TestPlatform extends AbstractIntegrationTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestPlatform.class);
+
+    private static KarafConsole console;
+
+    private static final String EXPORT_COMMAND = "platform:config-export";
 
     /**
      * Class that provides utility and assertion methods for a Managed Service Felix configuration
@@ -346,6 +356,7 @@ public class TestPlatform extends AbstractIntegrationTest {
     public void beforeExam() throws Exception {
         getAdminConfig().setLogLevels();
         getServiceManager().waitForAllBundles();
+        console = new KarafConsole(bundleCtx);
     }
 
     /**
@@ -412,5 +423,27 @@ public class TestPlatform extends AbstractIntegrationTest {
     public void testConfigurationFileWithInvalidFormat() throws IOException {
         invalidConfig.addConfigurationFile();
         invalidConfig.assertFileMovedToFailedDirectory();
+    }
+
+    @Test
+    public void testExport() throws ConfigurationFileException {
+        String exportedDirectory = String.format("%s/etc/exported", ddfHome);
+        console.runCommand(EXPORT_COMMAND);
+        File[] exportedFiles = new File(exportedDirectory).listFiles();
+        assertThat("Exported files should not be null.", exportedFiles, is(notNullValue()));
+        assertThat(String.format("No files exported to %s.", exportedDirectory),
+                Arrays.asList(exportedFiles), is(not(empty())));
+    }
+
+    @Test
+    public void testExportOnTopOfFile() throws ConfigurationFileException, IOException {
+        String exportedDirectory = String.format("%s/etc/exported", ddfHome);
+        File file = new File(exportedDirectory);
+        file.createNewFile();
+        assertThat(String.format("Should not have been able to export to %s.", exportedDirectory),
+                console.runCommand(EXPORT_COMMAND), containsString(
+                        String.format("Failed to export all configurations to %s",
+                                exportedDirectory)));
+        file.delete();
     }
 }

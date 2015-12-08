@@ -26,6 +26,9 @@ import java.util.Collection;
 
 import javax.validation.constraints.NotNull;
 
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,9 +36,13 @@ import org.slf4j.LoggerFactory;
  * Class that provides utility methods to access the configuration files in the configuration
  * directory.
  */
-public class ConfigurationFileDirectory implements ChangeListener {
+public class ConfigurationFileDirectory implements ChangeListener, ConfigurationMigrationService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationFileDirectory.class);
+
+    private static final String FILTER = "(&(!(service.pid=jmx*))(!(service.pid=org.apache*))(!(service.pid=org.ops4j*)))";
+
+    private String configurationFileExtension;
 
     private DirectoryStream<Path> directoryStream;
 
@@ -46,6 +53,8 @@ public class ConfigurationFileDirectory implements ChangeListener {
     private ConfigurationFileFactory configurationFileFactory;
 
     private ConfigurationFilesPoller poller;
+
+    private ConfigurationAdmin configurationAdmin;
 
     /**
      * Constructor.
@@ -65,19 +74,25 @@ public class ConfigurationFileDirectory implements ChangeListener {
     public ConfigurationFileDirectory(@NotNull DirectoryStream directoryStream,
             @NotNull Path processedDirectory, @NotNull Path failedDirectory,
             @NotNull ConfigurationFileFactory configurationFileFactory,
-            @NotNull ConfigurationFilesPoller poller) {
+            @NotNull ConfigurationFilesPoller poller,
+            @NotNull ConfigurationAdmin configurationAdmin,
+            @NotNull String configurationFileExtension) {
 
         notNull(directoryStream, "Directory stream cannot be null");
         notNull(processedDirectory, "Processed directory cannot be null");
         notNull(failedDirectory, "Failed directory cannot be null");
         notNull(configurationFileFactory, "Configuration file factory cannot be null");
         notNull(poller, "Directory poller cannot be null");
+        notNull(configurationAdmin, "ConfigurationAdmin cannot be null");
+        notNull(configurationFileExtension, "ConfigFileExtension cannot be null");
 
         this.directoryStream = directoryStream;
         this.processedDirectory = processedDirectory;
         this.failedDirectory = failedDirectory;
         this.configurationFileFactory = configurationFileFactory;
         this.poller = poller;
+        this.configurationAdmin = configurationAdmin;
+        this.configurationFileExtension = configurationFileExtension;
     }
 
     /**
@@ -91,7 +106,9 @@ public class ConfigurationFileDirectory implements ChangeListener {
      */
     public void init() throws IOException {
         createDirectory(processedDirectory);
+        LOGGER.info("created processed directory");
         createDirectory(failedDirectory);
+        LOGGER.info("created failed directory");
 
         Collection<ConfigurationFile> configFiles = getConfigurationFiles();
 
@@ -116,6 +133,41 @@ public class ConfigurationFileDirectory implements ChangeListener {
             moveConfigurationFile(file, processedDirectory);
         } catch (ConfigurationFileException e) {
             moveConfigurationFile(file, failedDirectory);
+        }
+    }
+
+    @Override
+    public void export(@NotNull Path exportDirectory)
+            throws ConfigurationFileException, IOException {
+        notNull(exportDirectory, "exportDirectory cannot be null");
+        createDirectory(exportDirectory);
+        LOGGER.info("created export directory");
+        try {
+            Configuration[] configurations = configurationAdmin.listConfigurations(FILTER);
+            if (configurations != null) {
+                for (Configuration configuration : configurations) {
+                    String exportedFilePath = String
+                            .format("%s/%s%s", exportDirectory, configuration.getPid(),
+                                    configurationFileExtension);
+                    try {
+                        configurationFileFactory
+                                .createConfigurationFile(configuration.getProperties())
+                                .exportConfig(exportedFilePath);
+                    } catch (ConfigurationFileException e) {
+                        LOGGER.error(String.format(
+                                "Could not create configuration file %s for configuration %s",
+                                exportedFilePath, configuration.getPid()));
+                        throw new ConfigurationFileException("Failed to export configurations.", e);
+                    } catch (IOException e) {
+                        LOGGER.error(String.format("Could not export configuration %s to %s.",
+                                configuration.getPid(), exportedFilePath));
+                        throw new IOException("Failed to export configurations.", e);
+                    }
+                }
+            }
+        } catch (InvalidSyntaxException e) {
+            LOGGER.error(String.format("Invalid filter string %s", FILTER), e);
+            throw new ConfigurationFileException("Failed to export configurations.", e);
         }
     }
 

@@ -14,8 +14,15 @@
 
 package org.codice.ddf.configuration.store;
 
+import static org.apache.commons.lang.Validate.notNull;
+
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Dictionary;
+
+import javax.validation.constraints.NotNull;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 
@@ -31,19 +38,23 @@ public abstract class ConfigurationFile {
 
     protected final Path configFilePath;
 
+    protected final PersistenceStrategy persistenceStrategy;
+
     /**
      * Constructor called by {@link ConfigurationFileFactory}. Assumes that none of the parameters
      * are {@code null}.
      *
-     * @param configFilePath path to the configuration file
-     * @param properties     properties associated with the configuration file
-     * @param configAdmin    reference to OSGi's {@link ConfigurationAdmin}
+     * @param configFilePath      path to the configuration file
+     * @param properties          properties associated with the configuration file
+     * @param configAdmin         reference to OSGi's {@link ConfigurationAdmin}
+     * @param persistenceStrategy how to write out the file {@link PersistenceStrategy}
      */
     ConfigurationFile(Path configFilePath, Dictionary<String, Object> properties,
-            ConfigurationAdmin configAdmin) {
-        this.configFilePath = configFilePath;
-        this.properties = properties;
+            ConfigurationAdmin configAdmin, PersistenceStrategy persistenceStrategy) {
         this.configAdmin = configAdmin;
+        this.properties = properties;
+        this.configFilePath = configFilePath;
+        this.persistenceStrategy = persistenceStrategy;
     }
 
     /**
@@ -56,4 +67,52 @@ public abstract class ConfigurationFile {
     }
 
     public abstract void createConfig() throws ConfigurationFileException;
+
+    public void exportConfig(@NotNull String destination) throws IOException {
+        notNull(destination, "destination cannot be null");
+        try (FileOutputStream fileOutputStream = getOutputStream(destination)) {
+            persistenceStrategy.write(fileOutputStream, properties);
+        }
+    }
+
+    FileOutputStream getOutputStream(String destination) throws FileNotFoundException {
+        return new FileOutputStream(destination);
+    }
+
+    /**
+     * Provides a convenient way to construct {@link ConfigurationFile}.
+     */
+    protected abstract static class ConfigurationFileBuilder {
+        protected ConfigurationAdmin configAdmin;
+
+        protected Dictionary<String, Object> properties = null;
+
+        protected Path configFilePath = null;
+
+        protected PersistenceStrategy persistenceStrategy;
+
+        /**
+         * Constructs a ConfigurationFileBuilder.
+         *
+         * @param configAdmin         reference to OSGi's {@link ConfigurationAdmin}
+         * @param persistenceStrategy how to write out the file {@link PersistenceStrategy}
+         */
+        public ConfigurationFileBuilder(ConfigurationAdmin configAdmin,
+                PersistenceStrategy persistenceStrategy) {
+            this.configAdmin = configAdmin;
+            this.persistenceStrategy = persistenceStrategy;
+        }
+
+        public ConfigurationFileBuilder properties(Dictionary<String, Object> properties) {
+            this.properties = properties;
+            return this;
+        }
+
+        public ConfigurationFileBuilder configFilePath(Path configFilePath) {
+            this.configFilePath = configFilePath;
+            return this;
+        }
+
+        public abstract ConfigurationFile build();
+    }
 }

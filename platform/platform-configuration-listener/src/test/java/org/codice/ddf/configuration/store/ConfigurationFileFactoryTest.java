@@ -101,6 +101,23 @@ public class ConfigurationFileFactoryTest {
         verify(mockPersistenceStrategy).read(mockInputStream);
     }
 
+    @Test
+    public void testCreateConfigurationFileFromProperties() throws Exception {
+        // Setup
+        Dictionary<String, Object> properties = new Hashtable<>(1);
+        properties.put(Constants.SERVICE_PID, PID);
+        PersistenceStrategy mockPersistenceStrategy = getMockPersistenceStrategy(mockInputStream,
+                properties);
+        ConfigurationFileFactory factory = new ConfigurationFileFactoryUnderTest(
+                mockPersistenceStrategy, configAdmin);
+
+        // Perform Test
+        ConfigurationFile configFile = factory.createConfigurationFile(properties);
+
+        // Verify
+        assertThat(configFile, instanceOf(ManagedServiceConfigurationFile.class));
+    }
+
     @Test(expected = ConfigurationFileException.class)
     public void testCreateConfigurationFileNoServicePidOrFactoryPid() throws Exception {
         // Setup
@@ -155,7 +172,7 @@ public class ConfigurationFileFactoryTest {
                 configAdmin);
 
         // Perform Test
-        factory.createConfigurationFile(null);
+        factory.createConfigurationFile((Path) null);
     }
 
     private PersistenceStrategy getMockPersistenceStrategy(InputStream mockInputStream,

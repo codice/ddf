@@ -33,8 +33,9 @@ public class ManagedServiceFactoryConfigurationFile extends ConfigurationFile {
             .getLogger(ManagedServiceFactoryConfigurationFile.class);
 
     ManagedServiceFactoryConfigurationFile(Path configFilePath,
-            Dictionary<String, Object> properties, ConfigurationAdmin configAdmin) {
-        super(configFilePath, properties, configAdmin);
+            Dictionary<String, Object> properties, ConfigurationAdmin configAdmin,
+            PersistenceStrategy persistenceStrategy) {
+        super(configFilePath, properties, configAdmin, persistenceStrategy);
     }
 
     @Override
@@ -56,5 +57,20 @@ public class ManagedServiceFactoryConfigurationFile extends ConfigurationFile {
 
     private String getFactoryPid() {
         return (String) properties.get(ConfigurationAdmin.SERVICE_FACTORYPID);
+    }
+
+    public static class ManagedServiceFactoryConfigurationFileBuilder
+            extends ConfigurationFileBuilder {
+
+        public ManagedServiceFactoryConfigurationFileBuilder(ConfigurationAdmin configAdmin,
+                PersistenceStrategy persistenceStrategy) {
+            super(configAdmin, persistenceStrategy);
+        }
+
+        @Override
+        public ConfigurationFile build() {
+            return new ManagedServiceFactoryConfigurationFile(configFilePath, properties,
+                    configAdmin, persistenceStrategy);
+        }
     }
 }
