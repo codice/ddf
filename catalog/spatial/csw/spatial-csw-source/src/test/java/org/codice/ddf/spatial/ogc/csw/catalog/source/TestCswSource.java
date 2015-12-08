@@ -160,11 +160,12 @@ public class TestCswSource extends TestCswSourceBase {
 
         expectedNames.add("dataset");
         expectedNames.add("dataset 2");
+        expectedNames.add("dataset 3");
         expected = generateContentType(expectedNames);
 
         source.query(new QueryRequestImpl(propertyIsLikeQuery));
 
-        assertEquals(12, source.getContentTypes().size());
+        assertEquals(13, source.getContentTypes().size());
         assertThat(source.getContentTypes(), is(expected));
     }
 

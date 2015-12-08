@@ -38,7 +38,7 @@
       <dct:modified xmlns:dct="http://purl.org/dc/terms/">2010-12-15</dct:modified>
       <dc:subject xmlns:dc="http://purl.org/dc/elements/1.1/">first subject</dc:subject>
       <dc:subject xmlns:dc="http://purl.org/dc/elements/1.1/">subject 2</dc:subject>
-      <dct:abstract xmlns:dct="http://purl.org/dc/terms/">mc2 abstract</dct:abstract>
+      <dct:description xmlns:dct="http://purl.org/dc/terms/">mc2 abstract</dct:description>
       <dc:rights xmlns:dc="http://purl.org/dc/elements/1.1/">first copyright</dc:rights>
       <dc:rights xmlns:dc="http://purl.org/dc/elements/1.1/">second copyright</dc:rights>
       <dc:language xmlns:dc="http://purl.org/dc/elements/1.1/">english</dc:language>
@@ -55,7 +55,7 @@
       <dct:modified xmlns:dct="http://purl.org/dc/terms/">2010-12-15</dct:modified>
       <dc:subject xmlns:dc="http://purl.org/dc/elements/1.1/">first subject</dc:subject>
       <dc:subject xmlns:dc="http://purl.org/dc/elements/1.1/">subject 3</dc:subject>
-      <dct:abstract xmlns:dct="http://purl.org/dc/terms/">mc2 abstract</dct:abstract>
+      <dct:tableOfContents xmlns:dct="http://purl.org/dc/terms/">mc3 abstract</dct:tableOfContents>
       <dc:rights xmlns:dc="http://purl.org/dc/elements/1.1/">first copyright</dc:rights>
       <dc:rights xmlns:dc="http://purl.org/dc/elements/1.1/">second copyright</dc:rights>
       <dc:language xmlns:dc="http://purl.org/dc/elements/1.1/">english</dc:language>
@@ -63,7 +63,7 @@
         <ows:LowerCorner>6.121 53.139</ows:LowerCorner>
         <ows:UpperCorner>5.468 53.517</ows:UpperCorner>
       </ows:BoundingBox>
-      <dc:type xmlns:dc="http://purl.org/dc/elements/1.1/"></dc:type>
+      <dc:type xmlns:dc="http://purl.org/dc/elements/1.1/">dataset 3</dc:type>
       <dc:format xmlns:dc="http://purl.org/dc/elements/1.1/">Shapefile 3</dc:format>
     </csw:Record>
   </csw:SearchResults>
