@@ -20,7 +20,6 @@
         <version>2.9.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
     <groupId>ddf.metrics.ui</groupId>
     <artifactId>metrics-ui</artifactId>
     <name>DDF :: Metrics :: Plugin :: UI</name>
@@ -45,7 +44,6 @@
             <version>${project.version}</version>
         </dependency>
     </dependencies>
-
     <build>
         <resources>
             <resource>
@@ -56,7 +54,6 @@
                 </includes>
             </resource>
         </resources>
-
         <plugins>
             <plugin>
                 <groupId>com.github.eirslett</groupId>
@@ -82,7 +79,7 @@
                         <Web-ContextPath>/admin/metrics</Web-ContextPath>
                         <_wab>src/main/webapp,${project.build.directory}/webapp</_wab>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Export-Package />
+                        <Export-Package/>
                         <Import-Package>
                             org.codice.ddf.ui.admin.api.module;version="[1.2.0,3.0.0)",
                             *
@@ -134,5 +131,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

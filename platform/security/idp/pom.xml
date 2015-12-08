@@ -20,7 +20,6 @@
         <version>2.9.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
     <groupId>ddf.security.idp</groupId>
     <artifactId>idp</artifactId>
     <name>DDF :: Security :: IDP</name>

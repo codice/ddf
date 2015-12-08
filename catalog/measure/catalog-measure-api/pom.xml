@@ -23,7 +23,6 @@
     <artifactId>measure-api</artifactId>
     <name>DDF :: Measure :: Measure API</name>
     <packaging>bundle</packaging>
-
     <dependencies>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -51,7 +50,6 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>

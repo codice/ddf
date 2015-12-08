@@ -19,7 +19,6 @@
         <artifactId>admin</artifactId>
         <version>2.9.0-SNAPSHOT</version>
     </parent>
-
     <artifactId>docs</artifactId>
     <name>DDF :: Admin :: DOCS</name>
     <build>

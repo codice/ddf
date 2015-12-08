@@ -14,17 +14,14 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <groupId>ddf.security.core</groupId>
         <artifactId>security-core-pom</artifactId>
         <version>2.9.0-SNAPSHOT</version>
     </parent>
-
     <artifactId>security-core-impl</artifactId>
     <name>DDF :: Security :: Core :: Implementation</name>
     <packaging>bundle</packaging>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.cxf</groupId>
@@ -36,7 +33,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
@@ -45,7 +41,6 @@
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
         </dependency>
-
         <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
@@ -54,7 +49,6 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-ext</artifactId>
         </dependency>
-
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
@@ -134,7 +128,6 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -223,5 +216,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

@@ -23,7 +23,6 @@
     <artifactId>admin-core</artifactId>
     <packaging>pom</packaging>
     <name>DDF Admin Core</name>
-
     <modules>
         <module>admin-core-api</module>
         <module>admin-core-configpidplugin</module>
@@ -32,4 +31,3 @@
         <module>admin-core-insecuredefaults</module>
     </modules>
 </project>
-

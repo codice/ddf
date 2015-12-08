@@ -20,11 +20,9 @@
         <version>2.9.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
     <name>DDF :: UI :: Search UI :: App</name>
     <artifactId>search-ui-app</artifactId>
     <packaging>pom</packaging>
-
     <build>
         <plugins>
             <plugin>
@@ -48,7 +46,6 @@
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.karaf.tooling</groupId>
                 <artifactId>features-maven-plugin</artifactId>
@@ -66,7 +63,6 @@
                     </execution>
                 </executions>
             </plugin>
-
             <!-- Puts the features XML file for this app into the maven repo. -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -91,8 +87,6 @@
                     </execution>
                 </executions>
             </plugin>
-
         </plugins>
     </build>
-
 </project>

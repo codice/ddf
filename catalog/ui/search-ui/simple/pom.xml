@@ -19,11 +19,9 @@
         <artifactId>search-ui</artifactId>
         <version>2.9.0-SNAPSHOT</version>
     </parent>
-
     <artifactId>simple</artifactId>
     <name>DDF :: UI :: Search UI :: Simple Search</name>
     <packaging>bundle</packaging>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.karaf.webconsole</groupId>
@@ -39,7 +37,6 @@
             <artifactId>slf4j-api</artifactId>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -129,11 +126,10 @@
                             org.slf4j,
                             javax.servlet.http
                         </Import-Package>
-                        <Export-Package />
+                        <Export-Package/>
                     </instructions>
                 </configuration>
             </plugin>
-
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>

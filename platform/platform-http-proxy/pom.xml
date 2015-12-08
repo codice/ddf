@@ -62,7 +62,6 @@
             <version>${project.version}</version>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -76,7 +75,7 @@
                             proxy-camel-servlet,
                             camel-core-osgi
                         </Embed-Dependency>
-                        <Export-Package />
+                        <Export-Package/>
                     </instructions>
                 </configuration>
             </plugin>

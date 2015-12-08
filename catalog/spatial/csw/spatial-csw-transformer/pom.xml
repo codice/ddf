@@ -22,7 +22,6 @@
     <packaging>bundle</packaging>
     <artifactId>spatial-csw-transformer</artifactId>
     <name>DDF :: Spatial :: CSW :: Transformer</name>
-
     <dependencies>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
@@ -92,7 +91,6 @@
             <version>${project.version}</version>
         </dependency>
     </dependencies>
-
     <build>
         <resources>
             <resource>
@@ -108,7 +106,7 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Export-Package />
+                        <Export-Package/>
                         <Embed-Dependency>
                             spatial-csw-common,
                             spatial-ogc-common,
@@ -162,5 +160,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

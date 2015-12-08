@@ -20,32 +20,25 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <packaging>bundle</packaging>
-
     <artifactId>search-endpoint</artifactId>
-
     <name>DDF :: UI :: Search UI :: Endpoint</name>
-
     <dependencies>
         <dependency>
             <groupId>org.cometd.java</groupId>
             <artifactId>bayeux-api</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.cometd.java</groupId>
             <artifactId>cometd-java-common</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.cometd.java</groupId>
             <artifactId>cometd-java-server</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.cometd.java</groupId>
             <artifactId>cometd-java-annotations</artifactId>
         </dependency>
-
         <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-api-impl</artifactId>
@@ -123,7 +116,6 @@
             <artifactId>guava</artifactId>
             <version>17.0</version>
         </dependency>
-
         <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-solr</artifactId>
@@ -138,7 +130,6 @@
             <groupId>ddf.catalog.core</groupId>
             <artifactId>filter-proxy</artifactId>
         </dependency>
-
         <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-api</artifactId>
@@ -147,7 +138,6 @@
             <groupId>ddf.action.core</groupId>
             <artifactId>action-core-api</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.spockframework</groupId>
             <artifactId>spock-core</artifactId>
@@ -178,7 +168,6 @@
             <version>2.1</version>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>org.codice</groupId>
             <artifactId>lux</artifactId>
@@ -324,7 +313,6 @@
             <artifactId>httpcore</artifactId>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -333,8 +321,7 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Dependency>
-                            <!-- Start of Solr dependencies -->
+                        <Embed-Dependency><!-- Start of Solr dependencies -->
                             lux,
                             solr-xpath,
                             Saxon-HE,
@@ -393,7 +380,7 @@
                             ddf.catalog.operation.impl,
                             ddf.catalog.util.impl
                         </Private-Package>
-                        <Export-Package />
+                        <Export-Package/>
                         <Import-Package>
                             org.joda.convert;resolution:=optional,
                             org.eclipse.jetty.*; version="[7.6.0,9.0.0)",
@@ -484,6 +471,4 @@
             </plugin>
         </plugins>
     </build>
-
-
 </project>

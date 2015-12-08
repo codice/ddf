@@ -19,11 +19,9 @@
         <version>2.9.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
     <name>DDF :: Security :: Handler :: PKI</name>
     <artifactId>security-handler-pki</artifactId>
     <packaging>bundle</packaging>
-
     <dependencies>
         <dependency>
             <groupId>org.jasypt</groupId>
@@ -60,7 +58,6 @@
             <version>${project.version}</version>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -116,5 +113,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

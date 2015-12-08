@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -22,7 +23,6 @@
     <name>DDF :: Admin :: Core :: Insecure Defaults</name>
     <description>Verifies insecure default configurations have been changed.</description>
     <packaging>bundle</packaging>
-
     <dependencies>
         <dependency>
             <groupId>commons-io</groupId>
@@ -65,7 +65,6 @@
             <version>${project.version}</version>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -125,5 +124,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

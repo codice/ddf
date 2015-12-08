@@ -15,17 +15,14 @@
  -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <artifactId>catalog-rest-pom</artifactId>
         <groupId>ddf.catalog.rest</groupId>
         <version>2.9.0-SNAPSHOT</version>
     </parent>
-
     <artifactId>catalog-rest-app</artifactId>
     <name>DDF :: Catalog :: REST :: App</name>
     <packaging>pom</packaging>
-
     <build>
         <plugins>
             <plugin>
@@ -49,7 +46,6 @@
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.karaf.tooling</groupId>
                 <artifactId>features-maven-plugin</artifactId>
@@ -67,7 +63,6 @@
                     </execution>
                 </executions>
             </plugin>
-
             <!-- Puts the features XML file for this app into the maven repo. -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -92,8 +87,6 @@
                     </execution>
                 </executions>
             </plugin>
-
-            </plugins>
+        </plugins>
     </build>
-
 </project>

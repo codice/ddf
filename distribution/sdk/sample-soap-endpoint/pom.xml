@@ -19,11 +19,9 @@
         <version>2.9.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
     <name>DDF :: SDK :: SOAP Endpoint</name>
     <artifactId>sample-soap-endpoint</artifactId>
     <packaging>bundle</packaging>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.cxf</groupId>
@@ -46,62 +44,57 @@
             <version>${project.version}</version>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <!-- Uncomment to regenerate artifacts for the SOAP service -->
             <!--<plugin>-->
-                <!--<groupId>org.jvnet.jaxb2.maven2</groupId>-->
-                <!--<artifactId>maven-jaxb2-plugin</artifactId>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<goals>-->
-                            <!--<goal>generate</goal>-->
-                        <!--</goals>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-                <!--<configuration>-->
-                    <!--<schemaDirectory>src/main/resources/META-INF</schemaDirectory>-->
-                    <!--<schemaIncludes>-->
-                        <!--<include>wsdl/*.xsd</include>-->
-                    <!--</schemaIncludes>-->
-                    <!--<bindingDirectory>src/main/binding</bindingDirectory>-->
-                <!--</configuration>-->
+            <!--<groupId>org.jvnet.jaxb2.maven2</groupId>-->
+            <!--<artifactId>maven-jaxb2-plugin</artifactId>-->
+            <!--<executions>-->
+            <!--<execution>-->
+            <!--<goals>-->
+            <!--<goal>generate</goal>-->
+            <!--</goals>-->
+            <!--</execution>-->
+            <!--</executions>-->
+            <!--<configuration>-->
+            <!--<schemaDirectory>src/main/resources/META-INF</schemaDirectory>-->
+            <!--<schemaIncludes>-->
+            <!--<include>wsdl/*.xsd</include>-->
+            <!--</schemaIncludes>-->
+            <!--<bindingDirectory>src/main/binding</bindingDirectory>-->
+            <!--</configuration>-->
             <!--</plugin>-->
-
             <!--<plugin>-->
-                <!--<groupId>org.codehaus.mojo</groupId>-->
-                <!--<artifactId>jaxws-maven-plugin</artifactId>-->
-                <!--<version>1.12</version>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<goals>-->
-                            <!--<goal>wsimport</goal>-->
-                        <!--</goals>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-                <!--<configuration>-->
-                    <!--<keep>true</keep>-->
-                    <!--<wsdlDirectory>src/main/resources/META-INF/wsdl</wsdlDirectory>-->
-                <!--</configuration>-->
+            <!--<groupId>org.codehaus.mojo</groupId>-->
+            <!--<artifactId>jaxws-maven-plugin</artifactId>-->
+            <!--<version>1.12</version>-->
+            <!--<executions>-->
+            <!--<execution>-->
+            <!--<goals>-->
+            <!--<goal>wsimport</goal>-->
+            <!--</goals>-->
+            <!--</execution>-->
+            <!--</executions>-->
+            <!--<configuration>-->
+            <!--<keep>true</keep>-->
+            <!--<wsdlDirectory>src/main/resources/META-INF/wsdl</wsdlDirectory>-->
+            <!--</configuration>-->
             <!--</plugin>-->
-
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Export-Package />
+                        <Export-Package/>
                     </instructions>
                 </configuration>
             </plugin>
-
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
-
 </project>

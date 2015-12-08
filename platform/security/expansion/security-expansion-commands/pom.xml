@@ -14,18 +14,15 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <artifactId>security-expansion-pom</artifactId>
         <groupId>ddf.security.expansion</groupId>
         <version>2.9.0-SNAPSHOT</version>
     </parent>
-
     <artifactId>security-expansion-commands</artifactId>
     <name>DDF :: Security :: Expansion :: Commands</name>
     <description>Karaf console commands for performing expansion operations.</description>
     <packaging>bundle</packaging>
-
     <dependencies>
         <dependency>
             <groupId>ddf.security.expansion</groupId>
@@ -45,7 +42,6 @@
             <artifactId>org.osgi.core</artifactId>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -54,7 +50,7 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
-                        <Export-Package />
+                        <Export-Package/>
                         <Import-Package>
                             ddf.security.expansion,
                             org.apache.felix.service.command,
@@ -109,5 +105,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

@@ -19,11 +19,9 @@
         <version>2.9.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
     <name>DDF :: Security :: Handler :: Guest</name>
     <artifactId>security-handler-guest</artifactId>
     <packaging>bundle</packaging>
-
     <dependencies>
         <dependency>
             <groupId>org.jasypt</groupId>
@@ -84,7 +82,6 @@
             <version>${project.version}</version>
         </dependency>
     </dependencies>
-
     <build>
         <resources>
             <resource>
@@ -95,7 +92,6 @@
                 </includes>
             </resource>
         </resources>
-
         <plugins>
             <plugin>
                 <groupId>com.github.eirslett</groupId>
@@ -169,6 +165,4 @@
             </plugin>
         </plugins>
     </build>
-
-
 </project>

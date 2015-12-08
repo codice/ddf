@@ -12,18 +12,15 @@
  **/ -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <groupId>ddf.catalog.transformer</groupId>
         <artifactId>transformer</artifactId>
         <version>2.9.0-SNAPSHOT</version>
     </parent>
-
     <groupId>ddf.catalog.transformer</groupId>
     <artifactId>catalog-transformer-thumbnail</artifactId>
     <name>DDF :: Catalog :: Transformer :: Thumbnail</name>
     <packaging>bundle</packaging>
-
     <dependencies>
         <!-- Can eventually move to catalog core transformer aggregator pom when
             it is written -->
@@ -39,7 +36,6 @@
             <artifactId>catalog-core-api-impl</artifactId>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -50,7 +46,7 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>catalog-transformer-attribute</Embed-Dependency>
                         <Private-Package>ddf.catalog.data.impl</Private-Package>
-                        <Export-Package />
+                        <Export-Package/>
                     </instructions>
                 </configuration>
             </plugin>

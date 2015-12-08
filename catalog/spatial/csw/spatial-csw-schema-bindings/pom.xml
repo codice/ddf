@@ -156,9 +156,9 @@
                         </goals>
                         <configuration>
                             <tasks>
-                                <delete dir="./target/generated-sources/xjc/net/opengis/ogc" />
-                                <delete dir="./target/generated-sources/xjc/net/opengis/filter" />
-                                <delete dir="./target/generated-sources/xjc/net/opengis/ows" />
+                                <delete dir="./target/generated-sources/xjc/net/opengis/ogc"/>
+                                <delete dir="./target/generated-sources/xjc/net/opengis/filter"/>
+                                <delete dir="./target/generated-sources/xjc/net/opengis/ows"/>
                             </tasks>
                         </configuration>
                     </execution>

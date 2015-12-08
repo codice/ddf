@@ -19,18 +19,15 @@
         <version>2.9.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
     <artifactId>platform-security-session</artifactId>
     <name>DDF :: Platform :: Security :: Session</name>
     <packaging>bundle</packaging>
-
     <dependencies>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-server</artifactId>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -45,8 +42,8 @@
                             org.eclipse.jetty.server.session,
                             javax.servlet.http
                         </DynamicImport-Package>
-                        <Import-Package />
-                        <Export-Package />
+                        <Import-Package/>
+                        <Export-Package/>
                     </instructions>
                 </configuration>
             </plugin>
@@ -94,5 +91,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

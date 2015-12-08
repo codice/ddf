@@ -19,11 +19,9 @@
         <artifactId>notifications-core-pom</artifactId>
         <version>2.9.0-SNAPSHOT</version>
     </parent>
-
     <artifactId>platform-core-notifications</artifactId>
     <name>DDF :: Platform :: Core :: Notifications</name>
     <packaging>bundle</packaging>
-
     <dependencies>
         <dependency>
             <groupId>ddf.persistence.core</groupId>
@@ -70,7 +68,6 @@
             <artifactId>notifications</artifactId>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -84,7 +81,7 @@
                             notifications
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
-                        <Export-Package />
+                        <Export-Package/>
                     </instructions>
                 </configuration>
             </plugin>
@@ -132,5 +129,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

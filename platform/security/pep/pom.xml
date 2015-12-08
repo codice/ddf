@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -12,23 +13,19 @@
  **/
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-
-  <parent>
-    <artifactId>security</artifactId>
-    <groupId>ddf.platform.security</groupId>
-    <version>2.9.0-SNAPSHOT</version>
-  </parent>
-
-  <artifactId>security-pep-pom</artifactId>
-  <groupId>ddf.security.pep</groupId>
-  <name>DDF Security PEP</name>
-  <packaging>pom</packaging>
-
-  <modules>
-    <module>security-pep-interceptor</module>
-    <module>security-pep-userattr-map</module>
-    <module>security-pep-metacardattr-map</module>
-  </modules>
-
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>security</artifactId>
+        <groupId>ddf.platform.security</groupId>
+        <version>2.9.0-SNAPSHOT</version>
+    </parent>
+    <artifactId>security-pep-pom</artifactId>
+    <groupId>ddf.security.pep</groupId>
+    <name>DDF Security PEP</name>
+    <packaging>pom</packaging>
+    <modules>
+        <module>security-pep-interceptor</module>
+        <module>security-pep-userattr-map</module>
+        <module>security-pep-metacardattr-map</module>
+    </modules>
 </project>

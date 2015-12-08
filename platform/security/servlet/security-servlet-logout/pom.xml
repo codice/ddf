@@ -19,11 +19,9 @@
         <version>2.9.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
     <artifactId>security-servlet-logout</artifactId>
     <packaging>bundle</packaging>
     <name>DDF :: Security :: Servlet :: Logout</name>
-
     <dependencies>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -42,7 +40,6 @@
             <artifactId>security-core-impl</artifactId>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>

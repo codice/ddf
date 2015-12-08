@@ -21,7 +21,6 @@
     </parent>
     <artifactId>csw</artifactId>
     <name>DDF :: Spatial :: CSW</name>
-
     <packaging>pom</packaging>
     <modules>
         <module>spatial-csw-schema-bindings</module>

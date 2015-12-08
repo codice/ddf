@@ -19,11 +19,9 @@
         <version>2.9.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
     <artifactId>security-sts-guestvalidator</artifactId>
     <name>DDF :: Security :: STS :: Guest Validator</name>
     <packaging>bundle</packaging>
-
     <dependencies>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -46,7 +44,6 @@
             <artifactId>security-handler-api</artifactId>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -55,7 +52,7 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Export-Package />
+                        <Export-Package/>
                     </instructions>
                 </configuration>
             </plugin>
@@ -103,5 +100,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

@@ -19,11 +19,9 @@
         <groupId>ddf.mime.core</groupId>
         <version>2.9.0-SNAPSHOT</version>
     </parent>
-
     <artifactId>mime-core-configurableresolver</artifactId>
     <name>DDF :: MIME :: Core :: ConfigurableResolver</name>
     <packaging>bundle</packaging>
-
     <dependencies>
         <dependency>
             <groupId>ddf.mime.core</groupId>
@@ -50,7 +48,6 @@
             <artifactId>slf4j-ext</artifactId>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -59,7 +56,7 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Export-Package />
+                        <Export-Package/>
                         <Import-Package>
                             ddf.mime,
                             javax.xml.parsers,

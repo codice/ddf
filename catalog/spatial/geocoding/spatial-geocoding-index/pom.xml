@@ -20,11 +20,9 @@
         <version>2.9.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
     <artifactId>spatial-geocoding-index</artifactId>
     <name>DDF :: Spatial :: Geocoding :: Index</name>
     <packaging>bundle</packaging>
-
     <dependencies>
         <dependency>
             <groupId>org.codice.ddf.spatial</groupId>
@@ -55,7 +53,6 @@
             <groupId>com.spatial4j</groupId>
             <artifactId>spatial4j</artifactId>
         </dependency>
-
         <!-- Test dependencies -->
         <dependency>
             <groupId>org.codice.ddf.spatial</groupId>
@@ -70,7 +67,6 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -138,5 +134,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

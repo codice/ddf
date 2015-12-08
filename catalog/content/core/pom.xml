@@ -14,18 +14,15 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <groupId>ddf.content</groupId>
         <artifactId>content</artifactId>
         <version>2.9.0-SNAPSHOT</version>
     </parent>
-
     <groupId>ddf.content.core</groupId>
     <artifactId>content-core-pom</artifactId>
     <packaging>pom</packaging>
     <name>DDF :: Content :: Core</name>
-
     <modules>
         <module>content-core-api</module>
         <module>content-core-impl</module>
@@ -37,7 +34,6 @@
         <module>content-core-catalogerplugin</module>
         <module>content-core-checksumplugin</module>
     </modules>
-
     <build>
         <plugins>
             <plugin>

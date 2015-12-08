@@ -24,7 +24,6 @@
     <name>DDF :: Platform :: Configuration</name>
     <description>Maintains and publishes configuration changes for the DDF platform.</description>
     <packaging>bundle</packaging>
-
     <dependencies>
         <dependency>
             <groupId>org.osgi</groupId>
@@ -73,7 +72,6 @@
             <version>1.10</version>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -134,5 +132,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

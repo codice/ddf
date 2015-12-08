@@ -22,7 +22,6 @@
     <artifactId>spatial-csw-endpoint</artifactId>
     <packaging>bundle</packaging>
     <name>DDF :: Spatial :: CSW :: Endpoint</name>
-
     <dependencies>
         <dependency>
             <groupId>org.hamcrest</groupId>
@@ -89,7 +88,6 @@
             <version>1.1.4c</version>
         </dependency>
     </dependencies>
-
     <build>
         <resources>
             <resource>
@@ -106,7 +104,7 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <!-- Don't Export Anything -->
-                        <Export-Package />
+                        <Export-Package/>
                         <Import-Package>
                             net.opengis.cat.csw.v_2_0_2;version="[2.8,3)",
                             net.opengis.cat.csw.v_2_0_2.dc.elements;version="[2.8,3)",
@@ -172,5 +170,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

@@ -13,25 +13,21 @@
  **/
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  
-  <parent>
-    <groupId>ddf.platform</groupId>
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>ddf.platform</groupId>
         <artifactId>platform</artifactId>
         <version>2.9.0-SNAPSHOT</version>
-  </parent>
-  
-  <groupId>ddf.metrics</groupId>
-  <artifactId>metrics</artifactId>
-  <packaging>pom</packaging>
-  <name>DDF Metrics</name>
-  
-  <modules>
-      <module>platform-metrics-collector</module>
-      <module>platform-metrics-reporting</module>
-      <module>platform-metrics-webconsole-plugin</module>
-      <module>platform-metrics-interceptor</module>
-      <module>platform-metrics-ui</module>
-  </modules>
-  
+    </parent>
+    <groupId>ddf.metrics</groupId>
+    <artifactId>metrics</artifactId>
+    <packaging>pom</packaging>
+    <name>DDF Metrics</name>
+    <modules>
+        <module>platform-metrics-collector</module>
+        <module>platform-metrics-reporting</module>
+        <module>platform-metrics-webconsole-plugin</module>
+        <module>platform-metrics-interceptor</module>
+        <module>platform-metrics-ui</module>
+    </modules>
 </project>

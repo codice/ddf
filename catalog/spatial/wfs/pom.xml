@@ -21,7 +21,6 @@
     </parent>
     <artifactId>wfs</artifactId>
     <name>DDF :: Spatial :: WFS</name>
-
     <packaging>pom</packaging>
     <modules>
         <module>spatial-wfs-api</module>

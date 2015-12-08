@@ -12,7 +12,6 @@
  *
  **/
 -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>certificate</artifactId>
@@ -20,11 +19,9 @@
         <version>2.9.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
     <name>DDF :: Security :: Certificate :: Admin Module</name>
     <artifactId>security-certificate-adminmodule</artifactId>
     <packaging>bundle</packaging>
-
     <dependencies>
         <dependency>
             <groupId>ddf.admin.core</groupId>
@@ -46,7 +43,6 @@
             <version>${project.version}</version>
         </dependency>
     </dependencies>
-
     <build>
         <resources>
             <resource>
@@ -57,7 +53,6 @@
                 </includes>
             </resource>
         </resources>
-
         <plugins>
             <plugin>
                 <groupId>com.github.eirslett</groupId>
@@ -84,7 +79,7 @@
                         <Web-ContextPath>/admin/certificate</Web-ContextPath>
                         <_wab>src/main/webapp,${project.build.directory}/webapp</_wab>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Export-Package />
+                        <Export-Package/>
                     </instructions>
                 </configuration>
             </plugin>
@@ -132,5 +127,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

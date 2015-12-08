@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <!-- 
  /**
  * Copyright (c) Codice Foundation
@@ -11,66 +12,61 @@
  *
  **/
 -->
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xmlns="http://maven.apache.org/POM/4.0.0"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	
-	<parent>
-      <artifactId>transformer</artifactId>
-      <groupId>ddf.catalog.transformer</groupId>
-	  <version>2.8.0-SNAPSHOT</version>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>transformer</artifactId>
+        <groupId>ddf.catalog.transformer</groupId>
+        <version>2.8.0-SNAPSHOT</version>
     </parent>
-	
-	<artifactId>service-xml</artifactId>
-	<packaging>bundle</packaging>
-	<name>DDF :: Catalog :: Transformer :: XML (Legacy)</name>
-
-	<dependencies>
-		<dependency>
-			<groupId>org.osgi</groupId>
-			<artifactId>org.osgi.core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>ddf.catalog.core</groupId>
-			<artifactId>catalog-core-api</artifactId>
-		</dependency>
-		<dependency>
+    <artifactId>service-xml</artifactId>
+    <packaging>bundle</packaging>
+    <name>DDF :: Catalog :: Transformer :: XML (Legacy)</name>
+    <dependencies>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-commons</artifactId>
-		</dependency>
-	</dependencies>
-	<build>
-		<plugins>		    
-		   <plugin>
-				<groupId>org.jvnet.jaxb2.maven2</groupId>
-				<artifactId>maven-jaxb2-plugin</artifactId>
-				<executions>
-					<execution>
-						<goals>
-							<goal>generate</goal>
-						</goals>
-						<configuration>
-							<schemaIncludes>
-								<include>schema.xsd</include>
-							</schemaIncludes>
-							<removeOldOutput>true</removeOldOutput>
-							<verbose>true</verbose>
-							<generatePackage>ddf.catalog.services.transformer.xml.schema</generatePackage>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
-				<extensions>true</extensions>
-				<configuration>
-					<instructions>
-						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-						<Bundle-Name>${project.name}</Bundle-Name>
-						<DDF-Mime-Type>text/xml</DDF-Mime-Type>
-						<Import-Package>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.jvnet.jaxb2.maven2</groupId>
+                <artifactId>maven-jaxb2-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <schemaIncludes>
+                                <include>schema.xsd</include>
+                            </schemaIncludes>
+                            <removeOldOutput>true</removeOldOutput>
+                            <verbose>true</verbose>
+                            <generatePackage>ddf.catalog.services.transformer.xml.schema</generatePackage>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Bundle-Name>${project.name}</Bundle-Name>
+                        <DDF-Mime-Type>text/xml</DDF-Mime-Type>
+                        <Import-Package>
 						ddf.catalog.data, 
 						ddf.catalog.transform, 
 						javax.activation,
@@ -79,10 +75,10 @@
 						javax.xml.transform, 
 						org.osgi.service.blueprint
 						</Import-Package>
-						<Export-Package/>
-					</instructions>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
+                        <Export-Package/>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

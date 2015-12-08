@@ -14,31 +14,26 @@
  -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <groupId>ddf.catalog.transformer</groupId>
         <artifactId>transformer</artifactId>
         <version>2.9.0-SNAPSHOT</version>
     </parent>
-
     <groupId>ddf.catalog.transformer</groupId>
     <artifactId>catalog-transformer-xml-binding</artifactId>
     <packaging>jar</packaging>
     <name>DDF :: Catalog :: Transformer :: XML Binding</name>
-
     <dependencies>
         <dependency>
             <groupId>org.jvnet.ogc</groupId>
             <artifactId>ogc-tools-gml-jts</artifactId>
             <version>1.0.3</version>
         </dependency>
-
         <dependency>
             <groupId>org.jvnet.ogc</groupId>
             <artifactId>gml-v_3_1_1-schema</artifactId>
             <version>1.0.3</version>
         </dependency>
-
     </dependencies>
     <build>
         <plugins>
@@ -56,7 +51,6 @@
                                 <include>gml/3.1.1/base/gml.xsd</include>
                                 <include>metacard.xsd</include>
                             </schemaIncludes>
-
                             <args>
                                 <arg>-XtoString</arg>
                                 <arg>-Xequals</arg>
@@ -132,5 +126,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

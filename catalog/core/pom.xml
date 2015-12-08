@@ -19,18 +19,15 @@
         <artifactId>catalog</artifactId>
         <version>2.9.0-SNAPSHOT</version>
     </parent>
-
     <groupId>ddf.catalog.core</groupId>
     <artifactId>core</artifactId>
     <packaging>pom</packaging>
     <name>DDF Catalog Core</name>
-
     <properties>
         <powermock.agent>
             ${settings.localRepository}/org/powermock/powermock-module-javaagent/${powermock.version}/powermock-module-javaagent-${powermock.version}.jar
         </powermock.agent>
     </properties>
-
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -91,7 +88,6 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-
     <modules>
         <module>catalog-core-api</module>
         <module>catalog-core-api-impl</module>

@@ -28,7 +28,6 @@
             <version>1.1.0</version>
             <scope>compile</scope>
         </dependency>
-
         <dependency>
             <groupId>org.jvnet.ogc</groupId>
             <artifactId>filter-v_2_0_0-schema</artifactId>
@@ -117,8 +116,8 @@
                         </goals>
                         <configuration>
                             <tasks>
-                                <delete dir="./target/generated-sources/xjc/net/opengis/filter" />
-                                <delete dir="./target/generated-sources/xjc/net/opengis/ows" />
+                                <delete dir="./target/generated-sources/xjc/net/opengis/filter"/>
+                                <delete dir="./target/generated-sources/xjc/net/opengis/ows"/>
                             </tasks>
                         </configuration>
                     </execution>
@@ -168,5 +167,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

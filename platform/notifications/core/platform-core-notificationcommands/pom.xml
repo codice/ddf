@@ -19,11 +19,9 @@
         <artifactId>notifications-core-pom</artifactId>
         <version>2.9.0-SNAPSHOT</version>
     </parent>
-
     <artifactId>platform-core-notificationcommands</artifactId>
     <name>DDF :: Catalog :: Core :: Notification Commands</name>
     <packaging>bundle</packaging>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.karaf.shell</groupId>
@@ -52,7 +50,6 @@
             <artifactId>activities</artifactId>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -66,7 +63,7 @@
                             notifications, activities
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
-                        <Export-Package />
+                        <Export-Package/>
                         <Import-Package>
                             org.apache.felix.service.command,
                             org.apache.felix.gogo.commands,
@@ -120,5 +117,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

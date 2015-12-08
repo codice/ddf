@@ -22,7 +22,6 @@
     <name>DDF :: Compression :: EXI</name>
     <artifactId>compression-exi</artifactId>
     <packaging>bundle</packaging>
-
     <dependencies>
         <dependency>
             <groupId>org.openexi</groupId>
@@ -73,7 +72,6 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -90,7 +88,6 @@
                     </instructions>
                 </configuration>
             </plugin>
-
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
@@ -133,7 +130,6 @@
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <groupId>org.owasp</groupId>
                 <artifactId>dependency-check-maven</artifactId>
@@ -143,5 +139,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

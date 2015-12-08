@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <!-- 
 /**
  * Copyright (c) Codice Foundation
@@ -18,20 +19,17 @@
         <artifactId>lib</artifactId>
         <version>2.9.0-SNAPSHOT</version>
     </parent>
-
     <groupId>org.codice.ddf</groupId>
     <artifactId>platform-configuration-impl</artifactId>
     <name>DDF :: Platform Configuration Impl</name>
     <description>Implementation of ConfigurationWatcher Interface for use by bundles.</description>
     <packaging>bundle</packaging>
-
     <dependencies>
         <dependency>
             <groupId>ddf.platform</groupId>
             <artifactId>platform-configuration</artifactId>
             <version>${project.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-ext</artifactId>
@@ -42,14 +40,13 @@
             <artifactId>slf4j-log4j12</artifactId>
             <version>${org.slf4j.version}</version>
             <scope>test</scope>
-        </dependency><dependency>
+        </dependency>
+        <dependency>
             <groupId>ddf.lib</groupId>
             <artifactId>common-system</artifactId>
             <version>${project.version}</version>
         </dependency>
-
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -77,7 +74,6 @@
             </plugin>
         </plugins>
     </build>
-    
     <repositories>
         <repository>
             <id>codice</id>

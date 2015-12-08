@@ -19,11 +19,9 @@
         <version>2.9.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
     <artifactId>catalog-security-auditplugin</artifactId>
     <name>DDF :: Catalog :: Security :: Audit Plugin</name>
     <packaging>bundle</packaging>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.shiro</groupId>
@@ -38,7 +36,6 @@
             <artifactId>catalog-core-api</artifactId>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -50,7 +47,7 @@
                         <Import-Package>
                             *
                         </Import-Package>
-                        <Export-Package />
+                        <Export-Package/>
                     </instructions>
                 </configuration>
             </plugin>

@@ -19,21 +19,17 @@
         <groupId>ddf.content.endpoint</groupId>
         <version>2.9.0-SNAPSHOT</version>
     </parent>
-
     <artifactId>content-rest-endpoint</artifactId>
     <name>DDF :: Content :: REST :: Endpoint</name>
     <packaging>bundle</packaging>
-
     <properties>
         <cxf.servicemix.specs.version>2.2.0</cxf.servicemix.specs.version>
     </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-frontend-jaxrs</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
@@ -76,7 +72,6 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -88,7 +83,7 @@
                         <Embed-Dependency>
                             guava
                         </Embed-Dependency>
-                        <Export-Package />
+                        <Export-Package/>
                     </instructions>
                 </configuration>
             </plugin>
@@ -136,5 +131,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

@@ -22,7 +22,6 @@
     <artifactId>catalog-core-api-impl</artifactId>
     <name>DDF :: Catalog :: Core :: API :: Impl</name>
     <description>Implementations of the DDF Catalog Core API</description>
-
     <dependencies>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
@@ -44,7 +43,6 @@
             <artifactId>commons-collections</artifactId>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <!-- Export mock objects in test JAR for use by other projects -->
@@ -59,7 +57,6 @@
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -120,5 +117,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

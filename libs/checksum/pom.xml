@@ -18,14 +18,11 @@
         <artifactId>lib</artifactId>
         <version>2.9.0-SNAPSHOT</version>
     </parent>
-
     <modelVersion>4.0.0</modelVersion>
-
     <groupId>org.codice.ddf</groupId>
     <artifactId>checksum</artifactId>
     <packaging>bundle</packaging>
     <name>DDF :: CheckSum</name>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -43,7 +40,6 @@
             <version>1.7.1</version>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -110,7 +106,6 @@
             </plugin>
         </plugins>
     </build>
-
     <repositories>
         <repository>
             <id>codice</id>

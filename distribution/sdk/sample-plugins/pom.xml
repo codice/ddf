@@ -12,38 +12,28 @@
  *
  **/
 -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <artifactId>sdk</artifactId>
         <groupId>ddf.distribution</groupId>
         <version>2.9.0-SNAPSHOT</version>
     </parent>
-
     <artifactId>sample-plugins</artifactId>
     <name>DDF :: SDK :: Plugin :: SamplePlugins</name>
     <packaging>bundle</packaging>
-
-
     <dependencies>
-
         <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-api</artifactId>
             <version>${project.version}</version>
         </dependency>
-
         <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>filter-proxy</artifactId>
             <version>${project.version}</version>
         </dependency>
-
     </dependencies>
-
-
     <build>
         <plugins>
             <!-- The maven-bundle-plugin is required for this artifact to be an OSGi bundle. -->
@@ -73,7 +63,6 @@
                     </instructions>
                 </configuration>
             </plugin>
-
             <!--
             Run filtering on the features.xml file (to substitute values for the
             project.version references) and then copy features.xml file to the
@@ -103,7 +92,6 @@
                     </execution>
                 </executions>
             </plugin>
-
             <!--
             Puts the features XML file for this SDK sample-plugins distribution
             into the maven repo, assigning it a repo URL of
@@ -132,12 +120,10 @@
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
-
 </project>

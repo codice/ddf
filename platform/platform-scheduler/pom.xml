@@ -24,39 +24,32 @@
     <name>DDF :: Platform :: Scheduler</name>
     <description>Schedules tasks to run at specified intervals</description>
     <packaging>bundle</packaging>
-
     <dependencies>
-
         <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.gogo.command</artifactId>
             <version>0.12.0</version>
         </dependency>
-
         <dependency>
             <groupId>org.quartz-scheduler</groupId>
             <artifactId>quartz</artifactId>
             <version>2.1.7</version>
         </dependency>
-
         <dependency>
             <groupId>ddf.security.core</groupId>
             <artifactId>security-core-impl</artifactId>
             <version>${project.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
-
         <dependency>
             <groupId>c3p0</groupId>
             <artifactId>c3p0</artifactId>
             <version>0.9.1.1</version>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -80,7 +73,7 @@
                             ddf.platform.scheduler,
                             org.apache.felix.gogo.runtime
                         </Private-Package>
-                        <Export-Package />
+                        <Export-Package/>
                         <Import-Package>javax.ejb;resolution:=optional,*</Import-Package>
                     </instructions>
                 </configuration>
@@ -129,7 +122,6 @@
             </plugin>
         </plugins>
     </build>
-
     <profiles>
         <profile>
             <id>integration-tests</id>

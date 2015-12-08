@@ -19,12 +19,10 @@
         <groupId>ddf.security.cas</groupId>
         <version>2.9.0-SNAPSHOT</version>
     </parent>
-
     <artifactId>security-cas-cxfservletfilter</artifactId>
     <name>DDF :: Security :: CAS :: CXF Servlet Filter</name>
     <description>Adds CAS filters to the CXF servlet.</description>
     <packaging>bundle</packaging>
-
     <dependencies>
         <dependency>
             <groupId>org.osgi</groupId>
@@ -57,7 +55,7 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>common-system</Embed-Dependency>
-                        <Export-Package />
+                        <Export-Package/>
                     </instructions>
                 </configuration>
             </plugin>

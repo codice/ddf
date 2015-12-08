@@ -14,17 +14,14 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <artifactId>core</artifactId>
         <groupId>ddf.catalog.core</groupId>
         <version>2.9.0-SNAPSHOT</version>
     </parent>
-
     <artifactId>catalog-core-api</artifactId>
     <name>DDF :: Catalog :: Core :: API</name>
     <packaging>bundle</packaging>
-
     <dependencies>
         <dependency>
             <groupId>ddf.mime.core</groupId>
@@ -79,7 +76,6 @@
             <version>${project.version}</version>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -95,7 +91,6 @@
                     </instructions>
                 </configuration>
             </plugin>
-
             <!-- Export mock objects in test JAR for use by other projects -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -108,7 +103,6 @@
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -169,5 +163,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

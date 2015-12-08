@@ -19,11 +19,9 @@
         <groupId>ddf.catalog.core</groupId>
         <version>2.9.0-SNAPSHOT</version>
     </parent>
-
     <artifactId>catalog-core-metricsplugin</artifactId>
     <name>DDF :: Catalog :: Core :: Metrics Plug-in</name>
     <packaging>bundle</packaging>
-
     <dependencies>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
@@ -81,7 +79,6 @@
             <version>${project.version}</version>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -97,8 +94,7 @@
                             common-system
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
-                        <Import-Package>
-                            <!-- START: imports specific for embedding rrd4j -->
+                        <Import-Package><!-- START: imports specific for embedding rrd4j -->
                             !com.mongodb,
                             !com.sleepycat.je,
                             sun.misc;resolution:=optional,

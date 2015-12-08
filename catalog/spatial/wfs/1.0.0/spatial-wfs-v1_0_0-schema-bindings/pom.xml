@@ -65,7 +65,6 @@
                                     <artifactId>jaxb-visitor</artifactId>
                                     <version>${jaxb.visitor.plugin.version}</version>
                                 </plugin>
-
                             </plugins>
                         </configuration>
                     </execution>
@@ -159,5 +158,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

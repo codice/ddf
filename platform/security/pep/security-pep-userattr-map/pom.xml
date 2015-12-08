@@ -19,11 +19,9 @@
         <version>2.9.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
     <artifactId>security-pep-userattr-map</artifactId>
     <name>DDF :: Security :: PEP :: User Attributes Map</name>
     <packaging>bundle</packaging>
-
     <dependencies>
         <dependency>
             <groupId>ddf.security.expansion</groupId>
@@ -34,7 +32,6 @@
             <artifactId>security-expansion-impl</artifactId>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -46,7 +43,7 @@
                         <Import-Package>
                             *
                         </Import-Package>
-                        <Export-Package />
+                        <Export-Package/>
                     </instructions>
                 </configuration>
             </plugin>

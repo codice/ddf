@@ -19,11 +19,9 @@
         <version>2.9.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
     <artifactId>branding-resources</artifactId>
     <packaging>bundle</packaging>
     <name>DDF :: Platform :: Branding Resources</name>
-
     <dependencies>
         <dependency>
             <groupId>org.osgi</groupId>
@@ -45,7 +43,6 @@
             <version>${commons-io.version}</version>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -103,9 +100,6 @@
                     </execution>
                 </executions>
             </plugin>
-
         </plugins>
     </build>
-
-
 </project>
