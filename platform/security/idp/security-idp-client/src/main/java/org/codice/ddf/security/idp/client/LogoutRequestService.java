@@ -329,7 +329,7 @@ public class LogoutRequestService {
 
         SecurityTokenHolder tokenHolder = ((SecurityTokenHolder) session.getAttribute(
                 SecurityConstants.SAML_ASSERTION));
-        tokenHolder.remove("IDP");
+        tokenHolder.remove("idp");
     }
 
     //TODO move to a common location

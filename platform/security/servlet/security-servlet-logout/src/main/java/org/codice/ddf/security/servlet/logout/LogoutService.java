@@ -58,32 +58,47 @@ public class LogoutService {
         //TODO: Make sure iframe has a scrollbar
 
         HttpSession session = httpSessionFactory.getOrCreateSession(request);
-        Map<String, SecurityToken> realmTokenMap = ((SecurityTokenHolder) session.getAttribute(SecurityConstants.SAML_ASSERTION)).getRealmTokenMap();
+        Map<String, SecurityToken> realmTokenMap = ((SecurityTokenHolder) session.getAttribute(
+                SecurityConstants.SAML_ASSERTION)).getRealmTokenMap();
         Map<String, Subject> realmSubjectMap = new HashMap<>();
 
         for (String realm : realmTokenMap.keySet()) {
-            SecurityAssertionImpl securityAssertion = new SecurityAssertionImpl(realmTokenMap.get(realm));
-            Subject subject = new Builder().principals(new SimplePrincipalCollection(securityAssertion, realm)).buildSubject();
+            SecurityAssertionImpl securityAssertion = new SecurityAssertionImpl(realmTokenMap.get(
+                    realm));
+            Subject subject = new Builder().principals(new SimplePrincipalCollection(
+                    securityAssertion,
+                    realm))
+                    .buildSubject();
             realmSubjectMap.put(realm, subject);
         }
 
         List<Map<String, String>> realmToPropMaps = new ArrayList<>();
-        Function<String, String> getNameToEncrypt = (realm) -> SubjectUtils.getName(realmSubjectMap.get(realm));
+        Function<String, String> getNameToEncrypt =
+                (realm) -> SubjectUtils.getName(realmSubjectMap.get(realm));
 
         for (ActionProvider actionProvider : logoutActionProviders) {
             Action action = actionProvider.getAction(getNameToEncrypt);
-            String realm = action.getId().substring(action.getId().lastIndexOf(".") + 1);
-
-            Map<String, String> actionProperties = new HashMap<String, String>();
-            actionProperties.put("title", action.getTitle());
-            actionProperties.put("realm", realm);
-            actionProperties.put("auth", SubjectUtils.getName(realmSubjectMap.get(realm), "", true));
-            actionProperties.put("description", action.getDescription());
-            actionProperties.put("url", action.getUrl().toString());
-            realmToPropMaps.add(actionProperties);
+            String realm = action.getId()
+                    .substring(action.getId()
+                            .lastIndexOf(".")
+                            + 1); //StringUtils.substringAfterLast(action.getId(), "."); //
+            if (realmTokenMap.get(realm) != null) {
+                Map<String, String> actionProperties = new HashMap<String, String>();
+                actionProperties.put("title", action.getTitle());
+                actionProperties.put("realm", realm);
+                actionProperties.put("auth", SubjectUtils.getName(realmSubjectMap.get(realm),
+                        "",
+                        true));
+                actionProperties.put("description", action.getDescription());
+                actionProperties.put("url",
+                        action.getUrl()
+                                .toString());
+                realmToPropMaps.add(actionProperties);
+            }
         }
 
-        return Response.ok(new ByteArrayInputStream(toJson(realmToPropMaps).getBytes())).build();
+        return Response.ok(new ByteArrayInputStream(toJson(realmToPropMaps).getBytes()))
+                .build();
     }
 
     public void setHttpSessionFactory(SessionFactory httpSessionFactory) {
