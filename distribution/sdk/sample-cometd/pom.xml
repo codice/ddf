@@ -14,63 +14,22 @@
  -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <artifactId>sdk</artifactId>
         <groupId>ddf.distribution</groupId>
         <version>2.9.0-SNAPSHOT</version>
     </parent>
+
+    <groupId>ddf.distribution.sdk</groupId>
     <artifactId>sample-cometd</artifactId>
     <name>DDF :: SDK :: Sample Cometd</name>
-    <packaging>bundle</packaging>
-    <dependencies>
-    </dependencies>
-    <build>
-        <plugins>
-            <plugin>
-                <artifactId>maven-clean-plugin</artifactId>
-                <configuration>
-                    <filesets>
-                        <fileset>
-                            <directory>./</directory>
-                            <includes>
-                                <include>etc/</include>
-                                <include>node/</include>
-                                <include>node_modules/</include>
-                            </includes>
-                            <followSymlinks>false</followSymlinks>
-                        </fileset>
-                    </filesets>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>com.github.eirslett</groupId>
-                <artifactId>frontend-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>grunt build</id>
-                        <goals>
-                            <goal>grunt</goal>
-                        </goals>
-                        <phase>package</phase>
-                        <configuration>
-                            <arguments>build</arguments>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <configuration>
-                    <instructions>
-                        <Web-ContextPath>/sample/cometd</Web-ContextPath>
-                        <_wab>
-                            src/main/webapp
-                        </_wab>
-                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                    </instructions>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>cometd-java-example</module>
+        <module>java-cli-example</module>
+        <module>cometd-web-example</module>
+    </modules>
+
 </project>
