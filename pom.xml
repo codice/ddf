@@ -967,6 +967,12 @@
             <version>1.4</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>ddf.support</groupId>
+            <artifactId>support-findbugs</artifactId>
+            <version>${ddf.support.version}</version>
+            <type>jar</type>
+        </dependency>
     </dependencies>
     <repositories>
         <repository>

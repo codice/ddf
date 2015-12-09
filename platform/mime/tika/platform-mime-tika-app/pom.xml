@@ -89,4 +89,11 @@
             </plugin>
         </plugins>
     </build>
+    <dependencies>
+        <dependency>
+            <groupId>ddf.mime.tika</groupId>
+            <artifactId>mime-tika-resolver</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>

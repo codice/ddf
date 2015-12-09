@@ -129,6 +129,12 @@
             <version>1.7.1</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform.solr</groupId>
+            <artifactId>platform-solr-server-standalone</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+        </dependency>
     </dependencies>
     <build>
         <resources>

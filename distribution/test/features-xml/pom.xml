@@ -78,4 +78,11 @@
             </plugin>
         </plugins>
     </build>
+    <dependencies>
+        <dependency>
+            <groupId>ddf.test</groupId>
+            <artifactId>test-input-transformer-stubs</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>

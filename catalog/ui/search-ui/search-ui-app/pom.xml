@@ -89,4 +89,31 @@
             </plugin>
         </plugins>
     </build>
+    <dependencies>
+        <dependency>
+            <groupId>ddf.ui.search</groupId>
+            <artifactId>simple</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.ui.search</groupId>
+            <artifactId>standard</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.ui.search</groupId>
+            <artifactId>search-redirect</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.ui.search</groupId>
+            <artifactId>search-htmltransformer</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.ui.search</groupId>
+            <artifactId>search-endpoint</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>

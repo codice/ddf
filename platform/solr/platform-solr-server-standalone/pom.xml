@@ -30,6 +30,18 @@
             <version>${solr.version}</version>
             <type>war</type>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform.solr</groupId>
+            <artifactId>solr-xpath</artifactId>
+            <version>${project.version}</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.codice</groupId>
+            <artifactId>lux</artifactId>
+            <version>${lux.version}</version>
+            <type>jar</type>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

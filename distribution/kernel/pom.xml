@@ -56,6 +56,27 @@
             <version>${karaf.version}</version>
             <type>zip</type>
         </dependency>
+        <dependency>
+            <groupId>ddf.distribution</groupId>
+            <artifactId>console-branding</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.ddf</groupId>
+            <artifactId>ddf-common</artifactId>
+            <version>${project.version}</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>ddf.distribution</groupId>
+            <artifactId>webconsole-branding</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.distribution</groupId>
+            <artifactId>webconsole-branding-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <resources>

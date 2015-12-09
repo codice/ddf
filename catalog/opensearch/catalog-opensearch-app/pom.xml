@@ -89,4 +89,16 @@
             </plugin>
         </plugins>
     </build>
+    <dependencies>
+        <dependency>
+            <groupId>ddf.catalog.opensearch</groupId>
+            <artifactId>catalog-opensearch-endpoint</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.opensearch</groupId>
+            <artifactId>catalog-opensearch-source</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>

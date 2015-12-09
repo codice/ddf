@@ -88,4 +88,26 @@
             </plugin>
         </plugins>
     </build>
+    <dependencies>
+        <dependency>
+            <groupId>org.codice.thirdparty</groupId>
+            <artifactId>jts</artifactId>
+            <version>${jts.bundle.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.solr.embedded</groupId>
+            <artifactId>catalog-solr-embedded-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.thirdparty</groupId>
+            <artifactId>jts</artifactId>
+            <version>${jts.bundle.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.solr.external</groupId>
+            <artifactId>catalog-solr-external-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>

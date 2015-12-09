@@ -88,4 +88,31 @@
             </plugin>
         </plugins>
     </build>
+    <dependencies>
+        <dependency>
+            <groupId>ddf.distribution</groupId>
+            <artifactId>sample-metrics</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.distribution</groupId>
+            <artifactId>sample-soap-endpoint</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.distribution</groupId>
+            <artifactId>sample-metacard-filter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.security</groupId>
+            <artifactId>catalog-security-filter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.distribution</groupId>
+            <artifactId>sample-rest-endpoint</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>

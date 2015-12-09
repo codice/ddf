@@ -312,6 +312,12 @@
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpcore</artifactId>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform.solr</groupId>
+            <artifactId>platform-solr-server-standalone</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

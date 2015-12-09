@@ -89,4 +89,46 @@
             </plugin>
         </plugins>
     </build>
+    <dependencies>
+        <dependency>
+            <groupId>ddf.content.core</groupId>
+            <artifactId>content-core-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.content.core</groupId>
+            <artifactId>content-core-filesystemstorageprovider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.content.core</groupId>
+            <artifactId>content-core-directorymonitor</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.content.core</groupId>
+            <artifactId>content-core-catalogerplugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.content.core</groupId>
+            <artifactId>content-core-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.content.core</groupId>
+            <artifactId>content-core-standardframework</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.content.core</groupId>
+            <artifactId>content-core-camelcomponent</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.content.endpoint</groupId>
+            <artifactId>content-rest-endpoint</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>
