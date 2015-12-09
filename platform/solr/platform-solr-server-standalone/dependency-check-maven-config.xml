@@ -26,4 +26,11 @@
         <sha1>E12C23B962C925F2681729AFA1E40066A350AD27</sha1>
         <cve>CVE-2013-4271</cve>
     </suppress>
+
+    <!--
+        CVE-2014-0050: Applies to commons-fileupload-1.2.1, suppressing due to replacing jar when packaging war
+    -->
+    <suppress>
+        <cve>CVE-2014-0050</cve>
+    </suppress>
 </suppressions>
