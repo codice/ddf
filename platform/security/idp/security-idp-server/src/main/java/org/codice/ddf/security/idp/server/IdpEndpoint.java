@@ -687,14 +687,17 @@ public class IdpEndpoint implements Idp {
             @Context final HttpServletRequest request) throws WSSecurityException, IdpException {
         String samlRequestDecoded = null;
         String samlToValidate = null;
+        String reqres = null;
         // TODO (RCZ) - refactor so this is nice and not carp
         try {
             if (samlRequest != null) {
                 samlRequestDecoded = RestSecurity.inflateBase64(samlRequest);
                 samlToValidate = samlRequest;
+                reqres = "SAMLRequest";
             } else if (samlResponse != null){
                 samlRequestDecoded = RestSecurity.inflateBase64(samlResponse);
                 samlToValidate = samlResponse;
+                reqres = "SAMLResponse";
             } else {
                 throw new IdpException("No SAML object received");
             }
@@ -703,6 +706,7 @@ public class IdpEndpoint implements Idp {
         }
         final String fSamlToValidate = samlToValidate;
         final String finalSaml = samlRequestDecoded;
+        final String freqres = reqres;
         RedirectBinding binding = new RedirectBinding(systemCrypto, serviceProviders);
         BiConsumer<String, SignableSAMLObject> validator = (issuer, samlObject) -> {
             LOGGER.debug("Validating AuthnRequest required attributes and signature");
@@ -717,7 +721,8 @@ public class IdpEndpoint implements Idp {
                         relayState,
                         signatureAlgorithm,
                         signature,
-                        signingCertificate);
+                        signingCertificate,
+                        freqres);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -739,7 +744,7 @@ public class IdpEndpoint implements Idp {
     }
 
     private void validateSignature(String samlRequest, String relayState, String signatureAlgorithm,
-            String signature, String signingCertificate)
+            String signature, String signingCertificate, String reqres)
             throws UnsupportedEncodingException, SimpleSign.SignatureException,
             ValidationException {
 
@@ -748,7 +753,8 @@ public class IdpEndpoint implements Idp {
                     "Unable to find signing certificate in metadata. Please check metadata.");
         }
 
-        String signedParts = String.format("SAMLRequest=%s&RelayState=%s&SigAlg=%s",
+        String signedParts = String.format("%s=%s&RelayState=%s&SigAlg=%s",
+                reqres,
                 URLEncoder.encode(samlRequest, "UTF-8"),
                 relayState,
                 URLEncoder.encode(signatureAlgorithm, "UTF-8"));

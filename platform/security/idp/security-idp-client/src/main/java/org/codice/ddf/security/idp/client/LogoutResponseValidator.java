@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -14,7 +14,6 @@
 package org.codice.ddf.security.idp.client;
 
 import org.opensaml.saml2.core.LogoutResponse;
-import org.opensaml.saml2.core.StatusCode;
 import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.validation.ValidationException;
 import org.opensaml.xml.validation.Validator;
@@ -42,17 +41,22 @@ public class LogoutResponseValidator implements Validator {
         //TODO do more validation..
 
         LogoutResponse logoutResponse = (LogoutResponse) xmlObject;
-        String status = logoutResponse.getStatus().getStatusCode().getValue();
-        if (!StatusCode.SUCCESS_URI.equals(status)) {
-            throw new ValidationException(
-                    "Logout request was unsuccessful.  Received response with status: " + status);
-        }
+        String status = logoutResponse.getStatus()
+                .getStatusCode()
+                .getValue();
         if (logoutResponse.getSignature() != null) {
             try {
-                simpleSign.validateSignature(logoutResponse.getSignature(), logoutResponse.getDOM().getOwnerDocument());
+                simpleSign.validateSignature(logoutResponse.getSignature(),
+                        logoutResponse.getDOM()
+                                .getOwnerDocument());
             } catch (SimpleSign.SignatureException e) {
                 throw new ValidationException("Invalid or untrusted signature.");
             }
         }
+        LOGGER.debug("Request status was [{}] for id [{}] from issuer [{}]",
+                status,
+                logoutResponse.getID(),
+                logoutResponse.getIssuer()
+                        .getValue());
     }
 }
