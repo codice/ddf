@@ -81,7 +81,8 @@ public class LogoutService {
             String realm = action.getId()
                     .substring(action.getId()
                             .lastIndexOf(".")
-                            + 1); //StringUtils.substringAfterLast(action.getId(), "."); //
+                            + 1); //StringUtils.substringAfterLast(action.getId(), ".");
+            // TODO (RCZ) - Do above afer importing common-lang
             if (realmTokenMap.get(realm) != null) {
                 Map<String, String> actionProperties = new HashMap<String, String>();
                 actionProperties.put("title", action.getTitle());

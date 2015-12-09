@@ -981,6 +981,7 @@ public class IdpEndpoint implements Idp {
                 relayState);
         UriBuilder uriBuilder = UriBuilder.fromUri(targetUrl);
         uriBuilder.queryParam(reqres, encodedResponse);
+        // TODO (RCZ) - DO this better probably
         uriBuilder.queryParam(SSOConstants.RELAY_STATE, relayState == null ? "" : relayState);
         new SimpleSign(systemCrypto).signUriString(requestToSign, uriBuilder);
         LOGGER.debug("Signing successful.");
