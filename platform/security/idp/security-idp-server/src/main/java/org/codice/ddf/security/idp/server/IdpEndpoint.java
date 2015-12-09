@@ -680,17 +680,29 @@ public class IdpEndpoint implements Idp {
     @GET
     @Path("/logout")
     public Response processRedirectLogout(@QueryParam(SAML_REQ) final String samlRequest,
+            @QueryParam(SAML_RESPONSE) String samlResponse,
             @QueryParam(RELAY_STATE) final String relayState,
             @QueryParam(SSOConstants.SIG_ALG) final String signatureAlgorithm,
             @QueryParam(SSOConstants.SIGNATURE) final String signature,
             @Context final HttpServletRequest request) throws WSSecurityException, IdpException {
-        String relayStateDecoded;
+        String samlRequestDecoded = null;
+        String samlToValidate = null;
+        // TODO (RCZ) - refactor so this is nice and not carp
         try {
-            relayStateDecoded = RestSecurity.inflateBase64(samlRequest);
+            if (samlRequest != null) {
+                samlRequestDecoded = RestSecurity.inflateBase64(samlRequest);
+                samlToValidate = samlRequest;
+            } else if (samlResponse != null){
+                samlRequestDecoded = RestSecurity.inflateBase64(samlResponse);
+                samlToValidate = samlResponse;
+            } else {
+                throw new IdpException("No SAML object received");
+            }
         } catch (IOException e) {
             throw new IdpException(e);
         }
-        final String finalSaml = relayStateDecoded;
+        final String fSamlToValidate = samlToValidate;
+        final String finalSaml = samlRequestDecoded;
         RedirectBinding binding = new RedirectBinding(systemCrypto, serviceProviders);
         BiConsumer<String, SignableSAMLObject> validator = (issuer, samlObject) -> {
             LOGGER.debug("Validating AuthnRequest required attributes and signature");
@@ -701,7 +713,7 @@ public class IdpEndpoint implements Idp {
                 String signingCertificate = serviceProviders.get(issuer)
                         .getSigningCertificate();
 
-                validateSignature(samlRequest,
+                validateSignature(fSamlToValidate,
                         relayState,
                         signatureAlgorithm,
                         signature,
@@ -753,6 +765,7 @@ public class IdpEndpoint implements Idp {
     public Response processPostLogout(@FormParam(SAML_REQ) String samlRequest,
             @FormParam(RELAY_STATE) String relayState, @Context HttpServletRequest request)
             throws WSSecurityException, IdpException {
+        // TODO (RCZ) - add teh SAML_Response formparam
         // TODO (RCZ) - inflate and b64decode saml request
         PostBinding binding = new PostBinding(systemCrypto, serviceProviders);
         return processLogout(request,
@@ -810,8 +823,10 @@ public class IdpEndpoint implements Idp {
             } else if (logoutObject instanceof LogoutResponse) {
                 // LogoutResponse is one of the SP's responding to the logout request
                 LogoutResponse logoutResponse = ((LogoutResponse) logoutObject);
-                signatureValidator.accept(logoutResponse.getIssuer()
-                        .getValue(), logoutObject);
+                if (strictSignature) {
+                    signatureValidator.accept(logoutResponse.getIssuer()
+                            .getValue(), logoutObject);
+                }
                 return handleLogoutResponse(cookie,
                         logoutState,
                         (LogoutResponse) logoutObject,
@@ -820,7 +835,7 @@ public class IdpEndpoint implements Idp {
             } else { // Unsupported object type
                 // TODO (RCZ) 11/11/15 - Log some unsupported exception?
                 // Even if their object is bad we might be able to finish rest of logouts
-                continueLogout(logoutState, cookie, incomingBinding);
+                return continueLogout(logoutState, cookie, incomingBinding);
             }
         } catch (XMLStreamException e) {
             LOGGER.error("Unable to extract Saml object", e);
@@ -965,7 +980,7 @@ public class IdpEndpoint implements Idp {
                 encodedResponse,
                 relayState);
         UriBuilder uriBuilder = UriBuilder.fromUri(targetUrl);
-        uriBuilder.queryParam(SSOConstants.SAML_RESPONSE, encodedResponse);
+        uriBuilder.queryParam(reqres, encodedResponse);
         uriBuilder.queryParam(SSOConstants.RELAY_STATE, relayState == null ? "" : relayState);
         new SimpleSign(systemCrypto).signUriString(requestToSign, uriBuilder);
         LOGGER.debug("Signing successful.");
