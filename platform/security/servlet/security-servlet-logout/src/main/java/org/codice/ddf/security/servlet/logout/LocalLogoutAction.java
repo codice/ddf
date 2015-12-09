@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -24,9 +24,6 @@ import ddf.action.Action;
 import ddf.action.ActionProvider;
 import ddf.action.impl.ActionImpl;
 
-/**
- * Created by tbatie on 11/16/15.
- */
 public class LocalLogoutAction implements ActionProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LocalLogoutAction.class);
@@ -35,7 +32,8 @@ public class LocalLogoutAction implements ActionProvider {
 
     private static final String TITLE = "Local Logout";
 
-    private static final String DESCRIPTION = "Logging out of the karaf realm will only perform a local logout. Accounts signed into external sources will remain logged in.";
+    private static final String DESCRIPTION =
+            "Logging out of the karaf realm will only perform a local logout. Accounts signed into external sources will remain logged in.";
 
     private static URL logoutUrl = null;
 
@@ -43,7 +41,8 @@ public class LocalLogoutAction implements ActionProvider {
         try {
             logoutUrl = new URL(new SystemBaseUrl().constructUrl("/logout/local"));
         } catch (MalformedURLException e) {
-            LOGGER.info("Unable to resolve URL: {}", new SystemBaseUrl().constructUrl("/logout/local"));
+            LOGGER.info("Unable to resolve URL: {}", new SystemBaseUrl().constructUrl(
+                    "/logout/local"));
         }
     }
 

@@ -19,7 +19,6 @@ import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 
@@ -50,7 +49,8 @@ public class TestLogoutService {
         SecurityTokenHolder securityTokenHolder = mock(SecurityTokenHolder.class);
 
         when(sessionFactory.getOrCreateSession(null)).thenReturn(httpSession);
-        when(httpSession.getAttribute(SecurityConstants.SAML_ASSERTION)).thenReturn(securityTokenHolder);
+        when(httpSession.getAttribute(SecurityConstants.SAML_ASSERTION)).thenReturn(
+                securityTokenHolder);
         when(securityTokenHolder.getRealmTokenMap()).thenReturn(new HashMap<>());
     }
 
@@ -64,15 +64,22 @@ public class TestLogoutService {
         logoutService.setHttpSessionFactory(sessionFactory);
         logoutService.setLogoutActionProviders(Collections.singletonList(localLogoutAction));
 
-        String responseMessage = IOUtils.toString((ByteArrayInputStream) logoutService.getActionProviders(null).getEntity());
+        String responseMessage =
+                IOUtils.toString((ByteArrayInputStream) logoutService.getActionProviders(null)
+                        .getEntity());
 
         JSONArray actionProperties = (JSONArray) new JSONParser().parse(responseMessage);
         assertEquals(1, actionProperties.size());
         JSONObject actionProperty = ((JSONObject) actionProperties.get(0));
 
         assertEquals(actionProperty.get("description"), logoutAction.getDescription());
-        assertEquals(actionProperty.get("realm"), logoutAction.getId().substring(logoutAction.getId().lastIndexOf(".") + 1));
+        assertEquals(actionProperty.get("realm"),
+                logoutAction.getId()
+                        .substring(logoutAction.getId()
+                                        .lastIndexOf(".") + 1));
         assertEquals(actionProperty.get("title"), logoutAction.getTitle());
-        assertEquals(actionProperty.get("url"), logoutAction.getUrl().toString());
+        assertEquals(actionProperty.get("url"),
+                logoutAction.getUrl()
+                        .toString());
     }
 }

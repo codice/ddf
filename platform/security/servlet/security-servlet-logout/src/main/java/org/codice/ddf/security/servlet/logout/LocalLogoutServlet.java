@@ -35,8 +35,8 @@ public class LocalLogoutServlet extends HttpServlet {
 
         HttpSession session = request.getSession(false);
         if (session != null) {
-            SecurityTokenHolder savedToken = (SecurityTokenHolder) session
-                    .getAttribute(SecurityConstants.SAML_ASSERTION);
+            SecurityTokenHolder savedToken = (SecurityTokenHolder) session.getAttribute(
+                    SecurityConstants.SAML_ASSERTION);
             if (savedToken != null) {
                 savedToken.removeAll();
             }
@@ -45,7 +45,9 @@ public class LocalLogoutServlet extends HttpServlet {
         }
 
         //Redirect to logout success page
-        getServletContext().getContext("/logout").getRequestDispatcher("/local-logout-successful.html").forward(request, response);
+        getServletContext().getContext("/logout")
+                .getRequestDispatcher("/local-logout-successful.html")
+                .forward(request, response);
     }
 
     private void deleteJSessionId(HttpServletResponse response) {

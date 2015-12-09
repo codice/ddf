@@ -50,10 +50,12 @@ public class TestLocalLogoutServlet {
         }
         HttpSession httpSession = mock(HttpSession.class);
         when(request.getSession(anyBoolean())).thenReturn(httpSession);
-        when(request.getSession(anyBoolean()).getId()).thenReturn("id");
+        when(request.getSession(anyBoolean())
+                .getId()).thenReturn("id");
         when(request.getRequestURL()).thenReturn(new StringBuffer("http://foo.bar"));
         SecurityTokenHolder securityTokenHolder = mock(SecurityTokenHolder.class);
-        when(httpSession.getAttribute(SecurityConstants.SAML_ASSERTION)).thenReturn(securityTokenHolder);
+        when(httpSession.getAttribute(SecurityConstants.SAML_ASSERTION)).thenReturn(
+                securityTokenHolder);
         try {
             localLogoutServlet.doGet(request, response);
         } catch (ServletException | IOException e) {
@@ -68,7 +70,8 @@ public class TestLocalLogoutServlet {
         public ServletContext getServletContext() {
             ServletContext servletContext = mock(ServletContext.class);
             when(servletContext.getContext(any(String.class))).thenReturn(servletContext);
-            when(servletContext.getRequestDispatcher(any(String.class))).thenReturn(mock(RequestDispatcher.class));
+            when(servletContext.getRequestDispatcher(any(String.class))).thenReturn(mock(
+                    RequestDispatcher.class));
             return servletContext;
         }
     }
