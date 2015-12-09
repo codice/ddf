@@ -15,7 +15,14 @@ package org.codice.ddf.configuration.store;
 
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.same;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.verify;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Dictionary;
 
@@ -37,21 +44,49 @@ public class ConfigurationFileTest {
     @Mock
     private ConfigurationAdmin configAdmin;
 
+    @Mock
+    private PersistenceStrategy persistenceStrategy;
+
+    @Mock
+    private FileOutputStream fileOutputStream;
+
     private class ConfigurationFileUnderTest extends ConfigurationFile {
         public ConfigurationFileUnderTest(Path configFilePath,
-                Dictionary<String, Object> properties, ConfigurationAdmin configAdmin) {
-            super(configFilePath, properties, configAdmin);
+                Dictionary<String, Object> properties, ConfigurationAdmin configAdmin,
+                PersistenceStrategy persistenceStrategy) {
+            super(configFilePath, properties, configAdmin, persistenceStrategy);
         }
 
         @Override
         public void createConfig() throws ConfigurationFileException {
+        }
+
+        @Override
+        public FileOutputStream getOutputStream(String destination) throws FileNotFoundException {
+            return fileOutputStream;
         }
     }
 
     @Test
     public void constructor() {
         ConfigurationFileUnderTest configurationFile = new ConfigurationFileUnderTest(path,
-                properties, configAdmin);
+                properties, configAdmin, persistenceStrategy);
         assertThat(configurationFile.getConfigFilePath(), sameInstance(path));
+    }
+
+    @Test
+    public void testExportConfig() throws IOException {
+        ConfigurationFileUnderTest configurationFile = new ConfigurationFileUnderTest(path,
+                properties, configAdmin, persistenceStrategy);
+        configurationFile.exportConfig("");
+        verify(persistenceStrategy, atLeastOnce())
+                .write(any(FileOutputStream.class), same(properties));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testExportWithNullDestination() throws IOException {
+        ConfigurationFileUnderTest configurationFile = new ConfigurationFileUnderTest(path,
+                properties, configAdmin, persistenceStrategy);
+        configurationFile.exportConfig(null);
     }
 }

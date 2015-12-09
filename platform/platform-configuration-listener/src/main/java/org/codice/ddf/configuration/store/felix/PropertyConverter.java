@@ -13,7 +13,9 @@
  */
 package org.codice.ddf.configuration.store.felix;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -37,16 +39,21 @@ class PropertyConverter implements Consumer<String> {
 
     private static final String PROPERTY_VALUE_REGEX = "([\"\\[\\(]+.*)";
 
-    private static final Pattern PROPERTY_PATTERN = Pattern.compile(
-            String.format("^%s=%s%s", PROPERTY_NAME_REGEX, PROPERTY_TYPE_REGEX,
-                    PROPERTY_VALUE_REGEX));
+    private static final Pattern PROPERTY_PATTERN = Pattern.compile(String.format("^%s=%s%s",
+            PROPERTY_NAME_REGEX,
+            PROPERTY_TYPE_REGEX,
+            PROPERTY_VALUE_REGEX));
 
     private static final String NEW_LINE = "\r\n";
 
-    private static Map<String, PropertyValueConverter> valueConverters = ImmutableMap
-            .of("f", new FloatValueConverter(), "d", new DoubleValueConverter());
+    private static Map<String, PropertyValueConverter> valueConverters = ImmutableMap.of("f",
+            new FloatValueConverter(),
+            "d",
+            new DoubleValueConverter());
 
     private final StringBuilder filteredOutput;
+
+    private final Set<String> propertyNames = new HashSet<>();
 
     public PropertyConverter(StringBuilder filteredOutput) {
         this.filteredOutput = filteredOutput;
@@ -79,25 +86,36 @@ class PropertyConverter implements Consumer<String> {
             String propertyType = matcher.group(2);
             String propertyValue = matcher.group(3);
 
-            newLine.append(propertyName).append('=');
+            propertyNames.add(propertyName);
+
+            newLine.append(propertyName)
+                    .append('=');
 
             if (propertyType != null) {
                 newLine.append(propertyType);
             }
 
-            if (propertyType != null && !propertyValue.isEmpty() && valueConverters
-                    .containsKey(propertyType.toLowerCase())) {
-                valueConverters.get(propertyType.toLowerCase()).convert(propertyValue, newLine);
+            if (propertyType != null && !propertyValue.isEmpty() && valueConverters.containsKey(
+                    propertyType.toLowerCase())) {
+                valueConverters.get(propertyType.toLowerCase())
+                        .convert(propertyValue, newLine);
             } else {
-                LOGGER.debug("Property value {} for line {} doesn't need conversion", propertyValue,
+                LOGGER.debug("Property value {} for line {} doesn't need conversion",
+                        propertyValue,
                         line);
                 newLine.append(propertyValue);
             }
 
-            filteredOutput.append(newLine).append(NEW_LINE);
+            filteredOutput.append(newLine)
+                    .append(NEW_LINE);
         } else {
-            filteredOutput.append(line).append(NEW_LINE);
+            filteredOutput.append(line)
+                    .append(NEW_LINE);
         }
+    }
+
+    public Set<String> getPropertyNames() {
+        return propertyNames;
     }
 
     // For unit testing purposes
