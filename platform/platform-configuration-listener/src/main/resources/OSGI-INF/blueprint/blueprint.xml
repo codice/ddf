@@ -79,14 +79,14 @@
     </bean>
 
     <bean id="configDirectoryStream" class="java.nio.file.Files"
-          factory-method="newDirectoryStream">
+        factory-method="newDirectoryStream">
         <argument ref="configDirectoryPath"/>
         <argument value="*${configFileExtension}"/>
     </bean>
 
     <bean id="configurationFileDirectory"
-          class="org.codice.ddf.configuration.store.ConfigurationFileDirectory"
-          init-method="init">
+        class="org.codice.ddf.configuration.store.ConfigurationFileDirectory"
+        init-method="init">
         <argument ref="configDirectoryStream"/>
         <argument ref="processedDirectoryPath"/>
         <argument ref="failedDirectoryPath"/>
@@ -97,6 +97,6 @@
     </bean>
 
     <service id="configurationFileDirectoryService" ref="configurationFileDirectory"
-             auto-export="interfaces"/>
+        auto-export="interfaces"/>
 
 </blueprint>

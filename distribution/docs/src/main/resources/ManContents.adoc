@@ -6469,7 +6469,7 @@ The Platform Commands are installed when the Platform application is installed.
 
 ----
 ddf@local>platform:
-platform:config-export    platform:describe    platform:envlist
+platform:config-export    platform:config-status    platform:describe    platform:envlist
 ----
 
 [cols="2" options="header"]
@@ -6480,6 +6480,9 @@ platform:config-export    platform:describe    platform:envlist
 
 |config-export
 |Exports the current configurations.
+
+|config-status
+|Lists import status of configuration files.
 
 |describe
 |Shows the current platform configuration.
