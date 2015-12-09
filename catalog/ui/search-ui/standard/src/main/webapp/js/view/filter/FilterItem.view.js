@@ -47,6 +47,7 @@ define([
             },
             initialize: function(){
                 this.modelbinder = new Backbone.ModelBinder();
+                this.listenTo(this.model, 'change:north change:south change:east change:west',this.setBBox);
             },
             templateHelpers: function(){
                 return {
@@ -63,7 +64,13 @@ define([
                     wreqr.vent.trigger('search:drawend');
                 }
             },
-
+            setBBox : function() {
+                var north = parseFloat(this.model.get('north'));
+                var south = parseFloat(this.model.get('south'));
+                var west = parseFloat(this.model.get('west'));
+                var east = parseFloat(this.model.get('east'));
+                this.model.set({mapNorth: north, mapSouth: south, mapEast: east, mapWest: west});
+            },
             onRender: function(){
                 var view = this;
 
