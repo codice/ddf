@@ -39,11 +39,11 @@
         <property name="requiredAttributes">
             <array value-type="java.lang.String">
                 <value>/=</value>
-                <value>/admin={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin}</value>
-                <value>/solr={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin}</value>
-                <value>/jolokia={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin}</value>
-                <value>/system={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin}</value>
-                <value>/security-config={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin}</value>
+                <value>/admin={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin}</value>
+                <value>/solr={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin}</value>
+                <value>/jolokia={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin}</value>
+                <value>/system={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin}</value>
+                <value>/security-config={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin}</value>
             </array>
         </property>
         <property name="whiteListContexts">

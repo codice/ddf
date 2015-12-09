@@ -219,3 +219,31 @@ If you have integrated DDF with your existing security infrastructure, then you 
 
 .. The whitelist allows child contexts to be excluded from the authentication constraints of their parents.
 
+== LDAP Admin Role Configuration
+The admin role will default to 'system-admin'. This can be configured to work with an external LDAP with a few minor changes.
+
+=== Update the admin role in INSTALL_HOME/etc/users.properties
+Change the value of 'system-admin' to the new admin role for any users needing the new role.
+
+*Example user.properties entries:*
+----
+admin=admin,group,admin,manager,viewer,webconsole,system-admin
+localhost=localhost,group,admin,manager,viewer,webconsole,system-admin
+----
+
+
+
+[NOTE]
+===============================
+A system restart is required for the changes to users.properties to take effect.
+===============================
+
+
+=== Update the web context policy to point to the new admin role
+. Open DDF Security in the Admin Console
+. Select the Configuration tab and open Web Context Policy Manager
+. Update the entries under 'Required Attributes' to set the new admin role
+
+*Web Context Policy Manager*
+
+image::web_context_policy_manager.png[Web Context Policy Manager,${image.width}]
