@@ -21,9 +21,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.util.Collections;
 import java.util.Dictionary;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.felix.cm.file.ConfigurationHandler;
+import org.codice.ddf.configuration.store.ConfigurationFileException;
 import org.codice.ddf.configuration.store.PersistenceStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,19 +41,34 @@ public class FelixPersistenceStrategy implements PersistenceStrategy {
 
     @Override
     @SuppressWarnings("unchecked")
-    public Dictionary<String, Object> read(InputStream inputStream) throws IOException {
+    public Dictionary<String, Object> read(InputStream inputStream)
+            throws ConfigurationFileException, IOException {
         notNull(inputStream, "InputStream cannot be null");
 
         final StringBuilder filteredOutput = new StringBuilder();
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
         PropertyConverter propertyConverter = createPropertyConverter(filteredOutput);
-        reader.lines().forEach(propertyConverter);
+
+        reader.lines()
+                .forEach(propertyConverter);
 
         LOGGER.debug("Calling ConfigurationHandler with {}", filteredOutput.toString());
 
-        return ConfigurationHandler
-                .read(new ByteArrayInputStream(filteredOutput.toString().getBytes()));
+        Dictionary properties;
+
+        try {
+            properties =
+                    ConfigurationHandler.read(new ByteArrayInputStream(filteredOutput.toString()
+                            .getBytes()));
+        } catch (RuntimeException e) {
+            LOGGER.error("ConfigurationHandler failed to read configuration from file", e);
+            throw new ConfigurationFileException("Failed to read configuration from file", e);
+        }
+
+        checkForInvalidProperties(propertyConverter.getPropertyNames(), properties);
+
+        return properties;
     }
 
     @Override
@@ -63,5 +82,23 @@ public class FelixPersistenceStrategy implements PersistenceStrategy {
 
     PropertyConverter createPropertyConverter(StringBuilder filteredOutput) {
         return new PropertyConverter(filteredOutput);
+    }
+
+    /*
+     * Checks that all properties found by the propertyConverter object have been returned
+     * by the ConfigurationHandler class. If not, it means that ConfigurationHandler failed
+     * to read in one of the values and that something is invalid in the file. This is needed
+     * to work-around the problem with ConfigurationHandler not reporting parsing errors.
+     */
+    private void checkForInvalidProperties(Set<String> expectedPropertyName, Dictionary properties)
+            throws ConfigurationFileException {
+        if (properties.size() != expectedPropertyName.size()) {
+            @SuppressWarnings("unchecked")
+            Set<String> propertyNames = new HashSet<>(Collections.list(properties.keys()));
+
+            LOGGER.error("Unable to convert all config file properties. One of [{}] is invalid",
+                    expectedPropertyName.removeAll(propertyNames));
+            throw new ConfigurationFileException("Unable to convert all config file properties.");
+        }
     }
 }

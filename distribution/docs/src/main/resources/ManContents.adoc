@@ -1269,6 +1269,7 @@ The following table shows the format to use for each property type supported.
 ====
 * Lists of values can be prefixed with any of the supported types (`B`, `I`, `L`, `F` or `D`)
 * To prevent any configuration issues, the `=` signs used in values should be escaped using `\`
+* Boolean values will default to `false` if any value other than `true` is provided
 ====
 
 .Sample configuration file

@@ -126,7 +126,7 @@ public class ConfigurationFileFactory {
             throws ConfigurationFileException {
         try (InputStream inputStream = getInputStream(configurationFile)) {
             return persistenceStrategy.read(inputStream);
-        } catch (IOException e) {
+        } catch (ConfigurationFileException | IOException e) {
             String message = String.format("Unable to read configuration file [%s].",
                     configurationFile.toString());
             LOGGER.error(message, e);

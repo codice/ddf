@@ -131,7 +131,7 @@ public class ConfigurationFileDirectory implements ChangeListener, Configuration
             ConfigurationFile configFile = configurationFileFactory.createConfigurationFile(file);
             configFile.createConfig();
             moveConfigurationFile(file, processedDirectory);
-        } catch (ConfigurationFileException e) {
+        } catch (ConfigurationFileException | RuntimeException e) {
             moveConfigurationFile(file, failedDirectory);
         }
     }
