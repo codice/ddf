@@ -5476,6 +5476,51 @@ The passwords will then be encrypted in the `users.properties` file once {brandi
 ===== Known Issues
 A system administrator must block visual access to the screen when administering passwords for particular components, such as the OpenSearch source. This is a known issue and will be addressed in a future version of {branding}.
 
+=== Configuration Export/Import
+
+The Configuration Export/Import capability allows administrators to export the current {branding} configuration and use it as a starting point for a new installation.
+
+[IMPORTANT]
+====
+* Importing configuration files is only guaranteed to work when importing files from the same {branding} version.
+  Importing from a different version is not recommended as it may cause the new {branding} instance to be incorrectly configured and become unusable.
+* All configurations editable in the Web Admin Console will be exported to `<DDF_HOME>/etc/exported/etc`.
+* All other configuration files (system configurations) will be put under `etc/exported` followed by their relative path from `DDF_HOME`.
+  For instance, if a key store file was located under `<DDF_HOME>/keystores/keystore.jks`, it will be exported to `<DDF_HOME>/etc/exported/keystore/keystore.jks`.
+* To keep the export/import process simple and consistent, all system configuration files are required to be under the `DDF_HOME` directory.
+====
+
+==== Export Configuration Settings
+
+To export the current {branding} configuration:
+
+. Using the {branding} Command Line Console, type in `platform:config-export`. This command creates the exported configuration files that are saved to `<DDF_HOME>/etc/exported`.
+. Zip up the exported files in `<DDF_HOME>/etc/exported`
+----
+cd  <DDF_HOME>/etc/exported
+zip exportedFiles.zip *
+----
+
+[IMPORTANT]
+====
+Some system configuration files contain paths to other configuration files. For instance, the `system.properties` file contains the `javax.net.ssl.keyStore`
+property which provides the path to system key store.
+The files referred to in the system configuration files will be included in the export process only if the path is relative to `DDF_HOME`.
+Using absolute paths in those cases will cause the `platform:config-export` command to fail.
+====
+
+==== Import Configuration Settings
+
+To import a previously exported configuration:
+
+. Delete all exising `.config` files from `<DDF_HOME>/etc`: `rm <DDF_HOME>/etc/*.config`
+. Unzip the exported files from a previous installation to the new instance's `<DDF_HOME>/etc` directory: `unzip exportedFiles.zip <DDF_HOME>/etc`
+. If needed, manually update system configuration files such as `system.properties`, `users.properties`. keystores, etc.
+. Launch the newly installed {branding}.
+. Step through the installation process. The newly installed {branding} will have the previous {branding}'s settings imported.
+. To get a status of the import, run the `platform:config-status` from the Command Line Console.
+
+
 === Starting {branding}
 
 Follow the below steps to start and stop {branding}.

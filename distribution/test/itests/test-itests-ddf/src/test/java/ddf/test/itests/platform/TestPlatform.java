@@ -14,8 +14,9 @@
 package ddf.test.itests.platform;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
@@ -27,7 +28,8 @@ import static ddf.common.test.matchers.ConfigurationPropertiesEqualTo.equalToCon
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -339,8 +341,11 @@ public class TestPlatform extends AbstractIntegrationTest {
     private static ManagedServiceConfigFile managedServiceStartupConfig =
             new ManagedServiceConfigFile("ddf.test.itests.platform.TestPlatform.startup");
 
-    private static ManagedServiceConfigFile managedServiceNewConfig = new ManagedServiceConfigFile(
-            "ddf.test.itests.platform.TestPlatform.new");
+    private static ManagedServiceConfigFile managedServiceNewConfig1 = new ManagedServiceConfigFile(
+            "ddf.test.itests.platform.TestPlatform.new.1");
+
+    private static ManagedServiceConfigFile managedServiceNewConfig2 = new ManagedServiceConfigFile(
+            "ddf.test.itests.platform.TestPlatform.new.2");
 
     private static ManagedServiceConfigFile managedServiceFactoryStartupConfig =
             new ManagedServiceFactoryConfigFile("ddf.test.itests.platform.TestPlatform.msf.1");
@@ -400,8 +405,8 @@ public class TestPlatform extends AbstractIntegrationTest {
 
     @Test
     public void testCreateNewManagedServiceConfigurationFile() throws Exception {
-        managedServiceNewConfig.addConfigurationFileAndWait(configAdmin);
-        managedServiceNewConfig.assertFileMovedToProcessedDirectory();
+        managedServiceNewConfig1.addConfigurationFileAndWait(configAdmin);
+        managedServiceNewConfig1.assertFileMovedToProcessedDirectory();
     }
 
     @Test
@@ -434,24 +439,217 @@ public class TestPlatform extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testExport() throws ConfigurationFileException {
-        String exportedDirectory = String.format("%s/etc/exported", ddfHome);
+    public void testExport() throws ConfigurationFileException, IOException {
+        FileUtils.deleteDirectory(getExportDirectory().toFile());
+
         console.runCommand(EXPORT_COMMAND);
-        File[] exportedFiles = new File(exportedDirectory).listFiles();
-        assertThat("Exported files should not be null.", exportedFiles, is(notNullValue()));
-        assertThat(String.format("No files exported to %s.", exportedDirectory),
-                Arrays.asList(exportedFiles), is(not(empty())));
+
+        assertThat(getExportSubDirectory("system.properties").toFile()
+                .exists(), is(true));
+        assertThat(getExportSubDirectory("users.properties").toFile()
+                .exists(), is(true));
+        assertThatDirectoryContains(getExportSubDirectory("keystores"),
+                "serverKeystore.jks",
+                "serverTruststore.jks");
+        assertThatDirectoryContains(getExportSubDirectory("pdp", "policies"), "access-policy.xml");
+        assertThatDirectoryContains(getExportSubDirectory("ws-security"),
+                "attributeMap.properties",
+                "issuer",
+                "server");
+        assertThatDirectoryContains(getExportSubDirectory("ws-security", "issuer"),
+                "encryption.properties",
+                "signature.properties");
+        assertThatDirectoryContains(getExportSubDirectory("ws-security", "server"),
+                "encryption.properties",
+                "signature.properties");
     }
 
     @Test
     public void testExportOnTopOfFile() throws ConfigurationFileException, IOException {
-        String exportedDirectory = String.format("%s/etc/exported", ddfHome);
-        File file = new File(exportedDirectory);
+        FileUtils.deleteDirectory(getExportDirectory().toFile());
+        File file = getExportDirectory().toFile();
         file.createNewFile();
-        assertThat(String.format("Should not have been able to export to %s.", exportedDirectory),
-                console.runCommand(EXPORT_COMMAND), containsString(
-                        String.format("Failed to export all configurations to %s",
-                                exportedDirectory)));
+        String response = console.runCommand(EXPORT_COMMAND);
+        assertThat(String.format("Should not have been able to export to %s.",
+                getExportDirectory()),
+                response,
+                containsString(String.format("Failed to export all configurations to %s",
+                        getExportDirectory())));
         file.delete();
+    }
+
+    /**
+     * Tests that a saved configuration will be exported
+     *
+     * @throws Exception
+     */
+    @Test
+    public void textExportAfterSavingAConfiguration() throws Exception {
+        FileUtils.deleteDirectory(getExportDirectory().toFile());
+
+        managedServiceNewConfig1.addConfigurationFileAndWait(configAdmin);
+        console.runCommand(EXPORT_COMMAND);
+
+        assertThat("Saved configuration should be exported.", getPathToExportedConfig(
+                managedServiceNewConfig1.pid).toFile()
+                .isFile(), is(true));
+    }
+
+    /**
+     * Tests that deleted configurations are not exported
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testExportAfterDeletingAConfiguration() throws Exception {
+        FileUtils.deleteDirectory(getExportDirectory().toFile());
+        managedServiceNewConfig2.addConfigurationFileAndWait(configAdmin);
+        configAdmin.getConfiguration(managedServiceNewConfig2.pid, null)
+                .delete();
+        console.runCommand(EXPORT_COMMAND);
+
+        assertThat("Deleted configuration should not be exported.", getPathToExportedConfig(
+                managedServiceNewConfig2.pid).toFile()
+                .isFile(), is(false));
+    }
+
+    /**
+     * Tests that absolute paths pointing outside ddfHome fail to export
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testFailureForAbsolutePathOutsideDdfHome() throws Exception {
+        FileUtils.deleteDirectory(getExportDirectory().toFile());
+        File systemProperties = new File(ddfHome + "/etc/system.properties");
+        File testFile = new File("../cat.txt");
+        FileUtils.copyFile(systemProperties, testFile);
+
+        System.setProperty("javax.net.ssl.keyStore", ddfHome + "/../cat.txt");
+        String response = console.runCommand(EXPORT_COMMAND);
+        assertThat(String.format("Should not have been able to export to %s.",
+                getExportDirectory()),
+                response,
+                containsString(String.format("Failed to export all configurations to %s",
+                        getExportDirectory())));
+        System.setProperty("javax.net.ssl.keyStore", "etc/keystores/serverKeystore.jks");
+        testFile.delete();
+    }
+
+    /**
+     * Tests that absolute paths pointing inside ddfHome fail to export
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testFailureForAbsolutePathInsideDdfHome() throws Exception {
+        FileUtils.deleteDirectory(getExportDirectory().toFile());
+
+        System.setProperty("javax.net.ssl.keyStore", ddfHome + "/etc/keystores/serverKeystore.jks");
+        String response = console.runCommand(EXPORT_COMMAND);
+        assertThat(String.format("Should not have been able to export to %s.",
+                getExportDirectory()),
+                response,
+                containsString(String.format("Failed to export all configurations to %s",
+                        getExportDirectory())));
+        System.setProperty("javax.net.ssl.keyStore", "etc/keystores/serverKeystore.jks");
+        FileUtils.deleteDirectory(getExportDirectory().toFile());
+    }
+
+    /**
+     * Tests that relative paths that point outside ddfHom fails to export
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testRelativePathOutsideDdfHome() throws Exception {
+        FileUtils.deleteDirectory(getExportDirectory().toFile());
+        File systemProperties = new File(ddfHome + "/etc/system.properties");
+        File testFile = new File("../cat.txt");
+        FileUtils.copyFile(systemProperties, testFile);
+
+        System.setProperty("javax.net.ssl.keyStore", "../cat.txt");
+        String response = console.runCommand(EXPORT_COMMAND);
+        assertThat(String.format("Should not have been able to export to %s.",
+                getExportDirectory()),
+                response,
+                containsString(String.format("Failed to export all configurations to %s",
+                        getExportDirectory())));
+        System.setProperty("javax.net.ssl.keyStore", "etc/keystores/serverKeystore.jks");
+        testFile.delete();
+    }
+
+    /**
+     * Test that exporting twice overrides the previous files
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testExportOverridesPreviousExport() throws Exception {
+        FileUtils.deleteDirectory(getExportDirectory().toFile());
+
+        String firstExportMessage = console.runCommand(EXPORT_COMMAND);
+        File firstExport = getExportSubDirectory("system.properties").toFile();
+        long firstLength = firstExport.length();
+        File systemProperties = Paths.get(ddfHome, "etc", "system.properties")
+                .toFile();
+
+        // back up sys.prop to restore after appending to it
+        File systemPropertiesCopy = Paths.get(ddfHome, "etc", "system.properties.copy")
+                .toFile();
+        FileUtils.copyFile(systemProperties, systemPropertiesCopy);
+
+        FileUtils.writeStringToFile(systemProperties, "testtesttest", true);
+
+        String secondExportMessage = console.runCommand(EXPORT_COMMAND);
+        File secondExport = getExportSubDirectory("system.properties").toFile();
+        long secondLength = secondExport.length();
+
+        assertThat("The first export failed to export",
+                firstExportMessage,
+                not(containsString("Failed to export all configurations")));
+        assertThat("The second export failed to export",
+                secondExportMessage,
+                not(containsString("Failed to export all configurations")));
+        assertThat("The second failed to modify the first export's files.",
+                firstLength,
+                is(not(equalTo(secondLength))));
+
+        // restore sys.prop
+        FileUtils.copyFile(systemPropertiesCopy, systemProperties);
+        systemPropertiesCopy.delete();
+    }
+
+    /**
+     * Returns the default location for exported configuration files
+     *
+     * @param pid PID of the configuration file
+     * @return Full path to the exported configuration file
+     */
+    private Path getPathToExportedConfig(String pid) {
+        return getExportSubDirectory(pid + ".config");
+    }
+
+    private Path getExportDirectory() {
+        return Paths.get(ddfHome, "etc", "exported");
+    }
+
+    private Path getExportSubDirectory(String... paths) {
+        Path directory = getExportDirectory().resolve("etc");
+
+        for (String path : paths) {
+            directory = directory.resolve(path);
+        }
+
+        return directory;
+    }
+
+    private void assertThatDirectoryContains(Path path, String... fileNames) {
+        String[] keystoreFiles = path.toFile()
+                .list();
+        assertThat("Exported files should not be null.", keystoreFiles, is(notNullValue()));
+        assertThat(String.format("Files missing in %s directory", path.toString()),
+                keystoreFiles,
+                arrayContainingInAnyOrder(fileNames));
     }
 }
