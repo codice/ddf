@@ -37,9 +37,6 @@ Other applications may be installed at a later time.
 . Click on the links to each REST service's WADL to see its interface.
 . In the Admin Console (at /admin), configure the system settings.
 .. Enter the username of "admin" (no quotes) and the password "admin" (no quotes).
-.. Select Platform app
-.. Select Platform Global Configuration.
-.. Enter the port and host where the distribution is running.
 
 ==== Catalog Capabilities
 
