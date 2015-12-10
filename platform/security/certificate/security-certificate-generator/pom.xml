@@ -106,6 +106,16 @@
                                             <value>COVEREDRATIO</value>
                                             <minimum>.69</minimum>
                                         </limit>
+                                        <limit>
+                                            <counter>COMPLEXITY</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.77</minimum>
+                                        </limit>
+                                        <limit>
+                                            <counter>LINE</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.75</minimum>
+                                        </limit>
                                     </limits>
                                 </rule>
                                 <rule>
