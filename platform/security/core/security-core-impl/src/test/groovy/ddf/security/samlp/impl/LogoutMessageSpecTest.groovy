@@ -111,8 +111,8 @@ class LogoutMessageSpecTest extends Specification {
         StatusCode.SUCCESS.equals(logoutResponse.status.statusCode.value)
         IN_RESPONSE_TO.equals(logoutResponse.inResponseTo)
         SAMLVersion.VERSION_20.equals(logoutResponse.version)
-        now().
-                isAfter(Instant.ofEpochMilli(logoutResponse.issueInstant.millis))
+        !now().
+                isBefore(Instant.ofEpochMilli(logoutResponse.issueInstant.millis))
     }
 
     def "build logout response with no inResponseTo"() {

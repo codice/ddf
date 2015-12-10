@@ -38,7 +38,7 @@ public class KeystoreValidatorTest {
 
     private static final String BLACK_LIST = "/blacklisted.jks";
 
-    private static final String FAKE_BLACK_LIST = "/fakeblacklisted.jks";
+    private static final Path FAKE_BLACK_LIST_PATH = Paths.get("/fakeblacklisted.jks");
 
     private static final String INSECURE_KEYSTORE = "/insecureKeystore.jks";
 
@@ -136,7 +136,7 @@ public class KeystoreValidatorTest {
 
         // Setup
         KeystoreValidator keystoreValidator = new KeystoreValidator();
-        keystoreValidator.setBlacklistKeystorePath(Paths.get(FAKE_BLACK_LIST));
+        keystoreValidator.setBlacklistKeystorePath(FAKE_BLACK_LIST_PATH);
         keystoreValidator.setBlacklistKeystorePassword(DEFAULT_BLACKLIST_PASSWORD);
         Path path = Paths.get(getClass().getResource(INSECURE_KEYSTORE)
                 .toURI());
@@ -160,9 +160,7 @@ public class KeystoreValidatorTest {
                                 path,
                                 DEFAULT_KEYSTORE_PASSWORD),
                         String.format(KeystoreValidator.BLACKLIST_KEYSTORE_DOES_NOT_EXIST_MSG,
-                                path,
-                                FAKE_BLACK_LIST,
-                                FAKE_BLACK_LIST)};
+                                path, FAKE_BLACK_LIST_PATH, FAKE_BLACK_LIST_PATH)};
         assertThat(actualMessages, hasItems(expectedAlertMessages));
     }
 
@@ -187,7 +185,7 @@ public class KeystoreValidatorTest {
         assertThat(alerts.get(0)
                         .getMessage(),
                 is(String.format(KeystoreValidator.KEYSTORE_DOES_NOT_EXIST_MSG,
-                        FAKE_KEYSTORE,
+                        Paths.get(FAKE_KEYSTORE),
                         "")));
     }
 

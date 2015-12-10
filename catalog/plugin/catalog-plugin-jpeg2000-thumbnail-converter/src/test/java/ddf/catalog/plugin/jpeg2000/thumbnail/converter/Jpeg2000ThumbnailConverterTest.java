@@ -14,10 +14,13 @@
 package ddf.catalog.plugin.jpeg2000.thumbnail.converter;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -54,8 +57,12 @@ public class Jpeg2000ThumbnailConverterTest {
         QueryResponseImpl queryResponse = new QueryResponseImpl(null, resultList, 1);
         // there are two possible byte signatures, so test an example of each one
         for (String image : new String[] {"/Bretagne2.j2k", "/Cevennes2.jp2"}) {
-            j2kbytes = Files.readAllBytes(Paths.get(getClass().getResource(image)
-                    .getPath()));
+            URL imageResource = Jpeg2000ThumbnailConverterTest.class.getResource(image);
+            if (imageResource == null) {
+                fail("The Image Resource came back null. Was the resources folder removed?");
+            }
+            String imageResourcePath = new File(imageResource.getFile()).getAbsolutePath();
+            j2kbytes = Files.readAllBytes(Paths.get(imageResourcePath));
             metacard.setAttribute(new AttributeImpl(Metacard.THUMBNAIL, j2kbytes));
             jpeg2000ThumbnailConverter.process(queryResponse);
             // verify the plugin converted the j2k/jp2 image

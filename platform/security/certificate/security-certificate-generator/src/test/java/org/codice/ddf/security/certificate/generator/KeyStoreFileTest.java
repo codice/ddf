@@ -20,8 +20,11 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -67,9 +70,12 @@ public class KeyStoreFileTest {
     }
 
     String getPathTo(String path) {
-        return getClass().getClassLoader()
-                .getResource(path)
-                .getPath();
+        URL resourcePath = getClass().getClassLoader()
+                .getResource(path);
+        if (resourcePath == null) {
+            fail("Could not retrieve resource. Check the resources folder.");
+        }
+        return new File(resourcePath.getPath()).getPath();
     }
 
     @Before
@@ -117,7 +123,6 @@ public class KeyStoreFileTest {
     //Test Constructor. Valid file, valid password.
     @Test
     public void testConstructor() {
-
         KeyStoreFile keyStore = KeyStoreFile.openFile(getPathTo(KEYSTORE_COPY), PASSWORD);
         assertNotNull(keyStore.aliases());
         assertThat("Missing key in keystore test file resource",
@@ -126,9 +131,11 @@ public class KeyStoreFileTest {
     }
 
     Path refreshKeyStoreFile() throws IOException {
-        return Files.copy(Paths.get(getPathTo(KEYSTORE_TEMPLATE)),
-                Paths.get(getPathTo(KEYSTORE_COPY)),
-                REPLACE_EXISTING);
+        String stringToKeystoreTemplate = getPathTo(KEYSTORE_TEMPLATE);
+        String stringToKeystoreCopy = getPathTo(KEYSTORE_COPY);
+        Path pathToKeystoreTemplate = Paths.get(stringToKeystoreTemplate);
+        Path pathToKeystoreCopy = Paths.get(stringToKeystoreCopy);
+        return Files.copy(pathToKeystoreTemplate, pathToKeystoreCopy, REPLACE_EXISTING);
     }
 
     @Test

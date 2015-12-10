@@ -63,7 +63,7 @@ public class UsersPropertiesFileValidatorTest {
         assertThat(alerts.get(0)
                         .getMessage(),
                 is(String.format(UsersPropertiesFileValidator.GENERIC_INSECURE_DEFAULTS_MSG,
-                        FAKE_USERS_PROPERTIES_FILE)));
+                        Paths.get(FAKE_USERS_PROPERTIES_FILE))));
     }
 
     @Test

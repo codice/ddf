@@ -58,7 +58,7 @@ public class MigratableUtilTest {
     private static final Path VALID_SOURCE_FILE = Paths.get(VALID_SOURCE_PATH.toString(),
             CONFIG_FILE_NAME);
 
-    private static final Path ABSOLUTE_SOURCE_PATH = Paths.get("/root", "etc");
+    private static final Path ABSOLUTE_SOURCE_PATH = Paths.get(System.getProperty("java.io.tmpdir"));
 
     private static final Path ABSOLUTE_SOURCE_FILE = Paths.get(ABSOLUTE_SOURCE_PATH.toString(),
             CONFIG_FILE_NAME);
@@ -98,6 +98,7 @@ public class MigratableUtilTest {
         ddfHome = Paths.get(tempDir.getRoot()
                 .getAbsolutePath(), DDF_BASE_DIR.toString())
                 .toRealPath();
+
         warnings = new ArrayList<>();
 
         System.setProperty(DDF_HOME_PROPERTY_NAME, ddfHome.toString());

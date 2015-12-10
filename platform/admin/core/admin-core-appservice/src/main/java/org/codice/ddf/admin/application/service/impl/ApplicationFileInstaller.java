@@ -17,7 +17,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.net.URISyntaxException;
+import java.nio.file.Paths;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
@@ -51,8 +51,6 @@ public class ApplicationFileInstaller {
 
     private static final String REPO_LOCATION = "system" + File.separator;
 
-    private static final String URI_PROTOCOL = "file:";
-
     /**
      * Installs the given application file to the system repository.
      *
@@ -61,10 +59,10 @@ public class ApplicationFileInstaller {
      * @return A string URI that points to the main feature file for the
      *         application that was just installed.
      * @throws ApplicationServiceException
-     *             If any errors occur while trying to install the application
+     *             If any errors occur while trying to install the application.
      */
     public static URI install(File application) throws ApplicationServiceException {
-        // extract files to local repo
+        // Extract files to local repo
         ZipFile appZip = null;
         try {
             appZip = new ZipFile(application);
@@ -72,23 +70,18 @@ public class ApplicationFileInstaller {
                 LOGGER.debug("Installing {} to the system repository.",
                         application.getAbsolutePath());
                 String featureLocation = installToRepo(appZip);
-                String uri = URI_PROTOCOL + new File("").getAbsolutePath() + File.separator
-                        + REPO_LOCATION + featureLocation;
+                String uri = new File("").getAbsolutePath()
+                        + File.separator + REPO_LOCATION + featureLocation;
 
-                // lets standardize the file separators in this uri.
+                // Lets standardize the file separators in this uri.
                 // It fails on windows if we do not use.
-                uri = uri.replace("\\", "/");
-                return new URI(uri);
+                return Paths.get(uri).toUri();
             }
 
         } catch (ZipException ze) {
             LOGGER.warn("Got an error when trying to read the application as a zip file.", ze);
         } catch (IOException ioe) {
             LOGGER.warn("Got an error when trying to read the incoming application.", ioe);
-        } catch (URISyntaxException e) {
-            LOGGER.warn(
-                    "Installed application but could not obtain correct location to feature file.",
-                    e);
         } finally {
             IOUtils.closeQuietly(appZip);
         }
@@ -99,11 +92,11 @@ public class ApplicationFileInstaller {
     /**
      * Detects and Builds an AppDetail based on the zip file provided.
      *
-     * To start the process, we find the features.xml file. Once we find it within the zipfile, we
+     * To start the process, we find the features.xml file. Once we find it within the zip file, we
      * specifically get a stream to that file. Next we parse through the features.xml and extract
      * the version/appname.
      *
-     * @param application
+     * @param applicationFile
      *            the file to detect appname and version from.
      * @return {@link ZipFileApplicationDetails} containing appname and version.
      * @throws ApplicationServiceException
@@ -118,21 +111,9 @@ public class ApplicationFileInstaller {
                     applicationFile.getAbsolutePath());
 
             ZipEntry featureFileEntry = getFeatureFile(appZip);
-            ZipFileApplicationDetails details = getAppDetailsFromFeature(appZip, featureFileEntry);
-            return details;
-        } catch (ZipException e) {
-            throw new ApplicationServiceException(
-                    "Could not get application details of the provided zipfile.",
-                    e);
-        } catch (IOException e) {
-            throw new ApplicationServiceException(
-                    "Could not get application details of the provided zipfile.",
-                    e);
-        } catch (ParserConfigurationException e) {
-            throw new ApplicationServiceException(
-                    "Could not get application details of the provided zipfile.",
-                    e);
-        } catch (SAXException e) {
+            return getAppDetailsFromFeature(appZip, featureFileEntry);
+
+        } catch (IOException | SAXException | ParserConfigurationException e) {
             throw new ApplicationServiceException(
                     "Could not get application details of the provided zipfile.",
                     e);
@@ -169,7 +150,7 @@ public class ApplicationFileInstaller {
      * REPO_LOCATION.
      *
      * @param appZip
-     *            the zipfile to extract.
+     *            the ZipFile to extract.
      * @return the detected feature file location.
      */
     private static String installToRepo(ZipFile appZip) {
@@ -199,10 +180,10 @@ public class ApplicationFileInstaller {
     }
 
     /**
-     * Loops through all zipFile entries to find the features.xml file.
+     * Loops through all of zipFile's entries to find the features.xml file.
      *
-     * @param zipFile
-     * @return
+     * @param zipFile The ZipFile to search for the feature file.
+     * @return The ZipEntry representing the features.xml file.
      */
     private static ZipEntry getFeatureFile(ZipFile zipFile) {
         Enumeration<?> entries = zipFile.entries();
@@ -221,8 +202,7 @@ public class ApplicationFileInstaller {
     /**
      * Detects if the given zip file entry matches the features.xml naming scheme.
      *
-     * @param entry
-     *            the zip entry to check
+     * @param entry The zip entry to check.
      * @return <code>true</code> if the zip entry matches the features.xml file naming scheme.
      */
     private static boolean isFeatureFile(ZipEntry entry) {
@@ -239,9 +219,9 @@ public class ApplicationFileInstaller {
      *            zip file get the {@link InputStream} from.
      * @param featureZipEntry
      *            the specific file pointing to the features.xml file.
-     * @return the {@link ZipFileApplicationDetails} of the given features.xml file.
+     * @return The {@link ZipFileApplicationDetails} of the given features.xml file.
      * @throws ApplicationServiceException
-     *             any error that occurs within this method, will be wrapped in this.
+     *             Any error that occurs within this method will be wrapped in this.
      * @throws ParserConfigurationException
      * @throws IOException
      * @throws SAXException
