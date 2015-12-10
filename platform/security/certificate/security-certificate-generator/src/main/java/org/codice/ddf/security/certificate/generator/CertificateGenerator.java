@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -15,8 +15,6 @@
 package org.codice.ddf.security.certificate.generator;
 
 import java.lang.management.ManagementFactory;
-import java.security.KeyStore;
-import java.security.cert.X509Certificate;
 
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanServer;
@@ -30,9 +28,6 @@ public class CertificateGenerator implements CertificateGeneratorMBean {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CertificateGenerator.class);
 
-    /**
-     * Constructor. Registers the object as a service provider.
-     */
     public CertificateGenerator() {
         registerMbean();
     }
@@ -59,26 +54,24 @@ public class CertificateGenerator implements CertificateGeneratorMBean {
      * @return the string used as the common name in the new certificate
      */
     public String configureDemoCert(String commonName) {
-        CertificateAuthority demoCa = new DemoCertificateAuthority();
-        CertificateSigningRequest csr = new CertificateSigningRequest();
-        csr.setCommonName(commonName);
-        KeyStore.PrivateKeyEntry pkEntry = demoCa.sign(csr);
-        KeyStoreFile ksFile = getKeyStoreFile();
-        for (String alias : ksFile.aliases()) {
-            if (ksFile.isKey(alias)) {
-                ksFile.deleteEntry(alias);
-            }
-        }
-        ksFile.setEntry(commonName, pkEntry);
-        ksFile.save();
-        String distinguishedName = ((X509Certificate) pkEntry.getCertificate()).getSubjectDN()
-                .getName();
-        return distinguishedName;
+        return CertificateCommand.configureDemoCert(commonName);
     }
 
-    protected KeyStoreFile getKeyStoreFile() {
-        return KeyStoreFile.openFile(System.getProperty("javax.net.ssl.keyStore"),
-                System.getProperty("javax.net.ssl.keyStorePassword").toCharArray());
+    /**
+     * Remove key from server keystore. The input is the key's alias in the keystore.
+     * The method returns true if the key is no longer in the keystore, or false if the
+     * key is in the keystore.
+     *
+     * @param alias
+     * @return true if the key is not in the keystore, otherwise false
+     */
+    public Boolean removeKey(String alias) {
+
+        return CertificateCommand.removeKey(alias);
+    }
+
+    public KeyStoreFile getKeyStoreFile() {
+        return CertificateCommand.getKeyStoreFile();
     }
 
     protected void registerMbean() {

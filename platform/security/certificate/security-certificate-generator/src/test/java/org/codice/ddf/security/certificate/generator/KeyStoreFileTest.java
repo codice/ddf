@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -36,8 +36,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import ddf.security.SecurityConstants;
-
 @RunWith(value = MockitoJUnitRunner.class)
 public class KeyStoreFileTest {
 
@@ -60,7 +58,7 @@ public class KeyStoreFileTest {
     @BeforeClass
     public static void init() {
         properties = System.getProperties();
-        System.setProperty(SecurityConstants.KEYSTORE_TYPE, "JKS");
+        System.setProperty("javax.net.ssl.keyStoreType", "JKS");
     }
 
     @AfterClass
@@ -69,7 +67,9 @@ public class KeyStoreFileTest {
     }
 
     String getPathTo(String path) {
-        return getClass().getClassLoader().getResource(path).getPath();
+        return getClass().getClassLoader()
+                .getResource(path)
+                .getPath();
     }
 
     @Before
@@ -125,9 +125,9 @@ public class KeyStoreFileTest {
     }
 
     Path refreshKeyStoreFile() throws IOException {
-        return Files
-                .copy(Paths.get(getPathTo(KEYSTORE_TEMPLATE)), Paths.get(getPathTo(KEYSTORE_COPY)),
-                        REPLACE_EXISTING);
+        return Files.copy(Paths.get(getPathTo(KEYSTORE_TEMPLATE)),
+                Paths.get(getPathTo(KEYSTORE_COPY)),
+                REPLACE_EXISTING);
     }
 
     @Test
@@ -136,8 +136,8 @@ public class KeyStoreFileTest {
         KeyStoreFile ksFile = KeyStoreFile.openFile(getPathTo(KEYSTORE_COPY), PASSWORD);
 
         //Get a cert from the keystore
-        KeyStore.TrustedCertificateEntry demoCa = (KeyStore.TrustedCertificateEntry) ksFile
-                .getEntry(ALIAS_DEMO_CA);
+        KeyStore.TrustedCertificateEntry demoCa =
+                (KeyStore.TrustedCertificateEntry) ksFile.getEntry(ALIAS_DEMO_CA);
         assertThat("Could not retrieve Demo CA from keystore", demoCa,
                 instanceOf(KeyStore.TrustedCertificateEntry.class));
         assertThat(ksFile.isKey(ALIAS_DEMO_CA), is(false));
