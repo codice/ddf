@@ -284,6 +284,7 @@ public class IdpEndpoint implements Idp {
                                         .getValue());
                     }
                 }
+                logAddedSp(authnRequest);
 
                 return binding.creator()
                         .getSamlpResponse(relayState,
@@ -351,6 +352,13 @@ public class IdpEndpoint implements Idp {
 
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                 .build();
+    }
+
+    void logAddedSp(AuthnRequest authnRequest) {
+        LOGGER.debug("request id [{}] added activeSP list: {}",
+                authnRequest.getID(),
+                authnRequest.getIssuer()
+                        .getValue());
     }
 
     private Response getErrorResponse(String relayState, AuthnRequest authnRequest,
@@ -434,9 +442,7 @@ public class IdpEndpoint implements Idp {
                 cookieCache.addActiveSp(newCookie.getValue(),
                         authnRequest.getIssuer()
                                 .getValue());
-                LOGGER.debug("Adding SP to activeSP list: {}",
-                        authnRequest.getIssuer()
-                                .getValue());
+                logAddedSp(authnRequest);
             }
 
             return response;

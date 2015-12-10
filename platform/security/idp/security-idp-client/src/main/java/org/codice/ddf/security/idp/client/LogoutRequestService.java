@@ -42,9 +42,9 @@ import org.apache.wss4j.common.util.DOM2Writer;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.codice.ddf.security.session.RelayStates;
-import org.opensaml.saml1.core.StatusCode;
 import org.opensaml.saml2.core.LogoutRequest;
 import org.opensaml.saml2.core.LogoutResponse;
+import org.opensaml.saml2.core.StatusCode;
 import org.opensaml.xml.validation.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -177,7 +177,7 @@ public class LogoutRequestService {
 
             LogoutResponse logoutResponse =
                     logoutService.buildLogoutResponse(logoutRequest.getIssuer()
-                            .getValue(), StatusCode.SUCCESS.toString());
+                            .getValue(), StatusCode.SUCCESS_URI);
             try {
 
                 return getSamlpPostLogoutResponse(relayState, logoutResponse, submitForm);
@@ -213,7 +213,7 @@ public class LogoutRequestService {
                 String entityId = getEntityId();
                 //TODO seems inefficient to pass the the status is string rather than enum
                 LogoutResponse logoutResponse = logoutService.buildLogoutResponse(entityId,
-                        StatusCode.SUCCESS.toString());
+                        StatusCode.SUCCESS_URI);
                 try {
                     return getSamlpRedirectLogoutResponse(relayState, logoutResponse, redirectPage);
                 } catch (SimpleSign.SignatureException | WSSecurityException | IOException | URISyntaxException e) {
