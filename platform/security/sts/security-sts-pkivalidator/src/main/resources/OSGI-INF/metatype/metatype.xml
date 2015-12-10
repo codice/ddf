@@ -23,6 +23,11 @@
             description="The realms to be validated by this validator.">
 	    </AD>
 
+		<AD name="Do Full Path Validation" id="pathValidation" required="true" type="Boolean"
+			default="true"
+			description="Validate the full certificate path. Uncheck to only validate the subject cert. (RFC5280 6.1)">
+		</AD>
+
 	</OCD>
 
 	<Designate pid="org.codice.ddf.security.validator.pki">
