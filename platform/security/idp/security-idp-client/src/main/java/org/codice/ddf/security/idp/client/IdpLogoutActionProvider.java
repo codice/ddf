@@ -15,8 +15,9 @@ package org.codice.ddf.security.idp.client;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.function.Function;
+import java.util.Map;
 
+import org.apache.shiro.subject.Subject;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import ddf.action.Action;
 import ddf.action.ActionProvider;
 import ddf.action.impl.ActionImpl;
+import ddf.security.SubjectUtils;
 import ddf.security.encryption.EncryptionService;
 
 public class IdpLogoutActionProvider implements ActionProvider {
@@ -38,26 +40,32 @@ public class IdpLogoutActionProvider implements ActionProvider {
 
     EncryptionService encryptionService;
 
-    // TODO (RAP) - Add javadoc
+    /***
+     *
+     * @param realmSubjectMap containing a realm of "idp" with the corresponding subject
+     * @param <T> is a Map<String, Subject>
+     * @return IdpLogoutActionProvider containing the logout url
+     */
     @Override
-    public <T> Action getAction(T var) {
+    public <T> Action getAction(T realmSubjectMap) {
 
         URL logoutUrl = null;
-        if (var instanceof Function) {
+        if (realmSubjectMap instanceof Map) {
             try {
+
                 @SuppressWarnings("unchecked")
-                String nameId = ((Function<String, String>) var).apply("idp");
+                String nameId = SubjectUtils.getName((Subject)((Map) realmSubjectMap).get("idp"));
 
                 String nameIdTimestamp = nameId + "\n" + System.currentTimeMillis();
                 nameIdTimestamp = encryptionService.encrypt(nameIdTimestamp);
                 logoutUrl = new URL(new SystemBaseUrl().constructUrl(
-                        "/saml/logout/start" +  "?NameId=" + nameId + "&NameIdTimestamp" + nameIdTimestamp, true));
+                        "/saml/logout/request" +  "?EncryptedNameIdTime=" + nameIdTimestamp, true));
 
             } catch (MalformedURLException e) {
                 LOGGER.info("Unable to resolve URL: {}",
                         new SystemBaseUrl().constructUrl("/logout/local"));
             } catch (ClassCastException e) {
-                LOGGER.debug("Unable to cast parameter to Function<String, String>, {}", var, e);
+                LOGGER.debug("Unable to cast parameter to Map<String, Subject>, {}", realmSubjectMap, e);
             }
         }
         return new ActionImpl(ID, TITLE, DESCRIPTION, logoutUrl);

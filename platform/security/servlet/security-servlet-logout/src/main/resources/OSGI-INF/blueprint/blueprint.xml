@@ -32,6 +32,7 @@
         <cm:managed-properties persistent-id="org.codice.ddf.security.servlet.logout.LogoutService"
                                update-strategy="container-managed"/>
         <property name="logoutActionProviders" ref="logoutActionProvidersList"></property>
+        <property name="securityManager" ref="securityManager"/>
         <property name="httpSessionFactory">
             <reference interface="ddf.security.http.SessionFactory" filter="(id=http)"/>
         </property>
@@ -42,6 +43,8 @@
             <ref component-id="logoutService"/>
         </jaxrs:serviceBeans>
     </jaxrs:server>
+
+    <reference id="securityManager" interface="ddf.security.service.SecurityManager"/>
 
     <service interface="javax.servlet.Servlet">
         <service-properties>

@@ -13,7 +13,18 @@
  **/
 
  -->
-<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.2.0">
+
+    <OCD name="Logout Page" id="org.codice.ddf.security.idp.client.LogoutRequestService">
+        <AD
+                name="Log Out Page Time Out" id="logOutPageTimeOut" required="true" type="Long"
+                default="3600000"
+                description="This is the time limit that the IDP client will wait for a user to click log out on the log out page. Any requests that take longer than this time for the user to submit will be rejected."/>
+    </OCD>
+
+    <Designate pid="org.codice.ddf.security.idp.client.LogoutRequestService">
+        <Object ocdref="org.codice.ddf.security.idp.client.LogoutRequestService"/>
+    </Designate>
 
     <OCD name="IdP Client" id="org.codice.ddf.security.idp.client.IdpMetadata">
         <AD

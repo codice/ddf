@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -30,17 +29,16 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
-import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.shiro.subject.Subject;
-import org.apache.shiro.subject.Subject.Builder;
 
 import ddf.action.Action;
 import ddf.action.ActionProvider;
 import ddf.security.SecurityConstants;
 import ddf.security.SubjectUtils;
-import ddf.security.assertion.impl.SecurityAssertionImpl;
 import ddf.security.common.util.SecurityTokenHolder;
 import ddf.security.http.SessionFactory;
+import ddf.security.service.SecurityManager;
+import ddf.security.service.SecurityServiceException;
 
 @Path("/")
 public class LogoutService {
@@ -48,6 +46,8 @@ public class LogoutService {
     private List<ActionProvider> logoutActionProviders;
 
     private SessionFactory httpSessionFactory;
+
+    private SecurityManager securityManager;
 
     @GET
     @Path("/actions")
@@ -63,21 +63,25 @@ public class LogoutService {
         Map<String, Subject> realmSubjectMap = new HashMap<>();
 
         for (String realm : realmTokenMap.keySet()) {
-            SecurityAssertionImpl securityAssertion = new SecurityAssertionImpl(realmTokenMap.get(
-                    realm));
-            Subject subject = new Builder().principals(new SimplePrincipalCollection(
-                    securityAssertion,
-                    realm))
-                    .buildSubject();
+            Subject subject = null;
+            try {
+                subject = securityManager.getSubject(realmTokenMap.get(realm));
+            } catch (SecurityServiceException e) {
+                e.printStackTrace();//TODO add logger or do something else
+            }
+            //            SecurityAssertionImpl securityAssertion = new SecurityAssertionImpl(realmTokenMap.get(
+//                    realm),);
+//            Subject subject = new Builder().principals(new SimplePrincipalCollection(
+//                    securityAssertion,
+//                    realm))
+//                    .buildSubject();
             realmSubjectMap.put(realm, subject);
         }
 
         List<Map<String, String>> realmToPropMaps = new ArrayList<>();
-        Function<String, String> getNameToEncrypt =
-                (realm) -> SubjectUtils.getName(realmSubjectMap.get(realm));
 
         for (ActionProvider actionProvider : logoutActionProviders) {
-            Action action = actionProvider.getAction(getNameToEncrypt);
+            Action action = actionProvider.getAction(realmSubjectMap);
             String realm = action.getId()
                     .substring(action.getId()
                             .lastIndexOf(".")
@@ -108,6 +112,11 @@ public class LogoutService {
 
     public void setLogoutActionProviders(List<ActionProvider> logoutActionProviders) {
         this.logoutActionProviders = logoutActionProviders;
+    }
+
+
+    public void setSecurityManager(SecurityManager securityManager) {
+        this.securityManager = securityManager;
     }
 
 }

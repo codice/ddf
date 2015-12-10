@@ -53,11 +53,11 @@ import org.w3c.dom.Document;
 import ddf.security.SecurityConstants;
 import ddf.security.common.util.SecurityTokenHolder;
 import ddf.security.encryption.EncryptionService;
+import ddf.security.http.SessionFactory;
 import ddf.security.samlp.LogoutService;
 import ddf.security.samlp.SimpleSign;
 import ddf.security.samlp.SystemCrypto;
 
-//TODO rename this class since it will have to handle requests and responses
 @Path("logout")
 public class LogoutRequestService {
 
@@ -74,8 +74,6 @@ public class LogoutRequestService {
     private static final String SIG_ALG = "SigAlg";
 
     private static final String SIGNATURE = "Signature";
-
-    private static final String NAME_ID = "NameId";
 
     private SimpleSign simpleSign;
 
@@ -97,6 +95,10 @@ public class LogoutRequestService {
     private final RelayStates<String> relayStates;
 
     private EncryptionService encryptionService;
+
+    private SessionFactory sessionFactory;
+
+    private long logOutPageTimeOut = 3600000;
 
     public LogoutRequestService(SimpleSign simpleSign, IdpMetadata idpMetadata,
             SystemCrypto systemCrypto, SystemBaseUrl systemBaseUrl,
@@ -122,27 +124,48 @@ public class LogoutRequestService {
         OpenSAMLUtil.initSamlEngine();
     }
 
+    //TODO change it to a post since its not idempotent and we don't want prefetching.
     @GET
-    //TODO hook tracys logout page up to this change it to post since its not idempotent and we don't want hte browser prefetching.
-    @Path("/start")//TODO is this okay for a url
-    public Response sendLogoutRequest(@QueryParam("NameId") String nameId,
-            @QueryParam("EncryptedNameIdTime") String encryptedNameIdTime) {
-        //        String nameIdTime = encryptionService.decryptValue(encryptedNameIdTime);
-        //        String[] nameIdTimeArray = StringUtils.split(nameIdTime,"\n");
-        //        String name = nameIdTimeArray[0];
-        //        Long time = Long.parseLong(nameIdTimeArray[1]);
-        logout();
-        LogoutRequest logoutRequest = logoutService.buildLogoutRequest(nameId, getEntityId());
+    @Path("/request")
+    public Response sendLogoutRequest(@QueryParam("EncryptedNameIdTime") String encryptedNameIdTime) {
+        String nameIdTime = encryptionService.decrypt(encryptedNameIdTime);
+        String[] nameIdTimeArray = StringUtils.split(nameIdTime,"\n");
+        if(nameIdTimeArray.length==2) {
+            try {
+                String name = nameIdTimeArray[0];
+                Long time = Long.parseLong(nameIdTimeArray[1]);
+                if(System.currentTimeMillis()-time>logOutPageTimeOut)//+skew
+                {
+                    String msg = String.format("Logout request was older than %sms old so it was rejected. Please refresh page and request again.",logOutPageTimeOut);
+                    LOGGER.error(msg);
+                    return Response.serverError()
+                            .entity(msg)
+                            .build();
+                }
+                logout();
+                LogoutRequest logoutRequest = logoutService.buildLogoutRequest(name, getEntityId());
 
-        String relayState = relayStates.encode(nameId);
-        try {
-            return getSamlpRedirectLogoutRequest(relayState, logoutRequest, redirectPage);
-        } catch (IOException | WSSecurityException | SimpleSign.SignatureException | URISyntaxException e) {
-            LOGGER.error("Failed to create logout request.", e);
+                String relayState = relayStates.encode(name);
+
+                return getSamlpRedirectLogoutRequest(relayState, logoutRequest, redirectPage);
+            }catch (Exception e)
+            {
+                LOGGER.error("Failed to create logout request.", e);
+                return Response.serverError()
+                        .entity("Failed to create logout request.")
+                        .build();
+            }
+
+        }else
+        {
+            String msg = "Failed to decrypt logout request params. Invalid number of params.";
+            LOGGER.error(msg);
             return Response.serverError()
-                    .entity("Failed to create logout request.")
+                    .entity(msg)
                     .build();
         }
+
+
     }
 
     public Response getSamlpRedirectLogoutRequest(String relayState, LogoutRequest logoutRequest,
@@ -157,7 +180,7 @@ public class LogoutRequestService {
                 relayState);
         String redirectUpdated = responseTemplate.replace("{{redirect}}", location.toString());
         Response.ResponseBuilder ok =
-                Response.ok(redirectUpdated); //TODO why cant we just use .seeOther
+                Response.ok(redirectUpdated);
         return ok.build();
     }
 
@@ -211,7 +234,6 @@ public class LogoutRequestService {
                 LogoutRequest logoutRequest = processSamlLogoutRequest(RestSecurity.inflateBase64(
                         deflatedSamlRequest));
                 String entityId = getEntityId();
-                //TODO seems inefficient to pass the the status is string rather than enum
                 LogoutResponse logoutResponse = logoutService.buildLogoutResponse(entityId,
                         StatusCode.SUCCESS_URI);
                 try {
@@ -324,8 +346,7 @@ public class LogoutRequestService {
     }
 
     private void logout() {
-        //TODO this logic should be in the session factory instead?
-        HttpSession session = request.getSession(false);
+        HttpSession session = sessionFactory.getOrCreateSession(request);
 
         SecurityTokenHolder tokenHolder = ((SecurityTokenHolder) session.getAttribute(
                 SecurityConstants.SAML_ASSERTION));
@@ -365,7 +386,7 @@ public class LogoutRequestService {
                 relayState);
         String redirectUpdated = responseTemplate.replace("{{redirect}}", location.toString());
         Response.ResponseBuilder ok =
-                Response.ok(redirectUpdated); //TODO why cant we just use .seeOther
+                Response.ok(redirectUpdated);
         return ok.build();
     }
 
@@ -456,4 +477,14 @@ public class LogoutRequestService {
     public void setEncryptionService(EncryptionService encryptionService) {
         this.encryptionService = encryptionService;
     }
+
+    public void setSessionFactory(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
+    }
+
+    public void setLogOutPageTimeOut(long logOutPageTimeOut) {
+        this.logOutPageTimeOut = logOutPageTimeOut;
+    }
+
+
 }
