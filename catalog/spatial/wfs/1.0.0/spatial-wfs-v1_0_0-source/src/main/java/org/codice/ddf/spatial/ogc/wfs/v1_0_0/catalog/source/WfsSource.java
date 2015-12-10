@@ -100,6 +100,7 @@ import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.util.impl.MaskableImpl;
 import ddf.security.service.SecurityServiceException;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import ogc.schema.opengis.filter.v_1_0_0.FilterType;
 import ogc.schema.opengis.wfs.v_1_0_0.GetFeatureType;
 import ogc.schema.opengis.wfs.v_1_0_0.ObjectFactory;
@@ -345,6 +346,7 @@ public class WfsSource extends MaskableImpl
         return !StringUtils.equals(this.username, username);
     }
 
+    @SuppressFBWarnings("RC_REF_COMPARISON_BAD_PRACTICE_BOOLEAN")
     private boolean hasDisableCnCheck(Boolean disableCnCheck) {
         return this.disableCnCheck != disableCnCheck;
     }
@@ -536,13 +538,15 @@ public class WfsSource extends MaskableImpl
         unregisterAllMetacardTypes();
         this.featureTypeFilters.clear();
         if (!mcTypeRegs.isEmpty()) {
-            for (String ftName : mcTypeRegs.keySet()) {
-                MetacardTypeRegistration mcTypeReg = mcTypeRegs.get(ftName);
+            Set<Entry<String, MetacardTypeRegistration>> entries = mcTypeRegs.entrySet();
+
+            for (Map.Entry<String, MetacardTypeRegistration> entry : mcTypeRegs.entrySet()) {
+                MetacardTypeRegistration mcTypeReg = entry.getValue();
                 FeatureMetacardType ftMetacard = mcTypeReg.getFtMetacard();
                 ServiceRegistration serviceRegistration = context
                         .registerService(MetacardType.class.getName(), ftMetacard,
                                 mcTypeReg.getProps());
-                this.metacardTypeServiceRegistrations.put(ftName, serviceRegistration);
+                this.metacardTypeServiceRegistrations.put(entry.getKey(), serviceRegistration);
                 this.featureTypeFilters.put(ftMetacard.getFeatureType(),
                         new WfsFilterDelegate(ftMetacard, supportedGeo, mcTypeReg.getSrs()));
             }
@@ -656,7 +660,7 @@ public class WfsSource extends MaskableImpl
                 results.add(result);
                 debugResult(result);
             }
-            Long totalHits = new Long(featureCollection.getFeatureMembers().size());
+            Long totalHits = Long.valueOf(featureCollection.getFeatureMembers().size());
             simpleResponse = new SourceResponseImpl(request, results, totalHits);
         } catch (WfsException wfse) {
             LOGGER.warn(WFS_ERROR_MESSAGE, wfse);
@@ -988,7 +992,7 @@ public class WfsSource extends MaskableImpl
         }
     }
 
-    private class MetacardTypeRegistration {
+    private static class MetacardTypeRegistration {
 
         private FeatureMetacardType ftMetacard;
 

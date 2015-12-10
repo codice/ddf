@@ -96,7 +96,7 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin {
 
     private static final int NUMBER_OF_YEARLY_REPORTS = 1;
 
-    private SystemBaseUrl systemBaseUrl;
+    private transient SystemBaseUrl systemBaseUrl;
 
     public MetricsWebConsolePlugin(SystemBaseUrl sbu) {
         this.systemBaseUrl = sbu;

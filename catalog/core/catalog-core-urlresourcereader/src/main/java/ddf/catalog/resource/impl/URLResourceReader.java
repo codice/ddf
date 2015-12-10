@@ -412,8 +412,8 @@ public class URLResourceReader implements ResourceReader {
     private void skipBytes(InputStream is, String bytesToSkip) throws IOException {
         if (bytesToSkip != null) {
             LOGGER.debug("Skipping {} bytes", bytesToSkip);
-            long bytesSkipped = is.skip(Long.valueOf(bytesToSkip));
-            if (Long.valueOf(bytesToSkip) != bytesSkipped) {
+            long bytesSkipped = is.skip(Long.parseLong(bytesToSkip));
+            if (Long.parseLong(bytesToSkip) != bytesSkipped) {
                 LOGGER.debug("Did not skip specified bytes while retrieving resource."
                         + " Bytes to skip: {} -- Skipped Bytes: {}", bytesToSkip, bytesSkipped);
             }

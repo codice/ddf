@@ -14,10 +14,12 @@
 package ddf.security;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -44,11 +46,14 @@ public final class PropertiesLoader {
     @SuppressWarnings("unchecked")
     public static <K, V> Map<K, V> toMap(Properties properties) {
         if (properties != null) {
-            Set<K> keySet = (Set<K>) properties.keySet();
-            Map<K, V> map = new HashMap<K, V>(keySet.size() * 2);
-            for (K obj : keySet) {
-                map.put(obj, (V) properties.get(obj));
+            final Set<Map.Entry<Object, Object>> entries = properties.entrySet();
+            Map<K, V> map = new HashMap<K, V>(entries.size() * 2);
+            for(Map.Entry<Object, Object> entry : entries) {
+                map.put((K)entry.getKey(), (V)entry.getValue());
             }
+
+
+
             return map;
         }
         return new HashMap<K, V>();
@@ -140,9 +145,8 @@ public final class PropertiesLoader {
                     }
                 }
                 properties = new Properties();
-                FileReader reader = null;
-                try {
-                    reader = new FileReader(propFile);
+
+                try (InputStreamReader reader = new InputStreamReader(new FileInputStream(propertiesFile), StandardCharsets.UTF_8)) {
                     properties.load(reader);
                 } catch (FileNotFoundException e) {
                     error = true;
@@ -152,8 +156,6 @@ public final class PropertiesLoader {
                     error = true;
                     LOGGER.error("Error reading properties file: {}", propFile.getAbsolutePath(),
                             e);
-                } finally {
-                    IOUtils.closeQuietly(reader);
                 }
             }
             if (error || properties.isEmpty()) {

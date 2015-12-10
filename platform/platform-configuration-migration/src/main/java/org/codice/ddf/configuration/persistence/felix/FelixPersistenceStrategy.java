@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashSet;
@@ -60,7 +61,7 @@ public class FelixPersistenceStrategy implements PersistenceStrategy {
         try {
             properties =
                     ConfigurationHandler.read(new ByteArrayInputStream(filteredOutput.toString()
-                            .getBytes()));
+                            .getBytes(StandardCharsets.UTF_8)));
         } catch (RuntimeException e) {
             LOGGER.error("ConfigurationHandler failed to read configuration from file", e);
             throw new ConfigurationFileException("Failed to read configuration from file", e);

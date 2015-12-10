@@ -68,13 +68,15 @@ public class GeoJsonMetacardTransformer implements MetacardTransformer {
 
     private static final String SOURCE_ID_PROPERTY = "source-id";
 
-    public static MimeType defaultMimeType = null;
+    protected static final MimeType DEFAULT_MIME_TYPE = new MimeType();
 
     static {
         try {
-            defaultMimeType = new MimeType("application/json");
+            DEFAULT_MIME_TYPE.setPrimaryType("application");
+            DEFAULT_MIME_TYPE.setSubType("json");
         } catch (MimeTypeParseException e) {
-            LOGGER.warn("MimeType exception during static setup", e);
+            LOGGER.info("Failure creating MIME type", e);
+            throw new ExceptionInInitializerError(e);
         }
     }
 
@@ -185,13 +187,13 @@ public class GeoJsonMetacardTransformer implements MetacardTransformer {
 
         return new ddf.catalog.data.BinaryContentImpl(
                 new ByteArrayInputStream(jsonText.getBytes(StandardCharsets.UTF_8)),
-                defaultMimeType);
+                DEFAULT_MIME_TYPE);
     }
 
     @Override
     public String toString() {
         return MetacardTransformer.class.getName() + " {Impl=" + this.getClass().getName() + ", id="
-                + ID + ", MIME Type=" + defaultMimeType + "}";
+                + ID + ", MIME Type=" + DEFAULT_MIME_TYPE + "}";
     }
 
 }

@@ -15,6 +15,7 @@
 package ddf.catalog.pubsub.criteria.contextual;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import org.apache.lucene.store.Directory;
 import org.slf4j.Logger;
@@ -53,9 +54,11 @@ public class ContextualEvaluationCriteriaImpl implements ContextualEvaluationCri
 
         LOGGER.debug("criteria = {}", criteria);
         LOGGER.debug("textPaths:\n");
-        if (null != textPaths) {
-            for (String textPath : textPaths) {
-                LOGGER.debug(textPath);
+        if (textPaths != null) {
+            if (LOGGER.isDebugEnabled()) {
+                for (String textPath : textPaths) {
+                    LOGGER.debug(textPath);
+                }
             }
             // LOGGER.debug( "metadata:\n{}", XPathHelper.xmlToString( metadata ) );
 
@@ -66,7 +69,7 @@ public class ContextualEvaluationCriteriaImpl implements ContextualEvaluationCri
             this.textPaths = new String[textPaths.length];
             System.arraycopy(textPaths, 0, this.textPaths, 0, textPaths.length);
         }
-        this.index = ContextualEvaluator.buildIndex(metadata, textPaths);
+        this.index = ContextualEvaluator.buildIndex(metadata, this.textPaths);
     }
 
     public String getCriteria() {
@@ -86,7 +89,11 @@ public class ContextualEvaluationCriteriaImpl implements ContextualEvaluationCri
     }
 
     public String[] getTextPaths() {
-        return textPaths;
+        String[] paths = null;
+        if(textPaths != null) {
+            paths = Arrays.copyOf(textPaths, textPaths.length);
+        }
+        return paths;
     }
 
     public String getMetadata() {

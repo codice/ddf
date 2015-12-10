@@ -150,19 +150,19 @@ public class FileSystemPersistenceProvider
         if (!file.exists()) {
             return null;
         }
-        InputStream inputStream = null;
-        try {
-            inputStream = new FileInputStream(getMapStorePath() + key + PERSISTED_FILE_SUFFIX);
+
+        try (InputStream inputStream = new FileInputStream(
+                getMapStorePath() + key + PERSISTED_FILE_SUFFIX)) {
             InputStream buffer = new BufferedInputStream(inputStream);
-            ObjectInput input = new ObjectInputStream(buffer);
-            return (Object) input.readObject();
+            try (ObjectInput input = new ObjectInputStream(buffer)) {
+                return input.readObject();
+            }
         } catch (IOException e) {
             LOGGER.debug("IOException", e);
         } catch (ClassNotFoundException e) {
             LOGGER.debug("ClassNotFoundException", e);
-        } finally {
-            IOUtils.closeQuietly(inputStream);
         }
+
         return null;
     }
 

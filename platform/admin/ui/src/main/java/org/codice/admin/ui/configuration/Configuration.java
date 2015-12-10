@@ -14,6 +14,7 @@
 package org.codice.admin.ui.configuration;
 
 import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
@@ -102,7 +103,7 @@ public class Configuration {
 
         String configString = JSONValue.toJSONString(configObj);
         response = Response
-                .ok(new ByteArrayInputStream(configString.getBytes()), jsonMimeType.toString())
+                .ok(new ByteArrayInputStream(configString.getBytes(StandardCharsets.UTF_8)), jsonMimeType.toString())
                 .build();
 
         return response;

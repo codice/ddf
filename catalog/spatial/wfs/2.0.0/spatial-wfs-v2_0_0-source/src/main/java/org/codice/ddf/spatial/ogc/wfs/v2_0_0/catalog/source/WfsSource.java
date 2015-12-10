@@ -666,36 +666,32 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
                         featureCollection.getNumberReturned(), numResults);
             }
 
-            if (numResults > -1) {
-                availabilityTask.updateLastAvailableTimestamp(System.currentTimeMillis());
-                LOGGER.debug("WFS Source {}: Received featureCollection with {} metacards.",
-                        getId(), numResults);
+            availabilityTask.updateLastAvailableTimestamp(System.currentTimeMillis());
+            LOGGER.debug("WFS Source {}: Received featureCollection with {} metacards.",
+                    getId(), numResults);
 
-                List<Result> results = new ArrayList<Result>(numResults);
+            List<Result> results = new ArrayList<Result>(numResults);
 
-                for (int i = 0; i < numResults; i++) {
-                    Metacard mc = featureCollection.getMembers().get(i);
-                    mc = transform(mc, DEFAULT_WFS_TRANSFORMER_ID);
-                    Result result = new ResultImpl(mc);
-                    results.add(result);
-                    debugResult(result);
-                }
-
-                //Fetch total results available
-                Long totalResults = new Long(0);
-                if (featureCollection.getNumberMatched() == null) {
-                    totalResults = Long.valueOf(numResults);
-                } else if (featureCollection.getNumberMatched().equals(UNKNOWN)) {
-                    totalResults = Long.valueOf(numResults);
-                } else if (StringUtils.isNumeric(featureCollection.getNumberMatched())) {
-                    totalResults = Long.parseLong(featureCollection.getNumberMatched());
-                }
-
-                simpleResponse = new SourceResponseImpl(request, results, totalResults);
-            } else {
-                throw new UnsupportedQueryException(
-                        "The number of features returned is a negative number");
+            for (int i = 0; i < numResults; i++) {
+                Metacard mc = featureCollection.getMembers().get(i);
+                mc = transform(mc, DEFAULT_WFS_TRANSFORMER_ID);
+                Result result = new ResultImpl(mc);
+                results.add(result);
+                debugResult(result);
             }
+
+            //Fetch total results available
+            long totalResults = 0;
+            if (featureCollection.getNumberMatched() == null) {
+                totalResults = Long.valueOf(numResults);
+            } else if (featureCollection.getNumberMatched().equals(UNKNOWN)) {
+                totalResults = Long.valueOf(numResults);
+            } else if (StringUtils.isNumeric(featureCollection.getNumberMatched())) {
+                totalResults = Long.parseLong(featureCollection.getNumberMatched());
+            }
+
+            simpleResponse = new SourceResponseImpl(request, results, totalResults);
+
         } catch (WfsException wfse) {
             LOGGER.warn(WFS_ERROR_MESSAGE, wfse);
             throw new UnsupportedQueryException("Error received from WFS Server", wfse);
@@ -1202,7 +1198,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         }
     }
 
-    private class MetacardTypeRegistration {
+    private static class MetacardTypeRegistration {
 
         private FeatureMetacardType ftMetacard;
 

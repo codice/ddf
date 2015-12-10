@@ -31,6 +31,7 @@
  */
 package org.codice.ddf.security.validator.uname;
 
+import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 import java.util.HashSet;
 import java.util.Map;
@@ -319,7 +320,7 @@ public class UPBSTValidator implements TokenValidator {
         }
         WSUsernameTokenPrincipalImpl principal = new WSUsernameTokenPrincipalImpl(username, hashed);
         if (nonce != null) {
-            principal.setNonce(nonce.getBytes());
+            principal.setNonce(nonce.getBytes(StandardCharsets.UTF_8));
         }
         principal.setPassword(passwordValue);
         principal.setCreatedTime(createdTime);

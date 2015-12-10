@@ -33,9 +33,6 @@ public class GlobalOptions {
     @Option(name = {"-n", "--no-validation"}, title = "Disable Validation", description = "Disables validation of SSL certificates")
     private boolean disableValidation = true;
 
-    @Option(name = "--help", title = "Help", description = "Provides help for the current command")
-    private boolean helpOption = false;
-
     public String getUrl() {
         return protocol + "://" + host + ":" + port;
     }

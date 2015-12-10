@@ -16,6 +16,7 @@ package org.codice.ddf.security.idp.binding.redirect;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.staxutils.StaxUtils;
@@ -45,7 +46,8 @@ public class RedirectRequestDecoder implements RequestDecoder {
         } catch (IOException e) {
             throw new IllegalArgumentException("Unable to decode SAMLRequest: base64/inflate.");
         }
-        ByteArrayInputStream tokenStream = new ByteArrayInputStream(decodedRequest.getBytes());
+        ByteArrayInputStream tokenStream = new ByteArrayInputStream(decodedRequest.getBytes(
+                StandardCharsets.UTF_8));
         Document authnDoc;
         try {
             authnDoc = StaxUtils.read(new InputStreamReader(tokenStream, "UTF-8"));

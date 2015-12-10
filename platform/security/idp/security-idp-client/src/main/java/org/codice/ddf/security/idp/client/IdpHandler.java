@@ -19,6 +19,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 import javax.servlet.FilterChain;
@@ -307,7 +308,7 @@ public class IdpHandler implements AuthenticationHandler {
     }
 
     private String encodePostRequest(String request) throws WSSecurityException, IOException {
-        return new String(Base64.encodeBase64(request.getBytes()));
+        return new String(Base64.encodeBase64(request.getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
     }
 
     private String recreateFullRequestUrl(HttpServletRequest request) {

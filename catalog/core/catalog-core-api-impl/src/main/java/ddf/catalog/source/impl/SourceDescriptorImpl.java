@@ -16,6 +16,8 @@ package ddf.catalog.source.impl;
 import java.util.Date;
 import java.util.Set;
 
+import org.codice.ddf.platform.util.DateUtils;
+
 import ddf.catalog.data.ContentType;
 import ddf.catalog.source.SourceDescriptor;
 import ddf.catalog.util.impl.DescribableImpl;
@@ -95,17 +97,15 @@ public class SourceDescriptorImpl extends DescribableImpl implements SourceDescr
 
     @Override
     public Date getLastAvailabilityDate() {
-        return lastAvailableDate;
+        return DateUtils.copy(lastAvailableDate);
     }
 
     /**
      * Sets the last availability date.
      *
-     * @param lastAvailableDate
-     *            the new last availability date
+     * @param lastAvailableDate the new last availability date
      */
     public void setLastAvailabilityDate(Date lastAvailableDate) {
-        this.lastAvailableDate = lastAvailableDate;
+        this.lastAvailableDate = DateUtils.copy(lastAvailableDate);
     }
-
 }

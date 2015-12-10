@@ -405,7 +405,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
         SyndFeedInput syndFeedInput = new SyndFeedInput();
         SyndFeed syndFeed = null;
         try {
-            syndFeed = syndFeedInput.build(new InputStreamReader(is));
+            syndFeed = syndFeedInput.build(new InputStreamReader(is, StandardCharsets.UTF_8));
         } catch (FeedException e) {
             LOGGER.error("Unable to read RSS/Atom feed.", e);
         }

@@ -34,6 +34,7 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -134,7 +135,8 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
         copier.copy(hreader, new CompactWriter(writer, noNameCoder));
 
         StaxDriver driver = new WstxDriver();
-        return driver.createReader(new ByteArrayInputStream(writer.toString().getBytes()));
+        return driver.createReader(new ByteArrayInputStream(writer.toString().getBytes(
+                StandardCharsets.UTF_8)));
     }
 
     protected Metacard createMetacardFromFeature(HierarchicalStreamReader hreader,
@@ -301,7 +303,7 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
     private String convertToBytes(HierarchicalStreamReader reader, String unit) {
 
         BigDecimal resourceSize = new BigDecimal(reader.getValue());
-        resourceSize.setScale(1, BigDecimal.ROUND_HALF_UP);
+        resourceSize = resourceSize.setScale(1, BigDecimal.ROUND_HALF_UP);
 
         switch (unit) {
         case B:
@@ -320,6 +322,8 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
             break;
         case PB:
             resourceSize = resourceSize.multiply(new BigDecimal(BYTES_PER_PB));
+            break;
+        default:
             break;
         }
 

@@ -41,9 +41,9 @@ public class ExpansionsCommand extends OsgiCommandSupport {
                 Map<String, List<String[]>> map = expansion.getExpansionMap();
                 System.out.print(Ansi.ansi().fg(Ansi.Color.YELLOW).toString());
                 if ((map != null) && (!map.isEmpty())) {
-                    for (String key : map.keySet()) {
-                        for (String[] mapping : map.get(key)) {
-                            System.out.println(key + " : " + mapping[0] + " : " + mapping[1]);
+                    for(Map.Entry<String, List<String[]>> entry : map.entrySet()) {
+                        for(String[] mapping : entry.getValue()) {
+                            System.out.printf("%s : %s : %s%n", entry.getKey(), mapping[0], mapping[1]);
                         }
                     }
                 }

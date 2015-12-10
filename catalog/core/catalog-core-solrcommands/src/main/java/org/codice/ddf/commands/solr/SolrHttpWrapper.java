@@ -75,11 +75,11 @@ public class SolrHttpWrapper implements HttpWrapper {
 
     private static String[] getCipherSuites() {
         if (System.getProperty(SecurityConstants.HTTPS_CIPHER_SUITES) != null) {
-            return StringUtils
-                    .split(System.getProperty(SecurityConstants.HTTPS_CIPHER_SUITES), ",");
-        } else {
-            return SolrServerFactory.DEFAULT_CIPHER_SUITES;
+            return StringUtils.split(System.getProperty(SecurityConstants.HTTPS_CIPHER_SUITES),
+                    ",");
         }
+        return SolrServerFactory.DEFAULT_CIPHER_SUITES.toArray(new String[SolrServerFactory.DEFAULT_CIPHER_SUITES.size()]);
+
     }
 
     @Override
@@ -133,9 +133,8 @@ public class SolrHttpWrapper implements HttpWrapper {
     private String[] getProtocols() {
         if (System.getProperty("https.protocols") != null) {
             return StringUtils.split(System.getProperty("https.protocols"), ",");
-        } else {
-            return SolrServerFactory.DEFAULT_PROTOCOLS;
         }
+        return SolrServerFactory.DEFAULT_PROTOCOLS.toArray(new String[SolrServerFactory.DEFAULT_PROTOCOLS.size()]);
     }
 
 }

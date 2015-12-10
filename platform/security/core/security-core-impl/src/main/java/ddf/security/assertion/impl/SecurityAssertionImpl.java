@@ -37,6 +37,7 @@ import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.karaf.jaas.boot.principal.RolePrincipal;
 import org.apache.wss4j.common.saml.builder.SAML2Constants;
+import org.codice.ddf.platform.util.DateUtils;
 import org.joda.time.DateTime;
 import org.opensaml.saml2.core.Attribute;
 import org.opensaml.saml2.core.AttributeStatement;
@@ -275,6 +276,9 @@ public class SecurityAssertionImpl implements SecurityAssertion {
                     case Attribute.DEFAULT_ELEMENT_LOCAL_NAME:
                         attribute = null;
                         break;
+                    default:
+                        LOGGER.warn("Unexpected end element: {}", localName);
+                        break;
                     }
                     break;
                 }
@@ -427,12 +431,12 @@ public class SecurityAssertionImpl implements SecurityAssertion {
 
     @Override
     public Date getNotBefore() {
-        return notBefore;
+        return DateUtils.copy(notBefore);
     }
 
     @Override
     public Date getNotOnOrAfter() {
-        return notOnOrAfter;
+        return DateUtils.copy(notOnOrAfter);
     }
 
     /*
@@ -1069,6 +1073,8 @@ public class SecurityAssertionImpl implements SecurityAssertion {
 
         String authnContextClassRef;
 
+        Boolean isNil;
+
         @Override
         public String getAuthnContextClassRef() {
             return authnContextClassRef;
@@ -1221,7 +1227,7 @@ public class SecurityAssertionImpl implements SecurityAssertion {
 
         @Override
         public Boolean isNil() {
-            return null;
+            return isNil;
         }
 
         @Override
@@ -1231,7 +1237,7 @@ public class SecurityAssertionImpl implements SecurityAssertion {
 
         @Override
         public void setNil(Boolean newNil) {
-
+            isNil = newNil;
         }
 
         @Override
@@ -1243,6 +1249,8 @@ public class SecurityAssertionImpl implements SecurityAssertion {
     private static class AuthenticationContext implements AuthnContext {
 
         AuthnContextClassRef authnContextClassRef;
+
+        boolean isNil;
 
         @Override
         public AuthnContextClassRef getAuthnContextClassRef() {
@@ -1421,7 +1429,7 @@ public class SecurityAssertionImpl implements SecurityAssertion {
 
         @Override
         public Boolean isNil() {
-            return null;
+            return isNil;
         }
 
         @Override
@@ -1431,7 +1439,7 @@ public class SecurityAssertionImpl implements SecurityAssertion {
 
         @Override
         public void setNil(Boolean newNil) {
-
+            isNil = newNil;
         }
 
         @Override
@@ -1447,6 +1455,8 @@ public class SecurityAssertionImpl implements SecurityAssertion {
         DateTime sessionNotOnOrAfter;
 
         AuthnContext authnContext;
+
+        boolean isNil;
 
         @Override
         public DateTime getAuthnInstant() {
@@ -1640,7 +1650,7 @@ public class SecurityAssertionImpl implements SecurityAssertion {
 
         @Override
         public Boolean isNil() {
-            return null;
+            return isNil;
         }
 
         @Override
@@ -1650,7 +1660,7 @@ public class SecurityAssertionImpl implements SecurityAssertion {
 
         @Override
         public void setNil(Boolean newNil) {
-
+            isNil = newNil;
         }
 
         @Override

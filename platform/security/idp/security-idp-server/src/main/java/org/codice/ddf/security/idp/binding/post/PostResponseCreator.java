@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.security.idp.binding.post;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 import javax.ws.rs.core.NewCookie;
@@ -55,7 +56,8 @@ public class PostResponseCreator extends ResponseCreatorImpl implements Response
         getSimpleSign().signSamlObject(samlResponse);
         LOGGER.debug("Converting SAML Response to DOM");
         String assertionResponse = DOM2Writer.nodeToString(OpenSAMLUtil.toDom(samlResponse, doc));
-        String encodedSamlResponse = new String(Base64.encodeBase64(assertionResponse.getBytes()));
+        String encodedSamlResponse = new String(Base64.encodeBase64(assertionResponse.getBytes(
+                StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
         String assertionConsumerServiceURL = getAssertionConsumerServiceURL(authnRequest);
         String submitFormUpdated = responseTemplate.replace("{{" + Idp.ACS_URL + "}}",
                 assertionConsumerServiceURL);

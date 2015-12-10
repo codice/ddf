@@ -32,6 +32,7 @@
 package org.codice.ddf.security.validator.pki;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
@@ -244,6 +245,10 @@ public class PKITokenValidator implements TokenValidator {
                         base.getCredentials().toString(), base.getRealm());
             } catch (WSSecurityException e) {
                 LOGGER.warn("Unable to parse {} from encodedToken.",
+                        PKIAuthenticationToken.class.getSimpleName(), e);
+                return null;
+            } catch (UnsupportedEncodingException e) {
+                LOGGER.warn("Unable to encode credentials.",
                         PKIAuthenticationToken.class.getSimpleName(), e);
                 return null;
             }

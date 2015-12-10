@@ -15,6 +15,7 @@ package org.codice.ddf.security.idp.binding.post;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
@@ -38,8 +39,8 @@ public class PostRequestDecoder implements RequestDecoder {
         if (StringUtils.isEmpty(samlRequest)) {
             throw new IllegalArgumentException("Missing SAMLRequest on IdP request.");
         }
-        String decodedRequest = new String(Base64.decodeBase64(samlRequest));
-        ByteArrayInputStream tokenStream = new ByteArrayInputStream(decodedRequest.getBytes());
+        String decodedRequest = new String(Base64.decodeBase64(samlRequest), StandardCharsets.UTF_8);
+        ByteArrayInputStream tokenStream = new ByteArrayInputStream(decodedRequest.getBytes(StandardCharsets.UTF_8));
         Document authnDoc;
         try {
             authnDoc = StaxUtils.read(new InputStreamReader(tokenStream, "UTF-8"));

@@ -22,6 +22,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -963,7 +964,8 @@ public class IdpEndpoint implements Idp {
         new SimpleSign(systemCrypto).signSamlObject(samlObject);
         LOGGER.debug("Converting SAML Response to DOM");
         String assertionResponse = DOM2Writer.nodeToString(OpenSAMLUtil.toDom(samlObject, doc));
-        String encodedSamlResponse = new String(Base64.encodeBase64(assertionResponse.getBytes()));
+        String encodedSamlResponse = new String(Base64.encodeBase64(assertionResponse.getBytes(
+                StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
         String submitFormUpdated = submitForm.replace("{{" + Idp.ACS_URL + "}}", targetUrl);
         submitFormUpdated = submitFormUpdated.replace("{{" + Idp.SAML_TYPE + "}}", reqres);
         submitFormUpdated = submitFormUpdated.replace("{{" + Idp.SAML_RESPONSE + "}}",
@@ -973,11 +975,11 @@ public class IdpEndpoint implements Idp {
                 .build();
     }
 
-    public void setSecurityManager(SecurityManager securityManager) {
+    public synchronized void setSecurityManager(SecurityManager securityManager) {
         this.securityManager = securityManager;
     }
 
-    public void setTokenFactory(PKIAuthenticationTokenFactory tokenFactory) {
+    public synchronized void setTokenFactory(PKIAuthenticationTokenFactory tokenFactory) {
         this.tokenFactory = tokenFactory;
     }
 
