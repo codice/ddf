@@ -223,6 +223,13 @@
         </bundle>
     </feature>
 
+    <feature name="security-sts-attributequeryclaimshandler" install="manual"
+             version="${project.version}"
+             description="Retrieves claims from external attribute store using an AttributeQuery request.">
+        <bundle>mvn:ddf.security.sts/security-sts-attributequeryclaimshandler/${project.version}
+        </bundle>
+    </feature>
+
     <feature name="security-interceptor-guest-wrapper" install="manual"
              version="${project.version}"
              description="Wrapper for Security Interceptor Guest that injects guest user information into incoming SOAP messages.">
