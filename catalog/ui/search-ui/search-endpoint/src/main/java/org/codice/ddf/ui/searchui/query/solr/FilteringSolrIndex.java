@@ -54,7 +54,7 @@ import ddf.catalog.source.solr.SolrFilterDelegateFactoryImpl;
 
 public class FilteringSolrIndex {
 
-    private static IndexSchema indexSchema;
+    private static volatile IndexSchema indexSchema;
 
     private SolrCatalogProvider provider;
 

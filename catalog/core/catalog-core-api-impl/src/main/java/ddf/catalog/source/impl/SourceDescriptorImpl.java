@@ -95,7 +95,11 @@ public class SourceDescriptorImpl extends DescribableImpl implements SourceDescr
 
     @Override
     public Date getLastAvailabilityDate() {
-        return lastAvailableDate;
+        Date lastAvailabilityDate = null;
+        if(lastAvailableDate != null) {
+            lastAvailabilityDate = new Date(lastAvailableDate.getTime());
+        }
+        return lastAvailabilityDate;
     }
 
     /**
@@ -105,7 +109,9 @@ public class SourceDescriptorImpl extends DescribableImpl implements SourceDescr
      *            the new last availability date
      */
     public void setLastAvailabilityDate(Date lastAvailableDate) {
-        this.lastAvailableDate = lastAvailableDate;
+        if(lastAvailableDate != null) {
+            this.lastAvailableDate = new Date(lastAvailableDate.getTime());
+        }
     }
 
 }

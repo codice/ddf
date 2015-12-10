@@ -21,6 +21,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -103,14 +104,15 @@ public class GeoNamesFileExtractor implements GeoEntryExtractor {
 
         InputStream fileInputStream = getInputStreamFromResource(resource, extractionCallback);
 
-        try (InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream);
+        try (InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream,
+                StandardCharsets.UTF_8);
                 BufferedReader reader = new BufferedReader(inputStreamReader);) {
 
             double bytesRead = 0.0;
 
             for (String line; (line = reader.readLine()) != null;) {
                 extractionCallback.extracted(extractGeoEntry(line));
-                bytesRead += line.getBytes().length;
+                bytesRead += line.getBytes(StandardCharsets.UTF_8).length;
                 extractionCallback.updateProgress((int) ((bytesRead / fileSize) * 100));
             }
             extractionCallback.updateProgress(100);

@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.security.handler.api;
 
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 
 import org.opensaml.xml.util.Base64;
@@ -32,8 +34,9 @@ public class PKIAuthenticationToken extends BSTAuthenticationToken {
         this(principal, certificates, BaseAuthenticationToken.DEFAULT_REALM);
     }
 
-    public PKIAuthenticationToken(Object principal, String encodedCerts, String realm) {
-        this(principal, encodedCerts.getBytes(), realm);
+    public PKIAuthenticationToken(Object principal, String encodedCerts, String realm)
+            throws UnsupportedEncodingException {
+        this(principal, encodedCerts.getBytes(StandardCharsets.UTF_8.name()), realm);
         credentials = Base64.decode(encodedCerts);
     }
 

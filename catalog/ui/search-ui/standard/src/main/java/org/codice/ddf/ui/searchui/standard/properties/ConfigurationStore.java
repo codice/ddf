@@ -18,6 +18,7 @@ import static org.boon.Boon.toJson;
 import static us.bpsm.edn.parser.Parsers.defaultConfiguration;
 
 import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -176,7 +177,7 @@ public class ConfigurationStore {
 
         String configJson = toJson(config);
         BinaryContent content = new BinaryContentImpl(
-                new ByteArrayInputStream(configJson.getBytes()), jsonMimeType);
+                new ByteArrayInputStream(configJson.getBytes(StandardCharsets.UTF_8)), jsonMimeType);
         response = Response.ok(content.getInputStream(), content.getMimeTypeValue()).build();
 
         return response;

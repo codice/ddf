@@ -387,11 +387,11 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
                 Histogram histogram = metricsRegistry
                         .histogram(MetricRegistry.name(sourceId, mbeanName));
                 RrdJmxCollector collector = createGaugeMetricsCollector(sourceId, mbeanName);
-                metrics.put(key, new SourceMetric(histogram, sourceId, collector, true));
+                metrics.put(key, new SourceMetric(histogram, collector, true));
             } else if (type == MetricType.METER) {
                 Meter meter = metricsRegistry.meter(MetricRegistry.name(sourceId, mbeanName));
                 RrdJmxCollector collector = createCounterMetricsCollector(sourceId, mbeanName);
-                metrics.put(key, new SourceMetric(meter, sourceId, collector));
+                metrics.put(key, new SourceMetric(meter, collector));
             } else {
                 LOGGER.debug("Metric " + key + " not created because unknown metric type " + type
                         + " specified.");
@@ -529,9 +529,6 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
         // The Yammer Metric
         private Metric metric;
 
-        // The ID of the Source (CatalogProvider or Federated Source) this metric
-        // is affiliated with
-        private String sourceId;
 
         // The ddf.metrics.collector.JmxCollector polling this metric's MBean
         private RrdJmxCollector collector;
@@ -539,14 +536,13 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
         // Whether this metric is a Histogram or Meter
         private boolean isHistogram = false;
 
-        public SourceMetric(Metric metric, String sourceId, RrdJmxCollector collector) {
-            this(metric, sourceId, collector, false);
+        public SourceMetric(Metric metric, RrdJmxCollector collector) {
+            this(metric, collector, false);
         }
 
-        public SourceMetric(Metric metric, String sourceId, RrdJmxCollector collector,
+        public SourceMetric(Metric metric, RrdJmxCollector collector,
                 boolean isHistogram) {
             this.metric = metric;
-            this.sourceId = sourceId;
             this.collector = collector;
             this.isHistogram = isHistogram;
         }

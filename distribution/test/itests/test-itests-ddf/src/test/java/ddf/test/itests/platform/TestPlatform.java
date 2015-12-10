@@ -97,9 +97,13 @@ public class TestPlatform extends AbstractIntegrationTest {
         public void addConfigurationFileAndWait(ConfigurationAdmin configAdmin) throws Exception {
             addConfigurationFile();
 
-            expect("Configuration properties for PID " + pid + " to be set").within(20, SECONDS)
-                    .until(new GetConfigurationProperties(configAdmin, "id", pid),
-                            equalToConfigurationProperties(getFileProperties()));
+            try {
+                expect("Configuration properties for PID " + pid + " to be set").within(20, SECONDS)
+                        .until(new GetConfigurationProperties(configAdmin, "id", pid),
+                                equalToConfigurationProperties(getFileProperties()));
+            } catch (ConfigurationFileException e) {
+                LOGGER.error("Configuration File error", e);
+            }
         }
 
         /**

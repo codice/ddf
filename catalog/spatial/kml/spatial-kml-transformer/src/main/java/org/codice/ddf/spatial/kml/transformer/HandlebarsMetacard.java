@@ -46,7 +46,7 @@ public class HandlebarsMetacard extends MetacardImpl {
         return attributes;
     }
 
-    private class AttributeEntry
+    private static class AttributeEntry
             implements Entry<Attribute, AttributeFormat>, Comparable<AttributeEntry> {
 
         private Attribute key;
@@ -77,6 +77,19 @@ public class HandlebarsMetacard extends MetacardImpl {
         @Override
         public int compareTo(AttributeEntry other) {
             return this.getKey().getName().compareTo(other.getKey().getName());
+        }
+        @Override
+        public boolean equals(Object other) {
+            if (other != null && other instanceof AttributeEntry) {
+                AttributeEntry attributeEntry = (AttributeEntry)other;
+                return this.getKey().getName().equals(attributeEntry.getKey().getName());
+            }
+            return false;
+        }
+
+        @Override
+        public int hashCode() {
+            return this.getKey().getName().hashCode();
         }
     }
 

@@ -13,12 +13,13 @@
  */
 package ddf.security.common.util;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 
-public class SecurityTokenHolder {
+public class SecurityTokenHolder implements Serializable {
 
     final Map<String, SecurityToken> realmTokenMap = new ConcurrentHashMap<>();
 

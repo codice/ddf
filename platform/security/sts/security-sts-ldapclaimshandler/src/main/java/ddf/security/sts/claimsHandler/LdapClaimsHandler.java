@@ -149,6 +149,7 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
                                         } catch (Exception ex) {
                                             // Ignore, not X500 compliant thus use the whole
                                             // string as the value
+                                            LOGGER.trace("Not X500 compliant", ex);
                                         }
                                     }
                                     c.addValue(itemValue);

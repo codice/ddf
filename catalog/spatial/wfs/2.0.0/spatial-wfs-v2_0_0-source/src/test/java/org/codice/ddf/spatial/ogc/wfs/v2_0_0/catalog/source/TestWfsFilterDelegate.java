@@ -894,7 +894,6 @@ public class TestWfsFilterDelegate {
         assertNull(filter);
 
         // Finally, test a null list with an or
-        thrown.expect(NullPointerException.class);
         filter = delegate.or(null);
     }
 

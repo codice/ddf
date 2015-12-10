@@ -14,6 +14,7 @@
 package ddf.content.operation.impl;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Map;
 
 import ddf.content.data.ContentItem;
@@ -91,11 +92,16 @@ public class UpdateResponseImpl extends ResponseImpl<UpdateRequest> implements U
 
     @Override
     public byte[] getUpdatedMetadata() {
-        return metadata;
+        if(metadata != null) {
+            return Arrays.copyOf(metadata, metadata.length);
+        }
+        return null;
     }
 
     public void setUpdatedMetadata(byte[] metadata) {
-        this.metadata = metadata;
+        if(metadata != null) {
+            this.metadata = Arrays.copyOf(metadata, metadata.length);
+        }
     }
 
     @Override

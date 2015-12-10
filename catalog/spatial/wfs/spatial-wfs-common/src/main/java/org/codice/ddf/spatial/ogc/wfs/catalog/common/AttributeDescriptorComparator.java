@@ -15,12 +15,16 @@
 
 package org.codice.ddf.spatial.ogc.wfs.catalog.common;
 
+import java.io.Serializable;
 import java.text.Collator;
 import java.util.Comparator;
 
 import ddf.catalog.data.AttributeDescriptor;
 
-public class AttributeDescriptorComparator implements Comparator<AttributeDescriptor> {
+public class AttributeDescriptorComparator implements Comparator<AttributeDescriptor>,
+        Serializable {
+
+    private static final long serialVersionUID = -6030331342388630960L;
 
     @Override
     public int compare(AttributeDescriptor ad1, AttributeDescriptor ad2) {
@@ -44,22 +48,22 @@ public class AttributeDescriptorComparator implements Comparator<AttributeDescri
             return compared;
         }
 
-        compared = new Boolean(ad1.isIndexed()).compareTo(new Boolean(ad2.isIndexed()));
+        compared = Boolean.valueOf(ad1.isIndexed()).compareTo(Boolean.valueOf(ad2.isIndexed()));
         if (0 != compared) {
             return compared;
         }
 
-        compared = new Boolean(ad1.isStored()).compareTo(new Boolean(ad2.isStored()));
+        compared = Boolean.valueOf(ad1.isStored()).compareTo(Boolean.valueOf(ad2.isStored()));
         if (0 != compared) {
             return compared;
         }
 
-        compared = new Boolean(ad1.isTokenized()).compareTo(new Boolean(ad2.isTokenized()));
+        compared = Boolean.valueOf(ad1.isTokenized()).compareTo(Boolean.valueOf(ad2.isTokenized()));
         if (0 != compared) {
             return compared;
         }
 
-        compared = new Boolean(ad1.isMultiValued()).compareTo(new Boolean(ad2.isMultiValued()));
+        compared = Boolean.valueOf(ad1.isMultiValued()).compareTo(Boolean.valueOf(ad2.isMultiValued()));
         if (0 != compared) {
             return compared;
         }

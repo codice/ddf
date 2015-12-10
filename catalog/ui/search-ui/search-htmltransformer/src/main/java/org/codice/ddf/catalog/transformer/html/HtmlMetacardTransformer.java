@@ -18,6 +18,7 @@ package org.codice.ddf.catalog.transformer.html;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 import javax.activation.MimeType;
@@ -99,7 +100,8 @@ public class HtmlMetacardTransformer implements MetacardTransformer {
 
         String html = buildHtml(metacard);
 
-        return new ddf.catalog.data.BinaryContentImpl(new ByteArrayInputStream(html.getBytes()),
+        return new ddf.catalog.data.BinaryContentImpl(new ByteArrayInputStream(html.getBytes(
+                StandardCharsets.UTF_8)),
                 DEFAULT_MIME_TYPE);
     }
 

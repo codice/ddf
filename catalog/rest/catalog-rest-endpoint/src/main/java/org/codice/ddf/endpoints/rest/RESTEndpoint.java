@@ -337,7 +337,7 @@ public class RESTEndpoint implements RESTService {
                 JSONObject sourceObj = new JSONObject();
                 sourceObj.put("id", source.getSourceId());
                 sourceObj.put("version", source.getVersion() != null ? source.getVersion() : "");
-                sourceObj.put("available", new Boolean(source.isAvailable()));
+                sourceObj.put("available", Boolean.valueOf(source.isAvailable()));
                 JSONArray contentTypesObj = new JSONArray();
                 if (source.getContentTypes() != null) {
                     for (ContentType contentType : source.getContentTypes()) {
@@ -871,7 +871,7 @@ public class RESTEndpoint implements RESTService {
                 String range = getRange(rangeHeader);
 
                 if (range != null) {
-                    response = Long.valueOf(range);
+                    response = Long.parseLong(range);
                 }
             }
         }

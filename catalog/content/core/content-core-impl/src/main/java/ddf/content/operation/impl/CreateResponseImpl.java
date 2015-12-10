@@ -14,6 +14,7 @@
 package ddf.content.operation.impl;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Map;
 
 import ddf.content.data.ContentItem;
@@ -88,11 +89,16 @@ public class CreateResponseImpl extends ResponseImpl<CreateRequest> implements C
 
     @Override
     public byte[] getCreatedMetadata() {
-        return metadata;
+        if(metadata != null) {
+            return Arrays.copyOf(metadata, metadata.length);
+        }
+        return null;
     }
 
     public void setCreatedMetadata(byte[] metadata) {
-        this.metadata = metadata;
+        if(metadata != null) {
+            this.metadata = Arrays.copyOf(metadata, metadata.length);
+        }
     }
 
     @Override

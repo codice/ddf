@@ -86,7 +86,7 @@ public class ErrorServlet extends HttpServlet {
         setErrorHandler();
 
         if (errorHandler != null) {
-            errorHandler.handleError(Integer.valueOf(code), message, type, throwable, uri, request,
+            errorHandler.handleError(Integer.parseInt(code), message, type, throwable, uri, request,
                     response);
         } else {
             org.eclipse.jetty.server.handler.ErrorHandler jettyErrorHandler = new org.eclipse.jetty.server.handler.ErrorHandler();

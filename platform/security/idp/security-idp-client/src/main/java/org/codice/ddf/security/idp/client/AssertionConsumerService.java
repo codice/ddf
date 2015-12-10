@@ -19,6 +19,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.Map;
@@ -80,7 +81,8 @@ public class AssertionConsumerService {
 
     private static final String SIGNATURE = "Signature";
 
-    private static final String UNABLE_TO_LOGIN = "Unable to login with provided AuthN response assertion.";
+    private static final String UNABLE_TO_LOGIN =
+            "Unable to login with provided AuthN response assertion.";
 
     private final SimpleSign simpleSign;
 
@@ -152,11 +154,15 @@ public class AssertionConsumerService {
             if (StringUtils.isNotBlank(deflatedSamlResponse) && StringUtils.isNotBlank(relayState)
                     && StringUtils.isNotBlank(signatureAlgorithm)) {
                 try {
-                    String signedMessage = String.format("%s=%s&%s=%s&%s=%s", SAML_RESPONSE,
-                            URLEncoder.encode(deflatedSamlResponse, "UTF-8"), RELAY_STATE,
-                            URLEncoder.encode(relayState, "UTF-8"), SIG_ALG,
-                            URLEncoder.encode(signatureAlgorithm, "UTF-8"));
-                    signaturePasses = simpleSign.validateSignature(signedMessage, signature,
+                    String signedMessage = String.format("%s=%s&%s=%s&%s=%s",
+                            SAML_RESPONSE,
+                            URLEncoder.encode(deflatedSamlResponse, StandardCharsets.UTF_8.name()),
+                            RELAY_STATE,
+                            URLEncoder.encode(relayState, StandardCharsets.UTF_8.name()),
+                            SIG_ALG,
+                            URLEncoder.encode(signatureAlgorithm, StandardCharsets.UTF_8.name()));
+                    signaturePasses = simpleSign.validateSignature(signedMessage,
+                            signature,
                             idpMetadata.getSigningCertificate());
                 } catch (SimpleSign.SignatureException | UnsupportedEncodingException e) {
                     LOGGER.debug("Failed to validate AuthN response signature.", e);
@@ -264,8 +270,10 @@ public class AssertionConsumerService {
         SAMLAssertionHandler samlAssertionHandler = new SAMLAssertionHandler();
 
         LOGGER.trace("Processing SAML assertion with SAML Handler.");
-        HandlerResult samlResult = samlAssertionHandler.getNormalizedToken(wrappedRequest, null,
-                null, false);
+        HandlerResult samlResult = samlAssertionHandler.getNormalizedToken(wrappedRequest,
+                null,
+                null,
+                false);
 
         if (samlResult.getStatus() != HandlerResult.Status.COMPLETED) {
             LOGGER.debug("Failed to handle SAML assertion.");
@@ -304,17 +312,22 @@ public class AssertionConsumerService {
         // Currently no real logout location - DFF-1605
         String logoutLocation = null; //String.format("https://%s:%s/logout", hostname, port);
         String assertionConsumerServiceLocation = String.format("https://%s:%s%s/saml/sso",
-                hostname, port, rootContext);
+                hostname,
+                port,
+                rootContext);
 
         EntityDescriptor entityDescriptor = SamlProtocol.createSpMetadata(entityId,
                 Base64.encodeBase64String(issuerCert.getEncoded()),
-                Base64.encodeBase64String(encryptionCert.getEncoded()), logoutLocation,
-                assertionConsumerServiceLocation, assertionConsumerServiceLocation);
+                Base64.encodeBase64String(encryptionCert.getEncoded()),
+                logoutLocation,
+                assertionConsumerServiceLocation,
+                assertionConsumerServiceLocation);
 
         Document doc = DOMUtils.createDocument();
         doc.appendChild(doc.createElement("root"));
-        return Response.ok(
-                DOM2Writer.nodeToString(OpenSAMLUtil.toDom(entityDescriptor, doc, false)))
+        return Response.ok(DOM2Writer.nodeToString(OpenSAMLUtil.toDom(entityDescriptor,
+                doc,
+                false)))
                 .build();
     }
 
@@ -323,18 +336,14 @@ public class AssertionConsumerService {
         CryptoType cryptoType = new CryptoType(CryptoType.TYPE.ALIAS);
         cryptoType.setAlias(alias);
         X509Certificate[] certs = crypto.getX509Certificates(cryptoType);
-        if (certs == null) {
-            throw new WSSecurityException(WSSecurityException.ErrorCode.SECURITY_ERROR,
-                    "Unable to retrieve certificate");
-        }
         return certs[0];
     }
 
     private org.opensaml.saml2.core.Response extractSamlResponse(String samlResponse) {
         org.opensaml.saml2.core.Response response = null;
         try {
-            Document responseDoc = StaxUtils.read(
-                    new ByteArrayInputStream(samlResponse.getBytes()));
+            Document responseDoc = StaxUtils.read(new ByteArrayInputStream(samlResponse.getBytes(
+                    StandardCharsets.UTF_8)));
             XMLObject responseXmlObject = OpenSAMLUtil.fromDom(responseDoc.getDocumentElement());
 
             if (responseXmlObject instanceof org.opensaml.saml2.core.Response) {
@@ -348,7 +357,8 @@ public class AssertionConsumerService {
     }
 
     private String decodeBase64(String encoded) {
-        return new String(Base64.decodeBase64(encoded.getBytes()));
+        return new String(Base64.decodeBase64(encoded.getBytes(StandardCharsets.UTF_8)),
+                StandardCharsets.UTF_8);
     }
 
     public Filter getLoginFilter() {

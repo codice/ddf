@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.security.handler.cas;
 
+import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 
 import org.codice.ddf.security.handler.api.BSTAuthenticationToken;
@@ -68,7 +69,7 @@ public class CASAuthenticationToken extends BSTAuthenticationToken {
     @Override
     public String getEncodedCredentials() {
         String encodedTicket = Base64
-                .encodeBytes(getTicketWithService().getBytes(), Base64.DONT_BREAK_LINES);
+                .encodeBytes(getTicketWithService().getBytes(StandardCharsets.UTF_8), Base64.DONT_BREAK_LINES);
         LOGGER.trace("BST: {}", encodedTicket);
         return encodedTicket;
     }

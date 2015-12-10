@@ -50,8 +50,12 @@ public class TemporalPredicate implements Predicate {
      *            What date
      */
     public TemporalPredicate(Date start, Date end, DateType type) {
-        this.end = end;
-        this.start = start;
+        if(end != null) {
+            this.end = new Date(end.getTime());
+        }
+        if(start != null) {
+            this.start = new Date(start.getTime());
+        }
         this.offset = 0;
         this.type = type;
     }
@@ -116,6 +120,8 @@ public class TemporalPredicate implements Predicate {
                 LOGGER.debug("search by expiration: {}", entry.getExpirationDate());
                 date = entry.getExpirationDate();
                 break;
+            default:
+                break;
             }
 
             if (offset > 0) {
@@ -135,11 +141,17 @@ public class TemporalPredicate implements Predicate {
     }
 
     public Date getEnd() {
-        return end;
+        if(end != null) {
+            return new Date(end.getTime());
+        }
+        return null;
     }
 
     public Date getStart() {
-        return start;
+        if(start != null) {
+            return new Date(start.getTime());
+        }
+        return null;
     }
 
     public DateType getType() {

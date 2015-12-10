@@ -107,7 +107,8 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
     private static final String TITLE = "OpenSearch DDF Federated Source";
 
-    private static final String DESCRIPTION = "Queries DDF using the synchronous federated OpenSearch query";
+    private static final String DESCRIPTION =
+            "Queries DDF using the synchronous federated OpenSearch query";
 
     private static final long AVAILABLE_TIMEOUT_CHECK = 60000; // 60 seconds, in milliseconds
 
@@ -166,7 +167,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
      */
     public void init() {
         isInitialized = true;
-        factory = new SecureCxfClientFactory<>(endpointUrl.getResolvedString(), OpenSearch.class);
+        factory = new SecureCxfClientFactory(endpointUrl.getResolvedString(), OpenSearch.class);
         configureXmlInputFactory();
     }
 
@@ -185,8 +186,8 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     @Override
     public boolean isAvailable() {
         boolean isAvailable = false;
-        if (!lastAvailable || (lastAvailableDate.before(
-                new Date(System.currentTimeMillis() - AVAILABLE_TIMEOUT_CHECK)))) {
+        if (!lastAvailable || (lastAvailableDate.before(new Date(
+                System.currentTimeMillis() - AVAILABLE_TIMEOUT_CHECK)))) {
 
             if (factory == null) {
                 return false;
@@ -268,8 +269,11 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
         } else {
 
             try {
-                restWebClient = newRestClient(endpointUrl.getResolvedString(), query,
-                        (String) metacardId, false, subject);
+                restWebClient = newRestClient(endpointUrl.getResolvedString(),
+                        query,
+                        (String) metacardId,
+                        false,
+                        subject);
             } catch (SecurityServiceException sse) {
                 LOGGER.error("Failed to get client using either BasicAuth or Security Subject.");
             }
@@ -282,22 +286,20 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
                 List<Result> resultQueue = new ArrayList<Result>();
                 try (FileBackedOutputStream fileBackedOutputStream = new FileBackedOutputStream(
                         1000000)) {
-                    if (responseStream != null) {
-                        IOUtils.copyLarge(responseStream, fileBackedOutputStream);
-                        InputTransformer inputTransformer = null;
+                    IOUtils.copyLarge(responseStream, fileBackedOutputStream);
+                    InputTransformer inputTransformer = null;
+                    try (InputStream inputStream = fileBackedOutputStream.asByteSource()
+                            .openStream()) {
+                        inputTransformer = getInputTransformer(inputStream);
+                    } catch (IOException e) {
+                        LOGGER.debug("Problem with transformation.", e);
+                    }
+                    if (inputTransformer != null) {
                         try (InputStream inputStream = fileBackedOutputStream.asByteSource()
                                 .openStream()) {
-                            inputTransformer = getInputTransformer(inputStream);
+                            metacard = inputTransformer.transform(inputStream);
                         } catch (IOException e) {
                             LOGGER.debug("Problem with transformation.", e);
-                        }
-                        if (inputTransformer != null) {
-                            try (InputStream inputStream = fileBackedOutputStream.asByteSource()
-                                    .openStream()) {
-                                metacard = inputTransformer.transform(inputStream);
-                            } catch (IOException e) {
-                                LOGGER.debug("Problem with transformation.", e);
-                            }
                         }
                     }
                 } catch (IOException | CatalogTransformerException e) {
@@ -371,12 +373,13 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
         ContextualSearch contextualFilter = visitor.getContextualSearch();
 
         //TODO fix this so we aren't just triggering off of a contextual query
-        if (contextualFilter != null && StringUtils.isNotEmpty(
-                contextualFilter.getSearchPhrase())) {
+        if (contextualFilter != null
+                && StringUtils.isNotEmpty(contextualFilter.getSearchPhrase())) {
             // All queries must have at least a search phrase to be valid, hence this check
             // for a contextual filter with a non-empty search phrase
             OpenSearchSiteUtil.populateSearchOptions(client, query, subject, parameters);
-            OpenSearchSiteUtil.populateContextual(client, contextualFilter.getSearchPhrase(),
+            OpenSearchSiteUtil.populateContextual(client,
+                    contextualFilter.getSearchPhrase(),
                     parameters);
 
             applyFilters(visitor, client);
@@ -411,7 +414,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
         SyndFeedInput syndFeedInput = new SyndFeedInput();
         SyndFeed syndFeed = null;
         try {
-            syndFeed = syndFeedInput.build(new InputStreamReader(is));
+            syndFeed = syndFeedInput.build(new InputStreamReader(is, StandardCharsets.UTF_8));
         } catch (FeedException e) {
             LOGGER.error("Unable to read RSS/Atom feed.", e);
         }
@@ -521,12 +524,12 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
     private Metacard parseContent(String content, String id) {
         if (content != null) {
-            InputTransformer inputTransformer = getInputTransformer(
-                    new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)));
+            InputTransformer inputTransformer =
+                    getInputTransformer(new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)));
             if (inputTransformer != null && !content.isEmpty()) {
                 try {
-                    return inputTransformer.transform(
-                            new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)), id);
+                    return inputTransformer.transform(new ByteArrayInputStream(content.getBytes(
+                            StandardCharsets.UTF_8)), id);
                 } catch (IOException e) {
                     LOGGER.warn("Unable to read metacard content from Atom feed.", e);
                 } catch (CatalogTransformerException e) {
@@ -556,7 +559,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
      */
     public void setEndpointUrl(String endpointUrl) {
         this.endpointUrl = new PropertyResolver(endpointUrl);
-        factory = new SecureCxfClientFactory<>(endpointUrl, OpenSearch.class);
+        factory = new SecureCxfClientFactory(endpointUrl, OpenSearch.class);
     }
 
     @Override
@@ -602,8 +605,8 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
                 int next = xmlStreamReader.next();
                 if (next == XMLStreamConstants.START_ELEMENT) {
                     String namespaceUri = xmlStreamReader.getNamespaceURI();
-                    InputTransformer transformerReference = lookupTransformerReference(
-                            namespaceUri);
+                    InputTransformer transformerReference =
+                            lookupTransformerReference(namespaceUri);
                     if (transformerReference != null) {
                         return transformerReference;
                     }
@@ -628,8 +631,9 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
         Bundle bundle = FrameworkUtil.getBundle(this.getClass());
         if (bundle != null) {
             BundleContext bundleContext = bundle.getBundleContext();
-            Collection<ServiceReference<InputTransformer>> transformerReference = bundleContext.getServiceReferences(
-                    InputTransformer.class, "(schema=" + namespaceUri + ")");
+            Collection<ServiceReference<InputTransformer>> transformerReference =
+                    bundleContext.getServiceReferences(InputTransformer.class,
+                            "(schema=" + namespaceUri + ")");
             if (transformerReference.size() == 1) {
                 return bundleContext.getService(transformerReference.iterator()
                         .next());
@@ -689,8 +693,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
         LOGGER.trace("ENTRY: {}", methodName);
 
         if (requestProperties == null) {
-            throw new ResourceNotFoundException(
-                    "Could not retrieve resource with null properties.");
+            throw new ResourceNotFoundException("Could not retrieve resource with null properties.");
         }
 
         Serializable serializableId = requestProperties.get(Metacard.ID);
@@ -699,7 +702,10 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
             String metacardId = serializableId.toString();
             WebClient restClient = null;
             try {
-                restClient = newRestClient(endpointUrl.getResolvedString(), null, metacardId, true,
+                restClient = newRestClient(endpointUrl.getResolvedString(),
+                        null,
+                        metacardId,
+                        true,
                         null);
             } catch (SecurityServiceException e) {
                 throw new ResourceNotSupportedException(e);
@@ -782,7 +788,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     }
 
     protected SecureCxfClientFactory tempFactory(String url) {
-        return new SecureCxfClientFactory<>(url, OpenSearch.class);
+        return new SecureCxfClientFactory(url, OpenSearch.class);
     }
 
     private String createRestUrl(Query query, String endpointUrl, boolean retrieveResource) {
@@ -790,10 +796,9 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
         String url = null;
         RestFilterDelegate delegate = null;
         RestUrl restUrl = newRestUrl(endpointUrl);
-        if (restUrl != null) {
-            restUrl.setRetrieveResource(retrieveResource);
-            delegate = new RestFilterDelegate(restUrl);
-        }
+        restUrl.setRetrieveResource(retrieveResource);
+
+        delegate = new RestFilterDelegate(restUrl);
 
         if (delegate != null) {
             try {
@@ -866,14 +871,18 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
             if (spatialFilter instanceof SpatialDistanceFilter) {
                 try {
                     OpenSearchSiteUtil.populateGeospatial(client,
-                            (SpatialDistanceFilter) spatialFilter, shouldConvertToBBox, parameters);
+                            (SpatialDistanceFilter) spatialFilter,
+                            shouldConvertToBBox,
+                            parameters);
                 } catch (UnsupportedQueryException e) {
                     LOGGER.warn("Problem with populating geospatial criteria. ", e);
                 }
             } else {
                 try {
-                    OpenSearchSiteUtil.populateGeospatial(client, spatialFilter,
-                            shouldConvertToBBox, parameters);
+                    OpenSearchSiteUtil.populateGeospatial(client,
+                            spatialFilter,
+                            shouldConvertToBBox,
+                            parameters);
                 } catch (UnsupportedQueryException e) {
                     LOGGER.warn("Problem with populating geospatial criteria. ", e);
                 }

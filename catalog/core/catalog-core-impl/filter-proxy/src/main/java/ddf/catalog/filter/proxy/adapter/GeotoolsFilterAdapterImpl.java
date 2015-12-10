@@ -400,7 +400,7 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
                     .propertyIsGreaterThan(propertyName, ((Double) literal).doubleValue());
         } else if (literal instanceof Boolean) {
             return ((FilterDelegate<?>) delegate)
-                    .propertyIsGreaterThan(propertyName, ((Boolean) literal).booleanValue());
+                    .propertyIsGreaterThan(propertyName, ((Boolean) literal));
         } else if (literal instanceof byte[]) {
             return ((FilterDelegate<?>) delegate)
                     .propertyIsGreaterThan(propertyName, (byte[]) literal);
@@ -444,7 +444,7 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
                     .propertyIsGreaterThanOrEqualTo(propertyName, ((Double) literal).doubleValue());
         } else if (literal instanceof Boolean) {
             return ((FilterDelegate<?>) delegate).propertyIsGreaterThanOrEqualTo(propertyName,
-                    ((Boolean) literal).booleanValue());
+                    ((Boolean) literal));
         } else if (literal instanceof byte[]) {
             return ((FilterDelegate<?>) delegate)
                     .propertyIsGreaterThanOrEqualTo(propertyName, (byte[]) literal);
@@ -488,7 +488,7 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
                     .propertyIsLessThan(propertyName, ((Double) literal).doubleValue());
         } else if (literal instanceof Boolean) {
             return ((FilterDelegate<?>) delegate)
-                    .propertyIsLessThan(propertyName, ((Boolean) literal).booleanValue());
+                    .propertyIsLessThan(propertyName, ((Boolean) literal));
         } else if (literal instanceof byte[]) {
             return ((FilterDelegate<?>) delegate)
                     .propertyIsLessThan(propertyName, (byte[]) literal);
@@ -533,7 +533,7 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
                     .propertyIsLessThanOrEqualTo(propertyName, ((Double) literal).doubleValue());
         } else if (literal instanceof Boolean) {
             return ((FilterDelegate<?>) delegate)
-                    .propertyIsLessThanOrEqualTo(propertyName, ((Boolean) literal).booleanValue());
+                    .propertyIsLessThanOrEqualTo(propertyName, ((Boolean) literal));
         } else if (literal instanceof byte[]) {
             return ((FilterDelegate<?>) delegate)
                     .propertyIsLessThanOrEqualTo(propertyName, (byte[]) literal);

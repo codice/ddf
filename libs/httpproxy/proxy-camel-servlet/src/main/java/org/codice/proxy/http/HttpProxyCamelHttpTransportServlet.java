@@ -46,10 +46,13 @@
  */
 package org.codice.proxy.http;
 
+import java.io.Externalizable;
 import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -76,22 +79,26 @@ import org.slf4j.LoggerFactory;
 /**
  * Camel HTTP servlet which can be used in Camel routes to route servlet invocations in routes.
  */
-public class HttpProxyCamelHttpTransportServlet extends CamelServlet {
+public class HttpProxyCamelHttpTransportServlet extends CamelServlet implements Externalizable {
     private static final long serialVersionUID = -1797014782158930490L;
 
     private static final Logger LOG = LoggerFactory
             .getLogger(HttpProxyCamelHttpTransportServlet.class);
 
-    private CamelContext camelContext;
+    private transient CamelContext camelContext;
 
-    private HttpRegistry httpRegistry;
+    private transient HttpRegistry httpRegistry;
 
     private boolean ignoreDuplicateServletName;
 
-    private ConcurrentMap<String, HttpConsumer> consumers = new ConcurrentHashMap<String, HttpConsumer>();
+    private Map<String, HttpConsumer> consumers = new ConcurrentHashMap<String, HttpConsumer>();
 
     public HttpProxyCamelHttpTransportServlet(CamelContext camelContext) {
         this.camelContext = camelContext;
+    }
+
+    public HttpProxyCamelHttpTransportServlet() {
+
     }
 
     @Override
@@ -284,9 +291,9 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet {
 
         if (answer == null) {
             log.debug("Consumer Keys: {}", Arrays.toString(consumers.keySet().toArray()));
-            for (String key : consumers.keySet()) {
-                if (consumers.get(key).getEndpoint().isMatchOnUriPrefix() && path.startsWith(key)) {
-                    answer = consumers.get(key);
+            for (Map.Entry<String, HttpConsumer> entry : consumers.entrySet()) {
+                if ((entry.getValue()).getEndpoint().isMatchOnUriPrefix() && path.startsWith(entry.getKey())) {
+                    answer = consumers.get(entry.getKey());
                     break;
                 }
             }
@@ -337,5 +344,14 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet {
         endpointName = StringUtils.remove(endpointName, "/");
         return endpointName;
     }
-}
 
+    @Override
+    public void writeExternal(ObjectOutput out) throws IOException {
+
+    }
+
+    @Override
+    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+
+    }
+}

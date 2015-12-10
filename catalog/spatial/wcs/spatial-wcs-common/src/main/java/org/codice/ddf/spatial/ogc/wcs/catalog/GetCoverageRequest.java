@@ -16,12 +16,6 @@ package org.codice.ddf.spatial.ogc.wcs.catalog;
 
 public class GetCoverageRequest {
 
-    private String request = WcsConstants.GET_COVERAGE;
-
-    private String service = WcsConstants.WCS;
-
-    private String version = WcsConstants.VERSION_1_0_0;
-
     private String id;
 
     private String format;

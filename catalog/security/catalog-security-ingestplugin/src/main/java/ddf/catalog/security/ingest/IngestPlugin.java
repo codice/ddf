@@ -68,7 +68,10 @@ public class IngestPlugin implements PreIngestPlugin {
      * @return
      */
     public String[] getPermissionStrings() {
-        return this.permissionStrings;
+        if(permissionStrings != null) {
+            return Arrays.copyOf(this.permissionStrings, permissionStrings.length);
+        }
+        return null;
     }
 
     /**
@@ -86,8 +89,10 @@ public class IngestPlugin implements PreIngestPlugin {
      * @param permStrings
      */
     public void setPermissionStrings(String[] permStrings) {
-        this.permissionStrings = permStrings;
-        parsePermissionsFromString(permStrings);
+        if(permStrings != null) {
+            this.permissionStrings = Arrays.copyOf(permStrings, permStrings.length);
+            parsePermissionsFromString(permStrings);
+        }
     }
 
     /**

@@ -114,7 +114,7 @@ public class CswTransformProvider implements Converter {
         try {
             XmlPullParser parser = XppFactory.createDefaultParser();
             new HierarchicalStreamCopier()
-                    .copy(new XppReader(new InputStreamReader(content.getInputStream()), parser),
+                    .copy(new XppReader(new InputStreamReader(content.getInputStream(), StandardCharsets.UTF_8), parser),
                             writer);
         } catch (XmlPullParserException e) {
             throw new ConversionException("Unable to copy metadata to XML Output.", e);

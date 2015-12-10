@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.cxf;
 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -199,7 +200,11 @@ public class SecureCxfClientFactory<T> {
     public T getClientForBasicAuth(String username, String password)
             throws SecurityServiceException {
         T client = getNewClient();
-        RestSecurity.setUserOnClient(username, password, WebClient.client(client));
+        try {
+            RestSecurity.setUserOnClient(username, password, WebClient.client(client));
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.warn("Encoding error", e);
+        }
         return client;
     }
 

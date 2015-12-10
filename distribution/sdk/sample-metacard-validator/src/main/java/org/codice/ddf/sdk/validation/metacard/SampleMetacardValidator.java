@@ -77,6 +77,10 @@ public class SampleMetacardValidator implements MetacardValidator, Describable {
     }
 
     public String[] getValidWords() {
-        return SampleMetacardValidator.validWords;
+        String[] resultValidWords = null;
+        if(validWords != null) {
+            resultValidWords = Arrays.copyOf(validWords, validWords.length);
+        }
+        return resultValidWords;
     }
 }

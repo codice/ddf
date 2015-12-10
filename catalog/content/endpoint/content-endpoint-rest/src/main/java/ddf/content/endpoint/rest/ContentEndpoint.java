@@ -640,7 +640,7 @@ public class ContentEndpoint {
         }
     }
 
-    protected class CreateInfo {
+    protected static class CreateInfo {
         InputStream stream = null;
 
         String filename = null;

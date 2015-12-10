@@ -21,6 +21,7 @@ import java.io.StringReader;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -148,7 +149,8 @@ public class FeatureCollectionMessageBodyReaderWfs20
                 // which CXF will wrap as a ClientException that the WfsSource catches, converts
                 // to a WfsException, and logs.
 
-                ByteArrayInputStream bis = new ByteArrayInputStream(originalInputStream.getBytes());
+                ByteArrayInputStream bis = new ByteArrayInputStream(originalInputStream.getBytes(
+                        StandardCharsets.UTF_8));
                 ResponseBuilder responseBuilder = Response.ok(bis);
                 responseBuilder.type("text/xml");
                 Response response = responseBuilder.build();

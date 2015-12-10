@@ -125,19 +125,29 @@ public class TemporalFilter {
     }
 
     public Date getStartDate() {
-        return startDate;
+        if(startDate != null) {
+            return new Date(startDate.getTime());
+        }
+        return null;
     }
 
     public void setStartDate(Date startDate) {
-        this.startDate = startDate;
+        if(startDate != null) {
+            this.startDate = new Date(startDate.getTime());
+        }
     }
 
     public Date getEndDate() {
-        return endDate;
+        if(endDate != null) {
+            return new Date(endDate.getTime());
+        }
+        return null;
     }
 
     public void setEndDate(Date endDate) {
-        this.endDate = endDate;
+        if(endDate != null) {
+            this.endDate = new Date(endDate.getTime());
+        }
     }
 
     @Override

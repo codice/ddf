@@ -24,7 +24,6 @@ import org.apache.http.client.utils.URIBuilder;
 import org.codice.solr.factory.SolrServerFactory;
 import org.osgi.service.cm.Configuration;
 
-
 @Command(scope = SolrCommands.NAMESPACE, name = "backup", description = "Makes a backup of the selected Solr core.")
 public class BackupCommand extends SolrCommands {
 
@@ -71,10 +70,10 @@ public class BackupCommand extends SolrCommands {
     private void processResponse(ResponseWrapper responseWrapper) throws Exception {
 
         if (responseWrapper.getStatusCode() == HttpStatus.SC_OK) {
-            printSuccessMessage(String.format("\nBackup of [%s] complete.\n", coreName));
+            printSuccessMessage(String.format("%nBackup of [%s] complete.%n", coreName));
         } else {
             printErrorMessage(String.format("Error backing up Solr core: [%s]", coreName));
-            printErrorMessage(String.format("Backup command failed due to: %d - %s \n Request: %s",
+            printErrorMessage(String.format("Backup command failed due to: %d - %s %n Request: %s",
                     responseWrapper.getStatusCode(),
                     responseWrapper.getStatusPhrase(), getBackupUrl(coreName)));
         }

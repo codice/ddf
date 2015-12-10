@@ -185,8 +185,8 @@ public class Search {
     private void updateResultStatus(List<Result> results) {
         Bag hitSourceCount = new HashBag();
 
-        for (String sourceId : queryStatus.keySet()) {
-            queryStatus.get(sourceId).setResultCount(0);
+        for (QueryStatus status : queryStatus.values()) {
+            status.setResultCount(0);
         }
 
         for (Result result : results) {

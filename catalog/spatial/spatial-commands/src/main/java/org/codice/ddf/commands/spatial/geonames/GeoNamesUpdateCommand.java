@@ -85,16 +85,16 @@ public final class GeoNamesUpdateCommand extends OsgiCommandSupport {
             console.println("\nDone.");
         } catch (GeoEntryExtractionException e) {
             LOGGER.error("Error extracting GeoNames data from resource {}", resource, e);
-            console.printf("Could not extract GeoNames data from resource %s.\n" + "Message: %s\n"
-                    + "Check the logs for more details.\n", resource, e.getMessage());
+            console.printf("Could not extract GeoNames data from resource %s.%n" + "Message: %s%n"
+                    + "Check the logs for more details.%n", resource, e.getMessage());
         } catch (GeoEntryIndexingException e) {
             LOGGER.error("Error indexing GeoNames data", e);
-            console.printf("Could not index the GeoNames data.\n" + "Message: %s\n"
-                    + "Check the logs for more details.\n", e.getMessage());
+            console.printf("Could not index the GeoNames data.%n" + "Message: %s%n"
+                    + "Check the logs for more details.%n", e.getMessage());
         } catch (GeoNamesRemoteDownloadException e) {
             LOGGER.error("Error downloading resource from remote source {}", resource, e);
-            console.printf("Could not download the GeoNames file %s.\n  Message: %s\n"
-                    + "Check the logs for more details.\n", resource, e.getMessage());
+            console.printf("Could not download the GeoNames file %s.%n  Message: %s%n"
+                    + "Check the logs for more details.%n", resource, e.getMessage());
         }
 
         return null;

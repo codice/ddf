@@ -16,6 +16,7 @@ package org.codice.ddf.security.handler.saml;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -209,7 +210,7 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
                 String evidence = String.format(EVIDENCE, prefix.group("prefix"), assertion);
 
                 Element root = dbf.newDocumentBuilder()
-                        .parse(new ByteArrayInputStream(evidence.getBytes())).getDocumentElement();
+                        .parse(new ByteArrayInputStream(evidence.getBytes(StandardCharsets.UTF_8))).getDocumentElement();
 
                 result = ((Element) root.getChildNodes().item(0));
             } catch (ParserConfigurationException | SAXException | IOException ex) {

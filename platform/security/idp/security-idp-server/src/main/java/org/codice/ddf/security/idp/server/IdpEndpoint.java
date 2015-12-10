@@ -506,11 +506,11 @@ public class IdpEndpoint implements Idp {
                 .build();
     }
 
-    public void setSecurityManager(SecurityManager securityManager) {
+    public synchronized void setSecurityManager(SecurityManager securityManager) {
         this.securityManager = securityManager;
     }
 
-    public void setTokenFactory(PKIAuthenticationTokenFactory tokenFactory) {
+    public synchronized void setTokenFactory(PKIAuthenticationTokenFactory tokenFactory) {
         this.tokenFactory = tokenFactory;
     }
 

@@ -94,7 +94,7 @@ public class CookieCache {
     /**
      * Listens for removal notifications from the cache and logs each time a removal is performed.
      */
-    private class RemovalListenerLogger implements RemovalListener<String, Element> {
+    private static class RemovalListenerLogger implements RemovalListener<String, Element> {
 
         @Override
         public void onRemoval(RemovalNotification<String, Element> notification) {

@@ -15,8 +15,10 @@ package ddf.security.expansion.impl;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -76,8 +78,6 @@ public abstract class AbstractExpansion implements Expansion {
     protected Pattern rulePattern = Pattern.compile(RULE_SPLIT_REGEX); // ("\\[(.+)\\|(.*)\\]");
 
     protected Map<String, List<String[]>> expansionTable;
-
-    private String key;
 
     private String attributeSeparator = DEFAULT_VALUE_SEPARATOR;
 
@@ -471,7 +471,7 @@ public abstract class AbstractExpansion implements Expansion {
                 // absolute path
                 file = new File(filename);
             }
-            br = new BufferedReader(new FileReader(file));
+            br = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8.name()));
             if (br != null) {
                 String line;
                 while ((line = br.readLine()) != null) {

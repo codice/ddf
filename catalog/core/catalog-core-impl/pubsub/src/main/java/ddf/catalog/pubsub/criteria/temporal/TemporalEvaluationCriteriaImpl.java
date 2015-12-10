@@ -25,21 +25,36 @@ public class TemporalEvaluationCriteriaImpl implements TemporalEvaluationCriteri
 
     public TemporalEvaluationCriteriaImpl(Date end, Date start, Date input) {
         super();
-        this.end = end;
-        this.start = start;
-        this.input = input;
+        if(end != null) {
+            this.end = new Date(end.getTime());
+        }
+        if(start != null) {
+            this.start = new Date(start.getTime());
+        }
+        if(input != null) {
+            this.input = new Date(input.getTime());
+        }
     }
 
     public Date getEnd() {
-        return end;
+        if(end != null) {
+            return new Date(end.getTime());
+        }
+        return null;
     }
 
     public Date getInput() {
-        return input;
+        if(input != null) {
+            return new Date(input.getTime());
+        }
+        return null;
     }
 
     public Date getStart() {
-        return start;
+        if(start != null) {
+            return new Date(start.getTime());
+        }
+        return null;
     }
 
 }

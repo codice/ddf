@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.security.idp.binding.api.impl;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 import org.apache.wss4j.common.saml.builder.SAML2Constants;
@@ -93,8 +94,9 @@ public abstract class ValidatorImpl implements Validator {
         if (relayState == null) {
             throw new IllegalArgumentException("Missing RelayState on IdP request.");
         }
-        if (relayState.getBytes().length < 0 || relayState.getBytes().length > 80) {
-            LOGGER.warn("RelayState has invalid size: {}", relayState.getBytes().length);
+        int relayStatelength = relayState.getBytes(StandardCharsets.UTF_8).length;
+        if (relayStatelength < 0 || relayStatelength > 80) {
+            LOGGER.warn("RelayState has invalid size: {}", relayStatelength);
         }
     }
 

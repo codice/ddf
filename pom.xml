@@ -547,7 +547,7 @@
                 <version>3.0.1</version>
                 <configuration>
                     <effort>Max</effort>
-                    <threshold>Low</threshold>
+                    <threshold>High</threshold>
                     <xmlOutput>true</xmlOutput>
                     <xmlOutputDirectory>${project.build.directory}/findbugs</xmlOutputDirectory>
                 </configuration>
@@ -932,7 +932,7 @@
         <profile>
             <id>findbugs</id>
             <activation>
-                <activeByDefault>false</activeByDefault>
+                <activeByDefault>true</activeByDefault>
             </activation>
             <build>
                 <plugins>
@@ -979,7 +979,7 @@
                                 <id>generate-findbugs</id>
                                 <phase>compile</phase>
                                 <goals>
-                                    <goal>findbugs</goal>
+                                    <goal>check</goal>
                                 </goals>
                             </execution>
                         </executions>

@@ -117,9 +117,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
     @Override
     public FilterType or(List<FilterType> filters) {
         areLogicalOperationsSupported();
-        if (filters.contains(Collections.singleton(null))) {
-            throw new UnsupportedOperationException("Invalid filters found in list of filters!");
-        }
+
         return cswFilterFactory.buildOrFilter(filters);
     }
 

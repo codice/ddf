@@ -73,13 +73,13 @@ public class SubjectDNConstraintsInterceptor extends AbstractPhaseInterceptor<Me
 
     public Collection<Pattern> setSubjectDNPatterns(String subjectDNConstraints) {
         ArrayList<Pattern> subjectDNPatterns = new ArrayList<>();
-
-        String[] patterns = subjectDNConstraints.split(",");
-        for (String pattern : patterns) {
-            Pattern p = Pattern.compile(pattern);
-            subjectDNPatterns.add(p);
+        if(subjectDNConstraints != null) {
+            String[] patterns = subjectDNConstraints.split(",");
+            for (String pattern : patterns) {
+                Pattern p = Pattern.compile(pattern);
+                subjectDNPatterns.add(p);
+            }
         }
-
         return subjectDNPatterns;
     }
 

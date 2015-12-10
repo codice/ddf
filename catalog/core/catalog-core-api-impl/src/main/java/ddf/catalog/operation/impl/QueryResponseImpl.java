@@ -39,7 +39,7 @@ public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements Que
     private static final XLogger LOGGER = new XLogger(
             LoggerFactory.getLogger(QueryResponseImpl.class));
 
-    protected static Result poisonPillResult = new POISON_PILL_RESULT();
+    protected static final Result POISON_PILL_RESULT = new POISON_PILL_RESULT();
 
     protected long hits;
 
@@ -254,7 +254,7 @@ public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements Que
 
     public void closeResultQueue() {
         isQueueClosed = true;
-        queue.add(poisonPillResult);
+        queue.add(POISON_PILL_RESULT);
     }
 
     @Override
@@ -302,7 +302,7 @@ public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements Que
         Result result = null;
         try {
             result = queue.take();
-            if (result == poisonPillResult) {
+            if(POISON_PILL_RESULT.equals(result)) {
                 result = null;
             }
         } catch (InterruptedException e) {

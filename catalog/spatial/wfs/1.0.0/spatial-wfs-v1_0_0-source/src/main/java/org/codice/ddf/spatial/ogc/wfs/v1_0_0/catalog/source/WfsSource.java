@@ -341,7 +341,7 @@ public class WfsSource extends MaskableImpl
     }
 
     private boolean hasDisableCnCheck(Boolean disableCnCheck) {
-        return this.disableCnCheck != disableCnCheck;
+        return this.disableCnCheck.booleanValue() != disableCnCheck.booleanValue();
     }
 
     private void setupAvailabilityPoll() {
@@ -531,13 +531,15 @@ public class WfsSource extends MaskableImpl
         unregisterAllMetacardTypes();
         this.featureTypeFilters.clear();
         if (!mcTypeRegs.isEmpty()) {
-            for (String ftName : mcTypeRegs.keySet()) {
-                MetacardTypeRegistration mcTypeReg = mcTypeRegs.get(ftName);
+            Set<Entry<String, MetacardTypeRegistration>> entries = mcTypeRegs.entrySet();
+
+            for (Map.Entry<String, MetacardTypeRegistration> entry : mcTypeRegs.entrySet()) {
+                MetacardTypeRegistration mcTypeReg = entry.getValue();
                 FeatureMetacardType ftMetacard = mcTypeReg.getFtMetacard();
                 ServiceRegistration serviceRegistration = context
                         .registerService(MetacardType.class.getName(), ftMetacard,
                                 mcTypeReg.getProps());
-                this.metacardTypeServiceRegistrations.put(ftName, serviceRegistration);
+                this.metacardTypeServiceRegistrations.put(entry.getKey(), serviceRegistration);
                 this.featureTypeFilters.put(ftMetacard.getFeatureType(),
                         new WfsFilterDelegate(ftMetacard, supportedGeo, mcTypeReg.getSrs()));
             }
@@ -658,7 +660,7 @@ public class WfsSource extends MaskableImpl
                 results.add(result);
                 debugResult(result);
             }
-            Long totalHits = new Long(featureCollection.getFeatureMembers().size());
+            Long totalHits = Long.valueOf(featureCollection.getFeatureMembers().size());
             simpleResponse = new SourceResponseImpl(request, results, totalHits);
         } catch (WfsException wfse) {
             LOGGER.warn(WFS_ERROR_MESSAGE, wfse);
@@ -990,7 +992,7 @@ public class WfsSource extends MaskableImpl
         }
     }
 
-    private class MetacardTypeRegistration {
+    private static class MetacardTypeRegistration {
 
         private FeatureMetacardType ftMetacard;
 

@@ -154,9 +154,10 @@ public class FileSystemPersistenceProvider
         try {
             inputStream = new FileInputStream(getMapStorePath() + key + SER);
             InputStream buffer = new BufferedInputStream(inputStream);
-            ObjectInput input = new ObjectInputStream(buffer);
-            Object obj = (Object) input.readObject();
-            return obj;
+
+            try(ObjectInput input = new ObjectInputStream(buffer)) {
+                return input.readObject();
+            }
         } catch (IOException e) {
             LOGGER.info("IOException", e);
         } catch (ClassNotFoundException e) {

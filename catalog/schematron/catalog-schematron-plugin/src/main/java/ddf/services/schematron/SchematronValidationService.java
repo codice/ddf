@@ -613,7 +613,7 @@ public class SchematronValidationService implements MetacardValidator {
      * DDF-855: These warnings and errors are logged so that they are
      * not displayed on the console.
      */
-    private class SaxonErrorListener implements ErrorListener {
+    private static class SaxonErrorListener implements ErrorListener {
 
         private String schematronSchemaFilename;
 

@@ -14,6 +14,8 @@
 package org.codice.ddf.security.handler.api;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.security.cert.X509Certificate;
 
 import org.apache.wss4j.common.crypto.Merlin;
@@ -47,9 +49,10 @@ public class PKIAuthenticationTokenFactory {
     }
 
     public PKIAuthenticationToken getTokenFromString(String certString, boolean isEncoded,
-            String realm) {
+            String realm) throws UnsupportedEncodingException {
         PKIAuthenticationToken token;
-        byte[] certBytes = isEncoded ? Base64.decode(certString) : certString.getBytes();
+        byte[] certBytes = isEncoded ? Base64.decode(certString) : certString.getBytes(
+                StandardCharsets.UTF_8);
         token = getTokenFromBytes(certBytes, realm);
         return token;
     }

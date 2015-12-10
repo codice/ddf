@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -88,11 +89,11 @@ public class FeatureCollectionMessageBodyReaderWfs10
 
         // Save original input stream for any exception message that might need to be
         // created
-        String originalInputStream = IOUtils.toString(inStream, "UTF-8");
+        String originalInputStream = IOUtils.toString(inStream, StandardCharsets.UTF_8.name());
 
         // Re-create the input stream (since it has already been read for potential
         // exception message creation)
-        inStream = new ByteArrayInputStream(originalInputStream.getBytes("UTF-8"));
+        inStream = new ByteArrayInputStream(originalInputStream.getBytes(StandardCharsets.UTF_8.name()));
 
         WfsFeatureCollection featureCollection = null;
 
@@ -109,7 +110,7 @@ public class FeatureCollectionMessageBodyReaderWfs10
             // which CXF will wrap as a ClientException that the WfsSource catches, converts
             // to a WfsException, and logs.
             LOGGER.error("Exception unmarshalling {}", e);
-            ByteArrayInputStream bis = new ByteArrayInputStream(originalInputStream.getBytes());
+            ByteArrayInputStream bis = new ByteArrayInputStream(originalInputStream.getBytes(StandardCharsets.UTF_8));
             ResponseBuilder responseBuilder = Response.ok(bis);
             responseBuilder.type("text/xml");
             Response response = responseBuilder.build();

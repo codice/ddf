@@ -61,7 +61,7 @@ public class DefaultErrorHandler implements ErrorHandler {
             HttpServletRequest request, HttpServletResponse response) {
         initIndexHtml();
 
-        ByteArrayISO8859Writer writer = new ByteArrayISO8859Writer(4096);
+
         String stack = ExceptionUtils.getFullStackTrace(throwable);
 
         Map<String, String> jsonMap = new HashMap<>();
@@ -77,14 +77,12 @@ public class DefaultErrorHandler implements ErrorHandler {
 
         response.setStatus(code);
         response.setContentType("text/html");
-        try {
+        try (ByteArrayISO8859Writer writer = new ByteArrayISO8859Writer(4096)) {
             writer.write(localIndexHtml);
             writer.flush();
             writer.writeTo(response.getOutputStream());
         } catch (IOException e) {
             LOGGER.error("Unable to write error html data to client.");
-        } finally {
-            writer.destroy();
         }
     }
 
