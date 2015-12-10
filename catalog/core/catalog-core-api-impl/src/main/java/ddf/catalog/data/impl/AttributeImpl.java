@@ -72,6 +72,41 @@ public class AttributeImpl implements Attribute {
         this.values = createPopulatedList(value);
     }
 
+    /**
+     * Multivalued Constructor
+     *
+     * @param name
+     *            - the name of this {@link Attribute}
+     * @param values
+     *            - the value of this {@link Attribute}
+     */
+
+    public AttributeImpl(String name, List<Serializable> values) {
+        /*
+         * If any defensive logic is added to this constructor, then that logic should be reflected
+         * in the deserialization (readObject()) of this object so that the integrity of a
+         * serialized object is maintained. For instance, if a null check is added in the
+         * constructor, the same check should be added in the readObject() method.
+         */
+        this.name = name;
+        this.values = new LinkedList<>(values);
+    }
+
+    /**
+     * Copy Constructor
+     */
+
+    public AttributeImpl(Attribute attribute) {
+        /*
+         * If any defensive logic is added to this constructor, then that logic should be reflected
+         * in the deserialization (readObject()) of this object so that the integrity of a
+         * serialized object is maintained. For instance, if a null check is added in the
+         * constructor, the same check should be added in the readObject() method.
+         */
+        this(attribute.getName(), attribute.getValues());
+    }
+
+
     @Override
     public String getName() {
         return name;

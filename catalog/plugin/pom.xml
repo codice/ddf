@@ -28,6 +28,7 @@
   <modules>
     <module>catalog-plugin-federation-replication</module>
     <module>catalog-plugin-jpeg2000-thumbnail-converter</module>
+    <module>catalog-plugin-metacard-validation</module>
   </modules>
   
 </project>

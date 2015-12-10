@@ -1,0 +1,62 @@
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+
+    <type-converters>
+        <bean id="listConverter" class="ddf.catalog.util.impl.ListConverter"/>
+    </type-converters>
+
+    <bean id="metacardValidatorList" class="ddf.catalog.util.impl.SortedServiceList" />
+    <reference-list id="metacardValidators"
+                    interface="ddf.catalog.validation.MetacardValidator"
+                    availability="optional">
+        <reference-listener ref="metacardValidatorList" bind-method="bindPlugin" unbind-method="unbindPlugin" />
+    </reference-list>
+
+    <reference id="filterBuilder"
+               interface="ddf.catalog.filter.FilterBuilder"/>
+    <reference id="filterAdapter"
+               interface="ddf.catalog.filter.FilterAdapter"/>
+
+
+    <!-- Pre-Ingest Metacard Validation Marker Plugin -->
+    <bean id="pre-ingest-plugin" class="ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin">
+        <cm:managed-properties
+                persistent-id="ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin"
+                update-strategy="container-managed"/>
+        <property name="metacardValidators" ref="metacardValidatorList"/>
+        <property name="enforcedMetacardValidators">
+            <list />
+        </property>
+
+    </bean>
+
+    <!-- Pre-Query Metacard Validity Checker Plugin -->
+    <bean id="pre-query-plugin" class="ddf.catalog.metacard.validation.MetacardValidityCheckerPlugin">
+        <!--<cm:managed-properties-->
+                <!--persistent-id="MetacardValidityCheckerPlugin"-->
+                <!--update-strategy="container-managed"/>-->
+        <argument ref="filterBuilder"/>
+        <argument ref="filterAdapter"/>
+
+    </bean>
+
+
+
+    <!-- Register in the OSGi Service Registry -->
+    <service ref="pre-ingest-plugin" interface="ddf.catalog.plugin.PreIngestPlugin"/>
+    <service ref="pre-query-plugin" interface="ddf.catalog.plugin.PreQueryPlugin"/>
+
+</blueprint>

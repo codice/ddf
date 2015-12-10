@@ -19,6 +19,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
@@ -227,7 +228,7 @@ public class MetacardImplTest {
         mc.setContentTypeName(null);
         mc.setContentTypeVersion(null);
         mc.setAttribute(null);
-        mc.setAttribute(new AttributeImpl("testNullValueAtt1", null));
+        mc.setAttribute(new AttributeImpl("testNullValueAtt1", (Serializable) null));
         mc.setAttribute("testNullValueAtt2", null);
         mc.setCreatedDate(null);
         mc.setEffectiveDate(null);
