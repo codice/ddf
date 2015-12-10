@@ -79,6 +79,8 @@ public class PKITokenValidator implements TokenValidator {
 
     private List<String> realms = new ArrayList<>();
 
+    private boolean doPathValidation = true;
+
     /**
      * Initialize Merlin crypto object.
      */
@@ -193,7 +195,11 @@ public class PKITokenValidator implements TokenValidator {
                 if (token != null) {
                     X509Certificate[] certificates = merlin.getCertificatesFromBytes(token);
                     if (certificates != null) {
-                        credential.setCertificates(certificates);
+                        if (doPathValidation) {
+                            credential.setCertificates(certificates);
+                        } else {
+                            credential.setCertificates(new X509Certificate[] {certificates[0]});
+                        }
                     }
                 } else {
                     LOGGER.debug("Binary Security Token bytes were null.");
@@ -218,6 +224,10 @@ public class PKITokenValidator implements TokenValidator {
 
     public void setSignaturePropertiesPath(String signaturePropertiesPath) {
         this.signaturePropertiesPath = signaturePropertiesPath;
+    }
+
+    public void setPathValidation(boolean value) {
+        doPathValidation = value;
     }
 
     private PKIAuthenticationToken getPKITokenFromTarget(ReceivedToken validateTarget) {
