@@ -384,12 +384,7 @@ public class CswSource extends MaskableImpl
 
         String idProp = (String) configuration.get(ID_PROPERTY);
         if (StringUtils.isNotBlank(idProp)) {
-            cswSourceConfiguration.setId(idProp);
-        }
-
-        String cswUrlProp = (String) configuration.get(CSWURL_PROPERTY);
-        if (StringUtils.isNotBlank(cswUrlProp)) {
-            cswSourceConfiguration.setCswUrl(cswUrlProp);
+            setId(idProp);
         }
 
         String passProp = (String) configuration.get(PASSWORD_PROPERTY);
@@ -499,8 +494,6 @@ public class CswSource extends MaskableImpl
         LOGGER.debug("{}: Current content type mapping: {}.", cswSourceConfiguration.getId(),
                 currentContentTypeMapping);
 
-        configureCswSource();
-
         Integer newPollInterval = (Integer) configuration.get(POLL_INTERVAL_PROPERTY);
 
         if (newPollInterval != null && !newPollInterval
@@ -511,6 +504,18 @@ public class CswSource extends MaskableImpl
             availabilityPollFuture.cancel(true);
             setupAvailabilityPoll();
         }
+
+        String cswUrlProp = (String) configuration.get(CSWURL_PROPERTY);
+        if (StringUtils.isNotBlank(cswUrlProp) &&
+                !cswUrlProp.equals(cswSourceConfiguration.getCswUrl())) {
+            cswSourceConfiguration.setCswUrl(cswUrlProp);
+            factory = new SecureCxfClientFactory(cswUrlProp, Csw.class,
+                    initProviders(cswTransformProvider, cswSourceConfiguration), null,
+                    cswSourceConfiguration.getDisableCnCheck(),
+                    cswSourceConfiguration.getConnectionTimeout(),
+                    cswSourceConfiguration.getReceiveTimeout());
+        }
+        configureCswSource();
     }
 
     protected void setupAvailabilityPoll() {

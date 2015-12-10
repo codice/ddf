@@ -13,7 +13,11 @@
  */
 package org.codice.ddf.commands.platform;
 
+import java.io.PrintStream;
+
 import org.apache.karaf.shell.console.OsgiCommandSupport;
+import org.fusesource.jansi.Ansi;
+import org.fusesource.jansi.Ansi.Attribute;
 
 /**
  * Parent object to all Platform Commands. Provides common methods and instance variables that
@@ -22,4 +26,40 @@ import org.apache.karaf.shell.console.OsgiCommandSupport;
 public abstract class PlatformCommands extends OsgiCommandSupport {
 
     public static final String NAMESPACE = "platform";
+
+    protected void outputErrorMessage(String message) {
+        String colorAsString = Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.RED).toString();
+        PrintStream console = getConsole();
+        console.print(colorAsString);
+        console.print(message);
+        console.println(Ansi.ansi().a(Attribute.RESET).toString());
+    }
+
+    protected void outputWarningMessage(String message) {
+        String colorAsString = Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.YELLOW).toString();
+        PrintStream console = getConsole();
+        console.print(colorAsString);
+        console.print(message);
+        console.println(Ansi.ansi().a(Attribute.RESET).toString());
+    }
+
+    protected void outputInfoMessage(String message) {
+        String colorAsString = Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.WHITE).toString();
+        PrintStream console = getConsole();
+        console.print(colorAsString);
+        console.print(message);
+        console.println(Ansi.ansi().a(Attribute.RESET).toString());
+    }
+
+    protected void outputSuccessMessage(String message) {
+        String colorAsString = Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.GREEN).toString();
+        PrintStream console = getConsole();
+        console.print(colorAsString);
+        console.print(message);
+        console.println(Ansi.ansi().a(Attribute.RESET).toString());
+    }
+
+    PrintStream getConsole() {
+        return System.out;
+    }
 }

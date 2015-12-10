@@ -89,7 +89,7 @@ public class SamlProtocolTest {
     }
 
     @Test
-    public void testCreateAttributeQuery() {
+    public void testCreateAttributeQueryWithDestination() {
         AttributeQuery attributeQuery = SamlProtocol
                 .createAttributeQuery(SamlProtocol.createIssuer("myissuer"),
                         SamlProtocol.createSubject(SamlProtocol.createNameID("mynameid")),
@@ -97,5 +97,14 @@ public class SamlProtocolTest {
         assertEquals("myissuer", attributeQuery.getIssuer().getValue());
         assertEquals("mynameid", attributeQuery.getSubject().getNameID().getValue());
         assertEquals("mydestination", attributeQuery.getDestination());
+    }
+
+    @Test
+    public void testCreateAttributeQueryWithoutDestination() {
+        AttributeQuery attributeQuery = SamlProtocol
+                .createAttributeQuery(SamlProtocol.createIssuer("myissuer"),
+                        SamlProtocol.createSubject(SamlProtocol.createNameID("mynameid")));
+        assertEquals("myissuer", attributeQuery.getIssuer().getValue());
+        assertEquals("mynameid", attributeQuery.getSubject().getNameID().getValue());
     }
 }
