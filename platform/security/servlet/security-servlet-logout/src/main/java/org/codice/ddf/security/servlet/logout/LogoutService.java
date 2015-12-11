@@ -69,12 +69,6 @@ public class LogoutService {
             } catch (SecurityServiceException e) {
                 e.printStackTrace();//TODO add logger or do something else
             }
-            //            SecurityAssertionImpl securityAssertion = new SecurityAssertionImpl(realmTokenMap.get(
-//                    realm),);
-//            Subject subject = new Builder().principals(new SimplePrincipalCollection(
-//                    securityAssertion,
-//                    realm))
-//                    .buildSubject();
             realmSubjectMap.put(realm, subject);
         }
 

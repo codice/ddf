@@ -11,21 +11,20 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.security.idp.client;
+package org.codice.ddf.security.idp.server;
 
-public class IdpClientParseException extends IdpClientException {
-    public IdpClientParseException() {
-    }
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.ext.ExceptionMapper;
 
-    public IdpClientParseException(String message) {
-        super(message);
-    }
+public class IdpExceptionMapper implements ExceptionMapper<IdpException> {
 
-    public IdpClientParseException(Throwable cause) {
-        super(cause);
-    }
+        @Override
+        public Response toResponse(IdpException exception) {
 
-    public IdpClientParseException(String message, Throwable cause) {
-        super(message, cause);
+            return Response.serverError()
+                    .entity(exception.getMessage())
+                    .type(MediaType.TEXT_PLAIN_TYPE)
+                    .build();
+        }
     }
-}

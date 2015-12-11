@@ -13,19 +13,18 @@
  */
 package org.codice.ddf.security.idp.client;
 
-public class IdpClientSignatureException extends IdpClientException {
-    public IdpClientSignatureException() {
-    }
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.ext.ExceptionMapper;
 
-    public IdpClientSignatureException(String message) {
-        super(message);
-    }
+public class IdpClientExceptionMapper implements ExceptionMapper<IdpClientException> {
 
-    public IdpClientSignatureException(Throwable cause) {
-        super(cause);
-    }
+    @Override
+    public Response toResponse(IdpClientException exception) {
 
-    public IdpClientSignatureException(String message, Throwable cause) {
-        super(message, cause);
+        return Response.serverError()
+                .entity(exception.getMessage())
+                .type(MediaType.TEXT_PLAIN_TYPE)
+                .build();
     }
 }

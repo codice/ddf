@@ -194,7 +194,7 @@ public class LogoutRequestService {
             LogoutRequest logoutRequest =
                     processSamlLogoutRequest(decodeBase64(encodedSamlRequest));
             if (logoutRequest.getSignature() == null) {
-                throw new IdpClientSignatureException(
+                throw new IdpClientException(
                         "Could not validate signature. No signature was found.");
             }
 
@@ -285,22 +285,22 @@ public class LogoutRequestService {
         try {
             logoutResponse = logoutService.extractSamlLogoutResponse(logoutResponseStr);
         } catch (XMLStreamException | WSSecurityException e) {
-            throw new IdpClientParseException("Unable to parse logout response.", e);
+            throw new IdpClientException("Unable to parse logout response.", e);
         }
         if (logoutResponse == null) {
-            throw new IdpClientParseException("Unable to parse logout response.");
+            throw new IdpClientException("Unable to parse logout response.");
         }
 
         validateResponse(logoutResponse);
     }
 
     private void validateResponse(LogoutResponse logoutResponse)
-            throws IdpClientValidationException {
+            throws IdpClientException {
         try {
             logoutResponse.registerValidator(new LogoutResponseValidator(simpleSign));
             logoutResponse.validate(false);
         } catch (ValidationException e) {
-            throw new IdpClientValidationException(
+            throw new IdpClientException(
                     "Invalid Logout Request received from " + logoutResponse.getIssuer(), e);
         }
 
@@ -322,24 +322,14 @@ public class LogoutRequestService {
         try {
             logoutRequest = logoutService.extractSamlLogoutRequest(logoutRequestStr);
         } catch (XMLStreamException | WSSecurityException e) {
-            throw new IdpClientParseException("Unable to parse logout request.",
-                    e); //TODO create an cxf exception mapper to handle all of these exceptions and create the appropriate response for the user also name the exceptions better.
-            //            return Response.serverError()
-            //                    .entity("Unable to parse logout request.")
-            //                    .build();
+            throw new IdpClientException("Unable to parse logout request.",
+                    e);
         }
         if (logoutRequest == null) {
-            throw new IdpClientParseException("Unable to parse logout request.");
-            //            return Response.serverError()
-            //                    .entity("Unable to parse logout request.")
-            //                    .build();
+            throw new IdpClientException("Unable to parse logout request.");
         }
 
         validateRequest(logoutRequest);
-        //            return Response.serverError()
-        //                    .entity("logout request failed validation.")
-        //                    .build();
-        //        }
         logout();
 
         return logoutRequest;
@@ -392,7 +382,7 @@ public class LogoutRequestService {
 
     //TODO refactor to common area
     private void validateRequestSignature(String deflatedSamlrequest, String relayState,
-            String signatureAlgorithm, String signature) throws IdpClientSignatureException {
+            String signatureAlgorithm, String signature) throws IdpClientException {
         this.validateSignature(deflatedSamlrequest,
                 relayState,
                 signatureAlgorithm,
@@ -402,7 +392,7 @@ public class LogoutRequestService {
     }
 
     private void validateResponseSignature(String deflatedSamlResponse, String relayState,
-            String signatureAlgorithm, String signature) throws IdpClientSignatureException {
+            String signatureAlgorithm, String signature) throws IdpClientException {
         this.validateSignature(deflatedSamlResponse,
                 relayState,
                 signatureAlgorithm,
@@ -413,7 +403,7 @@ public class LogoutRequestService {
 
     private void validateSignature(String deflatedSamlResponse, String relayState,
             String signatureAlgorithm, String signature, String paramType)
-            throws IdpClientSignatureException {
+            throws IdpClientException {
         boolean signaturePasses;
         if (signature != null) {
             if (StringUtils.isNotBlank(deflatedSamlResponse) && StringUtils.isNotBlank(relayState)
@@ -430,29 +420,29 @@ public class LogoutRequestService {
                             signature,
                             idpMetadata.getSigningCertificate());
                     if (!signaturePasses) {
-                        throw new IdpClientSignatureException(
+                        throw new IdpClientException(
                                 "Failed to validate logout request signature.");
                     }
                 } catch (SimpleSign.SignatureException | UnsupportedEncodingException e) {
                     LOGGER.debug("Failed to validate logout request signature.", e);
-                    throw new IdpClientSignatureException(
+                    throw new IdpClientException(
                             "Failed to validate logout request signature.",
                             e);
                 }
             }
         } else {
-            throw new IdpClientSignatureException(
+            throw new IdpClientException(
                     "Received unsigned logout request.  Could not verify identity or request integrity.");
         }
     }
 
     private void validateRequest(org.opensaml.saml2.core.LogoutRequest logoutRequest)
-            throws IdpClientValidationException {
+            throws IdpClientException {
         try {
             logoutRequest.registerValidator(new LogoutRequestValidator(simpleSign));
             logoutRequest.validate(false);
         } catch (ValidationException e) {
-            throw new IdpClientValidationException(
+            throw new IdpClientException(
                     "Invalid Logout Request received from " + logoutRequest.getIssuer(), e);
         }
 
