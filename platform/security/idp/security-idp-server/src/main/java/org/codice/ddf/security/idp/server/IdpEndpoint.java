@@ -231,6 +231,7 @@ public class IdpEndpoint implements Idp {
                     .validateRelayState(relayState);
             authnRequest = binding.decoder()
                     .decodeRequest(samlRequest);
+            authnRequest.getIssueInstant();
             binding.validator()
                     .validateAuthnRequest(authnRequest,
                             samlRequest,

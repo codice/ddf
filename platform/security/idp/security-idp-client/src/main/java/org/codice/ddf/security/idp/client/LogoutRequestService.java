@@ -118,7 +118,7 @@ public class LogoutRequestService {
             redirectPage = IOUtils.toString(LogoutRequestService.class.getResourceAsStream(
                     "/templates/redirect.handlebars"));
         } catch (Exception e) {
-            LOGGER.error("Unable to load index page for SP.", e);
+            LOGGER.error("Unable tpo load index page for SP.", e);
         }
 
         OpenSAMLUtil.initSamlEngine();

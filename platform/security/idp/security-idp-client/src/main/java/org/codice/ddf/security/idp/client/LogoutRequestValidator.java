@@ -47,6 +47,7 @@ public class LogoutRequestValidator implements Validator {
                     "Invalid LogoutRequest the request was received after the NotOnOrAfter time.");
         }
 
+        // POST binding specific signature validation
         if (logoutRequest.getSignature() != null) {
             try {
                 simpleSign.validateSignature(logoutRequest.getSignature(),
