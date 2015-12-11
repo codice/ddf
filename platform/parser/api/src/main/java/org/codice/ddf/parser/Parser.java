@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -16,6 +16,10 @@ package org.codice.ddf.parser;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
+
+import javax.xml.transform.Source;
+
+import org.w3c.dom.Node;
 
 /**
  * Defines a service interface for converting between Objects and external representations of them.
@@ -31,7 +35,7 @@ public interface Parser {
      *
      * @param contextPath a list of paths that implementations can search in order to find binding
      *                    information
-     * @param loader the classloader for the parser to use
+     * @param loader      the classloader for the parser to use
      * @return a configuration object with the specified {@code contextPath} and {@code loader}
      */
     ParserConfigurator configureParser(List<String> contextPath, ClassLoader loader);
@@ -41,24 +45,58 @@ public interface Parser {
      *
      * @param configurator object containing the relevant configuration information needed to
      *                     perform the conversion
-     * @param obj the root of the object graph to convert
-     * @param os the output stream on which the converted object is written
+     * @param obj          the root of the object graph to convert
+     * @param os           the output stream on which the converted object is written
      * @throws ParserException
      */
     void marshal(ParserConfigurator configurator, Object obj, OutputStream os)
             throws ParserException;
 
     /**
+     * Converts an object graph into a Node,
+     *
+     * @param configurator
+     * @param obj
+     * @param node
+     * @throws ParserException
+     */
+    void marshal(ParserConfigurator configurator, Object obj, Node node) throws ParserException;
+
+    /**
      * Converts a representation of an object graph into an instance of type {@code T}.
      *
      * @param configurator object containing the relevant configuration information needed to
      *                     perform the conversion
-     * @param cls {@code Class} for the conversion
-     * @param stream input stream which is read for the object data
-     * @param <T> expected return object
+     * @param cls          {@code Class} for the conversion
+     * @param stream       input stream which is read for the object data
+     * @param <T>          expected return object
      * @return an object of type {@code T} as read and converted from the stream
      * @throws ParserException
      */
     <T> T unmarshal(ParserConfigurator configurator, Class<? extends T> cls, InputStream stream)
+            throws ParserException;
+
+    /**
+     * Converts a representation of an object graph into an instance of type {@code T}.
+     *
+     * @param <T>
+     * @param cls
+     * @param node
+     * @return an object of type {@code T} as read and converted from the node
+     * @throws ParserException
+     */
+    <T> T unmarshal(ParserConfigurator configurator, Class<? extends T> cls, Node node)
+            throws ParserException;
+
+    /**
+     * Converts a representation of an object graph into an instance of type {@code T}.
+     *
+     * @param <T>
+     * @param cls
+     * @param source
+     * @return an object of type {@code T} as read and converted from the source
+     * @throws ParserException
+     */
+    <T> T unmarshal(ParserConfigurator configurator, Class<? extends T> cls, Source source)
             throws ParserException;
 }
