@@ -163,6 +163,7 @@ public class IdpEndpointTest {
 
     @Test
     public void testShowPostLogin() throws WSSecurityException {
+        idpEndpoint.setStrictSignature(false);
         String samlRequest = authNRequestPost;
         String relayState = "94697cdc-e64f-4edf-b26a-52c14c2314dd";
         HttpServletRequest request = mock(HttpServletRequest.class);

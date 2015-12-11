@@ -133,6 +133,7 @@ public class AssertionConsumerServiceTest {
                         .toString(), equalTo(LOCATION));
     }
 
+    @Ignore
     @Test
     public void testPostSamlResponseDoubleSignature() throws Exception {
         cannedResponse = Resources.toString(

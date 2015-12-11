@@ -333,9 +333,9 @@ public class KeystoreEditorTest {
         IOUtils.closeQuietly(fileInputStream);
         keystoreEditor.addPrivateKey("localhost",
                 password,
-                password,
+                "",
                 new String(Base64.encode(keyBytes)),
-                KeystoreEditor.PEM_TYPE,
+                "",
                 localhostKeyFile.toString());
         keystore = keystoreEditor.getKeystore();
         Assert.assertThat(keystore.size(), Is.is(1));

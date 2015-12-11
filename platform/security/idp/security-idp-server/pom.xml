@@ -202,17 +202,17 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>.68</minimum>
+                                            <minimum>.67</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>.50</minimum>
+                                            <minimum>.48</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>.53</minimum>
+                                            <minimum>.52</minimum>
                                         </limit>
                                         <limit>
                                             <counter>LINE</counter>
