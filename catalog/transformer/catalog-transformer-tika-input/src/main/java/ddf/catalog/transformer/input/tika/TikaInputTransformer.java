@@ -19,6 +19,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -167,7 +168,7 @@ public class TikaInputTransformer implements InputTransformer {
         if (StringUtils.isNotBlank(uri)) {
             metacard.setAttribute(new AttributeImpl(Metacard.RESOURCE_URI, URI.create(uri)));
         } else {
-            metacard.setAttribute(new AttributeImpl(Metacard.RESOURCE_URI, null));
+            metacard.setAttribute(new AttributeImpl(Metacard.RESOURCE_URI, (Serializable) null));
         }
 
         if (StringUtils.isNotBlank(metacardMetadata)) {
