@@ -222,7 +222,8 @@
                             httpcore,
                             httpclient,
                             ddf-security-common,
-                            guava
+                            guava,
+                            commons-lang
                         </Embed-Dependency>
                         <Import-Package>
                             javax.servlet.http; version="[2.5.0,3.0.0)",
