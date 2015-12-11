@@ -1,7 +1,7 @@
 package ddf.security.samlp.impl;
 
-import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 import java.net.URL;
 import java.time.Duration;
