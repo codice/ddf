@@ -9,6 +9,7 @@ import java.time.Instant;
 
 import javax.validation.constraints.NotNull;
 
+import org.joda.time.DateTime;
 import org.opensaml.common.SAMLVersion;
 import org.opensaml.common.SignableSAMLObject;
 import org.opensaml.saml2.core.LogoutRequest;
@@ -25,19 +26,16 @@ import ddf.security.samlp.SimpleSign;
 public abstract class SamlValidator implements Validator {
     private static final Logger LOGGER = LoggerFactory.getLogger(SamlValidator.class);
 
-    final Builder builder;
-
-    private final XMLObject xmlObject;
+    protected final Builder builder;
 
     private SamlValidator(Builder builder) {
         this.builder = builder;
-        xmlObject = builder.xmlObject;
     }
 
     @Override
     final public void validate(XMLObject xmlObject) throws ValidationException {
         // This is intentionally an instance equality check
-        if (xmlObject != this.xmlObject) {
+        if (xmlObject != builder.xmlObject) {
             throw new ValidationException("Cannot validate a different target.");
         }
 
@@ -49,9 +47,35 @@ public abstract class SamlValidator implements Validator {
         checkId();
     }
 
-    protected abstract void checkTimestamp() throws ValidationException;
+    protected void checkTimestamp() throws ValidationException {
+        DateTime issueInstant = getIssueInstant();
+        if (issueInstant == null) {
+            throw new ValidationException("Issue Instant cannot be null!");
+        }
 
-    protected abstract void checkSamlVersion() throws ValidationException;
+        Instant instant = Instant.ofEpochMilli(issueInstant.getMillis());
+        Instant now = Instant.now();
+        if (instant.minus(builder.jitter)
+                .isAfter(now)) {
+            throw new ValidationException("Issue Instant cannot be in the future");
+        }
+
+        if (instant.plus(builder.jitter)
+                .isBefore(now.minus(builder.issueTimeout))) {
+            throw new ValidationException("Issue Instant was outside valid time range");
+        }
+
+    }
+
+    protected void checkSamlVersion() throws ValidationException {
+        SAMLVersion samlVersion = getSamlVersion();
+        if (samlVersion == null) {
+            throw new ValidationException("SAML Version cannot be null!");
+        }
+        if (!SAMLVersion.VERSION_20.equals(samlVersion)) {
+            throw new ValidationException("Invalid SAML Version!");
+        }
+    }
 
     protected abstract void checkRequiredFields() throws ValidationException;
 
@@ -63,34 +87,16 @@ public abstract class SamlValidator implements Validator {
         // pass, default method
     }
 
+    protected abstract DateTime getIssueInstant();
+
+    protected abstract SAMLVersion getSamlVersion();
+
     protected void checkPostSignature() throws ValidationException {
         // pass, default method
     }
 
     protected void checkRedirectSignature() throws ValidationException {
         // pass, default method
-    }
-
-    void checkTimestamp(Instant issueInstant) throws ValidationException {
-        Instant now = Instant.now();
-        if (issueInstant.minus(builder.jitter)
-                .isAfter(now)) {
-            throw new ValidationException("Issue Instant cannot be in the future");
-        }
-
-        if (issueInstant.plus(builder.jitter)
-                .isBefore(now.minus(builder.issueTimeout))) {
-            throw new ValidationException("Issue Instant was outside valid time range");
-        }
-    }
-
-    void checkSamlVersion(SAMLVersion samlVersion) throws ValidationException {
-        if (samlVersion == null) {
-            throw new ValidationException("SAML Version cannot be null!");
-        }
-        if (!SAMLVersion.VERSION_20.equals(samlVersion)) {
-            throw new ValidationException("Invalid SAML Version!");
-        }
     }
 
     void checkDestination(URL destination) throws ValidationException {
@@ -243,18 +249,13 @@ public abstract class SamlValidator implements Validator {
         }
 
         @Override
-        protected void checkSamlVersion() throws ValidationException {
-            checkSamlVersion(logoutRequest.getVersion());
+        protected SAMLVersion getSamlVersion() {
+            return logoutRequest.getVersion();
         }
 
         @Override
-        protected void checkTimestamp() throws ValidationException {
-            if (logoutRequest.getIssueInstant() == null) {
-                throw new ValidationException("Issue Instant cannot be null!");
-            }
-
-            checkTimestamp(Instant.ofEpochMilli(logoutRequest.getIssueInstant()
-                    .getMillis()));
+        protected DateTime getIssueInstant() {
+            return logoutRequest.getIssueInstant();
         }
 
         @Override
@@ -283,18 +284,13 @@ public abstract class SamlValidator implements Validator {
         }
 
         @Override
-        protected void checkSamlVersion() throws ValidationException {
-            checkSamlVersion(logoutResponse.getVersion());
+        protected SAMLVersion getSamlVersion() {
+            return logoutResponse.getVersion();
         }
 
         @Override
-        protected void checkTimestamp() throws ValidationException {
-            if (logoutResponse.getIssueInstant() == null) {
-                throw new ValidationException("Issue Instant cannot be null!");
-            }
-
-            checkTimestamp(Instant.ofEpochMilli(logoutResponse.getIssueInstant()
-                    .getMillis()));
+        protected DateTime getIssueInstant() {
+            return logoutResponse.getIssueInstant();
         }
 
         @Override
