@@ -3,18 +3,22 @@ package ddf.security.samlp.impl;
 import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 
-import java.net.URL;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URLEncoder;
 import java.time.Duration;
 import java.time.Instant;
 
 import javax.validation.constraints.NotNull;
 
+import org.codice.ddf.security.common.HttpUtils;
 import org.joda.time.DateTime;
 import org.opensaml.common.SAMLVersion;
 import org.opensaml.common.SignableSAMLObject;
 import org.opensaml.saml2.core.LogoutRequest;
 import org.opensaml.saml2.core.LogoutResponse;
 import org.opensaml.xml.XMLObject;
+import org.opensaml.xml.validation.ValidatingXMLObject;
 import org.opensaml.xml.validation.ValidationException;
 import org.opensaml.xml.validation.Validator;
 import org.slf4j.Logger;
@@ -23,7 +27,7 @@ import org.slf4j.LoggerFactory;
 import ddf.security.samlp.SamlProtocol;
 import ddf.security.samlp.SimpleSign;
 
-public abstract class SamlValidator implements Validator {
+public abstract class SamlValidator implements Validator<ValidatingXMLObject> {
     private static final Logger LOGGER = LoggerFactory.getLogger(SamlValidator.class);
 
     protected final Builder builder;
@@ -33,7 +37,7 @@ public abstract class SamlValidator implements Validator {
     }
 
     @Override
-    final public void validate(XMLObject xmlObject) throws ValidationException {
+    final public void validate(ValidatingXMLObject xmlObject) throws ValidationException {
         // This is intentionally an instance equality check
         if (xmlObject != builder.xmlObject) {
             throw new ValidationException("Cannot validate a different target.");
@@ -92,15 +96,12 @@ public abstract class SamlValidator implements Validator {
     protected abstract SAMLVersion getSamlVersion();
 
     protected void checkPostSignature() throws ValidationException {
-        // pass, default method
+        // noop, default method
     }
 
-    protected void checkRedirectSignature() throws ValidationException {
-        // pass, default method
-    }
-
-    void checkDestination(URL destination) throws ValidationException {
+    void checkDestination(String endpoint) throws ValidationException {
         // TODO (RCZ) - url validation logic, scrap the query params, yada yada yada
+
     }
 
     void checkPostSignature(SignableSAMLObject samlObject) throws ValidationException {
@@ -115,8 +116,22 @@ public abstract class SamlValidator implements Validator {
         }
     }
 
-    void checkRedirectSignature(Object dummy) throws ValidationException {
-        // TODO (RCZ) - do this
+    void checkRedirectSignature(String reqres) throws ValidationException {
+        try {
+            String signedParts = String.format("%s=%s&RelayState=%s&SigAlg=%s",
+                    reqres,
+                    URLEncoder.encode(builder.samlString, "UTF-8"),
+                    builder.relayState,
+                    URLEncoder.encode(builder.sigAlgo, "UTF-8"));
+
+            if (!builder.simpleSign.validateSignature(signedParts,
+                    builder.signature,
+                    builder.signingCertificate)) {
+                throw new ValidationException("Signature verification failed for redirect binding.");
+            }
+        } catch (SimpleSign.SignatureException | UnsupportedEncodingException e) {
+            throw new ValidationException("Signature validation failed.", e);
+        }
     }
 
     public static class Builder {
@@ -135,7 +150,7 @@ public abstract class SamlValidator implements Validator {
 
         protected String inResponse;
 
-        protected URL destination;
+        protected String endpoint;
 
         protected String relayState;
 
@@ -145,24 +160,58 @@ public abstract class SamlValidator implements Validator {
 
         protected String samlString;
 
+        protected String signingCertificate;
+
         public Builder(SimpleSign simpleSign) {
             this.simpleSign = simpleSign;
         }
 
-        public SamlValidator build() throws IllegalStateException {
+        public void buildAndValidate(@NotNull String destination,
+                @NotNull SamlProtocol.Binding binding, @NotNull ValidatingXMLObject xmlObject)
+                throws IllegalStateException, ValidationException {
+            Validator<ValidatingXMLObject> validator = build(destination, binding, xmlObject);
+            xmlObject.registerValidator(validator);
+            xmlObject.validate(false);
+        }
+
+        /**
+         * @param endpoint
+         * @param binding
+         * @param xmlObject target object to validate
+         * @return
+         * @throws IllegalStateException
+         */
+        public SamlValidator build(@NotNull String endpoint, @NotNull SamlProtocol.Binding binding,
+                @NotNull ValidatingXMLObject xmlObject)
+                throws IllegalStateException, ValidationException {
             if (binding == null) {
-                throw new IllegalStateException("Binding cannot be null!");
+                throw new IllegalArgumentException("Binding cannot be null!");
             }
+            this.binding = binding;
 
-            if (destination == null) {
-                throw new IllegalStateException("The service endpoint destination cannot be null");
+            if (isBlank(endpoint)) {
+                throw new IllegalArgumentException("The service endpoint destination cannot be null");
             }
+            this.endpoint = endpoint;
 
+            if (xmlObject instanceof LogoutRequest) {
+                isRequest = true;
+                LOGGER.trace("xmlObject is a LogoutRequest [{}]", xmlObject);
+            } else if (xmlObject instanceof LogoutResponse) {
+                isRequest = false;
+                LOGGER.trace("xmlObject is a LogoutResponse [{}]", xmlObject);
+            } else {
+                throw new IllegalArgumentException("Could not determine type of xmlObject");
+            }
+            this.xmlObject = xmlObject;
+
+            Validator<ValidatingXMLObject> validator = null;
             if (binding == SamlProtocol.Binding.HTTP_POST) {
                 return isRequest ? new PostRequest(this) : new PostResponse(this);
             }
             if (binding == SamlProtocol.Binding.HTTP_REDIRECT) {
-                if (isBlank(signature) || isBlank(sigAlgo) || isBlank(samlString)) {
+                if (isBlank(signature) || isBlank(sigAlgo) || isBlank(samlString) || isBlank(
+                        signingCertificate)) {
                     throw new UnsupportedOperationException("Cannot validate object with blank data");
                 }
                 return isRequest ? new RedirectRequest(this) : new RedirectResponse(this);
@@ -172,11 +221,12 @@ public abstract class SamlValidator implements Validator {
         }
 
         public Builder setRedirectParams(String relayState, String signature, String sigAlgo,
-                String samlString) {
+                String samlString, String signingCertificate) {
             this.relayState = relayState;
             this.signature = signature;
             this.sigAlgo = sigAlgo;
             this.samlString = samlString;
+            this.signingCertificate = signingCertificate;
             return this;
         }
 
@@ -185,11 +235,6 @@ public abstract class SamlValidator implements Validator {
                 throw new IllegalArgumentException("InResponseTo Id cannot be blank!");
             }
             this.inResponse = inResponse;
-            return this;
-        }
-
-        public Builder setDestination(URL destination) {
-            this.destination = destination;
             return this;
         }
 
@@ -206,36 +251,6 @@ public abstract class SamlValidator implements Validator {
                 throw new IllegalArgumentException("jitter cannot be null!");
             }
             this.jitter = jitter;
-            return this;
-        }
-
-        public Builder setBinding(@NotNull SamlProtocol.Binding binding) {
-            if (binding == null) {
-                throw new IllegalArgumentException("binding cannot be null!");
-            }
-            this.binding = binding;
-            return this;
-        }
-
-        /**
-         * @param xmlObject target object to validate
-         * @return this builder
-         * @throws IllegalArgumentException If not passed a
-         *                                  {@link org.opensaml.saml2.core.LogoutResponse} or a
-         *                                  {@link org.opensaml.saml2.core.LogoutRequest}
-         */
-        public Builder setXmlObject(XMLObject xmlObject) throws IllegalArgumentException {
-            this.xmlObject = xmlObject;
-
-            if (this.xmlObject instanceof LogoutRequest) {
-                isRequest = true;
-                LOGGER.trace("xmlObject is a LogoutRequest [{}]", xmlObject);
-            } else if (this.xmlObject instanceof LogoutResponse) {
-                isRequest = false;
-                LOGGER.trace("xmlObject is a LogoutResponse [{}]", xmlObject);
-            } else {
-                throw new IllegalArgumentException("Could not determine type of xmlObject");
-            }
             return this;
         }
     }
@@ -270,7 +285,15 @@ public abstract class SamlValidator implements Validator {
         @Override
         protected void checkDestination() throws ValidationException {
             if (isNotBlank(logoutRequest.getDestination())) {
-                checkDestination(builder.destination);
+                try {
+                    if (!HttpUtils.validateAndStripQueryString(logoutRequest.getDestination())
+                            .equals(builder.endpoint)) {
+                        throw new ValidationException("Destination validation failed"); // TODO (RCZ) - bad text english hard plz fix
+                    }
+                } catch (MalformedURLException e) {
+                    throw new ValidationException(String.format("Destination [%s]is not a valid URL",
+                            logoutRequest.getDestination()), e);
+                }
             }
         }
     }
@@ -305,7 +328,7 @@ public abstract class SamlValidator implements Validator {
         @Override
         protected void checkDestination() throws ValidationException {
             if (isNotBlank(logoutResponse.getDestination())) {
-                checkDestination(builder.destination);
+                checkDestination(builder.endpoint);
             }
         }
 
@@ -357,7 +380,7 @@ public abstract class SamlValidator implements Validator {
 
         @Override
         protected void additionalValidation() throws ValidationException {
-            checkRedirectSignature(0);
+            checkRedirectSignature("SAMLRequest");
         }
     }
 
@@ -371,7 +394,7 @@ public abstract class SamlValidator implements Validator {
 
         @Override
         protected void additionalValidation() throws ValidationException {
-            checkRedirectSignature(0);
+            checkRedirectSignature("SAMLResponse");
         }
     }
 }

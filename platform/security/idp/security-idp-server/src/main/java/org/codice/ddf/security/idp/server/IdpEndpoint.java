@@ -107,6 +107,7 @@ import ddf.security.samlp.SamlProtocol;
 import ddf.security.samlp.SimpleSign;
 import ddf.security.samlp.SystemCrypto;
 import ddf.security.samlp.impl.EntityInformation;
+import ddf.security.samlp.impl.SamlValidator;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
 
@@ -521,7 +522,7 @@ public class IdpEndpoint implements Idp {
         String statusCode;
         if (hasCookie) {
             samlToken =
-                    getSamlAssertion(request); // TODO (RCZ) - make sure assertion has not expired
+                    getSamlAssertion(request);
             statusCode = StatusCode.SUCCESS_URI;
         } else {
             try {
@@ -593,15 +594,10 @@ public class IdpEndpoint implements Idp {
                     url = new URL(request.getRequestURL()
                             .toString());
                     LOGGER.debug("Returning new cookie for user.");
-                    return new NewCookie(COOKIE,
-                            uuid.toString(),
-                            "/services/idp",
+
+                    return new NewCookie(COOKIE, uuid.toString(), "/services/idp",
                             // TODO (RCZ) - Don't hardcode this...
-                            url.getHost(),
-                            NewCookie.DEFAULT_VERSION,
-                            null,
-                            -1,
-                            true);
+                            url.getHost(), NewCookie.DEFAULT_VERSION, null, -1, true);
                 } catch (MalformedURLException e) {
                     LOGGER.warn("Unable to create session cookie. Client will need to log in again.",
                             e);
@@ -692,45 +688,45 @@ public class IdpEndpoint implements Idp {
             @QueryParam(SSOConstants.SIG_ALG) final String signatureAlgorithm,
             @QueryParam(SSOConstants.SIGNATURE) final String signature,
             @Context final HttpServletRequest request) throws WSSecurityException, IdpException {
-        String samlRequestDecoded = null;
-        String samlToValidate = null;
-        String reqres = null;
+        String samlRequestDecoded;
+        String samlToValidate;
         // TODO (RCZ) - refactor so this is nice and not carp
         try {
             if (samlRequest != null) {
                 samlRequestDecoded = RestSecurity.inflateBase64(samlRequest);
                 samlToValidate = samlRequest;
-                reqres = "SAMLRequest";
-            } else if (samlResponse != null){
+            } else if (samlResponse != null) {
                 samlRequestDecoded = RestSecurity.inflateBase64(samlResponse);
                 samlToValidate = samlResponse;
-                reqres = "SAMLResponse";
             } else {
                 throw new IdpException("No SAML object received");
             }
         } catch (IOException e) {
             throw new IdpException(e);
         }
+
         final String fSamlToValidate = samlToValidate;
         final String finalSaml = samlRequestDecoded;
-        final String freqres = reqres;
         RedirectBinding binding = new RedirectBinding(systemCrypto, serviceProviders);
+
+        /* Note this is a Lambda used to validate saml (closing over above variables) */
         BiConsumer<String, SignableSAMLObject> validator = (issuer, samlObject) -> {
             LOGGER.debug("Validating AuthnRequest required attributes and signature");
             try {
                 if (isEmpty(signature) || isEmpty(signatureAlgorithm) || isEmpty(issuer)) {
-                    throw new SimpleSign.SignatureException("No signature present for AuthnRequest.");
+                    throw new ValidationException("No signature present for AuthnRequest.");
                 }
                 String signingCertificate = serviceProviders.get(issuer)
                         .getSigningCertificate();
 
-                validateSignature(fSamlToValidate,
-                        relayState,
-                        signatureAlgorithm,
+                new SamlValidator.Builder(new SimpleSign(systemCrypto)).setRedirectParams(relayState,
                         signature,
-                        signingCertificate,
-                        freqres);
-            } catch (Exception e) {
+                        signatureAlgorithm,
+                        fSamlToValidate,
+                        signingCertificate)
+                        .buildAndValidate(request.getRequestURL()
+                                .toString(), SamlProtocol.Binding.HTTP_REDIRECT, samlObject);
+            } catch (ValidationException e) {
                 throw new RuntimeException(e);
             }
         };
@@ -750,55 +746,42 @@ public class IdpEndpoint implements Idp {
                 .build();
     }
 
-    private void validateSignature(String samlRequest, String relayState, String signatureAlgorithm,
-            String signature, String signingCertificate, String reqres)
-            throws UnsupportedEncodingException, SimpleSign.SignatureException,
-            ValidationException {
-
-        if (signingCertificate == null) {
-            throw new ValidationException(
-                    "Unable to find signing certificate in metadata. Please check metadata.");
-        }
-
-        String signedParts = String.format("%s=%s&RelayState=%s&SigAlg=%s",
-                reqres,
-                URLEncoder.encode(samlRequest, "UTF-8"),
-                relayState,
-                URLEncoder.encode(signatureAlgorithm, "UTF-8"));
-        if (!new SimpleSign(systemCrypto).validateSignature(signedParts,
-                signature,
-                signingCertificate)) {
-            throw new ValidationException("Signature verification failed for redirect binding.");
-        }
-    }
-
     @Override
     @POST
     @Path("/logout")
     public Response processPostLogout(@FormParam(SAML_REQ) String samlRequest,
+            @FormParam(SAML_RESPONSE) String samlResponse,
             @FormParam(RELAY_STATE) String relayState, @Context HttpServletRequest request)
             throws WSSecurityException, IdpException {
-        // TODO (RCZ) - add teh SAML_Response formparam
-        // TODO (RCZ) - inflate and b64decode saml request
         PostBinding binding = new PostBinding(systemCrypto, serviceProviders);
+        String samlRequestDecoded;
+        try {
+            if (samlRequest != null) {
+                samlRequestDecoded = RestSecurity.inflateBase64(samlRequest);
+            } else if (samlResponse != null) {
+                samlRequestDecoded = RestSecurity.inflateBase64(samlResponse);
+            } else {
+                throw new IdpException("No SAML object received");
+            }
+        } catch (IOException e) {
+            throw new IdpException(e);
+        }
         return processLogout(request,
-                samlRequest,
+                samlRequestDecoded,
                 relayState,
                 binding,
                 SamlProtocol.Binding.HTTP_POST,
                 (issuer, samlObject) -> {
                     LOGGER.debug("Validating AuthnRequest required attributes and signature");
                     try {
-                        if (samlObject.getSignature() != null) {
-                            new SimpleSign(systemCrypto).validateSignature(samlObject.getSignature(),
-                                    samlObject.getDOM()
-                                            .getOwnerDocument());
-                        } else {
-                            throw new SimpleSign.SignatureException(
-                                    "No signature present on AuthnRequest.");
-                        }
-                    } catch (SimpleSign.SignatureException e) {
-                        // TODO (RCZ) - exception
+                        new SamlValidator.Builder(new SimpleSign(systemCrypto)).buildAndValidate(
+                                request.getRequestURL()
+                                        .toString(),
+                                SamlProtocol.Binding.HTTP_POST,
+                                samlObject);
+                    } catch (ValidationException e) {
+                        // TODO (RCZ) - rethink the runtime
+                        throw new RuntimeException("Unable to validate object", e);
                     }
                 });
 
@@ -807,11 +790,6 @@ public class IdpEndpoint implements Idp {
     private Response processLogout(final HttpServletRequest request, final String samlRequest,
             String relayState, Binding binding, SamlProtocol.Binding incomingBinding,
             BiConsumer<String, SignableSAMLObject> signatureValidator) throws IdpException {
-        // TODO (RCZ) - Make sure to validate time within restraint + latency
-        // TODO (RCZ) - validate entity id exists in sps
-        // TODO (RCZ) - if present, destination must match
-        // TODO (RCZ) - validate required fields exist
-        // TODO (RCZ) - Check saml version (saml2)
         // TODO (RCZ) - if ID present in req, must include InResponseTo
         try {
             LogoutState logoutState = getLogoutState(request);
@@ -872,13 +850,15 @@ public class IdpEndpoint implements Idp {
     }
 
     Response handleLogoutRequest(Cookie cookie, LogoutState logoutState,
-            LogoutRequest logoutRequest, SamlProtocol.Binding incomingBinding, String relayState) throws IdpException {
+            LogoutRequest logoutRequest, SamlProtocol.Binding incomingBinding, String relayState)
+            throws IdpException {
         // Initial Logout Request
         if (logoutState != null) {
             // this means that they have a logout in progress and resent another logout
             // request. Either that or we have an old LogoutState which could happen if
             // a logout never actually finished
-            LOGGER.error("This is a wierd state.. should be initial but already logout request in prog");
+            LOGGER.error(
+                    "This is a wierd state.. should be initial but already logout request in prog");
             // throw new IllegalStateException("Weird state");
         }
 

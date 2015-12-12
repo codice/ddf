@@ -297,6 +297,7 @@ public class LogoutRequestService {
     private void validateResponse(LogoutResponse logoutResponse)
             throws IdpClientException {
         try {
+            // builder.blablabla.build()
             logoutResponse.registerValidator(new LogoutResponseValidator(simpleSign));
             logoutResponse.validate(false);
         } catch (ValidationException e) {

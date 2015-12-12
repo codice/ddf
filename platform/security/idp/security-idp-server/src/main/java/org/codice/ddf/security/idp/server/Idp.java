@@ -144,7 +144,8 @@ public interface Idp {
     @POST
     @Path("/logout")
     Response processPostLogout(@FormParam(SAML_REQ) String samlRequest,
-            @FormParam(RELAY_STATE) String relayState, @Context HttpServletRequest request)
+            @FormParam(SAML_RESPONSE) String samlResponse, @FormParam(RELAY_STATE) String relayState,
+            @Context HttpServletRequest request)
             throws WSSecurityException, IdpException;
 
 }
