@@ -21,6 +21,10 @@ module.exports = function (grunt) {
        
         pkg: grunt.file.readJSON('package.json'),
 
+        ports: {
+            express: 0
+        },
+
         clean: {
           build: ['target/webapp']
         },
@@ -86,6 +90,9 @@ module.exports = function (grunt) {
         },
         casperjs: {
             options: {
+                casperjsOptions: [
+                    '--url=http://localhost:<%= ports.express %>/'
+                ],
                 async: {
                     parallel: false
                 }
@@ -100,7 +107,7 @@ module.exports = function (grunt) {
             },
             test: {
                 options: {
-                    port: 8383,
+                    port: '<%= ports.express %>',
                     server: './test.js'
                 }
             },
@@ -132,7 +139,7 @@ module.exports = function (grunt) {
     //the grunt-zip task interferes with grunt-express, but since grunt loads these tasks in serially, we can
     //just load it in down here after the express task is loaded. DO NOT move this task above the test task or
     //all tests will fail.
-    grunt.registerTask('test', ['express:test','casperjs']);
+    grunt.registerTask('test', ['port:allocator', 'express:test','casperjs']);
 
     var buildTasks = ['clean', 'bower-offline-install', 'sed:imports', 'cssmin', 'jshint'];
     try {

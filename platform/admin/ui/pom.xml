@@ -59,6 +59,13 @@
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-server</artifactId>
         </dependency>
+        <dependency>
+            <groupId>ddf.lib</groupId>
+            <artifactId>grunt-port-allocator</artifactId>
+            <version>${project.version}</version>
+            <type>tar.gz</type>
+            <classifier>npm</classifier>
+        </dependency>
     </dependencies>
     <build>
         <resources>
@@ -71,6 +78,32 @@
             </resource>
         </resources>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>unpack</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>ddf.lib</groupId>
+                                    <artifactId>grunt-port-allocator</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>tar.gz</type>
+                                    <classifier>npm</classifier>
+                                </artifactItem>
+                            </artifactItems>
+                            <outputDirectory>${project.build.directory}/npm</outputDirectory>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>com.github.eirslett</groupId>
                 <artifactId>frontend-maven-plugin</artifactId>

@@ -41,13 +41,16 @@ exports.getPathForScreenshot = function (filename) {
     return path.join(screenshotPath, filename);
 };
 
-var url = argv.url || 'http://localhost:8383/index.html';
+var url;
 
 exports.asserters = wd.asserters;
 
 exports.setup = function() {
 
     before(function () {
+
+        exports.url = 'http://localhost:' + this.mochaOptions.expressPort + '/index.html' ;
+        url = exports.url;
         exports.timeout = argv.timeout || this.mochaOptions.timeout || 30000;
 
         if (argv.browser) {

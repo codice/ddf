@@ -16,6 +16,11 @@ module.exports = function (grunt) {
     grunt.loadTasks('src/main/grunt/tasks');
 
     grunt.initConfig({
+        ports: {
+            express: 0,
+            phantom: 0,
+            selenium: 0
+        },
         pkg: grunt.file.readJSON('package.json'),
 
         clean: {
@@ -94,14 +99,15 @@ module.exports = function (grunt) {
                 usePromises: true,
                 reporter: 'spec',
                 timeout: 1000 * 30,
-                slow: 10000
+                slow: 10000,
+                expressPort: '<%= ports.express %>',
             },
             phantom: {
                 src: ['src/test/js/wd/*.js'],
                 options: {
                     hostname: '127.0.0.1',
                     usePhantom: true,
-                    phantomPort: 5555
+                    phantomPort: '<%= ports.phantom %>'
                 }
             },
             selenium: {
@@ -109,10 +115,10 @@ module.exports = function (grunt) {
                 options: {
                     // make sure to start selenium server at host:port first
                     hostname: '127.0.0.1',
-                    port: 4444,
+                    port: '<%= ports.selenium %>',
                     // mochaWebdriver always starts a selenium server so
                     // starting phantomjs instance that will not be used
-                    phantomPort: 5555,
+                    phantomPort: '<%= ports.phantom %>',
                     usePhantom: true
                 }
             },
@@ -138,7 +144,7 @@ module.exports = function (grunt) {
             },
             test: {
                 options: {
-                    port: 8888,
+                    port: '<%= ports.express %>',
                     server: './test.js'
                 }
             },

@@ -7,7 +7,7 @@
   "imageryProviders": [
     {
       "type": "SI",
-      "url": "http://localhost:8888/images/natural_earth_50m.png",
+      "url": "/images/natural_earth_50m.png",
       "parameters": {
         "imageSize": [
           10800,
