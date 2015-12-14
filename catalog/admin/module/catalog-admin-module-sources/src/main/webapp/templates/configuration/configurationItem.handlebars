@@ -26,17 +26,17 @@
         <div class="controls">
         {{#if optionValues}}
             {{#is optionValues.length 0}}
-                <input type="{{#is type 1}}text{{/is}}{{#is type 5}}text{{/is}}{{#is type 6}}text{{/is}}{{#is type 7}}text{{/is}}{{#is type 8}}text{{/is}}{{#is type 9}}text{{/is}}{{#is type 10}}text{{/is}}{{#is type 12}}password{{/is}}{{#is type 2}}number{{/is}}{{#is type 3}}number{{/is}}{{#is type 4}}number{{/is}}" class="{{id}} metatype" name="{{id}}" id="{{id}}" value="{{#defaultValue}}{{.}}{{/defaultValue}}">
+                <input type="{{#is type 1}}text{{/is}}{{#is type 5}}text{{/is}}{{#is type 6}}text{{/is}}{{#is type 7}}text{{/is}}{{#is type 8}}text{{/is}}{{#is type 9}}text{{/is}}{{#is type 10}}text{{/is}}{{#is type 12}}password{{/is}}{{#is type 2}}number{{/is}}{{#is type 3}}number{{/is}}{{#is type 4}}number{{/is}}" class="{{id}} metatype form-control input-sm" name="{{id}}" id="{{id}}" value="{{#defaultValue}}{{.}}{{/defaultValue}}">
             {{/is}}
             {{#isnt optionValues.length 0}}
-                <select id="{{id}}" name="{{id}}">
+                <select id="{{id}}" name="{{id}}" class="form-control input-sm">
                     {{#each optionLabels}}
                         <option value="{{lookup ../optionValues @index}}" {{#is @index 0}}selected="selected" {{/is}}>{{.}}</option>
                     {{/each}}
                 </select>
             {{/isnt}}
         {{else}}
-            <input type="{{#is type 1}}text{{/is}}{{#is type 5}}text{{/is}}{{#is type 6}}text{{/is}}{{#is type 7}}text{{/is}}{{#is type 8}}text{{/is}}{{#is type 9}}text{{/is}}{{#is type 10}}text{{/is}}{{#is type 12}}password{{/is}}{{#is type 2}}number{{/is}}{{#is type 3}}number{{/is}}{{#is type 4}}number{{/is}}" class="{{id}} metatype" name="{{id}}" id="{{id}}" value="{{#defaultValue}}{{.}}{{/defaultValue}}">
+            <input type="{{#is type 1}}text{{/is}}{{#is type 5}}text{{/is}}{{#is type 6}}text{{/is}}{{#is type 7}}text{{/is}}{{#is type 8}}text{{/is}}{{#is type 9}}text{{/is}}{{#is type 10}}text{{/is}}{{#is type 12}}password{{/is}}{{#is type 2}}number{{/is}}{{#is type 3}}number{{/is}}{{#is type 4}}number{{/is}}" class="{{id}} metatype form-control input-sm" name="{{id}}" id="{{id}}" value="{{#defaultValue}}{{.}}{{/defaultValue}}">
         {{/if}}
 
     {{/isnt}}
