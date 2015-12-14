@@ -55,6 +55,7 @@ import org.codice.ddf.security.filter.websso.WebSSOFilter;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.saml.SAMLAssertionHandler;
 import org.codice.ddf.security.policy.context.ContextPolicy;
+import org.codice.ddf.security.session.RelayStates;
 import org.opensaml.saml2.metadata.EntityDescriptor;
 import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.validation.ValidationException;
@@ -88,7 +89,7 @@ public class AssertionConsumerService {
 
     private final SystemBaseUrl baseUrl;
 
-    private final RelayStates relayStates;
+    private final RelayStates<String> relayStates;
 
     @Context
     private HttpServletRequest request;
@@ -104,7 +105,7 @@ public class AssertionConsumerService {
     }
 
     public AssertionConsumerService(SimpleSign simpleSign, IdpMetadata metadata,
-            SystemCrypto crypto, SystemBaseUrl systemBaseUrl, RelayStates relayStates) {
+            SystemCrypto crypto, SystemBaseUrl systemBaseUrl, RelayStates<String> relayStates) {
         this.simpleSign = simpleSign;
         idpMetadata = metadata;
         systemCrypto = crypto;
@@ -259,6 +260,14 @@ public class AssertionConsumerService {
                 }
                 return super.getHeader(name);
             }
+
+            @Override
+            public Object getAttribute(String name) {
+                if (ContextPolicy.ACTIVE_REALM.equals(name)) {
+                    return "idp";
+                }
+                return super.getAttribute(name);
+            }
         };
 
         SAMLAssertionHandler samlAssertionHandler = new SAMLAssertionHandler();
@@ -301,8 +310,9 @@ public class AssertionConsumerService {
         String rootContext = baseUrl.getRootContext();
 
         String entityId = String.format("https://%s:%s%s/saml", hostname, port, rootContext);
+
         // Currently no real logout location - DFF-1605
-        String logoutLocation = null; //String.format("https://%s:%s/logout", hostname, port);
+        String logoutLocation = String.format("https://%s:%s%s/saml/logout", hostname, port, rootContext);
         String assertionConsumerServiceLocation = String.format("https://%s:%s%s/saml/sso",
                 hostname, port, rootContext);
 

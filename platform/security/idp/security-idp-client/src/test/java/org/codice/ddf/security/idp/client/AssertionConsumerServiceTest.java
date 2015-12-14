@@ -39,6 +39,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpStatus;
 import org.codice.ddf.configuration.SystemBaseUrl;
+import org.codice.ddf.security.session.RelayStates;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -63,7 +64,7 @@ public class AssertionConsumerServiceTest {
 
     private SystemCrypto systemCrypto;
 
-    private RelayStates relayStates;
+    private RelayStates<String> relayStates;
 
     private SystemBaseUrl baseUrl;
 
@@ -94,7 +95,7 @@ public class AssertionConsumerServiceTest {
         systemCrypto = new SystemCrypto("encryption.properties", "signature.properties",
                 encryptionService);
         simpleSign = new SimpleSign(systemCrypto);
-        relayStates = mock(RelayStates.class);
+        relayStates = (RelayStates<String>) mock(RelayStates.class);
         when(relayStates.encode("fubar")).thenReturn(RELAY_STATE_VAL);
         when(relayStates.decode(RELAY_STATE_VAL)).thenReturn(LOCATION);
         loginFilter = mock(javax.servlet.Filter.class);
@@ -109,7 +110,6 @@ public class AssertionConsumerServiceTest {
         assertionConsumerService.setRequest(httpRequest);
         assertionConsumerService.setLoginFilter(loginFilter);
         assertionConsumerService.setSessionFactory(sessionFactory);
-
         cannedResponse = Resources.toString(Resources.getResource(getClass(), "/SAMLResponse.xml"),
                 Charsets.UTF_8);
 
@@ -193,10 +193,11 @@ public class AssertionConsumerServiceTest {
 
     @Test
     public void testProcessBadSamlResponse() throws Exception {
-        String badRequest = Resources.toString(Resources.getResource(getClass(), "/SAMLRequest.xml"),
-                Charsets.UTF_8);
+        String badRequest = Resources.toString(
+                Resources.getResource(getClass(), "/SAMLRequest.xml"), Charsets.UTF_8);
 
-        Response response = assertionConsumerService.processSamlResponse(badRequest, RELAY_STATE_VAL);
+        Response response = assertionConsumerService.processSamlResponse(badRequest,
+                RELAY_STATE_VAL);
         assertThat("The http response was not 500 SEVER ERROR", response.getStatus(),
                 is(HttpStatus.SC_INTERNAL_SERVER_ERROR));
     }
@@ -240,7 +241,6 @@ public class AssertionConsumerServiceTest {
         assertThat("The http response was not 500 SEVER ERROR", response.getStatus(),
                 is(HttpStatus.SC_INTERNAL_SERVER_ERROR));
     }
-
 
     @Test
     public void testProcessSamlResponseNoAssertion() throws Exception {
@@ -286,7 +286,8 @@ public class AssertionConsumerServiceTest {
                 Resources.getResource(getClass(), "/SAMLResponse-multipleAssertions.xml"),
                 Charsets.UTF_8);
 
-        Response response = assertionConsumerService.processSamlResponse(multipleAssertions, RELAY_STATE_VAL);
+        Response response = assertionConsumerService.processSamlResponse(multipleAssertions,
+                RELAY_STATE_VAL);
         assertThat("The http response was not 303 SEE OTHER", response.getStatus(),
                 is(HttpStatus.SC_SEE_OTHER));
         assertThat("Response LOCATION was " + response.getLocation() + " expected " + LOCATION,
@@ -306,7 +307,8 @@ public class AssertionConsumerServiceTest {
         doThrow(ServletException.class).when(loginFilter)
                 .doFilter(any(ServletRequest.class), isNull(ServletResponse.class),
                         any(FilterChain.class));
-        Response response = assertionConsumerService.processSamlResponse(this.cannedResponse, RELAY_STATE_VAL);
+        Response response = assertionConsumerService.processSamlResponse(this.cannedResponse,
+                RELAY_STATE_VAL);
         assertThat("The http response was not 500 SEVER ERROR", response.getStatus(),
                 is(HttpStatus.SC_INTERNAL_SERVER_ERROR));
     }

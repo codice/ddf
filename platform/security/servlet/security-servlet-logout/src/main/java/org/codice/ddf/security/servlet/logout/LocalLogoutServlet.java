@@ -25,7 +25,7 @@ import javax.servlet.http.HttpSession;
 import ddf.security.SecurityConstants;
 import ddf.security.common.util.SecurityTokenHolder;
 
-public class LogoutServlet extends HttpServlet {
+public class LocalLogoutServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -35,8 +35,8 @@ public class LogoutServlet extends HttpServlet {
 
         HttpSession session = request.getSession(false);
         if (session != null) {
-            SecurityTokenHolder savedToken = (SecurityTokenHolder) session
-                    .getAttribute(SecurityConstants.SAML_ASSERTION);
+            SecurityTokenHolder savedToken = (SecurityTokenHolder) session.getAttribute(
+                    SecurityConstants.SAML_ASSERTION);
             if (savedToken != null) {
                 savedToken.removeAll();
             }
@@ -44,13 +44,10 @@ public class LogoutServlet extends HttpServlet {
             deleteJSessionId(response);
         }
 
-        //This is just here to avoid a blank screen
-        //A user would most likely never see this as they will be redirected to some other
-        //login page by a filter or just returned back to the same screen they were already viewing
-        response.getWriter()
-                .print("You have successfully logged out. Please close your browser or tab.");
-
-        response.getWriter().close();
+        //Redirect to logout success page
+        getServletContext().getContext("/logout")
+                .getRequestDispatcher("/local-logout-successful.html")
+                .forward(request, response);
     }
 
     private void deleteJSessionId(HttpServletResponse response) {

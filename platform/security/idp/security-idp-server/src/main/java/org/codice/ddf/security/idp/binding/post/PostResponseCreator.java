@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -27,20 +27,20 @@ import org.codice.ddf.security.idp.binding.api.ResponseCreator;
 import org.codice.ddf.security.idp.binding.api.impl.ResponseCreatorImpl;
 import org.codice.ddf.security.idp.server.Idp;
 import org.opensaml.saml2.core.AuthnRequest;
-import org.opensaml.saml2.metadata.EntityDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
 import ddf.security.samlp.SimpleSign;
 import ddf.security.samlp.SystemCrypto;
+import ddf.security.samlp.impl.EntityInformation;
 
 public class PostResponseCreator extends ResponseCreatorImpl implements ResponseCreator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PostResponseCreator.class);
 
     public PostResponseCreator(SystemCrypto systemCrypto,
-            Map<String, EntityDescriptor> serviceProviders) {
+            Map<String, EntityInformation> serviceProviders) {
         super(systemCrypto, serviceProviders);
     }
 
@@ -57,10 +57,10 @@ public class PostResponseCreator extends ResponseCreatorImpl implements Response
         String assertionResponse = DOM2Writer.nodeToString(OpenSAMLUtil.toDom(samlResponse, doc));
         String encodedSamlResponse = new String(Base64.encodeBase64(assertionResponse.getBytes()));
         String assertionConsumerServiceURL = getAssertionConsumerServiceURL(authnRequest);
-        String submitFormUpdated = responseTemplate
-                .replace("{{" + Idp.ACS_URL + "}}", assertionConsumerServiceURL);
-        submitFormUpdated = submitFormUpdated
-                .replace("{{" + Idp.SAML_RESPONSE + "}}", encodedSamlResponse);
+        String submitFormUpdated = responseTemplate.replace("{{" + Idp.ACS_URL + "}}",
+                assertionConsumerServiceURL);
+        submitFormUpdated = submitFormUpdated.replace("{{" + Idp.SAML_RESPONSE + "}}",
+                encodedSamlResponse);
         submitFormUpdated = submitFormUpdated.replace("{{" + Idp.RELAY_STATE + "}}", relayState);
         Response.ResponseBuilder ok = Response.ok(submitFormUpdated);
         if (cookie != null) {

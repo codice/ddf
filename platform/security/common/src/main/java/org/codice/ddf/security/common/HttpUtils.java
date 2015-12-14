@@ -39,16 +39,28 @@ public class HttpUtils {
      */
     public static String stripQueryString(String url) {
         try {
-            URL u = new URL(url);
-            if (u.getPort() == -1) {
-                return String.format("%s://%s%s", u.getProtocol(), u.getHost(), u.getPath());
-            } else {
-                return String.format("%s://%s:%s%s", u.getProtocol(), u.getHost(), u.getPort(),
-                        u.getPath());
-            }
+            return validateAndStripQueryString(url);
         } catch (MalformedURLException ex) {
             LOGGER.warn("Tried to strip query string from invalid url, {}", url);
             return url;
+        }
+    }
+
+    /**
+     * Strip a query string from a url.
+     * If the url is not valid, an exception will be thrown.
+     *
+     * @param url the url to strip
+     * @return url with query parameters removed
+     * @throws MalformedURLException if the input url is invalid
+     */
+    public static String validateAndStripQueryString(String url) throws MalformedURLException {
+        URL u = new URL(url);
+        if (u.getPort() == -1) {
+            return String.format("%s://%s%s", u.getProtocol(), u.getHost(), u.getPath());
+        } else {
+            return String.format("%s://%s:%s%s", u.getProtocol(), u.getHost(), u.getPort(),
+                    u.getPath());
         }
     }
 

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -22,24 +22,20 @@ import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.security.idp.binding.api.Validator;
 import org.codice.ddf.security.idp.binding.api.impl.ValidatorImpl;
 import org.opensaml.saml2.core.AuthnRequest;
-import org.opensaml.saml2.metadata.EntityDescriptor;
-import org.opensaml.saml2.metadata.KeyDescriptor;
-import org.opensaml.saml2.metadata.SPSSODescriptor;
-import org.opensaml.xml.security.credential.UsageType;
 import org.opensaml.xml.validation.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.security.samlp.SamlProtocol;
 import ddf.security.samlp.SimpleSign;
 import ddf.security.samlp.SystemCrypto;
+import ddf.security.samlp.impl.EntityInformation;
 
 public class RedirectValidator extends ValidatorImpl implements Validator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RedirectValidator.class);
 
     public RedirectValidator(SystemCrypto systemCrypto,
-            Map<String, EntityDescriptor> serviceProviders) {
+            Map<String, EntityInformation> serviceProviders) {
         super(systemCrypto, serviceProviders);
     }
 
@@ -53,54 +49,32 @@ public class RedirectValidator extends ValidatorImpl implements Validator {
                 String signedParts;
                 try {
                     signedParts = String.format("SAMLRequest=%s&RelayState=%s&SigAlg=%s",
-                            URLEncoder.encode(samlRequest, "UTF-8"), relayState,
+                            URLEncoder.encode(samlRequest, "UTF-8"),
+                            relayState,
                             URLEncoder.encode(signatureAlgorithm, "UTF-8"));
                 } catch (UnsupportedEncodingException e) {
                     throw new SimpleSign.SignatureException(
-                            "Unable to construct signed query parts.", e);
+                            "Unable to construct signed query parts.",
+                            e);
                 }
-                EntityDescriptor entityDescriptor = getServiceProviders()
-                        .get(authnRequest.getIssuer().getValue());
-                SPSSODescriptor spssoDescriptor = entityDescriptor
-                        .getSPSSODescriptor(SamlProtocol.SUPPORTED_PROTOCOL);
-                String encryptionCertificate = null;
-                String signingCertificate = null;
-                if (spssoDescriptor != null) {
-                    for (KeyDescriptor key : spssoDescriptor.getKeyDescriptors()) {
-                        String certificate = null;
-                        if (key.getKeyInfo().getX509Datas().size() > 0 &&
-                                key.getKeyInfo().getX509Datas().get(0).getX509Certificates().size()
-                                        > 0) {
-                            certificate = key.getKeyInfo().getX509Datas().get(0)
-                                    .getX509Certificates().get(0).getValue();
-                        }
-                        if (StringUtils.isBlank(certificate)) {
-                            break;
-                        }
+                EntityInformation entityInformation =
+                        getServiceProviders().get(authnRequest.getIssuer()
+                                .getValue());
+                if (entityInformation == null) {
+                    throw new ValidationException(String.format("Unable to find metadata for %s",
+                            authnRequest.getIssuer()
+                                    .getValue()));
+                }
 
-                        if (UsageType.UNSPECIFIED.equals(key.getUse())) {
-                            encryptionCertificate = certificate;
-                            signingCertificate = certificate;
-                        }
-
-                        if (UsageType.ENCRYPTION.equals(key.getUse())) {
-                            encryptionCertificate = certificate;
-                        }
-
-                        if (UsageType.SIGNING.equals(key.getUse())) {
-                            signingCertificate = certificate;
-                        }
-                    }
-                    if (signingCertificate == null) {
-                        throw new ValidationException(
-                                "Unable to find signing certificate in metadata. Please check metadata.");
-                    }
-                } else {
+                String encryptionCertificate = entityInformation.getEncryptionCertificate();
+                String signingCertificate = entityInformation.getSigningCertificate();
+                if (signingCertificate == null) {
                     throw new ValidationException(
-                            "Unable to find supported protocol in metadata SPSSODescriptors.");
+                            "Unable to find signing certificate in metadata. Please check metadata.");
                 }
-                boolean result = getSimpleSign()
-                        .validateSignature(signedParts, signature, signingCertificate);
+                boolean result = getSimpleSign().validateSignature(signedParts,
+                        signature,
+                        signingCertificate);
                 if (!result) {
                     throw new ValidationException(
                             "Signature verification failed for redirect binding.");
@@ -110,8 +84,12 @@ public class RedirectValidator extends ValidatorImpl implements Validator {
             }
         }
 
-        super.validateAuthnRequest(authnRequest, samlRequest, relayState, signatureAlgorithm,
-                signature, strictSignature);
+        super.validateAuthnRequest(authnRequest,
+                samlRequest,
+                relayState,
+                signatureAlgorithm,
+                signature,
+                strictSignature);
     }
 
     @Override

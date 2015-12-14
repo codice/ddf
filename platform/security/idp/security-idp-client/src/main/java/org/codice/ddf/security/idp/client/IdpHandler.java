@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -26,6 +26,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.UriBuilder;
 
@@ -42,7 +43,9 @@ import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.HandlerResult;
+import org.codice.ddf.security.handler.saml.SAMLAssertionHandler;
 import org.codice.ddf.security.policy.context.ContextPolicy;
+import org.codice.ddf.security.session.RelayStates;
 import org.joda.time.DateTime;
 import org.opensaml.Configuration;
 import org.opensaml.common.SAMLObjectBuilder;
@@ -55,6 +58,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import ddf.security.http.SessionFactory;
 import ddf.security.samlp.SimpleSign;
 
 /**
@@ -98,17 +102,18 @@ public class IdpHandler implements AuthenticationHandler {
 
     private final SystemBaseUrl baseUrl;
 
-    private final RelayStates relayStates;
+    private final RelayStates<String> relayStates;
+
+    private SessionFactory sessionFactory;
 
     public IdpHandler(SimpleSign simpleSign, IdpMetadata metadata, SystemBaseUrl baseUrl,
-            RelayStates relayStates) throws IOException {
+            RelayStates<String> relayStates) throws IOException {
         LOGGER.debug("Creating IdP handler.");
 
         this.simpleSign = simpleSign;
         idpMetadata = metadata;
 
         this.baseUrl = baseUrl;
-
         this.relayStates = relayStates;
 
         try (InputStream postFormStream = IdpHandler.class.getResourceAsStream(
@@ -136,11 +141,31 @@ public class IdpHandler implements AuthenticationHandler {
     public HandlerResult getNormalizedToken(ServletRequest request, ServletResponse response,
             FilterChain chain, boolean resolve) throws ServletException {
 
-        String realm = (String) request.getAttribute(ContextPolicy.ACTIVE_REALM);
-        HandlerResult handlerResult = new HandlerResult(HandlerResult.Status.REDIRECTED, null);
-        handlerResult.setSource(realm + "-" + SOURCE);
-
         HttpServletRequest httpRequest = (HttpServletRequest) request;
+        HttpServletRequestWrapper wrappedRequest = new HttpServletRequestWrapper(httpRequest) {
+            @Override
+            public Object getAttribute(String name) {
+                if (ContextPolicy.ACTIVE_REALM.equals(name)) {
+                    return "idp";
+                }
+                return super.getAttribute(name);
+            }
+        };
+
+        SAMLAssertionHandler samlAssertionHandler = new SAMLAssertionHandler();
+        samlAssertionHandler.setSessionFactory(sessionFactory);
+
+        LOGGER.trace("Processing SAML assertion with SAML Handler.");
+        HandlerResult samlResult = samlAssertionHandler
+                .getNormalizedToken(wrappedRequest, null, null, false);
+
+        if (samlResult != null && samlResult.getStatus() == HandlerResult.Status.COMPLETED) {
+            return samlResult;
+        }
+
+        HandlerResult handlerResult = new HandlerResult(HandlerResult.Status.REDIRECTED, null);
+        handlerResult.setSource("idp-" + SOURCE);
+
         String path = httpRequest.getServletPath();
         LOGGER.debug("Doing IdP authentication and authorization for path {}", path);
 
@@ -299,4 +324,7 @@ public class IdpHandler implements AuthenticationHandler {
         return result;
     }
 
+    public void setSessionFactory(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
+    }
 }

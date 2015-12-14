@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -20,6 +20,7 @@ import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
@@ -63,6 +64,8 @@ public interface Idp {
 
     String COOKIE = "org.codice.ddf.security.idp.session";
 
+    String ORIGINAL_BINDING = "OriginalBinding";
+
     /**
      * Returns the IdP login form.
      *
@@ -73,6 +76,7 @@ public interface Idp {
      * @throws WSSecurityException
      */
     @POST
+    @Path("/login")
     Response showPostLogin(@FormParam(SAML_REQ) String samlRequest,
             @FormParam(RELAY_STATE) String relayState, @Context HttpServletRequest request)
             throws WSSecurityException;
@@ -89,6 +93,7 @@ public interface Idp {
      * @throws WSSecurityException
      */
     @GET
+    @Path("/login")
     Response showGetLogin(@QueryParam(SAML_REQ) String samlRequest,
             @QueryParam(RELAY_STATE) String relayState,
             @QueryParam(SSOConstants.SIG_ALG) String signatureAlgorithm,
@@ -107,11 +112,12 @@ public interface Idp {
      * @return Response
      */
     @GET
-    @Path("/sso")
+    @Path("/login/sso")
     Response processLogin(@QueryParam(SAML_REQ) String samlRequest,
             @QueryParam(RELAY_STATE) String relayState, @QueryParam(AUTH_METHOD) String authMethod,
             @QueryParam(SSOConstants.SIG_ALG) String signatureAlgorithm,
             @QueryParam(SSOConstants.SIGNATURE) String signature,
+            @QueryParam(IdpEndpoint.ORIGINAL_BINDING) String originalBinding,
             @Context HttpServletRequest request);
 
     /**
@@ -122,7 +128,24 @@ public interface Idp {
      * @throws CertificateEncodingException
      */
     @GET
-    @Path("/metadata")
+    @Path("/login/metadata")
+    @Produces("application/xml")
     Response retrieveMetadata() throws WSSecurityException, CertificateEncodingException;
+
+    @GET
+    @Path("/logout")
+    Response processRedirectLogout(@QueryParam(SAML_REQ) String samlRequest,
+            @QueryParam(SAML_RESPONSE) String samlResponse,
+            @QueryParam(RELAY_STATE) String relayState,
+            @QueryParam(SSOConstants.SIG_ALG) String signatureAlgorithm,
+            @QueryParam(SSOConstants.SIGNATURE) String signature,
+            @Context HttpServletRequest request) throws WSSecurityException, IdpException;
+
+    @POST
+    @Path("/logout")
+    Response processPostLogout(@FormParam(SAML_REQ) String samlRequest,
+            @FormParam(SAML_RESPONSE) String samlResponse, @FormParam(RELAY_STATE) String relayState,
+            @Context HttpServletRequest request)
+            throws WSSecurityException, IdpException;
 
 }

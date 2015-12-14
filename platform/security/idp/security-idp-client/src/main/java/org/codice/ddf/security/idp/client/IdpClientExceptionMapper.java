@@ -13,21 +13,18 @@
  */
 package org.codice.ddf.security.idp.client;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.nullValue;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.ext.ExceptionMapper;
 
-import org.junit.Test;
+public class IdpClientExceptionMapper implements ExceptionMapper<IdpClientException> {
 
-public class RelayStatesTest {
+    @Override
+    public Response toResponse(IdpClientException exception) {
 
-    @Test
-    public void testEncodeAndDecode() throws Exception {
-        String location = "test";
-        RelayStates relayStates = new RelayStates();
-        String id = relayStates.encode(location);
-        assertThat(relayStates.decode(id), equalTo(location));
-        assertThat(relayStates.decode(location), relayStates.decode("blah"), nullValue());
+        return Response.serverError()
+                .entity(exception.getMessage())
+                .type(MediaType.TEXT_PLAIN_TYPE)
+                .build();
     }
-
 }

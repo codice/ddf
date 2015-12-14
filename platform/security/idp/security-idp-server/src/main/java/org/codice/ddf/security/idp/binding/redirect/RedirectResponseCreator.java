@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -31,20 +31,20 @@ import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.codice.ddf.security.idp.binding.api.ResponseCreator;
 import org.codice.ddf.security.idp.binding.api.impl.ResponseCreatorImpl;
 import org.opensaml.saml2.core.AuthnRequest;
-import org.opensaml.saml2.metadata.EntityDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
 import ddf.security.samlp.SimpleSign;
 import ddf.security.samlp.SystemCrypto;
+import ddf.security.samlp.impl.EntityInformation;
 
 public class RedirectResponseCreator extends ResponseCreatorImpl implements ResponseCreator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RedirectResponseCreator.class);
 
     public RedirectResponseCreator(SystemCrypto systemCrypto,
-            Map<String, EntityDescriptor> serviceProviders) {
+            Map<String, EntityInformation> serviceProviders) {
         super(systemCrypto, serviceProviders);
     }
 
@@ -71,9 +71,11 @@ public class RedirectResponseCreator extends ResponseCreatorImpl implements Resp
         LOGGER.debug("Signing SAML response for redirect.");
         Document doc = DOMUtils.createDocument();
         doc.appendChild(doc.createElement("root"));
-        String encodedResponse = URLEncoder.encode(RestSecurity.deflateAndBase64Encode(
-                DOM2Writer.nodeToString(OpenSAMLUtil.toDom(samlResponse, doc, false))), "UTF-8");
-        String requestToSign = String.format("SAMLResponse=%s&RelayState=%s", encodedResponse,
+        String encodedResponse =
+                URLEncoder.encode(RestSecurity.deflateAndBase64Encode(DOM2Writer.nodeToString(
+                        OpenSAMLUtil.toDom(samlResponse, doc, false))), "UTF-8");
+        String requestToSign = String.format("SAMLResponse=%s&RelayState=%s",
+                encodedResponse,
                 relayState);
         String assertionConsumerServiceURL = getAssertionConsumerServiceURL(authnRequest);
         UriBuilder uriBuilder = UriBuilder.fromUri(assertionConsumerServiceURL);
