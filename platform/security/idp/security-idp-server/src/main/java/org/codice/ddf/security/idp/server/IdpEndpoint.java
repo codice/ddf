@@ -18,7 +18,6 @@ import static org.apache.commons.lang.StringUtils.isEmpty;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -89,6 +88,7 @@ import org.opensaml.saml2.core.StatusCode;
 import org.opensaml.saml2.metadata.EntityDescriptor;
 import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.security.credential.UsageType;
+import org.opensaml.xml.validation.ValidatingXMLObject;
 import org.opensaml.xml.validation.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -198,9 +198,14 @@ public class IdpEndpoint implements Idp {
             @FormParam(RELAY_STATE) String relayState, @Context HttpServletRequest request)
             throws WSSecurityException {
         LOGGER.debug("Received POST IdP request.");
-        return showLoginPage(samlRequest, relayState, null, null, request, new PostBinding(
-                systemCrypto,
-                serviceProviders), submitForm, SamlProtocol.POST_BINDING);
+        return showLoginPage(samlRequest,
+                relayState,
+                null,
+                null,
+                request,
+                new PostBinding(systemCrypto, serviceProviders),
+                submitForm,
+                SamlProtocol.POST_BINDING);
     }
 
     @GET
@@ -521,8 +526,7 @@ public class IdpEndpoint implements Idp {
         org.w3c.dom.Element samlToken = null;
         String statusCode;
         if (hasCookie) {
-            samlToken =
-                    getSamlAssertion(request);
+            samlToken = getSamlAssertion(request);
             statusCode = StatusCode.SUCCESS_URI;
         } else {
             try {
@@ -730,13 +734,70 @@ public class IdpEndpoint implements Idp {
         LogoutState logoutState = getLogoutState(request);
         Cookie cookie = getCookie(request);
 
-        if (samlRequest == null) {
+        try {
+            if (samlRequest == null) {
+                LogoutRequest logoutRequest =
+                        logoutService.extractSamlLogoutRequest(RestSecurity.inflateBase64(
+                                samlRequest));
+                validateRedirect(relayState,
+                        signatureAlgorithm,
+                        signature,
+                        request,
+                        samlRequest,
+                        logoutRequest,
+                        logoutRequest.getIssuer().getValue());
+                return handleLogoutRequest(cookie,
+                        logoutState,
+                        logoutRequest,
+                        SamlProtocol.Binding.HTTP_REDIRECT,
+                        relayState);
 
-        } else if (samlResponse != null) {
-
+            } else if (samlResponse != null) {
+                LogoutResponse logoutResponse =
+                        logoutService.extractSamlLogoutResponse(samlResponse);
+                validateRedirect(relayState,
+                        signatureAlgorithm,
+                        signature,
+                        request,
+                        samlRequest,
+                        logoutResponse,
+                        logoutResponse.getIssuer().getValue());
+                return handleLogoutResponse(cookie,
+                        logoutState,
+                        logoutResponse,
+                        SamlProtocol.Binding.HTTP_REDIRECT);
+            }
+        } catch (XMLStreamException e) {
+            throw new IdpException("Unable to parse Saml Object.", e);
+        } catch (ValidationException e) {
+            throw new IdpException("Unable to validate Saml Object", e);
+        } catch (IOException e) {
+            throw new IdpException("Unable to deflate Saml Object", e);
         }
 
         throw new IdpException("Could not process logout");
+    }
+
+    void validateRedirect(String relayState, String signatureAlgorithm, String signature,
+            HttpServletRequest request, String fSamlToValidate, ValidatingXMLObject logoutRequest,
+            String issuer)
+            throws ValidationException {
+        if (strictSignature) {
+            if (isEmpty(signature) || isEmpty(signatureAlgorithm) || isEmpty(issuer)) {
+                throw new ValidationException("No signature present for AuthnRequest.");
+            }
+            String signingCertificate = serviceProviders.get(issuer)
+                    .getSigningCertificate();
+
+            new SamlValidator.Builder(new SimpleSign(systemCrypto)).setRedirectParams(relayState,
+                    signature,
+                    signatureAlgorithm,
+                    fSamlToValidate,
+                    serviceProviders.get(issuer)
+                            .getSigningCertificate())
+                    .buildAndValidate(request.getRequestURL()
+                            .toString(), SamlProtocol.Binding.HTTP_REDIRECT, logoutRequest);
+        }
     }
 
     @Override

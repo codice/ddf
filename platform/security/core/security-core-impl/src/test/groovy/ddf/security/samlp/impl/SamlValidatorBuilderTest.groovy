@@ -22,7 +22,7 @@ import spock.lang.Specification
 
 import java.time.Duration
 
-class SamlValidatorBuilderSpec extends Specification {
+class SamlValidatorBuilderTest extends Specification {
     def 'check simpleSign'() {
         setup:
         def simpleSign = Mock(SimpleSign)
