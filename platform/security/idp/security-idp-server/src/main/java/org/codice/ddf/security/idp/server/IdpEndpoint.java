@@ -667,7 +667,7 @@ public class IdpEndpoint implements Idp {
     @GET
     @Path("/logout")
     public Response processRedirectLogout(@QueryParam(SAML_REQ) final String samlRequest,
-            @QueryParam(SAML_RESPONSE) String samlResponse,
+            @QueryParam(SAML_RESPONSE) final String samlResponse,
             @QueryParam(RELAY_STATE) final String relayState,
             @QueryParam(SSOConstants.SIG_ALG) final String signatureAlgorithm,
             @QueryParam(SSOConstants.SIGNATURE) final String signature,
@@ -724,6 +724,16 @@ public class IdpEndpoint implements Idp {
                     validator);
         } catch (RuntimeException e) {
             LOGGER.debug("Error processing saml request", e);
+        }
+
+        /* THIS IS THE OLD CODE BARRIER ----------------------------------------------------- */
+        LogoutState logoutState = getLogoutState(request);
+        Cookie cookie = getCookie(request);
+
+        if (samlRequest == null) {
+
+        } else if (samlResponse != null) {
+
         }
 
         throw new IdpException("Could not process logout");
