@@ -745,7 +745,8 @@ public class IdpEndpoint implements Idp {
                         request,
                         samlRequest,
                         logoutRequest,
-                        logoutRequest.getIssuer().getValue());
+                        logoutRequest.getIssuer()
+                                .getValue());
                 return handleLogoutRequest(cookie,
                         logoutState,
                         logoutRequest,
@@ -754,14 +755,16 @@ public class IdpEndpoint implements Idp {
 
             } else if (samlResponse != null) {
                 LogoutResponse logoutResponse =
-                        logoutService.extractSamlLogoutResponse(samlResponse);
+                        logoutService.extractSamlLogoutResponse(RestSecurity.inflateBase64(
+                                samlResponse));
                 validateRedirect(relayState,
                         signatureAlgorithm,
                         signature,
                         request,
                         samlRequest,
                         logoutResponse,
-                        logoutResponse.getIssuer().getValue());
+                        logoutResponse.getIssuer()
+                                .getValue());
                 return handleLogoutResponse(cookie,
                         logoutState,
                         logoutResponse,
@@ -780,8 +783,7 @@ public class IdpEndpoint implements Idp {
 
     void validateRedirect(String relayState, String signatureAlgorithm, String signature,
             HttpServletRequest request, String fSamlToValidate, ValidatingXMLObject logoutRequest,
-            String issuer)
-            throws ValidationException {
+            String issuer) throws ValidationException {
         if (strictSignature) {
             if (isEmpty(signature) || isEmpty(signatureAlgorithm) || isEmpty(issuer)) {
                 throw new ValidationException("No signature present for AuthnRequest.");

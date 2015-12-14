@@ -125,6 +125,18 @@ class SamlValidatorBuilderTest extends Specification {
         thrown(IllegalArgumentException)
     }
 
+    def 'check not-null binding'() {
+        setup:
+        def builder = new SamlValidator.Builder(null)
+        def logoutRequest = Mock(LogoutRequest)
+
+        when:
+        builder.build('xxx', null, logoutRequest)
+
+        then:
+        thrown(IllegalArgumentException)
+    }
+
     def 'check valid xmlObject types'() {
         setup:
         def builder = new SamlValidator.Builder(null)
@@ -192,6 +204,55 @@ class SamlValidatorBuilderTest extends Specification {
         thrown(IllegalArgumentException)
     }
 
+    def 'test buildValidator for redirect with missing params'() {
+        setup:
+        def builder = new SamlValidator.Builder(null)
+        def xmlObject = Mock(LogoutRequest)
+
+        when:
+        builder.build('xxx', SamlProtocol.Binding.HTTP_REDIRECT, xmlObject)
+
+        then:
+        thrown(UnsupportedOperationException)
+
+        when:
+        builder.setRedirectParams('xxx', null, 'xxx', 'xxx', 'xxx')
+        builder.build('xxx', SamlProtocol.Binding.HTTP_REDIRECT, xmlObject)
+
+        then:
+        thrown(UnsupportedOperationException)
+
+        when:
+        builder.setRedirectParams('xxx', 'xxx', null, 'xxx', 'xxx')
+        builder.build('xxx', SamlProtocol.Binding.HTTP_REDIRECT, xmlObject)
+
+        then:
+        thrown(UnsupportedOperationException)
+
+        when:
+        builder.setRedirectParams('xxx', 'xxx', 'xxx', null, 'xxx')
+        builder.build('xxx', SamlProtocol.Binding.HTTP_REDIRECT, xmlObject)
+
+        then:
+        thrown(UnsupportedOperationException)
+
+        when:
+        builder.setRedirectParams('xxx', 'xxx', 'xxx', 'xxx', null)
+        builder.build('xxx', SamlProtocol.Binding.HTTP_REDIRECT, xmlObject)
+
+        then:
+        thrown(UnsupportedOperationException)
+
+        when: 'relayState is allowed to be null'
+        builder.setRedirectParams(null, 'xxx', 'xxx', 'xxx', 'xxx')
+        def samlValidator = builder.build('xxx', SamlProtocol.Binding.HTTP_REDIRECT, xmlObject)
+
+        then:
+        builder.isRequest
+        builder.xmlObject == xmlObject
+        samlValidator instanceof SamlValidator.RedirectRequest
+    }
+
     def 'test buildValidator for redirect-request'() {
         setup:
         def builder = new SamlValidator.Builder(null)
@@ -232,5 +293,17 @@ class SamlValidatorBuilderTest extends Specification {
         !builder.isRequest
         builder.xmlObject == xmlObject
         samlValidator instanceof SamlValidator.RedirectResponse
+    }
+
+    def 'test buildValidator with unsupported binding'() {
+        setup:
+        def builder = new SamlValidator.Builder(null)
+        def xmlObject = Mock(LogoutRequest)
+
+        when:
+        builder.build('xxx', SamlProtocol.Binding.HTTP_ARTIFACT, xmlObject)
+
+        then:
+        thrown(UnsupportedOperationException)
     }
 }
