@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -32,28 +32,18 @@ import java.io.InputStream;
 import java.net.URL;
 
 import javax.net.ssl.HttpsURLConnection;
-import javax.xml.stream.XMLStreamException;
 
-import org.apache.cxf.helpers.DOMUtils;
-import org.apache.cxf.staxutils.StaxUtils;
-import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
-import org.apache.wss4j.common.util.DOM2Writer;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opensaml.saml2.core.Assertion;
-import org.opensaml.saml2.core.AttributeQuery;
-import org.opensaml.xml.XMLObject;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 
 import ddf.security.encryption.EncryptionService;
-import ddf.security.samlp.SamlProtocol;
 import ddf.security.samlp.SimpleSign;
 import ddf.security.samlp.SystemCrypto;
 
@@ -75,16 +65,16 @@ public class TestAttributeQueryClient {
                 if (!outputStreamIoException) {
                     when(httpsURLConnection.getOutputStream()).thenReturn(dataOutputStream);
                 } else {
-                    when(httpsURLConnection.getOutputStream()).thenThrow(new IOException(
-                            "Could not get the connection's OutputStream."));
+                    when(httpsURLConnection.getOutputStream()).thenThrow(
+                            new IOException("Could not get the connection's OutputStream."));
                 }
                 when(httpsURLConnection.getResponseCode()).thenReturn(responseCode);
 
                 if (!inputStreamIoException) {
                     when(httpsURLConnection.getInputStream()).thenReturn(inputStream);
                 } else {
-                    when(httpsURLConnection.getInputStream()).thenThrow(new IOException(
-                            "Could not get the connection's InputStream."));
+                    when(httpsURLConnection.getInputStream()).thenThrow(
+                            new IOException("Could not get the connection's InputStream."));
                 }
             } catch (IOException e) {
                 fail("Unable to create HttpsUrlConnection.");
@@ -95,14 +85,11 @@ public class TestAttributeQueryClient {
 
     private static final String SAML2_SUCCESS = "urn:oasis:names:tc:SAML:2.0:status:Success";
 
-    private static final String SAML2_UNKNOWN_ATTR_PROFILE =
-            "urn:oasis:names:tc:SAML:2.0:status:UnknownAttrProfile";
+    private static final String SAML2_UNKNOWN_ATTR_PROFILE = "urn:oasis:names:tc:SAML:2.0:status:UnknownAttrProfile";
 
-    private static final String SAML2_INVALID_ATTR_NAME_VALUE =
-            "urn:oasis:names:tc:SAML:2.0:status:InvalidAttrNameOrValue";
+    private static final String SAML2_INVALID_ATTR_NAME_VALUE = "urn:oasis:names:tc:SAML:2.0:status:InvalidAttrNameOrValue";
 
-    private static final String SAML2_UNKNOWN_PRINCIPAL =
-            "urn:oasis:names:tc:SAML:2.0:status:UnknownPrincipal";
+    private static final String SAML2_UNKNOWN_PRINCIPAL = "urn:oasis:names:tc:SAML:2.0:status:UnknownPrincipal";
 
     private static final String DESTINATION = "testDestination";
 
@@ -136,24 +123,21 @@ public class TestAttributeQueryClient {
     @Before
     public void setUp() throws IOException {
         encryptionService = mock(EncryptionService.class);
-        systemCrypto = new SystemCrypto("encryption.properties",
-                "signature.properties",
+        systemCrypto = new SystemCrypto("encryption.properties", "signature.properties",
                 encryptionService);
         SimpleSign simpleSign = new SimpleSign(systemCrypto);
         spySimpleSign = spy(simpleSign);
         systemBaseUrl = new SystemBaseUrl();
 
         attributeQueryClient = new AttributeQueryClientTest(spySimpleSign,
-                systemBaseUrl.getBaseUrl(),
-                ISSUER,
-                DESTINATION);
+                systemBaseUrl.getBaseUrl(), ISSUER, DESTINATION);
         attributeQueryClient.setSimpleSign(spySimpleSign);
         attributeQueryClient.setExternalAttributeStoreUrl(systemBaseUrl.getBaseUrl());
         attributeQueryClient.setIssuer(ISSUER);
         attributeQueryClient.setDestination(DESTINATION);
 
-        cannedResponse = Resources.toString(Resources.getResource(getClass(), "/SAMLResponse.xml"),
-                Charsets.UTF_8);
+        cannedResponse = Resources
+                .toString(Resources.getResource(getClass(), "/SAMLResponse.xml"), Charsets.UTF_8);
     }
 
     @Test
@@ -161,11 +145,8 @@ public class TestAttributeQueryClient {
         Assertion assertion = attributeQueryClient.retrieveResponse(username);
 
         assertThat(assertion, is(notNullValue()));
-        assertThat(assertion.getIssuer()
-                .getValue(), is(equalTo("localhost")));
-        assertThat(assertion.getSubject()
-                .getNameID()
-                .getValue(), is(equalTo("admin")));
+        assertThat(assertion.getIssuer().getValue(), is(equalTo("localhost")));
+        assertThat(assertion.getSubject().getNameID().getValue(), is(equalTo("admin")));
         assertThat(assertion.getAttributeStatements(), is(notNullValue()));
     }
 
@@ -192,8 +173,8 @@ public class TestAttributeQueryClient {
 
     @Test
     public void testRetrieveResponseUnknownAttrProfile() throws IOException {
-        cannedResponse = Resources.toString(Resources.getResource(getClass(), "/SAMLResponse.xml"),
-                Charsets.UTF_8)
+        cannedResponse = Resources
+                .toString(Resources.getResource(getClass(), "/SAMLResponse.xml"), Charsets.UTF_8)
                 .replaceAll(SAML2_SUCCESS, SAML2_UNKNOWN_ATTR_PROFILE);
 
         assertThat(attributeQueryClient.retrieveResponse(username), is(nullValue()));
@@ -201,8 +182,8 @@ public class TestAttributeQueryClient {
 
     @Test
     public void testRetrieveResponseInvalidAttrNameOrValue() throws IOException {
-        cannedResponse = Resources.toString(Resources.getResource(getClass(), "/SAMLResponse.xml"),
-                Charsets.UTF_8)
+        cannedResponse = Resources
+                .toString(Resources.getResource(getClass(), "/SAMLResponse.xml"), Charsets.UTF_8)
                 .replaceAll(SAML2_SUCCESS, SAML2_INVALID_ATTR_NAME_VALUE);
 
         assertThat(attributeQueryClient.retrieveResponse(username), is(nullValue()));
@@ -210,8 +191,8 @@ public class TestAttributeQueryClient {
 
     @Test
     public void testRetrieveResponseUnknownPrincipal() throws IOException {
-        cannedResponse = Resources.toString(Resources.getResource(getClass(), "/SAMLResponse.xml"),
-                Charsets.UTF_8)
+        cannedResponse = Resources
+                .toString(Resources.getResource(getClass(), "/SAMLResponse.xml"), Charsets.UTF_8)
                 .replaceAll(SAML2_SUCCESS, SAML2_UNKNOWN_PRINCIPAL);
 
         assertThat(attributeQueryClient.retrieveResponse(username), is(nullValue()));
@@ -219,8 +200,8 @@ public class TestAttributeQueryClient {
 
     @Test
     public void testRetrieveResponseInvalidResponse() throws IOException {
-        cannedResponse = Resources.toString(Resources.getResource(getClass(), "/SAMLResponse.xml"),
-                Charsets.UTF_8)
+        cannedResponse = Resources
+                .toString(Resources.getResource(getClass(), "/SAMLResponse.xml"), Charsets.UTF_8)
                 .replaceAll(SAML2_SUCCESS, "Invalid Response");
 
         assertThat(attributeQueryClient.retrieveResponse(username), is(nullValue()));
@@ -248,26 +229,4 @@ public class TestAttributeQueryClient {
 
         attributeQueryClient.retrieveResponse(username);
     }
-
-    @Test
-    public void testAttributeQuerySignatureValidation()
-            throws SimpleSign.SignatureException, WSSecurityException, XMLStreamException {
-        AttributeQuery attributeQuery = SamlProtocol.createAttributeQuery(SamlProtocol.createIssuer(
-                ISSUER),
-                SamlProtocol.createSubject(SamlProtocol.createNameID(username)),
-                DESTINATION);
-
-        spySimpleSign.signSamlObject(attributeQuery);
-
-        Document doc = DOMUtils.createDocument();
-        Element requestElement = OpenSAMLUtil.toDom(attributeQuery, doc);
-        String responseMessage = DOM2Writer.nodeToString(requestElement);
-        Document requestDoc = StaxUtils.read(new ByteArrayInputStream(responseMessage.getBytes()));
-        XMLObject requestXmlObject = OpenSAMLUtil.fromDom(requestDoc.getDocumentElement());
-        AttributeQuery request = (AttributeQuery) requestXmlObject;
-        spySimpleSign.validateSignature(request.getSignature(),
-                request.getDOM()
-                        .getOwnerDocument());
-    }
-
 }
