@@ -63,13 +63,14 @@ import org.xml.sax.SAXException;
 import com.jayway.restassured.response.Response;
 
 import ddf.common.test.BeforeExam;
+import ddf.security.samlp.SamlProtocol;
 import ddf.test.itests.AbstractIntegrationTest;
 
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
 public class TestSingleSignOn extends AbstractIntegrationTest {
 
-    private static final String IDP_AUTH_TYPES = "/=SAML|GUEST,/search=SAML|IDP|PKI,/solr=SAML|PKI|basic";
+    private static final String IDP_AUTH_TYPES = "/=SAML|GUEST,/search=IDP,/cometd=IDP,/solr=SAML|PKI|basic,/services/whoami=IDP|GUEST";
 
     private static final String KEY_STORE_PATH = System.getProperty("javax.net.ssl.keyStore");
 
@@ -179,7 +180,6 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
                         statusCode(302).
                 when().
                         get(SEARCH_URL.getUrl());
-
         // Because we get back a 302, we know the redirect location is in the header
         ResponseHelper searchHelper = new ResponseHelper(searchResponse);
         searchHelper.parseHeader();
@@ -223,6 +223,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
         return given().cookies(cookies).when().get(WHO_AM_I_URL.getUrl()).body().asString();
     }
 
+
     private ResponseHelper performHttpRequestUsingBinding(Binding binding, String relayState) throws Exception{
 
         // Signing is tested in the unit tests, so we don't require signing here to make things simpler
@@ -244,18 +245,21 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
         validateSaml(mockAuthnRequest, SamlSchema.PROTOCOL);
 
         String encodedRequest = RestSecurity.deflateAndBase64Encode(mockAuthnRequest);
-
+        // @formatter:off
         Response idpResponse =
                 given().
                         auth().preemptive().basic("admin", "admin").
                         param("AuthMethod", "up").
                         param("SAMLRequest", encodedRequest).
                         param("RelayState", relayState).
+                        param("OriginalBinding", Binding.POST == binding ?
+                                SamlProtocol.Binding.HTTP_POST.getUri() :
+                                SamlProtocol.Binding.HTTP_REDIRECT.getUri()).
                 expect().
                         statusCode(200).
                 when().
                         get(IDP_URL.getUrl() + "/sso");
-
+        // @formatter:on
         return new ResponseHelper(idpResponse);
     }
 

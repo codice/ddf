@@ -84,19 +84,7 @@ define([
                 'click button': 'logout'
             },
             logout: function () {
-                //this function is only here to handle clearing basic auth credentials
-                //if you aren't using basic auth, this shouldn't do anything
-                var logoutBasic = function () {
-                    window.location = '/login/index.html?prevurl=/admin/index.html';
-                };
-
-                $.ajax({
-                    type: "GET",
-                    url: '/logout',
-                    async: false,
-                    error: logoutBasic,
-                    success: logoutBasic
-                });
+                window.location = '/logout';
             }
         }))());
     };

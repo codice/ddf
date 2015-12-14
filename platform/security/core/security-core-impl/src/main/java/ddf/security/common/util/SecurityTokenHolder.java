@@ -13,6 +13,7 @@
  */
 package ddf.security.common.util;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -28,6 +29,10 @@ public class SecurityTokenHolder {
 
     public void addSecurityToken(String realm, SecurityToken securityToken) {
         realmTokenMap.put(realm, securityToken);
+    }
+
+    public Map<String, SecurityToken> getRealmTokenMap() {
+        return Collections.unmodifiableMap(realmTokenMap);
     }
 
     public void remove(String realm) {

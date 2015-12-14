@@ -17,6 +17,8 @@
            xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0
                                http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
+    <ext:property-placeholder/>
+
     <reference-list id="realmList" interface="org.apache.shiro.realm.Realm"
                     ext:proxy-method="greedy"/>
 
@@ -30,8 +32,47 @@
                 <value>uid</value>
             </list>
         </property>
-
     </bean>
+
+    <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
+
+    <bean id="crypto" class="ddf.security.samlp.SystemCrypto">
+        <argument value="${ddf.home}/etc/ws-security/server/encryption.properties"/>
+        <argument value="${ddf.home}/etc/ws-security/server/signature.properties"/>
+        <argument ref="encryptionService"/>
+    </bean>
+
+    <bean id="logoutServiceImpl" class="ddf.security.samlp.impl.LogoutServiceImpl">
+        <cm:managed-properties persistent-id="ddf.security.samlp.LogoutService"
+                               update-strategy="container-managed"/>
+        <property name="logoutRequestBuilder">
+            <bean class="org.opensaml.saml2.core.impl.LogoutRequestBuilder"/>
+        </property>
+        <property name="logoutResponseBuilder">
+            <bean class="org.opensaml.saml2.core.impl.LogoutResponseBuilder"/>
+        </property>
+        <property name="nameIDBuilder">
+            <bean class="org.opensaml.saml2.core.impl.NameIDBuilder"/>
+        </property>
+        <property name="issuerBuilder">
+            <bean class="org.opensaml.saml2.core.impl.IssuerBuilder"/>
+        </property>
+        <property name="statusBuilder">
+            <bean class="org.opensaml.saml2.core.impl.StatusBuilder"/>
+        </property>
+        <property name="statusCodeBuilder">
+            <bean class="org.opensaml.saml2.core.impl.StatusCodeBuilder"/>
+        </property>
+        <property name="envelopeBuilder">
+            <bean class="org.opensaml.ws.soap.soap11.impl.EnvelopeBuilder"/>
+        </property>
+        <property name="bodyBuilder">
+            <bean class="org.opensaml.ws.soap.soap11.impl.BodyBuilder"/>
+        </property>
+        <property name="systemCrypto" ref="crypto"/>
+    </bean>
+
+    <service ref="logoutServiceImpl" interface="ddf.security.samlp.LogoutService" />
 
     <service id="serviceManager" ref="securityManagerImpl"
              interface="ddf.security.service.SecurityManager"/>

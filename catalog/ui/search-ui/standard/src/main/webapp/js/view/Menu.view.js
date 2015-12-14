@@ -340,44 +340,26 @@ define([
             this.$('#loginError').hide();
         },
         deleteCookie: function() {
-            $.ajax({
-                type: "GET",
-                url: '/logout',
-                async: false
-            });
+            document.cookie = "JSESSIONID=;path=/;domain=;expires=Thu, 01 Jan 1970 00:00:00 GMT;secure";
         }
     });
 
     Menu.LogoutForm = Marionette.ItemView.extend({
         template: 'logoutTemplate',
         events: {
-            'click .btn-logout': 'logOutUser'
+            'click .btn-logout': 'logout'
         },
-        logOutUser: function() {
+        logout: function() {
             //this function is only here to handle clearing basic auth credentials
             //if you aren't using basic auth, this shouldn't do anything
-            var logoutBasic = function() {
-                $.ajax({
-                    type: "GET",
-                    url: document.URL,
-                    async: false,
-                    username: "1",
-                    password: "1",
-                    error: function() {
-                        document.location.reload();
-                    },
-                    success: function() {
-                        document.location.reload();
-                    }
-                });
-            };
-
             $.ajax({
                 type: "GET",
-                url: '/logout',
+                url: document.URL,
                 async: false,
-                error: logoutBasic,
-                success: logoutBasic
+                username: "1",
+                password: "1",
+            }).then( function(){
+                 window.location = '/logout';
             });
         }
     });

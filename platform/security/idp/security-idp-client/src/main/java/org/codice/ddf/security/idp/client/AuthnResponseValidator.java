@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -41,23 +41,30 @@ public class AuthnResponseValidator implements Validator {
 
         Response authnResponse = (Response) xmlObject;
 
-        String status = authnResponse.getStatus().getStatusCode().getValue();
+        String status = authnResponse.getStatus()
+                .getStatusCode()
+                .getValue();
         if (!StatusCode.SUCCESS_URI.equals(status)) {
             throw new ValidationException(
                     "AuthN request was unsuccessful.  Received status: " + status);
         }
 
-        if (authnResponse.getAssertions().size() < 1) {
+        if (authnResponse.getAssertions()
+                .size() < 1) {
             throw new ValidationException("Assertion missing in AuthN response.");
         }
 
-        if (authnResponse.getAssertions().size() > 1) {
-            LOGGER.warn("Received multiple assertions in AuthN response.  Only using the first assertion.");
+        if (authnResponse.getAssertions()
+                .size() > 1) {
+            LOGGER.warn(
+                    "Received multiple assertions in AuthN response.  Only using the first assertion.");
         }
 
         if (authnResponse.getSignature() != null) {
             try {
-                simpleSign.validateSignature(authnResponse.getSignature(), authnResponse.getDOM().getOwnerDocument());
+                simpleSign.validateSignature(authnResponse.getSignature(),
+                        authnResponse.getDOM()
+                                .getOwnerDocument());
             } catch (SimpleSign.SignatureException e) {
                 throw new ValidationException("Invalid or untrusted signature.");
             }

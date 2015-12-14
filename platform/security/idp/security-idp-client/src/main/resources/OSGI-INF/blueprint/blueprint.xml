@@ -20,6 +20,11 @@
            xsi:schemaLocation="
   http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
+    <type-converters>
+        <bean id="relayStatesConverter"
+              class="ddf.security.samlp.impl.RelayStatesConverter"/>
+    </type-converters>
+
     <ext:property-placeholder/>
 
     <bean id="baseUrl" class="org.codice.ddf.configuration.SystemBaseUrl"/>
@@ -31,6 +36,12 @@
 
     <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
 
+    <reference id="sessionFactory" interface="ddf.security.http.SessionFactory"
+               filter="(id=http)"/>
+
+    <bean id="IdpClientExceptionMapperProvider"
+          class="org.codice.ddf.security.idp.client.IdpClientExceptionMapper"/>
+
     <bean id="crypto" class="ddf.security.samlp.SystemCrypto">
         <argument value="${ddf.home}/etc/ws-security/server/encryption.properties"/>
         <argument value="${ddf.home}/etc/ws-security/server/signature.properties"/>
@@ -41,7 +52,7 @@
         <argument ref="crypto" />
     </bean>
 
-    <bean id="relayStates" class="org.codice.ddf.security.idp.client.RelayStates"/>
+    <bean id="relayStates" class="ddf.security.samlp.impl.RelayStates"/>
 
     <bean id="idpHandler" class="org.codice.ddf.security.idp.client.IdpHandler">
         <cm:managed-properties persistent-id="org.codice.ddf.security.idp.client.IdpHandler"
@@ -50,30 +61,58 @@
         <argument ref="idpMetadata"/>
         <argument ref="baseUrl"/>
         <argument ref="relayStates"/>
+        <property name="sessionFactory" ref="sessionFactory"/>
     </bean>
 
-    <service ref="idpHandler"
-             interface="org.codice.ddf.security.handler.api.AuthenticationHandler"/>
+    <service ref="idpHandler"             interface="org.codice.ddf.security.handler.api.AuthenticationHandler"/>
+
+    <bean id="assertionConsumerService"
+          class=" org.codice.ddf.security.idp.client.AssertionConsumerService">
+        <argument ref="simpleSign"/>
+        <argument ref="idpMetadata"/>
+        <argument ref="crypto"/>
+        <argument ref="baseUrl"/>
+        <argument ref="relayStates"/>
+        <property name="loginFilter">
+            <reference interface="javax.servlet.Filter"
+                       filter="(filter-name=login-filter)"/>
+        </property>
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+
+    <bean id="logoutRequestService"
+          class="org.codice.ddf.security.idp.client.LogoutRequestService" init-method="init">
+        <cm:managed-properties persistent-id="org.codice.ddf.security.idp.client.LogoutRequestService"
+                               update-strategy="container-managed"/>
+        <argument ref="simpleSign"/>
+        <argument ref="idpMetadata"/>
+        <argument ref="crypto"/>
+        <argument ref="baseUrl"/>
+        <argument ref="relayStates"/>
+        <property name="logoutService">
+            <reference interface="ddf.security.samlp.LogoutService" />
+        </property>
+        <property name="encryptionService" ref="encryptionService"/>
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
 
     <jaxrs:server id="restService" address="/saml">
         <jaxrs:serviceBeans>
-            <bean id="assertionConsumerService"
-                  class=" org.codice.ddf.security.idp.client.AssertionConsumerService">
-                <argument ref="simpleSign"/>
-                <argument ref="idpMetadata"/>
-                <argument ref="crypto"/>
-                <argument ref="baseUrl"/>
-                <argument ref="relayStates"/>
-                <property name="loginFilter">
-                    <reference interface="javax.servlet.Filter"
-                               filter="(filter-name=login-filter)"/>
-                </property>
-                <property name="sessionFactory">
-                    <reference interface="ddf.security.http.SessionFactory"
-                               filter="(id=http)"/>
-                </property>
-            </bean>
+            <ref component-id="assertionConsumerService"/>
+            <ref component-id="logoutRequestService"/>
         </jaxrs:serviceBeans>
+        <jaxrs:providers>
+            <ref component-id="IdpClientExceptionMapperProvider"/>
+        </jaxrs:providers>
     </jaxrs:server>
+
+    <service interface="ddf.action.ActionProvider">
+        <service-properties>
+            <entry key="id" value="security.logout.idp"/>
+        </service-properties>
+        <bean class="org.codice.ddf.security.idp.client.IdpLogoutActionProvider">
+            <property name="encryptionService" ref="encryptionService"/>
+        </bean>
+    </service>
 
 </blueprint>
