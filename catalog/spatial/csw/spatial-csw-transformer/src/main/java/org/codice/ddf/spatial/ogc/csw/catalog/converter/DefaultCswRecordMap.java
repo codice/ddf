@@ -71,6 +71,9 @@ public class DefaultCswRecordMap {
         localNameMap.put(CswRecordMetacardType.CSW_CONTRIBUTOR, Metacard.POINT_OF_CONTACT);
         localNameMap.put(CswRecordMetacardType.CSW_CREATOR, Metacard.POINT_OF_CONTACT);
         localNameMap.put(CswRecordMetacardType.CSW_RELATION, Metacard.RESOURCE_DOWNLOAD_URL);
+        localNameMap.put(CswRecordMetacardType.CSW_TABLE_OF_CONTENTS, Metacard.DESCRIPTION);
+        localNameMap.put(CswRecordMetacardType.CSW_ABSTRACT, Metacard.DESCRIPTION);
+        localNameMap.put(CswRecordMetacardType.CSW_DESCRIPTION, Metacard.DESCRIPTION);
 
         CSW_RECORD_LOCAL_NAME_MAPPING = Collections.unmodifiableMap(localNameMap);
 
@@ -94,6 +97,10 @@ public class DefaultCswRecordMap {
         qNameMap.put(CswRecordMetacardType.CSW_CONTRIBUTOR_QNAME, Metacard.POINT_OF_CONTACT);
         qNameMap.put(CswRecordMetacardType.CSW_CREATOR_QNAME, Metacard.POINT_OF_CONTACT);
         qNameMap.put(CswRecordMetacardType.CSW_RELATION_QNAME, Metacard.RESOURCE_DOWNLOAD_URL);
+        qNameMap.put(CswRecordMetacardType.CSW_ABSTRACT_QNAME, Metacard.DESCRIPTION);
+        qNameMap.put(CswRecordMetacardType.CSW_TABLE_OF_CONTENTS_QNAME, Metacard.DESCRIPTION);
+        qNameMap.put(CswRecordMetacardType.CSW_DESCRIPTION_QNAME, Metacard.DESCRIPTION);
+
 
         CSW_RECORD_QNAME_MAPPING = Collections.unmodifiableMap(qNameMap);
 
@@ -122,6 +129,11 @@ public class DefaultCswRecordMap {
                         CswRecordMetacardType.CSW_CREATED_QNAME));
         metacardMap.put(Metacard.RESOURCE_DOWNLOAD_URL,
                 Arrays.asList(CswRecordMetacardType.CSW_RELATION_QNAME));
+
+        metacardMap.put(Metacard.DESCRIPTION,
+                Arrays.asList(CswRecordMetacardType.CSW_ABSTRACT_QNAME,
+                        CswRecordMetacardType.CSW_TABLE_OF_CONTENTS_QNAME,
+                        CswRecordMetacardType.CSW_DESCRIPTION_QNAME));
 
         METACARD_MAPPING = Collections.unmodifiableMap(metacardMap);
 

@@ -121,7 +121,7 @@ public class CswRecordMetacardType extends MetacardTypeImpl {
     public static final String CSW_VALID = "valid";
 
     // Synonyms: abstract, tableOfContents
-    public static final String CSW_DESCRIPTION = "description";
+    public static final String CSW_DESCRIPTION = CSW_ATTRIBUTE_PREFIX + "description";
 
     /** Substitution name for "description" */
     public static final String CSW_ABSTRACT = "abstract";
@@ -396,16 +396,14 @@ public class CswRecordMetacardType extends MetacardTypeImpl {
         descriptors.add(new AttributeDescriptorImpl(CSW_TITLE, NON_QUERYABLE /* indexed */, true /* stored */,
                 false /* tokenized */, true /* multivalued */, BasicTypes.STRING_TYPE));
 
-        descriptors
-                .add(new AttributeDescriptorImpl(CSW_ALTERNATIVE, NON_QUERYABLE /* indexed */, true /* stored */,
-                        false /* tokenized */, true /* multivalued */, BasicTypes.STRING_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(CSW_ALTERNATIVE, NON_QUERYABLE /* indexed */, true /* stored */,
+                false /* tokenized */, true /* multivalued */, BasicTypes.STRING_TYPE));
 
         descriptors.add(new AttributeDescriptorImpl(CSW_TYPE, QUERYABLE /* indexed */, true /* stored */,
                 false /* tokenized */, false /* multivalued */, BasicTypes.STRING_TYPE));
 
-        descriptors
-                .add(new AttributeDescriptorImpl(OWS_BOUNDING_BOX, NON_QUERYABLE /* indexed */, true /* stored */,
-                        false /* tokenized */, true /* multivalued */, BasicTypes.GEO_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(OWS_BOUNDING_BOX, NON_QUERYABLE /* indexed */, true /* stored */,
+                false /* tokenized */, true /* multivalued */, BasicTypes.GEO_TYPE));
     }
 
     private void addCswSummaryRecordSpecificAttributes() {
@@ -432,12 +430,15 @@ public class CswRecordMetacardType extends MetacardTypeImpl {
 
         addDateSubstitutionNames();
 
-        descriptors
-                .add(new AttributeDescriptorImpl(CSW_DESCRIPTION, NON_QUERYABLE /* indexed */, true /* stored */,
-                        false /* tokenized */, true /* multivalued */, BasicTypes.STRING_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(CSW_DESCRIPTION, QUERYABLE /* indexed */, true /* stored */,
+                false /* tokenized */, true /* multivalued */, BasicTypes.STRING_TYPE));
 
         // Substitution name for "description"
         descriptors.add(new AttributeDescriptorImpl(CSW_ABSTRACT, QUERYABLE /* indexed */, true /* stored */,
+                false /* tokenized */, true /* multivalued */, BasicTypes.STRING_TYPE));
+
+        // Substitution name for "description"
+        descriptors.add(new AttributeDescriptorImpl(CSW_TABLE_OF_CONTENTS, QUERYABLE /* indexed */, true /* stored */,
                 false /* tokenized */, true /* multivalued */, BasicTypes.STRING_TYPE));
 
         descriptors.add(new AttributeDescriptorImpl(CSW_SPATIAL, NON_QUERYABLE /* indexed */, true /* stored */,
@@ -472,42 +473,34 @@ public class CswRecordMetacardType extends MetacardTypeImpl {
         descriptors.add(new AttributeDescriptorImpl(CSW_PUBLISHER, NON_QUERYABLE /* indexed */, true /* stored */,
                 false /* tokenized */, true /* multivalued */, BasicTypes.STRING_TYPE));
 
-        descriptors
-                .add(new AttributeDescriptorImpl(CSW_CONTRIBUTOR, NON_QUERYABLE /* indexed */, true /* stored */,
-                        false /* tokenized */, true /* multivalued */, BasicTypes.STRING_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(CSW_CONTRIBUTOR, NON_QUERYABLE /* indexed */, true /* stored */,
+                false /* tokenized */, true /* multivalued */, BasicTypes.STRING_TYPE));
 
         descriptors.add(new AttributeDescriptorImpl(CSW_SOURCE, NON_QUERYABLE /* indexed */, true /* stored */,
                 false /* tokenized */, true /* multivalued */, BasicTypes.STRING_TYPE));
     }
 
     private void addRelationSubstitutionNames() {
-        descriptors
-                .add(new AttributeDescriptorImpl(CSW_CONFORMS_TO, NON_QUERYABLE /* indexed */, true /* stored */,
-                        false /* tokenized */, true /* multivalued */, BasicTypes.STRING_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(CSW_CONFORMS_TO, NON_QUERYABLE /* indexed */, true /* stored */,
+                false /* tokenized */, true /* multivalued */, BasicTypes.STRING_TYPE));
 
-        descriptors
-                .add(new AttributeDescriptorImpl(CSW_HAS_FORMAT, NON_QUERYABLE /* indexed */, true /* stored */,
-                        false /* tokenized */, true /* multivalued */, BasicTypes.STRING_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(CSW_HAS_FORMAT, NON_QUERYABLE /* indexed */, true /* stored */,
+                false /* tokenized */, true /* multivalued */, BasicTypes.STRING_TYPE));
 
         descriptors.add(new AttributeDescriptorImpl(CSW_HAS_PART, NON_QUERYABLE /* indexed */, true /* stored */,
                 false /* tokenized */, true /* multivalued */, BasicTypes.STRING_TYPE));
 
-        descriptors
-                .add(new AttributeDescriptorImpl(CSW_HAS_VERSION, NON_QUERYABLE /* indexed */, true /* stored */,
-                        false /* tokenized */, true /* multivalued */, BasicTypes.STRING_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(CSW_HAS_VERSION, NON_QUERYABLE /* indexed */, true /* stored */,
+                false /* tokenized */, true /* multivalued */, BasicTypes.STRING_TYPE));
 
-        descriptors
-                .add(new AttributeDescriptorImpl(CSW_IS_FORMAT_OF, NON_QUERYABLE /* indexed */, true /* stored */,
-                        false /* tokenized */, true /* multivalued */, BasicTypes.STRING_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(CSW_IS_FORMAT_OF, NON_QUERYABLE /* indexed */, true /* stored */,
+                false /* tokenized */, true /* multivalued */, BasicTypes.STRING_TYPE));
 
-        descriptors
-                .add(new AttributeDescriptorImpl(CSW_IS_PART_OF, NON_QUERYABLE /* indexed */, true /* stored */,
-                        false /* tokenized */, true /* multivalued */, BasicTypes.STRING_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(CSW_IS_PART_OF, NON_QUERYABLE /* indexed */, true /* stored */,
+                false /* tokenized */, true /* multivalued */, BasicTypes.STRING_TYPE));
 
-        descriptors
-                .add(new AttributeDescriptorImpl(CSW_IS_REFERENCED_BY, NON_QUERYABLE /* indexed */,
-                        true /* stored */, false /* tokenized */, true /* multivalued */,
-                        BasicTypes.STRING_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(CSW_IS_REFERENCED_BY, NON_QUERYABLE /* indexed */,
+                true /* stored */, false /* tokenized */, true /* multivalued */, BasicTypes.STRING_TYPE));
 
         descriptors.add(new AttributeDescriptorImpl(CSW_IS_REPLACED_BY, NON_QUERYABLE /* indexed */,
                 true /* stored */, false /* tokenized */, true /* multivalued */,
@@ -521,9 +514,8 @@ public class CswRecordMetacardType extends MetacardTypeImpl {
                 true /* stored */, false /* tokenized */, true /* multivalued */,
                 BasicTypes.STRING_TYPE));
 
-        descriptors
-                .add(new AttributeDescriptorImpl(CSW_REFERENCES, NON_QUERYABLE /* indexed */, true /* stored */,
-                        false /* tokenized */, true /* multivalued */, BasicTypes.STRING_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(CSW_REFERENCES, NON_QUERYABLE /* indexed */, true /* stored */,
+                false /* tokenized */, true /* multivalued */, BasicTypes.STRING_TYPE));
 
         descriptors.add(new AttributeDescriptorImpl(CSW_REPLACES, NON_QUERYABLE /* indexed */, true /* stored */,
                 false /* tokenized */, true /* multivalued */, BasicTypes.STRING_TYPE));
@@ -546,10 +538,8 @@ public class CswRecordMetacardType extends MetacardTypeImpl {
                 true /* stored */, false /* tokenized */, true /* multivalued */,
                 BasicTypes.STRING_TYPE));
 
-        descriptors
-                .add(new AttributeDescriptorImpl(CSW_DATE_COPYRIGHTED, NON_QUERYABLE /* indexed */,
-                        true /* stored */, false /* tokenized */, true /* multivalued */,
-                        BasicTypes.STRING_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(CSW_DATE_COPYRIGHTED, NON_QUERYABLE /* indexed */,
+                true /* stored */, false /* tokenized */, true /* multivalued */, BasicTypes.STRING_TYPE));
 
         descriptors.add(new AttributeDescriptorImpl(CSW_DATE_SUBMITTED, NON_QUERYABLE /* indexed */,
                 true /* stored */, false /* tokenized */, true /* multivalued */,

@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.source.reader;
 
@@ -104,7 +103,8 @@ public class TestGetRecordsMessageBodyReader {
         assertThat((String) context.get(Metacard.THUMBNAIL),
                 is(CswRecordMetacardType.CSW_REFERENCES));
         assertThat(context.get(CswConstants.AXIS_ORDER_PROPERTY), is(CswAxisOrder.class));
-        assertThat((CswAxisOrder) context.get(CswConstants.AXIS_ORDER_PROPERTY), is(CswAxisOrder.LAT_LON));
+        assertThat((CswAxisOrder) context.get(CswConstants.AXIS_ORDER_PROPERTY),
+                is(CswAxisOrder.LAT_LON));
 
         // Assert the output Schema is set.
         assertThat(context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER), is(String.class));
@@ -147,63 +147,29 @@ public class TestGetRecordsMessageBodyReader {
 
         // verify first metacard's values
         Metacard mc = metacards.get(0);
-        Map<String, Object> expectedValues = new HashMap<String, Object>();
-        expectedValues.put(Metacard.ID, "{8C1F6297-EC96-4302-A01E-14988C9149FD}");
-        expectedValues.put(CswRecordMetacardType.CSW_IDENTIFIER,
-                new String[] {"{8C1F6297-EC96-4302-A01E-14988C9149FD}"});
-        expectedValues.put(Metacard.TITLE, "title 1");
-        expectedValues.put(CswRecordMetacardType.CSW_TITLE, new String[] {"title 1"});
-        String expectedModifiedDateStr = "2008-12-15";
-        DateTimeFormatter dateFormatter = ISODateTimeFormat.dateOptionalTimeParser();
-        Date expectedModifiedDate = dateFormatter.parseDateTime(expectedModifiedDateStr).toDate();
-        expectedValues
-                .put(CswRecordMetacardType.CSW_MODIFIED, new String[] {expectedModifiedDateStr});
-        expectedValues.put(Metacard.MODIFIED, expectedModifiedDate);
-        expectedValues.put(CswRecordMetacardType.CSW_SUBJECT,
-                new String[] {"subject 1", "second subject"});
-        expectedValues.put(CswRecordMetacardType.CSW_ABSTRACT, new String[] {"abstract 1"});
-        expectedValues
-                .put(CswRecordMetacardType.CSW_RIGHTS, new String[] {"copyright 1", "copyright 2"});
-        expectedValues.put(CswRecordMetacardType.CSW_LANGUAGE, new String[] {"english"});
-        expectedValues.put(CswRecordMetacardType.CSW_TYPE, "dataset");
-        expectedValues.put(CswRecordMetacardType.CSW_FORMAT, new String[] {"Shapefile"});
-        expectedValues.put(Metacard.GEOGRAPHY,
+        Map<String, Object> expectedValues = getExpectedMap(
+                "{8C1F6297-EC96-4302-A01E-14988C9149FD}", "title 1", "2008-12-15",
+                new String[] {"subject 1", "second subject"}, "abstract 1",
+                new String[] {"copyright 1", "copyright 2"}, "dataset", "Shapefile",
                 "POLYGON((52.139 5.121, 52.517 5.121, 52.517 4.468, 52.139 4.468, 52.139 5.121))");
-        expectedValues.put(CswRecordMetacardType.OWS_BOUNDING_BOX, new String[] {
-                "POLYGON((52.139 5.121, 52.517 5.121, 52.517 4.468, 52.139 4.468, 52.139 5.121))"});
         assertMetacard(mc, expectedValues);
-
-        expectedValues.clear();
 
         // verify second metacard's values
         mc = metacards.get(1);
-        expectedValues = new HashMap<String, Object>();
-        expectedValues.put(Metacard.ID, "{23362852-F370-4369-B0B2-BE74B2859614}");
-        expectedValues.put(CswRecordMetacardType.CSW_IDENTIFIER,
-                new String[] {"{23362852-F370-4369-B0B2-BE74B2859614}"});
-        expectedValues.put(Metacard.TITLE, "mc2 title");
-        expectedValues.put(CswRecordMetacardType.CSW_TITLE, new String[] {"mc2 title"});
-        expectedModifiedDateStr = "2010-12-15";
-        dateFormatter = ISODateTimeFormat.dateOptionalTimeParser();
-        expectedModifiedDate = dateFormatter.parseDateTime(expectedModifiedDateStr).toDate();
-        expectedValues
-                .put(CswRecordMetacardType.CSW_MODIFIED, new String[] {expectedModifiedDateStr});
-        expectedValues.put(Metacard.MODIFIED, expectedModifiedDate);
-        expectedValues.put(CswRecordMetacardType.CSW_SUBJECT,
-                new String[] {"first subject", "subject 2"});
-        expectedValues.put(CswRecordMetacardType.CSW_ABSTRACT, new String[] {"mc2 abstract"});
-        expectedValues.put(CswRecordMetacardType.CSW_RIGHTS,
-                new String[] {"first copyright", "second copyright"});
-        expectedValues.put(CswRecordMetacardType.CSW_LANGUAGE, new String[] {"english"});
-        expectedValues.put(CswRecordMetacardType.CSW_TYPE, "dataset 2");
-        expectedValues.put(CswRecordMetacardType.CSW_FORMAT, new String[] {"Shapefile 2"});
-        expectedValues.put(Metacard.GEOGRAPHY,
+        expectedValues = getExpectedMap("{23362852-F370-4369-B0B2-BE74B2859614}", "mc2 title",
+                "2010-12-15", new String[] {"first subject", "subject 2"}, "mc2 abstract",
+                new String[] {"first copyright", "second copyright"}, "dataset 2", "Shapefile 2",
                 "POLYGON((53.139 6.121, 53.517 6.121, 53.517 5.468, 53.139 5.468, 53.139 6.121))");
-        expectedValues.put(CswRecordMetacardType.OWS_BOUNDING_BOX, new String[] {
-                "POLYGON((53.139 6.121, 53.517 6.121, 53.517 5.468, 53.139 5.468, 53.139 6.121))"});
         assertMetacard(mc, expectedValues);
 
-        expectedValues.clear();
+        // verify third metacard's values
+        mc = metacards.get(2);
+        expectedValues = getExpectedMap("{23362852-F370-4369-B0B2-BE74B2859615}", "mc3 title", "2010-12-15",
+                new String[] {"first subject", "subject 3"}, "mc3 abstract",
+                new String[] {"first copyright", "second copyright"}, "dataset 3", "Shapefile 3",
+                "POLYGON((53.139 6.121, 53.517 6.121, 53.517 5.468, 53.139 5.468, 53.139 6.121))");
+        assertMetacard(mc, expectedValues);
+
     }
 
     // verifies UTF-8 encoding configured properly when XML includes foreign text with special characters
@@ -238,8 +204,8 @@ public class TestGetRecordsMessageBodyReader {
                 (String[]) expectedValues.get(CswRecordMetacardType.CSW_MODIFIED));
         assertListStringAttribute(mc, CswRecordMetacardType.CSW_SUBJECT,
                 (String[]) expectedValues.get(CswRecordMetacardType.CSW_SUBJECT));
-        assertListStringAttribute(mc, CswRecordMetacardType.CSW_ABSTRACT,
-                (String[]) expectedValues.get(CswRecordMetacardType.CSW_ABSTRACT));
+        assertListStringAttribute(mc, Metacard.DESCRIPTION,
+                (String[]) expectedValues.get(Metacard.DESCRIPTION));
         assertListStringAttribute(mc, CswRecordMetacardType.CSW_RIGHTS,
                 (String[]) expectedValues.get(CswRecordMetacardType.CSW_RIGHTS));
         assertListStringAttribute(mc, CswRecordMetacardType.CSW_LANGUAGE,
@@ -261,5 +227,27 @@ public class TestGetRecordsMessageBodyReader {
         List<String> valuesList = new ArrayList<String>();
         valuesList.addAll((List<? extends String>) values);
         assertThat(valuesList, hasItems(expectedValues));
+    }
+
+    private Map<String, Object> getExpectedMap(String id, String title, String dateString, String[] subject,
+            String description, String[] rights, String dataset, String format, String poly) {
+        Map<String, Object> expectedValues = new HashMap<String, Object>();
+        expectedValues.put(Metacard.ID, id);
+        expectedValues.put(CswRecordMetacardType.CSW_IDENTIFIER, new String[] {id});
+        expectedValues.put(Metacard.TITLE, title);
+        expectedValues.put(CswRecordMetacardType.CSW_TITLE, new String[] {title});
+        DateTimeFormatter dateFormatter = ISODateTimeFormat.dateOptionalTimeParser();
+        Date expectedModifiedDate = dateFormatter.parseDateTime(dateString).toDate();
+        expectedValues.put(CswRecordMetacardType.CSW_MODIFIED, new String[] {dateString});
+        expectedValues.put(Metacard.MODIFIED, expectedModifiedDate);
+        expectedValues.put(CswRecordMetacardType.CSW_SUBJECT, subject);
+        expectedValues.put(Metacard.DESCRIPTION, new String[] {description});
+        expectedValues.put(CswRecordMetacardType.CSW_RIGHTS, rights);
+        expectedValues.put(CswRecordMetacardType.CSW_LANGUAGE, new String[] {"english"});
+        expectedValues.put(CswRecordMetacardType.CSW_TYPE, dataset);
+        expectedValues.put(CswRecordMetacardType.CSW_FORMAT, new String[] {format});
+        expectedValues.put(Metacard.GEOGRAPHY, poly);
+        expectedValues.put(CswRecordMetacardType.OWS_BOUNDING_BOX, new String[] {poly});
+        return expectedValues;
     }
 }
