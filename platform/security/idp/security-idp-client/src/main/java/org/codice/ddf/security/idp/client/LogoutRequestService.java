@@ -14,6 +14,7 @@
 package org.codice.ddf.security.idp.client;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -55,8 +56,10 @@ import ddf.security.common.util.SecurityTokenHolder;
 import ddf.security.encryption.EncryptionService;
 import ddf.security.http.SessionFactory;
 import ddf.security.samlp.LogoutService;
+import ddf.security.samlp.SamlProtocol;
 import ddf.security.samlp.SimpleSign;
 import ddf.security.samlp.SystemCrypto;
+import ddf.security.samlp.impl.SamlValidator;
 
 @Path("logout")
 public class LogoutRequestService {
@@ -112,11 +115,12 @@ public class LogoutRequestService {
     }
 
     public void init() {
-        try {
-            submitForm = IOUtils.toString(LogoutRequestService.class.getResourceAsStream(
-                    "/templates/submitForm.handlebars"));
-            redirectPage = IOUtils.toString(LogoutRequestService.class.getResourceAsStream(
-                    "/templates/redirect.handlebars"));
+        try (InputStream submitStream = LogoutRequestService.class.getResourceAsStream(
+                "/templates/submitForm.handlebars");
+                InputStream redirectStream = LogoutRequestService.class.getResourceAsStream(
+                        "/templates/redirect.handlebars")) {
+            submitForm = IOUtils.toString(submitStream);
+            redirectPage = IOUtils.toString(redirectStream);
         } catch (Exception e) {
             LOGGER.error("Unable tpo load index page for SP.", e);
         }
@@ -127,16 +131,19 @@ public class LogoutRequestService {
     //TODO change it to a post since its not idempotent and we don't want prefetching.
     @GET
     @Path("/request")
-    public Response sendLogoutRequest(@QueryParam("EncryptedNameIdTime") String encryptedNameIdTime) {
+    public Response sendLogoutRequest(
+            @QueryParam("EncryptedNameIdTime") String encryptedNameIdTime) {
         String nameIdTime = encryptionService.decrypt(encryptedNameIdTime);
-        String[] nameIdTimeArray = StringUtils.split(nameIdTime,"\n");
-        if(nameIdTimeArray.length==2) {
+        String[] nameIdTimeArray = StringUtils.split(nameIdTime, "\n");
+        if (nameIdTimeArray.length == 2) {
             try {
                 String name = nameIdTimeArray[0];
                 Long time = Long.parseLong(nameIdTimeArray[1]);
-                if(System.currentTimeMillis()-time>logOutPageTimeOut)//+skew
+                if (System.currentTimeMillis() - time > logOutPageTimeOut)//+skew
                 {
-                    String msg = String.format("Logout request was older than %sms old so it was rejected. Please refresh page and request again.",logOutPageTimeOut);
+                    String msg = String.format(
+                            "Logout request was older than %sms old so it was rejected. Please refresh page and request again.",
+                            logOutPageTimeOut);
                     LOGGER.error(msg);
                     return Response.serverError()
                             .entity(msg)
@@ -148,23 +155,20 @@ public class LogoutRequestService {
                 String relayState = relayStates.encode(name);
 
                 return getSamlpRedirectLogoutRequest(relayState, logoutRequest, redirectPage);
-            }catch (Exception e)
-            {
+            } catch (Exception e) {
                 LOGGER.error("Failed to create logout request.", e);
                 return Response.serverError()
                         .entity("Failed to create logout request.")
                         .build();
             }
 
-        }else
-        {
+        } else {
             String msg = "Failed to decrypt logout request params. Invalid number of params.";
             LOGGER.error(msg);
             return Response.serverError()
                     .entity(msg)
                     .build();
         }
-
 
     }
 
@@ -179,8 +183,7 @@ public class LogoutRequestService {
                 new URI(idpMetadata.getRedirectSingleLogoutLocation()),
                 relayState);
         String redirectUpdated = responseTemplate.replace("{{redirect}}", location.toString());
-        Response.ResponseBuilder ok =
-                Response.ok(redirectUpdated);
+        Response.ResponseBuilder ok = Response.ok(redirectUpdated);
         return ok.build();
     }
 
@@ -193,15 +196,13 @@ public class LogoutRequestService {
         if (encodedSamlRequest != null) {
             LogoutRequest logoutRequest =
                     processSamlLogoutRequest(decodeBase64(encodedSamlRequest));
-            if (logoutRequest.getSignature() == null) {
-                throw new IdpClientException(
-                        "Could not validate signature. No signature was found.");
-            }
 
+            try {
+                new SamlValidator.Builder(simpleSign).buildAndValidate(request.getRequestURL().toString(),
+                        SamlProtocol.Binding.HTTP_POST, logoutRequest);
             LogoutResponse logoutResponse =
                     logoutService.buildLogoutResponse(logoutRequest.getIssuer()
                             .getValue(), StatusCode.SUCCESS_URI);
-            try {
 
                 return getSamlpPostLogoutResponse(relayState, logoutResponse, submitForm);
             } catch (SimpleSign.SignatureException | WSSecurityException e) {
@@ -209,10 +210,18 @@ public class LogoutRequestService {
                 return Response.serverError()
                         .entity("Failed to sign logout response.")
                         .build();
+            } catch (ValidationException e) {
+                throw new IdpClientException("Unable to validate", e);
             }
         } else {
             String nameId = relayStates.decode(relayState);
-            processSamlLogoutResponse(decodeBase64(encodedSamlResponse));
+            LogoutResponse logoutResponse = processLogoutResponse(decodeBase64(encodedSamlResponse));
+            try {
+                new SamlValidator.Builder(simpleSign).buildAndValidate(request.getRequestURL().toString(),
+                        SamlProtocol.Binding.HTTP_POST, logoutResponse);
+            } catch (ValidationException e) {
+                throw new IdpClientException("Unable to validate", e);
+            }
             return Response.ok(nameId + " logged out successfully.")
                     .build();
         }
@@ -226,13 +235,17 @@ public class LogoutRequestService {
             throws IdpClientException {
 
         if (deflatedSamlRequest != null) {
-            validateRequestSignature(deflatedSamlRequest,
-                    relayState,
-                    signatureAlgorithm,
-                    signature);
             try {
                 LogoutRequest logoutRequest = processSamlLogoutRequest(RestSecurity.inflateBase64(
                         deflatedSamlRequest));
+                new SamlValidator.Builder(simpleSign).setRedirectParams(relayState,
+                        signature,
+                        signatureAlgorithm,
+                        deflatedSamlRequest,
+                        idpMetadata.getSigningCertificate())
+                        .buildAndValidate(request.getRequestURL()
+                                .toString(), SamlProtocol.Binding.HTTP_REDIRECT, logoutRequest);
+                logout();
                 String entityId = getEntityId();
                 LogoutResponse logoutResponse = logoutService.buildLogoutResponse(entityId,
                         StatusCode.SUCCESS_URI);
@@ -251,20 +264,21 @@ public class LogoutRequestService {
                 return Response.serverError()
                         .entity(msg)
                         .build();
+            } catch (ValidationException e) {
+                throw new IdpClientException("Unable to validate", e);
             }
-            //        } else {
-            //            return Response.serverError()
-            //                    .entity("Invalid logout request signature.")
-            //                    .build();
-            //        }
         } else {
             try {
-                validateResponseSignature(deflatedSamlResponse,
-                        relayState,
-                        signatureAlgorithm,
-                        signature);
-                processSamlLogoutResponse(RestSecurity.inflateBase64(deflatedSamlResponse));
 
+                LogoutResponse logoutResponse = processLogoutResponse(RestSecurity.inflateBase64(
+                        deflatedSamlResponse));
+                new SamlValidator.Builder(simpleSign).setRedirectParams(relayState,
+                        signature,
+                        signatureAlgorithm,
+                        deflatedSamlResponse,
+                        idpMetadata.getSigningCertificate())
+                        .buildAndValidate(request.getRequestURL()
+                                .toString(), SamlProtocol.Binding.HTTP_REDIRECT, logoutResponse);
                 String nameId = relayStates.decode(relayState);
                 return Response.ok(nameId + " logged out successfully.")
                         .build();
@@ -274,13 +288,14 @@ public class LogoutRequestService {
                 return Response.serverError()
                         .entity(msg)
                         .build();
+            } catch (ValidationException e) {
+                throw new IdpClientException("Unable to validate", e);
             }
         }
     }
 
-    private void processSamlLogoutResponse(String logoutResponseStr) throws IdpClientException {
-        LOGGER.trace(logoutResponseStr);
-
+    private LogoutResponse processLogoutResponse(String logoutResponseStr)
+            throws IdpClientException {
         LogoutResponse logoutResponse;
         try {
             logoutResponse = logoutService.extractSamlLogoutResponse(logoutResponseStr);
@@ -290,21 +305,7 @@ public class LogoutRequestService {
         if (logoutResponse == null) {
             throw new IdpClientException("Unable to parse logout response.");
         }
-
-        validateResponse(logoutResponse);
-    }
-
-    private void validateResponse(LogoutResponse logoutResponse)
-            throws IdpClientException {
-        try {
-            // builder.blablabla.build()
-            logoutResponse.registerValidator(new LogoutResponseValidator(simpleSign));
-            logoutResponse.validate(false);
-        } catch (ValidationException e) {
-            throw new IdpClientException(
-                    "Invalid Logout Request received from " + logoutResponse.getIssuer(), e);
-        }
-
+        return logoutResponse;
     }
 
     private String getEntityId() {
@@ -323,15 +324,11 @@ public class LogoutRequestService {
         try {
             logoutRequest = logoutService.extractSamlLogoutRequest(logoutRequestStr);
         } catch (XMLStreamException | WSSecurityException e) {
-            throw new IdpClientException("Unable to parse logout request.",
-                    e);
+            throw new IdpClientException("Unable to parse logout request.", e);
         }
         if (logoutRequest == null) {
             throw new IdpClientException("Unable to parse logout request.");
         }
-
-        validateRequest(logoutRequest);
-        logout();
 
         return logoutRequest;
     }
@@ -376,77 +373,8 @@ public class LogoutRequestService {
                 new URI(idpMetadata.getRedirectSingleLogoutLocation()),
                 relayState);
         String redirectUpdated = responseTemplate.replace("{{redirect}}", location.toString());
-        Response.ResponseBuilder ok =
-                Response.ok(redirectUpdated);
+        Response.ResponseBuilder ok = Response.ok(redirectUpdated);
         return ok.build();
-    }
-
-    //TODO refactor to common area
-    private void validateRequestSignature(String deflatedSamlrequest, String relayState,
-            String signatureAlgorithm, String signature) throws IdpClientException {
-        this.validateSignature(deflatedSamlrequest,
-                relayState,
-                signatureAlgorithm,
-                signature,
-                SAML_REQUEST);
-
-    }
-
-    private void validateResponseSignature(String deflatedSamlResponse, String relayState,
-            String signatureAlgorithm, String signature) throws IdpClientException {
-        this.validateSignature(deflatedSamlResponse,
-                relayState,
-                signatureAlgorithm,
-                signature,
-                SAML_RESPONSE);
-
-    }
-
-    private void validateSignature(String deflatedSamlResponse, String relayState,
-            String signatureAlgorithm, String signature, String paramType)
-            throws IdpClientException {
-        boolean signaturePasses;
-        if (signature != null) {
-            if (StringUtils.isNotBlank(deflatedSamlResponse) && StringUtils.isNotBlank(relayState)
-                    && StringUtils.isNotBlank(signatureAlgorithm)) {
-                try {
-                    String signedMessage = String.format("%s=%s&%s=%s&%s=%s",
-                            paramType,
-                            URLEncoder.encode(deflatedSamlResponse, "UTF-8"),
-                            RELAY_STATE,
-                            URLEncoder.encode(relayState, "UTF-8"),
-                            SIG_ALG,
-                            URLEncoder.encode(signatureAlgorithm, "UTF-8"));
-                    signaturePasses = simpleSign.validateSignature(signedMessage,
-                            signature,
-                            idpMetadata.getSigningCertificate());
-                    if (!signaturePasses) {
-                        throw new IdpClientException(
-                                "Failed to validate logout request signature.");
-                    }
-                } catch (SimpleSign.SignatureException | UnsupportedEncodingException e) {
-                    LOGGER.debug("Failed to validate logout request signature.", e);
-                    throw new IdpClientException(
-                            "Failed to validate logout request signature.",
-                            e);
-                }
-            }
-        } else {
-            throw new IdpClientException(
-                    "Received unsigned logout request.  Could not verify identity or request integrity.");
-        }
-    }
-
-    private void validateRequest(org.opensaml.saml2.core.LogoutRequest logoutRequest)
-            throws IdpClientException {
-        try {
-            logoutRequest.registerValidator(new LogoutRequestValidator(simpleSign));
-            logoutRequest.validate(false);
-        } catch (ValidationException e) {
-            throw new IdpClientException(
-                    "Invalid Logout Request received from " + logoutRequest.getIssuer(), e);
-        }
-
     }
 
     private String decodeBase64(String encoded) {
@@ -476,6 +404,5 @@ public class LogoutRequestService {
     public void setLogOutPageTimeOut(long logOutPageTimeOut) {
         this.logOutPageTimeOut = logOutPageTimeOut;
     }
-
 
 }

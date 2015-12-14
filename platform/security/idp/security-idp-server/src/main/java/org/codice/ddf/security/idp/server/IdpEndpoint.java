@@ -652,22 +652,6 @@ public class IdpEndpoint implements Idp {
                 .build();
     }
 
-    // This should support Asynchronous (Front-Channel) HTTP Redirect and POST bindings
-    //     (meaning it comes from the user agent (browser)) as well as Synchronous
-    //     (Back-Channel) like a SOAP binding directly from the SP.
-    // Need to propagate a LogoutRequest to all other known SP's.
-
-    // Asynchronous
-    // -> all must provide RelayState mechanism that the sp may use to associate req with
-    //    original request.
-    // -> Logout Request must be signed if POST or Redirect binding is used
-
-    // Synchronous
-    // Will receive LogoutRequest directly from SP, then propagate to other SP's and respond
-    // to initial request when done
-
-    // TODO (RCZ) - Remember to switch constants to using SamlProtocol
-
     /**
      * aka HTTP-Redirect
      *
@@ -741,9 +725,8 @@ public class IdpEndpoint implements Idp {
         } catch (RuntimeException e) {
             LOGGER.debug("Error processing saml request", e);
         }
-        // TODO (RCZ) - default return value. 500?
-        return Response.serverError()
-                .build();
+
+        throw new IdpException("Could not process logout");
     }
 
     @Override
@@ -780,7 +763,6 @@ public class IdpEndpoint implements Idp {
                                 SamlProtocol.Binding.HTTP_POST,
                                 samlObject);
                     } catch (ValidationException e) {
-                        // TODO (RCZ) - rethink the runtime
                         throw new RuntimeException("Unable to validate object", e);
                     }
                 });
@@ -824,8 +806,7 @@ public class IdpEndpoint implements Idp {
                         incomingBinding);
 
             } else { // Unsupported object type
-                // TODO (RCZ) 11/11/15 - Log some unsupported exception?
-                // Even if their object is bad we might be able to finish rest of logouts
+
                 return continueLogout(logoutState, cookie, incomingBinding);
             }
         } catch (XMLStreamException e) {
@@ -838,9 +819,6 @@ public class IdpEndpoint implements Idp {
 
     private Response handleLogoutResponse(Cookie cookie, LogoutState logoutState,
             LogoutResponse logoutObject, SamlProtocol.Binding incomingBinding) throws IdpException {
-        // TODO (RCZ) - Do we want to remove each SP from Active SP's (not logoutState set)?
-        // Might be good idea in case of the weird state where they send logout request but st1ll
-        // have a logoutstate
         if (!StatusCode.SUCCESS_URI.equals(logoutObject.getStatus()
                 .getStatusCode()
                 .getValue())) {
@@ -974,7 +952,6 @@ public class IdpEndpoint implements Idp {
                 relayState);
         UriBuilder uriBuilder = UriBuilder.fromUri(targetUrl);
         uriBuilder.queryParam(reqres, encodedResponse);
-        // TODO (RCZ) - DO this better probably
         uriBuilder.queryParam(SSOConstants.RELAY_STATE, relayState == null ? "" : relayState);
         new SimpleSign(systemCrypto).signUriString(requestToSign, uriBuilder);
         LOGGER.debug("Signing successful.");

@@ -99,11 +99,6 @@ public abstract class SamlValidator implements Validator<ValidatingXMLObject> {
         // noop, default method
     }
 
-    void checkDestination(String endpoint) throws ValidationException {
-        // TODO (RCZ) - url validation logic, scrap the query params, yada yada yada
-
-    }
-
     void checkPostSignature(SignableSAMLObject samlObject) throws ValidationException {
         if (samlObject.getSignature() != null) {
             try {
@@ -288,7 +283,7 @@ public abstract class SamlValidator implements Validator<ValidatingXMLObject> {
                 try {
                     if (!HttpUtils.validateAndStripQueryString(logoutRequest.getDestination())
                             .equals(builder.endpoint)) {
-                        throw new ValidationException("Destination validation failed"); // TODO (RCZ) - bad text english hard plz fix
+                        throw new ValidationException("Destination validation failed");
                     }
                 } catch (MalformedURLException e) {
                     throw new ValidationException(String.format("Destination [%s]is not a valid URL",
@@ -299,6 +294,7 @@ public abstract class SamlValidator implements Validator<ValidatingXMLObject> {
     }
 
     public static abstract class Response extends SamlValidator {
+
         protected final LogoutResponse logoutResponse;
 
         private Response(Builder builder) {
@@ -328,7 +324,14 @@ public abstract class SamlValidator implements Validator<ValidatingXMLObject> {
         @Override
         protected void checkDestination() throws ValidationException {
             if (isNotBlank(logoutResponse.getDestination())) {
-                checkDestination(builder.endpoint);
+                try {
+                    if (!builder.endpoint.equals(HttpUtils.validateAndStripQueryString(
+                            logoutResponse.getDestination()))) {
+                        throw new ValidationException("Destination validation failed");
+                    }
+                } catch (MalformedURLException e) {
+                    throw new ValidationException("Invalid Destination URL", e);
+                }
             }
         }
 
