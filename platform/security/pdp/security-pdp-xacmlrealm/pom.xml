@@ -44,7 +44,7 @@
         <dependency>
             <groupId>org.wso2.balana</groupId>
             <artifactId>org.wso2.balana</artifactId>
-            <version>1.0.0-wso2v7</version>
+            <version>1.0.2</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
