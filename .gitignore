@@ -14,3 +14,4 @@ atlassian-ide-plugin.xml
 *.sonar-ide.properties
 **/webapp/css/styles.css
 platform/solr/**/overlays
+dependency-reduced-pom.xml

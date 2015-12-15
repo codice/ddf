@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -38,15 +38,14 @@ public class CertificateGeneratorTest {
 
         systemKeystoreFile = temporaryFolder.newFile("serverKeystore.jks");
         FileOutputStream systemKeyOutStream = new FileOutputStream(systemKeystoreFile);
-        InputStream systemKeyStream = CertificateGenerator.class
-                .getResourceAsStream("/serverKeystore.jks");
+        InputStream systemKeyStream = CertificateGenerator.class.getResourceAsStream(
+                "/serverKeystore.jks");
         IOUtils.copy(systemKeyStream, systemKeyOutStream);
 
         IOUtils.closeQuietly(systemKeyOutStream);
         IOUtils.closeQuietly(systemKeyStream);
 
         System.setProperty("javax.net.ssl.keyStoreType", "jks");
-        System.setProperty("ddf.home", "");
         System.setProperty("javax.net.ssl.keyStore", systemKeystoreFile.getAbsolutePath());
         System.setProperty("javax.net.ssl.keyStorePassword", "changeit");
     }
@@ -60,13 +59,13 @@ public class CertificateGeneratorTest {
             }
         };
         KeyStoreFile ksf = generator.getKeyStoreFile();
-        assertThat(ksf.aliases().size(), is(2));
-        assertThat(ksf.isKey("localhost"), is(true));
-
+        assertThat(ksf.aliases()
+                .size(), is(2));
         assertThat(generator.configureDemoCert("my-fqdn"), is("CN=my-fqdn"));
+        generator.configureDemoCert("test2");
         ksf = generator.getKeyStoreFile();
-        assertThat(ksf.aliases().size(), is(2));
+        assertThat(ksf.aliases()
+                .size(), is(4));
         assertThat(ksf.isKey("my-fqdn"), is(true));
-        assertThat(ksf.isKey("localhost"), is(false));
     }
 }

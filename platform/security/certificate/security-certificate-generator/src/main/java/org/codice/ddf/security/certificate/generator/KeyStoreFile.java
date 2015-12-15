@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -27,8 +27,6 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import ddf.security.SecurityConstants;
 
 /**
  * Facade class for a Java Keystore (JKS) file. Exposes a few high-level behaviors to abstract away the
@@ -57,8 +55,8 @@ public class KeyStoreFile {
                 keyStore.load(resource, pw);
             }
         } catch (GeneralSecurityException | IOException e) {
-            throw new CertificateGeneratorException("Could not create new instance of KeyStoreFile",
-                    e);
+            String msg = "Could not create new instance of KeyStoreFile";
+            throw new CertificateGeneratorException(msg, e);
         }
 
         facade.file = file;
@@ -69,7 +67,7 @@ public class KeyStoreFile {
 
     static KeyStore newKeyStore() throws KeyStoreException {
 
-        return KeyStore.getInstance(System.getProperty(SecurityConstants.KEYSTORE_TYPE));
+        return KeyStore.getInstance(System.getProperty("javax.net.ssl.keyStoreType"));
     }
 
     /**
@@ -136,14 +134,14 @@ public class KeyStoreFile {
     /**
      * Add a new entry to the keystore. Use the given alias.
      *
-     * @param alias
-     * @param entry
+     * @param alias of keystore entry
+     * @param entry instance
      */
     public void setEntry(String alias, KeyStore.Entry entry) {
         try {
             keyStore.setEntry(alias, entry, getPasswordObject());
         } catch (KeyStoreException e) {
-            throw new RuntimeException(String.format("Could add %s to keystore", alias), e);
+            throw new RuntimeException(String.format("Could not add %s to keystore", alias), e);
         }
     }
 
@@ -151,16 +149,15 @@ public class KeyStoreFile {
      * Remove the key store entry at the given alias. If the alias does not exist, log that it does not exist.
      *
      * @param alias the name of the entry in the keystore
-     * @return true if entry exists and was removed, false otherwise
+     * @return true if entry is not in the keystore false otherwise
      */
     public boolean deleteEntry(String alias) {
         try {
             keyStore.deleteEntry(alias);
         } catch (KeyStoreException e) {
             LOGGER.info("Attempted to remove key named {} from keyStore. No such such key", alias);
-            return false;
         }
-        return true;
+        return isKey(alias);
     }
 
     /**
@@ -172,8 +169,8 @@ public class KeyStoreFile {
         try (FileOutputStream fd = new FileOutputStream(file)) {
             keyStore.store(fd, password);
         } catch (Exception e) {
-            throw new RuntimeException(
-                    String.format("Could not save the keystore %s", file.getAbsolutePath()), e);
+            throw new RuntimeException(String.format("Could not save the keystore %s",
+                    file.getAbsolutePath()), e);
         }
     }
 
