@@ -1,6 +1,7 @@
 Version ${version}. Copyright (c) Codice Foundation
 :imagesdir: target/docs/images
 :toc: left
+:toclevel: 6
 :branding: DDF
 :icons: font
 :example-caption!:
