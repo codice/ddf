@@ -94,6 +94,8 @@ public class IdpEndpointTest {
 
     String authNRequestGet = "jZLNbsIwEIRfJfLdJHEIDRZBoqCqSLSiQHvopTLOApYcO/U6/Xn7JoFK9EK52uNvZsc7QlFqVvFJ7Q9mBe81oA8miOC8smZqDdYluDW4DyXhebXIycH7CnkYaiuFPlj0PBsOkxCPEgxbYIhoSTBrWMqIFvT/M1VUzd1eGRLMZzl5E2k62CZyR7cDkLQfJYxu07hPAbJdVkhWsDhppIg1zA16YXxOWBSnNI4oG27iG84SzrJeFEWvJFg66620+laZQpl9TmpnuBWokBtRAnIv+XrysOCsF/HtUYT8frNZ0hUUyoH0JHgBh90sjYgEX6U2yI/1XeZVJ3MyHnVy3qV254TLAPH7H2R8Tfuj8NzmZFrxx4Y7ny2tVvI7mGhtP6cOhIeceFcDCe6sK4W/nKQ9UQXddVJetYWgB9OUs162/KdaaLVT4K7bExKOT2H/buD4Bw==";
 
+    String authNRequestGetForce = "<saml2p:AuthnRequest AssertionConsumerServiceURL=\"https://localhost:8993/services/saml/sso\" Destination=\"https://localhost:8993/services/idp/login\" ID=\"_a556b3cf-b6ec-4032-b514-ee8f8dc2d213\" IssueInstant=\"2015-10-29T17:23:28.000Z\" ProtocolBinding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect\" Version=\"2.0\" xmlns:saml2p=\"urn:oasis:names:tc:SAML:2.0:protocol\" ForceAuthn=\"true\"><saml2:Issuer xmlns:saml2=\"urn:oasis:names:tc:SAML:2.0:assertion\">https://localhost:8993/services/saml</saml2:Issuer><saml2p:NameIDPolicy AllowCreate=\"true\" Format=\"urn:oasis:names:tc:SAML:2.0:nameid-format:persistent\" SPNameQualifier=\"https://localhost:8993/services/saml\"/></saml2p:AuthnRequest>";
+
     String authNRequestGetSignature = "CQyv7hn001ClryULPk+DCqMiZYFnpmnVneP2byUoQ8rQr2fkM9F7y5f7CsIyyO8+uLO0ffXLHy7OrmnnbAeKJ2hRUJLUl8dt5NWqDPjGLfNCA8KshSeoxhbwc5PS3zjIGzdox/rdbsDJ4BOL2Jyh2OzlVKry+QAh3wmJDQrFcxs=";
 
     String authNRequestPassivePkiGet = "jZJRT8IwFIX/ytL3sa0DhIYtQYhxCZoJ6IMvpnQXaNK1s7dD/fduAw2+IK/t6XdOz70T5KWiFZvWbq+X8F4DOi/DnCPKAyTE2RqIN0UE66TRM6OxLsGuwB6kgOflIiF75ypkQaCM4Gpv0LHReBwHeJRg0DoEiIZ48wYuNW9B/z+TRdXc7aQmXjZPyBsfDIabWGz9zRCE3w9j6m8GUd8HGG1HhaAFjeJGilhDptFx7RJCw2jgR6FPx+vohtGY0VEvDMNX4uXWOCOMupW6kHqXkNpqZjhKZJqXgMwJtpo+LBjthWxzFCG7X69zfwmFtCAc8V7AYveXRkS8z1JpZMc+L/OqkzlJJ52cdantOeEygP/Mg6TXtD8Jzm1OphV7bLjZPDdKii9vqpT5mFng7nfqd8aW3F1O0p7Iwt92Ula1haAD3ZSzylv+U82V3Eqw1+0JCdJT2L8rmX4D";
@@ -366,6 +368,33 @@ public class IdpEndpointTest {
         Response response = idpEndpoint.showGetLogin(samlRequest, relayState, signatureAlgorithm,
                 signature, request);
         //the only cookie that should exist is the "1" cookie so "2" should send us to the login webapp
+        assertThat(response.getEntity()
+                .toString(), containsString("<title>Login</title>"));
+    }
+
+    @Test
+    public void testLoginForceAuthnCookie()
+            throws SecurityServiceException, WSSecurityException, IOException {
+        SecurityManager securityManager = mock(SecurityManager.class);
+        when(securityManager.getSubject(anyObject())).thenThrow(
+                new SecurityServiceException("test"));
+        idpEndpoint.setSecurityManager(securityManager);
+        idpEndpoint.setStrictSignature(false);
+
+        String samlRequest = RestSecurity.deflateAndBase64Encode(authNRequestGetForce);
+        String relayState = "ef95c04b-6c05-4d12-b65f-dd32fed8811e";
+        String signatureAlgorithm = "http://www.w3.org/2000/09/xmldsig#rsa-sha1";
+        String signature = authNRequestGetSignature;
+
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        Cookie cookie = mock(Cookie.class);
+        when(request.getRequestURL()).thenReturn(new StringBuffer("https://www.example.com"));
+        when(request.getAttribute(ContextPolicy.ACTIVE_REALM)).thenReturn("*");
+        when(request.getCookies()).thenReturn(new Cookie[] {cookie});
+        when(cookie.getName()).thenReturn("org.codice.ddf.security.idp.session");
+        when(cookie.getValue()).thenReturn("1");
+        Response response = idpEndpoint.showGetLogin(samlRequest, relayState, signatureAlgorithm,
+                signature, request);
         assertThat(response.getEntity()
                 .toString(), containsString("<title>Login</title>"));
     }
