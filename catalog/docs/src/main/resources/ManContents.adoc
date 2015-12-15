@@ -182,3 +182,39 @@ No configuration is required.
 (IMG)
 
 . Click delete.
+
+
+== Metacard Validation Plugin
+
+The metacard validation plugin (`catalog-plugin-metacard-validation`) is a feature that allows the validation/invalidation of metacards when they are ingested.
+Without this plugin, if validation is enabled, metacards are either valid and allowed into the catalog or are invalid and disallowed into the catalog. Without this plugin, if validation is disabled,
+all metacards will be valid and allowed into the catalog. With this plugin, validation can be enabled, and then metacards will be marked by this plugin as valid or invalid.
+
+=== Enabling feature
+
+This feature is turned off by default and needs to be installed before it can be used.
+
+=== Configuring feature
+
+The feature has one configuration, `Enforced validators`. `Enforced validators` are a set of metacard validators chosen by an administrator or knowledge manager to disallow invalid metacards from being stored in the catalog.
+The value of the field should be the `id` of the validator or the fully qualified class name.
+
+For example, an administrator could want to allow _most_ invalid metacards but prevent any metacards that fail security validation from being ingested. They would input the security validator's id into the `enforced validators` field, and then
+any metacard that failed that validator would *NOT* be stored in the catalog.
+
+=== Functionality & New features
+
+* This plugin can add two new attributes to a metacard: `validation-warnings` and/or `validation-errors`.
+The value(s) for these attributes will be the id of the validator that caused the warning or error.
+
+* When querying, by default, only valid metacards will be returned.
+
+* To query for invalid metacards or both valid and invalid metacards, one must specify in the query. For example, a CSW query looking for any metacards marked with `validation-warnings` would have the element
+[source, xml]
+    <ns2:Not>
+     <ns2:PropertyIsNull wildCard="*" singleChar="#" escapeChar="!">
+        <ns2:PropertyName>validation-warnings</ns2:PropertyName>
+     </ns2:PropertyIsNull>
+    </ns2:Not>
+
+added into the `Filter` attribute.
