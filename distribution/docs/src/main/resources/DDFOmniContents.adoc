@@ -1,3 +1,78 @@
+== Overview
+
+Distributed Data Framework ({branding}) is an agile and modular integration framework.
+It is primarily focused on data integration, enabling clients to insert, query and transform information from disparate data sources via the {branding} Catalog. A Catalog API allows integrators to insert new capabilities at various stages throughout each operation.
+{branding} is designed with the following architectural qualities to benefit integrators.
+
+=== Documentation Guide
+
+This document serves to guide users, administrators and developers through the {branding}. 
+
+==== Documentation Outline
+The documentation is segmented by user needs, with users categorized as Users, Administrators, Integrators, and Developers. 
+
+Users::
+Users are end users interacting with the applications at the most basic level.
+User help is available through the *Help* link in the User Interface.
+
+Administrators::
+<<Managing {branding}>> |
+Administrators will be installing, maintaining, and supporting existing applications.
+Sections titled with Managing support administrators.
+
+Integrators::
+<<Integrating {branding}>> |
+Integrators will use the existing applications to support their external frameworks.
+Sections titled with Integrating support administrators.
+
+Developers::
+<<Extending {branding}>> |
+Developers will build or extend the functionality of the applications. 
+Sections titled with Extending support administrators.
+
+==== Documentation Updates
+The most current Distributed Data Framework {branding}) documentation is available at: https://codice.atlassian.net/wiki/display/{branding}/{branding}+Home/
+
+==== Conventions
+
+The following conventions are used within this documentation:
+
+===== Callouts
+
+[TIP]
+====
+This is a *Tip*, used to provide helpful information.
+====
+
+[NOTE]
+====
+This is an *Informational Note*, used to emphasize points, remind users of beneficial information, or indicate minor problems in the outcome of an operation.
+====
+
+[WARNING]
+====
+This is an *Emphasized Note*, used to inform of important information.
+====
+
+[IMPORTANT]
+====
+This is a *Warning*, used to alert users about the possibility of an undesirable outcome or condition.
+====
+
+===== Customizable Values
+
+Many values used in descriptions are customizable and should be changed for specific use cases. These values are denoted by < >, and by [[ ]]when within XML syntax. When using a real value, the placeholder characters should be omitted.
+
+===== Code Values
+
+Java objects, lines of code, or file properties are denoted with the Monospace font style. Example: `ddf.catalog.CatalogFramework`
+
+===== Hyperlinks
+
+Some hyperlinks (e.g., `/admin`) within the documentation assume a locally running installation of {branding}.  Simply change the hostname if accessing a remote host.
+
+==== Questions
+Questions about {branding} or this documentation should be posted to the https://groups.google.com/d/forum/{branding}-users[{branding}-users forum], https://groups.google.com/d/forum/{branding}-announcements[{branding}-announcements forum], or https://groups.google.com/d/forum/{branding}-developers[{branding}-developers forum], where they will be responded to quickly by a member of the {branding} team.
 
 <<<
 
@@ -7,29 +82,43 @@ include::ManContents.adoc[]
 
 <<<
 
+== Managing {branding} Admin
+
 include::${project.build.directory}/apps/admin/ManContents.adoc[]
 
 <<<
+
+== Managing {branding} Catalog
 
 include::${project.build.directory}/apps/catalog/ManContents.adoc[]
 
 <<<
 
+== Managing {branding} Content
+
 include::${project.build.directory}/apps/content/ManContents.adoc[]
 
 <<<
+
+== Managing {branding} Platform
 
 include::${project.build.directory}/apps/platform/ManContents.adoc[]
 
 <<<
 
+== Managing {branding} Security
+
 include::${project.build.directory}/apps/security/ManContents.adoc[]
 
 <<<
 
+== Managing {branding} Spatial
+
 include::${project.build.directory}/apps/spatial/ManContents.adoc[]
 
 <<<
+
+== Managing {branding} UI
 
 include::${project.build.directory}/apps/ui/ManContents.adoc[]
 
@@ -37,35 +126,47 @@ include::${project.build.directory}/apps/ui/ManContents.adoc[]
 
 == Integrating {branding}
 
-<<<
-
 include::IntContents.adoc[]
 
 <<<
+
+== Integrating {branding} Admin
 
 include::${project.build.directory}/apps/admin/IntContents.adoc[]
 
 <<<
 
+== Integrating {branding} Catalog
+
 include::${project.build.directory}/apps/catalog/IntContents.adoc[]
 
 <<<
+
+== Integrating {branding} Content
 
 include::${project.build.directory}/apps/content/IntContents.adoc[]
 
 <<<
 
+== Integrating {branding} Platform
+
 include::${project.build.directory}/apps/platform/IntContents.adoc[]
 
 <<<
+
+== Integrating {branding} Security
 
 include::${project.build.directory}/apps/security/IntContents.adoc[]
 
 <<<
 
+== Integrating {branding} Spatial
+
 include::${project.build.directory}/apps/spatial/IntContents.adoc[]
 
 <<<
+
+== Integrating {branding} UI
 
 include::${project.build.directory}/apps/ui/IntContents.adoc[]
 
@@ -77,28 +178,42 @@ include::ExtContents.adoc[]
 
 <<<
 
+== Extending {branding} Admin
+
 include::${project.build.directory}/apps/admin/ExtContents.adoc[]
 
 <<<
+
+== Extending {branding} Catalog
 
 include::${project.build.directory}/apps/catalog/ExtContents.adoc[]
 
 <<<
 
+== Extending {branding} Content
+
 include::${project.build.directory}/apps/content/ExtContents.adoc[]
 
 <<<
+
+== Extending {branding} Platform
 
 include::${project.build.directory}/apps/platform/ExtContents.adoc[]
 
 <<<
 
+== Extending {branding} Security
+
 include::${project.build.directory}/apps/security/ExtContents.adoc[]
 
 <<<
 
+== Extending {branding} Spatial
+
 include::${project.build.directory}/apps/spatial/ExtContents.adoc[]
 
 <<<
+
+== Extending {branding} UI
 
 include::${project.build.directory}/apps/ui/ExtContents.adoc[]
