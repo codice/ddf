@@ -29,5 +29,4 @@
         <module>security-idp-client</module>
         <module>security-idp-server</module>
     </modules>
-
 </project>
