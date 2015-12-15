@@ -1148,7 +1148,7 @@ Normally, the alias should be the {branding} instance's FQDN.
 |certificate
 |A combination of an entity's identity information with the entity's public key.
 The entity can be a person, organization, or something else, but in this case the entity is a computer on the network.
-To be valid, a certificate must be digitally (cryptographically) signed by a certifcate authority.
+To be valid, a certificate must be digitally (cryptographically) signed by a certificate authority.
 By signing a certificate, the CA attests that the public key truly belongs to the entity and no one else.
 See also PKIX.
 |<FQDN>.crt
@@ -1210,7 +1210,7 @@ For the purposes of these instructions a keystore is always a file.
 
 |PKCS#12
 |Personal Information Exchange Syntax.
-A standard that allows certifcates, private keys, and optional attributes to be combined into a single file.
+A standard that allows certificates, private keys, and optional attributes to be combined into a single file.
 See IETF RFC 7292 for more information.
 |<FQDN>.p12
 
@@ -1262,7 +1262,7 @@ Even if Web access is lost, the {branding} instance can still be configured usin
 
 [IMPORTANT]
 ====
-The passwords configured in this section reflect the passwords used decrypt Java keytstores; the passwords tied to the JKS files.
+The passwords configured in this section reflect the passwords used to decrypt JKS (Java KeyStore) files.
 Changing these values without also changing the passwords of the JKS causes undesirable behavior.
 ====
 * In `<DDF_HOME>/etc/user.properties`, modify the line:
@@ -1286,191 +1286,30 @@ javax.net.ssl.trustStorePassword=<NewPassword>
 javax.net.ssl.keyStoreType=jks
 ----
 
-==== Create Private Key and Certificate Signing Request
+===== Creating and Installing Keys and Certificates
 
-[NOTE]
-====
-These steps assume that `openssl` is installed on the machine as a command line utility.
-====
-
-Open a console or terminal and change directory
-
-[source,bash]
-----
-$> cd <DDF_HOME>/etc/certs
-----
-
-Create a new RSA key pair (public and private keys) and use the public key to create a certificate signing request.
-This happens with a single command to `openssl`
+To create a private key and certificate signed by the Demo Certificate Authority, use the provided scripts.
+To use the scripts, run them out of the <DDF_HOME>/etc/certs directory. For *NIX, use the CertNew.sh script.
 
 ----
-$> openssl req -newkey rsa:2048 -keyout <FQDN>.key -out <FQDN>.csr
+sh CertNew.sh my.server.com
 ----
 
-The command will encrypt the private key to protect it.
-The command prompts for a pass phrase that will decrypt the private key:
+The above command creates a new entry in the keystore for a server named my.server.com.
+To create and install the certificates on Windows, use the CertNew.cmd file in the same directory.
 
 ----
-writing new private key to '....key'
-Enter PEM pass phrase:
-----
-Enter a pass phrase (this documentation uses the pass phrase `changeit`).
-
-The command then prompts for identity information:
-
-* For country, use the same two-letter ISO code as the certificate authority. For the Demo CA, use "US".
-* For the "Common Name" or "CN" enter the Fully Qualified Domain Name (FQDN) of the system. An example of a FQDN would be "search.codice.org".
-
-This command creates two files:
-
-* `<FDQN>.csr`, the certificate signing request. The CSR includes the public key that matches the private key.
-* `<FQDN>.key`, a private key cryptogrpahically linked to the CSR
-
-===== Sign the CSR to Create a Valid Certificate
-
-[NOTE]
-====
-This step assume Demo CA signs the CSR. If the CSR is signed by a different CA, skip this step.
-====
-
-[source,bash]
-----
-$> openssl ca -config openssl-demo.cnf -policy policy_anything -passin "pass:secret" -in <FQDN>.csr -out <FQDN>.crt
+CertNew my.server.com
 ----
 
-The command prompts:
-
-----
-    >Certificate is to be certified until Jul 23 21:06:37 2016 GMT (365 days)
-    >Sign the certificate? [y/n]:
-----
-
-Enter *y* and select return. It responds:
-
-----
-    >1 out of 1 certificate requests certified, commit? [y/n]
-----
-
-Enter *y* and select return again.
-
-----
-    >Write out database with 1 new entries
-    >Data Base Updated
-----
-
-A new `.crt` file is writen to the current directory. By default, the certificate is valid for one year. This period can be changed using `openssl` command line options or by editing the `openssl` configuration file, `openssl-demo.cnf`.
-
-===== Create PKCS#12 File
-The private key, certificate need to be combined into a new structure that can be imported into the keystore.
-A chain of trust file also needs to be created and combined with the other objects.
-A file that conforms to the PKCS#12 specification is created from these objects as an intermediary step in the process.
-
-===== Creating the Chain of Trust
-
-* If the certificate was signed by the Demo CA, skip this step.
-* It is not necessary in because `openssl` adds the issuer's (signer's) certificate to the PKCS12 file to create the complete chain of trust.
-
-* Establasihing a *chain of trust* is imporant if a root CA did not directly sign the CSR.
-* It is important for establishing a connection between different branches/orgganizations/departments.
-
-[NOTE]
- ====
- Although a single certificate can have only one issuer (cannot have more than one CA signature), different certificate chains can exist for the same target certificate because more than one certificate can exist containing the same subject and public key.
- ====
-
-* Concatenate the certificate from the issuer, all intermediate certificate authorities, and the root authority into a text file.
-
-----
-$>  cat mycertfile certificate_authority_certfile > chain.txt
-----
-
-This command created the file `chain.txt`.
-This file an intermediate file used to create the PKCS#12 file.
-
-[WARNING]
-====
-If a certificate chain file was created, add the following options to the next command:
-----
--chain -CAfile chain.txt
-----
-====
-
-Create the PKCS#12 file.
-The argument for `-passin` is the password that was used to encrypt the private key.
-The argument for `-passout` sets the password used to decrypt the PKCS#12 file.
-
-----
-$> openssl pkcs12 -in <FQDN>.crt -inkey <FQDN>.key -certfile demoCA/cacert.pem -out <FQDN>.p12 -export -name <FQDN> -passin "pass:changeit" -passout "pass:changeit"
-----
-
-[TIP]
-====
-Using `openssl` can verify a chain of trust for a certificate.
-For example:
-----
-openssl verify -CAfile ./demoCA/cacert.pem <FQDN>.crt
-----
-====
-
-==== Install Signed Certificate Into Key Store
-Use the Java keytool to import the signed certificate into the server keystore file.
-The keytool needs the password word to decrypt the PKCS#12 file (`-srcstorepass`) and the password to decrypt the existing server keystore.
-
-[NOTE]
-====
-This example assumes the passwords are `changeit`.
-This example also assumes the server keystore is in the default location and has the default name, `<DDF_HOME>/etc/keystores/serverKeystore.jks`
-====
-
-----
-$> keytool -importkeystore -srckeystore <FQDN>.p12 -srcstoretype pkcs12 -destkeystore <DDF_HOME>/etc/keystores/serverKeystore.jks -srcalias <FQDN> -deststorepass changeit -srcstorepass changeit
-----
-
-[TIP]
-====
-Check the contents of a Java keystore with the keytool:
-
-----
-keytool -list -keystore <{branding}_HOME>/etc/keystore/serverKeystore.jks
-----
-
-Add `-v` to list the entire contents of the key store entries.
-
-----
-keytool -list -v -keystore <{branding}_HOME>/etc/keystore/serverKeystore.jks
-====
-
-===== Remove localhost Key Entry
-The server key store comes configured with a key for localhost. It should be removed when a certificate with the server's FQDN certificate is installed.  If the localhost key exists, the Solr server uses the that key to sign messages. The browser and other client processes will halt when trying to connect to Solr because the client expects common name to be the Solr processes's <FQDN>. Use the keytool to remove the localhost entry:
-
-----
-$> keytool -delete -keystore <{branding}_HOME>/etc/keystore/serverKeystore.jks -alias localhost
-----
-
-===== Import CA Certificates into the Keystore
-
-* The Demo CA certificate is already imported into the keystore file that is included in the {branding} distribution. If the FQDN certificate was signed by the Demo CA, skip this step.
-
-===== Import CA Certificates into the Trustsore
-
-* The Demo CA certificate is already imported into the truststore file that is included in the {branding} distribution. If the FQDN certificate was signed by the Demo CA, skip this step.
-* The truststore is created from the  CA certificates.  The CA should be the only entry needed in the trust store.
-----
-# import each CA into truststore
-$> keytool -import -trustcacerts -alias <CA alias> -file <CA PEM> -keystore serverTruststore.jks
-----
-
-[NOTE]
-====
-When federating with other {branding} instances that do not share the same CA, you will need to import the CA certs from the other federated instances and they will need to import yours.
-====
+To install a certificate signed by a different Certificate Authority, see <<Import into a Java Keystore (JKS)>>.
 
 ===== Restart and Test
 Finally, restart the {branding} instance. Browse the Admin UI at https://<FQDN>:8993/admin to test changes.
 
 [WARNING]
 ====
-If the server's fully qualifiied domain name is not recognized, the name may need to be added to the netowrk's DNS server.
+If the server's fully qualified domain name is not recognized, the name may need to be added to the network's DNS server.
 ====
 
 [TIP]
@@ -1479,65 +1318,12 @@ The {branding} instance can be tested even if there is no entry for the FQDN in 
 ----
 ping <FQDN>
 ----
-If the command responds with an error mesage such as unknown host, then modify the system's *hosts* file to point the server's FQDN to the loopback address. For example:
+If the command responds with an error message such as unknown host, then modify the system's *hosts* file to point the server's FQDN to the loopback address. For example:
 ----
 127.0.0.1    <FQDN>
 ----
 
 ====
-
-==== Configuring a Java Keystore for Secure Communications
-
-[NOTE]
-====
-The following information was sourced from https://www.racf.bnl.gov/terapaths/software/the-terapaths-api/example-java-client/java-client/setting-up-keystores-with-jetty-and-keytool.
-====
-
-===== Create a Client Keystore
-The following steps define the procedure for using a PKCS12 certificate. This is the most popular format that is used when exporting from a web browser.
-
-. Obtain a personal ECA cert (client certificate).
-.. Open *Internet Explorer → Tools → Options*.
-.. Select the Content tab.
-.. Select *Certificates*.
-.. Select the Personal tab.
-.. Select the certificate to be exported. Choose the certificate without a "Friendly Name" and is not the "Encryption Cert".
-.. Select the *Export* button.
-.. Follow the steps in the Certificate Export Wizard.
-.. When a prompt requests to export the private key, select the Yes button.
-. Download a jetty 6.1.5 distribution from http://dist.codehaus.org/jetty/jetty-6.1.5/jetty-6.1.5.zip.
-. Unpack the jetty distribution and place the client certificate (the one just exported) in the lib directory.
-. Navigate to the lib directory of the jetty distribution in a command console.
-. Add a cert to a new Java keystore, replacing cert with the name of the PKCS12 keystore to be converted.
-. Replace `clientKeystore` with the desired name of the Java keystore: +
-`java -cp jetty-6.1.5.jar org.mortbay.jetty.security.PKCS12Import cert.p12 clientKeystore.jks`
-. Enter the two passwords when prompted.
-.. Input keystore passphrase is the passphrase that is used to protect cert.p12.
-.. Output keystore passphrase is the passphrase that is set for the new Java keystore clientKeystore.jks.
-. It is recommended to set the private key password to the same as the keystore password due to limitations in Java.
-. Run the following command to determine the alias name of the added current entry. It is listed after Alias Name: +
-`keytool -list -v -keystore clientKeystore.jks`
-. Clone the existing key using the java keytool executable, filling in `<CurrentAlias>`, `<NewAlias>`, `clientKeystore.jks`, and `password` with the correct names. +
-`keytool -keyclone -alias "<CurrentAlias>" -dest "<NewAlias>" -keystore clientKeystore.jks -storepass password`
-. When prompted for a password, use the same password used when the keystore was created.
-. Delete the original alias. +
-`keytool -delete -alias "<CurrentAlias>" -keystore clientKeystore.jks -storepass password`
-
-[NOTE]
-====
-After the keystore is successfully created, delete the jetty files used to perform the import.
-====
-
-===== Create a Truststore
-.Import the certificate into a Java keystore as a trusted ca certificate. +
-`keytool -import -trustcacerts -alias "Trusted Cert" -file trustcert.cer -keystore truststore.jks`
-. Enter in a keystore password when prompted.
-
-===== Add a Certificate to an Existing Keystore
-
-. Import the certificate into a Java keystore as a certificate. +
-`keytool -importcert -file newcert.cer -keystore clientKeystore.jks -alias "New Alias"`
-. Enter in the keystore password, if prompted.
 
 ==== Configuring WSS Security
 
@@ -1849,7 +1635,7 @@ Once you have made your changes, you can save the configuration by pressing the 
 ==== Additional Details
 
 ===== Configure {branding} Clustering for Unicast and Multicast
-By default, {branding} clustering utilizes TCP-IP unicast for discoverying other {branding} nodes.
+By default, {branding} clustering utilizes TCP-IP unicast for discovering other {branding} nodes.
 The hazelcast.xml file located under <{branding} root>/etc/ contains the port and address configurations for network setup.
 The TCP-IP unicast mode has been setup to allow for manual configuration and control of initial clustering.
 This configuration is also beneficial for cases where a particular network cannot support multicast or multicast has been turned off.
