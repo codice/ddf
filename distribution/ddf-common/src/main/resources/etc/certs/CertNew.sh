@@ -18,7 +18,6 @@ cd `dirname $0`
 PASSWORD="changeit"
 KEYFILE="../keystores/serverKeystore.jks"
 KEYTYPE="JKS"
-CLASSNAME="org.codice.ddf.security.certificate.generator.CertificateCommand"
 JARPATTERN=security-certificate-generator*.jar
 
 if [[ ! -e $KEYFILE ]]; then
@@ -42,10 +41,11 @@ fi
 
 echo "--IGNORE SLF4J ERRORS"--
 
-RETURNCODE=$(java -cp "$JARFILE" -Djavax.net.ssl.keyStore="$KEYFILE" -Djavax.net.ssl.keyStorePassword="$PASSWORD" -Djavax.net.ssl.keyStoreType="$KEYTYPE" "$CLASSNAME" "$COMMONNAME")
+$(java -Djavax.net.ssl.keyStore="$KEYFILE" -Djavax.net.ssl.keyStorePassword="$PASSWORD" -Djavax.net.ssl.keyStoreType="$KEYTYPE" -jar "$JARFILE" "$COMMONNAME")
 
-if [[ $RETURNCODE == 0 ]]; then
-    echo "---SUCCESS==="
+
+if [[ $? == 0 ]]; then
+    echo "---SUCCESS---"
     KEYSTORECONTENTS=$(keytool -list -keystore "$KEYFILE" -storepass "$PASSWORD" -storetype "$KEYTYPE")
     printf "%s" "$KEYSTORECONTENTS"
 fi
