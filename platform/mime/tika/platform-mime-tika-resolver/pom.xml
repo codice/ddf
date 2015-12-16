@@ -19,11 +19,9 @@
         <groupId>ddf.mime.tika</groupId>
         <version>2.9.0-SNAPSHOT</version>
     </parent>
-
     <artifactId>mime-tika-resolver</artifactId>
     <name>DDF :: MIME :: Tika :: Tika MIME Resolver</name>
     <packaging>bundle</packaging>
-
     <dependencies>
         <dependency>
             <groupId>ddf.mime.core</groupId>
@@ -54,7 +52,6 @@
             <artifactId>tika-core</artifactId>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -64,7 +61,7 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>tika-core</Embed-Dependency>
-                        <Export-Package />
+                        <Export-Package/>
                         <Import-Package>
                             ddf.mime,
                             javax.crypto,
@@ -132,5 +129,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

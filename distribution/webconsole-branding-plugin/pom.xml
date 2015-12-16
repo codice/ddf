@@ -1,4 +1,4 @@
-
+<?xml version="1.0"?>
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -13,57 +13,52 @@
  **/
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <artifactId>distribution</artifactId>
-    <groupId>ddf</groupId>
-    <version>2.9.0-SNAPSHOT</version>
-  </parent>
-
-  <artifactId>webconsole-branding-plugin</artifactId>
-  <groupId>ddf.distribution</groupId>
-  <name>DDF :: Distribution :: Console Branding Plugin</name>
-  <packaging>bundle</packaging>
-
-  <build>
-  <resources>
-		<resource>
-			<directory>src/main/resources</directory>
-			<filtering>true</filtering>
-		</resource>
-	</resources>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
-        <extensions>true</extensions>
-        <configuration>
-          <instructions>
-          	<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-            <Export-Package />
-            <Import-Package>
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>distribution</artifactId>
+        <groupId>ddf</groupId>
+        <version>2.9.0-SNAPSHOT</version>
+    </parent>
+    <artifactId>webconsole-branding-plugin</artifactId>
+    <groupId>ddf.distribution</groupId>
+    <name>DDF :: Distribution :: Console Branding Plugin</name>
+    <packaging>bundle</packaging>
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Export-Package/>
+                        <Import-Package>
             	org.apache.felix.webconsole,
             	org.apache.commons.io,
             	org.osgi.service.blueprint
             </Import-Package>
-          </instructions>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
-
-	<dependencies>
-		<dependency>
-			<groupId>org.apache.karaf.webconsole</groupId>
-			<artifactId>org.apache.karaf.webconsole.console</artifactId>
-			<version>${karaf.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>commons-io</groupId>
-			<artifactId>commons-io</artifactId>
-			<version>${commons-io.version}</version>
-		</dependency>
-	</dependencies>
-
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.karaf.webconsole</groupId>
+            <artifactId>org.apache.karaf.webconsole.console</artifactId>
+            <version>${karaf.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commons-io.version}</version>
+        </dependency>
+    </dependencies>
 </project>

@@ -18,19 +18,15 @@
         <groupId>ddf.admin.modules</groupId>
         <version>2.9.0-SNAPSHOT</version>
     </parent>
-
     <name>DDF :: Admin :: Modules :: Installer</name>
     <modelVersion>4.0.0</modelVersion>
-
     <artifactId>admin-modules-installer</artifactId>
     <packaging>bundle</packaging>
-
     <properties>
         <!-- filtered plugin properties -->
         <plugin-context>/${project.artifactId}</plugin-context>
         <plugin-name>${project.artifactId}</plugin-name>
     </properties>
-
     <dependencies>
         <dependency>
             <groupId>ddf.admin.core</groupId>
@@ -46,7 +42,6 @@
             <artifactId>servlet-api</artifactId>
         </dependency>
     </dependencies>
-
     <build>
         <resources>
             <resource>
@@ -57,7 +52,6 @@
                 </includes>
             </resource>
         </resources>
-
         <plugins>
             <plugin>
                 <groupId>org.apache.felix</groupId>
@@ -65,7 +59,7 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Export-Package />
+                        <Export-Package/>
                     </instructions>
                 </configuration>
             </plugin>
@@ -113,5 +107,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

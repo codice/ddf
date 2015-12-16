@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -21,7 +22,6 @@
     <artifactId>rest-assured</artifactId>
     <name>DDF :: Test :: Thirdparty :: REST-assured</name>
     <packaging>bundle</packaging>
-
     <dependencies>
         <dependency>
             <groupId>com.jayway.restassured</groupId>
@@ -63,7 +63,6 @@
             </exclusions>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -75,13 +74,11 @@
                             ${project.groupId}.${project.artifactId}
                         </Bundle-SymbolicName>
                         <Bundle-Name>${project.name}</Bundle-Name>
-
                         <Embed-Transitive>true</Embed-Transitive>
                         <Embed-Dependency>
                             *;artifactId=!hamcrest-core|hamcrest-library|hamcrest-all|
                             junit|mockito-all
                         </Embed-Dependency>
-
                         <Export-Package>
                             com.jayway.restassured;version="${restassured.version}",
                             com.jayway.restassured.assertion;version="${restassured.version}",
@@ -114,7 +111,6 @@
                             com.springsource.org.apache.httpcomponents.httpcore;version=4.2.1,
                             com.springsource.org.apache.httpcomponents.httpclient;version=4.2.1
                         </Export-Package>
-
                         <Import-Package>
                             org.hamcrest,
                             org.hamcrest.core,
@@ -134,5 +130,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

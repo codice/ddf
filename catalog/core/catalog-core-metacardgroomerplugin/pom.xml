@@ -14,35 +14,28 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <artifactId>core</artifactId>
         <groupId>ddf.catalog.core</groupId>
         <version>2.9.0-SNAPSHOT</version>
     </parent>
-
     <artifactId>catalog-core-metacardgroomerplugin</artifactId>
     <name>DDF :: Catalog :: Core :: Metacard Groomer Plugin</name>
     <packaging>bundle</packaging>
-
     <dependencies>
-
         <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-api-impl</artifactId>
         </dependency>
-
         <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-commons</artifactId>
         </dependency>
-
         <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -53,11 +46,10 @@
                         <Private-Package>ddf.catalog.plugin.groomer.metacard,ddf.catalog.data.impl
                         </Private-Package>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Export-Package />
+                        <Export-Package/>
                     </instructions>
                 </configuration>
             </plugin>
         </plugins>
     </build>
-
 </project>

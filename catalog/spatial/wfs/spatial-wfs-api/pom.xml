@@ -22,7 +22,6 @@
     <artifactId>spatial-wfs-api</artifactId>
     <packaging>bundle</packaging>
     <name>DDF :: Spatial :: WFS :: API</name>
-
     <dependencies>
         <dependency>
             <groupId>com.thoughtworks.xstream</groupId>
@@ -48,7 +47,6 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-
                     </instructions>
                 </configuration>
             </plugin>

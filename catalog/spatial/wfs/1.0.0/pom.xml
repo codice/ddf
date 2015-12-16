@@ -21,7 +21,6 @@
     </parent>
     <artifactId>wfs-v1.0.0</artifactId>
     <name>DDF :: Spatial :: WFS :: 1.0.0</name>
-
     <packaging>pom</packaging>
     <modules>
         <module>spatial-wfs-v1_0_0-schema-bindings</module>

@@ -15,23 +15,19 @@
  -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <groupId>ddf.catalog</groupId>
         <artifactId>catalog</artifactId>
         <version>2.9.0-SNAPSHOT</version>
     </parent>
-
     <groupId>org.codice.ddf.spatial</groupId>
     <artifactId>spatial</artifactId>
     <packaging>pom</packaging>
     <name>DDF :: Spatial</name>
-
     <properties>
         <jaxb2.version>0.9.4</jaxb2.version>
         <spatial4j.version>0.4.1</spatial4j.version>
     </properties>
-
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -171,7 +167,6 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
     <modules>
         <module>kml</module>
         <module>ogc</module>

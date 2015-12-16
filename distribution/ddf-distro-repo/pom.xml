@@ -14,21 +14,17 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <groupId>ddf</groupId>
         <artifactId>distribution</artifactId>
         <version>2.8.0-SNAPSHOT</version>
     </parent>
-
     <artifactId>ddf-distro-repo</artifactId>
     <groupId>ddf.distribution</groupId>
     <packaging>pom</packaging>
     <name>DDF :: Distribution :: Source Repo</name>
-
     <build>
         <plugins>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
@@ -53,7 +49,6 @@
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
@@ -66,19 +61,16 @@
                         </goals>
                         <configuration>
                             <tasks>
-                                <property name="ddf.release.version" value="${project.version}" />
-                                <ant antfile="src/main/ant/build.xml" inheritRefs="true" target="createRepoZip" />
+                                <property name="ddf.release.version" value="${project.version}"/>
+                                <ant antfile="src/main/ant/build.xml" inheritRefs="true" target="createRepoZip"/>
                             </tasks>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
-
         </plugins>
     </build>
-
     <dependencies>
-
         <dependency>
             <groupId>ddf</groupId>
             <artifactId>ddf</artifactId>
@@ -86,8 +78,5 @@
             <classifier>project</classifier>
             <type>zip</type>
         </dependency>
-
     </dependencies>
-
-
 </project>

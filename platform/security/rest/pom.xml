@@ -19,14 +19,10 @@
         <version>2.9.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
     <artifactId>security-rest</artifactId>
     <name>DDF Security Rest</name>
     <packaging>pom</packaging>
-
     <modules>
         <module>security-rest-cxfwrapper</module>
     </modules>
-
-
 </project>

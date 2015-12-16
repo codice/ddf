@@ -21,7 +21,6 @@
     <modelVersion>4.0.0</modelVersion>
     <name>DDF :: Admin :: Core :: API</name>
     <packaging>bundle</packaging>
-
     <dependencies>
         <dependency>
             <artifactId>org.apache.aries.jmx.api</artifactId>
@@ -77,9 +76,7 @@
             <version>1.2.0</version>
         </dependency>
     </dependencies>
-
     <artifactId>admin-core-api</artifactId>
-
     <build>
         <plugins>
             <plugin>
@@ -136,6 +133,4 @@
             </plugin>
         </plugins>
     </build>
-
-
 </project>

@@ -22,7 +22,6 @@
     <name>DDF :: Compression :: GZip</name>
     <artifactId>compression-gzip</artifactId>
     <packaging>bundle</packaging>
-
     <build>
         <plugins>
             <plugin>
@@ -36,6 +35,4 @@
             </plugin>
         </plugins>
     </build>
-
-
 </project>

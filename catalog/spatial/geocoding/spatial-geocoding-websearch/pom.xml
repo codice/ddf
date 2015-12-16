@@ -19,11 +19,9 @@
         <version>2.9.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
     <artifactId>spatial-geocoding-websearch</artifactId>
     <packaging>bundle</packaging>
     <name>DDF :: Spatial :: Geocoding :: Geonames.org WebService</name>
-
     <dependencies>
         <dependency>
             <groupId>org.codice.ddf.spatial</groupId>
@@ -47,7 +45,6 @@
             <artifactId>cxf-rt-rs-client</artifactId>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -104,5 +101,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

@@ -21,7 +21,6 @@
     </parent>
     <artifactId>spatial-csw-common</artifactId>
     <name>DDF :: Spatial :: CSW :: Common</name>
-
     <build>
         <plugins>
             <plugin>

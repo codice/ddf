@@ -22,7 +22,6 @@
     <packaging>bundle</packaging>
     <artifactId>spatial-wfs-v2_0_0-converter</artifactId>
     <name>DDF :: Spatial :: WFS :: 2.0.0 :: Converter</name>
-
     <dependencies>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
@@ -118,7 +117,6 @@
             <version>3.2.0</version>
         </dependency>
     </dependencies>
-
     <build>
         <resources>
             <resource>
@@ -134,7 +132,7 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Export-Package />
+                        <Export-Package/>
                         <Embed-Dependency>spatial-wfs-common;scope=compile|runtime,
                             spatial-wfs-converter;scope=compile|runtime,
                             spatial-wfs-v2_0_0-common;scope=compile|runtime,
@@ -190,5 +188,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

@@ -19,12 +19,10 @@
         <version>2.9.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
     <groupId>ddf.security</groupId>
     <artifactId>ddf-security-common</artifactId>
     <name>DDF :: Security :: Common</name>
     <packaging>jar</packaging>
-
     <dependencies>
         <dependency>
             <groupId>ddf.security.core</groupId>
@@ -81,7 +79,6 @@
             <artifactId>commons-codec</artifactId>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -137,6 +134,4 @@
             </plugin>
         </plugins>
     </build>
-
-
 </project>

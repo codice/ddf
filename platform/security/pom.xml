@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -18,18 +19,15 @@
         <artifactId>platform</artifactId>
         <version>2.9.0-SNAPSHOT</version>
     </parent>
-
     <groupId>ddf.platform.security</groupId>
     <artifactId>security</artifactId>
     <name>DDF Platform Security</name>
     <packaging>pom</packaging>
-
     <properties>
         <jasypt.version>1.9.0</jasypt.version>
         <wss4j.version>2.0.3</wss4j.version>
         <powermock.agent>${settings.localRepository}/org/powermock/powermock-module-javaagent/${powermock.version}/powermock-module-javaagent-${powermock.version}.jar</powermock.agent>
     </properties>
-
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -186,7 +184,6 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-
     <modules>
         <module>platform-security-core-api</module>
         <module>encryption</module>
@@ -210,5 +207,4 @@
         <module>security-services-app</module>
         <module>docs</module>
     </modules>
-
 </project>

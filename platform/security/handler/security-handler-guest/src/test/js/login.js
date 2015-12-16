@@ -4,7 +4,9 @@
 //casper.options.verbose = true;
 //casper.options.logLevel = 'debug';
 casper.test.begin('Login test', 1, function(test) {
-    casper.start('http://localhost:8383/');
+
+    var url = casper.cli.get('url');
+    casper.start(url);
 
         casper.waitFor(function() {
 

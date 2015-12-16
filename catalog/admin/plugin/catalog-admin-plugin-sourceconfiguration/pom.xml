@@ -18,13 +18,10 @@
         <groupId>ddf.catalog.admin</groupId>
         <version>2.9.0-SNAPSHOT</version>
     </parent>
-
     <modelVersion>4.0.0</modelVersion>
-
     <artifactId>catalog-admin-plugin-sourceconfiguration</artifactId>
     <name>DDF :: Catalog :: Admin :: Plugin :: Source Configuration Admin Plugin</name>
     <packaging>bundle</packaging>
-
     <dependencies>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
@@ -51,7 +48,6 @@
             <artifactId>commons-collections</artifactId>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -108,5 +104,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

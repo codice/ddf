@@ -19,11 +19,9 @@
         <version>2.9.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
     <name>DDF :: Security :: Filter :: Login</name>
     <artifactId>security-filter-login</artifactId>
     <packaging>bundle</packaging>
-
     <dependencyManagement>
         <dependencies>
             <!--
@@ -37,7 +35,6 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-
     <dependencies>
         <dependency>
             <groupId>ddf.lib</groupId>
@@ -119,7 +116,6 @@
             <artifactId>joda-time</artifactId>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -190,5 +186,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

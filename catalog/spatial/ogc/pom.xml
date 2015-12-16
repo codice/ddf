@@ -21,7 +21,6 @@
     </parent>
     <artifactId>ogc</artifactId>
     <name>DDF :: Spatial :: OGC</name>
-
     <packaging>pom</packaging>
     <modules>
         <module>spatial-ogc-api</module>

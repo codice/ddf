@@ -14,17 +14,14 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <artifactId>security-sts-pom</artifactId>
         <groupId>ddf.security.sts</groupId>
         <version>2.9.0-SNAPSHOT</version>
     </parent>
-
     <artifactId>security-sts-x509delegationhandler</artifactId>
     <name>DDF :: Security :: STS :: X509 Delegation Handler</name>
     <packaging>bundle</packaging>
-
     <dependencies>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -43,7 +40,6 @@
             <artifactId>security-core-impl</artifactId>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -52,7 +48,7 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Export-Package />
+                        <Export-Package/>
                     </instructions>
                 </configuration>
             </plugin>

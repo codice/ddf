@@ -19,11 +19,9 @@
         <version>2.9.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
     <name>DDF :: Security :: Certificate :: Keystore Editor</name>
     <artifactId>security-certificate-keystoreeditor</artifactId>
     <packaging>bundle</packaging>
-
     <dependencies>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -53,7 +51,6 @@
             <version>0.3.11</version>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -113,5 +110,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

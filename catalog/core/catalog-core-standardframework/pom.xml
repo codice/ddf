@@ -14,17 +14,14 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <artifactId>core</artifactId>
         <groupId>ddf.catalog.core</groupId>
         <version>2.9.0-SNAPSHOT</version>
     </parent>
-
     <artifactId>catalog-core-standardframework</artifactId>
     <name>DDF :: Catalog :: Core :: Standard Framework</name>
     <packaging>bundle</packaging>
-
     <dependencies>
         <dependency>
             <groupId>ddf.platform.util</groupId>
@@ -93,13 +90,11 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
-
         <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-solr</artifactId>
             <version>${project.version}</version>
         </dependency>
-
         <dependency>
             <groupId>com.hazelcast</groupId>
             <artifactId>hazelcast</artifactId>
@@ -298,7 +293,6 @@
             <artifactId>zookeeper</artifactId>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -307,8 +301,7 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Dependency>
-                            <!-- Start of Solr cache dependencies -->
+                        <Embed-Dependency><!-- Start of Solr cache dependencies -->
                             lux,
                             solr-xpath,
                             Saxon-HE,
@@ -372,8 +365,7 @@
                             ddf.catalog.resourceretriever,
                             ddf.catalog.resource.data
                         </Export-Package>
-                        <Import-Package>
-                            <!-- Start of Solr imports -->
+                        <Import-Package><!-- Start of Solr imports -->
                             com.vividsolutions.jts.algorithm,
                             com.vividsolutions.jts.geom,
                             com.vividsolutions.jts.io,
@@ -432,7 +424,6 @@
                     </instructions>
                 </configuration>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -490,7 +481,6 @@
             </plugin>
         </plugins>
     </build>
-
     <profiles>
         <profile>
             <id>integration-tests</id>

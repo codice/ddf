@@ -18,19 +18,16 @@
         <artifactId>lib</artifactId>
         <version>2.9.0-SNAPSHOT</version>
     </parent>
-
     <modelVersion>4.0.0</modelVersion>
-
     <groupId>org.codice.ddf</groupId>
     <artifactId>checksum</artifactId>
     <packaging>bundle</packaging>
     <name>DDF :: CheckSum</name>
-
     <dependencies>
         <dependency>
-            <groupId>org.apache.commons</groupId>
+            <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>1.3.2</version>
+            <version>2.1</version>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
@@ -43,7 +40,6 @@
             <version>1.7.1</version>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -110,7 +106,6 @@
             </plugin>
         </plugins>
     </build>
-
     <repositories>
         <repository>
             <id>codice</id>

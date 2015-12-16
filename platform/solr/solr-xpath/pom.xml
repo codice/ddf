@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -18,13 +19,11 @@
         <version>2.9.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
     <groupId>ddf.platform.solr</groupId>
     <artifactId>solr-xpath</artifactId>
     <name>DDF :: Platform :: Solr :: XPath</name>
     <description>Solr query parser to support XPath queries using a LuxDB.</description>
     <packaging>jar</packaging>
-
     <build>
         <plugins>
             <plugin>
@@ -71,7 +70,6 @@
             </plugin>
         </plugins>
     </build>
-
     <dependencies>
         <dependency>
             <groupId>org.codice</groupId>
@@ -79,5 +77,4 @@
             <version>${lux.version}</version>
         </dependency>
     </dependencies>
-
 </project>

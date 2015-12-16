@@ -14,18 +14,15 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <groupId>ddf.solr</groupId>
         <artifactId>solr</artifactId>
         <version>2.9.0-SNAPSHOT</version>
     </parent>
-
     <groupId>ddf.platform.solr</groupId>
     <artifactId>platform-solr-server-standalone</artifactId>
     <name>DDF :: Platform :: Solr :: Server :: Standalone War</name>
     <packaging>war</packaging>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.solr</groupId>
@@ -33,11 +30,21 @@
             <version>${solr.version}</version>
             <type>war</type>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform.solr</groupId>
+            <artifactId>solr-xpath</artifactId>
+            <version>${project.version}</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.codice</groupId>
+            <artifactId>lux</artifactId>
+            <version>${lux.version}</version>
+            <type>jar</type>
+        </dependency>
     </dependencies>
-
     <build>
         <plugins>
-
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <executions>
@@ -70,7 +77,6 @@
                     </execution>
                 </executions>
             </plugin>
-
             <!--
                 We only need to add one jar for extra spatial capabilities.
                 If we use the mvn bundle plugin, it will unnecessarily add extra
@@ -241,11 +247,10 @@
                     <supportedProjectTypes>
                         <supportedProjectType>war</supportedProjectType>
                     </supportedProjectTypes>
-
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Web-ContextPath>solr</Web-ContextPath>
-                        <Export-Package />
+                        <Export-Package/>
                         <Bundle-ClassPath>
                             WEB-INF/classes,
                             <!--

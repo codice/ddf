@@ -14,17 +14,14 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <artifactId>core</artifactId>
         <groupId>ddf.catalog.core</groupId>
         <version>2.9.0-SNAPSHOT</version>
     </parent>
-
     <artifactId>catalog-core-commons</artifactId>
     <packaging>bundle</packaging>
     <name>DDF :: Catalog :: Core :: Commons</name>
-
     <dependencies>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
@@ -66,20 +63,17 @@
             <groupId>xalan</groupId>
             <artifactId>serializer</artifactId>
         </dependency>
-
         <!-- for SpatialFilter's PrimitiveFactoryImpl class -->
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-jts-wrapper</artifactId>
         </dependency>
-
         <dependency>
             <groupId>ddf.platform.util</groupId>
             <artifactId>platform-util</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <!--
@@ -118,7 +112,6 @@
                     </instructions>
                 </configuration>
             </plugin>
-
             <!-- Export mock objects in test JAR for use by other projects -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -136,7 +129,6 @@
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>

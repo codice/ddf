@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -11,24 +12,18 @@
  *
  **/
 -->
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xmlns="http://maven.apache.org/POM/4.0.0"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-
-	<parent>
-		<groupId>ddf.catalog</groupId>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>ddf.catalog</groupId>
         <artifactId>catalog</artifactId>
         <version>2.8.0-SNAPSHOT</version>
-	</parent>
-
-	<artifactId>catalog-fanout-pom</artifactId>
-	<groupId>ddf.catalog.fanout</groupId>
-	<name>DDF Catalog Fanout</name>
-	<packaging>pom</packaging>
-
-	<modules>
-		<module>catalog-fanout-app</module>
-	</modules>
-	
+    </parent>
+    <artifactId>catalog-fanout-pom</artifactId>
+    <groupId>ddf.catalog.fanout</groupId>
+    <name>DDF Catalog Fanout</name>
+    <packaging>pom</packaging>
+    <modules>
+        <module>catalog-fanout-app</module>
+    </modules>
 </project>

@@ -23,11 +23,9 @@
     <artifactId>admin-modules</artifactId>
     <packaging>pom</packaging>
     <name>DDF Admin Modules</name>
-
     <modules>
         <module>admin-modules-installer</module>
         <module>admin-modules-configuration</module>
         <module>admin-modules-application</module>
     </modules>
 </project>
-

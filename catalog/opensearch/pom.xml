@@ -11,22 +11,18 @@
  *
  **/ -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-
-	<parent>
-		<artifactId>catalog</artifactId>
-		<groupId>ddf.catalog</groupId>
-		<version>2.9.0-SNAPSHOT</version>
-	</parent>
-
-	<artifactId>catalog-opensearch-pom</artifactId>
-	<groupId>ddf.catalog.opensearch</groupId>
-	<name>DDF Catalog Opensearch</name>
-	<packaging>pom</packaging>
-
-	<modules>
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>catalog</artifactId>
+        <groupId>ddf.catalog</groupId>
+        <version>2.9.0-SNAPSHOT</version>
+    </parent>
+    <artifactId>catalog-opensearch-pom</artifactId>
+    <groupId>ddf.catalog.opensearch</groupId>
+    <name>DDF Catalog Opensearch</name>
+    <packaging>pom</packaging>
+    <modules>
         <module>catalog-opensearch-endpoint</module>
         <module>catalog-opensearch-source</module>
-	</modules>
-	
+    </modules>
 </project>

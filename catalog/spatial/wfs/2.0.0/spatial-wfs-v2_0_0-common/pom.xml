@@ -21,7 +21,6 @@
     </parent>
     <artifactId>spatial-wfs-v2_0_0-common</artifactId>
     <name>DDF :: Spatial :: WFS :: 2.0.0 :: Common</name>
-
     <properties>
         <!-- Define the version that we want to use here, so
              we have a single line to change when upgrating. -->
@@ -105,6 +104,5 @@
             <groupId>com.vividsolutions</groupId>
             <artifactId>jts</artifactId>
         </dependency>
-
     </dependencies>
 </project>

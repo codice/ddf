@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -11,27 +12,21 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <groupId>ddf.distribution</groupId>
         <artifactId>sdk</artifactId>
         <version>2.9.0-SNAPSHOT</version>
     </parent>
-
     <groupId>org.codice.ddf.ui</groupId>
     <artifactId>ddf-sso-query-widget</artifactId>
     <name>DDF :: SDK :: UI :: SSO Query Widget</name>
     <description>DDF SSO Query Widget</description>
     <packaging>war</packaging>
-
     <properties>
         <web.contextPath>ddf</web.contextPath>
     </properties>
-
     <dependencies>
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -79,7 +74,6 @@
             <version>${project.version}</version>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -150,5 +144,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

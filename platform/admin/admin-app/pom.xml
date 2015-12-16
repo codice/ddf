@@ -20,11 +20,9 @@
         <version>2.9.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
     <name>DDF :: Admin :: App</name>
     <artifactId>admin-app</artifactId>
     <packaging>pom</packaging>
-
     <build>
         <plugins>
             <plugin>
@@ -48,7 +46,6 @@
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.karaf.tooling</groupId>
                 <artifactId>features-maven-plugin</artifactId>
@@ -66,7 +63,6 @@
                     </execution>
                 </executions>
             </plugin>
-
             <!-- Puts the features XML file for this app into the maven repo. -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -91,8 +87,58 @@
                     </execution>
                 </executions>
             </plugin>
-
         </plugins>
     </build>
-
+    <dependencies>
+        <dependency>
+            <groupId>ddf.admin.core</groupId>
+            <artifactId>admin-core-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.admin.core</groupId>
+            <artifactId>admin-core-jolokia</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.admin.core</groupId>
+            <artifactId>admin-core-configplugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codice</groupId>
+            <artifactId>org.apache.karaf.bundle.core</artifactId>
+            <version>3.0.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.admin.core</groupId>
+            <artifactId>admin-core-appservice</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.admin.core</groupId>
+            <artifactId>admin-core-insecuredefaults</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.admin</groupId>
+            <artifactId>admin-ui</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.admin.modules</groupId>
+            <artifactId>admin-modules-configuration</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.admin.modules</groupId>
+            <artifactId>admin-modules-installer</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.admin.modules</groupId>
+            <artifactId>admin-modules-application</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>

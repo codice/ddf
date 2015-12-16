@@ -18,34 +18,27 @@
         <groupId>ddf.spatial.kml</groupId>
         <version>2.9.0-SNAPSHOT</version>
     </parent>
-
     <modelVersion>4.0.0</modelVersion>
     <artifactId>spatial-kml-networklinkendpoint</artifactId>
     <name>DDF :: Spatial :: KML :: NetworkLink Endpoint</name>
     <packaging>bundle</packaging>
-
     <dependencies>
-
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-frontend-jaxrs</artifactId>
         </dependency>
-
         <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-api-impl</artifactId>
         </dependency>
-
         <dependency>
             <groupId>de.micromata.jak</groupId>
             <artifactId>JavaAPIforKml</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.webconsole</artifactId>
         </dependency>
-
         <dependency>
             <groupId>com.github.jknack</groupId>
             <artifactId>handlebars</artifactId>
@@ -71,10 +64,8 @@
             <version>${project.version}</version>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
-
             <!-- The Import of package org.codice.ddf.opensearch.query is used to ensure that the OpenSearch Endpoint is deployed -->
             <!-- This package, however, is not used by the code.  It is required to create a successful NetworkLink though. -->
             <plugin>

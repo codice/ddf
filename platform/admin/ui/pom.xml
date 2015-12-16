@@ -18,24 +18,19 @@
         <groupId>ddf.admin</groupId>
         <version>2.9.0-SNAPSHOT</version>
     </parent>
-
     <name>DDF :: Admin :: UI</name>
     <modelVersion>4.0.0</modelVersion>
-
     <artifactId>admin-ui</artifactId>
     <packaging>bundle</packaging>
-
     <properties>
         <!-- filtered plugin properties -->
         <plugin-context>/${project.artifactId}</plugin-context>
         <plugin-name>${project.artifactId}</plugin-name>
-        <plugin-domain />
+        <plugin-domain/>
         <plugin-scripts>
             app/js/hawt-io-tab.js,app/js/underscore/underscore.js,app/js/backbone.js,app/client/views/ManagedServiceFactory.view.js
         </plugin-scripts>
-
     </properties>
-
     <dependencies>
         <dependency>
             <groupId>ddf.admin.core</groupId>
@@ -64,8 +59,14 @@
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-server</artifactId>
         </dependency>
+        <dependency>
+            <groupId>ddf.lib</groupId>
+            <artifactId>grunt-port-allocator</artifactId>
+            <version>${project.version}</version>
+            <type>tar.gz</type>
+            <classifier>npm</classifier>
+        </dependency>
     </dependencies>
-
     <build>
         <resources>
             <resource>
@@ -76,8 +77,33 @@
                 </includes>
             </resource>
         </resources>
-
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>unpack</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>ddf.lib</groupId>
+                                    <artifactId>grunt-port-allocator</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>tar.gz</type>
+                                    <classifier>npm</classifier>
+                                </artifactItem>
+                            </artifactItems>
+                            <outputDirectory>${project.build.directory}/npm</outputDirectory>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>com.github.eirslett</groupId>
                 <artifactId>frontend-maven-plugin</artifactId>
@@ -104,7 +130,7 @@
                         <Web-ContextPath>/admin</Web-ContextPath>
                         <_wab>src/main/webapp,${project.build.directory}/webapp</_wab>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Export-Package />
+                        <Export-Package/>
                         <Import-Package>
                             javax.servlet.http;version="[3,4)",
                             javax.servlet;version="[3,4)",
@@ -157,7 +183,6 @@
             </plugin>
         </plugins>
     </build>
-
     <profiles>
         <profile>
             <id>sauce</id>

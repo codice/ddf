@@ -19,11 +19,9 @@
         <groupId>ddf.content.core</groupId>
         <version>2.9.0-SNAPSHOT</version>
     </parent>
-
     <artifactId>content-core-api</artifactId>
     <name>DDF :: Content :: Core :: API</name>
     <packaging>bundle</packaging>
-
     <build>
         <plugins>
             <plugin>

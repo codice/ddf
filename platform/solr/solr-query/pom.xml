@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -13,22 +14,18 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <groupId>ddf.solr</groupId>
         <artifactId>solr</artifactId>
         <version>2.9.0-SNAPSHOT</version>
     </parent>
-
     <groupId>ddf.platform.solr</groupId>
     <artifactId>solr-query</artifactId>
     <name>DDF :: Platform :: Solr :: Query</name>
     <packaging>jar</packaging>
-
     <properties>
         <xerces.version>2.9.1</xerces.version>
     </properties>
-
     <build>
         <plugins>
             <plugin>
@@ -75,7 +72,6 @@
             </plugin>
         </plugins>
     </build>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.solr</groupId>
@@ -146,5 +142,4 @@
             <version>${xerces.version}</version>
         </dependency>
     </dependencies>
-
 </project>

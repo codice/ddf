@@ -19,11 +19,9 @@
         <version>2.9.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
     <name>DDF :: Security :: Policy :: Context Manager</name>
     <artifactId>security-policy-context</artifactId>
     <packaging>bundle</packaging>
-
     <dependencies>
         <dependency>
             <groupId>ddf.security.policy</groupId>
@@ -36,7 +34,6 @@
             <version>${project.version}</version>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -96,5 +93,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

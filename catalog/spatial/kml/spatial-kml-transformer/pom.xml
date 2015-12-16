@@ -19,18 +19,14 @@
         <groupId>ddf.spatial.kml</groupId>
         <version>2.9.0-SNAPSHOT</version>
     </parent>
-
     <artifactId>spatial-kml-transformer</artifactId>
     <name>DDF :: Spatial :: KML :: Transformer</name>
     <packaging>bundle</packaging>
-
     <dependencies>
-
         <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-api-impl</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
@@ -72,7 +68,6 @@
             <artifactId>jaxb-core</artifactId>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -132,5 +127,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

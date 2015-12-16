@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -12,17 +13,14 @@
  **/
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>ddf.test.itests</groupId>
         <artifactId>itests</artifactId>
         <version>2.9.0-SNAPSHOT</version>
     </parent>
-
     <artifactId>test-itests-common</artifactId>
     <name>DDF :: Test :: Integration :: Common</name>
-
     <dependencies>
         <dependency>
             <groupId>org.ops4j.pax.exam</groupId>
@@ -106,7 +104,6 @@
             <version>${project.version}</version>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -122,5 +119,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

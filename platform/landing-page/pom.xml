@@ -98,7 +98,7 @@
                             !org.abego.treelayout.*,
                             *
                         </Import-Package>
-                        <Export-Package />
+                        <Export-Package/>
                         <Embed-Dependency>
                             handlebars,
                             commons-lang3,
@@ -152,5 +152,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

@@ -13,22 +13,19 @@
  **/
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <parent>
-    <artifactId>catalog</artifactId>
-    <groupId>ddf.catalog</groupId>
-    <version>2.9.0-SNAPSHOT</version>
-  </parent>
-  
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>ddf.catalog.plugin</groupId>
-  <artifactId>plugin</artifactId>
-  <packaging>pom</packaging>
-  <name>DDF :: Catalog :: Plugin</name>
-
-  <modules>
-    <module>catalog-plugin-federation-replication</module>
-    <module>catalog-plugin-jpeg2000-thumbnail-converter</module>
-    <module>catalog-plugin-metacard-validation</module>
-  </modules>
-  
+    <parent>
+        <artifactId>catalog</artifactId>
+        <groupId>ddf.catalog</groupId>
+        <version>2.9.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>ddf.catalog.plugin</groupId>
+    <artifactId>plugin</artifactId>
+    <packaging>pom</packaging>
+    <name>DDF :: Catalog :: Plugin</name>
+    <modules>
+        <module>catalog-plugin-federation-replication</module>
+        <module>catalog-plugin-jpeg2000-thumbnail-converter</module>
+        <module>catalog-plugin-metacard-validation</module>
+    </modules>
 </project>

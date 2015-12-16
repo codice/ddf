@@ -22,7 +22,6 @@
     <artifactId>admin-core-jolokia</artifactId>
     <name>DDF :: Admin :: Core :: Jolokia</name>
     <packaging>bundle</packaging>
-
     <dependencies>
         <dependency>
             <groupId>org.osgi</groupId>
@@ -50,7 +49,6 @@
             <artifactId>org.apache.felix.webconsole</artifactId>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -60,12 +58,10 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>jolokia-osgi</Embed-Dependency>
-                        <Export-Package />
+                        <Export-Package/>
                     </instructions>
                 </configuration>
             </plugin>
         </plugins>
     </build>
-
-
 </project>

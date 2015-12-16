@@ -13,40 +13,35 @@
  **/
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <artifactId>distribution</artifactId>
-    <groupId>ddf</groupId>
-    <version>2.9.0-SNAPSHOT</version>
-  </parent>
-  
-  <artifactId>webconsole-branding</artifactId>
-  <groupId>ddf.distribution</groupId>
-  <packaging>bundle</packaging>
-  <name>DDF :: Distribution :: Web Console</name>
-  
-  <description>
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>distribution</artifactId>
+        <groupId>ddf</groupId>
+        <version>2.9.0-SNAPSHOT</version>
+    </parent>
+    <artifactId>webconsole-branding</artifactId>
+    <groupId>ddf.distribution</groupId>
+    <packaging>bundle</packaging>
+    <name>DDF :: Distribution :: Web Console</name>
+    <description>
         DDF branding for the DDF Web Console. This fragment
         attaches to the org.apache.felix.webconsole bundle to provide branding
         through the /META-INF/webconsole.properties.
   </description>
-    
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
-        <extensions>true</extensions>
-        <configuration>
-          <instructions>
-            <Fragment-Host>org.apache.karaf.webconsole.console;bundle-version="[2.4.1,3)"</Fragment-Host>
-            <Export-Package />
-            <Import-Package />
-          </instructions>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
-
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Fragment-Host>org.apache.karaf.webconsole.console;bundle-version="[2.4.1,3)"</Fragment-Host>
+                        <Export-Package/>
+                        <Import-Package/>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

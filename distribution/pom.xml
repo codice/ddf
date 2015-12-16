@@ -14,24 +14,19 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
-
     <parent>
         <groupId>ddf</groupId>
         <artifactId>ddf</artifactId>
         <version>2.9.0-SNAPSHOT</version>
     </parent>
-
     <artifactId>distribution</artifactId>
     <packaging>pom</packaging>
     <name>DDF Distribution</name>
-
     <properties>
         <pax.web.version>3.2.4</pax.web.version>
         <pax.cdi.version>0.11.0</pax.cdi.version>
         <sitename.default>ddf.distribution</sitename.default>
     </properties>
-
     <modules>
         <module>sdk</module>
         <module>console-branding</module>
@@ -44,7 +39,6 @@
         <module>ddf</module>
         <module>test</module>
     </modules>
-
     <repositories>
         <repository>
             <id>codice</id>
@@ -52,7 +46,6 @@
             <url>http://artifacts.codice.org/content/groups/public/</url>
         </repository>
     </repositories>
-
     <build>
         <plugins>
             <!-- Need to have JaCoCo plugin otherwise surefire fails because ${argLine} is undefined -->
@@ -65,5 +58,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

@@ -13,15 +13,13 @@
  **/
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-
-  <parent>
-    <artifactId>distribution</artifactId>
-    <groupId>ddf</groupId>
-    <version>2.9.0-SNAPSHOT</version>
-  </parent>
-  
-  <!--
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>distribution</artifactId>
+        <groupId>ddf</groupId>
+        <version>2.9.0-SNAPSHOT</version>
+    </parent>
+    <!--
   Provides the common/shared resources used by the DDF core, standard, and enterprise distributions.
   
   These shared resources are packaged into a JAR file that is installed in the maven repo and then the
@@ -39,80 +37,72 @@
       - Common maven assembly descriptor common-bin.xml used by all DDF distributions for their 
         assembly using the maven-assemply-plugin and <componentDescriptors> to inject it (in resources)
   -->
-  <artifactId>ddf-common</artifactId>
-  <groupId>org.codice.ddf</groupId>
-  <name>DDF :: Distribution :: DDF Common</name>
-  <packaging>jar</packaging>
-
-
-  <properties>
-    <command.prompt.title>DDF-${project.version}</command.prompt.title>
-  </properties>
-
-  <build>
-    <resources>
-        <resource>
-          <directory>src/main/resources/bin</directory>
-          <filtering>true</filtering>
-          <targetPath>bin</targetPath>
-        </resource>
-        <resource>
-          <directory>src/main/resources/etc</directory>
-          <filtering>true</filtering>
-          <includes>
-              <include>*.properties</include>
-          </includes>
-          <targetPath>etc</targetPath>
-        </resource>
-        <resource>
-          <directory>src/main/resources</directory>
-          <filtering>false</filtering>
-            <includes>
-              <include>**/*</include>
+    <artifactId>ddf-common</artifactId>
+    <groupId>org.codice.ddf</groupId>
+    <name>DDF :: Distribution :: DDF Common</name>
+    <packaging>jar</packaging>
+    <properties>
+        <command.prompt.title>DDF-${project.version}</command.prompt.title>
+    </properties>
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources/bin</directory>
+                <filtering>true</filtering>
+                <targetPath>bin</targetPath>
+            </resource>
+            <resource>
+                <directory>src/main/resources/etc</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>*.properties</include>
+                </includes>
+                <targetPath>etc</targetPath>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+                <includes>
+                    <include>**/*</include>
                 </includes>
                 <excludes>
-                  <exclude>data/products/README.txt</exclude>
-                  <exclude>version/Version.txt</exclude>
-                  <exclude>bin/ddf</exclude>
-                  <exclude>bin/ddf.bat</exclude>
-                  <exclude>bin/setenv</exclude>
-                  <exclude>bin/setenv.bat</exclude>
-               </excludes>
-        </resource>
-        <resource>
-          <directory>src/main/resources/version</directory>
-          <filtering>true</filtering>
-            <includes>
-              <include>*.txt</include>
-              </includes>
-        </resource>
-    </resources>
-    <plugins>
-    
-      <!--
+                    <exclude>data/products/README.txt</exclude>
+                    <exclude>version/Version.txt</exclude>
+                    <exclude>bin/ddf</exclude>
+                    <exclude>bin/ddf.bat</exclude>
+                    <exclude>bin/setenv</exclude>
+                    <exclude>bin/setenv.bat</exclude>
+                </excludes>
+            </resource>
+            <resource>
+                <directory>src/main/resources/version</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>*.txt</include>
+                </includes>
+            </resource>
+        </resources>
+        <plugins>
+            <!--
       Generates the resources from the /resources sub-directory into a JAR file and copies
       it into the maven repo so other DDF distribution projects can access it. 
       -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-resources-plugin</artifactId>
-		<configuration>
-			<includeEmptyDirs>true</includeEmptyDirs>
-		</configuration>
-        <executions>
-          <execution>
-            <id>filter</id>
-            <phase>generate-resources</phase>
-            <goals>
-              <goal>resources</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>            
-
-    </plugins>
-  </build>
-    
-    
-
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <configuration>
+                    <includeEmptyDirs>true</includeEmptyDirs>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>filter</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>resources</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>

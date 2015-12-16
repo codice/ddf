@@ -18,13 +18,10 @@
         <artifactId>lib</artifactId>
         <version>2.9.0-SNAPSHOT</version>
     </parent>
-
     <modelVersion>4.0.0</modelVersion>
-
     <groupId>org.codice.ddf</groupId>
     <artifactId>notifications</artifactId>
     <packaging>jar</packaging>
-
     <name>DDF :: Notifications</name>
     <build>
         <pluginManagement>
@@ -103,9 +100,8 @@
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
             <version>1.6.2</version>
-        </dependency>        
+        </dependency>
     </dependencies>
-
     <repositories>
         <repository>
             <id>codice</id>

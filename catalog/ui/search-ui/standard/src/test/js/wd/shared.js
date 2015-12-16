@@ -9,7 +9,6 @@ var chaiAsPromised = require('chai-as-promised');
 var wd = require('wd');
 var fs = require('fs');
 var path = require('path');
-var url = argv.url || 'http://localhost:8888/';
 var newline = '\n';
 var indentation = '';
 var stackTrace = [];
@@ -98,7 +97,11 @@ exports.iterations = argv.iterations || 1;
 exports.setup = function() {
 
     before(function () {
+
+
+        exports.url = 'http://localhost:' + this.mochaOptions.expressPort;
         exports.timeout = argv.timeout || this.mochaOptions.timeout || 30000;
+
         // need reference in order to take screenshots
         browser = this.browser;
         // remove listener before adding since this is called before each test suites
@@ -116,7 +119,7 @@ exports.setup = function() {
         return this.browser
             .setAsyncScriptTimeout(exports.timeout)
             .setWindowSize(1080, 1080)
-            .get(url);
+            .get(argv.url || exports.url);
     });
 
     /*
