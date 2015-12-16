@@ -64,14 +64,6 @@ public class CookieCache {
     }
 
     /**
-     * Removes the value from the cache
-     * @param key
-     */
-    public void remove(String key) {
-        cache.invalidate(key);
-    }
-
-    /**
      * Retrieves the SAML assertion associated with the provided key.
      *
      * @param key the corresponding key for the assertion

@@ -178,5 +178,8 @@ class LogoutServiceSpec extends Specification {
 
         when:
         logoutService.signSamlGetResponse(logoutResponse, target, relayState)
+
+        then:
+        true
     }
 }

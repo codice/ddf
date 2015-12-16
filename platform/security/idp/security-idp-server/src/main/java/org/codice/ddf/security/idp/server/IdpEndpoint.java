@@ -250,7 +250,7 @@ public class IdpEndpoint implements Idp {
                             strictSignature);
             X509Certificate[] certs = (X509Certificate[]) request.getAttribute(CERTIFICATES_ATTR);
             boolean hasCerts = (certs != null && certs.length > 0);
-            boolean hasCookie = getSamlAssertion(request) != null;
+            boolean hasCookie = getSamlAssertion(request, authnRequest.isForceAuthn()) != null;
             if ((authnRequest.isPassive() && hasCerts) || hasCookie) {
                 LOGGER.debug("Received Passive & PKI AuthnRequest.");
                 org.opensaml.saml2.core.Response samlpResponse;
@@ -565,13 +565,19 @@ public class IdpEndpoint implements Idp {
         Map<String, Cookie> cookies = HttpUtils.getCookieMap(request);
         return cookies.get(COOKIE);
     }
-
     private synchronized Element getSamlAssertion(HttpServletRequest request) {
+        return getSamlAssertion(request, false);
+    }
+    private synchronized Element getSamlAssertion(HttpServletRequest request, boolean forceAuthn) {
         Element samlToken = null;
         Cookie cookie = getCookie(request);
         if (cookie != null) {
             LOGGER.debug("Retrieving cookie from cache.");
+            if (forceAuthn) {
+                cookieCache.removeSamlAssertion(cookie.getValue());
+            } else {
             samlToken = cookieCache.getSamlAssertion(cookie.getValue());
+            }
         }
         return samlToken;
     }
