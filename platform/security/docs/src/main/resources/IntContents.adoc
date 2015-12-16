@@ -830,10 +830,6 @@ The DDF Security PEP application contains bundles and services that enable servi
 |security-pep-serviceauthz
 |Security PEP Interceptor
 
-|security-pep-redaction
-|security-pep-redaction
-|Security PEP Redaction
-
 |===
 
 === Security PEP Interceptor
@@ -860,36 +856,6 @@ None
 
 ===== Exported Services
 None
-
-=== Security PEP Redaction
-
-The Security PEP Redaction bundle contains a redaction plugin that is added as a post query plugin in the DDF query lifecycle. This plugin looks at the security attributes on the metacard and compares them to the security attributes on the user who made the query request. If they do not match, the plug in will, depending on the configuration, filter the metacard out of the results or redact certain parts of the metacard that the user does not have permission to see.
-
-==== Installation
-
-This bundle is not installed by default and can be added by installing the `security-pep-redaction` feature.
-
-==== Configuration
-None
-
-==== Implementation Details
-
-===== Imported Services
-None
-
-===== Exported Services
-[cols="3" options="header"]
-|===
-
-|Registered Interface
-|Implementation Class
-|Properties Set
-
-|ddf.catalog.plugin.PostQueryPlugin
-|ddf.security.pep.redaction.plugin.RedactionPlugin
-|None
-
-|===
 
 == Security STS
 
