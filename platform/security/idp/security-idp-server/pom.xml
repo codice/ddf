@@ -228,7 +228,6 @@
                             <rules>
                                 <rule>
                                     <element>BUNDLE</element>
-                                    <!-- TODO (RCZ) - FIX COVERAGE -->
                                     <limits>
                                         <limit>
                                             <counter>INSTRUCTION</counter>

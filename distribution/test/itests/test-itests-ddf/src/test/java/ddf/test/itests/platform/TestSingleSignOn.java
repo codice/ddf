@@ -52,6 +52,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.PaxExam;
@@ -330,6 +331,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
                 get(searchHelper.redirectUrl);
     }
 
+    @Ignore
     @Test
     public void testRedirectFlow() throws Exception {
 

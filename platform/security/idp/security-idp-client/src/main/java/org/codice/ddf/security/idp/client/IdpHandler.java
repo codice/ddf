@@ -45,7 +45,6 @@ import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.saml.SAMLAssertionHandler;
 import org.codice.ddf.security.policy.context.ContextPolicy;
-import ddf.security.samlp.impl.RelayStates;
 import org.joda.time.DateTime;
 import org.opensaml.Configuration;
 import org.opensaml.common.SAMLObjectBuilder;
@@ -60,6 +59,7 @@ import org.w3c.dom.Element;
 
 import ddf.security.http.SessionFactory;
 import ddf.security.samlp.SimpleSign;
+import ddf.security.samlp.impl.RelayStates;
 
 /**
  * Handler for SAML 2.0 IdP based authentication. Unauthenticated clients will be redirected to the

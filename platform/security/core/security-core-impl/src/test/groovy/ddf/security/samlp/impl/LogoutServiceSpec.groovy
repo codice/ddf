@@ -87,18 +87,14 @@ class LogoutServiceSpec extends Specification {
     }
 
     def "build valid logout request"() {
-        setup:
-        def nameId = "MyNameId"
-        def issuerId = "MyIssuerId"
-
         when:
-        LogoutRequest logoutRequest = logoutService.buildLogoutRequest(nameId, issuerId)
+        LogoutRequest logoutRequest = logoutService.buildLogoutRequest(NAME_ID, ISSUER_ID)
 
 
         then:
         isNotBlank(logoutRequest.ID)
-        nameId.equals(logoutRequest.nameID.value)
-        issuerId.equals(logoutRequest.issuer.value)
+        NAME_ID.equals(logoutRequest.nameID.value)
+        ISSUER_ID.equals(logoutRequest.issuer.value)
         SAMLVersion.VERSION_20.equals(logoutRequest.version)
         now().isAfter(Instant.ofEpochMilli(logoutRequest.issueInstant.millis))
     }
@@ -122,21 +118,17 @@ class LogoutServiceSpec extends Specification {
     }
 
     def "build logout response with valid info and inResponseTo"() {
-        setup:
-        def issuer = "MyIssuer"
-        def inResponseTo = "InResponseToID"
-
         when:
         LogoutResponse logoutResponse = logoutService.buildLogoutResponse(
-                issuer,
+                ISSUER_ID,
                 StatusCode.SUCCESS_URI,
-                inResponseTo)
+                IN_RESPONSE_TO)
 
         then:
         isNotBlank(logoutResponse.ID)
-        issuer.equals(logoutResponse.issuer.value)
+        ISSUER_ID.equals(logoutResponse.issuer.value)
         StatusCode.SUCCESS_URI.equals(logoutResponse.status.statusCode.value)
-        inResponseTo.equals(logoutResponse.inResponseTo)
+        IN_RESPONSE_TO.equals(logoutResponse.inResponseTo)
         SAMLVersion.VERSION_20.equals(logoutResponse.version)
         now().isAfter(Instant.ofEpochMilli(logoutResponse.issueInstant.millis))
     }
@@ -153,9 +145,7 @@ class LogoutServiceSpec extends Specification {
 
     def "verify signed saml request"() {
         setup:
-        def nameId = "My Name Id"
-        def issuer = "My Issuer"
-        LogoutRequest logoutRequest = logoutService.buildLogoutRequest(nameId, issuer)
+        LogoutRequest logoutRequest = logoutService.buildLogoutRequest(NAME_ID, ISSUER_ID)
 
         def target = new URI("https://mytarget.com")
         def relayState = "MyRelayStateGuid"
@@ -164,22 +154,25 @@ class LogoutServiceSpec extends Specification {
         URI signedRequest = logoutService.signSamlGetRequest(logoutRequest, target, relayState)
 
         then:
-        println(signedRequest.toString())
         signedRequest.toString().startsWith(target.toString())
         signedRequest.toString().contains("${SSOConstants.RELAY_STATE}=")
         signedRequest.toString().contains("${SSOConstants.SAML_REQUEST}=")
-        ["hi", "there"].each({ signedRequest.toString().contains(it) })
 
     }
 
     def "verify signed saml response"() {
         setup:
-        def nameId = ""
+        LogoutRequest logoutRequest = logoutService.buildLogoutRequest(NAME_ID, ISSUER_ID)
+
+        def target = new URI("https://mytarget.com")
+        def relayState = "MyRelayStateGuid"
 
         when:
-        logoutService.signSamlGetResponse(logoutResponse, target, relayState)
+        URI signedRequest = logoutService.signSamlGetResponse(logoutRequest, target, relayState)
 
         then:
-        true
+        signedRequest.toString().startsWith(target.toString())
+        signedRequest.toString().contains("${SSOConstants.RELAY_STATE}=")
+        signedRequest.toString().contains("${SSOConstants.SAML_REQUEST}=")
     }
 }

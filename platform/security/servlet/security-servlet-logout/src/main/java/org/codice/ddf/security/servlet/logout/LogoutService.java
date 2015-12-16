@@ -55,8 +55,6 @@ public class LogoutService {
     public Response getActionProviders(@Context HttpServletRequest request)
             throws SecurityServiceException {
 
-        //TODO: Update docs for idp realm changes. Also add documentation about the rollback of other poliy manager shizz
-
         HttpSession session = httpSessionFactory.getOrCreateSession(request);
         Map<String, SecurityToken> realmTokenMap = ((SecurityTokenHolder) session.getAttribute(
                 SecurityConstants.SAML_ASSERTION)).getRealmTokenMap();

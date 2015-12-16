@@ -55,7 +55,6 @@ import org.codice.ddf.security.filter.websso.WebSSOFilter;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.saml.SAMLAssertionHandler;
 import org.codice.ddf.security.policy.context.ContextPolicy;
-import ddf.security.samlp.impl.RelayStates;
 import org.opensaml.saml2.metadata.EntityDescriptor;
 import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.validation.ValidationException;
@@ -67,6 +66,7 @@ import ddf.security.http.SessionFactory;
 import ddf.security.samlp.SamlProtocol;
 import ddf.security.samlp.SimpleSign;
 import ddf.security.samlp.SystemCrypto;
+import ddf.security.samlp.impl.RelayStates;
 
 @Path("sso")
 public class AssertionConsumerService {

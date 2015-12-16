@@ -31,7 +31,6 @@ import javax.ws.rs.core.Response;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
-import ddf.security.samlp.impl.RelayStates;
 import org.junit.Before;
 import org.junit.Test;
 import org.opensaml.saml2.core.Issuer;
@@ -48,6 +47,7 @@ import ddf.security.samlp.LogoutService;
 import ddf.security.samlp.SamlProtocol;
 import ddf.security.samlp.SimpleSign;
 import ddf.security.samlp.SystemCrypto;
+import ddf.security.samlp.impl.RelayStates;
 
 public class LogoutRequestServiceTest {
 

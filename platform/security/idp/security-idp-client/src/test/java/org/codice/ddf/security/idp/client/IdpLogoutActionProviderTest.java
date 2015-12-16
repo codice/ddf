@@ -33,10 +33,11 @@ public class IdpLogoutActionProviderTest {
     IdpLogoutActionProvider idpLogoutActionProvider;
 
     private EncryptionService encryptionService;
-    String nameIdTime = "nameId\n"+System.currentTimeMillis();
+
+    String nameIdTime = "nameId\n" + System.currentTimeMillis();
 
     @Before
-    public void setup(){
+    public void setup() {
         encryptionService = mock(EncryptionService.class);
         when(encryptionService.encrypt(any(String.class))).thenReturn(nameIdTime);
 
@@ -51,7 +52,10 @@ public class IdpLogoutActionProviderTest {
         HashMap map = new HashMap();
         map.put("idp", subject);
         ActionImpl action = (ActionImpl) idpLogoutActionProvider.getAction(map);
-        Assert.assertTrue("Expected the encrypted nameId and time", action.getUrl().getQuery().contains(nameIdTime));
+        Assert.assertTrue("Expected the encrypted nameId and time",
+                action.getUrl()
+                        .getQuery()
+                        .contains(nameIdTime));
     }
 
 }

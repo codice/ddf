@@ -77,7 +77,6 @@ import org.codice.ddf.security.idp.binding.post.PostBinding;
 import org.codice.ddf.security.idp.binding.redirect.RedirectBinding;
 import org.codice.ddf.security.idp.cache.CookieCache;
 import org.codice.ddf.security.policy.context.ContextPolicy;
-import ddf.security.samlp.impl.RelayStates;
 import org.opensaml.common.SignableSAMLObject;
 import org.opensaml.saml2.core.Assertion;
 import org.opensaml.saml2.core.AuthnRequest;
@@ -106,6 +105,7 @@ import ddf.security.samlp.SamlProtocol;
 import ddf.security.samlp.SimpleSign;
 import ddf.security.samlp.SystemCrypto;
 import ddf.security.samlp.impl.EntityInformation;
+import ddf.security.samlp.impl.RelayStates;
 import ddf.security.samlp.impl.SamlValidator;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
@@ -565,9 +565,11 @@ public class IdpEndpoint implements Idp {
         Map<String, Cookie> cookies = HttpUtils.getCookieMap(request);
         return cookies.get(COOKIE);
     }
+
     private synchronized Element getSamlAssertion(HttpServletRequest request) {
         return getSamlAssertion(request, false);
     }
+
     private synchronized Element getSamlAssertion(HttpServletRequest request, boolean forceAuthn) {
         Element samlToken = null;
         Cookie cookie = getCookie(request);
@@ -576,7 +578,7 @@ public class IdpEndpoint implements Idp {
             if (forceAuthn) {
                 cookieCache.removeSamlAssertion(cookie.getValue());
             } else {
-            samlToken = cookieCache.getSamlAssertion(cookie.getValue());
+                samlToken = cookieCache.getSamlAssertion(cookie.getValue());
             }
         }
         return samlToken;

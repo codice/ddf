@@ -13,18 +13,20 @@
  */
 package ddf.security;
 
-import ddf.security.assertion.SecurityAssertion;
-import ddf.security.principal.GuestPrincipal;
+import java.security.Principal;
+import java.util.StringTokenizer;
+
+import javax.security.auth.kerberos.KerberosPrincipal;
+import javax.security.auth.x500.X500Principal;
+
 import org.apache.shiro.subject.PrincipalCollection;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.security.auth.kerberos.KerberosPrincipal;
-import javax.security.auth.x500.X500Principal;
-import java.security.Principal;
-import java.util.StringTokenizer;
+import ddf.security.assertion.SecurityAssertion;
+import ddf.security.principal.GuestPrincipal;
 
 /**
  * Utility class used to perform operations on Subjects.
@@ -32,6 +34,7 @@ import java.util.StringTokenizer;
 public final class SubjectUtils {
 
     public static final String GUEST_DISPLAY_NAME = "Guest";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(SubjectUtils.class);
 
     private SubjectUtils() {
@@ -95,7 +98,7 @@ public final class SubjectUtils {
      * was null.
      */
     public static String getName(org.apache.shiro.subject.Subject subject, String defaultName,
-                                 boolean returnDisplayName) {
+            boolean returnDisplayName) {
         String name = defaultName;
         if (subject != null) {
             PrincipalCollection principals = subject.getPrincipals();

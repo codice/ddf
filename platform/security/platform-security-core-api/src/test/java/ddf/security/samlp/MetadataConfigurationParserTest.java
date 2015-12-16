@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -57,17 +57,17 @@ public class MetadataConfigurationParserTest {
         MockitoAnnotations.initMocks(this);
         OpenSAMLUtil.initSamlEngine();
 
-        descriptorPath = Paths
-                .get(getClass().getResource("/etc/metadata/entityDescriptor.xml").toURI());
+        descriptorPath = Paths.get(getClass().getResource("/etc/metadata/entityDescriptor.xml")
+                .toURI());
         System.setProperty("ddf.home", "");
 
         server = new LocalTestServer(null, null);
         server.register("/*", handler);
         server.start();
 
-        serverAddress =
-                server.getServiceAddress().getHostString() + ":" + server.getServiceAddress()
-                        .getPort();
+        serverAddress = server.getServiceAddress()
+                .getHostString() + ":" + server.getServiceAddress()
+                .getPort();
     }
 
     @After
@@ -78,7 +78,10 @@ public class MetadataConfigurationParserTest {
     @Test
     public void testMetadataFolder() throws Exception {
         System.setProperty("ddf.home",
-                descriptorPath.getParent().getParent().getParent().toString());
+                descriptorPath.getParent()
+                        .getParent()
+                        .getParent()
+                        .toString());
         MetadataConfigurationParser metadataConfigurationParser = new MetadataConfigurationParser(
                 Collections.<String>emptyList());
         Map<String, EntityDescriptor> entities = metadataConfigurationParser.getEntryDescriptions();
@@ -113,7 +116,7 @@ public class MetadataConfigurationParserTest {
 
         Map<String, EntityDescriptor> entities = metadataConfigurationParser.getEntryDescriptions();
 
-        while(entities.size() != 1) {
+        while (entities.size() != 1) {
             TimeUnit.MILLISECONDS.sleep(10);
         }
 
@@ -146,7 +149,8 @@ public class MetadataConfigurationParserTest {
                 response.setEntity(new StringEntity(message));
                 return null;
             }
-        }).when(handler).handle(any(), any(), any());
+        }).when(handler)
+                .handle(any(), any(), any());
     }
 
 }

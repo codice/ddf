@@ -22,9 +22,6 @@ import java.util.UUID;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.core.UriBuilder;
 import javax.xml.stream.XMLStreamException;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.rs.security.saml.sso.SSOConstants;
@@ -57,8 +54,6 @@ import org.opensaml.saml2.core.impl.StatusBuilder;
 import org.opensaml.saml2.core.impl.StatusCodeBuilder;
 import org.opensaml.saml2.metadata.IDPSSODescriptor;
 import org.opensaml.saml2.metadata.SingleLogoutService;
-import org.opensaml.ws.soap.soap11.Body;
-import org.opensaml.ws.soap.soap11.Envelope;
 import org.opensaml.ws.soap.soap11.impl.BodyBuilder;
 import org.opensaml.ws.soap.soap11.impl.EnvelopeBuilder;
 import org.opensaml.xml.XMLObject;
@@ -66,7 +61,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 import ddf.security.samlp.LogoutService;
 import ddf.security.samlp.SimpleSign;
@@ -153,15 +147,16 @@ public class LogoutServiceImpl implements LogoutService {
      * @return the built <code>LogoutRequest</code>
      */
     @Override
-    public LogoutRequest buildLogoutRequest(@NotNull String nameIdString, @NotNull String issuerOrEntityId) {
+    public LogoutRequest buildLogoutRequest(@NotNull String nameIdString,
+            @NotNull String issuerOrEntityId) {
         return buildLogoutRequest(nameIdString,
                 issuerOrEntityId,
                 UUID.randomUUID()
                         .toString());
     }
 
-    public LogoutRequest buildLogoutRequest(@NotNull String nameIdString,@NotNull  String issuerOrEntityId,
-            @NotNull String id) {
+    public LogoutRequest buildLogoutRequest(@NotNull String nameIdString,
+            @NotNull String issuerOrEntityId, @NotNull String id) {
         if (nameIdString == null) {
             throw new IllegalArgumentException("Name ID cannot be null");
         }

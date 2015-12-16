@@ -39,7 +39,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpStatus;
 import org.codice.ddf.configuration.SystemBaseUrl;
-import ddf.security.samlp.impl.RelayStates;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -53,6 +52,7 @@ import ddf.security.encryption.EncryptionService;
 import ddf.security.http.SessionFactory;
 import ddf.security.samlp.SimpleSign;
 import ddf.security.samlp.SystemCrypto;
+import ddf.security.samlp.impl.RelayStates;
 
 public class AssertionConsumerServiceTest {
 

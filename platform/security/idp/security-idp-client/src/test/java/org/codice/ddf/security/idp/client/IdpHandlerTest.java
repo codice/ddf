@@ -31,13 +31,13 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.security.handler.api.HandlerResult;
-import ddf.security.samlp.impl.RelayStates;
 import org.junit.Before;
 import org.junit.Test;
 
 import ddf.security.encryption.EncryptionService;
 import ddf.security.samlp.SimpleSign;
 import ddf.security.samlp.SystemCrypto;
+import ddf.security.samlp.impl.RelayStates;
 
 public class IdpHandlerTest {
 

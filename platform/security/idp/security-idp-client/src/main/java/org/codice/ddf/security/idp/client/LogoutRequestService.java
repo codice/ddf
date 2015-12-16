@@ -41,7 +41,6 @@ import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.apache.wss4j.common.util.DOM2Writer;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
-import ddf.security.samlp.impl.RelayStates;
 import org.opensaml.saml2.core.LogoutRequest;
 import org.opensaml.saml2.core.LogoutResponse;
 import org.opensaml.saml2.core.StatusCode;
@@ -58,6 +57,7 @@ import ddf.security.samlp.LogoutService;
 import ddf.security.samlp.SamlProtocol;
 import ddf.security.samlp.SimpleSign;
 import ddf.security.samlp.SystemCrypto;
+import ddf.security.samlp.impl.RelayStates;
 import ddf.security.samlp.impl.SamlValidator;
 
 @Path("logout")
@@ -123,7 +123,7 @@ public class LogoutRequestService {
             submitForm = IOUtils.toString(submitStream);
             redirectPage = IOUtils.toString(redirectStream);
         } catch (Exception e) {
-            LOGGER.error("Unable tpo load index page for SP.", e);
+            LOGGER.error("Unable to load index page for SP.", e);
         }
     }
 
