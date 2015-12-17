@@ -31,7 +31,6 @@
     <properties>
         <distribution.file.name>ddf-${project.version}</distribution.file.name>
         <opendj-embedded.app.version>1.3.1</opendj-embedded.app.version>
-        <install-profiles.app.version>${project.version}</install-profiles.app.version>
     </properties>
     <build>
         <resources>
@@ -95,7 +94,7 @@
                                     mvn:ddf.admin/admin-app/${project.version}/xml/features
                                 </descriptor>
                                 <descriptor>
-                                    mvn:ddf.distribution/install-profiles/${install-profiles.app.version}/xml/features
+                                    mvn:ddf.distribution/install-profiles/${project.version}/xml/features
                                 </descriptor>
                             </descriptors>
                             <repository>${setup.folder}/${karaf.folder}/system</repository>
@@ -454,7 +453,7 @@
         <dependency>
             <groupId>ddf.distribution</groupId>
             <artifactId>install-profiles</artifactId>
-            <version>${install-profiles.app.version}</version>
+            <version>${project.version}</version>
             <classifier>features</classifier>
             <type>xml</type>
         </dependency>
