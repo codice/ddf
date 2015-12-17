@@ -33,11 +33,6 @@
             <artifactId>filter-proxy</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>ddf.distribution</groupId>
-            <artifactId>sample-plugins</artifactId>
-            <version>${project.version}</version>
-        </dependency>
     </dependencies>
     <build>
         <plugins>
