@@ -70,7 +70,8 @@ public class SimpleSignTest {
     public void setUp() throws Exception {
 
         encryptionService = mock(EncryptionService.class);
-        systemCrypto = new SystemCrypto("encryption.properties", "signature.properties",
+        systemCrypto = new SystemCrypto("encryption.properties",
+                "signature.properties",
                 encryptionService);
         simpleSign = new SimpleSign(systemCrypto);
 
@@ -84,7 +85,8 @@ public class SimpleSignTest {
 
         Document responseDoc = StaxUtils.read(new ByteArrayInputStream(cannedResponse.getBytes()));
         XMLObject responseXmlObject = OpenSAMLUtil.fromDom(responseDoc.getDocumentElement());
-        org.opensaml.saml2.core.Response response = (org.opensaml.saml2.core.Response) responseXmlObject;
+        org.opensaml.saml2.core.Response response =
+                (org.opensaml.saml2.core.Response) responseXmlObject;
         simpleSign.signSamlObject(response);
 
         Document doc = DOMUtils.createDocument();
@@ -93,8 +95,9 @@ public class SimpleSignTest {
         responseDoc = StaxUtils.read(new ByteArrayInputStream(responseMessage.getBytes()));
         responseXmlObject = OpenSAMLUtil.fromDom(responseDoc.getDocumentElement());
         response = (org.opensaml.saml2.core.Response) responseXmlObject;
-        simpleSign.validateSignature(response.getSignature(), response.getDOM()
-                .getOwnerDocument());
+        simpleSign.validateSignature(response.getSignature(),
+                response.getDOM()
+                        .getOwnerDocument());
     }
 
     @Test(expected = SimpleSign.SignatureException.class)
@@ -102,7 +105,8 @@ public class SimpleSignTest {
 
         Document responseDoc = StaxUtils.read(new ByteArrayInputStream(cannedResponse.getBytes()));
         XMLObject responseXmlObject = OpenSAMLUtil.fromDom(responseDoc.getDocumentElement());
-        org.opensaml.saml2.core.Response response = (org.opensaml.saml2.core.Response) responseXmlObject;
+        org.opensaml.saml2.core.Response response =
+                (org.opensaml.saml2.core.Response) responseXmlObject;
         simpleSign.signSamlObject(response);
 
         Document doc = DOMUtils.createDocument();
@@ -112,19 +116,21 @@ public class SimpleSignTest {
         responseDoc = StaxUtils.read(new ByteArrayInputStream(responseMessage.getBytes()));
         responseXmlObject = OpenSAMLUtil.fromDom(responseDoc.getDocumentElement());
         response = (org.opensaml.saml2.core.Response) responseXmlObject;
-        simpleSign.validateSignature(response.getSignature(), response.getDOM()
-                .getOwnerDocument());
+        simpleSign.validateSignature(response.getSignature(),
+                response.getDOM()
+                        .getOwnerDocument());
     }
 
     @Test
     public void testSignUriStringWithDsa() throws Exception {
 
-        systemCrypto = new SystemCrypto("dsa-encryption.properties", "dsa-signature.properties",
+        systemCrypto = new SystemCrypto("dsa-encryption.properties",
+                "dsa-signature.properties",
                 encryptionService);
         simpleSign = new SimpleSign(systemCrypto);
         IdpMetadata idpMetadata = new IdpMetadata();
-        String metadata = Resources.toString(
-                Resources.getResource(getClass(), "/dsa-IDPmetadata.xml"), Charsets.UTF_8);
+        String metadata = Resources.toString(Resources.getResource(getClass(),
+                "/dsa-IDPmetadata.xml"), Charsets.UTF_8);
         idpMetadata.setMetadata(metadata);
         String deflatedSamlResponse = RestSecurity.deflateAndBase64Encode(cannedResponse);
 
@@ -142,11 +148,15 @@ public class SimpleSignTest {
                 .get(3)
                 .getValue();
 
-        String signedMessage = String.format("%s=%s&%s=%s&%s=%s", SAML_RESPONSE,
-                URLEncoder.encode(deflatedSamlResponse, "UTF-8"), RELAY_STATE,
-                URLEncoder.encode(RELAY_STATE_VAL, "UTF-8"), SIG_ALG,
+        String signedMessage = String.format("%s=%s&%s=%s&%s=%s",
+                SAML_RESPONSE,
+                URLEncoder.encode(deflatedSamlResponse, "UTF-8"),
+                RELAY_STATE,
+                URLEncoder.encode(RELAY_STATE_VAL, "UTF-8"),
+                SIG_ALG,
                 URLEncoder.encode(signatureAlgorithm, "UTF-8"));
-        boolean valid = simpleSign.validateSignature(signedMessage, signatureString,
+        boolean valid = simpleSign.validateSignature(signedMessage,
+                signatureString,
                 idpMetadata.getSigningCertificate());
         assertTrue("Signature was expected to be valid", valid);
 
@@ -155,12 +165,13 @@ public class SimpleSignTest {
     @Test(expected = SimpleSign.SignatureException.class)
     public void testSignUriStringAndModifyWithDsa() throws Exception {
 
-        systemCrypto = new SystemCrypto("dsa-encryption.properties", "dsa-signature.properties",
+        systemCrypto = new SystemCrypto("dsa-encryption.properties",
+                "dsa-signature.properties",
                 encryptionService);
         simpleSign = new SimpleSign(systemCrypto);
         IdpMetadata idpMetadata = new IdpMetadata();
-        String metadata = Resources.toString(
-                Resources.getResource(getClass(), "/dsa-IDPmetadata.xml"), Charsets.UTF_8);
+        String metadata = Resources.toString(Resources.getResource(getClass(),
+                "/dsa-IDPmetadata.xml"), Charsets.UTF_8);
         idpMetadata.setMetadata(metadata);
         String deflatedSamlResponse = RestSecurity.deflateAndBase64Encode(cannedResponse);
 
@@ -179,11 +190,15 @@ public class SimpleSignTest {
                 .get(3)
                 .getValue();
 
-        String signedMessage = String.format("%s=%s&%s=%s&%s=%s", SAML_RESPONSE,
-                URLEncoder.encode(deflatedSamlResponse, "UTF-8"), RELAY_STATE,
-                URLEncoder.encode(RELAY_STATE_VAL, "UTF-8"), SIG_ALG,
+        String signedMessage = String.format("%s=%s&%s=%s&%s=%s",
+                SAML_RESPONSE,
+                URLEncoder.encode(deflatedSamlResponse, "UTF-8"),
+                RELAY_STATE,
+                URLEncoder.encode(RELAY_STATE_VAL, "UTF-8"),
+                SIG_ALG,
                 URLEncoder.encode(signatureAlgorithm, "UTF-8"));
-        simpleSign.validateSignature(signedMessage, signatureString,
+        simpleSign.validateSignature(signedMessage,
+                signatureString,
                 idpMetadata.getSigningCertificate());
 
     }

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -18,20 +18,20 @@ import java.util.Map;
 import org.codice.ddf.security.idp.binding.api.Validator;
 import org.codice.ddf.security.idp.binding.api.impl.ValidatorImpl;
 import org.opensaml.saml2.core.AuthnRequest;
-import org.opensaml.saml2.metadata.EntityDescriptor;
 import org.opensaml.xml.validation.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.security.samlp.SimpleSign;
 import ddf.security.samlp.SystemCrypto;
+import ddf.security.samlp.impl.EntityInformation;
 
 public class PostValidator extends ValidatorImpl implements Validator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PostValidator.class);
 
     public PostValidator(SystemCrypto systemCrypto,
-            Map<String, EntityDescriptor> serviceProviders) {
+            Map<String, EntityInformation> serviceProviders) {
         super(systemCrypto, serviceProviders);
     }
 
@@ -43,12 +43,17 @@ public class PostValidator extends ValidatorImpl implements Validator {
         if (strictSignature) {
             if (authnRequest.getSignature() != null) {
                 getSimpleSign().validateSignature(authnRequest.getSignature(),
-                        authnRequest.getDOM().getOwnerDocument());
+                        authnRequest.getDOM()
+                                .getOwnerDocument());
             } else {
                 throw new SimpleSign.SignatureException("No signature present on AuthnRequest.");
             }
         }
-        super.validateAuthnRequest(authnRequest, samlRequest, relayState, signatureAlgorithm,
-                signature, strictSignature);
+        super.validateAuthnRequest(authnRequest,
+                samlRequest,
+                relayState,
+                signatureAlgorithm,
+                signature,
+                strictSignature);
     }
 }

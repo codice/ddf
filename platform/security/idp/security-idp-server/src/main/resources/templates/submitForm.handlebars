@@ -22,7 +22,7 @@
 <body>
  <form id="postform" method="post" action="{{ACSURL}}">
      <input class="idp-form-submit" type="submit" style="display:none;" />
-     <input type="hidden" name="SAMLResponse" value="{{SAMLResponse}}" />
+     <input type="hidden" name="{{SAML_TYPE}}" value="{{SAMLResponse}}" />
      <input type="hidden" name="RelayState" value="{{RelayState}}" />
  </form>
 

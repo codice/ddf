@@ -52,6 +52,7 @@ import ddf.security.encryption.EncryptionService;
 import ddf.security.http.SessionFactory;
 import ddf.security.samlp.SimpleSign;
 import ddf.security.samlp.SystemCrypto;
+import ddf.security.samlp.impl.RelayStates;
 
 public class AssertionConsumerServiceTest {
 
@@ -63,7 +64,7 @@ public class AssertionConsumerServiceTest {
 
     private SystemCrypto systemCrypto;
 
-    private RelayStates relayStates;
+    private RelayStates<String> relayStates;
 
     private SystemBaseUrl baseUrl;
 
@@ -83,7 +84,8 @@ public class AssertionConsumerServiceTest {
 
     private static final String SIG_ALG_VAL = "http://www.w3.org/2000/09/xmldsig#rsa-sha1";
 
-    private static final String SIGNATURE_VAL = "UTSaVBKoDCw7BM6gLtaJOU7xXo5G4oHaZwvUaHE2Cc48IiJ4nCJLlTamGnGbec/MQhTXv//yHpGQ/jFoasQ4cJ0kRomGItdBQZoOLcmtZ2bJc8V8yTKNctEYziIG9NTQevZOoRCiVzClOFhflTqc+kZ4FZBjLgLBdtySP0OL08Q=";
+    private static final String SIGNATURE_VAL =
+            "UTSaVBKoDCw7BM6gLtaJOU7xXo5G4oHaZwvUaHE2Cc48IiJ4nCJLlTamGnGbec/MQhTXv//yHpGQ/jFoasQ4cJ0kRomGItdBQZoOLcmtZ2bJc8V8yTKNctEYziIG9NTQevZOoRCiVzClOFhflTqc+kZ4FZBjLgLBdtySP0OL08Q=";
 
     private static String deflatedSamlResponse;
 
@@ -91,10 +93,11 @@ public class AssertionConsumerServiceTest {
     public void setUp() throws Exception {
 
         encryptionService = mock(EncryptionService.class);
-        systemCrypto = new SystemCrypto("encryption.properties", "signature.properties",
+        systemCrypto = new SystemCrypto("encryption.properties",
+                "signature.properties",
                 encryptionService);
         simpleSign = new SimpleSign(systemCrypto);
-        relayStates = mock(RelayStates.class);
+        relayStates = (RelayStates<String>) mock(RelayStates.class);
         when(relayStates.encode("fubar")).thenReturn(RELAY_STATE_VAL);
         when(relayStates.decode(RELAY_STATE_VAL)).thenReturn(LOCATION);
         loginFilter = mock(javax.servlet.Filter.class);
@@ -104,100 +107,124 @@ public class AssertionConsumerServiceTest {
         when(httpRequest.getRequestURL()).thenReturn(new StringBuffer("fubar"));
         idpMetadata = new IdpMetadata();
 
-        assertionConsumerService = new AssertionConsumerService(simpleSign, idpMetadata,
-                systemCrypto, baseUrl, relayStates);
+        assertionConsumerService = new AssertionConsumerService(simpleSign,
+                idpMetadata,
+                systemCrypto,
+                baseUrl,
+                relayStates);
         assertionConsumerService.setRequest(httpRequest);
         assertionConsumerService.setLoginFilter(loginFilter);
         assertionConsumerService.setSessionFactory(sessionFactory);
-
         cannedResponse = Resources.toString(Resources.getResource(getClass(), "/SAMLResponse.xml"),
                 Charsets.UTF_8);
 
         String metadata = Resources.toString(Resources.getResource(getClass(), "/IDPmetadata.xml"),
                 Charsets.UTF_8);
 
-        deflatedSamlResponse = Resources.toString(
-                Resources.getResource(getClass(), "/DeflatedSAMLResponse.txt"), Charsets.UTF_8);
+        deflatedSamlResponse = Resources.toString(Resources.getResource(getClass(),
+                "/DeflatedSAMLResponse.txt"), Charsets.UTF_8);
         idpMetadata.setMetadata(metadata);
 
     }
 
     @Test
     public void testPostSamlResponse() throws Exception {
-        Response response = assertionConsumerService.postSamlResponse(
-                new String(Base64.encodeBase64(this.cannedResponse.getBytes())), RELAY_STATE_VAL);
-        assertThat("The http response was not 303 SEE OTHER", response.getStatus(),
+        Response response =
+                assertionConsumerService.postSamlResponse(new String(Base64.encodeBase64(this.cannedResponse.getBytes())),
+                        RELAY_STATE_VAL);
+        assertThat("The http response was not 303 SEE OTHER",
+                response.getStatus(),
                 is(HttpStatus.SC_SEE_OTHER));
         assertThat("Response LOCATION was " + response.getLocation() + " expected " + LOCATION,
                 response.getLocation()
-                        .toString(), equalTo(LOCATION));
+                        .toString(),
+                equalTo(LOCATION));
     }
 
     @Ignore
     @Test
     public void testPostSamlResponseDoubleSignature() throws Exception {
-        cannedResponse = Resources.toString(
-                Resources.getResource(getClass(), "/DoubleSignedSAMLResponse.txt"), Charsets.UTF_8);
+        cannedResponse = Resources.toString(Resources.getResource(getClass(),
+                "/DoubleSignedSAMLResponse.txt"), Charsets.UTF_8);
         String relayStateValue = "a0552c29-8b2b-492c-87fb-17a20d22f887";
 
         when(relayStates.encode("fubar")).thenReturn(relayStateValue);
         when(relayStates.decode(relayStateValue)).thenReturn(LOCATION);
 
-        Response response = assertionConsumerService.postSamlResponse(
-                new String(this.cannedResponse.getBytes()), relayStateValue);
-        assertThat("The http response was not 303 SEE OTHER", response.getStatus(),
+        Response response =
+                assertionConsumerService.postSamlResponse(new String(this.cannedResponse.getBytes()),
+                        relayStateValue);
+        assertThat("The http response was not 303 SEE OTHER",
+                response.getStatus(),
                 is(HttpStatus.SC_SEE_OTHER));
         assertThat("Response LOCATION was " + response.getLocation() + " expected " + LOCATION,
                 response.getLocation()
-                        .toString(), equalTo(LOCATION));
+                        .toString(),
+                equalTo(LOCATION));
     }
 
     @Test
     public void testGetSamlResponse() throws Exception {
 
         Response response = assertionConsumerService.getSamlResponse(deflatedSamlResponse,
-                RELAY_STATE_VAL, SIG_ALG_VAL, SIGNATURE_VAL);
-        assertThat("The http response was not 303 SEE OTHER", response.getStatus(),
+                RELAY_STATE_VAL,
+                SIG_ALG_VAL,
+                SIGNATURE_VAL);
+        assertThat("The http response was not 303 SEE OTHER",
+                response.getStatus(),
                 is(HttpStatus.SC_SEE_OTHER));
         assertThat("Response LOCATION was " + response.getLocation() + " expected " + LOCATION,
                 response.getLocation()
-                        .toString(), equalTo(LOCATION));
+                        .toString(),
+                equalTo(LOCATION));
     }
 
     @Test
     public void testGetSamlResponseInvalidSignature() throws Exception {
         Response response = assertionConsumerService.getSamlResponse(deflatedSamlResponse,
-                RELAY_STATE_VAL, SIG_ALG_VAL, SIGNATURE_VAL.replace('z', 'x'));
-        assertThat("The http response was not 500 SERVER ERROR", response.getStatus(),
+                RELAY_STATE_VAL,
+                SIG_ALG_VAL,
+                SIGNATURE_VAL.replace('z', 'x'));
+        assertThat("The http response was not 500 SERVER ERROR",
+                response.getStatus(),
                 is(HttpStatus.SC_INTERNAL_SERVER_ERROR));
     }
 
     @Test
     public void testGetSamlResponseNoSignature() throws Exception {
         Response response = assertionConsumerService.getSamlResponse(deflatedSamlResponse,
-                RELAY_STATE_VAL, SIG_ALG_VAL, null);
-        assertThat("The http response was not 303 SEE OTHER", response.getStatus(),
+                RELAY_STATE_VAL,
+                SIG_ALG_VAL,
+                null);
+        assertThat("The http response was not 303 SEE OTHER",
+                response.getStatus(),
                 is(HttpStatus.SC_SEE_OTHER));
         assertThat("Response LOCATION was " + response.getLocation() + " expected " + LOCATION,
                 response.getLocation()
-                        .toString(), equalTo(LOCATION));
+                        .toString(),
+                equalTo(LOCATION));
     }
 
     @Test
     public void testGetSamlResponseNoSignatureAlgorithm() throws Exception {
         Response response = assertionConsumerService.getSamlResponse(deflatedSamlResponse,
-                RELAY_STATE_VAL, null, SIGNATURE_VAL);
-        assertThat("The http response was not 500 SERVER ERROR", response.getStatus(),
+                RELAY_STATE_VAL,
+                null,
+                SIGNATURE_VAL);
+        assertThat("The http response was not 500 SERVER ERROR",
+                response.getStatus(),
                 is(HttpStatus.SC_INTERNAL_SERVER_ERROR));
     }
 
     @Test
     public void testProcessBadSamlResponse() throws Exception {
-        String badRequest = Resources.toString(Resources.getResource(getClass(), "/SAMLRequest.xml"),
-                Charsets.UTF_8);
+        String badRequest = Resources.toString(Resources.getResource(getClass(),
+                "/SAMLRequest.xml"), Charsets.UTF_8);
 
-        Response response = assertionConsumerService.processSamlResponse(badRequest, RELAY_STATE_VAL);
-        assertThat("The http response was not 500 SEVER ERROR", response.getStatus(),
+        Response response = assertionConsumerService.processSamlResponse(badRequest,
+                RELAY_STATE_VAL);
+        assertThat("The http response was not 500 SEVER ERROR",
+                response.getStatus(),
                 is(HttpStatus.SC_INTERNAL_SERVER_ERROR));
     }
 
@@ -207,7 +234,8 @@ public class AssertionConsumerServiceTest {
                 StatusCode.AUTHN_FAILED_URI);
         Response response = assertionConsumerService.processSamlResponse(failureRequest,
                 RELAY_STATE_VAL);
-        assertThat("The http response was not 500 SEVER ERROR", response.getStatus(),
+        assertThat("The http response was not 500 SEVER ERROR",
+                response.getStatus(),
                 is(HttpStatus.SC_INTERNAL_SERVER_ERROR));
     }
 
@@ -217,7 +245,8 @@ public class AssertionConsumerServiceTest {
                 StatusCode.REQUEST_DENIED_URI);
         Response response = assertionConsumerService.processSamlResponse(failureRequest,
                 RELAY_STATE_VAL);
-        assertThat("The http response was not 500 SEVER ERROR", response.getStatus(),
+        assertThat("The http response was not 500 SEVER ERROR",
+                response.getStatus(),
                 is(HttpStatus.SC_INTERNAL_SERVER_ERROR));
     }
 
@@ -227,7 +256,8 @@ public class AssertionConsumerServiceTest {
                 StatusCode.REQUEST_UNSUPPORTED_URI);
         Response response = assertionConsumerService.processSamlResponse(failureRequest,
                 RELAY_STATE_VAL);
-        assertThat("The http response was not 500 SEVER ERROR", response.getStatus(),
+        assertThat("The http response was not 500 SEVER ERROR",
+                response.getStatus(),
                 is(HttpStatus.SC_INTERNAL_SERVER_ERROR));
     }
 
@@ -237,84 +267,93 @@ public class AssertionConsumerServiceTest {
                 StatusCode.UNSUPPORTED_BINDING_URI);
         Response response = assertionConsumerService.processSamlResponse(failureRequest,
                 RELAY_STATE_VAL);
-        assertThat("The http response was not 500 SEVER ERROR", response.getStatus(),
+        assertThat("The http response was not 500 SEVER ERROR",
+                response.getStatus(),
                 is(HttpStatus.SC_INTERNAL_SERVER_ERROR));
     }
 
-
     @Test
     public void testProcessSamlResponseNoAssertion() throws Exception {
-        String failureRequest = Resources.toString(
-                Resources.getResource(getClass(), "/SAMLResponse-noAssertion.xml"), Charsets.UTF_8);
+        String failureRequest = Resources.toString(Resources.getResource(getClass(),
+                "/SAMLResponse-noAssertion.xml"), Charsets.UTF_8);
 
         Response response = assertionConsumerService.processSamlResponse(failureRequest,
                 RELAY_STATE_VAL);
-        assertThat("The http response was not 500 SEVER ERROR", response.getStatus(),
+        assertThat("The http response was not 500 SEVER ERROR",
+                response.getStatus(),
                 is(HttpStatus.SC_INTERNAL_SERVER_ERROR));
     }
 
     @Test
     public void testProcessSamlResponseNullAssertion() throws Exception {
-        String failureRequest = Resources.toString(
-                Resources.getResource(getClass(), "/SAMLResponse-nullAssertion.xml"),
-                Charsets.UTF_8);
+        String failureRequest = Resources.toString(Resources.getResource(getClass(),
+                "/SAMLResponse-nullAssertion.xml"), Charsets.UTF_8);
 
         Response response = assertionConsumerService.processSamlResponse(failureRequest,
                 RELAY_STATE_VAL);
-        assertThat("The http response was not 303 SEE OTHER", response.getStatus(),
+        assertThat("The http response was not 303 SEE OTHER",
+                response.getStatus(),
                 is(HttpStatus.SC_SEE_OTHER));
         assertThat("Response LOCATION was " + response.getLocation() + " expected " + LOCATION,
                 response.getLocation()
-                        .toString(), equalTo(LOCATION));
+                        .toString(),
+                equalTo(LOCATION));
     }
 
     @Test
     public void testProcessSamlResponseMalformedAssertion() throws Exception {
-        String failureRequest = Resources.toString(
-                Resources.getResource(getClass(), "/SAMLResponse-malformedAssertion.xml"),
-                Charsets.UTF_8);
+        String failureRequest = Resources.toString(Resources.getResource(getClass(),
+                "/SAMLResponse-malformedAssertion.xml"), Charsets.UTF_8);
 
         Response response = assertionConsumerService.processSamlResponse(failureRequest,
                 RELAY_STATE_VAL);
-        assertThat("The http response was not 500 SEVER ERROR", response.getStatus(),
+        assertThat("The http response was not 500 SEVER ERROR",
+                response.getStatus(),
                 is(HttpStatus.SC_INTERNAL_SERVER_ERROR));
     }
 
     @Test
     public void testProcessSamlResponseMultipleAssertion() throws Exception {
-        String multipleAssertions = Resources.toString(
-                Resources.getResource(getClass(), "/SAMLResponse-multipleAssertions.xml"),
-                Charsets.UTF_8);
+        String multipleAssertions = Resources.toString(Resources.getResource(getClass(),
+                "/SAMLResponse-multipleAssertions.xml"), Charsets.UTF_8);
 
-        Response response = assertionConsumerService.processSamlResponse(multipleAssertions, RELAY_STATE_VAL);
-        assertThat("The http response was not 303 SEE OTHER", response.getStatus(),
+        Response response = assertionConsumerService.processSamlResponse(multipleAssertions,
+                RELAY_STATE_VAL);
+        assertThat("The http response was not 303 SEE OTHER",
+                response.getStatus(),
                 is(HttpStatus.SC_SEE_OTHER));
         assertThat("Response LOCATION was " + response.getLocation() + " expected " + LOCATION,
                 response.getLocation()
-                        .toString(), equalTo(LOCATION));
+                        .toString(),
+                equalTo(LOCATION));
     }
 
     @Test
     public void testProcessSamlResponseEmptySamlResponse() throws Exception {
         Response response = assertionConsumerService.processSamlResponse("", RELAY_STATE_VAL);
-        assertThat("The http response was not 500 SEVER ERROR", response.getStatus(),
+        assertThat("The http response was not 500 SEVER ERROR",
+                response.getStatus(),
                 is(HttpStatus.SC_INTERNAL_SERVER_ERROR));
     }
 
     @Test
     public void testProcessSamlResponseLoginFail() throws Exception {
         doThrow(ServletException.class).when(loginFilter)
-                .doFilter(any(ServletRequest.class), isNull(ServletResponse.class),
+                .doFilter(any(ServletRequest.class),
+                        isNull(ServletResponse.class),
                         any(FilterChain.class));
-        Response response = assertionConsumerService.processSamlResponse(this.cannedResponse, RELAY_STATE_VAL);
-        assertThat("The http response was not 500 SEVER ERROR", response.getStatus(),
+        Response response = assertionConsumerService.processSamlResponse(this.cannedResponse,
+                RELAY_STATE_VAL);
+        assertThat("The http response was not 500 SEVER ERROR",
+                response.getStatus(),
                 is(HttpStatus.SC_INTERNAL_SERVER_ERROR));
     }
 
     @Test
     public void testProcessSamlResponseEmptyRelayState() throws Exception {
         Response response = assertionConsumerService.processSamlResponse(this.cannedResponse, "");
-        assertThat("The http response was not 500 SEVER ERROR", response.getStatus(),
+        assertThat("The http response was not 500 SEVER ERROR",
+                response.getStatus(),
                 is(HttpStatus.SC_INTERNAL_SERVER_ERROR));
     }
 
@@ -356,7 +395,8 @@ public class AssertionConsumerServiceTest {
     @Test
     public void testGetLoginFilter() throws Exception {
         Filter filter = assertionConsumerService.getLoginFilter();
-        assertThat("Returned login filter was not the same as the one set", filter,
+        assertThat("Returned login filter was not the same as the one set",
+                filter,
                 equalTo(loginFilter));
     }
 

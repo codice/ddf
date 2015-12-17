@@ -37,12 +37,13 @@ import org.junit.Test;
 import ddf.security.encryption.EncryptionService;
 import ddf.security.samlp.SimpleSign;
 import ddf.security.samlp.SystemCrypto;
+import ddf.security.samlp.impl.RelayStates;
 
 public class IdpHandlerTest {
 
     IdpHandler idpHandler;
 
-    private RelayStates relayStates;
+    private RelayStates<String> relayStates;
 
     private SystemBaseUrl baseUrl;
 
@@ -67,12 +68,13 @@ public class IdpHandlerTest {
     @Before
     public void setUp() throws Exception {
         encryptionService = mock(EncryptionService.class);
-        systemCrypto = new SystemCrypto("encryption.properties", "signature.properties",
+        systemCrypto = new SystemCrypto("encryption.properties",
+                "signature.properties",
                 encryptionService);
         simpleSign = new SimpleSign(systemCrypto);
         idpMetadata = new IdpMetadata();
         baseUrl = new SystemBaseUrl();
-        relayStates = mock(RelayStates.class);
+        relayStates = (RelayStates<String>) mock(RelayStates.class);
         when(relayStates.encode(anyString())).thenReturn(RELAY_STATE_VAL);
         when(relayStates.decode(RELAY_STATE_VAL)).thenReturn(LOCATION);
         httpRequest = mock(HttpServletRequest.class);
@@ -91,9 +93,12 @@ public class IdpHandlerTest {
 
     @Test
     public void testGetNormalizedToken() throws Exception {
-        HandlerResult handlerResult = idpHandler.getNormalizedToken(httpRequest, httpResponse, null,
+        HandlerResult handlerResult = idpHandler.getNormalizedToken(httpRequest,
+                httpResponse,
+                null,
                 false);
-        assertThat("Expected a non null handlerRequest", handlerResult,
+        assertThat("Expected a non null handlerRequest",
+                handlerResult,
                 is(notNullValue(HandlerResult.class)));
         assertThat(handlerResult.getStatus(), equalTo(HandlerResult.Status.REDIRECTED));
     }
@@ -103,9 +108,12 @@ public class IdpHandlerTest {
 
         when(httpResponse.getWriter()).thenReturn(mock(PrintWriter.class));
         idpMetadata.setMetadata(metadata.replace("HTTP-Redirect", "HTTP-POST"));
-        HandlerResult handlerResult = idpHandler.getNormalizedToken(httpRequest, httpResponse, null,
+        HandlerResult handlerResult = idpHandler.getNormalizedToken(httpRequest,
+                httpResponse,
+                null,
                 false);
-        assertThat("Expected a non null handlerRequest", handlerResult,
+        assertThat("Expected a non null handlerRequest",
+                handlerResult,
                 is(notNullValue(HandlerResult.class)));
         assertThat(handlerResult.getStatus(), equalTo(HandlerResult.Status.REDIRECTED));
 
@@ -114,7 +122,8 @@ public class IdpHandlerTest {
     @Test
     public void testHandleError() throws Exception {
         HandlerResult handlerResult = idpHandler.handleError(httpRequest, httpResponse, null);
-        assertThat("Expected a non null handlerRequest", handlerResult,
+        assertThat("Expected a non null handlerRequest",
+                handlerResult,
                 is(notNullValue(HandlerResult.class)));
         assertThat(handlerResult.getStatus(), equalTo(HandlerResult.Status.NO_ACTION));
 

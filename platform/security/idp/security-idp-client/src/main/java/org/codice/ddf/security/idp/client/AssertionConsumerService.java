@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -66,6 +66,7 @@ import ddf.security.http.SessionFactory;
 import ddf.security.samlp.SamlProtocol;
 import ddf.security.samlp.SimpleSign;
 import ddf.security.samlp.SystemCrypto;
+import ddf.security.samlp.impl.RelayStates;
 
 @Path("sso")
 public class AssertionConsumerService {
@@ -80,7 +81,8 @@ public class AssertionConsumerService {
 
     private static final String SIGNATURE = "Signature";
 
-    private static final String UNABLE_TO_LOGIN = "Unable to login with provided AuthN response assertion.";
+    private static final String UNABLE_TO_LOGIN =
+            "Unable to login with provided AuthN response assertion.";
 
     private final SimpleSign simpleSign;
 
@@ -88,7 +90,7 @@ public class AssertionConsumerService {
 
     private final SystemBaseUrl baseUrl;
 
-    private final RelayStates relayStates;
+    private final RelayStates<String> relayStates;
 
     @Context
     private HttpServletRequest request;
@@ -104,7 +106,7 @@ public class AssertionConsumerService {
     }
 
     public AssertionConsumerService(SimpleSign simpleSign, IdpMetadata metadata,
-            SystemCrypto crypto, SystemBaseUrl systemBaseUrl, RelayStates relayStates) {
+            SystemCrypto crypto, SystemBaseUrl systemBaseUrl, RelayStates<String> relayStates) {
         this.simpleSign = simpleSign;
         idpMetadata = metadata;
         systemCrypto = crypto;
@@ -152,11 +154,15 @@ public class AssertionConsumerService {
             if (StringUtils.isNotBlank(deflatedSamlResponse) && StringUtils.isNotBlank(relayState)
                     && StringUtils.isNotBlank(signatureAlgorithm)) {
                 try {
-                    String signedMessage = String.format("%s=%s&%s=%s&%s=%s", SAML_RESPONSE,
-                            URLEncoder.encode(deflatedSamlResponse, "UTF-8"), RELAY_STATE,
-                            URLEncoder.encode(relayState, "UTF-8"), SIG_ALG,
+                    String signedMessage = String.format("%s=%s&%s=%s&%s=%s",
+                            SAML_RESPONSE,
+                            URLEncoder.encode(deflatedSamlResponse, "UTF-8"),
+                            RELAY_STATE,
+                            URLEncoder.encode(relayState, "UTF-8"),
+                            SIG_ALG,
                             URLEncoder.encode(signatureAlgorithm, "UTF-8"));
-                    signaturePasses = simpleSign.validateSignature(signedMessage, signature,
+                    signaturePasses = simpleSign.validateSignature(signedMessage,
+                            signature,
                             idpMetadata.getSigningCertificate());
                 } catch (SimpleSign.SignatureException | UnsupportedEncodingException e) {
                     LOGGER.debug("Failed to validate AuthN response signature.", e);
@@ -259,13 +265,23 @@ public class AssertionConsumerService {
                 }
                 return super.getHeader(name);
             }
+
+            @Override
+            public Object getAttribute(String name) {
+                if (ContextPolicy.ACTIVE_REALM.equals(name)) {
+                    return "idp";
+                }
+                return super.getAttribute(name);
+            }
         };
 
         SAMLAssertionHandler samlAssertionHandler = new SAMLAssertionHandler();
 
         LOGGER.trace("Processing SAML assertion with SAML Handler.");
-        HandlerResult samlResult = samlAssertionHandler.getNormalizedToken(wrappedRequest, null,
-                null, false);
+        HandlerResult samlResult = samlAssertionHandler.getNormalizedToken(wrappedRequest,
+                null,
+                null,
+                false);
 
         if (samlResult.getStatus() != HandlerResult.Status.COMPLETED) {
             LOGGER.debug("Failed to handle SAML assertion.");
@@ -301,20 +317,28 @@ public class AssertionConsumerService {
         String rootContext = baseUrl.getRootContext();
 
         String entityId = String.format("https://%s:%s%s/saml", hostname, port, rootContext);
-        // Currently no real logout location - DFF-1605
-        String logoutLocation = null; //String.format("https://%s:%s/logout", hostname, port);
+
+        String logoutLocation = String.format("https://%s:%s%s/saml/logout",
+                hostname,
+                port,
+                rootContext);
         String assertionConsumerServiceLocation = String.format("https://%s:%s%s/saml/sso",
-                hostname, port, rootContext);
+                hostname,
+                port,
+                rootContext);
 
         EntityDescriptor entityDescriptor = SamlProtocol.createSpMetadata(entityId,
                 Base64.encodeBase64String(issuerCert.getEncoded()),
-                Base64.encodeBase64String(encryptionCert.getEncoded()), logoutLocation,
-                assertionConsumerServiceLocation, assertionConsumerServiceLocation);
+                Base64.encodeBase64String(encryptionCert.getEncoded()),
+                logoutLocation,
+                assertionConsumerServiceLocation,
+                assertionConsumerServiceLocation);
 
         Document doc = DOMUtils.createDocument();
         doc.appendChild(doc.createElement("root"));
-        return Response.ok(
-                DOM2Writer.nodeToString(OpenSAMLUtil.toDom(entityDescriptor, doc, false)))
+        return Response.ok(DOM2Writer.nodeToString(OpenSAMLUtil.toDom(entityDescriptor,
+                doc,
+                false)))
                 .build();
     }
 
@@ -333,8 +357,8 @@ public class AssertionConsumerService {
     private org.opensaml.saml2.core.Response extractSamlResponse(String samlResponse) {
         org.opensaml.saml2.core.Response response = null;
         try {
-            Document responseDoc = StaxUtils.read(
-                    new ByteArrayInputStream(samlResponse.getBytes()));
+            Document responseDoc =
+                    StaxUtils.read(new ByteArrayInputStream(samlResponse.getBytes()));
             XMLObject responseXmlObject = OpenSAMLUtil.fromDom(responseDoc.getDocumentElement());
 
             if (responseXmlObject instanceof org.opensaml.saml2.core.Response) {
