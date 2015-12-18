@@ -18,6 +18,4 @@ public interface CertificateGeneratorMBean {
     public String configureDemoCert(String commonName);
 
     public String configureDemoCertWithDefaultHostname();
-
-    public Boolean removeKey(String alias);
 }

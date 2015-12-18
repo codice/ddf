@@ -65,7 +65,7 @@ public class CertificateGeneratorTest {
         generator.configureDemoCert("test2");
         ksf = generator.getKeyStoreFile();
         assertThat(ksf.aliases()
-                .size(), is(4));
-        assertThat(ksf.isKey("my-fqdn"), is(true));
+                .size(), is(2));
+        assertThat(ksf.isKey("test2"), is(true));
     }
 }

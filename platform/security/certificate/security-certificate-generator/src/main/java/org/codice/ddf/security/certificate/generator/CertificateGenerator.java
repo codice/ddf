@@ -57,19 +57,6 @@ public class CertificateGenerator implements CertificateGeneratorMBean {
         return CertificateCommand.configureDemoCert(commonName);
     }
 
-    /**
-     * Remove key from server keystore. The input is the key's alias in the keystore.
-     * The method returns true if the key is no longer in the keystore, or false if the
-     * key is in the keystore.
-     *
-     * @param alias
-     * @return true if the key is not in the keystore, otherwise false
-     */
-    public Boolean removeKey(String alias) {
-
-        return CertificateCommand.removeKey(alias);
-    }
-
     public KeyStoreFile getKeyStoreFile() {
         return CertificateCommand.getKeyStoreFile();
     }
