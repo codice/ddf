@@ -14,11 +14,12 @@
 
 package org.codice.ddf.configuration.store;
 
-import java.io.IOException;
 import java.nio.file.Path;
 
+import javax.validation.constraints.NotNull;
+
 /**
- * Provides a way to migrate configurations from one instance of DDF to another.  This
+ * Service that provides a way to migrate configurations from one instance of DDF to another.  This
  * includes exporting and importing of configurations.
  */
 public interface ConfigurationMigrationService {
@@ -26,9 +27,8 @@ public interface ConfigurationMigrationService {
     /**
      * Exports configurations to specified path
      *
-     * @param exportDirectory Path to export configurations
-     * @throws ConfigurationFileException thrown if one or more Configurations couldn't be exported
-     * @throws IOException                thrown if one or more Configurations couldn't be exported
+     * @param exportDirectory path to export configurations
+     * @throws MigrationException thrown if one or more Configurations couldn't be exported
      */
-    void export(Path exportDirectory) throws ConfigurationFileException, IOException;
+    void export(@NotNull Path exportDirectory) throws MigrationException;
 }

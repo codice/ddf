@@ -13,12 +13,11 @@
  */
 package org.codice.ddf.commands.platform;
 
-import java.io.IOException;
 import java.nio.file.Path;
 
 import org.apache.felix.gogo.commands.Command;
-import org.codice.ddf.configuration.store.ConfigurationFileException;
 import org.codice.ddf.configuration.store.ConfigurationMigrationService;
+import org.codice.ddf.configuration.store.MigrationException;
 
 /**
  * Executes the export method in {@link ConfigurationMigrationService}.  Configurations
@@ -42,13 +41,11 @@ public class ExportCommand extends PlatformCommands {
     protected Object doExecute() {
         try {
             configurationMigrationService.export(defaultExportDirectory);
-            // TODO: update to use base class methods of printing, add unit tests
-            System.out.println(
-                    String.format("Exported current configurations to %s", defaultExportDirectory));
-        } catch (IOException | ConfigurationFileException e) {
-            // TODO: update to use base class methods of printing, add unit tests
-            System.out.println(String.format("Failed to export all configurations to %s",
+            outputSuccessMessage(String.format("Exported current configurations to %s.",
                     defaultExportDirectory));
+        } catch (MigrationException e) {
+            outputErrorMessage(String.format("Failed to export all configurations to %s. %s",
+                    defaultExportDirectory, e.getMessage()));
         }
         return null;
     }

@@ -22,7 +22,6 @@
             <ext:property name="configFileDirectory" value="${ddf.home}/etc"/>
             <ext:property name="processedDirectory" value="${ddf.home}/etc/processed"/>
             <ext:property name="failedDirectory" value="${ddf.home}/etc/failed"/>
-            <ext:property name="exportedDirectory" value="${ddf.home}/etc/exported"/>
         </ext:default-properties>
     </ext:property-placeholder>
 
@@ -54,17 +53,16 @@
     </bean>
 
     <bean id="failedDirectoryPath" class="java.nio.file.Paths"
-          factory-method="get">
+        factory-method="get">
         <argument value="file://${failedDirectory}"/>
     </bean>
 
-    <bean id="exportedDirectoryPath" class="java.nio.file.Paths"
-          factory-method="get">
-        <argument value="file://${exportedDirectory}"/>
+    <bean id="ddfHome" class="java.nio.file.Paths" factory-method="get">
+        <argument value="file://${ddf.home}"/>
     </bean>
 
     <bean id="configurationFileFactory"
-          class="org.codice.ddf.configuration.store.ConfigurationFileFactory">
+        class="org.codice.ddf.configuration.store.ConfigurationFileFactory">
         <argument ref="persistenceStrategy"/>
         <argument ref="configurationAdmin"/>
     </bean>
@@ -85,7 +83,7 @@
     </bean>
 
     <bean id="configurationFileDirectory"
-        class="org.codice.ddf.configuration.store.ConfigurationFileDirectory"
+        class="org.codice.ddf.configuration.store.ConfigurationAdminMigrator"
         init-method="init">
         <argument ref="configDirectoryStream"/>
         <argument ref="processedDirectoryPath"/>
@@ -96,7 +94,21 @@
         <argument value="${configFileExtension}"/>
     </bean>
 
+    <bean id="systemConfigurationMigrator"
+        class="org.codice.ddf.configuration.store.SystemConfigurationMigrator">
+        <argument ref="ddfHome"/>
+    </bean>
+
+    <bean id="configMigrationManager"
+        class="org.codice.ddf.configuration.store.ConfigurationMigrationManager">
+        <argument ref="configurationFileDirectory"/>
+        <argument ref="systemConfigurationMigrator"/>
+    </bean>
+
     <service id="configurationFileDirectoryService" ref="configurationFileDirectory"
+        auto-export="interfaces"/>
+
+    <service id="configurationMigrationManager" ref="configMigrationManager"
         auto-export="interfaces"/>
 
 </blueprint>

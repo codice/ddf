@@ -35,16 +35,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Class that provides utility methods to access the configuration files in the configuration
- * directory.
+ * Class used to migrate {@link ConfigurationAdmin} configurations. This includes importing
+ * configuration files from a configuration directory and creating {@link Configuration} objects
+ * for those and exporting {@link Configuration} objects to configuration files.
  */
-public class ConfigurationFileDirectory implements ChangeListener, ConfigurationStatusService, ConfigurationMigrationService {
+public class ConfigurationAdminMigrator implements ChangeListener, ConfigurationStatusService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationFileDirectory.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationAdminMigrator.class);
 
     private static final String FILE_FILTER = "*.config";
 
-    private static final String FILTER = "(&(!(service.pid=jmx*))(!(service.pid=org.apache*))(!(service.pid=org.ops4j*)))";
+    private static final String FILTER =
+            "(&(!(service.pid=jmx*))(!(service.pid=org.apache*))(!(service.pid=org.ops4j*)))";
 
     private String configurationFileExtension;
 
@@ -75,7 +77,7 @@ public class ConfigurationFileDirectory implements ChangeListener, Configuration
      *                                 files have been created
      * @throws IllegalArgumentException thrown if any of the arguments is invalid
      */
-    public ConfigurationFileDirectory(@NotNull DirectoryStream configDirectoryStream,
+    public ConfigurationAdminMigrator(@NotNull DirectoryStream configDirectoryStream,
             @NotNull Path processedDirectory, @NotNull Path failedDirectory,
             @NotNull ConfigurationFileFactory configurationFileFactory,
             @NotNull ConfigurationFilesPoller poller,
@@ -105,7 +107,6 @@ public class ConfigurationFileDirectory implements ChangeListener, Configuration
      * {@code processedDirectory} and files that failed to be processed will be moved to the
      * {@code failedDirectory}. It will also register for file creation events which will
      * be handled by the {@link #notify(Path)} method.
-     *
      */
     public void init() throws IOException {
 
@@ -125,7 +126,9 @@ public class ConfigurationFileDirectory implements ChangeListener, Configuration
             }
         }
 
-        LOGGER.debug("Registering with [{}] for directory changes.", poller.getClass().getName());
+        LOGGER.debug("Registering with [{}] for directory changes.",
+                poller.getClass()
+                        .getName());
         poller.register(this);
     }
 
@@ -134,6 +137,7 @@ public class ConfigurationFileDirectory implements ChangeListener, Configuration
         Path fileInFailedDirectory = failedDirectory.resolve(file.getFileName());
         boolean result = deleteFileFromFailedDirectory(fileInFailedDirectory);
         LOGGER.debug("Deleted file [{}]: {}", fileInFailedDirectory.toString(), result);
+
         try {
             ConfigurationFile configFile = configurationFileFactory.createConfigurationFile(file);
             configFile.createConfig();
@@ -155,31 +159,31 @@ public class ConfigurationFileDirectory implements ChangeListener, Configuration
         return configStatusMessages;
     }
 
-    @Override
     public void export(@NotNull Path exportDirectory)
             throws ConfigurationFileException, IOException {
         notNull(exportDirectory, "exportDirectory cannot be null");
-        createDirectory(exportDirectory);
-        LOGGER.info("created export directory");
+        Path etcDirectory = createEtcDirectory(exportDirectory);
+
         try {
             Configuration[] configurations = configurationAdmin.listConfigurations(FILTER);
             if (configurations != null) {
                 for (Configuration configuration : configurations) {
-                    String exportedFilePath = String
-                            .format("%s/%s%s", exportDirectory, configuration.getPid(),
-                                    configurationFileExtension);
+                    Path exportedFilePath = etcDirectory.resolve(
+                            configuration.getPid() + configurationFileExtension);
+
                     try {
-                        configurationFileFactory
-                                .createConfigurationFile(configuration.getProperties())
-                                .exportConfig(exportedFilePath);
+                        configurationFileFactory.createConfigurationFile(configuration.getProperties())
+                                .exportConfig(exportedFilePath.toString());
                     } catch (ConfigurationFileException e) {
                         LOGGER.error(String.format(
                                 "Could not create configuration file %s for configuration %s",
-                                exportedFilePath, configuration.getPid()));
+                                exportedFilePath,
+                                configuration.getPid()));
                         throw new ConfigurationFileException("Failed to export configurations.", e);
                     } catch (IOException e) {
                         LOGGER.error(String.format("Could not export configuration %s to %s.",
-                                configuration.getPid(), exportedFilePath));
+                                configuration.getPid(),
+                                exportedFilePath));
                         throw new IOException("Failed to export configurations.", e);
                     }
                 }
@@ -190,15 +194,33 @@ public class ConfigurationFileDirectory implements ChangeListener, Configuration
         }
     }
 
+    // Package-private for unit testing
     void moveFile(Path source, Path destination) throws IOException {
         Files.move(source, destination.resolve(source.getFileName()), REPLACE_EXISTING);
+    }
+
+    // Package-private for unit testing
+    DirectoryStream<Path> getFailedDirectoryStream() throws IOException {
+        return Files.newDirectoryStream(failedDirectory, FILE_FILTER);
+    }
+
+    private boolean deleteFileFromFailedDirectory(Path file) {
+        return FileUtils.deleteQuietly(file.toFile());
+    }
+
+    private Path createEtcDirectory(Path exportDirectory) throws IOException {
+        Path etcDirectory = exportDirectory.resolve("etc");
+        FileUtils.forceMkdir(etcDirectory.toFile());
+        LOGGER.debug("Output directory {} created", etcDirectory.toString());
+        return etcDirectory;
     }
 
     private void moveConfigurationFile(Path source, Path destination) {
         try {
             moveFile(source, destination);
         } catch (IOException e) {
-            LOGGER.warn(String.format("Failed to move %s to %s directory", source.toString(),
+            LOGGER.warn(String.format("Failed to move %s to %s directory",
+                    source.toString(),
                     destination.toString()), e);
         }
     }
@@ -235,6 +257,7 @@ public class ConfigurationFileDirectory implements ChangeListener, Configuration
         return fileNames;
     }
 
+    // TODO - Change to use Files/FileUtils instead
     private void createDirectory(Path path) throws IOException {
         File file = path.toFile();
 
@@ -253,13 +276,5 @@ public class ConfigurationFileDirectory implements ChangeListener, Configuration
                 throw new IOException(String.format("Failed to create %s.", path.toString()));
             }
         }
-    }
-
-    boolean deleteFileFromFailedDirectory(Path file) {
-        return FileUtils.deleteQuietly(file.toFile());
-    }
-
-    DirectoryStream<Path> getFailedDirectoryStream() throws IOException {
-        return Files.newDirectoryStream(failedDirectory, FILE_FILTER);
     }
 }
