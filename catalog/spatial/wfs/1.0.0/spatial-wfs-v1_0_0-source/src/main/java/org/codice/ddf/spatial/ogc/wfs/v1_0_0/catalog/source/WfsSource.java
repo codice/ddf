@@ -204,7 +204,7 @@ public class WfsSource extends MaskableImpl
 
     private Set<SourceMonitor> sourceMonitors = new HashSet<SourceMonitor>();
 
-    private SecureCxfClientFactory factory;
+    private SecureCxfClientFactory<Wfs> factory;
 
     protected String configurationPid;
 
@@ -257,8 +257,7 @@ public class WfsSource extends MaskableImpl
         String wfsUrl = (String) configuration.get(WFSURL_PROPERTY);
         String password = (String) configuration.get(PASSWORD_PROPERTY);
         String username = (String) configuration.get(USERNAME_PROPERTY);
-        Boolean disableCnCheckProp = (Boolean) configuration
-                .get(DISABLE_CN_CHECK_PROPERTY);
+        Boolean disableCnCheckProp = (Boolean) configuration.get(DISABLE_CN_CHECK_PROPERTY);
         String id = (String) configuration.get(ID_PROPERTY);
 
         setConnectionTimeout((Integer) configuration.get(CONNECTION_TIMEOUT_PROPERTY));
@@ -305,8 +304,14 @@ public class WfsSource extends MaskableImpl
 
     /* This method should only be called after all properties have been set. */
     private void createClientFactory() {
-        factory = new SecureCxfClientFactory(wfsUrl, Wfs.class, initProviders(),
-                new MarkableStreamInterceptor(), this.disableCnCheck);
+        if (StringUtils.isNotBlank(username) && StringUtils.isNotBlank(password)) {
+            factory = new SecureCxfClientFactory(wfsUrl, Wfs.class, initProviders(),
+                    new MarkableStreamInterceptor(), this.disableCnCheck, false, null, null,
+                    username, password);
+        } else {
+            factory = new SecureCxfClientFactory(wfsUrl, Wfs.class, initProviders(),
+                    new MarkableStreamInterceptor(), this.disableCnCheck, false);
+        }
     }
 
     private List<? extends Object> initProviders() {
@@ -390,7 +395,7 @@ public class WfsSource extends MaskableImpl
 
     private WFSCapabilitiesType getCapabilities() throws SecurityServiceException {
         WFSCapabilitiesType capabilities = null;
-        Wfs wfs = getClient();
+        Wfs wfs = factory.getClient();
         try {
             capabilities = wfs.getCapabilities(new GetCapabilitiesRequest());
         } catch (WfsException wfse) {
@@ -441,7 +446,7 @@ public class WfsSource extends MaskableImpl
         // Use local Map for metacardtype registrations and once they are populated with latest
         // MetacardTypes, then do actual registration
         Map<String, MetacardTypeRegistration> mcTypeRegs = new HashMap<String, MetacardTypeRegistration>();
-        Wfs wfs = getClient();
+        Wfs wfs = factory.getClient();
 
         for (FeatureTypeType featureTypeType : featureTypes) {
             String ftName = featureTypeType.getName().getLocalPart();
@@ -565,14 +570,7 @@ public class WfsSource extends MaskableImpl
 
     @Override
     public SourceResponse query(QueryRequest request) throws UnsupportedQueryException {
-
-        Wfs wfs = null;
-        try {
-            wfs = getClient();
-        } catch (SecurityServiceException sse) {
-            throw new UnsupportedQueryException(
-                    "Could not get a client to connect to the endpointUrl.", sse);
-        }
+        Wfs wfs = factory.getClient();
 
         Query query = request.getQuery();
         LOGGER.debug("WFS Source {}: Received query: \n{}", getId(), query);
@@ -1064,22 +1062,5 @@ public class WfsSource extends MaskableImpl
             return newAvailability;
         }
 
-    }
-
-    /**
-     * Creates a new WFS client using basic auth, if possible.
-     *
-     * @return a new secure WFS client form either basicAuth or an insecure client.
-     * @throws SecurityServiceException
-     */
-    private Wfs getClient() throws SecurityServiceException {
-        Wfs wfs;
-
-        if (StringUtils.isNotEmpty(username) && StringUtils.isNotEmpty(password)) {
-            wfs = (Wfs) factory.getClientForBasicAuth(username, password);
-        } else {
-            wfs = (Wfs) factory.getUnsecuredClient();
-        }
-        return wfs;
     }
 }

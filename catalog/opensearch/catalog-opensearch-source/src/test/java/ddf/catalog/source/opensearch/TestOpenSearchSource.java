@@ -81,7 +81,6 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
-import ddf.security.service.SecurityServiceException;
 
 /**
  * Tests parts of the {@link OpenSearchSource}
@@ -99,8 +98,9 @@ public class TestOpenSearchSource {
 
     private static final String BYTES_TO_SKIP = "BytesToSkip";
 
-    private static final List<String> DEFAULT_PARAMETERS = Arrays.asList("q", "src", "mr", "start", "count", "mt", "dn",
-            "lat", "lon", "radius", "bbox", "polygon", "dtstart", "dtend", "dateName", "filter", "sort");
+    private static final List<String> DEFAULT_PARAMETERS = Arrays
+            .asList("q", "src", "mr", "start", "count", "mt", "dn", "lat", "lon", "radius", "bbox",
+                    "polygon", "dtstart", "dtend", "dateName", "filter", "sort");
 
     private static FilterBuilder filterBuilder = new GeotoolsFilterBuilder();
 
@@ -871,7 +871,8 @@ public class TestOpenSearchSource {
         }
 
         @Override
-        protected SecureCxfClientFactory tempFactory(String url) {
+        protected SecureCxfClientFactory createClientFactory(String url, String username,
+                String password) {
             return this.factory;
         }
     }
@@ -879,15 +880,10 @@ public class TestOpenSearchSource {
     protected SecureCxfClientFactory getMockFactory(WebClient client) {
         SecureCxfClientFactory factory = mock(SecureCxfClientFactory.class);
 
-        try {
-            doReturn(client).when(factory)
-                    .getClientForBasicAuth(any(String.class), any(String.class));
-            doReturn(client).when(factory)
-                    .getWebClientForSubject(any(org.apache.shiro.subject.Subject.class));
-            doReturn(client).when(factory).getUnsecuredWebClient();
-        } catch (SecurityServiceException sse) {
-            fail("Could not get client");
-        }
+        doReturn(client).when(factory).getClient();
+        doReturn(client).when(factory)
+                .getWebClientForSubject(any(org.apache.shiro.subject.Subject.class));
+        doReturn(client).when(factory).getWebClient();
 
         return factory;
     }

@@ -950,21 +950,15 @@ public class TestCswSource extends TestCswSourceBase {
     }
 
     private CswSource getCswSource(Csw csw, BundleContext context, String contentMapping,
-            String queryTypeQName, String queryTypePrefix) throws SecurityServiceException {
+            String queryTypeQName, String queryTypePrefix) {
 
         CswSourceConfiguration cswSourceConfiguration = getStandardCswSourceConfiguration(
                 contentMapping, queryTypeQName, queryTypePrefix);
         cswSourceConfiguration.setContentTypeMapping(contentMapping);
 
         SecureCxfClientFactory mockFactory = mock(SecureCxfClientFactory.class);
-        try {
-            doReturn(csw).when(mockFactory)
-                    .getClientForBasicAuth(any(String.class), any(String.class));
-            doReturn(csw).when(mockFactory).getClientForSubject(any(Subject.class));
-            doReturn(csw).when(mockFactory).getUnsecuredClient();
-        } catch (SecurityServiceException sse) {
-            fail("Mock CSW from mockFactory failed");
-        }
+        doReturn(csw).when(mockFactory).getClient();
+        doReturn(csw).when(mockFactory).getClientForSubject(any(Subject.class));
 
         CswSource cswSource = new CswSource(mockContext, cswSourceConfiguration, mockProvider,
                 mockFactory);
@@ -978,9 +972,7 @@ public class TestCswSource extends TestCswSourceBase {
         return cswSource;
     }
 
-    private CswSource getCswSource(Csw csw, BundleContext context, String contentMapping)
-            throws SecurityServiceException {
-
+    private CswSource getCswSource(Csw csw, BundleContext context, String contentMapping) {
         return getCswSource(csw, context, contentMapping, CSW_RECORD_QNAME,
                 CswConstants.CSW_NAMESPACE_PREFIX);
     }

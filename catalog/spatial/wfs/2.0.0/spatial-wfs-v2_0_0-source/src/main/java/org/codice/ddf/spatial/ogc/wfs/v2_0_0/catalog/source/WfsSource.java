@@ -225,7 +225,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
     private boolean disableSorting;
 
-    private SecureCxfClientFactory factory;
+    private SecureCxfClientFactory<Wfs> factory;
 
     private FeatureCollectionMessageBodyReaderWfs20 featureCollectionReader;
 
@@ -278,8 +278,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         String wfsUrl = (String) configuration.get(WFSURL_PROPERTY);
         String password = (String) configuration.get(PASSWORD_PROPERTY);
         String username = (String) configuration.get(USERNAME_PROPERTY);
-        Boolean disableCnCheckProp = (Boolean) configuration
-                .get(DISABLE_CN_CHECK_PROPERTY);
+        Boolean disableCnCheckProp = (Boolean) configuration.get(DISABLE_CN_CHECK_PROPERTY);
         String coordinateOrder = (String) configuration.get(COORDINATE_ORDER);
         boolean disableSorting = (Boolean) configuration.get(DISABLE_SORTING);
         String id = (String) configuration.get(ID_PROPERTY);
@@ -334,8 +333,14 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
     /* This method should only be called after all properties have been set. */
     private void createClientFactory() {
-        factory = new SecureCxfClientFactory(wfsUrl, Wfs.class, initProviders(),
-                new MarkableStreamInterceptor(), this.disableCnCheck);
+        if (StringUtils.isNotBlank(username) && StringUtils.isNotBlank(password)) {
+            factory = new SecureCxfClientFactory(wfsUrl, Wfs.class, initProviders(),
+                    new MarkableStreamInterceptor(), this.disableCnCheck, false, null, null,
+                    username, password);
+        } else {
+            factory = new SecureCxfClientFactory(wfsUrl, Wfs.class, initProviders(),
+                    new MarkableStreamInterceptor(), this.disableCnCheck, false);
+        }
     }
 
     private void setupAvailabilityPoll() {
@@ -384,7 +389,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
     private WFSCapabilitiesType getCapabilities() throws SecurityServiceException {
         WFSCapabilitiesType capabilities = null;
-        Wfs wfs = getClient();
+        Wfs wfs = factory.getClient();
 
         try {
             capabilities = wfs.getCapabilities(new GetCapabilitiesRequest());
@@ -437,7 +442,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
     private void buildFeatureFilters(List<FeatureTypeType> featureTypes,
             FilterCapabilities filterCapabilities) throws SecurityServiceException {
-        Wfs wfs = getClient();
+        Wfs wfs = factory.getClient();
         if (filterCapabilities == null) {
             return;
         }
@@ -628,13 +633,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
     @Override
     public SourceResponse query(QueryRequest request) throws UnsupportedQueryException {
-        Wfs wfs;
-        try {
-            wfs = getClient();
-        } catch (SecurityServiceException sse) {
-            throw new UnsupportedQueryException(
-                    "Could not get a client for query from the endpointUrl.", sse);
-        }
+        Wfs wfs = factory.getClient();
         Query query = request.getQuery();
 
         if (query == null) {
@@ -1270,23 +1269,6 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
             return newAvailability;
         }
 
-    }
-
-    /**
-     * Creates a new WFS client using basic auth, if possible.
-     *
-     * @return a new secure WFS client form either basicAuth or an insecure client.
-     * @throws SecurityServiceException
-     */
-    private Wfs getClient() throws SecurityServiceException {
-        Wfs wfs;
-
-        if (StringUtils.isNotEmpty(username) && StringUtils.isNotEmpty(password)) {
-            wfs = (Wfs) factory.getClientForBasicAuth(username, password);
-        } else {
-            wfs = (Wfs) factory.getUnsecuredClient();
-        }
-        return wfs;
     }
 
     public FeatureCollectionMessageBodyReaderWfs20 getFeatureCollectionReader() {
