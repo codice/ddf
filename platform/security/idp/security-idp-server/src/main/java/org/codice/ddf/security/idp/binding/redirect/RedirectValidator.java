@@ -94,13 +94,12 @@ public class RedirectValidator extends ValidatorImpl implements Validator {
 
     @Override
     public void validateRelayState(String relayState) {
-        if (relayState == null) {
-            throw new IllegalArgumentException("Missing RelayState on IdP request.");
-        }
-        try {
-            relayState = URLDecoder.decode(relayState, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            LOGGER.warn("Unable to URL decode relay state, it may already be decoded.", e);
+        if (relayState != null) {
+            try {
+                relayState = URLDecoder.decode(relayState, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                LOGGER.warn("Unable to URL decode relay state, it may already be decoded.", e);
+            }
         }
 
         super.validateRelayState(relayState);
