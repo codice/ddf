@@ -32,7 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.codice.ddf.configuration.status.ConfigurationStatus;
-import org.codice.ddf.configuration.store.ConfigurationStatusService;
+import org.codice.ddf.configuration.status.ConfigurationStatusService;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.Ansi.Attribute;
 import org.junit.Test;

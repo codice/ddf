@@ -16,8 +16,8 @@ package org.codice.ddf.commands.platform;
 import java.nio.file.Path;
 
 import org.apache.felix.gogo.commands.Command;
-import org.codice.ddf.configuration.store.ConfigurationMigrationService;
-import org.codice.ddf.configuration.store.MigrationException;
+import org.codice.ddf.configuration.migration.ConfigurationMigrationService;
+import org.codice.ddf.configuration.status.MigrationException;
 
 /**
  * Executes the export method in {@link ConfigurationMigrationService}.  Configurations

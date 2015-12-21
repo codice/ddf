@@ -22,7 +22,7 @@ import javax.validation.constraints.NotNull;
 
 import org.apache.felix.gogo.commands.Command;
 import org.codice.ddf.configuration.status.ConfigurationStatus;
-import org.codice.ddf.configuration.store.ConfigurationStatusService;
+import org.codice.ddf.configuration.status.ConfigurationStatusService;
 
 @Command(scope = PlatformCommands.NAMESPACE, name = "config-status", description = "Lists import status of configuration files.")
 public class ConfigStatusCommand extends PlatformCommands {

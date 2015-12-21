@@ -40,7 +40,7 @@
     </bean>
 
     <bean id="persistenceStrategy"
-          class="org.codice.ddf.configuration.store.felix.FelixPersistenceStrategy"/>
+          class="org.codice.ddf.configuration.persistence.felix.FelixPersistenceStrategy"/>
 
     <bean id="configDirectoryPath" class="java.nio.file.Paths"
           factory-method="get">
@@ -62,13 +62,13 @@
     </bean>
 
     <bean id="configurationFileFactory"
-        class="org.codice.ddf.configuration.store.ConfigurationFileFactory">
+        class="org.codice.ddf.configuration.admin.ConfigurationFileFactory">
         <argument ref="persistenceStrategy"/>
         <argument ref="configurationAdmin"/>
     </bean>
 
     <bean id="configurationFilesPoller"
-          class="org.codice.ddf.configuration.store.ConfigurationFilesPoller"
+          class="org.codice.ddf.configuration.admin.ConfigurationFilesPoller"
           init-method="init" destroy-method="destroy">
         <argument ref="configDirectoryPath"/>
         <argument value="${configFileExtension}"/>
@@ -83,7 +83,7 @@
     </bean>
 
     <bean id="configurationFileDirectory"
-        class="org.codice.ddf.configuration.store.ConfigurationAdminMigrator"
+        class="org.codice.ddf.configuration.admin.ConfigurationAdminMigration"
         init-method="init">
         <argument ref="configDirectoryStream"/>
         <argument ref="processedDirectoryPath"/>
@@ -94,15 +94,15 @@
         <argument value="${configFileExtension}"/>
     </bean>
 
-    <bean id="systemConfigurationMigrator"
-        class="org.codice.ddf.configuration.store.SystemConfigurationMigrator">
+    <bean id="systemConfigurationMigration"
+        class="org.codice.ddf.configuration.migration.SystemConfigurationMigration">
         <argument ref="ddfHome"/>
     </bean>
 
     <bean id="configMigrationManager"
-        class="org.codice.ddf.configuration.store.ConfigurationMigrationManager">
+        class="org.codice.ddf.configuration.migration.ConfigurationMigrationManager">
         <argument ref="configurationFileDirectory"/>
-        <argument ref="systemConfigurationMigrator"/>
+        <argument ref="systemConfigurationMigration"/>
     </bean>
 
     <service id="configurationFileDirectoryService" ref="configurationFileDirectory"

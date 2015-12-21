@@ -46,10 +46,10 @@
     </ext:property-placeholder>
 
     <reference id="configStatusService"
-        interface="org.codice.ddf.configuration.store.ConfigurationStatusService" />
+        interface="org.codice.ddf.configuration.status.ConfigurationStatusService" />
 
     <reference id="configurationMigrationService"
-               interface="org.codice.ddf.configuration.store.ConfigurationMigrationService"/>
+               interface="org.codice.ddf.configuration.migration.ConfigurationMigrationService"/>
 
     <bean id="defaultExportDirectoryPath" class="java.nio.file.Paths"
           factory-method="get">
