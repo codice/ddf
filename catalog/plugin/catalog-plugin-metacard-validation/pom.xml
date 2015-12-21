@@ -12,7 +12,9 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <parent>
         <artifactId>plugin</artifactId>
         <groupId>ddf.catalog.plugin</groupId>
@@ -59,7 +61,7 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Export-Package />
+                        <Export-Package/>
                         <Embed-Dependency>catalog-core-api-impl, commons-lang3</Embed-Dependency>
                     </instructions>
                 </configuration>
@@ -82,22 +84,22 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.8</minimum>
+                                            <minimum>0.9</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.8</minimum>
+                                            <minimum>0.85</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.6</minimum>
+                                            <minimum>0.8</minimum>
                                         </limit>
                                         <limit>
                                             <counter>LINE</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.8</minimum>
+                                            <minimum>0.9</minimum>
                                         </limit>
                                     </limits>
                                 </rule>

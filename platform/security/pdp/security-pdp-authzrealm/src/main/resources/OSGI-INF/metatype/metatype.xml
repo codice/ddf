@@ -24,7 +24,7 @@
 
         <AD description="Comma-delimited list of 'Match-One' subject attribute to Metacard attribute mapping. One value of this metacard key must be present in the corresponding subject key values. Format is subjectAttrName=metacardAttrName."
             name="Match-One Mappings" id="matchOneMappings" required="false"
-            type="String" default=""/>
+            type="String" default="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=invalid-state"/>
     </OCD>
 
     <Designate pid="ddf.security.pdp.realm.SimpleAuthzRealm">
