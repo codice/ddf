@@ -11,24 +11,36 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.security.idp.client;
+package ddf.security.samlp;
 
 import static org.mockito.Mockito.mock;
 import static junit.framework.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.StringWriter;
 import java.net.URI;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.security.cert.Certificate;
+import java.util.zip.Deflater;
+import java.util.zip.DeflaterOutputStream;
 
 import javax.ws.rs.core.UriBuilder;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.jaxrs.impl.UriBuilderImpl;
 import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.http.client.utils.URLEncodedUtils;
+import org.apache.wss4j.common.crypto.Merlin;
+import org.apache.wss4j.common.crypto.PasswordEncryptor;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.apache.wss4j.common.util.DOM2Writer;
-import org.codice.ddf.security.common.jaxrs.RestSecurity;
+import org.bouncycastle.util.io.pem.PemObject;
+import org.bouncycastle.util.io.pem.PemWriter;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -39,15 +51,11 @@ import org.w3c.dom.Element;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 
-import ddf.security.encryption.EncryptionService;
-import ddf.security.samlp.SimpleSign;
-import ddf.security.samlp.SystemCrypto;
-
 public class SimpleSignTest {
 
     private String cannedResponse;
 
-    private EncryptionService encryptionService;
+    private PasswordEncryptor encryptionService;
 
     private SystemCrypto systemCrypto;
 
@@ -61,6 +69,11 @@ public class SimpleSignTest {
 
     private static final String RELAY_STATE_VAL = "b0b4e449-7f69-413f-a844-61fe2256de19";
 
+    private static final String SINGLE_SIGN_ON_LOCATION =
+            "https://localhost:8993/services/idp/login";
+
+    private String dsaCert;
+
     @BeforeClass
     public static void init() {
         OpenSAMLUtil.initSamlEngine();
@@ -69,7 +82,7 @@ public class SimpleSignTest {
     @Before
     public void setUp() throws Exception {
 
-        encryptionService = mock(EncryptionService.class);
+        encryptionService = mock(PasswordEncryptor.class);
         systemCrypto = new SystemCrypto("encryption.properties",
                 "signature.properties",
                 encryptionService);
@@ -77,6 +90,17 @@ public class SimpleSignTest {
 
         cannedResponse = Resources.toString(Resources.getResource(getClass(), "/SAMLResponse.xml"),
                 Charsets.UTF_8);
+
+        //Normally you would have the cert in a string already but for this test we will have to pull it out of the jks file
+        Certificate cert = ((Merlin) systemCrypto.getSignatureCrypto()).getKeyStore()
+                .getCertificate("dsa");
+        StringWriter writer = new StringWriter();
+        PemWriter pemWriter = new PemWriter(writer);
+        pemWriter.writeObject(new PemObject("CERTIFICATE", cert.getEncoded()));
+        pemWriter.flush();
+        dsaCert = writer.toString()
+                .replace("-----BEGIN CERTIFICATE-----", "")
+                .replace("-----END CERTIFICATE-----", "");
 
     }
 
@@ -128,16 +152,12 @@ public class SimpleSignTest {
                 "dsa-signature.properties",
                 encryptionService);
         simpleSign = new SimpleSign(systemCrypto);
-        IdpMetadata idpMetadata = new IdpMetadata();
-        String metadata = Resources.toString(Resources.getResource(getClass(),
-                "/dsa-IDPmetadata.xml"), Charsets.UTF_8);
-        idpMetadata.setMetadata(metadata);
-        String deflatedSamlResponse = RestSecurity.deflateAndBase64Encode(cannedResponse);
+        String deflatedSamlResponse = deflateAndBase64Encode(cannedResponse);
 
         String queryParams = String.format("SAMLResponse=%s&RelayState=%s",
                 URLEncoder.encode(deflatedSamlResponse, "UTF-8"),
                 URLEncoder.encode(RELAY_STATE_VAL, "UTF-8"));
-        String idpRequest = idpMetadata.getSingleSignOnLocation() + "?" + queryParams;
+        String idpRequest = SINGLE_SIGN_ON_LOCATION + "?" + queryParams;
         UriBuilder idpUri = new UriBuilderImpl(new URI(idpRequest));
         simpleSign.signUriString(queryParams, idpUri);
 
@@ -155,9 +175,7 @@ public class SimpleSignTest {
                 URLEncoder.encode(RELAY_STATE_VAL, "UTF-8"),
                 SIG_ALG,
                 URLEncoder.encode(signatureAlgorithm, "UTF-8"));
-        boolean valid = simpleSign.validateSignature(signedMessage,
-                signatureString,
-                idpMetadata.getSigningCertificate());
+        boolean valid = simpleSign.validateSignature(signedMessage, signatureString, dsaCert);
         assertTrue("Signature was expected to be valid", valid);
 
     }
@@ -169,16 +187,13 @@ public class SimpleSignTest {
                 "dsa-signature.properties",
                 encryptionService);
         simpleSign = new SimpleSign(systemCrypto);
-        IdpMetadata idpMetadata = new IdpMetadata();
-        String metadata = Resources.toString(Resources.getResource(getClass(),
-                "/dsa-IDPmetadata.xml"), Charsets.UTF_8);
-        idpMetadata.setMetadata(metadata);
-        String deflatedSamlResponse = RestSecurity.deflateAndBase64Encode(cannedResponse);
+
+        String deflatedSamlResponse = deflateAndBase64Encode(cannedResponse);
 
         String queryParams = String.format("SAMLResponse=%s&RelayState=%s",
                 URLEncoder.encode(deflatedSamlResponse, "UTF-8"),
                 URLEncoder.encode(RELAY_STATE_VAL, "UTF-8"));
-        String idpRequest = idpMetadata.getSingleSignOnLocation() + "?" + queryParams;
+        String idpRequest = SINGLE_SIGN_ON_LOCATION + "?" + queryParams;
         UriBuilder idpUri = new UriBuilderImpl(new URI(idpRequest));
         simpleSign.signUriString(queryParams, idpUri);
         idpUri.queryParam("RelayState", "changedit");
@@ -197,10 +212,26 @@ public class SimpleSignTest {
                 URLEncoder.encode(RELAY_STATE_VAL, "UTF-8"),
                 SIG_ALG,
                 URLEncoder.encode(signatureAlgorithm, "UTF-8"));
-        simpleSign.validateSignature(signedMessage,
-                signatureString,
-                idpMetadata.getSigningCertificate());
+        simpleSign.validateSignature(signedMessage, signatureString, dsaCert);
 
+    }
+
+    /**
+     * Deflates a value and Base64 encodes the result. This code is copied from RestSecurity because it would cause a circular dependency to use it directly..
+     *
+     * @param value value to deflate and Base64 encode
+     * @return String
+     * @throws IOException if the value cannot be converted
+     */
+    public static String deflateAndBase64Encode(String value) throws IOException {
+        ByteArrayOutputStream valueBytes = new ByteArrayOutputStream();
+        try (OutputStream tokenStream = new DeflaterOutputStream(valueBytes,
+                new Deflater(Deflater.DEFLATED, true))) {
+            tokenStream.write(value.getBytes(StandardCharsets.UTF_8));
+            tokenStream.close();
+
+            return new String(Base64.encodeBase64(valueBytes.toByteArray()));
+        }
     }
 
 }
