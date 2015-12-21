@@ -27,14 +27,13 @@ define([
                 this.className = 'modal fade ' + this.className; // add on modal specific classes.
                 Marionette.LayoutView.prototype.constructor.apply(this, arguments);
             },
-// be default, "destroy" just destroys the modal
-            destroy: function () {
+            initialize: function () {
+                // destroy view after animation completes.
+                // extending views must call: Modal.prototype.initialize.apply(this, arguments);
                 var view = this;
-// we add this listener because we do not want to remove the dom before the animation completes.
                 this.$el.one('hidden.bs.modal', function () {
                     view.destroy();
                 });
-                this.hide();
             },
             show: function () {
                 this.$el.modal({

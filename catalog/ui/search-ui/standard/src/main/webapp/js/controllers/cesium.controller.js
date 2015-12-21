@@ -9,10 +9,11 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define, parseFloat*/
+/*global define*/
 /*jshint newcap:false */
 
-define(['underscore',
+define(['application',
+        'underscore',
         'marionette',
         'cesium',
         'q',
@@ -20,27 +21,29 @@ define(['underscore',
         'properties',
         'js/view/cesium.metacard',
         'jquery',
-        'drawHelper'
-    ], function (_, Marionette, Cesium, Q, wreqr, properties, CesiumMetacard, $, DrawHelper) {
+        'drawHelper',
+        'js/controllers/cesium.layerCollection.controller'
+    ], function (Application, _, Marionette, Cesium, Q, wreqr, properties, CesiumMetacard, $, DrawHelper,
+                 LayerCollectionController) {
         "use strict";
 
-        var imageryProviderTypes = {
-            OSM: Cesium.OpenStreetMapImageryProvider,
-            AGM: Cesium.ArcGisMapServerImageryProvider,
-            BM: Cesium.BingMapsImageryProvider,
-            WMS: Cesium.WebMapServiceImageryProvider,
-            WMT: Cesium.WebMapTileServiceImageryProvider,
-            TMS: Cesium.TileMapServiceImageryProvider,
-            GE: Cesium.GoogleEarthImageryProvider,
-            CT: Cesium.CesiumTerrainProvider,
-            AGS: Cesium.ArcGisImageServerTerrainProvider,
-            VRW: Cesium.VRTheWorldTerrainProvider,
-            SI: Cesium.SingleTileImageryProvider
-        };
+        var imageryProviderTypes = LayerCollectionController.imageryProviderTypes;
+
+        var CesiumLayerCollectionController = LayerCollectionController.extend({
+            initialize: function () {
+                this.listenTo(wreqr.vent, 'preferencesModal:reorder:bigMap', this.reIndexAll);
+
+                // there is no automatic chaining of initialize.
+                LayerCollectionController.prototype.initialize.apply(this, arguments);
+            }
+        });
 
         var Controller = Marionette.Controller.extend({
             initialize: function () {
-                this.mapViewer = this.createMap('cesiumContainer');
+                Cesium.BingMapsApi.defaultKey = properties.bingKey || 0;
+                this.mapViewer = this.createMap();
+                this.drawHelper = new DrawHelper(this.mapViewer);
+
                 this.scene = this.mapViewer.scene;
                 this.ellipsoid = this.mapViewer.scene.globe.ellipsoid;
                 this.handler = new Cesium.ScreenSpaceEventHandler(this.scene.canvas);
@@ -56,66 +59,44 @@ define(['underscore',
                     this.newResults(wreqr.reqres.request('search:results'));
                 }
             },
-            createMap: function (mapDivId) {
-                var viewer, options;
-                options = {
-                    sceneMode: Cesium.SceneMode.SCENE3D,
-                    animation: false,
-                    fullscreenButton: false,
-                    timeline: false,
-                    geocoder: properties.gazetteer,
-                    homeButton: true,
-                    sceneModePicker: true,
-		    selectionIndicator: false,
-		    infoBox: false,
+            createMap: function () {
+                var layerPrefs = Application.UserModel.get('user>preferences>mapLayers');
+                var layerCollectionController = new CesiumLayerCollectionController({
+                    collection: layerPrefs
+                });
 
-                    // Hide the base layer picker
-                    baseLayerPicker: false
-                };
-
-                Cesium.BingMapsApi.defaultKey = properties.bingKey || 0;
-
-                if(properties.imageryProviders) {
-                    _.each(properties.imageryProviders, function(imageryProvider) {
-                        if (imageryProvider) {
-                            var type = imageryProviderTypes[imageryProvider.type];
-                            var initObj = _.omit(imageryProvider, 'type');
-                            if (!options.imageryProvider) {
-                                options.imageryProvider = new type(initObj);
-                                viewer = new Cesium.Viewer(mapDivId, options);
-                            } else {
-                                var layer = viewer.scene.imageryLayers.addImageryProvider(new type(initObj));
-                                if (initObj.alpha) {
-                                    layer.alpha = parseFloat(initObj.alpha, 10);
-                                } else {
-                                    layer.alpha = 0.5;
-                                }
-
-                            }
+                var viewer = layerCollectionController.makeMap({
+                        divId: 'cesiumContainer',
+                        cesiumOptions: {
+                            sceneMode: Cesium.SceneMode.SCENE3D,
+                            animation: false,
+                            fullscreenButton: false,
+                            timeline: false,
+                            geocoder: properties.gazetteer,
+                            homeButton: true,
+                            sceneModePicker: true,
+                            selectionIndicator: false,
+                            infoBox: false,
+                            baseLayerPicker: false // Hide the base layer picker
                         }
-                    });
-
-                    if (viewer) {
-                        if (properties.terrainProvider) {
-                            var type = imageryProviderTypes[properties.terrainProvider.type];
-                            var initObj = _.omit(properties.terrainProvider, 'type');
-                            viewer.scene.terrainProvider = new type(initObj);
-                        }
-
-                        if (properties.gazetteer) {
-                            var container = $('div.cesium-viewer-geocoderContainer');
-                            container.html("");
-                            viewer._geocoder = new Cesium.Geocoder({
-                                container: container[0],
-                                url: '/services/',
-                                scene: viewer.scene
-                            });
-                        }
-
-                        this.drawHelper = new DrawHelper(viewer);
                     }
+                );
+
+                if (properties.terrainProvider) {
+                    var type = imageryProviderTypes[properties.terrainProvider.type];
+                    var initObj = _.omit(properties.terrainProvider, 'type');
+                    viewer.scene.terrainProvider = new type(initObj);
                 }
 
+                if (properties.gazetteer) {
+                    var container = $('div.cesium-viewer-geocoderContainer');
+                    container.html("");
+                    viewer._geocoder = new Cesium.Geocoder({
+                        container: container[0],
+                        url: '/services/',
+                        scene: viewer.scene
+                    });
+                }
                 return viewer;
             },
 
@@ -131,8 +112,8 @@ define(['underscore',
                 controller.billboardCollection = new Cesium.BillboardCollection();
                 // cesium loads the images asynchronously, so we need to use promises
                 this.billboardPromise = Q.all(_.map(this.billboards, function (billboard) {
-                        return Q(Cesium.loadImage(billboard));
-                    }))
+                    return Q(Cesium.loadImage(billboard));
+                }))
                     .then(function (images) {
                         var texAtlas = new Cesium.TextureAtlas({
                             context: controller.scene.context,
@@ -166,7 +147,7 @@ define(['underscore',
 
             pickObject: function (event) {
                 var controller = this,
-                    //Add the offset created by the timeline
+                //Add the offset created by the timeline
                     position = new Cesium.Cartesian2(event.position.x, event.position.y),
                     selectedObject = controller.scene.pick(position);
 
@@ -187,10 +168,10 @@ define(['underscore',
                 var heightGap = Math.abs(rectangle.north) - Math.abs(rectangle.south);
 
                 //ensure rectangle has some size
-                if(widthGap === 0) {
+                if (widthGap === 0) {
                     widthGap = 1;
                 }
-                if(heightGap === 0) {
+                if (heightGap === 0) {
                     heightGap = 1;
                 }
 

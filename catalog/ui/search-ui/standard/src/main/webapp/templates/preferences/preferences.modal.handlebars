@@ -18,38 +18,20 @@
             <h4 class="modal-title">Preferences</h4>
         </div>
         <div class="modal-body">
-            <div class="form-group">
-                <label for="pointColor">Point Color</label>
-                <input type="color" class="form-control" id="pointColor" name="pointColor">
-            </div>
-            <div class="form-group">
-                <label for="multiPointColor">Multi-Point Color</label>
-                <input type="color" class="form-control" id="multiPointColor" name="multiPointColor">
-            </div>
-            <div class="form-group">
-                <label for="lineColor">Line Color</label>
-                <input type="color" class="form-control" id="lineColor" name="lineColor">
-            </div>
-            <div class="form-group">
-                <label for="multiLineColor">Multi-Line Color</label>
-                <input type="color" class="form-control" id="multiLineColor" name="multiLineColor">
-            </div>
-            <div class="form-group">
-                <label for="polygonColor">Polygon Color</label>
-                <input type="color" class="form-control" id="polygonColor" name="polygonColor">
-            </div>
-            <div class="form-group">
-                <label for="multiPolygonColor">Multi-Polygon Color</label>
-                <input type="color" class="form-control" id="multiPolygonColor" name="multiPolygonColor">
-            </div>
-            <div class="form-group">
-                <label for="geometryCollectionColor">Geometry Collection Color</label>
-                <input type="color" class="form-control" id="geometryCollectionColor" name="geometryCollectionColor">
-            </div>
-        </div>
-        <div class="modal-footer">
-            <div class="btn-group okCancelFields">
-                <button type="button" class="btn btn-primary" data-dismiss="modal" aria-hidden="true">Done</button>
+            <div class="tabbable tabs-above">
+                <ul class="nav nav-tabs">
+                    <li class="active">
+                        <a href="#colorTab" data-toggle="tab">Map Features</a>
+                    </li>
+                    <li>
+                        <a href="#layerTab" data-toggle="tab">Map Layers</a>
+                    </li>
+                </ul>
+
+                <div class="tab-content">
+                    <div class="tab-pane active" id="colorTab"></div>
+                    <div class="tab-pane" id="layerTab"></div>
+                </div>
             </div>
         </div>
     </div>

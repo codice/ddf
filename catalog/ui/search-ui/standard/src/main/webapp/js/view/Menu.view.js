@@ -596,7 +596,7 @@ define([
                 classes: 'fa fa-sliders center-icon showModal',
                 iconOnly: true,
                 dropdown: false,
-                user: Application.UserModel
+                preferences: Application.UserModel.get('user>preferences')
             })});
             this.preferences.show(preferences);
         }

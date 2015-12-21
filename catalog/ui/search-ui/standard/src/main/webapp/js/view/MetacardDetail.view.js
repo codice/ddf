@@ -38,7 +38,11 @@ define([
         ich.addTemplate('metacardActionTemplate', metacardActionTemplate);
 
         Metacard.ActionModal = Modal.extend({
-            template: 'metacardActionTemplate'
+            template: 'metacardActionTemplate',
+            initialize: function () {
+                // there is no automatic chaining of initialize.
+                Modal.prototype.initialize.apply(this, arguments);
+            }
         });
 
         Metacard.MetacardDetailView = Marionette.LayoutView.extend({
@@ -49,13 +53,13 @@ define([
             },
             events: {
                 'click .location-link': 'viewLocation',
-                'click .nav-tabs' : 'onTabClick',
-                'click #prevRecord' : 'previousRecord',
-                'click #nextRecord' : 'nextRecord',
-                'click .metacard-action-link' : 'metacardActionModal'
+                'click .nav-tabs': 'onTabClick',
+                'click #prevRecord': 'previousRecord',
+                'click #nextRecord': 'nextRecord',
+                'click .metacard-action-link': 'metacardActionModal'
             },
-            attributes:{
-                "allowScroll":false
+            attributes: {
+                "allowScroll": false
             },
             modelEvents: {
                 'change': 'render'
@@ -63,7 +67,7 @@ define([
 
             initialize: function () {
 
-                if(this.model.get('hash')) {
+                if (this.model.get('hash')) {
                     this.hash = this.model.get('hash');
                 }
                 var collection = this.model.collection;
@@ -87,9 +91,9 @@ define([
 
                 var view = this;
                 _.defer(function () {
-                     view.$('.tab-content').perfectScrollbar({
-                           suppressScrollX:true
-                      });
+                    view.$('.tab-content').perfectScrollbar({
+                        suppressScrollX: true
+                    });
                 });
 
                 if (this.model.get('geometry')) {
@@ -97,7 +101,7 @@ define([
                     this.showChildView('nearby', new NearbyLocationView({model: nearby}));
                 }
             },
-            serializeData: function() {
+            serializeData: function () {
                 var type;
                 if (this.types) {
                     var typeObj = this.types.findWhere({value: this.model.get('properties').get('metadata-content-type')});
@@ -105,7 +109,12 @@ define([
                         type = typeObj.get('name');
                     }
                 }
-                return _.extend(this.model.toJSON(), {mapAvailable: maptype.isMap(), url: this.model.url, clientId: Cometd.Comet.getClientId(), mappedType: type});
+                return _.extend(this.model.toJSON(), {
+                    mapAvailable: maptype.isMap(),
+                    url: this.model.url,
+                    clientId: Cometd.Comet.getClientId(),
+                    mappedType: type
+                });
             },
             updateIterationControls: function () {
                 if (_.isUndefined(this.prevModel)) {
@@ -118,7 +127,7 @@ define([
             updateScrollbar: function () {
 
                 this.$('.tab-content').perfectScrollbar({
-                    suppressScrollX:true
+                    suppressScrollX: true
                 });
 
                 var view = this;
@@ -127,7 +136,7 @@ define([
                     view.$el.perfectScrollbar('update');
                 });
             },
-            onTabClick : function(e){
+            onTabClick: function (e) {
 
                 this.updateScrollbar();
                 this.hash = e.target.hash;
@@ -169,4 +178,4 @@ define([
 
         return Metacard;
 
-});
+    });
