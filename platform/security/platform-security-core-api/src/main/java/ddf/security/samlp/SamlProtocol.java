@@ -28,6 +28,8 @@ import org.opensaml.common.SAMLObjectBuilder;
 import org.opensaml.common.SAMLVersion;
 import org.opensaml.saml2.core.AttributeQuery;
 import org.opensaml.saml2.core.Issuer;
+import org.opensaml.saml2.core.LogoutRequest;
+import org.opensaml.saml2.core.LogoutResponse;
 import org.opensaml.saml2.core.NameID;
 import org.opensaml.saml2.core.Response;
 import org.opensaml.saml2.core.Status;
@@ -41,12 +43,6 @@ import org.opensaml.saml2.metadata.NameIDFormat;
 import org.opensaml.saml2.metadata.SPSSODescriptor;
 import org.opensaml.saml2.metadata.SingleLogoutService;
 import org.opensaml.saml2.metadata.SingleSignOnService;
-import org.opensaml.ws.soap.soap11.Body;
-import org.opensaml.ws.soap.soap11.Envelope;
-import org.opensaml.ws.soap.soap11.Header;
-import org.opensaml.ws.soap.soap11.impl.BodyBuilder;
-import org.opensaml.ws.soap.soap11.impl.EnvelopeBuilder;
-import org.opensaml.ws.soap.soap11.impl.HeaderBuilder;
 import org.opensaml.xml.XMLObjectBuilder;
 import org.opensaml.xml.XMLObjectBuilderFactory;
 import org.opensaml.xml.security.credential.UsageType;
@@ -70,6 +66,7 @@ public class SamlProtocol {
     static {
         OpenSAMLUtil.initSamlEngine();
     }
+
     private static XMLObjectBuilderFactory builderFactory = Configuration.getBuilderFactory();
 
     @SuppressWarnings("unchecked")
@@ -146,16 +143,12 @@ public class SamlProtocol {
             (SAMLObjectBuilder<AttributeQuery>) builderFactory.getBuilder(AttributeQuery.DEFAULT_ELEMENT_NAME);
 
     @SuppressWarnings("unchecked")
-    private static HeaderBuilder soapHeaderBuilder = (HeaderBuilder) builderFactory.getBuilder(
-            Header.DEFAULT_ELEMENT_NAME);
+    private static SAMLObjectBuilder<LogoutRequest> logoutRequestBuilder =
+            (SAMLObjectBuilder<LogoutRequest>) builderFactory.getBuilder(LogoutRequest.DEFAULT_ELEMENT_NAME);
 
     @SuppressWarnings("unchecked")
-    private static BodyBuilder soapBodyBuilder =
-            (BodyBuilder) builderFactory.getBuilder(Body.DEFAULT_ELEMENT_NAME);
-
-    @SuppressWarnings("unchecked")
-    private static EnvelopeBuilder soapEnvelopeBuilder =
-            (EnvelopeBuilder) builderFactory.getBuilder(Envelope.DEFAULT_ELEMENT_NAME);
+    private static SAMLObjectBuilder<LogoutResponse> logoutResponseBuilder =
+            (SAMLObjectBuilder<LogoutResponse>) builderFactory.getBuilder(LogoutResponse.DEFAULT_ELEMENT_NAME);
 
     public enum Binding {
         HTTP_POST("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"),
@@ -427,5 +420,33 @@ public class SamlProtocol {
 
     public static AttributeQuery createAttributeQuery(Issuer issuer, Subject subject) {
         return createAttributeQuery(issuer, subject, null);
+    }
+
+    public static LogoutRequest createLogoutRequest(Issuer issuer, NameID nameId, String id) {
+        LogoutRequest logoutRequest = logoutRequestBuilder.buildObject();
+        logoutRequest.setID(id);
+        logoutRequest.setIssuer(issuer);
+        logoutRequest.setNameID(nameId);
+        logoutRequest.setIssueInstant(DateTime.now());
+        logoutRequest.setVersion(SAMLVersion.VERSION_20);
+        return logoutRequest;
+    }
+
+    public static LogoutResponse createLogoutResponse(Issuer issuer, Status status,
+            String inResponseTo, String id) {
+        LogoutResponse logoutResponse = logoutResponseBuilder.buildObject();
+        logoutResponse.setID(id);
+        logoutResponse.setIssuer(issuer);
+        logoutResponse.setStatus(status);
+        if (StringUtils.isNotBlank(inResponseTo)) {
+            logoutResponse.setInResponseTo(inResponseTo);
+        }
+        logoutResponse.setIssueInstant(DateTime.now());
+        logoutResponse.setVersion(SAMLVersion.VERSION_20);
+        return logoutResponse;
+    }
+
+    public static LogoutResponse createLogoutResponse(Issuer issuer, Status status, String id) {
+        return createLogoutResponse(issuer, status, null, id);
     }
 }

@@ -45,34 +45,10 @@
     <bean id="logoutServiceImpl" class="ddf.security.samlp.impl.LogoutServiceImpl">
         <cm:managed-properties persistent-id="ddf.security.samlp.LogoutService"
                                update-strategy="container-managed"/>
-        <property name="logoutRequestBuilder">
-            <bean class="org.opensaml.saml2.core.impl.LogoutRequestBuilder"/>
-        </property>
-        <property name="logoutResponseBuilder">
-            <bean class="org.opensaml.saml2.core.impl.LogoutResponseBuilder"/>
-        </property>
-        <property name="nameIDBuilder">
-            <bean class="org.opensaml.saml2.core.impl.NameIDBuilder"/>
-        </property>
-        <property name="issuerBuilder">
-            <bean class="org.opensaml.saml2.core.impl.IssuerBuilder"/>
-        </property>
-        <property name="statusBuilder">
-            <bean class="org.opensaml.saml2.core.impl.StatusBuilder"/>
-        </property>
-        <property name="statusCodeBuilder">
-            <bean class="org.opensaml.saml2.core.impl.StatusCodeBuilder"/>
-        </property>
-        <property name="envelopeBuilder">
-            <bean class="org.opensaml.ws.soap.soap11.impl.EnvelopeBuilder"/>
-        </property>
-        <property name="bodyBuilder">
-            <bean class="org.opensaml.ws.soap.soap11.impl.BodyBuilder"/>
-        </property>
         <property name="systemCrypto" ref="crypto"/>
     </bean>
 
-    <service ref="logoutServiceImpl" interface="ddf.security.samlp.LogoutService" />
+    <service ref="logoutServiceImpl" interface="ddf.security.samlp.LogoutService"/>
 
     <service id="serviceManager" ref="securityManagerImpl"
              interface="ddf.security.service.SecurityManager"/>
