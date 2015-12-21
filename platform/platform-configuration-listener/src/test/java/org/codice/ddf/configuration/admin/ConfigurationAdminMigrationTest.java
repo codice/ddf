@@ -64,7 +64,7 @@ import org.powermock.modules.junit4.rule.PowerMockRule;
 @PrepareForTest({ConfigurationAdminMigration.class, FileUtils.class})
 public class ConfigurationAdminMigrationTest {
 
-    private static final String CONFIG_FILE_PATH = "/root/etc/exported/etc/pid.config";
+    private static final Path CONFIG_FILE_PATH = Paths.get("/root/etc/exported/etc/pid.config");
 
     private static final String CONFIG_PID = "pid";
 
@@ -125,7 +125,7 @@ public class ConfigurationAdminMigrationTest {
     @Mock
     private Path configPath2;
 
-    private Path configFilePath = Paths.get(CONFIG_FILE_PATH);
+    private Path configFilePath = CONFIG_FILE_PATH;
 
     @Mock
     private ConfigurationFile configFile1;
@@ -172,7 +172,7 @@ public class ConfigurationAdminMigrationTest {
         PowerMockito.mockStatic(FileUtils.class);
 
         when(exportedDirectoryPath.resolve("etc")).thenReturn(configFilesExportPath);
-        when(configPath1.toString()).thenReturn(CONFIG_FILE_PATH);
+        when(configPath1.toString()).thenReturn(CONFIG_FILE_PATH.toString());
 
         when(configuration.getPid()).thenReturn(CONFIG_PID);
         when(processedDirectoryPath.toFile()).thenReturn(processedDirectory);
@@ -830,7 +830,7 @@ public class ConfigurationAdminMigrationTest {
         verifyStatic();
         FileUtils.forceMkdir(configFilesExportPath.toFile());
 
-        verify(configFile1, atLeastOnce()).exportConfig(CONFIG_FILE_PATH);
+        verify(configFile1, atLeastOnce()).exportConfig(CONFIG_FILE_PATH.toString());
     }
 
     @Test(expected = IOException.class)
