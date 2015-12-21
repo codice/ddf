@@ -42,13 +42,13 @@
         <argument ref="encryptionService"/>
     </bean>
 
-    <bean id="logoutServiceImpl" class="ddf.security.samlp.impl.LogoutServiceImpl">
-        <cm:managed-properties persistent-id="ddf.security.samlp.LogoutService"
+    <bean id="logoutMessageImpl" class="ddf.security.samlp.impl.LogoutMessageImpl">
+        <cm:managed-properties persistent-id="ddf.security.samlp.LogoutMessage"
                                update-strategy="container-managed"/>
         <property name="systemCrypto" ref="crypto"/>
     </bean>
 
-    <service ref="logoutServiceImpl" interface="ddf.security.samlp.LogoutService"/>
+    <service ref="logoutMessageImpl" interface="ddf.security.samlp.LogoutMessage" />
 
     <service id="serviceManager" ref="securityManagerImpl"
              interface="ddf.security.service.SecurityManager"/>

@@ -78,7 +78,7 @@ public abstract class SamlValidator implements Validator<ValidatingXMLObject> {
         }
 
         if (instant.plus(builder.clockSkew)
-                .isBefore(now.minus(builder.issueTimeout))) {
+                .isBefore(now.minus(builder.timeout))) {
             throw new ValidationException("Issue Instant was outside valid time range");
         }
 
@@ -147,11 +147,11 @@ public abstract class SamlValidator implements Validator<ValidatingXMLObject> {
 
         protected XMLObject xmlObject;
 
-        protected Duration issueTimeout = Duration.ofMinutes(10);
+        protected Duration timeout = Duration.ofMinutes(10);
 
         protected Duration clockSkew = Duration.ofSeconds(30);
 
-        protected String inResponse;
+        protected String requestId;
 
         protected String endpoint;
 
@@ -232,19 +232,19 @@ public abstract class SamlValidator implements Validator<ValidatingXMLObject> {
             return this;
         }
 
-        public Builder setInResponse(@NotNull String inResponse) {
-            if (isBlank(inResponse)) {
-                throw new IllegalArgumentException("InResponseTo Id cannot be blank!");
+        public Builder setRequestId(@NotNull String requestId) {
+            if (isBlank(requestId)) {
+                throw new IllegalArgumentException("Logout Request Id cannot be blank!");
             }
-            this.inResponse = inResponse;
+            this.requestId = requestId;
             return this;
         }
 
-        public Builder setIssueTimeout(@NotNull Duration issueTimeout) {
-            if (issueTimeout == null) {
-                throw new IllegalArgumentException("Issue Timeout cannot be null!");
+        public Builder setTimeout(@NotNull Duration timeout) {
+            if (timeout == null) {
+                throw new IllegalArgumentException("Timeout cannot be null!");
             }
-            this.issueTimeout = issueTimeout;
+            this.timeout = timeout;
             return this;
         }
 
@@ -344,9 +344,10 @@ public abstract class SamlValidator implements Validator<ValidatingXMLObject> {
 
         @Override
         protected void checkId() throws ValidationException {
-            if (isNotBlank(builder.inResponse)) {
-                if (!builder.inResponse.equals(logoutResponse.getInResponseTo())) {
-                    throw new ValidationException("The InResponseTo value was incorrect");
+            if (isNotBlank(builder.requestId)) {
+                if (!builder.requestId.equals(logoutResponse.getInResponseTo())) {
+                    throw new ValidationException(
+                            "The InResponseTo value did not match the Logout Request Id");
                 }
             }
         }

@@ -99,7 +99,7 @@ import com.google.common.collect.Maps;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
 import ddf.security.encryption.EncryptionService;
-import ddf.security.samlp.LogoutService;
+import ddf.security.samlp.LogoutMessage;
 import ddf.security.samlp.MetadataConfigurationParser;
 import ddf.security.samlp.SamlProtocol;
 import ddf.security.samlp.SimpleSign;
@@ -139,7 +139,7 @@ public class IdpEndpoint implements Idp {
 
     private SystemCrypto systemCrypto;
 
-    private LogoutService logoutService;
+    private LogoutMessage logoutMessage;
 
     private RelayStates<LogoutState> logoutStates;
 
@@ -706,7 +706,7 @@ public class IdpEndpoint implements Idp {
         try {
             if (samlRequest != null) {
                 LogoutRequest logoutRequest =
-                        logoutService.extractSamlLogoutRequest(RestSecurity.inflateBase64(
+                        logoutMessage.extractSamlLogoutRequest(RestSecurity.inflateBase64(
                                 samlRequest));
                 validateRedirect(relayState,
                         signatureAlgorithm,
@@ -724,7 +724,7 @@ public class IdpEndpoint implements Idp {
 
             } else if (samlResponse != null) {
                 LogoutResponse logoutResponse =
-                        logoutService.extractSamlLogoutResponse(RestSecurity.inflateBase64(
+                        logoutMessage.extractSamlLogoutResponse(RestSecurity.inflateBase64(
                                 samlResponse));
                 validateRedirect(relayState,
                         signatureAlgorithm,
@@ -783,7 +783,7 @@ public class IdpEndpoint implements Idp {
         try {
             if (samlRequest != null) {
                 LogoutRequest logoutRequest =
-                        logoutService.extractSamlLogoutRequest(RestSecurity.inflateBase64(
+                        logoutMessage.extractSamlLogoutRequest(RestSecurity.inflateBase64(
                                 samlRequest));
                 validatePost(request, logoutRequest);
                 return handleLogoutRequest(cookie,
@@ -793,7 +793,7 @@ public class IdpEndpoint implements Idp {
                         relayState);
             } else if (samlResponse != null) {
                 LogoutResponse logoutResponse =
-                        logoutService.extractSamlLogoutResponse(RestSecurity.inflateBase64(
+                        logoutMessage.extractSamlLogoutResponse(RestSecurity.inflateBase64(
                                 samlResponse));
                 validatePost(request, logoutResponse);
                 return handleLogoutResponse(cookie,
@@ -860,7 +860,7 @@ public class IdpEndpoint implements Idp {
             SignableSAMLObject logoutObject;
             String relay = "";
             String entityId = "";
-            String reqres = "";
+            String samlType = "";
 
             Optional<String> nextTarget = logoutState.getNextTarget();
             if (nextTarget.isPresent()) {
@@ -870,26 +870,26 @@ public class IdpEndpoint implements Idp {
                         .equals(entityId)) {
                     return continueLogout(logoutState, cookie, incomingBinding);
                 }
-                logoutObject = logoutService.buildLogoutRequest(logoutState.getNameId(),
+                logoutObject = logoutMessage.buildLogoutRequest(logoutState.getNameId(),
                         systemBaseUrl.constructUrl("/idp/logout", true));
-                reqres = "SAMLRequest";
+                samlType = "SAMLRequest";
             } else {
                 // No more targets, respond to original issuer
                 entityId = logoutState.getOriginalIssuer();
                 String status = logoutState.isPartialLogout() ?
                         StatusCode.PARTIAL_LOGOUT_URI :
                         StatusCode.SUCCESS_URI;
-                logoutObject = logoutService.buildLogoutResponse(systemBaseUrl.constructUrl(
+                logoutObject = logoutMessage.buildLogoutResponse(systemBaseUrl.constructUrl(
                         "/idp/logout",
                         true), status, logoutState.getOriginalRequestId());
                 relay = logoutState.getInitialRelayState();
                 LogoutState decode = logoutStates.decode(cookie.getValue(), true);
-                reqres = "SAMLResponse";
+                samlType = "SAMLResponse";
             }
 
             LOGGER.debug("Responding to [{}] with a [{}] and relay state [{}]",
                     entityId,
-                    reqres,
+                    samlType,
                     relay);
 
             EntityInformation.ServiceInfo entityServiceInfo = serviceProviders.get(entityId)
@@ -903,9 +903,9 @@ public class IdpEndpoint implements Idp {
                 return getSamlRedirectResponse(logoutObject,
                         entityServiceInfo.getUrl(),
                         relay,
-                        reqres);
+                        samlType);
             case HTTP_POST:
-                return getSamlPostResponse(logoutObject, entityServiceInfo.getUrl(), relay, reqres);
+                return getSamlPostResponse(logoutObject, entityServiceInfo.getUrl(), relay, samlType);
             default:
                 LOGGER.debug("No supported binding available for SP [{}].", entityId);
                 logoutState.setPartialLogout(true);
@@ -993,8 +993,8 @@ public class IdpEndpoint implements Idp {
         this.cookieCache.setExpirationTime(expirationTime);
     }
 
-    public void setLogoutService(LogoutService logoutService) {
-        this.logoutService = logoutService;
+    public void setLogoutMessage(LogoutMessage logoutMessage) {
+        this.logoutMessage = logoutMessage;
     }
 
     public void setLogoutStates(RelayStates<LogoutState> logoutStates) {

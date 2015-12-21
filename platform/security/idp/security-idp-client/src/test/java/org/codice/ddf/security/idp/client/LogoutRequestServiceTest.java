@@ -43,7 +43,7 @@ import ddf.security.SecurityConstants;
 import ddf.security.common.util.SecurityTokenHolder;
 import ddf.security.encryption.EncryptionService;
 import ddf.security.http.SessionFactory;
-import ddf.security.samlp.LogoutService;
+import ddf.security.samlp.LogoutMessage;
 import ddf.security.samlp.SamlProtocol;
 import ddf.security.samlp.SimpleSign;
 import ddf.security.samlp.SystemCrypto;
@@ -69,7 +69,7 @@ public class LogoutRequestServiceTest {
 
     private HttpServletRequest request;
 
-    private LogoutService logoutService;
+    private LogoutMessage logoutMessage;
 
     private EncryptionService encryptionService;
 
@@ -94,7 +94,7 @@ public class LogoutRequestServiceTest {
         relayStates = mock(RelayStates.class);
         sessionFactory = mock(SessionFactory.class);
         request = mock(HttpServletRequest.class);
-        logoutService = mock(LogoutService.class);
+        logoutMessage = mock(LogoutMessage.class);
         encryptionService = mock(EncryptionService.class);
         session = mock(HttpSession.class);
         securityTokenHolder = mock(SecurityTokenHolder.class);
@@ -106,7 +106,7 @@ public class LogoutRequestServiceTest {
                 relayStates);
         logoutRequestService.setEncryptionService(encryptionService);
         logoutRequestService.setLogOutPageTimeOut(3600000);
-        logoutRequestService.setLogoutService(logoutService);
+        logoutRequestService.setLogoutMessage(logoutMessage);
         logoutRequestService.setRequest(request);
         logoutRequestService.setSessionFactory(sessionFactory);
         logoutRequestService.setSystemCrypto(systemCrypto);
@@ -127,7 +127,7 @@ public class LogoutRequestServiceTest {
     public void testSendLogoutRequest() throws Exception {
         String encryptedNameIdWithTime = nameId + "\n" + time;
         when(encryptionService.decrypt(any(String.class))).thenReturn(nameId + "\n" + time);
-        when(logoutService.signSamlGetRequest(any(LogoutRequest.class),
+        when(logoutMessage.signSamlGetRequest(any(LogoutRequest.class),
                 any(URI.class),
                 anyString())).thenReturn(new URI(logoutUrl));
         Response response = logoutRequestService.sendLogoutRequest(encryptedNameIdWithTime);
@@ -149,10 +149,10 @@ public class LogoutRequestServiceTest {
         Issuer issuer = mock(Issuer.class);
         OpenSAMLUtil.initSamlEngine();
         LogoutResponse logoutResponse = new LogoutResponseBuilder().buildObject();
-        when(logoutService.extractSamlLogoutRequest(any(String.class))).thenReturn(logoutRequest);
+        when(logoutMessage.extractSamlLogoutRequest(any(String.class))).thenReturn(logoutRequest);
         when(logoutRequest.getIssuer()).thenReturn(issuer);
         when(issuer.getValue()).thenReturn(issuerStr);
-        when(logoutService.buildLogoutResponse(eq(issuerStr),
+        when(logoutMessage.buildLogoutResponse(eq(issuerStr),
                 eq(StatusCode.SUCCESS_URI))).thenReturn(logoutResponse);
         when(idpMetadata.getSingleLogoutBinding()).thenReturn(SamlProtocol.POST_BINDING);
         when(idpMetadata.getSingleLogoutLocation()).thenReturn(postLogoutUrl);
@@ -175,7 +175,7 @@ public class LogoutRequestServiceTest {
         Issuer issuer = mock(Issuer.class);
         LogoutResponse logoutResponse = mock(LogoutResponse.class);
         logoutResponse.setIssuer(issuer);
-        when(logoutService.extractSamlLogoutResponse(any(String.class))).thenReturn(logoutResponse);
+        when(logoutMessage.extractSamlLogoutResponse(any(String.class))).thenReturn(logoutResponse);
         when(request.getRequestURL()).thenReturn(new StringBuffer("www.url.com/url"));
         when(logoutResponse.getIssuer()).thenReturn(issuer);
         when(issuer.getValue()).thenReturn(issuerStr);
@@ -200,9 +200,9 @@ public class LogoutRequestServiceTest {
                 .toString();
         String deflatedSamlRequest = RestSecurity.deflateAndBase64Encode("deflatedSamlRequest");
         LogoutRequest logoutRequest = mock(LogoutRequest.class);
-        when(logoutService.extractSamlLogoutRequest(eq("deflatedSamlRequest"))).thenReturn(
+        when(logoutMessage.extractSamlLogoutRequest(eq("deflatedSamlRequest"))).thenReturn(
                 logoutRequest);
-        when(logoutService.signSamlGetResponse(any(LogoutRequest.class),
+        when(logoutMessage.signSamlGetResponse(any(LogoutRequest.class),
                 any(URI.class),
                 anyString())).thenReturn(new URI(redirectLogoutUrl));
         Response response = logoutRequestService.getLogoutRequest(deflatedSamlRequest,
@@ -225,7 +225,7 @@ public class LogoutRequestServiceTest {
                 .toString();
         String deflatedSamlResponse = RestSecurity.deflateAndBase64Encode("deflatedSamlResponse");
         LogoutResponse logoutResponse = mock(LogoutResponse.class);
-        when(logoutService.extractSamlLogoutResponse(eq("deflatedSamlResponse"))).thenReturn(
+        when(logoutMessage.extractSamlLogoutResponse(eq("deflatedSamlResponse"))).thenReturn(
                 logoutResponse);
         Response response = logoutRequestService.getLogoutRequest(null,
                 deflatedSamlResponse,

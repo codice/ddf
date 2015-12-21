@@ -48,14 +48,14 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import ddf.security.samlp.LogoutService;
+import ddf.security.samlp.LogoutMessage;
 import ddf.security.samlp.SamlProtocol;
 import ddf.security.samlp.SimpleSign;
 import ddf.security.samlp.SystemCrypto;
 
-public class LogoutServiceImpl implements LogoutService {
+public class LogoutMessageImpl implements LogoutMessage {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LogoutServiceImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LogoutMessageImpl.class);
 
     public static final String SOAP_BINDING = "urn:oasis:names:tc:SAML:2.0:bindings:SOAP";
 
@@ -67,7 +67,7 @@ public class LogoutServiceImpl implements LogoutService {
         OpenSAMLUtil.initSamlEngine();
     }
 
-    public String getIdpSingleLogoutLocation(IDPSSODescriptor descriptor) {
+    public String getIdpSingleLogoutLocation(@NotNull IDPSSODescriptor descriptor) {
         return descriptor.getSingleLogoutServices()
                 .stream()
                 .filter(service -> SOAP_BINDING.equals(service.getBinding()))
@@ -76,7 +76,7 @@ public class LogoutServiceImpl implements LogoutService {
                 .orElse("");
     }
 
-    public SignableSAMLObject extractXmlObject(String samlLogoutResponse)
+    public SignableSAMLObject extractXmlObject(@NotNull String samlLogoutResponse)
             throws WSSecurityException, XMLStreamException {
         Document responseDoc =
                 StaxUtils.read(new ByteArrayInputStream(samlLogoutResponse.getBytes()));
@@ -87,7 +87,7 @@ public class LogoutServiceImpl implements LogoutService {
         return null;
     }
 
-    private <T extends SAMLObject> T extract(String samlObject, Class<T> clazz)
+    private <T extends SAMLObject> T extract(@NotNull String samlObject, @NotNull Class<T> clazz)
             throws WSSecurityException, XMLStreamException {
         Document responseDoc = StaxUtils.read(new ByteArrayInputStream(samlObject.getBytes()));
         XMLObject responseXmlObject = OpenSAMLUtil.fromDom(responseDoc.getDocumentElement());
@@ -98,13 +98,13 @@ public class LogoutServiceImpl implements LogoutService {
     }
 
     @Override
-    public LogoutResponse extractSamlLogoutResponse(String samlLogoutResponse)
+    public LogoutResponse extractSamlLogoutResponse(@NotNull String samlLogoutResponse)
             throws XMLStreamException, WSSecurityException {
         return extract(samlLogoutResponse, LogoutResponse.class);
     }
 
     @Override
-    public LogoutRequest extractSamlLogoutRequest(String samlLogoutResponse)
+    public LogoutRequest extractSamlLogoutRequest(@NotNull String samlLogoutResponse)
             throws XMLStreamException, WSSecurityException {
         return extract(samlLogoutResponse, LogoutRequest.class);
     }
@@ -144,7 +144,8 @@ public class LogoutServiceImpl implements LogoutService {
     }
 
     @Override
-    public LogoutResponse buildLogoutResponse(String issuerOrEntityId, String statusCodeValue) {
+    public LogoutResponse buildLogoutResponse(@NotNull String issuerOrEntityId,
+            @NotNull String statusCodeValue) {
         return buildLogoutResponse(issuerOrEntityId, statusCodeValue, null);
     }
 
@@ -158,8 +159,8 @@ public class LogoutServiceImpl implements LogoutService {
                         .toString());
     }
 
-    public LogoutResponse buildLogoutResponse(String issuerOrEntityId, String statusCodeValue,
-            String inResponseTo, String id) {
+    public LogoutResponse buildLogoutResponse(@NotNull String issuerOrEntityId,
+            @NotNull String statusCodeValue, String inResponseTo, @NotNull String id) {
         if (issuerOrEntityId == null) {
             throw new IllegalArgumentException("Issuer cannot be null");
         }
@@ -177,14 +178,14 @@ public class LogoutServiceImpl implements LogoutService {
     }
 
     @Override
-    public Element getElementFromSaml(XMLObject xmlObject) throws WSSecurityException {
+    public Element getElementFromSaml(@NotNull XMLObject xmlObject) throws WSSecurityException {
         Document doc = DOMUtils.createDocument();
         doc.appendChild(doc.createElement("root"));
         return OpenSAMLUtil.toDom(xmlObject, doc);
     }
 
     @Override
-    public String sendSamlLogoutRequest(@NotNull LogoutRequest request, String targetUri)
+    public String sendSamlLogoutRequest(@NotNull LogoutRequest request, @NotNull String targetUri)
             throws IOException, WSSecurityException {
         Element requestElement = getElementFromSaml(request);
         String requestMessage = DOM2Writer.nodeToString(requestElement);
@@ -200,21 +201,23 @@ public class LogoutServiceImpl implements LogoutService {
     }
 
     @Override
-    public URI signSamlGetResponse(SAMLObject samlObject, URI target, String relayState)
+    public URI signSamlGetResponse(@NotNull SAMLObject samlObject, @NotNull URI target,
+            String relayState)
             throws WSSecurityException, SimpleSign.SignatureException, IOException {
 
         return signSamlGet(samlObject, target, relayState, SSOConstants.SAML_RESPONSE);
     }
 
     @Override
-    public URI signSamlGetRequest(SAMLObject samlObject, URI target, String relayState)
+    public URI signSamlGetRequest(@NotNull SAMLObject samlObject, @NotNull URI target,
+            String relayState)
             throws WSSecurityException, SimpleSign.SignatureException, IOException {
 
         return signSamlGet(samlObject, target, relayState, SSOConstants.SAML_REQUEST);
     }
 
-    private URI signSamlGet(SAMLObject samlObject, URI target, String relayState,
-            String requestType)
+    private URI signSamlGet(@NotNull SAMLObject samlObject, @NotNull URI target, String relayState,
+            @NotNull String requestType)
             throws WSSecurityException, SimpleSign.SignatureException, IOException {
         Document doc = DOMUtils.createDocument();
         doc.appendChild(doc.createElement("root"));

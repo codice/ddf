@@ -56,35 +56,35 @@ class SamlValidatorBuilderTest extends Specification {
         'abc'      | null      | null    | 'lkj'      | null
     }
 
-    def 'check inResponse'() {
+    def 'check requestId'() {
         setup:
         def builder = new SamlValidator.Builder(null)
 
         when:
-        builder.setInResponse('xyz')
+        builder.setRequestId('xyz')
 
         then:
-        builder.inResponse == 'xyz'
+        builder.requestId == 'xyz'
 
         when:
-        builder.setInResponse(null)
+        builder.setRequestId(null)
 
         then:
         thrown(IllegalArgumentException)
     }
 
-    def 'check issueTimeout'() {
+    def 'check timeout'() {
         setup:
         def builder = new SamlValidator.Builder(null)
 
         when:
-        builder.setIssueTimeout(Duration.ofSeconds(1))
+        builder.setTimeout(Duration.ofSeconds(1))
 
         then:
-        builder.issueTimeout.equals(Duration.ofSeconds(1))
+        builder.timeout.equals(Duration.ofSeconds(1))
 
         when:
-        builder.setIssueTimeout(null)
+        builder.setTimeout(null)
 
         then:
         thrown(IllegalArgumentException)

@@ -28,33 +28,37 @@ import org.opensaml.saml2.metadata.IDPSSODescriptor;
 import org.opensaml.xml.XMLObject;
 import org.w3c.dom.Element;
 
-public interface LogoutService {
-    String getIdpSingleLogoutLocation(IDPSSODescriptor descriptor);
+public interface LogoutMessage {
+    String getIdpSingleLogoutLocation(@NotNull IDPSSODescriptor descriptor);
 
-    SignableSAMLObject extractXmlObject(String samlLogoutResponse)
+    SignableSAMLObject extractXmlObject(@NotNull String samlLogoutResponse)
             throws WSSecurityException, XMLStreamException;
 
-    LogoutResponse extractSamlLogoutResponse(String samlLogoutResponse)
+    LogoutResponse extractSamlLogoutResponse(@NotNull String samlLogoutResponse)
             throws XMLStreamException, WSSecurityException;
 
-    LogoutRequest extractSamlLogoutRequest(String samlLogoutRequest)
+    LogoutRequest extractSamlLogoutRequest(@NotNull String samlLogoutRequest)
             throws XMLStreamException, WSSecurityException;
 
-    LogoutRequest buildLogoutRequest(@NotNull String nameIdString, @NotNull String issuerOrEntityId);
+    LogoutRequest buildLogoutRequest(@NotNull String nameIdString,
+            @NotNull String issuerOrEntityId);
 
-    LogoutResponse buildLogoutResponse(String issuerOrEntityId, String statusCodeValue);
+    LogoutResponse buildLogoutResponse(@NotNull String issuerOrEntityId,
+            @NotNull String statusCodeValue);
 
-    LogoutResponse buildLogoutResponse(String issuerOrEntityId, String statusCodeValue,
-            String inResponseTo);
+    LogoutResponse buildLogoutResponse(@NotNull String issuerOrEntityId,
+            @NotNull String statusCodeValue, String inResponseTo);
 
-    Element getElementFromSaml(XMLObject xmlObject) throws WSSecurityException;
+    Element getElementFromSaml(@NotNull XMLObject xmlObject) throws WSSecurityException;
 
-    String sendSamlLogoutRequest(@NotNull LogoutRequest request, String targetUri)
+    String sendSamlLogoutRequest(@NotNull LogoutRequest request, @NotNull String targetUri)
             throws IOException, WSSecurityException;
 
-    URI signSamlGetResponse(SAMLObject samlObject, URI uriNameMeLater, String relayState)
+    URI signSamlGetResponse(@NotNull SAMLObject samlObject, @NotNull URI uriNameMeLater,
+            String relayState)
             throws WSSecurityException, SimpleSign.SignatureException, IOException;
 
-    URI signSamlGetRequest(SAMLObject samlObject, URI uriNameMeLater, String relayState)
+    URI signSamlGetRequest(@NotNull SAMLObject samlObject, @NotNull URI uriNameMeLater,
+            String relayState)
             throws WSSecurityException, SimpleSign.SignatureException, IOException;
 }
