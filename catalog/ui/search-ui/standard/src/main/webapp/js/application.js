@@ -50,6 +50,7 @@ define(['jquery',
         Application.AppModel = new Backbone.Model(properties);
 
         Application.UserModel = new User.Response();
+
         Application.UserModel.fetch();
 
         Application.Controllers = {
@@ -60,10 +61,10 @@ define(['jquery',
 
         // Set up the main regions that will be available at the Application level.
         Application.App.addRegions({
-            loadingRegion : '#loading',
-            mapRegion : '#map',
-            headerRegion : 'header',
-            footerRegion : 'footer',
+            loadingRegion: '#loading',
+            mapRegion: '#map',
+            headerRegion: 'header',
+            footerRegion: 'footer',
             menuRegion: '#menu',
             controlPanelRegion: '#controlPanel',
             modalRegion: '#modalRegion'
@@ -76,12 +77,12 @@ define(['jquery',
         });
 
         // Initialize the application controller
-        Application.App.addInitializer(function() {
+        Application.App.addInitializer(function () {
             Application.Controllers.applicationController = new ApplicationController({Application: Application});
         });
 
         //setup the header
-        Application.App.addInitializer(function() {
+        Application.App.addInitializer(function () {
             Application.App.headerRegion.show(new Marionette.ItemView({
                 template: 'headerLayout',
                 className: 'header-layout',
@@ -90,7 +91,7 @@ define(['jquery',
         });
 
         //setup the footer
-        Application.App.addInitializer(function() {
+        Application.App.addInitializer(function () {
             Application.App.footerRegion.show(new Marionette.ItemView({
                 template: 'footerLayout',
                 className: 'footer-layout',
@@ -99,7 +100,7 @@ define(['jquery',
         });
 
         //load all modules
-        Application.App.addInitializer(function() {
+        Application.App.addInitializer(function () {
             require([
                 'js/module/Notification.module',
                 'js/module/Tasks.module',
@@ -110,18 +111,18 @@ define(['jquery',
         });
 
         //get rid of the loading screen
-        Application.App.addInitializer(function() {
+        Application.App.addInitializer(function () {
             Application.App.loadingRegion.show(new Backbone.View());
         });
 
         // show System Notification Banner
-        Application.App.addInitializer(function() {
+        Application.App.addInitializer(function () {
             new SystemUsageController();
         });
 
         // Once the application has been initialized (i.e. all initializers have completed), start up
         // Backbone.history.
-        Application.App.on('start', function() {
+        Application.App.on('start', function () {
             Backbone.history.start();
         });
 

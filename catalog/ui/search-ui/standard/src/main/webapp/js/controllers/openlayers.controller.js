@@ -12,7 +12,8 @@
 /*global define*/
 /*jshint newcap: false, bitwise: false */
 
-define(['underscore',
+define(['application',
+        'underscore',
         'marionette',
         'openlayers',
         'q',
@@ -21,24 +22,35 @@ define(['underscore',
         'js/view/openlayers.metacard',
         'js/model/Metacard',
         'jquery',
+        'js/controllers/ol.layerCollection.controller',
         'js/view/openlayers.geocoder'
-    ], function (_, Marionette, ol, Q, wreqr, properties, OpenlayersMetacard, Metacard, $, geocoder) {
+    ], function (Application, _, Marionette, ol, Q, wreqr, properties, OpenlayersMetacard, Metacard, $,
+                 LayerCollectionController, geocoder) {
         "use strict";
 
-        var imageryProviderTypes = {
-            OSM: ol.source.OSM,
-            BM: ol.source.BingMaps,
-            WMS: ol.source.TileWMS,
-            MQ: ol.source.MapQuest,
-            SI: ol.source.ImageStatic
-        };
+        var OpenLayerCollectionController = LayerCollectionController.extend({
+            initialize: function () {
+                this.listenTo(wreqr.vent, 'preferencesModal:reorder:bigMap', this.reIndexAll);
+
+                // there is no automatic chaining of initialize.
+                LayerCollectionController.prototype.initialize.apply(this, arguments);
+            }
+        });
 
         var Controller = Marionette.Controller.extend({
             initialize: function () {
                 if (properties.gazetteer) {
                     this.geoCoder = new geocoder.View({el: $('#mapTools')});
+                    this.geoCoder.render();
                 }
-                this.mapViewer = this.createMap('cesiumContainer');
+
+                var layerPrefs = Application.UserModel.get('user>preferences>mapLayers');
+                var layerCollectionController = new OpenLayerCollectionController({collection: layerPrefs});
+                this.mapViewer = layerCollectionController.makeMap({
+                    zoom: 3,
+                    divId: 'cesiumContainer'
+                });
+
                 this.setupEvents();
 
                 this.listenTo(wreqr.vent, 'search:mapshow', this.flyToLocation);
@@ -51,72 +63,11 @@ define(['underscore',
                     this.newResults(wreqr.reqres.request('search:results'));
                 }
             },
-            createMap: function (mapDivId) {
-                var map;
-                if (properties.imageryProviders) {
-                    var layers = [];
-                    _.each(properties.imageryProviders, function (imageryProvider) {
-                        if (imageryProvider) {
-                            var type = imageryProviderTypes[imageryProvider.type];
-                            var initObj = _.omit(imageryProvider, 'type');
-                            var layerType = ol.layer.Tile;
-
-                            if (imageryProvider.type === 'OSM') {
-                                if (initObj.url && initObj.url.indexOf('/{z}/{x}/{y}') === -1) {
-                                    initObj.url = initObj.url + '/{z}/{x}/{y}.png';
-                                }
-                            } else if (imageryProvider.type === 'BM') {
-                                if (!initObj.imagerySet) {
-                                    initObj.imagerySet = initObj.url;
-                                }
-                            } else if (imageryProvider.type === 'WMS') {
-                                if (!initObj.params) {
-                                    initObj.params = {
-                                        LAYERS: initObj.layers
-                                    };
-                                    _.extend(initObj.params, initObj.parameters);
-                                }
-                            } else if (imageryProvider.type === 'SI') {
-                                layerType = ol.layer.Image;
-                                if (!initObj.imageExtent) {
-                                    initObj.imageExtent = ol.proj.get(properties.projection).getExtent();
-                                }
-                                if (initObj.parameters) {
-                                    _.extend(initObj, initObj.parameters);
-                                }
-                            }
-                            layers.push(new layerType({
-                                visible: true,
-                                preload: Infinity,
-                                opacity: initObj.alpha,
-                                source: new type(initObj)
-                            }));
-                        }
-                    });
-
-                    map = new ol.Map({
-                        layers: layers,
-                        target: mapDivId,
-                        view: new ol.View({
-                            projection: ol.proj.get(properties.projection),
-                            center: ol.proj.transform([0, 0], 'EPSG:4326', properties.projection),
-                            zoom: 3
-                        })
-                    });
-                }
-
-                if (this.geoCoder) {
-                    this.geoCoder.render();
-                }
-
-                return map;
-            },
-
             setupEvents: function () {
                 var controller = this;
-                this.mapViewer.on('click', function(event) {
+                this.mapViewer.on('click', function (event) {
                     controller.mapViewer.forEachFeatureAtPixel(event.pixel,
-                        function(feature) {
+                        function (feature) {
                             // Only trigger click events for metacards, not other features like geo
                             // filters.
                             if (feature.get("featureType") === "metacard") {
@@ -136,10 +87,10 @@ define(['underscore',
                 var heightGap = Math.abs(rectangle.north) - Math.abs(rectangle.south);
 
                 //ensure rectangle has some size
-                if(widthGap === 0) {
+                if (widthGap === 0) {
                     widthGap = 1;
                 }
-                if(heightGap === 0) {
+                if (heightGap === 0) {
                     heightGap = 1;
                 }
 
@@ -224,7 +175,7 @@ define(['underscore',
                 var minLat = Number.MAX_VALUE;
                 var maxLat = -Number.MAX_VALUE;
 
-                for ( var i = 0, len = regionPoints.length; i < len; i++) {
+                for (var i = 0, len = regionPoints.length; i < len; i++) {
                     var position = regionPoints[i];
                     minLon = Math.min(minLon, position.longitude);
                     maxLon = Math.max(maxLon, position.longitude);

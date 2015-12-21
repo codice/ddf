@@ -26,8 +26,8 @@ define([
         'wreqr',
         'bootstrapselect'
     ],
-    function (ich,_,Marionette,Backbone,$,Modal,UploadList, ingestModalTemplate, Cometd, wreqr) {
-        ich.addTemplate('ingestModalTemplate',ingestModalTemplate);
+    function (ich, _, Marionette, Backbone, $, Modal, UploadList, ingestModalTemplate, Cometd, wreqr) {
+        ich.addTemplate('ingestModalTemplate', ingestModalTemplate);
         var IngestModal = Modal.extend({
             template: 'ingestModalTemplate',
             events: {
@@ -35,7 +35,10 @@ define([
                 'click .cancel-uploads': 'cancelPendingUploads',
                 'click .finish-upload': 'finishUpload'
             },
-            initialize: function() {
+            initialize: function () {
+                // there is no automatic chaining of initialize.
+                Modal.prototype.initialize.apply(this, arguments);
+
                 this.model = new Backbone.Model({
                     state: 'start'
                 });
@@ -47,7 +50,7 @@ define([
             regions: {
                 fileUploadListRegion: '.file-upload-region'
             },
-            onRender: function() {
+            onRender: function () {
                 var view = this;
                 view.$('[data-toggle="upload-popover"]').popover();
                 view.fileUploadListRegion.show(new UploadList({collection: view.collection}));
@@ -59,7 +62,7 @@ define([
                     paramName: 'file',
                     dataType: 'json',
                     maxFileSize: 5000000,
-                    add: function(e, data){
+                    add: function (e, data) {
 // this overrides the add to use our own model to control when the upload actually happens.
                         var that = this;
                         var model = view.buildModelFromFileData(data);
@@ -71,14 +74,14 @@ define([
                         };
                         view.collection.add(model);
                     },
-                    done: function(e, data){
+                    done: function (e, data) {
                         var attrs = {};
                         attrs.name = data.files[0].name;
                         var model = view.collection.findWhere(attrs);
                         model.set('state', 'done');
                         view.checkIfDialogComplete();
                     },
-                    fail: function(e, data){
+                    fail: function (e, data) {
                         var attrs = {};
                         attrs.name = data.files[0].name;
                         var model = view.collection.findWhere(attrs);
@@ -92,12 +95,12 @@ define([
                         }
                         view.checkIfDialogComplete();
                     },
-                    progress: function(e, data){
+                    progress: function (e, data) {
                         var progress = parseInt(data.loaded / data.total * 100, 10);
                         var attrs = {};
                         attrs.name = data.files[0].name;
                         var model = view.collection.findWhere(attrs);
-                        if(model) {
+                        if (model) {
                             model.set('progress', progress);
                         }
                     }
@@ -106,33 +109,33 @@ define([
                     dropZone: view.$el
                 });
             },
-            onBeforeClose: function() {
+            onBeforeClose: function () {
                 this.$('.fileupload').fileupload('destroy');
             },
-            buildModelFromFileData: function(data){
+            buildModelFromFileData: function (data) {
                 var name = data.files[0].name.toLowerCase();
                 var type = data.files[0].type;
-                if(type === ''){
-                    if(name.lastIndexOf('kar') === (name.length - 3)){
+                if (type === '') {
+                    if (name.lastIndexOf('kar') === (name.length - 3)) {
                         type = 'KAR';
-                    } else if(name.lastIndexOf('jar') === (name.length - 3)){
+                    } else if (name.lastIndexOf('jar') === (name.length - 3)) {
                         type = 'JAR';
                     }
                 }
                 return new Backbone.Model({
                     name: data.files[0].name,
-                    size : data.files[0].size,
-                    type : type,
-                    state : 'start',
-                    error : data.errorThrown,
+                    size: data.files[0].size,
+                    type: type,
+                    state: 'start',
+                    error: data.errorThrown,
                     cancellable: true,
                     progress: parseInt(data.loaded / data.total * 100, 10)
                 });
             },
-            checkIfDialogComplete: function() {
+            checkIfDialogComplete: function () {
                 var complete = true;
                 var succeeded = 0, failed = 0, cancelled = 0;
-                this.collection.each(function(item) {
+                this.collection.each(function (item) {
                     switch (item.get('state')) {
                         case 'done':
                             ++succeeded;
@@ -160,7 +163,7 @@ define([
                     this.disableStartUploadButton(true);
                 }
             },
-            sendNotification: function(succeeded, failed, cancelled) {
+            sendNotification: function (succeeded, failed, cancelled) {
                 var notification = {
                     application: "Uploads",
                     title: "File Upload Complete",
@@ -169,24 +172,24 @@ define([
                 };
                 Cometd.Comet.publish("/ddf/notifications", notification);
             },
-            startUpload: function() {
+            startUpload: function () {
                 this.model.set('state', 'uploading');
                 this.collection.trigger('startUpload');
                 wreqr.vent.trigger('upload:start');
             },
-            finishUpload: function() {
+            finishUpload: function () {
                 this.model.set('state', 'finished');
                 wreqr.vent.trigger('upload:finish');
             },
-            cancelPendingUploads: function() {
-                this.collection.each(function(uploadItem) {
+            cancelPendingUploads: function () {
+                this.collection.each(function (uploadItem) {
                     uploadItem.fileuploadObject.data.abort();
                 });
             },
-            disableStartUploadButton: function(disable) {
+            disableStartUploadButton: function (disable) {
                 this.$('.start-upload').prop('disabled', disable);
             },
-            updateModalControls: function() {
+            updateModalControls: function () {
                 if (this.model.get('state') === 'uploading') {
                     this.$('.uploadFields').toggleClass('hidden', true);
                     this.$('.cancelFields').toggleClass('hidden', false);
@@ -200,7 +203,7 @@ define([
                     this.$('.upload-info').toggleClass('hidden', true);
                 }
             },
-            isUnfinished: function() {
+            isUnfinished: function () {
                 return this.model.get('state') === 'uploading' ||
                     this.model.get('state') === 'uploaded';
             }
