@@ -159,7 +159,7 @@ module.exports = function (grunt) {
         watch: {
             jsFiles: {
                 files: ['<%= jshint.all.src %>'],
-                tasks: ['newer:jshint']
+                tasks: ['jshint']
             },
             livereload : {
                 options : {livereload :true},
@@ -188,8 +188,8 @@ module.exports = function (grunt) {
     grunt.registerTask('test:selenium', ['port:allocator', 'express:test', 'mochaWebdriver:selenium']);
     grunt.registerTask('test:sauce', ['port:allocator', 'express:test', 'mochaWebdriver:sauce']);
 
-    grunt.registerTask('build', ['bower-offline-install', 'sed', 'newer:less',
-        'newer:cssmin', 'newer:jshint']);
+    grunt.registerTask('build', ['bower-offline-install', 'sed', 'less',
+        'cssmin', 'jshint']);
 
     grunt.registerTask('default', ['build','express:server','watch']);
 

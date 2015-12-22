@@ -31,7 +31,6 @@
     "grunt-contrib-watch": "0.4.4",
     "grunt-express": "1.2.1",
     "grunt-mocha-webdriver": "1.2.2",
-    "grunt-newer": "0.8.0",
     "grunt-port-allocator": "file:target/npm/grunt-port-allocator",
     "grunt-sed": "0.1.1",
     "http-proxy": "0.10.0",
