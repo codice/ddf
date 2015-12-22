@@ -22,12 +22,17 @@ define([
         'cometdinit',
         'text!templates/metacard.handlebars',
         'js/view/Modal',
-        'text!templates/metacardActionModal.handlebars'
+        'text!templates/metacardActionModal.handlebars',
+        'js/view/NearbyLocation.view',
+        'js/model/NearbyLocation'
     ],
-    function ($, _, Marionette, ich, dir, maptype, wreqr, Cometd, metacardTemplate, Modal, metacardActionTemplate) {
+    function ($, _, Marionette, ich, dir, maptype, wreqr, Cometd, metacardTemplate, Modal, metacardActionTemplate, NearbyLocationView, NearbyLocation) {
+
         "use strict";
 
         var Metacard = {};
+
+        var nearbyChecked = false;
 
         ich.addTemplate('metacardTemplate', metacardTemplate);
         ich.addTemplate('metacardActionTemplate', metacardActionTemplate);
@@ -36,9 +41,12 @@ define([
             template: 'metacardActionTemplate'
         });
 
-        Metacard.MetacardDetailView = Marionette.ItemView.extend({
+        Metacard.MetacardDetailView = Marionette.LayoutView.extend({
             className : 'slide-animate height-full',
             template: 'metacardTemplate',
+            regions: {
+                nearby: '#nearby'
+            },
             events: {
                 'click .location-link': 'viewLocation',
                 'click .nav-tabs' : 'onTabClick',
@@ -52,6 +60,7 @@ define([
             modelEvents: {
                 'change': 'render'
             },
+
             initialize: function () {
 
                 if(this.model.get('hash')) {
@@ -83,6 +92,10 @@ define([
                       });
                 });
 
+                if (this.model.get('geometry')) {
+                    var nearby = new NearbyLocation({geo: this.model.get('geometry')});
+                    this.showChildView('nearby', new NearbyLocationView({model: nearby}));
+                }
             },
             serializeData: function() {
                 var type;
@@ -103,7 +116,6 @@ define([
                 }
             },
             updateScrollbar: function () {
-
 
                 this.$('.tab-content').perfectScrollbar({
                     suppressScrollX:true
@@ -134,6 +146,7 @@ define([
                         hash: this.hash
                     });
                     wreqr.vent.trigger('metacard:selected', dir.downward, this.prevModel.get("metacard"));
+                    nearbyChecked = false;
                 }
             },
             nextRecord: function () {
@@ -142,6 +155,7 @@ define([
                         hash: this.hash
                     });
                     wreqr.vent.trigger('metacard:selected', dir.upward, this.nextModel.get("metacard"));
+                    nearbyChecked = false;
                 }
             },
             metacardActionModal: function (e) {

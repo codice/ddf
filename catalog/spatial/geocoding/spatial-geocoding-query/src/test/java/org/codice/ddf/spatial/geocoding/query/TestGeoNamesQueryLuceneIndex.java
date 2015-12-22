@@ -23,6 +23,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 
 import java.io.IOException;
@@ -56,8 +57,6 @@ import org.junit.Test;
 
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.shape.Shape;
-
-import ddf.catalog.data.impl.MetacardImpl;
 
 public class TestGeoNamesQueryLuceneIndex extends TestBase {
     private Directory directory;
@@ -290,29 +289,28 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testNearestCitiesNullMetacard() {
+    public void testNearestCitiesNullMetacard() throws java.text.ParseException {
         directoryIndex.getNearestCities(null, 1, 1);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testNearestCitiesNegativeRadius() {
-        directoryIndex.getNearestCities(new MetacardImpl(), -1, 1);
+    public void testNearestCitiesNegativeRadius() throws java.text.ParseException {
+        directoryIndex.getNearestCities("POINT (56.78 1.5)", -1, 1);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testNearestCitiesNegativeMaxResults() {
-        directoryIndex.getNearestCities(new MetacardImpl(), 1, -1);
+    public void testNearestCitiesNegativeMaxResults() throws java.text.ParseException {
+        directoryIndex.getNearestCities("POINT (56.78 1.5)", 1, -1);
     }
 
     @Test
-    public void testNearestCitiesWithMaxResults() {
-        final MetacardImpl metacard = new MetacardImpl();
-        metacard.setLocation("POINT (56.78 1)");
+    public void testNearestCitiesWithMaxResults() throws java.text.ParseException {
+        String testPoint = "POINT (56.78 1)";
 
         final int requestedMaxResults = 2;
 
         final List<NearbyLocation> nearestCities = directoryIndex
-                .getNearestCities(metacard, 50, requestedMaxResults);
+                .getNearestCities(testPoint, 50, requestedMaxResults);
         assertThat(nearestCities.size(), is(requestedMaxResults));
 
         /* These distances values were obtained from
@@ -340,15 +338,14 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
     }
 
     @Test
-    public void testNearestCitiesWithLessThanMaxResults() {
-        final MetacardImpl metacard = new MetacardImpl();
-        metacard.setLocation("POINT (56.78 1.5)");
+    public void testNearestCitiesWithLessThanMaxResults() throws java.text.ParseException {
+        String testPoint = "POINT (56.78 1.5)";
 
         final int requestedMaxResults = 2;
         final int actualResults = 1;
 
         final List<NearbyLocation> nearestCities = directoryIndex
-                .getNearestCities(metacard, 50, requestedMaxResults);
+                .getNearestCities(testPoint, 50, requestedMaxResults);
         assertThat(nearestCities.size(), is(actualResults));
 
         /* This distance value was obtained from http://www.movable-type.co.uk/scripts/latlong.html
@@ -366,46 +363,54 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
     }
 
     @Test
-    public void testNearestCitiesWithNoResults() {
-        final MetacardImpl metacard = new MetacardImpl();
-        metacard.setLocation("POINT (0 1)");
+    public void testNearestCitiesWithNoResults() throws java.text.ParseException {
+        String testPoint = "POINT (0 1)";
 
         final int requestedMaxResults = 2;
         final int actualResults = 0;
 
         final List<NearbyLocation> nearestCities = directoryIndex
-                .getNearestCities(metacard, 50, requestedMaxResults);
+                .getNearestCities(testPoint, 50, requestedMaxResults);
         assertThat(nearestCities.size(), is(actualResults));
     }
 
-    @Test
-    public void testNearestCitiesWithBadWKT() {
-        final MetacardImpl metacard = new MetacardImpl();
-        metacard.setLocation("POINT 56.78 1.5)");
+    @Test(expected = java.text.ParseException.class)
+    public void testNearestCitiesWithBadWKT() throws java.text.ParseException {
+        String testPoint = "POINT 56.78 1.5)";
 
         final int requestedMaxResults = 2;
-        final int actualResults = 0;
 
         final List<NearbyLocation> nearestCities = directoryIndex
-                .getNearestCities(metacard, 50, requestedMaxResults);
-        assertThat(nearestCities.size(), is(actualResults));
+                .getNearestCities(testPoint, 50, requestedMaxResults);
     }
 
-    @Test
-    public void testNearestCitiesWithBlankWKT() {
-        final MetacardImpl metacard = new MetacardImpl();
+    @Test(expected = java.text.ParseException.class)
+    public void testNearestCitiesWithBlankWKT() throws java.text.ParseException {
+        String testPoint = "";
 
         final int requestedMaxResults = 2;
         final int actualResults = 0;
 
         final List<NearbyLocation> nearestCities = directoryIndex
-                .getNearestCities(metacard, 50, requestedMaxResults);
+                .getNearestCities(testPoint, 50, requestedMaxResults);
         assertThat(nearestCities.size(), is(actualResults));
     }
 
     @Test(expected = GeoEntryQueryException.class)
-    public void testNearestCitiesNoExistingIndex() throws IOException {
+    public void testNearestCitiesNoExistingIndex() throws IOException, java.text.ParseException {
         doReturn(false).when(directoryIndex).indexExists(directory);
-        directoryIndex.getNearestCities(new MetacardImpl(), 5, 5);
+        directoryIndex.getNearestCities("POINT (56.78 1.5)", 5, 5);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testDoGetNearestCitiesNullShape() {
+        List<NearbyLocation> nearestCities = directoryIndex.doGetNearestCities(null, 10, 10, directory);
+    }
+
+    @Test(expected = GeoEntryQueryException.class)
+    public void testDoGetNearestCitiesIOExceptionBranch() throws IOException {
+        doThrow(IOException.class).when(directoryIndex).createIndexReader(directory);
+        Shape shape = mock(Shape.class);
+        List<NearbyLocation> nearestCities = directoryIndex.doGetNearestCities(shape, 10, 10, directory);
     }
 }

@@ -134,11 +134,6 @@
                             <haltOnFailure>true</haltOnFailure>
                             <rules>
                                 <rule>
-                                    <element>BUNDLE</element>
-                                    <!-- Some limits had to be lowered because the code being tested
-                                         uses try-with-resources, which generates branches that
-                                         can't be fully tested yet are included in JaCoCo's branch
-                                         count. See https://github.com/jacoco/jacoco/issues/82 -->
                                     <limits>
                                         <limit>
                                             <counter>INSTRUCTION</counter>
@@ -148,12 +143,12 @@
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.73</minimum>
+                                            <minimum>0.72</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.70</minimum>
+                                            <minimum>0.69</minimum>
                                         </limit>
                                         <limit>
                                             <counter>LINE</counter>

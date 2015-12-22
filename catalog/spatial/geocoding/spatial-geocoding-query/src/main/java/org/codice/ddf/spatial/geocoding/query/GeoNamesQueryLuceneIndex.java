@@ -64,8 +64,6 @@ import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.impl.PointImpl;
 
-import ddf.catalog.data.Metacard;
-
 public abstract class GeoNamesQueryLuceneIndex implements GeoEntryQueryable {
     private static final Logger LOGGER = LoggerFactory.getLogger(GeoNamesQueryLuceneIndex.class);
 
@@ -213,74 +211,62 @@ public abstract class GeoNamesQueryLuceneIndex implements GeoEntryQueryable {
         return new CustomScoreQuery(disjunctionMaxQuery, boostQuery);
     }
 
-    protected List<NearbyLocation> doGetNearestCities(final Metacard metacard, final int radiusInKm,
+    protected List<NearbyLocation> doGetNearestCities(final Shape shape, final int radiusInKm,
             final int maxResults, final Directory directory) {
-        if (metacard == null) {
-            throw new IllegalArgumentException("metacard must not be null.");
+
+        if (shape == null) {
+            throw new IllegalArgumentException("GeoNamesQueryLuceneIndex.doGetNearestCities(): argument 'shape' may not be null.");
         }
 
         if (radiusInKm <= 0) {
-            throw new IllegalArgumentException("radiusInKm must be positive.");
+            throw new IllegalArgumentException("GeoNamesQueryLuceneIndex.doGetNearestCities(): radiusInKm must be positive.");
         }
 
         if (maxResults <= 0) {
-            throw new IllegalArgumentException("maxResults must be positive.");
+            throw new IllegalArgumentException("GeoNamesQueryLuceneIndex.doGetNearestCities(): maxResults must be positive.");
         }
 
         try (final IndexReader indexReader = createIndexReader(directory)) {
             final IndexSearcher indexSearcher = createIndexSearcher(indexReader);
 
-            final String location = metacard.getLocation();
-            Shape shape = null;
-
-            try {
-                if (StringUtils.isNotBlank(location)) {
-                    shape = SPATIAL_CONTEXT.readShapeFromWkt(location);
-                }
-            } catch (java.text.ParseException e) {
-                LOGGER.warn("Couldn't parse WKT: {}", location, e);
-            }
-
             final List<NearbyLocation> closestCities = new ArrayList<>();
 
-            if (shape != null) {
-                final SpatialPrefixTree grid = new GeohashPrefixTree(SPATIAL_CONTEXT,
-                        GeoNamesLuceneConstants.GEOHASH_LEVELS);
+            final SpatialPrefixTree grid = new GeohashPrefixTree(SPATIAL_CONTEXT,
+                    GeoNamesLuceneConstants.GEOHASH_LEVELS);
 
-                final SpatialStrategy strategy = new RecursivePrefixTreeStrategy(grid,
-                        GeoNamesLuceneConstants.GEO_FIELD);
+            final SpatialStrategy strategy = new RecursivePrefixTreeStrategy(grid,
+                    GeoNamesLuceneConstants.GEO_FIELD);
 
-                // Create a spatial filter that will select the documents that are in the specified
-                // search radius around the metacard's center.
-                final Point center = shape.getCenter();
-                final double searchRadiusDegrees = radiusInKm * DistanceUtils.KM_TO_DEG;
-                final SpatialArgs args = new SpatialArgs(SpatialOperation.Intersects,
-                        SPATIAL_CONTEXT.makeCircle(center, searchRadiusDegrees));
-                final Filter filter = strategy.makeFilter(args);
+            // Create a spatial filter that will select the documents that are in the specified
+            // search radius around the metacard's center.
+            final Point center = shape.getCenter();
+            final double searchRadiusDegrees = radiusInKm * DistanceUtils.KM_TO_DEG;
+            final SpatialArgs args = new SpatialArgs(SpatialOperation.Intersects,
+                    SPATIAL_CONTEXT.makeCircle(center, searchRadiusDegrees));
+            final Filter filter = strategy.makeFilter(args);
 
-                // Query for all the documents in the index that are cities, then filter those
-                // results for the ones that are in the search area.
-                final BooleanQuery booleanQuery = new BooleanQuery();
-                booleanQuery.add(PPL_QUERY, BooleanClause.Occur.MUST);
-                booleanQuery.add(filter, BooleanClause.Occur.FILTER);
+            // Query for all the documents in the index that are cities, then filter those
+            // results for the ones that are in the search area.
+            final BooleanQuery booleanQuery = new BooleanQuery();
+            booleanQuery.add(PPL_QUERY, BooleanClause.Occur.MUST);
+            booleanQuery.add(filter, BooleanClause.Occur.FILTER);
 
-                final TopDocs topDocs = indexSearcher.search(booleanQuery, maxResults, SORT);
+            final TopDocs topDocs = indexSearcher.search(booleanQuery, maxResults, SORT);
 
-                if (topDocs.totalHits > 0) {
-                    for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
-                        final double lat = Double.parseDouble(indexSearcher.doc(scoreDoc.doc)
-                                .get(GeoNamesLuceneConstants.LATITUDE_FIELD));
-                        final double lon = Double.parseDouble(indexSearcher.doc(scoreDoc.doc)
-                                .get(GeoNamesLuceneConstants.LONGITUDE_FIELD));
+            if (topDocs.totalHits > 0) {
+                for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
+                    final double lat = Double.parseDouble(indexSearcher.doc(scoreDoc.doc)
+                            .get(GeoNamesLuceneConstants.LATITUDE_FIELD));
+                    final double lon = Double.parseDouble(indexSearcher.doc(scoreDoc.doc)
+                            .get(GeoNamesLuceneConstants.LONGITUDE_FIELD));
 
-                        final String name = indexSearcher.doc(scoreDoc.doc)
-                                .get(GeoNamesLuceneConstants.NAME_FIELD);
+                    final String name = indexSearcher.doc(scoreDoc.doc)
+                            .get(GeoNamesLuceneConstants.NAME_FIELD);
 
-                        final NearbyLocation city = new NearbyLocationImpl(center,
-                                new PointImpl(lon, lat, SPATIAL_CONTEXT), name);
+                    final NearbyLocation city = new NearbyLocationImpl(center,
+                            new PointImpl(lon, lat, SPATIAL_CONTEXT), name);
 
-                        closestCities.add(city);
-                    }
+                    closestCities.add(city);
                 }
             }
 
