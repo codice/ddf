@@ -31,7 +31,6 @@
     "grunt-contrib-watch": "0.4.4",
     "grunt-express": "1.2.1",
     "grunt-mocha-webdriver": "1.1.2",
-    "grunt-newer": "0.8.0",
     "grunt-sed": "0.1.1",
     "jshint-stylish": "1.0.2",
     "load-grunt-tasks": "1.0.0",
