@@ -284,10 +284,7 @@ define([
                 spinner.stop();
                 view.jolokiaError.show(new AlertsView.View({'model': AlertsModel.Jolokia(jqXHROrerrorThrown)}));
             }).done(function () {
-                $('#config-modal').modal('hide');
-                // due to a bug in bootstrap, the backdrop does not get removed
-                // when calling 'hide' on the modal programmatically
-                $('.modal-backdrop').remove();
+                view.$el.parent().modal('hide');
                 view.close();
                 wreqr.vent.trigger('refreshConfigurations');
             });
