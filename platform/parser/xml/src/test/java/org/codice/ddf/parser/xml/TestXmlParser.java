@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -26,8 +26,15 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.helpers.DefaultValidationEventHandler;
+import javax.xml.bind.util.JAXBSource;
+import javax.xml.namespace.QName;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Source;
 
 import org.codice.ddf.parser.Parser;
 import org.codice.ddf.parser.ParserConfigurator;
@@ -38,10 +45,15 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 import com.google.common.collect.ImmutableList;
 
 public class TestXmlParser {
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
     private Parser parser;
 
     private ParserConfigurator configurator;
@@ -52,14 +64,12 @@ public class TestXmlParser {
 
     private ChildElement leia;
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
     @Before
     public void setUp() throws Exception {
         parser = new XmlParser();
 
-        List<String> ctxPath = ImmutableList.of(MotherElement.class.getPackage().getName());
+        List<String> ctxPath = ImmutableList.of(MotherElement.class.getPackage()
+                .getName());
         configurator = parser.configureParser(ctxPath, TestXmlParser.class.getClassLoader());
 
         mother = new MotherElement();
@@ -77,14 +87,17 @@ public class TestXmlParser {
         leia.setFirstname("Leia");
         leia.setLastname("Organa");
 
-        mother.getChild().add(luke);
-        mother.getChild().add(leia);
+        mother.getChild()
+                .add(luke);
+        mother.getChild()
+                .add(leia);
     }
 
     @Test
     public void testConfigureParser() {
-        assertTrue(
-                configurator.getContextPath().contains(MotherElement.class.getPackage().getName()));
+        assertTrue(configurator.getContextPath()
+                .contains(MotherElement.class.getPackage()
+                        .getName()));
         assertEquals(TestXmlParser.class.getClassLoader(), configurator.getClassLoader());
     }
 
@@ -127,9 +140,18 @@ public class TestXmlParser {
         assertEquals(mother.getAge(), unmarshal.getAge());
         assertEquals(mother.getFirstname(), unmarshal.getFirstname());
         assertEquals(mother.getLastname(), unmarshal.getLastname());
-        assertEquals(mother.getChild().size(), unmarshal.getChild().size());
-        assertEquals(luke.getFirstname(), unmarshal.getChild().get(0).getFirstname());
-        assertEquals(leia.getAge(), unmarshal.getChild().get(1).getAge());
+        assertEquals(mother.getChild()
+                        .size(),
+                unmarshal.getChild()
+                        .size());
+        assertEquals(luke.getFirstname(),
+                unmarshal.getChild()
+                        .get(0)
+                        .getFirstname());
+        assertEquals(leia.getAge(),
+                unmarshal.getChild()
+                        .get(1)
+                        .getAge());
 
         configurator.setHandler(new DefaultValidationEventHandler());
         is = new ByteArrayInputStream(os.toByteArray());
@@ -139,8 +161,9 @@ public class TestXmlParser {
 
         configurator.addProperty("UnknownProperty", Boolean.TRUE);
         is = new ByteArrayInputStream(os.toByteArray());
+
         thrown.expect(ParserException.class);
-        unmarshal = parser.unmarshal(configurator, MotherElement.class, is);
+        parser.unmarshal(configurator, MotherElement.class, is);
     }
 
     @Test
@@ -152,6 +175,232 @@ public class TestXmlParser {
 
         thrown.expect(ClassCastException.class);
         ChildElement unmarshal = parser.unmarshal(configurator, ChildElement.class, is);
+    }
+
+    @Test
+    public void testMarshalNode() throws Exception {
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = dbf.newDocumentBuilder();
+        Document doc = builder.newDocument();
+
+        parser.marshal(configurator, mother, doc);
+
+        // check the root
+        assertEquals(1,
+                doc.getChildNodes()
+                        .getLength());
+        assertEquals(3,
+                doc.getDocumentElement()
+                        .getAttributes()
+                        .getLength());
+        assertEquals(mother.getAge()
+                        .toString(),
+                doc.getDocumentElement()
+                        .getAttributes()
+                        .getNamedItem("age")
+                        .getNodeValue());
+        assertEquals(mother.getFirstname(),
+                doc.getDocumentElement()
+                        .getAttributes()
+                        .getNamedItem("firstname")
+                        .getNodeValue());
+        assertEquals(mother.getLastname(),
+                doc.getDocumentElement()
+                        .getAttributes()
+                        .getNamedItem("lastname")
+                        .getNodeValue());
+
+        // check the child nodes
+        assertEquals(mother.getChild()
+                        .size(),
+                doc.getFirstChild()
+                        .getChildNodes()
+                        .getLength());
+
+        // first child
+        assertEquals(3,
+                doc.getDocumentElement()
+                        .getChildNodes()
+                        .item(0)
+                        .getAttributes()
+                        .getLength());
+        assertEquals(mother.getChild()
+                        .get(0)
+                        .getFirstname(),
+                doc.getDocumentElement()
+                        .getChildNodes()
+                        .item(0)
+                        .getAttributes()
+                        .getNamedItem("firstname")
+                        .getNodeValue());
+        assertEquals(mother.getChild()
+                        .get(0)
+                        .getLastname(),
+                doc.getDocumentElement()
+                        .getChildNodes()
+                        .item(0)
+                        .getAttributes()
+                        .getNamedItem("lastname")
+                        .getNodeValue());
+        assertEquals(mother.getChild()
+                        .get(0)
+                        .getAge()
+                        .toString(),
+                doc.getDocumentElement()
+                        .getChildNodes()
+                        .item(0)
+                        .getAttributes()
+                        .getNamedItem("age")
+                        .getNodeValue());
+
+        // second child
+        assertEquals(3,
+                doc.getDocumentElement()
+                        .getChildNodes()
+                        .item(1)
+                        .getAttributes()
+                        .getLength());
+        assertEquals(mother.getChild()
+                        .get(1)
+                        .getFirstname(),
+                doc.getDocumentElement()
+                        .getChildNodes()
+                        .item(1)
+                        .getAttributes()
+                        .getNamedItem("firstname")
+                        .getNodeValue());
+        assertEquals(mother.getChild()
+                        .get(1)
+                        .getLastname(),
+                doc.getDocumentElement()
+                        .getChildNodes()
+                        .item(1)
+                        .getAttributes()
+                        .getNamedItem("lastname")
+                        .getNodeValue());
+        assertEquals(mother.getChild()
+                        .get(1)
+                        .getAge()
+                        .toString(),
+                doc.getDocumentElement()
+                        .getChildNodes()
+                        .item(1)
+                        .getAttributes()
+                        .getNamedItem("age")
+                        .getNodeValue());
+    }
+
+    @Test
+    public void testMarshalNodeRunTimeException() throws Exception {
+        thrown.expect(ParserException.class);
+        parser.marshal(configurator, mother, (Node) null);
+    }
+
+    @Test
+    public void testMarshalNodeJAXBException() throws Exception {
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = dbf.newDocumentBuilder();
+        Document doc = builder.newDocument();
+
+        configurator.addProperty("BadKey", "BadValue");
+
+        thrown.expect(ParserException.class);
+        parser.marshal(configurator, mother, doc);
+    }
+
+    @Test
+    public void testUnmarshalNode() throws Exception {
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = dbf.newDocumentBuilder();
+        Document doc = builder.newDocument();
+
+        parser.marshal(configurator, mother, doc);
+
+        MotherElement unmarshal = parser.unmarshal(configurator, MotherElement.class, doc);
+
+        assertEquals(mother.getAge(), unmarshal.getAge());
+        assertEquals(mother.getFirstname(), unmarshal.getFirstname());
+        assertEquals(mother.getLastname(), unmarshal.getLastname());
+        assertEquals(mother.getChild()
+                        .size(),
+                unmarshal.getChild()
+                        .size());
+        assertEquals(luke.getFirstname(),
+                unmarshal.getChild()
+                        .get(0)
+                        .getFirstname());
+        assertEquals(leia.getAge(),
+                unmarshal.getChild()
+                        .get(1)
+                        .getAge());
+    }
+
+    @Test
+    public void testUnmarshalNodeRunTimeException() throws Exception {
+        thrown.expect(ParserException.class);
+        parser.unmarshal(configurator, MotherElement.class, (Node) null);
+    }
+
+    @Test
+    public void testUnmarshalNodeJAXBException() throws Exception {
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = dbf.newDocumentBuilder();
+        Document doc = builder.newDocument();
+
+        parser.marshal(configurator, mother, doc);
+
+        configurator.addProperty("BadKey", "BadValue");
+
+        thrown.expect(ParserException.class);
+        parser.unmarshal(configurator, MotherElement.class, doc);
+    }
+
+    @Test
+    public void testUnmarshalSource() throws Exception {
+        JAXBContext motherContext = JAXBContext.newInstance(MotherElement.class);
+        @SuppressWarnings("unchecked")
+        JAXBElement<MotherElement> motherElementJAXBElement = new JAXBElement(new QName("mother"),
+                MotherElement.class,
+                mother);
+        JAXBSource motherSource = new JAXBSource(motherContext, motherElementJAXBElement);
+
+        MotherElement unmarshal = parser.unmarshal(configurator, MotherElement.class, motherSource);
+
+        assertEquals(mother.getAge(), unmarshal.getAge());
+        assertEquals(mother.getFirstname(), unmarshal.getFirstname());
+        assertEquals(mother.getLastname(), unmarshal.getLastname());
+        assertEquals(mother.getChild()
+                        .size(),
+                unmarshal.getChild()
+                        .size());
+        assertEquals(luke.getFirstname(),
+                unmarshal.getChild()
+                        .get(0)
+                        .getFirstname());
+        assertEquals(leia.getAge(),
+                unmarshal.getChild()
+                        .get(1)
+                        .getAge());
+    }
+
+    @Test
+    public void testUnmarshalSourceRunTimeException() throws Exception {
+        thrown.expect(ParserException.class);
+        parser.unmarshal(configurator, MotherElement.class, (Source) null);
+    }
+
+    @Test
+    public void testUnmarshalSourceJAXBException() throws Exception {
+        JAXBContext motherContext = JAXBContext.newInstance(MotherElement.class);
+        @SuppressWarnings("unchecked")
+        JAXBElement<MotherElement> motherElementJAXBElement = new JAXBElement(new QName("mother"),
+                MotherElement.class,
+                mother);
+        JAXBSource motherSource = new JAXBSource(motherContext, motherElementJAXBElement);
+
+        configurator.addProperty("BadKey", "BadValue");
+        thrown.expect(ParserException.class);
+        parser.unmarshal(configurator, MotherElement.class, motherSource);
     }
 
     @Test
@@ -176,7 +425,7 @@ public class TestXmlParser {
         ByteArrayInputStream is = new ByteArrayInputStream(new byte[] {0, 1, 2});
 
         thrown.expect(ParserException.class);
-        ChildElement unmarshal = parser.unmarshal(configurator, ChildElement.class, is);
+        parser.unmarshal(configurator, ChildElement.class, is);
     }
 
     @Test
