@@ -17,6 +17,7 @@ package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.writer;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -63,7 +64,7 @@ public class CswRecordCollectionMessageBodyWriterTest {
             CatalogTransformerException {
         CswRecordCollectionMessageBodyWriter writer = new CswRecordCollectionMessageBodyWriter(
                 mockManager);
-        when(mockManager.getCswQueryResponseTransformer()).thenReturn(mockTransformer);
+        when(mockManager.getTransformerBySchema(anyString())).thenReturn(mockTransformer);
 
         ArgumentCaptor<Map> captor = ArgumentCaptor.forClass(Map.class);
         when(mockTransformer.transform(any(SourceResponse.class), any(Map.class)))
@@ -104,7 +105,7 @@ public class CswRecordCollectionMessageBodyWriterTest {
             CatalogTransformerException {
         CswRecordCollectionMessageBodyWriter writer = new CswRecordCollectionMessageBodyWriter(
                 mockManager);
-        when(mockManager.getCswQueryResponseTransformer()).thenReturn(mockTransformer);
+        when(mockManager.getTransformerBySchema(anyString())).thenReturn(mockTransformer);
 
         ArgumentCaptor<Map> captor = ArgumentCaptor.forClass(Map.class);
         when(mockTransformer.transform(any(SourceResponse.class), any(Map.class)))
@@ -125,7 +126,7 @@ public class CswRecordCollectionMessageBodyWriterTest {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         writer.writeTo(collection, null, null, null, null, null, stream);
 
-        verify(mockManager, times(1)).getCswQueryResponseTransformer();
+        verify(mockManager, times(1)).getTransformerBySchema(anyString());
         verify(mockTransformer).transform(any(SourceResponse.class), captor.capture());
 
         Map arguments = captor.getValue();

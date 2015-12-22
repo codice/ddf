@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -30,6 +30,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -306,14 +307,22 @@ public class TestCswEndpoint {
 
     private static TransformerManager mockSchemaManager = mock(TransformerManager.class);
 
+    private static TransformerManager mockInputManager = mock(TransformerManager.class);
+
     private static QueryResponseTransformer mockTransformer = mock(QueryResponseTransformer.class);
 
     private static QName cswQnameOutPutSchema = new QName(CswConstants.CSW_OUTPUT_SCHEMA);
 
+    private static ArgumentCaptor<QueryRequest> argument;
+
+    private static final long RESULT_COUNT = 10;
+
+    private static final long TOTAL_COUNT = 10;
+
     @BeforeClass
     public static void setUpBeforeClass()
             throws URISyntaxException, SourceUnavailableException, UnsupportedQueryException,
-            FederationException, ParseException {
+            FederationException, ParseException, IngestException {
         URI mockUri = new URI("http://example.com/services/csw");
         when(mockUriInfo.getBaseUri()).thenReturn(mockUri);
         when(mockContext.getBundle()).thenReturn(mockBundle);
@@ -322,10 +331,6 @@ public class TestCswEndpoint {
         when(mockBundle.getResource("record.xsd")).thenReturn(resourceUrl);
         when(mockBundle.getResource("csw/2.0.2/record.xsd")).thenReturn(resourceUrl);
         when(mockBundle.getResource(".")).thenReturn(resourceUrlDot);
-        QueryResponseImpl response = new QueryResponseImpl(null, new LinkedList<Result>(), 0);
-        when(catalogFramework.query(any(QueryRequest.class))).thenReturn(response);
-        when(catalogFramework.getSourceIds())
-                .thenReturn(new HashSet<>(Arrays.asList("source1", "source2", "source3")));
 
         AttributeBuilder attrBuilder = mock(AttributeBuilder.class);
         ExpressionBuilder exprBuilder = mock(ExpressionBuilder.class);
@@ -337,7 +342,7 @@ public class TestCswEndpoint {
         when(filterBuilder.attribute(Metacard.ID)).thenReturn(attrBuilder);
         when(filterBuilder.anyOf(anyList())).thenReturn(mock(Or.class));
         csw = new CswEndpoint(mockContext, catalogFramework, filterBuilder, mockUriInfo,
-                mockMimeTypeManager, mockSchemaManager);
+                mockMimeTypeManager, mockSchemaManager, mockInputManager);
 
         polygon = new WKTReader().read(POLYGON_STR);
         gmlObjectFactory = new net.opengis.gml.v_3_1_1.ObjectFactory();
@@ -348,6 +353,22 @@ public class TestCswEndpoint {
                 .thenReturn(Arrays.asList(CswConstants.CSW_OUTPUT_SCHEMA));
         when(mockSchemaManager.getTransformerBySchema(CswConstants.CSW_OUTPUT_SCHEMA))
                 .thenReturn(mockTransformer);
+        when(mockInputManager.getAvailableIds()).thenReturn(Arrays.asList(CswConstants.CSW_RECORD));
+    }
+
+    @org.junit.Before
+    public void before()
+            throws UnsupportedQueryException, SourceUnavailableException, FederationException,
+            IngestException {
+        QueryResponseImpl response = new QueryResponseImpl(null, new LinkedList<Result>(), 0);
+        argument = ArgumentCaptor.forClass(QueryRequest.class);
+        reset(catalogFramework);
+        when(catalogFramework.query(argument.capture())).thenReturn(response);
+        when(catalogFramework.getSourceIds())
+                .thenReturn(new HashSet<>(Arrays.asList("source1", "source2", "source3")));
+        CreateResponseImpl createResponse = new CreateResponseImpl(null, null,
+                Arrays.<Metacard>asList(new MetacardImpl()));
+        when(catalogFramework.create(any(CreateRequest.class))).thenReturn(createResponse);
     }
 
     @Test
@@ -1243,8 +1264,8 @@ public class TestCswEndpoint {
         List<QName> typeNames = new ArrayList<QName>();
         typeNames.add(new QName(CswConstants.CSW_OUTPUT_SCHEMA, BAD_TYPE, VALID_PREFIX));
         query.setTypeNames(typeNames);
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                cswQnameOutPutSchema, QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+                QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -1252,7 +1273,7 @@ public class TestCswEndpoint {
     }
 
     /**
-     *  Test Valid GetRecords request, no exceptions should be thrown
+     * Test Valid GetRecords request, no exceptions should be thrown
      */
 
     @Test
@@ -1261,9 +1282,10 @@ public class TestCswEndpoint {
 
         QueryType query = new QueryType();
 
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                cswQnameOutPutSchema, QueryType.class, query);
-        List<QName> elementNameList = Arrays.asList(new QName("brief"), new QName("summary"), new QName("full"));
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+                QueryType.class, query);
+        List<QName> elementNameList = Arrays
+                .asList(new QName("brief"), new QName("summary"), new QName("full"));
         query.setElementName(elementNameList);
         grr.setAbstractQuery(jaxbQuery);
 
@@ -1276,8 +1298,8 @@ public class TestCswEndpoint {
 
         QueryType query = new QueryType();
 
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                cswQnameOutPutSchema, QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+                QueryType.class, query);
         List<QName> elementNameList = Arrays.asList(new QName("brief"), new QName("sas"));
         query.setElementName(elementNameList);
         grr.setAbstractQuery(jaxbQuery);
@@ -1291,8 +1313,8 @@ public class TestCswEndpoint {
 
         QueryType query = new QueryType();
 
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                cswQnameOutPutSchema, QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+                QueryType.class, query);
 
         query.setElementSetName(new ElementSetNameType());
         grr.setAbstractQuery(jaxbQuery);
@@ -1306,8 +1328,8 @@ public class TestCswEndpoint {
 
         QueryType query = new QueryType();
 
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                cswQnameOutPutSchema, QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+                QueryType.class, query);
         ElementSetNameType elsnt = new ElementSetNameType();
         elsnt.setValue(ElementSetType.BRIEF);
         query.setElementSetName(elsnt);
@@ -1322,8 +1344,8 @@ public class TestCswEndpoint {
 
         QueryType query = new QueryType();
 
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                cswQnameOutPutSchema, QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+                QueryType.class, query);
         List<QName> elementNameList = Arrays.asList(new QName("brief"));
         ElementSetNameType elsnt = new ElementSetNameType();
         elsnt.setValue(ElementSetType.BRIEF);
@@ -1341,15 +1363,7 @@ public class TestCswEndpoint {
             FederationException {
         GetRecordsType grr = createDefaultPostRecordsRequest();
 
-        CatalogFramework framework = mock(CatalogFramework.class);
-        QueryResponseImpl response = new QueryResponseImpl(null, new LinkedList<Result>(), 0);
-        ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
-        when(framework.query(argument.capture())).thenReturn(response);
-
-        CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
-
-        cswEndpoint.getRecords(grr);
+        csw.getRecords(grr);
         assertThat(argument.getValue().isEnterprise(), is(false));
         assertThat(argument.getValue().getSourceIds(), anyOf(nullValue(), empty()));
     }
@@ -1369,20 +1383,12 @@ public class TestCswEndpoint {
         constraint.setFilter(new FilterType());
 
         query.setConstraint(constraint);
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                cswQnameOutPutSchema, QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+                QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
 
-        CatalogFramework framework = mock(CatalogFramework.class);
-        QueryResponseImpl response = new QueryResponseImpl(null, new LinkedList<Result>(), 0);
-        ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
-        when(framework.query(argument.capture())).thenReturn(response);
-
-        CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
-
-        cswEndpoint.getRecords(grr);
+        csw.getRecords(grr);
     }
 
     @SuppressWarnings("unchecked")
@@ -1397,15 +1403,7 @@ public class TestCswEndpoint {
 
         grr.setDistributedSearch(distributedSearch);
 
-        CatalogFramework framework = mock(CatalogFramework.class);
-        QueryResponseImpl response = new QueryResponseImpl(null, new LinkedList<Result>(), 0);
-        ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
-        when(framework.query(argument.capture())).thenReturn(response);
-
-        CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
-
-        cswEndpoint.getRecords(grr);
+        csw.getRecords(grr);
         assertThat(argument.getValue().isEnterprise(), is(false));
         assertThat(argument.getValue().getSourceIds(), anyOf(nullValue(), empty()));
     }
@@ -1422,15 +1420,7 @@ public class TestCswEndpoint {
 
         grr.setDistributedSearch(distributedSearch);
 
-        CatalogFramework framework = mock(CatalogFramework.class);
-        QueryResponseImpl response = new QueryResponseImpl(null, new LinkedList<Result>(), 0);
-        ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
-        when(framework.query(argument.capture())).thenReturn(response);
-
-        CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
-
-        cswEndpoint.getRecords(grr);
+        csw.getRecords(grr);
         assertThat(argument.getValue().isEnterprise(), is(true));
         assertThat(argument.getValue().getSourceIds(), anyOf(nullValue(), empty()));
     }
@@ -1458,19 +1448,11 @@ public class TestCswEndpoint {
 
         query.setConstraint(constraint);
 
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                cswQnameOutPutSchema, QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+                QueryType.class, query);
         grr.setAbstractQuery(jaxbQuery);
 
-        CatalogFramework framework = mock(CatalogFramework.class);
-        QueryResponseImpl response = new QueryResponseImpl(null, new LinkedList<Result>(), 0);
-        ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
-        when(framework.query(argument.capture())).thenReturn(response);
-
-        CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
-
-        cswEndpoint.getRecords(grr);
+        csw.getRecords(grr);
         assertThat(argument.getValue().isEnterprise(), is(false));
         assertThat(argument.getValue().getSourceIds(), contains("source1"));
     }
@@ -1487,8 +1469,8 @@ public class TestCswEndpoint {
         constraint.setCqlText(CQL_BAD_QUERY);
 
         query.setConstraint(constraint);
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                cswQnameOutPutSchema, QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+                QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -1509,20 +1491,12 @@ public class TestCswEndpoint {
         constraint.setCqlText(CQL_CONTEXTUAL_LIKE_QUERY);
 
         query.setConstraint(constraint);
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                cswQnameOutPutSchema, QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+                QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
 
-        CatalogFramework framework = mock(CatalogFramework.class);
-        QueryResponseImpl response = new QueryResponseImpl(null, new LinkedList<Result>(), 0);
-        ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
-        when(framework.query(argument.capture())).thenReturn(response);
-
-        CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
-
-        cswEndpoint.getRecords(grr);
+        csw.getRecords(grr);
         QueryImpl frameworkQuery = (QueryImpl) argument.getValue().getQuery();
         assertThat(frameworkQuery.getFilter(), instanceOf(PropertyIsLike.class));
         PropertyIsLike like = (PropertyIsLike) frameworkQuery.getFilter();
@@ -1549,8 +1523,8 @@ public class TestCswEndpoint {
         ElementSetNameType esnt = new ElementSetNameType();
         esnt.setValue(ElementSetType.SUMMARY);
         query.setElementSetName(esnt);
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                cswQnameOutPutSchema, QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+                QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
         final String EXAMPLE_SCHEMA = CswConstants.CSW_OUTPUT_SCHEMA;
@@ -1558,22 +1532,9 @@ public class TestCswEndpoint {
         final String EXAMPLE_MIME = "application/xml";
         grr.setOutputFormat(EXAMPLE_MIME);
 
-        CatalogFramework framework = mock(CatalogFramework.class);
-        List<Result> results = new LinkedList<Result>();
-        final long RESULT_COUNT = 10;
-        final long TOTAL_COUNT = 10;
-        for (int i = 0; i < RESULT_COUNT; i++) {
-            Result result = new ResultImpl();
-            results.add(result);
-        }
-        QueryResponseImpl response = new QueryResponseImpl(null, results, TOTAL_COUNT);
-        ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
-        when(framework.query(argument.capture())).thenReturn(response);
+        when(catalogFramework.query(argument.capture())).thenReturn(getQueryResponse());
 
-        CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
-
-        CswRecordCollection collection = cswEndpoint.getRecords(grr);
+        CswRecordCollection collection = csw.getRecords(grr);
 
         assertThat(collection.getMimeType(), is(EXAMPLE_MIME));
         assertThat(collection.getOutputSchema(), is(EXAMPLE_SCHEMA));
@@ -1597,27 +1558,14 @@ public class TestCswEndpoint {
         constraint.setCqlText(CQL_CONTEXTUAL_LIKE_QUERY);
 
         query.setConstraint(constraint);
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                cswQnameOutPutSchema, QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+                QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
 
-        CatalogFramework framework = mock(CatalogFramework.class);
-        List<Result> results = new LinkedList<Result>();
-        final long RESULT_COUNT = 10;
-        final long TOTAL_COUNT = 10;
-        for (int i = 0; i < RESULT_COUNT; i++) {
-            Result result = new ResultImpl();
-            results.add(result);
-        }
-        QueryResponseImpl response = new QueryResponseImpl(null, results, TOTAL_COUNT);
-        ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
-        when(framework.query(argument.capture())).thenReturn(response);
+        when(catalogFramework.query(argument.capture())).thenReturn(getQueryResponse());
 
-        CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
-
-        CswRecordCollection collection = cswEndpoint.getRecords(grr);
+        CswRecordCollection collection = csw.getRecords(grr);
 
         assertThat(collection.getCswRecords(), is(empty()));
         assertThat(collection.getResultType(), is(ResultType.HITS));
@@ -1638,27 +1586,14 @@ public class TestCswEndpoint {
         constraint.setCqlText(CQL_CONTEXTUAL_LIKE_QUERY);
 
         query.setConstraint(constraint);
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                cswQnameOutPutSchema, QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+                QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
 
-        CatalogFramework framework = mock(CatalogFramework.class);
-        List<Result> results = new LinkedList<Result>();
-        final long RESULT_COUNT = 10;
-        final long TOTAL_COUNT = 10;
-        for (int i = 0; i < RESULT_COUNT; i++) {
-            Result result = new ResultImpl();
-            results.add(result);
-        }
-        QueryResponseImpl response = new QueryResponseImpl(null, results, TOTAL_COUNT);
-        ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
-        when(framework.query(argument.capture())).thenReturn(response);
+        when(catalogFramework.query(argument.capture())).thenReturn(getQueryResponse());
 
-        CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
-
-        CswRecordCollection collection = cswEndpoint.getRecords(grr);
+        CswRecordCollection collection = csw.getRecords(grr);
 
         assertThat(collection.getCswRecords(), is(empty()));
         assertThat(collection.getNumberOfRecordsMatched(), is(0L));
@@ -1682,21 +1617,12 @@ public class TestCswEndpoint {
         incomingSort.getSortProperty().add(propType);
         query.setSortBy(incomingSort);
 
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                cswQnameOutPutSchema, QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+                QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
 
-        CatalogFramework framework = mock(CatalogFramework.class);
-
-        QueryResponseImpl response = new QueryResponseImpl(null, null, 0);
-        ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
-        when(framework.query(argument.capture())).thenReturn(response);
-
-        CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
-
-        cswEndpoint.getRecords(grr);
+        csw.getRecords(grr);
 
         SortBy resultSort = argument.getValue().getQuery().getSortBy();
 
@@ -1722,21 +1648,12 @@ public class TestCswEndpoint {
         incomingSort.getSortProperty().add(propType);
         query.setSortBy(incomingSort);
 
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                cswQnameOutPutSchema, QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+                QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
 
-        CatalogFramework framework = mock(CatalogFramework.class);
-
-        QueryResponseImpl response = new QueryResponseImpl(null, null, 0);
-        ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
-        when(framework.query(argument.capture())).thenReturn(response);
-
-        CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
-
-        cswEndpoint.getRecords(grr);
+        csw.getRecords(grr);
     }
 
     @Test
@@ -2029,11 +1946,9 @@ public class TestCswEndpoint {
                 .<Result>singletonList(new ResultImpl(metacard));
         final QueryResponseImpl queryResponse = new QueryResponseImpl(null, mockResults,
                 mockResults.size());
+        doReturn(queryResponse).when(catalogFramework).query(any(QueryRequest.class));
 
-        final CswEndpoint cswEndpoint = createCswEndpoint(queryResponse);
-
-        final CswRecordCollection cswRecordCollection = cswEndpoint
-                .getRecordById(getRecordByIdRequest);
+        final CswRecordCollection cswRecordCollection = csw.getRecordById(getRecordByIdRequest);
         verifyCswRecordCollection(cswRecordCollection, metacard);
 
         assertThat(cswRecordCollection.getElementSetType(), is(ElementSetType.FULL));
@@ -2055,11 +1970,9 @@ public class TestCswEndpoint {
                 .<Result>asList(new ResultImpl(metacard1), new ResultImpl(metacard2));
         final QueryResponse queryResponse = new QueryResponseImpl(null, mockResults,
                 mockResults.size());
+        doReturn(queryResponse).when(catalogFramework).query(any(QueryRequest.class));
 
-        final CswEndpoint cswEndpoint = createCswEndpoint(queryResponse);
-
-        final CswRecordCollection cswRecordCollection = cswEndpoint
-                .getRecordById(getRecordByIdType);
+        final CswRecordCollection cswRecordCollection = csw.getRecordById(getRecordByIdType);
         verifyCswRecordCollection(cswRecordCollection, metacard1, metacard2);
 
         // "summary" is the default if none is specified in the request.
@@ -2090,15 +2003,6 @@ public class TestCswEndpoint {
 
         assertThat(cswRecordCollection.isById(), is(true));
         assertThat(cswRecordCollection.getOutputSchema(), is(CswConstants.CSW_OUTPUT_SCHEMA));
-    }
-
-    private CswEndpoint createCswEndpoint(final QueryResponse queryResponse)
-            throws FederationException, SourceUnavailableException, UnsupportedQueryException {
-        final CatalogFramework mockFramework = mock(CatalogFramework.class);
-        doReturn(queryResponse).when(mockFramework).query(any(QueryRequest.class));
-
-        return new CswEndpoint(mockContext, mockFramework, filterBuilder, mockUriInfo,
-                mockMimeTypeManager, mockSchemaManager);
     }
 
     @Test(expected = CswException.class)
@@ -2166,8 +2070,7 @@ public class TestCswEndpoint {
             StringWriter sw = new StringWriter();
 
             JAXBElement<DescribeRecordResponseType> wrappedResponse = new JAXBElement<DescribeRecordResponseType>(
-                    cswQnameOutPutSchema,
-                    DescribeRecordResponseType.class, response);
+                    cswQnameOutPutSchema, DescribeRecordResponseType.class, response);
 
             marshaller.marshal(wrappedResponse, sw);
 
@@ -2208,15 +2111,7 @@ public class TestCswEndpoint {
         request.getInsertActions().add(new InsertAction(CswConstants.CSW_TYPE, null,
                 Arrays.<Metacard>asList(new MetacardImpl())));
 
-        CatalogFramework framework = mock(CatalogFramework.class);
-        CreateResponseImpl createResponse = new CreateResponseImpl(null, null,
-                Arrays.<Metacard>asList(new MetacardImpl()));
-        when(framework.create(any(CreateRequest.class))).thenReturn(createResponse);
-
-        CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
-
-        TransactionResponseType response = cswEndpoint.transaction(request);
+        TransactionResponseType response = csw.transaction(request);
         assertThat(response, notNullValue());
         assertThat(response.getInsertResult().isEmpty(), is(true));
         assertThat(response.getTransactionSummary(), notNullValue());
@@ -2238,15 +2133,7 @@ public class TestCswEndpoint {
                 Arrays.<Metacard>asList(new MetacardImpl())));
         request.setVerbose(true);
 
-        CatalogFramework framework = mock(CatalogFramework.class);
-        CreateResponseImpl createResponse = new CreateResponseImpl(null, null,
-                Arrays.<Metacard>asList(new MetacardImpl()));
-        when(framework.create(any(CreateRequest.class))).thenReturn(createResponse);
-
-        CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
-
-        TransactionResponseType response = cswEndpoint.transaction(request);
+        TransactionResponseType response = csw.transaction(request);
         assertThat(response, notNullValue());
         assertThat(response.getInsertResult().size(), is(1));
         assertThat(response.getTransactionSummary(), notNullValue());
@@ -2281,16 +2168,14 @@ public class TestCswEndpoint {
 
         QueryResponse queryResponse = new QueryResponseImpl(null, results, results.size());
 
-        CatalogFramework framework = mock(CatalogFramework.class);
-
-        doReturn(queryResponse).when(framework).query(any(QueryRequest.class));
+        doReturn(queryResponse).when(catalogFramework).query(any(QueryRequest.class));
 
         List<Metacard> deletedMetacards = new ArrayList<>();
         deletedMetacards.add(new MetacardImpl());
         deletedMetacards.add(new MetacardImpl());
 
         DeleteResponse deleteResponse = new DeleteResponseImpl(null, null, deletedMetacards);
-        doReturn(deleteResponse).when(framework).delete(any(DeleteRequest.class));
+        doReturn(deleteResponse).when(catalogFramework).delete(any(DeleteRequest.class));
 
         DeleteAction deleteAction = new DeleteAction(deleteType,
                 DefaultCswRecordMap.getDefaultCswRecordMap().getPrefixToUriMapping());
@@ -2301,10 +2186,7 @@ public class TestCswEndpoint {
         deleteRequest.setService(CswConstants.CSW);
         deleteRequest.setVerbose(false);
 
-        CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
-
-        TransactionResponseType response = cswEndpoint.transaction(deleteRequest);
+        TransactionResponseType response = csw.transaction(deleteRequest);
         assertThat(response, notNullValue());
 
         TransactionSummaryType summary = response.getTransactionSummary();
@@ -2323,13 +2205,11 @@ public class TestCswEndpoint {
     public void testUpdateTransactionWithNewRecord()
             throws CswException, FederationException, IngestException, SourceUnavailableException,
             UnsupportedQueryException {
-        CatalogFramework framework = mock(CatalogFramework.class);
-
         List<Update> updatedMetacards = new ArrayList<>();
         updatedMetacards.add(new UpdateImpl(new MetacardImpl(), new MetacardImpl()));
 
         UpdateResponse updateResponse = new UpdateResponseImpl(null, null, updatedMetacards);
-        doReturn(updateResponse).when(framework).update(any(UpdateRequest.class));
+        doReturn(updateResponse).when(catalogFramework).update(any(UpdateRequest.class));
 
         MetacardImpl updatedMetacard = new MetacardImpl();
         updatedMetacard.setId("123");
@@ -2341,10 +2221,7 @@ public class TestCswEndpoint {
         transactionRequest.setService(CswConstants.CSW);
         transactionRequest.setVerbose(false);
 
-        CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
-
-        TransactionResponseType response = cswEndpoint.transaction(transactionRequest);
+        TransactionResponseType response = csw.transaction(transactionRequest);
         assertThat(response, notNullValue());
 
         TransactionSummaryType summary = response.getTransactionSummary();
@@ -2361,7 +2238,7 @@ public class TestCswEndpoint {
         ArgumentCaptor<UpdateRequest> updateRequestArgumentCaptor = ArgumentCaptor
                 .forClass(UpdateRequest.class);
 
-        verify(framework, times(1)).update(updateRequestArgumentCaptor.capture());
+        verify(catalogFramework, times(1)).update(updateRequestArgumentCaptor.capture());
 
         UpdateRequest actualUpdateRequest = updateRequestArgumentCaptor.getValue();
         assertThat(actualUpdateRequest.getUpdates().size(), is(1));
@@ -2372,8 +2249,6 @@ public class TestCswEndpoint {
     public void testUpdateTransactionWithConstraint()
             throws CswException, FederationException, IngestException, SourceUnavailableException,
             UnsupportedQueryException {
-        CatalogFramework framework = mock(CatalogFramework.class);
-
         List<Result> results = new ArrayList<>();
 
         MetacardImpl firstResult = new MetacardImpl();
@@ -2389,14 +2264,14 @@ public class TestCswEndpoint {
         results.add(new ResultImpl(secondResult));
 
         QueryResponse queryResponse = new QueryResponseImpl(null, results, results.size());
-        doReturn(queryResponse).when(framework).query(any(QueryRequest.class));
+        doReturn(queryResponse).when(catalogFramework).query(any(QueryRequest.class));
 
         List<Update> updatedMetacards = new ArrayList<>();
         updatedMetacards.add(new UpdateImpl(new MetacardImpl(), new MetacardImpl()));
         updatedMetacards.add(new UpdateImpl(new MetacardImpl(), new MetacardImpl()));
 
         UpdateResponse updateResponse = new UpdateResponseImpl(null, null, updatedMetacards);
-        doReturn(updateResponse).when(framework).update(any(UpdateRequest.class));
+        doReturn(updateResponse).when(catalogFramework).update(any(UpdateRequest.class));
 
         Map<String, Serializable> recordProperties = new HashMap<>();
         recordProperties.put("title", "foo");
@@ -2414,10 +2289,7 @@ public class TestCswEndpoint {
         updateRequest.setService(CswConstants.CSW);
         updateRequest.setVerbose(false);
 
-        CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
-
-        TransactionResponseType response = cswEndpoint.transaction(updateRequest);
+        TransactionResponseType response = csw.transaction(updateRequest);
         assertThat(response, notNullValue());
 
         TransactionSummaryType summary = response.getTransactionSummary();
@@ -2434,7 +2306,7 @@ public class TestCswEndpoint {
         ArgumentCaptor<UpdateRequest> updateRequestArgumentCaptor = ArgumentCaptor
                 .forClass(UpdateRequest.class);
 
-        verify(framework, times(1)).update(updateRequestArgumentCaptor.capture());
+        verify(catalogFramework, times(1)).update(updateRequestArgumentCaptor.capture());
 
         UpdateRequest actualUpdateRequest = updateRequestArgumentCaptor.getValue();
 
@@ -2475,20 +2347,12 @@ public class TestCswEndpoint {
         constraint.setCqlText(cql);
 
         query.setConstraint(constraint);
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                cswQnameOutPutSchema, QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+                QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
 
-        CatalogFramework framework = mock(CatalogFramework.class);
-        QueryResponseImpl response = new QueryResponseImpl(null, new LinkedList<Result>(), 0);
-        ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
-        when(framework.query(argument.capture())).thenReturn(response);
-
-        CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
-
-        cswEndpoint.getRecords(grr);
+        csw.getRecords(grr);
         QueryImpl frameworkQuery = (QueryImpl) argument.getValue().getQuery();
         assertThat(frameworkQuery.getFilter(), instanceOf(clz));
         @SuppressWarnings("unchecked")
@@ -2524,20 +2388,12 @@ public class TestCswEndpoint {
         constraint.setCqlText(cql);
 
         query.setConstraint(constraint);
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                cswQnameOutPutSchema, QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+                QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
 
-        CatalogFramework framework = mock(CatalogFramework.class);
-        QueryResponseImpl response = new QueryResponseImpl(null, new LinkedList<Result>(), 0);
-        ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
-        when(framework.query(argument.capture())).thenReturn(response);
-
-        CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
-
-        cswEndpoint.getRecords(grr);
+        csw.getRecords(grr);
         QueryImpl frameworkQuery = (QueryImpl) argument.getValue().getQuery();
         assertThat(frameworkQuery.getFilter(), instanceOf(clz));
         @SuppressWarnings("unchecked")
@@ -2662,15 +2518,7 @@ public class TestCswEndpoint {
         grr.setConstraintLanguage("FILTER");
         grr.setConstraint(constraint);
 
-        CatalogFramework framework = mock(CatalogFramework.class);
-        QueryResponseImpl response = new QueryResponseImpl(null, new LinkedList<Result>(), 0);
-        ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
-        when(framework.query(argument.capture())).thenReturn(response);
-
-        CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
-
-        cswEndpoint.getRecords(grr);
+        csw.getRecords(grr);
         QueryImpl frameworkQuery = (QueryImpl) argument.getValue().getQuery();
         assertThat(frameworkQuery.getFilter(), instanceOf(clz));
         @SuppressWarnings("unchecked")
@@ -2708,20 +2556,12 @@ public class TestCswEndpoint {
         constraint.setFilter(filter);
 
         query.setConstraint(constraint);
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                cswQnameOutPutSchema, QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+                QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
 
-        CatalogFramework framework = mock(CatalogFramework.class);
-        QueryResponseImpl response = new QueryResponseImpl(null, new LinkedList<Result>(), 0);
-        ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
-        when(framework.query(argument.capture())).thenReturn(response);
-
-        CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
-
-        cswEndpoint.getRecords(grr);
+        csw.getRecords(grr);
         QueryImpl frameworkQuery = (QueryImpl) argument.getValue().getQuery();
         assertThat(frameworkQuery.getFilter(), instanceOf(clz));
         @SuppressWarnings("unchecked")
@@ -2759,20 +2599,12 @@ public class TestCswEndpoint {
         constraint.setFilter(filter);
 
         query.setConstraint(constraint);
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                cswQnameOutPutSchema, QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+                QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
 
-        CatalogFramework framework = mock(CatalogFramework.class);
-        QueryResponseImpl response = new QueryResponseImpl(null, new LinkedList<Result>(), 0);
-        ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
-        when(framework.query(argument.capture())).thenReturn(response);
-
-        CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
-
-        cswEndpoint.getRecords(grr);
+        csw.getRecords(grr);
         QueryImpl frameworkQuery = (QueryImpl) argument.getValue().getQuery();
         assertThat(frameworkQuery.getFilter(), instanceOf(clz));
         @SuppressWarnings("unchecked")
@@ -2860,20 +2692,12 @@ public class TestCswEndpoint {
         constraint.setFilter(filter);
 
         query.setConstraint(constraint);
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                cswQnameOutPutSchema, QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+                QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
 
-        CatalogFramework framework = mock(CatalogFramework.class);
-        QueryResponseImpl response = new QueryResponseImpl(null, new LinkedList<Result>(), 0);
-        ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
-        when(framework.query(argument.capture())).thenReturn(response);
-
-        CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
-
-        cswEndpoint.getRecords(grr);
+        csw.getRecords(grr);
         QueryImpl frameworkQuery = (QueryImpl) argument.getValue().getQuery();
         return frameworkQuery.getFilter();
     }
@@ -2893,20 +2717,12 @@ public class TestCswEndpoint {
         constraint.setCqlText(cqlSpatialDwithinQuery);
 
         query.setConstraint(constraint);
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                cswQnameOutPutSchema, QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+                QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
 
-        CatalogFramework framework = mock(CatalogFramework.class);
-        QueryResponseImpl response = new QueryResponseImpl(null, new LinkedList<Result>(), 0);
-        ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
-        when(framework.query(argument.capture())).thenReturn(response);
-
-        CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
-
-        cswEndpoint.getRecords(grr);
+        csw.getRecords(grr);
         QueryImpl frameworkQuery = (QueryImpl) argument.getValue().getQuery();
         N temporal = null;
         if (classes.length > 1) {
@@ -2996,8 +2812,8 @@ public class TestCswEndpoint {
 
         query.setTypeNames(typeNames);
 
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                cswQnameOutPutSchema, QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+                QueryType.class, query);
         grr.setAbstractQuery(jaxbQuery);
         return grr;
     }
@@ -3102,6 +2918,15 @@ public class TestCswEndpoint {
                 .getSpatialOperator()) {
             assertTrue(CswEndpoint.SPATIAL_OPERATORS.contains(sot.getName()));
         }
+    }
+
+    private QueryResponse getQueryResponse() {
+        List<Result> results = new LinkedList<Result>();
+        for (int i = 0; i < RESULT_COUNT; i++) {
+            Result result = new ResultImpl();
+            results.add(result);
+        }
+        return new QueryResponseImpl(null, results, TOTAL_COUNT);
     }
 
 }

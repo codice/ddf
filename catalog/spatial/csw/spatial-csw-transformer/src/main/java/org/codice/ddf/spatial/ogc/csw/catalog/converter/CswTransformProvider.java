@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- **/
+ */
 package org.codice.ddf.spatial.ogc.csw.catalog.converter;
 
 import java.io.ByteArrayInputStream;
@@ -147,23 +147,29 @@ public class CswTransformProvider implements Converter {
      */
     @Override
     public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
-        Object arg = context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER);
+        Object outputSchema = context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER);
+        Object typeName = context.get(CswConstants.TYPE_NAME_PARAMETER);
         InputTransformer transformer = null;
-        if (arg == null || CswConstants.CSW_OUTPUT_SCHEMA.equals((String) arg)) {
+        if (StringUtils.equals(CswConstants.CSW_OUTPUT_SCHEMA, (String) outputSchema) || StringUtils
+                .equals(CswConstants.CSW_RECORD, (String) typeName) ||
+                (outputSchema == null && typeName == null)) {
             transformer = inputTransformerManager
                     .<InputTransformer>getTransformerBySchema(CswConstants.CSW_OUTPUT_SCHEMA);
             if (transformer != null) {
                 return ((CswRecordConverter) transformer).unmarshal(reader, context);
             }
-        } else {
-            String outputSchema = (String) arg;
+        } else if (outputSchema != null) {
+            String outputSchemaStr = (String) outputSchema;
             transformer = inputTransformerManager
-                    .<InputTransformer>getTransformerBySchema(outputSchema);
+                    .<InputTransformer>getTransformerBySchema(outputSchemaStr);
+        } else {
+            String typeNameStr = (String) typeName;
+            transformer = inputTransformerManager.<InputTransformer>getTransformerById(typeNameStr);
         }
 
         if (transformer == null) {
             throw new ConversionException(
-                    "Unable to locate a transformer for output schema: " + arg);
+                    "Unable to locate a transformer for output schema: " + outputSchema);
         }
 
         Metacard metacard = null;

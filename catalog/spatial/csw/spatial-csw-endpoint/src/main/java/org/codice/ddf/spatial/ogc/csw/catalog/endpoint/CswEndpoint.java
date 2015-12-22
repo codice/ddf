@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- **/
+ */
 package org.codice.ddf.spatial.ogc.csw.catalog.endpoint;
 
 import java.io.ByteArrayInputStream;
@@ -219,6 +219,8 @@ public class CswEndpoint implements Csw {
 
     private final TransformerManager schemaTransformerManager;
 
+    private final TransformerManager inputTransformerManager;
+
     private FilterBuilder builder;
 
     private BundleContext context;
@@ -234,20 +236,23 @@ public class CswEndpoint implements Csw {
      * JAX-RS Server that represents a CSW v2.0.2 Server.
      */
     public CswEndpoint(BundleContext context, CatalogFramework ddf, FilterBuilder filterBuilder,
-            TransformerManager mimeTypeManager, TransformerManager schemaManager) {
+            TransformerManager mimeTypeManager, TransformerManager schemaManager,
+            TransformerManager inputManager) {
         LOGGER.trace("Entering: CSW Endpoint constructor.");
         this.context = context;
         this.framework = ddf;
         this.builder = filterBuilder;
         this.mimeTypeTransformerManager = mimeTypeManager;
         this.schemaTransformerManager = schemaManager;
+        this.inputTransformerManager = inputManager;
         LOGGER.trace("Exiting: CSW Endpoint constructor.");
     }
 
     /* Constructor for unit testing */
     public CswEndpoint(BundleContext context, CatalogFramework ddf, FilterBuilder filterBuilder,
-            UriInfo uri, TransformerManager manager, TransformerManager schemaManager) {
-        this(context, ddf, filterBuilder, manager, schemaManager);
+            UriInfo uri, TransformerManager manager, TransformerManager schemaManager,
+            TransformerManager inputManager) {
+        this(context, ddf, filterBuilder, manager, schemaManager, inputManager);
         this.uri = uri;
     }
 
@@ -269,7 +274,6 @@ public class CswEndpoint implements Csw {
 
         LOGGER.trace("Entering: getCapabilities.");
         capabilitiesType = buildCapabilitiesType();
-
 
         if (request.getAcceptVersions() != null) {
             validateVersion(request.getAcceptVersions());
@@ -429,7 +433,8 @@ public class CswEndpoint implements Csw {
         validateOutputSchema(request.getOutputSchema());
 
         if (StringUtils.isNotBlank(request.getId())) {
-            LOGGER.debug("{} attempting to retrieve record(s): ", request.getRequest(), request.getId());
+            LOGGER.debug("{} attempting to retrieve record(s): ", request.getRequest(),
+                    request.getId());
             List<String> ids = Arrays.<String>asList(request.getId().split(CswConstants.COMMA));
 
             CswRecordCollection response = queryById(ids);
@@ -439,7 +444,8 @@ public class CswEndpoint implements Csw {
             } else {
                 response.setElementSetType(ElementSetType.SUMMARY);
             }
-            LOGGER.debug("{} successfully retrieved record(s): {}", request.getRequest(), request.getId());
+            LOGGER.debug("{} successfully retrieved record(s): {}", request.getRequest(),
+                    request.getId());
             return response;
         } else {
             throw new CswException("A GetRecordById Query must contain an ID.",
@@ -461,7 +467,8 @@ public class CswEndpoint implements Csw {
         validateOutputSchema(request.getOutputSchema());
 
         if (!request.getId().isEmpty()) {
-            LOGGER.debug("{} is attempting to retrieve records: {}", request.getService(), request.getId());
+            LOGGER.debug("{} is attempting to retrieve records: {}", request.getService(),
+                    request.getId());
             CswRecordCollection response = queryById(request.getId());
             response.setOutputSchema(request.getOutputSchema());
             if (request.isSetElementSetName() && request.getElementSetName().getValue() != null) {
@@ -469,7 +476,8 @@ public class CswEndpoint implements Csw {
             } else {
                 response.setElementSetType(ElementSetType.SUMMARY);
             }
-            LOGGER.debug("{} successfully retrieved record(s): {}", request.getService(), request.getId());
+            LOGGER.debug("{} successfully retrieved record(s): {}", request.getService(),
+                    request.getId());
             return response;
         } else {
             throw new CswException("A GetRecordById Query must contain an ID.",
@@ -551,8 +559,7 @@ public class CswEndpoint implements Csw {
             String bbox = null;
             try {
                 if (metacard.getAttribute(CswConstants.BBOX_PROP) != null) {
-                    bbox = metacard.getAttribute(CswConstants.BBOX_PROP).getValue()
-                            .toString();
+                    bbox = metacard.getAttribute(CswConstants.BBOX_PROP).getValue().toString();
                     geometry = reader.read(bbox);
                 } else if (StringUtils.isNotBlank(metacard.getLocation())) {
                     bbox = metacard.getLocation();
@@ -635,7 +642,8 @@ public class CswEndpoint implements Csw {
                 UpdateResponse updateResponse = framework.update(updateRequest);
                 return updateResponse.getUpdatedMetacards().size();
             } else {
-                throw new CswException("Unable to update record.  No ID was specified in the request.",
+                throw new CswException(
+                        "Unable to update record.  No ID was specified in the request.",
                         CswConstants.MISSING_PARAMETER_VALUE, updateAction.getHandle());
 
             }
@@ -677,7 +685,8 @@ public class CswEndpoint implements Csw {
                     UpdateRequest updateRequest = new UpdateRequestImpl(updatedMetacardIds,
                             updatedMetacards);
 
-                    LOGGER.debug("Attempting to update {} metacards.", updatedMetacardIdsList.size());
+                    LOGGER.debug("Attempting to update {} metacards.",
+                            updatedMetacardIdsList.size());
                     UpdateResponse updateResponse = framework.update(updateRequest);
                     return updateResponse.getUpdatedMetacards().size();
                 }
@@ -1198,14 +1207,14 @@ public class CswEndpoint implements Csw {
         addOperationParameter(CswConstants.OUTPUT_FORMAT_PARAMETER, mimeTypes, getRecordByIdOp);
         addOperationParameter(CswConstants.RESULT_TYPE_PARAMETER,
                 Arrays.asList("hits", "results", "validate"), getRecordByIdOp);
-        addOperationParameter(CswConstants.ELEMENT_SET_NAME_PARAMETER,
-                ELEMENT_NAMES, getRecordByIdOp);
+        addOperationParameter(CswConstants.ELEMENT_SET_NAME_PARAMETER, ELEMENT_NAMES,
+                getRecordByIdOp);
 
         // Builds Transactions operation metadata
         Operation transactionOp = buildOperation(CswConstants.TRANSACTION,
                 Arrays.asList(CswConstants.POST));
         addOperationParameter(CswConstants.TYPE_NAMES_PARAMETER,
-                Arrays.asList(CswConstants.CSW_RECORD), transactionOp);
+                inputTransformerManager.getAvailableIds(), transactionOp);
         addOperationParameter(CswConstants.CONSTRAINT_LANGUAGE_PARAMETER,
                 CswConstants.CONSTRAINT_LANGUAGES, transactionOp);
 
@@ -1343,11 +1352,11 @@ public class CswEndpoint implements Csw {
     }
 
     /**
-    * Verifies that if the ElementName or ElementSetName is passed, that they are
-    * valid and mutually exclusive according to the OpenGIS CSW spec.
-    *
-    *  @param query   QueryType to be validated
-    */
+     * Verifies that if the ElementName or ElementSetName is passed, that they are
+     * valid and mutually exclusive according to the OpenGIS CSW spec.
+     *
+     * @param query QueryType to be validated
+     */
     private void validateElementNames(QueryType query) throws CswException {
 
         if (query.isSetElementSetName() && query.isSetElementName()) {
@@ -1358,18 +1367,16 @@ public class CswEndpoint implements Csw {
             for (QName elementName : query.getElementName()) {
                 String elementNameString = elementName.getLocalPart();
                 if (!ELEMENT_NAMES.contains(elementNameString)) {
-                    throw new CswException("Unknown ElementName "
-                            + elementNameString, CswConstants.INVALID_PARAMETER_VALUE,
-                            "ElementName");
+                    throw new CswException("Unknown ElementName " + elementNameString,
+                            CswConstants.INVALID_PARAMETER_VALUE, "ElementName");
                 }
             }
         } else if (query.isSetElementSetName() && query.getElementSetName().getValue() == null) {
-            throw new CswException("Unknown ElementSetName",
-                    CswConstants.INVALID_PARAMETER_VALUE, "ElementSetName");
+            throw new CswException("Unknown ElementSetName", CswConstants.INVALID_PARAMETER_VALUE,
+                    "ElementSetName");
         }
 
     }
-
 
     private void validateOutputSchema(String schema) throws CswException {
         if (schema == null || schemaTransformerManager.getTransformerBySchema(schema) != null) {

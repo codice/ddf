@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- **/
+ */
 package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.reader;
 
 import java.io.IOException;
@@ -60,13 +60,12 @@ import net.opengis.cat.csw.v_2_0_2.QueryConstraintType;
 /**
  */
 public class TransactionRequestConverter implements Converter {
-    private static final CswRecordMetacardType CSW_RECORD_METACARD_TYPE =
-            new CswRecordMetacardType();
+    private static final CswRecordMetacardType CSW_RECORD_METACARD_TYPE = new CswRecordMetacardType();
 
-    private Converter cswRecordConverter;
+    private Converter inputTransformProvider;
 
-    public TransactionRequestConverter(Converter cswInputTransformer) {
-        this.cswRecordConverter = cswInputTransformer;
+    public TransactionRequestConverter(Converter itp) {
+        this.inputTransformProvider = itp;
     }
 
     @Override
@@ -95,12 +94,13 @@ public class TransactionRequestConverter implements Converter {
                                 CswConstants.CSW_RECORD);
                 String handle = StringUtils
                         .defaultIfEmpty(reader.getAttribute(CswConstants.HANDLE_PARAMETER), "");
+                context.put(CswConstants.TYPE_NAME_PARAMETER, typeName);
                 List<Metacard> metacards = new ArrayList<>();
-                // Loop through the <SearchResults>, converting each <csw:Record> into a Metacard
+                // Loop through the individual records to be inserted, converting each into a Metacard
                 while (reader.hasMoreChildren()) {
-                    reader.moveDown(); // move down to the <csw:Record> tag
+                    reader.moveDown(); // move down to the record's tag
                     Metacard metacard = (Metacard) context
-                            .convertAnother(null, MetacardImpl.class, cswRecordConverter);
+                            .convertAnother(null, MetacardImpl.class, inputTransformProvider);
                     if (metacard != null) {
                         metacards.add(metacard);
                     }
@@ -113,8 +113,8 @@ public class TransactionRequestConverter implements Converter {
             } else if (reader.getNodeName().contains("Delete")) {
                 XStreamAttributeCopier.copyXmlNamespaceDeclarationsIntoContext(reader, context);
 
-                Map<String, String> xmlnsAttributeToUriMappings =
-                        getXmlnsAttributeToUriMappingsFromContext(context);
+                Map<String, String> xmlnsAttributeToUriMappings = getXmlnsAttributeToUriMappingsFromContext(
+                        context);
                 Map<String, String> prefixToUriMappings = getPrefixToUriMappingsFromXmlnsAttributes(
                         xmlnsAttributeToUriMappings);
 
@@ -138,8 +138,8 @@ public class TransactionRequestConverter implements Converter {
 
     private UpdateAction parseUpdateAction(HierarchicalStreamReader reader,
             UnmarshallingContext context) {
-        Map<String, String> xmlnsAttributeToUriMappings =
-                getXmlnsAttributeToUriMappingsFromContext(context);
+        Map<String, String> xmlnsAttributeToUriMappings = getXmlnsAttributeToUriMappingsFromContext(
+                context);
         Map<String, String> prefixToUriMappings = getPrefixToUriMappingsFromXmlnsAttributes(
                 xmlnsAttributeToUriMappings);
 
@@ -245,8 +245,8 @@ public class TransactionRequestConverter implements Converter {
                 throw new ConversionException("Missing Parameter Value: missing a Constraint.");
             }
         } else if (reader.getNodeName().contains(CswConstants.CSW_RECORD)) {
-            Metacard metacard = (Metacard) context.convertAnother(null, MetacardImpl.class,
-                    cswRecordConverter);
+            Metacard metacard = (Metacard) context
+                    .convertAnother(null, MetacardImpl.class, inputTransformProvider);
 
             updateAction = new UpdateAction(metacard, typeName, handle);
             // Move back to the <Update>.
@@ -269,11 +269,13 @@ public class TransactionRequestConverter implements Converter {
                 if (reader.hasMoreChildren()) {
                     reader.moveDown();
                     newValue = CswRecordConverter.convertRecordPropertyToMetacardAttribute(
-                            attributeDescriptor.getType().getAttributeFormat(), reader, CswAxisOrder.LON_LAT);
+                            attributeDescriptor.getType().getAttributeFormat(), reader,
+                            CswAxisOrder.LON_LAT);
                     reader.moveUp();
                 } else {
                     newValue = CswRecordConverter.convertRecordPropertyToMetacardAttribute(
-                            attributeDescriptor.getType().getAttributeFormat(), reader, CswAxisOrder.LON_LAT);
+                            attributeDescriptor.getType().getAttributeFormat(), reader,
+                            CswAxisOrder.LON_LAT);
                 }
 
                 return newValue;
