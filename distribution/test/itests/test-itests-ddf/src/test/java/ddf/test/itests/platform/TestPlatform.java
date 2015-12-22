@@ -35,8 +35,8 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import org.apache.commons.io.FileUtils;
-import org.codice.ddf.configuration.store.ConfigurationFileException;
-import org.codice.ddf.configuration.store.felix.FelixPersistenceStrategy;
+import org.codice.ddf.configuration.persistence.felix.FelixPersistenceStrategy;
+import org.codice.ddf.configuration.status.ConfigurationFileException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
