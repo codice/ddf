@@ -180,6 +180,7 @@ public class IdpEndpointTest {
         String samlRequest = authNRequestPost;
         String relayState = "94697cdc-e64f-4edf-b26a-52c14c2314dd";
         HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.isSecure()).thenReturn(true);
         Response response = idpEndpoint.showPostLogin(samlRequest, relayState, request);
         assertThat(response.getEntity()
                 .toString(), containsString("SAMLRequest"));
@@ -197,17 +198,31 @@ public class IdpEndpointTest {
         String signature = authNRequestGetSignature;
 
         HttpServletRequest request = mock(HttpServletRequest.class);
-        Response response = idpEndpoint.showGetLogin(samlRequest,
-                relayState,
-                signatureAlgorithm,
-                signature,
-                request);
+        when(request.isSecure()).thenReturn(true);
+        Response response = idpEndpoint.showGetLogin(samlRequest, relayState, signatureAlgorithm,
+                signature, request);
         assertThat(response.getEntity()
                 .toString(), containsString("SAMLRequest"));
         assertThat(response.getEntity()
                 .toString(), containsString("RelayState"));
         assertThat(response.getEntity()
                 .toString(), containsString("ACSURL"));
+    }
+
+    @Test
+    public void testShowGetLoginNotSecure() throws WSSecurityException {
+        String samlRequest = authNRequestGet;
+        String relayState = "ef95c04b-6c05-4d12-b65f-dd32fed8811e";
+        String signatureAlgorithm = "http://www.w3.org/2000/09/xmldsig#rsa-sha1";
+        String signature = authNRequestGetSignature;
+
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        Response response = idpEndpoint.showGetLogin(samlRequest, relayState, signatureAlgorithm,
+                signature, request);
+        assertThat(response.getEntity()
+                .toString(), containsString("SAMLResponse"));
+        assertThat(response.getEntity()
+                .toString(), containsString("RelayState"));
     }
 
     /*
@@ -234,6 +249,7 @@ public class IdpEndpointTest {
         String signature = authNRequestGetSignature;
 
         HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.isSecure()).thenReturn(true);
         when(request.getRequestURL()).thenReturn(new StringBuffer("https://www.example.com"));
         when(request.getAttribute(ContextPolicy.ACTIVE_REALM)).thenReturn("*");
         //admin:admin
@@ -253,6 +269,29 @@ public class IdpEndpointTest {
     }
 
     @Test
+    public void testProcessLoginBasicNotSecure() {
+        String samlRequest = authNRequestGet;
+        String relayState = "ef95c04b-6c05-4d12-b65f-dd32fed8811e";
+        String signatureAlgorithm = "http://www.w3.org/2000/09/xmldsig#rsa-sha1";
+        String signature = authNRequestGetSignature;
+
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.getRequestURL()).thenReturn(new StringBuffer("https://www.example.com"));
+        when(request.getAttribute(ContextPolicy.ACTIVE_REALM)).thenReturn("*");
+        //admin:admin
+        when(request.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn("Basic YWRtaW46YWRtaW4=");
+        Response response = idpEndpoint.processLogin(samlRequest,
+                relayState,
+                Idp.USER_PASS,
+                signatureAlgorithm,
+                signature,
+                SamlProtocol.REDIRECT_BINDING,
+                request);
+        assertThat(response.getStatus(),
+                is(400));
+    }
+
+    @Test
     public void testProcessLoginPki() throws CertificateEncodingException {
         String samlRequest = authNRequestGet;
         String relayState = "ef95c04b-6c05-4d12-b65f-dd32fed8811e";
@@ -260,6 +299,7 @@ public class IdpEndpointTest {
         String signature = authNRequestGetSignature;
 
         HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.isSecure()).thenReturn(true);
         when(request.getRequestURL()).thenReturn(new StringBuffer("https://www.example.com"));
         when(request.getAttribute(ContextPolicy.ACTIVE_REALM)).thenReturn("*");
         //dummy cert
@@ -288,6 +328,7 @@ public class IdpEndpointTest {
         String relayState = "ef95c04b-6c05-4d12-b65f-dd32fed8811e";
 
         HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.isSecure()).thenReturn(true);
         when(request.getRequestURL()).thenReturn(new StringBuffer("https://www.example.com"));
         when(request.getAttribute(ContextPolicy.ACTIVE_REALM)).thenReturn("*");
         //dummy cert
@@ -318,6 +359,7 @@ public class IdpEndpointTest {
         String signature = authNRequestGetSignature;
 
         HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.isSecure()).thenReturn(true);
         when(request.getRequestURL()).thenReturn(new StringBuffer("https://www.example.com"));
         when(request.getAttribute(ContextPolicy.ACTIVE_REALM)).thenReturn("*");
         Response response = idpEndpoint.processLogin(samlRequest,
@@ -343,6 +385,7 @@ public class IdpEndpointTest {
         String signature = authNRequestGetSignature;
 
         HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.isSecure()).thenReturn(true);
         Cookie cookie = mock(Cookie.class);
         when(request.getRequestURL()).thenReturn(new StringBuffer("https://www.example.com"));
         when(request.getAttribute(ContextPolicy.ACTIVE_REALM)).thenReturn("*");
@@ -373,6 +416,7 @@ public class IdpEndpointTest {
         String signature = authNRequestGetSignature;
 
         HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.isSecure()).thenReturn(true);
         when(request.getRequestURL()).thenReturn(new StringBuffer("https://www.example.com"));
         when(request.getAttribute(ContextPolicy.ACTIVE_REALM)).thenReturn("*");
         Response response = idpEndpoint.processLogin(samlRequest,
@@ -397,6 +441,7 @@ public class IdpEndpointTest {
         String signature = authNRequestGetSignature;
 
         HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.isSecure()).thenReturn(true);
         Cookie cookie = mock(Cookie.class);
         when(request.getRequestURL()).thenReturn(new StringBuffer("https://www.example.com"));
         when(request.getAttribute(ContextPolicy.ACTIVE_REALM)).thenReturn("*");
@@ -427,6 +472,7 @@ public class IdpEndpointTest {
         String signature = authNRequestGetSignature;
 
         HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.isSecure()).thenReturn(true);
         Cookie cookie = mock(Cookie.class);
         when(request.getRequestURL()).thenReturn(new StringBuffer("https://www.example.com"));
         when(request.getAttribute(ContextPolicy.ACTIVE_REALM)).thenReturn("*");
@@ -453,6 +499,7 @@ public class IdpEndpointTest {
         String signature = authNRequestGetSignature;
 
         HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.isSecure()).thenReturn(true);
         when(request.getRequestURL()).thenReturn(new StringBuffer("https://www.example.com"));
         when(request.getAttribute(ContextPolicy.ACTIVE_REALM)).thenReturn("*");
         //dummy cert
@@ -481,6 +528,7 @@ public class IdpEndpointTest {
         String relayState = "ef95c04b-6c05-4d12-b65f-dd32fed8811e";
 
         HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.isSecure()).thenReturn(true);
         when(request.getRequestURL()).thenReturn(new StringBuffer("https://www.example.com"));
         when(request.getAttribute(ContextPolicy.ACTIVE_REALM)).thenReturn("*");
         //dummy cert
@@ -512,6 +560,7 @@ public class IdpEndpointTest {
         String signature = authNRequestGetSignature;
 
         HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.isSecure()).thenReturn(true);
         when(request.getRequestURL()).thenReturn(new StringBuffer("https://www.example.com"));
         when(request.getAttribute(ContextPolicy.ACTIVE_REALM)).thenReturn("*");
         //dummy cert
@@ -544,6 +593,7 @@ public class IdpEndpointTest {
         String relayState = "ef95c04b-6c05-4d12-b65f-dd32fed8811e";
 
         HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.isSecure()).thenReturn(true);
         when(request.getRequestURL()).thenReturn(new StringBuffer("https://www.example.com"));
         when(request.getAttribute(ContextPolicy.ACTIVE_REALM)).thenReturn("*");
         //dummy cert
@@ -577,6 +627,7 @@ public class IdpEndpointTest {
         String relayState = "ef95c04b-6c05-4d12-b65f-dd32fed8811e";
 
         HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.isSecure()).thenReturn(true);
         when(request.getRequestURL()).thenReturn(new StringBuffer("https://www.example.com"));
         when(request.getAttribute(ContextPolicy.ACTIVE_REALM)).thenReturn("*");
         //dummy cert
@@ -619,6 +670,7 @@ public class IdpEndpointTest {
         String signature = authNRequestGetSignature;
 
         HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.isSecure()).thenReturn(true);
         when(request.getRequestURL()).thenReturn(new StringBuffer("https://www.example.com"));
         when(request.getAttribute(ContextPolicy.ACTIVE_REALM)).thenReturn("*");
         //dummy cert
@@ -647,6 +699,7 @@ public class IdpEndpointTest {
         String signature = authNRequestGetSignature;
 
         HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.isSecure()).thenReturn(true);
         when(request.getRequestURL()).thenReturn(new StringBuffer("https://www.example.com"));
         when(request.getAttribute(ContextPolicy.ACTIVE_REALM)).thenReturn("*");
         Response response = idpEndpoint.processLogin(samlRequest,
