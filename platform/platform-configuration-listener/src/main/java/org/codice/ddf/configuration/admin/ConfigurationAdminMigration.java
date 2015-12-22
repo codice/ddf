@@ -96,7 +96,9 @@ public class ConfigurationAdminMigration implements ChangeListener, Configuratio
 
         this.configDirectoryStream = configDirectoryStream;
         this.processedDirectory = processedDirectory;
+        LOGGER.debug("Processed Directory Path: [{}]", this.processedDirectory);
         this.failedDirectory = failedDirectory;
+        LOGGER.debug("Failed Directory Path: [{}]", this.failedDirectory);
         this.configurationFileFactory = configurationFileFactory;
         this.poller = poller;
         this.configurationAdmin = configurationAdmin;

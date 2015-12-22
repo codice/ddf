@@ -33,6 +33,7 @@ rem karaf script afterwards.
 rem
 
 set DDF_HOME=%~dp0%..
+set DDF_HOME=%DDF_HOME:\=/%
 
 rem
 rem The following section shows the possible configuration options for the default 
