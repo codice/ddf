@@ -133,10 +133,10 @@ public class SecurityAssertionImpl implements SecurityAssertion {
     /**
      * Constructor without usernameAttributeList
      *
-     * @param securityToken
+     * @param securityToken - token to wrap
      */
     public SecurityAssertionImpl(SecurityToken securityToken) {
-        this(securityToken, new ArrayList<String>());
+        this(securityToken, new ArrayList<>());
     }
 
     /**
@@ -218,11 +218,13 @@ public class SecurityAssertionImpl implements SecurityAssertion {
                         if (authenticationStatement != null) {
                             String classValue = xmlStreamReader.getText();
                             classValue = classValue.trim();
-                            AuthenticationContextClassRef authenticationContextClassRef = new AuthenticationContextClassRef();
+                            AuthenticationContextClassRef authenticationContextClassRef =
+                                    new AuthenticationContextClassRef();
                             authenticationContextClassRef.setAuthnContextClassRef(classValue);
-                            AuthenticationContext authenticationContext = new AuthenticationContext();
-                            authenticationContext
-                                    .setAuthnContextClassRef(authenticationContextClassRef);
+                            AuthenticationContext authenticationContext =
+                                    new AuthenticationContext();
+                            authenticationContext.setAuthnContextClassRef(
+                                    authenticationContextClassRef);
                             authenticationStatement.setAuthnContext(authenticationContext);
                         }
                         break;
@@ -258,9 +260,11 @@ public class SecurityAssertionImpl implements SecurityAssertion {
                             String name = xmlStreamReader.getAttributeLocalName(i);
                             String value = xmlStreamReader.getAttributeValue(i);
                             if (Conditions.NOT_BEFORE_ATTRIB_NAME.equals(name)) {
-                                notBefore = DatatypeConverter.parseDateTime(value).getTime();
+                                notBefore = DatatypeConverter.parseDateTime(value)
+                                        .getTime();
                             } else if (Conditions.NOT_ON_OR_AFTER_ATTRIB_NAME.equals(name)) {
-                                notOnOrAfter = DatatypeConverter.parseDateTime(value).getTime();
+                                notOnOrAfter = DatatypeConverter.parseDateTime(value)
+                                        .getTime();
                             }
                         }
                         break;
@@ -303,14 +307,15 @@ public class SecurityAssertionImpl implements SecurityAssertion {
     @Override
     public Principal getPrincipal() {
         if (securityToken != null) {
-            if (principal == null || !principal.getName().equals(name)) {
+            if (principal == null || !principal.getName()
+                    .equals(name)) {
                 String authMethod = null;
                 if (authenticationStatements != null) {
                     for (AuthnStatement authnStatement : authenticationStatements) {
                         AuthnContext authnContext = authnStatement.getAuthnContext();
                         if (authnContext != null) {
-                            AuthnContextClassRef authnContextClassRef = authnContext
-                                    .getAuthnContextClassRef();
+                            AuthnContextClassRef authnContextClassRef =
+                                    authnContext.getAuthnContextClassRef();
                             if (authnContextClassRef != null) {
                                 authMethod = authnContextClassRef.getAuthnContextClassRef();
                             }
@@ -325,7 +330,8 @@ public class SecurityAssertionImpl implements SecurityAssertion {
                     principal = new X500Principal(name);
                 } else if (SAML2Constants.AUTH_CONTEXT_CLASS_REF_KERBEROS.equals(authMethod)) {
                     principal = new KerberosPrincipal(name);
-                } else if (principal instanceof GuestPrincipal || name.startsWith(GuestPrincipal.GUEST_NAME_PREFIX)) {
+                } else if (principal instanceof GuestPrincipal
+                        || name.startsWith(GuestPrincipal.GUEST_NAME_PREFIX)) {
                     principal = new GuestPrincipal(name);
                 } else {
                     principal = new AssertionPrincipal(name);
@@ -401,18 +407,18 @@ public class SecurityAssertionImpl implements SecurityAssertion {
      */
     private void identifyNameIDFormat() {
         if (!((StringUtils.containsIgnoreCase(nameIDFormat, SAML2Constants.NAMEID_FORMAT_PERSISTENT)
-                || StringUtils
-                .containsIgnoreCase(nameIDFormat, SAML2Constants.NAMEID_FORMAT_X509_SUBJECT_NAME)
-                || StringUtils
-                .containsIgnoreCase(nameIDFormat, SAML2Constants.NAMEID_FORMAT_KERBEROS)
-                || StringUtils
-                .containsIgnoreCase(nameIDFormat, SAML2Constants.NAMEID_FORMAT_UNSPECIFIED))
-                && !name.equals(""))) {
+                || StringUtils.containsIgnoreCase(nameIDFormat,
+                SAML2Constants.NAMEID_FORMAT_X509_SUBJECT_NAME) || StringUtils.containsIgnoreCase(
+                nameIDFormat,
+                SAML2Constants.NAMEID_FORMAT_KERBEROS) || StringUtils.containsIgnoreCase(
+                nameIDFormat,
+                SAML2Constants.NAMEID_FORMAT_UNSPECIFIED)) && !name.equals(""))) {
             for (AttributeStatement attributeStatementList : getAttributeStatements()) {
                 List<Attribute> attributeList = attributeStatementList.getAttributes();
                 for (Attribute attribute : attributeList) {
                     if (listContainsIgnoreCase(usernameAttributeList, attribute.getName())) {
-                        name = ((XMLString) attribute.getAttributeValues().get(0)).getValue();
+                        name = ((XMLString) attribute.getAttributeValues()
+                                .get(0)).getValue();
                         return;
                     }
                 }
@@ -447,14 +453,18 @@ public class SecurityAssertionImpl implements SecurityAssertion {
     @Override
     public String toString() {
         StringBuilder result = new StringBuilder();
-        result.append("Principal: " + getPrincipal() + ", Attributes: ");
+        result.append("Principal: ");
+        result.append(getPrincipal());
+        result.append(", Attributes: ");
         for (AttributeStatement attributeStatement : getAttributeStatements()) {
             for (Attribute attr : attributeStatement.getAttributes()) {
                 result.append("[ ");
                 result.append(attr.getName());
                 result.append(" : ");
-                for (int i = 0; i < attr.getAttributeValues().size(); i++) {
-                    result.append(((XSString) attr.getAttributeValues().get(i)).getValue());
+                for (int i = 0; i < attr.getAttributeValues()
+                        .size(); i++) {
+                    result.append(((XSString) attr.getAttributeValues()
+                            .get(i)).getValue());
                 }
                 result.append("] ");
             }
@@ -463,8 +473,10 @@ public class SecurityAssertionImpl implements SecurityAssertion {
         result.append(", AuthnStatements: ");
         for (AuthnStatement authStatement : getAuthnStatements()) {
             result.append("[ ");
-            result.append(authStatement.getAuthnInstant() + " : ");
-            result.append(authStatement.getAuthnContext().getAuthnContextClassRef()
+            result.append(authStatement.getAuthnInstant());
+            result.append(" : ");
+            result.append(authStatement.getAuthnContext()
+                    .getAuthnContextClassRef()
                     .getAuthnContextClassRef());
             result.append("] ");
         }
@@ -475,6 +487,30 @@ public class SecurityAssertionImpl implements SecurityAssertion {
         //            result.append(" ]");
         //        }
         return result.toString();
+    }
+
+    @Override
+    public boolean isPresentlyValid() {
+        Date now = new Date();
+
+        if (getNotBefore() != null && now.before(getNotBefore())) {
+            LOGGER.debug("SAML Assertion Time Bound Check Failed.");
+            LOGGER.debug("\t Checked time of {} is before the NotBefore time of {}",
+                    now,
+                    getNotBefore());
+            return false;
+        }
+
+        if (getNotOnOrAfter() != null && (now.equals(getNotOnOrAfter())
+                || now.after(getNotOnOrAfter()))) {
+            LOGGER.debug("SAML Assertion Time Bound Check Failed.");
+            LOGGER.debug("\t Checked time of {} is equal to or after the NotOnOrAfter time of {}",
+                    now,
+                    getNotOnOrAfter());
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -1699,7 +1735,8 @@ public class SecurityAssertionImpl implements SecurityAssertion {
             if (tmpPrin.getName() == null && getName() == null) {
                 return super.equals(another);
             }
-            return tmpPrin.getName().equals(getName());
+            return tmpPrin.getName()
+                    .equals(getName());
         }
 
         @Override
