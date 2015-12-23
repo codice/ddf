@@ -64,7 +64,7 @@ import org.powermock.modules.junit4.rule.PowerMockRule;
 @PrepareForTest({ConfigurationAdminMigration.class, FileUtils.class})
 public class ConfigurationAdminMigrationTest {
 
-    private static final String CONFIG_FILE_PATH = "/root/etc/exported/etc/pid.config";
+    private static final Path CONFIG_FILE_PATH = Paths.get("/root/etc/exported/etc/pid.config");
 
     private static final String CONFIG_PID = "pid";
 
@@ -125,8 +125,6 @@ public class ConfigurationAdminMigrationTest {
     @Mock
     private Path configPath2;
 
-    private Path configFilePath = Paths.get(CONFIG_FILE_PATH);
-
     @Mock
     private ConfigurationFile configFile1;
 
@@ -172,7 +170,7 @@ public class ConfigurationAdminMigrationTest {
         PowerMockito.mockStatic(FileUtils.class);
 
         when(exportedDirectoryPath.resolve("etc")).thenReturn(configFilesExportPath);
-        when(configPath1.toString()).thenReturn(CONFIG_FILE_PATH);
+        when(configPath1.toString()).thenReturn(CONFIG_FILE_PATH.toString());
 
         when(configuration.getPid()).thenReturn(CONFIG_PID);
         when(processedDirectoryPath.toFile()).thenReturn(processedDirectory);
@@ -624,7 +622,7 @@ public class ConfigurationAdminMigrationTest {
     @Test
     public void testNotifyWithValidFile() throws Exception {
         when(configurationFileFactory.createConfigurationFile(configPath1)).thenReturn(configFile1);
-        when(processedDirectoryPath.resolve(configFilePath)).thenReturn(
+        when(processedDirectoryPath.resolve(CONFIG_FILE_PATH)).thenReturn(
                 configFileInProcessedDirectory);
 
         ConfigurationAdminMigration configurationAdminMigration =
@@ -646,7 +644,7 @@ public class ConfigurationAdminMigrationTest {
     public void testNotifyWithFileThatHasAnInvalidType() throws Exception {
         when(configurationFileFactory.createConfigurationFile(configPath1)).thenThrow(new ConfigurationFileException(
                 ""));
-        when(failedDirectoryPath.resolve(configFilePath)).thenReturn(configFileInFailedDirectory);
+        when(failedDirectoryPath.resolve(CONFIG_FILE_PATH)).thenReturn(configFileInFailedDirectory);
 
         ConfigurationAdminMigration configurationAdminMigration =
                 createConfigurationAdminMigratorForNotify();
@@ -699,7 +697,7 @@ public class ConfigurationAdminMigrationTest {
     @Test
     public void testNotifyFailsToMoveFileToProcessedDirectory() throws Exception {
         when(configurationFileFactory.createConfigurationFile(configPath1)).thenReturn(configFile1);
-        when(processedDirectoryPath.resolve(configFilePath)).thenReturn(
+        when(processedDirectoryPath.resolve(CONFIG_FILE_PATH)).thenReturn(
                 configFileInProcessedDirectory);
         when(Files.move(configPath1, configFileInProcessedDirectory)).thenThrow(new IOException());
 
@@ -830,7 +828,7 @@ public class ConfigurationAdminMigrationTest {
         verifyStatic();
         FileUtils.forceMkdir(configFilesExportPath.toFile());
 
-        verify(configFile1, atLeastOnce()).exportConfig(CONFIG_FILE_PATH);
+        verify(configFile1, atLeastOnce()).exportConfig(CONFIG_FILE_PATH.toString());
     }
 
     @Test(expected = IOException.class)
@@ -929,8 +927,8 @@ public class ConfigurationAdminMigrationTest {
     }
 
     private ConfigurationAdminMigration createConfigurationAdminMigratorForNotify() {
-        when(failedDirectoryPath.resolve(configFilePath)).thenReturn(configFileInFailedDirectory);
-        when(configPath1.getFileName()).thenReturn(configFilePath);
+        when(failedDirectoryPath.resolve(CONFIG_FILE_PATH)).thenReturn(configFileInFailedDirectory);
+        when(configPath1.getFileName()).thenReturn(CONFIG_FILE_PATH);
 
         return new ConfigurationAdminMigration(configurationDirectoryStream,
                 processedDirectoryPath,

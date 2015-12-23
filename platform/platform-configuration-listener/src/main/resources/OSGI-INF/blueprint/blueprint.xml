@@ -42,23 +42,35 @@
     <bean id="persistenceStrategy"
           class="org.codice.ddf.configuration.persistence.felix.FelixPersistenceStrategy"/>
 
+    <bean id="configDirectoryPathUri" class="java.net.URI">
+        <argument value="file:///${configFileDirectory}"/>
+    </bean>
+
     <bean id="configDirectoryPath" class="java.nio.file.Paths"
           factory-method="get">
-        <argument value="file://${configFileDirectory}"/>
+        <argument ref="configDirectoryPathUri"/>
+    </bean>
+
+    <bean id="processedDirectoryPathUri" class="java.net.URI">
+        <argument value="file:///${processedDirectory}"/>
     </bean>
 
     <bean id="processedDirectoryPath" class="java.nio.file.Paths"
           factory-method="get">
-        <argument value="file://${processedDirectory}"/>
+        <argument ref="processedDirectoryPathUri"/>
+    </bean>
+
+    <bean id="failedDirectoryPathUri" class="java.net.URI">
+        <argument value="file:///${failedDirectory}"/>
     </bean>
 
     <bean id="failedDirectoryPath" class="java.nio.file.Paths"
         factory-method="get">
-        <argument value="file://${failedDirectory}"/>
+        <argument ref="failedDirectoryPathUri"/>
     </bean>
 
     <bean id="ddfHome" class="java.nio.file.Paths" factory-method="get">
-        <argument value="file://${ddf.home}"/>
+        <argument value="file:///${ddf.home}"/>
     </bean>
 
     <bean id="configurationFileFactory"
