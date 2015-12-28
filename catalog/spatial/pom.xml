@@ -142,9 +142,9 @@
                 <version>${jaxb2.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.servicemix.bundles</groupId>
-                <artifactId>org.apache.servicemix.bundles.lucene</artifactId>
-                <version>${lucene.bundle.version}</version>
+                <groupId>org.apache.lucene</groupId>
+                <artifactId>lucene-core</artifactId>
+                <version>${lucene.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.spatial4j</groupId>

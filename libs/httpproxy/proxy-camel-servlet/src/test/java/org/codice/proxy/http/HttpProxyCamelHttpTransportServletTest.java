@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.camel.CamelContext;
-import org.apache.camel.component.http.HttpConsumer;
+import org.apache.camel.http.common.HttpConsumer;
 import org.junit.Test;
 
 public class HttpProxyCamelHttpTransportServletTest {
