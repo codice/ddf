@@ -21,7 +21,7 @@ import java.util.Collection;
 import javax.validation.constraints.NotNull;
 
 import org.apache.felix.gogo.commands.Command;
-import org.codice.ddf.configuration.status.ConfigurationStatus;
+import org.codice.ddf.configuration.status.MigrationWarning;
 import org.codice.ddf.configuration.status.ConfigurationStatusService;
 
 @Command(scope = PlatformCommands.NAMESPACE, name = "config-status", description = "Lists import status of configuration files.")
@@ -43,7 +43,7 @@ public class ConfigStatusCommand extends PlatformCommands {
     @Override
     protected Object doExecute() {
         try {
-            Collection<ConfigurationStatus> configStatusMessages = getFailedImports();
+            Collection<MigrationWarning> configStatusMessages = getFailedImports();
             
             if (configStatusMessages == null) {
                 outputErrorMessage(NO_CONFIG_STATUS_MESSAGE);
@@ -55,7 +55,7 @@ public class ConfigStatusCommand extends PlatformCommands {
                 return null;
             }
 
-            for (ConfigurationStatus configStatus : configStatusMessages) {
+            for (MigrationWarning configStatus : configStatusMessages) {
                 outputErrorMessage(constructErrorMessage(configStatus));
             }
         } catch (IOException | RuntimeException e) {
@@ -67,11 +67,11 @@ public class ConfigStatusCommand extends PlatformCommands {
         return null;
     }
 
-    private Collection<ConfigurationStatus> getFailedImports() throws IOException {
+    private Collection<MigrationWarning> getFailedImports() throws IOException {
         return configStatusService.getFailedConfigurationFiles();
     }
     
-    private String constructErrorMessage(ConfigurationStatus configStatus) {
+    private String constructErrorMessage(MigrationWarning configStatus) {
         return String.format(FAILED_IMPORT_MESSAGE, configStatus.getPath().toString());
     }
 }

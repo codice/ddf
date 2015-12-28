@@ -14,6 +14,7 @@
 package org.codice.ddf.commands.platform;
 
 import java.nio.file.Path;
+import java.util.Collection;
 
 import org.apache.felix.gogo.commands.Command;
 import org.codice.ddf.configuration.migration.ConfigurationMigrationService;
@@ -39,13 +40,18 @@ public class ExportCommand extends PlatformCommands {
 
     @Override
     protected Object doExecute() {
-        try {
-            configurationMigrationService.export(defaultExportDirectory);
-            outputSuccessMessage(String.format("Exported current configurations to %s.",
+        outputInfoMessage(
+                String.format("Exporting current configurations to %s.", defaultExportDirectory));
+        Collection<MigrationException> migrationExceptions = configurationMigrationService
+                .export(defaultExportDirectory);
+        if (migrationExceptions.isEmpty()) {
+            outputSuccessMessage(String.format("Successfully exported all configurations."));
+        } else {
+            for (MigrationException migrationException : migrationExceptions) {
+                outputWarningMessage(migrationException.getMessage());
+            }
+            outputWarningMessage(String.format("Failed to export all configurations to %s.",
                     defaultExportDirectory));
-        } catch (MigrationException e) {
-            outputErrorMessage(String.format("Failed to export all configurations to %s. %s",
-                    defaultExportDirectory, e.getMessage()));
         }
         return null;
     }

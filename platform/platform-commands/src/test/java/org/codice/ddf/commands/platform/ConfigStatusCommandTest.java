@@ -31,7 +31,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import org.codice.ddf.configuration.status.ConfigurationStatus;
+import org.codice.ddf.configuration.status.MigrationWarning;
 import org.codice.ddf.configuration.status.ConfigurationStatusService;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.Ansi.Attribute;
@@ -54,12 +54,12 @@ public class ConfigStatusCommandTest {
 
     private static final Path FAILED_CONFIG_FILE2 = Paths.get("/path/to/configFile2.config");
 
-    private static final Collection<ConfigurationStatus> CONFIG_STATUS_MSGS;
+    private static final Collection<MigrationWarning> CONFIG_STATUS_MSGS;
     static {
-        Collection<ConfigurationStatus> configStatus = new ArrayList<>(2);
-        ConfigurationStatus cs1 = new ConfigurationStatus(FAILED_CONFIG_FILE1);
+        Collection<MigrationWarning> configStatus = new ArrayList<>(2);
+        MigrationWarning cs1 = new MigrationWarning(FAILED_CONFIG_FILE1);
         configStatus.add(cs1);
-        ConfigurationStatus cs2 = new ConfigurationStatus(FAILED_CONFIG_FILE2);
+        MigrationWarning cs2 = new MigrationWarning(FAILED_CONFIG_FILE2);
         configStatus.add(cs2);
         CONFIG_STATUS_MSGS = Collections.unmodifiableCollection(configStatus);
     }

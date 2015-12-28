@@ -18,12 +18,15 @@ import static org.apache.commons.lang.Validate.notNull;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import javax.validation.constraints.NotNull;
 
 import org.codice.ddf.configuration.admin.ConfigurationAdminMigration;
 import org.codice.ddf.configuration.status.ConfigurationFileException;
 import org.codice.ddf.configuration.status.MigrationException;
+import org.codice.ddf.configuration.status.MigrationWarning;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,8 +37,8 @@ import org.slf4j.LoggerFactory;
  */
 public class ConfigurationMigrationManager implements ConfigurationMigrationService {
 
-    private static final Logger LOGGER =
-            LoggerFactory.getLogger(ConfigurationMigrationManager.class);
+    private static final Logger LOGGER = LoggerFactory
+            .getLogger(ConfigurationMigrationManager.class);
 
     private ConfigurationAdminMigration configurationAdminMigration;
 
@@ -45,7 +48,7 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
      * Constructor
      *
      * @param configurationAdminMigration  object used to export {@link org.osgi.service.cm.Configuration}
-     *                                    objects from {@link org.osgi.service.cm.ConfigurationAdmin}
+     *                                     objects from {@link org.osgi.service.cm.ConfigurationAdmin}
      * @param systemConfigurationMigration object used to export other system configuration files
      */
     public ConfigurationMigrationManager(
@@ -59,16 +62,23 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
     }
 
     @Override
-    public void export(@NotNull Path exportDirectory) throws MigrationException {
+    public Collection<MigrationWarning> export(@NotNull Path exportDirectory) throws MigrationException {
         notNull(exportDirectory, "Export directory cannot be null");
+        Collection<MigrationWarning> migrationWarnings = new ArrayList<>();
 
         try {
             Files.createDirectories(exportDirectory);
-            this.configurationAdminMigration.export(exportDirectory);
-            this.systemConfigurationMigration.export(exportDirectory);
-        } catch (ConfigurationFileException | IOException | RuntimeException e) {
-            LOGGER.error("Failed to export configuration to {}", exportDirectory.toString(), e);
-            throw new MigrationException(e.getMessage(), e);
+            configurationAdminMigration.export(exportDirectory);
+            migrationWarnings.addAll(systemConfigurationMigration.export(exportDirectory));
+        } catch (IOException e) {
+            String message = "Unable to create export directories.";
+            LOGGER.error(message, e);
+            throw new MigrationException(message, e);
+        } catch (RuntimeException e) {
+            String message = "Failure to export, internal error occurred.";
+            LOGGER.error(message, e);
+            throw new MigrationException(message, e);
         }
+        return migrationWarnings;
     }
 }

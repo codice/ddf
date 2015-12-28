@@ -19,6 +19,7 @@ import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
@@ -46,7 +47,7 @@ import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.codice.ddf.configuration.status.ConfigurationFileException;
-import org.codice.ddf.configuration.status.ConfigurationStatus;
+import org.codice.ddf.configuration.status.MigrationWarning;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -135,10 +136,10 @@ public class ConfigurationAdminMigrationTest {
     private Configuration configuration;
 
     @Mock
-    private ConfigurationStatus configStatus1;
+    private MigrationWarning configStatus1;
 
     @Mock
-    private ConfigurationStatus configStatus2;
+    private MigrationWarning configStatus2;
 
     // TODO - Remove class and use PowerMock if needed
     private static class ConfigurationAdminMigrationUnderTest extends ConfigurationAdminMigration {
@@ -749,15 +750,15 @@ public class ConfigurationAdminMigrationTest {
             }
         };
 
-        Collection<ConfigurationStatus> configurationStatusMessages =
+        Collection<MigrationWarning> migrationWarningMessages =
                 configurationAdminMigration.getFailedConfigurationFiles();
         Collection<Path> actualPaths = new ArrayList<>();
-        for (ConfigurationStatus configStatus : configurationStatusMessages) {
+        for (MigrationWarning configStatus : migrationWarningMessages) {
             actualPaths.add(configStatus.getPath());
         }
         assertThat(
                 "Incorrect number for files returned from configurationAdminMigration.getFailedConfigurationFiles()",
-                configurationStatusMessages.size(),
+                migrationWarningMessages.size(),
                 is(2));
         assertThat(
                 "Incorrect files returned from configurationAdminMigration.getFailedConfigurationFiles()",
@@ -783,11 +784,11 @@ public class ConfigurationAdminMigrationTest {
             }
         };
 
-        Collection<ConfigurationStatus> configurationStatusMessages =
+        Collection<MigrationWarning> migrationWarningMessages =
                 configurationAdminMigration.getFailedConfigurationFiles();
 
         assertThat("The failed directory does not contain the correct number of files",
-                configurationStatusMessages,
+                migrationWarningMessages,
                 is(empty()));
     }
 
@@ -831,7 +832,7 @@ public class ConfigurationAdminMigrationTest {
         verify(configFile1, atLeastOnce()).exportConfig(CONFIG_FILE_PATH.toString());
     }
 
-    @Test(expected = IOException.class)
+    @Test
     public void testExportWhenEtcDirectoryCreationFails() throws Exception {
         PowerMockito.doThrow(new IOException())
                 .when(FileUtils.class);
@@ -840,7 +841,8 @@ public class ConfigurationAdminMigrationTest {
         ConfigurationAdminMigration configurationAdminMigration =
                 createConfigurationAdminMigratorWithNoFiles();
 
-        configurationAdminMigration.export(exportedDirectoryPath);
+        assertFalse("No migration exceptions found.",
+                configurationAdminMigration.export(exportedDirectoryPath).isEmpty());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -851,7 +853,7 @@ public class ConfigurationAdminMigrationTest {
         configurationAdminMigration.export(null);
     }
 
-    @Test(expected = IOException.class)
+    @Test
     public void testExportListConfigurationsIOException()
             throws IOException, InvalidSyntaxException, ConfigurationFileException {
         setUpDefaultDirectoryExpectations();
@@ -859,10 +861,11 @@ public class ConfigurationAdminMigrationTest {
                 .listConfigurations(anyString());
         ConfigurationAdminMigration configurationAdminMigration =
                 createConfigurationAdminMigratorWithNoFiles();
-        configurationAdminMigration.export(exportedDirectoryPath);
+        assertFalse("No migration exceptions found.",
+                configurationAdminMigration.export(exportedDirectoryPath).isEmpty());
     }
 
-    @Test(expected = ConfigurationFileException.class)
+    @Test
     public void testExportListConfigurationsInvalidSyntaxException()
             throws IOException, InvalidSyntaxException, ConfigurationFileException {
         setUpDefaultDirectoryExpectations();
@@ -870,10 +873,11 @@ public class ConfigurationAdminMigrationTest {
                 .listConfigurations(anyString());
         ConfigurationAdminMigration configurationAdminMigration =
                 createConfigurationAdminMigratorWithNoFiles();
-        configurationAdminMigration.export(exportedDirectoryPath);
+        assertFalse("No migration exceptions found.",
+                configurationAdminMigration.export(exportedDirectoryPath).isEmpty());
     }
 
-    @Test(expected = ConfigurationFileException.class)
+    @Test
     public void testExportConfigurationFileException()
             throws IOException, InvalidSyntaxException, ConfigurationFileException {
         setUpDefaultDirectoryExpectations();
@@ -883,10 +887,11 @@ public class ConfigurationAdminMigrationTest {
                 createConfigurationAdminMigratorWithNoFiles();
         when(configurationFileFactory.createConfigurationFile((Dictionary<String, Object>) anyObject())).thenThrow(
                 new ConfigurationFileException(""));
-        configurationAdminMigration.export(exportedDirectoryPath);
+        assertFalse("No migration exceptions found.",
+                configurationAdminMigration.export(exportedDirectoryPath).isEmpty());
     }
 
-    @Test(expected = IOException.class)
+    @Test
     public void testConfigFileExportConfigIOException()
             throws IOException, InvalidSyntaxException, ConfigurationFileException {
         setUpDefaultDirectoryExpectations();
@@ -898,7 +903,8 @@ public class ConfigurationAdminMigrationTest {
                 configFile1);
         doThrow(new IOException()).when(configFile1)
                 .exportConfig(anyString());
-        configurationAdminMigration.export(exportedDirectoryPath);
+        assertFalse("No migration exceptions found.",
+                configurationAdminMigration.export(exportedDirectoryPath).isEmpty());
     }
 
     @Test

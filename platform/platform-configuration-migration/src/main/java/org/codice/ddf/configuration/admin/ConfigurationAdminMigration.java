@@ -28,8 +28,9 @@ import javax.validation.constraints.NotNull;
 
 import org.apache.commons.io.FileUtils;
 import org.codice.ddf.configuration.status.ConfigurationFileException;
-import org.codice.ddf.configuration.status.ConfigurationStatus;
 import org.codice.ddf.configuration.status.ConfigurationStatusService;
+import org.codice.ddf.configuration.status.MigrationException;
+import org.codice.ddf.configuration.status.MigrationWarning;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -47,8 +48,7 @@ public class ConfigurationAdminMigration implements ChangeListener, Configuratio
 
     private static final String FILE_FILTER = "*.config";
 
-    private static final String FILTER =
-            "(&(!(service.pid=jmx*))(!(service.pid=org.apache*))(!(service.pid=org.ops4j*)))";
+    private static final String FILTER = "(&(!(service.pid=jmx*))(!(service.pid=org.apache*))(!(service.pid=org.ops4j*)))";
 
     private String configurationFileExtension;
 
@@ -130,9 +130,7 @@ public class ConfigurationAdminMigration implements ChangeListener, Configuratio
             }
         }
 
-        LOGGER.debug("Registering with [{}] for directory changes.",
-                poller.getClass()
-                        .getName());
+        LOGGER.debug("Registering with [{}] for directory changes.", poller.getClass().getName());
         poller.register(this);
     }
 
@@ -151,11 +149,11 @@ public class ConfigurationAdminMigration implements ChangeListener, Configuratio
         }
     }
 
-    public Collection<ConfigurationStatus> getFailedConfigurationFiles() throws IOException {
-        Collection<ConfigurationStatus> configStatusMessages = new ArrayList<>();
+    public Collection<MigrationWarning> getFailedConfigurationFiles() throws IOException {
+        Collection<MigrationWarning> configStatusMessages = new ArrayList<>();
         try (DirectoryStream<Path> stream = getFailedDirectoryStream()) {
             for (Path path : stream) {
-                ConfigurationStatus configStatus = new ConfigurationStatus(path.getFileName());
+                MigrationWarning configStatus = new MigrationWarning(path.getFileName().toString());
                 configStatusMessages.add(configStatus);
                 LOGGER.debug("Adding [{}] to the failed imports list.", path.toString());
             }
@@ -163,8 +161,7 @@ public class ConfigurationAdminMigration implements ChangeListener, Configuratio
         return configStatusMessages;
     }
 
-    public void export(@NotNull Path exportDirectory)
-            throws ConfigurationFileException, IOException {
+    public void export(@NotNull Path exportDirectory) throws MigrationException, IOException {
         notNull(exportDirectory, "exportDirectory cannot be null");
         Path etcDirectory = createEtcDirectory(exportDirectory);
 
@@ -172,29 +169,30 @@ public class ConfigurationAdminMigration implements ChangeListener, Configuratio
             Configuration[] configurations = configurationAdmin.listConfigurations(FILTER);
             if (configurations != null) {
                 for (Configuration configuration : configurations) {
-                    Path exportedFilePath = etcDirectory.resolve(
-                            configuration.getPid() + configurationFileExtension);
-
+                    Path exportedFilePath = etcDirectory
+                            .resolve(configuration.getPid() + configurationFileExtension);
                     try {
-                        configurationFileFactory.createConfigurationFile(configuration.getProperties())
+                        configurationFileFactory
+                                .createConfigurationFile(configuration.getProperties())
                                 .exportConfig(exportedFilePath.toString());
                     } catch (ConfigurationFileException e) {
-                        LOGGER.error(String.format(
-                                "Could not create configuration file %s for configuration %s",
-                                exportedFilePath,
-                                configuration.getPid()));
-                        throw new ConfigurationFileException("Failed to export configurations.", e);
+                        LOGGER.error("Could not create configuration file {} for configuration {}.",
+                                exportedFilePath, configuration.getPid());
+                        throw new MigrationException("Failed to export configurations.", e);
                     } catch (IOException e) {
-                        LOGGER.error(String.format("Could not export configuration %s to %s.",
-                                configuration.getPid(),
-                                exportedFilePath));
-                        throw new IOException("Failed to export configurations.", e);
+                        LOGGER.error("Could not export configuration {} to {}.",
+                                configuration.getPid(), exportedFilePath);
+                        throw new MigrationException("Failed to export configurations.", e);
                     }
                 }
             }
         } catch (InvalidSyntaxException e) {
-            LOGGER.error(String.format("Invalid filter string %s", FILTER), e);
-            throw new ConfigurationFileException("Failed to export configurations.", e);
+            LOGGER.error("Invalid filter string {}", FILTER, e);
+            throw new MigrationException("Failed to export configurations.", e);
+        } catch (IOException e) {
+            LOGGER.error("There was an issue retrieving configurations from ConfigurationAdmin: {}",
+                    e.getMessage());
+            throw new MigrationException("Failed to export configurations.", e);
         }
     }
 
@@ -223,8 +221,7 @@ public class ConfigurationAdminMigration implements ChangeListener, Configuratio
         try {
             moveFile(source, destination);
         } catch (IOException e) {
-            LOGGER.warn(String.format("Failed to move %s to %s directory",
-                    source.toString(),
+            LOGGER.warn(String.format("Failed to move %s to %s directory", source.toString(),
                     destination.toString()), e);
         }
     }
