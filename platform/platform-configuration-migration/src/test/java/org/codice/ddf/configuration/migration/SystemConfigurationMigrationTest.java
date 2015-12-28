@@ -14,10 +14,7 @@
 package org.codice.ddf.configuration.migration;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.powermock.api.mockito.PowerMockito.doThrow;
@@ -52,14 +49,15 @@ import org.powermock.modules.junit4.rule.PowerMockRule;
  * 2) uncomment import org.powermock.modules.junit4.PowerMockRunner;
  * 3) uncomment import org.junit.runner.RunWith;
  * 4) comment out:
- *
- * @Rule public PowerMockRule rule = new PowerMockRule();
+ *        @Rule
+ *        public PowerMockRule rule = new PowerMockRule();
  * 4) comment out import org.powermock.modules.junit4.rule.PowerMockRule;
- * <p/>
+ * 
  * If you want to see Jacoco code coverage, the following must be commented out:
  * 1) import org.junit.runner.RunWith;
  * 2) import org.powermock.modules.junit4.PowerMockRunner;
  * 3) @RunWith(PowerMockRunner.class)
+ *
  */
 //@RunWith(PowerMockRunner.class)
 @PrepareForTest({SystemConfigurationMigration.class, FileUtils.class})
@@ -91,19 +89,19 @@ public class SystemConfigurationMigrationTest {
 
     private static final String WS_SECURITY_SERVER_DIR = "etc/ws-security/server";
 
-    private static final String WS_SECURITY_SERVER_ENC_PROP_FILE_REL_PATH =
-            WS_SECURITY_SERVER_DIR + "/encryption.properties";
+    private static final String WS_SECURITY_SERVER_ENC_PROP_FILE_REL_PATH = WS_SECURITY_SERVER_DIR
+            + "/encryption.properties";
 
-    private static final String WS_SECURITY_SERVER_SIG_PROP_FILE_REL_PATH =
-            WS_SECURITY_SERVER_DIR + "/signature.properties";
+    private static final String WS_SECURITY_SERVER_SIG_PROP_FILE_REL_PATH = WS_SECURITY_SERVER_DIR
+            + "/signature.properties";
 
     private static final String WS_SECURITY_ISSUER_DIR = "etc/ws-security/issuer";
 
-    private static final String WS_SECURITY_ISSUER_ENC_PROP_FILE_REL_PATH =
-            WS_SECURITY_ISSUER_DIR + "/encryption.properties";
+    private static final String WS_SECURITY_ISSUER_ENC_PROP_FILE_REL_PATH = WS_SECURITY_ISSUER_DIR
+            + "/encryption.properties";
 
-    private static final String WS_SECURITY_ISSUER_SIG_PROP_FILE_REL_PATH =
-            WS_SECURITY_ISSUER_DIR + "/signature.properties";
+    private static final String WS_SECURITY_ISSUER_SIG_PROP_FILE_REL_PATH = WS_SECURITY_ISSUER_DIR
+            + "/signature.properties";
 
     private static final String SECURITY_DIRECTORY_REL_PATH = "security";
 
@@ -178,10 +176,10 @@ public class SystemConfigurationMigrationTest {
     }
 
     /**
-     * Verify that if an absolute path is encountered during the export, a configuration status is returned. All
+     * Verify that if an absolute path is encountered during the export, an exception is thrown. All
      * paths must be relative to ddf home.
      */
-    @Test
+    @Test(expected = MigrationException.class)
     public void testExportAbsolutePaths() throws Exception {
         // Setup
         System.setProperty(KEYSTORE_SYSTEM_PROP, keystoreAbsolutePath.toString());
@@ -198,11 +196,10 @@ public class SystemConfigurationMigrationTest {
         };
 
         // Perform Test
-        assertFalse("There wasn't a configuration status returned.",
-                securityConfigurationMigrator.export(exportDirectory).isEmpty());
+        securityConfigurationMigrator.export(exportDirectory);
     }
 
-    @Test
+    @Test(expected = MigrationException.class)
     public void testExportTrustoreAbsolutePath() throws Exception {
         // Setup
         Path truststoreAbsolutePath = ddfHome.resolve(Paths.get(TRUSTSTORE_REL_PATH));
@@ -220,18 +217,17 @@ public class SystemConfigurationMigrationTest {
         };
 
         // Perform Test
-        assertFalse("There wasn't a configuration status returned.",
-                securityConfigurationMigrator.export(exportDirectory).isEmpty());
+        securityConfigurationMigrator.export(exportDirectory);
     }
 
-    @Test
+    @Test(expected = MigrationException.class)
     public void testExportInvalidTrustoreRelativePath() throws Exception {
         // Setup
         Path invalidTruststoreRelativepath = tempDir.getRoot().toPath()
                 .resolve(INVALID_TRUSTSTORE_REL_PATH);
         System.setProperty(KEYSTORE_SYSTEM_PROP, KEYSTORE_REL_PATH);
-        System.setProperty(TRUSTSTORE_SYSTEM_PROP,
-                ddfHome.relativize(invalidTruststoreRelativepath).toString());
+        System.setProperty(TRUSTSTORE_SYSTEM_PROP, ddfHome
+                .relativize(invalidTruststoreRelativepath).toString());
         SystemConfigurationMigration securityConfigurationMigrator = new SystemConfigurationMigration(
                 createTempDdf()) {
 
@@ -244,11 +240,10 @@ public class SystemConfigurationMigrationTest {
         };
 
         // Perform Test
-        assertFalse("There wasn't a configuration status returned.",
-                securityConfigurationMigrator.export(exportDirectory).isEmpty());
+        securityConfigurationMigrator.export(exportDirectory);
     }
 
-    @Test
+    @Test(expected = MigrationException.class)
     public void testExportKeystoreAbsolutePath() throws Exception {
         // Setup
         Path keystoreAbsolutePath = ddfHome.resolve(Paths.get(KEYSTORE_REL_PATH));
@@ -266,17 +261,16 @@ public class SystemConfigurationMigrationTest {
         };
 
         // Perform Test
-        assertFalse("There wasn't a configuration status returned.",
-                securityConfigurationMigrator.export(exportDirectory).isEmpty());
+        securityConfigurationMigrator.export(exportDirectory);
     }
 
-    @Test
+    @Test(expected = MigrationException.class)
     public void testExportInvalidKeystoreRelativePath() throws Exception {
         // Setup
         Path invalidKeystoreRelativepath = tempDir.getRoot().toPath()
                 .resolve(INVALID_KEYSTORE_REL_PATH);
-        System.setProperty(KEYSTORE_SYSTEM_PROP,
-                ddfHome.relativize(invalidKeystoreRelativepath).toString());
+        System.setProperty(KEYSTORE_SYSTEM_PROP, ddfHome.relativize(invalidKeystoreRelativepath)
+                .toString());
         System.setProperty(TRUSTSTORE_SYSTEM_PROP, TRUSTSTORE_REL_PATH);
         SystemConfigurationMigration securityConfigurationMigrator = new SystemConfigurationMigration(
                 createTempDdf()) {
@@ -290,11 +284,10 @@ public class SystemConfigurationMigrationTest {
         };
 
         // Perform Test
-        assertFalse("There wasn't a configuration status returned.",
-                securityConfigurationMigrator.export(exportDirectory).isEmpty());
+        securityConfigurationMigrator.export(exportDirectory);
     }
 
-    @Test
+    @Test(expected = MigrationException.class)
     public void testExportCrlAbsolutePath() throws Exception {
         // Setup
         Path crlAbsolutePath = ddfHome.resolve(Paths.get(KEYSTORE_REL_PATH));
@@ -312,11 +305,10 @@ public class SystemConfigurationMigrationTest {
         };
 
         // Perform Test
-        assertFalse("There wasn't a configuration status returned.",
-                securityConfigurationMigrator.export(exportDirectory).isEmpty());
+        securityConfigurationMigrator.export(exportDirectory);
     }
 
-    @Test
+    @Test(expected = MigrationException.class)
     public void testExportInvalidCrlRelativePath() throws Exception {
         // Setup
         Path invalidCrlRelativePath = tempDir.getRoot().toPath().resolve(INVALID_CRL_REL_PATH);
@@ -328,18 +320,17 @@ public class SystemConfigurationMigrationTest {
             @Override
             Properties readPropertiesFile(Path propertiesFile) throws MigrationException {
                 Properties properties = new Properties();
-                properties.setProperty(CRL_PROP_KEY,
-                        ddfHome.relativize(invalidCrlRelativePath).toString());
+                properties.setProperty(CRL_PROP_KEY, ddfHome.relativize(invalidCrlRelativePath)
+                        .toString());
                 return properties;
             }
         };
 
         // Perform Test
-        assertFalse("There wasn't a configuration status returned.",
-                securityConfigurationMigrator.export(exportDirectory).isEmpty());
+        securityConfigurationMigrator.export(exportDirectory);
     }
 
-    @Test
+    @Test(expected = MigrationException.class)
     public void testExportExceptionReadingCrl() throws Exception {
         // Setup
         System.setProperty(KEYSTORE_SYSTEM_PROP, KEYSTORE_REL_PATH);
@@ -354,8 +345,7 @@ public class SystemConfigurationMigrationTest {
         };
 
         // Perform Test
-        assertFalse("There wasn't a configuration status returned.",
-                securityConfigurationMigrator.export(exportDirectory).isEmpty());
+        securityConfigurationMigrator.export(exportDirectory);
     }
 
     /**
@@ -378,11 +368,10 @@ public class SystemConfigurationMigrationTest {
         };
 
         // Perform Test
-        assertTrue("No configuration status should have been found.",
-                securityConfigurationMigrator.export(exportDirectory).isEmpty());
+        securityConfigurationMigrator.export(exportDirectory);
     }
 
-    @Test
+    @Test(expected = MigrationException.class)
     public void testExportExceptionCopyingFile() throws Exception {
         // Setup
         System.setProperty(KEYSTORE_SYSTEM_PROP, KEYSTORE_REL_PATH);
@@ -401,11 +390,10 @@ public class SystemConfigurationMigrationTest {
         };
 
         // Perform Test
-        assertFalse("There wasn't a configuration status returned.",
-                securityConfigurationMigrator.export(exportDirectory).isEmpty());
+        securityConfigurationMigrator.export(exportDirectory);
     }
 
-    @Test
+    @Test(expected = MigrationException.class)
     public void testExportExceptionCopyingDirectory() throws Exception {
         // Setup
         System.setProperty(KEYSTORE_SYSTEM_PROP, KEYSTORE_REL_PATH);
@@ -424,11 +412,10 @@ public class SystemConfigurationMigrationTest {
         };
 
         // Perform Test
-        assertFalse("There wasn't a configuration status returned.",
-                securityConfigurationMigrator.export(exportDirectory).isEmpty());
+        securityConfigurationMigrator.export(exportDirectory);
     }
 
-    @Test
+    @Test(expected = MigrationException.class)
     public void testExportKeystorePropertyNotSet() throws Exception {
         // Setup
         System.clearProperty(KEYSTORE_SYSTEM_PROP);
@@ -444,11 +431,10 @@ public class SystemConfigurationMigrationTest {
         };
 
         // Perform Test
-        assertFalse("There wasn't a configuration status returned.",
-                securityConfigurationMigrator.export(exportDirectory).isEmpty());
+        securityConfigurationMigrator.export(exportDirectory);
     }
 
-    @Test
+    @Test(expected = MigrationException.class)
     public void testExportTruststorePropertyNotSet() throws Exception {
         // Setup
         System.setProperty(KEYSTORE_SYSTEM_PROP, KEYSTORE_REL_PATH);
@@ -465,29 +451,7 @@ public class SystemConfigurationMigrationTest {
         };
 
         // Perform Test
-        assertFalse("There wasn't a configuration status returned.",
-                securityConfigurationMigrator.export(exportDirectory).isEmpty());
-    }
-
-    @Test
-    public void testExportMultiplePropertiesNotSet() throws Exception {
-        // Setup
-        System.clearProperty(KEYSTORE_SYSTEM_PROP);
-        System.clearProperty(TRUSTSTORE_SYSTEM_PROP);
-
-        SystemConfigurationMigration securityConfigurationMigrator = new SystemConfigurationMigration(
-                createTempDdf()) {
-            @Override
-            Properties readPropertiesFile(Path propertiesFile) throws MigrationException {
-                Properties properties = new Properties();
-                properties.setProperty(CRL_PROP_KEY, CRL_REL_PATH);
-                return properties;
-            }
-        };
-
-        // Perform Test
-        assertThat("There weren't two migration exceptions.",
-                securityConfigurationMigrator.export(exportDirectory).size(), is(2));
+        securityConfigurationMigrator.export(exportDirectory);
     }
 
     @Test(expected = MigrationException.class)
@@ -501,25 +465,25 @@ public class SystemConfigurationMigrationTest {
         List<File> expectedDestinationFiles = new ArrayList<>(5);
         expectedDestinationFiles
                 .add(new File(exportDirectory + File.separator + KEYSTORE_REL_PATH));
-        expectedDestinationFiles
-                .add(new File(exportDirectory + File.separator + TRUSTSTORE_REL_PATH));
+        expectedDestinationFiles.add(new File(exportDirectory + File.separator
+                + TRUSTSTORE_REL_PATH));
         expectedDestinationFiles.add(new File(exportDirectory + File.separator + CRL_REL_PATH));
-        expectedDestinationFiles
-                .add(new File(exportDirectory + File.separator + SYSTEM_PROPERTIES_REL_PATH));
-        expectedDestinationFiles
-                .add(new File(exportDirectory + File.separator + USERS_PROPERTIES_REL_PATH));
+        expectedDestinationFiles.add(new File(exportDirectory + File.separator
+                + SYSTEM_PROPERTIES_REL_PATH));
+        expectedDestinationFiles.add(new File(exportDirectory + File.separator
+                + USERS_PROPERTIES_REL_PATH));
 
         assertThat(destinationFiles, containsInAnyOrder(expectedDestinationFiles.toArray()));
     }
 
     private void assertDestinationDirectories(List<File> destinationDirs) {
         List<File> expectedDestinationDirs = new ArrayList<>(3);
-        expectedDestinationDirs
-                .add(new File(exportDirectory + File.separator + SECURITY_DIRECTORY_REL_PATH));
-        expectedDestinationDirs
-                .add(new File(exportDirectory + File.separator + WS_SECURITY_DIR_REL_PATH));
-        expectedDestinationDirs
-                .add(new File(exportDirectory + File.separator + PDP_POLICIES_DIR_REL_PATH));
+        expectedDestinationDirs.add(new File(exportDirectory + File.separator
+                + SECURITY_DIRECTORY_REL_PATH));
+        expectedDestinationDirs.add(new File(exportDirectory + File.separator
+                + WS_SECURITY_DIR_REL_PATH));
+        expectedDestinationDirs.add(new File(exportDirectory + File.separator
+                + PDP_POLICIES_DIR_REL_PATH));
 
         assertThat(destinationDirs, containsInAnyOrder(expectedDestinationDirs.toArray()));
     }

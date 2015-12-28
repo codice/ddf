@@ -13,7 +13,7 @@
  */
 package org.codice.ddf.configuration.migration;
 
-import static org.junit.Assert.assertFalse;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -26,6 +26,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.codice.ddf.configuration.admin.ConfigurationAdminMigration;
+import org.codice.ddf.configuration.status.ConfigurationFileException;
+import org.codice.ddf.configuration.status.MigrationException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -85,7 +87,7 @@ public class ConfigurationMigrationManagerTest {
         configurationMigrationManager.export(null);
     }
 
-    @Test
+    @Test(expected = MigrationException.class)
     public void exportFailsToCreateDirectory() throws Exception {
         when(Files.createDirectories(exportPath)).thenThrow(new IOException());
 
@@ -93,7 +95,72 @@ public class ConfigurationMigrationManagerTest {
                 new ConfigurationMigrationManager(configurationAdminMigration,
                         systemConfigurationMigration);
 
-        assertFalse("No migration exceptions found.",
-                configurationMigrationManager.export(exportPath).isEmpty());
+        configurationMigrationManager.export(exportPath);
+    }
+
+    @Test(expected = MigrationException.class)
+    public void exportWhenConfigurationAdminMigratorThrowsIOException() throws Exception {
+        when(Files.createDirectories(exportPath)).thenReturn(exportPath);
+        doThrow(new IOException()).when(configurationAdminMigration)
+                .export(exportPath);
+
+        ConfigurationMigrationManager configurationMigrationManager =
+                new ConfigurationMigrationManager(configurationAdminMigration,
+                        systemConfigurationMigration);
+
+        configurationMigrationManager.export(exportPath);
+    }
+
+    @Test(expected = MigrationException.class)
+    public void exportWhenConfigurationAdminMigratorThrowsConfigurationFileException()
+            throws Exception {
+        when(Files.createDirectories(exportPath)).thenReturn(exportPath);
+        doThrow(new ConfigurationFileException("")).when(configurationAdminMigration)
+                .export(exportPath);
+
+        ConfigurationMigrationManager configurationMigrationManager =
+                new ConfigurationMigrationManager(configurationAdminMigration,
+                        systemConfigurationMigration);
+
+        configurationMigrationManager.export(exportPath);
+    }
+
+    @Test(expected = MigrationException.class)
+    public void exportWhenConfigurationAdminMigratorThrowsRuntimeException() throws Exception {
+        when(Files.createDirectories(exportPath)).thenReturn(exportPath);
+        doThrow(new RuntimeException("")).when(configurationAdminMigration)
+                .export(exportPath);
+
+        ConfigurationMigrationManager configurationMigrationManager =
+                new ConfigurationMigrationManager(configurationAdminMigration,
+                        systemConfigurationMigration);
+
+        configurationMigrationManager.export(exportPath);
+    }
+
+    @Test(expected = MigrationException.class)
+    public void exportWhenSystemConfigurationMigratorThrowsMigrationException() throws Exception {
+        when(Files.createDirectories(exportPath)).thenReturn(exportPath);
+        doThrow(new MigrationException("")).when(systemConfigurationMigration)
+                .export(exportPath);
+
+        ConfigurationMigrationManager configurationMigrationManager =
+                new ConfigurationMigrationManager(configurationAdminMigration,
+                        systemConfigurationMigration);
+
+        configurationMigrationManager.export(exportPath);
+    }
+
+    @Test(expected = MigrationException.class)
+    public void exportWhenSystemConfigurationMigratorThrowsRuntimeException() throws Exception {
+        when(Files.createDirectories(exportPath)).thenReturn(exportPath);
+        doThrow(new RuntimeException("")).when(systemConfigurationMigration)
+                .export(exportPath);
+
+        ConfigurationMigrationManager configurationMigrationManager =
+                new ConfigurationMigrationManager(configurationAdminMigration,
+                        systemConfigurationMigration);
+
+        configurationMigrationManager.export(exportPath);
     }
 }
