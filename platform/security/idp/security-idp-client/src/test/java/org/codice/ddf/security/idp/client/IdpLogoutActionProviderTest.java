@@ -58,4 +58,14 @@ public class IdpLogoutActionProviderTest {
                         .contains(nameIdTime));
     }
 
+    @Test
+    public void testGetActionFailure() throws Exception {
+        Object notsubject = new Object();
+        HashMap map = new HashMap();
+        map.put("idp", notsubject);
+        when(encryptionService.encrypt(any(String.class))).thenReturn(nameIdTime);
+        ActionImpl action = (ActionImpl) idpLogoutActionProvider.getAction(map);
+        Assert.assertNull("Expected the url to be null", action.getUrl());
+    }
+
 }

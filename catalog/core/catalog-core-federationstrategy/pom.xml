@@ -47,6 +47,13 @@
         <!-- JAR of the test classes in catalog-api, namely its mock objects -->
         <dependency>
             <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-api-impl</artifactId>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-standardframework</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -92,9 +99,8 @@
                             ${project.artifactId};blueprint.graceperiod:=true;blueprint.timeout:=604800000
                         </Bundle-SymbolicName>
                         <Embed-Dependency>
-                            catalog-core-api-impl
+                            catalog-core-api-impl;scope=!test
                         </Embed-Dependency>
-                        <Embed-Transitive>true</Embed-Transitive>
                         <Import-Package>
                             sun.misc;resolution:=optional,
                             *

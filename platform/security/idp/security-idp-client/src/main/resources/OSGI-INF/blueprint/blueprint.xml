@@ -39,9 +39,6 @@
     <reference id="sessionFactory" interface="ddf.security.http.SessionFactory"
                filter="(id=http)"/>
 
-    <bean id="IdpClientExceptionMapperProvider"
-          class="org.codice.ddf.security.idp.client.IdpClientExceptionMapper"/>
-
     <bean id="crypto" class="ddf.security.samlp.SystemCrypto">
         <argument value="${ddf.home}/etc/ws-security/server/encryption.properties"/>
         <argument value="${ddf.home}/etc/ws-security/server/signature.properties"/>
@@ -86,7 +83,6 @@
                                update-strategy="container-managed"/>
         <argument ref="simpleSign"/>
         <argument ref="idpMetadata"/>
-        <argument ref="crypto"/>
         <argument ref="baseUrl"/>
         <argument ref="relayStates"/>
         <property name="logoutMessage">
@@ -101,9 +97,6 @@
             <ref component-id="assertionConsumerService"/>
             <ref component-id="logoutRequestService"/>
         </jaxrs:serviceBeans>
-        <jaxrs:providers>
-            <ref component-id="IdpClientExceptionMapperProvider"/>
-        </jaxrs:providers>
     </jaxrs:server>
 
     <service interface="ddf.action.ActionProvider">
