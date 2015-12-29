@@ -240,6 +240,22 @@ public class ServiceManager {
         return bundlesToRestart;
     }
 
+    public void stopBundle(String bundleSymbolicName) throws BundleException {
+        for (Bundle bundle : bundleCtx.getBundles()) {
+            if (bundleSymbolicName.equals(bundle.getSymbolicName())) {
+                bundle.stop();
+            }
+        }
+    }
+
+    public void startBundle(String bundleSymbolicName) throws BundleException {
+        for (Bundle bundle : bundleCtx.getBundles()) {
+            if (bundleSymbolicName.equals(bundle.getSymbolicName())) {
+                bundle.start();
+            }
+        }
+    }
+
     public void waitForAllBundles() throws InterruptedException {
         waitForRequiredBundles("");
     }

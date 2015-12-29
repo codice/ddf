@@ -32,6 +32,8 @@ import org.apache.solr.client.solrj.response.SolrPingResponse;
 import org.apache.solr.common.SolrException;
 import org.apache.solr.common.util.NamedList;
 import org.codice.solr.factory.ConfigurationStore;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import ddf.catalog.operation.CreateRequest;
@@ -51,6 +53,32 @@ import ddf.catalog.source.UnsupportedQueryException;
  */
 public class TestSolrHttpCatalogProvider {
 
+    private static String cipherSuites;
+
+    private static String protocols;
+
+    @BeforeClass
+    public static void setUp() {
+        cipherSuites = System.getProperty("https.cipherSuites");
+        System.setProperty("https.cipherSuites",
+                "TLS_DHE_RSA_WITH_AES_128_CBC_SHA,TLS_DHE_RSA_WITH_AES_128_CBC_SHA,TLS_DHE_DSS_WITH_AES_128_CBC_SHA,TLS_RSA_WITH_AES_128_CBC_SHA");
+        protocols = System.getProperty("https.protocols");
+        System.setProperty("https.protocols", "TLSv1.1, TLSv1.2");
+    }
+
+    @AfterClass
+    public static void tearDown() {
+        if (cipherSuites != null) {
+            System.setProperty("https.cipherSuites", cipherSuites);
+        } else {
+            System.clearProperty("https.cipherSuites");
+        }
+        if (protocols != null) {
+            System.setProperty("https.protocols", protocols);
+        } else {
+            System.clearProperty("https.protocols");
+        }
+    }
     @Test
     public void testId() {
         CatalogProvider provider = new SolrHttpCatalogProvider(null, null, null);

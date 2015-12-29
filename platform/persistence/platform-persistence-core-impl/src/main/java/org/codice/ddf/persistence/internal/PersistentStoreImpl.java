@@ -21,6 +21,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -61,7 +65,8 @@ public class PersistentStoreImpl implements PersistentStore {
 
         LOGGER.debug("Setting solrUrl to {}", url);
         if (url != null) {
-            if (solrUrl == null || !StringUtils.equalsIgnoreCase(url.trim(), solrUrl.getResolvedString())) {
+            if (solrUrl == null || !StringUtils
+                    .equalsIgnoreCase(url.trim(), solrUrl.getResolvedString())) {
                 solrUrl = new PropertyResolver(url.trim());
 
                 List<SolrServer> servers = new ArrayList<>(coreSolrServers.values());
@@ -283,12 +288,18 @@ public class PersistentStoreImpl implements PersistentStore {
         }
 
         // Must specify shard in URL so proper core is used
-        SolrServer coreSolrServer = SolrServerFactory
-                .getHttpSolrServer(solrUrl.getResolvedString(), storeName);
-        coreSolrServers.put(storeName, coreSolrServer);
+        SolrServer coreSolrServer = null;
+        try {
+            Future<SolrServer> coreSolrServerFuture = SolrServerFactory
+                    .getHttpSolrServer(solrUrl.getResolvedString(), storeName);
+            coreSolrServer = coreSolrServerFuture.get(5, TimeUnit.SECONDS);
+            coreSolrServers.put(storeName, coreSolrServer);
 
-        LOGGER.trace("EXITING: getSolrCore");
+            LOGGER.trace("EXITING: getSolrCore");
 
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            LOGGER.warn("Error getting solr server from future", e);
+        }
         return coreSolrServer;
     }
 

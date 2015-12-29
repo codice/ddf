@@ -25,6 +25,7 @@ import org.codice.solr.factory.ConfigurationFileProxy;
 import org.codice.solr.factory.ConfigurationStore;
 import org.codice.solr.factory.SolrServerFactory;
 import org.joda.time.DateTime;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.opengis.filter.Filter;
 import org.slf4j.Logger;
@@ -65,25 +66,64 @@ public abstract class SolrProviderTestCase {
 
     private static final int A_LITTLE_WHILE = TIME_STEP_10SECONDS;
 
+    private static final String SYSTEM_PROPERTIES_FILE = "system.properties";
+
+    private static final String KARAF_ETC = "karaf.etc";
+
     protected static TestSolrFilterBuilder filterBuilder = new TestSolrFilterBuilder();
 
     protected static SolrCatalogProvider provider = null;
 
+    private static String threadPoolSize;
+
+    private static String cipherSuites;
+
+    private static String protocols;
+
     @BeforeClass
     public static void setup() throws Exception {
+        cipherSuites = System.getProperty("https.cipherSuites");
+        protocols = System.getProperty("https.protocols");
+        System.setProperty("https.cipherSuites",
+                "TLS_DHE_RSA_WITH_AES_128_CBC_SHA,TLS_DHE_RSA_WITH_AES_128_CBC_SHA,TLS_DHE_DSS_WITH_AES_128_CBC_SHA,TLS_RSA_WITH_AES_128_CBC_SHA");
+        System.setProperty("https.protocols", "TLSv1.1, TLSv1.2");
+        threadPoolSize = System.getProperty("org.codice.ddf.system.threadPoolSize");
+        System.setProperty("org.codice.ddf.system.threadPoolSize", "128");
         LOGGER.info("RUNNING one-time setup.");
-        ConfigurationStore.getInstance().setInMemory(true);
-        ConfigurationStore.getInstance().setForceAutoCommit(true);
+        ConfigurationStore.getInstance()
+                .setInMemory(true);
+        ConfigurationStore.getInstance()
+                .setForceAutoCommit(true);
         ConfigurationFileProxy configurationFileProxy = new ConfigurationFileProxy(
                 ConfigurationStore.getInstance());
 
-        provider = new SolrCatalogProvider(SolrServerFactory
-                .getEmbeddedSolrServer("solrconfig-inmemory.xml", "schema.xml", configurationFileProxy),
-                new GeotoolsFilterAdapterImpl(), new SolrFilterDelegateFactoryImpl());
+        provider = new SolrCatalogProvider(SolrServerFactory.getEmbeddedSolrServer(
+                "solrconfig-inmemory.xml",
+                "schema.xml",
+                configurationFileProxy),
+                new GeotoolsFilterAdapterImpl(),
+                new SolrFilterDelegateFactoryImpl());
 
         // Mask the id, this is something that the CatalogFramework would
         // usually do
         provider.setId(MASKED_ID);
+    }
+
+    @AfterClass
+    public static void teardown() {
+        if (threadPoolSize != null) {
+            System.setProperty("org.codice.ddf.system.threadPoolSize", threadPoolSize);
+        }
+        if (cipherSuites != null) {
+            System.setProperty("https.cipherSuites", cipherSuites);
+        } else {
+            System.clearProperty("https.cipherSuites");
+        }
+        if (protocols != null) {
+            System.setProperty("https.protocols", protocols);
+        } else {
+            System.clearProperty("https.protocols");
+        }
     }
 
     protected static void messageBreak(String string) {
