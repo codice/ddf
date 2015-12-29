@@ -37,7 +37,7 @@ import java.util.Properties;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.camel.Exchange;
-import org.apache.camel.component.http.HttpMessage;
+import org.apache.camel.http.common.HttpMessage;
 import org.apache.commons.io.IOUtils;
 import org.codice.proxy.http.HttpProxyService;
 import org.codice.proxy.http.HttpProxyServiceImpl;
