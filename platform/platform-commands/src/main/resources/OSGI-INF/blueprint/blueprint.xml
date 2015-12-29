@@ -19,15 +19,15 @@
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
 
         <command name="platform/describe">
-            <action class="org.codice.ddf.commands.platform.DescribeCommand" />
+            <action class="org.codice.ddf.commands.platform.DescribeCommand"/>
         </command>
         <command name="platform/envlist">
-            <action class="org.codice.ddf.commands.platform.EnvListCommand" />
+            <action class="org.codice.ddf.commands.platform.EnvListCommand"/>
         </command>
         <command name="platform/config-status">
             <action
-                class="org.codice.ddf.commands.platform.ConfigStatusCommand">
-                <argument ref="configStatusService" />
+                    class="org.codice.ddf.commands.platform.ConfigStatusCommand">
+                <argument ref="configStatusService"/>
             </action>
         </command>
         <command name="platform/config-export">
@@ -46,25 +46,26 @@
     </ext:property-placeholder>
 
     <reference id="configStatusService"
-        interface="org.codice.ddf.configuration.status.ConfigurationStatusService" />
+               interface="org.codice.ddf.configuration.status.ConfigurationStatusService"/>
 
     <reference id="configurationMigrationService"
                interface="org.codice.ddf.configuration.migration.ConfigurationMigrationService"/>
 
     <!-- Base URI for DDF home -->
-    <bean id="baseFileUri" class="java.io.File">
+    <bean id="ddfHomeFile" class="java.io.File">
         <argument value="${ddf.home}"/>
     </bean>
 
-    <bean id="baseUri" class="java.net.URI" factory-method="toURI" factory-ref="baseFileUri"/>
+    <bean id="ddfHomeUri" class="java.net.URI" factory-ref="ddfHomeFile" factory-method="toURI"/>
 
     <!-- Default Directory Export Path -->
-    <bean id="defaultExportDirectoryPathUri" class="java.nio.file.Uri" factory-method="resolve" factory-ref="baseUri">
+    <bean id="defaultExportDirectoryUri" class="java.nio.file.Uri" factory-ref="ddfHomeUri"
+          factory-method="resolve">
         <argument value="etc/exported"/>
     </bean>
 
     <bean id="defaultExportDirectoryPath" class="java.nio.file.Paths" factory-method="get">
-        <argument ref="defaultExportDirectoryPathUri"/>
+        <argument ref="defaultExportDirectoryUri"/>
     </bean>
 
     <bean id="platformExportCommand" class="org.codice.ddf.commands.platform.ExportCommand">
@@ -72,8 +73,8 @@
         <argument ref="defaultExportDirectoryPath"/>
     </bean>
 
-    <bean id="urlHelper" class="org.codice.ddf.configuration.SystemBaseUrl" />
-    <bean id="systemInfo" class="org.codice.ddf.configuration.SystemInfo" />
+    <bean id="urlHelper" class="org.codice.ddf.configuration.SystemBaseUrl"/>
+    <bean id="systemInfo" class="org.codice.ddf.configuration.SystemInfo"/>
 
     <bean id="platformDescribeCommand" class="org.codice.ddf.commands.platform.DescribeCommand">
         <property name="bundleContext" ref="blueprintBundleContext"/>

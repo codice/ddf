@@ -27,7 +27,8 @@
 
     <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
 
-    <bean id="watchThread" class="java.util.concurrent.Executors" factory-method="newSingleThreadExecutor"/>
+    <bean id="watchThread" class="java.util.concurrent.Executors"
+          factory-method="newSingleThreadExecutor"/>
 
     <bean id="defaultFileSystem" class="java.nio.file.FileSystems" factory-method="getDefault"/>
 
@@ -37,33 +38,36 @@
           class="org.codice.ddf.configuration.persistence.felix.FelixPersistenceStrategy"/>
 
     <!-- Base URI for DDF home -->
-    <bean id="baseFileUri" class="java.io.File">
+    <bean id="ddfHomeFile" class="java.io.File">
         <argument value="${ddf.home}"/>
     </bean>
 
-    <bean id="baseUri" class="java.net.URI" factory-method="toURI" factory-ref="baseFileUri"/>
+    <bean id="ddfHomeUri" class="java.net.URI" factory-ref="ddfHomeFile" factory-method="toURI"/>
 
     <bean id="ddfHome" class="java.nio.file.Paths" factory-method="get">
-        <argument ref="baseUri"/>
+        <argument ref="ddfHomeUri"/>
     </bean>
 
     <!-- Config Directory Path ${ddf.home}/etc/ -->
-    <bean id="configDirectoryPath" class="java.nio.file.Path" factory-method="resolve" factory-ref="ddfHome">
+    <bean id="configDirectoryPath" class="java.nio.file.Path" factory-ref="ddfHome"
+          factory-method="resolve">
         <argument value="etc"/>
     </bean>
 
     <!-- Processed Directory Path ${ddf.home}/etc/processed -->
-    <bean id="processedDirectoryPath" class="java.nio.file.Path" factory-method="resolve" factory-ref="ddfHome">
+    <bean id="processedDirectoryPath" class="java.nio.file.Path" factory-ref="ddfHome"
+          factory-method="resolve">
         <argument value="etc/processed"/>
     </bean>
 
     <!-- Failed Directory Path ${ddf.home}/etc/failed -->
-    <bean id="failedDirectoryPath" class="java.nio.file.Path" factory-method="resolve" factory-ref="ddfHome">
+    <bean id="failedDirectoryPath" class="java.nio.file.Path" factory-ref="ddfHome"
+          factory-method="resolve">
         <argument value="etc/failed"/>
     </bean>
 
     <bean id="configurationFileFactory"
-        class="org.codice.ddf.configuration.admin.ConfigurationFileFactory">
+          class="org.codice.ddf.configuration.admin.ConfigurationFileFactory">
         <argument ref="persistenceStrategy"/>
         <argument ref="configurationAdmin"/>
     </bean>
@@ -78,14 +82,14 @@
     </bean>
 
     <bean id="configDirectoryStream" class="java.nio.file.Files"
-        factory-method="newDirectoryStream">
+          factory-method="newDirectoryStream">
         <argument ref="configDirectoryPath"/>
         <argument value="*${configFileExtension}"/>
     </bean>
 
     <bean id="configurationAdminMigration"
-        class="org.codice.ddf.configuration.admin.ConfigurationAdminMigration"
-        init-method="init">
+          class="org.codice.ddf.configuration.admin.ConfigurationAdminMigration"
+          init-method="init">
         <argument ref="configDirectoryStream"/>
         <argument ref="processedDirectoryPath"/>
         <argument ref="failedDirectoryPath"/>
@@ -96,20 +100,20 @@
     </bean>
 
     <bean id="systemConfigurationMigration"
-        class="org.codice.ddf.configuration.migration.SystemConfigurationMigration">
+          class="org.codice.ddf.configuration.migration.SystemConfigurationMigration">
         <argument ref="ddfHome"/>
     </bean>
 
     <bean id="configMigrationManager"
-        class="org.codice.ddf.configuration.migration.ConfigurationMigrationManager">
+          class="org.codice.ddf.configuration.migration.ConfigurationMigrationManager">
         <argument ref="configurationAdminMigration"/>
         <argument ref="systemConfigurationMigration"/>
     </bean>
 
     <service id="configurationFileDirectoryService" ref="configurationAdminMigration"
-        auto-export="interfaces"/>
+             auto-export="interfaces"/>
 
     <service id="configurationMigrationManager" ref="configMigrationManager"
-        auto-export="interfaces"/>
+             auto-export="interfaces"/>
 
 </blueprint>
