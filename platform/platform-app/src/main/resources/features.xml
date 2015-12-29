@@ -556,9 +556,9 @@
     </feature>
     <!-- End CXF Features -->
 
-    <feature name ="platform-configuration-listener" install="manual" version="${project.version}"
+    <feature name ="platform-configuration-migration" install="manual" version="${project.version}"
              description="Listens for new configuration files and updates configuration admin with the new configurations.">
-        <bundle>mvn:ddf.platform/platform-configuration-listener/${project.version}</bundle>
+        <bundle>mvn:ddf.platform/platform-configuration-migration/${project.version}</bundle>
     </feature>
 
     <feature name="platform-scheduler" install="manual" version="${project.version}"
@@ -847,7 +847,7 @@
         <!-- This feature handles Felix style configuration files for DDF and MUST be the first
              one in the platform-app feature
         -->
-        <feature>platform-configuration-listener</feature>
+        <feature>platform-configuration-migration</feature>
         <feature>platform-security-session</feature>
         <feature>cxf</feature>
         <feature>camel</feature>
