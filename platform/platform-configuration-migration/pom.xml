@@ -20,8 +20,8 @@
         <groupId>ddf.platform</groupId>
         <version>2.9.0-SNAPSHOT</version>
     </parent>
-    <artifactId>platform-configuration-listener</artifactId>
-    <name>DDF :: Platform :: Configuration :: Listener</name>
+    <artifactId>platform-configuration-migration</artifactId>
+    <name>DDF :: Platform :: Configuration :: Migration</name>
     <description>
         Provisions DDF based on configuration files existing at startup in /etc directory or added
         afterwards

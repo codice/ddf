@@ -63,7 +63,7 @@
             </dependency>
             <dependency>
                 <groupId>ddf.platform</groupId>
-                <artifactId>platform-configuration-listener</artifactId>
+                <artifactId>platform-configuration-migration</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
@@ -299,7 +299,7 @@
     <modules>
         <module>util</module>
         <module>platform-configuration</module>
-        <module>platform-configuration-listener</module>
+        <module>platform-configuration-migration</module>
         <module>parser</module>
         <module>action</module>
         <module>compression</module>

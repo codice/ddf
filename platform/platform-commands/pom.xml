@@ -38,7 +38,7 @@
         </dependency>
         <dependency>
             <groupId>ddf.platform</groupId>
-            <artifactId>platform-configuration-listener</artifactId>
+            <artifactId>platform-configuration-migration</artifactId>
         </dependency>
         <dependency>
             <groupId>ddf.lib</groupId>
