@@ -24,30 +24,30 @@ import java.io.InputStream;
 import java.io.ObjectOutputStream;
 import java.security.NoSuchAlgorithmException;
 
-import org.codice.ddf.checksum.impl.CRC32ChecksumProvider;
+import org.codice.ddf.checksum.impl.Adler32ChecksumProvider;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
-public class TestCRCChecksumProvider {
+public class TestAdler32ChecksumProvider {
 
-    private static final XLogger LOGGER = new XLogger(
-            LoggerFactory.getLogger(TestCRCChecksumProvider.class));
+    private static final XLogger LOGGER = new XLogger(LoggerFactory.getLogger(
+            TestAdler32ChecksumProvider.class));
 
     private ChecksumProvider checksumProvider;
 
     @Before
     public void intialize() {
-        checksumProvider = new CRC32ChecksumProvider();
+        checksumProvider = new Adler32ChecksumProvider();
     }
 
     @Test
     public void testCalculateCheckSumString() throws IOException, NoSuchAlgorithmException {
 
         String testString = "Hello World";
-        String checksumCompareHash = "c35ef163";
+        String checksumCompareHash = "3b0e063a";
 
         InputStream stringInputStream = getInputStreamFromObject(testString);
         String checksumValue = checksumProvider.calculateChecksum(stringInputStream);
@@ -65,7 +65,7 @@ public class TestCRCChecksumProvider {
         obj.setName("Test Name");
         obj.setDescription("Test Description");
 
-        String checksumCompareHash = "44e13aef";
+        String checksumCompareHash = "3cb331e";
 
         InputStream stringInputStream = getInputStreamFromObject(obj);
         String checksumValue = checksumProvider.calculateChecksum(stringInputStream);
@@ -86,12 +86,12 @@ public class TestCRCChecksumProvider {
     @Test
     public void testGetCheckSumAlgorithm() {
 
-        String expectedAlgorithm = "CRC32";
+        String expectedAlgorithm = "Adler32";
         String checksumAlgorithm = checksumProvider.getChecksumAlgorithm();
 
         //we want to make sure that the checksum algrithm
         //returned does not change in the event their exists
-        //checks against the 'CRC32'
+        //checks against the 'Adler32'
         assertThat(expectedAlgorithm, is(checksumAlgorithm));
     }
 

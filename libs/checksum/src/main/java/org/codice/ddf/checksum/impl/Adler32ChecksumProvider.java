@@ -15,33 +15,44 @@ package org.codice.ddf.checksum.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.util.zip.Adler32;
+import java.util.zip.CRC32;
+import java.util.zip.CheckedInputStream;
+import java.util.zip.Checksum;
 
 import org.apache.commons.io.IOUtils;
 import org.codice.ddf.checksum.AbstractChecksumProvider;
 import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
-public class MD5ChecksumProvider extends AbstractChecksumProvider {
+/**
+ * The Adler32 checksum algorithm is nearly as reliable as CRC32 but is significantly faster.
+ * For the purposes of identifying potential duplicate content in DDF, Adler32 is sufficiently
+ * accurate.
+ */
+public class Adler32ChecksumProvider extends AbstractChecksumProvider {
 
-    private static final String DIGEST_ALGORITHM = "MD5";
-
-    private static final XLogger LOGGER = new XLogger(
-            LoggerFactory.getLogger(MD5ChecksumProvider.class));
+    private static final String DIGEST_ALGORITHM = "Adler32";
 
     @Override
-    public String calculateChecksum(InputStream inputStream)
-            throws IOException, NoSuchAlgorithmException {
+    public String calculateChecksum(InputStream inputStream) throws IOException {
 
         if (inputStream == null) {
             throw new IllegalArgumentException("InputStream cannot be null");
         }
 
-        byte[] bytes = IOUtils.toByteArray(inputStream);
-        MessageDigest messageDigest = MessageDigest.getInstance(DIGEST_ALGORITHM);
-        byte[] digested = messageDigest.digest(bytes);
-        return bytesToHex(digested);
+        long checkSumValue = 0L;
+
+        try (CheckedInputStream cis = new CheckedInputStream(inputStream, new Adler32())) {
+            byte[] buffer = new byte[128];
+            while (cis.read(buffer) >= 0) {
+                // read the input stream to calculate the checksum
+            }
+            checkSumValue = cis.getChecksum()
+                    .getValue();
+        }
+
+        return Long.toHexString(checkSumValue);
     }
 
     @Override
