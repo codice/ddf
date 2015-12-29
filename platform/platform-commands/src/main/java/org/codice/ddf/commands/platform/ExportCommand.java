@@ -18,7 +18,7 @@ import java.util.Collection;
 
 import org.apache.felix.gogo.commands.Command;
 import org.codice.ddf.configuration.migration.ConfigurationMigrationService;
-import org.codice.ddf.configuration.status.MigrationException;
+import org.codice.ddf.configuration.status.MigrationWarning;
 
 /**
  * Executes the export method in {@link ConfigurationMigrationService}.  Configurations
@@ -42,13 +42,13 @@ public class ExportCommand extends PlatformCommands {
     protected Object doExecute() {
         outputInfoMessage(
                 String.format("Exporting current configurations to %s.", defaultExportDirectory));
-        Collection<MigrationException> migrationExceptions = configurationMigrationService
+        Collection<MigrationWarning> migrationWarnings = configurationMigrationService
                 .export(defaultExportDirectory);
-        if (migrationExceptions.isEmpty()) {
+        if (migrationWarnings.isEmpty()) {
             outputSuccessMessage(String.format("Successfully exported all configurations."));
         } else {
-            for (MigrationException migrationException : migrationExceptions) {
-                outputWarningMessage(migrationException.getMessage());
+            for (MigrationWarning migrationWarning : migrationWarnings) {
+                outputWarningMessage(migrationWarning.getMessage());
             }
             outputWarningMessage(String.format("Failed to export all configurations to %s.",
                     defaultExportDirectory));

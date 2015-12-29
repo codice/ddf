@@ -24,7 +24,6 @@ import java.util.Collection;
 import javax.validation.constraints.NotNull;
 
 import org.codice.ddf.configuration.admin.ConfigurationAdminMigration;
-import org.codice.ddf.configuration.status.ConfigurationFileException;
 import org.codice.ddf.configuration.status.MigrationException;
 import org.codice.ddf.configuration.status.MigrationWarning;
 import org.slf4j.Logger;

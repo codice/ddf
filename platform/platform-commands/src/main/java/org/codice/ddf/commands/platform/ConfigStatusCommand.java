@@ -72,6 +72,6 @@ public class ConfigStatusCommand extends PlatformCommands {
     }
     
     private String constructErrorMessage(MigrationWarning configStatus) {
-        return String.format(FAILED_IMPORT_MESSAGE, configStatus.getPath().toString());
+        return String.format(FAILED_IMPORT_MESSAGE, configStatus.getMessage());
     }
 }

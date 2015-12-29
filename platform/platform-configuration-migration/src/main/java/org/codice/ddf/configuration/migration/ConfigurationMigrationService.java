@@ -33,6 +33,7 @@ public interface ConfigurationMigrationService {
      *
      * @param exportDirectory path to export configurations
      * @throws MigrationException thrown if one or more Configurations couldn't be exported
+     * @return MigrationWarning returned if there were non-fatal issues when exporting
      */
-    Collection<MigrationWarning> export(@NotNull Path exportDirectory);
+    Collection<MigrationWarning> export(@NotNull Path exportDirectory) throws MigrationException;
 }

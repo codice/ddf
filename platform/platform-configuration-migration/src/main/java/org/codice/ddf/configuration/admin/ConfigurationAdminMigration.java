@@ -150,15 +150,14 @@ public class ConfigurationAdminMigration implements ChangeListener, Configuratio
     }
 
     public Collection<MigrationWarning> getFailedConfigurationFiles() throws IOException {
-        Collection<MigrationWarning> configStatusMessages = new ArrayList<>();
+        Collection<MigrationWarning> migrationWarnings = new ArrayList<>();
         try (DirectoryStream<Path> stream = getFailedDirectoryStream()) {
             for (Path path : stream) {
-                MigrationWarning configStatus = new MigrationWarning(path.getFileName().toString());
-                configStatusMessages.add(configStatus);
+                migrationWarnings.add(new MigrationWarning(path.getFileName().toString()));
                 LOGGER.debug("Adding [{}] to the failed imports list.", path.toString());
             }
         }
-        return configStatusMessages;
+        return migrationWarnings;
     }
 
     public void export(@NotNull Path exportDirectory) throws MigrationException, IOException {

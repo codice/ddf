@@ -14,8 +14,6 @@
 
 package org.codice.ddf.configuration.admin;
 
-import java.nio.file.Path;
-
 import javax.validation.constraints.NotNull;
 
 /**
@@ -26,9 +24,24 @@ import javax.validation.constraints.NotNull;
 public interface ChangeListener {
 
     /**
+<<<<<<< HEAD:platform/platform-configuration-migration/src/main/java/org/codice/ddf/configuration/admin/ChangeListener.java
      * Method called when a new file has been created.
      *
      * @param file file that was created
      */
     void notify(@NotNull Path file);
+=======
+     * Constructor
+     *
+     * @param message message regarding migration
+     */
+    public MigrationWarning(@NotNull String message) {
+        notNull(message, "message cannot be null");
+        this.message = message;
+    }
+
+    public String getMessage() {
+        return this.message;
+    }
+>>>>>>> DDF-1750 Updates unit tests, fixes compilation errors:platform/platform-configuration-listener/src/main/java/org/codice/ddf/configuration/status/MigrationWarning.java
 }

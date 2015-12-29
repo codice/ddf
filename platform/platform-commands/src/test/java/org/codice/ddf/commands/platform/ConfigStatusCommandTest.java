@@ -57,9 +57,9 @@ public class ConfigStatusCommandTest {
     private static final Collection<MigrationWarning> CONFIG_STATUS_MSGS;
     static {
         Collection<MigrationWarning> configStatus = new ArrayList<>(2);
-        MigrationWarning cs1 = new MigrationWarning(FAILED_CONFIG_FILE1);
+        MigrationWarning cs1 = new MigrationWarning(FAILED_CONFIG_FILE1.toString());
         configStatus.add(cs1);
-        MigrationWarning cs2 = new MigrationWarning(FAILED_CONFIG_FILE2);
+        MigrationWarning cs2 = new MigrationWarning(FAILED_CONFIG_FILE2.toString());
         configStatus.add(cs2);
         CONFIG_STATUS_MSGS = Collections.unmodifiableCollection(configStatus);
     }
