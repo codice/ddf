@@ -21,8 +21,8 @@ import java.util.Collection;
 import javax.validation.constraints.NotNull;
 
 import org.apache.felix.gogo.commands.Command;
-import org.codice.ddf.configuration.status.MigrationWarning;
 import org.codice.ddf.configuration.status.ConfigurationStatusService;
+import org.codice.ddf.configuration.status.MigrationWarning;
 
 @Command(scope = PlatformCommands.NAMESPACE, name = "config-status", description = "Lists import status of configuration files.")
 public class ConfigStatusCommand extends PlatformCommands {
@@ -50,7 +50,7 @@ public class ConfigStatusCommand extends PlatformCommands {
                 return null;
             }
 
-            if (configStatusMessages.isEmpty()){
+            if (configStatusMessages.isEmpty()) {
                 outputSuccessMessage(SUCCESSFUL_IMPORT_MESSAGE);
                 return null;
             }
