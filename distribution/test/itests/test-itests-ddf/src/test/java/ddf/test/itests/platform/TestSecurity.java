@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -138,8 +138,7 @@ public class TestSecurity extends AbstractIntegrationTest {
                     + "kaGiCPT4CCKdy0hx/bG/jSM1ypJnPKrPVrCkYL3Y68pzxvrFNq5NqAFCcBOCNsDN\n"
                     + "fvCSZ/XHvFyGHIuso5wNVxJyvTdhQ+vWbnpiX8qr6vTx2Wgw";
 
-    private static final String GOOD_X509_PATH_TOKEN =
-            "MIIC9DCCAvAwggJZoAMCAQICCQCM3OBWKyKfaTANBgkqhkiG9w0BAQsFADCBhDELMAkGA1UEBhMCVVMxCzAJBgNVBAgTAkFaMQwwCgYDVQQKEwNEREYxDDAKBgNVBAsTA0RldjEZMBcGA1UEAxMQRERGIERlbW8gUm9vdCBDQTExMC8GCSqGSIb3DQEJARYiZW1haWxBZGRyZXNzPWRkZnJvb3RjYUBleGFtcGxlLm9yZzAgFw0xNTEyMTExNTQzMjNaGA8yMTE1MTExNzE1NDMyM1owcDELMAkGA1UEBhMCVVMxCzAJBgNVBAgTAkFaMQwwCgYDVQQKEwNEREYxDDAKBgNVBAsTA0RldjESMBAGA1UEAxMJbG9jYWxob3N0MSQwIgYJKoZIhvcNAQkBFhVsb2NhbGhvc3RAZXhhbXBsZS5vcmcwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAMeCyNZbCTZphHQfB5g8FrgBq1RYzV7ikVw/pVGkz8gx3l3A99s8WtA4mRAeb6n0vTR9yNBOekW4nYOiEOq//YTi/frI1kz0QbEH1s2cI5nFButabD3PYGxUSuapbc+AS7+Pklr0TDI4MRzPPkkTp4wlORQ/a6CfVsNr/mVgL2CfAgMBAAGjezB5MAkGA1UdEwQCMAAwLAYJYIZIAYb4QgENBB8WHU9wZW5TU0wgR2VuZXJhdGVkIENlcnRpZmljYXRlMB0GA1UdDgQWBBSA95QIMyBAHRsd0R4s7C3BreFrsDAfBgNVHSMEGDAWgBThVMeX3wrCv6lfeF47CyvkSBe9xjANBgkqhkiG9w0BAQsFAAOBgQAllrIuFrrDuf7tTvdaGxp/HLRZ8VZaIAUP7Q2fp3kA8cvGAdidvLc7RC60R5Ghogj0+AginctIcf2xv40jNcqSZzyqz1awpGC92OvKc8b6xTauTagBQnATgjbAzX7wkmf1x7xchhyLrKOcDVcScr03YUPr1m56Yl/Kq+r08dloMA==";
+    private static final String GOOD_X509_PATH_TOKEN = "MIIC9DCCAvAwggJZoAMCAQICCQCM3OBWKyKfaTANBgkqhkiG9w0BAQsFADCBhDELMAkGA1UEBhMCVVMxCzAJBgNVBAgTAkFaMQwwCgYDVQQKEwNEREYxDDAKBgNVBAsTA0RldjEZMBcGA1UEAxMQRERGIERlbW8gUm9vdCBDQTExMC8GCSqGSIb3DQEJARYiZW1haWxBZGRyZXNzPWRkZnJvb3RjYUBleGFtcGxlLm9yZzAgFw0xNTEyMTExNTQzMjNaGA8yMTE1MTExNzE1NDMyM1owcDELMAkGA1UEBhMCVVMxCzAJBgNVBAgTAkFaMQwwCgYDVQQKEwNEREYxDDAKBgNVBAsTA0RldjESMBAGA1UEAxMJbG9jYWxob3N0MSQwIgYJKoZIhvcNAQkBFhVsb2NhbGhvc3RAZXhhbXBsZS5vcmcwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAMeCyNZbCTZphHQfB5g8FrgBq1RYzV7ikVw/pVGkz8gx3l3A99s8WtA4mRAeb6n0vTR9yNBOekW4nYOiEOq//YTi/frI1kz0QbEH1s2cI5nFButabD3PYGxUSuapbc+AS7+Pklr0TDI4MRzPPkkTp4wlORQ/a6CfVsNr/mVgL2CfAgMBAAGjezB5MAkGA1UdEwQCMAAwLAYJYIZIAYb4QgENBB8WHU9wZW5TU0wgR2VuZXJhdGVkIENlcnRpZmljYXRlMB0GA1UdDgQWBBSA95QIMyBAHRsd0R4s7C3BreFrsDAfBgNVHSMEGDAWgBThVMeX3wrCv6lfeF47CyvkSBe9xjANBgkqhkiG9w0BAQsFAAOBgQAllrIuFrrDuf7tTvdaGxp/HLRZ8VZaIAUP7Q2fp3kA8cvGAdidvLc7RC60R5Ghogj0+AginctIcf2xv40jNcqSZzyqz1awpGC92OvKc8b6xTauTagBQnATgjbAzX7wkmf1x7xchhyLrKOcDVcScr03YUPr1m56Yl/Kq+r08dloMA==";
 
     private static final String OPENSEARCH_SAML_SOURCE_ID = "openSearchSamlSource";
 
@@ -148,6 +147,127 @@ public class TestSecurity extends AbstractIntegrationTest {
 
     private static final DynamicUrl ADMIN_PATH = new DynamicUrl(SECURE_ROOT_AND_PORT,
             "/admin/index.html");
+
+    //this uses a cert that won't be sent by the TLS connection
+    private static final String BAD_HOK_EXAMPLE =
+            "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n"
+                    + "   <soap:Header>\n"
+                    + "        <Action xmlns=\"http://www.w3.org/2005/08/addressing\">http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue</Action>\n"
+                    + "        <MessageID xmlns=\"http://www.w3.org/2005/08/addressing\">urn:uuid:c0c43e1e-0264-4018-9a58-d1fda4332ab3</MessageID>\n"
+                    + "        <To xmlns=\"http://www.w3.org/2005/08/addressing\">https://localhost:8993/services/SecurityTokenService</To>\n"
+                    + "        <ReplyTo xmlns=\"http://www.w3.org/2005/08/addressing\">\n"
+                    + "            <Address>http://www.w3.org/2005/08/addressing/anonymous</Address>\n"
+                    + "        </ReplyTo>\n"
+                    + "      <wsse:Security soap:mustUnderstand=\"1\" xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\" xmlns:wsu=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\">\n"
+                    + "         <wsu:Timestamp wsu:Id=\"TS-EF182B133DACAE158E14503737766347\">\n"
+                    + "            <wsu:Created>CREATED</wsu:Created>\n"
+                    + "            <wsu:Expires>EXPIRES</wsu:Expires>\n"
+                    + "         </wsu:Timestamp>\n" + "      </wsse:Security>\n"
+                    + "   </soap:Header>\n" + "   <soap:Body>\n"
+                    + "      <wst:RequestSecurityToken xmlns:wst=\"http://docs.oasis-open.org/ws-sx/ws-trust/200512\">\n"
+                    + "         <wst:RequestType>http://docs.oasis-open.org/ws-sx/ws-trust/200512/Issue</wst:RequestType>\n"
+                    + "         <wsp:AppliesTo xmlns:wsp=\"http://schemas.xmlsoap.org/ws/2004/09/policy\">\n"
+                    + "            <wsa:EndpointReference xmlns:wsa=\"http://www.w3.org/2005/08/addressing\">\n"
+                    + "               <wsa:Address>https://localhost:8993/services/SecurityTokenService</wsa:Address>\n"
+                    + "            </wsa:EndpointReference>\n" + "         </wsp:AppliesTo>\n"
+                    + "         <wst:Claims Dialect=\"http://schemas.xmlsoap.org/ws/2005/05/identity\" xmlns:ic=\"http://schemas.xmlsoap.org/ws/2005/05/identity\">\n"
+                    + "            <ic:ClaimType Optional=\"true\" Uri=\"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier\"/>\n"
+                    + "            <ic:ClaimType Optional=\"true\" Uri=\"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress\"/>\n"
+                    + "            <ic:ClaimType Optional=\"true\" Uri=\"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname\"/>\n"
+                    + "            <ic:ClaimType Optional=\"true\" Uri=\"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname\"/>\n"
+                    + "            <ic:ClaimType Optional=\"true\" Uri=\"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role\"/>\n"
+                    + "         </wst:Claims>\n" + "         <wst:OnBehalfOf>\n"
+                    + "            <wsse:UsernameToken xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\">\n"
+                    + "               <wsse:Username>admin</wsse:Username>\n"
+                    + "               <wsse:Password Type=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText\">admin</wsse:Password>\n"
+                    + "            </wsse:UsernameToken>\n" + "         </wst:OnBehalfOf>\n"
+                    + "         <wst:TokenType>http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0</wst:TokenType>\n"
+                    + "         <wst:KeyType>http://docs.oasis-open.org/ws-sx/ws-trust/200512/PublicKey</wst:KeyType>\n"
+                    + "         <wst:UseKey>\n"
+                    + "            <ds:KeyInfo xmlns:ds=\"http://www.w3.org/2000/09/xmldsig#\">\n"
+                    + "               <ds:X509Data>\n"
+                    + "                  <ds:X509Certificate>MIIDcDCCAtmgAwIBAgIJAIzc4FYrIp9qMA0GCSqGSIb3DQEBCwUAMIGEMQswCQYD\n"
+                    + "VQQGEwJVUzELMAkGA1UECBMCQVoxDDAKBgNVBAoTA0RERjEMMAoGA1UECxMDRGV2\n"
+                    + "MRkwFwYDVQQDExBEREYgRGVtbyBSb290IENBMTEwLwYJKoZIhvcNAQkBFiJlbWFp\n"
+                    + "bEFkZHJlc3M9ZGRmcm9vdGNhQGV4YW1wbGUub3JnMCAXDTE1MTIxNzE3MzUzMloY\n"
+                    + "DzIxMTUxMTIzMTczNTMyWjBsMQswCQYDVQQGEwJVUzELMAkGA1UECBMCQVoxDDAK\n"
+                    + "BgNVBAoTA0RERjEMMAoGA1UECxMDRGV2MRAwDgYDVQQDEwdleGFtcGxlMSIwIAYJ\n"
+                    + "KoZIhvcNAQkBFhNleGFtcGxlQGV4YW1wbGUub3JnMIIBIjANBgkqhkiG9w0BAQEF\n"
+                    + "AAOCAQ8AMIIBCgKCAQEAoMoUxCQOxA8INQ1NQQcd4k/pwraU+x58ymGJPWeT+SCA\n"
+                    + "OiD4xJs3qzqC4Ex9tztxUhGyAH56YYaZCtVrJxejYUPbXYRBLuU2ecw3adWJyk2f\n"
+                    + "fL+hyc4eDa640KQ8+W0dz2hI1OPSsI1KzRdaYbe8f1GcWL8TshOZ+o0fC036GOsi\n"
+                    + "szCnqXaQZbObddEMGHWMEPJzToIEUrt/+t3eAeNNF9A/jjhELJrzgaWqJNuEcC3q\n"
+                    + "gfgdeF/itjurRjIkmBDs4VkplUX+JWFPF78pyYcbLEle1dV1ZxZIZv7vFlZYjZn2\n"
+                    + "Qacf+iLQnk3m+tGCtA2Q8DKWCFl/fGtJPoIyHQsmswIDAQABo3sweTAJBgNVHRME\n"
+                    + "AjAAMCwGCWCGSAGG+EIBDQQfFh1PcGVuU1NMIEdlbmVyYXRlZCBDZXJ0aWZpY2F0\n"
+                    + "ZTAdBgNVHQ4EFgQUBicdpPA//+rQjR/DJwD/beoIwREwHwYDVR0jBBgwFoAU4VTH\n"
+                    + "l98Kwr+pX3heOwsr5EgXvcYwDQYJKoZIhvcNAQELBQADgYEALUz4LJAtaGfRpEuC\n"
+                    + "VtjdpQT1E2gL0PXyBgR5jchBVzvHckectvaUh+rHbwATh1jahbk/0/0J53NMEi49\n"
+                    + "TOuYQtmHtiMvl1oBqAke1mJgDPgoGE9T3wWM4FcnA8z7LpBJeo661mchRge+vyW/\n"
+                    + "kVCd/oPtz1DRhKttYBa6LB7gswk=</ds:X509Certificate>\n"
+                    + "               </ds:X509Data>\n" + "            </ds:KeyInfo>\n"
+                    + "         </wst:UseKey>\n" + "         <wst:Renewing/>\n"
+                    + "      </wst:RequestSecurityToken>\n" + "   </soap:Body>\n"
+                    + "</soap:Envelope>";
+
+    //this uses the default localhost cert which will be in the TLS connection
+    private static final String GOOD_HOK_EXAMPLE =
+            "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n"
+                    + "   <soap:Header>\n"
+                    + "        <Action xmlns=\"http://www.w3.org/2005/08/addressing\">http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue</Action>\n"
+                    + "        <MessageID xmlns=\"http://www.w3.org/2005/08/addressing\">urn:uuid:c0c43e1e-0264-4018-9a58-d1fda4332ab3</MessageID>\n"
+                    + "        <To xmlns=\"http://www.w3.org/2005/08/addressing\">https://localhost:8993/services/SecurityTokenService</To>\n"
+                    + "        <ReplyTo xmlns=\"http://www.w3.org/2005/08/addressing\">\n"
+                    + "            <Address>http://www.w3.org/2005/08/addressing/anonymous</Address>\n"
+                    + "        </ReplyTo>\n"
+                    + "      <wsse:Security soap:mustUnderstand=\"1\" xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\" xmlns:wsu=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\">\n"
+                    + "         <wsu:Timestamp wsu:Id=\"TS-EF182B133DACAE158E14503728805225\">\n"
+                    + "            <wsu:Created>CREATED</wsu:Created>\n"
+                    + "            <wsu:Expires>EXPIRES</wsu:Expires>\n"
+                    + "         </wsu:Timestamp>\n" + "      </wsse:Security>\n"
+                    + "   </soap:Header>\n" + "   <soap:Body>\n"
+                    + "      <wst:RequestSecurityToken xmlns:wst=\"http://docs.oasis-open.org/ws-sx/ws-trust/200512\">\n"
+                    + "         <wst:RequestType>http://docs.oasis-open.org/ws-sx/ws-trust/200512/Issue</wst:RequestType>\n"
+                    + "         <wsp:AppliesTo xmlns:wsp=\"http://schemas.xmlsoap.org/ws/2004/09/policy\">\n"
+                    + "            <wsa:EndpointReference xmlns:wsa=\"http://www.w3.org/2005/08/addressing\">\n"
+                    + "               <wsa:Address>https://localhost:8993/services/SecurityTokenService</wsa:Address>\n"
+                    + "            </wsa:EndpointReference>\n" + "         </wsp:AppliesTo>\n"
+                    + "         <wst:Claims Dialect=\"http://schemas.xmlsoap.org/ws/2005/05/identity\" xmlns:ic=\"http://schemas.xmlsoap.org/ws/2005/05/identity\">\n"
+                    + "            <ic:ClaimType Optional=\"true\" Uri=\"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier\"/>\n"
+                    + "            <ic:ClaimType Optional=\"true\" Uri=\"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress\"/>\n"
+                    + "            <ic:ClaimType Optional=\"true\" Uri=\"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname\"/>\n"
+                    + "            <ic:ClaimType Optional=\"true\" Uri=\"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname\"/>\n"
+                    + "            <ic:ClaimType Optional=\"true\" Uri=\"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role\"/>\n"
+                    + "         </wst:Claims>\n" + "         <wst:OnBehalfOf>\n"
+                    + "            <wsse:UsernameToken xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\">\n"
+                    + "               <wsse:Username>admin</wsse:Username>\n"
+                    + "               <wsse:Password Type=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText\">admin</wsse:Password>\n"
+                    + "            </wsse:UsernameToken>\n" + "         </wst:OnBehalfOf>\n"
+                    + "         <wst:TokenType>http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0</wst:TokenType>\n"
+                    + "         <wst:KeyType>http://docs.oasis-open.org/ws-sx/ws-trust/200512/PublicKey</wst:KeyType>\n"
+                    + "         <wst:UseKey>\n"
+                    + "            <ds:KeyInfo xmlns:ds=\"http://www.w3.org/2000/09/xmldsig#\">\n"
+                    + "               <ds:X509Data>\n"
+                    + "                  <ds:X509Certificate>MIIC8DCCAlmgAwIBAgIJAIzc4FYrIp9pMA0GCSqGSIb3DQEBCwUAMIGEMQswCQYD\n"
+                    + "VQQGEwJVUzELMAkGA1UECBMCQVoxDDAKBgNVBAoTA0RERjEMMAoGA1UECxMDRGV2\n"
+                    + "MRkwFwYDVQQDExBEREYgRGVtbyBSb290IENBMTEwLwYJKoZIhvcNAQkBFiJlbWFp\n"
+                    + "bEFkZHJlc3M9ZGRmcm9vdGNhQGV4YW1wbGUub3JnMCAXDTE1MTIxMTE1NDMyM1oY\n"
+                    + "DzIxMTUxMTE3MTU0MzIzWjBwMQswCQYDVQQGEwJVUzELMAkGA1UECBMCQVoxDDAK\n"
+                    + "BgNVBAoTA0RERjEMMAoGA1UECxMDRGV2MRIwEAYDVQQDEwlsb2NhbGhvc3QxJDAi\n"
+                    + "BgkqhkiG9w0BCQEWFWxvY2FsaG9zdEBleGFtcGxlLm9yZzCBnzANBgkqhkiG9w0B\n"
+                    + "AQEFAAOBjQAwgYkCgYEAx4LI1lsJNmmEdB8HmDwWuAGrVFjNXuKRXD+lUaTPyDHe\n"
+                    + "XcD32zxa0DiZEB5vqfS9NH3I0E56Rbidg6IQ6r/9hOL9+sjWTPRBsQfWzZwjmcUG\n"
+                    + "61psPc9gbFRK5qltz4BLv4+SWvRMMjgxHM8+SROnjCU5FD9roJ9Ww2v+ZWAvYJ8C\n"
+                    + "AwEAAaN7MHkwCQYDVR0TBAIwADAsBglghkgBhvhCAQ0EHxYdT3BlblNTTCBHZW5l\n"
+                    + "cmF0ZWQgQ2VydGlmaWNhdGUwHQYDVR0OBBYEFID3lAgzIEAdGx3RHizsLcGt4Wuw\n"
+                    + "MB8GA1UdIwQYMBaAFOFUx5ffCsK/qV94XjsLK+RIF73GMA0GCSqGSIb3DQEBCwUA\n"
+                    + "A4GBACWWsi4WusO5/u1O91obGn8ctFnxVlogBQ/tDZ+neQDxy8YB2J28tztELrRH\n"
+                    + "kaGiCPT4CCKdy0hx/bG/jSM1ypJnPKrPVrCkYL3Y68pzxvrFNq5NqAFCcBOCNsDN\n"
+                    + "fvCSZ/XHvFyGHIuso5wNVxJyvTdhQ+vWbnpiX8qr6vTx2Wgw</ds:X509Certificate>\n"
+                    + "               </ds:X509Data>\n" + "            </ds:KeyInfo>\n"
+                    + "         </wst:UseKey>\n" + "         <wst:Renewing/>\n"
+                    + "      </wst:RequestSecurityToken>\n" + "   </soap:Body>\n"
+                    + "</soap:Envelope>";
 
     @BeforeExam
     public void beforeTest() throws Exception {
@@ -179,17 +299,36 @@ public class TestSecurity extends AbstractIntegrationTest {
         String url = SERVICE_ROOT.getUrl() + "/catalog/query?q=*";
 
         //test that guest works and check that we get an sso token
-        String cookie = when().get(url).then().log().all().assertThat().statusCode(equalTo(200))
-                .assertThat().header("Set-Cookie", containsString("JSESSIONID")).extract()
+        String cookie = when().get(url)
+                .then()
+                .log()
+                .all()
+                .assertThat()
+                .statusCode(equalTo(200))
+                .assertThat()
+                .header("Set-Cookie", containsString("JSESSIONID"))
+                .extract()
                 .cookie("JSESSIONID");
 
         //try again with the sso token
-        given().cookie("JSESSIONID", cookie).when().get(url).then().log().all().assertThat()
+        given().cookie("JSESSIONID", cookie)
+                .when()
+                .get(url)
+                .then()
+                .log()
+                .all()
+                .assertThat()
                 .statusCode(equalTo(200));
 
         //try to hit an admin restricted page and see that we are unauthorized
-        given().cookie("JSESSIONID", cookie).when().get(ADMIN_PATH.getUrl()).then().log().all()
-                .assertThat().statusCode(equalTo(403));
+        given().cookie("JSESSIONID", cookie)
+                .when()
+                .get(ADMIN_PATH.getUrl())
+                .then()
+                .log()
+                .all()
+                .assertThat()
+                .statusCode(equalTo(403));
     }
 
     @Test
@@ -199,24 +338,58 @@ public class TestSecurity extends AbstractIntegrationTest {
         configureRestForBasic();
 
         //test that we get a 401 if no credentials are specified
-        when().get(url).then().log().all().assertThat().statusCode(equalTo(401));
+        when().get(url)
+                .then()
+                .log()
+                .all()
+                .assertThat()
+                .statusCode(equalTo(401));
 
         //try a random user and get a 401
-        given().auth().basic("bad", "user").when().get(url).then().log().all().assertThat()
+        given().auth()
+                .basic("bad", "user")
+                .when()
+                .get(url)
+                .then()
+                .log()
+                .all()
+                .assertThat()
                 .statusCode(equalTo(401));
 
         //try a real user and get an sso token back
-        String cookie = given().auth().basic("admin", "admin").when().get(url).then().log().all()
-                .assertThat().statusCode(equalTo(200)).assertThat()
-                .header("Set-Cookie", containsString("JSESSIONID")).extract().cookie("JSESSIONID");
+        String cookie = given().auth()
+                .basic("admin", "admin")
+                .when()
+                .get(url)
+                .then()
+                .log()
+                .all()
+                .assertThat()
+                .statusCode(equalTo(200))
+                .assertThat()
+                .header("Set-Cookie", containsString("JSESSIONID"))
+                .extract()
+                .cookie("JSESSIONID");
 
         //try the sso token instead of basic auth
-        given().cookie("JSESSIONID", cookie).when().get(url).then().log().all().assertThat()
+        given().cookie("JSESSIONID", cookie)
+                .when()
+                .get(url)
+                .then()
+                .log()
+                .all()
+                .assertThat()
                 .statusCode(equalTo(200));
 
         //try that admin level sso token on a restricted resource and get in... sso works!
-        given().cookie("JSESSIONID", cookie).when().get(ADMIN_PATH.getUrl()).then().log().all()
-                .assertThat().statusCode(equalTo(200));
+        given().cookie("JSESSIONID", cookie)
+                .when()
+                .get(ADMIN_PATH.getUrl())
+                .then()
+                .log()
+                .all()
+                .assertThat()
+                .statusCode(equalTo(200));
     }
 
     @Test
@@ -229,16 +402,25 @@ public class TestSecurity extends AbstractIntegrationTest {
         // use the subject in the request to create a SAML authentication token
         OpenSearchSourceProperties openSearchProperties = new OpenSearchSourceProperties(
                 OPENSEARCH_SAML_SOURCE_ID);
-        getServiceManager()
-                .createManagedService(OpenSearchSourceProperties.FACTORY_PID, openSearchProperties);
+        getServiceManager().createManagedService(OpenSearchSourceProperties.FACTORY_PID,
+                openSearchProperties);
 
         getCatalogBundle().waitForFederatedSource(OPENSEARCH_SAML_SOURCE_ID);
 
         String openSearchQuery =
                 SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=" + OPENSEARCH_SAML_SOURCE_ID;
-        given().auth().basic("admin", "admin").when().get(openSearchQuery).then().log().all()
-                .assertThat().statusCode(equalTo(200)).assertThat().body(hasXPath(
-                "//metacard/string[@name='" + Metacard.TITLE + "']/value[text()='myTitle']"));
+        given().auth()
+                .basic("admin", "admin")
+                .when()
+                .get(openSearchQuery)
+                .then()
+                .log()
+                .all()
+                .assertThat()
+                .statusCode(equalTo(200))
+                .assertThat()
+                .body(hasXPath("//metacard/string[@name='" + Metacard.TITLE
+                        + "']/value[text()='myTitle']"));
 
         configureRestForGuest();
         TestCatalog.deleteMetacard(recordId);
@@ -254,8 +436,8 @@ public class TestSecurity extends AbstractIntegrationTest {
                 OPENSEARCH_SOURCE_ID);
         openSearchProperties.put("username", "admin");
         openSearchProperties.put("password", "admin");
-        getServiceManager()
-                .createManagedService(OpenSearchSourceProperties.FACTORY_PID, openSearchProperties);
+        getServiceManager().createManagedService(OpenSearchSourceProperties.FACTORY_PID,
+                openSearchProperties);
 
         CswSourceProperties cswProperties = new CswSourceProperties(CSW_SOURCE_ID);
         cswProperties.put("username", "admin");
@@ -267,14 +449,32 @@ public class TestSecurity extends AbstractIntegrationTest {
 
         String openSearchQuery =
                 SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=" + OPENSEARCH_SOURCE_ID;
-        given().auth().basic("admin", "admin").when().get(openSearchQuery).then().log().all()
-                .assertThat().statusCode(equalTo(200)).assertThat().body(hasXPath(
-                "//metacard/string[@name='" + Metacard.TITLE + "']/value[text()='myTitle']"));
+        given().auth()
+                .basic("admin", "admin")
+                .when()
+                .get(openSearchQuery)
+                .then()
+                .log()
+                .all()
+                .assertThat()
+                .statusCode(equalTo(200))
+                .assertThat()
+                .body(hasXPath("//metacard/string[@name='" + Metacard.TITLE
+                        + "']/value[text()='myTitle']"));
 
         String cswQuery = SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=" + CSW_SOURCE_ID;
-        given().auth().basic("admin", "admin").when().get(cswQuery).then().log().all().assertThat()
-                .statusCode(equalTo(200)).assertThat().body(hasXPath(
-                "//metacard/string[@name='" + Metacard.TITLE + "']/value[text()='myTitle']"));
+        given().auth()
+                .basic("admin", "admin")
+                .when()
+                .get(cswQuery)
+                .then()
+                .log()
+                .all()
+                .assertThat()
+                .statusCode(equalTo(200))
+                .assertThat()
+                .body(hasXPath("//metacard/string[@name='" + Metacard.TITLE
+                        + "']/value[text()='myTitle']"));
 
         //Negative tests
         String unavailableCswSourceId = "Unavailable Csw";
@@ -285,8 +485,15 @@ public class TestSecurity extends AbstractIntegrationTest {
 
         String cswQueryUnavail =
                 SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=" + unavailableCswSourceId;
-        given().auth().basic("admin", "admin").when().get(cswQueryUnavail).then().log().all()
-                .assertThat().statusCode(equalTo(500));
+        given().auth()
+                .basic("admin", "admin")
+                .when()
+                .get(cswQueryUnavail)
+                .then()
+                .log()
+                .all()
+                .assertThat()
+                .statusCode(equalTo(500));
 
         String unavailableOpenSourceId = "Unavailable OpenSearchSource";
 
@@ -301,9 +508,18 @@ public class TestSecurity extends AbstractIntegrationTest {
         String unavailableOpenSearchQuery =
                 SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=" + unavailableOpenSourceId;
 
-        given().auth().basic("admin", "admin").when().get(unavailableOpenSearchQuery).then().log()
-                .all().assertThat().statusCode(equalTo(200)).assertThat().body(not(hasXPath(
-                "//metacard/string[@name='" + Metacard.TITLE + "']/value[text()='myTitle']")));
+        given().auth()
+                .basic("admin", "admin")
+                .when()
+                .get(unavailableOpenSearchQuery)
+                .then()
+                .log()
+                .all()
+                .assertThat()
+                .statusCode(equalTo(200))
+                .assertThat()
+                .body(not(hasXPath("//metacard/string[@name='" + Metacard.TITLE
+                        + "']/value[text()='myTitle']")));
 
         configureRestForGuest();
         TestCatalog.deleteMetacard(recordId);
@@ -317,9 +533,19 @@ public class TestSecurity extends AbstractIntegrationTest {
                         + "      <hel:helloWorld/>\n" + "   </soapenv:Body>\n"
                         + "</soapenv:Envelope>";
         //we are only testing guest because that hits the most code, testing with an assertion would be mostly testing the same stuff that this is hitting
-        given().log().all().body(body).header("Content-Type", "text/xml; charset=utf-8")
-                .header("SOAPAction", "helloWorld").expect().statusCode(equalTo(200)).when()
-                .post(SERVICE_ROOT.getUrl() + "/sdk/SoapService").then().log().all().assertThat()
+        given().log()
+                .all()
+                .body(body)
+                .header("Content-Type", "text/xml; charset=utf-8")
+                .header("SOAPAction", "helloWorld")
+                .expect()
+                .statusCode(equalTo(200))
+                .when()
+                .post(SERVICE_ROOT.getUrl() + "/sdk/SoapService")
+                .then()
+                .log()
+                .all()
+                .assertThat()
                 .body(HasXPath.hasXPath("//*[local-name()='helloWorldResponse']/result/text()",
                         containsString("Guest")));
     }
@@ -334,9 +560,18 @@ public class TestSecurity extends AbstractIntegrationTest {
                         + "      <hel:helloWorld/>\n" + "   </soapenv:Body>\n"
                         + "</soapenv:Envelope>";
         //we are only testing guest because that hits the most code, testing with an assertion would be mostly testing the same stuff that this is hitting
-        given().log().all().body(body).header("Content-Type", "text/xml; charset=utf-8")
-                .header("SOAPAction", "helloWorld").expect().statusCode(equalTo(200)).when()
-                .post(INSECURE_SERVICE_ROOT.getUrl() + "/sdk/SoapService").then().log().all()
+        given().log()
+                .all()
+                .body(body)
+                .header("Content-Type", "text/xml; charset=utf-8")
+                .header("SOAPAction", "helloWorld")
+                .expect()
+                .statusCode(equalTo(200))
+                .when()
+                .post(INSECURE_SERVICE_ROOT.getUrl() + "/sdk/SoapService")
+                .then()
+                .log()
+                .all()
                 .assertThat()
                 .body(HasXPath.hasXPath("//*[local-name()='helloWorldResponse']/result/text()",
                         containsString("Guest")));
@@ -357,13 +592,23 @@ public class TestSecurity extends AbstractIntegrationTest {
                 + "                </wst:OnBehalfOf>\n";
         String body = getSoapEnvelope(onBehalfOf);
 
-        given().auth().certificate(KEY_STORE_PATH, PASSWORD,
-                certAuthSettings().sslSocketFactory(SSLSocketFactory.getSystemSocketFactory()))
-                .log().all().body(body).header("Content-Type", "text/xml; charset=utf-8")
+        given().auth()
+                .certificate(KEY_STORE_PATH, PASSWORD, certAuthSettings().sslSocketFactory(
+                        SSLSocketFactory.getSystemSocketFactory()))
+                .log()
+                .all()
+                .body(body)
+                .header("Content-Type", "text/xml; charset=utf-8")
                 .header("SOAPAction", "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue")
-                .expect().statusCode(equalTo(200)).when()
-                .post(SERVICE_ROOT.getUrl() + "/SecurityTokenService").then().log().all()
-                .assertThat().body(HasXPath.hasXPath("//*[local-name()='Assertion']"));
+                .expect()
+                .statusCode(equalTo(200))
+                .when()
+                .post(SERVICE_ROOT.getUrl() + "/SecurityTokenService")
+                .then()
+                .log()
+                .all()
+                .assertThat()
+                .body(HasXPath.hasXPath("//*[local-name()='Assertion']"));
     }
 
     @Test
@@ -376,12 +621,22 @@ public class TestSecurity extends AbstractIntegrationTest {
                 + "                </wst:OnBehalfOf>\n";
         String body = getSoapEnvelope(onBehalfOf);
 
-        given().auth().certificate(KEY_STORE_PATH, PASSWORD,
-                certAuthSettings().sslSocketFactory(SSLSocketFactory.getSystemSocketFactory())).
-                log().all().body(body).header("Content-Type", "text/xml; charset=utf-8")
+        given().auth()
+                .certificate(KEY_STORE_PATH, PASSWORD, certAuthSettings().sslSocketFactory(
+                        SSLSocketFactory.getSystemSocketFactory()))
+                .
+                        log()
+                .all()
+                .body(body)
+                .header("Content-Type", "text/xml; charset=utf-8")
                 .header("SOAPAction", "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue")
-                .expect().statusCode(equalTo(500)).when()
-                .post(SERVICE_ROOT.getUrl() + "/SecurityTokenService").then().log().all();
+                .expect()
+                .statusCode(equalTo(500))
+                .when()
+                .post(SERVICE_ROOT.getUrl() + "/SecurityTokenService")
+                .then()
+                .log()
+                .all();
     }
 
     @Test
@@ -392,12 +647,22 @@ public class TestSecurity extends AbstractIntegrationTest {
                 + "                </wst:OnBehalfOf>\n";
         String body = getSoapEnvelope(onBehalfOf);
 
-        given().auth().certificate(KEY_STORE_PATH, PASSWORD,
-                certAuthSettings().sslSocketFactory(SSLSocketFactory.getSystemSocketFactory())).
-                log().all().body(body).header("Content-Type", "text/xml; charset=utf-8")
+        given().auth()
+                .certificate(KEY_STORE_PATH, PASSWORD, certAuthSettings().sslSocketFactory(
+                        SSLSocketFactory.getSystemSocketFactory()))
+                .
+                        log()
+                .all()
+                .body(body)
+                .header("Content-Type", "text/xml; charset=utf-8")
                 .header("SOAPAction", "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue")
-                .expect().statusCode(equalTo(500)).when()
-                .post(SERVICE_ROOT.getUrl() + "/SecurityTokenService").then().log().all();
+                .expect()
+                .statusCode(equalTo(500))
+                .when()
+                .post(SERVICE_ROOT.getUrl() + "/SecurityTokenService")
+                .then()
+                .log()
+                .all();
 
     }
 
@@ -410,13 +675,23 @@ public class TestSecurity extends AbstractIntegrationTest {
                 + GOOD_X509_TOKEN + "</wsse:BinarySecurityToken>\n" + "</wst:OnBehalfOf>\n";
         String body = getSoapEnvelope(onBehalfOf);
 
-        given().auth().certificate(KEY_STORE_PATH, PASSWORD,
-                certAuthSettings().sslSocketFactory(SSLSocketFactory.getSystemSocketFactory()))
-                .log().all().body(body).header("Content-Type", "text/xml; charset=utf-8")
+        given().auth()
+                .certificate(KEY_STORE_PATH, PASSWORD, certAuthSettings().sslSocketFactory(
+                        SSLSocketFactory.getSystemSocketFactory()))
+                .log()
+                .all()
+                .body(body)
+                .header("Content-Type", "text/xml; charset=utf-8")
                 .header("SOAPAction", "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue")
-                .expect().statusCode(equalTo(200)).when()
-                .post(SERVICE_ROOT.getUrl() + "/SecurityTokenService").then().log().all()
-                .assertThat().body(HasXPath.hasXPath("//*[local-name()='Assertion']"));
+                .expect()
+                .statusCode(equalTo(200))
+                .when()
+                .post(SERVICE_ROOT.getUrl() + "/SecurityTokenService")
+                .then()
+                .log()
+                .all()
+                .assertThat()
+                .body(HasXPath.hasXPath("//*[local-name()='Assertion']"));
 
     }
 
@@ -429,13 +704,23 @@ public class TestSecurity extends AbstractIntegrationTest {
                 + GOOD_X509_PATH_TOKEN + "</wsse:BinarySecurityToken>\n" + "</wst:OnBehalfOf>\n";
         String body = getSoapEnvelope(onBehalfOf);
 
-        given().auth().certificate(KEY_STORE_PATH, PASSWORD,
-                certAuthSettings().sslSocketFactory(SSLSocketFactory.getSystemSocketFactory()))
-                .log().all().body(body).header("Content-Type", "text/xml; charset=utf-8")
+        given().auth()
+                .certificate(KEY_STORE_PATH, PASSWORD, certAuthSettings().sslSocketFactory(
+                        SSLSocketFactory.getSystemSocketFactory()))
+                .log()
+                .all()
+                .body(body)
+                .header("Content-Type", "text/xml; charset=utf-8")
                 .header("SOAPAction", "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue")
-                .expect().statusCode(equalTo(200)).when()
-                .post(SERVICE_ROOT.getUrl() + "/SecurityTokenService").then().log().all()
-                .assertThat().body(HasXPath.hasXPath("//*[local-name()='Assertion']"));
+                .expect()
+                .statusCode(equalTo(200))
+                .when()
+                .post(SERVICE_ROOT.getUrl() + "/SecurityTokenService")
+                .then()
+                .log()
+                .all()
+                .assertThat()
+                .body(HasXPath.hasXPath("//*[local-name()='Assertion']"));
 
     }
 
@@ -448,10 +733,18 @@ public class TestSecurity extends AbstractIntegrationTest {
                 + GOOD_X509_PATH_TOKEN + "</wsse:BinarySecurityToken>\n" + "</wst:OnBehalfOf>\n";
         String body = getSoapEnvelope(onBehalfOf);
 
-        given().log().all().body(body).header("Content-Type", "text/xml; charset=utf-8")
+        given().log()
+                .all()
+                .body(body)
+                .header("Content-Type", "text/xml; charset=utf-8")
                 .header("SOAPAction", "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue")
-                .expect().statusCode(equalTo(500)).when()
-                .post(SERVICE_ROOT.getUrl() + "/SecurityTokenService").then().log().all();
+                .expect()
+                .statusCode(equalTo(500))
+                .when()
+                .post(SERVICE_ROOT.getUrl() + "/SecurityTokenService")
+                .then()
+                .log()
+                .all();
 
     }
 
@@ -464,10 +757,18 @@ public class TestSecurity extends AbstractIntegrationTest {
                 + GOOD_X509_TOKEN + "</wsse:BinarySecurityToken>\n" + "</wst:OnBehalfOf>\n";
         String body = getSoapEnvelope(onBehalfOf);
 
-        given().log().all().body(body).header("Content-Type", "text/xml; charset=utf-8")
+        given().log()
+                .all()
+                .body(body)
+                .header("Content-Type", "text/xml; charset=utf-8")
                 .header("SOAPAction", "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue")
-                .expect().statusCode(equalTo(500)).when()
-                .post(SERVICE_ROOT.getUrl() + "/SecurityTokenService").then().log().all();
+                .expect()
+                .statusCode(equalTo(500))
+                .when()
+                .post(SERVICE_ROOT.getUrl() + "/SecurityTokenService")
+                .then()
+                .log()
+                .all();
 
     }
 
@@ -481,12 +782,21 @@ public class TestSecurity extends AbstractIntegrationTest {
                 + "                </wst:OnBehalfOf>\n";
         String body = getSoapEnvelope(onBehalfOf);
 
-        String assertionHeader = given().auth().certificate(KEY_STORE_PATH, PASSWORD,
-                certAuthSettings().sslSocketFactory(SSLSocketFactory.getSystemSocketFactory()))
-                .log().all().body(body).header("Content-Type", "text/xml; charset=utf-8")
+        String assertionHeader = given().auth()
+                .certificate(KEY_STORE_PATH, PASSWORD, certAuthSettings().sslSocketFactory(
+                        SSLSocketFactory.getSystemSocketFactory()))
+                .log()
+                .all()
+                .body(body)
+                .header("Content-Type", "text/xml; charset=utf-8")
                 .header("SOAPAction", "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue")
-                .expect().statusCode(equalTo(200)).when()
-                .post(SERVICE_ROOT.getUrl() + "/SecurityTokenService").then().extract().response()
+                .expect()
+                .statusCode(equalTo(200))
+                .when()
+                .post(SERVICE_ROOT.getUrl() + "/SecurityTokenService")
+                .then()
+                .extract()
+                .response()
                 .asString();
         assertionHeader = assertionHeader.substring(assertionHeader.indexOf("<saml2:Assertion"),
                 assertionHeader.indexOf("</saml2:Assertion>") + "</saml2:Assertion>".length());
@@ -495,11 +805,101 @@ public class TestSecurity extends AbstractIntegrationTest {
 
         //try that admin level assertion token on a restricted resource
         given().header(SecurityConstants.SAML_HEADER_NAME,
-                "SAML " + RestSecurity.deflateAndBase64Encode(assertionHeader)).when()
-                .get(ADMIN_PATH.getUrl()).then().log().all().assertThat().statusCode(equalTo(200));
+                "SAML " + RestSecurity.deflateAndBase64Encode(assertionHeader))
+                .when()
+                .get(ADMIN_PATH.getUrl())
+                .then()
+                .log()
+                .all()
+                .assertThat()
+                .statusCode(equalTo(200));
+    }
+
+    @Test
+    public void testGoodHokSamlAssertionInHeaders() throws Exception {
+        String body = getSoapEnvelope(GOOD_HOK_EXAMPLE, null);
+
+        String assertionHeader = given().auth()
+                .certificate(KEY_STORE_PATH, PASSWORD, certAuthSettings().sslSocketFactory(
+                        SSLSocketFactory.getSystemSocketFactory()))
+                .log()
+                .all()
+                .body(body)
+                .header("Content-Type", "text/xml; charset=utf-8")
+                .header("SOAPAction", "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue")
+                .expect()
+                .statusCode(equalTo(200))
+                .when()
+                .post(SERVICE_ROOT.getUrl() + "/SecurityTokenService")
+                .then()
+                .extract()
+                .response()
+                .asString();
+        assertionHeader = assertionHeader.substring(assertionHeader.indexOf("<saml2:Assertion"),
+                assertionHeader.indexOf("</saml2:Assertion>") + "</saml2:Assertion>".length());
+
+        LOGGER.trace(assertionHeader);
+
+        //try that admin level assertion token on a restricted resource
+        given().auth()
+                .certificate(KEY_STORE_PATH, PASSWORD, certAuthSettings().sslSocketFactory(
+                        SSLSocketFactory.getSystemSocketFactory()))
+                .header(SecurityConstants.SAML_HEADER_NAME,
+                        "SAML " + RestSecurity.deflateAndBase64Encode(assertionHeader))
+                .when()
+                .get(ADMIN_PATH.getUrl())
+                .then()
+                .log()
+                .all()
+                .assertThat()
+                .statusCode(equalTo(200));
+    }
+
+    @Test
+    public void testBadHokSamlAssertionInHeaders() throws Exception {
+        String body = getSoapEnvelope(BAD_HOK_EXAMPLE, null);
+
+        String assertionHeader = given().auth()
+                .certificate(KEY_STORE_PATH, PASSWORD, certAuthSettings().sslSocketFactory(
+                        SSLSocketFactory.getSystemSocketFactory()))
+                .log()
+                .all()
+                .body(body)
+                .header("Content-Type", "text/xml; charset=utf-8")
+                .header("SOAPAction", "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue")
+                .expect()
+                .statusCode(equalTo(200))
+                .when()
+                .post(SERVICE_ROOT.getUrl() + "/SecurityTokenService")
+                .then()
+                .extract()
+                .response()
+                .asString();
+        assertionHeader = assertionHeader.substring(assertionHeader.indexOf("<saml2:Assertion"),
+                assertionHeader.indexOf("</saml2:Assertion>") + "</saml2:Assertion>".length());
+
+        LOGGER.trace(assertionHeader);
+
+        //try that admin level assertion token on a restricted resource
+        given().auth()
+                .certificate(KEY_STORE_PATH, PASSWORD, certAuthSettings().sslSocketFactory(
+                        SSLSocketFactory.getSystemSocketFactory()))
+                .header(SecurityConstants.SAML_HEADER_NAME,
+                        "SAML " + RestSecurity.deflateAndBase64Encode(assertionHeader))
+                .when()
+                .get(ADMIN_PATH.getUrl())
+                .then()
+                .log()
+                .all()
+                .assertThat()
+                .statusCode(equalTo(401));
     }
 
     private String getSoapEnvelope(String onBehalfOf) {
+        return getSoapEnvelope(SOAP_ENV, onBehalfOf);
+    }
+
+    private String getSoapEnvelope(String body, String onBehalfOf) {
         Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.500Z'");
         format.setCalendar(calendar);
@@ -507,8 +907,9 @@ public class TestSecurity extends AbstractIntegrationTest {
         long now = calendar.getTimeInMillis();
         now += 60000;
         String expires = format.format(new Date(now));
-        String body = SOAP_ENV;
-        body = body.replace("ON_BEHALF_OF", onBehalfOf);
+        if (onBehalfOf != null) {
+            body = body.replace("ON_BEHALF_OF", onBehalfOf);
+        }
         body = body.replace("CREATED", created);
         body = body.replace("EXPIRES", expires);
         return body;
@@ -546,16 +947,23 @@ public class TestSecurity extends AbstractIntegrationTest {
             getServiceManager().startFeature(true, featureName);
 
             //Test first operation
-            Response response = given().auth().basic("admin", "admin").when()
+            Response response = given().auth()
+                    .basic("admin", "admin")
+                    .when()
                     .get(certGenPath + "/configureDemoCert/" + commonName);
-            String actualValue = JsonPath.from(response.getBody().asString()).getString("value");
+            String actualValue = JsonPath.from(response.getBody()
+                    .asString())
+                    .getString("value");
             assertThat(actualValue, equalTo(expectedValue));
 
             //Test second operation
-            response = given().auth().basic("admin", "admin").when()
+            response = given().auth()
+                    .basic("admin", "admin")
+                    .when()
                     .get(certGenPath + "/configureDemoCertWithDefaultHostname");
 
-            String jsonString = response.getBody().asString();
+            String jsonString = response.getBody()
+                    .asString();
             JsonPath jsonPath = JsonPath.from(jsonString);
             //If the key value exists, the return value is well-formatted (i.e. not a stacktrace)
             assertThat(jsonPath.getString("value"), notNullValue());
