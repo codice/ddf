@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -15,9 +15,6 @@ package org.codice.ddf.configuration.admin;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.hasEntry;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
@@ -37,12 +34,11 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Dictionary;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.codice.ddf.configuration.status.ConfigurationFileException;
@@ -62,15 +58,40 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.rule.PowerMockRule;
 
 @RunWith(MockitoJUnitRunner.class)
-@PrepareForTest({ConfigurationAdminMigration.class, FileUtils.class})
+@PrepareForTest({ConfigurationAdminMigration.class, FileUtils.class, Files.class})
 public class ConfigurationAdminMigrationTest {
-
-    private static final Path CONFIG_FILE_PATH = Paths.get("/root/etc/exported/etc/pid.config");
-
-    private static final String CONFIG_PID = "pid";
 
     @Rule
     public PowerMockRule rule = new PowerMockRule();
+
+    private static final Path CONFIG_FILES_EXPORT_PATH = Paths.get("/root/etc/exported/etc");
+
+    private static final Path PROCESSED_DIRECTORY_PATH = Paths.get("/root/etc/processed");
+
+    private static final Path CONFIG_FILE_IN_PROCESSED_DIRECTORY = Paths.get("/root/etc/processed");
+
+    private static final Path FAILED_DIRECTORY_PATH = Paths.get("/root/etc/failed");
+
+    private static final Path CONFIG_FILE_IN_FAILED_DIRECTORY = Paths.get("/root/etc/failed");
+
+    private static final Path EXPORTED_DIRECTORY_PATH = Paths.get("/root/etc/exported");
+
+    private static final String CONFIGURATION_FILE_EXTENSION = ".config";
+
+    private static final String FILE_FILTER = "*" + CONFIGURATION_FILE_EXTENSION;
+
+    private static final String CONFIG_PID = "pid";
+
+    private static final Path CONFIG_FILE_PATH = Paths.get(
+            "/root/etc/exported/etc/" + CONFIG_PID + CONFIGURATION_FILE_EXTENSION);
+
+    private static final String CONFIG_FILE_PATH1 = CONFIG_PID + "1" + CONFIGURATION_FILE_EXTENSION;
+
+    private static final String CONFIG_FILE_PATH2 = CONFIG_PID + "2" + CONFIGURATION_FILE_EXTENSION;
+
+    private static final Path CONFIG_PATH1 = (Paths.get("/root/etc")).resolve(CONFIG_FILE_PATH1);
+
+    private static final Path CONFIG_PATH2 = (Paths.get("/root/etc")).resolve(CONFIG_FILE_PATH2);
 
     @Mock
     private DirectoryStream<Path> configurationDirectoryStream;
@@ -80,28 +101,6 @@ public class ConfigurationAdminMigrationTest {
 
     @Mock
     private Iterator<Path> failedDirectoryStreamIterator;
-
-    private Path configFilesExportPath = Paths.get("/root/etc/exported/etc");
-
-    @Mock
-    private Path processedDirectoryPath;
-
-    @Mock
-    private File processedDirectory;
-
-    private Path configFileInProcessedDirectory =
-            Paths.get("/path/to/processed/myConfigFile.config");
-
-    @Mock
-    private Path failedDirectoryPath;
-
-    @Mock
-    private File failedDirectory;
-
-    private Path configFileInFailedDirectory = Paths.get("/path/to/failed/myConfigFile.config");
-
-    @Mock
-    private Path exportedDirectoryPath;
 
     @Mock
     private File exportedDirectory;
@@ -115,16 +114,8 @@ public class ConfigurationAdminMigrationTest {
     @Mock
     private ConfigurationAdmin configurationAdmin;
 
-    private String configurationFileExtension = ".config";
-
     @Mock
     private Iterator<Path> configFilesIterator;
-
-    @Mock
-    private Path configPath1;
-
-    @Mock
-    private Path configPath2;
 
     @Mock
     private ConfigurationFile configFile1;
@@ -141,223 +132,180 @@ public class ConfigurationAdminMigrationTest {
     @Mock
     private MigrationWarning configStatus2;
 
-    // TODO - Remove class and use PowerMock if needed
-    private static class ConfigurationAdminMigrationUnderTest extends ConfigurationAdminMigration {
-
-        public final Map<Path, Path> filesMoved = new HashMap<>();
-
-        public ConfigurationAdminMigrationUnderTest(DirectoryStream<Path> configurationDirectory,
-                Path processedDirectory, Path failedDirectory,
-                ConfigurationFileFactory configurationFileFactory, ConfigurationFilesPoller poller,
-                ConfigurationAdmin configurationAdmin, String configurationFileExtension) {
-            super(configurationDirectory,
-                    processedDirectory,
-                    failedDirectory,
-                    configurationFileFactory,
-                    poller,
-                    configurationAdmin,
-                    configurationFileExtension);
-        }
-
-        @Override
-        void moveFile(Path source, Path destination) throws IOException {
-            filesMoved.put(source, destination);
-        }
-    }
+    @Mock
+    private Path failedDirectory;
 
     @Before
     public void setUp() {
         PowerMockito.mockStatic(Files.class);
         PowerMockito.mockStatic(FileUtils.class);
 
-        when(exportedDirectoryPath.resolve("etc")).thenReturn(configFilesExportPath);
-        when(configPath1.toString()).thenReturn(CONFIG_FILE_PATH.toString());
-
         when(configuration.getPid()).thenReturn(CONFIG_PID);
-        when(processedDirectoryPath.toFile()).thenReturn(processedDirectory);
-        when(failedDirectoryPath.toFile()).thenReturn(failedDirectory);
-        when(exportedDirectoryPath.toFile()).thenReturn(exportedDirectory);
-        when(configFile1.getConfigFilePath()).thenReturn(configPath1);
-        when(configFile2.getConfigFilePath()).thenReturn(configPath2);
+        when(configFile1.getConfigFilePath()).thenReturn(CONFIG_PATH1);
+        when(configFile2.getConfigFilePath()).thenReturn(CONFIG_PATH2);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithNullDirectoryStream() {
         new ConfigurationAdminMigration(null,
-                processedDirectoryPath,
-                failedDirectoryPath,
+                PROCESSED_DIRECTORY_PATH,
+                FAILED_DIRECTORY_PATH,
                 configurationFileFactory,
                 configurationFilePoller,
                 configurationAdmin,
-                configurationFileExtension);
+                CONFIGURATION_FILE_EXTENSION);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithNullProcessedDirectory() {
         new ConfigurationAdminMigration(configurationDirectoryStream,
                 null,
-                failedDirectoryPath,
+                FAILED_DIRECTORY_PATH,
                 configurationFileFactory,
                 configurationFilePoller,
                 configurationAdmin,
-                configurationFileExtension);
+                CONFIGURATION_FILE_EXTENSION);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithNullFailedDirectory() {
         new ConfigurationAdminMigration(configurationDirectoryStream,
-                processedDirectoryPath,
+                PROCESSED_DIRECTORY_PATH,
                 null,
                 configurationFileFactory,
                 configurationFilePoller,
                 configurationAdmin,
-                configurationFileExtension);
+                CONFIGURATION_FILE_EXTENSION);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithNullConfigurationFileFactory() {
         new ConfigurationAdminMigration(configurationDirectoryStream,
-                processedDirectoryPath,
-                failedDirectoryPath,
+                PROCESSED_DIRECTORY_PATH,
+                FAILED_DIRECTORY_PATH,
                 null,
                 configurationFilePoller,
                 configurationAdmin,
-                configurationFileExtension);
+                CONFIGURATION_FILE_EXTENSION);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithNullConfigurationFilePoller() {
         new ConfigurationAdminMigration(configurationDirectoryStream,
-                processedDirectoryPath,
-                failedDirectoryPath,
+                PROCESSED_DIRECTORY_PATH,
+                FAILED_DIRECTORY_PATH,
                 configurationFileFactory,
                 null,
                 configurationAdmin,
-                configurationFileExtension);
+                CONFIGURATION_FILE_EXTENSION);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithNullConfigurationAdmin() {
         new ConfigurationAdminMigration(configurationDirectoryStream,
-                processedDirectoryPath,
-                failedDirectoryPath,
+                PROCESSED_DIRECTORY_PATH,
+                FAILED_DIRECTORY_PATH,
                 configurationFileFactory,
                 configurationFilePoller,
                 null,
-                configurationFileExtension);
+                CONFIGURATION_FILE_EXTENSION);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithNullConfigurationFileExtension() {
         new ConfigurationAdminMigration(configurationDirectoryStream,
-                processedDirectoryPath,
-                failedDirectoryPath,
+                PROCESSED_DIRECTORY_PATH,
+                FAILED_DIRECTORY_PATH,
                 configurationFileFactory,
                 configurationFilePoller,
                 configurationAdmin,
                 null);
     }
 
+    @Test(expected = IOException.class)
+    public void testInitDoesNotCreateExistingProcessedAndFailedDirectories() throws IOException {
+
+        PowerMockito.doThrow(new IOException())
+                .when(FileUtils.class);
+        FileUtils.forceMkdir(PROCESSED_DIRECTORY_PATH.toFile());
+
+        ConfigurationAdminMigration configurationAdminMigration = new ConfigurationAdminMigration(
+                configurationDirectoryStream,
+                PROCESSED_DIRECTORY_PATH,
+                FAILED_DIRECTORY_PATH,
+                configurationFileFactory,
+                configurationFilePoller,
+                configurationAdmin,
+                CONFIGURATION_FILE_EXTENSION);
+
+        configurationAdminMigration.init();
+
+        verify(configurationDirectoryStream).close();
+
+    }
+
+    @Test(expected = IOException.class)
+    public void testInitFailsWhenCreatingProcessedDirectoryFails() throws IOException {
+        PowerMockito.doThrow(new IOException())
+                .when(FileUtils.class);
+        FileUtils.forceMkdir(PROCESSED_DIRECTORY_PATH.toFile());
+
+        ConfigurationAdminMigration configurationAdminMigration =
+                createConfigurationAdminMigratorWithNoFiles();
+
+        configurationAdminMigration.init();
+
+        verifyStatic();
+        FileUtils.forceMkdir(PROCESSED_DIRECTORY_PATH.toFile());
+        verify(configurationDirectoryStream).close();
+    }
+
     @Test
-    public void testInitDoesNotCreateExistingProcessedAndFailedAndExportedDirectories()
-            throws IOException {
-        when(processedDirectory.exists()).thenReturn(true);
-        when(processedDirectory.isDirectory()).thenReturn(true);
-        when(failedDirectory.exists()).thenReturn(true);
-        when(failedDirectory.isDirectory()).thenReturn(true);
+    public void testInitFailsWhenCreatingFailedDirectoryFails() throws IOException {
 
-        ConfigurationAdminMigration configurationAdminMigration =
-                createConfigurationAdminMigratorWithNoFiles();
-        configurationAdminMigration.init();
+        try {
+            PowerMockito.doThrow(new IOException())
+                    .when(FileUtils.class);
+            FileUtils.forceMkdir(FAILED_DIRECTORY_PATH.toFile());
 
-        verify(processedDirectory, never()).mkdir();
-        verify(failedDirectory, never()).mkdir();
-        verify(configurationDirectoryStream).close();
-    }
+            ConfigurationAdminMigration configurationAdminMigration =
+                    createConfigurationAdminMigratorWithNoFiles();
 
-    @Test(expected = IOException.class)
-    public void testInitFailsWhenProcessedDirectoryExistsButIsNotADirectory() throws IOException {
-        when(processedDirectory.exists()).thenReturn(true);
-        when(processedDirectory.isDirectory()).thenReturn(false);
-        when(failedDirectory.exists()).thenReturn(true);
-        when(failedDirectory.isDirectory()).thenReturn(true);
+            configurationAdminMigration.init();
+        } catch (IOException e) {
 
-        ConfigurationAdminMigration configurationAdminMigration =
-                createConfigurationAdminMigratorWithNoFiles();
-        configurationAdminMigration.init();
-        verify(configurationDirectoryStream).close();
-    }
-
-    @Test(expected = IOException.class)
-    public void testInitFailsWhenFailedDirectoryExistsButIsNotADirectory() throws IOException {
-        when(processedDirectory.exists()).thenReturn(true);
-        when(processedDirectory.isDirectory()).thenReturn(true);
-        when(failedDirectory.exists()).thenReturn(true);
-        when(failedDirectory.isDirectory()).thenReturn(false);
-
-        ConfigurationAdminMigration configurationAdminMigration =
-                createConfigurationAdminMigratorWithNoFiles();
-        configurationAdminMigration.init();
-        verify(configurationDirectoryStream).close();
+            verifyStatic();
+            FileUtils.forceMkdir(FAILED_DIRECTORY_PATH.toFile());
+        }
     }
 
     @Test
     public void testInitCreatesProcessedDirectory() throws IOException {
-        when(processedDirectory.exists()).thenReturn(false);
-        when(processedDirectory.mkdir()).thenReturn(true);
-        when(failedDirectory.exists()).thenReturn(true);
-        when(failedDirectory.isDirectory()).thenReturn(true);
 
         ConfigurationAdminMigration configurationAdminMigration =
                 createConfigurationAdminMigratorWithNoFiles();
+
         configurationAdminMigration.init();
 
-        verify(processedDirectory).mkdir();
+        verifyStatic();
+        FileUtils.forceMkdir(PROCESSED_DIRECTORY_PATH.toFile());
         verify(configurationDirectoryStream).close();
     }
 
     @Test
     public void testInitCreatesFailedDirectory() throws IOException {
-        when(processedDirectory.exists()).thenReturn(true);
-        when(processedDirectory.isDirectory()).thenReturn(true);
-        when(failedDirectory.exists()).thenReturn(false);
-        when(failedDirectory.mkdir()).thenReturn(true);
 
         ConfigurationAdminMigration configurationAdminMigration =
                 createConfigurationAdminMigratorWithNoFiles();
         configurationAdminMigration.init();
 
-        verify(failedDirectory).mkdir();
-        verify(configurationDirectoryStream).close();
-    }
-
-    @Test(expected = IOException.class)
-    public void testInitFailsToCreateProcessedDirectory() throws IOException {
-        when(processedDirectory.exists()).thenReturn(false);
-        when(processedDirectory.mkdir()).thenReturn(false);
-        when(failedDirectory.exists()).thenReturn(false);
-
-        ConfigurationAdminMigration configurationAdminMigration =
-                createConfigurationAdminMigratorWithNoFiles();
-        configurationAdminMigration.init();
-        verify(configurationDirectoryStream).close();
-    }
-
-    @Test(expected = IOException.class)
-    public void testInitFailsToCreateFailedDirectory() throws IOException {
-        when(processedDirectory.exists()).thenReturn(false);
-        when(failedDirectory.exists()).thenReturn(false);
-        when(failedDirectory.mkdir()).thenReturn(false);
-
-        ConfigurationAdminMigration configurationAdminMigration =
-                createConfigurationAdminMigratorWithNoFiles();
-        configurationAdminMigration.init();
+        verifyStatic();
+        FileUtils.forceMkdir(FAILED_DIRECTORY_PATH.toFile());
         verify(configurationDirectoryStream).close();
     }
 
     @Test
     public void testInitRegistersForEvents() throws IOException {
-        setUpDefaultDirectoryExpectations();
 
         ConfigurationAdminMigration configurationAdminMigration =
                 createConfigurationAdminMigratorWithNoFiles();
@@ -369,7 +317,6 @@ public class ConfigurationAdminMigrationTest {
 
     @Test
     public void testInitNoFiles() throws Exception {
-        setUpDefaultDirectoryExpectations();
 
         ConfigurationAdminMigration configurationAdminMigration =
                 createConfigurationAdminMigratorWithNoFiles();
@@ -382,149 +329,156 @@ public class ConfigurationAdminMigrationTest {
 
     @Test
     public void testInitConfigurationFileCreationWhenMultipleFilesExist() throws Exception {
-        setUpDefaultDirectoryExpectations();
+
         setUpTwoConfigFileIterator(configurationDirectoryStream);
         setUpConfigurationFileFactoryForTwoFiles();
 
-        ConfigurationAdminMigrationUnderTest configurationAdminMigrator =
-                new ConfigurationAdminMigrationUnderTest(configurationDirectoryStream,
-                        processedDirectoryPath,
-                        failedDirectoryPath,
-                        configurationFileFactory,
-                        configurationFilePoller,
-                        configurationAdmin,
-                        configurationFileExtension);
+        ConfigurationAdminMigration configurationAdminMigration = new ConfigurationAdminMigration(
+                configurationDirectoryStream,
+                PROCESSED_DIRECTORY_PATH,
+                FAILED_DIRECTORY_PATH,
+                configurationFileFactory,
+                configurationFilePoller,
+                configurationAdmin,
+                CONFIGURATION_FILE_EXTENSION);
 
-        configurationAdminMigrator.init();
+        configurationAdminMigration.init();
 
         verify(configurationDirectoryStream).iterator();
-        verify(configurationFileFactory).createConfigurationFile(configPath1);
+        verify(configurationFileFactory).createConfigurationFile(CONFIG_PATH1);
         verify(configFile1).createConfig();
-        verify(configurationFileFactory).createConfigurationFile(configPath2);
+        verify(configurationFileFactory).createConfigurationFile(CONFIG_PATH2);
         verify(configFile2).createConfig();
         verify(configurationDirectoryStream).close();
     }
 
     @Test
     public void testInitMovesFilesToProcessedDirectory() throws Exception {
-        setUpDefaultDirectoryExpectations();
+
         setUpTwoConfigFileIterator(configurationDirectoryStream);
         setUpConfigurationFileFactoryForTwoFiles();
 
-        ConfigurationAdminMigrationUnderTest configurationAdminMigrator =
-                new ConfigurationAdminMigrationUnderTest(configurationDirectoryStream,
-                        processedDirectoryPath,
-                        failedDirectoryPath,
-                        configurationFileFactory,
-                        configurationFilePoller,
-                        configurationAdmin,
-                        configurationFileExtension);
+        when(Files.move(CONFIG_PATH1, PROCESSED_DIRECTORY_PATH, REPLACE_EXISTING)).thenReturn(
+                PROCESSED_DIRECTORY_PATH);
+
+        when(Files.move(CONFIG_PATH2, PROCESSED_DIRECTORY_PATH, REPLACE_EXISTING)).thenReturn(
+                PROCESSED_DIRECTORY_PATH);
+
+        ConfigurationAdminMigration configurationAdminMigrator = new ConfigurationAdminMigration(
+                configurationDirectoryStream,
+                PROCESSED_DIRECTORY_PATH,
+                FAILED_DIRECTORY_PATH,
+                configurationFileFactory,
+                configurationFilePoller,
+                configurationAdmin,
+                CONFIGURATION_FILE_EXTENSION);
 
         configurationAdminMigrator.init();
 
-        assertThat("Too many files moved",
-                configurationAdminMigrator.filesMoved.keySet(),
-                hasSize(2));
-        assertThat("Configuration file 1 not moved to the processed directory",
-                configurationAdminMigrator.filesMoved,
-                hasEntry(configPath1, processedDirectoryPath));
-        assertThat("Configuration file 2 not moved to the processed directory",
-                configurationAdminMigrator.filesMoved,
-                hasEntry(configPath2, processedDirectoryPath));
+        verifyStatic();
+        Files.move(CONFIG_PATH1,
+                CONFIG_FILE_IN_PROCESSED_DIRECTORY.resolve(CONFIG_FILE_PATH1),
+                REPLACE_EXISTING);
+        Files.move(CONFIG_PATH2, CONFIG_FILE_IN_PROCESSED_DIRECTORY, REPLACE_EXISTING);
         verify(configurationDirectoryStream).close();
     }
 
     @Test
     public void testInitProcessesAllFilesEvenIfFirstOneHasAnInvalidType() throws Exception {
-        setUpDefaultDirectoryExpectations();
+
         setUpTwoConfigFileIterator(configurationDirectoryStream);
 
-        when(configurationFileFactory.createConfigurationFile(configPath1)).thenThrow(new ConfigurationFileException(
+        when(configurationFileFactory.createConfigurationFile(CONFIG_PATH1)).thenThrow(new ConfigurationFileException(
                 ""));
-        when(configurationFileFactory.createConfigurationFile(configPath2)).thenReturn(configFile2);
+        when(configurationFileFactory.createConfigurationFile(CONFIG_PATH2)).thenReturn(configFile2);
 
-        ConfigurationAdminMigrationUnderTest configurationAdminMigrator =
-                new ConfigurationAdminMigrationUnderTest(configurationDirectoryStream,
-                        processedDirectoryPath,
-                        failedDirectoryPath,
-                        configurationFileFactory,
-                        configurationFilePoller,
-                        configurationAdmin,
-                        configurationFileExtension);
+        ConfigurationAdminMigration configurationAdminMigrator = new ConfigurationAdminMigration(
+                configurationDirectoryStream,
+                PROCESSED_DIRECTORY_PATH,
+                FAILED_DIRECTORY_PATH,
+                configurationFileFactory,
+                configurationFilePoller,
+                configurationAdmin,
+                CONFIGURATION_FILE_EXTENSION);
 
         configurationAdminMigrator.init();
 
         verify(configurationDirectoryStream).iterator();
-        verify(configurationFileFactory).createConfigurationFile(configPath1);
+        verify(configurationFileFactory).createConfigurationFile(CONFIG_PATH1);
         verify(configFile1, never()).createConfig();
-        verify(configurationFileFactory).createConfigurationFile(configPath2);
+        verify(configurationFileFactory).createConfigurationFile(CONFIG_PATH2);
         verify(configFile2).createConfig();
         verify(configurationDirectoryStream).close();
     }
 
     @Test
     public void testInitProcessesAllFilesEvenIfFirstOneCannotBeRead() throws Exception {
-        setUpDefaultDirectoryExpectations();
+
         setUpTwoConfigFileIterator(configurationDirectoryStream);
         setUpConfigurationFileFactoryForTwoFiles();
 
         doThrow(new ConfigurationFileException("")).when(configFile1)
                 .createConfig();
 
-        ConfigurationAdminMigrationUnderTest configurationAdminMigrator =
-                new ConfigurationAdminMigrationUnderTest(configurationDirectoryStream,
-                        processedDirectoryPath,
-                        failedDirectoryPath,
-                        configurationFileFactory,
-                        configurationFilePoller,
-                        configurationAdmin,
-                        configurationFileExtension);
+        ConfigurationAdminMigration configurationAdminMigrator = new ConfigurationAdminMigration(
+                configurationDirectoryStream,
+                PROCESSED_DIRECTORY_PATH,
+                FAILED_DIRECTORY_PATH,
+                configurationFileFactory,
+                configurationFilePoller,
+                configurationAdmin,
+                CONFIGURATION_FILE_EXTENSION);
 
         configurationAdminMigrator.init();
 
         verify(configurationDirectoryStream).iterator();
-        verify(configurationFileFactory).createConfigurationFile(configPath1);
-        verify(configurationFileFactory).createConfigurationFile(configPath2);
+        verify(configurationFileFactory).createConfigurationFile(CONFIG_PATH1);
+        verify(configurationFileFactory).createConfigurationFile(CONFIG_PATH2);
         verify(configFile2).createConfig();
         verify(configurationDirectoryStream).close();
     }
 
     @Test
     public void testInitMovesFilesWithAnInvalidTypeToFailedDirectory() throws Exception {
-        setUpDefaultDirectoryExpectations();
+
         setUpTwoConfigFileIterator(configurationDirectoryStream);
 
-        when(configurationFileFactory.createConfigurationFile(configPath1)).thenThrow(new ConfigurationFileException(
+        when(configurationFileFactory.createConfigurationFile(CONFIG_PATH1)).thenThrow(new ConfigurationFileException(
                 ""));
-        when(configurationFileFactory.createConfigurationFile(configPath2)).thenThrow(new ConfigurationFileException(
+        when(configurationFileFactory.createConfigurationFile(CONFIG_PATH2)).thenThrow(new ConfigurationFileException(
                 ""));
+        when(Files.move(CONFIG_PATH1, PROCESSED_DIRECTORY_PATH, REPLACE_EXISTING)).thenReturn(
+                FAILED_DIRECTORY_PATH);
+        when(Files.move(CONFIG_PATH2, PROCESSED_DIRECTORY_PATH, REPLACE_EXISTING)).thenReturn(
+                FAILED_DIRECTORY_PATH);
 
-        ConfigurationAdminMigrationUnderTest configurationAdminMigrator =
-                new ConfigurationAdminMigrationUnderTest(configurationDirectoryStream,
-                        processedDirectoryPath,
-                        failedDirectoryPath,
-                        configurationFileFactory,
-                        configurationFilePoller,
-                        configurationAdmin,
-                        configurationFileExtension);
+        ConfigurationAdminMigration configurationAdminMigration = new ConfigurationAdminMigration(
+                configurationDirectoryStream,
+                PROCESSED_DIRECTORY_PATH,
+                FAILED_DIRECTORY_PATH,
+                configurationFileFactory,
+                configurationFilePoller,
+                configurationAdmin,
+                CONFIGURATION_FILE_EXTENSION);
 
-        configurationAdminMigrator.init();
+        configurationAdminMigration.init();
 
-        assertThat("Too many files moved",
-                configurationAdminMigrator.filesMoved.keySet(),
-                hasSize(2));
-        assertThat("Configuration file 1 not moved to the failed directory",
-                configurationAdminMigrator.filesMoved,
-                hasEntry(configPath1, failedDirectoryPath));
-        assertThat("Configuration file 2 not moved to the failed directory",
-                configurationAdminMigrator.filesMoved,
-                hasEntry(configPath2, failedDirectoryPath));
+        verifyStatic();
+        Files.move(CONFIG_PATH1,
+                CONFIG_FILE_IN_FAILED_DIRECTORY.resolve(CONFIG_FILE_PATH1),
+                REPLACE_EXISTING);
+        Files.move(CONFIG_PATH2,
+                CONFIG_FILE_IN_FAILED_DIRECTORY.resolve(CONFIG_FILE_PATH2),
+                REPLACE_EXISTING);
+        verify(configurationDirectoryStream).iterator();
+        verify(configurationFileFactory).createConfigurationFile(CONFIG_PATH1);
+        verify(configurationFileFactory).createConfigurationFile(CONFIG_PATH2);
         verify(configurationDirectoryStream).close();
     }
 
     @Test
     public void testInitMovesFilesThatCannotBeReadToFailedDirectory() throws Exception {
-        setUpDefaultDirectoryExpectations();
+
         setUpTwoConfigFileIterator(configurationDirectoryStream);
         setUpConfigurationFileFactoryForTwoFiles();
 
@@ -533,56 +487,66 @@ public class ConfigurationAdminMigrationTest {
         doThrow(new ConfigurationFileException("")).when(configFile2)
                 .createConfig();
 
-        ConfigurationAdminMigrationUnderTest configurationAdminMigrator =
-                new ConfigurationAdminMigrationUnderTest(configurationDirectoryStream,
-                        processedDirectoryPath,
-                        failedDirectoryPath,
-                        configurationFileFactory,
-                        configurationFilePoller,
-                        configurationAdmin,
-                        configurationFileExtension);
+        when(Files.move(CONFIG_PATH1, PROCESSED_DIRECTORY_PATH, REPLACE_EXISTING)).thenReturn(
+                FAILED_DIRECTORY_PATH);
 
-        configurationAdminMigrator.init();
+        when(Files.move(CONFIG_PATH2, PROCESSED_DIRECTORY_PATH, REPLACE_EXISTING)).thenReturn(
+                FAILED_DIRECTORY_PATH);
 
-        assertThat("Too many files moved",
-                configurationAdminMigrator.filesMoved.keySet(),
-                hasSize(2));
-        assertThat("Configuration file 1 not moved to the failed directory",
-                configurationAdminMigrator.filesMoved,
-                hasEntry(configPath1, failedDirectoryPath));
-        assertThat("Configuration file 2 not moved to the failed directory",
-                configurationAdminMigrator.filesMoved,
-                hasEntry(configPath2, failedDirectoryPath));
-        verify(configurationDirectoryStream).close();
-    }
-
-    @Test
-    public void testInitStillProcessesFilesWhenTheyCannotBeMovedToProcessedDirectory()
-            throws Exception {
-        setUpDefaultDirectoryExpectations();
-        setUpTwoConfigFileIterator(configurationDirectoryStream);
-        setUpConfigurationFileFactoryForTwoFiles();
-
-        ConfigurationAdminMigration configurationAdminMigration = new ConfigurationAdminMigration(
+        ConfigurationAdminMigration configurationAdminMigrator = new ConfigurationAdminMigration(
                 configurationDirectoryStream,
-                processedDirectoryPath,
-                failedDirectoryPath,
+                PROCESSED_DIRECTORY_PATH,
+                FAILED_DIRECTORY_PATH,
                 configurationFileFactory,
                 configurationFilePoller,
                 configurationAdmin,
-                configurationFileExtension) {
-            @Override
-            void moveFile(Path source, Path destination) throws IOException {
-                throw new IOException();
-            }
-        };
+                CONFIGURATION_FILE_EXTENSION);
+
+        configurationAdminMigrator.init();
+
+        verifyStatic();
+        Files.move(CONFIG_PATH1,
+                CONFIG_FILE_IN_FAILED_DIRECTORY.resolve(CONFIG_FILE_PATH1),
+                REPLACE_EXISTING);
+        Files.move(CONFIG_PATH2,
+                CONFIG_FILE_IN_FAILED_DIRECTORY.resolve(CONFIG_FILE_PATH2),
+                REPLACE_EXISTING);
+        verify(configurationDirectoryStream).close();
+    }
+
+    @Test(expected = IOException.class)
+    public void testInitStillProcessesFilesWhenTheyCannotBeMovedToProcessedDirectory()
+            throws Exception {
+
+        PowerMockito.doThrow(new IOException())
+                .when(Files.class);
+        Files.newDirectoryStream(any(Path.class), any(String.class));
+
+        setUpTwoConfigFileIterator(configurationDirectoryStream);
+        setUpConfigurationFileFactoryForTwoFiles();
+
+        when(Files.newDirectoryStream(any(Path.class), any(String.class))).thenReturn(
+                failedDirectoryStream);
+
+        ConfigurationAdminMigration configurationAdminMigration = new ConfigurationAdminMigration(
+                configurationDirectoryStream,
+                PROCESSED_DIRECTORY_PATH,
+                FAILED_DIRECTORY_PATH,
+                configurationFileFactory,
+                configurationFilePoller,
+                configurationAdmin,
+                CONFIGURATION_FILE_EXTENSION);
 
         configurationAdminMigration.init();
 
+        verifyStatic();
+        Files.move(any(Path.class), any(Path.class));
+        Files.newDirectoryStream(any(Path.class), any(String.class));
+
         verify(configurationDirectoryStream).iterator();
-        verify(configurationFileFactory).createConfigurationFile(configPath1);
+        verify(configurationFileFactory).createConfigurationFile(CONFIG_PATH1);
         verify(configFile1).createConfig();
-        verify(configurationFileFactory).createConfigurationFile(configPath2);
+        verify(configurationFileFactory).createConfigurationFile(CONFIG_PATH2);
         verify(configFile2).createConfig();
         verify(configurationDirectoryStream).close();
     }
@@ -590,197 +554,195 @@ public class ConfigurationAdminMigrationTest {
     @Test
     public void testInitStillProcessesFilesWhenTheyCannotBeMovedToFailedDirectory()
             throws Exception {
-        setUpDefaultDirectoryExpectations();
+
         setUpTwoConfigFileIterator(configurationDirectoryStream);
 
-        when(configurationFileFactory.createConfigurationFile(configPath1)).thenThrow(new ConfigurationFileException(
+        when(configurationFileFactory.createConfigurationFile(CONFIG_PATH1)).thenThrow(new ConfigurationFileException(
                 ""));
-        when(configurationFileFactory.createConfigurationFile(configPath2)).thenThrow(new ConfigurationFileException(
+        when(configurationFileFactory.createConfigurationFile(CONFIG_PATH2)).thenThrow(new ConfigurationFileException(
                 ""));
+
+        PowerMockito.doThrow(new IOException())
+                .when(Files.class);
+        Files.move(any(Path.class), any(Path.class), any(StandardCopyOption.class));
 
         ConfigurationAdminMigration configurationAdminMigration = new ConfigurationAdminMigration(
                 configurationDirectoryStream,
-                processedDirectoryPath,
-                failedDirectoryPath,
+                PROCESSED_DIRECTORY_PATH,
+                FAILED_DIRECTORY_PATH,
                 configurationFileFactory,
                 configurationFilePoller,
                 configurationAdmin,
-                configurationFileExtension) {
-            @Override
-            void moveFile(Path source, Path destination) throws IOException {
-                throw new IOException();
-            }
-        };
+                CONFIGURATION_FILE_EXTENSION);
 
         configurationAdminMigration.init();
 
         verify(configurationDirectoryStream).iterator();
-        verify(configurationFileFactory).createConfigurationFile(configPath1);
-        verify(configurationFileFactory).createConfigurationFile(configPath2);
+        verify(configurationFileFactory).createConfigurationFile(CONFIG_PATH1);
+        verify(configurationFileFactory).createConfigurationFile(CONFIG_PATH2);
         verify(configurationDirectoryStream).close();
     }
 
     @Test
-    public void testNotifyWithValidFile() throws Exception {
-        when(configurationFileFactory.createConfigurationFile(configPath1)).thenReturn(configFile1);
-        when(processedDirectoryPath.resolve(CONFIG_FILE_PATH)).thenReturn(
-                configFileInProcessedDirectory);
+    public void testNotifyWhenFileIsReprocessed() throws Exception {
+
+        when(configurationFileFactory.createConfigurationFile(CONFIG_PATH1)).thenReturn(configFile1);
 
         ConfigurationAdminMigration configurationAdminMigration =
                 createConfigurationAdminMigratorForNotify();
 
-        configurationAdminMigration.notify(configPath1);
+        configurationAdminMigration.notify(CONFIG_PATH1);
 
-        verifyStatic();
-        FileUtils.deleteQuietly(configFileInFailedDirectory.toFile());
-
-        verify(configurationFileFactory).createConfigurationFile(configPath1);
+        verify(configurationFileFactory).createConfigurationFile(CONFIG_PATH1);
         verify(configFile1).createConfig();
+        verifyStatic();
+        Files.move(Paths.get("/root/etc/" + CONFIG_FILE_PATH1),
+                Paths.get(PROCESSED_DIRECTORY_PATH.resolve(CONFIG_FILE_PATH1)
+                        .toString()),
+                REPLACE_EXISTING);
 
-        verifyStatic(times(1));
-        Files.move(configPath1, configFileInProcessedDirectory, REPLACE_EXISTING);
     }
 
     @Test
     public void testNotifyWithFileThatHasAnInvalidType() throws Exception {
-        when(configurationFileFactory.createConfigurationFile(configPath1)).thenThrow(new ConfigurationFileException(
+        when(configurationFileFactory.createConfigurationFile(CONFIG_PATH1)).thenThrow(new ConfigurationFileException(
                 ""));
-        when(failedDirectoryPath.resolve(CONFIG_FILE_PATH)).thenReturn(configFileInFailedDirectory);
 
         ConfigurationAdminMigration configurationAdminMigration =
                 createConfigurationAdminMigratorForNotify();
 
-        configurationAdminMigration.notify(configPath1);
+        configurationAdminMigration.notify(CONFIG_PATH1);
 
-        verify(configurationFileFactory).createConfigurationFile(configPath1);
+        verify(configurationFileFactory).createConfigurationFile(CONFIG_PATH1);
         verify(configFile1, never()).createConfig();
 
         verifyStatic(times(1));
-        Files.move(configPath1, configFileInFailedDirectory, REPLACE_EXISTING);
+        Files.move(CONFIG_PATH1,
+                CONFIG_FILE_IN_FAILED_DIRECTORY.resolve(CONFIG_FILE_PATH1),
+                REPLACE_EXISTING);
     }
 
     @Test
     public void testNotifyWithFileThatCannotBeRead() throws Exception {
-        when(configurationFileFactory.createConfigurationFile(configPath1)).thenReturn(configFile1);
+        when(configurationFileFactory.createConfigurationFile(CONFIG_PATH1)).thenReturn(configFile1);
         doThrow(new ConfigurationFileException("")).when(configFile1)
                 .createConfig();
 
         ConfigurationAdminMigration configurationAdminMigration =
                 createConfigurationAdminMigratorForNotify();
 
-        configurationAdminMigration.notify(configPath1);
+        configurationAdminMigration.notify(CONFIG_PATH1);
 
-        verify(configurationFileFactory).createConfigurationFile(configPath1);
+        verify(configurationFileFactory).createConfigurationFile(CONFIG_PATH1);
         verify(configFile1).createConfig();
 
         verifyStatic(times(1));
-        Files.move(configPath1, configFileInFailedDirectory, REPLACE_EXISTING);
+        Files.move(CONFIG_PATH1,
+                CONFIG_FILE_IN_FAILED_DIRECTORY.resolve(CONFIG_FILE_PATH1),
+                REPLACE_EXISTING);
     }
 
     @Test
     public void testNotifyWhenFileReadThrowsRuntimeException() throws Exception {
-        when(configurationFileFactory.createConfigurationFile(configPath1)).thenReturn(configFile1);
+        when(configurationFileFactory.createConfigurationFile(CONFIG_PATH1)).thenReturn(configFile1);
         doThrow(new RuntimeException()).when(configFile1)
                 .createConfig();
 
         ConfigurationAdminMigration configurationAdminMigration =
                 createConfigurationAdminMigratorForNotify();
 
-        configurationAdminMigration.notify(configPath1);
+        configurationAdminMigration.notify(CONFIG_PATH1);
 
-        verify(configurationFileFactory).createConfigurationFile(configPath1);
+        verify(configurationFileFactory).createConfigurationFile(CONFIG_PATH1);
         verify(configFile1).createConfig();
 
         verifyStatic(times(1));
-        Files.move(configPath1, configFileInFailedDirectory, REPLACE_EXISTING);
+        Files.move(CONFIG_PATH1,
+                CONFIG_FILE_IN_FAILED_DIRECTORY.resolve(CONFIG_FILE_PATH1),
+                REPLACE_EXISTING);
     }
 
     @Test
     public void testNotifyFailsToMoveFileToProcessedDirectory() throws Exception {
-        when(configurationFileFactory.createConfigurationFile(configPath1)).thenReturn(configFile1);
-        when(processedDirectoryPath.resolve(CONFIG_FILE_PATH)).thenReturn(
-                configFileInProcessedDirectory);
-        when(Files.move(configPath1, configFileInProcessedDirectory)).thenThrow(new IOException());
+
+        when(configurationFileFactory.createConfigurationFile(CONFIG_PATH1)).thenReturn(configFile1);
+        when(Files.move(CONFIG_PATH1,
+                CONFIG_FILE_IN_PROCESSED_DIRECTORY)).thenThrow(new IOException());
 
         ConfigurationAdminMigration configurationAdminMigration =
                 createConfigurationAdminMigratorForNotify();
 
-        configurationAdminMigration.notify(configPath1);
+        configurationAdminMigration.notify(CONFIG_PATH1);
 
-        verify(configurationFileFactory).createConfigurationFile(configPath1);
+        verify(configurationFileFactory).createConfigurationFile(CONFIG_PATH1);
         verify(configFile1).createConfig();
     }
 
     @Test
     public void testNotifyFailsToMoveFileToFailedDirectory() throws Exception {
-        when(configurationFileFactory.createConfigurationFile(configPath1)).thenReturn(configFile1);
+
         doThrow(new ConfigurationFileException("")).when(configFile1)
                 .createConfig();
-        when(Files.move(configPath1, configFileInFailedDirectory)).thenThrow(new IOException());
 
         ConfigurationAdminMigration configurationAdminMigration =
                 createConfigurationAdminMigratorForNotify();
 
-        configurationAdminMigration.notify(configPath1);
+        configurationAdminMigration.notify(CONFIG_PATH1);
 
-        verify(configurationFileFactory).createConfigurationFile(configPath1);
-        verify(configFile1).createConfig();
+        verify(configurationFileFactory).createConfigurationFile(CONFIG_PATH1);
+
     }
 
     @Test
     public void testGetFailedConfigurationFilesTwoFilesInFailedDirectory() throws Exception {
-        when(configPath1.getFileName()).thenReturn(configPath1);
-        when(configPath2.getFileName()).thenReturn(configPath2);
-        String[] expectedPaths = new String[2];
-        expectedPaths[0] = configPath1.toString();
-        expectedPaths[1] = configPath2.toString();
+
+        when(Files.newDirectoryStream(any(Path.class), anyString())).thenReturn(
+                failedDirectoryStream);
 
         setUpTwoConfigFileIterator(failedDirectoryStream);
+
         ConfigurationAdminMigration configurationAdminMigration = new ConfigurationAdminMigration(
                 configurationDirectoryStream,
-                processedDirectoryPath,
-                failedDirectoryPath,
+                PROCESSED_DIRECTORY_PATH,
+                FAILED_DIRECTORY_PATH,
                 configurationFileFactory,
                 configurationFilePoller,
                 configurationAdmin,
-                configurationFileExtension) {
-            @Override
-            DirectoryStream<Path> getFailedDirectoryStream() throws IOException {
-                return failedDirectoryStream;
-            }
-        };
+                CONFIGURATION_FILE_EXTENSION);
 
         Collection<MigrationWarning> configurationStatusMessages =
                 configurationAdminMigration.getFailedConfigurationFiles();
+
         Collection<String> actualPaths = new ArrayList<>();
         for (MigrationWarning configStatus : configurationStatusMessages) {
             actualPaths.add(configStatus.getMessage());
         }
+
+        verifyStatic();
+        Files.newDirectoryStream(FAILED_DIRECTORY_PATH, FILE_FILTER);
+
         assertThat(
                 "Incorrect number for files returned from configurationAdminMigration.getFailedConfigurationFiles()",
-                configurationStatusMessages.size(), is(2));
-        assertThat(
-                "Incorrect files returned from configurationAdminMigration.getFailedConfigurationFiles()",
-                actualPaths, hasItems(expectedPaths));
+                configurationStatusMessages.size(),
+                is(2));
     }
 
     @Test
     public void testGetFailedConfigurationFilesNoFilesInFailedDirectory() throws Exception {
+
         when(failedDirectoryStreamIterator.hasNext()).thenReturn(false);
         when(failedDirectoryStream.iterator()).thenReturn(failedDirectoryStreamIterator);
+        when(Files.newDirectoryStream(any(Path.class), any(String.class))).thenReturn(
+                failedDirectoryStream);
+
         ConfigurationAdminMigration configurationAdminMigration = new ConfigurationAdminMigration(
                 configurationDirectoryStream,
-                processedDirectoryPath,
-                failedDirectoryPath,
+                PROCESSED_DIRECTORY_PATH,
+                FAILED_DIRECTORY_PATH,
                 configurationFileFactory,
                 configurationFilePoller,
                 configurationAdmin,
-                configurationFileExtension) {
-            @Override
-            DirectoryStream<Path> getFailedDirectoryStream() throws IOException {
-                return failedDirectoryStream;
-            }
-        };
+                CONFIGURATION_FILE_EXTENSION);
 
         Collection<MigrationWarning> configurationStatusMessages =
                 configurationAdminMigration.getFailedConfigurationFiles();
@@ -792,27 +754,30 @@ public class ConfigurationAdminMigrationTest {
 
     @Test(expected = IOException.class)
     public void testGetFailedConfigurationFilesDirectoryStreamThrowsException() throws Exception {
+
+        PowerMockito.doThrow(new IOException())
+                .when(Files.class);
+        Files.newDirectoryStream(any(Path.class), any(String.class));
+
         ConfigurationAdminMigration configurationAdminMigration = new ConfigurationAdminMigration(
                 configurationDirectoryStream,
-                processedDirectoryPath,
-                failedDirectoryPath,
+                PROCESSED_DIRECTORY_PATH,
+                FAILED_DIRECTORY_PATH,
                 configurationFileFactory,
                 configurationFilePoller,
                 configurationAdmin,
-                configurationFileExtension) {
-            @Override
-            DirectoryStream<Path> getFailedDirectoryStream() throws IOException {
-                throw new IOException("IOException");
-            }
-        };
+                CONFIGURATION_FILE_EXTENSION);
 
         configurationAdminMigration.getFailedConfigurationFiles();
+
+        verifyStatic();
+        Files.newDirectoryStream(any(Path.class), any(String.class));
+
     }
 
     @Test
     public void testExport()
             throws IOException, InvalidSyntaxException, ConfigurationFileException {
-        setUpDefaultDirectoryExpectations();
 
         when(configurationAdmin.listConfigurations(anyString())).thenReturn(new Configuration[] {
                 configuration});
@@ -822,29 +787,35 @@ public class ConfigurationAdminMigrationTest {
         ConfigurationAdminMigration configurationAdminMigration =
                 createConfigurationAdminMigratorWithNoFiles();
 
-        configurationAdminMigration.export(exportedDirectoryPath);
+        configurationAdminMigration.export(EXPORTED_DIRECTORY_PATH);
 
         verifyStatic();
-        FileUtils.forceMkdir(configFilesExportPath.toFile());
-
+        FileUtils.forceMkdir(CONFIG_FILES_EXPORT_PATH.toFile());
         verify(configFile1, atLeastOnce()).exportConfig(CONFIG_FILE_PATH.toString());
     }
 
-    @Test(expected = IOException.class)
+    @Test
     public void testExportWhenEtcDirectoryCreationFails() throws Exception {
-        PowerMockito.doThrow(new IOException())
-                .when(FileUtils.class);
-        FileUtils.forceMkdir(configFilesExportPath.toFile());
 
-        ConfigurationAdminMigration configurationAdminMigration =
-                createConfigurationAdminMigratorWithNoFiles();
+        try {
+            PowerMockito.doThrow(new IOException())
+                    .when(FileUtils.class);
+            FileUtils.forceMkdir(CONFIG_FILES_EXPORT_PATH.toFile());
 
-        configurationAdminMigration.export(exportedDirectoryPath);
+            ConfigurationAdminMigration configurationAdminMigration =
+                    createConfigurationAdminMigratorWithNoFiles();
+
+            configurationAdminMigration.export(EXPORTED_DIRECTORY_PATH);
+
+        } catch (IOException e) {
+            verifyStatic();
+            FileUtils.forceMkdir(CONFIG_FILES_EXPORT_PATH.toFile());
+        }
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testExportWithNullExportDirectory() throws IOException, ConfigurationFileException {
-        setUpDefaultDirectoryExpectations();
+
         ConfigurationAdminMigration configurationAdminMigration =
                 createConfigurationAdminMigratorWithNoFiles();
         configurationAdminMigration.export(null);
@@ -853,42 +824,42 @@ public class ConfigurationAdminMigrationTest {
     @Test(expected = MigrationException.class)
     public void testExportListConfigurationsIOException()
             throws IOException, InvalidSyntaxException, ConfigurationFileException {
-        setUpDefaultDirectoryExpectations();
+
         doThrow(new IOException()).when(configurationAdmin)
                 .listConfigurations(anyString());
         ConfigurationAdminMigration configurationAdminMigration =
                 createConfigurationAdminMigratorWithNoFiles();
-        configurationAdminMigration.export(exportedDirectoryPath);
+        configurationAdminMigration.export(EXPORTED_DIRECTORY_PATH);
     }
 
     @Test(expected = MigrationException.class)
     public void testExportListConfigurationsInvalidSyntaxException()
             throws IOException, InvalidSyntaxException, ConfigurationFileException {
-        setUpDefaultDirectoryExpectations();
+
         doThrow(new InvalidSyntaxException("", "")).when(configurationAdmin)
                 .listConfigurations(anyString());
         ConfigurationAdminMigration configurationAdminMigration =
                 createConfigurationAdminMigratorWithNoFiles();
-        configurationAdminMigration.export(exportedDirectoryPath);
+        configurationAdminMigration.export(EXPORTED_DIRECTORY_PATH);
     }
 
     @Test(expected = MigrationException.class)
     public void testExportConfigurationFileException()
             throws IOException, InvalidSyntaxException, ConfigurationFileException {
-        setUpDefaultDirectoryExpectations();
+
         when(configurationAdmin.listConfigurations(anyString())).thenReturn(new Configuration[] {
                 configuration});
         ConfigurationAdminMigration configurationAdminMigration =
                 createConfigurationAdminMigratorWithNoFiles();
         when(configurationFileFactory.createConfigurationFile((Dictionary<String, Object>) anyObject())).thenThrow(
                 new ConfigurationFileException(""));
-        configurationAdminMigration.export(exportedDirectoryPath);
+        configurationAdminMigration.export(EXPORTED_DIRECTORY_PATH);
     }
 
     @Test(expected = MigrationException.class)
     public void testConfigFileExportConfigIOException()
             throws IOException, InvalidSyntaxException, ConfigurationFileException {
-        setUpDefaultDirectoryExpectations();
+
         when(configurationAdmin.listConfigurations(anyString())).thenReturn(new Configuration[] {
                 configuration});
         ConfigurationAdminMigration configurationAdminMigration =
@@ -897,17 +868,17 @@ public class ConfigurationAdminMigrationTest {
                 configFile1);
         doThrow(new IOException()).when(configFile1)
                 .exportConfig(anyString());
-        configurationAdminMigration.export(exportedDirectoryPath);
+        configurationAdminMigration.export(EXPORTED_DIRECTORY_PATH);
     }
 
     @Test
     public void testExportWhenNoConfigurations()
             throws IOException, InvalidSyntaxException, ConfigurationFileException {
-        setUpDefaultDirectoryExpectations();
+
         when(configurationAdmin.listConfigurations(anyString())).thenReturn(null);
         ConfigurationAdminMigration configurationAdminMigration =
                 createConfigurationAdminMigratorWithNoFiles();
-        configurationAdminMigration.export(exportedDirectoryPath);
+        configurationAdminMigration.export(EXPORTED_DIRECTORY_PATH);
         verify(configurationFileFactory,
                 never()).createConfigurationFile((Dictionary<String, Object>) anyObject());
     }
@@ -917,32 +888,23 @@ public class ConfigurationAdminMigrationTest {
         when(configFilesIterator.hasNext()).thenReturn(false);
 
         return new ConfigurationAdminMigration(configurationDirectoryStream,
-                processedDirectoryPath,
-                failedDirectoryPath,
+                PROCESSED_DIRECTORY_PATH,
+                FAILED_DIRECTORY_PATH,
                 configurationFileFactory,
                 configurationFilePoller,
                 configurationAdmin,
-                configurationFileExtension);
+                CONFIGURATION_FILE_EXTENSION);
     }
 
     private ConfigurationAdminMigration createConfigurationAdminMigratorForNotify() {
-        when(failedDirectoryPath.resolve(CONFIG_FILE_PATH)).thenReturn(configFileInFailedDirectory);
-        when(configPath1.getFileName()).thenReturn(CONFIG_FILE_PATH);
 
         return new ConfigurationAdminMigration(configurationDirectoryStream,
-                processedDirectoryPath,
-                failedDirectoryPath,
+                PROCESSED_DIRECTORY_PATH,
+                FAILED_DIRECTORY_PATH,
                 configurationFileFactory,
                 configurationFilePoller,
                 configurationAdmin,
-                configurationFileExtension);
-    }
-
-    private void setUpDefaultDirectoryExpectations() {
-        when(processedDirectory.exists()).thenReturn(false);
-        when(processedDirectory.mkdir()).thenReturn(true);
-        when(failedDirectory.exists()).thenReturn(false);
-        when(failedDirectory.mkdir()).thenReturn(true);
+                CONFIGURATION_FILE_EXTENSION);
     }
 
     private void setUpTwoConfigFileIterator(DirectoryStream<Path> stream) {
@@ -950,12 +912,12 @@ public class ConfigurationAdminMigrationTest {
         when(configFilesIterator.hasNext()).thenReturn(true)
                 .thenReturn(true)
                 .thenReturn(false);
-        when(configFilesIterator.next()).thenReturn(configPath1)
-                .thenReturn(configPath2);
+        when(configFilesIterator.next()).thenReturn(CONFIG_PATH1)
+                .thenReturn(CONFIG_PATH2);
     }
 
     private void setUpConfigurationFileFactoryForTwoFiles() throws ConfigurationFileException {
-        when(configurationFileFactory.createConfigurationFile(configPath1)).thenReturn(configFile1);
-        when(configurationFileFactory.createConfigurationFile(configPath2)).thenReturn(configFile2);
+        when(configurationFileFactory.createConfigurationFile(CONFIG_PATH1)).thenReturn(configFile1);
+        when(configurationFileFactory.createConfigurationFile(CONFIG_PATH2)).thenReturn(configFile2);
     }
 }
