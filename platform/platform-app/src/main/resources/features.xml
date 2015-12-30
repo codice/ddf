@@ -69,7 +69,7 @@
         -->
         <config name="jmx.acl.org.apache.camel">* = *</config>
     </feature>
-    <feature name="camel-catalog" version="2.16.1" resolver="(obr)" start-level="50">
+    <feature name="camel-catalog" install="manual" version="2.16.1" resolver="(obr)" start-level="50">
         <feature version="2.16.1">camel-core</feature>
         <bundle>
             mvn:org.apache.camel.karaf/camel-karaf-commands-catalog/2.16.1
