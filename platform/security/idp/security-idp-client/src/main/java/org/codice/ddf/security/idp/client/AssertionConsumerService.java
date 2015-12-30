@@ -238,6 +238,9 @@ public class AssertionConsumerService {
     }
 
     private boolean login(org.opensaml.saml2.core.Response samlResponse) {
+        if (!request.isSecure()) {
+            return false;
+        }
         Map<String, Cookie> cookieMap = HttpUtils.getCookieMap(request);
         if (cookieMap.containsKey("JSESSIONID")) {
             sessionFactory.getOrCreateSession(request)

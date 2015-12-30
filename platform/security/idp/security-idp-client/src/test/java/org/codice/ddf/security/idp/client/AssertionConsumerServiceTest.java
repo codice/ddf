@@ -105,6 +105,7 @@ public class AssertionConsumerServiceTest {
         sessionFactory = mock(SessionFactory.class);
         httpRequest = mock(HttpServletRequest.class);
         when(httpRequest.getRequestURL()).thenReturn(new StringBuffer("fubar"));
+        when(httpRequest.isSecure()).thenReturn(true);
         idpMetadata = new IdpMetadata();
 
         assertionConsumerService = new AssertionConsumerService(simpleSign,
@@ -139,6 +140,17 @@ public class AssertionConsumerServiceTest {
                 response.getLocation()
                         .toString(),
                 equalTo(LOCATION));
+    }
+
+    @Test
+    public void testPostSamlResponseNotSecure() throws Exception {
+        when(httpRequest.isSecure()).thenReturn(false);
+        Response response =
+                assertionConsumerService.postSamlResponse(new String(Base64.encodeBase64(this.cannedResponse.getBytes())),
+                        RELAY_STATE_VAL);
+        assertThat("The http response was not 500 ERROR",
+                response.getStatus(),
+                is(HttpStatus.SC_INTERNAL_SERVER_ERROR));
     }
 
     @Ignore

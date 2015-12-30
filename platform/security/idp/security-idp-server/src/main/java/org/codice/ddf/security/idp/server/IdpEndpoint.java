@@ -248,6 +248,9 @@ public class IdpEndpoint implements Idp {
                             signatureAlgorithm,
                             signature,
                             strictSignature);
+            if (!request.isSecure()) {
+                throw new IllegalArgumentException("Authn Request must use TLS.");
+            }
             X509Certificate[] certs = (X509Certificate[]) request.getAttribute(CERTIFICATES_ATTR);
             boolean hasCerts = (certs != null && certs.length > 0);
             boolean hasCookie = getSamlAssertion(request, authnRequest.isForceAuthn()) != null;
@@ -405,6 +408,9 @@ public class IdpEndpoint implements Idp {
         try {
             Binding binding;
             String template;
+            if (!request.isSecure()) {
+                throw new IllegalArgumentException("Authn Request must use TLS.");
+            }
             //the authn request is always encoded as if it came in via redirect when coming from the web app
             Binding redirectBinding = new RedirectBinding(systemCrypto, serviceProviders);
             AuthnRequest authnRequest = redirectBinding.decoder()
