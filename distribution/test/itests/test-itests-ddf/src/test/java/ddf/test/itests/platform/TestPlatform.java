@@ -440,7 +440,7 @@ public class TestPlatform extends AbstractIntegrationTest {
 
     @Test
     public void testExport() throws ConfigurationFileException, IOException {
-        FileUtils.deleteDirectory(getExportDirectory().toFile());
+        FileUtils.deleteQuietly(getExportDirectory().toFile());
 
         console.runCommand(EXPORT_COMMAND);
 
@@ -466,7 +466,7 @@ public class TestPlatform extends AbstractIntegrationTest {
 
     @Test
     public void testExportOnTopOfFile() throws ConfigurationFileException, IOException {
-        FileUtils.deleteDirectory(getExportDirectory().toFile());
+        FileUtils.deleteQuietly(getExportDirectory().toFile());
         File file = getExportDirectory().toFile();
         file.createNewFile();
         String response = console.runCommand(EXPORT_COMMAND);
@@ -485,7 +485,7 @@ public class TestPlatform extends AbstractIntegrationTest {
      */
     @Test
     public void textExportAfterSavingAConfiguration() throws Exception {
-        FileUtils.deleteDirectory(getExportDirectory().toFile());
+        FileUtils.deleteQuietly(getExportDirectory().toFile());
 
         managedServiceNewConfig1.addConfigurationFileAndWait(configAdmin);
         console.runCommand(EXPORT_COMMAND);
@@ -502,7 +502,7 @@ public class TestPlatform extends AbstractIntegrationTest {
      */
     @Test
     public void testExportAfterDeletingAConfiguration() throws Exception {
-        FileUtils.deleteDirectory(getExportDirectory().toFile());
+        FileUtils.deleteQuietly(getExportDirectory().toFile());
         managedServiceNewConfig2.addConfigurationFileAndWait(configAdmin);
         configAdmin.getConfiguration(managedServiceNewConfig2.pid, null)
                 .delete();
@@ -520,7 +520,7 @@ public class TestPlatform extends AbstractIntegrationTest {
      */
     @Test
     public void testFailureForAbsolutePathOutsideDdfHome() throws Exception {
-        FileUtils.deleteDirectory(getExportDirectory().toFile());
+        FileUtils.deleteQuietly(getExportDirectory().toFile());
         File systemProperties = new File(ddfHome + "/etc/system.properties");
         File testFile = new File("../cat.txt");
         FileUtils.copyFile(systemProperties, testFile);
@@ -543,7 +543,7 @@ public class TestPlatform extends AbstractIntegrationTest {
      */
     @Test
     public void testFailureForAbsolutePathInsideDdfHome() throws Exception {
-        FileUtils.deleteDirectory(getExportDirectory().toFile());
+        FileUtils.deleteQuietly(getExportDirectory().toFile());
 
         System.setProperty("javax.net.ssl.keyStore", ddfHome + "/etc/keystores/serverKeystore.jks");
         String response = console.runCommand(EXPORT_COMMAND);
@@ -553,7 +553,7 @@ public class TestPlatform extends AbstractIntegrationTest {
                 containsString(String.format("Failed to export all configurations to %s",
                         getExportDirectory())));
         System.setProperty("javax.net.ssl.keyStore", "etc/keystores/serverKeystore.jks");
-        FileUtils.deleteDirectory(getExportDirectory().toFile());
+        FileUtils.deleteQuietly(getExportDirectory().toFile());
     }
 
     /**
@@ -563,7 +563,7 @@ public class TestPlatform extends AbstractIntegrationTest {
      */
     @Test
     public void testRelativePathOutsideDdfHome() throws Exception {
-        FileUtils.deleteDirectory(getExportDirectory().toFile());
+        FileUtils.deleteQuietly(getExportDirectory().toFile());
         File systemProperties = new File(ddfHome + "/etc/system.properties");
         File testFile = new File("../cat.txt");
         FileUtils.copyFile(systemProperties, testFile);
@@ -586,7 +586,7 @@ public class TestPlatform extends AbstractIntegrationTest {
      */
     @Test
     public void testExportOverridesPreviousExport() throws Exception {
-        FileUtils.deleteDirectory(getExportDirectory().toFile());
+        FileUtils.deleteQuietly(getExportDirectory().toFile());
 
         String firstExportMessage = console.runCommand(EXPORT_COMMAND);
         File firstExport = getExportSubDirectory("system.properties").toFile();
