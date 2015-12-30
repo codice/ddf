@@ -19,18 +19,6 @@ import java.security.NoSuchAlgorithmException;
 
 public abstract class AbstractChecksumProvider implements ChecksumProvider {
 
-    protected String bytesToHex(byte[] bytes) {
-        String hexString = "0123456789ABCDEF";
-        char[] hexArray = hexString.toCharArray();
-        char[] hexChars = new char[bytes.length * 2];
-        for (int j = 0; j < bytes.length; j++) {
-            int v = bytes[j] & 0xFF;
-            hexChars[j * 2] = hexArray[v >>> 4];
-            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
-        }
-        return new String(hexChars);
-    }
-
     @Override
     public abstract String calculateChecksum(InputStream inputStream)
             throws IOException, NoSuchAlgorithmException;

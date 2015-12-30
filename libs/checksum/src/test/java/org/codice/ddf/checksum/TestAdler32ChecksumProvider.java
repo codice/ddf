@@ -23,18 +23,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectOutputStream;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 
 import org.codice.ddf.checksum.impl.Adler32ChecksumProvider;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
 
 public class TestAdler32ChecksumProvider {
-
-    private static final XLogger LOGGER = new XLogger(LoggerFactory.getLogger(
-            TestAdler32ChecksumProvider.class));
 
     private ChecksumProvider checksumProvider;
 
@@ -44,8 +40,7 @@ public class TestAdler32ChecksumProvider {
     }
 
     @Test
-    public void testCalculateCheckSumString() throws IOException, NoSuchAlgorithmException {
-
+    public void testCalculateChecksumString() throws IOException, NoSuchAlgorithmException {
         String testString = "Hello World";
         String checksumCompareHash = "3b0e063a";
 
@@ -55,17 +50,30 @@ public class TestAdler32ChecksumProvider {
         //compare returned checksum to previous checksum
         //as they should be the same if the checksum is calculated
         //correctly
-        Assert.assertThat(checksumValue, is(checksumCompareHash));
+        assertThat(checksumValue, is(checksumCompareHash));
+
     }
 
     @Test
-    public void testCalculateCheckSumObject() throws IOException, NoSuchAlgorithmException {
+    public void testCalculateChecksumLargeString() throws IOException, NoSuchAlgorithmException {
+
+        final char[] chars = new char[1024 * 100];
+        final String checksumCompareHash = "bf3aa1d5";
+
+        Arrays.fill(chars, 'a');
+        String checksumValue = checksumProvider.calculateChecksum(getInputStreamFromObject(chars));
+
+        assertThat(checksumValue, is(checksumCompareHash));
+    }
+
+    @Test
+    public void testCalculateChecksumObject() throws IOException, NoSuchAlgorithmException {
 
         SerializableTestObject obj = new SerializableTestObject();
         obj.setName("Test Name");
         obj.setDescription("Test Description");
 
-        String checksumCompareHash = "3cb331e";
+        final String checksumCompareHash = "3cb331e";
 
         InputStream stringInputStream = getInputStreamFromObject(obj);
         String checksumValue = checksumProvider.calculateChecksum(stringInputStream);
@@ -77,14 +85,14 @@ public class TestAdler32ChecksumProvider {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testCalculateCheckSumWithNullInputStream()
+    public void testCalculateChecksumWithNullInputStream()
             throws IOException, NoSuchAlgorithmException {
 
         checksumProvider.calculateChecksum(null);
     }
 
     @Test
-    public void testGetCheckSumAlgorithm() {
+    public void testGetChecksumAlgorithm() {
 
         String expectedAlgorithm = "Adler32";
         String checksumAlgorithm = checksumProvider.getChecksumAlgorithm();
