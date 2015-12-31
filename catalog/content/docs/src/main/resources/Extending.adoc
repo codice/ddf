@@ -1,4 +1,5 @@
-= Extending DDF Content Application
+= Extending {branding} Content Application
 include::config.adoc[]
 
+== Overview
 include::ExtContents.adoc[]
