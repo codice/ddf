@@ -40,7 +40,7 @@ public class IngestPlugin implements PreIngestPlugin {
 
     public CreateRequest process(CreateRequest createRequest)
             throws PluginExecutionException, StopProcessingException {
-        if (!Security.authenticateCurrentUser(CollectionPermission.CREATE_ACTION, permissions)) {
+        if (!Security.authorizeCurrentUser(CollectionPermission.CREATE_ACTION, permissions)) {
             throw new StopProcessingException("User is not authorized to create records");
         }
         return createRequest;
@@ -48,7 +48,7 @@ public class IngestPlugin implements PreIngestPlugin {
 
     public UpdateRequest process(UpdateRequest updateRequest)
             throws PluginExecutionException, StopProcessingException {
-        if (!Security.authenticateCurrentUser(CollectionPermission.UPDATE_ACTION, permissions)) {
+        if (!Security.authorizeCurrentUser(CollectionPermission.UPDATE_ACTION, permissions)) {
             throw new StopProcessingException("User is not authorized to update records");
         }
         return updateRequest;
@@ -56,7 +56,7 @@ public class IngestPlugin implements PreIngestPlugin {
 
     public DeleteRequest process(DeleteRequest deleteRequest)
             throws PluginExecutionException, StopProcessingException {
-        if (!Security.authenticateCurrentUser(CollectionPermission.DELETE_ACTION, permissions)) {
+        if (!Security.authorizeCurrentUser(CollectionPermission.DELETE_ACTION, permissions)) {
             throw new StopProcessingException("User is not authorized to delete records");
         }
         return deleteRequest;

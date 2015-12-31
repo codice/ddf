@@ -131,8 +131,7 @@ public class Security {
      * @param permissions
      * @return
      */
-    public static boolean authenticateCurrentUser(String action,
-            List<KeyValuePermission> permissions) {
+    public static boolean authorizeCurrentUser(String action, List<KeyValuePermission> permissions) {
         if (ThreadContext.getSubject() != null || ThreadContext.getSecurityManager() != null) {
             org.apache.shiro.subject.Subject subject = SecurityUtils.getSubject();
             KeyValueCollectionPermission kvcp = new KeyValueCollectionPermission(action,
