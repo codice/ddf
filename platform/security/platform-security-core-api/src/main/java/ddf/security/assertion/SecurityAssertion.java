@@ -66,11 +66,26 @@ public interface SecurityAssertion extends Serializable {
     List<AuthzDecisionStatement> getAuthzDecisionStatements();
 
     /**
+     * Returns the list of subject confirmations contained in the SecurityToken
+     *
+     * @return List<String>
+     */
+    List<String> getSubjectConfirmations();
+
+    /**
      * Returns primary principal and all attributes as principals
      *
      * @return List<Principal>
      */
     Set<Principal> getPrincipals();
+
+    /**
+     * Returns the token type URI for this assertion
+     *
+     * @return either http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0 or
+     * http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV1.1
+     */
+    String getTokenType();
 
     /**
      * Returns the underlying SecurityToken that this object wraps
