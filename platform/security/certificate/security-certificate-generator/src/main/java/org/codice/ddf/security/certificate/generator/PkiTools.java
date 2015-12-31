@@ -153,7 +153,7 @@ public abstract class PkiTools {
         try {
             return InetAddress.getLocalHost().getHostName();
         } catch (UnknownHostException e) {
-            throw new CertificateGeneratorException("Cannot get this machine's host name", e);
+            throw new CertificateGeneratorException("Cannot get this machine's host name. On *NIX machines, check hosts file for entry with machines's IP addresses. Localhost entries do not work.", e);
         }
     }
 
