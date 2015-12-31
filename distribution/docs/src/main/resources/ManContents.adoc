@@ -325,9 +325,9 @@ ddf@local>list
 START LEVEL 100 , List Threshold: 50
    ID   State         Blueprint      Spring    Level  Name
 [ 111] [Active     ] [            ] [       ] [   80] Commons IO (2.1.0)
-[ 112] [Resolved   ] [            ] [       ] [   80] {branding} :: Distribution :: Web Console (2.3.0)
+[ 112] [Resolved   ] [            ] [       ] [   80] DDF :: Distribution :: Web Console (2.3.0)
                                        Hosts: 76
-[ 113] [Active     ] [Created     ] [       ] [   80] {branding} :: Distribution :: Console Branding Plugin (2.3.0)
+[ 113] [Active     ] [Created     ] [       ] [   80] DDF :: Distribution :: Console Branding Plugin (2.3.0)
 ----
 
 * Verify that the following {branding} kernel's features are installed by executing the `features:list` command and filtering for kernel distribution features:
@@ -336,7 +336,7 @@ START LEVEL 100 , List Threshold: 50
 ----
 ddf@local>features:list | grep kernel
 [uninstalled] [2.3.1-SNAPSHOT ] custom-karaf-bundles      kernel-2.3.1-SNAPSHOT Customized KARAF Bundles
-[installed  ] [2.3.1-SNAPSHOT ] kernel-webconsolebranding kernel-2.3.1-SNAPSHOT {branding} Web Admin Console branding
+[installed  ] [2.3.1-SNAPSHOT ] kernel-webconsolebranding kernel-2.3.1-SNAPSHOT DDF Web Admin Console branding
 ----
 
 .{branding} Application Installation Dependencies
@@ -386,7 +386,7 @@ If displayed, the *{branding} :: Distribution :: Web Console* entry should be in
 
 .Example: Bundle Fragment in the Command Line Console
 ----
-[ 261] [Resolved   ] [            ] [       ] [   80] {branding} :: Distribution :: Web Console (2.2.0)
+[ 261] [Resolved   ] [            ] [       ] [   80] DDF :: Distribution :: Web Console (2.2.0)
                                        Hosts: 76
 ----
 [NOTE]
@@ -776,7 +776,7 @@ State         Version          Name                          Repository  Descrip
 
 The console output should show an entry similar to the following:
 ----
-[ 117] [Active     ] [            ] [Started] [   75] {branding} :: Catalog :: Source :: Dummy (<version>)
+[ 117] [Active     ] [            ] [Started] [   75] DDF :: Catalog :: Source :: Dummy (<version>)
 ----
 
 ====== Uninstall Features
