@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -49,7 +49,8 @@ public class LdapLoginConfigTest {
     public void setUp() {
         context = mock(BundleContext.class);
         jaasRealm = mock(ServiceRegistration.class);
-        when(context.registerService(eq(JaasRealm.class), any(JaasRealm.class),
+        when(context.registerService(eq(JaasRealm.class),
+                any(JaasRealm.class),
                 Matchers.<Dictionary<String, Object>>any())).thenReturn(jaasRealm);
     }
 
@@ -79,7 +80,8 @@ public class LdapLoginConfigTest {
         ldapConfig.setStartTls(false);
         ldapConfig.configure();
 
-        verify(context).registerService(eq(JaasRealm.class), any(JaasRealm.class),
+        verify(context).registerService(eq(JaasRealm.class),
+                any(JaasRealm.class),
                 Matchers.<Dictionary<String, Object>>any());
 
         ldapProps.put(LdapLoginConfig.LDAP_BIND_USER_DN, "cn=admin");
@@ -92,7 +94,8 @@ public class LdapLoginConfigTest {
         ldapConfig.update(ldapProps);
         // verify previous service was unregistered
         verify(jaasRealm).unregister();
-        verify(context, times(2)).registerService(eq(JaasRealm.class), any(JaasRealm.class),
+        verify(context, times(2)).registerService(eq(JaasRealm.class),
+                any(JaasRealm.class),
                 Matchers.<Dictionary<String, Object>>any());
 
     }

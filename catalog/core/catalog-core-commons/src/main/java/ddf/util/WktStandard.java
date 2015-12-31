@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -68,7 +68,8 @@ public class WktStandard {
         WKTReader wktReader = new WKTReader(GEOMETRY_FACTORY);
         try {
             // using JTS to normalize WKT into the correct format
-            return wktReader.read(wkt).toText();
+            return wktReader.read(wkt)
+                    .toText();
         } catch (ParseException e) {
             throw new IllegalArgumentException("Cannot parse wkt.", e);
         }
@@ -94,9 +95,9 @@ public class WktStandard {
                 String currentMultiPoint = matcher.group(0);
                 String currentMultiPointText = matcher.group(1);
 
-                matcher.appendReplacement(resultWkt, currentMultiPoint
-                                .replace(currentMultiPointText,
-                                        currentMultiPointText.replaceAll("[\\(\\)]", "")));
+                matcher.appendReplacement(resultWkt,
+                        currentMultiPoint.replace(currentMultiPointText,
+                                currentMultiPointText.replaceAll("[\\(\\)]", "")));
             }
             matcher.appendTail(resultWkt);
 

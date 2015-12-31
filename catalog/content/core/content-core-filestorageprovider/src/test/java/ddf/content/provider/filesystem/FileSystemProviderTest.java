@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -98,9 +98,11 @@ public class FileSystemProviderTest {
 
     @Test
     public void testRead() throws Exception {
-        CreateResponse createResponse = storeContentItem(TEST_INPUT_CONTENTS, NITF_MIME_TYPE,
+        CreateResponse createResponse = storeContentItem(TEST_INPUT_CONTENTS,
+                NITF_MIME_TYPE,
                 TEST_INPUT_FILENAME);
-        String id = createResponse.getCreatedContentItem().getId();
+        String id = createResponse.getCreatedContentItem()
+                .getId();
         ReadRequest readRequest = new ReadRequestImpl(id, null);
 
         ReadResponse readResponse = provider.read(readRequest);
@@ -112,17 +114,22 @@ public class FileSystemProviderTest {
 
         String expectedFilePath =
                 BASE_DIR + File.separator + id + File.separator + item.getFilename();
-        assertThat(item.getFile().getAbsolutePath(), endsWith(expectedFilePath));
+        assertThat(item.getFile()
+                .getAbsolutePath(), endsWith(expectedFilePath));
         assertTrue(item.getSize() > 0);
-        assertTrue(item.getFile().exists());
+        assertTrue(item.getFile()
+                .exists());
     }
 
     @Test
     public void testUpdate() throws Exception {
-        CreateResponse createResponse = storeContentItem(TEST_INPUT_CONTENTS, NITF_MIME_TYPE,
+        CreateResponse createResponse = storeContentItem(TEST_INPUT_CONTENTS,
+                NITF_MIME_TYPE,
                 TEST_INPUT_FILENAME);
-        String id = createResponse.getCreatedContentItem().getId();
-        ContentItem updateItem = new IncomingContentItem(id, IOUtils.toInputStream("Updated NITF"),
+        String id = createResponse.getCreatedContentItem()
+                .getId();
+        ContentItem updateItem = new IncomingContentItem(id,
+                IOUtils.toInputStream("Updated NITF"),
                 NITF_MIME_TYPE);
         UpdateRequest updateRequest = new UpdateRequestImpl(updateItem);
 
@@ -135,19 +142,24 @@ public class FileSystemProviderTest {
 
         String expectedFilePath =
                 BASE_DIR + File.separator + id + File.separator + item.getFilename();
-        assertThat(item.getFile().getAbsolutePath(), endsWith(expectedFilePath));
+        assertThat(item.getFile()
+                .getAbsolutePath(), endsWith(expectedFilePath));
         assertTrue(item.getSize() > 0);
-        assertTrue(item.getFile().exists());
+        assertTrue(item.getFile()
+                .exists());
 
-        String updatedFileContents = getFileContentsAsString(item.getFile().getAbsolutePath());
+        String updatedFileContents = getFileContentsAsString(item.getFile()
+                .getAbsolutePath());
         assertEquals("Updated NITF", updatedFileContents);
     }
 
     @Test
     public void testDelete() throws Exception {
-        CreateResponse createResponse = storeContentItem(TEST_INPUT_CONTENTS, NITF_MIME_TYPE,
+        CreateResponse createResponse = storeContentItem(TEST_INPUT_CONTENTS,
+                NITF_MIME_TYPE,
                 TEST_INPUT_FILENAME);
-        String id = createResponse.getCreatedContentItem().getId();
+        String id = createResponse.getCreatedContentItem()
+                .getId();
         DeleteRequest deleteRequest = new DeleteRequestImpl(createResponse.getCreatedContentItem());
 
         DeleteResponse deleteResponse = provider.delete(deleteRequest);
@@ -166,8 +178,11 @@ public class FileSystemProviderTest {
     private void assertContentItem(String data, String mimeTypeRawData, String expectedFileSuffix)
             throws Exception {
         // Simulates what ContentFrameworkImpl would do
-        String uuid = UUID.randomUUID().toString().replaceAll("-", "");
-        ContentItem contentItem = new IncomingContentItem(uuid, IOUtils.toInputStream(data),
+        String uuid = UUID.randomUUID()
+                .toString()
+                .replaceAll("-", "");
+        ContentItem contentItem = new IncomingContentItem(uuid,
+                IOUtils.toInputStream(data),
                 mimeTypeRawData);
         CreateRequest createRequest = new CreateRequestImpl(contentItem, null);
         CreateResponse createResponse = provider.create(createRequest);
@@ -194,8 +209,12 @@ public class FileSystemProviderTest {
 
     private CreateResponse storeContentItem(String data, String mimeType, String filename)
             throws Exception {
-        String id = UUID.randomUUID().toString().replaceAll("-", "");
-        ContentItem contentItem = new IncomingContentItem(id, IOUtils.toInputStream(data), mimeType,
+        String id = UUID.randomUUID()
+                .toString()
+                .replaceAll("-", "");
+        ContentItem contentItem = new IncomingContentItem(id,
+                IOUtils.toInputStream(data),
+                mimeType,
                 filename);
         CreateRequest createRequest = new CreateRequestImpl(contentItem, null);
         CreateResponse createResponse = provider.create(createRequest);

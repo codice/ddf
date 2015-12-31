@@ -12,9 +12,9 @@
  **/
 -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-        >
+>
 
-	<!-- PreIngest Plugin -->
+    <!-- PreIngest Plugin -->
     <bean id="plugin" class="ddf.catalog.plugin.groomer.metacard.StandardMetacardGroomerPlugin"/>
 
     <!-- Register in the OSGi Service Registry -->

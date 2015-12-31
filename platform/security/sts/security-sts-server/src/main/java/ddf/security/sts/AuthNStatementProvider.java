@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -62,8 +62,7 @@ public class AuthNStatementProvider implements AuthenticationStatementProvider {
         if (receivedToken != null) {
             Principal principal = receivedToken.getPrincipal();
             if (principal instanceof UsernameTokenPrincipal) {
-                authBean.setAuthenticationMethod(
-                        SAML2Constants.AUTH_CONTEXT_CLASS_REF_PASSWORD_PROTECTED_TRANSPORT);
+                authBean.setAuthenticationMethod(SAML2Constants.AUTH_CONTEXT_CLASS_REF_PASSWORD_PROTECTED_TRANSPORT);
             } else if (principal instanceof X500Principal) {
                 authBean.setAuthenticationMethod(SAML2Constants.AUTH_CONTEXT_CLASS_REF_X509);
             } else if (principal instanceof KerberosPrincipal) {

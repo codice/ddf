@@ -24,13 +24,19 @@ public class HttpUtilsTest {
     public void testStripQueryStringValidUrl() {
         assertThat(HttpUtils.stripQueryString("http://localhost"), is("http://localhost"));
         assertThat(HttpUtils.stripQueryString("http://localhost?wsdl"), is("http://localhost"));
-        assertThat(HttpUtils.stripQueryString("http://localhost/path?wsdl"), is("http://localhost/path"));
-        assertThat(HttpUtils.stripQueryString("http://localhost:3000"), is("http://localhost:3000"));
-        assertThat(HttpUtils.stripQueryString("http://localhost:3000?wsdl"), is("http://localhost:3000"));
-        assertThat(HttpUtils.stripQueryString("http://localhost:3000/path?wsdl"), is("http://localhost:3000/path"));
+        assertThat(HttpUtils.stripQueryString("http://localhost/path?wsdl"),
+                is("http://localhost/path"));
+        assertThat(HttpUtils.stripQueryString("http://localhost:3000"),
+                is("http://localhost:3000"));
+        assertThat(HttpUtils.stripQueryString("http://localhost:3000?wsdl"),
+                is("http://localhost:3000"));
+        assertThat(HttpUtils.stripQueryString("http://localhost:3000/path?wsdl"),
+                is("http://localhost:3000/path"));
 
-        assertThat(HttpUtils.stripQueryString("http://localhost?wsdl?wsdl"), is("http://localhost"));
-        assertThat(HttpUtils.stripQueryString("http://localhost:3000?wsdl?wsdl"), is("http://localhost:3000"));
+        assertThat(HttpUtils.stripQueryString("http://localhost?wsdl?wsdl"),
+                is("http://localhost"));
+        assertThat(HttpUtils.stripQueryString("http://localhost:3000?wsdl?wsdl"),
+                is("http://localhost:3000"));
     }
 
     @Test

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -120,7 +120,8 @@ public class TestMetacardGroomerPlugin {
 
         assertThat(returnedRequest.getMetacards(), not(nullValue()));
 
-        assertThat(returnedRequest.getMetacards().size(), is(0));
+        assertThat(returnedRequest.getMetacards()
+                .size(), is(0));
 
     }
 
@@ -137,10 +138,12 @@ public class TestMetacardGroomerPlugin {
         assertEquals(DEFAULT_TYPE, outputMetacard.getContentTypeName());
         assertEquals(DEFAULT_VERSION, outputMetacard.getContentTypeVersion());
         assertThat(outputMetacard.getMetadata(), is(DEFAULT_METADATA));
-        assertThat(outputMetacard.getCreatedDate().getTime(),
+        assertThat(outputMetacard.getCreatedDate()
+                        .getTime(),
                 is(equalTo(inputMetacard.getCreatedDate()
                         .getTime())));
-        assertThat(outputMetacard.getModifiedDate().getTime(),
+        assertThat(outputMetacard.getModifiedDate()
+                        .getTime(),
                 is(equalTo(inputMetacard.getModifiedDate()
                         .getTime())));
         assertEquals(inputMetacard.getEffectiveDate(), outputMetacard.getEffectiveDate());
@@ -171,18 +174,18 @@ public class TestMetacardGroomerPlugin {
 
         // CREATED
         assertThat(inputMetacard.getCreatedDate(), is(nullValue()));
-        assertThat(outputMetacard.getCreatedDate().getTime(),
-                is(greaterThanOrEqualTo(snapshotOfNow.getTime())));
+        assertThat(outputMetacard.getCreatedDate()
+                .getTime(), is(greaterThanOrEqualTo(snapshotOfNow.getTime())));
 
         // MODIFIED
         assertThat(inputMetacard.getModifiedDate(), is(nullValue()));
-        assertThat(outputMetacard.getModifiedDate().getTime(),
-                is(greaterThanOrEqualTo(snapshotOfNow.getTime())));
+        assertThat(outputMetacard.getModifiedDate()
+                .getTime(), is(greaterThanOrEqualTo(snapshotOfNow.getTime())));
 
         // EFFECTIVE
         assertThat(inputMetacard.getEffectiveDate(), is(nullValue()));
-        assertThat(outputMetacard.getEffectiveDate().getTime(),
-                is(greaterThanOrEqualTo(snapshotOfNow.getTime())));
+        assertThat(outputMetacard.getEffectiveDate()
+                .getTime(), is(greaterThanOrEqualTo(snapshotOfNow.getTime())));
 
         // EXPIRATION
         assertEquals(inputMetacard.getExpirationDate(), outputMetacard.getExpirationDate());
@@ -208,10 +211,12 @@ public class TestMetacardGroomerPlugin {
         assertEquals(DEFAULT_TYPE, outputMetacard.getContentTypeName());
         assertEquals(DEFAULT_VERSION, outputMetacard.getContentTypeVersion());
         assertThat(outputMetacard.getMetadata(), is(DEFAULT_METADATA));
-        assertThat(outputMetacard.getCreatedDate().getTime(),
+        assertThat(outputMetacard.getCreatedDate()
+                        .getTime(),
                 is(equalTo(inputMetacard.getCreatedDate()
                         .getTime())));
-        assertThat(outputMetacard.getModifiedDate().getTime(),
+        assertThat(outputMetacard.getModifiedDate()
+                        .getTime(),
                 is(equalTo(inputMetacard.getModifiedDate()
                         .getTime())));
         assertEquals(inputMetacard.getEffectiveDate(), outputMetacard.getEffectiveDate());
@@ -237,10 +242,12 @@ public class TestMetacardGroomerPlugin {
         assertEquals(DEFAULT_TYPE, outputMetacard.getContentTypeName());
         assertEquals(DEFAULT_VERSION, outputMetacard.getContentTypeVersion());
         assertThat(outputMetacard.getMetadata(), is(DEFAULT_METADATA));
-        assertThat(outputMetacard.getCreatedDate().getTime(),
+        assertThat(outputMetacard.getCreatedDate()
+                        .getTime(),
                 is(equalTo(inputMetacard.getCreatedDate()
                         .getTime())));
-        assertThat(outputMetacard.getModifiedDate().getTime(),
+        assertThat(outputMetacard.getModifiedDate()
+                        .getTime(),
                 is(equalTo(inputMetacard.getModifiedDate()
                         .getTime())));
         assertEquals(inputMetacard.getEffectiveDate(), outputMetacard.getEffectiveDate());
@@ -266,10 +273,12 @@ public class TestMetacardGroomerPlugin {
         assertThat(outputMetacard.getContentTypeName(), is(nullValue()));
         assertThat(outputMetacard.getContentTypeVersion(), is(nullValue()));
         assertThat(outputMetacard.getMetadata(), is(DEFAULT_METADATA));
-        assertThat(outputMetacard.getCreatedDate().getTime(),
+        assertThat(outputMetacard.getCreatedDate()
+                        .getTime(),
                 is(equalTo(inputMetacard.getCreatedDate()
                         .getTime())));
-        assertThat(outputMetacard.getModifiedDate().getTime(),
+        assertThat(outputMetacard.getModifiedDate()
+                        .getTime(),
                 is(equalTo(inputMetacard.getModifiedDate()
                         .getTime())));
         assertEquals(inputMetacard.getEffectiveDate(), outputMetacard.getEffectiveDate());
@@ -309,9 +318,12 @@ public class TestMetacardGroomerPlugin {
         assertEquals(DEFAULT_TYPE, outputMetacard.getContentTypeName());
         assertEquals(DEFAULT_VERSION, outputMetacard.getContentTypeVersion());
         assertThat(outputMetacard.getMetadata(), is(DEFAULT_METADATA));
-        assertThat(outputMetacard.getCreatedDate().getTime(),
-                is(inputMetacard.getCreatedDate().getTime()));
-        assertThat(outputMetacard.getModifiedDate().getTime(),
+        assertThat(outputMetacard.getCreatedDate()
+                        .getTime(),
+                is(inputMetacard.getCreatedDate()
+                        .getTime()));
+        assertThat(outputMetacard.getModifiedDate()
+                        .getTime(),
                 is(equalTo(inputMetacard.getModifiedDate()
                         .getTime())));
         assertEquals(inputMetacard.getEffectiveDate(), outputMetacard.getEffectiveDate());
@@ -335,9 +347,12 @@ public class TestMetacardGroomerPlugin {
         assertEquals(DEFAULT_TYPE, outputMetacard.getContentTypeName());
         assertEquals(DEFAULT_VERSION, outputMetacard.getContentTypeVersion());
         assertThat(outputMetacard.getMetadata(), is(DEFAULT_METADATA));
-        assertThat(outputMetacard.getCreatedDate().getTime(),
-                is(inputMetacard.getCreatedDate().getTime()));
-        assertThat(outputMetacard.getModifiedDate().getTime(),
+        assertThat(outputMetacard.getCreatedDate()
+                        .getTime(),
+                is(inputMetacard.getCreatedDate()
+                        .getTime()));
+        assertThat(outputMetacard.getModifiedDate()
+                        .getTime(),
                 is(equalTo(inputMetacard.getModifiedDate()
                         .getTime())));
         assertEquals(inputMetacard.getEffectiveDate(), outputMetacard.getEffectiveDate());
@@ -364,9 +379,12 @@ public class TestMetacardGroomerPlugin {
 
         assertNotNull(returnedRequest);
 
-        assertThat(returnedRequest.getUpdates().size(), is(1));
+        assertThat(returnedRequest.getUpdates()
+                .size(), is(1));
 
-        Metacard outputMetacard = returnedRequest.getUpdates().get(0).getValue();
+        Metacard outputMetacard = returnedRequest.getUpdates()
+                .get(0)
+                .getValue();
 
         assertThat(inputMetacard.getId(), is(outputMetacard.getId()));
         assertEquals(DEFAULT_TITLE, outputMetacard.getTitle());
@@ -374,9 +392,12 @@ public class TestMetacardGroomerPlugin {
         assertEquals(DEFAULT_TYPE, outputMetacard.getContentTypeName());
         assertEquals(DEFAULT_VERSION, outputMetacard.getContentTypeVersion());
         assertThat(outputMetacard.getMetadata(), is(DEFAULT_METADATA));
-        assertThat(outputMetacard.getCreatedDate().getTime(),
-                is(inputMetacard.getCreatedDate().getTime()));
-        assertThat(outputMetacard.getModifiedDate().getTime(),
+        assertThat(outputMetacard.getCreatedDate()
+                        .getTime(),
+                is(inputMetacard.getCreatedDate()
+                        .getTime()));
+        assertThat(outputMetacard.getModifiedDate()
+                        .getTime(),
                 is(equalTo(inputMetacard.getModifiedDate()
                         .getTime())));
         assertEquals(inputMetacard.getEffectiveDate(), outputMetacard.getEffectiveDate());
@@ -411,16 +432,16 @@ public class TestMetacardGroomerPlugin {
         assertThat(outputMetacard.getMetadata(), is(DEFAULT_METADATA));
 
         assertThat(outputMetacard.getCreatedDate(), is(notNullValue()));
-        assertThat(outputMetacard.getCreatedDate().getTime(),
-                is(greaterThanOrEqualTo(snapshotOfNow.getTime())));
+        assertThat(outputMetacard.getCreatedDate()
+                .getTime(), is(greaterThanOrEqualTo(snapshotOfNow.getTime())));
 
         assertThat(outputMetacard.getModifiedDate(), is(notNullValue()));
-        assertThat(outputMetacard.getModifiedDate().getTime(),
-                is(greaterThanOrEqualTo(snapshotOfNow.getTime())));
+        assertThat(outputMetacard.getModifiedDate()
+                .getTime(), is(greaterThanOrEqualTo(snapshotOfNow.getTime())));
 
         assertThat(outputMetacard.getEffectiveDate(), is(notNullValue()));
-        assertThat(outputMetacard.getEffectiveDate().getTime(),
-                is(greaterThanOrEqualTo(snapshotOfNow.getTime())));
+        assertThat(outputMetacard.getEffectiveDate()
+                .getTime(), is(greaterThanOrEqualTo(snapshotOfNow.getTime())));
 
         assertEquals(inputMetacard.getExpirationDate(), outputMetacard.getExpirationDate());
 
@@ -476,7 +497,8 @@ public class TestMetacardGroomerPlugin {
 
         assertThat(returnedRequest.getUpdates(), not(nullValue()));
 
-        assertThat(returnedRequest.getUpdates().size(), is(0));
+        assertThat(returnedRequest.getUpdates()
+                .size(), is(0));
 
     }
 
@@ -488,7 +510,8 @@ public class TestMetacardGroomerPlugin {
 
         UpdateRequest request = mock(UpdateRequest.class);
 
-        List<Entry<Serializable, Metacard>> updates = new ArrayList<Entry<Serializable, Metacard>>();
+        List<Entry<Serializable, Metacard>> updates =
+                new ArrayList<Entry<Serializable, Metacard>>();
         updates.add((Entry<Serializable, Metacard>) null);
 
         when(request.getUpdates()).thenReturn(updates);
@@ -507,7 +530,8 @@ public class TestMetacardGroomerPlugin {
 
         UpdateRequest request = mock(UpdateRequest.class);
 
-        List<Entry<Serializable, Metacard>> updates = new ArrayList<Entry<Serializable, Metacard>>();
+        List<Entry<Serializable, Metacard>> updates =
+                new ArrayList<Entry<Serializable, Metacard>>();
         updates.add(new Entry<Serializable, Metacard>() {
 
             @Override
@@ -542,7 +566,8 @@ public class TestMetacardGroomerPlugin {
 
         UpdateRequest request = mock(UpdateRequest.class);
 
-        List<Entry<Serializable, Metacard>> updates = new ArrayList<Entry<Serializable, Metacard>>();
+        List<Entry<Serializable, Metacard>> updates =
+                new ArrayList<Entry<Serializable, Metacard>>();
         updates.add(new Entry<Serializable, Metacard>() {
 
             @Override
@@ -579,9 +604,11 @@ public class TestMetacardGroomerPlugin {
 
         assertNotNull(returnedRequest);
 
-        assertThat(returnedRequest.getMetacards().size(), is(1));
+        assertThat(returnedRequest.getMetacards()
+                .size(), is(1));
 
-        return returnedRequest.getMetacards().get(0);
+        return returnedRequest.getMetacards()
+                .get(0);
     }
 
     protected Metacard processUpdate(Metacard inputMetacard)
@@ -594,9 +621,12 @@ public class TestMetacardGroomerPlugin {
 
         assertNotNull(returnedRequest);
 
-        assertThat(returnedRequest.getUpdates().size(), is(1));
+        assertThat(returnedRequest.getUpdates()
+                .size(), is(1));
 
-        return returnedRequest.getUpdates().get(0).getValue();
+        return returnedRequest.getUpdates()
+                .get(0)
+                .getValue();
     }
 
     private Metacard copy(Metacard inputMetacard) {
@@ -606,7 +636,8 @@ public class TestMetacardGroomerPlugin {
         newMetacard.setSourceId(inputMetacard.getSourceId());
         newMetacard.setType(inputMetacard.getMetacardType());
 
-        for (AttributeDescriptor ad : inputMetacard.getMetacardType().getAttributeDescriptors()) {
+        for (AttributeDescriptor ad : inputMetacard.getMetacardType()
+                .getAttributeDescriptors()) {
 
             newMetacard.setAttribute(inputMetacard.getAttribute(ad.getName()));
         }
@@ -616,7 +647,8 @@ public class TestMetacardGroomerPlugin {
 
     protected Metacard getStandardMetacard() {
         DateTime currentDate = new DateTime();
-        Date defaultDate = currentDate.minusMinutes(1).toDate();
+        Date defaultDate = currentDate.minusMinutes(1)
+                .toDate();
 
         MetacardImpl metacard = new MetacardImpl();
         metacard.setTitle(DEFAULT_TITLE);

@@ -29,14 +29,15 @@ import ddf.action.impl.ActionImpl;
 
 public class MetacardTransformerActionProvider extends AbstractMetacardActionProvider {
 
-    static final String DESCRIPTION_PREFIX = "Provides a URL to the metacard that transforms the return value via the ";
+    static final String DESCRIPTION_PREFIX =
+            "Provides a URL to the metacard that transforms the return value via the ";
 
     static final String DESCRIPTION_SUFFIX = " transformer";
 
     static final String TITLE_PREFIX = "Export as ";
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(MetacardTransformerActionProvider.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(MetacardTransformerActionProvider.class);
 
     private String metacardTransformerId;
 
@@ -72,8 +73,10 @@ public class MetacardTransformerActionProvider extends AbstractMetacardActionPro
             return null;
         }
 
-        return new ActionImpl(getId(), TITLE_PREFIX + metacardTransformerId,
-                DESCRIPTION_PREFIX + metacardTransformerId + DESCRIPTION_SUFFIX, url);
+        return new ActionImpl(getId(),
+                TITLE_PREFIX + metacardTransformerId,
+                DESCRIPTION_PREFIX + metacardTransformerId + DESCRIPTION_SUFFIX,
+                url);
 
     }
 

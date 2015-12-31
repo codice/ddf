@@ -57,7 +57,8 @@ public class RemoveCommandTest {
         final SolrCacheMBean mbean = mock(SolrCacheMBean.class);
 
         List<String> ids = new ArrayList();
-        ids.add(metacardList.get(0).getId());
+        ids.add(metacardList.get(0)
+                .getId());
 
         RemoveCommand removeCommand = new RemoveCommand() {
             @Override
@@ -87,9 +88,12 @@ public class RemoveCommandTest {
         final SolrCacheMBean mbean = mock(SolrCacheMBean.class);
 
         List<String> ids = new ArrayList();
-        ids.add(metacardList.get(0).getId());
-        ids.add(metacardList.get(1).getId());
-        ids.add(metacardList.get(2).getId());
+        ids.add(metacardList.get(0)
+                .getId());
+        ids.add(metacardList.get(1)
+                .getId());
+        ids.add(metacardList.get(2)
+                .getId());
 
         RemoveCommand removeCommand = new RemoveCommand() {
             @Override
@@ -151,7 +155,8 @@ public class RemoveCommandTest {
 
         for (int i = 0; i < amount; i++) {
 
-            String id = UUID.randomUUID().toString();
+            String id = UUID.randomUUID()
+                    .toString();
             MetacardImpl metacard = new MetacardImpl();
             metacard.setId(id);
 

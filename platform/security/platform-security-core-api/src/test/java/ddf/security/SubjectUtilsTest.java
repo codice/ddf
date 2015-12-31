@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -37,7 +37,9 @@ public class SubjectUtilsTest {
         org.apache.shiro.mgt.SecurityManager secManager = new DefaultSecurityManager();
         PrincipalCollection principals = new SimplePrincipalCollection(TEST_NAME, "testrealm");
         subject = new Subject.Builder(secManager).principals(principals)
-                .session(new SimpleSession()).authenticated(true).buildSubject();
+                .session(new SimpleSession())
+                .authenticated(true)
+                .buildSubject();
         assertEquals(TEST_NAME, SubjectUtils.getName(subject));
     }
 
@@ -47,7 +49,9 @@ public class SubjectUtilsTest {
         org.apache.shiro.mgt.SecurityManager secManager = new DefaultSecurityManager();
         PrincipalCollection principals = new SimplePrincipalCollection();
         subject = new Subject.Builder(secManager).principals(principals)
-                .session(new SimpleSession()).authenticated(true).buildSubject();
+                .session(new SimpleSession())
+                .authenticated(true)
+                .buildSubject();
         assertEquals(DEFAULT_NAME, SubjectUtils.getName(subject, DEFAULT_NAME));
         assertEquals(DEFAULT_NAME, SubjectUtils.getName(null, DEFAULT_NAME));
     }

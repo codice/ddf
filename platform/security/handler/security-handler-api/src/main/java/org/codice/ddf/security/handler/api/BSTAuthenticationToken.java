@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -137,13 +137,15 @@ public abstract class BSTAuthenticationToken extends BaseAuthenticationToken {
         if (LOGGER.isTraceEnabled()) {
             String[] lines = retVal.split(NEWLINE);
             if (lines.length >= 3) {
-                LOGGER.trace("Credentials String: {}\n{}\n{}", lines[0], BST_CREDENTIALS + "******",
+                LOGGER.trace("Credentials String: {}\n{}\n{}",
+                        lines[0],
+                        BST_CREDENTIALS + "******",
                         lines[2]);
             }
         }
         LOGGER.trace("Credential String: {}", retVal);
-        String encodedCreds = Base64
-                .encodeBytes(builder.toString().getBytes(), Base64.DONT_BREAK_LINES);
+        String encodedCreds = Base64.encodeBytes(builder.toString()
+                .getBytes(), Base64.DONT_BREAK_LINES);
         LOGGER.trace("BST: {}", encodedCreds);
         return encodedCreds;
     }
@@ -157,11 +159,12 @@ public abstract class BSTAuthenticationToken extends BaseAuthenticationToken {
         Marshaller marshaller = null;
 
         BinarySecurityTokenType binarySecurityTokenType = createBinarySecurityTokenType(credential);
-        JAXBElement<BinarySecurityTokenType> binarySecurityTokenElement = new JAXBElement<BinarySecurityTokenType>(
-                new QName(
+        JAXBElement<BinarySecurityTokenType> binarySecurityTokenElement =
+                new JAXBElement<BinarySecurityTokenType>(new QName(
                         "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",
-                        "BinarySecurityToken"), BinarySecurityTokenType.class,
-                binarySecurityTokenType);
+                        "BinarySecurityToken"),
+                        BinarySecurityTokenType.class,
+                        binarySecurityTokenType);
 
         if (BINARY_TOKEN_CONTEXT != null) {
             try {

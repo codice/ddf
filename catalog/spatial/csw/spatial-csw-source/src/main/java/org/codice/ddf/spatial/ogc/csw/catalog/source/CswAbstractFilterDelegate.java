@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 
 package org.codice.ddf.spatial.ogc.csw.catalog.source;
@@ -106,12 +105,16 @@ public abstract class CswAbstractFilterDelegate<T> extends FilterDelegate<T> {
         List<DCP> dcp = getRecordsOp.getDCP();
         // only supports 1 DCP, and that is HTTP
         if (!CollectionUtils.isEmpty(dcp)) {
-            List<JAXBElement<RequestMethodType>> methods = dcp.get(0).getHTTP().getGetOrPost();
+            List<JAXBElement<RequestMethodType>> methods = dcp.get(0)
+                    .getHTTP()
+                    .getGetOrPost();
             for (JAXBElement<RequestMethodType> method : methods) {
                 if (CswConstants.POST.equals(method.getName())) {
-                    postUri = method.getValue().getHref();
+                    postUri = method.getValue()
+                            .getHref();
                 } else if (CswConstants.GET.equals(method.getName())) {
-                    getUri = method.getValue().getHref();
+                    getUri = method.getValue()
+                            .getHref();
                 }
             }
         }

@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common;
 
@@ -65,10 +64,13 @@ public class TestFeatureMetacardType {
         gmlElement.setSchemaTypeName(new QName(Wfs20Constants.GML_3_2_NAMESPACE, GML));
         gmlElement.setName(ELEMENT_NAME_1);
 
-        FeatureMetacardType featureMetacardType = new FeatureMetacardType(schema, FEATURE_TYPE,
-                NON_QUERYABLE_PROPS, Wfs20Constants.GML_3_2_NAMESPACE);
+        FeatureMetacardType featureMetacardType = new FeatureMetacardType(schema,
+                FEATURE_TYPE,
+                NON_QUERYABLE_PROPS,
+                Wfs20Constants.GML_3_2_NAMESPACE);
 
-        assertTrue(featureMetacardType.getGmlProperties().size() == 1);
+        assertTrue(featureMetacardType.getGmlProperties()
+                .size() == 1);
 
         assertAttributeDescriptor(featureMetacardType, ELEMENT_NAME_1, BasicTypes.GEO_TYPE);
 
@@ -87,9 +89,12 @@ public class TestFeatureMetacardType {
         gmlElement2.setSchemaTypeName(new QName(Wfs20Constants.GML_3_2_NAMESPACE, GML));
         gmlElement2.setName(ELEMENT_NAME_2);
 
-        FeatureMetacardType featureMetacardType = new FeatureMetacardType(schema, FEATURE_TYPE,
-                NON_QUERYABLE_PROPS, Wfs20Constants.GML_3_2_NAMESPACE);
-        assertTrue(featureMetacardType.getGmlProperties().size() == 2);
+        FeatureMetacardType featureMetacardType = new FeatureMetacardType(schema,
+                FEATURE_TYPE,
+                NON_QUERYABLE_PROPS,
+                Wfs20Constants.GML_3_2_NAMESPACE);
+        assertTrue(featureMetacardType.getGmlProperties()
+                .size() == 2);
         assertAttributeDescriptor(featureMetacardType, ELEMENT_NAME_2, BasicTypes.GEO_TYPE);
         assertAttributeDescriptor(featureMetacardType, ELEMENT_NAME_1, BasicTypes.GEO_TYPE);
 
@@ -111,17 +116,20 @@ public class TestFeatureMetacardType {
         List<String> nonQueryProps = new ArrayList<String>();
         nonQueryProps.add(ELEMENT_NAME_2);
 
-        FeatureMetacardType featureMetacardType = new FeatureMetacardType(schema, FEATURE_TYPE,
-                nonQueryProps, Wfs20Constants.GML_3_2_NAMESPACE);
-        assertTrue(featureMetacardType.getGmlProperties().size() == 2);
-        AttributeDescriptor attrDesc = featureMetacardType
-                .getAttributeDescriptor(prefix(ELEMENT_NAME_1));
+        FeatureMetacardType featureMetacardType = new FeatureMetacardType(schema,
+                FEATURE_TYPE,
+                nonQueryProps,
+                Wfs20Constants.GML_3_2_NAMESPACE);
+        assertTrue(featureMetacardType.getGmlProperties()
+                .size() == 2);
+        AttributeDescriptor attrDesc = featureMetacardType.getAttributeDescriptor(prefix(
+                ELEMENT_NAME_1));
         assertNotNull(attrDesc);
         assertTrue(attrDesc.getType() == BasicTypes.GEO_TYPE);
         assertTrue(attrDesc.isIndexed());
 
-        AttributeDescriptor attrDesc2 = featureMetacardType
-                .getAttributeDescriptor(prefix(ELEMENT_NAME_2));
+        AttributeDescriptor attrDesc2 = featureMetacardType.getAttributeDescriptor(prefix(
+                ELEMENT_NAME_2));
         assertNotNull(attrDesc2);
         assertTrue(attrDesc2.getType() == BasicTypes.GEO_TYPE);
         assertFalse(attrDesc2.isIndexed());
@@ -135,11 +143,15 @@ public class TestFeatureMetacardType {
         stringElement.setSchemaType(new XmlSchemaSimpleType(schema, false));
         stringElement.setSchemaTypeName(Constants.XSD_STRING);
         stringElement.setName(ELEMENT_NAME_1);
-        schema.getElements().put(new QName(ELEMENT_NAME_1), stringElement);
+        schema.getElements()
+                .put(new QName(ELEMENT_NAME_1), stringElement);
 
-        FeatureMetacardType featureMetacardType = new FeatureMetacardType(schema, FEATURE_TYPE,
-                NON_QUERYABLE_PROPS, Wfs20Constants.GML_3_2_NAMESPACE);
-        assertTrue(featureMetacardType.getTextualProperties().size() == 1);
+        FeatureMetacardType featureMetacardType = new FeatureMetacardType(schema,
+                FEATURE_TYPE,
+                NON_QUERYABLE_PROPS,
+                Wfs20Constants.GML_3_2_NAMESPACE);
+        assertTrue(featureMetacardType.getTextualProperties()
+                .size() == 1);
 
         assertAttributeDescriptor(featureMetacardType, ELEMENT_NAME_1, BasicTypes.STRING_TYPE);
     }
@@ -157,12 +169,17 @@ public class TestFeatureMetacardType {
         stringElement2.setSchemaTypeName(Constants.XSD_STRING);
         stringElement2.setName(ELEMENT_NAME_2);
 
-        schema.getElements().put(new QName(ELEMENT_NAME_1), stringElement);
-        schema.getElements().put(new QName(ELEMENT_NAME_2), stringElement2);
+        schema.getElements()
+                .put(new QName(ELEMENT_NAME_1), stringElement);
+        schema.getElements()
+                .put(new QName(ELEMENT_NAME_2), stringElement2);
 
-        FeatureMetacardType featureMetacardType = new FeatureMetacardType(schema, FEATURE_TYPE,
-                NON_QUERYABLE_PROPS, Wfs20Constants.GML_3_2_NAMESPACE);
-        assertTrue(featureMetacardType.getTextualProperties().size() == 2);
+        FeatureMetacardType featureMetacardType = new FeatureMetacardType(schema,
+                FEATURE_TYPE,
+                NON_QUERYABLE_PROPS,
+                Wfs20Constants.GML_3_2_NAMESPACE);
+        assertTrue(featureMetacardType.getTextualProperties()
+                .size() == 2);
 
         assertAttributeDescriptor(featureMetacardType, ELEMENT_NAME_2, BasicTypes.STRING_TYPE);
         assertAttributeDescriptor(featureMetacardType, ELEMENT_NAME_1, BasicTypes.STRING_TYPE);
@@ -185,16 +202,19 @@ public class TestFeatureMetacardType {
         List<String> nonQueryProps = new ArrayList<String>();
         nonQueryProps.add(ELEMENT_NAME_1);
 
-        FeatureMetacardType featureMetacardType = new FeatureMetacardType(schema, FEATURE_TYPE,
-                nonQueryProps, Wfs20Constants.GML_3_2_NAMESPACE);
-        assertTrue(featureMetacardType.getTextualProperties().size() == 2);
-        AttributeDescriptor attrDesc = featureMetacardType
-                .getAttributeDescriptor(prefix(ELEMENT_NAME_1));
+        FeatureMetacardType featureMetacardType = new FeatureMetacardType(schema,
+                FEATURE_TYPE,
+                nonQueryProps,
+                Wfs20Constants.GML_3_2_NAMESPACE);
+        assertTrue(featureMetacardType.getTextualProperties()
+                .size() == 2);
+        AttributeDescriptor attrDesc = featureMetacardType.getAttributeDescriptor(prefix(
+                ELEMENT_NAME_1));
         assertNotNull(attrDesc);
         assertFalse(attrDesc.isIndexed());
 
-        AttributeDescriptor attrDesc2 = featureMetacardType
-                .getAttributeDescriptor(prefix(ELEMENT_NAME_2));
+        AttributeDescriptor attrDesc2 = featureMetacardType.getAttributeDescriptor(prefix(
+                ELEMENT_NAME_2));
         assertNotNull(attrDesc2);
         assertTrue(attrDesc2.isIndexed());
 
@@ -211,13 +231,19 @@ public class TestFeatureMetacardType {
         gmlElement.setSchemaType(new XmlSchemaComplexType(schema, false));
         gmlElement.setSchemaTypeName(new QName(Wfs20Constants.GML_3_2_NAMESPACE, GML));
         gmlElement.setName(ELEMENT_NAME_2);
-        schema.getElements().put(new QName(ELEMENT_NAME_1), stringElement);
-        schema.getElements().put(new QName(ELEMENT_NAME_2), gmlElement);
+        schema.getElements()
+                .put(new QName(ELEMENT_NAME_1), stringElement);
+        schema.getElements()
+                .put(new QName(ELEMENT_NAME_2), gmlElement);
 
-        FeatureMetacardType featureMetacardType = new FeatureMetacardType(schema, FEATURE_TYPE,
-                NON_QUERYABLE_PROPS, Wfs20Constants.GML_3_2_NAMESPACE);
-        assertTrue(featureMetacardType.getTextualProperties().size() == 1);
-        assertTrue(featureMetacardType.getGmlProperties().size() == 1);
+        FeatureMetacardType featureMetacardType = new FeatureMetacardType(schema,
+                FEATURE_TYPE,
+                NON_QUERYABLE_PROPS,
+                Wfs20Constants.GML_3_2_NAMESPACE);
+        assertTrue(featureMetacardType.getTextualProperties()
+                .size() == 1);
+        assertTrue(featureMetacardType.getGmlProperties()
+                .size() == 1);
 
         assertAttributeDescriptor(featureMetacardType, ELEMENT_NAME_1, BasicTypes.STRING_TYPE);
         assertAttributeDescriptor(featureMetacardType, ELEMENT_NAME_2, BasicTypes.GEO_TYPE);
@@ -244,19 +270,25 @@ public class TestFeatureMetacardType {
         XmlSchemaComplexContent complexContent = new XmlSchemaComplexContent();
         XmlSchemaComplexContentExtension contentExtension = new XmlSchemaComplexContentExtension();
         XmlSchemaSequence particle = new XmlSchemaSequence();
-        particle.getItems().add(stringElement);
+        particle.getItems()
+                .add(stringElement);
         contentExtension.setParticle(particle);
         complexContent.setContent(contentExtension);
         complexType.setContentModel(complexContent);
         complexElement.setSchemaType(complexType);
         complexElement.setSchemaTypeName(new QName("Complex"));
 
-        schema.getElements().put(new QName(ELEMENT_NAME_2), complexElement);
+        schema.getElements()
+                .put(new QName(ELEMENT_NAME_2), complexElement);
 
-        FeatureMetacardType featureMetacardType = new FeatureMetacardType(schema, FEATURE_TYPE,
-                NON_QUERYABLE_PROPS, Wfs20Constants.GML_3_2_NAMESPACE);
-        assertTrue(featureMetacardType.getTextualProperties().size() == 1);
-        assertTrue(featureMetacardType.getGmlProperties().size() == 1);
+        FeatureMetacardType featureMetacardType = new FeatureMetacardType(schema,
+                FEATURE_TYPE,
+                NON_QUERYABLE_PROPS,
+                Wfs20Constants.GML_3_2_NAMESPACE);
+        assertTrue(featureMetacardType.getTextualProperties()
+                .size() == 1);
+        assertTrue(featureMetacardType.getGmlProperties()
+                .size() == 1);
 
         assertAttributeDescriptor(featureMetacardType, ELEMENT_NAME_2, BasicTypes.STRING_TYPE);
         assertAttributeDescriptor(featureMetacardType, ELEMENT_NAME_1, BasicTypes.GEO_TYPE);
@@ -274,11 +306,15 @@ public class TestFeatureMetacardType {
         dateTimeElement.setSchemaTypeName(Constants.XSD_DATETIME);
         dateTimeElement.setName(ELEMENT_NAME_2);
 
-        schema.getElements().put(new QName(ELEMENT_NAME_1), dateElement);
-        schema.getElements().put(new QName(ELEMENT_NAME_2), dateTimeElement);
+        schema.getElements()
+                .put(new QName(ELEMENT_NAME_1), dateElement);
+        schema.getElements()
+                .put(new QName(ELEMENT_NAME_2), dateTimeElement);
 
-        FeatureMetacardType featureMetacardType = new FeatureMetacardType(schema, FEATURE_TYPE,
-                NON_QUERYABLE_PROPS, Wfs20Constants.GML_3_2_NAMESPACE);
+        FeatureMetacardType featureMetacardType = new FeatureMetacardType(schema,
+                FEATURE_TYPE,
+                NON_QUERYABLE_PROPS,
+                Wfs20Constants.GML_3_2_NAMESPACE);
         assertAttributeDescriptor(featureMetacardType, ELEMENT_NAME_1, BasicTypes.DATE_TYPE);
         assertAttributeDescriptor(featureMetacardType, ELEMENT_NAME_2, BasicTypes.DATE_TYPE);
 
@@ -292,10 +328,13 @@ public class TestFeatureMetacardType {
         booleanElement.setSchemaTypeName(Constants.XSD_BOOLEAN);
         booleanElement.setName(ELEMENT_NAME_1);
 
-        schema.getElements().put(new QName(ELEMENT_NAME_1), booleanElement);
+        schema.getElements()
+                .put(new QName(ELEMENT_NAME_1), booleanElement);
 
-        FeatureMetacardType featureMetacardType = new FeatureMetacardType(schema, FEATURE_TYPE,
-                NON_QUERYABLE_PROPS, Wfs20Constants.GML_3_2_NAMESPACE);
+        FeatureMetacardType featureMetacardType = new FeatureMetacardType(schema,
+                FEATURE_TYPE,
+                NON_QUERYABLE_PROPS,
+                Wfs20Constants.GML_3_2_NAMESPACE);
         assertAttributeDescriptor(featureMetacardType, ELEMENT_NAME_1, BasicTypes.BOOLEAN_TYPE);
 
     }
@@ -308,10 +347,13 @@ public class TestFeatureMetacardType {
         doubleElement.setSchemaTypeName(Constants.XSD_DOUBLE);
         doubleElement.setName(ELEMENT_NAME_1);
 
-        schema.getElements().put(new QName(ELEMENT_NAME_1), doubleElement);
+        schema.getElements()
+                .put(new QName(ELEMENT_NAME_1), doubleElement);
 
-        FeatureMetacardType featureMetacardType = new FeatureMetacardType(schema, FEATURE_TYPE,
-                NON_QUERYABLE_PROPS, Wfs20Constants.GML_3_2_NAMESPACE);
+        FeatureMetacardType featureMetacardType = new FeatureMetacardType(schema,
+                FEATURE_TYPE,
+                NON_QUERYABLE_PROPS,
+                Wfs20Constants.GML_3_2_NAMESPACE);
         assertAttributeDescriptor(featureMetacardType, ELEMENT_NAME_1, BasicTypes.DOUBLE_TYPE);
 
     }
@@ -324,10 +366,13 @@ public class TestFeatureMetacardType {
         floatElement.setSchemaTypeName(Constants.XSD_FLOAT);
         floatElement.setName(ELEMENT_NAME_1);
 
-        schema.getElements().put(new QName(ELEMENT_NAME_1), floatElement);
+        schema.getElements()
+                .put(new QName(ELEMENT_NAME_1), floatElement);
 
-        FeatureMetacardType featureMetacardType = new FeatureMetacardType(schema, FEATURE_TYPE,
-                NON_QUERYABLE_PROPS, Wfs20Constants.GML_3_2_NAMESPACE);
+        FeatureMetacardType featureMetacardType = new FeatureMetacardType(schema,
+                FEATURE_TYPE,
+                NON_QUERYABLE_PROPS,
+                Wfs20Constants.GML_3_2_NAMESPACE);
         assertAttributeDescriptor(featureMetacardType, ELEMENT_NAME_1, BasicTypes.FLOAT_TYPE);
 
     }
@@ -348,12 +393,17 @@ public class TestFeatureMetacardType {
         positivieIntegerElement.setSchemaTypeName(Constants.XSD_POSITIVEINTEGER);
         positivieIntegerElement.setName(ELEMENT_NAME_3);
 
-        schema.getElements().put(new QName(ELEMENT_NAME_1), integerElement);
-        schema.getElements().put(new QName(ELEMENT_NAME_2), intElement);
-        schema.getElements().put(new QName(ELEMENT_NAME_3), positivieIntegerElement);
+        schema.getElements()
+                .put(new QName(ELEMENT_NAME_1), integerElement);
+        schema.getElements()
+                .put(new QName(ELEMENT_NAME_2), intElement);
+        schema.getElements()
+                .put(new QName(ELEMENT_NAME_3), positivieIntegerElement);
 
-        FeatureMetacardType featureMetacardType = new FeatureMetacardType(schema, FEATURE_TYPE,
-                NON_QUERYABLE_PROPS, Wfs20Constants.GML_3_2_NAMESPACE);
+        FeatureMetacardType featureMetacardType = new FeatureMetacardType(schema,
+                FEATURE_TYPE,
+                NON_QUERYABLE_PROPS,
+                Wfs20Constants.GML_3_2_NAMESPACE);
         assertAttributeDescriptor(featureMetacardType, ELEMENT_NAME_1, BasicTypes.STRING_TYPE);
         assertAttributeDescriptor(featureMetacardType, ELEMENT_NAME_2, BasicTypes.INTEGER_TYPE);
         assertAttributeDescriptor(featureMetacardType, ELEMENT_NAME_3, BasicTypes.STRING_TYPE);
@@ -368,10 +418,13 @@ public class TestFeatureMetacardType {
         longElement.setSchemaTypeName(Constants.XSD_LONG);
         longElement.setName(ELEMENT_NAME_1);
 
-        schema.getElements().put(new QName(ELEMENT_NAME_1), longElement);
+        schema.getElements()
+                .put(new QName(ELEMENT_NAME_1), longElement);
 
-        FeatureMetacardType featureMetacardType = new FeatureMetacardType(schema, FEATURE_TYPE,
-                NON_QUERYABLE_PROPS, Wfs20Constants.GML_3_2_NAMESPACE);
+        FeatureMetacardType featureMetacardType = new FeatureMetacardType(schema,
+                FEATURE_TYPE,
+                NON_QUERYABLE_PROPS,
+                Wfs20Constants.GML_3_2_NAMESPACE);
         assertAttributeDescriptor(featureMetacardType, ELEMENT_NAME_1, BasicTypes.LONG_TYPE);
 
     }
@@ -384,10 +437,13 @@ public class TestFeatureMetacardType {
         shortElement.setSchemaTypeName(Constants.XSD_SHORT);
         shortElement.setName(ELEMENT_NAME_1);
 
-        schema.getElements().put(new QName(ELEMENT_NAME_1), shortElement);
+        schema.getElements()
+                .put(new QName(ELEMENT_NAME_1), shortElement);
 
-        FeatureMetacardType featureMetacardType = new FeatureMetacardType(schema, FEATURE_TYPE,
-                NON_QUERYABLE_PROPS, Wfs20Constants.GML_3_2_NAMESPACE);
+        FeatureMetacardType featureMetacardType = new FeatureMetacardType(schema,
+                FEATURE_TYPE,
+                NON_QUERYABLE_PROPS,
+                Wfs20Constants.GML_3_2_NAMESPACE);
         assertAttributeDescriptor(featureMetacardType, ELEMENT_NAME_1, BasicTypes.SHORT_TYPE);
 
     }
@@ -400,13 +456,17 @@ public class TestFeatureMetacardType {
         element.setSchemaTypeName(Constants.XSD_STRING);
         element.setName(ELEMENT_NAME);
 
-        schema.getElements().put(new QName(ELEMENT_NAME), element);
-        FeatureMetacardType fmt = new FeatureMetacardType(schema, FEATURE_TYPE, NON_QUERYABLE_PROPS,
+        schema.getElements()
+                .put(new QName(ELEMENT_NAME), element);
+        FeatureMetacardType fmt = new FeatureMetacardType(schema,
+                FEATURE_TYPE,
+                NON_QUERYABLE_PROPS,
                 Wfs20Constants.GML_3_2_NAMESPACE);
 
         for (AttributeDescriptor ad : BasicTypes.BASIC_METACARD.getAttributeDescriptors()) {
             assertBasicAttributeDescriptor(fmt, ad.getName(), ad.getType());
-            assertFalse(fmt.getAttributeDescriptor(ad.getName()).isStored());
+            assertFalse(fmt.getAttributeDescriptor(ad.getName())
+                    .isStored());
         }
 
     }

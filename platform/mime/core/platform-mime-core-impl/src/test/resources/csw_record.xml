@@ -20,7 +20,7 @@
     <dc:type>http://purl.org/dc/dcmitype/Service</dc:type>
     <dct:abstract>Proin sit amet justo. In justo. Aenean adipiscing nulla id tellus.</dct:abstract>
     <ows:BoundingBox crs="urn:x-ogc:def:crs:EPSG:6.11:4326">
-      <ows:LowerCorner>60.042 13.754</ows:LowerCorner>
-      <ows:UpperCorner>68.410 17.920</ows:UpperCorner>
+        <ows:LowerCorner>60.042 13.754</ows:LowerCorner>
+        <ows:UpperCorner>68.410 17.920</ows:UpperCorner>
     </ows:BoundingBox>
 </csw:Record>

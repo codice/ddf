@@ -108,7 +108,7 @@ public class GeoNamesFileExtractor implements GeoEntryExtractor {
 
             double bytesRead = 0.0;
 
-            for (String line; (line = reader.readLine()) != null;) {
+            for (String line; (line = reader.readLine()) != null; ) {
                 extractionCallback.extracted(extractGeoEntry(line));
                 bytesRead += line.getBytes().length;
                 extractionCallback.updateProgress((int) ((bytesRead / fileSize) * 100));
@@ -168,7 +168,9 @@ public class GeoNamesFileExtractor implements GeoEntryExtractor {
 
             Response response = createConnection(resource);
             InputStream urlInputStream = getUrlInputStreamFromWebClient();
-            InputStream inputStream = getInputStreamFromUrl(resource, response, urlInputStream,
+            InputStream inputStream = getInputStreamFromUrl(resource,
+                    response,
+                    urlInputStream,
                     extractionCallback);
 
             return unZipInputStream(resource, inputStream);
@@ -287,7 +289,8 @@ public class GeoNamesFileExtractor implements GeoEntryExtractor {
             while ((zipEntry = zipInputStream.getNextEntry()) != null) {
 
                 // GeoNames <filename>.zip files will contain <filename>.txt and readme.txt
-                if (!zipEntry.getName().equals("readme.txt")) {
+                if (!zipEntry.getName()
+                        .equals("readme.txt")) {
 
                     byte data[] = new byte[BUFFER_SIZE];
                     int bytesRead;

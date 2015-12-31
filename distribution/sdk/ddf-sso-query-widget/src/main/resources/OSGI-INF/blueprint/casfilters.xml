@@ -15,14 +15,14 @@
 
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-	<reference id="proxyFilter" interface="javax.servlet.Filter" filter="(filter-name=cas-client)" />
-	
-	<service ref="proxyFilter"
-		interface="javax.servlet.Filter">
-		<service-properties>
-			<entry key="filter-name" value="ProxyFilter" />
-			<entry key="urlPatterns" value="/*" />
-		</service-properties>
-	</service>
+    <reference id="proxyFilter" interface="javax.servlet.Filter" filter="(filter-name=cas-client)"/>
+
+    <service ref="proxyFilter"
+             interface="javax.servlet.Filter">
+        <service-properties>
+            <entry key="filter-name" value="ProxyFilter"/>
+            <entry key="urlPatterns" value="/*"/>
+        </service-properties>
+    </service>
 
 </blueprint>

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -31,8 +31,8 @@ public class TestBSTDelegationHandler {
     public void testCanHandle() {
         BinarySecurityTokenType binarySecurityTokenType = new BinarySecurityTokenType();
         binarySecurityTokenType.setEncodingType(WSConstants.SOAPMESSAGE_NS + "#Base64Binary");
-        binarySecurityTokenType
-                .setValueType(BSTAuthenticationToken.BST_NS + "#" + BSTAuthenticationToken.BST_LN);
+        binarySecurityTokenType.setValueType(
+                BSTAuthenticationToken.BST_NS + "#" + BSTAuthenticationToken.BST_LN);
         ReceivedToken receivedToken = mock(ReceivedToken.class);
         when(receivedToken.getToken()).thenReturn(binarySecurityTokenType);
         BSTDelegationHandler bstDelegationHandler = new BSTDelegationHandler();
@@ -44,8 +44,8 @@ public class TestBSTDelegationHandler {
     public void testCanNotHandle() {
         BinarySecurityTokenType binarySecurityTokenType = new BinarySecurityTokenType();
         binarySecurityTokenType.setEncodingType(WSConstants.SOAPMESSAGE_NS + "#WrongType");
-        binarySecurityTokenType
-                .setValueType(BSTAuthenticationToken.BST_NS + "#" + BSTAuthenticationToken.BST_LN);
+        binarySecurityTokenType.setValueType(
+                BSTAuthenticationToken.BST_NS + "#" + BSTAuthenticationToken.BST_LN);
         ReceivedToken receivedToken = mock(ReceivedToken.class);
         when(receivedToken.getToken()).thenReturn(binarySecurityTokenType);
         BSTDelegationHandler bstDelegationHandler = new BSTDelegationHandler();
@@ -57,15 +57,15 @@ public class TestBSTDelegationHandler {
     public void testDelegationAllowed() {
         BinarySecurityTokenType binarySecurityTokenType = new BinarySecurityTokenType();
         binarySecurityTokenType.setEncodingType(WSConstants.SOAPMESSAGE_NS + "#Base64Binary");
-        binarySecurityTokenType
-                .setValueType(BSTAuthenticationToken.BST_NS + "#" + BSTAuthenticationToken.BST_LN);
+        binarySecurityTokenType.setValueType(
+                BSTAuthenticationToken.BST_NS + "#" + BSTAuthenticationToken.BST_LN);
         ReceivedToken receivedToken = mock(ReceivedToken.class);
         when(receivedToken.getToken()).thenReturn(binarySecurityTokenType);
         TokenDelegationParameters tokenDelegationParameters = mock(TokenDelegationParameters.class);
         when(tokenDelegationParameters.getToken()).thenReturn(receivedToken);
         BSTDelegationHandler bstDelegationHandler = new BSTDelegationHandler();
-        TokenDelegationResponse response = bstDelegationHandler
-                .isDelegationAllowed(tokenDelegationParameters);
+        TokenDelegationResponse response = bstDelegationHandler.isDelegationAllowed(
+                tokenDelegationParameters);
         assertEquals(true, response.isDelegationAllowed());
     }
 
@@ -77,8 +77,8 @@ public class TestBSTDelegationHandler {
         TokenDelegationParameters tokenDelegationParameters = mock(TokenDelegationParameters.class);
         when(tokenDelegationParameters.getToken()).thenReturn(receivedToken);
         BSTDelegationHandler bstDelegationHandler = new BSTDelegationHandler();
-        TokenDelegationResponse response = bstDelegationHandler
-                .isDelegationAllowed(tokenDelegationParameters);
+        TokenDelegationResponse response = bstDelegationHandler.isDelegationAllowed(
+                tokenDelegationParameters);
         assertEquals(false, response.isDelegationAllowed());
     }
 }

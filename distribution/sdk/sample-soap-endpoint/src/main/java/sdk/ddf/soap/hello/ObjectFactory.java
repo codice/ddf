@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package sdk.ddf.soap.hello;
 
@@ -35,9 +34,11 @@ import javax.xml.namespace.QName;
 @XmlRegistry
 public class ObjectFactory {
 
-    private static final QName HELLO_WORLD_RESPONSE_QNAME = new QName("http://ddf.sdk/soap/hello", "helloWorldResponse");
+    private static final QName HELLO_WORLD_RESPONSE_QNAME = new QName("http://ddf.sdk/soap/hello",
+            "helloWorldResponse");
 
-    private static final QName HELLO_WORLD_QNAME = new QName("http://ddf.sdk/soap/hello", "helloWorld");
+    private static final QName HELLO_WORLD_QNAME = new QName("http://ddf.sdk/soap/hello",
+            "helloWorld");
 
     /**
      * Create a new ObjectFactory that can be used to create new instances of schema derived classes for package: sdk.ddf.soap.hello
@@ -64,7 +65,10 @@ public class ObjectFactory {
      */
     @XmlElementDecl(namespace = "http://ddf.sdk/soap/hello", name = "helloWorldResponse")
     public JAXBElement<HelloWorldResponse> createHelloWorldResponse(HelloWorldResponse value) {
-        return new JAXBElement<HelloWorldResponse>(HELLO_WORLD_RESPONSE_QNAME, HelloWorldResponse.class, null, value);
+        return new JAXBElement<HelloWorldResponse>(HELLO_WORLD_RESPONSE_QNAME,
+                HelloWorldResponse.class,
+                null,
+                value);
     }
 
     /**

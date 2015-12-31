@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -39,23 +39,31 @@ public class TestHashSessionIdManager {
         //create a mock session
         HashedSession session = mock(HashedSession.class);
         when(session.getId()).thenReturn("1234");
-        doCallRealMethod().when(session).setAttribute(anyString(), anyObject());
-        doCallRealMethod().when(session).setMaxInactiveInterval(anyInt());
-        doCallRealMethod().when(session).isValid();
+        doCallRealMethod().when(session)
+                .setAttribute(anyString(), anyObject());
+        doCallRealMethod().when(session)
+                .setMaxInactiveInterval(anyInt());
+        doCallRealMethod().when(session)
+                .isValid();
         Enumeration<String> enumeration = Collections.enumeration(Arrays.asList("myattr"));
         when(session.getAttributeNames()).thenReturn(enumeration);
         when(session.getMaxInactiveInterval()).thenReturn(1);
         when(session.getAttribute(anyString())).thenReturn("myobj");
         //check that our manager has nothing currently
-        assertEquals(0, hashSessionIdManager.getSessions().size());
+        assertEquals(0,
+                hashSessionIdManager.getSessions()
+                        .size());
         hashSessionIdManager.addSession(session);
         //now we have 1 session
-        assertEquals(1, hashSessionIdManager.getSessions().size());
+        assertEquals(1,
+                hashSessionIdManager.getSessions()
+                        .size());
 
         //create another session with the same id
         HashedSession session1 = mock(HashedSession.class);
         when(session1.getId()).thenReturn("1234");
-        doCallRealMethod().when(session1).isValid();
+        doCallRealMethod().when(session1)
+                .isValid();
         ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<Integer> integerArgumentCaptor = ArgumentCaptor.forClass(Integer.class);
         hashSessionIdManager.addSession(session1);
@@ -63,11 +71,17 @@ public class TestHashSessionIdManager {
         verify(session1).setAttribute(anyString(), stringArgumentCaptor.capture());
         verify(session1).setMaxInactiveInterval(integerArgumentCaptor.capture());
         //we still have 1 "session"
-        assertEquals(1, hashSessionIdManager.getSessions().size());
+        assertEquals(1,
+                hashSessionIdManager.getSessions()
+                        .size());
         //but our session cluster now has 2 sessions
-        assertEquals(2, hashSessionIdManager.getSession("1234").size());
+        assertEquals(2,
+                hashSessionIdManager.getSession("1234")
+                        .size());
         //make sure we set the inactive interval
-        assertEquals(1, integerArgumentCaptor.getValue().intValue());
+        assertEquals(1,
+                integerArgumentCaptor.getValue()
+                        .intValue());
         //make sure that all attributes have been set
         assertEquals("myobj", stringArgumentCaptor.getValue());
 
@@ -76,7 +90,9 @@ public class TestHashSessionIdManager {
         when(session2.getId()).thenReturn("4321");
         hashSessionIdManager.addSession(session2);
         //make sure we now have 2 clusters
-        assertEquals(2, hashSessionIdManager.getSessions().size());
+        assertEquals(2,
+                hashSessionIdManager.getSessions()
+                        .size());
 
         //invalidate the 1234 session and make sure that both sessions got killed but the 4321 session is still good
         hashSessionIdManager.invalidateAll("1234");
@@ -91,9 +107,13 @@ public class TestHashSessionIdManager {
         HashedSession session2 = mock(HashedSession.class);
         when(session2.getId()).thenReturn("4321");
         hashSessionIdManager.addSession(session2);
-        assertEquals(1, hashSessionIdManager.getSessions().size());
+        assertEquals(1,
+                hashSessionIdManager.getSessions()
+                        .size());
 
         hashSessionIdManager.removeSession(session2);
-        assertEquals(0, hashSessionIdManager.getSessions().size());
+        assertEquals(0,
+                hashSessionIdManager.getSessions()
+                        .size());
     }
 }

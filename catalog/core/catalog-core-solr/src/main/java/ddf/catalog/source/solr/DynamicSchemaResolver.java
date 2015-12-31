@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -73,7 +73,8 @@ public class DynamicSchemaResolver {
 
     protected static final char FIRST_CHAR_OF_SUFFIX = '_';
 
-    protected static final String COULD_NOT_READ_METACARD_TYPE_MESSAGE = "Could not read MetacardType.";
+    protected static final String COULD_NOT_READ_METACARD_TYPE_MESSAGE =
+            "Could not read MetacardType.";
 
     protected static final String FIELDS_KEY = "fields";
 
@@ -83,9 +84,9 @@ public class DynamicSchemaResolver {
 
     private static final String SOLR_CLOUD_VERSION_FIELD = "_version_";
 
-    private static final List<String> PRIVATE_SOLR_FIELDS = Arrays
-            .asList(SOLR_CLOUD_VERSION_FIELD, SchemaFields.METACARD_TYPE_FIELD_NAME,
-                    SchemaFields.METACARD_TYPE_OBJECT_FIELD_NAME);
+    private static final List<String> PRIVATE_SOLR_FIELDS = Arrays.asList(SOLR_CLOUD_VERSION_FIELD,
+            SchemaFields.METACARD_TYPE_FIELD_NAME,
+            SchemaFields.METACARD_TYPE_OBJECT_FIELD_NAME);
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DynamicSchemaResolver.class);
 
@@ -93,23 +94,27 @@ public class DynamicSchemaResolver {
     private static final Map<String, String> ANY_FIELD_MAP;
 
     static {
-        ANY_FIELD_MAP = ImmutableMap.of(Metacard.ANY_TEXT, Metacard.METADATA + "_txt_tokenized",
-                Metacard.ANY_GEO, Metacard.GEOGRAPHY + "_geo_index");
+        ANY_FIELD_MAP = ImmutableMap.of(Metacard.ANY_TEXT,
+                Metacard.METADATA + "_txt_tokenized",
+                Metacard.ANY_GEO,
+                Metacard.GEOGRAPHY + "_geo_index");
 
-        ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+        ClassLoader tccl = Thread.currentThread()
+                .getContextClassLoader();
         try {
             Thread.currentThread()
                     .setContextClassLoader(DynamicSchemaResolver.class.getClassLoader());
 
             XML_INPUT_FACTORY = XMLInputFactory2.newInstance();
-            XML_INPUT_FACTORY
-                    .setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, Boolean.FALSE);
-            XML_INPUT_FACTORY
-                    .setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE);
+            XML_INPUT_FACTORY.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES,
+                    Boolean.FALSE);
+            XML_INPUT_FACTORY.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES,
+                    Boolean.FALSE);
             XML_INPUT_FACTORY.setProperty(XMLInputFactory.IS_COALESCING, Boolean.FALSE);
             XML_INPUT_FACTORY.setProperty(XMLInputFactory.IS_VALIDATING, Boolean.FALSE);
         } finally {
-            Thread.currentThread().setContextClassLoader(tccl);
+            Thread.currentThread()
+                    .setContextClassLoader(tccl);
         }
     }
 
@@ -177,10 +182,12 @@ public class DynamicSchemaResolver {
 
         for (AttributeDescriptor ad : schema.getAttributeDescriptors()) {
             if (metacard.getAttribute(ad.getName()) != null) {
-                Serializable attributeValue = metacard.getAttribute(ad.getName()).getValue();
+                Serializable attributeValue = metacard.getAttribute(ad.getName())
+                        .getValue();
 
                 if (attributeValue != null) {
-                    AttributeFormat format = ad.getType().getAttributeFormat();
+                    AttributeFormat format = ad.getType()
+                            .getAttributeFormat();
                     String formatIndexName = ad.getName() + getFieldSuffix(format);
 
                     if (AttributeFormat.XML.equals(format)) {
@@ -189,20 +196,20 @@ public class DynamicSchemaResolver {
                         String parsedText = parseTextFrom(attributeValue.toString());
 
                         // text => metadata_txt_ws
-                        String whitespaceTokenizedIndexName =
-                                ad.getName() + getFieldSuffix(AttributeFormat.STRING) + SchemaFields.WHITESPACE_TEXT_SUFFIX;
+                        String whitespaceTokenizedIndexName = ad.getName() + getFieldSuffix(
+                                AttributeFormat.STRING) + SchemaFields.WHITESPACE_TEXT_SUFFIX;
                         solrInputDocument.addField(whitespaceTokenizedIndexName, parsedText);
 
                         // text => metadata_txt_ws_has_case
-                        String whiteSpaceTokenizedHasCaseIndexName =
-                                ad.getName() + getFieldSuffix(AttributeFormat.STRING) + SchemaFields.WHITESPACE_TEXT_SUFFIX
+                        String whiteSpaceTokenizedHasCaseIndexName = ad.getName() + getFieldSuffix(
+                                AttributeFormat.STRING) + SchemaFields.WHITESPACE_TEXT_SUFFIX
                                 + SchemaFields.HAS_CASE;
                         solrInputDocument.addField(whiteSpaceTokenizedHasCaseIndexName, parsedText);
 
                         // text => metadata_txt_tokenized
-                        String specialStringIndexName =
-                                ad.getName() + getFieldSuffix(AttributeFormat.STRING)
-                                        + getSpecialIndexSuffix(AttributeFormat.STRING);
+                        String specialStringIndexName = ad.getName() + getFieldSuffix(
+                                AttributeFormat.STRING)
+                                + getSpecialIndexSuffix(AttributeFormat.STRING);
                         solrInputDocument.addField(specialStringIndexName, parsedText);
 
                         // text case sensitive
@@ -230,7 +237,8 @@ public class DynamicSchemaResolver {
             }
         }
 
-        if (!ConfigurationStore.getInstance().isDisableTextPath()) {
+        if (!ConfigurationStore.getInstance()
+                .isDisableTextPath()) {
             if (StringUtils.isNotBlank(metacard.getMetadata())) {
                 solrInputDocument.addField(LUX_XML_FIELD_NAME, metacard.getMetadata());
             }
@@ -396,7 +404,8 @@ public class DynamicSchemaResolver {
 
         LOGGER.debug(
                 "Could not find exact schema field name for [{}], attempting to search with [{}]",
-                propertyName, fieldName);
+                propertyName,
+                fieldName);
 
         return fieldName;
     }
@@ -406,7 +415,8 @@ public class DynamicSchemaResolver {
     }
 
     public MetacardType getMetacardType(SolrDocument doc) throws MetacardCreationException {
-        String mTypeFieldName = doc.getFieldValue(SchemaFields.METACARD_TYPE_FIELD_NAME).toString();
+        String mTypeFieldName = doc.getFieldValue(SchemaFields.METACARD_TYPE_FIELD_NAME)
+                .toString();
 
         MetacardType cachedMetacardType = metacardTypesCache.get(mTypeFieldName);
 
@@ -474,26 +484,30 @@ public class DynamicSchemaResolver {
     private void addToFieldsCache(Set<AttributeDescriptor> descriptors) {
         for (AttributeDescriptor ad : descriptors) {
 
-            AttributeFormat format = ad.getType().getAttributeFormat();
+            AttributeFormat format = ad.getType()
+                    .getAttributeFormat();
 
             fieldsCache.add(ad.getName() + schemaFields.getFieldSuffix(format));
 
             if (!getSpecialIndexSuffix(format).equals("")) {
-                fieldsCache.add(ad.getName() + schemaFields.getFieldSuffix(format)
-                        + getSpecialIndexSuffix(format));
+                fieldsCache.add(
+                        ad.getName() + schemaFields.getFieldSuffix(format) + getSpecialIndexSuffix(
+                                format));
             }
 
             if (format.equals(AttributeFormat.STRING)) {
-                fieldsCache.add(ad.getName() + schemaFields.getFieldSuffix(format)
-                        + getSpecialIndexSuffix(format) + SchemaFields.HAS_CASE);
+                fieldsCache.add(
+                        ad.getName() + schemaFields.getFieldSuffix(format) + getSpecialIndexSuffix(
+                                format) + SchemaFields.HAS_CASE);
             }
 
             if (format.equals(AttributeFormat.XML)) {
                 fieldsCache.add(ad.getName() + SchemaFields.TEXT_SUFFIX + SchemaFields.TOKENIZED);
                 fieldsCache.add(ad.getName() + SchemaFields.TEXT_SUFFIX + SchemaFields.TOKENIZED
                         + SchemaFields.HAS_CASE);
-                fieldsCache.add(ad.getName() + schemaFields.getFieldSuffix(format)
-                        + getSpecialIndexSuffix(format));
+                fieldsCache.add(
+                        ad.getName() + schemaFields.getFieldSuffix(format) + getSpecialIndexSuffix(
+                                format));
             }
         }
     }
@@ -538,7 +552,8 @@ public class DynamicSchemaResolver {
 
         LOGGER.debug(
                 "Did not find any numerical schema fields for property [{}]. Replacing with property [{}]",
-                propertyName, propertyName + SchemaFields.INTEGER_SUFFIX);
+                propertyName,
+                propertyName + SchemaFields.INTEGER_SUFFIX);
         return propertyName + SchemaFields.INTEGER_SUFFIX;
     }
 
@@ -570,7 +585,8 @@ public class DynamicSchemaResolver {
                     String text = xmlStreamReader.getText();
 
                     if (StringUtils.isNotBlank(text)) {
-                        builder.append(" ").append(text.trim());
+                        builder.append(" ")
+                                .append(text.trim());
                     }
 
                 }
@@ -580,7 +596,8 @@ public class DynamicSchemaResolver {
                         String text = xmlStreamReader.getAttributeValue(i);
 
                         if (StringUtils.isNotBlank(text)) {
-                            builder.append(" ").append(text.trim());
+                            builder.append(" ")
+                                    .append(text.trim());
                         }
                     }
                 }
@@ -608,8 +625,8 @@ public class DynamicSchemaResolver {
 
     private Set<AttributeDescriptor> convertAttributeDescriptors(
             Set<AttributeDescriptor> attributeDescriptors) {
-        Set<AttributeDescriptor> newAttributeDescriptors = new HashSet<>(
-                attributeDescriptors.size());
+        Set<AttributeDescriptor> newAttributeDescriptors =
+                new HashSet<>(attributeDescriptors.size());
 
         for (AttributeDescriptor attributeDescriptor : attributeDescriptors) {
             String name = attributeDescriptor.getName();
@@ -618,9 +635,12 @@ public class DynamicSchemaResolver {
             boolean isTokenized = attributeDescriptor.isTokenized();
             boolean isMultiValued = attributeDescriptor.isMultiValued();
             AttributeType<?> attributeType = attributeDescriptor.getType();
-            newAttributeDescriptors
-                    .add(new AttributeDescriptorImpl(name, isIndexed, isStored, isTokenized,
-                            isMultiValued, attributeType));
+            newAttributeDescriptors.add(new AttributeDescriptorImpl(name,
+                    isIndexed,
+                    isStored,
+                    isTokenized,
+                    isMultiValued,
+                    attributeType));
         }
 
         return newAttributeDescriptors;

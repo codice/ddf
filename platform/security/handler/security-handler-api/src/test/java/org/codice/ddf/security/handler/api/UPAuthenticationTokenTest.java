@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -77,8 +77,11 @@ public class UPAuthenticationTokenTest {
     public void testParse() throws Exception {
         // test normal case
         BaseAuthenticationToken bat = UPAuthenticationToken.parse(TEST_CREDS, false);
-        UPAuthenticationToken upt = new UPAuthenticationToken(bat.getPrincipal().toString(),
-                bat.getCredentials().toString(), bat.getRealm());
+        UPAuthenticationToken upt = new UPAuthenticationToken(bat.getPrincipal()
+                .toString(),
+                bat.getCredentials()
+                        .toString(),
+                bat.getRealm());
         assertNotNull(upt);
         assertEquals(TEST_NAME, upt.getUsername());
         assertEquals(TEST_PW, upt.getPassword());

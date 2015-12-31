@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -99,29 +99,42 @@ public class TestPage extends HttpServlet {
         builder.append("<title>Test Page</title>");
         builder.append("</head>");
         builder.append("<body>");
-        builder.append("<h2 align=\"center\">Test Page").append(endl);
+        builder.append("<h2 align=\"center\">Test Page")
+                .append(endl);
 
-        builder.append("<h2 align=\"center\">Protected Page on '").append(request.getServerName())
-                .append("'</h2>").append(endl);
+        builder.append("<h2 align=\"center\">Protected Page on '")
+                .append(request.getServerName())
+                .append("'</h2>")
+                .append(endl);
 
-        builder.append(new java.util.Date()).append(HTML_ENDLINE + HTML_ENDLINE).append(endl);
+        builder.append(new java.util.Date())
+                .append(HTML_ENDLINE + HTML_ENDLINE)
+                .append(endl);
 
         builder.append("request.getRemoteUser() = ");
-        builder.append(request.getRemoteUser()).append(HTML_ENDLINE).append(endl);
+        builder.append(request.getRemoteUser())
+                .append(HTML_ENDLINE)
+                .append(endl);
 
         builder.append("request.getUserPrincipal() = ");
 
         Principal principal = request.getUserPrincipal();
-        builder.append(principal).append(HTML_ENDLINE + HTML_ENDLINE).append(endl);
+        builder.append(principal)
+                .append(HTML_ENDLINE + HTML_ENDLINE)
+                .append(endl);
 
         if (request.getContextPath() != null && !"".equals(request.getContextPath())) {
-            builder.append("</p><p>").append(endl);
+            builder.append("</p><p>")
+                    .append(endl);
             builder.append("The context root name of this application is ")
-                    .append(request.getContextPath()).append(endl);
-            builder.append("</p>").append(endl);
+                    .append(request.getContextPath())
+                    .append(endl);
+            builder.append("</p>")
+                    .append(endl);
         }
 
-        builder.append("<h3>Released Attributes:</h3>").append(endl);
+        builder.append("<h3>Released Attributes:</h3>")
+                .append(endl);
 
         Map attributes = null;
 
@@ -132,56 +145,81 @@ public class TestPage extends HttpServlet {
 
             if (attributes != null && attributes.size() > 0) {
                 @SuppressWarnings("unchecked")
-                Iterator<Entry<String, Object>> iterator = attributes.entrySet().iterator();
+                Iterator<Entry<String, Object>> iterator = attributes.entrySet()
+                        .iterator();
 
                 while (iterator.hasNext()) {
                     Entry<String, Object> curEntry = iterator.next();
                     String key = curEntry.getKey();
                     Object value = curEntry.getValue();
                     if (value instanceof String) {
-                        builder.append(key).append(": ").append(value).append(HTML_ENDLINE)
+                        builder.append(key)
+                                .append(": ")
+                                .append(value)
+                                .append(HTML_ENDLINE)
                                 .append(endl);
                     } else if (value instanceof List) {
-                        builder.append(key).append(" is a List:<br/>").append(endl);
+                        builder.append(key)
+                                .append(" is a List:<br/>")
+                                .append(endl);
                         for (Object o : ((List) value)) {
-                            builder.append("&nbsp;&nbsp;&nbsp;").append(o.toString())
-                                    .append(HTML_ENDLINE).append(endl);
+                            builder.append("&nbsp;&nbsp;&nbsp;")
+                                    .append(o.toString())
+                                    .append(HTML_ENDLINE)
+                                    .append(endl);
                         }
                     }
                 }
             } else {
-                builder.append("None").append(HTML_ENDLINE + HTML_ENDLINE).append(endl);
+                builder.append("None")
+                        .append(HTML_ENDLINE + HTML_ENDLINE)
+                        .append(endl);
             }
 
         }
 
-        builder.append("<h3>Cookies:</h3>").append(endl);
+        builder.append("<h3>Cookies:</h3>")
+                .append(endl);
         Cookie[] cookies = request.getCookies();
         if (cookies != null && cookies.length > 0) {
-            builder.append("getCookies() = <br/>").append(endl);
+            builder.append("getCookies() = <br/>")
+                    .append(endl);
             for (Cookie o : cookies) {
-                builder.append("&nbsp;&nbsp;&nbsp;").append(o.getName()).append(": ")
-                        .append(o.getValue()).append(HTML_ENDLINE).append(endl);
+                builder.append("&nbsp;&nbsp;&nbsp;")
+                        .append(o.getName())
+                        .append(": ")
+                        .append(o.getValue())
+                        .append(HTML_ENDLINE)
+                        .append(endl);
             }
         } else {
-            builder.append("getCookies() = null<br/>").append(endl);
+            builder.append("getCookies() = null<br/>")
+                    .append(endl);
         }
 
-        builder.append("<h3>Headers:</h3>").append(endl);
+        builder.append("<h3>Headers:</h3>")
+                .append(endl);
         Enumeration headers = request.getHeaderNames();
 
         if (headers != null) {
-            builder.append("getHeaders() = <br/>").append(endl);
+            builder.append("getHeaders() = <br/>")
+                    .append(endl);
             while (headers.hasMoreElements()) {
                 String name = (String) headers.nextElement();
-                builder.append("&nbsp;&nbsp;&nbsp;").append(name).append(": ")
-                        .append(request.getHeader(name)).append(HTML_ENDLINE).append(endl);
+                builder.append("&nbsp;&nbsp;&nbsp;")
+                        .append(name)
+                        .append(": ")
+                        .append(request.getHeader(name))
+                        .append(HTML_ENDLINE)
+                        .append(endl);
             }
         } else {
-            builder.append("getHeaderNames() = null<br/>").append(endl);
+            builder.append("getHeaderNames() = null<br/>")
+                    .append(endl);
         }
 
-        builder.append("</body></html>").append(endl);
+        builder.append("</body></html>")
+                .append(endl);
         out.println(builder.toString());
     }
 }

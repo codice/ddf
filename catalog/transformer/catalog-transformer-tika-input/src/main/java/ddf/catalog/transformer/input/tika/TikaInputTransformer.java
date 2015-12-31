@@ -13,8 +13,7 @@
  */
 package ddf.catalog.transformer.input.tika;
 
-import java.awt.Graphics2D;
-import java.awt.Image;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -67,7 +66,6 @@ import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
-
 import net.sf.saxon.TransformerFactoryImpl;
 
 public class TikaInputTransformer implements InputTransformer {
@@ -85,8 +83,10 @@ public class TikaInputTransformer implements InputTransformer {
         }
 
         registerService(bundleContext);
-        IIORegistry.getDefaultInstance().registerServiceProvider(new J2KImageReaderSpi());
-        IIORegistry.getDefaultInstance().registerServiceProvider(new TIFFImageReaderSpi());
+        IIORegistry.getDefaultInstance()
+                .registerServiceProvider(new J2KImageReaderSpi());
+        IIORegistry.getDefaultInstance()
+                .registerServiceProvider(new TIFFImageReaderSpi());
     }
 
     @Override
@@ -129,7 +129,9 @@ public class TikaInputTransformer implements InputTransformer {
 
             try (InputStream inputStreamMessageCopy = fileBackedOutputStream.asByteSource()
                     .openStream()) {
-                metacard = createMetacard(inputStreamMessageCopy, metadata, uri,
+                metacard = createMetacard(inputStreamMessageCopy,
+                        metadata,
+                        uri,
                         transformToXml(xmlHandler.toString()));
             }
         }
@@ -212,7 +214,8 @@ public class TikaInputTransformer implements InputTransformer {
             return null;
         }
 
-        return javax.xml.bind.DatatypeConverter.parseDateTime(dateStr).getTime();
+        return javax.xml.bind.DatatypeConverter.parseDateTime(dateStr)
+                .getTime();
     }
 
     /**
@@ -222,7 +225,8 @@ public class TikaInputTransformer implements InputTransformer {
     private void registerService(BundleContext bundleContext) {
         LOGGER.debug("Registering {} as an osgi service.",
                 TikaInputTransformer.class.getSimpleName());
-        bundleContext.registerService(ddf.catalog.transform.InputTransformer.class, this,
+        bundleContext.registerService(ddf.catalog.transform.InputTransformer.class,
+                this,
                 getServiceProperties());
     }
 
@@ -240,7 +244,8 @@ public class TikaInputTransformer implements InputTransformer {
     }
 
     private List<String> getSupportedMimeTypes() {
-        SortedSet<MediaType> mediaTypes = MediaTypeRegistry.getDefaultRegistry().getTypes();
+        SortedSet<MediaType> mediaTypes = MediaTypeRegistry.getDefaultRegistry()
+                .getTypes();
         List<String> mimeTypes = new ArrayList<>(mediaTypes.size());
 
         for (MediaType mediaType : mediaTypes) {
@@ -260,7 +265,8 @@ public class TikaInputTransformer implements InputTransformer {
 
             if (null != image) {
                 BufferedImage bufferedImage = new BufferedImage(image.getWidth(null),
-                        image.getHeight(null), BufferedImage.TYPE_INT_RGB);
+                        image.getHeight(null),
+                        BufferedImage.TYPE_INT_RGB);
                 Graphics2D graphics = bufferedImage.createGraphics();
                 graphics.drawImage(image, null, null);
                 graphics.dispose();
@@ -285,8 +291,9 @@ public class TikaInputTransformer implements InputTransformer {
         LOGGER.debug("Transforming xhtml to xml.");
         Writer xml = new StringWriter();
         try {
-            Transformer transformer = TRANSFORMER_FACTORY
-                    .newTransformer(new StreamSource(this.getClass().getResourceAsStream(XSLT)));
+            Transformer transformer =
+                    TRANSFORMER_FACTORY.newTransformer(new StreamSource(this.getClass()
+                            .getResourceAsStream(XSLT)));
             transformer.transform(new StreamSource(new StringReader(xhtml)), new StreamResult(xml));
         } catch (TransformerException e) {
             LOGGER.warn("Unable to transform metdata from XHTML to XML.", e);

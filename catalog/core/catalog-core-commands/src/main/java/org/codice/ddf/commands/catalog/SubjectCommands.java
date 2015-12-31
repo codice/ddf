@@ -100,7 +100,8 @@ public abstract class SubjectCommands extends CommandSupport {
         console.flush();
         StringBuffer buffer = new StringBuffer();
         while (true) {
-            int byteOfData = session.getKeyboard().read();
+            int byteOfData = session.getKeyboard()
+                    .read();
 
             if (byteOfData < 0) {
                 break;

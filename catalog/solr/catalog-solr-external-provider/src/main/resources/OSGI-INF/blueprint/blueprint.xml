@@ -12,23 +12,24 @@
  **/
 -->
 <blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
-		   xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-	<reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>
+    <reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>
 
-	<bean id="solrCatalogProvider" class="ddf.catalog.solr.external.SolrHttpCatalogProvider"
+    <bean id="solrCatalogProvider" class="ddf.catalog.solr.external.SolrHttpCatalogProvider"
           destroy-method="shutdown">
-		<!-- Aries does not call my object on startup if set to component-managed. Therefore, we will use container-managed
-		and have the setter call the update method. -->
+        <!-- Aries does not call my object on startup if set to component-managed. Therefore, we will use container-managed
+        and have the setter call the update method. -->
         <cm:managed-properties persistent-id="ddf.catalog.solr.external.SolrHttpCatalogProvider"
                                update-strategy="container-managed"/>
-		<argument ref="filterAdapter"/>
-		<argument>
-			<bean class="ddf.catalog.source.solr.SolrFilterDelegateFactoryImpl"/>
-		</argument>
-		<property name="url" value="${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.port}/solr"/>
-	</bean>
+        <argument ref="filterAdapter"/>
+        <argument>
+            <bean class="ddf.catalog.source.solr.SolrFilterDelegateFactoryImpl"/>
+        </argument>
+        <property name="url"
+                  value="${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.port}/solr"/>
+    </bean>
 
-	<service ref="solrCatalogProvider" interface="ddf.catalog.source.CatalogProvider"/>
+    <service ref="solrCatalogProvider" interface="ddf.catalog.source.CatalogProvider"/>
 
 </blueprint>

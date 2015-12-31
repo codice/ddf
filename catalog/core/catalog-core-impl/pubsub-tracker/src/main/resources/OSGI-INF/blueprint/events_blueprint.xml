@@ -14,19 +14,19 @@
  -->
 
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
-    
+
     <reference id="pubsubprovider" interface="ddf.catalog.event.EventProcessor"/>
-    			
+
     <bean id="subscriptionTracker" class="ddf.catalog.pubsub.tracker.SubscriptionTracker"
           init-method="startUp" destroy-method="cleanUp">
-    	<property name="provider" ref="pubsubprovider"/>
+        <property name="provider" ref="pubsubprovider"/>
     </bean>
-    
+
     <reference-list interface="ddf.catalog.event.Subscription" availability="optional">
-    	<reference-listener
+        <reference-listener
                 ref="subscriptionTracker"
                 bind-method="addingService"
                 unbind-method="removedService"/>
     </reference-list>
-    
+
 </blueprint>

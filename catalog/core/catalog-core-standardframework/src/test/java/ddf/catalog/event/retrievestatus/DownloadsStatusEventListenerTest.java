@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -22,7 +22,7 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet; 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
@@ -48,8 +48,8 @@ import ddf.catalog.resourceretriever.LocalResourceRetriever;
 
 public class DownloadsStatusEventListenerTest {
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(DownloadsStatusEventListenerTest.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(DownloadsStatusEventListenerTest.class);
 
     private static ReliableResourceDownloadManager testDownloadManager;
 
@@ -71,11 +71,14 @@ public class DownloadsStatusEventListenerTest {
         productCacheDir = System.getProperty("user.dir") + "/target" + File.separator
                 + ResourceCache.DEFAULT_PRODUCT_CACHE_DIRECTORY;
         testResourceCache.setProductCacheDirectory(productCacheDir);
-        DownloadsStatusEventPublisher testEventPublisher = mock(
-                DownloadsStatusEventPublisher.class);
+        DownloadsStatusEventPublisher testEventPublisher =
+                mock(DownloadsStatusEventPublisher.class);
         testEventListener = new DownloadsStatusEventListener();
         testDownloadManager = new ReliableResourceDownloadManager(testResourceCache,
-                testEventPublisher, testEventListener, testDownloadStatusInfo, Executors.newSingleThreadExecutor());
+                testEventPublisher,
+                testEventListener,
+                testDownloadStatusInfo,
+                Executors.newSingleThreadExecutor());
         testDownloadManager.setMaxRetryAttempts(1);
         testDownloadManager.setDelayBetweenAttempts(0);
         testDownloadManager.setMonitorPeriod(5);
@@ -93,19 +96,23 @@ public class DownloadsStatusEventListenerTest {
         testMetacard.setResourceSize("125");
         testMetacard.setType(BasicTypes.BASIC_METACARD);
         URLResourceReader testURLResourceReader = new URLResourceReader();
-        testURLResourceReader.setRootResourceDirectories(new HashSet<String>(Arrays.asList(new String[] {System.getProperty("user.dir")})));
-        List<ResourceReader> testResourceReaderList = Collections
-                .singletonList((ResourceReader) testURLResourceReader);
+        testURLResourceReader.setRootResourceDirectories(new HashSet<String>(Arrays.asList(new String[] {
+                System.getProperty("user.dir")})));
+        List<ResourceReader> testResourceReaderList =
+                Collections.singletonList((ResourceReader) testURLResourceReader);
         Map<String, Serializable> tmpMap = Collections.emptyMap();
         Map<String, Integer> idToBytes = new HashMap<String, Integer>();
         testGetDownloadStatusHelper(null, null, null);
 
-        testDownloadManager.download(mock(ResourceRequest.class), testMetacard,
-                new LocalResourceRetriever(testResourceReaderList, testMetacard.getResourceURI(),
+        testDownloadManager.download(mock(ResourceRequest.class),
+                testMetacard,
+                new LocalResourceRetriever(testResourceReaderList,
+                        testMetacard.getResourceURI(),
                         tmpMap));
 
         TimeUnit.SECONDS.sleep(2);
-        testGetDownloadStatusHelper(idToBytes, DownloadManagerState.DownloadState.COMPLETED.name(),
+        testGetDownloadStatusHelper(idToBytes,
+                DownloadManagerState.DownloadState.COMPLETED.name(),
                 downloadFile.getName());
 
     }

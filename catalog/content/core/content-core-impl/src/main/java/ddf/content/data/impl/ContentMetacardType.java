@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -24,12 +24,15 @@ import ddf.catalog.data.impl.MetacardTypeImpl;
 public class ContentMetacardType extends MetacardTypeImpl {
 
     public static final String RESOURCE_CHECKSUM = "resource-checksum";
-    public static final String RESOURCE_CHECKSUM_ALGORITHM = "resource-checksum-algorithm";
-    public static  final String CONTENT_METACARD_TYPE_NAME = "content";
 
-    public ContentMetacardType(){
+    public static final String RESOURCE_CHECKSUM_ALGORITHM = "resource-checksum-algorithm";
+
+    public static final String CONTENT_METACARD_TYPE_NAME = "content";
+
+    public ContentMetacardType() {
         this(CONTENT_METACARD_TYPE_NAME, new HashSet<>());
     }
+
     /**
      * Creates a {@code MetacardTypeImpl} with the provided {@code name} and
      * {@link AttributeDescriptor}s.
@@ -40,9 +43,17 @@ public class ContentMetacardType extends MetacardTypeImpl {
     public ContentMetacardType(String name, Set<AttributeDescriptor> attributeDescriptors) {
         super(name, attributeDescriptors);
         descriptors.addAll(BasicTypes.BASIC_METACARD.getAttributeDescriptors());
-        descriptors.add(new AttributeDescriptorImpl(RESOURCE_CHECKSUM, true /*Indexed*/,
-                true /* Stored */, false /* Tokenized */, false /* Multivalued */, BasicTypes.STRING_TYPE));
-        descriptors.add(new AttributeDescriptorImpl(RESOURCE_CHECKSUM_ALGORITHM, true /*Indexed */,
-                true /* Stored */, false, /*Tokenized */ false /* Multivalued */, BasicTypes.STRING_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(RESOURCE_CHECKSUM,
+                true /*Indexed*/,
+                true /* Stored */,
+                false /* Tokenized */,
+                false /* Multivalued */,
+                BasicTypes.STRING_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(RESOURCE_CHECKSUM_ALGORITHM,
+                true /*Indexed */,
+                true /* Stored */,
+                false, /*Tokenized */
+                false /* Multivalued */,
+                BasicTypes.STRING_TYPE));
     }
 }

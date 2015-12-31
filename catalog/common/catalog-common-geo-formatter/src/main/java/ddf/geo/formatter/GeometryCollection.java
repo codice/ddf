@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -35,8 +35,8 @@ public class GeometryCollection extends MultiPolygon {
 
         for (int i = 0; i < allGeometries.length; i++) {
             Map jsonGeometry = (Map) geometries.get(i);
-            allGeometries[i] = getCompositeGeometry(jsonGeometry.get(TYPE_KEY).toString(),
-                    jsonGeometry).getGeometry();
+            allGeometries[i] = getCompositeGeometry(jsonGeometry.get(TYPE_KEY)
+                    .toString(), jsonGeometry).getGeometry();
         }
         return new GeometryCollection(GEOMETRY_FACTORY.createGeometryCollection(allGeometries));
     }
@@ -75,8 +75,8 @@ public class GeometryCollection extends MultiPolygon {
 
         if (null != geometry) {
             for (int i = 0; i < geometry.getNumGeometries(); i++) {
-                CompositeGeometry compositeGeo = CompositeGeometry
-                        .getCompositeGeometry(geometry.getGeometryN(i));
+                CompositeGeometry compositeGeo =
+                        CompositeGeometry.getCompositeGeometry(geometry.getGeometryN(i));
 
                 if (null != compositeGeo) {
                     positions.addAll(compositeGeo.toGeoRssPositions());

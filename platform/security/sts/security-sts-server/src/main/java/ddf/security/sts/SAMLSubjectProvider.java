@@ -93,19 +93,28 @@ public class SAMLSubjectProvider extends DefaultSubjectProvider {
         ReceivedToken receivedToken;
         //TokenValidator in IssueOperation has validated the ReceivedToken
         //if validation was successful, the principal was set in ReceivedToken
-        if (providerParameters.getTokenRequirements().getOnBehalfOf() != null) {
-            receivedToken = providerParameters.getTokenRequirements().getOnBehalfOf();
-            if (receivedToken.getState().equals(ReceivedToken.STATE.VALID)) {
+        if (providerParameters.getTokenRequirements()
+                .getOnBehalfOf() != null) {
+            receivedToken = providerParameters.getTokenRequirements()
+                    .getOnBehalfOf();
+            if (receivedToken.getState()
+                    .equals(ReceivedToken.STATE.VALID)) {
                 principal = receivedToken.getPrincipal();
             }
-        } else if (providerParameters.getTokenRequirements().getActAs() != null) {
-            receivedToken = providerParameters.getTokenRequirements().getActAs();
-            if (receivedToken.getState().equals(ReceivedToken.STATE.VALID)) {
+        } else if (providerParameters.getTokenRequirements()
+                .getActAs() != null) {
+            receivedToken = providerParameters.getTokenRequirements()
+                    .getActAs();
+            if (receivedToken.getState()
+                    .equals(ReceivedToken.STATE.VALID)) {
                 principal = receivedToken.getPrincipal();
             }
-        } else if (providerParameters.getTokenRequirements().getValidateTarget() != null) {
-            receivedToken = providerParameters.getTokenRequirements().getValidateTarget();
-            if (receivedToken.getState().equals(ReceivedToken.STATE.VALID)) {
+        } else if (providerParameters.getTokenRequirements()
+                .getValidateTarget() != null) {
+            receivedToken = providerParameters.getTokenRequirements()
+                    .getValidateTarget();
+            if (receivedToken.getState()
+                    .equals(ReceivedToken.STATE.VALID)) {
                 principal = receivedToken.getPrincipal();
             }
         } else {
@@ -126,7 +135,8 @@ public class SAMLSubjectProvider extends DefaultSubjectProvider {
             }
         }
 
-        SubjectBean subjectBean = new SubjectBean(principal.getName(), subjectNameQualifier,
+        SubjectBean subjectBean = new SubjectBean(principal.getName(),
+                subjectNameQualifier,
                 confirmationMethod);
         LOGGER.debug("Creating new subject with principal name: " + principal.getName());
         if (subjectNameIDFormat != null && subjectNameIDFormat.length() > 0) {
@@ -136,8 +146,8 @@ public class SAMLSubjectProvider extends DefaultSubjectProvider {
         if (STSConstants.SYMMETRIC_KEY_KEYTYPE.equals(keyType)) {
             Crypto crypto = stsProperties.getEncryptionCrypto();
 
-            EncryptionProperties encryptionProperties = providerParameters
-                    .getEncryptionProperties();
+            EncryptionProperties encryptionProperties =
+                    providerParameters.getEncryptionProperties();
             String encryptionName = encryptionProperties.getEncryptionName();
             if (encryptionName == null) {
                 // Fall back on the STS encryption name
@@ -170,7 +180,10 @@ public class SAMLSubjectProvider extends DefaultSubjectProvider {
                     throw new STSException(
                             "Encryption certificate is not found for alias: " + encryptionName);
                 }
-                KeyInfoBean keyInfo = createKeyInfo(certs[0], secret, doc, encryptionProperties,
+                KeyInfoBean keyInfo = createKeyInfo(certs[0],
+                        secret,
+                        doc,
+                        encryptionProperties,
                         crypto);
                 subjectBean.setKeyInfo(keyInfo);
             } catch (WSSecurityException ex) {
@@ -187,7 +200,8 @@ public class SAMLSubjectProvider extends DefaultSubjectProvider {
                         Collection<Pattern> constraints = Collections.emptyList();
                         stsProperties.getSignatureCrypto()
                                 .verifyTrust(new X509Certificate[] {receivedKey.getX509Cert()},
-                                        false, constraints);
+                                        false,
+                                        constraints);
                     } catch (WSSecurityException e) {
                         LOGGER.error("Error in trust validation of UseKey: ", e);
                         throw new STSException("Error in trust validation of UseKey",
@@ -196,7 +210,8 @@ public class SAMLSubjectProvider extends DefaultSubjectProvider {
                 }
                 if (receivedKey.getPublicKey() != null) {
                     try {
-                        stsProperties.getSignatureCrypto().verifyTrust(receivedKey.getPublicKey());
+                        stsProperties.getSignatureCrypto()
+                                .verifyTrust(receivedKey.getPublicKey());
                     } catch (WSSecurityException e) {
                         LOGGER.error("Error in trust validation of UseKey: ", e);
                         throw new STSException("Error in trust validation of UseKey",

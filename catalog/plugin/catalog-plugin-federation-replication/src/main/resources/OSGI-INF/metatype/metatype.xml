@@ -15,18 +15,18 @@
  -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-	<OCD name="Catalog Federation Replication"
+    <OCD name="Catalog Federation Replication"
          id="ddf.catalog.federation.layered.replication.RestReplicatorPlugin">
-		<AD
+        <AD
                 description="All create, update, and delete responses will be sent to this parent address."
                 name="Parent Address" id="parentAddress" required="true" type="String"
                 default="${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:8182${org.codice.ddf.system.rootContext}/catalog"/>
-	</OCD>
+    </OCD>
 
-	<Designate
+    <Designate
             pid="ddf.catalog.federation.layered.replication.RestReplicatorPlugin">
-		<Object
+        <Object
                 ocdref="ddf.catalog.federation.layered.replication.RestReplicatorPlugin"/>
-	</Designate>
+    </Designate>
 
 </metatype:MetaData>

@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.kml.transformer;
 
@@ -53,21 +52,28 @@ public class KmlStyleMapEntryImpl implements KmlStyleMapEntry {
     }
 
     public void init() {
-        LOGGER.debug("Creating {} with {}, {}, {}", KmlStyleMapEntryImpl.class.getName(),
-                attributeName, attributeValue, styleUrl);
+        LOGGER.debug("Creating {} with {}, {}, {}",
+                KmlStyleMapEntryImpl.class.getName(),
+                attributeName,
+                attributeValue,
+                styleUrl);
     }
 
     @Override
     public boolean metacardMatch(Metacard metacard) {
         if (Metacard.SOURCE_ID.equals(attributeName)) {
-            return metacard.getSourceId().equals(attributeValue);
+            return metacard.getSourceId()
+                    .equals(attributeValue);
         } else {
             Attribute attribute = metacard.getAttribute(attributeName);
             if (attribute != null) {
                 if (attributeValueMatch(attribute,
-                        metacard.getMetacardType().getAttributeDescriptor(attributeName))) {
-                    LOGGER.debug("Found match for Attribute: {} Value: {} URL: {}", attributeName,
-                            attributeValue, styleUrl);
+                        metacard.getMetacardType()
+                                .getAttributeDescriptor(attributeName))) {
+                    LOGGER.debug("Found match for Attribute: {} Value: {} URL: {}",
+                            attributeName,
+                            attributeValue,
+                            styleUrl);
                     return true;
                 }
             }
@@ -104,13 +110,15 @@ public class KmlStyleMapEntryImpl implements KmlStyleMapEntry {
 
     private boolean attributeValueMatch(Attribute attribute, AttributeDescriptor descriptor) {
 
-        switch (descriptor.getType().getAttributeFormat()) {
+        switch (descriptor.getType()
+                .getAttributeFormat()) {
         case STRING:
         case XML:
         case GEOMETRY:
             return attributeValue.equals(attribute.getValue());
         case BOOLEAN:
-            return Boolean.valueOf(attributeValue).equals(attribute.getValue());
+            return Boolean.valueOf(attributeValue)
+                    .equals(attribute.getValue());
         case DATE:
             try {
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
@@ -123,15 +131,20 @@ public class KmlStyleMapEntryImpl implements KmlStyleMapEntry {
                 return false;
             }
         case SHORT:
-            return Short.valueOf(attributeValue).equals(attribute.getValue());
+            return Short.valueOf(attributeValue)
+                    .equals(attribute.getValue());
         case INTEGER:
-            return Integer.valueOf(attributeValue).equals(attribute.getValue());
+            return Integer.valueOf(attributeValue)
+                    .equals(attribute.getValue());
         case LONG:
-            return Long.valueOf(attributeValue).equals(attribute.getValue());
+            return Long.valueOf(attributeValue)
+                    .equals(attribute.getValue());
         case FLOAT:
-            return Float.valueOf(attributeValue).equals(attribute.getValue());
+            return Float.valueOf(attributeValue)
+                    .equals(attribute.getValue());
         case DOUBLE:
-            return Double.valueOf(attributeValue).equals(attribute.getValue());
+            return Double.valueOf(attributeValue)
+                    .equals(attribute.getValue());
         case BINARY:
         case OBJECT:
         default:

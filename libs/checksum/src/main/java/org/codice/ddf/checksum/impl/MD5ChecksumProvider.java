@@ -27,8 +27,8 @@ public class MD5ChecksumProvider extends AbstractChecksumProvider {
 
     private static final String DIGEST_ALGORITHM = "MD5";
 
-    private static final XLogger LOGGER = new XLogger(
-            LoggerFactory.getLogger(MD5ChecksumProvider.class));
+    private static final XLogger LOGGER =
+            new XLogger(LoggerFactory.getLogger(MD5ChecksumProvider.class));
 
     @Override
     public String calculateChecksum(InputStream inputStream)

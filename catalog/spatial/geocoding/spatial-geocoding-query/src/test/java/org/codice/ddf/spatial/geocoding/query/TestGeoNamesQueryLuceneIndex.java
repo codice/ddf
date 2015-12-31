@@ -60,38 +60,50 @@ import com.spatial4j.core.shape.Shape;
 
 public class TestGeoNamesQueryLuceneIndex extends TestBase {
     private Directory directory;
+
     private GeoNamesQueryLuceneDirectoryIndex directoryIndex;
 
     private static final String NAME_1 = "Phoenix";
+
     private static final String NAME_2 = "Phoenix Airport";
+
     private static final String NAME_3 = "Glendale";
 
     private static final double LAT_1 = 1.234;
+
     private static final double LAT_2 = 1.25;
+
     private static final double LAT_3 = 1;
 
     private static final double LON_1 = 56.78;
+
     private static final double LON_2 = 56.5;
+
     private static final double LON_3 = 57;
 
     private static final String FEATURE_CODE_1 = "PPL";
+
     private static final String FEATURE_CODE_2 = "AIRP";
+
     private static final String FEATURE_CODE_3 = "PPLC";
 
     private static final long POP_1 = 100000000;
+
     private static final long POP_2 = 10000000;
+
     private static final long POP_3 = 1000000;
 
     private static final String ALT_NAMES_1 = "alt1,alt2";
+
     private static final String ALT_NAMES_2 = "alt3";
+
     private static final String ALT_NAMES_3 = "";
 
     private static final SpatialContext SPATIAL_CONTEXT = SpatialContext.GEO;
 
     private SpatialStrategy strategy;
 
-    private static final GeoEntry GEO_ENTRY_1 = new GeoEntry.Builder()
-            .name(NAME_1)
+    private static final GeoEntry GEO_ENTRY_1 = new GeoEntry.Builder().name(NAME_1)
             .latitude(LAT_1)
             .longitude(LON_1)
             .featureCode(FEATURE_CODE_1)
@@ -99,8 +111,7 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
             .alternateNames(ALT_NAMES_1)
             .build();
 
-    private static final GeoEntry GEO_ENTRY_2 = new GeoEntry.Builder()
-            .name(NAME_2)
+    private static final GeoEntry GEO_ENTRY_2 = new GeoEntry.Builder().name(NAME_2)
             .latitude(LAT_2)
             .longitude(LON_2)
             .featureCode(FEATURE_CODE_2)
@@ -108,8 +119,7 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
             .alternateNames(ALT_NAMES_2)
             .build();
 
-    private static final GeoEntry GEO_ENTRY_3 = new GeoEntry.Builder()
-            .name(NAME_3)
+    private static final GeoEntry GEO_ENTRY_3 = new GeoEntry.Builder().name(NAME_3)
             .latitude(LAT_3)
             .longitude(LON_3)
             .featureCode(FEATURE_CODE_3)
@@ -144,32 +154,37 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
 
         initializeIndex();
 
-        doReturn(directory).when(directoryIndex).openDirectory();
+        doReturn(directory).when(directoryIndex)
+                .openDirectory();
     }
 
     private Document createDocumentFromGeoEntry(final GeoEntry geoEntry) {
         final Document document = new Document();
 
-        document.add(new TextField(GeoNamesLuceneConstants.NAME_FIELD, geoEntry.getName(),
+        document.add(new TextField(GeoNamesLuceneConstants.NAME_FIELD,
+                geoEntry.getName(),
                 Field.Store.YES));
-        document.add(new DoubleField(GeoNamesLuceneConstants.LATITUDE_FIELD, geoEntry.getLatitude(),
+        document.add(new DoubleField(GeoNamesLuceneConstants.LATITUDE_FIELD,
+                geoEntry.getLatitude(),
                 Field.Store.YES));
-        document.add(
-                new DoubleField(GeoNamesLuceneConstants.LONGITUDE_FIELD, geoEntry.getLongitude(),
-                        Field.Store.YES));
+        document.add(new DoubleField(GeoNamesLuceneConstants.LONGITUDE_FIELD,
+                geoEntry.getLongitude(),
+                Field.Store.YES));
         document.add(new StringField(GeoNamesLuceneConstants.FEATURE_CODE_FIELD,
-                geoEntry.getFeatureCode(), Field.Store.YES));
-        document.add(
-                new LongField(GeoNamesLuceneConstants.POPULATION_FIELD, geoEntry.getPopulation(),
-                        Field.Store.YES));
+                geoEntry.getFeatureCode(),
+                Field.Store.YES));
+        document.add(new LongField(GeoNamesLuceneConstants.POPULATION_FIELD,
+                geoEntry.getPopulation(),
+                Field.Store.YES));
         document.add(new NumericDocValuesField(GeoNamesLuceneConstants.POPULATION_DOCVALUES_FIELD,
                 geoEntry.getPopulation()));
 
         document.add(new TextField(GeoNamesLuceneConstants.ALTERNATE_NAMES_FIELD,
-                geoEntry.getAlternateNames(), Field.Store.NO));
+                geoEntry.getAlternateNames(),
+                Field.Store.NO));
 
-        final Shape point = SPATIAL_CONTEXT
-                .makePoint(geoEntry.getLongitude(), geoEntry.getLatitude());
+        final Shape point = SPATIAL_CONTEXT.makePoint(geoEntry.getLongitude(),
+                geoEntry.getLatitude());
         for (IndexableField field : strategy.createIndexableFields(point)) {
             document.add(field);
         }
@@ -242,49 +257,56 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
 
     @Test(expected = GeoEntryQueryException.class)
     public void testQueryNoExistingIndex() throws IOException {
-        doReturn(false).when(directoryIndex).indexExists(directory);
+        doReturn(false).when(directoryIndex)
+                .indexExists(directory);
         directoryIndex.query("phoenix", 1);
     }
 
     @Test
     public void testExceptionInDirectoryCreation() throws IOException {
-        doThrow(IOException.class).when(directoryIndex).openDirectory();
+        doThrow(IOException.class).when(directoryIndex)
+                .openDirectory();
 
         try {
             directoryIndex.query("phoenix", 1);
-            fail("Should have thrown a GeoEntryQueryException because an IOException was thrown " +
-                    " when creating the directory.");
+            fail("Should have thrown a GeoEntryQueryException because an IOException was thrown "
+                    + " when creating the directory.");
         } catch (GeoEntryQueryException e) {
             assertThat("The GeoEntryQueryException was not caused by an IOException.",
-                    e.getCause(), instanceOf(IOException.class));
+                    e.getCause(),
+                    instanceOf(IOException.class));
         }
     }
 
     @Test
     public void testExceptionInIndexReaderCreation() throws IOException {
-        doThrow(IOException.class).when(directoryIndex).createIndexReader(any(Directory.class));
+        doThrow(IOException.class).when(directoryIndex)
+                .createIndexReader(any(Directory.class));
 
         try {
             directoryIndex.query("phoenix", 1);
-            fail("Should have thrown a GeoEntryQueryException because an IOException was thrown " +
-                    "when creating the IndexReader.");
+            fail("Should have thrown a GeoEntryQueryException because an IOException was thrown "
+                    + "when creating the IndexReader.");
         } catch (GeoEntryQueryException e) {
             assertThat("The GeoEntryQueryException was not caused by an IOException.",
-                    e.getCause(), instanceOf(IOException.class));
+                    e.getCause(),
+                    instanceOf(IOException.class));
         }
     }
 
     @Test
     public void testExceptionInQueryParsing() throws ParseException {
-        doThrow(ParseException.class).when(directoryIndex).createQuery(anyString());
+        doThrow(ParseException.class).when(directoryIndex)
+                .createQuery(anyString());
 
         try {
             directoryIndex.query("phoenix", 1);
-            fail("Should have thrown a GeoEntryQueryException because a ParseException was " +
-                    "thrown when creating the Query.");
+            fail("Should have thrown a GeoEntryQueryException because a ParseException was "
+                    + "thrown when creating the Query.");
         } catch (GeoEntryQueryException e) {
             assertThat("The GeoEntryQueryException was not caused by a ParseException.",
-                    e.getCause(), instanceOf(ParseException.class));
+                    e.getCause(),
+                    instanceOf(ParseException.class));
         }
     }
 
@@ -309,8 +331,9 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
 
         final int requestedMaxResults = 2;
 
-        final List<NearbyLocation> nearestCities = directoryIndex
-                .getNearestCities(testPoint, 50, requestedMaxResults);
+        final List<NearbyLocation> nearestCities = directoryIndex.getNearestCities(testPoint,
+                50,
+                requestedMaxResults);
         assertThat(nearestCities.size(), is(requestedMaxResults));
 
         /* These distances values were obtained from
@@ -344,8 +367,9 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
         final int requestedMaxResults = 2;
         final int actualResults = 1;
 
-        final List<NearbyLocation> nearestCities = directoryIndex
-                .getNearestCities(testPoint, 50, requestedMaxResults);
+        final List<NearbyLocation> nearestCities = directoryIndex.getNearestCities(testPoint,
+                50,
+                requestedMaxResults);
         assertThat(nearestCities.size(), is(actualResults));
 
         /* This distance value was obtained from http://www.movable-type.co.uk/scripts/latlong.html
@@ -369,8 +393,9 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
         final int requestedMaxResults = 2;
         final int actualResults = 0;
 
-        final List<NearbyLocation> nearestCities = directoryIndex
-                .getNearestCities(testPoint, 50, requestedMaxResults);
+        final List<NearbyLocation> nearestCities = directoryIndex.getNearestCities(testPoint,
+                50,
+                requestedMaxResults);
         assertThat(nearestCities.size(), is(actualResults));
     }
 
@@ -380,8 +405,9 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
 
         final int requestedMaxResults = 2;
 
-        final List<NearbyLocation> nearestCities = directoryIndex
-                .getNearestCities(testPoint, 50, requestedMaxResults);
+        final List<NearbyLocation> nearestCities = directoryIndex.getNearestCities(testPoint,
+                50,
+                requestedMaxResults);
     }
 
     @Test(expected = java.text.ParseException.class)
@@ -391,26 +417,35 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
         final int requestedMaxResults = 2;
         final int actualResults = 0;
 
-        final List<NearbyLocation> nearestCities = directoryIndex
-                .getNearestCities(testPoint, 50, requestedMaxResults);
+        final List<NearbyLocation> nearestCities = directoryIndex.getNearestCities(testPoint,
+                50,
+                requestedMaxResults);
         assertThat(nearestCities.size(), is(actualResults));
     }
 
     @Test(expected = GeoEntryQueryException.class)
     public void testNearestCitiesNoExistingIndex() throws IOException, java.text.ParseException {
-        doReturn(false).when(directoryIndex).indexExists(directory);
+        doReturn(false).when(directoryIndex)
+                .indexExists(directory);
         directoryIndex.getNearestCities("POINT (56.78 1.5)", 5, 5);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testDoGetNearestCitiesNullShape() {
-        List<NearbyLocation> nearestCities = directoryIndex.doGetNearestCities(null, 10, 10, directory);
+        List<NearbyLocation> nearestCities = directoryIndex.doGetNearestCities(null,
+                10,
+                10,
+                directory);
     }
 
     @Test(expected = GeoEntryQueryException.class)
     public void testDoGetNearestCitiesIOExceptionBranch() throws IOException {
-        doThrow(IOException.class).when(directoryIndex).createIndexReader(directory);
+        doThrow(IOException.class).when(directoryIndex)
+                .createIndexReader(directory);
         Shape shape = mock(Shape.class);
-        List<NearbyLocation> nearestCities = directoryIndex.doGetNearestCities(shape, 10, 10, directory);
+        List<NearbyLocation> nearestCities = directoryIndex.doGetNearestCities(shape,
+                10,
+                10,
+                directory);
     }
 }

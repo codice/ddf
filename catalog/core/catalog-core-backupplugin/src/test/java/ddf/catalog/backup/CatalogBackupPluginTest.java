@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -45,8 +45,8 @@ import ddf.catalog.plugin.PluginExecutionException;
 
 public class CatalogBackupPluginTest {
 
-    private static final String[] METACARD_IDS = {"6c3810b98a3b4208b51bc0a96d61e5",
-            "1b6482b1b8f730e343a96d61e0e089"};
+    private static final String[] METACARD_IDS =
+            {"6c3810b98a3b4208b51bc0a96d61e5", "1b6482b1b8f730e343a96d61e0e089"};
 
     private static final String BASE_OLD_TITLE = "oldTitle";
 
@@ -88,7 +88,8 @@ public class CatalogBackupPluginTest {
 
         CatalogBackupPlugin catalogBackupPlugin = new CatalogBackupPlugin();
         catalogBackupPlugin.setEnableBackupPlugin(true);
-        catalogBackupPlugin.setRootBackupDir(rootBackupDir.getRoot().getAbsolutePath());
+        catalogBackupPlugin.setRootBackupDir(rootBackupDir.getRoot()
+                .getAbsolutePath());
         catalogBackupPlugin.setSubDirLevels(subDirLevels);
 
         // Perform Test
@@ -98,9 +99,8 @@ public class CatalogBackupPluginTest {
         assertThat(postPluginCreateResponse, is(notNullValue()));
 
         for (String metacardId : METACARD_IDS) {
-            File backedupMetacard = new File(
-                    rootBackupDir.getRoot().getAbsolutePath() + getMetacardPath(metacardId, 0)
-                            + metacardId);
+            File backedupMetacard = new File(rootBackupDir.getRoot()
+                    .getAbsolutePath() + getMetacardPath(metacardId, 0) + metacardId);
             assertThat(backedupMetacard.exists(), is(Boolean.TRUE));
         }
     }
@@ -114,7 +114,8 @@ public class CatalogBackupPluginTest {
 
         CatalogBackupPlugin catalogBackupPlugin = new CatalogBackupPlugin();
         catalogBackupPlugin.setEnableBackupPlugin(true);
-        catalogBackupPlugin.setRootBackupDir(rootBackupDir.getRoot().getAbsolutePath());
+        catalogBackupPlugin.setRootBackupDir(rootBackupDir.getRoot()
+                .getAbsolutePath());
         catalogBackupPlugin.setSubDirLevels(subDirLevels);
 
         // Perform Test
@@ -124,9 +125,8 @@ public class CatalogBackupPluginTest {
         assertThat(postPluginCreateResponse, is(notNullValue()));
 
         for (String metacardId : METACARD_IDS) {
-            File backedupMetacard = new File(
-                    rootBackupDir.getRoot().getAbsolutePath() + getMetacardPath(metacardId, 0)
-                            + metacardId);
+            File backedupMetacard = new File(rootBackupDir.getRoot()
+                    .getAbsolutePath() + getMetacardPath(metacardId, 0) + metacardId);
             assertThat(backedupMetacard.exists(), is(Boolean.TRUE));
         }
     }
@@ -147,7 +147,8 @@ public class CatalogBackupPluginTest {
 
         CatalogBackupPlugin catalogBackupPlugin = new CatalogBackupPlugin();
         catalogBackupPlugin.setEnableBackupPlugin(true);
-        catalogBackupPlugin.setRootBackupDir(rootBackupDir.getRoot().getAbsolutePath());
+        catalogBackupPlugin.setRootBackupDir(rootBackupDir.getRoot()
+                .getAbsolutePath());
         catalogBackupPlugin.setSubDirLevels(subDirLevels);
 
         // Perform Test
@@ -157,9 +158,8 @@ public class CatalogBackupPluginTest {
         assertThat(postPluginCreateResponse, is(notNullValue()));
 
         for (String metacardId : metacardIds) {
-            File backedupMetacard = new File(
-                    rootBackupDir.getRoot().getAbsolutePath() + getMetacardPath(metacardId, 2)
-                            + metacardId);
+            File backedupMetacard = new File(rootBackupDir.getRoot()
+                    .getAbsolutePath() + getMetacardPath(metacardId, 2) + metacardId);
             assertThat(backedupMetacard.exists(), is(Boolean.TRUE));
         }
     }
@@ -173,7 +173,8 @@ public class CatalogBackupPluginTest {
 
         CatalogBackupPlugin catalogBackupPlugin = new CatalogBackupPlugin();
         catalogBackupPlugin.setEnableBackupPlugin(true);
-        catalogBackupPlugin.setRootBackupDir(rootBackupDir.getRoot().getAbsolutePath());
+        catalogBackupPlugin.setRootBackupDir(rootBackupDir.getRoot()
+                .getAbsolutePath());
         catalogBackupPlugin.setSubDirLevels(subDirLevels);
 
         // Perform Test
@@ -183,9 +184,8 @@ public class CatalogBackupPluginTest {
         assertThat(postPluginCreateResponse, is(notNullValue()));
 
         for (String metacardId : METACARD_IDS) {
-            File backedupMetacard = new File(
-                    rootBackupDir.getRoot().getAbsolutePath() + getMetacardPath(metacardId, 3)
-                            + metacardId);
+            File backedupMetacard = new File(rootBackupDir.getRoot()
+                    .getAbsolutePath() + getMetacardPath(metacardId, 3) + metacardId);
             assertThat(backedupMetacard.exists(), is(Boolean.TRUE));
         }
     }
@@ -201,7 +201,8 @@ public class CatalogBackupPluginTest {
 
         CatalogBackupPlugin catalogBackupPlugin = new CatalogBackupPlugin();
         catalogBackupPlugin.setEnableBackupPlugin(true);
-        catalogBackupPlugin.setRootBackupDir(rootBackupDir.getRoot().getAbsolutePath());
+        catalogBackupPlugin.setRootBackupDir(rootBackupDir.getRoot()
+                .getAbsolutePath());
         catalogBackupPlugin.setSubDirLevels(subDirLevels);
 
         catalogBackupPlugin.process(mockCreateResponse);
@@ -213,9 +214,8 @@ public class CatalogBackupPluginTest {
         assertThat(postPluginDeleteResponse, is(notNullValue()));
 
         for (String metacardId : METACARD_IDS) {
-            File deletedMetacards = new File(
-                    rootBackupDir.getRoot().getAbsolutePath() + getMetacardPath(metacardId, 3)
-                            + metacardId);
+            File deletedMetacards = new File(rootBackupDir.getRoot()
+                    .getAbsolutePath() + getMetacardPath(metacardId, 3) + metacardId);
             assertThat(deletedMetacards.exists(), is(Boolean.FALSE));
         }
     }
@@ -229,7 +229,8 @@ public class CatalogBackupPluginTest {
 
         CatalogBackupPlugin catalogBackupPlugin = new CatalogBackupPlugin();
         catalogBackupPlugin.setEnableBackupPlugin(true);
-        catalogBackupPlugin.setRootBackupDir(rootBackupDir.getRoot().getAbsolutePath());
+        catalogBackupPlugin.setRootBackupDir(rootBackupDir.getRoot()
+                .getAbsolutePath());
         catalogBackupPlugin.setSubDirLevels(subDirLevels);
 
         // Perform Test
@@ -248,14 +249,15 @@ public class CatalogBackupPluginTest {
         // Setup
         String[] createdMetacardIds = {METACARD_IDS[0]};
 
-        CreateResponse mockCreateResponse = getMockCreateResponse(
-                Arrays.asList(createdMetacardIds));
+        CreateResponse mockCreateResponse =
+                getMockCreateResponse(Arrays.asList(createdMetacardIds));
 
         int subDirLevels = 3;
 
         CatalogBackupPlugin catalogBackupPlugin = new CatalogBackupPlugin();
         catalogBackupPlugin.setEnableBackupPlugin(true);
-        catalogBackupPlugin.setRootBackupDir(rootBackupDir.getRoot().getAbsolutePath());
+        catalogBackupPlugin.setRootBackupDir(rootBackupDir.getRoot()
+                .getAbsolutePath());
         catalogBackupPlugin.setSubDirLevels(subDirLevels);
 
         try {
@@ -286,7 +288,8 @@ public class CatalogBackupPluginTest {
 
         CatalogBackupPlugin catalogBackupPlugin = new CatalogBackupPlugin();
         catalogBackupPlugin.setEnableBackupPlugin(true);
-        catalogBackupPlugin.setRootBackupDir(rootBackupDir.getRoot().getAbsolutePath());
+        catalogBackupPlugin.setRootBackupDir(rootBackupDir.getRoot()
+                .getAbsolutePath());
         catalogBackupPlugin.setSubDirLevels(subDirLevels);
 
         catalogBackupPlugin.process(mockCreateResponse);
@@ -301,17 +304,17 @@ public class CatalogBackupPluginTest {
 
         int j = 0;
         for (Metacard oldMetacard : mockCreateResponse.getCreatedMetacards()) {
-            File updatedMetacardFile = new File(
-                    rootBackupDir.getRoot().getAbsolutePath() + getMetacardPath(oldMetacard.getId(),
-                            subDirLevels) + oldMetacard.getId());
+            File updatedMetacardFile = new File(rootBackupDir.getRoot()
+                    .getAbsolutePath() + getMetacardPath(oldMetacard.getId(), subDirLevels)
+                    + oldMetacard.getId());
             Metacard updatedMetacard = readMetacard(updatedMetacardFile);
             assertThat(updatedMetacardFile.exists(), is(Boolean.TRUE));
             // Verify that the metacard id has not changed (from newMetacard to
             // oldMetacard)
             assertThat(updatedMetacard.getId(), is(oldMetacard.getId()));
             // Verify that the metacard title has been updated to "newTitle" + j
-            assertThat((String) updatedMetacard.getAttribute(Metacard.TITLE).getValue(),
-                    is(BASE_NEW_TITLE + j));
+            assertThat((String) updatedMetacard.getAttribute(Metacard.TITLE)
+                    .getValue(), is(BASE_NEW_TITLE + j));
 
             j++;
         }
@@ -324,7 +327,8 @@ public class CatalogBackupPluginTest {
 
         CatalogBackupPlugin catalogBackupPlugin = new CatalogBackupPlugin();
         catalogBackupPlugin.setEnableBackupPlugin(true);
-        catalogBackupPlugin.setRootBackupDir(rootBackupDir.getRoot().getAbsolutePath());
+        catalogBackupPlugin.setRootBackupDir(rootBackupDir.getRoot()
+                .getAbsolutePath());
         catalogBackupPlugin.setSubDirLevels(subDirLevels);
 
         UpdateResponse mockUpdateResponse = getUpdateResponse(Arrays.asList(METACARD_IDS));
@@ -345,14 +349,15 @@ public class CatalogBackupPluginTest {
         // Setup
         String[] createdMetacardIds = {METACARD_IDS[0]};
 
-        CreateResponse mockCreateResponse = getMockCreateResponse(
-                Arrays.asList(createdMetacardIds));
+        CreateResponse mockCreateResponse =
+                getMockCreateResponse(Arrays.asList(createdMetacardIds));
 
         int subDirLevels = 3;
 
         CatalogBackupPlugin catalogBackupPlugin = new CatalogBackupPlugin();
         catalogBackupPlugin.setEnableBackupPlugin(true);
-        catalogBackupPlugin.setRootBackupDir(rootBackupDir.getRoot().getAbsolutePath());
+        catalogBackupPlugin.setRootBackupDir(rootBackupDir.getRoot()
+                .getAbsolutePath());
         catalogBackupPlugin.setSubDirLevels(subDirLevels);
 
         try {

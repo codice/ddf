@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -38,8 +38,10 @@ public class DecoratorTest {
 
     @Test
     public void testAdminModuleAdminModuleDecorator() {
-        doReturn("test").when(module).getName();
-        doReturn("0").when(module).getId();
+        doReturn("test").when(module)
+                .getName();
+        doReturn("0").when(module)
+                .getId();
         ValidationDecorator proxy = new ValidationDecorator(module);
         assertThat("values are proxied correctly", proxy.getName(), is(module.getName()));
         assertThat("values are proxied correctly", proxy.getId(), is(module.getId()));
@@ -47,42 +49,51 @@ public class DecoratorTest {
 
     @Test
     public void testToMap() {
-        doReturn("test").when(module).getName();
+        doReturn("test").when(module)
+                .getName();
         Decorator proxy = new ValidationDecorator(module);
-        String name = (String) proxy.toMap().get("name");
+        String name = (String) proxy.toMap()
+                .get("name");
         assertThat("hash map gets constructed correctly", name, is("test"));
     }
 
     @Test
     public void testURLToMap() throws URISyntaxException {
         String uri = "js/app.js";
-        doReturn(new URI(uri)).when(module).getJSLocation();
+        doReturn(new URI(uri)).when(module)
+                .getJSLocation();
         Decorator proxy = new ValidationDecorator(module);
-        String jsLocation = (String) proxy.toMap().get("jsLocation");
+        String jsLocation = (String) proxy.toMap()
+                .get("jsLocation");
         assertThat("URLs get mapped to strings", jsLocation, is(uri));
     }
 
     @Test
     public void testNullURLToMap() {
         Decorator proxy = new ValidationDecorator(module);
-        String jsLocation = (String) proxy.toMap().get("jsLocation");
+        String jsLocation = (String) proxy.toMap()
+                .get("jsLocation");
         assertThat("null URLs get mapped to empty strings", jsLocation, is(""));
     }
 
     @Test
     public void testCompareTo() {
-        doReturn("test").when(module).getName();
+        doReturn("test").when(module)
+                .getName();
         Decorator proxy = new ValidationDecorator(module);
-        assertThat("modules are the same if the have the same name", proxy.compareTo(module),
+        assertThat("modules are the same if the have the same name",
+                proxy.compareTo(module),
                 is(0));
     }
 
     @Test
     public void testSort() {
         AdminModule hello = Mockito.mock(AdminModule.class);
-        doReturn("hello").when(hello).getName();
+        doReturn("hello").when(hello)
+                .getName();
         AdminModule world = Mockito.mock(AdminModule.class);
-        doReturn("world").when(world).getName();
+        doReturn("world").when(world)
+                .getName();
 
         List<AdminModule> list = new ArrayList<AdminModule>();
         list.add(world);
@@ -91,9 +102,13 @@ public class DecoratorTest {
         List<ValidationDecorator> modules = ValidationDecorator.wrap(list);
         Collections.sort(modules);
 
-        assertThat("modules are sorted lexographically by name", modules.get(0).getName(),
+        assertThat("modules are sorted lexographically by name",
+                modules.get(0)
+                        .getName(),
                 is("hello"));
-        assertThat("modules are sorted lexographically by name", modules.get(1).getName(),
+        assertThat("modules are sorted lexographically by name",
+                modules.get(1)
+                        .getName(),
                 is("world"));
     }
 }

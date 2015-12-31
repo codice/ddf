@@ -84,8 +84,8 @@ public class CrlInterceptorTest {
         when(message.get(AbstractHTTPDestination.HTTP_REQUEST)).thenReturn(request);
 
         // add in certificate
-        InputStream stream = new ByteArrayInputStream(
-                Base64.decodeBase64(certificateString.getBytes()));
+        InputStream stream =
+                new ByteArrayInputStream(Base64.decodeBase64(certificateString.getBytes()));
         CertificateFactory factory = CertificateFactory.getInstance("X.509");
         X509Certificate cert = (X509Certificate) factory.generateCertificate(stream);
         X509Certificate[] certs = new X509Certificate[] {cert};
@@ -97,8 +97,8 @@ public class CrlInterceptorTest {
     private X509Certificate[] getTestCerts() throws CertificateException {
         String certificateString = getTestCertString();
 
-        InputStream stream = new ByteArrayInputStream(
-                Base64.decodeBase64(certificateString.getBytes()));
+        InputStream stream =
+                new ByteArrayInputStream(Base64.decodeBase64(certificateString.getBytes()));
         CertificateFactory factory = CertificateFactory.getInstance("X.509");
         X509Certificate cert = (X509Certificate) factory.generateCertificate(stream);
         X509Certificate[] certs = new X509Certificate[1];

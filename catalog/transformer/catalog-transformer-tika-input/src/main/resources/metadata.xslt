@@ -21,6 +21,6 @@
 
     <!-- template to copy the rest of the nodes -->
     <xsl:template match="comment() | text() | processing-instruction()">
-         <xsl:copy/>
+        <xsl:copy/>
     </xsl:template>
 </xsl:stylesheet>

@@ -44,10 +44,14 @@ import org.mockito.runners.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class ConfigStatusCommandTest {
 
-    private static final String ERROR_RED = Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.RED)
+    private static final String ERROR_RED = Ansi.ansi()
+            .a(Attribute.RESET)
+            .fg(Ansi.Color.RED)
             .toString();
 
-    private static final String SUCCESS_GREEN = Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.GREEN)
+    private static final String SUCCESS_GREEN = Ansi.ansi()
+            .a(Attribute.RESET)
+            .fg(Ansi.Color.GREEN)
             .toString();
 
     private static final Path FAILED_CONFIG_FILE1 = Paths.get("/path/to/configFile1.config");
@@ -55,6 +59,7 @@ public class ConfigStatusCommandTest {
     private static final Path FAILED_CONFIG_FILE2 = Paths.get("/path/to/configFile2.config");
 
     private static final Collection<ConfigurationStatus> CONFIG_STATUS_MSGS;
+
     static {
         Collection<ConfigurationStatus> configStatus = new ArrayList<>(2);
         ConfigurationStatus cs1 = new ConfigurationStatus(FAILED_CONFIG_FILE1);
@@ -79,8 +84,7 @@ public class ConfigStatusCommandTest {
     @Test
     public void testDoExecuteReportFailedImports() throws Exception {
         // Setup
-        when(mockConfigStatusService.getFailedConfigurationFiles()).thenReturn(
-                CONFIG_STATUS_MSGS);
+        when(mockConfigStatusService.getFailedConfigurationFiles()).thenReturn(CONFIG_STATUS_MSGS);
         ConfigStatusCommand configStatusCommand = new ConfigStatusCommand(mockConfigStatusService) {
             @Override
             PrintStream getConsole() {
@@ -96,13 +100,11 @@ public class ConfigStatusCommandTest {
         verify(mockConsole, times(4)).print(argument.capture());
         List<String> values = argument.getAllValues();
         assertThat(values.get(0), is(ERROR_RED));
-        assertThat(
-                values.get(1),
+        assertThat(values.get(1),
                 is(String.format(ConfigStatusCommand.FAILED_IMPORT_MESSAGE,
                         FAILED_CONFIG_FILE1.toString())));
         assertThat(values.get(0), is(ERROR_RED));
-        assertThat(
-                values.get(3),
+        assertThat(values.get(3),
                 is(String.format(ConfigStatusCommand.FAILED_IMPORT_MESSAGE,
                         FAILED_CONFIG_FILE2.toString())));
     }
@@ -132,7 +134,8 @@ public class ConfigStatusCommandTest {
     @Test
     public void testDoExecuteRuntimeExceptionWhileReadingFailedDirectory() throws Exception {
         // Setup
-        doThrow(new RuntimeException()).when(mockConfigStatusService).getFailedConfigurationFiles();
+        doThrow(new RuntimeException()).when(mockConfigStatusService)
+                .getFailedConfigurationFiles();
         ConfigStatusCommand configStatusCommand = new ConfigStatusCommand(mockConfigStatusService) {
             @Override
             PrintStream getConsole() {

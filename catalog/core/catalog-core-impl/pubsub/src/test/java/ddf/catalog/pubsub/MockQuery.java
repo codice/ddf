@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -118,11 +118,12 @@ public class MockQuery implements FederatedSource, Query {
                 }
                 filter = FILTER_FACTORY.or(xpathFilters);
             } else {
-                filter = FILTER_FACTORY
-                        .like(FILTER_FACTORY.property(Metacard.ANY_TEXT), searchPhrase,
+                filter = FILTER_FACTORY.like(FILTER_FACTORY.property(Metacard.ANY_TEXT),
+                        searchPhrase,
                         SubscriptionFilterVisitor.LUCENE_WILDCARD_CHAR,
                         SubscriptionFilterVisitor.LUCENE_SINGLE_CHAR,
-                        SubscriptionFilterVisitor.LUCENE_ESCAPE_CHAR, caseSensitive);
+                        SubscriptionFilterVisitor.LUCENE_ESCAPE_CHAR,
+                        caseSensitive);
             }
 
             if (filter != null) {
@@ -137,12 +138,14 @@ public class MockQuery implements FederatedSource, Query {
 
         String timeProperty = Metacard.MODIFIED;
 
-        if (timeType != null && timeType.toLowerCase().equals(Metacard.EFFECTIVE)) {
+        if (timeType != null && timeType.toLowerCase()
+                .equals(Metacard.EFFECTIVE)) {
             timeProperty = Metacard.EFFECTIVE;
         }
 
         if (start != null && end != null) {
-            int compareTo = start.toGregorianCalendar().compareTo(end.toGregorianCalendar());
+            int compareTo = start.toGregorianCalendar()
+                    .compareTo(end.toGregorianCalendar());
             if (compareTo > 0) {
 
                 throw new IllegalArgumentException(
@@ -152,16 +155,18 @@ public class MockQuery implements FederatedSource, Query {
             } else if (compareTo == 0) {
 
                 filter = FILTER_FACTORY.equals(FILTER_FACTORY.property(timeProperty),
-                        FILTER_FACTORY.literal(start.toGregorianCalendar().getTime()));
+                        FILTER_FACTORY.literal(start.toGregorianCalendar()
+                                .getTime()));
 
             } else {
 
                 // t1.start < timeType instance < t1.end
-                DefaultPosition defaultPosition = new DefaultPosition(
-                        start.toGregorianCalendar().getTime());
+                DefaultPosition defaultPosition = new DefaultPosition(start.toGregorianCalendar()
+                        .getTime());
                 Instant startInstant = new DefaultInstant(defaultPosition);
-                Instant endInstant = new DefaultInstant(
-                        new DefaultPosition(end.toGregorianCalendar().getTime()));
+                Instant endInstant =
+                        new DefaultInstant(new DefaultPosition(end.toGregorianCalendar()
+                                .getTime()));
                 Period period = new DefaultPeriod(startInstant, endInstant);
 
                 filter = FILTER_FACTORY.during(FILTER_FACTORY.property(timeProperty),
@@ -178,8 +183,8 @@ public class MockQuery implements FederatedSource, Query {
         if (id != null) {
             LOGGER.debug("Creating entry by ID filter");
 
-            filter = FILTER_FACTORY
-                    .equals(FILTER_FACTORY.property(Metacard.ID), FILTER_FACTORY.literal(id));
+            filter = FILTER_FACTORY.equals(FILTER_FACTORY.property(Metacard.ID),
+                    FILTER_FACTORY.literal(id));
             filters.add(filter);
         } else {
             LOGGER.debug("id was NULL - EntryFilter not created");
@@ -202,13 +207,16 @@ public class MockQuery implements FederatedSource, Query {
             } else if (spatialType.equals("OVERLAPS")) {
                 filter = FILTER_FACTORY.intersects(Metacard.ANY_GEO, spatialFilter.getGeometry());
             } else if (spatialType.equals("NEAREST_NEIGHBOR")) {
-                filter = FILTER_FACTORY.beyond(Metacard.ANY_GEO, spatialFilter.getGeometry(), 0.0,
+                filter = FILTER_FACTORY.beyond(Metacard.ANY_GEO,
+                        spatialFilter.getGeometry(),
+                        0.0,
                         UomOgcMapping.METRE.name());
             } else if (spatialType.equals("POINT_RADIUS")) {
                 Double normalizedRadius = convertRadius(linearUnit, inputRadius);
-                filter = FILTER_FACTORY
-                        .dwithin(Metacard.ANY_GEO, spatialFilter.getGeometry(), normalizedRadius,
-                                UomOgcMapping.METRE.name());
+                filter = FILTER_FACTORY.dwithin(Metacard.ANY_GEO,
+                        spatialFilter.getGeometry(),
+                        normalizedRadius,
+                        UomOgcMapping.METRE.name());
             } else {
                 return;
             }
@@ -258,11 +266,19 @@ public class MockQuery implements FederatedSource, Query {
                 for (String v : versions) {
 
                     if (v != null) {
-                        PropertyIsLike typeFilter = FILTER_FACTORY
-                                .like(expressionType, type, "*", "?", "\\", false);
+                        PropertyIsLike typeFilter = FILTER_FACTORY.like(expressionType,
+                                type,
+                                "*",
+                                "?",
+                                "\\",
+                                false);
 
-                        PropertyIsLike versionFilter = FILTER_FACTORY
-                                .like(expressionVersion, v, "*", "?", "\\", false);
+                        PropertyIsLike versionFilter = FILTER_FACTORY.like(expressionVersion,
+                                v,
+                                "*",
+                                "?",
+                                "\\",
+                                false);
 
                         andedTypeVersionPairs.add(FILTER_FACTORY.and(typeFilter, versionFilter));
                     }
@@ -273,7 +289,12 @@ public class MockQuery implements FederatedSource, Query {
                     oneTypeFilter = FILTER_FACTORY.or(andedTypeVersionPairs);
                 } else {
                     // if we don't have any pairs, means we don't have versions, handle single type
-                    oneTypeFilter = FILTER_FACTORY.like(expressionType, type, "*", "?", "\\", false);
+                    oneTypeFilter = FILTER_FACTORY.like(expressionType,
+                            type,
+                            "*",
+                            "?",
+                            "\\",
+                            false);
                 }
 
             } else {
@@ -330,12 +351,12 @@ public class MockQuery implements FederatedSource, Query {
         if (filters.size() > 1) {
             return FILTER_FACTORY.and(filters);
 
-        // If only one filter, then just return it
-        // (AND'ing it would create an erroneous </ogc:and> closing tag)
+            // If only one filter, then just return it
+            // (AND'ing it would create an erroneous </ogc:and> closing tag)
         } else if (filters.size() == 1) {
             return (Filter) filters.get(0);
 
-        // Otherwise, no filters
+            // Otherwise, no filters
         } else {
             return null;
         }

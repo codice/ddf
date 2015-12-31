@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -56,16 +56,21 @@ public class DynamicSchemaResolverTest {
         boolean stored = true;
         boolean tokenized = false;
         boolean multiValued = false;
-        addtributeDescriptors
-                .add(new TestAttributeDescriptorImpl(name, propertyName, indexed, stored, tokenized,
-                        multiValued, BasicTypes.OBJECT_TYPE));
+        addtributeDescriptors.add(new TestAttributeDescriptorImpl(name,
+                propertyName,
+                indexed,
+                stored,
+                tokenized,
+                multiValued,
+                BasicTypes.OBJECT_TYPE));
         Serializable mockValue = mock(Serializable.class);
         Attribute mockAttribute = mock(Attribute.class);
         when(mockAttribute.getValue()).thenReturn(mockValue);
         Metacard mockMetacard = mock(Metacard.class, RETURNS_DEEP_STUBS);
-        when(mockMetacard.getMetacardType().getName()).thenReturn(metacardTypeName);
-        when(mockMetacard.getMetacardType().getAttributeDescriptors())
-                .thenReturn(addtributeDescriptors);
+        when(mockMetacard.getMetacardType()
+                .getName()).thenReturn(metacardTypeName);
+        when(mockMetacard.getMetacardType()
+                .getAttributeDescriptors()).thenReturn(addtributeDescriptors);
         when(mockMetacard.getAttribute(name)).thenReturn(mockAttribute);
         ArgumentCaptor<byte[]> metacardTypeBytes = ArgumentCaptor.forClass(byte[].class);
         SolrInputDocument mockSolrInputDocument = mock(SolrInputDocument.class);
@@ -80,8 +85,8 @@ public class DynamicSchemaResolverTest {
         byte[] serializedMetacardType = metacardTypeBytes.getValue();
         MetacardType metacardType = deserializeMetacardType(serializedMetacardType);
         for (AttributeDescriptor attributeDescriptor : metacardType.getAttributeDescriptors()) {
-            assertThat(attributeDescriptor.getClass().getName(),
-                    is(AttributeDescriptorImpl.class.getName()));
+            assertThat(attributeDescriptor.getClass()
+                    .getName(), is(AttributeDescriptorImpl.class.getName()));
         }
     }
 

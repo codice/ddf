@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -77,16 +77,16 @@ public class TestMimeTypeToTransformerMapperImpl {
         ServiceReference[] refs = {};
 
         // when
-        when(context.getServiceReferences(isA(String.class), isNull(String.class)))
-                .thenReturn(refs);
+        when(context.getServiceReferences(isA(String.class),
+                isNull(String.class))).thenReturn(refs);
         MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl() {
             @Override
             protected BundleContext getContext() {
                 return context;
             }
         };
-        List<Object> matches = matcher
-                .findMatches(Object.class, new MimeType(MediaType.APPLICATION_ATOM_XML));
+        List<Object> matches = matcher.findMatches(Object.class,
+                new MimeType(MediaType.APPLICATION_ATOM_XML));
 
         // then
         assertThat(matches.isEmpty(), is(true));
@@ -135,8 +135,8 @@ public class TestMimeTypeToTransformerMapperImpl {
         when(context.getService(ref2)).thenReturn(simpleTransformer2);
         when(context.getService(ref3)).thenReturn(simpleTransformer3);
 
-        when(context.getServiceReferences(isA(String.class), isNull(String.class)))
-                .thenReturn(refs);
+        when(context.getServiceReferences(isA(String.class),
+                isNull(String.class))).thenReturn(refs);
         MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl() {
             @Override
             protected BundleContext getContext() {
@@ -171,8 +171,8 @@ public class TestMimeTypeToTransformerMapperImpl {
         ServiceReference[] refs = {};
 
         // when
-        when(context.getServiceReferences(isA(String.class), isNull(String.class)))
-                .thenReturn(refs);
+        when(context.getServiceReferences(isA(String.class),
+                isNull(String.class))).thenReturn(refs);
         MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl() {
             @Override
             protected BundleContext getContext() {
@@ -207,8 +207,10 @@ public class TestMimeTypeToTransformerMapperImpl {
         // given
         final BundleContext context = mock(BundleContext.class);
         ServiceReference ref1 = createMockReference(1,
-                Arrays.asList(MediaType.APPLICATION_ATOM_XML), null);
-        ServiceReference ref2 = createMockReference(2, Arrays.asList(MediaType.APPLICATION_JSON),
+                Arrays.asList(MediaType.APPLICATION_ATOM_XML),
+                null);
+        ServiceReference ref2 = createMockReference(2,
+                Arrays.asList(MediaType.APPLICATION_JSON),
                 null);
 
         ServiceReference[] refs = {ref1, ref2};
@@ -220,16 +222,16 @@ public class TestMimeTypeToTransformerMapperImpl {
         when(context.getService(ref1)).thenReturn(simpleTransformer1);
         when(context.getService(ref2)).thenReturn(simpleTransformer2);
 
-        when(context.getServiceReferences(isA(String.class), isNull(String.class)))
-                .thenReturn(refs);
+        when(context.getServiceReferences(isA(String.class),
+                isNull(String.class))).thenReturn(refs);
         MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl() {
             @Override
             protected BundleContext getContext() {
                 return context;
             }
         };
-        List<Object> matches = matcher
-                .findMatches(Object.class, new MimeType(MediaType.APPLICATION_XML));
+        List<Object> matches = matcher.findMatches(Object.class,
+                new MimeType(MediaType.APPLICATION_XML));
 
         // then
         assertThat(matches.size(), is(0));
@@ -261,7 +263,8 @@ public class TestMimeTypeToTransformerMapperImpl {
         final BundleContext context = mock(BundleContext.class);
 
         ServiceReference ref1 = createMockReference(1,
-                Arrays.asList(MediaType.APPLICATION_ATOM_XML), "a1");
+                Arrays.asList(MediaType.APPLICATION_ATOM_XML),
+                "a1");
         ServiceReference[] refs = {ref1};
 
         Object simpleTransformer1 = new Object();
@@ -269,16 +272,16 @@ public class TestMimeTypeToTransformerMapperImpl {
         // when
         when(context.getService(ref1)).thenReturn(simpleTransformer1);
 
-        when(context.getServiceReferences(isA(String.class), isNull(String.class)))
-                .thenReturn(refs);
+        when(context.getServiceReferences(isA(String.class),
+                isNull(String.class))).thenReturn(refs);
         MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl() {
             @Override
             protected BundleContext getContext() {
                 return context;
             }
         };
-        List<Object> matches = matcher
-                .findMatches(Object.class, new MimeType(MediaType.APPLICATION_XML));
+        List<Object> matches = matcher.findMatches(Object.class,
+                new MimeType(MediaType.APPLICATION_XML));
 
         // then
         assertThat(matches.size(), is(0));
@@ -310,7 +313,8 @@ public class TestMimeTypeToTransformerMapperImpl {
         final BundleContext context = mock(BundleContext.class);
 
         ServiceReference ref1 = createMockReference(1,
-                Arrays.asList(MediaType.APPLICATION_ATOM_XML), "a1");
+                Arrays.asList(MediaType.APPLICATION_ATOM_XML),
+                "a1");
         ServiceReference[] refs = {ref1};
 
         Object simpleTransformer1 = new Object();
@@ -318,8 +322,8 @@ public class TestMimeTypeToTransformerMapperImpl {
         // when
         when(context.getService(ref1)).thenReturn(simpleTransformer1);
 
-        when(context.getServiceReferences(isA(String.class), isNull(String.class)))
-                .thenReturn(refs);
+        when(context.getServiceReferences(isA(String.class),
+                isNull(String.class))).thenReturn(refs);
         MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl() {
             @Override
             protected BundleContext getContext() {
@@ -347,8 +351,10 @@ public class TestMimeTypeToTransformerMapperImpl {
         final BundleContext context = mock(BundleContext.class);
 
         ServiceReference ref1 = createMockReference(1,
-                Arrays.asList(MediaType.APPLICATION_ATOM_XML), "a1");
-        ServiceReference ref2 = createMockReference(2, Arrays.asList(MediaType.APPLICATION_JSON),
+                Arrays.asList(MediaType.APPLICATION_ATOM_XML),
+                "a1");
+        ServiceReference ref2 = createMockReference(2,
+                Arrays.asList(MediaType.APPLICATION_JSON),
                 "a2");
         ServiceReference ref3 = createMockReference(3, null, null);
         ServiceReference[] refs = {ref2, ref3, ref1};
@@ -362,16 +368,16 @@ public class TestMimeTypeToTransformerMapperImpl {
         when(context.getService(ref2)).thenReturn(simpleTransformer2);
         when(context.getService(ref3)).thenReturn(simpleTransformer3);
 
-        when(context.getServiceReferences(isA(String.class), isNull(String.class)))
-                .thenReturn(refs);
+        when(context.getServiceReferences(isA(String.class),
+                isNull(String.class))).thenReturn(refs);
         MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl() {
             @Override
             protected BundleContext getContext() {
                 return context;
             }
         };
-        List<Object> matches = matcher
-                .findMatches(Object.class, new MimeType(MediaType.APPLICATION_JSON));
+        List<Object> matches = matcher.findMatches(Object.class,
+                new MimeType(MediaType.APPLICATION_JSON));
 
         // then
         assertThat(matches.size(), is(1));
@@ -392,10 +398,13 @@ public class TestMimeTypeToTransformerMapperImpl {
         final BundleContext context = mock(BundleContext.class);
 
         ServiceReference ref1 = createMockReference(1,
-                Arrays.asList(MediaType.APPLICATION_ATOM_XML), "a1");
-        ServiceReference ref2 = createMockReference(2, Arrays.asList(MediaType.APPLICATION_JSON),
+                Arrays.asList(MediaType.APPLICATION_ATOM_XML),
+                "a1");
+        ServiceReference ref2 = createMockReference(2,
+                Arrays.asList(MediaType.APPLICATION_JSON),
                 "a2");
-        ServiceReference ref3 = createMockReference(3, Arrays.asList(MediaType.APPLICATION_JSON),
+        ServiceReference ref3 = createMockReference(3,
+                Arrays.asList(MediaType.APPLICATION_JSON),
                 "a3");
         ServiceReference[] refs = {ref2, ref3, ref1};
 
@@ -414,16 +423,16 @@ public class TestMimeTypeToTransformerMapperImpl {
         when(ref3.compareTo(ref1)).thenReturn(1);
         when(ref3.compareTo(ref2)).thenReturn(1);
 
-        when(context.getServiceReferences(isA(String.class), isNull(String.class)))
-                .thenReturn(refs);
+        when(context.getServiceReferences(isA(String.class),
+                isNull(String.class))).thenReturn(refs);
         MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl() {
             @Override
             protected BundleContext getContext() {
                 return context;
             }
         };
-        List<Object> matches = matcher
-                .findMatches(Object.class, new MimeType(MediaType.APPLICATION_JSON));
+        List<Object> matches = matcher.findMatches(Object.class,
+                new MimeType(MediaType.APPLICATION_JSON));
 
         // then
         assertThat(matches.size(), is(2));
@@ -444,10 +453,12 @@ public class TestMimeTypeToTransformerMapperImpl {
         // given
         final BundleContext context = mock(BundleContext.class);
 
-        ServiceReference ref1 = createMockReference(1, Arrays.asList(MediaType.APPLICATION_JSON),
+        ServiceReference ref1 = createMockReference(1,
+                Arrays.asList(MediaType.APPLICATION_JSON),
                 "");
         ServiceReference ref2 = createMockReference(2,
-                Arrays.asList(MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON), "a1");
+                Arrays.asList(MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON),
+                "a1");
         ServiceReference ref3 = createMockReference(3, null, null);
         ServiceReference[] refs = {ref2, ref3, ref1};
 
@@ -460,16 +471,16 @@ public class TestMimeTypeToTransformerMapperImpl {
         when(context.getService(ref2)).thenReturn(simpleTransformer2);
         when(context.getService(ref3)).thenReturn(simpleTransformer3);
 
-        when(context.getServiceReferences(isA(String.class), isNull(String.class)))
-                .thenReturn(refs);
+        when(context.getServiceReferences(isA(String.class),
+                isNull(String.class))).thenReturn(refs);
         MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl() {
             @Override
             protected BundleContext getContext() {
                 return context;
             }
         };
-        List<Object> matches = matcher
-                .findMatches(Object.class, new MimeType(MediaType.APPLICATION_JSON + "; id=a1"));
+        List<Object> matches = matcher.findMatches(Object.class,
+                new MimeType(MediaType.APPLICATION_JSON + "; id=a1"));
 
         // then
         assertThat(matches.size(), is(1));
@@ -491,16 +502,16 @@ public class TestMimeTypeToTransformerMapperImpl {
 
         // when
         when(context.getService(ref1)).thenReturn(simpleTransformer1);
-        when(context.getServiceReferences(isA(String.class), isNull(String.class)))
-                .thenReturn(refs);
+        when(context.getServiceReferences(isA(String.class),
+                isNull(String.class))).thenReturn(refs);
         MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl() {
             @Override
             protected BundleContext getContext() {
                 return context;
             }
         };
-        List<Object> matches = matcher
-                .findMatches(Object.class, new MimeType(MediaType.APPLICATION_JSON + "; id=a1"));
+        List<Object> matches = matcher.findMatches(Object.class,
+                new MimeType(MediaType.APPLICATION_JSON + "; id=a1"));
 
         // then
         assertThat(matches.size(), is(0));
@@ -524,24 +535,23 @@ public class TestMimeTypeToTransformerMapperImpl {
         ServiceReference[] refs = {ref};
 
         when(ref.getProperty(Constants.SERVICE_RANKING)).thenReturn(0);
-        when(ref.getProperty(MimeTypeToTransformerMapper.MIME_TYPE_KEY))
-                .thenReturn(MediaType.APPLICATION_JSON);
+        when(ref.getProperty(MimeTypeToTransformerMapper.MIME_TYPE_KEY)).thenReturn(MediaType.APPLICATION_JSON);
 
         Object simpleTransformer1 = new Object();
 
         // when
         when(context.getService(ref)).thenReturn(simpleTransformer1);
 
-        when(context.getServiceReferences(isA(String.class), isNull(String.class)))
-                .thenReturn(refs);
+        when(context.getServiceReferences(isA(String.class),
+                isNull(String.class))).thenReturn(refs);
         MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl() {
             @Override
             protected BundleContext getContext() {
                 return context;
             }
         };
-        List<Object> matches = matcher
-                .findMatches(Object.class, new MimeType(MediaType.APPLICATION_JSON));
+        List<Object> matches = matcher.findMatches(Object.class,
+                new MimeType(MediaType.APPLICATION_JSON));
 
         // then
         assertThat(matches.size(), is(1));
@@ -556,7 +566,8 @@ public class TestMimeTypeToTransformerMapperImpl {
 
         ServiceReference ref1 = createMockReference(1, Arrays.asList("!INVALID!"), null);
         ServiceReference ref2 = createMockReference(2,
-                Arrays.asList(MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON), "a1");
+                Arrays.asList(MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON),
+                "a1");
         ServiceReference[] refs = {ref2, ref1};
 
         Object simpleTransformer1 = new Object();
@@ -566,16 +577,16 @@ public class TestMimeTypeToTransformerMapperImpl {
         when(context.getService(ref1)).thenReturn(simpleTransformer1);
         when(context.getService(ref2)).thenReturn(simpleTransformer2);
 
-        when(context.getServiceReferences(isA(String.class), isNull(String.class)))
-                .thenReturn(refs);
+        when(context.getServiceReferences(isA(String.class),
+                isNull(String.class))).thenReturn(refs);
         MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl() {
             @Override
             protected BundleContext getContext() {
                 return context;
             }
         };
-        List<Object> matches = matcher
-                .findMatches(Object.class, new MimeType(MediaType.APPLICATION_JSON + "; id=a1"));
+        List<Object> matches = matcher.findMatches(Object.class,
+                new MimeType(MediaType.APPLICATION_JSON + "; id=a1"));
 
         // then
         assertThat(matches.size(), is(1));
@@ -595,10 +606,12 @@ public class TestMimeTypeToTransformerMapperImpl {
         // given
         final BundleContext context = mock(BundleContext.class);
 
-        ServiceReference ref1 = createMockReference(1, Arrays.asList(MediaType.APPLICATION_JSON),
+        ServiceReference ref1 = createMockReference(1,
+                Arrays.asList(MediaType.APPLICATION_JSON),
                 "a1");
         ServiceReference ref2 = createMockReference(2,
-                Arrays.asList(MediaType.APPLICATION_ATOM_XML, MediaType.APPLICATION_JSON), "a1");
+                Arrays.asList(MediaType.APPLICATION_ATOM_XML, MediaType.APPLICATION_JSON),
+                "a1");
         ServiceReference ref3 = createMockReference(3, null, null);
         ServiceReference[] refs = {ref3, ref2, ref1};
 
@@ -619,8 +632,8 @@ public class TestMimeTypeToTransformerMapperImpl {
         when(ref3.compareTo(ref1)).thenReturn(1);
         when(ref3.compareTo(ref2)).thenReturn(1);
 
-        when(context.getServiceReferences(isA(String.class), isNull(String.class)))
-                .thenReturn(refs);
+        when(context.getServiceReferences(isA(String.class),
+                isNull(String.class))).thenReturn(refs);
         MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl() {
             @Override
             protected BundleContext getContext() {
@@ -652,16 +665,16 @@ public class TestMimeTypeToTransformerMapperImpl {
         ServiceReference[] refs = null;
 
         // when
-        when(context.getServiceReferences(isA(String.class), isNull(String.class)))
-                .thenReturn(refs);
+        when(context.getServiceReferences(isA(String.class),
+                isNull(String.class))).thenReturn(refs);
         MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl() {
             @Override
             protected BundleContext getContext() {
                 return context;
             }
         };
-        List<Object> matches = matcher
-                .findMatches(Object.class, new MimeType(MediaType.APPLICATION_ATOM_XML));
+        List<Object> matches = matcher.findMatches(Object.class,
+                new MimeType(MediaType.APPLICATION_ATOM_XML));
 
         // then
         assertThat(matches.isEmpty(), is(true));
@@ -674,8 +687,8 @@ public class TestMimeTypeToTransformerMapperImpl {
         ServiceReference ref = mock(ServiceReference.class);
 
         when(ref.getProperty(Constants.SERVICE_RANKING)).thenReturn(i);
-        when(ref.getProperty(MimeTypeToTransformerMapper.MIME_TYPE_KEY))
-                .thenReturn(mimeTypesSupported);
+        when(ref.getProperty(MimeTypeToTransformerMapper.MIME_TYPE_KEY)).thenReturn(
+                mimeTypesSupported);
         when(ref.getProperty(MimeTypeToTransformerMapper.ID_KEY)).thenReturn(id);
 
         return ref;

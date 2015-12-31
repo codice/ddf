@@ -1,15 +1,32 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
+ * <p>
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements. See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership. The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 /**
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -87,7 +104,8 @@ public class PKITokenValidator implements TokenValidator {
     public void init() {
         try {
             merlin = new Merlin(PropertiesLoader.loadProperties(signaturePropertiesPath),
-                    PKITokenValidator.class.getClassLoader(), null);
+                    PKITokenValidator.class.getClassLoader(),
+                    null);
         } catch (WSSecurityException | IOException e) {
             LOGGER.error("Unable to read merlin properties file.", e);
         }
@@ -128,8 +146,8 @@ public class PKITokenValidator implements TokenValidator {
     public boolean canHandleToken(ReceivedToken validateTarget, String realm) {
         PKIAuthenticationToken pkiToken = getPKITokenFromTarget(validateTarget);
         if (pkiToken != null) {
-            if (realms != null && realms.contains(pkiToken.getRealm()) || "*"
-                    .equals(pkiToken.getRealm())) {
+            if (realms != null && realms.contains(pkiToken.getRealm())
+                    || "*".equals(pkiToken.getRealm())) {
                 return true;
             }
         }
@@ -164,8 +182,8 @@ public class PKITokenValidator implements TokenValidator {
             return response;
         }
 
-        BinarySecurityTokenType binarySecurityType = pkiToken
-                .createBinarySecurityTokenType(pkiToken.getCredentials());
+        BinarySecurityTokenType binarySecurityType =
+                pkiToken.createBinarySecurityTokenType(pkiToken.getCredentials());
 
         // Test the encoding type
         String encodingType = binarySecurityType.getEncodingType();
@@ -182,7 +200,8 @@ public class PKITokenValidator implements TokenValidator {
         binarySecurity.setEncodingType(encodingType);
         binarySecurity.setValueType(binarySecurityType.getValueType());
         String data = binarySecurityType.getValue();
-        ((Text) binarySecurity.getElement().getFirstChild()).setData(data);
+        ((Text) binarySecurity.getElement()
+                .getFirstChild()).setData(data);
 
         //
         // Validate the token
@@ -207,10 +226,8 @@ public class PKITokenValidator implements TokenValidator {
             }
 
             Credential returnedCredential = validator.validate(credential, requestData);
-            response.setPrincipal(
-                    returnedCredential.getCertificates()[0].getSubjectX500Principal());
-            validateTarget.setPrincipal(
-                    returnedCredential.getCertificates()[0].getSubjectX500Principal());
+            response.setPrincipal(returnedCredential.getCertificates()[0].getSubjectX500Principal());
+            validateTarget.setPrincipal(returnedCredential.getCertificates()[0].getSubjectX500Principal());
             validateTarget.setState(STATE.VALID);
         } catch (WSSecurityException ex) {
             LOGGER.warn("Unable to validate credentials.", ex);
@@ -233,18 +250,20 @@ public class PKITokenValidator implements TokenValidator {
     private PKIAuthenticationToken getPKITokenFromTarget(ReceivedToken validateTarget) {
         Object token = validateTarget.getToken();
         if ((token instanceof BinarySecurityTokenType)
-                && PKIAuthenticationToken.PKI_TOKEN_VALUE_TYPE
-                .equals(((BinarySecurityTokenType) token).getValueType())) {
+                && PKIAuthenticationToken.PKI_TOKEN_VALUE_TYPE.equals(((BinarySecurityTokenType) token).getValueType())) {
             String encodedCredential = ((BinarySecurityTokenType) token).getValue();
             LOGGER.debug("Encoded username/password credential: {}", encodedCredential);
             BaseAuthenticationToken base = null;
             try {
                 base = PKIAuthenticationToken.parse(encodedCredential, true);
                 return new PKIAuthenticationToken(base.getPrincipal(),
-                        base.getCredentials().toString(), base.getRealm());
+                        base.getCredentials()
+                                .toString(),
+                        base.getRealm());
             } catch (WSSecurityException e) {
                 LOGGER.warn("Unable to parse {} from encodedToken.",
-                        PKIAuthenticationToken.class.getSimpleName(), e);
+                        PKIAuthenticationToken.class.getSimpleName(),
+                        e);
                 return null;
             }
         }

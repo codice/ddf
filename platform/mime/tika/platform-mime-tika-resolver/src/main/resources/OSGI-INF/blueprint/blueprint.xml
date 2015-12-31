@@ -13,17 +13,17 @@
  **/
 -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-        >
+>
 
-	<bean id="tikaMimeTypeResolver" class="ddf.mime.tika.TikaMimeTypeResolver">
-	<!-- Add back in if/when we add an ignore list for Tika mime types
-			<cm:managed-properties
-			persistent-id="ddf.mime.tika.TikaMimeTypeResolver"
-			update-strategy="container-managed"/>
-    -->
+    <bean id="tikaMimeTypeResolver" class="ddf.mime.tika.TikaMimeTypeResolver">
+        <!-- Add back in if/when we add an ignore list for Tika mime types
+                <cm:managed-properties
+                persistent-id="ddf.mime.tika.TikaMimeTypeResolver"
+                update-strategy="container-managed"/>
+        -->
         <property name="priority" value="-1"/>
-	</bean>
+    </bean>
 
-	<service ref="tikaMimeTypeResolver" interface="ddf.mime.MimeTypeResolver"/>
+    <service ref="tikaMimeTypeResolver" interface="ddf.mime.MimeTypeResolver"/>
 
 </blueprint>

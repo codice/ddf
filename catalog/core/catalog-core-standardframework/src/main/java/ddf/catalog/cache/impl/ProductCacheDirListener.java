@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -71,7 +71,8 @@ public class ProductCacheDirListener<K, V> implements EntryListener<K, V>, Hazel
     @Override
     public synchronized void entryAdded(EntryEvent<K, V> event) {
         V value = event.getValue();
-        if (value.getClass().isAssignableFrom(ReliableResource.class)) {
+        if (value.getClass()
+                .isAssignableFrom(ReliableResource.class)) {
             ReliableResource resource = (ReliableResource) value;
             logger.debug("entry added event triggered: {}", resource.getKey());
 
@@ -100,7 +101,8 @@ public class ProductCacheDirListener<K, V> implements EntryListener<K, V>, Hazel
     @Override
     public void entryRemoved(EntryEvent<K, V> event) {
         V value = event.getValue();
-        if (value.getClass().isAssignableFrom(ReliableResource.class)) {
+        if (value.getClass()
+                .isAssignableFrom(ReliableResource.class)) {
             ReliableResource resource = (ReliableResource) value;
             logger.debug("entry removed event triggered: {}", resource.getKey());
             if (manuallyEvictedEntries.contains(resource.getKey())) {
@@ -119,7 +121,8 @@ public class ProductCacheDirListener<K, V> implements EntryListener<K, V>, Hazel
     @Override
     public void entryEvicted(EntryEvent<K, V> event) {
         V value = event.getValue();
-        if (value.getClass().isAssignableFrom(ReliableResource.class)) {
+        if (value.getClass()
+                .isAssignableFrom(ReliableResource.class)) {
             ReliableResource resource = (ReliableResource) value;
             logger.debug("entry evicted event triggered: {}", resource.getKey());
             cacheDirSize.addAndGet(-resource.getSize());

@@ -11,8 +11,8 @@
  *
  **/ -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
-    
-<!--     <reference id="cacheManager" interface="ddf.cache.CacheManager" /> -->
+
+    <!--     <reference id="cacheManager" interface="ddf.cache.CacheManager" /> -->
 
     <bean id="metacardResourceSizePlugin"
           class="ddf.catalog.plugin.resourcesize.metacard.MetacardResourceSizePlugin">
@@ -20,7 +20,7 @@
     </bean>
 
     <service ref="metacardResourceSizePlugin" interface="ddf.catalog.plugin.PostQueryPlugin"/>
-    
+
     <reference id="resourceCache" interface="ddf.catalog.cache.ResourceCacheInterface"/>
 
 </blueprint>

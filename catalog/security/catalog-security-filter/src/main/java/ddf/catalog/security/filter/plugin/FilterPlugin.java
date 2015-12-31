@@ -36,7 +36,6 @@ import ddf.security.permission.KeyValueCollectionPermission;
 /**
  * This {@link PostQueryPlugin} performs redaction and filtering on {@link QueryResponse} objects as
  * they pass through the framework.
- *
  */
 public class FilterPlugin implements PostQueryPlugin {
 
@@ -46,26 +45,25 @@ public class FilterPlugin implements PostQueryPlugin {
      * Processes a {@link ddf.catalog.operation.QueryResponse} after the execution of the
      * {@link ddf.catalog.operation.Query}.
      *
-     * @param input
-     *            the {@link ddf.catalog.operation.QueryResponse} to process
+     * @param input the {@link ddf.catalog.operation.QueryResponse} to process
      * @return the value of the processed {@link ddf.catalog.operation.QueryResponse} to pass to the
-     *         next {@link ddf.catalog.plugin.PostQueryPlugin}, or if this is the last
-     *         {@link ddf.catalog.plugin.PostQueryPlugin} to be called
-     * @throws ddf.catalog.plugin.PluginExecutionException
-     *             thrown when an error occurs while processing the
-     *             {@link ddf.catalog.operation.QueryResponse}
-     * @throws ddf.catalog.plugin.StopProcessingException
-     *             thrown to halt processing when a critical issue occurs during processing. This is
-     *             intended to prevent other plugins from processing as well.
+     * next {@link ddf.catalog.plugin.PostQueryPlugin}, or if this is the last
+     * {@link ddf.catalog.plugin.PostQueryPlugin} to be called
+     * @throws ddf.catalog.plugin.PluginExecutionException thrown when an error occurs while processing the
+     *                                                     {@link ddf.catalog.operation.QueryResponse}
+     * @throws ddf.catalog.plugin.StopProcessingException  thrown to halt processing when a critical issue occurs during processing. This is
+     *                                                     intended to prevent other plugins from processing as well.
      */
     @Override
     public QueryResponse process(QueryResponse input)
             throws PluginExecutionException, StopProcessingException {
-        if (input.getRequest() == null || input.getRequest().getProperties() == null) {
+        if (input.getRequest() == null || input.getRequest()
+                .getProperties() == null) {
             throw new StopProcessingException(
                     "Unable to filter contents of current message, no user Subject available.");
         }
-        Object securityAssertion = input.getRequest().getProperties()
+        Object securityAssertion = input.getRequest()
+                .getProperties()
                 .get(SecurityConstants.SECURITY_SUBJECT);
         Subject subject;
         if (securityAssertion instanceof Subject) {
@@ -100,14 +98,17 @@ public class FilterPlugin implements PostQueryPlugin {
             }
         }
 
-        logger.info("Filtered {} metacards, returned {}", filteredMetacards,
+        logger.info("Filtered {} metacards, returned {}",
+                filteredMetacards,
                 (newResults.size() - filteredMetacards));
         SecurityLogger.logInfo(
                 "Filtered " + filteredMetacards + " metacards, returned " + (newResults.size()
                         - filteredMetacards));
 
-        input.getResults().clear();
-        input.getResults().addAll(newResults);
+        input.getResults()
+                .clear();
+        input.getResults()
+                .addAll(newResults);
         newResults.clear();
         newResults = null;
         return input;

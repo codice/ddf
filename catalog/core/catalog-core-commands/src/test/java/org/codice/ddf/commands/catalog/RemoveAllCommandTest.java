@@ -48,9 +48,13 @@ import ddf.catalog.operation.QueryResponse;
 
 public class RemoveAllCommandTest {
 
-    static final String DEFAULT_CONSOLE_COLOR = Ansi.ansi().reset().toString();
+    static final String DEFAULT_CONSOLE_COLOR = Ansi.ansi()
+            .reset()
+            .toString();
 
-    static final String RED_CONSOLE_COLOR = Ansi.ansi().fg(Ansi.Color.RED).toString();
+    static final String RED_CONSOLE_COLOR = Ansi.ansi()
+            .fg(Ansi.Color.RED)
+            .toString();
 
     /**
      * If it is possible to give bad batch size, this test checks the proper outcome.
@@ -177,7 +181,8 @@ public class RemoveAllCommandTest {
 
         for (int i = 0; i < amount; i++) {
 
-            String id = UUID.randomUUID().toString();
+            String id = UUID.randomUUID()
+                    .toString();
             MetacardImpl metacard = new MetacardImpl();
             metacard.setId(id);
             Result result = new ResultImpl(metacard);
@@ -194,7 +199,8 @@ public class RemoveAllCommandTest {
 
         for (int i = 0; i < amount; i++) {
 
-            String id = UUID.randomUUID().toString();
+            String id = UUID.randomUUID()
+                    .toString();
             MetacardImpl metacard = new MetacardImpl();
             metacard.setId(id);
 
@@ -209,8 +215,8 @@ public class RemoveAllCommandTest {
 
         BundleContext context = mock(BundleContext.class);
 
-        when(context.getServiceReference(eq(CatalogFramework.class.getName())))
-                .thenReturn(mock(ServiceReference.class));
+        when(context.getServiceReference(eq(CatalogFramework.class.getName()))).thenReturn(mock(
+                ServiceReference.class));
 
         when(context.getService(isA(ServiceReference.class))).thenReturn(framework);
 

@@ -11,11 +11,12 @@
  *
  **/
 -->
-<blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0" xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+<blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
     <bean id="ingestPlugin" class="ddf.catalog.security.ingest.IngestPlugin">
         <cm:managed-properties persistent-id="ddf.catalog.security.ingest.IngestPlugin"
-                               update-strategy="container-managed" />
+                               update-strategy="container-managed"/>
         <property name="permissionStrings">
             <array>
                 <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest</value>
@@ -23,6 +24,6 @@
         </property>
     </bean>
 
-    <service ref="ingestPlugin" auto-export="interfaces" ranking="100" />
+    <service ref="ingestPlugin" auto-export="interfaces" ranking="100"/>
 
 </blueprint>

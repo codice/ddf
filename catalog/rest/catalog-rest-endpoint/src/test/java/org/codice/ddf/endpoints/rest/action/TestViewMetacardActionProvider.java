@@ -45,8 +45,13 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
         metacard.setId(SAMPLE_ID);
 
         AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
-                ACTION_PROVIDER_ID, new SystemBaseUrl(), new SystemInfo());
-        this.configureActionProvider(SAMPLE_PROTOCOL, "23^&*#", SAMPLE_PORT, SAMPLE_SERVICES_ROOT,
+                ACTION_PROVIDER_ID,
+                new SystemBaseUrl(),
+                new SystemInfo());
+        this.configureActionProvider(SAMPLE_PROTOCOL,
+                "23^&*#",
+                SAMPLE_PORT,
+                SAMPLE_SERVICES_ROOT,
                 SAMPLE_SOURCE_NAME);
 
         assertNull("A bad url should have been caught and a null action returned.",
@@ -63,11 +68,15 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
         metacard.setId("abd ef");
 
         AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
-                ACTION_PROVIDER_ID, new SystemBaseUrl(), new SystemInfo());
+                ACTION_PROVIDER_ID,
+                new SystemBaseUrl(),
+                new SystemInfo());
         this.configureActionProvider();
 
         // when
-        String url = actionProvider.getAction(metacard).getUrl().toString();
+        String url = actionProvider.getAction(metacard)
+                .getUrl()
+                .toString();
 
         // then
         assertThat(url, is(expectedDefaultAddressWith("abd+ef")));
@@ -83,11 +92,15 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
         metacard.setId("abd&ef");
 
         AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
-                ACTION_PROVIDER_ID, new SystemBaseUrl(), new SystemInfo());
+                ACTION_PROVIDER_ID,
+                new SystemBaseUrl(),
+                new SystemInfo());
         this.configureActionProvider();
 
         // when
-        String url = actionProvider.getAction(metacard).getUrl().toString();
+        String url = actionProvider.getAction(metacard)
+                .getUrl()
+                .toString();
 
         // then
         assertThat(url, is(expectedDefaultAddressWith("abd%26ef")));
@@ -102,7 +115,9 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
         metacard.setId(null);
 
         AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
-                ACTION_PROVIDER_ID, new SystemBaseUrl(), new SystemInfo());
+                ACTION_PROVIDER_ID,
+                new SystemBaseUrl(),
+                new SystemInfo());
         this.configureActionProvider();
 
         assertNull("An action should not have been created when no id is provided.",
@@ -118,7 +133,9 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
         metacard.setId(SAMPLE_ID);
 
         AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
-                ACTION_PROVIDER_ID, null, null);
+                ACTION_PROVIDER_ID,
+                null,
+                null);
 
         assertNull(actionProvider.getAction(metacard));
 
@@ -132,13 +149,19 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
         metacard.setId(SAMPLE_ID);
 
         AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
-                ACTION_PROVIDER_ID, new SystemBaseUrl(), new SystemInfo());
+                ACTION_PROVIDER_ID,
+                new SystemBaseUrl(),
+                new SystemInfo());
 
-        this.configureActionProvider(SAMPLE_PROTOCOL, null, SAMPLE_PORT, SAMPLE_SERVICES_ROOT,
+        this.configureActionProvider(SAMPLE_PROTOCOL,
+                null,
+                SAMPLE_PORT,
+                SAMPLE_SERVICES_ROOT,
                 SAMPLE_SOURCE_NAME);
 
-        assertThat(actionProvider.getAction(metacard).getUrl().toString(),
-                containsString("localhost"));
+        assertThat(actionProvider.getAction(metacard)
+                .getUrl()
+                .toString(), containsString("localhost"));
 
     }
 
@@ -150,9 +173,14 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
         metacard.setId(SAMPLE_ID);
 
         AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
-                ACTION_PROVIDER_ID, new SystemBaseUrl(), new SystemInfo());
+                ACTION_PROVIDER_ID,
+                new SystemBaseUrl(),
+                new SystemInfo());
 
-        this.configureActionProvider(SAMPLE_PROTOCOL, "0.0.0.0", SAMPLE_PORT, SAMPLE_SERVICES_ROOT,
+        this.configureActionProvider(SAMPLE_PROTOCOL,
+                "0.0.0.0",
+                SAMPLE_PORT,
+                SAMPLE_SERVICES_ROOT,
                 SAMPLE_SOURCE_NAME);
 
         assertNull("An action should not have been created when ip is unknown (0.0.0.0).",
@@ -167,12 +195,19 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
         metacard.setId(SAMPLE_ID);
 
         AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
-                ACTION_PROVIDER_ID, new SystemBaseUrl(), new SystemInfo());
+                ACTION_PROVIDER_ID,
+                new SystemBaseUrl(),
+                new SystemInfo());
 
-        this.configureActionProvider(SAMPLE_PROTOCOL, SAMPLE_IP, null, SAMPLE_SERVICES_ROOT,
+        this.configureActionProvider(SAMPLE_PROTOCOL,
+                SAMPLE_IP,
+                null,
+                SAMPLE_SERVICES_ROOT,
                 SAMPLE_SOURCE_NAME);
 
-        assertThat(actionProvider.getAction(metacard).getUrl().toString(), containsString("8181"));
+        assertThat(actionProvider.getAction(metacard)
+                .getUrl()
+                .toString(), containsString("8181"));
     }
 
     @Test
@@ -183,20 +218,28 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
         metacard.setId(SAMPLE_ID);
 
         AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
-                ACTION_PROVIDER_ID, new SystemBaseUrl(), new SystemInfo());
+                ACTION_PROVIDER_ID,
+                new SystemBaseUrl(),
+                new SystemInfo());
 
-        this.configureActionProvider(SAMPLE_PROTOCOL, SAMPLE_IP, SAMPLE_PORT, null,
+        this.configureActionProvider(SAMPLE_PROTOCOL,
+                SAMPLE_IP,
+                SAMPLE_PORT,
+                null,
                 SAMPLE_SOURCE_NAME);
 
-        assertThat(actionProvider.getAction(metacard).getUrl().toString(),
-                not(containsString("/services")));
+        assertThat(actionProvider.getAction(metacard)
+                .getUrl()
+                .toString(), not(containsString("/services")));
     }
 
     @Test
     public void testNonMetacard() {
 
         AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
-                ACTION_PROVIDER_ID, new SystemBaseUrl(), new SystemInfo());
+                ACTION_PROVIDER_ID,
+                new SystemBaseUrl(),
+                new SystemInfo());
         this.configureActionProvider();
 
         assertNull("An action when metacard was not provided.",
@@ -213,7 +256,9 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
         metacard.setId(SAMPLE_ID);
 
         AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
-                ACTION_PROVIDER_ID, new SystemBaseUrl(), new SystemInfo());
+                ACTION_PROVIDER_ID,
+                new SystemBaseUrl(),
+                new SystemInfo());
         this.configureActionProvider();
 
         // when
@@ -222,7 +267,8 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
         // then
         assertEquals(ViewMetacardActionProvider.TITLE, action.getTitle());
         assertEquals(ViewMetacardActionProvider.DESCRIPTION, action.getDescription());
-        assertThat(action.getUrl().toString(), is(expectedDefaultAddressWith(metacard.getId())));
+        assertThat(action.getUrl()
+                .toString(), is(expectedDefaultAddressWith(metacard.getId())));
         assertEquals(ACTION_PROVIDER_ID, actionProvider.getId());
 
     }
@@ -239,7 +285,9 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
         metacard.setSourceId(newSourceName);
 
         AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
-                ACTION_PROVIDER_ID, new SystemBaseUrl(), new SystemInfo());
+                ACTION_PROVIDER_ID,
+                new SystemBaseUrl(),
+                new SystemInfo());
         this.configureActionProvider();
 
         // when
@@ -248,8 +296,8 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
         // then
         assertEquals(ViewMetacardActionProvider.TITLE, action.getTitle());
         assertEquals(ViewMetacardActionProvider.DESCRIPTION, action.getDescription());
-        assertThat(action.getUrl().toString(),
-                is(expectedDefaultAddressWith(metacard.getId(), newSourceName)));
+        assertThat(action.getUrl()
+                .toString(), is(expectedDefaultAddressWith(metacard.getId(), newSourceName)));
         assertEquals(ACTION_PROVIDER_ID, actionProvider.getId());
 
     }
@@ -261,7 +309,9 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
 
         metacard.setId(SAMPLE_ID);
         AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
-                ACTION_PROVIDER_ID, new SystemBaseUrl(), new SystemInfo());
+                ACTION_PROVIDER_ID,
+                new SystemBaseUrl(),
+                new SystemInfo());
         this.configureSecureActionProvider();
 
         Action action = actionProvider.getAction(metacard);
@@ -271,7 +321,8 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
         assertEquals(
                 SAMPLE_SECURE_PROTOCOL + SAMPLE_IP + ":" + SAMPLE_SECURE_PORT + SAMPLE_SERVICES_ROOT
                         + SAMPLE_PATH + SAMPLE_SOURCE_NAME + "/" + metacard.getId(),
-                action.getUrl().toString());
+                action.getUrl()
+                        .toString());
         assertEquals(ACTION_PROVIDER_ID, actionProvider.getId());
 
     }
@@ -284,15 +335,21 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
         metacard.setId(SAMPLE_ID);
 
         AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
-                ACTION_PROVIDER_ID, new SystemBaseUrl(), new SystemInfo());
+                ACTION_PROVIDER_ID,
+                new SystemBaseUrl(),
+                new SystemInfo());
 
-        this.configureActionProvider(null, SAMPLE_IP, SAMPLE_SECURE_PORT, SAMPLE_SERVICES_ROOT,
+        this.configureActionProvider(null,
+                SAMPLE_IP,
+                SAMPLE_SECURE_PORT,
+                SAMPLE_SERVICES_ROOT,
                 SAMPLE_SOURCE_NAME);
 
         Action action = actionProvider.getAction(metacard);
 
         //when null protocal should default to https
-        assertThat(action.getUrl().toString(), containsString("https"));
+        assertThat(action.getUrl()
+                .toString(), containsString("https"));
 
     }
 

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -32,7 +32,8 @@ public class MetacardTypeImplTest {
 
         MetacardType mt = new MetacardTypeImpl("name", null);
 
-        assertTrue(mt.getAttributeDescriptors().isEmpty());
+        assertTrue(mt.getAttributeDescriptors()
+                .isEmpty());
 
     }
 
@@ -41,7 +42,11 @@ public class MetacardTypeImplTest {
 
         HashSet<AttributeDescriptor> descriptors = new HashSet<AttributeDescriptor>();
 
-        descriptors.add(new AttributeDescriptorImpl("id", true, true, false, false,
+        descriptors.add(new AttributeDescriptorImpl("id",
+                true,
+                true,
+                false,
+                false,
                 BasicTypes.STRING_TYPE));
 
         MetacardTypeImpl metacardType = new MetacardTypeImpl("basic", descriptors);
@@ -56,19 +61,32 @@ public class MetacardTypeImplTest {
 
         assertEquals(metacardType.getName(), readMetacardType.getName());
 
-        assertEquals(metacardType.getAttributeDescriptor("id").getName(),
-                readMetacardType.getAttributeDescriptor("id").getName());
+        assertEquals(metacardType.getAttributeDescriptor("id")
+                        .getName(),
+                readMetacardType.getAttributeDescriptor("id")
+                        .getName());
 
-        assertEquals(metacardType.getAttributeDescriptor("id").getType().getBinding(),
-                readMetacardType.getAttributeDescriptor("id").getType().getBinding());
+        assertEquals(metacardType.getAttributeDescriptor("id")
+                        .getType()
+                        .getBinding(),
+                readMetacardType.getAttributeDescriptor("id")
+                        .getType()
+                        .getBinding());
 
-        assertEquals(metacardType.getAttributeDescriptor("id").getType().getAttributeFormat(),
-                readMetacardType.getAttributeDescriptor("id").getType().getAttributeFormat());
+        assertEquals(metacardType.getAttributeDescriptor("id")
+                        .getType()
+                        .getAttributeFormat(),
+                readMetacardType.getAttributeDescriptor("id")
+                        .getType()
+                        .getAttributeFormat());
 
         Set<AttributeDescriptor> oldAd = metacardType.getAttributeDescriptors();
         Set<AttributeDescriptor> newAd = readMetacardType.getAttributeDescriptors();
 
-        assertTrue(oldAd.iterator().next().equals(newAd.iterator().next()));
+        assertTrue(oldAd.iterator()
+                .next()
+                .equals(newAd.iterator()
+                        .next()));
 
     }
 
@@ -151,14 +169,28 @@ public class MetacardTypeImplTest {
     @Test
     public void testEqualsSubClass() {
         HashSet<AttributeDescriptor> descriptors = new HashSet<AttributeDescriptor>();
-        descriptors.add(new AttributeDescriptorImpl("id", true, true, false, false,
+        descriptors.add(new AttributeDescriptorImpl("id",
+                true,
+                true,
+                false,
+                false,
                 BasicTypes.STRING_TYPE));
-        descriptors.add(new AttributeDescriptorImpl("title", true, true, false, false,
+        descriptors.add(new AttributeDescriptorImpl("title",
+                true,
+                true,
+                false,
+                false,
                 BasicTypes.STRING_TYPE));
-        descriptors.add(new AttributeDescriptorImpl("frequency", true, true, false, false,
+        descriptors.add(new AttributeDescriptorImpl("frequency",
+                true,
+                true,
+                false,
+                false,
                 BasicTypes.DOUBLE_TYPE));
         MetacardTypeImplExtended extendedMetacardType = new MetacardTypeImplExtended(
-                "metacard-type-extended", descriptors, "description of metacard type extended");
+                "metacard-type-extended",
+                descriptors,
+                "description of metacard type extended");
 
         MetacardTypeImpl metacardType = generateMetacardType("metacard-type-extended", 0);
 
@@ -171,19 +203,43 @@ public class MetacardTypeImplTest {
         HashSet<AttributeDescriptor> descriptors = new HashSet<AttributeDescriptor>();
         switch (descriptorSetIndex) {
         case 0:
-            descriptors.add(new AttributeDescriptorImpl("id", true, true, false, false,
+            descriptors.add(new AttributeDescriptorImpl("id",
+                    true,
+                    true,
+                    false,
+                    false,
                     BasicTypes.STRING_TYPE));
-            descriptors.add(new AttributeDescriptorImpl("title", true, true, false, false,
+            descriptors.add(new AttributeDescriptorImpl("title",
+                    true,
+                    true,
+                    false,
+                    false,
                     BasicTypes.STRING_TYPE));
-            descriptors.add(new AttributeDescriptorImpl("frequency", true, true, false, false,
+            descriptors.add(new AttributeDescriptorImpl("frequency",
+                    true,
+                    true,
+                    false,
+                    false,
                     BasicTypes.DOUBLE_TYPE));
             break;
         case 1:
-            descriptors.add(new AttributeDescriptorImpl("id", true, true, false, false,
+            descriptors.add(new AttributeDescriptorImpl("id",
+                    true,
+                    true,
+                    false,
+                    false,
                     BasicTypes.STRING_TYPE));
-            descriptors.add(new AttributeDescriptorImpl("title", true, true, false, false,
+            descriptors.add(new AttributeDescriptorImpl("title",
+                    true,
+                    true,
+                    false,
+                    false,
                     BasicTypes.STRING_TYPE));
-            descriptors.add(new AttributeDescriptorImpl("height", true, true, false, false,
+            descriptors.add(new AttributeDescriptorImpl("height",
+                    true,
+                    true,
+                    false,
+                    false,
                     BasicTypes.DOUBLE_TYPE));
             break;
         case 2:

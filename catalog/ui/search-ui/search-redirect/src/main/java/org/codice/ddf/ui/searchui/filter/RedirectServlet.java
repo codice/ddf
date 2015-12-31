@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 
 package org.codice.ddf.ui.searchui.filter;
@@ -40,16 +39,16 @@ public class RedirectServlet extends HttpServlet {
     private RedirectConfiguration redirectConfiguration;
 
     @Override
-    public void service(HttpServletRequest servletRequest,
-            HttpServletResponse servletResponse) throws ServletException, IOException {
+    public void service(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
+            throws ServletException, IOException {
         if (StringUtils.isNotBlank(redirectConfiguration.getDefaultUri())) {
             URI uri = URI.create(redirectConfiguration.getDefaultUri());
             if (uri.isAbsolute()) {
-                logger.warn("Redirecting /search to an absolute URI: " + redirectConfiguration
-                        .getDefaultUri());
+                logger.warn("Redirecting /search to an absolute URI: "
+                        + redirectConfiguration.getDefaultUri());
             } else {
-                logger.info("Redirecting /search to a relative URI: " + redirectConfiguration
-                        .getDefaultUri());
+                logger.info("Redirecting /search to a relative URI: "
+                        + redirectConfiguration.getDefaultUri());
             }
             servletResponse.sendRedirect(redirectConfiguration.getDefaultUri());
         } else {

@@ -19,34 +19,34 @@
 
   http://cxf.apache.org/blueprint/jaxrs http://cxf.apache.org/schemas/blueprint/jaxrs.xsd">
 
-	<!-- The BrandingPlugin gives access to the Product name and version -->
+    <!-- The BrandingPlugin gives access to the Product name and version -->
     <reference id="branding" interface="org.apache.felix.webconsole.BrandingPlugin"/>
-    
+
     <reference id="framework" interface="ddf.catalog.CatalogFramework"/>
-    
-	<jaxrs:server id="kmlRestService" address="/catalog/kml">
+
+    <jaxrs:server id="kmlRestService" address="/catalog/kml">
         <jaxrs:serviceBeans>
             <ref component-id="kmlEndpoint"/>
         </jaxrs:serviceBeans>
         <jaxrs:providers>
-        	<bean id="defaultExceptionMapper"
+            <bean id="defaultExceptionMapper"
                   class="org.apache.cxf.jaxrs.impl.WebApplicationExceptionMapper">
-        		<property name="addMessageToResponse" value="true"/>
-        	</bean>
+                <property name="addMessageToResponse" value="true"/>
+            </bean>
         </jaxrs:providers>
     </jaxrs:server>
 
     <bean id="urlHelper" class="org.codice.ddf.configuration.SystemBaseUrl"/>
     <bean id="systemInfo" class="org.codice.ddf.configuration.SystemInfo"/>
 
-	<bean id="kmlEndpoint" class="org.codice.ddf.spatial.kml.endpoint.KmlEndpoint">
-		<argument ref="branding"/>
-		<argument ref="framework"/>
+    <bean id="kmlEndpoint" class="org.codice.ddf.spatial.kml.endpoint.KmlEndpoint">
+        <argument ref="branding"/>
+        <argument ref="framework"/>
         <argument ref="urlHelper"/>
         <argument ref="systemInfo"/>
-		<cm:managed-properties persistent-id="org.codice.ddf.spatial.kml.endpoint.KmlEndpoint"
+        <cm:managed-properties persistent-id="org.codice.ddf.spatial.kml.endpoint.KmlEndpoint"
                                update-strategy="container-managed"/>
-	</bean>
+    </bean>
 
-	
+
 </blueprint>

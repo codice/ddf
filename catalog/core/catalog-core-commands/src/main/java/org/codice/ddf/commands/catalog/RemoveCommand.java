@@ -37,13 +37,11 @@ import ddf.catalog.operation.impl.QueryRequestImpl;
 
 /**
  * Deletes records by ID.
- *
  */
 @Command(scope = CatalogCommands.NAMESPACE, name = "remove", description = "Deletes a record from the Catalog.")
 public class RemoveCommand extends CatalogCommands {
 
-    private static final org.slf4j.Logger LOGGER = LoggerFactory
-            .getLogger(RemoveCommand.class);
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(RemoveCommand.class);
 
     @Argument(name = "IDs", description = "The id(s) of the document(s) (space delimited) to be deleted.", index = 0, multiValued = true, required = false)
     List<String> ids = null;
@@ -104,18 +102,20 @@ public class RemoveCommand extends CatalogCommands {
             Map<String, Serializable> properties = new HashMap<>();
             properties.put("mode", "native");
 
-            SourceResponse queryResponse = catalogProvider
-                    .query(new QueryRequestImpl(query, properties));
+            SourceResponse queryResponse = catalogProvider.query(new QueryRequestImpl(query,
+                    properties));
 
-            if (queryResponse.getResults().isEmpty()) {
+            if (queryResponse.getResults()
+                    .isEmpty()) {
                 printErrorMessage("No records found using CQL expression.");
                 return null;
             }
-            printSuccessMessage(
-                    "Found " + queryResponse.getResults().size() + " metacards to remove.");
+            printSuccessMessage("Found " + queryResponse.getResults()
+                    .size() + " metacards to remove.");
             ids = new ArrayList<String>();
             for (Result result : queryResponse.getResults()) {
-                ids.add(result.getMetacard().getId());
+                ids.add(result.getMetacard()
+                        .getId());
             }
 
         }
@@ -124,7 +124,8 @@ public class RemoveCommand extends CatalogCommands {
 
         DeleteResponse response = catalogProvider.delete(request);
 
-        if (response.getDeletedMetacards().size() > 0) {
+        if (response.getDeletedMetacards()
+                .size() > 0) {
             printSuccessMessage(ids + " successfully deleted.");
             LOGGER.info(ids + " removed using catalog:remove command");
         } else {

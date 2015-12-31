@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -96,7 +96,8 @@ public class UpdateRequestImpl extends OperationImpl implements UpdateRequest {
      *             if the uris array size and list of {@link Metacard} size does not match
      */
     public UpdateRequestImpl(URI[] uris, List<Metacard> metacards) throws IllegalArgumentException {
-        this(formatEntryList((Serializable[]) uris, metacards), UpdateRequest.UPDATE_BY_PRODUCT_URI,
+        this(formatEntryList((Serializable[]) uris, metacards),
+                UpdateRequest.UPDATE_BY_PRODUCT_URI,
                 null);
     }
 
@@ -111,13 +112,14 @@ public class UpdateRequestImpl extends OperationImpl implements UpdateRequest {
      */
     private static List<Entry<Serializable, Metacard>> formatEntryList(Serializable[] values,
             List<Metacard> metacards) {
-        List<Entry<Serializable, Metacard>> updateList = new ArrayList<Entry<Serializable, Metacard>>();
+        List<Entry<Serializable, Metacard>> updateList =
+                new ArrayList<Entry<Serializable, Metacard>>();
         if (values.length != metacards.size()) {
             throw new IllegalArgumentException("Id List and Metacard List must be the same size.");
         } else {
             for (int i = 0; i < metacards.size(); i++) {
-                updateList
-                        .add(new SimpleEntry<Serializable, Metacard>(values[i], metacards.get(i)));
+                updateList.add(new SimpleEntry<Serializable, Metacard>(values[i],
+                        metacards.get(i)));
             }
         }
         return updateList;

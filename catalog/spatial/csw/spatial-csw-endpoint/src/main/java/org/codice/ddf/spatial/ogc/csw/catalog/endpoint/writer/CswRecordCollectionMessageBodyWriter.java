@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.writer;
 
@@ -50,11 +49,12 @@ import ddf.catalog.transform.QueryResponseTransformer;
 public class CswRecordCollectionMessageBodyWriter
         implements MessageBodyWriter<CswRecordCollection> {
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(CswRecordCollectionMessageBodyWriter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+            CswRecordCollectionMessageBodyWriter.class);
 
-    private static final List<String> XML_MIME_TYPES = Collections
-            .unmodifiableList(Arrays.asList(MediaType.APPLICATION_XML, MediaType.TEXT_XML));
+    private static final List<String> XML_MIME_TYPES = Collections.unmodifiableList(Arrays.asList(
+            MediaType.APPLICATION_XML,
+            MediaType.TEXT_XML));
 
     private final TransformerManager transformerManager;
 
@@ -77,23 +77,25 @@ public class CswRecordCollectionMessageBodyWriter
     @Override
     public void writeTo(CswRecordCollection recordCollection, Class<?> type, Type genericType,
             Annotation[] annotations, MediaType mediaType,
-            MultivaluedMap<String, Object> httpHeaders, OutputStream outStream) throws IOException,
-            WebApplicationException {
+            MultivaluedMap<String, Object> httpHeaders, OutputStream outStream)
+            throws IOException, WebApplicationException {
 
         final String mimeType = recordCollection.getMimeType();
         LOGGER.debug(
                 "Attempting to transform RecordCollection with mime-type: {} & outputSchema: {}",
-                mimeType, recordCollection.getOutputSchema());
+                mimeType,
+                recordCollection.getOutputSchema());
         QueryResponseTransformer transformer;
         Map<String, Serializable> arguments = new HashMap<String, Serializable>();
-        if (StringUtils.isBlank(recordCollection.getOutputSchema()) && StringUtils
-                .isNotBlank(mimeType) && !XML_MIME_TYPES.contains(mimeType)) {
+        if (StringUtils.isBlank(recordCollection.getOutputSchema()) && StringUtils.isNotBlank(
+                mimeType) && !XML_MIME_TYPES.contains(mimeType)) {
             transformer = transformerManager.getTransformerByMimeType(mimeType);
         } else {
             transformer = transformerManager.getCswQueryResponseTransformer();
             if (recordCollection.getElementName() != null) {
                 arguments.put(CswConstants.ELEMENT_NAMES,
-                        recordCollection.getElementName().toArray());
+                        recordCollection.getElementName()
+                                .toArray());
             }
             arguments.put(CswConstants.OUTPUT_SCHEMA_PARAMETER, recordCollection.getOutputSchema());
             arguments.put(CswConstants.ELEMENT_SET_TYPE, recordCollection.getElementSetType());
@@ -104,8 +106,8 @@ public class CswRecordCollectionMessageBodyWriter
         }
 
         if (transformer == null) {
-            throw new WebApplicationException(
-                    new CatalogTransformerException("Unable to locate Transformer."));
+            throw new WebApplicationException(new CatalogTransformerException(
+                    "Unable to locate Transformer."));
         }
 
         BinaryContent content = null;
@@ -118,8 +120,8 @@ public class CswRecordCollectionMessageBodyWriter
         if (content != null) {
             IOUtils.copy(content.getInputStream(), outStream);
         } else {
-            throw new WebApplicationException(
-                    new CatalogTransformerException("Transformer returned null."));
+            throw new WebApplicationException(new CatalogTransformerException(
+                    "Transformer returned null."));
         }
 
     }

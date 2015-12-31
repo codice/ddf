@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -50,30 +50,34 @@ public class WssBasicAuthenticationHandler extends AbstractBasicAuthenticationHa
         pass.setValue(password);
         pass.setType(WSConstants.PASSWORD_TEXT);
         JAXBElement<PasswordString> passwordType = new JAXBElement<>(QNameConstants.PASSWORD,
-                PasswordString.class, pass);
-        usernameTokenType.getAny().add(passwordType);
+                PasswordString.class,
+                pass);
+        usernameTokenType.getAny()
+                .add(passwordType);
         // Marshall the received JAXB object into a DOM Element
         String usernameToken = null;
         Writer writer = new StringWriter();
         try {
             Set<Class<?>> classes = new HashSet<>();
             classes.add(ObjectFactory.class);
-            classes.add(
-                    org.apache.cxf.ws.security.sts.provider.model.wstrust14.ObjectFactory.class);
+            classes.add(org.apache.cxf.ws.security.sts.provider.model.wstrust14.ObjectFactory.class);
 
-            JAXBContextCache.CachedContextAndSchemas cache = JAXBContextCache
-                    .getCachedContextAndSchemas(classes, null, null, null, false);
+            JAXBContextCache.CachedContextAndSchemas cache =
+                    JAXBContextCache.getCachedContextAndSchemas(classes, null, null, null, false);
             JAXBContext jaxbContext = cache.getContext();
 
             Marshaller marshaller = jaxbContext.createMarshaller();
-            JAXBElement<UsernameTokenType> tokenType = new JAXBElement<>(
-                    QNameConstants.USERNAME_TOKEN, UsernameTokenType.class, usernameTokenType);
+            JAXBElement<UsernameTokenType> tokenType =
+                    new JAXBElement<>(QNameConstants.USERNAME_TOKEN,
+                            UsernameTokenType.class,
+                            usernameTokenType);
             marshaller.marshal(tokenType, writer);
             usernameToken = writer.toString();
         } catch (JAXBException ex) {
             LOGGER.warn("", ex);
         }
-        BaseAuthenticationToken baseAuthenticationToken = new BaseAuthenticationToken(null, "",
+        BaseAuthenticationToken baseAuthenticationToken = new BaseAuthenticationToken(null,
+                "",
                 usernameToken);
         baseAuthenticationToken.setUseWssSts(true);
         return baseAuthenticationToken;

@@ -14,25 +14,25 @@
 
  -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-		>
+>
 
-	<bean id="transformer"
+    <bean id="transformer"
           class="ddf.catalog.transformer.input.geojson.GeoJsonInputTransformer">
-		<argument ref="metacardTypeRegistry"/>	
-	</bean>
+        <argument ref="metacardTypeRegistry"/>
+    </bean>
 
-	<service ref="transformer" interface="ddf.catalog.transform.InputTransformer">
-		<service-properties>
-			<entry key="id" value="geojson"/>
+    <service ref="transformer" interface="ddf.catalog.transform.InputTransformer">
+        <service-properties>
+            <entry key="id" value="geojson"/>
             <!-- List of mime type this InputTransformer supports -->
             <entry key="mime-type">
-				<list>
-				    <value>application/json</value>
-				</list>
-			</entry>
-		</service-properties>
-	</service>
-	
-	<reference id="metacardTypeRegistry" interface="ddf.catalog.data.MetacardTypeRegistry"/>
+                <list>
+                    <value>application/json</value>
+                </list>
+            </entry>
+        </service-properties>
+    </service>
+
+    <reference id="metacardTypeRegistry" interface="ddf.catalog.data.MetacardTypeRegistry"/>
 
 </blueprint>

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -42,14 +42,20 @@ public class ListCommand extends OsgiCommandSupport {
 
     public static final String SERVICE_PID = "org.codice.ddf.persistence.PersistentStore";
 
-    public static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormat
-            .forPattern("yyyy-MM-dd'T'HH:mm:ssZZ");
+    public static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormat.forPattern(
+            "yyyy-MM-dd'T'HH:mm:ssZZ");
 
-    static final String DEFAULT_CONSOLE_COLOR = Ansi.ansi().reset().toString();
+    static final String DEFAULT_CONSOLE_COLOR = Ansi.ansi()
+            .reset()
+            .toString();
 
-    static final String RED_CONSOLE_COLOR = Ansi.ansi().fg(Ansi.Color.RED).toString();
+    static final String RED_CONSOLE_COLOR = Ansi.ansi()
+            .fg(Ansi.Color.RED)
+            .toString();
 
-    static final String CYAN_CONSOLE_COLOR = Ansi.ansi().fg(Ansi.Color.CYAN).toString();
+    static final String CYAN_CONSOLE_COLOR = Ansi.ansi()
+            .fg(Ansi.Color.CYAN)
+            .toString();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ListCommand.class);
 
@@ -97,19 +103,23 @@ public class ListCommand extends OsgiCommandSupport {
             console.print(DEFAULT_CONSOLE_COLOR);
 
             for (Map<String, Object> notification : notifications) {
-                Long timestamp = Long.valueOf(
-                        (String) notification.get(Notification.NOTIFICATION_KEY_TIMESTAMP));
+                Long timestamp =
+                        Long.valueOf((String) notification.get(Notification.NOTIFICATION_KEY_TIMESTAMP));
                 String dateTime = new DateTime(new Date(timestamp)).toString(DATETIME_FORMATTER);
                 String message = (String) notification.get(Notification.NOTIFICATION_KEY_MESSAGE);
                 LOGGER.debug(
                         "id = {}, userId = {}, timestamp = {}, application = {},  title = {},  message = {}",
                         notification.get(Notification.NOTIFICATION_KEY_ID),
-                        notification.get(Notification.NOTIFICATION_KEY_USER_ID), dateTime,
+                        notification.get(Notification.NOTIFICATION_KEY_USER_ID),
+                        dateTime,
                         notification.get(Notification.NOTIFICATION_KEY_APPLICATION),
-                        notification.get(Notification.NOTIFICATION_KEY_TITLE), message);
+                        notification.get(Notification.NOTIFICATION_KEY_TITLE),
+                        message);
 
-                console.printf(formatString, notification.get(Notification.NOTIFICATION_KEY_ID),
-                        notification.get(Notification.NOTIFICATION_KEY_USER_ID), dateTime,
+                console.printf(formatString,
+                        notification.get(Notification.NOTIFICATION_KEY_ID),
+                        notification.get(Notification.NOTIFICATION_KEY_USER_ID),
+                        dateTime,
                         notification.get(Notification.NOTIFICATION_KEY_APPLICATION),
                         notification.get(Notification.NOTIFICATION_KEY_TITLE),
                         message.substring(0, Math.min(message.length(), MAX_LENGTH)));
@@ -126,8 +136,8 @@ public class ListCommand extends OsgiCommandSupport {
 
         // Get Notification service
         @SuppressWarnings("rawtypes")
-        ServiceReference[] serviceReferences = bundleContext
-                .getServiceReferences(SERVICE_PID, null);
+        ServiceReference[] serviceReferences = bundleContext.getServiceReferences(SERVICE_PID,
+                null);
 
         if (serviceReferences == null || serviceReferences.length != 1) {
             LOGGER.debug("Found no service references for " + SERVICE_PID);
@@ -135,8 +145,8 @@ public class ListCommand extends OsgiCommandSupport {
             LOGGER.debug(
                     "Found " + serviceReferences.length + " service references for " + SERVICE_PID);
 
-            PersistentStore persistentStore = (PersistentStore) bundleContext
-                    .getService(serviceReferences[0]);
+            PersistentStore persistentStore = (PersistentStore) bundleContext.getService(
+                    serviceReferences[0]);
             if (persistentStore != null) {
                 try {
                     List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();

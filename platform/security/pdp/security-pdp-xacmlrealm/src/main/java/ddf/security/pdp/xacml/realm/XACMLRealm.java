@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -51,7 +51,8 @@ import oasis.names.tc.xacml._3_0.core.schema.wd_17.ResponseType;
  * Performs authorization backed by a XACML-based PDP.
  */
 public class XACMLRealm extends AbstractAuthorizingRealm {
-    private static final String AUTHZ_PERMITTED_EXCEPTION = " does not have permission to perform action.";
+    private static final String AUTHZ_PERMITTED_EXCEPTION =
+            " does not have permission to perform action.";
 
     private static final String AUTHZ_ROLE_EXCEPTION = " does not have the checked role(s).";
 
@@ -118,8 +119,8 @@ public class XACMLRealm extends AbstractAuthorizingRealm {
         if (!CollectionUtils.isEmpty(subjectPrincipal) && !CollectionUtils.isEmpty(permissions)) {
             results = new boolean[permissions.size()];
             String primaryPrincipal = "";
-            SecurityAssertion securityAssertion = subjectPrincipal.oneByType(
-                    SecurityAssertion.class);
+            SecurityAssertion securityAssertion =
+                    subjectPrincipal.oneByType(SecurityAssertion.class);
             if (securityAssertion != null) {
                 Principal principal = securityAssertion.getPrincipal();
                 if (null != principal) {
@@ -134,16 +135,20 @@ public class XACMLRealm extends AbstractAuthorizingRealm {
                 for (int i = 0; i < permissions.size(); i++) {
                     curPermission = permissions.get(i);
                     if (curPermission instanceof KeyValuePermission) {
-                        curPermission = new KeyValueCollectionPermission(CollectionPermission.UNKNOWN_ACTION,
-                                (KeyValuePermission) curPermission);
+                        curPermission =
+                                new KeyValueCollectionPermission(CollectionPermission.UNKNOWN_ACTION,
+                                        (KeyValuePermission) curPermission);
                     }
                     if (curPermission instanceof KeyValueCollectionPermission) {
-                        KeyValueCollectionPermission kvcp = (KeyValueCollectionPermission) curPermission;
-                        logger.debug("Checking if {} has access for action {}", primaryPrincipal,
+                        KeyValueCollectionPermission kvcp =
+                                (KeyValueCollectionPermission) curPermission;
+                        logger.debug("Checking if {} has access for action {}",
+                                primaryPrincipal,
                                 kvcp.getAction());
 
                         SecurityLogger.logInfo(
-                                "Checking if [" + primaryPrincipal + "] has access for action " + kvcp.getAction());
+                                "Checking if [" + primaryPrincipal + "] has access for action "
+                                        + kvcp.getAction());
 
                         logger.debug("Received authZ info, creating XACML request.");
                         RequestType curRequest = createXACMLRequest(primaryPrincipal, info, kvcp);
@@ -170,7 +175,8 @@ public class XACMLRealm extends AbstractAuthorizingRealm {
 
     protected RequestType createXACMLRequest(String subject, AuthorizationInfo info,
             CollectionPermission permission) {
-        logger.debug("Creating XACML request for subject: {} and metacard permissions {}", subject,
+        logger.debug("Creating XACML request for subject: {} and metacard permissions {}",
+                subject,
                 permission);
 
         RequestType xacmlRequestType = new RequestType();
@@ -206,7 +212,8 @@ public class XACMLRealm extends AbstractAuthorizingRealm {
         metadataAttributes.setCategory(XACMLConstants.RESOURCE_CATEGORY);
 
         if (permission instanceof KeyValueCollectionPermission) {
-            List<KeyValuePermission> tmpList = ((KeyValueCollectionPermission) permission).getKeyValuePermissionList();
+            List<KeyValuePermission> tmpList =
+                    ((KeyValueCollectionPermission) permission).getKeyValuePermissionList();
             for (KeyValuePermission curPermission : tmpList) {
                 for (String curPermValue : ((KeyValuePermission) curPermission).getValues()) {
                     AttributeType resourceAttribute = new AttributeType();

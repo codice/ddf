@@ -14,24 +14,24 @@
  -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-	<bean id="xmlMimeType" class="javax.activation.MimeType">
-		<argument value="text/xml"/>
-	</bean>
+    <bean id="xmlMimeType" class="javax.activation.MimeType">
+        <argument value="text/xml"/>
+    </bean>
 
-	<bean id="metadataTransformer"
+    <bean id="metadataTransformer"
           class="ddf.catalog.transformer.attribute.AttributeMetacardTransformer">
-		<argument value="metadata"/>
-		<argument value="metadata"/>
-		<argument ref="xmlMimeType"/>
-	</bean>
+        <argument value="metadata"/>
+        <argument value="metadata"/>
+        <argument ref="xmlMimeType"/>
+    </bean>
 
-	<service ref="metadataTransformer" interface="ddf.catalog.transform.MetacardTransformer">
-		<service-properties>
-			<entry key="id" value="metadata"/>
+    <service ref="metadataTransformer" interface="ddf.catalog.transform.MetacardTransformer">
+        <service-properties>
+            <entry key="id" value="metadata"/>
             <!-- shortname only exists for backwards compatibility -->
             <entry key="shortname" value="metadata"/>
-			<entry key="mime-type" value="text/xml"/>
-		</service-properties>
-	</service>
-	
+            <entry key="mime-type" value="text/xml"/>
+        </service-properties>
+    </service>
+
 </blueprint>

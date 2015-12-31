@@ -18,6 +18,7 @@ import static org.apache.commons.lang.Validate.notNull;
 import java.nio.file.Path;
 
 import javax.validation.constraints.NotNull;
+
 /**
  * Class that provides configuration status for failed imports.
  */
@@ -27,7 +28,7 @@ public class ConfigurationStatus {
 
     /**
      * Constructor
-     * 
+     *
      * @param path path of the failed import.
      */
     public ConfigurationStatus(@NotNull Path path) {

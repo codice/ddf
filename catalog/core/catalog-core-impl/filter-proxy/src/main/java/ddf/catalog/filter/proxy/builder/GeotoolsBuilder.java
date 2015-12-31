@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -55,13 +55,13 @@ class GeotoolsBuilder {
     // match units assigned elsewhere throughout DDF
     private static final String METERS = UomOgcMapping.METRE.name();
 
-    private static final XLogger LOGGER = new XLogger(
-            LoggerFactory.getLogger(GeotoolsBuilder.class));
+    private static final XLogger LOGGER =
+            new XLogger(LoggerFactory.getLogger(GeotoolsBuilder.class));
 
     private static WKTReader reader = new WKTReader();
 
-    private static WKTParser parser = new WKTParser(
-            new GeometryBuilder(DefaultGeographicCRS.WGS84));
+    private static WKTParser parser =
+            new WKTParser(new GeometryBuilder(DefaultGeographicCRS.WGS84));
 
     private FilterFactory factory = new FilterFactoryImpl();
 
@@ -121,7 +121,8 @@ class GeotoolsBuilder {
             }
             break;
         case BETWEEN:
-            filter = factory.between(factory.property(attribute), factory.literal(value),
+            filter = factory.between(factory.property(attribute),
+                    factory.literal(value),
                     factory.literal(secondaryValue));
             break;
         case DURING:
@@ -199,15 +200,22 @@ class GeotoolsBuilder {
             }
             break;
         case LIKE:
-            filter = factory
-                    .like(factory.property(attribute), getValue(String.class), "*", "%", "'",
-                            getSecondaryValue(Boolean.class));
+            filter = factory.like(factory.property(attribute),
+                    getValue(String.class),
+                    "*",
+                    "%",
+                    "'",
+                    getSecondaryValue(Boolean.class));
             break;
         case FUZZY:
             Expression expression = factory.property(attribute);
             filter = factory.like(new FuzzyFunction(Arrays.asList(expression),
-                            factory.literal(Metacard.ANY_TEXT)), getValue(String.class), "*", "%",
-                    "'", getSecondaryValue(Boolean.class));
+                            factory.literal(Metacard.ANY_TEXT)),
+                    getValue(String.class),
+                    "*",
+                    "%",
+                    "'",
+                    getSecondaryValue(Boolean.class));
             break;
         default:
             // return null
@@ -235,7 +243,8 @@ class GeotoolsBuilder {
     private <T> T convert(Class<T> clazz, Object inputValue) {
         T convertedValue = null;
 
-        if (inputValue != null && inputValue.getClass().isAssignableFrom(clazz)) {
+        if (inputValue != null && inputValue.getClass()
+                .isAssignableFrom(clazz)) {
             convertedValue = clazz.cast(inputValue);
         }
         return convertedValue;
@@ -323,8 +332,10 @@ class GeotoolsBuilder {
     public Geometry toGeometry(String wkt) {
         Geometry geometry = null;
         try {
-            if (wkt.toLowerCase(Locale.US).startsWith("multi")
-                    || wkt.toLowerCase(Locale.US).trim().indexOf("geometrycollection") != -1) {
+            if (wkt.toLowerCase(Locale.US)
+                    .startsWith("multi") || wkt.toLowerCase(Locale.US)
+                    .trim()
+                    .indexOf("geometrycollection") != -1) {
                 // WKTParser does not currently support MultiPolygon,
                 // MultiLineString, or MultiPoint
                 com.vividsolutions.jts.geom.Geometry geo = reader.read(wkt);

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -31,13 +31,15 @@ import org.slf4j.LoggerFactory;
  */
 public class SystemConfigurationMigration {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SystemConfigurationMigration.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(SystemConfigurationMigration.class);
 
     private static final String KEYSTORE_SYSTEM_PROP = "javax.net.ssl.keyStore";
 
     private static final String TRUSTSTORE_SYSTEM_PROP = "javax.net.ssl.trustStore";
 
-    private static final String FILE_CONTAINING_CRL_LOCATION = "etc/ws-security/server/encryption.properties";
+    private static final String FILE_CONTAINING_CRL_LOCATION =
+            "etc/ws-security/server/encryption.properties";
 
     private static final String WS_SECURITY_DIR = "etc/ws-security";
 
@@ -110,7 +112,8 @@ public class SystemConfigurationMigration {
             copyFile(source, destination);
         } else {
             LOGGER.warn("Unable to find CRL location in [%s] using property [%s].",
-                    encryptionPropertiesFile.toString(), CRL_PROP_KEY);
+                    encryptionPropertiesFile.toString(),
+                    CRL_PROP_KEY);
         }
     }
 
@@ -126,7 +129,7 @@ public class SystemConfigurationMigration {
     }
 
     private Path constructDestination(Path pathToExport, Path exportDirectory)
-        throws MigrationException {
+            throws MigrationException {
         Path destination = exportDirectory.resolve(ddfHome.relativize(pathToExport));
         return destination;
     }
@@ -170,7 +173,8 @@ public class SystemConfigurationMigration {
         try {
             FileUtils.copyFile(source.toFile(), destination.toFile());
         } catch (IOException e) {
-            String message = String.format("Unable to copy [%s] to [%s].", source.toString(),
+            String message = String.format("Unable to copy [%s] to [%s].",
+                    source.toString(),
                     destination.toString());
             LOGGER.error(message, e);
             throw new MigrationException(message, e);
@@ -181,8 +185,11 @@ public class SystemConfigurationMigration {
         try {
             FileUtils.copyDirectory(source.toFile(), destination.toFile());
         } catch (IOException e) {
-            String message = String.format("Unable to copy [%s] to [%s].", source.toAbsolutePath()
-                    .toString(), source.toAbsolutePath().toString());
+            String message = String.format("Unable to copy [%s] to [%s].",
+                    source.toAbsolutePath()
+                            .toString(),
+                    source.toAbsolutePath()
+                            .toString());
             LOGGER.error(message, e);
             throw new MigrationException(message, e);
         }
@@ -190,7 +197,8 @@ public class SystemConfigurationMigration {
 
     private void verifyWithinDdfHome(Path path) throws MigrationException {
         if (!getRealPath(path).startsWith(ddfHome)) {
-            String message = String.format("The path [%s] is outside of [%s].", path.toString(),
+            String message = String.format("The path [%s] is outside of [%s].",
+                    path.toString(),
                     ddfHome.toString());
             LOGGER.error(message);
             throw new MigrationException(message);
@@ -201,7 +209,8 @@ public class SystemConfigurationMigration {
         if (path.isAbsolute()) {
             String message = String.format(
                     "The path [%s] is absolute. This path must be relative to [%s].",
-                    path.toString(), ddfHome);
+                    path.toString(),
+                    ddfHome);
             LOGGER.error(message);
             throw new MigrationException(message);
         }

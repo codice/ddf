@@ -34,8 +34,8 @@ public class TestMD5ChecksumProvider {
 
     private ChecksumProvider checksumProvider;
 
-    private static final XLogger LOGGER = new XLogger(
-            LoggerFactory.getLogger(TestMD5ChecksumProvider.class));
+    private static final XLogger LOGGER = new XLogger(LoggerFactory.getLogger(
+            TestMD5ChecksumProvider.class));
 
     @Before
     public void intialize() {

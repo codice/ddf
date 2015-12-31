@@ -48,6 +48,7 @@ public class PropertyResolverTest {
     public void testPropertyInListReplaced() {
         System.setProperty("foo", "bar");
         List<String> list = Arrays.asList("/some/value", "/${foo}/value", "/baz/value");
-        assertThat(PropertyResolver.resolveProperties(list), contains("/some/value", "/bar/value", "/baz/value"));
+        assertThat(PropertyResolver.resolveProperties(list),
+                contains("/some/value", "/bar/value", "/baz/value"));
     }
 }

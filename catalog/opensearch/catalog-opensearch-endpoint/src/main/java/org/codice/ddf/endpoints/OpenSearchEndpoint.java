@@ -81,12 +81,13 @@ public class OpenSearchEndpoint implements OpenSearch {
 
     private SystemInfo systemInfo;
 
-    public OpenSearchEndpoint(CatalogFramework framework, FilterBuilder filterBuilder, SystemInfo info) {
+    public OpenSearchEndpoint(CatalogFramework framework, FilterBuilder filterBuilder,
+            SystemInfo info) {
         LOGGER.trace("Entering OpenSearch Endpoint Constructor.");
         this.framework = framework;
         this.filterBuilder = filterBuilder;
         this.systemInfo = info;
-        LOGGER.trace("Exiting OpenSearch Endpoint Constructor.");        
+        LOGGER.trace("Exiting OpenSearch Endpoint Constructor.");
     }
 
     /**
@@ -157,8 +158,8 @@ public class OpenSearchEndpoint implements OpenSearch {
 
             if (!(StringUtils.isEmpty(sources))) {
                 LOGGER.debug("Received site names from client.");
-                Set<String> siteSet = new HashSet<String>(
-                        Arrays.asList(StringUtils.stripAll(sources.split(","))));
+                Set<String> siteSet =
+                        new HashSet<String>(Arrays.asList(StringUtils.stripAll(sources.split(","))));
 
                 // This code block is for backward compatibility to support src=local.
                 // Since local is a magic work, not in any specification, weneed to
@@ -185,7 +186,8 @@ public class OpenSearchEndpoint implements OpenSearch {
             }
 
             // contextual
-            if (searchTerms != null && !searchTerms.trim().isEmpty()) {
+            if (searchTerms != null && !searchTerms.trim()
+                    .isEmpty()) {
                 try {
                     query.addContextualFilter(searchTerms, selector);
                 } catch (ParsingException e) {
@@ -195,8 +197,10 @@ public class OpenSearchEndpoint implements OpenSearch {
 
             // temporal
             // single temporal criterion per query
-            if ((dateStart != null && !dateStart.trim().isEmpty()) || (dateEnd != null && !dateEnd
-                    .trim().isEmpty()) || (dateOffset != null && !dateOffset.trim().isEmpty())) {
+            if ((dateStart != null && !dateStart.trim()
+                    .isEmpty()) || (dateEnd != null && !dateEnd.trim()
+                    .isEmpty()) || (dateOffset != null && !dateOffset.trim()
+                    .isEmpty())) {
                 query.addTemporalFilter(dateStart, dateEnd, dateOffset);
             }
 
@@ -204,14 +208,17 @@ public class OpenSearchEndpoint implements OpenSearch {
             // single spatial criterion per query
             addSpatialFilter(query, geometry, polygon, bbox, radius, lat, lon);
 
-            if (type != null && !type.trim().isEmpty()) {
+            if (type != null && !type.trim()
+                    .isEmpty()) {
                 query.addTypeFilter(type, versions);
             }
 
             Map<String, Serializable> properties = new HashMap<String, Serializable>();
-            for (Object key : request.getParameterMap().keySet()) {
+            for (Object key : request.getParameterMap()
+                    .keySet()) {
                 if (key instanceof String) {
-                    Object value = request.getParameterMap().get(key);
+                    Object value = request.getParameterMap()
+                            .get(key);
                     if (value instanceof Serializable) {
                         properties.put((String) key, ((String[]) value)[0]);
                     }
@@ -222,10 +229,12 @@ public class OpenSearchEndpoint implements OpenSearch {
         } catch (IllegalArgumentException iae) {
             LOGGER.warn("Bad input found while executing a query", iae);
             response = Response.status(Response.Status.BAD_REQUEST)
-                    .entity(wrapStringInPreformattedTags(iae.getMessage())).build();
+                    .entity(wrapStringInPreformattedTags(iae.getMessage()))
+                    .build();
         } catch (RuntimeException re) {
             LOGGER.warn("Exception while executing a query", re);
-            response = Response.serverError().entity(wrapStringInPreformattedTags(re.getMessage()))
+            response = Response.serverError()
+                    .entity(wrapStringInPreformattedTags(re.getMessage()))
                     .build();
         }
         LOGGER.trace("EXITING: " + methodName);
@@ -246,17 +255,23 @@ public class OpenSearchEndpoint implements OpenSearch {
      */
     private void addSpatialFilter(OpenSearchQuery query, String geometry, String polygon,
             String bbox, String radius, String lat, String lon) {
-        if (geometry != null && !geometry.trim().isEmpty()) {
+        if (geometry != null && !geometry.trim()
+                .isEmpty()) {
             LOGGER.debug("Adding SpatialCriterion geometry: " + geometry);
             query.addGeometrySpatialFilter(geometry);
-        } else if (bbox != null && !bbox.trim().isEmpty()) {
+        } else if (bbox != null && !bbox.trim()
+                .isEmpty()) {
             LOGGER.debug("Adding SpatialCriterion bbox: " + bbox);
             query.addBBoxSpatialFilter(bbox);
-        } else if (polygon != null && !polygon.trim().isEmpty()) {
+        } else if (polygon != null && !polygon.trim()
+                .isEmpty()) {
             LOGGER.debug("Adding SpatialCriterion polygon: " + polygon);
             query.addPolygonSpatialFilter(polygon);
-        } else if (lat != null && !lat.trim().isEmpty() && lon != null && !lon.trim().isEmpty()) {
-            if (radius == null || radius.trim().isEmpty()) {
+        } else if (lat != null && !lat.trim()
+                .isEmpty() && lon != null && !lon.trim()
+                .isEmpty()) {
+            if (radius == null || radius.trim()
+                    .isEmpty()) {
                 LOGGER.debug("Adding default radius");
                 query.addSpatialDistanceFilter(lon, lat, DEFAULT_RADIUS);
             } else {
@@ -287,7 +302,8 @@ public class OpenSearchEndpoint implements OpenSearch {
         try {
             Map<String, Serializable> arguments = new HashMap<String, Serializable>();
             String organization = framework.getOrganization();
-            String url = ui.getRequestUri().toString();
+            String url = ui.getRequestUri()
+                    .toString();
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("organization: " + organization);
                 LOGGER.debug("url: " + url);
@@ -313,8 +329,10 @@ public class OpenSearchEndpoint implements OpenSearch {
             }
 
             if (query.getFilter() != null) {
-                QueryRequest queryRequest = new QueryRequestImpl(query, query.isEnterprise(),
-                        query.getSiteIds(), properties);
+                QueryRequest queryRequest = new QueryRequestImpl(query,
+                        query.isEnterprise(),
+                        query.getSiteIds(),
+                        properties);
                 QueryResponse queryResponse;
 
                 LOGGER.debug("Sending query");
@@ -326,16 +344,20 @@ public class OpenSearchEndpoint implements OpenSearch {
                         .build();
             } else {
                 // No query was specified
-                QueryRequest queryRequest = new QueryRequestImpl(query, query.isEnterprise(),
-                        query.getSiteIds(), null);
+                QueryRequest queryRequest = new QueryRequestImpl(query,
+                        query.isEnterprise(),
+                        query.getSiteIds(),
+                        null);
 
                 // Create a dummy QueryResponse with zero results
                 QueryResponseImpl queryResponseQueue = new QueryResponseImpl(queryRequest,
-                        new ArrayList<Result>(), 0);
+                        new ArrayList<Result>(),
+                        0);
 
                 // pass in the format for the transform
-                BinaryContent content = framework
-                        .transform(queryResponseQueue, queryFormat, arguments);
+                BinaryContent content = framework.transform(queryResponseQueue,
+                        queryFormat,
+                        arguments);
                 if (null != content) {
                     response = Response.ok(content.getInputStream(), content.getMimeTypeValue())
                             .build();
@@ -343,26 +365,31 @@ public class OpenSearchEndpoint implements OpenSearch {
             }
         } catch (UnsupportedQueryException ce) {
             LOGGER.warn("Error executing query", ce);
-            response = Response.serverError().entity(wrapStringInPreformattedTags(ce.getMessage()))
+            response = Response.serverError()
+                    .entity(wrapStringInPreformattedTags(ce.getMessage()))
                     .build();
         } catch (CatalogTransformerException e) {
             LOGGER.warn("Error tranforming response", e);
-            response = Response.serverError().entity(wrapStringInPreformattedTags(e.getMessage()))
+            response = Response.serverError()
+                    .entity(wrapStringInPreformattedTags(e.getMessage()))
                     .build();
         } catch (FederationException e) {
             LOGGER.warn("Error executing query", e);
-            response = Response.serverError().entity(wrapStringInPreformattedTags(e.getMessage()))
+            response = Response.serverError()
+                    .entity(wrapStringInPreformattedTags(e.getMessage()))
                     .build();
         } catch (SourceUnavailableException e) {
             LOGGER.warn("Error executing query because the underlying source was unavailable.", e);
-            response = Response.serverError().entity(wrapStringInPreformattedTags(e.getMessage()))
+            response = Response.serverError()
+                    .entity(wrapStringInPreformattedTags(e.getMessage()))
                     .build();
         } catch (RuntimeException e) {
             // Account for any runtime exceptions and send back a server error
             // this prevents full stacktraces returning to the client
             // this allows for a graceful server error to be returned
             LOGGER.warn("RuntimeException on executing query", e);
-            response = Response.serverError().entity(wrapStringInPreformattedTags(e.getMessage()))
+            response = Response.serverError()
+                    .entity(wrapStringInPreformattedTags(e.getMessage()))
                     .build();
         }
         return response;
@@ -407,7 +434,12 @@ public class OpenSearchEndpoint implements OpenSearch {
         }
         LOGGER.debug("Retrieved query settings: \n" + "sortField:" + sortField + "\nsortOrder:"
                 + sortOrder);
-        return new OpenSearchQuery(null, startIndex, count, sortField, sortOrder, maxTimeout,
+        return new OpenSearchQuery(null,
+                startIndex,
+                count,
+                sortField,
+                sortOrder,
+                maxTimeout,
                 filterBuilder);
     }
 

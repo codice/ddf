@@ -22,8 +22,9 @@
     <bean id="geoCoderFactory" class="ddf.catalog.util.impl.ServiceSelector"/>
 
     <reference-list id="geoCoderList" interface="org.codice.ddf.spatial.geocoder.GeoCoder"
-            availability="optional">
-        <reference-listener bind-method="bindService" unbind-method="unbindService" ref="geoCoderFactory"/>
+                    availability="optional">
+        <reference-listener bind-method="bindService" unbind-method="unbindService"
+                            ref="geoCoderFactory"/>
     </reference-list>
 
     <jaxrs:server id="locationServer" address="/REST/v1/Locations">
@@ -45,7 +46,7 @@
 
     <bean id="locationService"
           class="org.codice.ddf.spatial.geocoder.endpoint.GeoCoderEndpoint">
-      <argument ref="geoCoderFactory"/>
+        <argument ref="geoCoderFactory"/>
     </bean>
 
 </blueprint>

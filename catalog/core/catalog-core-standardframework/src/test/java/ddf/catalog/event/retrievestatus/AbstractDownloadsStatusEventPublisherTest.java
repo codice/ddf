@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -64,8 +64,8 @@ import ddf.catalog.resource.Resource;
  */
 public abstract class AbstractDownloadsStatusEventPublisherTest {
 
-    protected static final Logger LOGGER = org.slf4j.LoggerFactory
-            .getLogger(AbstractDownloadsStatusEventPublisherTest.class);
+    protected static final Logger LOGGER = org.slf4j.LoggerFactory.getLogger(
+            AbstractDownloadsStatusEventPublisherTest.class);
 
     private static final String USER_ID = "testSubjectUser";
 
@@ -104,14 +104,14 @@ public abstract class AbstractDownloadsStatusEventPublisherTest {
 
         when(resource.getName()).thenReturn("testCometDSessionID");
         when(resourceRequest.getProperties()).thenReturn(properties);
-        when(resourceRequest.containsPropertyName(Notification.NOTIFICATION_KEY_USER_ID))
-                .thenReturn(true);
-        when(resourceRequest.getPropertyValue(Notification.NOTIFICATION_KEY_USER_ID))
-                .thenReturn(properties.get(Notification.NOTIFICATION_KEY_USER_ID));
-        when(resourceRequest.containsPropertyName(Notification.NOTIFICATION_KEY_SESSION_ID))
-                .thenReturn(true);
-        when(resourceRequest.getPropertyValue(Notification.NOTIFICATION_KEY_SESSION_ID))
-                .thenReturn(properties.get(Notification.NOTIFICATION_KEY_SESSION_ID));
+        when(resourceRequest.containsPropertyName(Notification.NOTIFICATION_KEY_USER_ID)).thenReturn(
+                true);
+        when(resourceRequest.getPropertyValue(Notification.NOTIFICATION_KEY_USER_ID)).thenReturn(
+                properties.get(Notification.NOTIFICATION_KEY_USER_ID));
+        when(resourceRequest.containsPropertyName(Notification.NOTIFICATION_KEY_SESSION_ID)).thenReturn(
+                true);
+        when(resourceRequest.getPropertyValue(Notification.NOTIFICATION_KEY_SESSION_ID)).thenReturn(
+                properties.get(Notification.NOTIFICATION_KEY_SESSION_ID));
         when(resourceResponse.getResource()).thenReturn(resource);
         when(resourceResponse.getRequest()).thenReturn(resourceRequest);
     }
@@ -128,11 +128,14 @@ public abstract class AbstractDownloadsStatusEventPublisherTest {
                 return null;
             }
 
-        }).when(eventAdmin).postEvent(any(Event.class));
+        })
+                .when(eventAdmin)
+                .postEvent(any(Event.class));
 
         metacard = mock(Metacard.class);
         when(metacard.getId()).thenReturn("12345");
-        downloadIdentifier = UUID.randomUUID().toString();
+        downloadIdentifier = UUID.randomUUID()
+                .toString();
     }
 
     @After
@@ -169,23 +172,39 @@ public abstract class AbstractDownloadsStatusEventPublisherTest {
      *            user to check for in the event property
      */
     private void testPostRetrievalStatus(String correctUser) {
-        publisher.postRetrievalStatus(resourceResponse, ProductRetrievalStatus.CANCELLED, metacard,
-                "test detail", 20L, downloadIdentifier);
+        publisher.postRetrievalStatus(resourceResponse,
+                ProductRetrievalStatus.CANCELLED,
+                metacard,
+                "test detail",
+                20L,
+                downloadIdentifier);
         verify(eventAdmin, times(1)).postEvent(any(Event.class));
         assertEquals(correctUser, curEvent.getProperty(Notification.NOTIFICATION_KEY_USER_ID));
 
-        publisher.postRetrievalStatus(resourceResponse, ProductRetrievalStatus.FAILED, metacard,
-                "test detail", 250L, downloadIdentifier);
+        publisher.postRetrievalStatus(resourceResponse,
+                ProductRetrievalStatus.FAILED,
+                metacard,
+                "test detail",
+                250L,
+                downloadIdentifier);
         verify(eventAdmin, times(2)).postEvent(any(Event.class));
         assertEquals(correctUser, curEvent.getProperty(Notification.NOTIFICATION_KEY_USER_ID));
 
-        publisher.postRetrievalStatus(resourceResponse, ProductRetrievalStatus.RETRYING, metacard,
-                "test detail", 350L, downloadIdentifier);
+        publisher.postRetrievalStatus(resourceResponse,
+                ProductRetrievalStatus.RETRYING,
+                metacard,
+                "test detail",
+                350L,
+                downloadIdentifier);
         verify(eventAdmin, times(3)).postEvent(any(Event.class));
         assertEquals(correctUser, curEvent.getProperty(Notification.NOTIFICATION_KEY_USER_ID));
 
-        publisher.postRetrievalStatus(resourceResponse, ProductRetrievalStatus.COMPLETE, metacard,
-                "test detail", 500L, downloadIdentifier);
+        publisher.postRetrievalStatus(resourceResponse,
+                ProductRetrievalStatus.COMPLETE,
+                metacard,
+                "test detail",
+                500L,
+                downloadIdentifier);
         verify(eventAdmin, times(4)).postEvent(any(Event.class));
         assertEquals(correctUser, curEvent.getProperty(Notification.NOTIFICATION_KEY_USER_ID));
     }
@@ -198,8 +217,14 @@ public abstract class AbstractDownloadsStatusEventPublisherTest {
         setupPublisher();
         publisher.setActivityEnabled(true);
         publisher.setNotificationEnabled(true);
-        publisher.postRetrievalStatus(resourceResponse, ProductRetrievalStatus.CANCELLED, metacard,
-                "test detail", 20L, downloadIdentifier, true, false);
+        publisher.postRetrievalStatus(resourceResponse,
+                ProductRetrievalStatus.CANCELLED,
+                metacard,
+                "test detail",
+                20L,
+                downloadIdentifier,
+                true,
+                false);
         // By expecting only 1 invocation of postEvent(), this verifies only a notification was sent,
         // and no activity. No way to check absence of ActivityEvent.
         verify(eventAdmin, times(1)).postEvent(any(Event.class));
@@ -214,8 +239,14 @@ public abstract class AbstractDownloadsStatusEventPublisherTest {
         setupPublisher();
         publisher.setActivityEnabled(true);
         publisher.setNotificationEnabled(true);
-        publisher.postRetrievalStatus(resourceResponse, ProductRetrievalStatus.CANCELLED, metacard,
-                "test detail", 20L, downloadIdentifier, false, true);
+        publisher.postRetrievalStatus(resourceResponse,
+                ProductRetrievalStatus.CANCELLED,
+                metacard,
+                "test detail",
+                20L,
+                downloadIdentifier,
+                false,
+                true);
         // By expecting only 1 invocation of postEvent(), this verifies only an activity was sent,
         // and no notification. No way to check absence of Notification.
         verify(eventAdmin, times(1)).postEvent(any(Event.class));
@@ -231,8 +262,14 @@ public abstract class AbstractDownloadsStatusEventPublisherTest {
         setupPublisher();
         publisher.setActivityEnabled(true);
         publisher.setNotificationEnabled(true);
-        publisher.postRetrievalStatus(resourceResponse, ProductRetrievalStatus.CANCELLED, metacard,
-                "test detail", 20L, downloadIdentifier, true, true);
+        publisher.postRetrievalStatus(resourceResponse,
+                ProductRetrievalStatus.CANCELLED,
+                metacard,
+                "test detail",
+                20L,
+                downloadIdentifier,
+                true,
+                true);
         // Expect 2 invocations of postEvent(), one for Notification and one for ActivityEvent
         verify(eventAdmin, times(2)).postEvent(any(Event.class));
         assertEquals(DEFAULT_USER_ID, curEvent.getProperty(ActivityEvent.USER_ID_KEY));
@@ -240,8 +277,12 @@ public abstract class AbstractDownloadsStatusEventPublisherTest {
 
         // Also verifying the method with default values to always send both notification and activity
         // is working.
-        publisher.postRetrievalStatus(resourceResponse, ProductRetrievalStatus.CANCELLED, metacard,
-                "test detail", 20L, downloadIdentifier);
+        publisher.postRetrievalStatus(resourceResponse,
+                ProductRetrievalStatus.CANCELLED,
+                metacard,
+                "test detail",
+                20L,
+                downloadIdentifier);
         verify(eventAdmin, times(4)).postEvent(any(Event.class));
         assertEquals(DEFAULT_USER_ID, curEvent.getProperty(ActivityEvent.USER_ID_KEY));
         assertEquals(DEFAULT_USER_ID, curEvent.getProperty(Notification.NOTIFICATION_KEY_USER_ID));
@@ -276,23 +317,39 @@ public abstract class AbstractDownloadsStatusEventPublisherTest {
      *            user to check for in the event property
      */
     private void testPostRetrievalStatusWithNoNameProperty(String correctUser) {
-        publisher.postRetrievalStatus(resourceResponse, ProductRetrievalStatus.CANCELLED, metacard,
-                "test detail", 20L, downloadIdentifier);
+        publisher.postRetrievalStatus(resourceResponse,
+                ProductRetrievalStatus.CANCELLED,
+                metacard,
+                "test detail",
+                20L,
+                downloadIdentifier);
         verify(eventAdmin, times(1)).postEvent(any(Event.class));
         assertEquals(correctUser, curEvent.getProperty(Notification.NOTIFICATION_KEY_USER_ID));
 
-        publisher.postRetrievalStatus(resourceResponse, ProductRetrievalStatus.FAILED, metacard,
-                "test detail", 250L, downloadIdentifier);
+        publisher.postRetrievalStatus(resourceResponse,
+                ProductRetrievalStatus.FAILED,
+                metacard,
+                "test detail",
+                250L,
+                downloadIdentifier);
         verify(eventAdmin, times(2)).postEvent(any(Event.class));
         assertEquals(correctUser, curEvent.getProperty(Notification.NOTIFICATION_KEY_USER_ID));
 
-        publisher.postRetrievalStatus(resourceResponse, ProductRetrievalStatus.RETRYING, metacard,
-                "test detail", 350L, downloadIdentifier);
+        publisher.postRetrievalStatus(resourceResponse,
+                ProductRetrievalStatus.RETRYING,
+                metacard,
+                "test detail",
+                350L,
+                downloadIdentifier);
         verify(eventAdmin, times(3)).postEvent(any(Event.class));
         assertEquals(correctUser, curEvent.getProperty(Notification.NOTIFICATION_KEY_USER_ID));
 
-        publisher.postRetrievalStatus(resourceResponse, ProductRetrievalStatus.COMPLETE, metacard,
-                "test detail", 500L, downloadIdentifier);
+        publisher.postRetrievalStatus(resourceResponse,
+                ProductRetrievalStatus.COMPLETE,
+                metacard,
+                "test detail",
+                500L,
+                downloadIdentifier);
         verify(eventAdmin, times(4)).postEvent(any(Event.class));
         assertEquals(correctUser, curEvent.getProperty(Notification.NOTIFICATION_KEY_USER_ID));
     }
@@ -301,28 +358,52 @@ public abstract class AbstractDownloadsStatusEventPublisherTest {
     public void testPostRetrievalWithNoStatus() {
         setupPublisherWithNoNotifications();
 
-        publisher.postRetrievalStatus(resourceResponse, ProductRetrievalStatus.STARTED, metacard,
-                null, 0L, downloadIdentifier);
+        publisher.postRetrievalStatus(resourceResponse,
+                ProductRetrievalStatus.STARTED,
+                metacard,
+                null,
+                0L,
+                downloadIdentifier);
         verify(eventAdmin, times(0)).postEvent(any(Event.class));
 
-        publisher.postRetrievalStatus(resourceResponse, ProductRetrievalStatus.STARTED, metacard,
-                "test detail", 10L, downloadIdentifier);
+        publisher.postRetrievalStatus(resourceResponse,
+                ProductRetrievalStatus.STARTED,
+                metacard,
+                "test detail",
+                10L,
+                downloadIdentifier);
         verify(eventAdmin, times(0)).postEvent(any(Event.class));
 
-        publisher.postRetrievalStatus(resourceResponse, ProductRetrievalStatus.CANCELLED, metacard,
-                "test detail", 20L, downloadIdentifier);
+        publisher.postRetrievalStatus(resourceResponse,
+                ProductRetrievalStatus.CANCELLED,
+                metacard,
+                "test detail",
+                20L,
+                downloadIdentifier);
         verify(eventAdmin, times(0)).postEvent(any(Event.class));
 
-        publisher.postRetrievalStatus(resourceResponse, ProductRetrievalStatus.FAILED, metacard,
-                "test detail", 250L, downloadIdentifier);
+        publisher.postRetrievalStatus(resourceResponse,
+                ProductRetrievalStatus.FAILED,
+                metacard,
+                "test detail",
+                250L,
+                downloadIdentifier);
         verify(eventAdmin, times(0)).postEvent(any(Event.class));
 
-        publisher.postRetrievalStatus(resourceResponse, ProductRetrievalStatus.RETRYING, metacard,
-                "test detail", 350L, downloadIdentifier);
+        publisher.postRetrievalStatus(resourceResponse,
+                ProductRetrievalStatus.RETRYING,
+                metacard,
+                "test detail",
+                350L,
+                downloadIdentifier);
         verify(eventAdmin, times(0)).postEvent(any(Event.class));
 
-        publisher.postRetrievalStatus(resourceResponse, ProductRetrievalStatus.COMPLETE, metacard,
-                "test detail", 500L, downloadIdentifier);
+        publisher.postRetrievalStatus(resourceResponse,
+                ProductRetrievalStatus.COMPLETE,
+                metacard,
+                "test detail",
+                500L,
+                downloadIdentifier);
         verify(eventAdmin, times(0)).postEvent(any(Event.class));
     }
 
@@ -340,7 +421,9 @@ public abstract class AbstractDownloadsStatusEventPublisherTest {
         org.apache.shiro.mgt.SecurityManager secManager = new DefaultSecurityManager();
         PrincipalCollection principals = new SimplePrincipalCollection(USER_ID, "testrealm");
         Subject subject = new Subject.Builder(secManager).principals(principals)
-                .session(new SimpleSession()).authenticated(true).buildSubject();
+                .session(new SimpleSession())
+                .authenticated(true)
+                .buildSubject();
         ThreadContext.bind(secManager);
         ThreadContext.bind(subject);
     }

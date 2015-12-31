@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 
 package org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl;
@@ -96,13 +95,14 @@ public class GenericFeatureConverter extends AbstractFeatureConverter {
         Metacard metacard = (Metacard) value;
 
         // TODO when we have a reference to the MCT we can get the namespace too
-        QName qname = WfsQnameBuilder
-                .buildQName(metacard.getMetacardType().getName(), metacard.getContentTypeName());
+        QName qname = WfsQnameBuilder.buildQName(metacard.getMetacardType()
+                .getName(), metacard.getContentTypeName());
 
         writer.startNode(qname.getPrefix() + ":" + qname.getLocalPart());
 
         // Add the "fid" attribute if we have an ID
-        String fid = (String) metacard.getAttribute(Metacard.ID).getValue();
+        String fid = (String) metacard.getAttribute(Metacard.ID)
+                .getValue();
         if (fid != null) {
             writer.addAttribute(FID, fid);
         }
@@ -110,20 +110,27 @@ public class GenericFeatureConverter extends AbstractFeatureConverter {
         if (null != metacard.getLocation()) {
             Geometry geo = XmlNode.readGeometry(metacard.getLocation());
             if (geo != null && !geo.isEmpty()) {
-                XmlNode.writeEnvelope(WfsConstants.GML_PREFIX + ":" + "boundedBy", context, writer,
+                XmlNode.writeEnvelope(WfsConstants.GML_PREFIX + ":" + "boundedBy",
+                        context,
+                        writer,
                         geo.getEnvelopeInternal());
             }
         }
 
-        Set<AttributeDescriptor> descriptors = new TreeSet<AttributeDescriptor>(
-                new AttributeDescriptorComparator());
-        descriptors.addAll(metacard.getMetacardType().getAttributeDescriptors());
+        Set<AttributeDescriptor> descriptors =
+                new TreeSet<AttributeDescriptor>(new AttributeDescriptorComparator());
+        descriptors.addAll(metacard.getMetacardType()
+                .getAttributeDescriptors());
 
         for (AttributeDescriptor attributeDescriptor : descriptors) {
             Attribute attribute = metacard.getAttribute(attributeDescriptor.getName());
             if (attribute != null) {
-                writeAttributeToXml(attribute, qname,
-                        attributeDescriptor.getType().getAttributeFormat(), context, writer);
+                writeAttributeToXml(attribute,
+                        qname,
+                        attributeDescriptor.getType()
+                                .getAttributeFormat(),
+                        context,
+                        writer);
             }
         }
         writer.endNode();
@@ -188,7 +195,9 @@ public class GenericFeatureConverter extends AbstractFeatureConverter {
     @Override
     public Object unmarshal(HierarchicalStreamReader hreader, UnmarshallingContext context) {
 
-        LOGGER.debug("Entering: {} : unmarshal", this.getClass().getName());
+        LOGGER.debug("Entering: {} : unmarshal",
+                this.getClass()
+                        .getName());
 
         String fid = hreader.getAttribute(FID);
         MetacardImpl mc;
@@ -219,11 +228,12 @@ public class GenericFeatureConverter extends AbstractFeatureConverter {
 
         mc.setContentTypeName(metacardType.getName());
         try {
-            mc.setTargetNamespace(
-                    new URI(WfsConstants.NAMESPACE_URN_ROOT + metacardType.getName()));
+            mc.setTargetNamespace(new URI(
+                    WfsConstants.NAMESPACE_URN_ROOT + metacardType.getName()));
         } catch (URISyntaxException e) {
             LOGGER.warn("Unable to set Target Namespace on metacard: {}, Exception {}",
-                    WfsConstants.NAMESPACE_URN_ROOT + metacardType.getName(), e);
+                    WfsConstants.NAMESPACE_URN_ROOT + metacardType.getName(),
+                    e);
         }
 
         return mc;

@@ -17,7 +17,7 @@
     <type>http://purl.org/dc/dcmitype/Service</type>
     <abstract>Proin sit amet justo. In justo. Aenean adipiscing nulla id tellus.</abstract>
     <BoundingBox crs="urn:x-ogc:def:crs:EPSG:6.11:4326">
-      <LowerCorner>60.042 13.754</LowerCorner>
-      <UpperCorner>68.410 17.920</UpperCorner>
+        <LowerCorner>60.042 13.754</LowerCorner>
+        <UpperCorner>68.410 17.920</UpperCorner>
     </BoundingBox>
 </Record>

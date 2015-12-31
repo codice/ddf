@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -72,14 +72,19 @@ public abstract class SolrProviderTestCase {
     @BeforeClass
     public static void setup() throws Exception {
         LOGGER.info("RUNNING one-time setup.");
-        ConfigurationStore.getInstance().setInMemory(true);
-        ConfigurationStore.getInstance().setForceAutoCommit(true);
+        ConfigurationStore.getInstance()
+                .setInMemory(true);
+        ConfigurationStore.getInstance()
+                .setForceAutoCommit(true);
         ConfigurationFileProxy configurationFileProxy = new ConfigurationFileProxy(
                 ConfigurationStore.getInstance());
 
-        provider = new SolrCatalogProvider(SolrServerFactory
-                .getEmbeddedSolrServer("solrconfig-inmemory.xml", "schema.xml", configurationFileProxy),
-                new GeotoolsFilterAdapterImpl(), new SolrFilterDelegateFactoryImpl());
+        provider = new SolrCatalogProvider(SolrServerFactory.getEmbeddedSolrServer(
+                "solrconfig-inmemory.xml",
+                "schema.xml",
+                configurationFileProxy),
+                new GeotoolsFilterAdapterImpl(),
+                new SolrFilterDelegateFactoryImpl());
 
         // Mask the id, this is something that the CatalogFramework would
         // usually do
@@ -100,8 +105,8 @@ public abstract class SolrProviderTestCase {
 
     protected static void deleteAllIn(SolrCatalogProvider solrProvider, int methodNameIndex)
             throws IngestException, UnsupportedQueryException {
-        messageBreak(
-                Thread.currentThread().getStackTrace()[methodNameIndex].getMethodName() + "()");
+        messageBreak(Thread.currentThread()
+                .getStackTrace()[methodNameIndex].getMethodName() + "()");
 
         boolean isCaseSensitive = false;
         boolean isFuzzy = false;
@@ -115,7 +120,8 @@ public abstract class SolrProviderTestCase {
 
         List<String> ids = new ArrayList<String>();
         for (Result r : sourceResponse.getResults()) {
-            ids.add(r.getMetacard().getId());
+            ids.add(r.getMetacard()
+                    .getId());
         }
 
         LOGGER.info("Records found for deletion: {}", ids);
@@ -145,7 +151,9 @@ public abstract class SolrProviderTestCase {
         QueryRequest request = new QueryRequestImpl(query);
         SourceResponse response = provider.query(request);
 
-        assertEquals(count, response.getResults().size());
+        assertEquals(count,
+                response.getResults()
+                        .size());
     }
 
     protected DeleteResponse delete(String identifier) throws IngestException {
@@ -195,11 +203,13 @@ public abstract class SolrProviderTestCase {
     }
 
     protected Date dateAfterNow(DateTime now) {
-        return now.plusSeconds(A_LITTLE_WHILE).toDate();
+        return now.plusSeconds(A_LITTLE_WHILE)
+                .toDate();
     }
 
     protected Date dateBeforeNow(DateTime now) {
-        return now.minusSeconds(A_LITTLE_WHILE).toDate();
+        return now.minusSeconds(A_LITTLE_WHILE)
+                .toDate();
     }
 
     protected Date dateNow(DateTime now) {

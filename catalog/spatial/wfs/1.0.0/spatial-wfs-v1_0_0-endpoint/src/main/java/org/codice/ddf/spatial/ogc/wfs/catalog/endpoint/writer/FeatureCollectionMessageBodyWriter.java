@@ -47,7 +47,8 @@ public class FeatureCollectionMessageBodyWriter implements MessageBodyWriter<Wfs
 
     public FeatureCollectionMessageBodyWriter(SystemBaseUrl sbu) {
         xstream = new XStream(new EnhancedStaxDriver(new NoNameCoder()));
-        xstream.setClassLoader(xstream.getClass().getClassLoader());
+        xstream.setClassLoader(xstream.getClass()
+                .getClassLoader());
 
         featureCollectionConverter = new FeatureCollectionConverterWfs10();
         featureCollectionConverter.setContextRoot(sbu.getRootContext());

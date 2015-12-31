@@ -98,7 +98,7 @@
         <argument ref="queryResponseTransformerManager"/>
     </bean>
 
-    <reference id="cswRecordConverter" interface="com.thoughtworks.xstream.converters.Converter" />
+    <reference id="cswRecordConverter" interface="com.thoughtworks.xstream.converters.Converter"/>
 
     <bean id="transactionMessageBodyReader"
           class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.reader.TransactionMessageBodyReader">

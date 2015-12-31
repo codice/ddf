@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -29,7 +29,6 @@ import org.opengis.geometry.DirectPosition;
 import org.opengis.geometry.primitive.Point;
 
 import ddf.catalog.util.impl.ServiceSelector;
-
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 
@@ -53,7 +52,8 @@ public class GeoCoderEndpoint {
             @QueryParam("query") String query) {
 
         JSONObject jsonObject = doQuery(query);
-        return Response.ok(jsonp + "(" + jsonObject.toJSONString() + ")").build();
+        return Response.ok(jsonp + "(" + jsonObject.toJSONString() + ")")
+                .build();
     }
 
     JSONObject doQuery(String query) {
@@ -89,11 +89,13 @@ public class GeoCoderEndpoint {
         jsonObject.put("direction", nearbyLocation.getCardinalDirection());
         jsonObject.put("distance", nearbyLocation.getDistance());
         jsonObject.put("name", nearbyLocation.getName());
-        return Response.ok(jsonObject.toJSONString()).build();
+        return Response.ok(jsonObject.toJSONString())
+                .build();
     }
 
     void transformGeoResult(GeoResult geoResult, JSONArray resources) {
-        DirectPosition directPosition = geoResult.getPoint().getDirectPosition();
+        DirectPosition directPosition = geoResult.getPoint()
+                .getDirectPosition();
         double[] coords = directPosition.getCoordinate();
 
         double longitude = coords[0];
@@ -102,8 +104,10 @@ public class GeoCoderEndpoint {
         JSONObject resource = new JSONObject();
         JSONArray bbox = new JSONArray();
         List<Point> points = geoResult.getBbox();
-        DirectPosition upperCorner = points.get(0).getDirectPosition();
-        DirectPosition lowerCorner = points.get(1).getDirectPosition();
+        DirectPosition upperCorner = points.get(0)
+                .getDirectPosition();
+        DirectPosition lowerCorner = points.get(1)
+                .getDirectPosition();
         bbox.add(upperCorner.getCoordinate()[1]);
         bbox.add(upperCorner.getCoordinate()[0]);
         bbox.add(lowerCorner.getCoordinate()[1]);

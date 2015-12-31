@@ -31,7 +31,8 @@
     DDF started up.
     -->
     <reference-list id="managedServiceList"
-                    interface="org.codice.ddf.configuration.ConfigurationWatcher" availability="optional">
+                    interface="org.codice.ddf.configuration.ConfigurationWatcher"
+                    availability="optional">
         <reference-listener bind-method="bind" unbind-method="bind" ref="ConfigurationManager"/>
     </reference-list>
 
@@ -54,7 +55,7 @@
     <bean id="PlatformUiConfiguration" class="org.codice.ddf.configuration.PlatformUiConfiguration">
         <cm:managed-properties persistent-id="ddf.platform.ui.config"
                                update-strategy="container-managed"/>
-        <property name="branding" ref="branding" />
+        <property name="branding" ref="branding"/>
     </bean>
 
     <jaxrs:server id="platformConfigurationService" address="/platform">

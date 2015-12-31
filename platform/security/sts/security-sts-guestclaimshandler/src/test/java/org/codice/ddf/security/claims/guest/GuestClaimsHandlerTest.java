@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -48,12 +48,12 @@ public class GuestClaimsHandlerTest {
                 "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"));
         assertEquals("Guest", value.get(0));
 
-        value = claimsMap
-                .get(new URI("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"));
+        value = claimsMap.get(new URI(
+                "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"));
         assertEquals("Guest@guest.com", value.get(0));
 
-        value = claimsMap
-                .get(new URI("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname"));
+        value = claimsMap.get(new URI(
+                "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname"));
         assertEquals("Guest", value.get(0));
 
         claimsHandler = new GuestClaimsHandler();
@@ -64,12 +64,12 @@ public class GuestClaimsHandlerTest {
                 "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"));
         assertEquals("Guest", value.get(0));
 
-        value = claimsMap
-                .get(new URI("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"));
+        value = claimsMap.get(new URI(
+                "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"));
         assertEquals("Guest@guest.com", value.get(0));
 
-        value = claimsMap
-                .get(new URI("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname"));
+        value = claimsMap.get(new URI(
+                "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname"));
         assertEquals("Guest", value.get(0));
     }
 
@@ -83,13 +83,13 @@ public class GuestClaimsHandlerTest {
 
         ClaimCollection requestClaims = new ClaimCollection();
         Claim requestClaim = new Claim();
-        URI nameURI = new URI(
-                "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier");
+        URI nameURI =
+                new URI("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier");
         requestClaim.setClaimType(nameURI);
         requestClaims.add(requestClaim);
         requestClaim = new Claim();
-        URI emailURI = new URI(
-                "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress");
+        URI emailURI =
+                new URI("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress");
         requestClaim.setClaimType(emailURI);
         requestClaims.add(requestClaim);
         requestClaim = new Claim();
@@ -105,37 +105,47 @@ public class GuestClaimsHandlerTest {
 
         assertEquals(3, supportedClaims.size());
 
-        ProcessedClaimCollection claimsCollection = claimsHandler
-                .retrieveClaimValues(requestClaims, claimsParameters);
+        ProcessedClaimCollection claimsCollection = claimsHandler.retrieveClaimValues(requestClaims,
+                claimsParameters);
 
         assertEquals(3, claimsCollection.size());
 
         for (ProcessedClaim claim : claimsCollection) {
-            if (claim.getClaimType().equals(nameURI)) {
-                assertEquals(1, claim.getValues().size());
-                assertEquals("Guest", claim.getValues().get(0));
-            } else if (claim.getClaimType().equals(emailURI)) {
-                assertEquals(3, claim.getValues().size());
+            if (claim.getClaimType()
+                    .equals(nameURI)) {
+                assertEquals(1,
+                        claim.getValues()
+                                .size());
+                assertEquals("Guest",
+                        claim.getValues()
+                                .get(0));
+            } else if (claim.getClaimType()
+                    .equals(emailURI)) {
+                assertEquals(3,
+                        claim.getValues()
+                                .size());
                 List<Object> values = claim.getValues();
                 assertEquals("Guest@guest.com", values.get(0));
                 assertEquals("someguy@somesite.com", values.get(1));
                 assertEquals("somedude@cool.com", values.get(2));
-            } else if(claim.getClaimType().equals("IpAddress")) {
-                assertEquals("127.0.0.1", claim.getValues().get(0));
+            } else if (claim.getClaimType()
+                    .equals("IpAddress")) {
+                assertEquals("127.0.0.1",
+                        claim.getValues()
+                                .get(0));
             }
-            assertFalse(claim.getClaimType().equals(fooURI));
+            assertFalse(claim.getClaimType()
+                    .equals(fooURI));
         }
 
         claimsParameters = new ClaimsParameters();
-        claimsCollection = claimsHandler
-                .retrieveClaimValues(requestClaims, claimsParameters);
+        claimsCollection = claimsHandler.retrieveClaimValues(requestClaims, claimsParameters);
 
         assertEquals(2, claimsCollection.size());
 
         claimsParameters = new ClaimsParameters();
         claimsParameters.setPrincipal(new CustomTokenPrincipal("SomeValue"));
-        claimsCollection = claimsHandler
-                .retrieveClaimValues(requestClaims, claimsParameters);
+        claimsCollection = claimsHandler.retrieveClaimValues(requestClaims, claimsParameters);
 
         assertEquals(2, claimsCollection.size());
     }

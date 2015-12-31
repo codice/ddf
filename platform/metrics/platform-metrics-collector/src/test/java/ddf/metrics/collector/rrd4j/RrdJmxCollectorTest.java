@@ -48,8 +48,8 @@ public class RrdJmxCollectorTest {
     @Rule
     public TestName name = new TestName();
 
-    private static final transient Logger LOGGER = LoggerFactory
-            .getLogger(RrdJmxCollectorTest.class);
+    private static final transient Logger LOGGER =
+            LoggerFactory.getLogger(RrdJmxCollectorTest.class);
 
     private static final String TEST_DIR = "target/";
 
@@ -93,7 +93,8 @@ public class RrdJmxCollectorTest {
 
     @Test
     public void testConstruction() {
-        RrdJmxCollector jmxCollector = new RrdJmxCollector("java.lang:type=Runtime", "Uptime",
+        RrdJmxCollector jmxCollector = new RrdJmxCollector("java.lang:type=Runtime",
+                "Uptime",
                 name.getMethodName());
         assertThat(jmxCollector, not(nullValue()));
         assertThat(jmxCollector.getRrdDataSourceType(),
@@ -106,7 +107,9 @@ public class RrdJmxCollectorTest {
         String mbeanAttributeName = "Uptime";
         String metricName = name.getMethodName();
         int sampleRate = 1;
-        createJmxCollector(mbeanAttributeName, metricName, RrdJmxCollector.DERIVE_DATA_SOURCE_TYPE,
+        createJmxCollector(mbeanAttributeName,
+                metricName,
+                RrdJmxCollector.DERIVE_DATA_SOURCE_TYPE,
                 sampleRate);
 
         String rrdFilename = jmxCollector.getRrdPath();
@@ -153,7 +156,9 @@ public class RrdJmxCollectorTest {
         String mbeanAttributeName = "Uptime";
         String metricName = name.getMethodName();
         int sampleRate = 1;
-        createJmxCollector(mbeanAttributeName, metricName, RrdJmxCollector.GAUGE_DATA_SOURCE_TYPE,
+        createJmxCollector(mbeanAttributeName,
+                metricName,
+                RrdJmxCollector.GAUGE_DATA_SOURCE_TYPE,
                 sampleRate);
 
         String rrdFilename = jmxCollector.getRrdPath();
@@ -206,7 +211,9 @@ public class RrdJmxCollectorTest {
         String mbeanAttributeName = "Uptime";
         String metricName = name.getMethodName();
         int sampleRate = 1;
-        createJmxCollector(mbeanAttributeName, metricName, RrdJmxCollector.DERIVE_DATA_SOURCE_TYPE,
+        createJmxCollector(mbeanAttributeName,
+                metricName,
+                RrdJmxCollector.DERIVE_DATA_SOURCE_TYPE,
                 sampleRate);
 
         String rrdFilename1 = jmxCollector.getRrdPath();
@@ -221,7 +228,9 @@ public class RrdJmxCollectorTest {
         dataSourceName = mbeanAttributeName.toLowerCase();
 
         RrdJmxCollector jmxCollector2 = new RrdJmxCollector("java.lang:type=Runtime",
-                mbeanAttributeName, metricName, RrdJmxCollector.DERIVE_DATA_SOURCE_TYPE,
+                mbeanAttributeName,
+                metricName,
+                RrdJmxCollector.DERIVE_DATA_SOURCE_TYPE,
                 dataSourceName);
         jmxCollector2.setSampleRate(sampleRate);
         jmxCollector2.setMetricsDir(TEST_DIR);
@@ -243,7 +252,11 @@ public class RrdJmxCollectorTest {
         dataSourceName = mbeanAttributeName.toLowerCase();
         rrdPath = dataSourceName + ".rrd";
 
-        jmxCollector = new RrdJmxCollector("java.lang:type=Runtime", mbeanAttributeName, name.getMethodName(), RrdJmxCollector.DERIVE_DATA_SOURCE_TYPE, dataSourceName);
+        jmxCollector = new RrdJmxCollector("java.lang:type=Runtime",
+                mbeanAttributeName,
+                name.getMethodName(),
+                RrdJmxCollector.DERIVE_DATA_SOURCE_TYPE,
+                dataSourceName);
         jmxCollector.setRrdPath(rrdPath);
         jmxCollector.setSampleRate(1);
         jmxCollector.setMetricsDir(TEST_DIR);
@@ -258,7 +271,8 @@ public class RrdJmxCollectorTest {
         String mbeanAttributeName = "ClassPath";
         String metricName = mbeanAttributeName.toLowerCase();
 
-        jmxCollector = new RrdJmxCollector("java.lang:type=Runtime", mbeanAttributeName,
+        jmxCollector = new RrdJmxCollector("java.lang:type=Runtime",
+                mbeanAttributeName,
                 metricName);
         jmxCollector.setSampleRate(1);
         jmxCollector.setMetricsDir(TEST_DIR);
@@ -284,7 +298,9 @@ public class RrdJmxCollectorTest {
         String mbeanAttributeName = "Uptime";
         String metricName = mbeanAttributeName.toLowerCase();
 
-        jmxCollector = new RrdJmxCollector("java.lang:type=Runtime", mbeanAttributeName, metricName,
+        jmxCollector = new RrdJmxCollector("java.lang:type=Runtime",
+                mbeanAttributeName,
+                metricName,
                 "ABSOLUTE");
         jmxCollector.setSampleRate(1);
         jmxCollector.setMetricsDir(TEST_DIR);
@@ -296,7 +312,10 @@ public class RrdJmxCollectorTest {
     @Test
     public void testCounterDataSourceCollection() throws Exception {
         // Set sample rate to 1 sec (default is 60 seconds) so that unit test runs quickly
-        createJmxCollector("Uptime", name.getMethodName(), RrdJmxCollector.DERIVE_DATA_SOURCE_TYPE, 1);
+        createJmxCollector("Uptime",
+                name.getMethodName(),
+                RrdJmxCollector.DERIVE_DATA_SOURCE_TYPE,
+                1);
 
         // Wait for "n" iterations of RRDB's sample rate, then see if MBean value was collected
         collectData(4);
@@ -305,7 +324,10 @@ public class RrdJmxCollectorTest {
     @Test
     public void testGaugeDataSourceCollection() throws Exception {
         // Set sample rate to 1 sec (default is 60 seconds) so that unit test runs quickly
-        createJmxCollector("Uptime", name.getMethodName(), RrdJmxCollector.GAUGE_DATA_SOURCE_TYPE, 1);
+        createJmxCollector("Uptime",
+                name.getMethodName(),
+                RrdJmxCollector.GAUGE_DATA_SOURCE_TYPE,
+                1);
 
         // Wait for "n" iterations of RRDB's sample rate, then see if MBean value was collected
         collectData(4);
@@ -313,7 +335,10 @@ public class RrdJmxCollectorTest {
 
     @Test
     public void testManyUpdatesInRapidSuccession() throws Exception {
-        createJmxCollector("Uptime", name.getMethodName(), RrdJmxCollector.DERIVE_DATA_SOURCE_TYPE, 1);
+        createJmxCollector("Uptime",
+                name.getMethodName(),
+                RrdJmxCollector.DERIVE_DATA_SOURCE_TYPE,
+                1);
 
         // Set high update delta time so that samples will be skipped
         jmxCollector.setMinimumUpdateTimeDelta(3);
@@ -331,8 +356,11 @@ public class RrdJmxCollectorTest {
             String dataSourceType, int sampleRate) throws Exception {
         dataSourceName = mbeanAttributeName.toLowerCase();
 
-        jmxCollector = new RrdJmxCollector("java.lang:type=Runtime", mbeanAttributeName, metricName,
-                dataSourceType, dataSourceName);
+        jmxCollector = new RrdJmxCollector("java.lang:type=Runtime",
+                mbeanAttributeName,
+                metricName,
+                dataSourceType,
+                dataSourceName);
 
         jmxCollector.setSampleRate(sampleRate);
         jmxCollector.setMinimumUpdateTimeDelta(0);
@@ -353,7 +381,8 @@ public class RrdJmxCollectorTest {
 
         // LOGGER.debug(rrdDb.dump());
 
-        long endTime = Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTimeInMillis() / 1000;
+        long endTime = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
+                .getTimeInMillis() / 1000;
 
         // +1 because the fetch gets data for times inclusively, e.g.,
         // endTime=12345, so startTime=12345-4=12341,

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -64,8 +64,10 @@ public class HazelcastNotificationStore implements NotificationStore {
             cfg.setClassLoader(getClass().getClassLoader());
             NetworkConfig networkConfig = cfg.getNetworkConfig();
             JoinConfig join = networkConfig.getJoin();
-            join.getMulticastConfig().setEnabled(false);
-            join.getTcpIpConfig().setEnabled(false);
+            join.getMulticastConfig()
+                    .setEnabled(false);
+            join.getTcpIpConfig()
+                    .setEnabled(false);
             this.instance = Hazelcast.newHazelcastInstance(cfg);
         }
 
@@ -131,17 +133,18 @@ public class HazelcastNotificationStore implements NotificationStore {
 
     @Override
     public void putNotification(Map<String, String> notification) {
-        notificationsCache
-                .put(notification.get(PersistentNotification.NOTIFICATION_KEY_UUID), notification);
-        LOGGER.debug("Successfully cached notification for user = " + notification
-                .get(PersistentNotification.NOTIFICATION_KEY_USER_ID));
+        notificationsCache.put(notification.get(PersistentNotification.NOTIFICATION_KEY_UUID),
+                notification);
+        LOGGER.debug("Successfully cached notification for user = " + notification.get(
+                PersistentNotification.NOTIFICATION_KEY_USER_ID));
     }
 
     public void removeNotification(String notificationId, String userId) {
-        Map<String, String> notification = (Map<String, String>) notificationsCache
-                .get(notificationId);
+        Map<String, String> notification = (Map<String, String>) notificationsCache.get(
+                notificationId);
         if (notification != null) {
-            if (notification.get(PersistentNotification.NOTIFICATION_KEY_USER_ID).equals(userId)) {
+            if (notification.get(PersistentNotification.NOTIFICATION_KEY_USER_ID)
+                    .equals(userId)) {
                 notificationsCache.remove(notificationId);
             }
         } else {
@@ -153,8 +156,8 @@ public class HazelcastNotificationStore implements NotificationStore {
     @Override
     public List<Map<String, String>> getNotifications() {
         List<Map<String, String>> notificationsList = new ArrayList<Map<String, String>>();
-        Collection<Object> notifications = notificationsCache
-                .values(new SqlPredicate("userId LIKE '%'"));
+        Collection<Object> notifications = notificationsCache.values(new SqlPredicate(
+                "userId LIKE '%'"));
         for (Object notificationObj : notifications) {
             @SuppressWarnings("unchecked")
             Map<String, String> notificationMap = (Map<String, String>) notificationObj;
@@ -168,8 +171,8 @@ public class HazelcastNotificationStore implements NotificationStore {
     public List<Map<String, String>> getNotifications(String userId) {
         List<Map<String, String>> notificationsList = new ArrayList<Map<String, String>>();
         if (StringUtils.isNotBlank(userId)) {
-            Collection<Object> notifications = notificationsCache
-                    .values(new SqlPredicate("userId = '" + userId + "'"));
+            Collection<Object> notifications = notificationsCache.values(new SqlPredicate(
+                    "userId = '" + userId + "'"));
             for (Object notificationObj : notifications) {
                 @SuppressWarnings("unchecked")
                 Map<String, String> notificationMap = (Map<String, String>) notificationObj;

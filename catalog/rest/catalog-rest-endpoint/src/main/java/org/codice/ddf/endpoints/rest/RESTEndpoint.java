@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -98,8 +98,8 @@ public class RESTEndpoint implements RESTService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RESTEndpoint.class);
 
-    private static final Logger INGEST_LOGGER = LoggerFactory
-            .getLogger(Constants.INGEST_LOGGER_NAME);
+    private static final Logger INGEST_LOGGER =
+            LoggerFactory.getLogger(Constants.INGEST_LOGGER_NAME);
 
     private static final String HEADER_RANGE = "Range";
 
@@ -201,7 +201,10 @@ public class RESTEndpoint implements RESTService {
             try {
                 String transformer = DEFAULT_METACARD_TRANSFORMER;
 
-                Filter filter = getFilterBuilder().attribute(Metacard.ID).is().equalTo().text(id);
+                Filter filter = getFilterBuilder().attribute(Metacard.ID)
+                        .is()
+                        .equalTo()
+                        .text(id);
 
                 Collection<String> sources = null;
                 if (sourceid != null) {
@@ -219,7 +222,8 @@ public class RESTEndpoint implements RESTService {
                 // TODO: should be poll? do we want to specify a timeout? (will
                 // return null if timeout elapsed)
                 if (results != null && !results.isEmpty()) {
-                    card = results.get(0).getMetacard();
+                    card = results.get(0)
+                            .getMetacard();
                 }
 
                 if (card == null) {
@@ -228,8 +232,9 @@ public class RESTEndpoint implements RESTService {
                 }
 
                 LOGGER.debug("Calling transform.");
-                final BinaryContent content = catalogFramework
-                        .transform(card, transformer, convertedMap);
+                final BinaryContent content = catalogFramework.transform(card,
+                        transformer,
+                        convertedMap);
                 LOGGER.debug("Read and transform complete, preparing response.");
 
                 responseBuilder = Response.noContent();
@@ -267,23 +272,26 @@ public class RESTEndpoint implements RESTService {
                 LOGGER.warn(exceptionMessage, e);
                 throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
             } catch (CatalogTransformerException e) {
-                String exceptionMessage = "Unable to transform Metacard.  Try different transformer: ";
+                String exceptionMessage =
+                        "Unable to transform Metacard.  Try different transformer: ";
                 LOGGER.warn(exceptionMessage, e);
                 throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
             } catch (SourceUnavailableException e) {
-                String exceptionMessage = "Cannot obtain query results because source is unavailable: ";
+                String exceptionMessage =
+                        "Cannot obtain query results because source is unavailable: ";
                 LOGGER.warn(exceptionMessage, e);
                 throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
             } catch (UnsupportedQueryException e) {
-                String exceptionMessage = "Specified query is unsupported.  Change query and resubmit: ";
+                String exceptionMessage =
+                        "Specified query is unsupported.  Change query and resubmit: ";
                 LOGGER.warn(exceptionMessage, e);
                 throw new ServerErrorException(exceptionMessage, Status.BAD_REQUEST);
 
-            // The catalog framework will throw this if any of the transformers blow up. We need to
-            // catch this exception
-            // here or else execution will return to CXF and we'll lose this message and end up with
-            // a huge stack trace
-            // in a GUI or whatever else is connected to this endpoint
+                // The catalog framework will throw this if any of the transformers blow up. We need to
+                // catch this exception
+                // here or else execution will return to CXF and we'll lose this message and end up with
+                // a huge stack trace
+                // in a GUI or whatever else is connected to this endpoint
             } catch (IllegalArgumentException e) {
                 throw new ServerErrorException(e, Status.BAD_REQUEST);
             }
@@ -329,8 +337,8 @@ public class RESTEndpoint implements RESTService {
         JSONArray resultsList = new JSONArray();
         SourceInfoResponse sources;
         try {
-            SourceInfoRequestEnterprise sourceInfoRequestEnterprise = new SourceInfoRequestEnterprise(
-                    true);
+            SourceInfoRequestEnterprise sourceInfoRequestEnterprise =
+                    new SourceInfoRequestEnterprise(true);
 
             sources = catalogFramework.getSourceInfo(sourceInfoRequestEnterprise);
             for (SourceDescriptor source : sources.getSourceInfo()) {
@@ -344,7 +352,8 @@ public class RESTEndpoint implements RESTService {
                         if (contentType != null && contentType.getName() != null) {
                             JSONObject contentTypeObj = new JSONObject();
                             contentTypeObj.put("name", contentType.getName());
-                            contentTypeObj.put("version", contentType.getVersion() != null ?
+                            contentTypeObj.put("version",
+                                    contentType.getVersion() != null ?
                                             contentType.getVersion() :
                                             "");
                             contentTypesObj.add(contentTypeObj);
@@ -359,9 +368,8 @@ public class RESTEndpoint implements RESTService {
         }
 
         sourcesString = JSONValue.toJSONString(resultsList);
-        content = new BinaryContentImpl(
-                new ByteArrayInputStream(sourcesString.getBytes(StandardCharsets.UTF_8)),
-                jsonMimeType);
+        content = new BinaryContentImpl(new ByteArrayInputStream(sourcesString.getBytes(
+                StandardCharsets.UTF_8)), jsonMimeType);
         responseBuilder = Response.ok(content.getInputStream(), content.getMimeTypeValue());
 
         // Add the Accept-ranges header to let the client know that we accept ranges in bytes
@@ -412,7 +420,10 @@ public class RESTEndpoint implements RESTService {
                 if (transformerParam != null) {
                     transformer = transformerParam;
                 }
-                Filter filter = getFilterBuilder().attribute(Metacard.ID).is().equalTo().text(id);
+                Filter filter = getFilterBuilder().attribute(Metacard.ID)
+                        .is()
+                        .equalTo()
+                        .text(id);
 
                 Collection<String> sources = null;
                 if (sourceid != null) {
@@ -430,7 +441,8 @@ public class RESTEndpoint implements RESTService {
                 // TODO: should be poll? do we want to specify a timeout? (will
                 // return null if timeout elapsed)
                 if (results != null && !results.isEmpty()) {
-                    card = results.get(0).getMetacard();
+                    card = results.get(0)
+                            .getMetacard();
                 }
 
                 if (card == null) {
@@ -448,8 +460,9 @@ public class RESTEndpoint implements RESTService {
                 }
 
                 LOGGER.debug("Calling transform.");
-                final BinaryContent content = catalogFramework
-                        .transform(card, transformer, convertedMap);
+                final BinaryContent content = catalogFramework.transform(card,
+                        transformer,
+                        convertedMap);
                 LOGGER.debug("Read and transform complete, preparing response.");
 
                 responseBuilder = Response.ok(content.getInputStream(), content.getMimeTypeValue());
@@ -481,23 +494,26 @@ public class RESTEndpoint implements RESTService {
                 LOGGER.warn(exceptionMessage, e);
                 throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
             } catch (CatalogTransformerException e) {
-                String exceptionMessage = "Unable to transform Metacard.  Try different transformer: ";
+                String exceptionMessage =
+                        "Unable to transform Metacard.  Try different transformer: ";
                 LOGGER.warn(exceptionMessage, e);
                 throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
             } catch (SourceUnavailableException e) {
-                String exceptionMessage = "Cannot obtain query results because source is unavailable: ";
+                String exceptionMessage =
+                        "Cannot obtain query results because source is unavailable: ";
                 LOGGER.warn(exceptionMessage, e);
                 throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
             } catch (UnsupportedQueryException e) {
-                String exceptionMessage = "Specified query is unsupported.  Change query and resubmit: ";
+                String exceptionMessage =
+                        "Specified query is unsupported.  Change query and resubmit: ";
                 LOGGER.warn(exceptionMessage, e);
                 throw new ServerErrorException(exceptionMessage, Status.BAD_REQUEST);
-            // The catalog framework will throw this if any of the transformers blow up. We need to
+                // The catalog framework will throw this if any of the transformers blow up. We need to
 
-            // catch this exception
-            // here or else execution will return to CXF and we'll lose this message and end up with
-            // a huge stack trace
-            // in a GUI or whatever else is connected to this endpoint
+                // catch this exception
+                // here or else execution will return to CXF and we'll lose this message and end up with
+                // a huge stack trace
+                // in a GUI or whatever else is connected to this endpoint
             } catch (IllegalArgumentException e) {
                 throw new ServerErrorException(e, Status.BAD_REQUEST);
             }
@@ -532,13 +548,15 @@ public class RESTEndpoint implements RESTService {
             // Example Content-Type header:
             // Content-Type: application/json;id=geojson
             if (contentPart.getContentType() != null) {
-                contentType = contentPart.getContentType().toString();
+                contentType = contentPart.getContentType()
+                        .toString();
             }
 
             // Get the file contents as an InputStream and ensure the stream is positioned
             // at the beginning
             try {
-                stream = contentPart.getDataHandler().getInputStream();
+                stream = contentPart.getDataHandler()
+                        .getInputStream();
                 if (stream != null && stream.available() == 0) {
                     stream.reset();
                 }
@@ -565,12 +583,15 @@ public class RESTEndpoint implements RESTService {
             String metacardId = metacard.getId();
             LOGGER.debug("Metacard {} created", metacardId);
             LOGGER.debug("Transforming metacard {} to {} to be able to return it to client",
-                    metacardId, transformer);
+                    metacardId,
+                    transformer);
             final BinaryContent content = catalogFramework.transform(metacard, transformer, null);
-            LOGGER.debug("Metacard to {} transform complete for {}, preparing response.", transformer, metacardId);
+            LOGGER.debug("Metacard to {} transform complete for {}, preparing response.",
+                    transformer,
+                    metacardId);
 
-            Response.ResponseBuilder responseBuilder = Response
-                    .ok(content.getInputStream(), content.getMimeTypeValue());
+            Response.ResponseBuilder responseBuilder = Response.ok(content.getInputStream(),
+                    content.getMimeTypeValue());
             response = responseBuilder.build();
         } catch (MetacardCreationException | CatalogTransformerException e) {
             throw new ServerErrorException("Unable to create metacard", Status.BAD_REQUEST);
@@ -604,7 +625,8 @@ public class RESTEndpoint implements RESTService {
 
                 catalogFramework.update(updateReq);
                 LOGGER.debug("Metacard {} updated.", id);
-                response = Response.ok().build();
+                response = Response.ok()
+                        .build();
             } else {
                 String errorResponseString = "Both ID and content are needed to perform UPDATE.";
                 LOGGER.warn(errorResponseString);
@@ -643,16 +665,20 @@ public class RESTEndpoint implements RESTService {
         try {
             if (message != null) {
 
-                CreateRequestImpl createReq = new CreateRequestImpl(
-                        generateMetacard(mimeType, null, message));
+                CreateRequestImpl createReq = new CreateRequestImpl(generateMetacard(mimeType,
+                        null,
+                        message));
 
                 CreateResponse createResponse = catalogFramework.create(createReq);
 
-                String id = createResponse.getCreatedMetacards().get(0).getId();
+                String id = createResponse.getCreatedMetacards()
+                        .get(0)
+                        .getId();
 
                 LOGGER.debug("Create Response id [{}]", id);
 
-                UriBuilder uriBuilder = requestUriInfo.getAbsolutePathBuilder().path("/" + id);
+                UriBuilder uriBuilder = requestUriInfo.getAbsolutePathBuilder()
+                        .path("/" + id);
 
                 ResponseBuilder responseBuilder = Response.created(uriBuilder.build());
 
@@ -710,7 +736,8 @@ public class RESTEndpoint implements RESTService {
                 DeleteRequestImpl deleteReq = new DeleteRequestImpl(id);
 
                 catalogFramework.delete(deleteReq);
-                response = Response.ok(id).build();
+                response = Response.ok(id)
+                        .build();
                 LOGGER.debug("Attempting to delete Metacard with id: {}", id);
             } else {
                 String errorMessage = "ID of entry not specified, cannot do DELETE.";
@@ -718,7 +745,8 @@ public class RESTEndpoint implements RESTService {
                 throw new ServerErrorException(errorMessage, Status.BAD_REQUEST);
             }
         } catch (SourceUnavailableException ce) {
-            String exceptionMessage = "Could not delete entry from catalog since the source is unavailable: ";
+            String exceptionMessage =
+                    "Could not delete entry from catalog since the source is unavailable: ";
             LOGGER.warn(exceptionMessage, ce);
             throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
         } catch (IngestException e) {
@@ -750,8 +778,9 @@ public class RESTEndpoint implements RESTService {
     private Metacard generateMetacard(MimeType mimeType, String id, InputStream message)
             throws MetacardCreationException {
 
-        List<InputTransformer> listOfCandidates = mimeTypeToTransformerMapper
-                .findMatches(InputTransformer.class, mimeType);
+        List<InputTransformer> listOfCandidates = mimeTypeToTransformerMapper.findMatches(
+                InputTransformer.class,
+                mimeType);
 
         LOGGER.trace("Entering generateMetacard.");
         LOGGER.debug("List of matches for mimeType [{}]: {}", mimeType, listOfCandidates);
@@ -886,8 +915,8 @@ public class RESTEndpoint implements RESTService {
             if (rangeHeader.startsWith(BYTES_EQUAL)) {
                 String tempString = rangeHeader.substring(BYTES_EQUAL.length());
                 if (tempString.contains("-")) {
-                    response = rangeHeader
-                            .substring(BYTES_EQUAL.length(), rangeHeader.lastIndexOf("-"));
+                    response = rangeHeader.substring(BYTES_EQUAL.length(),
+                            rangeHeader.lastIndexOf("-"));
                 } else {
                     response = rangeHeader.substring(BYTES_EQUAL.length());
                 }

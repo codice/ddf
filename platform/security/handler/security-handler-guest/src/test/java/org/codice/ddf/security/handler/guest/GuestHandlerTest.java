@@ -61,8 +61,12 @@ public class GuestHandlerTest {
         assertNotNull(result);
         assertEquals(HandlerResult.Status.COMPLETED, result.getStatus());
         assertTrue(result.getToken() instanceof GuestAuthenticationToken);
-        assertEquals("Guest", result.getToken().getCredentials());
-        assertEquals(null, result.getToken().getRealm());
+        assertEquals("Guest",
+                result.getToken()
+                        .getCredentials());
+        assertEquals(null,
+                result.getToken()
+                        .getRealm());
         assertEquals("null-GuestHandler", result.getSource());
     }
 

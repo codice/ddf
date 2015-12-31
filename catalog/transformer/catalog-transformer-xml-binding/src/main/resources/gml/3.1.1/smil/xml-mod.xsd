@@ -19,22 +19,23 @@
 -->
 <schema targetNamespace="http://www.w3.org/XML/1998/namespace"
         xmlns="http://www.w3.org/2001/XMLSchema">
-	<attribute name="lang" type="language">
-		<annotation>
-			<documentation>In due course, we should install the relevant ISO 2- and 3-letter
-                codes as the enumerated possible values . . .</documentation>
-		</annotation>
-	</attribute>
-	<attribute name="space" default="preserve">
-		<simpleType>
-			<restriction base="NCName">
-				<enumeration value="default"/>
-				<enumeration value="preserve"/>
-			</restriction>
-		</simpleType>
-	</attribute>
-	<attributeGroup name="specialAttrs">
-		<attribute ref="xml:lang"/>
-		<attribute ref="xml:space"/>
-	</attributeGroup>
+    <attribute name="lang" type="language">
+        <annotation>
+            <documentation>In due course, we should install the relevant ISO 2- and 3-letter
+                codes as the enumerated possible values . . .
+            </documentation>
+        </annotation>
+    </attribute>
+    <attribute name="space" default="preserve">
+        <simpleType>
+            <restriction base="NCName">
+                <enumeration value="default"/>
+                <enumeration value="preserve"/>
+            </restriction>
+        </simpleType>
+    </attribute>
+    <attributeGroup name="specialAttrs">
+        <attribute ref="xml:lang"/>
+        <attribute ref="xml:space"/>
+    </attributeGroup>
 </schema>

@@ -44,7 +44,6 @@ import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.UnsupportedQueryException;
 
-
 /**
  * Command used to remove all or a subset of records (in bulk) from the Catalog.
  */
@@ -59,13 +58,16 @@ public class RemoveAllCommand extends CatalogCommands {
 
     static final String PROGRESS_FORMAT = " Currently %1$s record(s) removed out of %2$s \r";
 
-    static final String BATCH_SIZE_ERROR_MESSAGE_FORMAT = "Improper batch size [%1$s]. For help with usage: removeall --help";
+    static final String BATCH_SIZE_ERROR_MESSAGE_FORMAT =
+            "Improper batch size [%1$s]. For help with usage: removeall --help";
 
-    static final String WARNING_MESSAGE_FORMAT_CATALOG_REMOVAL = "WARNING: This will permanently remove all %1$s"
-            + "records from the Catalog. Do you want to proceed? (yes/no): ";
+    static final String WARNING_MESSAGE_FORMAT_CATALOG_REMOVAL =
+            "WARNING: This will permanently remove all %1$s"
+                    + "records from the Catalog. Do you want to proceed? (yes/no): ";
 
-    static final String WARNING_MESSAGE_FORMAT_CACHE_REMOVAL = "WARNING: This will permanently remove all %1$s"
-            + "records from the cache. Do you want to proceed? (yes/no): ";
+    static final String WARNING_MESSAGE_FORMAT_CACHE_REMOVAL =
+            "WARNING: This will permanently remove all %1$s"
+                    + "records from the cache. Do you want to proceed? (yes/no): ";
 
     private static final int DEFAULT_BATCH_SIZE = 100;
 
@@ -163,7 +165,8 @@ public class RemoveAllCommand extends CatalogCommands {
 
         String totalAmount = getTotalAmount(response.getHits());
 
-        while (response.getResults().size() > 0) {
+        while (response.getResults()
+                .size() > 0) {
 
             List<String> ids = new ArrayList<String>();
 
@@ -181,7 +184,8 @@ public class RemoveAllCommand extends CatalogCommands {
 
             DeleteResponse deleteResponse = catalog.delete(request);
 
-            int amountDeleted = deleteResponse.getDeletedMetacards().size();
+            int amountDeleted = deleteResponse.getDeletedMetacards()
+                    .size();
 
             totalAmountDeleted += amountDeleted;
             console.print(String.format(PROGRESS_FORMAT, totalAmountDeleted, totalAmount));
@@ -198,7 +202,8 @@ public class RemoveAllCommand extends CatalogCommands {
 
         long end = System.currentTimeMillis();
 
-        String info = String.format(" %d file(s) removed in %3.3f seconds%n", totalAmountDeleted,
+        String info = String.format(" %d file(s) removed in %3.3f seconds%n",
+                totalAmountDeleted,
                 (end - start) / MS_PER_SECOND);
 
         LOGGER.info(info);
@@ -212,8 +217,8 @@ public class RemoveAllCommand extends CatalogCommands {
 
     private boolean needsAlternateQueryAndResponse(SourceResponse response) {
 
-        Set<ProcessingDetails> processingDetails = (Set<ProcessingDetails>) response
-                .getProcessingDetails();
+        Set<ProcessingDetails> processingDetails =
+                (Set<ProcessingDetails>) response.getProcessingDetails();
 
         if (processingDetails == null || processingDetails.iterator() == null) {
             return false;
@@ -224,8 +229,9 @@ public class RemoveAllCommand extends CatalogCommands {
         while (iterator.hasNext()) {
 
             ProcessingDetails next = iterator.next();
-            if (next != null && next.getException() != null
-                    && next.getException().getMessage() != null && next.getException().getMessage()
+            if (next != null && next.getException() != null && next.getException()
+                    .getMessage() != null && next.getException()
+                    .getMessage()
                     .contains(UnsupportedQueryException.class.getSimpleName())) {
                 return true;
             }
@@ -241,12 +247,14 @@ public class RemoveAllCommand extends CatalogCommands {
 
             //use a message specific to whether they
             //are removing from cache or the catalog
-            String warning = (this.cache ? WARNING_MESSAGE_FORMAT_CACHE_REMOVAL :
-                                           WARNING_MESSAGE_FORMAT_CATALOG_REMOVAL);
+            String warning = (this.cache ?
+                    WARNING_MESSAGE_FORMAT_CACHE_REMOVAL :
+                    WARNING_MESSAGE_FORMAT_CATALOG_REMOVAL);
             System.err.println(String.format(warning, (expired ? "expired " : "")));
             System.err.flush();
             while (true) {
-                int byteOfData = session.getKeyboard().read();
+                int byteOfData = session.getKeyboard()
+                        .read();
 
                 if (byteOfData < 0) {
                     // end of stream
@@ -280,10 +288,15 @@ public class RemoveAllCommand extends CatalogCommands {
     private QueryRequest getIntendedQuery(FilterBuilder filterBuilder, boolean isRequestForTotal)
             throws InterruptedException {
 
-        Filter filter = filterBuilder.attribute(Metacard.ID).is().like().text(WILDCARD);
+        Filter filter = filterBuilder.attribute(Metacard.ID)
+                .is()
+                .like()
+                .text(WILDCARD);
 
         if (expired) {
-            filter = filterBuilder.attribute(Metacard.EXPIRATION).before().date(new Date());
+            filter = filterBuilder.attribute(Metacard.EXPIRATION)
+                    .before()
+                    .date(new Date());
         }
 
         QueryImpl query = new QueryImpl(filter);
@@ -301,14 +314,18 @@ public class RemoveAllCommand extends CatalogCommands {
     private QueryRequest getAlternateQuery(FilterBuilder filterBuilder, boolean isRequestForTotal)
             throws InterruptedException {
 
-        Filter filter = filterBuilder.attribute(Metacard.ANY_TEXT).is().like().text(WILDCARD);
+        Filter filter = filterBuilder.attribute(Metacard.ANY_TEXT)
+                .is()
+                .like()
+                .text(WILDCARD);
 
         if (expired) {
             DateTime twoThousandYearsAgo = new DateTime().minusYears(2000);
 
             // less accurate than a Before filter, this is only used for those
             // Sources who cannot understand the Before filter.
-            filter = filterBuilder.attribute(Metacard.EXPIRATION).during()
+            filter = filterBuilder.attribute(Metacard.EXPIRATION)
+                    .during()
                     .dates(twoThousandYearsAgo.toDate(), new Date());
         }
 

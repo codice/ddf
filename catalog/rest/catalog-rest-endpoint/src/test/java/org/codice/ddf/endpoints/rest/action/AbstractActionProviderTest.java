@@ -36,14 +36,20 @@ public class AbstractActionProviderTest {
     protected static final String ACTION_PROVIDER_ID = "catalog.view.metacard";
 
     protected void configureActionProvider() {
-        configureActionProvider(SAMPLE_PROTOCOL, SAMPLE_IP, SAMPLE_PORT, SAMPLE_SERVICES_ROOT,
+        configureActionProvider(SAMPLE_PROTOCOL,
+                SAMPLE_IP,
+                SAMPLE_PORT,
+                SAMPLE_SERVICES_ROOT,
                 SAMPLE_SOURCE_NAME);
     }
 
     protected void configureSecureActionProvider() {
 
-        configureActionProvider(SAMPLE_SECURE_PROTOCOL, SAMPLE_IP, SAMPLE_SECURE_PORT,
-                SAMPLE_SERVICES_ROOT, SAMPLE_SOURCE_NAME);
+        configureActionProvider(SAMPLE_SECURE_PROTOCOL,
+                SAMPLE_IP,
+                SAMPLE_SECURE_PORT,
+                SAMPLE_SERVICES_ROOT,
+                SAMPLE_SOURCE_NAME);
     }
 
     protected void configureActionProvider(String protocol, String host, String port,

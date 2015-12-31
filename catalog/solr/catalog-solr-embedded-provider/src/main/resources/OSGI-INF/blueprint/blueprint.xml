@@ -13,25 +13,25 @@
 -->
 <blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
            xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
-	
-	<bean id="configurationStore" class="org.codice.solr.factory.ConfigurationStore"
+
+    <bean id="configurationStore" class="org.codice.solr.factory.ConfigurationStore"
           factory-method="getInstance">
-		<cm:managed-properties persistent-id="ddf.catalog.source.solr.SolrCatalogProvider"
+        <cm:managed-properties persistent-id="ddf.catalog.source.solr.SolrCatalogProvider"
                                update-strategy="container-managed"/>
-	</bean>
+    </bean>
 
     <!-- Used to tell where to lay down data directory on the disk -->
     <bean id="configFileProxy" class="org.codice.solr.factory.ConfigurationFileProxy">
-		<argument ref="configurationStore"/>
-	</bean>
+        <argument ref="configurationStore"/>
+    </bean>
 
     <!-- The Solr Server that will be handling the requests -->
     <bean id="solrServer" class="org.codice.solr.factory.SolrServerFactory"
           factory-method="getEmbeddedSolrServer">
-		<argument value="solrconfig.xml"/>
-		<argument value="schema.xml"/>
-		<argument ref="configFileProxy"/>
-	</bean>
+        <argument value="solrconfig.xml"/>
+        <argument value="schema.xml"/>
+        <argument ref="configFileProxy"/>
+    </bean>
 
     <!-- Get reference to Filter Adapter implementation -->
     <reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>
@@ -39,14 +39,14 @@
     <!-- Create the SolrCatalogProvider with the solrServer -->
     <bean id="solrCatalogProvider" class="ddf.catalog.source.solr.SolrCatalogProvider"
           destroy-method="shutdown">
-		<argument ref="solrServer"/>
-		<argument ref="filterAdapter"/>
-		<argument>
-			<bean class="ddf.catalog.source.solr.SolrFilterDelegateFactoryImpl"/>
-		</argument>
-	</bean>
+        <argument ref="solrServer"/>
+        <argument ref="filterAdapter"/>
+        <argument>
+            <bean class="ddf.catalog.source.solr.SolrFilterDelegateFactoryImpl"/>
+        </argument>
+    </bean>
 
     <!-- Register the Catalog Provider in the OSGi Service Registry -->
     <service ref="solrCatalogProvider" interface="ddf.catalog.source.CatalogProvider"/>
-	
+
 </blueprint>

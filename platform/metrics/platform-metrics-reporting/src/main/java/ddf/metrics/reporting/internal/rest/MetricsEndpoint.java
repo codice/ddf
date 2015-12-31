@@ -194,8 +194,8 @@ public class MetricsEndpoint {
         Response response = null;
 
         // Client must specify *either* startDate and/or endDate *OR* dateOffset
-        if (!StringUtils.isBlank(dateOffset) && (!StringUtils.isBlank(startDate) || !StringUtils
-                .isBlank(endDate))) {
+        if (!StringUtils.isBlank(dateOffset) && (!StringUtils.isBlank(startDate)
+                || !StringUtils.isBlank(endDate))) {
             throw new MetricsEndpointException(
                     "Cannot specify dateOffset and startDate or endDate, must specify either dateOffset only or startDate and/or endDate",
                     Response.Status.BAD_REQUEST);
@@ -259,11 +259,15 @@ public class MetricsEndpoint {
         if (outputFormat.equalsIgnoreCase(PNG_FORMAT)) {
             LOGGER.trace("Retrieving PNG-formatted data for metric " + metricName);
             try {
-                byte[] metricsGraphBytes = metricsRetriever
-                        .createGraph(metricName, rrdFilename, startTime, endTime, yAxisLabel,
-                                title);
+                byte[] metricsGraphBytes = metricsRetriever.createGraph(metricName,
+                        rrdFilename,
+                        startTime,
+                        endTime,
+                        yAxisLabel,
+                        title);
                 ByteArrayInputStream bis = new ByteArrayInputStream(metricsGraphBytes);
-                response = Response.ok(bis, PNG_MIME_TYPE).build();
+                response = Response.ok(bis, PNG_MIME_TYPE)
+                        .build();
             } catch (IOException e) {
                 LOGGER.warn("Could not create graph for metric " + metricName);
                 throw new MetricsEndpointException(
@@ -295,10 +299,12 @@ public class MetricsEndpoint {
         } else if (outputFormat.equalsIgnoreCase("xls")) {
             LOGGER.trace("Retrieving XLS-formatted data for metric " + metricName);
             try {
-                OutputStream os = metricsRetriever
-                        .createXlsData(metricName, rrdFilename, startTime, endTime);
-                InputStream is = new ByteArrayInputStream(
-                        ((ByteArrayOutputStream) os).toByteArray());
+                OutputStream os = metricsRetriever.createXlsData(metricName,
+                        rrdFilename,
+                        startTime,
+                        endTime);
+                InputStream is =
+                        new ByteArrayInputStream(((ByteArrayOutputStream) os).toByteArray());
                 ResponseBuilder responseBuilder = Response.ok(is);
                 responseBuilder.type("application/vnd.ms-excel");
                 response = responseBuilder.build();
@@ -316,10 +322,12 @@ public class MetricsEndpoint {
         } else if (outputFormat.equalsIgnoreCase("ppt")) {
             LOGGER.trace("Retrieving PPT-formatted data for metric " + metricName);
             try {
-                OutputStream os = metricsRetriever
-                        .createPptData(metricName, rrdFilename, startTime, endTime);
-                InputStream is = new ByteArrayInputStream(
-                        ((ByteArrayOutputStream) os).toByteArray());
+                OutputStream os = metricsRetriever.createPptData(metricName,
+                        rrdFilename,
+                        startTime,
+                        endTime);
+                InputStream is =
+                        new ByteArrayInputStream(((ByteArrayOutputStream) os).toByteArray());
                 ResponseBuilder responseBuilder = Response.ok(is);
                 responseBuilder.type("application/vnd.ms-powerpoint");
                 response = responseBuilder.build();
@@ -337,8 +345,10 @@ public class MetricsEndpoint {
         } else if (outputFormat.equalsIgnoreCase("xml")) {
             LOGGER.trace("Retrieving XML-formatted data for metric " + metricName);
             try {
-                String xmlData = metricsRetriever
-                        .createXmlData(metricName, rrdFilename, startTime, endTime);
+                String xmlData = metricsRetriever.createXmlData(metricName,
+                        rrdFilename,
+                        startTime,
+                        endTime);
                 ResponseBuilder responseBuilder = Response.ok(xmlData);
                 responseBuilder.type("text/xml");
                 response = responseBuilder.build();
@@ -356,8 +366,10 @@ public class MetricsEndpoint {
         } else if (outputFormat.equalsIgnoreCase("json")) {
             LOGGER.trace("Retrieving JSON-formatted data for metric " + metricName);
             try {
-                String jsonData = metricsRetriever
-                        .createJsonData(metricName, rrdFilename, startTime, endTime);
+                String jsonData = metricsRetriever.createJsonData(metricName,
+                        rrdFilename,
+                        startTime,
+                        endTime);
                 ResponseBuilder responseBuilder = Response.ok(jsonData);
                 responseBuilder.type("application/json");
                 response = responseBuilder.build();
@@ -395,7 +407,8 @@ public class MetricsEndpoint {
 
         List<String> metricNames = getMetricsNames();
 
-        Map<String, Map<String, Map<String, String>>> metrics = new LinkedHashMap<String, Map<String, Map<String, String>>>();
+        Map<String, Map<String, Map<String, String>>> metrics =
+                new LinkedHashMap<String, Map<String, Map<String, String>>>();
         for (String metricName : metricNames) {
             generateMetricsUrls(metrics, metricName, uriInfo);
         }
@@ -403,7 +416,8 @@ public class MetricsEndpoint {
         String jsonText = JSONValue.toJSONString(metrics);
         LOGGER.trace(jsonText);
 
-        response = Response.ok(jsonText).build();
+        response = Response.ok(jsonText)
+                .build();
 
         return response;
     }
@@ -458,8 +472,8 @@ public class MetricsEndpoint {
         Response response = null;
 
         // Client must specify *either* startDate and/or endDate *OR* dateOffset
-        if (!StringUtils.isBlank(dateOffset) && (!StringUtils.isBlank(startDate) || !StringUtils
-                .isBlank(endDate))) {
+        if (!StringUtils.isBlank(dateOffset) && (!StringUtils.isBlank(startDate)
+                || !StringUtils.isBlank(endDate))) {
             throw new MetricsEndpointException(
                     "Cannot specify dateOffset and startDate or endDate, must specify either dateOffset only or startDate and/or endDate",
                     Response.Status.BAD_REQUEST);
@@ -511,30 +525,33 @@ public class MetricsEndpoint {
 
         // Generated name for metrics file (<DDF Sitename>_<Startdate>_<EndDate>.outputFormat)
         String dispositionString =
-                "attachment; filename=" + systemInfo.getSiteName() + "_" + startDate
-                        .substring(0, 10) + "_" + endDate.substring(0, 10) + "." + outputFormat;
+                "attachment; filename=" + systemInfo.getSiteName() + "_" + startDate.substring(0,
+                        10) + "_" + endDate.substring(0, 10) + "." + outputFormat;
 
         try {
             if (outputFormat.equalsIgnoreCase("xls")) {
-                OutputStream os = metricsRetriever
-                        .createXlsReport(metricNames, metricsDir, startTime, endTime,
-                                summaryInterval);
-                InputStream is = new ByteArrayInputStream(
-                        ((ByteArrayOutputStream) os).toByteArray());
+                OutputStream os = metricsRetriever.createXlsReport(metricNames,
+                        metricsDir,
+                        startTime,
+                        endTime,
+                        summaryInterval);
+                InputStream is =
+                        new ByteArrayInputStream(((ByteArrayOutputStream) os).toByteArray());
                 ResponseBuilder responseBuilder = Response.ok(is);
                 responseBuilder.type("application/vnd.ms-excel");
                 responseBuilder.header("Content-Disposition", dispositionString);
                 response = responseBuilder.build();
             } else if (outputFormat.equalsIgnoreCase("ppt")) {
                 if (StringUtils.isNotEmpty(summaryInterval)) {
-                    throw new MetricsEndpointException(
-                            "Summary interval not allowed for ppt format",
+                    throw new MetricsEndpointException("Summary interval not allowed for ppt format",
                             Response.Status.BAD_REQUEST);
                 }
-                OutputStream os = metricsRetriever
-                        .createPptReport(metricNames, metricsDir, startTime, endTime);
-                InputStream is = new ByteArrayInputStream(
-                        ((ByteArrayOutputStream) os).toByteArray());
+                OutputStream os = metricsRetriever.createPptReport(metricNames,
+                        metricsDir,
+                        startTime,
+                        endTime);
+                InputStream is =
+                        new ByteArrayInputStream(((ByteArrayOutputStream) os).toByteArray());
                 ResponseBuilder responseBuilder = Response.ok(is);
                 responseBuilder.type("application/vnd.ms-powerpoint");
                 responseBuilder.header("Content-Disposition", dispositionString);
@@ -567,7 +584,8 @@ public class MetricsEndpoint {
      */
     protected long parseDate(String date) {
         DateTimeFormatter dateFormatter = ISODateTimeFormat.dateTimeNoMillis();
-        Date formattedDate = dateFormatter.parseDateTime(date).toDate();
+        Date formattedDate = dateFormatter.parseDateTime(date)
+                .toDate();
 
         return formattedDate.getTime() / 1000;
     }
@@ -608,9 +626,10 @@ public class MetricsEndpoint {
         // Example:
         // key="15m"
         // value=[("PNG", "http://host:port/.../catalogQueries.png?dateOffset=900),("CSV", ...)]
-        SortedMap<String, Map<String, String>> metricTimeRangeLinks = new TreeMap<String, Map<String, String>>(
-                new MetricsTimeRangeComparator());
-        Iterator timeRangesIter = TIME_RANGES.entrySet().iterator();
+        SortedMap<String, Map<String, String>> metricTimeRangeLinks =
+                new TreeMap<String, Map<String, String>>(new MetricsTimeRangeComparator());
+        Iterator timeRangesIter = TIME_RANGES.entrySet()
+                .iterator();
         while (timeRangesIter.hasNext()) {
             Map.Entry entry = (Map.Entry) timeRangesIter.next();
             String timeRange = (String) entry.getKey();
@@ -680,8 +699,8 @@ public class MetricsEndpoint {
         List<String> metricNames = new ArrayList<String>();
         if (rrdFiles != null) {
             for (String rrdFile : rrdFiles) {
-                String metricsName =
-                        FilenameUtils.getFullPath(rrdFile) + FilenameUtils.getBaseName(rrdFile);
+                String metricsName = FilenameUtils.getFullPath(rrdFile) + FilenameUtils.getBaseName(
+                        rrdFile);
                 metricNames.add(metricsName);
             }
         }

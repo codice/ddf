@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -61,8 +61,8 @@ public final class RestSecurity {
      * @throws NullPointerException if client is null
      */
     public static void setSubjectOnClient(Subject subject, Client client) {
-        if (client != null && subject != null && "https"
-                .equalsIgnoreCase(client.getCurrentURI().getScheme())) {
+        if (client != null && subject != null && "https".equalsIgnoreCase(client.getCurrentURI()
+                .getScheme())) {
             String encodedSamlHeader = createSamlHeader(subject);
             if (encodedSamlHeader == null) {
                 LOGGER.debug("SAML Header was null. Unable to set the header for the client.");
@@ -74,15 +74,17 @@ public final class RestSecurity {
 
     public static void setUserOnClient(String username, String password, Client client) {
         if (client != null && username != null && password != null) {
-            if (!StringUtils.startsWithIgnoreCase(client.getCurrentURI().getScheme(), "https")) {
-                if (Boolean.valueOf(
-                        System.getProperty("org.codice.allowBasicAuthOverHttp", "false"))) {
+            if (!StringUtils.startsWithIgnoreCase(client.getCurrentURI()
+                    .getScheme(), "https")) {
+                if (Boolean.valueOf(System.getProperty("org.codice.allowBasicAuthOverHttp",
+                        "false"))) {
                     LOGGER.warn(
                             "CAUTION: Passing username & password on an un-encrypted protocol [{}]."
-                                    + " This is a security issue. ", client.getCurrentURI());
+                                    + " This is a security issue. ",
+                            client.getCurrentURI());
                     SecurityLogger.logWarn(
-                            "Passing username & password on an un-encrypted protocol [" + client
-                                    .getCurrentURI() + "].");
+                            "Passing username & password on an un-encrypted protocol ["
+                                    + client.getCurrentURI() + "].");
                 } else {
                     LOGGER.warn(
                             "Passing username & password is not allowed on an un-encrypted protocol [{}].",
@@ -91,8 +93,8 @@ public final class RestSecurity {
                 }
             }
             String basicCredentials = username + ":" + password;
-            String encodedHeader = BASIC_HEADER_PREFIX + new String(
-                    Base64.encodeBase64(basicCredentials.getBytes()));
+            String encodedHeader = BASIC_HEADER_PREFIX + new String(Base64.encodeBase64(
+                    basicCredentials.getBytes()));
             client.header(AUTH_HEADER, encodedHeader);
         }
     }
@@ -107,10 +109,11 @@ public final class RestSecurity {
         String encodedSamlHeader = null;
         org.w3c.dom.Element samlToken = null;
         try {
-            for (Object principal : subject.getPrincipals().asList()) {
+            for (Object principal : subject.getPrincipals()
+                    .asList()) {
                 if (principal instanceof SecurityAssertion) {
-                    SecurityToken securityToken = ((SecurityAssertion) principal)
-                            .getSecurityToken();
+                    SecurityToken securityToken =
+                            ((SecurityAssertion) principal).getSecurityToken();
                     samlToken = securityToken.getToken();
                 }
             }

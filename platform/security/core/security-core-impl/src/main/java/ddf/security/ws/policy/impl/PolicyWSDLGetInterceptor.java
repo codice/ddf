@@ -66,8 +66,8 @@ public class PolicyWSDLGetInterceptor extends WSDLGetInterceptor {
         this.loader = loader;
         BundleContext bundleCtx = FrameworkUtil.getBundle(PolicyWSDLGetInterceptor.class)
                 .getBundleContext();
-        addressProvider = bundleCtx
-                .getService(bundleCtx.getServiceReference(StsAddressProvider.class));
+        addressProvider =
+                bundleCtx.getService(bundleCtx.getServiceReference(StsAddressProvider.class));
     }
 
     // Majority of this method is from the WSDLGetInterceptor, in-line comments
@@ -85,8 +85,12 @@ public class PolicyWSDLGetInterceptor extends WSDLGetInterceptor {
         String ctx = (String) message.get(Message.PATH_INFO);
 
         Map<String, String> map = UrlUtils.parseQueryString(query);
-        if (isRecognizedQuery(map, baseUri, ctx,
-                message.getExchange().getEndpoint().getEndpointInfo())) {
+        if (isRecognizedQuery(map,
+                baseUri,
+                ctx,
+                message.getExchange()
+                        .getEndpoint()
+                        .getEndpointInfo())) {
             Document doc = getDocument(message, baseUri, map, ctx);
 
             // DDF- start ADDED code
@@ -96,13 +100,15 @@ public class PolicyWSDLGetInterceptor extends WSDLGetInterceptor {
             }
             // DDF- end of ADDED code
 
-            Endpoint e = message.getExchange().get(Endpoint.class);
+            Endpoint e = message.getExchange()
+                    .get(Endpoint.class);
             Message mout = new MessageImpl();
             mout.setExchange(message.getExchange());
-            mout = e.getBinding().createMessage(mout);
-            mout.setInterceptorChain(
-                    OutgoingChainInterceptor.getOutInterceptorChain(message.getExchange()));
-            message.getExchange().setOutMessage(mout);
+            mout = e.getBinding()
+                    .createMessage(mout);
+            mout.setInterceptorChain(OutgoingChainInterceptor.getOutInterceptorChain(message.getExchange()));
+            message.getExchange()
+                    .setOutMessage(mout);
 
             mout.put(DOCUMENT_HOLDER, doc);
             mout.put(Message.CONTENT_TYPE, "text/xml");
@@ -111,10 +117,12 @@ public class PolicyWSDLGetInterceptor extends WSDLGetInterceptor {
             cleanUpOutInterceptors(mout);
 
             // notice this is being added after the purge above, don't swap the order!
-            mout.getInterceptorChain().add(WSDLGetOutInterceptor.INSTANCE);
+            mout.getInterceptorChain()
+                    .add(WSDLGetOutInterceptor.INSTANCE);
 
             // DDF- CHANGED TRANSFORM_SKIP to transform.skip because private field 
-            message.getExchange().put("transform.skip", Boolean.TRUE);
+            message.getExchange()
+                    .put("transform.skip", Boolean.TRUE);
             // skip the service executor and goto the end of the chain.
             message.getInterceptorChain()
                     .doInterceptStartingAt(message, OutgoingChainInterceptor.class.getName());
@@ -127,10 +135,12 @@ public class PolicyWSDLGetInterceptor extends WSDLGetInterceptor {
             return doc;
         }
         Element de = doc.getDocumentElement();
-        XPath xPath = XPathFactory.newInstance().newXPath();
-        String xPathString = String
-                .format("//@*[starts-with(.,\"%s\")] | //text()[starts-with(.,\"%s\")]",
-                        DEFAULT_ADDRESS, DEFAULT_ADDRESS);
+        XPath xPath = XPathFactory.newInstance()
+                .newXPath();
+        String xPathString = String.format(
+                "//@*[starts-with(.,\"%s\")] | //text()[starts-with(.,\"%s\")]",
+                DEFAULT_ADDRESS,
+                DEFAULT_ADDRESS);
         NodeList nodes;
         try {
             nodes = (NodeList) xPath.evaluate(xPathString, de, XPathConstants.NODESET);
@@ -140,7 +150,8 @@ public class PolicyWSDLGetInterceptor extends WSDLGetInterceptor {
         }
         for (int i = 0; i < nodes.getLength(); i++) {
             Node node = nodes.item(i);
-            node.setNodeValue(node.getNodeValue().replaceAll(DEFAULT_ADDRESS, fullAddress));
+            node.setNodeValue(node.getNodeValue()
+                    .replaceAll(DEFAULT_ADDRESS, fullAddress));
         }
         return de.getOwnerDocument();
     }
@@ -148,7 +159,8 @@ public class PolicyWSDLGetInterceptor extends WSDLGetInterceptor {
     private String getFullAddress() {
         String proto = addressProvider.getProtocol();
         String host = addressProvider.getHost();
-        String port = addressProvider.getPort().equals("") ? "" : ":" + addressProvider.getPort();
+        String port = addressProvider.getPort()
+                .equals("") ? "" : ":" + addressProvider.getPort();
         return String.format("%s://%s%s", proto, host, port);
     }
 
@@ -168,8 +180,9 @@ public class PolicyWSDLGetInterceptor extends WSDLGetInterceptor {
         NodeList bindingElements = newElement.getElementsByTagName("binding");
         if (null != bindingElements) {
             Element bindingElement = (Element) bindingElements.item(0);
-            Element policyReferenceElement = wsdlDoc
-                    .createElementNS("http://www.w3.org/ns/ws-policy", "wsp:PolicyReference");
+            Element policyReferenceElement = wsdlDoc.createElementNS(
+                    "http://www.w3.org/ns/ws-policy",
+                    "wsp:PolicyReference");
             policyReferenceElement.setAttribute("URI", "#TransportSAML2Policy");
             bindingElement.appendChild(policyReferenceElement);
         }
@@ -185,9 +198,15 @@ public class PolicyWSDLGetInterceptor extends WSDLGetInterceptor {
         // For XSD's, the WSDLGetUtils makes a copy of any XSD schema documents before updating
         // any addresses and returning them, so for both WSDL and XSD this is the only part that needs
         // to be synchronized.
-        synchronized (message.getExchange().getEndpoint()) {
-            return new WSDLGetUtils().getDocument(message, base, params, ctxUri,
-                    message.getExchange().getEndpoint().getEndpointInfo());
+        synchronized (message.getExchange()
+                .getEndpoint()) {
+            return new WSDLGetUtils().getDocument(message,
+                    base,
+                    params,
+                    ctxUri,
+                    message.getExchange()
+                            .getEndpoint()
+                            .getEndpointInfo());
         }
     }
 

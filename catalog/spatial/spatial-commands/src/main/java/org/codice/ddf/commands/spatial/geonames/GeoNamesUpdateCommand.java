@@ -15,6 +15,7 @@
 package org.codice.ddf.commands.spatial.geonames;
 
 import java.io.PrintStream;
+
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;

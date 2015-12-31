@@ -18,7 +18,8 @@
          id="ddf.catalog.security.ingest.IngestPlugin">
 
         <AD description="Roles/attributes required for ingest operations (create, update and delete). Example: {role=role1;type=type1}"
-            name="Required Attributes" id="permissionStrings" required="true" type="String" cardinality="1000"
+            name="Required Attributes" id="permissionStrings" required="true" type="String"
+            cardinality="1000"
             default="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest"/>
     </OCD>
 

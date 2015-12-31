@@ -36,8 +36,8 @@ import com.thoughtworks.xstream.io.xml.Xpp3Driver;
  */
 public class TransactionMessageBodyReader implements MessageBodyReader<CswTransactionRequest> {
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(TransactionMessageBodyReader.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(TransactionMessageBodyReader.class);
 
     private Converter cswRecordConverter;
 

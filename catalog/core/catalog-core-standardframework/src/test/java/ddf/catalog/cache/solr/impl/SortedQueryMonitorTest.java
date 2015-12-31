@@ -80,15 +80,14 @@ public class SortedQueryMonitorTest {
             switch (i) {
             case 1:
                 sourceResponseMock = mock(SourceResponse.class);
-                when(sourceResponseMock.getResults()).thenReturn(
-                        Lists.newArrayList(mock(Result.class), mock(Result.class),
-                                mock(Result.class)));
+                when(sourceResponseMock.getResults()).thenReturn(Lists.newArrayList(mock(Result.class),
+                        mock(Result.class),
+                        mock(Result.class)));
                 when(sourceResponseMock.getHits()).thenReturn(3L);
                 break;
             case 2:
                 sourceResponseMock = mock(SourceResponse.class);
-                when(sourceResponseMock.getResults())
-                        .thenReturn(Lists.newArrayList(mock(Result.class)));
+                when(sourceResponseMock.getResults()).thenReturn(Lists.newArrayList(mock(Result.class)));
                 when(sourceResponseMock.getHits()).thenReturn(1L);
                 break;
             case 3:
@@ -109,7 +108,10 @@ public class SortedQueryMonitorTest {
         when(queryRequest.getQuery()).thenReturn(query);
 
         SortedQueryMonitor queryMonitor = new SortedQueryMonitor(cachingFederationStrategy,
-                completionService, futures, queryResponse, queryRequest);
+                completionService,
+                futures,
+                queryResponse,
+                queryRequest);
 
         final Iterator<Future<SourceResponse>> futureIter = getFutureIterator();
         when(completionService.take()).thenAnswer(new Answer<Future>() {
@@ -123,10 +125,12 @@ public class SortedQueryMonitorTest {
         verify(completionService, never()).poll(anyLong(), eq(TimeUnit.MILLISECONDS));
 
         assertThat(queryResponse.getHits()).isEqualTo(4);
-        assertThat(queryResponse.getResults().size()).isEqualTo(4);
+        assertThat(queryResponse.getResults()
+                .size()).isEqualTo(4);
 
         assertThat(queryResponse.getProcessingDetails()).extracting(byName("exception"))
-                .extracting(byName("class")).contains(NullPointerException.class);
+                .extracting(byName("class"))
+                .contains(NullPointerException.class);
         assertThat(queryResponse.getProcessingDetails()).extracting(byName("sourceId"))
                 .contains("Source-0");
     }
@@ -137,32 +141,40 @@ public class SortedQueryMonitorTest {
         when(queryRequest.getQuery()).thenReturn(query);
 
         SortedQueryMonitor queryMonitor = new SortedQueryMonitor(cachingFederationStrategy,
-                completionService, futures, queryResponse, queryRequest);
+                completionService,
+                futures,
+                queryResponse,
+                queryRequest);
 
         // Put the first two futures into the list and then set the third
         // value to be null in order to mock the effect of a null return from
         // the CompletionService.poll() method
-        Iterator<Future<SourceResponse>> keysIter = futures.keySet().iterator();
-        List<Future<SourceResponse>> futureKeys = Lists
-                .newArrayList(keysIter.next(), keysIter.next(), null);
+        Iterator<Future<SourceResponse>> keysIter = futures.keySet()
+                .iterator();
+        List<Future<SourceResponse>> futureKeys = Lists.newArrayList(keysIter.next(),
+                keysIter.next(),
+                null);
         final Iterator<Future<SourceResponse>> futureIter = futureKeys.iterator();
 
-        when(completionService.poll(anyLong(), eq(TimeUnit.MILLISECONDS)))
-                .thenAnswer(new Answer<Future>() {
-                    @Override
-                    public Future answer(InvocationOnMock invocationOnMock) throws Throwable {
-                        return futureIter.next();
-                    }
-                });
+        when(completionService.poll(anyLong(),
+                eq(TimeUnit.MILLISECONDS))).thenAnswer(new Answer<Future>() {
+            @Override
+            public Future answer(InvocationOnMock invocationOnMock) throws Throwable {
+                return futureIter.next();
+            }
+        });
         queryMonitor.run();
         verify(completionService, times(3)).poll(anyLong(), eq(TimeUnit.MILLISECONDS));
         verify(completionService, never()).take();
 
-        assertThat(queryResponse.getResults().size()).isEqualTo(3);
+        assertThat(queryResponse.getResults()
+                .size()).isEqualTo(3);
         assertThat(queryResponse.getHits()).isEqualTo(3);
         assertThat(queryResponse.getProcessingDetails()).extracting(byName("exception"))
-                .extracting(byName("class")).contains(NullPointerException.class,
-                TimeoutException.class, TimeoutException.class);
+                .extracting(byName("class"))
+                .contains(NullPointerException.class,
+                        TimeoutException.class,
+                        TimeoutException.class);
     }
 
     @Test
@@ -170,31 +182,37 @@ public class SortedQueryMonitorTest {
         when(query.getTimeoutMillis()).thenReturn(5000L);
         when(queryRequest.getQuery()).thenReturn(query);
 
-        Iterator<Future<SourceResponse>> iter = futures.keySet().iterator();
+        Iterator<Future<SourceResponse>> iter = futures.keySet()
+                .iterator();
         iter.next(); // Source-0
         iter.next(); // Source-1
         Future<SourceResponse> future = iter.next();
         when(future.get()).thenThrow(new InterruptedException("neener-neener"));
 
         SortedQueryMonitor queryMonitor = new SortedQueryMonitor(cachingFederationStrategy,
-                completionService, futures, queryResponse, queryRequest);
+                completionService,
+                futures,
+                queryResponse,
+                queryRequest);
 
         final Iterator<Future<SourceResponse>> futureIter = getFutureIterator();
-        when(completionService.poll(anyLong(), eq(TimeUnit.MILLISECONDS)))
-                .thenAnswer(new Answer<Future>() {
-                    @Override
-                    public Future answer(InvocationOnMock invocationOnMock) throws Throwable {
-                        return futureIter.next();
-                    }
-                });
+        when(completionService.poll(anyLong(),
+                eq(TimeUnit.MILLISECONDS))).thenAnswer(new Answer<Future>() {
+            @Override
+            public Future answer(InvocationOnMock invocationOnMock) throws Throwable {
+                return futureIter.next();
+            }
+        });
         queryMonitor.run();
         verify(completionService, times(3)).poll(anyLong(), eq(TimeUnit.MILLISECONDS));
         verify(completionService, never()).take();
 
-        assertThat(queryResponse.getResults().size()).isEqualTo(3);
+        assertThat(queryResponse.getResults()
+                .size()).isEqualTo(3);
         assertThat(queryResponse.getProcessingDetails()).extracting(byName("exception"))
                 .extracting(byName("class"))
-                .contains(NullPointerException.class, InterruptedException.class,
+                .contains(NullPointerException.class,
+                        InterruptedException.class,
                         InterruptedException.class);
     }
 

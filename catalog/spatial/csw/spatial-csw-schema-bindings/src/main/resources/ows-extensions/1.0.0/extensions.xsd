@@ -3,7 +3,7 @@
         targetNamespace="http://www.disy.de/ogc/ows"
         xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
 
-	<import namespace="http://www.opengis.net/ows" schemaLocation="../../ows/1.0.0/owsAll.xsd"/>
+    <import namespace="http://www.opengis.net/ows" schemaLocation="../../ows/1.0.0/owsAll.xsd"/>
 
-	<element name="MetaData" substitutionGroup="ows:AbstractMetaData"/>
+    <element name="MetaData" substitutionGroup="ows:AbstractMetaData"/>
 </schema>

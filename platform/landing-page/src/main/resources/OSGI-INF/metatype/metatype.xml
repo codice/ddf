@@ -19,42 +19,42 @@
                 description="Specifies the description to display on the landing page."
                 name="Description" id="description" required="true" type="String"
                 default="As a common data layer, DDF provides secure enterprise-wide data access for both users and systems."
-                />
+        />
         <AD
                 description="Specifies the phone number to display on the landing page."
                 name="Phone Number" id="phone" required="true" type="String"
                 default=""
-                />
+        />
         <AD
                 description="Specifies the email address to display on the landing page."
                 name="Email Address" id="email" required="true" type="String"
                 default=""
-                />
+        />
         <AD
                 description="Specifies the external web site URL to display on the landing page."
                 name="External Web Site" id="externalUrl" required="true" type="String"
                 default=""
-                />
+        />
         <AD
                 description="Announcements that will be displayed on the landing page."
                 name="Announcements" id="announcements" required="true" type="String"
                 cardinality="100"
-                />
+        />
         <AD
                 description="Specifies the landing page Background Color.  Use html css colors or #rrggbb."
                 name="Branding Background" id="background" required="true" type="String"
                 default=""
-                />
+        />
         <AD
                 description="Specifies the landing page Foreground Color.  Use html css colors or #rrggbb."
                 name="Branding Foreground" id="foreground" required="true" type="String"
                 default=""
-                />
+        />
         <AD
                 description="Specifies the landing page Logo.  Use a base64 encoded image."
                 name="Branding Logo" id="logo" required="true" type="String"
                 default=""
-                />
+        />
     </OCD>
 
     <Designate pid="org.codice.ddf.distribution.landing-page.properties">

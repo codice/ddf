@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -64,7 +64,9 @@ public class ProxyFilter implements Filter {
      */
     public void destroy() {
         for (Filter filter : filters) {
-            LOGGER.debug("Destroying filter {}.", filter.getClass().getName());
+            LOGGER.debug("Destroying filter {}.",
+                    filter.getClass()
+                            .getName());
             filter.destroy();
         }
     }
@@ -89,8 +91,11 @@ public class ProxyFilter implements Filter {
 
         filterProxyChain.addFilters(filters);
 
-        LOGGER.debug("Calling {}.doFilter({},{})", filterProxyChain.getClass().getName(),
-                servletRequest, servletResponse);
+        LOGGER.debug("Calling {}.doFilter({},{})",
+                filterProxyChain.getClass()
+                        .getName(),
+                servletRequest,
+                servletResponse);
         filterProxyChain.doFilter(servletRequest, servletResponse);
 
     }
@@ -101,7 +106,10 @@ public class ProxyFilter implements Filter {
     public void init(FilterConfig filterConfig) throws ServletException {
         if (!initialized) {
             for (Filter filter : filters) {
-                LOGGER.debug("Calling {}.init({})", filter.getClass().getName(), filterConfig);
+                LOGGER.debug("Calling {}.init({})",
+                        filter.getClass()
+                                .getName(),
+                        filterConfig);
                 filter.init(filterConfig);
             }
 

@@ -13,9 +13,9 @@
  -->
 <features name="${project.artifactId}-${project.version}">
 
-    <feature name="profile-standard" install="manual" version="${project.version}" 
-    	description="This will install the standard set of DDF applications.">
-    	<feature>kernel-webconsole</feature>
+    <feature name="profile-standard" install="manual" version="${project.version}"
+             description="This will install the standard set of DDF applications.">
+        <feature>kernel-webconsole</feature>
         <feature>admin-app</feature>
         <feature>platform-app</feature>
         <feature>security-services-app</feature>
@@ -26,10 +26,10 @@
         <feature>spatial-app</feature>
     </feature>
 
-    <feature name="profile-full" install="manual" version="${project.version}" 
-    	description="This will install all the DDF applications.">
-    	<feature>kernel-webconsole</feature>
-		<feature>opendj-embedded</feature>
+    <feature name="profile-full" install="manual" version="${project.version}"
+             description="This will install all the DDF applications.">
+        <feature>kernel-webconsole</feature>
+        <feature>opendj-embedded</feature>
         <feature>admin-app</feature>
         <feature>platform-app</feature>
         <feature>security-services-app</feature>

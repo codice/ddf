@@ -68,20 +68,22 @@ public class GeoNamesLuceneIndexer implements GeoEntryIndexer {
     public static final DefaultSimilarity SIMILARITY = new DefaultSimilarity() {
         @Override
         public float lengthNorm(final FieldInvertState fieldInvertState) {
-            if (fieldInvertState.getName().equals(GeoNamesLuceneConstants.ALTERNATE_NAMES_FIELD)) {
+            if (fieldInvertState.getName()
+                    .equals(GeoNamesLuceneConstants.ALTERNATE_NAMES_FIELD)) {
                 // The field containing a place's alternate names can vary greatly in length from
                 // entry to entry. By default, Lucene reduces scores for longer fields, but in the
                 // case of GeoNames data, more significant places tend to have more alternate names
                 // (and thus longer fields), and we don't want to reduce scores for more significant
                 // places. We return 1 so the alternate names field length doesn't impact the score.
                 return 1.0f;
-            } else if (fieldInvertState.getName().equals(GeoNamesLuceneConstants.NAME_FIELD)) {
+            } else if (fieldInvertState.getName()
+                    .equals(GeoNamesLuceneConstants.NAME_FIELD)) {
                 // Lucene's default implementation divides by the square root of the length of the
                 // field. We divide again by the same value to further reduce scores for places with
                 // longer names. This helps to prevent places that have names matching the query but
                 // containing extra terms from beating places whose names match the query exactly.
-                return super.lengthNorm(fieldInvertState) / (float) Math
-                        .sqrt(fieldInvertState.getLength());
+                return super.lengthNorm(fieldInvertState)
+                        / (float) Math.sqrt(fieldInvertState.getLength());
             }
 
             return super.lengthNorm(fieldInvertState);
@@ -215,17 +217,20 @@ public class GeoNamesLuceneIndexer implements GeoEntryIndexer {
     private void addDocument(final IndexWriter indexWriter, final GeoEntry geoEntry,
             final SpatialStrategy strategy) throws IOException {
         final Document document = new Document();
-        document.add(new TextField(GeoNamesLuceneConstants.NAME_FIELD, geoEntry.getName(),
+        document.add(new TextField(GeoNamesLuceneConstants.NAME_FIELD,
+                geoEntry.getName(),
                 Field.Store.YES));
 
-        document.add(new DoubleField(GeoNamesLuceneConstants.LATITUDE_FIELD, geoEntry.getLatitude(),
+        document.add(new DoubleField(GeoNamesLuceneConstants.LATITUDE_FIELD,
+                geoEntry.getLatitude(),
                 Field.Store.YES));
-        document.add(
-                new DoubleField(GeoNamesLuceneConstants.LONGITUDE_FIELD, geoEntry.getLongitude(),
-                        Field.Store.YES));
+        document.add(new DoubleField(GeoNamesLuceneConstants.LONGITUDE_FIELD,
+                geoEntry.getLongitude(),
+                Field.Store.YES));
 
         document.add(new StringField(GeoNamesLuceneConstants.FEATURE_CODE_FIELD,
-                geoEntry.getFeatureCode(), Field.Store.YES));
+                geoEntry.getFeatureCode(),
+                Field.Store.YES));
 
         document.add(new StoredField(GeoNamesLuceneConstants.POPULATION_FIELD,
                 geoEntry.getPopulation()));
@@ -234,11 +239,12 @@ public class GeoNamesLuceneIndexer implements GeoEntryIndexer {
                 geoEntry.getPopulation()));
 
         document.add(new TextField(GeoNamesLuceneConstants.ALTERNATE_NAMES_FIELD,
-                geoEntry.getAlternateNames(), Field.Store.NO));
+                geoEntry.getAlternateNames(),
+                Field.Store.NO));
 
         // Add each entry's spatial information for fast spatial filtering.
-        final Shape point = SPATIAL_CONTEXT
-                .makePoint(geoEntry.getLongitude(), geoEntry.getLatitude());
+        final Shape point = SPATIAL_CONTEXT.makePoint(geoEntry.getLongitude(),
+                geoEntry.getLatitude());
         for (IndexableField field : strategy.createIndexableFields(point)) {
             document.add(field);
         }

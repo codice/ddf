@@ -90,12 +90,12 @@ public class WebSSOTokenValidator implements TokenValidator {
         // Check the ValueType to see if this is a supported SSO Token.
         if ((token instanceof BinarySecurityTokenType)) {
             if (CAS_TYPE.equalsIgnoreCase(((BinarySecurityTokenType) token).getValueType())) {
-                LOGGER.debug("Can handle token type of: " + ((BinarySecurityTokenType) token)
-                        .getValueType());
+                LOGGER.debug("Can handle token type of: "
+                        + ((BinarySecurityTokenType) token).getValueType());
                 return true;
             }
-            LOGGER.debug("Cannot handle token type of: " + ((BinarySecurityTokenType) token)
-                    .getValueType());
+            LOGGER.debug("Cannot handle token type of: "
+                    + ((BinarySecurityTokenType) token).getValueType());
         }
         return false;
     }
@@ -128,8 +128,8 @@ public class WebSSOTokenValidator implements TokenValidator {
             return response;
         }
         LOGGER.debug("Getting binary security token from validate target");
-        BinarySecurityTokenType binarySecurityToken = (BinarySecurityTokenType) validateTarget
-                .getToken();
+        BinarySecurityTokenType binarySecurityToken =
+                (BinarySecurityTokenType) validateTarget.getToken();
 
         //
         // Decode the token
@@ -153,8 +153,7 @@ public class WebSSOTokenValidator implements TokenValidator {
                     ticket = parts[0];
                     service = parts[1];
                 } else {
-                    throw new WSSecurityException(
-                            WSSecurityException.ErrorCode.INVALID_SECURITY_TOKEN,
+                    throw new WSSecurityException(WSSecurityException.ErrorCode.INVALID_SECURITY_TOKEN,
                             "Was not able to parse out BST propertly. Should be in ticket|service format.");
                 }
             } else {
@@ -173,8 +172,8 @@ public class WebSSOTokenValidator implements TokenValidator {
         //
         try {
             LOGGER.debug("Validating ticket [{}] for service [{}].", ticket, service);
-            SecurityLogger
-                    .logInfo("Validating ticket [" + ticket + "] for service [" + service + "].");
+            SecurityLogger.logInfo(
+                    "Validating ticket [" + ticket + "] for service [" + service + "].");
 
             // validate either returns an assertion or throws an exception
             Assertion assertion = validate(ticket, service);
@@ -207,8 +206,8 @@ public class WebSSOTokenValidator implements TokenValidator {
     public Assertion validate(String ticket, String service) throws TicketValidationException {
         LOGGER.trace("CAS Server URL = " + casServerUrl);
 
-
-        Cas20ProxyTicketValidator casValidator = new Cas20ProxyTicketValidator(casServerUrl.getResolvedString());
+        Cas20ProxyTicketValidator casValidator =
+                new Cas20ProxyTicketValidator(casServerUrl.getResolvedString());
         casValidator.setAcceptAnyProxy(true);
 
         return casValidator.validate(ticket, service);

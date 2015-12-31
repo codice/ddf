@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -55,7 +55,10 @@ public class XsltBundleObserver<T extends AbstractXsltTransformer>
         for (String fileName : resources) {
             // extract the format from the file name
             File file = new File(fileName);
-            String format = file.getName().substring(0, file.getName().lastIndexOf("."));
+            String format = file.getName()
+                    .substring(0,
+                            file.getName()
+                                    .lastIndexOf("."));
             Hashtable<String, String> properties = new Hashtable<String, String>();
 
             LOGGER.debug("Found started bundle with name: {}", fileName);
@@ -65,8 +68,8 @@ public class XsltBundleObserver<T extends AbstractXsltTransformer>
             properties.put(Constants.SERVICE_TITLE,
                     "View as " + (format.length() > 4 ? capitalize(format) : format.toUpperCase())
                             + "...");
-            properties
-                    .put(Constants.SERVICE_DESCRIPTION, "Transforms query results into " + format);
+            properties.put(Constants.SERVICE_DESCRIPTION,
+                    "Transforms query results into " + format);
 
             // define a transformer object that points to the xsl
             T xmt = null;
@@ -82,14 +85,16 @@ public class XsltBundleObserver<T extends AbstractXsltTransformer>
             }
 
             // register the service
-            ServiceRegistration sr = bundleContext
-                    .registerService(publishedInterface, xmt, properties);
+            ServiceRegistration sr = bundleContext.registerService(publishedInterface,
+                    xmt,
+                    properties);
 
             // store the service registration object
             if (serviceRegistrationMap.containsKey(bundle)) {
                 // if it's already in the map, add the sr to the appropriate
                 // list
-                serviceRegistrationMap.get(bundle).add(sr);
+                serviceRegistrationMap.get(bundle)
+                        .add(sr);
             } else {
                 // if it's not in the map, make the initial list and put it in
                 // the map
@@ -106,7 +111,9 @@ public class XsltBundleObserver<T extends AbstractXsltTransformer>
         List<ServiceRegistration> srList = serviceRegistrationMap.get(bundle);
         for (ServiceRegistration sr : srList) {
             LOGGER.debug("{} bundle uninstalled and unregistered.",
-                    sr.getReference().getBundle().getSymbolicName());
+                    sr.getReference()
+                            .getBundle()
+                            .getSymbolicName());
             sr.unregister();
         }
 
@@ -118,7 +125,8 @@ public class XsltBundleObserver<T extends AbstractXsltTransformer>
         if (format.length() == 0) {
             return format;
         }
-        return new StringBuilder(format.substring(0, 1).toUpperCase()).append(format.substring(1))
+        return new StringBuilder(format.substring(0, 1)
+                .toUpperCase()).append(format.substring(1))
                 .toString();
     }
 

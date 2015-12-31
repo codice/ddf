@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -155,7 +155,8 @@ public class MockMemoryProvider extends MockSource implements CatalogProvider {
 
         }
 
-        CreateResponse ingestResponseImpl = new CreateResponseImpl(request, properties,
+        CreateResponse ingestResponseImpl = new CreateResponseImpl(request,
+                properties,
                 returnedMetacards);
 
         return ingestResponseImpl;
@@ -172,11 +173,15 @@ public class MockMemoryProvider extends MockSource implements CatalogProvider {
 
         List<Update> returnedMetacards = new ArrayList<Update>(updatedCards.size());
         for (Entry<Serializable, Metacard> curCard : updatedCards) {
-            if (store.containsKey(curCard.getValue().getId())) {
+            if (store.containsKey(curCard.getValue()
+                    .getId())) {
                 LOGGER.debug("Store contains the key");
-                Metacard oldMetacard = store.get(curCard.getValue().getId());
-                store.put(curCard.getValue().getId(), curCard.getValue());
-                properties.put(curCard.getValue().getId(), curCard.getValue());
+                Metacard oldMetacard = store.get(curCard.getValue()
+                        .getId());
+                store.put(curCard.getValue()
+                        .getId(), curCard.getValue());
+                properties.put(curCard.getValue()
+                        .getId(), curCard.getValue());
                 LOGGER.debug("adding returnedMetacard");
                 returnedMetacards.add(new UpdateImpl(curCard.getValue(), oldMetacard));
             } else {
@@ -209,7 +214,8 @@ public class MockMemoryProvider extends MockSource implements CatalogProvider {
             }
         }
 
-        DeleteResponse response = new DeleteResponseImpl(deleteRequest, properties,
+        DeleteResponse response = new DeleteResponseImpl(deleteRequest,
+                properties,
                 returnedMetacards);
 
         return response;
@@ -286,7 +292,8 @@ public class MockMemoryProvider extends MockSource implements CatalogProvider {
             LOGGER.trace("entry {},{}", filter, data);
             Set<Metacard> notFilteredSet = new HashSet<Metacard>();
             notFilteredSet.addAll((Collection<? extends Metacard>) data);
-            Set<Metacard> filteredSet = (Set<Metacard>) filter.getFilter().accept(this, data);
+            Set<Metacard> filteredSet = (Set<Metacard>) filter.getFilter()
+                    .accept(this, data);
             notFilteredSet.removeAll(filteredSet);
             LOGGER.trace("exit {}", notFilteredSet.size());
             return notFilteredSet;
@@ -301,9 +308,12 @@ public class MockMemoryProvider extends MockSource implements CatalogProvider {
             Date afterFilter = null;
             LOGGER.debug("what is object? {}", obj);
             if (obj instanceof Period) {
-                afterFilter = ((Period) obj).getEnding().getPosition().getDate();
+                afterFilter = ((Period) obj).getEnding()
+                        .getPosition()
+                        .getDate();
             } else {
-                afterFilter = ((Instant) obj).getPosition().getDate();
+                afterFilter = ((Instant) obj).getPosition()
+                        .getDate();
             }
             if (data instanceof Collection<?>) {
                 Collection<Metacard> mcData = (Collection<Metacard>) data;
@@ -328,9 +338,12 @@ public class MockMemoryProvider extends MockSource implements CatalogProvider {
             Object obj = ((Literal) before.getExpression2()).getValue();
             Date beforeFilter = null;
             if (obj instanceof Period) {
-                beforeFilter = ((Period) obj).getBeginning().getPosition().getDate();
+                beforeFilter = ((Period) obj).getBeginning()
+                        .getPosition()
+                        .getDate();
             } else {
-                beforeFilter = ((Instant) obj).getPosition().getDate();
+                beforeFilter = ((Instant) obj).getPosition()
+                        .getDate();
             }
             if (data instanceof Collection<?>) {
                 Collection<Metacard> mcData = (Collection<Metacard>) data;
@@ -353,7 +366,9 @@ public class MockMemoryProvider extends MockSource implements CatalogProvider {
             Set<Metacard> filteredSet = new HashSet<Metacard>();
             PropertyName propName = (PropertyName) begins.getExpression1();
             Object obj = ((Literal) begins.getExpression2()).getValue();
-            Date beginsFilter = ((Period) obj).getBeginning().getPosition().getDate();
+            Date beginsFilter = ((Period) obj).getBeginning()
+                    .getPosition()
+                    .getDate();
             if (data instanceof Collection<?>) {
                 Collection<Metacard> mcData = (Collection<Metacard>) data;
                 for (Metacard mc : mcData) {
@@ -382,8 +397,12 @@ public class MockMemoryProvider extends MockSource implements CatalogProvider {
             Set<Metacard> filteredSet = new HashSet<Metacard>();
             PropertyName propName = (PropertyName) during.getExpression1();
             Period filterPeriod = (Period) ((Literal) during.getExpression2()).getValue();
-            Date startFilter = filterPeriod.getBeginning().getPosition().getDate();
-            Date endFilter = filterPeriod.getEnding().getPosition().getDate();
+            Date startFilter = filterPeriod.getBeginning()
+                    .getPosition()
+                    .getDate();
+            Date endFilter = filterPeriod.getEnding()
+                    .getPosition()
+                    .getDate();
             if (data instanceof Collection<?>) {
                 Collection<Metacard> mcData = (Collection<Metacard>) data;
                 for (Metacard mc : mcData) {
@@ -412,7 +431,9 @@ public class MockMemoryProvider extends MockSource implements CatalogProvider {
             Set<Metacard> filteredSet = new HashSet<Metacard>();
             PropertyName propName = (PropertyName) ends.getExpression1();
             Object obj = ((Literal) ends.getExpression2()).getValue();
-            Date endsFilter = ((Period) obj).getEnding().getPosition().getDate();
+            Date endsFilter = ((Period) obj).getEnding()
+                    .getPosition()
+                    .getDate();
             if (data instanceof Collection<?>) {
                 Collection<Metacard> mcData = (Collection<Metacard>) data;
                 for (Metacard mc : mcData) {
@@ -463,7 +484,8 @@ public class MockMemoryProvider extends MockSource implements CatalogProvider {
             Set<Metacard> filteredSet = new HashSet<Metacard>();
             PropertyName propName = (PropertyName) equals.getExpression1();
             Object obj = ((Literal) equals.getExpression2()).getValue();
-            Date equalsFilter = ((Instant) obj).getPosition().getDate();
+            Date equalsFilter = ((Instant) obj).getPosition()
+                    .getDate();
             if (data instanceof Collection<?>) {
                 Collection<Metacard> mcData = (Collection<Metacard>) data;
                 for (Metacard mc : mcData) {

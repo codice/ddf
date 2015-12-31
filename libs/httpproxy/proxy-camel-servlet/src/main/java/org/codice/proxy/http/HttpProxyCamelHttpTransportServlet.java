@@ -1,26 +1,41 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- *
+ * <p>
+ * <p>
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * <p>
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -79,8 +94,8 @@ import org.slf4j.LoggerFactory;
 public class HttpProxyCamelHttpTransportServlet extends CamelServlet {
     private static final long serialVersionUID = -1797014782158930490L;
 
-    private static final Logger LOG = LoggerFactory
-            .getLogger(HttpProxyCamelHttpTransportServlet.class);
+    private static final Logger LOG =
+            LoggerFactory.getLogger(HttpProxyCamelHttpTransportServlet.class);
 
     private CamelContext camelContext;
 
@@ -88,7 +103,8 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet {
 
     private boolean ignoreDuplicateServletName;
 
-    private ConcurrentMap<String, HttpConsumer> consumers = new ConcurrentHashMap<String, HttpConsumer>();
+    private ConcurrentMap<String, HttpConsumer> consumers =
+            new ConcurrentHashMap<String, HttpConsumer>();
 
     public HttpProxyCamelHttpTransportServlet(CamelContext camelContext) {
         this.camelContext = camelContext;
@@ -112,7 +128,8 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet {
         }
 
         String name = config.getServletName();
-        String contextPath = config.getServletContext().getContextPath();
+        String contextPath = config.getServletContext()
+                .getContextPath();
 
         if (httpRegistry == null) {
             httpRegistry = DefaultHttpRegistry.getHttpRegistry(name);
@@ -132,7 +149,8 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet {
             httpRegistry.register(this);
         }
 
-        LOG.info("Initialized CamelHttpTransportServlet[name={}, contextPath={}]", getServletName(),
+        LOG.info("Initialized CamelHttpTransportServlet[name={}, contextPath={}]",
+                getServletName(),
                 contextPath);
     }
 
@@ -182,19 +200,23 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet {
         }
 
         // are we suspended?
-        if (consumer.getEndpoint().isSuspended()) {
+        if (consumer.getEndpoint()
+                .isSuspended()) {
             log.debug("Consumer suspended, cannot service request {}", request);
             response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
             return;
         }
 
-        if (consumer.getEndpoint().getHttpMethodRestrict() != null && !consumer.getEndpoint()
-                .getHttpMethodRestrict().equals(request.getMethod())) {
+        if (consumer.getEndpoint()
+                .getHttpMethodRestrict() != null && !consumer.getEndpoint()
+                .getHttpMethodRestrict()
+                .equals(request.getMethod())) {
             response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
             return;
         }
 
-        if ("TRACE".equals(request.getMethod()) && !consumer.getEndpoint().isTraceEnabled()) {
+        if ("TRACE".equals(request.getMethod()) && !consumer.getEndpoint()
+                .isTraceEnabled()) {
             response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
             return;
         }
@@ -202,10 +224,12 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet {
         // create exchange and set data on it
         Exchange exchange = new DefaultExchange(consumer.getEndpoint(), ExchangePattern.InOut);
 
-        if (consumer.getEndpoint().isBridgeEndpoint()) {
+        if (consumer.getEndpoint()
+                .isBridgeEndpoint()) {
             exchange.setProperty(Exchange.SKIP_GZIP_ENCODING, Boolean.TRUE);
         }
-        if (consumer.getEndpoint().isDisableStreamCache()) {
+        if (consumer.getEndpoint()
+                .isDisableStreamCache()) {
             exchange.setProperty(Exchange.DISABLE_HTTP_STREAM_CACHE, Boolean.TRUE);
         }
 
@@ -215,10 +239,13 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet {
         HttpHelper.setCharsetFromContentType(request.getContentType(), exchange);
         exchange.setIn(new HttpMessage(exchange, request, response));
         // set context path as header
-        String contextPath = consumer.getEndpoint().getPath();
-        exchange.getIn().setHeader("CamelServletContextPath", contextPath);
+        String contextPath = consumer.getEndpoint()
+                .getPath();
+        exchange.getIn()
+                .setHeader("CamelServletContextPath", contextPath);
 
-        String httpPath = (String) exchange.getIn().getHeader(Exchange.HTTP_PATH);
+        String httpPath = (String) exchange.getIn()
+                .getHeader(Exchange.HTTP_PATH);
         // here we just remove the CamelServletContextPath part from the HTTP_PATH
         if (contextPath != null && httpPath.startsWith(contextPath)) {
             exchange.getIn()
@@ -238,7 +265,8 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet {
                 log.trace("Processing request for exchangeId: {}", exchange.getExchangeId());
             }
             // process the exchange
-            consumer.getProcessor().process(exchange);
+            consumer.getProcessor()
+                    .process(exchange);
         } catch (Exception e) {
             exchange.setException(e);
         }
@@ -248,12 +276,14 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet {
             if (log.isTraceEnabled()) {
                 log.trace("Writing response for exchangeId: {}", exchange.getExchangeId());
             }
-            Integer bs = consumer.getEndpoint().getResponseBufferSize();
+            Integer bs = consumer.getEndpoint()
+                    .getResponseBufferSize();
             if (bs != null) {
                 log.trace("Using response buffer size: {}", bs);
                 response.setBufferSize(bs);
             }
-            consumer.getBinding().writeResponse(exchange, response);
+            consumer.getBinding()
+                    .writeResponse(exchange, response);
         } catch (IOException e) {
             log.error("Error processing request", e);
             throw e;
@@ -283,9 +313,13 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet {
         HttpConsumer answer = consumers.get(endpointName);
 
         if (answer == null) {
-            log.debug("Consumer Keys: {}", Arrays.toString(consumers.keySet().toArray()));
+            log.debug("Consumer Keys: {}",
+                    Arrays.toString(consumers.keySet()
+                            .toArray()));
             for (String key : consumers.keySet()) {
-                if (consumers.get(key).getEndpoint().isMatchOnUriPrefix() && path.startsWith(key)) {
+                if (consumers.get(key)
+                        .getEndpoint()
+                        .isMatchOnUriPrefix() && path.startsWith(key)) {
                     answer = consumers.get(key);
                     break;
                 }

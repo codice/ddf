@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -112,7 +112,8 @@ public class ContextualPredicate implements Predicate {
                 phrase = normalizeBooleanOperators(phrase);
                 phrase = escapeSpecialCharacters(phrase);
                 if (isFuzzy) {
-                    String[] words = phrase.trim().split("[ ]+");
+                    String[] words = phrase.trim()
+                            .split("[ ]+");
                     for (int i = 0; i < words.length; i++) {
                         String[] subParts = words[i].split("[\\(\\)]+");
                         for (String subPart : subParts) {
@@ -146,7 +147,8 @@ public class ContextualPredicate implements Predicate {
 
     private static String escapeSpecialCharacters(String phrase) {
         StringBuilder sb = new StringBuilder();
-        char[] chars = phrase.trim().toCharArray();
+        char[] chars = phrase.trim()
+                .toCharArray();
         for (int i = 0; i < chars.length; i++) {
             char currentChar = chars[i];
             // * is escaped by the subscription when not a wildcard
@@ -163,8 +165,8 @@ public class ContextualPredicate implements Predicate {
                 i = i + 1;
                 sb.append(currentChar);
                 sb.append(nextChar);
-            } else if (currentChar != '*' && ContextualTokenizer.SPECIAL_CHARACTERS_SET
-                    .contains(currentChar)) {
+            } else if (currentChar != '*' && ContextualTokenizer.SPECIAL_CHARACTERS_SET.contains(
+                    currentChar)) {
                 // handle unescaped special characters
                 sb.append("\\");
                 sb.append(currentChar);
@@ -194,8 +196,8 @@ public class ContextualPredicate implements Predicate {
     }
 
     private static boolean isBooleanOperator(String input) {
-        int index = StringUtils.indexOfAny(input.trim().toLowerCase(),
-                new String[] {"not", "and", "or", "&", "|"});
+        int index = StringUtils.indexOfAny(input.trim()
+                .toLowerCase(), new String[] {"not", "and", "or", "&", "|"});
 
         return index == 0;
     }
@@ -207,8 +209,8 @@ public class ContextualPredicate implements Predicate {
         LOGGER.debug("Headers: {}", properties);
 
         ContextualEvaluationCriteria cec = null;
-        Map<String, Object> contextualMap = (Map<String, Object>) properties
-                .getProperty(PubSubConstants.HEADER_CONTEXTUAL_KEY);
+        Map<String, Object> contextualMap = (Map<String, Object>) properties.getProperty(
+                PubSubConstants.HEADER_CONTEXTUAL_KEY);
 
         if (contextualMap == null) {
             LOGGER.debug("No contextual metadata to search against.");
@@ -225,8 +227,8 @@ public class ContextualPredicate implements Predicate {
         // source is deleting the catalog entry and did not send any metadata with the delete
         // event), then
         // cannot apply any contextual filtering - just send the event on to the subscriber
-        if (operation.equals(PubSubConstants.DELETE) && metadata
-                .equals(PubSubConstants.METADATA_DELETED)) {
+        if (operation.equals(PubSubConstants.DELETE)
+                && metadata.equals(PubSubConstants.METADATA_DELETED)) {
             LOGGER.debug(
                     "Detected a DELETE operation where metadata is just the word 'deleted', so send event on to subscriber");
             return true;
@@ -240,7 +242,9 @@ public class ContextualPredicate implements Predicate {
         if (this.textPaths != null && !this.textPaths.isEmpty()) {
             LOGGER.debug("creating criteria with textPaths and metadata document");
             try {
-                cec = new ContextualEvaluationCriteriaImpl(searchPhrase, fuzzy, caseSensitiveSearch,
+                cec = new ContextualEvaluationCriteriaImpl(searchPhrase,
+                        fuzzy,
+                        caseSensitiveSearch,
                         this.textPaths.toArray(new String[this.textPaths.size()]),
                         (String) contextualMap.get("METADATA"));
             } catch (IOException e) {
@@ -248,13 +252,15 @@ public class ContextualPredicate implements Predicate {
                 return false;
             }
 
-        // This predicate has no text paths specified, so can use default Lucene search index, which
-        // indexed the entry's entire metadata
-        // per the default XPath expressions in ContextualEvaluator, from the event's properties
-        // data
+            // This predicate has no text paths specified, so can use default Lucene search index, which
+            // indexed the entry's entire metadata
+            // per the default XPath expressions in ContextualEvaluator, from the event's properties
+            // data
         } else {
             LOGGER.debug("using default Lucene search index for metadata");
-            cec = new ContextualEvaluationCriteriaImpl(searchPhrase, fuzzy, caseSensitiveSearch,
+            cec = new ContextualEvaluationCriteriaImpl(searchPhrase,
+                    fuzzy,
+                    caseSensitiveSearch,
                     (Directory) contextualMap.get("DEFAULT_INDEX"));
         }
 

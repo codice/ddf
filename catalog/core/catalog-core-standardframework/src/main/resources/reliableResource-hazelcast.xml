@@ -265,7 +265,8 @@
         <merge-policy>com.hazelcast.map.merge.PassThroughMergePolicy</merge-policy>
 
         <map-store enabled="true">
-            <factory-class-name>ddf.catalog.cache.impl.FileSystemMapStoreFactory</factory-class-name>
+            <factory-class-name>ddf.catalog.cache.impl.FileSystemMapStoreFactory
+            </factory-class-name>
             <write-delay-seconds>0</write-delay-seconds>
         </map-store>
 

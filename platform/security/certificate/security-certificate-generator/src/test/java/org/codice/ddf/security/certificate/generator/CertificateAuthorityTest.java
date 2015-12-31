@@ -79,15 +79,16 @@ public class CertificateAuthorityTest {
 
         when(csr.newCertificateBuilder(any(X509Certificate.class))).thenReturn(mockBuilder);
         when(mockBuilder.build(any(ContentSigner.class))).thenReturn(mockHolder);
-        when(mockConverter.getCertificate(any(X509CertificateHolder.class)))
-                .thenReturn(mockSignedCert);
+        when(mockConverter.getCertificate(any(X509CertificateHolder.class))).thenReturn(
+                mockSignedCert);
         when(csr.getSubjectPrivateKey()).thenReturn(mockPrivateKey);
         when(csr.getSubjectPublicKey()).thenReturn(mockPublicKey);
         when(mockPrivateKey.getAlgorithm()).thenReturn("RSA");
         when(mockPublicKey.getAlgorithm()).thenReturn("RSA");
 
         KeyStore.PrivateKeyEntry newObject = demoCa.sign(csr);
-        assertThat("Expected instance of a different class", newObject,
+        assertThat("Expected instance of a different class",
+                newObject,
                 instanceOf(KeyStore.PrivateKeyEntry.class));
     }
 

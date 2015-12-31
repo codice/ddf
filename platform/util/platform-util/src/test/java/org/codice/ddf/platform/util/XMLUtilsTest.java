@@ -43,9 +43,11 @@ public class XMLUtilsTest {
 
     private static final String XML = "<node>Valid-XML</node>";
 
-    private static final String PRETTY_XML_SOURCE = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><node>Valid-XML</node>\n";
+    private static final String PRETTY_XML_SOURCE =
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?><node>Valid-XML</node>\n";
 
-    private static final String PRETTY_XML_NODE = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n<node>Valid-XML</node>\n";
+    private static final String PRETTY_XML_NODE =
+            "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n<node>Valid-XML</node>\n";
 
     @Test
     public void testFormatSource() throws ParserConfigurationException, IOException, SAXException {
@@ -56,7 +58,8 @@ public class XMLUtilsTest {
 
     @Test
     public void testFormatNode() throws ParserConfigurationException, IOException, SAXException {
-        Node xmlNode = DocumentBuilderFactory.newInstance().newDocumentBuilder()
+        Node xmlNode = DocumentBuilderFactory.newInstance()
+                .newDocumentBuilder()
                 .parse(new ByteArrayInputStream(XML.getBytes()));
 
         assertThat(XMLUtils.format(xmlNode, setTransformerProperties()), is(equalTo(XML)));
@@ -73,7 +76,8 @@ public class XMLUtilsTest {
     @Test
     public void testPrettyFormatNode()
             throws ParserConfigurationException, IOException, SAXException {
-        Node xmlNode = DocumentBuilderFactory.newInstance().newDocumentBuilder()
+        Node xmlNode = DocumentBuilderFactory.newInstance()
+                .newDocumentBuilder()
                 .parse(new ByteArrayInputStream(PRETTY_XML_NODE.getBytes()));
 
         assertThat(XMLUtils.prettyFormat(xmlNode), is(equalTo(PRETTY_XML_NODE)));
@@ -83,21 +87,25 @@ public class XMLUtilsTest {
     public void testTransformSource()
             throws ParserConfigurationException, IOException, SAXException {
         Source xmlSource = new StreamSource(new StringReader(XML));
-        StreamResult result = (StreamResult) XMLUtils
-                .transform(xmlSource, setTransformerProperties(),
-                        new StreamResult(new StringWriter()));
+        StreamResult result = (StreamResult) XMLUtils.transform(xmlSource,
+                setTransformerProperties(),
+                new StreamResult(new StringWriter()));
 
-        assertThat(result.getWriter().toString(), is(equalTo(XML)));
+        assertThat(result.getWriter()
+                .toString(), is(equalTo(XML)));
     }
 
     @Test
     public void testTransformNode() throws ParserConfigurationException, IOException, SAXException {
-        Node xmlNode = DocumentBuilderFactory.newInstance().newDocumentBuilder()
+        Node xmlNode = DocumentBuilderFactory.newInstance()
+                .newDocumentBuilder()
                 .parse(new ByteArrayInputStream(XML.getBytes()));
-        StreamResult result = (StreamResult) XMLUtils.transform(xmlNode, setTransformerProperties(),
+        StreamResult result = (StreamResult) XMLUtils.transform(xmlNode,
+                setTransformerProperties(),
                 new StreamResult(new StringWriter()));
 
-        assertThat(result.getWriter().toString(), is(equalTo(XML)));
+        assertThat(result.getWriter()
+                .toString(), is(equalTo(XML)));
     }
 
     private TransformerProperties setTransformerProperties() {

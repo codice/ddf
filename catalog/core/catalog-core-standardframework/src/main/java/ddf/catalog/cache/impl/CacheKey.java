@@ -57,8 +57,8 @@ public class CacheKey {
         // option when generating the unique cache key.
         for (String propertyName : names) {
             if (propertyName.equals(ResourceRequest.OPTION_ARGUMENT)) {
-                properties =
-                        "_" + propertyName + "-" + resourceRequest.getPropertyValue(propertyName);
+                properties = "_" + propertyName + "-" + resourceRequest.getPropertyValue(
+                        propertyName);
             }
         }
 

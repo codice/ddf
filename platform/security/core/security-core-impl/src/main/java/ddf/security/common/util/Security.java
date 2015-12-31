@@ -79,9 +79,11 @@ public class Security {
      * @return
      */
     public static boolean tokenAboutToExpire(Subject subject) {
-        return !((null != subject) && (null != subject.getPrincipals()) && (null != subject
-                .getPrincipals().oneByType(SecurityAssertion.class)) && (!subject.getPrincipals()
-                .oneByType(SecurityAssertion.class).getSecurityToken()
+        return !((null != subject) && (null != subject.getPrincipals()) && (null
+                != subject.getPrincipals()
+                .oneByType(SecurityAssertion.class)) && (!subject.getPrincipals()
+                .oneByType(SecurityAssertion.class)
+                .getSecurityToken()
                 .isAboutToExpire(TimeUnit.MINUTES.toSeconds(1))));
     }
 
@@ -91,10 +93,11 @@ public class Security {
      * @return
      */
     public static boolean javaSubjectHasAdminRole() {
-        javax.security.auth.Subject subject = javax.security.auth.Subject
-                .getSubject(AccessController.getContext());
+        javax.security.auth.Subject subject = javax.security.auth.Subject.getSubject(
+                AccessController.getContext());
         if (subject != null) {
-            return subject.getPrincipals().contains(ADMIN_ROLE);
+            return subject.getPrincipals()
+                    .contains(ADMIN_ROLE);
         }
         return false;
     }
@@ -109,7 +112,7 @@ public class Security {
      * @return
      * @throws Exception
      */
-    public static  <V> V runWithSystemSubjectFallback(Callable<V> callable) throws Exception {
+    public static <V> V runWithSystemSubjectFallback(Callable<V> callable) throws Exception {
         //if there is no security manager then SecurityUtils.getSubject() will error out
         //so get the system subject and use that instead
         if (ThreadContext.getSecurityManager() == null) {
@@ -145,6 +148,7 @@ public class Security {
     /**
      * Returns the subject associated with this system. Uses a cached subject since the subject
      * will not change between calls.
+     *
      * @return
      */
     public static synchronized Subject getSystemSubject() {
@@ -159,7 +163,8 @@ public class Security {
         try {
             if (keyStore != null) {
                 if (keyStore.size() == 1) {
-                    alias = keyStore.aliases().nextElement();
+                    alias = keyStore.aliases()
+                            .nextElement();
                 } else if (keyStore.size() > 1) {
                     alias = getCertificateAlias();
                 }
@@ -176,9 +181,8 @@ public class Security {
         }
 
         PKIAuthenticationTokenFactory pkiTokenFactory = createPKITokenFactory();
-        PKIAuthenticationToken pkiToken = pkiTokenFactory
-                .getTokenFromCerts(new X509Certificate[] {(X509Certificate) cert},
-                        PKIAuthenticationToken.DEFAULT_REALM);
+        PKIAuthenticationToken pkiToken = pkiTokenFactory.getTokenFromCerts(new X509Certificate[] {
+                (X509Certificate) cert}, PKIAuthenticationToken.DEFAULT_REALM);
         if (pkiToken != null) {
             SecurityManager securityManager = getSecurityManager();
             if (securityManager != null) {
@@ -195,8 +199,8 @@ public class Security {
     public static SecurityManager getSecurityManager() {
         BundleContext context = getBundleContext();
         if (context != null) {
-            ServiceReference securityManagerRef = context
-                    .getServiceReference(SecurityManager.class);
+            ServiceReference securityManagerRef =
+                    context.getServiceReference(SecurityManager.class);
             return (SecurityManager) context.getService(securityManagerRef);
         }
         LOGGER.warn("Unable to get Security Manager");
@@ -228,7 +232,8 @@ public class Security {
 
         } catch (KeyStoreException e) {
             LOGGER.error("Unable to create keystore instance of type {}",
-                    System.getProperty("javax.net.ssl.keyStoreType"), e);
+                    System.getProperty("javax.net.ssl.keyStoreType"),
+                    e);
             return null;
         }
         Path keyStoreFile = Paths.get(System.getProperty("javax.net.ssl.keyStore"));

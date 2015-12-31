@@ -72,15 +72,13 @@ public abstract class AbstractPKIHandler implements AuthenticationHandler {
 
         //doesn't matter what the resolve flag is set to, we do the same action
         BaseAuthenticationToken token = extractAuthenticationInfo(realm,
-                (X509Certificate[]) httpRequest
-                        .getAttribute("javax.servlet.request.X509Certificate"));
+                (X509Certificate[]) httpRequest.getAttribute("javax.servlet.request.X509Certificate"));
 
-        X509Certificate[] certs = (X509Certificate[]) request
-                .getAttribute("javax.servlet.request.X509Certificate");
+        X509Certificate[] certs = (X509Certificate[]) request.getAttribute(
+                "javax.servlet.request.X509Certificate");
 
-        HttpServletResponse httpResponse = response instanceof HttpServletResponse ?
-                (HttpServletResponse) response :
-                null;
+        HttpServletResponse httpResponse =
+                response instanceof HttpServletResponse ? (HttpServletResponse) response : null;
 
         // The httpResponse was null, return no action and try to process with other handlers
         if (httpResponse == null && resolve) {

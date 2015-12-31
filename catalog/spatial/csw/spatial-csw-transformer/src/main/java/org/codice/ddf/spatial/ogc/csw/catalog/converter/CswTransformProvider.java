@@ -91,8 +91,8 @@ public class CswTransformProvider implements Converter {
             String outputSchema = (String) arg;
             transformer = metacardTransformerManager.getTransformerBySchema(outputSchema);
         } else {
-            transformer = metacardTransformerManager
-                    .getTransformerBySchema(CswConstants.CSW_OUTPUT_SCHEMA);
+            transformer =
+                    metacardTransformerManager.getTransformerBySchema(CswConstants.CSW_OUTPUT_SCHEMA);
         }
 
         if (transformer == null) {
@@ -113,9 +113,8 @@ public class CswTransformProvider implements Converter {
     private void writeXml(BinaryContent content, HierarchicalStreamWriter writer) {
         try {
             XmlPullParser parser = XppFactory.createDefaultParser();
-            new HierarchicalStreamCopier()
-                    .copy(new XppReader(new InputStreamReader(content.getInputStream()), parser),
-                            writer);
+            new HierarchicalStreamCopier().copy(new XppReader(new InputStreamReader(content.getInputStream()),
+                    parser), writer);
         } catch (XmlPullParserException e) {
             throw new ConversionException("Unable to copy metadata to XML Output.", e);
         }
@@ -150,15 +149,15 @@ public class CswTransformProvider implements Converter {
         Object arg = context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER);
         InputTransformer transformer = null;
         if (arg == null || CswConstants.CSW_OUTPUT_SCHEMA.equals((String) arg)) {
-            transformer = inputTransformerManager
-                    .<InputTransformer>getTransformerBySchema(CswConstants.CSW_OUTPUT_SCHEMA);
+            transformer = inputTransformerManager.<InputTransformer>getTransformerBySchema(
+                    CswConstants.CSW_OUTPUT_SCHEMA);
             if (transformer != null) {
                 return ((CswRecordConverter) transformer).unmarshal(reader, context);
             }
         } else {
             String outputSchema = (String) arg;
-            transformer = inputTransformerManager
-                    .<InputTransformer>getTransformerBySchema(outputSchema);
+            transformer = inputTransformerManager.<InputTransformer>getTransformerBySchema(
+                    outputSchema);
         }
 
         if (transformer == null) {
@@ -170,11 +169,11 @@ public class CswTransformProvider implements Converter {
         try (InputStream is = readXml(reader, context)) {
             InputStream inputStream = is;
             if (LOGGER.isDebugEnabled()) {
-                String originalInputStream = IOUtils
-                        .toString(inputStream, StandardCharsets.UTF_8.name());
+                String originalInputStream = IOUtils.toString(inputStream,
+                        StandardCharsets.UTF_8.name());
                 LOGGER.debug("About to transform\n{}", originalInputStream);
-                inputStream = new ByteArrayInputStream(
-                        originalInputStream.getBytes(StandardCharsets.UTF_8.name()));
+                inputStream =
+                        new ByteArrayInputStream(originalInputStream.getBytes(StandardCharsets.UTF_8.name()));
             }
             metacard = transformer.transform(inputStream);
         } catch (IOException | CatalogTransformerException e) {

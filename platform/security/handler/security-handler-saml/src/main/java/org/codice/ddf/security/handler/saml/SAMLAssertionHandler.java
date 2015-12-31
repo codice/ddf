@@ -64,7 +64,8 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
 
     private static final String SAML_NAMESPACE = "urn:oasis:names:tc:SAML:2.0:assertion";
 
-    private static final String EVIDENCE = "<%1$s:Evidence xmlns:%1$s=\"urn:oasis:names:tc:SAML:2.0:assertion\">%2$s</%1$s:Evidence>";
+    private static final String EVIDENCE =
+            "<%1$s:Evidence xmlns:%1$s=\"urn:oasis:names:tc:SAML:2.0:assertion\">%2$s</%1$s:Evidence>";
 
     private static final Pattern SAML_PREFIX = Pattern.compile("<(?<prefix>\\w+?):Assertion\\s.*");
 
@@ -87,8 +88,8 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
 
         SecurityToken securityToken;
         HttpServletRequest httpRequest = (HttpServletRequest) request;
-        String authHeader = ((HttpServletRequest) request)
-                .getHeader(SecurityConstants.SAML_HEADER_NAME);
+        String authHeader =
+                ((HttpServletRequest) request).getHeader(SecurityConstants.SAML_HEADER_NAME);
 
         // check for full SAML assertions coming in (federated requests, etc.)
         if (authHeader != null) {
@@ -118,7 +119,8 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
 
                     securityToken.setToken(thisToken);
                     SAMLAuthenticationToken samlToken = new SAMLAuthenticationToken(null,
-                            securityToken, realm);
+                            securityToken,
+                            realm);
                     handlerResult.setToken(samlToken);
                     handlerResult.setStatus(HandlerResult.Status.COMPLETED);
                 } catch (IOException e) {
@@ -141,7 +143,8 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
                 Element thisToken = StaxUtils.read(new StringReader(tokenString))
                         .getDocumentElement();
                 securityToken.setToken(thisToken);
-                SAMLAuthenticationToken samlToken = new SAMLAuthenticationToken(null, securityToken,
+                SAMLAuthenticationToken samlToken = new SAMLAuthenticationToken(null,
+                        securityToken,
                         realm);
                 handlerResult.setToken(samlToken);
                 handlerResult.setStatus(HandlerResult.Status.COMPLETED);
@@ -164,16 +167,17 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
         if (session != null) {
             //Check if there is a SAML Assertion in the session
             //If so, create a SAMLAuthenticationToken using the sessionId
-            SecurityTokenHolder savedToken = (SecurityTokenHolder) session
-                    .getAttribute(SecurityConstants.SAML_ASSERTION);
+            SecurityTokenHolder savedToken = (SecurityTokenHolder) session.getAttribute(
+                    SecurityConstants.SAML_ASSERTION);
             if (savedToken != null && savedToken.getSecurityToken(realm) != null) {
-                SecurityAssertionImpl assertion = new SecurityAssertionImpl(
-                        savedToken.getSecurityToken(realm));
-                if (assertion.getNotOnOrAfter() == null
-                        || assertion.getNotOnOrAfter().getTime() - System.currentTimeMillis() > 0) {
+                SecurityAssertionImpl assertion =
+                        new SecurityAssertionImpl(savedToken.getSecurityToken(realm));
+                if (assertion.getNotOnOrAfter() == null || assertion.getNotOnOrAfter()
+                        .getTime() - System.currentTimeMillis() > 0) {
                     LOGGER.trace("Creating SAML authentication token with session.");
                     SAMLAuthenticationToken samlToken = new SAMLAuthenticationToken(null,
-                            session.getId(), realm);
+                            session.getId(),
+                            realm);
                     handlerResult.setToken(samlToken);
                     handlerResult.setStatus(HandlerResult.Status.COMPLETED);
                     return handlerResult;
@@ -209,9 +213,11 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
                 String evidence = String.format(EVIDENCE, prefix.group("prefix"), assertion);
 
                 Element root = dbf.newDocumentBuilder()
-                        .parse(new ByteArrayInputStream(evidence.getBytes())).getDocumentElement();
+                        .parse(new ByteArrayInputStream(evidence.getBytes()))
+                        .getDocumentElement();
 
-                result = ((Element) root.getChildNodes().item(0));
+                result = ((Element) root.getChildNodes()
+                        .item(0));
             } catch (ParserConfigurationException | SAXException | IOException ex) {
                 LOGGER.warn("Unable to parse SAML assertion", ex);
             } finally {

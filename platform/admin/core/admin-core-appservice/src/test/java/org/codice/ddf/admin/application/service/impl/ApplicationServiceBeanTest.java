@@ -97,7 +97,8 @@ public class ApplicationServiceBeanTest {
 
     private ObjectName objectName;
 
-    private static final String TEST_FEATURE_DESCRIPTION = "Mock Feature for ApplicationServiceBean tests";
+    private static final String TEST_FEATURE_DESCRIPTION =
+            "Mock Feature for ApplicationServiceBean tests";
 
     private static final String TEST_FEATURE_DETAILS = "TestFeatureDetails";
 
@@ -123,7 +124,8 @@ public class ApplicationServiceBeanTest {
 
     private static final String REMOVE_APP_ASE = "Could not remove application";
 
-    private static final String GET_SERV_ASE = "There was an error while trying to access the application";
+    private static final String GET_SERV_ASE =
+            "There was an error while trying to access the application";
 
     private Logger logger = LoggerFactory.getLogger(ApplicationServiceBeanMBean.class);
 
@@ -136,9 +138,9 @@ public class ApplicationServiceBeanTest {
         when(testApp.getName()).thenReturn(TEST_APP_NAME);
         when(testApp.getVersion()).thenReturn(TEST_VERSION);
         when(testApp.getDescription()).thenReturn(TEST_APP_DESCRIP);
-        when(testApp.getURI()).thenReturn(
-                getClass().getClassLoader().getResource("test-features-with-main-feature.xml")
-                        .toURI());
+        when(testApp.getURI()).thenReturn(getClass().getClassLoader()
+                .getResource("test-features-with-main-feature.xml")
+                .toURI());
         bundleContext = mock(BundleContext.class);
         mBeanServer = mock(MBeanServer.class);
         objectName = new ObjectName(
@@ -188,7 +190,8 @@ public class ApplicationServiceBeanTest {
     @Test
     public void testInit() throws Exception {
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt, mBeanServer);
+                testConfigAdminExt,
+                mBeanServer);
         serviceBean.init();
 
         verify(mBeanServer).registerMBean(serviceBean, objectName);
@@ -203,9 +206,11 @@ public class ApplicationServiceBeanTest {
     @Test
     public void testInitTwice() throws Exception {
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt, mBeanServer);
-        when(mBeanServer.registerMBean(any(Object.class), any(ObjectName.class)))
-                .thenThrow(new InstanceAlreadyExistsException()).thenReturn(null);
+                testConfigAdminExt,
+                mBeanServer);
+        when(mBeanServer.registerMBean(any(Object.class),
+                any(ObjectName.class))).thenThrow(new InstanceAlreadyExistsException())
+                .thenReturn(null);
 
         serviceBean.init();
 
@@ -223,10 +228,11 @@ public class ApplicationServiceBeanTest {
     @Test(expected = ApplicationServiceException.class)
     public void testInitWhenRegisterMBeanThrowsInstanceAlreadyExistsException() throws Exception {
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt, mBeanServer);
+                testConfigAdminExt,
+                mBeanServer);
 
-        when(mBeanServer.registerMBean(any(Object.class), any(ObjectName.class)))
-                .thenThrow(new NullPointerException());
+        when(mBeanServer.registerMBean(any(Object.class),
+                any(ObjectName.class))).thenThrow(new NullPointerException());
 
         serviceBean.init();
     }
@@ -239,7 +245,8 @@ public class ApplicationServiceBeanTest {
     @Test
     public void testDestroy() throws Exception {
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt, mBeanServer);
+                testConfigAdminExt,
+                mBeanServer);
 
         serviceBean.destroy();
 
@@ -255,9 +262,11 @@ public class ApplicationServiceBeanTest {
     @Test(expected = ApplicationServiceException.class)
     public void testDestroyWhenUnregisterMBeanThrowsInstanceNotFoundException() throws Exception {
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt, mBeanServer);
+                testConfigAdminExt,
+                mBeanServer);
 
-        doThrow(new InstanceNotFoundException()).when(mBeanServer).unregisterMBean(objectName);
+        doThrow(new InstanceNotFoundException()).when(mBeanServer)
+                .unregisterMBean(objectName);
 
         serviceBean.destroy();
     }
@@ -272,7 +281,8 @@ public class ApplicationServiceBeanTest {
     @Test(expected = ApplicationServiceException.class)
     public void testDestroyWhenUnregisterMBeanThrowsMBeanRegistrationException() throws Exception {
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt, mBeanServer);
+                testConfigAdminExt,
+                mBeanServer);
 
         doThrow(new MBeanRegistrationException(new Exception())).when(mBeanServer)
                 .unregisterMBean(any(ObjectName.class));
@@ -313,12 +323,15 @@ public class ApplicationServiceBeanTest {
         when(testAppService.getInstallationProfiles()).thenReturn(featureList);
 
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt, mBeanServer);
+                testConfigAdminExt,
+                mBeanServer);
 
         List<Map<String, Object>> result = serviceBean.getInstallationProfiles();
 
         assertThat("Should contain the nodes set up previously.",
-                (String) result.get(0).get("name"), is(TEST_FEATURE_NAME));
+                (String) result.get(0)
+                        .get("name"),
+                is(TEST_FEATURE_NAME));
         assertThat("Should have two entries.", result.size(), is(2));
     }
 
@@ -331,12 +344,15 @@ public class ApplicationServiceBeanTest {
     public void testGetApplicationTree() throws Exception {
         setUpTree();
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt, mBeanServer);
+                testConfigAdminExt,
+                mBeanServer);
         serviceBean.init();
         List<Map<String, Object>> result = serviceBean.getApplicationTree();
 
         assertThat("Should return the application nodes set up previously.",
-                (String) result.get(0).get("name"), is(TEST_APP_NAME));
+                (String) result.get(0)
+                        .get("name"),
+                is(TEST_APP_NAME));
         assertThat("Size of root should be one.", result.size(), is(1));
 
         verify(testApp, atLeastOnce()).getName();
@@ -352,13 +368,16 @@ public class ApplicationServiceBeanTest {
     public void testGetApplications() throws Exception {
         setUpTree();
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt, mBeanServer);
+                testConfigAdminExt,
+                mBeanServer);
         serviceBean.init();
 
         List<Map<String, Object>> result = serviceBean.getApplications();
 
         assertThat("Should return the application nodes set up previously.",
-                (String) result.get(0).get("name"), is(TEST_APP_NAME));
+                (String) result.get(0)
+                        .get("name"),
+                is(TEST_APP_NAME));
         assertThat("Size of root should be two.", result.size(), is(2));
 
         verify(testApp, atLeastOnce()).getName();
@@ -376,7 +395,8 @@ public class ApplicationServiceBeanTest {
     public void testGetApplicationsNoChildren() throws Exception {
         setUpTree();
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt, mBeanServer);
+                testConfigAdminExt,
+                mBeanServer);
         serviceBean.init();
 
         when(testNode1.getChildren()).thenReturn((new TreeSet<ApplicationNode>()));
@@ -386,7 +406,9 @@ public class ApplicationServiceBeanTest {
         List<Map<String, Object>> result = serviceBean.getApplications();
 
         assertThat("Should return the application nodes set up previously.",
-                (String) result.get(0).get("name"), is(TEST_APP_NAME));
+                (String) result.get(0)
+                        .get("name"),
+                is(TEST_APP_NAME));
         assertThat("Size of root should be one.", result.size(), is(1));
     }
 
@@ -400,7 +422,8 @@ public class ApplicationServiceBeanTest {
     public void testGetApplicationsChildDependencies() throws Exception {
         setUpTree();
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt, mBeanServer);
+                testConfigAdminExt,
+                mBeanServer);
         serviceBean.init();
 
         ApplicationNode testNode4 = mock(ApplicationNodeImpl.class);
@@ -413,7 +436,9 @@ public class ApplicationServiceBeanTest {
         List<Map<String, Object>> result = serviceBean.getApplications();
 
         assertThat("Should return the applications set up previously.",
-                (String) result.get(0).get("name"), is(TEST_APP_NAME));
+                (String) result.get(0)
+                        .get("name"),
+                is(TEST_APP_NAME));
         assertThat("Size of root should be three.", result.size(), is(3));
     }
 
@@ -427,7 +452,8 @@ public class ApplicationServiceBeanTest {
     public void testGetApplicationsMultiChildDependencies() throws Exception {
         setUpTree();
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt, mBeanServer);
+                testConfigAdminExt,
+                mBeanServer);
         serviceBean.init();
 
         ApplicationNode testNode4 = mock(ApplicationNodeImpl.class);
@@ -443,7 +469,9 @@ public class ApplicationServiceBeanTest {
         List<Map<String, Object>> result = serviceBean.getApplications();
 
         assertThat("Should return the applications set up previously.",
-                (String) result.get(0).get("name"), is(TEST_APP_NAME));
+                (String) result.get(0)
+                        .get("name"),
+                is(TEST_APP_NAME));
         assertThat("Size of root should be three.", result.size(), is(3));
     }
 
@@ -455,7 +483,8 @@ public class ApplicationServiceBeanTest {
     @Test
     public void testStartApplication() throws Exception {
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt, mBeanServer);
+                testConfigAdminExt,
+                mBeanServer);
 
         assertTrue(serviceBean.startApplication(TEST_APP_NAME));
 
@@ -471,7 +500,8 @@ public class ApplicationServiceBeanTest {
     @Test
     public void testStartApplicationException() throws Exception {
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt, mBeanServer);
+                testConfigAdminExt,
+                mBeanServer);
         doThrow(new ApplicationServiceException()).when(testAppService)
                 .startApplication(TEST_APP_NAME);
 
@@ -488,7 +518,8 @@ public class ApplicationServiceBeanTest {
     @Test
     public void testStopApplication() throws Exception {
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt, mBeanServer);
+                testConfigAdminExt,
+                mBeanServer);
 
         assertTrue(serviceBean.stopApplication(TEST_APP_NAME));
 
@@ -504,7 +535,8 @@ public class ApplicationServiceBeanTest {
     @Test
     public void testStopApplicationException() throws Exception {
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt, mBeanServer);
+                testConfigAdminExt,
+                mBeanServer);
         doThrow(new ApplicationServiceException()).when(testAppService)
                 .stopApplication(TEST_APP_NAME);
 
@@ -520,7 +552,8 @@ public class ApplicationServiceBeanTest {
     @Test
     public void testAddApplications() throws Exception {
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt, mBeanServer);
+                testConfigAdminExt,
+                mBeanServer);
         List<Map<String, Object>> testURLList = new ArrayList<>();
         Map<String, Object> testURLMap1 = mock(HashMap.class);
         when(testURLMap1.get("value")).thenReturn(TEST_URL);
@@ -544,7 +577,8 @@ public class ApplicationServiceBeanTest {
     @Test
     public void testAddApplicationsUSE() throws Exception {
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt, mBeanServer);
+                testConfigAdminExt,
+                mBeanServer);
         List<Map<String, Object>> testURLList = new ArrayList<>();
         Map<String, Object> testURLMap1 = mock(HashMap.class);
         when(testURLMap1.get("value")).thenReturn(BAD_URL);
@@ -562,15 +596,16 @@ public class ApplicationServiceBeanTest {
      */
     @Test
     public void testAddApplicationsASE() throws Exception {
-        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory
-                .getLogger(Logger.ROOT_LOGGER_NAME);
+        ch.qos.logback.classic.Logger root =
+                (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         final Appender mockAppender = mock(Appender.class);
         when(mockAppender.getName()).thenReturn("MOCK");
         root.addAppender(mockAppender);
         root.setLevel(Level.ALL);
 
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt, mBeanServer);
+                testConfigAdminExt,
+                mBeanServer);
         List<Map<String, Object>> testURLList = new ArrayList<>();
         Map<String, Object> testURLMap1 = mock(HashMap.class);
         when(testURLMap1.get("value")).thenReturn(TEST_URL);
@@ -587,7 +622,8 @@ public class ApplicationServiceBeanTest {
         verify(mockAppender, times(2)).doAppend(argThat(new ArgumentMatcher() {
             @Override
             public boolean matches(final Object argument) {
-                return ((LoggingEvent) argument).getFormattedMessage().contains(ADD_APP_ASE);
+                return ((LoggingEvent) argument).getFormattedMessage()
+                        .contains(ADD_APP_ASE);
             }
         }));
     }
@@ -601,7 +637,8 @@ public class ApplicationServiceBeanTest {
     @Test
     public void testRemoveApplication() throws Exception {
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt, mBeanServer);
+                testConfigAdminExt,
+                mBeanServer);
 
         serviceBean.removeApplication(TEST_APP_NAME);
 
@@ -617,7 +654,8 @@ public class ApplicationServiceBeanTest {
     @Test
     public void testRemoveApplicationInvalidParam() throws Exception {
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt, mBeanServer);
+                testConfigAdminExt,
+                mBeanServer);
 
         serviceBean.removeApplication(StringUtils.EMPTY);
 
@@ -632,15 +670,16 @@ public class ApplicationServiceBeanTest {
      */
     @Test
     public void testRemoveApplicationASE() throws Exception {
-        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory
-                .getLogger(Logger.ROOT_LOGGER_NAME);
+        ch.qos.logback.classic.Logger root =
+                (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         final Appender mockAppender = mock(Appender.class);
         when(mockAppender.getName()).thenReturn("MOCK");
         root.addAppender(mockAppender);
         root.setLevel(Level.ALL);
 
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt, mBeanServer);
+                testConfigAdminExt,
+                mBeanServer);
 
         doThrow(new ApplicationServiceException()).when(testAppService)
                 .removeApplication(any(String.class));
@@ -650,7 +689,8 @@ public class ApplicationServiceBeanTest {
         verify(mockAppender).doAppend(argThat(new ArgumentMatcher() {
             @Override
             public boolean matches(final Object argument) {
-                return ((LoggingEvent) argument).getFormattedMessage().contains(REMOVE_APP_ASE);
+                return ((LoggingEvent) argument).getFormattedMessage()
+                        .contains(REMOVE_APP_ASE);
             }
         }));
     }
@@ -663,7 +703,8 @@ public class ApplicationServiceBeanTest {
     @Test
     public void testGetServices() throws Exception {
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt, mBeanServer) {
+                testConfigAdminExt,
+                mBeanServer) {
             @Override
             protected BundleContext getContext() {
                 return bundleContext;
@@ -689,10 +730,12 @@ public class ApplicationServiceBeanTest {
         when(testApp.getBundles()).thenReturn(testBundles);
         when(testBundle1.getLocation()).thenReturn(TEST_LOCATION);
         when(testAppService.getApplication(TEST_APP_NAME)).thenReturn(testApp);
-        when(testConfigAdminExt.listServices(Mockito.any(String.class), Mockito.any(String.class)))
-                .thenReturn(services);
+        when(testConfigAdminExt.listServices(Mockito.any(String.class),
+                Mockito.any(String.class))).thenReturn(services);
 
-        assertThat("Should find the given services.", serviceBean.getServices(TEST_APP_NAME).get(0),
+        assertThat("Should find the given services.",
+                serviceBean.getServices(TEST_APP_NAME)
+                        .get(0),
                 is(testService1));
     }
 
@@ -705,7 +748,8 @@ public class ApplicationServiceBeanTest {
     @Test
     public void testGetServicesNotContainsKey() throws Exception {
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt, mBeanServer) {
+                testConfigAdminExt,
+                mBeanServer) {
             @Override
             protected BundleContext getContext() {
                 return bundleContext;
@@ -730,10 +774,11 @@ public class ApplicationServiceBeanTest {
         when(testApp.getBundles()).thenReturn(testBundles);
         when(testBundle1.getLocation()).thenReturn(TEST_LOCATION);
         when(testAppService.getApplication(TEST_APP_NAME)).thenReturn(testApp);
-        when(testConfigAdminExt.listServices(Mockito.any(String.class), Mockito.any(String.class)))
-                .thenReturn(services);
+        when(testConfigAdminExt.listServices(Mockito.any(String.class),
+                Mockito.any(String.class))).thenReturn(services);
 
-        assertThat("Should not find any services.", serviceBean.getServices(TEST_APP_NAME),
+        assertThat("Should not find any services.",
+                serviceBean.getServices(TEST_APP_NAME),
                 is(ListUtils.EMPTY_LIST));
     }
 
@@ -749,7 +794,8 @@ public class ApplicationServiceBeanTest {
     @Test
     public void testGetServicesMetatypeInfo() throws Exception {
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt, mBeanServer) {
+                testConfigAdminExt,
+                mBeanServer) {
             @Override
             protected BundleContext getContext() {
                 return bundleContext;
@@ -800,10 +846,12 @@ public class ApplicationServiceBeanTest {
         when(testApp.getBundles()).thenReturn(testBundles);
         when(testBundle1.getLocation()).thenReturn(TEST_LOCATION);
         when(testAppService.getApplication(TEST_APP_NAME)).thenReturn(testApp);
-        when(testConfigAdminExt.listServices(Mockito.any(String.class), Mockito.any(String.class)))
-                .thenReturn(services);
+        when(testConfigAdminExt.listServices(Mockito.any(String.class),
+                Mockito.any(String.class))).thenReturn(services);
 
-        assertThat("Should find the given services.", serviceBean.getServices(TEST_APP_NAME).get(0),
+        assertThat("Should find the given services.",
+                serviceBean.getServices(TEST_APP_NAME)
+                        .get(0),
                 is(testService1));
     }
 
@@ -815,15 +863,16 @@ public class ApplicationServiceBeanTest {
      */
     @Test
     public void testGetServicesASE() throws Exception {
-        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory
-                .getLogger(Logger.ROOT_LOGGER_NAME);
+        ch.qos.logback.classic.Logger root =
+                (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         final Appender mockAppender = mock(Appender.class);
         when(mockAppender.getName()).thenReturn("MOCK");
         root.addAppender(mockAppender);
         root.setLevel(Level.ALL);
 
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt, mBeanServer) {
+                testConfigAdminExt,
+                mBeanServer) {
             @Override
             protected BundleContext getContext() {
                 return bundleContext;
@@ -837,17 +886,19 @@ public class ApplicationServiceBeanTest {
         Map<String, Object> testService1 = new HashMap<>();
         services.add(testService1);
 
-        doThrow(new ApplicationServiceException()).when(testApp).getBundles();
+        doThrow(new ApplicationServiceException()).when(testApp)
+                .getBundles();
         when(testAppService.getApplication(TEST_APP_NAME)).thenReturn(testApp);
-        when(testConfigAdminExt.listServices(Mockito.any(String.class), Mockito.any(String.class)))
-                .thenReturn(services);
+        when(testConfigAdminExt.listServices(Mockito.any(String.class),
+                Mockito.any(String.class))).thenReturn(services);
 
         serviceBean.getServices(TEST_APP_NAME);
 
         verify(mockAppender).doAppend(argThat(new ArgumentMatcher() {
             @Override
             public boolean matches(final Object argument) {
-                return ((LoggingEvent) argument).getFormattedMessage().contains(GET_SERV_ASE);
+                return ((LoggingEvent) argument).getFormattedMessage()
+                        .contains(GET_SERV_ASE);
             }
         }));
     }
@@ -861,7 +912,8 @@ public class ApplicationServiceBeanTest {
     @Test
     public void testGetSetApplicationPlugins() throws Exception {
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt, mBeanServer);
+                testConfigAdminExt,
+                mBeanServer);
         ApplicationPlugin testPlugin1 = mock(ApplicationPlugin.class);
         ApplicationPlugin testPlugin2 = mock(ApplicationPlugin.class);
         List<ApplicationPlugin> pluginList = new ArrayList<>();
@@ -881,7 +933,8 @@ public class ApplicationServiceBeanTest {
     @Test
     public void testGetAllFeatures() throws Exception {
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt, mBeanServer);
+                testConfigAdminExt,
+                mBeanServer);
         List<FeatureDetails> testFeatureDetailsList = new ArrayList<>();
         FeatureDetails testFeatureDetails1 = mock(FeatureDetails.class);
         testFeatureDetailsList.add(testFeatureDetails1);
@@ -893,8 +946,11 @@ public class ApplicationServiceBeanTest {
         when(testAppService.getAllFeatures()).thenReturn(testFeatureDetailsList);
 
         assertThat("Features returned should match testFeatureDetailsList features",
-                (String) serviceBean.getAllFeatures().get(0).get("name"),
-                is(testFeatureDetailsList.get(0).getName()));
+                (String) serviceBean.getAllFeatures()
+                        .get(0)
+                        .get("name"),
+                is(testFeatureDetailsList.get(0)
+                        .getName()));
         verify(testAppService).getAllFeatures();
     }
 
@@ -906,7 +962,8 @@ public class ApplicationServiceBeanTest {
     @Test
     public void testFindApplicationFeatures() throws Exception {
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt, mBeanServer);
+                testConfigAdminExt,
+                mBeanServer);
 
         List<FeatureDetails> testFeatureDetailsList = new ArrayList<>();
         FeatureDetails testFeatureDetails1 = mock(FeatureDetails.class);
@@ -916,12 +973,15 @@ public class ApplicationServiceBeanTest {
         when(testFeatureDetails1.getStatus()).thenReturn(TEST_FEATURE_STATUS);
         when(testFeatureDetails1.getRepository()).thenReturn(TEST_REPO_NAME);
 
-        when(testAppService.findApplicationFeatures(TEST_APP_NAME))
-                .thenReturn(testFeatureDetailsList);
+        when(testAppService.findApplicationFeatures(TEST_APP_NAME)).thenReturn(
+                testFeatureDetailsList);
 
         assertThat("Features returned should match testFeatureDetailsList features",
-                (String) serviceBean.findApplicationFeatures(TEST_APP_NAME).get(0).get("name"),
-                is(testFeatureDetailsList.get(0).getName()));
+                (String) serviceBean.findApplicationFeatures(TEST_APP_NAME)
+                        .get(0)
+                        .get("name"),
+                is(testFeatureDetailsList.get(0)
+                        .getName()));
         verify(testAppService).findApplicationFeatures(TEST_APP_NAME);
     }
 
@@ -933,7 +993,8 @@ public class ApplicationServiceBeanTest {
     @Test
     public void testGetPluginsForApplication() throws Exception {
         ApplicationServiceBean serviceBean = new ApplicationServiceBean(testAppService,
-                testConfigAdminExt, mBeanServer);
+                testConfigAdminExt,
+                mBeanServer);
         ApplicationPlugin testPlugin1 = mock(ApplicationPlugin.class);
         ApplicationPlugin testPlugin2 = mock(ApplicationPlugin.class);
         List<ApplicationPlugin> pluginList = new ArrayList<>();
@@ -952,6 +1013,8 @@ public class ApplicationServiceBeanTest {
         serviceBean.setApplicationPlugins(pluginList);
 
         assertThat("Should return the list of plugins given to it.",
-                serviceBean.getPluginsForApplication(TEST_APP_NAME).get(0), is(plugin1JSON));
+                serviceBean.getPluginsForApplication(TEST_APP_NAME)
+                        .get(0),
+                is(plugin1JSON));
     }
 }

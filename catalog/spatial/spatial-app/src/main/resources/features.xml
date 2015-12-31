@@ -39,8 +39,11 @@
     <feature name="spatial-wfs" install="manual" version="${project.version}"
              description="Web Feature Service (WFS).">
         <bundle>mvn:org.codice.ddf.spatial/spatial-ogc-urlresourcereader/${project.version}</bundle>
-        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xpp3/${cxf.xpp3.bundle.version}</bundle>
-        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xstream/${xstream.bundle.version}
+        <bundle>
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xpp3/${cxf.xpp3.bundle.version}
+        </bundle>
+        <bundle>
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xstream/${xstream.bundle.version}
         </bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-api/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-mapper/${project.version}</bundle>
@@ -50,7 +53,8 @@
              description="Web Feature Service (WFS) v1.0.0 Source.">
         <feature>spatial-wfs</feature>
         <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-v1_0_0-source/${project.version}</bundle>
-        <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-v1_0_0-schema-webapp/${project.version}</bundle>
+        <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-v1_0_0-schema-webapp/${project.version}
+        </bundle>
     </feature>
 
     <feature name="spatial-wfs-v2_0_0" install="manual" version="${project.version}"
@@ -61,7 +65,8 @@
 
     <feature name="spatial-csw" install="manual" version="${project.version}"
              description="Catalogue Service for Web (CSW) v2.0.2 Source and Endpoint.">
-        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xstream/${xstream.bundle.version}
+        <bundle>
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xstream/${xstream.bundle.version}
         </bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-ogc-api/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-csw-schema-bindings/${project.version}</bundle>
@@ -79,7 +84,9 @@
 
     <feature name="offline-gazetteer" install="manual" version="${project.version}"
              description="Offline gazetteer service utilizing a local GeoNames index.">
-        <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.lucene/${lucene.bundle.version}</bundle>
+        <bundle dependency="true">
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.lucene/${lucene.bundle.version}
+        </bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-api/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-create/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-extract/${project.version}</bundle>

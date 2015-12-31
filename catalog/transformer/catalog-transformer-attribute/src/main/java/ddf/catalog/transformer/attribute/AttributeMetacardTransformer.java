@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -39,8 +39,8 @@ import ddf.catalog.transform.MetacardTransformer;
  */
 public class AttributeMetacardTransformer implements MetacardTransformer {
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(AttributeMetacardTransformer.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(AttributeMetacardTransformer.class);
 
     private String id;
 
@@ -81,14 +81,16 @@ public class AttributeMetacardTransformer implements MetacardTransformer {
 
         if (attribute != null && attribute.getValue() != null) {
 
-            if (byte[].class.isAssignableFrom(attribute.getValue().getClass())) {
-                return new BinaryContentImpl(
-                        new ByteArrayInputStream((byte[]) attribute.getValue()), mimeType);
-            }
-            if (String.class.isAssignableFrom(attribute.getValue().getClass())) {
-                return new BinaryContentImpl(new ByteArrayInputStream(
-                        attribute.getValue().toString().getBytes(StandardCharsets.UTF_8)),
+            if (byte[].class.isAssignableFrom(attribute.getValue()
+                    .getClass())) {
+                return new BinaryContentImpl(new ByteArrayInputStream((byte[]) attribute.getValue()),
                         mimeType);
+            }
+            if (String.class.isAssignableFrom(attribute.getValue()
+                    .getClass())) {
+                return new BinaryContentImpl(new ByteArrayInputStream(attribute.getValue()
+                        .toString()
+                        .getBytes(StandardCharsets.UTF_8)), mimeType);
             }
 
         }
@@ -98,8 +100,8 @@ public class AttributeMetacardTransformer implements MetacardTransformer {
 
     @Override
     public String toString() {
-        return MetacardTransformer.class.getName() + " {Impl=" + this.getClass().getName()
-                + ", attributeName=" + attributeName + ", id=" + id + ", MIME Type=" + mimeType
-                + "}";
+        return MetacardTransformer.class.getName() + " {Impl=" + this.getClass()
+                .getName() + ", attributeName=" + attributeName + ", id=" + id + ", MIME Type="
+                + mimeType + "}";
     }
 }

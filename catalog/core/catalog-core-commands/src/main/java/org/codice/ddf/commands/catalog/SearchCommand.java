@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -36,8 +36,7 @@ import ddf.util.XPathHelper;
 @Command(scope = CatalogCommands.NAMESPACE, name = "search", description = "Searches records in the catalog provider.")
 public class SearchCommand extends CatalogCommands {
 
-    private static final org.slf4j.Logger LOGGER = LoggerFactory
-            .getLogger(RemoveCommand.class);
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(RemoveCommand.class);
 
     private static final String ID = "ID ";
 
@@ -83,23 +82,27 @@ public class SearchCommand extends CatalogCommands {
                 searchPhrase = "*";
             }
             if (caseSensitive) {
-                filter = getFilterBuilder().attribute(Metacard.ANY_TEXT).is().like()
+                filter = getFilterBuilder().attribute(Metacard.ANY_TEXT)
+                        .is()
+                        .like()
                         .caseSensitiveText(searchPhrase);
             } else {
-                filter = getFilterBuilder().attribute(Metacard.ANY_TEXT).is().like()
+                filter = getFilterBuilder().attribute(Metacard.ANY_TEXT)
+                        .is()
+                        .like()
                         .text(searchPhrase);
             }
         }
 
-        if(this.cache) {
-            return  executeSearchCache(filter);
+        if (this.cache) {
+            return executeSearchCache(filter);
         } else {
-            return  executeSearchStore(filter);
+            return executeSearchStore(filter);
         }
 
     }
 
-    private  Object executeSearchStore(Filter filter)  throws Exception {
+    private Object executeSearchStore(Filter filter) throws Exception {
         String formatString =
                 "%1$-33s %2$-26s %3$-" + TITLE_MAX_LENGTH + "s %4$-" + EXCERPT_MAX_LENGTH + "s%n";
 
@@ -121,13 +124,21 @@ public class SearchCommand extends CatalogCommands {
 
         int size = 0;
         if (response.getResults() != null) {
-            size = response.getResults().size();
+            size = response.getResults()
+                    .size();
         }
 
         console.println();
-        console.printf(" %d result(s) out of %s%d%s in %3.3f seconds", (size),
-                Ansi.ansi().fg(Ansi.Color.CYAN).toString(), response.getHits(),
-                Ansi.ansi().reset().toString(), (end - start) / MS_PER_SECOND);
+        console.printf(" %d result(s) out of %s%d%s in %3.3f seconds",
+                (size),
+                Ansi.ansi()
+                        .fg(Ansi.Color.CYAN)
+                        .toString(),
+                response.getHits(),
+                Ansi.ansi()
+                        .reset()
+                        .toString(),
+                (end - start) / MS_PER_SECOND);
         console.printf(formatString, "", "", "", "");
         printHeaderMessage(String.format(formatString, ID, DATE, TITLE, EXCERPT));
 
@@ -141,7 +152,9 @@ public class SearchCommand extends CatalogCommands {
             if (searchPhrase != null) {
                 if (metacard.getMetadata() != null) {
                     XPathHelper helper = new XPathHelper(metacard.getMetadata());
-                    String indexedText = helper.getDocument().getDocumentElement().getTextContent();
+                    String indexedText = helper.getDocument()
+                            .getDocumentElement()
+                            .getTextContent();
                     indexedText = indexedText.replaceAll("\\r\\n|\\r|\\n", " ");
 
                     String normalizedSearchPhrase = searchPhrase.replaceAll("\\*", "");
@@ -158,35 +171,42 @@ public class SearchCommand extends CatalogCommands {
                     if (index != -1) {
                         int contextLength =
                                 (EXCERPT_MAX_LENGTH - normalizedSearchPhrase.length() - 8) / 2;
-                        excerpt = "..." + indexedText
-                                .substring(Math.max(index - contextLength, 0), index);
-                        excerpt = excerpt + Ansi.ansi().fg(Ansi.Color.GREEN).toString();
-                        excerpt = excerpt + indexedText
-                                .substring(index, index + normalizedSearchPhrase.length());
-                        excerpt = excerpt + Ansi.ansi().reset().toString();
-                        excerpt = excerpt + indexedText
-                                .substring(index + normalizedSearchPhrase.length(),
-                                        Math.min(indexedText.length(),
-                                                index + normalizedSearchPhrase.length()
-                                                        + contextLength)) + "...";
+                        excerpt = "..." + indexedText.substring(Math.max(index - contextLength, 0),
+                                index);
+                        excerpt = excerpt + Ansi.ansi()
+                                .fg(Ansi.Color.GREEN)
+                                .toString();
+                        excerpt = excerpt + indexedText.substring(index,
+                                index + normalizedSearchPhrase.length());
+                        excerpt = excerpt + Ansi.ansi()
+                                .reset()
+                                .toString();
+                        excerpt = excerpt + indexedText.substring(
+                                index + normalizedSearchPhrase.length(),
+                                Math.min(indexedText.length(),
+                                        index + normalizedSearchPhrase.length() + contextLength))
+                                + "...";
 
                     }
                 }
             }
 
             if (metacard.getModifiedDate() != null) {
-                modifiedDate = new DateTime(metacard.getModifiedDate().getTime())
-                        .toString(DATETIME_FORMATTER);
+                modifiedDate = new DateTime(metacard.getModifiedDate()
+                        .getTime()).toString(DATETIME_FORMATTER);
             }
 
-            console.printf(formatString, metacard.getId(), modifiedDate,
-                    title.substring(0, Math.min(title.length(), TITLE_MAX_LENGTH)), excerpt);
+            console.printf(formatString,
+                    metacard.getId(),
+                    modifiedDate,
+                    title.substring(0, Math.min(title.length(), TITLE_MAX_LENGTH)),
+                    excerpt);
         }
 
         return null;
     }
 
-    private  Object executeSearchCache(Filter filter) throws Exception {
+    private Object executeSearchCache(Filter filter) throws Exception {
         String formatString = "%1$-33s %2$-26s %3$-" + TITLE_MAX_LENGTH + "s %n";
 
         long start = System.currentTimeMillis();
@@ -196,7 +216,8 @@ public class SearchCommand extends CatalogCommands {
         long end = System.currentTimeMillis();
 
         console.println();
-        console.printf(" %d result(s) in %3.3f seconds", (results.size()),
+        console.printf(" %d result(s) in %3.3f seconds",
+                (results.size()),
                 (end - start) / MS_PER_SECOND);
         console.printf(formatString, "", "", "");
         printHeaderMessage(String.format(formatString, ID, DATE, TITLE));
@@ -210,7 +231,9 @@ public class SearchCommand extends CatalogCommands {
                 modifiedDate = dt.toString(DATETIME_FORMATTER);
             }
 
-            console.printf(formatString, metacard.getId(), modifiedDate,
+            console.printf(formatString,
+                    metacard.getId(),
+                    modifiedDate,
                     title.substring(0, Math.min(title.length(), TITLE_MAX_LENGTH)));
         }
 

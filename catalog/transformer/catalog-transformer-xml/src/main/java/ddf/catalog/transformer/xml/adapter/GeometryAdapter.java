@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -56,18 +56,20 @@ public class GeometryAdapter extends XmlAdapter<GeometryElement, Attribute> {
                     jtsGeometry = wktReader.read(wkt);
                 } catch (ParseException e) {
                     throw new CatalogTransformerException(
-                            "Could not transform Metacard to XML.  Invalid WKT.", e);
+                            "Could not transform Metacard to XML.  Invalid WKT.",
+                            e);
                 }
 
                 JTSToGML311GeometryConverter converter = new JTSToGML311GeometryConverter();
 
                 @SuppressWarnings("unchecked")
-                JAXBElement<AbstractGeometryType> gmlElement = (JAXBElement<AbstractGeometryType>) converter
-                        .createElement(jtsGeometry);
+                JAXBElement<AbstractGeometryType> gmlElement =
+                        (JAXBElement<AbstractGeometryType>) converter.createElement(jtsGeometry);
 
                 GeometryElement.Value geoValue = new GeometryElement.Value();
                 geoValue.setGeometry(gmlElement);
-                ((GeometryElement) element).getValue().add(geoValue);
+                ((GeometryElement) element).getValue()
+                        .add(geoValue);
             }
         }
         return element;
@@ -81,8 +83,8 @@ public class GeometryAdapter extends XmlAdapter<GeometryElement, Attribute> {
 
         for (Value xmlValue : element.getValue()) {
             JAXBElement<AbstractGeometryType> xmlGeometry = xmlValue.getGeometry();
-            Geometry geometry = converter
-                    .createGeometry(new DefaultRootObjectLocator(xmlValue), xmlGeometry.getValue());
+            Geometry geometry = converter.createGeometry(new DefaultRootObjectLocator(xmlValue),
+                    xmlGeometry.getValue());
             String wkt = wktWriter.write(geometry);
 
             if (attribute == null) {

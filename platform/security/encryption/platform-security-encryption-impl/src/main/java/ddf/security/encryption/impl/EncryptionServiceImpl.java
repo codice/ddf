@@ -30,7 +30,8 @@ public class EncryptionServiceImpl implements EncryptionService {
     private final Crypter crypter;
 
     public EncryptionServiceImpl() {
-        String passwordDirectory = System.getProperty("ddf.home").concat("/etc/certs");
+        String passwordDirectory = System.getProperty("ddf.home")
+                .concat("/etc/certs");
 
         synchronized (EncryptionServiceImpl.class) {
             if (!new File(passwordDirectory.concat("/meta")).exists()) {

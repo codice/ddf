@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -111,11 +111,11 @@ public class TestCswSourceBase {
 
     protected static final String URL = "http://www.example.com/csw";
 
-    private static final List<String> JAXB_ELEMENT_CLASS_NAMES = ImmutableList
-            .of(GetRecordsType.class.getName());
+    private static final List<String> JAXB_ELEMENT_CLASS_NAMES =
+            ImmutableList.of(GetRecordsType.class.getName());
 
-    private static final Map<String, String> JAXB_ELEMENT_CLASS_MAP = ImmutableMap
-            .of(GetRecordsType.class.getName(),
+    private static final Map<String, String> JAXB_ELEMENT_CLASS_MAP =
+            ImmutableMap.of(GetRecordsType.class.getName(),
                     new QName(CswConstants.CSW_OUTPUT_SCHEMA, CswConstants.GET_RECORDS).toString());
 
     protected final GeotoolsFilterBuilder builder = new GeotoolsFilterBuilder();
@@ -186,12 +186,10 @@ public class TestCswSourceBase {
         ServiceReference ref = mock(ServiceReference.class);
         ServiceReference[] serviceRefs = new ServiceReference[] {ref};
         try {
-            when(mockContext
-                    .getServiceReferences(eq(MetadataTransformer.class.getName()), anyString()))
-                    .thenReturn(serviceRefs);
-            when(mockContext
-                    .getServiceReferences(eq(STSClientConfiguration.class.getName()), anyString()))
-                    .thenReturn(null);
+            when(mockContext.getServiceReferences(eq(MetadataTransformer.class.getName()),
+                    anyString())).thenReturn(serviceRefs);
+            when(mockContext.getServiceReferences(eq(STSClientConfiguration.class.getName()),
+                    anyString())).thenReturn(null);
         } catch (InvalidSyntaxException e) {
             LOGGER.error(e.getMessage(), e);
         }
@@ -249,36 +247,58 @@ public class TestCswSourceBase {
             cswRecords.add(metacard);
             if (rec.getValue() instanceof BriefRecordType) {
                 BriefRecordType record = (BriefRecordType) rec.getValue();
-                metacard.setId(record.getIdentifier().get(0).getValue().getContent().get(0));
-                if (!CollectionUtils.isEmpty(record.getType().getContent())) {
-                    metacard.setContentTypeName(record.getType().getContent().get(0));
+                metacard.setId(record.getIdentifier()
+                        .get(0)
+                        .getValue()
+                        .getContent()
+                        .get(0));
+                if (!CollectionUtils.isEmpty(record.getType()
+                        .getContent())) {
+                    metacard.setContentTypeName(record.getType()
+                            .getContent()
+                            .get(0));
                 }
             } else if (rec.getValue() instanceof SummaryRecordType) {
                 SummaryRecordType record = (SummaryRecordType) rec.getValue();
-                metacard.setId(record.getIdentifier().get(0).getValue().getContent().get(0));
-                if (!CollectionUtils.isEmpty(record.getType().getContent())) {
+                metacard.setId(record.getIdentifier()
+                        .get(0)
+                        .getValue()
+                        .getContent()
+                        .get(0));
+                if (!CollectionUtils.isEmpty(record.getType()
+                        .getContent())) {
 
-                    metacard.setContentTypeName(record.getType().getContent().get(0));
+                    metacard.setContentTypeName(record.getType()
+                            .getContent()
+                            .get(0));
                 }
             } else if (rec.getValue() instanceof RecordType) {
                 RecordType record = (RecordType) rec.getValue();
                 for (JAXBElement<SimpleLiteral> jb : record.getDCElement()) {
-                    if ("identifier".equals(jb.getName().getLocalPart())) {
-                        metacard.setId(jb.getValue().getContent().get(0));
+                    if ("identifier".equals(jb.getName()
+                            .getLocalPart())) {
+                        metacard.setId(jb.getValue()
+                                .getContent()
+                                .get(0));
                     }
-                    if ("type".equals(jb.getName().getLocalPart()) && !CollectionUtils
-                            .isEmpty(jb.getValue().getContent())) {
-                        metacard.setContentTypeName(jb.getValue().getContent().get(0));
+                    if ("type".equals(jb.getName()
+                            .getLocalPart()) && !CollectionUtils.isEmpty(jb.getValue()
+                            .getContent())) {
+                        metacard.setContentTypeName(jb.getValue()
+                                .getContent()
+                                .get(0));
                     }
                 }
             }
         }
         CswRecordCollection collection = new CswRecordCollection();
         collection.setCswRecords(cswRecords);
-        collection.setNumberOfRecordsMatched(
-                records.getSearchResults().getNumberOfRecordsMatched().intValue());
-        collection.setNumberOfRecordsReturned(
-                records.getSearchResults().getNumberOfRecordsReturned().intValue());
+        collection.setNumberOfRecordsMatched(records.getSearchResults()
+                .getNumberOfRecordsMatched()
+                .intValue());
+        collection.setNumberOfRecordsReturned(records.getSearchResults()
+                .getNumberOfRecordsReturned()
+                .intValue());
         return collection;
     }
 
@@ -286,8 +306,8 @@ public class TestCswSourceBase {
     protected <T> T parseXml(InputStream stream) {
         JAXBElement<T> jaxb;
         try {
-            JAXBContext jc = JAXBContext
-                    .newInstance("net.opengis.cat.csw.v_2_0_2:net.opengis.gml.v_3_1_1");
+            JAXBContext jc = JAXBContext.newInstance(
+                    "net.opengis.cat.csw.v_2_0_2:net.opengis.gml.v_3_1_1");
             Unmarshaller u = jc.createUnmarshaller();
 
             Object o = u.unmarshal(stream);
@@ -302,14 +322,17 @@ public class TestCswSourceBase {
     protected String getGetRecordsTypeAsXml(GetRecordsType getRecordsType) throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-        CswJAXBElementProvider<GetRecordsType> getRecordsTypeProvider = new CswJAXBElementProvider<>();
+        CswJAXBElementProvider<GetRecordsType> getRecordsTypeProvider =
+                new CswJAXBElementProvider<>();
         getRecordsTypeProvider.setMarshallAsJaxbElement(true);
         getRecordsTypeProvider.setJaxbElementClassNames(JAXB_ELEMENT_CLASS_NAMES);
         getRecordsTypeProvider.setJaxbElementClassMap(JAXB_ELEMENT_CLASS_MAP);
-        getRecordsTypeProvider
-                .writeTo(getRecordsType, GenericType.class, GetRecordsType.class.getAnnotations(),
-                        MediaType.APPLICATION_XML_TYPE, new MultivaluedHashMap<String, Object>(0),
-                        outputStream);
+        getRecordsTypeProvider.writeTo(getRecordsType,
+                GenericType.class,
+                GetRecordsType.class.getAnnotations(),
+                MediaType.APPLICATION_XML_TYPE,
+                new MultivaluedHashMap<String, Object>(0),
+                outputStream);
         return outputStream.toString();
     }
 
@@ -329,8 +352,7 @@ public class TestCswSourceBase {
         when(mockCapabilities.getVersion()).thenReturn(cswVersion);
         when(mockCapabilities.getServiceIdentification()).thenReturn(mockServiceIdentification);
         when(mockCapabilities.getServiceIdentification()).thenReturn(mockServiceIdentification);
-        when(mockCsw.getCapabilities(any(GetCapabilitiesRequest.class)))
-                .thenReturn(mockCapabilities);
+        when(mockCsw.getCapabilities(any(GetCapabilitiesRequest.class))).thenReturn(mockCapabilities);
 
         FilterCapabilities mockFilterCapabilities = mock(FilterCapabilities.class);
         when(mockCapabilities.getFilterCapabilities()).thenReturn(mockFilterCapabilities);
@@ -365,7 +387,8 @@ public class TestCswSourceBase {
         getRecordsParameters.add(typeNames);
         DomainType outputSchema = new DomainType();
         outputSchema.setName(CswConstants.OUTPUT_SCHEMA_PARAMETER);
-        outputSchema.getValue().add(CswConstants.CSW_OUTPUT_SCHEMA);
+        outputSchema.getValue()
+                .add(CswConstants.CSW_OUTPUT_SCHEMA);
         getRecordsParameters.add(outputSchema);
         DomainType constraintLang = new DomainType();
         constraintLang.setName(CswConstants.CONSTRAINT_LANGUAGE_PARAMETER);
@@ -403,18 +426,17 @@ public class TestCswSourceBase {
             }
 
             SearchResultsType searchResults = mock(SearchResultsType.class);
-            when(searchResults.getNumberOfRecordsMatched())
-                    .thenReturn(BigInteger.valueOf(numRecordsMatched));
-            when(searchResults.getNumberOfRecordsReturned())
-                    .thenReturn(BigInteger.valueOf(numRecordsReturned));
+            when(searchResults.getNumberOfRecordsMatched()).thenReturn(BigInteger.valueOf(
+                    numRecordsMatched));
+            when(searchResults.getNumberOfRecordsReturned()).thenReturn(BigInteger.valueOf(
+                    numRecordsReturned));
 
             CswRecordCollection mockCswRecordCollection = mock(CswRecordCollection.class);
 
             when(mockCswRecordCollection.getCswRecords()).thenReturn(metacards);
 
             when(mockCswRecordCollection.getNumberOfRecordsMatched()).thenReturn(numRecordsMatched);
-            when(mockCswRecordCollection.getNumberOfRecordsReturned())
-                    .thenReturn((long) numRecordsReturned);
+            when(mockCswRecordCollection.getNumberOfRecordsReturned()).thenReturn((long) numRecordsReturned);
             when(mockCsw.getRecords(any(GetRecordsType.class))).thenReturn(mockCswRecordCollection);
         }
 
@@ -425,11 +447,13 @@ public class TestCswSourceBase {
         ServiceRegistration<?> mockRegisteredMetacardType = (ServiceRegistration<?>) mock(
                 ServiceRegistration.class);
         doReturn(mockRegisteredMetacardType).when(mockContext)
-                .registerService(eq(MetacardType.class.getName()), any(CswRecordMetacardType.class),
+                .registerService(eq(MetacardType.class.getName()),
+                        any(CswRecordMetacardType.class),
                         Matchers.<Dictionary<String, ?>>any());
-        ServiceReference<?> mockServiceReference = (ServiceReference<?>) mock(
-                ServiceReference.class);
-        doReturn(mockServiceReference).when(mockRegisteredMetacardType).getReference();
+        ServiceReference<?> mockServiceReference =
+                (ServiceReference<?>) mock(ServiceReference.class);
+        doReturn(mockServiceReference).when(mockRegisteredMetacardType)
+                .getReference();
         when(mockServiceReference.getProperty(eq(Metacard.CONTENT_TYPE))).thenReturn(contentTypes);
     }
 

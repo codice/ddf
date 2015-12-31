@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -73,8 +73,8 @@ public class SortedFederationStrategy extends AbstractFederationStrategy {
     protected static final Comparator<Result> DEFAULT_COMPARATOR = new RelevanceResultComparator(
             SortOrder.DESCENDING);
 
-    private static XLogger logger = new XLogger(
-            LoggerFactory.getLogger(SortedFederationStrategy.class));
+    private static XLogger logger =
+            new XLogger(LoggerFactory.getLogger(SortedFederationStrategy.class));
 
     /**
      * Instantiates a {@code SortedFederationStrategy} with the provided {@link ExecutorService}.
@@ -151,8 +151,10 @@ public class SortedFederationStrategy extends AbstractFederationStrategy {
                 try {
 
                     SourceResponse sourceResponse = query.getTimeoutMillis() < 1 ?
-                            entry.getValue().get() :
-                            entry.getValue().get(getTimeRemaining(deadline), TimeUnit.MILLISECONDS);
+                            entry.getValue()
+                                    .get() :
+                            entry.getValue()
+                                    .get(getTimeRemaining(deadline), TimeUnit.MILLISECONDS);
 
                     resultList.addAll(sourceResponse.getResults());
                     totalHits += sourceResponse.getHits();
@@ -167,12 +169,12 @@ public class SortedFederationStrategy extends AbstractFederationStrategy {
                 } catch (InterruptedException e) {
                     logger.warn(
                             "Couldn't get results from completed federated query on site with ShortName "
-                                    + site.getId(), e);
+                                    + site.getId(),
+                            e);
                     processingDetails.add(new ProcessingDetailsImpl(site.getId(), e));
                 } catch (ExecutionException e) {
-                    logger.warn(
-                            "Couldn't get results from completed federated query on site " + site
-                                    .getId(), e);
+                    logger.warn("Couldn't get results from completed federated query on site "
+                            + site.getId(), e);
                     if (logger.isDebugEnabled()) {
                         logger.debug("Adding exception to response.");
                     }

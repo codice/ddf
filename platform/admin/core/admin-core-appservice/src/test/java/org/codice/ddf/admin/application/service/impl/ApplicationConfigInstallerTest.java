@@ -60,7 +60,8 @@ public class ApplicationConfigInstallerTest {
 
     private static final String RUN_NO_CONFIG = "No config file located, cannot load from it.";
 
-    private static final String RUN_INVALID_URI = "Could not install application, location is not a valid URI";
+    private static final String RUN_INVALID_URI =
+            "Could not install application, location is not a valid URI";
 
     /**
      * Tests with a valid file that contains one application that all of the
@@ -73,9 +74,14 @@ public class ApplicationConfigInstallerTest {
         FeaturesService featuresService = mock(FeaturesService.class);
         ApplicationService appService = mock(ApplicationService.class);
 
-        URL fileURL = this.getClass().getResource("/" + GOOD_FILE);
-        ApplicationConfigInstaller configInstaller = new ApplicationConfigInstaller(
-                fileURL.getFile(), appService, featuresService, START_FEATURE, STOP_FEATURE);
+        URL fileURL = this.getClass()
+                .getResource("/" + GOOD_FILE);
+        ApplicationConfigInstaller configInstaller =
+                new ApplicationConfigInstaller(fileURL.getFile(),
+                        appService,
+                        featuresService,
+                        START_FEATURE,
+                        STOP_FEATURE);
 
         configInstaller.run();
 
@@ -99,9 +105,14 @@ public class ApplicationConfigInstallerTest {
         FeaturesService featuresService = mock(FeaturesService.class);
         ApplicationService appService = mock(ApplicationService.class);
 
-        URL fileURL = this.getClass().getResource("/" + INSTALL_FILE);
-        ApplicationConfigInstaller configInstaller = new ApplicationConfigInstaller(
-                fileURL.getFile(), appService, featuresService, START_FEATURE, STOP_FEATURE);
+        URL fileURL = this.getClass()
+                .getResource("/" + INSTALL_FILE);
+        ApplicationConfigInstaller configInstaller =
+                new ApplicationConfigInstaller(fileURL.getFile(),
+                        appService,
+                        featuresService,
+                        START_FEATURE,
+                        STOP_FEATURE);
 
         configInstaller.run();
 
@@ -126,9 +137,14 @@ public class ApplicationConfigInstallerTest {
         FeaturesService featuresService = mock(FeaturesService.class);
         ApplicationService appService = mock(ApplicationService.class);
 
-        URL fileURL = this.getClass().getResource("/" + EMPTY_FILE);
-        ApplicationConfigInstaller configInstaller = new ApplicationConfigInstaller(
-                fileURL.getFile(), appService, featuresService, START_FEATURE, STOP_FEATURE);
+        URL fileURL = this.getClass()
+                .getResource("/" + EMPTY_FILE);
+        ApplicationConfigInstaller configInstaller =
+                new ApplicationConfigInstaller(fileURL.getFile(),
+                        appService,
+                        featuresService,
+                        START_FEATURE,
+                        STOP_FEATURE);
 
         configInstaller.run();
 
@@ -149,8 +165,11 @@ public class ApplicationConfigInstallerTest {
     public void testFileNotValid() throws Exception {
         FeaturesService featuresService = mock(FeaturesService.class);
 
-        ApplicationConfigInstaller configInstaller = new ApplicationConfigInstaller(BAD_FILE, null,
-                featuresService, START_FEATURE, STOP_FEATURE);
+        ApplicationConfigInstaller configInstaller = new ApplicationConfigInstaller(BAD_FILE,
+                null,
+                featuresService,
+                START_FEATURE,
+                STOP_FEATURE);
 
         configInstaller.run();
 
@@ -168,8 +187,8 @@ public class ApplicationConfigInstallerTest {
      */
     @Test
     public void testRunASE() throws Exception {
-        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory
-                .getLogger(Logger.ROOT_LOGGER_NAME);
+        ch.qos.logback.classic.Logger root =
+                (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         final Appender mockAppender = mock(Appender.class);
         when(mockAppender.getName()).thenReturn("MOCK");
         root.addAppender(mockAppender);
@@ -180,16 +199,22 @@ public class ApplicationConfigInstallerTest {
         doThrow(new ApplicationServiceException()).when(testAppService)
                 .startApplication(anyString());
 
-        URL fileURL = this.getClass().getResource("/" + GOOD_FILE);
-        ApplicationConfigInstaller configInstaller = new ApplicationConfigInstaller(
-                fileURL.getFile(), testAppService, featuresService, START_FEATURE, STOP_FEATURE);
+        URL fileURL = this.getClass()
+                .getResource("/" + GOOD_FILE);
+        ApplicationConfigInstaller configInstaller =
+                new ApplicationConfigInstaller(fileURL.getFile(),
+                        testAppService,
+                        featuresService,
+                        START_FEATURE,
+                        STOP_FEATURE);
 
         configInstaller.run();
 
         verify(mockAppender).doAppend(argThat(new ArgumentMatcher() {
             @Override
             public boolean matches(final Object argument) {
-                return ((LoggingEvent) argument).getFormattedMessage().contains(RUN_ASE_EX);
+                return ((LoggingEvent) argument).getFormattedMessage()
+                        .contains(RUN_ASE_EX);
             }
         }));
     }
@@ -202,22 +227,26 @@ public class ApplicationConfigInstallerTest {
      */
     @Test
     public void testRunConfigFileNotExist() throws Exception {
-        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory
-                .getLogger(Logger.ROOT_LOGGER_NAME);
+        ch.qos.logback.classic.Logger root =
+                (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         final Appender mockAppender = mock(Appender.class);
         when(mockAppender.getName()).thenReturn("MOCK");
         root.addAppender(mockAppender);
         root.setLevel(Level.ALL);
 
-        ApplicationConfigInstaller configInstaller = new ApplicationConfigInstaller(BAD_FILE, null,
-                null, START_FEATURE, STOP_FEATURE);
+        ApplicationConfigInstaller configInstaller = new ApplicationConfigInstaller(BAD_FILE,
+                null,
+                null,
+                START_FEATURE,
+                STOP_FEATURE);
 
         configInstaller.run();
 
         verify(mockAppender).doAppend(argThat(new ArgumentMatcher() {
             @Override
             public boolean matches(final Object argument) {
-                return ((LoggingEvent) argument).getFormattedMessage().contains(RUN_NO_CONFIG);
+                return ((LoggingEvent) argument).getFormattedMessage()
+                        .contains(RUN_NO_CONFIG);
             }
         }));
     }
@@ -230,24 +259,30 @@ public class ApplicationConfigInstallerTest {
      */
     @Test
     public void testRunInvalidURI() throws Exception {
-        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory
-                .getLogger(Logger.ROOT_LOGGER_NAME);
+        ch.qos.logback.classic.Logger root =
+                (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         final Appender mockAppender = mock(Appender.class);
         when(mockAppender.getName()).thenReturn("MOCK");
         root.addAppender(mockAppender);
 
         ApplicationServiceImpl testAppService = mock(ApplicationServiceImpl.class);
 
-        URL fileURL = this.getClass().getResource("/" + INVALID_FILE);
-        ApplicationConfigInstaller configInstaller = new ApplicationConfigInstaller(
-                fileURL.getFile(), testAppService, null, START_FEATURE, STOP_FEATURE);
+        URL fileURL = this.getClass()
+                .getResource("/" + INVALID_FILE);
+        ApplicationConfigInstaller configInstaller =
+                new ApplicationConfigInstaller(fileURL.getFile(),
+                        testAppService,
+                        null,
+                        START_FEATURE,
+                        STOP_FEATURE);
 
         configInstaller.run();
 
         verify(mockAppender).doAppend(argThat(new ArgumentMatcher() {
             @Override
             public boolean matches(final Object argument) {
-                return ((LoggingEvent) argument).getFormattedMessage().contains(RUN_INVALID_URI);
+                return ((LoggingEvent) argument).getFormattedMessage()
+                        .contains(RUN_INVALID_URI);
             }
         }));
     }

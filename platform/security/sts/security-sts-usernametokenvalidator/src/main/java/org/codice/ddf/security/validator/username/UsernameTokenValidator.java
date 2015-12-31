@@ -86,7 +86,8 @@ public class UsernameTokenValidator implements TokenValidator {
     public void addRealm(ServiceReference<JaasRealm> serviceReference) {
         Bundle bundle = FrameworkUtil.getBundle(UsernameTokenValidator.class);
         if (null != bundle) {
-            JaasRealm realm = bundle.getBundleContext().getService(serviceReference);
+            JaasRealm realm = bundle.getBundleContext()
+                    .getService(serviceReference);
             LOGGER.trace("Adding validator for JaasRealm {}", realm.getName());
             JAASUsernameTokenValidator validator = new JAASUsernameTokenValidator();
             validator.setContextName(realm.getName());
@@ -97,7 +98,8 @@ public class UsernameTokenValidator implements TokenValidator {
     public void removeRealm(ServiceReference<JaasRealm> serviceReference) {
         Bundle bundle = FrameworkUtil.getBundle(UsernameTokenValidator.class);
         if (null != bundle) {
-            JaasRealm realm = bundle.getBundleContext().getService(serviceReference);
+            JaasRealm realm = bundle.getBundleContext()
+                    .getService(serviceReference);
             LOGGER.trace("Removing validator for JaasRealm {}", realm.getName());
             validators.remove(realm.getName());
         }
@@ -156,18 +158,19 @@ public class UsernameTokenValidator implements TokenValidator {
         try {
             Set<Class<?>> classes = new HashSet<>();
             classes.add(ObjectFactory.class);
-            classes.add(
-                    org.apache.cxf.ws.security.sts.provider.model.wstrust14.ObjectFactory.class);
+            classes.add(org.apache.cxf.ws.security.sts.provider.model.wstrust14.ObjectFactory.class);
 
-            JAXBContextCache.CachedContextAndSchemas cache = JAXBContextCache
-                    .getCachedContextAndSchemas(classes, null, null, null, false);
+            JAXBContextCache.CachedContextAndSchemas cache =
+                    JAXBContextCache.getCachedContextAndSchemas(classes, null, null, null, false);
             JAXBContext jaxbContext = cache.getContext();
 
             Marshaller marshaller = jaxbContext.createMarshaller();
             Document doc = DOMUtils.createDocument();
             Element rootElement = doc.createElement("root-element");
-            JAXBElement<UsernameTokenType> tokenType = new JAXBElement<>(
-                    QNameConstants.USERNAME_TOKEN, UsernameTokenType.class, usernameTokenType);
+            JAXBElement<UsernameTokenType> tokenType =
+                    new JAXBElement<>(QNameConstants.USERNAME_TOKEN,
+                            UsernameTokenType.class,
+                            usernameTokenType);
             marshaller.marshal(tokenType, rootElement);
             usernameTokenElement = (Element) rootElement.getFirstChild();
         } catch (JAXBException ex) {
@@ -179,10 +182,11 @@ public class UsernameTokenValidator implements TokenValidator {
         // Validate the token
         //
         try {
-            boolean allowNamespaceQualifiedPasswordTypes = wssConfig
-                    .getAllowNamespaceQualifiedPasswordTypes();
+            boolean allowNamespaceQualifiedPasswordTypes =
+                    wssConfig.getAllowNamespaceQualifiedPasswordTypes();
             UsernameToken ut = new UsernameToken(usernameTokenElement,
-                    allowNamespaceQualifiedPasswordTypes, new BSPEnforcer());
+                    allowNamespaceQualifiedPasswordTypes,
+                    new BSPEnforcer());
             // The parsed principal is set independent whether validation is successful or not
             response.setPrincipal(new CustomTokenPrincipal(ut.getName()));
             if (ut.getPassword() == null) {
@@ -195,7 +199,8 @@ public class UsernameTokenValidator implements TokenValidator {
             Set<Map.Entry<String, Validator>> entries = validators.entrySet();
             for (Map.Entry<String, Validator> entry : entries) {
                 try {
-                    entry.getValue().validate(credential, requestData);
+                    entry.getValue()
+                            .validate(credential, requestData);
                     validateTarget.setState(ReceivedToken.STATE.VALID);
                     break;
                 } catch (WSSecurityException ex) {
@@ -207,8 +212,11 @@ public class UsernameTokenValidator implements TokenValidator {
             }
             //end new section
 
-            Principal principal = createPrincipal(ut.getName(), ut.getPassword(),
-                    ut.getPasswordType(), ut.getNonce(), ut.getCreated());
+            Principal principal = createPrincipal(ut.getName(),
+                    ut.getPassword(),
+                    ut.getPasswordType(),
+                    ut.getNonce(),
+                    ut.getCreated());
 
             response.setPrincipal(principal);
             response.setTokenRealm(null);

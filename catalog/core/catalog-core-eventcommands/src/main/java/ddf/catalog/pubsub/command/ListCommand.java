@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -23,11 +23,17 @@ import org.fusesource.jansi.Ansi;
 
 @Command(scope = SubscriptionsCommand.NAMESPACE, name = "list", description = "Allows users to view registered subscriptions.")
 public class ListCommand extends SubscriptionsCommand {
-    static final String DEFAULT_CONSOLE_COLOR = Ansi.ansi().reset().toString();
+    static final String DEFAULT_CONSOLE_COLOR = Ansi.ansi()
+            .reset()
+            .toString();
 
-    static final String RED_CONSOLE_COLOR = Ansi.ansi().fg(Ansi.Color.RED).toString();
+    static final String RED_CONSOLE_COLOR = Ansi.ansi()
+            .fg(Ansi.Color.RED)
+            .toString();
 
-    static final String CYAN_CONSOLE_COLOR = Ansi.ansi().fg(Ansi.Color.CYAN).toString();
+    static final String CYAN_CONSOLE_COLOR = Ansi.ansi()
+            .fg(Ansi.Color.CYAN)
+            .toString();
 
     static final String SUBSCRIPTION_ID_COLUMN_HEADER = "Subscription ID";
 

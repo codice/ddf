@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
  **/
 package org.codice.ddf.ui;
 
@@ -29,10 +28,10 @@ import org.slf4j.LoggerFactory;
 /**
  * This a a very simple example of a servlet protected by CAS that can be used to query for
  * metacards using metacard ids.
- * 
+ *
  * The main query form page that allows a user to enter a metacard id which will be used to query
  * for the associated metacard.
- * 
+ *
  */
 public class QueryForm extends HttpServlet {
     private static final long serialVersionUID = 1L;
@@ -45,13 +44,13 @@ public class QueryForm extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-        throws ServletException, IOException {
+            throws ServletException, IOException {
         doPost(request, response);
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-        throws ServletException, IOException {
+            throws ServletException, IOException {
         response.setContentType("text/html");
         PrintWriter writer = response.getWriter();
         String html = createPage(request);
@@ -61,7 +60,7 @@ public class QueryForm extends HttpServlet {
     /**
      * This method creates the main query form page which allows a user to enter a metacard id which
      * will be used to query for the associated metacard.
-     * 
+     *
      * @param request
      *            The Http servlet request.
      * @return Returns the html representation of the query form page.
@@ -70,7 +69,8 @@ public class QueryForm extends HttpServlet {
         StringBuilder sb = new StringBuilder();
 
         sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-        sb.append("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"DTD/xhtml1-strict.dtd\">");
+        sb.append(
+                "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"DTD/xhtml1-strict.dtd\">");
         sb.append("<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\" lang=\"en\">");
         sb.append("<head>");
         sb.append("<title>");
@@ -103,10 +103,12 @@ public class QueryForm extends HttpServlet {
         sb.append("</html>");
 
         StringBuilder message = new StringBuilder();
-        message.append("\n########################################################################\n");
+        message.append(
+                "\n########################################################################\n");
         message.append(" Query form html:\n");
         message.append(sb.toString());
-        message.append("\n########################################################################\n");
+        message.append(
+                "\n########################################################################\n");
         LOGGER.debug(message.toString());
 
         return sb.toString();
@@ -114,7 +116,7 @@ public class QueryForm extends HttpServlet {
 
     /**
      * Gets the user name of the user that is logged into the query widget.
-     * 
+     *
      * @param request
      *            The Http servlet request
      * @return Return the user name of the user that is logged into the query widget.
@@ -136,7 +138,7 @@ public class QueryForm extends HttpServlet {
 
     /**
      * Gets the CAS proxy ticket that will be used by the STS to get a SAML assertion.
-     * 
+     *
      * @param request
      *            The Http servlet request.
      * @return Returns the CAS proxy ticket that will be used by the STS to get a SAML assertion.
@@ -147,12 +149,13 @@ public class QueryForm extends HttpServlet {
 
     /**
      * Retrieves the url request of the service so that the ticket can be validated later on.
-     * 
+     *
      * @param request
      *            The Http servlet request.
      * @return Returns the service that the ticket was created for.
      */
     private String getService(HttpServletRequest request) {
-        return request.getRequestURL().toString();
+        return request.getRequestURL()
+                .toString();
     }
 }

@@ -13,7 +13,8 @@
 -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-    <OCD description="IdP Server" name="IdP Server" id="org.codice.ddf.security.idp.server.IdpEndpoint">
+    <OCD description="IdP Server" name="IdP Server"
+         id="org.codice.ddf.security.idp.server.IdpEndpoint">
 
         <AD name="SP Metadata" id="spMetadata" required="true" type="String"
             default="" cardinality="100"
@@ -23,7 +24,8 @@
             default="true"
             description="Toggle whether or not to require signed AuthnRequests. The default is 'true'."/>
 
-        <AD name="Cookie Expiration Time (minutes)" id="expirationTime" required="true" type="Integer"
+        <AD name="Cookie Expiration Time (minutes)" id="expirationTime" required="true"
+            type="Integer"
             default="30"
             description="Sets the cookie expiration time for single sign on. This value should match the lifetime of SAML assertions"/>
 

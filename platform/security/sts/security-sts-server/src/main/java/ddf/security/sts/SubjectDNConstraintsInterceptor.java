@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -49,8 +49,8 @@ public class SubjectDNConstraintsInterceptor extends AbstractPhaseInterceptor<Me
     @Override
     public void handleMessage(Message message) throws Fault {
         if (message != null) {
-            String subjectDNConstraints = (String) message
-                    .get(WSHandlerConstants.SIG_SUBJECT_CERT_CONSTRAINTS);
+            String subjectDNConstraints =
+                    (String) message.get(WSHandlerConstants.SIG_SUBJECT_CERT_CONSTRAINTS);
             if (subjectDNConstraints == null) {
                 logger.warn(
                         "No Subject DN Certificate Constraints were defined. This could be a security issue");
@@ -101,7 +101,8 @@ public class SubjectDNConstraintsInterceptor extends AbstractPhaseInterceptor<Me
                 logger.debug("The certificate is null so no constraints matching was possible");
                 return false;
             }
-            String subjectName = cert.getSubjectX500Principal().getName();
+            String subjectName = cert.getSubjectX500Principal()
+                    .getName();
 
             for (Pattern subjectDNPattern : subjectDNPatterns) {
                 final Matcher matcher = subjectDNPattern.matcher(subjectName);

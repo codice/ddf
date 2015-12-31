@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -39,7 +39,9 @@ public class ExpansionsCommand extends OsgiCommandSupport {
         if ((expansionList != null) && (!expansionList.isEmpty())) {
             for (Expansion expansion : expansionList) {
                 Map<String, List<String[]>> map = expansion.getExpansionMap();
-                System.out.print(Ansi.ansi().fg(Ansi.Color.YELLOW).toString());
+                System.out.print(Ansi.ansi()
+                        .fg(Ansi.Color.YELLOW)
+                        .toString());
                 if ((map != null) && (!map.isEmpty())) {
                     for (String key : map.keySet()) {
                         for (String[] mapping : map.get(key)) {
@@ -47,7 +49,9 @@ public class ExpansionsCommand extends OsgiCommandSupport {
                         }
                     }
                 }
-                System.out.print(Ansi.ansi().reset().toString());
+                System.out.print(Ansi.ansi()
+                        .reset()
+                        .toString());
             }
         } else {
             System.out.println("No expansion services currently available.");

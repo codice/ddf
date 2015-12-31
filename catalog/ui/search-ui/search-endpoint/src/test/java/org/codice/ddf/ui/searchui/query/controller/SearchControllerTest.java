@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.ui.searchui.query.controller;
 
@@ -104,7 +103,8 @@ public class SearchControllerTest {
 
         searchController = new SearchController(framework,
                 new ActionRegistryImpl(Collections.<ActionProvider>emptyList()),
-                new GeotoolsFilterAdapterImpl(), new SequentialExecutorService());
+                new GeotoolsFilterAdapterImpl(),
+                new SequentialExecutorService());
 
         mockServerSession = mock(ServerSession.class);
 
@@ -120,20 +120,23 @@ public class SearchControllerTest {
 
         BayeuxServer bayeuxServer = mock(BayeuxServer.class);
         ServerChannel channel = mock(ServerChannel.class);
-        ArgumentCaptor<ServerMessage.Mutable> reply = ArgumentCaptor
-                .forClass(ServerMessage.Mutable.class);
+        ArgumentCaptor<ServerMessage.Mutable> reply =
+                ArgumentCaptor.forClass(ServerMessage.Mutable.class);
 
         when(bayeuxServer.getChannel(any(String.class))).thenReturn(channel);
 
-        SearchRequest request = new SearchRequest(srcIds, getQueryRequest("title LIKE 'Meta*'"), ID);
+        SearchRequest request = new SearchRequest(srcIds,
+                getQueryRequest("title LIKE 'Meta*'"),
+                ID);
 
         searchController.setBayeuxServer(bayeuxServer);
         // Disable Cache
         searchController.setCacheDisabled(true);
         searchController.executeQuery(request, mockServerSession, null);
 
-        verify(channel, timeout(1000).only())
-                .publish(any(ServerSession.class), reply.capture(), anyString());
+        verify(channel, timeout(1000).only()).publish(any(ServerSession.class),
+                reply.capture(),
+                anyString());
         List<Mutable> replies = reply.getAllValues();
         assertReplies(replies);
     }
@@ -147,19 +150,22 @@ public class SearchControllerTest {
 
         BayeuxServer bayeuxServer = mock(BayeuxServer.class);
         ServerChannel channel = mock(ServerChannel.class);
-        ArgumentCaptor<ServerMessage.Mutable> reply = ArgumentCaptor
-                .forClass(ServerMessage.Mutable.class);
+        ArgumentCaptor<ServerMessage.Mutable> reply =
+                ArgumentCaptor.forClass(ServerMessage.Mutable.class);
 
         when(bayeuxServer.getChannel(any(String.class))).thenReturn(channel);
 
-        SearchRequest request = new SearchRequest(srcIds, getQueryRequest("title LIKE 'Meta*'"), ID);
+        SearchRequest request = new SearchRequest(srcIds,
+                getQueryRequest("title LIKE 'Meta*'"),
+                ID);
 
         searchController.setBayeuxServer(bayeuxServer);
         searchController.setCacheDisabled(false);
         searchController.executeQuery(request, mockServerSession, null);
 
-        verify(channel, timeout(1000).times(2))
-                .publish(any(ServerSession.class), reply.capture(), anyString());
+        verify(channel, timeout(1000).times(2)).publish(any(ServerSession.class),
+                reply.capture(),
+                anyString());
         List<Mutable> replies = reply.getAllValues();
         assertReplies(replies);
     }
@@ -167,8 +173,12 @@ public class SearchControllerTest {
     private Query getQueryRequest(String cql) throws CQLException {
         Filter filter = ECQL.toFilter(cql);
 
-        return new QueryImpl(filter, 1, 200, new SortByImpl(Result.TEMPORAL, SortOrder.DESCENDING),
-                true, 1000);
+        return new QueryImpl(filter,
+                1,
+                200,
+                new SortByImpl(Result.TEMPORAL, SortOrder.DESCENDING),
+                true,
+                1000);
     }
 
     @Test
@@ -204,13 +214,16 @@ public class SearchControllerTest {
 
         searchController = new SearchController(framework,
                 new ActionRegistryImpl(Collections.<ActionProvider>emptyList()),
-                new GeotoolsFilterAdapterImpl(), new SequentialExecutorService());
+                new GeotoolsFilterAdapterImpl(),
+                new SequentialExecutorService());
 
         final String ID = "id";
         Set<String> srcIds = new HashSet<>();
         srcIds.add(ID);
 
-        SearchRequest request = new SearchRequest(srcIds, getQueryRequest("anyText LIKE '*'"), "queryId");
+        SearchRequest request = new SearchRequest(srcIds,
+                getQueryRequest("anyText LIKE '*'"),
+                "queryId");
         BayeuxServer bayeuxServer = mock(BayeuxServer.class);
         ServerChannel channel = mock(ServerChannel.class);
         when(bayeuxServer.getChannel(any(String.class))).thenReturn(channel);
@@ -227,12 +240,14 @@ public class SearchControllerTest {
     private List<String> cacheQuery(Set<String> srcIds, int queryRequestCount)
             throws CQLException, UnsupportedQueryException, SourceUnavailableException,
             FederationException {
-        SearchRequest request = new SearchRequest(srcIds, getQueryRequest("anyText LIKE '*'"), "queryId");
+        SearchRequest request = new SearchRequest(srcIds,
+                getQueryRequest("anyText LIKE '*'"),
+                "queryId");
         BayeuxServer bayeuxServer = mock(BayeuxServer.class);
         ServerChannel channel = mock(ServerChannel.class);
         when(bayeuxServer.getChannel(any(String.class))).thenReturn(channel);
-        ArgumentCaptor<QueryRequest> queryRequestCaptor = ArgumentCaptor
-                .forClass(QueryRequest.class);
+        ArgumentCaptor<QueryRequest> queryRequestCaptor =
+                ArgumentCaptor.forClass(QueryRequest.class);
         searchController.setCacheDisabled(false);
         searchController.setNormalizationDisabled(false);
         searchController.setBayeuxServer(bayeuxServer);
@@ -246,7 +261,8 @@ public class SearchControllerTest {
 
         List<String> modes = new ArrayList<>(queryRequestCount);
         for (QueryRequest queryRequest : capturedQueryRequests) {
-            for (String key : queryRequest.getProperties().keySet()) {
+            for (String key : queryRequest.getProperties()
+                    .keySet()) {
                 modes.add((String) queryRequest.getPropertyValue(key));
             }
         }
@@ -264,12 +280,14 @@ public class SearchControllerTest {
         final String ID = "id";
         Set<String> srcIds = new HashSet<>(1);
         srcIds.add(ID);
-        SearchRequest request = new SearchRequest(srcIds, getQueryRequest("title LIKE 'Meta*'"), ID);
+        SearchRequest request = new SearchRequest(srcIds,
+                getQueryRequest("title LIKE 'Meta*'"),
+                ID);
         BayeuxServer bayeuxServer = mock(BayeuxServer.class);
         ServerChannel channel = mock(ServerChannel.class);
         when(bayeuxServer.getChannel(any(String.class))).thenReturn(channel);
-        ArgumentCaptor<QueryRequest> queryRequestCaptor = ArgumentCaptor
-                .forClass(QueryRequest.class);
+        ArgumentCaptor<QueryRequest> queryRequestCaptor =
+                ArgumentCaptor.forClass(QueryRequest.class);
         // Enable Cache
         searchController.setCacheDisabled(true);
         searchController.setBayeuxServer(bayeuxServer);
@@ -279,7 +297,9 @@ public class SearchControllerTest {
 
         // Verify
         verify(framework).query(queryRequestCaptor.capture());
-        assertThat(queryRequestCaptor.getValue().getProperties().size(), is(0));
+        assertThat(queryRequestCaptor.getValue()
+                .getProperties()
+                .size(), is(0));
     }
 
     private void assertReplies(List<Mutable> replies) {
@@ -295,26 +315,38 @@ public class SearchControllerTest {
             assertThat(types.get("ddf.metacard"), instanceOf(Map.class));
 
             @SuppressWarnings("unchecked")
-            Map<String, Map<String, Object>> typeInfo = (Map<String, Map<String, Object>>) types
-                    .get("ddf.metacard");
+            Map<String, Map<String, Object>> typeInfo =
+                    (Map<String, Map<String, Object>>) types.get("ddf.metacard");
 
-            assertThat((String) typeInfo.get("effective").get("format"), is("DATE"));
-            assertThat((String) typeInfo.get("modified").get("format"), is("DATE"));
-            assertThat((String) typeInfo.get("created").get("format"), is("DATE"));
-            assertThat((String) typeInfo.get("expiration").get("format"), is("DATE"));
-            assertThat((String) typeInfo.get("id").get("format"), is("STRING"));
-            assertThat((String) typeInfo.get("title").get("format"), is("STRING"));
-            assertThat((String) typeInfo.get("metadata-content-type").get("format"), is("STRING"));
-            assertThat((String) typeInfo.get("metadata-content-type-version").get("format"),
-                    is("STRING"));
-            assertThat((String) typeInfo.get("metadata-target-namespace").get("format"),
-                    is("STRING"));
-            assertThat((String) typeInfo.get("resource-uri").get("format"), is("STRING"));
-            assertThat((Boolean) typeInfo.get("resource-uri").get("indexed"), is(true));
+            assertThat((String) typeInfo.get("effective")
+                    .get("format"), is("DATE"));
+            assertThat((String) typeInfo.get("modified")
+                    .get("format"), is("DATE"));
+            assertThat((String) typeInfo.get("created")
+                    .get("format"), is("DATE"));
+            assertThat((String) typeInfo.get("expiration")
+                    .get("format"), is("DATE"));
+            assertThat((String) typeInfo.get("id")
+                    .get("format"), is("STRING"));
+            assertThat((String) typeInfo.get("title")
+                    .get("format"), is("STRING"));
+            assertThat((String) typeInfo.get("metadata-content-type")
+                    .get("format"), is("STRING"));
+            assertThat((String) typeInfo.get("metadata-content-type-version")
+                    .get("format"), is("STRING"));
+            assertThat((String) typeInfo.get("metadata-target-namespace")
+                    .get("format"), is("STRING"));
+            assertThat((String) typeInfo.get("resource-uri")
+                    .get("format"), is("STRING"));
+            assertThat((Boolean) typeInfo.get("resource-uri")
+                    .get("indexed"), is(true));
             // since resource-size is not indexed, it should be filtered out
-            assertThat((Boolean) typeInfo.get("resource-size").get("indexed"), is(false));
-            assertThat((String) typeInfo.get("metadata").get("format"), is("XML"));
-            assertThat((String) typeInfo.get("location").get("format"), is("GEOMETRY"));
+            assertThat((Boolean) typeInfo.get("resource-size")
+                    .get("indexed"), is(false));
+            assertThat((String) typeInfo.get("metadata")
+                    .get("format"), is("XML"));
+            assertThat((String) typeInfo.get("location")
+                    .get("format"), is("GEOMETRY"));
         }
     }
 
@@ -338,7 +370,8 @@ public class SearchControllerTest {
             metacard.setModifiedDate(TIMESTAMP);
             metacard.setContentTypeName("TEST");
             metacard.setContentTypeVersion("1.0");
-            metacard.setTargetNamespace(URI.create(getClass().getPackage().getName()));
+            metacard.setTargetNamespace(URI.create(getClass().getPackage()
+                    .getName()));
 
             when(result.getDistanceInMeters()).thenReturn(100.0 * i);
             when(result.getRelevanceScore()).thenReturn(100.0 * (COUNT - i) / COUNT);
@@ -348,8 +381,10 @@ public class SearchControllerTest {
         }
 
         QueryResponse response = new QueryResponseImpl(mock(QueryRequest.class),
-                new ArrayList<Result>(), COUNT);
-        response.getResults().addAll(results);
+                new ArrayList<Result>(),
+                COUNT);
+        response.getResults()
+                .addAll(results);
 
         try {
             when(framework.query(any(QueryRequest.class))).thenReturn(response);
@@ -486,8 +521,8 @@ public class SearchControllerTest {
         }
 
         @Override
-        public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks) throws
-                InterruptedException {
+        public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks)
+                throws InterruptedException {
             return null;
         }
 
@@ -498,14 +533,14 @@ public class SearchControllerTest {
         }
 
         @Override
-        public <T> T invokeAny(Collection<? extends Callable<T>> tasks) throws InterruptedException,
-                ExecutionException {
+        public <T> T invokeAny(Collection<? extends Callable<T>> tasks)
+                throws InterruptedException, ExecutionException {
             return null;
         }
 
         @Override
-        public <T> T invokeAny(Collection<? extends Callable<T>> tasks, long timeout,
-                TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+        public <T> T invokeAny(Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit)
+                throws InterruptedException, ExecutionException, TimeoutException {
             return null;
         }
     }

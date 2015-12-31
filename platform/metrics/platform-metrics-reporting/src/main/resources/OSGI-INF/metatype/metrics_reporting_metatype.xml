@@ -20,7 +20,7 @@
             type="Double" default="4000000000.0"
             description="Max value a data sample can be for any metric (used to suppress spike data on metrics graphs)"/>
     </OCD>
-    
+
     <Designate pid="MetricsReporting">
         <Object ocdref="MetricsReporting"/>
     </Designate>

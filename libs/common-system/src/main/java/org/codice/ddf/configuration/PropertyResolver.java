@@ -63,7 +63,7 @@ public class PropertyResolver {
      * @return
      */
     public static List<String> resolveProperties(List<String> list) {
-        for (final ListIterator<String> i = list.listIterator(); i.hasNext();) {
+        for (final ListIterator<String> i = list.listIterator(); i.hasNext(); ) {
             final String item = StrSubstitutor.replaceSystemProperties(i.next());
             i.set(item);
         }

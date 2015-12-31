@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -40,6 +40,7 @@ import org.junit.Test;
 
 public class TestGeoNamesUpdateCommand {
     private ConsoleInterceptor consoleInterceptor;
+
     private GeoNamesUpdateCommand geoNamesUpdateCommand;
 
     @Before
@@ -88,16 +89,19 @@ public class TestGeoNamesUpdateCommand {
         final GeoEntryIndexer geoEntryIndexer = spy(new GeoEntryIndexer() {
             @Override
             public void updateIndex(final List<GeoEntry> newEntries, final boolean create,
-                    final ProgressCallback progressCallback) { }
+                    final ProgressCallback progressCallback) {
+            }
 
             @Override
             public void updateIndex(final String resource,
                     final GeoEntryExtractor geoEntryExtractor, final boolean create,
-                    final ProgressCallback progressCallback) throws
-                    GeoNamesRemoteDownloadException, GeoEntryIndexingException, GeoEntryExtractionException {
+                    final ProgressCallback progressCallback)
+                    throws GeoNamesRemoteDownloadException, GeoEntryIndexingException,
+                    GeoEntryExtractionException {
                 final ExtractionCallback extractionCallback = new ExtractionCallback() {
                     @Override
-                    public void extracted(final GeoEntry newEntry) { }
+                    public void extracted(final GeoEntry newEntry) {
+                    }
 
                     @Override
                     public void updateProgress(final int progress) {
@@ -123,7 +127,9 @@ public class TestGeoNamesUpdateCommand {
     }
 
     @Test
-    public void testExceptionDuringExtraction() throws IOException, GeoNamesRemoteDownloadException, GeoEntryExtractionException, GeoEntryIndexingException {
+    public void testExceptionDuringExtraction()
+            throws IOException, GeoNamesRemoteDownloadException, GeoEntryExtractionException,
+            GeoEntryIndexingException {
         final String errorText = "Extraction error text";
         final GeoEntryExtractor geoEntryExtractor = mock(GeoEntryExtractor.class);
         final GeoEntryExtractionException geoEntryExtractionException =
@@ -135,12 +141,15 @@ public class TestGeoNamesUpdateCommand {
         final GeoEntryIndexer geoEntryIndexer = new GeoEntryIndexer() {
             @Override
             public void updateIndex(final List<GeoEntry> newEntries, final boolean create,
-                    final ProgressCallback progressCallback) { }
+                    final ProgressCallback progressCallback) {
+            }
 
             @Override
             public void updateIndex(final String resource,
                     final GeoEntryExtractor geoEntryExtractor, final boolean create,
-                    final ProgressCallback progressCallback) throws  GeoNamesRemoteDownloadException, GeoEntryExtractionException, GeoEntryIndexingException{
+                    final ProgressCallback progressCallback)
+                    throws GeoNamesRemoteDownloadException, GeoEntryExtractionException,
+                    GeoEntryIndexingException {
                 geoEntryExtractor.pushGeoEntriesToExtractionCallback(resource,
                         mock(ExtractionCallback.class));
             }
@@ -158,16 +167,20 @@ public class TestGeoNamesUpdateCommand {
     }
 
     @Test
-    public void testExceptionDuringIndexing() throws  GeoNamesRemoteDownloadException, GeoEntryExtractionException, GeoEntryIndexingException {
+    public void testExceptionDuringIndexing()
+            throws GeoNamesRemoteDownloadException, GeoEntryExtractionException,
+            GeoEntryIndexingException {
         final String errorText = "Indexing error text";
         final GeoEntryExtractor geoEntryExtractor = mock(GeoEntryExtractor.class);
 
         final GeoEntryIndexer geoEntryIndexer = mock(GeoEntryIndexer.class);
-        final GeoEntryIndexingException geoEntryIndexingException =
-                new GeoEntryIndexingException(errorText);
-        doThrow(geoEntryIndexingException).when(geoEntryIndexer).updateIndex(anyString(),
-                any(GeoEntryExtractor.class), anyBoolean(), any(ProgressCallback.class));
-
+        final GeoEntryIndexingException geoEntryIndexingException = new GeoEntryIndexingException(
+                errorText);
+        doThrow(geoEntryIndexingException).when(geoEntryIndexer)
+                .updateIndex(anyString(),
+                        any(GeoEntryExtractor.class),
+                        anyBoolean(),
+                        any(ProgressCallback.class));
 
         geoNamesUpdateCommand.setGeoEntryIndexer(geoEntryIndexer);
         geoNamesUpdateCommand.setGeoEntryExtractor(geoEntryExtractor);

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -112,7 +112,8 @@ public class TestPlugin {
         WebClient client = WebClient.create(WADL_ADDRESS);
         // wait for 20 secs or so
         for (int i = 0; i < 20; i++) {
-            Thread.currentThread().sleep(200);
+            Thread.currentThread()
+                    .sleep(200);
             Response response = client.get();
             if (response.getStatus() == 200) {
                 break;
@@ -165,15 +166,18 @@ public class TestPlugin {
     public void testUpdateNullRequest()
             throws PluginExecutionException, IngestException, SourceUnavailableException {
         // given
-        UpdateResponse updateResponse = new UpdateResponseImpl(null, null, Arrays.asList(metacard),
+        UpdateResponse updateResponse = new UpdateResponseImpl(null,
+                null,
+                Arrays.asList(metacard),
                 Arrays.asList(metacard));
 
         // when
         UpdateResponse response = plugin.process(updateResponse);
 
         // then
-        verify(endpoint, never())
-                .updateDocument(isA(String.class), isA(HttpHeaders.class), isA(InputStream.class));
+        verify(endpoint, never()).updateDocument(isA(String.class),
+                isA(HttpHeaders.class),
+                isA(InputStream.class));
 
         assertThat(response, sameInstance(updateResponse));
     }
@@ -183,16 +187,16 @@ public class TestPlugin {
     public void testUpdate()
             throws PluginExecutionException, IngestException, SourceUnavailableException {
         // given
-        UpdateResponse updateResponse = new UpdateResponseImpl(
-                new UpdateRequestImpl("23", metacard), null, Arrays.asList(metacard),
-                Arrays.asList(metacard));
+        UpdateResponse updateResponse = new UpdateResponseImpl(new UpdateRequestImpl("23",
+                metacard), null, Arrays.asList(metacard), Arrays.asList(metacard));
 
         // when
         UpdateResponse response = plugin.process(updateResponse);
 
         // then
-        verify(endpoint)
-                .updateDocument(argThat(is("23")), isA(HttpHeaders.class), isA(InputStream.class));
+        verify(endpoint).updateDocument(argThat(is("23")),
+                isA(HttpHeaders.class),
+                isA(InputStream.class));
 
         assertThat(response, sameInstance(updateResponse));
     }
@@ -203,14 +207,16 @@ public class TestPlugin {
             throws PluginExecutionException, IngestException, SourceUnavailableException {
         // given
         CreateResponse createResponse = new CreateResponseImpl(new CreateRequestImpl(metacard),
-                null, Arrays.asList(metacard));
+                null,
+                Arrays.asList(metacard));
 
         // when
         plugin.process(createResponse);
 
         // then
-        verify(endpoint, never())
-                .addDocument(isA(HttpHeaders.class), isA(UriInfo.class), isA(InputStream.class));
+        verify(endpoint, never()).addDocument(isA(HttpHeaders.class),
+                isA(UriInfo.class),
+                isA(InputStream.class));
     }
 
     @Test
@@ -220,14 +226,16 @@ public class TestPlugin {
         // given
         plugin = new RestReplicatorPlugin(null);
         CreateResponse createResponse = new CreateResponseImpl(new CreateRequestImpl(metacard),
-                null, Arrays.asList(metacard));
+                null,
+                Arrays.asList(metacard));
 
         // when
         plugin.process(createResponse);
 
         // then
-        verify(endpoint, never())
-                .addDocument(isA(HttpHeaders.class), isA(UriInfo.class), isA(InputStream.class));
+        verify(endpoint, never()).addDocument(isA(HttpHeaders.class),
+                isA(UriInfo.class),
+                isA(InputStream.class));
     }
 
     @Test(expected = PluginExecutionException.class)
@@ -235,10 +243,11 @@ public class TestPlugin {
             throws PluginExecutionException, CatalogTransformerException, IOException,
             IngestException, SourceUnavailableException {
         // given
-        when(transformer.transform(isA(Metacard.class), isA(Map.class)))
-                .thenThrow(CatalogTransformerException.class);
+        when(transformer.transform(isA(Metacard.class), isA(Map.class))).thenThrow(
+                CatalogTransformerException.class);
         CreateResponse createResponse = new CreateResponseImpl(new CreateRequestImpl(metacard),
-                null, Arrays.asList(metacard));
+                null,
+                Arrays.asList(metacard));
 
         // when
         plugin.process(createResponse);
@@ -252,14 +261,16 @@ public class TestPlugin {
             IngestException, SourceUnavailableException {
         // given
         CreateResponse createResponse = new CreateResponseImpl(new CreateRequestImpl(metacard),
-                null, Arrays.asList(metacard));
+                null,
+                Arrays.asList(metacard));
 
         // when
         CreateResponse response = plugin.process(createResponse);
 
         // then
-        verify(endpoint)
-                .addDocument(isA(HttpHeaders.class), isA(UriInfo.class), isA(InputStream.class));
+        verify(endpoint).addDocument(isA(HttpHeaders.class),
+                isA(UriInfo.class),
+                isA(InputStream.class));
 
         assertThat(response, sameInstance(createResponse));
     }

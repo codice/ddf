@@ -76,25 +76,32 @@ public class SolrQueryFilterVisitorTest {
         try {
             // NamedSPILoader uses the thread context classloader to lookup
             // codecs, posting formats, and analyzers
-            solrConfig = new SolrConfig(solrConfigHome.getParent(), "solrConfig.xml",
+            solrConfig = new SolrConfig(solrConfigHome.getParent(),
+                    "solrConfig.xml",
                     new InputSource(FileUtils.openInputStream(solrConfigFile)));
             assertNotNull(solrConfig);
-            indexSchema = new IndexSchema(solrConfig, "schema.xml",
+            indexSchema = new IndexSchema(solrConfig,
+                    "schema.xml",
                     new InputSource(FileUtils.openInputStream(solrSchemaFile)));
             assertNotNull(indexSchema);
             resourceLoader = new SolrResourceLoader(solrConfigHome.getAbsolutePath());
             assertNotNull(resourceLoader);
             container = new SolrCoreContainer(resourceLoader, solrFile);
             assertNotNull(container);
-            CoreDescriptor coreDescriptor = new CoreDescriptor(container, CORE_NAME,
-                    solrConfig.getResourceLoader().getInstanceDir());
+            CoreDescriptor coreDescriptor = new CoreDescriptor(container,
+                    CORE_NAME,
+                    solrConfig.getResourceLoader()
+                            .getInstanceDir());
             assertNotNull(coreDescriptor);
 
             File dataDir = new File(workingDir + "data");  //configProxy.getDataDirectory();
             LOGGER.debug("Using data directory [{}]", dataDir);
 
-            SolrCore core = new SolrCore(CORE_NAME, dataDir.getAbsolutePath(), solrConfig,
-                    indexSchema, coreDescriptor);
+            SolrCore core = new SolrCore(CORE_NAME,
+                    dataDir.getAbsolutePath(),
+                    solrConfig,
+                    indexSchema,
+                    coreDescriptor);
             container.register(CORE_NAME, core, false);
             assertNotNull(core);
 
@@ -107,7 +114,8 @@ public class SolrQueryFilterVisitorTest {
             assertNotNull(solrQuery);
 
             // Solr does not support outside parenthesis in certain queries and throws EOF exception.
-            String queryPhrase = solrQuery.getQuery().trim();
+            String queryPhrase = solrQuery.getQuery()
+                    .trim();
             if (queryPhrase.matches("\\(\\s*\\{!.*\\)")) {
                 solrQuery.setQuery(queryPhrase.replaceAll("^\\(\\s*|\\s*\\)$", ""));
             }
@@ -115,7 +123,8 @@ public class SolrQueryFilterVisitorTest {
 
             QueryResponse solrResponse = solrServer.query(solrQuery, METHOD.POST);
             assertNotNull(solrResponse);
-            long numResults = solrResponse.getResults().getNumFound();
+            long numResults = solrResponse.getResults()
+                    .getNumFound();
             LOGGER.info("numResults = {}", numResults);
         } catch (ParserConfigurationException e) {
             LOGGER.warn("Parser configuration exception loading index schema", e);

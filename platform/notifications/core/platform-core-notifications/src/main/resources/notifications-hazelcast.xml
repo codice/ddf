@@ -187,9 +187,9 @@
             com.hazelcast.map.merge.LatestUpdateMapMergePolicy ; entry with the latest update wins.
         -->
         <merge-policy>com.hazelcast.map.merge.PassThroughMergePolicy</merge-policy>
-  
+
     </map>
-    
+
     <map name="persistentNotifications">
         <!--
            Data type that will be used for storing recordMap.
@@ -264,10 +264,11 @@
         <merge-policy>com.hazelcast.map.merge.PassThroughMergePolicy</merge-policy>
 
         <map-store enabled="true">
-            <factory-class-name>org.codice.ddf.notifications.impl.FileSystemMapStoreFactory</factory-class-name>
-            <write-delay-seconds>0</write-delay-seconds>        
+            <factory-class-name>org.codice.ddf.notifications.impl.FileSystemMapStoreFactory
+            </factory-class-name>
+            <write-delay-seconds>0</write-delay-seconds>
         </map-store>
-  
+
     </map>
 
     <multimap name="default">

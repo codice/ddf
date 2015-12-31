@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
  **/
 package ddf.sdk.metrics;
 
@@ -34,7 +33,8 @@ public class SampleMetrics implements PreQueryPlugin {
     private final MetricRegistry metrics = new MetricRegistry();
 
     private final JmxReporter reporter = JmxReporter.forRegistry(metrics)
-            .inDomain("sdk.metrics.sample").build();
+            .inDomain("sdk.metrics.sample")
+            .build();
 
     protected final Meter pointRadiusQueries;
 
@@ -57,8 +57,8 @@ public class SampleMetrics implements PreQueryPlugin {
 
     // Pre-Query plugin
     @Override
-    public QueryRequest process(QueryRequest input) throws PluginExecutionException,
-        StopProcessingException {
+    public QueryRequest process(QueryRequest input)
+            throws PluginExecutionException, StopProcessingException {
         LOGGER.trace("ENTERING: process");
 
         // Run the query request through this metric's filter delegate to check if this is

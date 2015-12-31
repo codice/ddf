@@ -38,8 +38,10 @@
                     </gml:coordinates>
                 </gml:Point>
             </ddf.metacard.basic:location>
-            <ddf.metacard.basic:metadata-content-type>basic</ddf.metacard.basic:metadata-content-type>
-            <ddf.metacard.basic:metadata-content-type-version>1.0.0</ddf.metacard.basic:metadata-content-type-version>
+            <ddf.metacard.basic:metadata-content-type>basic
+            </ddf.metacard.basic:metadata-content-type>
+            <ddf.metacard.basic:metadata-content-type-version>1.0.0
+            </ddf.metacard.basic:metadata-content-type-version>
             <ddf.metacard.basic:title>basic_title</ddf.metacard.basic:title>
         </ddf.metacard.basic:basic>
     </gml:featureMember>

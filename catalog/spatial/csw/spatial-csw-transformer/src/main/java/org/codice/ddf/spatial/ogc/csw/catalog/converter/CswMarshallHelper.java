@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 
 package org.codice.ddf.spatial.ogc.csw.catalog.converter;
@@ -52,11 +51,11 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
-
 import net.opengis.cat.csw.v_2_0_2.ElementSetType;
 
 class CswMarshallHelper {
     private static final Logger LOGGER = LoggerFactory.getLogger(CswMarshallHelper.class);
+
     static final DatatypeFactory XSD_FACTORY;
 
     static {
@@ -86,7 +85,8 @@ class CswMarshallHelper {
             MetacardImpl metacard) {
         StringBuilder sb = new StringBuilder();
         sb.append(ISODateTimeFormat.dateTime()
-                .print(((Date) metacard.getEffectiveDate()).getTime())).append(" to ")
+                .print(((Date) metacard.getEffectiveDate()).getTime()))
+                .append(" to ")
                 .append(ISODateTimeFormat.dateTime()
                         .print(((Date) metacard.getExpirationDate()).getTime()));
         writeValue(writer, context, null, CswRecordMetacardType.CSW_TEMPORAL_QNAME, sb.toString());
@@ -102,7 +102,11 @@ class CswMarshallHelper {
                 AttributeDescriptor ad = metacard.getMetacardType()
                         .getAttributeDescriptor(attrName);
                 if (ad == null) {
-                    ad = new AttributeDescriptorImpl(attrName, false, false, false, false,
+                    ad = new AttributeDescriptorImpl(attrName,
+                            false,
+                            false,
+                            false,
+                            false,
                             BasicTypes.STRING_TYPE);
                 }
 
@@ -196,12 +200,13 @@ class CswMarshallHelper {
 
     static void writeBoundingBox(HierarchicalStreamWriter writer, MarshallingContext context,
             Metacard metacard) {
-        Set<AttributeDescriptor> attrDescs = metacard.getMetacardType().getAttributeDescriptors();
+        Set<AttributeDescriptor> attrDescs = metacard.getMetacardType()
+                .getAttributeDescriptors();
         List<Geometry> geometries = new LinkedList<Geometry>();
 
         for (AttributeDescriptor ad : attrDescs) {
-            if (ad.getType() != null && AttributeType.AttributeFormat.GEOMETRY
-                    .equals(ad.getType().getAttributeFormat())) {
+            if (ad.getType() != null && AttributeType.AttributeFormat.GEOMETRY.equals(ad.getType()
+                    .getAttributeFormat())) {
 
                 Attribute attr = metacard.getAttribute(ad.getName());
 
@@ -217,8 +222,9 @@ class CswMarshallHelper {
             }
         }
 
-        Geometry allGeometry = new GeometryCollection(
-                geometries.toArray(new Geometry[geometries.size()]), new GeometryFactory());
+        Geometry allGeometry =
+                new GeometryCollection(geometries.toArray(new Geometry[geometries.size()]),
+                        new GeometryFactory());
         Envelope bounds = allGeometry.getEnvelopeInternal();
 
         if (!bounds.isNull()) {
@@ -247,7 +253,8 @@ class CswMarshallHelper {
         AttributeType.AttributeFormat attrFormat = null;
 
         if (attributeDescriptor != null && attributeDescriptor.getType() != null) {
-            attrFormat = attributeDescriptor.getType().getAttributeFormat();
+            attrFormat = attributeDescriptor.getType()
+                    .getAttributeFormat();
         }
 
         if (attrFormat == null) {
@@ -273,7 +280,8 @@ class CswMarshallHelper {
         case DATE:
             GregorianCalendar cal = new GregorianCalendar();
             cal.setTime((Date) value);
-            xmlValue = XSD_FACTORY.newXMLGregorianCalendar(cal).toXMLFormat();
+            xmlValue = XSD_FACTORY.newXMLGregorianCalendar(cal)
+                    .toXMLFormat();
             break;
         case OBJECT:
             break;

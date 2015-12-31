@@ -92,7 +92,8 @@ public class UPBSTValidator implements TokenValidator {
     public void addRealm(ServiceReference<JaasRealm> serviceReference) {
         Bundle bundle = FrameworkUtil.getBundle(UPBSTValidator.class);
         if (null != bundle) {
-            JaasRealm realm = bundle.getBundleContext().getService(serviceReference);
+            JaasRealm realm = bundle.getBundleContext()
+                    .getService(serviceReference);
             LOGGER.trace("Adding validator for JaasRealm {}", realm.getName());
             JAASUsernameTokenValidator validator = new JAASUsernameTokenValidator();
             validator.setContextName(realm.getName());
@@ -103,7 +104,8 @@ public class UPBSTValidator implements TokenValidator {
     public void removeRealm(ServiceReference<JaasRealm> serviceReference) {
         Bundle bundle = FrameworkUtil.getBundle(UPBSTValidator.class);
         if (null != bundle) {
-            JaasRealm realm = bundle.getBundleContext().getService(serviceReference);
+            JaasRealm realm = bundle.getBundleContext()
+                    .getService(serviceReference);
             LOGGER.trace("Removing validator for JaasRealm {}", realm.getName());
             validators.remove(realm.getName());
         }
@@ -181,8 +183,8 @@ public class UPBSTValidator implements TokenValidator {
             return response;
         }
 
-        BinarySecurityTokenType binarySecurityType = (BinarySecurityTokenType) validateTarget
-                .getToken();
+        BinarySecurityTokenType binarySecurityType =
+                (BinarySecurityTokenType) validateTarget.getToken();
 
         // Test the encoding type
         String encodingType = binarySecurityType.getEncodingType();
@@ -201,18 +203,19 @@ public class UPBSTValidator implements TokenValidator {
         try {
             Set<Class<?>> classes = new HashSet<Class<?>>();
             classes.add(ObjectFactory.class);
-            classes.add(
-                    org.apache.cxf.ws.security.sts.provider.model.wstrust14.ObjectFactory.class);
+            classes.add(org.apache.cxf.ws.security.sts.provider.model.wstrust14.ObjectFactory.class);
 
-            JAXBContextCache.CachedContextAndSchemas cache = JAXBContextCache
-                    .getCachedContextAndSchemas(classes, null, null, null, false);
+            JAXBContextCache.CachedContextAndSchemas cache =
+                    JAXBContextCache.getCachedContextAndSchemas(classes, null, null, null, false);
             JAXBContext jaxbContext = cache.getContext();
 
             Marshaller marshaller = jaxbContext.createMarshaller();
             Document doc = DOMUtils.createDocument();
             Element rootElement = doc.createElement("root-element");
             JAXBElement<UsernameTokenType> tokenType = new JAXBElement<UsernameTokenType>(
-                    QNameConstants.USERNAME_TOKEN, UsernameTokenType.class, usernameTokenType);
+                    QNameConstants.USERNAME_TOKEN,
+                    UsernameTokenType.class,
+                    usernameTokenType);
             marshaller.marshal(tokenType, rootElement);
             usernameTokenElement = (Element) rootElement.getFirstChild();
         } catch (JAXBException ex) {
@@ -225,25 +228,28 @@ public class UPBSTValidator implements TokenValidator {
         //
         WSSConfig wssConfig = WSSConfig.getNewInstance();
         try {
-            boolean allowNamespaceQualifiedPasswordTypes = wssConfig
-                    .getAllowNamespaceQualifiedPasswordTypes();
+            boolean allowNamespaceQualifiedPasswordTypes =
+                    wssConfig.getAllowNamespaceQualifiedPasswordTypes();
             UsernameToken ut = new UsernameToken(usernameTokenElement,
-                    allowNamespaceQualifiedPasswordTypes, new BSPEnforcer());
+                    allowNamespaceQualifiedPasswordTypes,
+                    new BSPEnforcer());
 
             // The parsed principal is set independent whether validation is successful or not
             response.setPrincipal(new CustomTokenPrincipal(ut.getName()));
             if (ut.getPassword() == null) {
                 return response;
             }
-            String tokenId = String
-                    .format("%s:%s:%s", usernameToken.getUsername(), usernameToken.getPassword(),
-                            usernameToken.getRealm());
+            String tokenId = String.format("%s:%s:%s",
+                    usernameToken.getUsername(),
+                    usernameToken.getPassword(),
+                    usernameToken.getRealm());
 
             // See if the UsernameToken is stored in the cache
             int hash = tokenId.hashCode();
             SecurityToken secToken = null;
             if (tokenParameters.getTokenStore() != null) {
-                secToken = tokenParameters.getTokenStore().getToken(Integer.toString(hash));
+                secToken = tokenParameters.getTokenStore()
+                        .getToken(Integer.toString(hash));
                 if (secToken != null && secToken.getTokenHash() != hash) {
                     secToken = null;
                 } else if (secToken != null) {
@@ -272,7 +278,8 @@ public class UPBSTValidator implements TokenValidator {
                     Set<Map.Entry<String, Validator>> entries = validators.entrySet();
                     for (Map.Entry<String, Validator> entry : entries) {
                         try {
-                            entry.getValue().validate(credential, requestData);
+                            entry.getValue()
+                                    .validate(credential, requestData);
                             validateTarget.setState(STATE.VALID);
                             LOGGER.debug("Validated user against realm {}", entry.getKey());
                             break;
@@ -284,18 +291,22 @@ public class UPBSTValidator implements TokenValidator {
                 }
             }
 
-            Principal principal = createPrincipal(ut.getName(), ut.getPassword(),
-                    ut.getPasswordType(), ut.getNonce(), ut.getCreated());
+            Principal principal = createPrincipal(ut.getName(),
+                    ut.getPassword(),
+                    ut.getPasswordType(),
+                    ut.getNonce(),
+                    ut.getCreated());
 
             // Store the successfully validated token in the cache
-            if (tokenParameters.getTokenStore() != null && secToken == null && STATE.VALID
-                    .equals(validateTarget.getState())) {
+            if (tokenParameters.getTokenStore() != null && secToken == null && STATE.VALID.equals(
+                    validateTarget.getState())) {
                 secToken = new SecurityToken(ut.getID());
                 secToken.setToken(ut.getElement());
                 int hashCode = tokenId.hashCode();
                 String identifier = Integer.toString(hashCode);
                 secToken.setTokenHash(hashCode);
-                tokenParameters.getTokenStore().add(identifier, secToken);
+                tokenParameters.getTokenStore()
+                        .add(identifier, secToken);
             }
 
             response.setPrincipal(principal);
@@ -337,27 +348,34 @@ public class UPBSTValidator implements TokenValidator {
         PasswordString password = new PasswordString();
         password.setValue(token.getPassword());
         password.setType(WSConstants.PASSWORD_TEXT);
-        JAXBElement<PasswordString> passwordType = new JAXBElement<PasswordString>(
-                QNameConstants.PASSWORD, PasswordString.class, password);
-        usernameTokenType.getAny().add(passwordType);
+        JAXBElement<PasswordString> passwordType =
+                new JAXBElement<PasswordString>(QNameConstants.PASSWORD,
+                        PasswordString.class,
+                        password);
+        usernameTokenType.getAny()
+                .add(passwordType);
 
         return usernameTokenType;
     }
 
     private UPAuthenticationToken getUsernameTokenFromTarget(ReceivedToken validateTarget) {
         Object token = validateTarget.getToken();
-        if ((token instanceof BinarySecurityTokenType) && UPAuthenticationToken.UP_TOKEN_VALUE_TYPE
-                .equals(((BinarySecurityTokenType) token).getValueType())) {
+        if ((token instanceof BinarySecurityTokenType)
+                && UPAuthenticationToken.UP_TOKEN_VALUE_TYPE.equals(((BinarySecurityTokenType) token).getValueType())) {
             String encodedCredential = ((BinarySecurityTokenType) token).getValue();
             LOGGER.debug("Encoded username/password credential: {}", encodedCredential);
             BaseAuthenticationToken base = null;
             try {
                 base = UPAuthenticationToken.parse(encodedCredential, true);
-                return new UPAuthenticationToken(base.getPrincipal().toString(),
-                        base.getCredentials().toString(), base.getRealm());
+                return new UPAuthenticationToken(base.getPrincipal()
+                        .toString(),
+                        base.getCredentials()
+                                .toString(),
+                        base.getRealm());
             } catch (WSSecurityException e) {
                 LOGGER.warn("Unable to parse {} from encodedToken.",
-                        UPAuthenticationToken.class.getSimpleName(), e);
+                        UPAuthenticationToken.class.getSimpleName(),
+                        e);
                 return null;
             }
         }

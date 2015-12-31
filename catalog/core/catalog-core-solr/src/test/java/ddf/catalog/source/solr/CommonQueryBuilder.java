@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -52,8 +52,8 @@ public class CommonQueryBuilder {
      */
     public QueryImpl queryByProperty(String property, String value) {
 
-        QueryImpl query = new QueryImpl(filterFactory
-                .equals(filterFactory.property(property), filterFactory.literal(value)));
+        QueryImpl query = new QueryImpl(filterFactory.equals(filterFactory.property(property),
+                filterFactory.literal(value)));
 
         query.setStartIndex(1);
 
@@ -80,8 +80,8 @@ public class CommonQueryBuilder {
 
         for (String id : ids) {
 
-            orFilters.add(filterFactory
-                    .equals(filterFactory.property(Metacard.ID), filterFactory.literal(id)));
+            orFilters.add(filterFactory.equals(filterFactory.property(Metacard.ID),
+                    filterFactory.literal(id)));
 
         }
 
@@ -109,9 +109,12 @@ public class CommonQueryBuilder {
     public QueryImpl like(String property, String searchPhrase, boolean isCaseSensitive,
             boolean isFuzzy) {
 
-        QueryImpl query = new QueryImpl(filterFactory
-                .like(filterFactory.property(property), searchPhrase, "*", "?", "\\",
-                        isCaseSensitive));
+        QueryImpl query = new QueryImpl(filterFactory.like(filterFactory.property(property),
+                searchPhrase,
+                "*",
+                "?",
+                "\\",
+                isCaseSensitive));
 
         return query;
 
@@ -119,16 +122,20 @@ public class CommonQueryBuilder {
 
     public Filter equalTo(String property, String searchPhrase, boolean isCaseSensitive) {
 
-        return filterFactory
-                .equal(filterFactory.property(property), filterFactory.literal(searchPhrase),
-                        isCaseSensitive);
+        return filterFactory.equal(filterFactory.property(property),
+                filterFactory.literal(searchPhrase),
+                isCaseSensitive);
 
     }
 
     public QueryImpl contextual(String searchPhrase, boolean isCaseSensitive, boolean isFuzzy) {
 
-        QueryImpl query = new QueryImpl(filterFactory
-                .like(filterFactory.property(Metacard.ANY_TEXT), searchPhrase, "*", "?", "\\",
+        QueryImpl query =
+                new QueryImpl(filterFactory.like(filterFactory.property(Metacard.ANY_TEXT),
+                        searchPhrase,
+                        "*",
+                        "?",
+                        "\\",
                         isCaseSensitive));
 
         query.setStartIndex(1);
@@ -206,8 +213,10 @@ public class CommonQueryBuilder {
      */
     public QueryImpl nn(Geometry geometry) {
 
-        QueryImpl query = new QueryImpl(
-                filterFactory.beyond(Metacard.ANY_GEO, geometry, 0.0, UomOgcMapping.METRE.name()));
+        QueryImpl query = new QueryImpl(filterFactory.beyond(Metacard.ANY_GEO,
+                geometry,
+                0.0,
+                UomOgcMapping.METRE.name()));
 
         query.setStartIndex(1);
 
@@ -274,7 +283,8 @@ public class CommonQueryBuilder {
         double[] coords = {x, y};
 
         QueryImpl query = new QueryImpl(filterFactory.dwithin(Metacard.ANY_GEO,
-                new PointImpl(new DirectPositionImpl(coords), DefaultGeographicCRS.WGS84), distance,
+                new PointImpl(new DirectPositionImpl(coords), DefaultGeographicCRS.WGS84),
+                distance,
                 UomOgcMapping.METRE.name()));
 
         query.setStartIndex(1);
@@ -324,8 +334,8 @@ public class CommonQueryBuilder {
 
         Period period = new DefaultPeriod(startInstant, endInstant);
 
-        Filter filter = filterFactory
-                .during(filterFactory.property(property), filterFactory.literal(period));
+        Filter filter = filterFactory.during(filterFactory.property(property),
+                filterFactory.literal(period));
 
         QueryImpl query = new QueryImpl(filter);
 

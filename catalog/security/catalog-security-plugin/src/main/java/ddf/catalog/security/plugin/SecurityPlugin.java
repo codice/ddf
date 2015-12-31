@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -82,8 +82,9 @@ public class SecurityPlugin implements PreQueryPlugin, PreIngestPlugin, PreResou
             if (!(requestSubject instanceof ddf.security.Subject)) {
                 subject = SecurityUtils.getSubject();
                 if (subject instanceof ddf.security.Subject) {
-                    operation.getProperties().put(SecurityConstants.SECURITY_SUBJECT,
-                            (ddf.security.Subject) subject);
+                    operation.getProperties()
+                            .put(SecurityConstants.SECURITY_SUBJECT,
+                                    (ddf.security.Subject) subject);
                     LOGGER.debug(
                             "Copied security subject from SecurityUtils  to operation property for legacy and multi-thread support.");
                 } else {

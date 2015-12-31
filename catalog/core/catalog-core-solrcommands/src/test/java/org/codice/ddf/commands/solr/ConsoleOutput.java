@@ -20,7 +20,6 @@ import java.io.PrintStream;
 /**
  * Class is used to intercept System.out to verify what has been written to the PrintStream by
  * various Commands.
- *
  */
 public class ConsoleOutput {
 

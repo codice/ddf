@@ -17,6 +17,7 @@
   http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
 
-    <bean id="keystoreEditor" class="org.codice.ddf.security.certificate.keystore.editor.KeystoreEditor"/>
+    <bean id="keystoreEditor"
+          class="org.codice.ddf.security.certificate.keystore.editor.KeystoreEditor"/>
 
 </blueprint>

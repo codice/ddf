@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -79,9 +79,9 @@ public class XPathHelperTest {
             Document document = getDocument(INPUT_FILE);
 
             XPathHelper xHelper = new XPathHelper(document);
-            NodeList nodeList = (NodeList) xHelper
-                    .evaluate(XPATH_EXPRESSION, XPathConstants.NODESET,
-                            new MockNamespaceResolver());
+            NodeList nodeList = (NodeList) xHelper.evaluate(XPATH_EXPRESSION,
+                    XPathConstants.NODESET,
+                    new MockNamespaceResolver());
             LOGGER.debug("testXPathHelper_WithDocument() - nodeList length = {}",
                     nodeList.getLength());
             assertEquals(6, nodeList.getLength());
@@ -96,9 +96,9 @@ public class XPathHelperTest {
             String xmlString = getFileContentsAsString(TEST_DATA_PATH + INPUT_FILE);
 
             XPathHelper xHelper = new XPathHelper(xmlString);
-            NodeList nodeList = (NodeList) xHelper
-                    .evaluate(XPATH_EXPRESSION, XPathConstants.NODESET,
-                            new MockNamespaceResolver());
+            NodeList nodeList = (NodeList) xHelper.evaluate(XPATH_EXPRESSION,
+                    XPathConstants.NODESET,
+                    new MockNamespaceResolver());
             LOGGER.debug("testXPathHelper_WithXmlFile() - nodeList length = {}",
                     nodeList.getLength());
             assertEquals(6, nodeList.getLength());
@@ -113,8 +113,9 @@ public class XPathHelperTest {
             String xmlString = getFileContentsAsString(TEST_DATA_PATH + INPUT_FILE);
 
             XPathHelper xHelper = new XPathHelper(xmlString);
-            NodeList nodeList = (NodeList) xHelper
-                    .evaluate("//fileTitle", XPathConstants.NODESET, new MockNamespaceResolver());
+            NodeList nodeList = (NodeList) xHelper.evaluate("//fileTitle",
+                    XPathConstants.NODESET,
+                    new MockNamespaceResolver());
             LOGGER.debug("testXPathHelper_WithNoNamespaceTextPath() - nodeList length = {}",
                     nodeList.getLength());
             assertEquals(0, nodeList.getLength());
@@ -130,9 +131,9 @@ public class XPathHelperTest {
             String xmlString = getFileContentsAsString(TEST_DATA_PATH + INPUT_FILE);
 
             XPathHelper xHelper = new XPathHelper(xmlString);
-            NodeList nodeList = (NodeList) xHelper
-                    .evaluate("//abc:fileTitle", XPathConstants.NODESET,
-                            new MockNamespaceResolver());
+            NodeList nodeList = (NodeList) xHelper.evaluate("//abc:fileTitle",
+                    XPathConstants.NODESET,
+                    new MockNamespaceResolver());
             LOGGER.debug("testXPathHelper_WithNamespaceTextPath() - nodeList length = {}",
                     nodeList.getLength());
             assertEquals(1, nodeList.getLength());
@@ -147,8 +148,8 @@ public class XPathHelperTest {
             String xmlString = getFileContentsAsString(TEST_DATA_PATH + INPUT_FILE);
 
             XPathHelper xHelper = new XPathHelper(xmlString);
-            NodeList nodeList = (NodeList) xHelper
-                    .evaluate("//xyz:fileTitle", XPathConstants.NODESET);
+            NodeList nodeList = (NodeList) xHelper.evaluate("//xyz:fileTitle",
+                    XPathConstants.NODESET);
             LOGGER.debug("testXPathHelper_WithAnyNamespaceTextPath() - nodeList length = {}",
                     nodeList.getLength());
             fail("Expected an XPathExpressionException");
@@ -194,7 +195,8 @@ public class XPathHelperTest {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
         Document doc = builder.parse(new File(xmlFilename));
-        doc.getDocumentElement().normalize();
+        doc.getDocumentElement()
+                .normalize();
 
         return doc;
     }

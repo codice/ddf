@@ -13,8 +13,7 @@
  */
 package ddf.metrics.reporting.internal.rrd4j;
 
-import java.awt.Color;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -92,8 +91,8 @@ import ddf.metrics.reporting.internal.MetricsRetriever;
  */
 public class RrdMetricsRetriever implements MetricsRetriever {
 
-    private static final transient Logger LOGGER = LoggerFactory
-            .getLogger(RrdMetricsRetriever.class);
+    private static final transient Logger LOGGER =
+            LoggerFactory.getLogger(RrdMetricsRetriever.class);
 
     private static final double DEFAULT_METRICS_MAX_THRESHOLD = 4000000000.0;
 
@@ -106,8 +105,8 @@ public class RrdMetricsRetriever implements MetricsRetriever {
     /**
      * Used for formatting long timestamps into more readable calendar dates/times.
      */
-    private static final String MONTHS[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug",
-            "Sep", "Oct", "Nov", "Dec"};
+    private static final String MONTHS[] =
+            {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 
     /**
      * Max threshold for a metric's sample value. Used to filter out spike data that typically has a
@@ -167,7 +166,8 @@ public class RrdMetricsRetriever implements MetricsRetriever {
     public static String convertCamelCase(String input) {
         String[] parts = StringUtils.splitByCharacterTypeCamelCase(input);
         String convertedStr = StringUtils.join(parts, " ");
-        convertedStr = WordUtils.capitalizeFully(convertedStr).trim();
+        convertedStr = WordUtils.capitalizeFully(convertedStr)
+                .trim();
 
         return convertedStr;
     }
@@ -220,7 +220,11 @@ public class RrdMetricsRetriever implements MetricsRetriever {
         // generated graph by default will show data per rrdStep interval)
         if (dataSourceType == DsType.COUNTER || dataSourceType == DsType.DERIVE) {
             if (LOGGER.isTraceEnabled()) {
-                dumpData(ConsolFun.TOTAL, "TOTAL", rrdDb, dataSourceType.name(), startTime,
+                dumpData(ConsolFun.TOTAL,
+                        "TOTAL",
+                        rrdDb,
+                        dataSourceType.name(),
+                        startTime,
                         endTime);
             }
 
@@ -231,7 +235,8 @@ public class RrdMetricsRetriever implements MetricsRetriever {
             // Archive archive = rrdDb.findMatchingArchive(fetchRequest);
             // long archiveStep = archive.getArcStep();
             // LOGGER.debug("archiveStep = " + archiveStep);
-            long rrdStep = rrdDb.getRrdDef().getStep();
+            long rrdStep = rrdDb.getRrdDef()
+                    .getStep();
             LOGGER.debug("rrdStep = {}", rrdStep);
 
             // Still TBD if we want to graph the AVERAGE data on the same graph
@@ -264,7 +269,11 @@ public class RrdMetricsRetriever implements MetricsRetriever {
             graphDef.gprint("constrainedTotal", ConsolFun.MAX, "Max = %.3f%s");
         } else if (dataSourceType == DsType.GAUGE) {
             if (LOGGER.isTraceEnabled()) {
-                dumpData(ConsolFun.AVERAGE, "AVERAGE", rrdDb, dataSourceType.name(), startTime,
+                dumpData(ConsolFun.AVERAGE,
+                        "AVERAGE",
+                        rrdDb,
+                        dataSourceType.name(),
+                        startTime,
                         endTime);
             }
 
@@ -295,7 +304,8 @@ public class RrdMetricsRetriever implements MetricsRetriever {
         graphDef.setFilename("-");
         RrdGraph graph = new RrdGraph(graphDef);
 
-        return graph.getRrdGraphInfo().getBytes();
+        return graph.getRrdGraphInfo()
+                .getBytes();
     }
 
     @Override
@@ -373,8 +383,7 @@ public class RrdMetricsRetriever implements MetricsRetriever {
 
             if (metricData.hasTotalCount()) {
                 Element totalCountElement = doc.createElement("totalCount");
-                totalCountElement
-                        .appendChild(doc.createTextNode(Long.toString(metricData.getTotalCount())));
+                totalCountElement.appendChild(doc.createTextNode(Long.toString(metricData.getTotalCount())));
                 dataElement.appendChild(totalCountElement);
             }
 
@@ -505,7 +514,11 @@ public class RrdMetricsRetriever implements MetricsRetriever {
         Collections.sort(metricNames);
 
         if (StringUtils.isNotEmpty(summaryInterval)) {
-            createSummary(wb, metricNames, metricsDir, startTime, endTime,
+            createSummary(wb,
+                    metricNames,
+                    metricsDir,
+                    startTime,
+                    endTime,
                     SUMMARY_INTERVALS.valueOf(summaryInterval));
         } else {
             for (int i = 0; i < metricNames.size(); i++) {
@@ -536,8 +549,9 @@ public class RrdMetricsRetriever implements MetricsRetriever {
         DateTime reportEnd = new DateTime(endTime, DateTimeZone.UTC);
 
         Sheet sheet = wb.createSheet();
-        wb.setSheetName(0, reportStart.toString(SUMMARY_TIMESTAMP) + " to " + reportEnd
-                .toString(SUMMARY_TIMESTAMP));
+        wb.setSheetName(0,
+                reportStart.toString(SUMMARY_TIMESTAMP) + " to " + reportEnd.toString(
+                        SUMMARY_TIMESTAMP));
         Row headingRow = sheet.createRow(0);
 
         int columnMax = 1;
@@ -564,9 +578,12 @@ public class RrdMetricsRetriever implements MetricsRetriever {
 
                 if (headingRow.getCell(columnCounter) == null) {
                     Cell headingRowCell = headingRow.createCell(columnCounter);
-                    headingRowCell.getCellStyle().setWrapText(true);
-                    headingRowCell.setCellValue(
-                            getTimestamp(chunkStart, chunkEnd, columnCounter, summaryInterval));
+                    headingRowCell.getCellStyle()
+                            .setWrapText(true);
+                    headingRowCell.setCellValue(getTimestamp(chunkStart,
+                            chunkEnd,
+                            columnCounter,
+                            summaryInterval));
                 }
 
                 Cell sumOrAvg = row.createCell(columnCounter);
@@ -582,8 +599,9 @@ public class RrdMetricsRetriever implements MetricsRetriever {
             columnMax = columnCounter;
 
             if (isSum != null) {
-                row.createCell(0).setCellValue(
-                        convertCamelCase(metricName) + " (" + (isSum ? "sum" : "avg") + ")");
+                row.createCell(0)
+                        .setCellValue(convertCamelCase(metricName) + " (" + (isSum ? "sum" : "avg")
+                                + ")");
             }
         }
         for (int i = 0; i < columnMax; i++) {
@@ -605,8 +623,10 @@ public class RrdMetricsRetriever implements MetricsRetriever {
     private String getTimestamp(MutableDateTime chunkStart, MutableDateTime chunkEnd,
             int columnCounter, SUMMARY_INTERVALS summaryInterval) {
         StringBuilder title = new StringBuilder();
-        title.append(StringUtils.capitalize(summaryInterval.toString())).append(" ")
-                .append(columnCounter).append("\n");
+        title.append(StringUtils.capitalize(summaryInterval.toString()))
+                .append(" ")
+                .append(columnCounter)
+                .append("\n");
         String timestamp = SUMMARY_TIMESTAMP;
         switch (summaryInterval) {
         case minute:
@@ -620,9 +640,11 @@ public class RrdMetricsRetriever implements MetricsRetriever {
             timestamp = "MM-y";
             break;
         }
-        title.append(chunkStart.toDateTime(DateTimeZone.getDefault()).toString(timestamp))
+        title.append(chunkStart.toDateTime(DateTimeZone.getDefault())
+                .toString(timestamp))
                 .append(" to ")
-                .append(chunkEnd.toDateTime(DateTimeZone.getDefault()).toString(timestamp));
+                .append(chunkEnd.toDateTime(DateTimeZone.getDefault())
+                        .toString(timestamp));
         return title.toString();
     }
 
@@ -715,8 +737,10 @@ public class RrdMetricsRetriever implements MetricsRetriever {
         for (int i = 0; i < timestamps.size(); i++) {
             String timestamp = getCalendarTime(timestamps.get(i));
             row = sheet.createRow((short) rowCount);
-            row.createCell(0).setCellValue(timestamp);
-            row.createCell(1).setCellValue(new Double(values.get(i)));
+            row.createCell(0)
+                    .setCellValue(timestamp);
+            row.createCell(1)
+                    .setCellValue(new Double(values.get(i)));
             rowCount++;
         }
 
@@ -731,7 +755,8 @@ public class RrdMetricsRetriever implements MetricsRetriever {
             cell = row.createCell(0);
             cell.setCellValue("Total Count: ");
             cell.setCellStyle(columnHeadingsStyle);
-            row.createCell(1).setCellValue(metricData.getTotalCount());
+            row.createCell(1)
+                    .setCellValue(metricData.getTotalCount());
         }
 
         sheet.autoSizeColumn(0);
@@ -767,11 +792,13 @@ public class RrdMetricsRetriever implements MetricsRetriever {
         }
 
         // The step (sample) interval that determines how often RRD collects the metric's data
-        long rrdStep = rrdDb.getRrdDef().getStep();
+        long rrdStep = rrdDb.getRrdDef()
+                .getStep();
 
         // Retrieve the RRD file's data source type to determine how (later)
         // to store the metric's data for presentation.
-        DsType dataSourceType = rrdDb.getDatasource(0).getType();
+        DsType dataSourceType = rrdDb.getDatasource(0)
+                .getType();
 
         // Fetch the metric's data from the RRD file for the specified time range
         FetchRequest fetchRequest = rrdDb.createFetchRequest(ConsolFun.TOTAL, startTime, endTime);

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -46,21 +46,25 @@ import oasis.names.tc.xacml._3_0.core.schema.wd_17.ResponseType;
 public class BalanaPdpTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(BalanaPdpTest.class);
 
-    private static final String ROLE_CLAIM = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role";
+    private static final String ROLE_CLAIM =
+            "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role";
 
     private static final String STRING_DATA_TYPE = "http://www.w3.org/2001/XMLSchema#string";
 
-    private static final String ACTION_CATEGORY = "urn:oasis:names:tc:xacml:3.0:attribute-category:action";
+    private static final String ACTION_CATEGORY =
+            "urn:oasis:names:tc:xacml:3.0:attribute-category:action";
 
     private static final String ACTION_ID = "urn:oasis:names:tc:xacml:1.0:action:action-id";
 
-    private static final String SUBJECT_CATEGORY = "urn:oasis:names:tc:xacml:1.0:subject-category:access-subject";
+    private static final String SUBJECT_CATEGORY =
+            "urn:oasis:names:tc:xacml:1.0:subject-category:access-subject";
 
     private static final String SUBJECT_ID = "urn:oasis:names:tc:xacml:1.0:subject:subject-id";
 
     private static final String PERMISSIONS_CATEGORY = "http://example.com/category";
 
-    private static final String CITIZENSHIP_ATTRIBUTE = "http://www.opm.gov/feddata/CountryOfCitizenship";
+    private static final String CITIZENSHIP_ATTRIBUTE =
+            "http://www.opm.gov/feddata/CountryOfCitizenship";
 
     private static final String RELATIVE_POLICIES_DIR = "src/test/resources";
 
@@ -90,7 +94,8 @@ public class BalanaPdpTest {
     @BeforeClass
     public static void init() {
         try {
-            projectHome = new File(".").getCanonicalFile().getPath();
+            projectHome = new File(".").getCanonicalFile()
+                    .getPath();
             LOGGER.debug("projectHome: {}", projectHome);
         } catch (IOException e) {
             LOGGER.debug(e.getMessage(), e);
@@ -121,9 +126,12 @@ public class BalanaPdpTest {
             actionAttribute.setIncludeInResult(false);
             AttributeValueType actionValue = new AttributeValueType();
             actionValue.setDataType(STRING_DATA_TYPE);
-            actionValue.getContent().add(QUERY_ACTION);
-            actionAttribute.getAttributeValue().add(actionValue);
-            actionAttributes.getAttribute().add(actionAttribute);
+            actionValue.getContent()
+                    .add(QUERY_ACTION);
+            actionAttribute.getAttributeValue()
+                    .add(actionValue);
+            actionAttributes.getAttribute()
+                    .add(actionAttribute);
 
             AttributesType subjectAttributes = new AttributesType();
             subjectAttributes.setCategory(SUBJECT_CATEGORY);
@@ -132,18 +140,24 @@ public class BalanaPdpTest {
             subjectAttribute.setIncludeInResult(false);
             AttributeValueType subjectValue = new AttributeValueType();
             subjectValue.setDataType(STRING_DATA_TYPE);
-            subjectValue.getContent().add(TEST_USER_1);
-            subjectAttribute.getAttributeValue().add(subjectValue);
-            subjectAttributes.getAttribute().add(subjectAttribute);
+            subjectValue.getContent()
+                    .add(TEST_USER_1);
+            subjectAttribute.getAttributeValue()
+                    .add(subjectValue);
+            subjectAttributes.getAttribute()
+                    .add(subjectAttribute);
 
             AttributeType roleAttribute = new AttributeType();
             roleAttribute.setAttributeId(ROLE_CLAIM);
             roleAttribute.setIncludeInResult(false);
             AttributeValueType roleValue = new AttributeValueType();
             roleValue.setDataType(STRING_DATA_TYPE);
-            roleValue.getContent().add(ROLE);
-            roleAttribute.getAttributeValue().add(roleValue);
-            subjectAttributes.getAttribute().add(roleAttribute);
+            roleValue.getContent()
+                    .add(ROLE);
+            roleAttribute.getAttributeValue()
+                    .add(roleValue);
+            subjectAttributes.getAttribute()
+                    .add(roleAttribute);
 
             AttributesType categoryAttributes = new AttributesType();
             categoryAttributes.setCategory(PERMISSIONS_CATEGORY);
@@ -152,13 +166,19 @@ public class BalanaPdpTest {
             citizenshipAttribute.setIncludeInResult(false);
             AttributeValueType citizenshipValue = new AttributeValueType();
             citizenshipValue.setDataType(STRING_DATA_TYPE);
-            citizenshipValue.getContent().add(US_COUNTRY);
-            citizenshipAttribute.getAttributeValue().add(citizenshipValue);
-            categoryAttributes.getAttribute().add(citizenshipAttribute);
+            citizenshipValue.getContent()
+                    .add(US_COUNTRY);
+            citizenshipAttribute.getAttributeValue()
+                    .add(citizenshipValue);
+            categoryAttributes.getAttribute()
+                    .add(citizenshipAttribute);
 
-            xacmlRequestType.getAttributes().add(actionAttributes);
-            xacmlRequestType.getAttributes().add(subjectAttributes);
-            xacmlRequestType.getAttributes().add(categoryAttributes);
+            xacmlRequestType.getAttributes()
+                    .add(actionAttributes);
+            xacmlRequestType.getAttributes()
+                    .add(subjectAttributes);
+            xacmlRequestType.getAttributes()
+                    .add(categoryAttributes);
 
             BalanaPdp pdp = new BalanaPdp(destDir);
 
@@ -172,7 +192,9 @@ public class BalanaPdpTest {
             Writer writer = new StringWriter();
             marshaller.marshal(objectFactory.createResponse(xacmlResponse), writer);
             LOGGER.debug("\nXACML 3.0 Response:\n{}", writer.toString());
-            assertEquals(xacmlResponse.getResult().get(0).getDecision(), DecisionType.PERMIT);
+            assertEquals(xacmlResponse.getResult()
+                    .get(0)
+                    .getDecision(), DecisionType.PERMIT);
 
             // Cleanup
             LOGGER.debug("Deleting directory: " + destDir);
@@ -201,9 +223,12 @@ public class BalanaPdpTest {
         actionAttribute.setIncludeInResult(false);
         AttributeValueType actionValue = new AttributeValueType();
         actionValue.setDataType(STRING_DATA_TYPE);
-        actionValue.getContent().add(QUERY_ACTION);
-        actionAttribute.getAttributeValue().add(actionValue);
-        actionAttributes.getAttribute().add(actionAttribute);
+        actionValue.getContent()
+                .add(QUERY_ACTION);
+        actionAttribute.getAttributeValue()
+                .add(actionValue);
+        actionAttributes.getAttribute()
+                .add(actionAttribute);
 
         AttributesType subjectAttributes = new AttributesType();
         subjectAttributes.setCategory(SUBJECT_CATEGORY);
@@ -212,18 +237,24 @@ public class BalanaPdpTest {
         subjectAttribute.setIncludeInResult(false);
         AttributeValueType subjectValue = new AttributeValueType();
         subjectValue.setDataType(STRING_DATA_TYPE);
-        subjectValue.getContent().add(TEST_USER_2);
-        subjectAttribute.getAttributeValue().add(subjectValue);
-        subjectAttributes.getAttribute().add(subjectAttribute);
+        subjectValue.getContent()
+                .add(TEST_USER_2);
+        subjectAttribute.getAttributeValue()
+                .add(subjectValue);
+        subjectAttributes.getAttribute()
+                .add(subjectAttribute);
 
         AttributeType roleAttribute = new AttributeType();
         roleAttribute.setAttributeId(ROLE_CLAIM);
         roleAttribute.setIncludeInResult(false);
         AttributeValueType roleValue = new AttributeValueType();
         roleValue.setDataType(STRING_DATA_TYPE);
-        roleValue.getContent().add(ROLE);
-        roleAttribute.getAttributeValue().add(roleValue);
-        subjectAttributes.getAttribute().add(roleAttribute);
+        roleValue.getContent()
+                .add(ROLE);
+        roleAttribute.getAttributeValue()
+                .add(roleValue);
+        subjectAttributes.getAttribute()
+                .add(roleAttribute);
 
         AttributesType categoryAttributes = new AttributesType();
         categoryAttributes.setCategory(PERMISSIONS_CATEGORY);
@@ -232,13 +263,19 @@ public class BalanaPdpTest {
         citizenshipAttribute.setIncludeInResult(false);
         AttributeValueType citizenshipValue = new AttributeValueType();
         citizenshipValue.setDataType(STRING_DATA_TYPE);
-        citizenshipValue.getContent().add(COUNTRY);
-        citizenshipAttribute.getAttributeValue().add(citizenshipValue);
-        categoryAttributes.getAttribute().add(citizenshipAttribute);
+        citizenshipValue.getContent()
+                .add(COUNTRY);
+        citizenshipAttribute.getAttributeValue()
+                .add(citizenshipValue);
+        categoryAttributes.getAttribute()
+                .add(citizenshipAttribute);
 
-        xacmlRequestType.getAttributes().add(actionAttributes);
-        xacmlRequestType.getAttributes().add(subjectAttributes);
-        xacmlRequestType.getAttributes().add(categoryAttributes);
+        xacmlRequestType.getAttributes()
+                .add(actionAttributes);
+        xacmlRequestType.getAttributes()
+                .add(subjectAttributes);
+        xacmlRequestType.getAttributes()
+                .add(categoryAttributes);
 
         BalanaPdp pdp = new BalanaPdp(tempDir);
 
@@ -252,7 +289,9 @@ public class BalanaPdpTest {
         Writer writer = new StringWriter();
         marshaller.marshal(objectFactory.createResponse(xacmlResponse), writer);
         LOGGER.debug("\nXACML 3.0 Response:\n{}", writer.toString());
-        assertEquals(xacmlResponse.getResult().get(0).getDecision(), DecisionType.DENY);
+        assertEquals(xacmlResponse.getResult()
+                .get(0)
+                .getDecision(), DecisionType.DENY);
 
     }
 
@@ -321,9 +360,12 @@ public class BalanaPdpTest {
         actionAttribute.setIncludeInResult(false);
         AttributeValueType actionValue = new AttributeValueType();
         actionValue.setDataType(STRING_DATA_TYPE);
-        actionValue.getContent().add(QUERY_ACTION);
-        actionAttribute.getAttributeValue().add(actionValue);
-        actionAttributes.getAttribute().add(actionAttribute);
+        actionValue.getContent()
+                .add(QUERY_ACTION);
+        actionAttribute.getAttributeValue()
+                .add(actionValue);
+        actionAttributes.getAttribute()
+                .add(actionAttribute);
 
         AttributesType subjectAttributes = new AttributesType();
         subjectAttributes.setCategory(SUBJECT_CATEGORY);
@@ -332,18 +374,24 @@ public class BalanaPdpTest {
         subjectAttribute.setIncludeInResult(false);
         AttributeValueType subjectValue = new AttributeValueType();
         subjectValue.setDataType(STRING_DATA_TYPE);
-        subjectValue.getContent().add(TEST_USER_1);
-        subjectAttribute.getAttributeValue().add(subjectValue);
-        subjectAttributes.getAttribute().add(subjectAttribute);
+        subjectValue.getContent()
+                .add(TEST_USER_1);
+        subjectAttribute.getAttributeValue()
+                .add(subjectValue);
+        subjectAttributes.getAttribute()
+                .add(subjectAttribute);
 
         AttributeType roleAttribute = new AttributeType();
         roleAttribute.setAttributeId(ROLE_CLAIM);
         roleAttribute.setIncludeInResult(false);
         AttributeValueType roleValue = new AttributeValueType();
         roleValue.setDataType(STRING_DATA_TYPE);
-        roleValue.getContent().add(ROLE);
-        roleAttribute.getAttributeValue().add(roleValue);
-        subjectAttributes.getAttribute().add(roleAttribute);
+        roleValue.getContent()
+                .add(ROLE);
+        roleAttribute.getAttributeValue()
+                .add(roleValue);
+        subjectAttributes.getAttribute()
+                .add(roleAttribute);
 
         AttributesType categoryAttributes = new AttributesType();
         categoryAttributes.setCategory(PERMISSIONS_CATEGORY);
@@ -352,13 +400,19 @@ public class BalanaPdpTest {
         citizenshipAttribute.setIncludeInResult(false);
         AttributeValueType citizenshipValue = new AttributeValueType();
         citizenshipValue.setDataType(STRING_DATA_TYPE);
-        citizenshipValue.getContent().add(US_COUNTRY);
-        citizenshipAttribute.getAttributeValue().add(citizenshipValue);
-        categoryAttributes.getAttribute().add(citizenshipAttribute);
+        citizenshipValue.getContent()
+                .add(US_COUNTRY);
+        citizenshipAttribute.getAttributeValue()
+                .add(citizenshipValue);
+        categoryAttributes.getAttribute()
+                .add(citizenshipAttribute);
 
-        xacmlRequestType.getAttributes().add(actionAttributes);
-        xacmlRequestType.getAttributes().add(subjectAttributes);
-        xacmlRequestType.getAttributes().add(categoryAttributes);
+        xacmlRequestType.getAttributes()
+                .add(actionAttributes);
+        xacmlRequestType.getAttributes()
+                .add(subjectAttributes);
+        xacmlRequestType.getAttributes()
+                .add(categoryAttributes);
 
         // Perform Test
         ResponseType xacmlResponse = pdp.evaluate(xacmlRequestType);
@@ -370,7 +424,9 @@ public class BalanaPdpTest {
         Writer writer = new StringWriter();
         marshaller.marshal(objectFactory.createResponse(xacmlResponse), writer);
         LOGGER.debug("\nXACML 3.0 Response:\n{}", writer.toString());
-        assertEquals(xacmlResponse.getResult().get(0).getDecision(), DecisionType.PERMIT);
+        assertEquals(xacmlResponse.getResult()
+                .get(0)
+                .getDecision(), DecisionType.PERMIT);
 
         FileUtils.deleteDirectory(policyDir);
     }
@@ -400,16 +456,17 @@ public class BalanaPdpTest {
     }
 
     private boolean isDirEmpty(File dir) {
-        return ((null != dir) && (dir.isDirectory()) && (null != dir
-                .listFiles(getXmlFilenameFilter())) && (dir.listFiles(getXmlFilenameFilter()).length
-                == 0));
+        return ((null != dir) && (dir.isDirectory()) && (null
+                != dir.listFiles(getXmlFilenameFilter())) && (
+                dir.listFiles(getXmlFilenameFilter()).length == 0));
     }
 
     private FilenameFilter getXmlFilenameFilter() {
         FilenameFilter filter = new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
-                return name.toLowerCase().endsWith(".xml");
+                return name.toLowerCase()
+                        .endsWith(".xml");
             }
         };
 

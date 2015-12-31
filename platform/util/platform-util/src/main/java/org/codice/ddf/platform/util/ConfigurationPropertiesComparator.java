@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -44,7 +44,7 @@ public class ConfigurationPropertiesComparator {
             return false;
         }
 
-        for (Enumeration<String> keys = configProperties1.keys(); keys.hasMoreElements();) {
+        for (Enumeration<String> keys = configProperties1.keys(); keys.hasMoreElements(); ) {
             String key = keys.nextElement();
             Object value1 = configProperties1.get(key);
             Object value2 = configProperties2.get(key);

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -53,8 +53,8 @@ public class URLResourceReader implements ResourceReader {
 
     private static final String URL_FILE_SCHEME = "file";
 
-    private static final XLogger LOGGER = new XLogger(
-            LoggerFactory.getLogger(URLResourceReader.class));
+    private static final XLogger LOGGER =
+            new XLogger(LoggerFactory.getLogger(URLResourceReader.class));
 
     private static final String VERSION = "1.0";
 
@@ -167,14 +167,16 @@ public class URLResourceReader implements ResourceReader {
             throw new ResourceNotFoundException("Unable to find resource");
         }
 
-        if (resourceURI.getScheme().equals(URL_HTTP_SCHEME) || resourceURI.getScheme()
+        if (resourceURI.getScheme()
+                .equals(URL_HTTP_SCHEME) || resourceURI.getScheme()
                 .equals(URL_HTTPS_SCHEME)) {
             LOGGER.debug("Resource URI is HTTP or HTTPS");
             URL url = resourceURI.toURL();
             LOGGER.debug("resource name: " + url.getFile());
             return doRetrieveProduct(resourceURI, url.getFile());
 
-        } else if (resourceURI.getScheme().equals(URL_FILE_SCHEME)) {
+        } else if (resourceURI.getScheme()
+                .equals(URL_FILE_SCHEME)) {
             LOGGER.debug("Resource URI is a File");
             File filePathName = new File(resourceURI);
             String fileName = filePathName.getName();
@@ -216,13 +218,15 @@ public class URLResourceReader implements ResourceReader {
                 LOGGER.warn("mimeTypeMapper is NULL");
             } else {
                 // Extract the file extension (if any) from the URL's file
-                int index = url.getFile().lastIndexOf(".");
+                int index = url.getFile()
+                        .lastIndexOf(".");
 
                 // If there is a file extension, attempt to get mime type based on the file
                 // extension,
                 // using the MimeTypeMapper so that any custom MimeTypeResolvers are consulted
                 if (index > -1) {
-                    String fileExtension = url.getFile().substring(index + 1);
+                    String fileExtension = url.getFile()
+                            .substring(index + 1);
 
                     // Handle case where "." or ".." could be in the URL path and there is no
                     // valid file extension.
@@ -283,8 +287,9 @@ public class URLResourceReader implements ResourceReader {
 
             LOGGER.trace("EXITING: doRetrieveProduct");
 
-            return new ResourceResponseImpl(
-                    new ResourceImpl(new BufferedInputStream(is), mimeType, productName));
+            return new ResourceResponseImpl(new ResourceImpl(new BufferedInputStream(is),
+                    mimeType,
+                    productName));
         } catch (IOException e) {
             LOGGER.error("IOException on retrieving resource", e);
             throw e;

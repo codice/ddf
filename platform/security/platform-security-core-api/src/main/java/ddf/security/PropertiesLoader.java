@@ -32,7 +32,6 @@ import org.springframework.core.io.support.PropertiesLoaderUtils;
 /**
  * Utility class that attempts several different methods for loading in properties files from the
  * classpath or file system.
- *
  */
 public final class PropertiesLoader {
     private static final Logger LOGGER = LoggerFactory.getLogger(PropertiesLoader.class);
@@ -92,8 +91,8 @@ public final class PropertiesLoader {
                         LOGGER.debug(
                                 "Attempting to load properties from {} with Spring PropertiesLoaderUtils with class loader.",
                                 propertiesFile);
-                        properties = PropertiesLoaderUtils
-                                .loadAllProperties(propertiesFile, classLoader);
+                        properties = PropertiesLoaderUtils.loadAllProperties(propertiesFile,
+                                classLoader);
                         error = false;
                     } catch (IOException e) {
                         error = true;
@@ -146,11 +145,13 @@ public final class PropertiesLoader {
                     properties.load(reader);
                 } catch (FileNotFoundException e) {
                     error = true;
-                    LOGGER.error("Could not find properties file: {}", propFile.getAbsolutePath(),
+                    LOGGER.error("Could not find properties file: {}",
+                            propFile.getAbsolutePath(),
                             e);
                 } catch (IOException e) {
                     error = true;
-                    LOGGER.error("Error reading properties file: {}", propFile.getAbsolutePath(),
+                    LOGGER.error("Error reading properties file: {}",
+                            propFile.getAbsolutePath(),
                             e);
                 } finally {
                     IOUtils.closeQuietly(reader);

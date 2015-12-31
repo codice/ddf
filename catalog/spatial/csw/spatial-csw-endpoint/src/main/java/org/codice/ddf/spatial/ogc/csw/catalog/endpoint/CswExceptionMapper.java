@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.endpoint;
 
@@ -35,12 +34,16 @@ public class CswExceptionMapper implements ExceptionMapper<Throwable> {
         CswException cswException;
         if (exception instanceof CswException) {
             cswException = (CswException) exception;
-        } else  {
-            cswException = new CswException("Error parsing the request.  XML parameters may be missing or invalid.",
-                    CswConstants.MISSING_PARAMETER_VALUE, null);
+        } else {
+            cswException = new CswException(
+                    "Error parsing the request.  XML parameters may be missing or invalid.",
+                    CswConstants.MISSING_PARAMETER_VALUE,
+                    null);
         }
-        return Response.status(cswException.getHttpStatus()).entity(createServiceException(cswException))
-                .type(MediaType.TEXT_XML).build();
+        return Response.status(cswException.getHttpStatus())
+                .entity(createServiceException(cswException))
+                .type(MediaType.TEXT_XML)
+                .build();
     }
 
     private ExceptionReport createServiceException(CswException cswException) {
@@ -49,8 +52,10 @@ public class CswExceptionMapper implements ExceptionMapper<Throwable> {
         ExceptionType exception = new ExceptionType();
         exception.setExceptionCode(cswException.getExceptionCode());
         exception.setLocator(cswException.getLocator());
-        exception.getExceptionText().add(cswException.getMessage());
-        exceptionReport.getException().add(exception);
+        exception.getExceptionText()
+                .add(cswException.getMessage());
+        exceptionReport.getException()
+                .add(exception);
         return exceptionReport;
     }
 }

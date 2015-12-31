@@ -43,10 +43,11 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
 
     private List<MetacardValidator> metacardValidators;
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(MetacardValidityMarkerPlugin.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(MetacardValidityMarkerPlugin.class);
 
     public static final String VALIDATION_ERRORS = BasicTypes.VALIDATION_ERRORS;
+
     public static final String VALIDATION_WARNINGS = BasicTypes.VALIDATION_WARNINGS;
 
     public CreateRequest process(CreateRequest input)
@@ -69,8 +70,10 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
                 } catch (ValidationException e) {
                     // If validator is not explicitly turned on by admin, set invalid and allow through
                     if (checkEnforcedMetacardValidators(metacardValidator)) {
-                        Boolean validationErrorsExist = !e.getErrors().isEmpty();
-                        Boolean validationWarningsExist = !e.getWarnings().isEmpty();
+                        Boolean validationErrorsExist = !e.getErrors()
+                                .isEmpty();
+                        Boolean validationWarningsExist = !e.getWarnings()
+                                .isEmpty();
                         if (validationErrorsExist || validationWarningsExist) {
                             // Check for warnings and errors
                             if (validationErrorsExist) {
@@ -97,8 +100,8 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
                 }
             }
             if (toReturn) {
-                newMetacard
-                        .setAttribute(new AttributeImpl(VALIDATION_WARNINGS, validationWarnings));
+                newMetacard.setAttribute(new AttributeImpl(VALIDATION_WARNINGS,
+                        validationWarnings));
                 newMetacard.setAttribute(new AttributeImpl(VALIDATION_ERRORS, validationErrors));
                 returnMetacards.add(newMetacard);
             }
@@ -135,15 +138,16 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
     }
 
     private Boolean checkEnforcedMetacardValidators(MetacardValidator metacardValidator) {
-        return (null == enforcedMetacardValidators || !enforcedMetacardValidators
-                .contains(getValidatorName(metacardValidator)));
+        return (null == enforcedMetacardValidators || !enforcedMetacardValidators.contains(
+                getValidatorName(metacardValidator)));
     }
 
     private String getValidatorName(MetacardValidator metacardValidator) {
         if (metacardValidator instanceof Describable) {
             return ((Describable) metacardValidator).getId();
         } else {
-            String canonicalName = metacardValidator.getClass().getCanonicalName();
+            String canonicalName = metacardValidator.getClass()
+                    .getCanonicalName();
             LOGGER.warn("Metacard validators SHOULD implement Describable. Validator in error: {}",
                     canonicalName);
             return canonicalName;

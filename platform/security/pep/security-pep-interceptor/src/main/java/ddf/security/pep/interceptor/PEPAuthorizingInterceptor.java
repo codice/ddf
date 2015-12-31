@@ -94,15 +94,15 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
                         throw new AccessDeniedException("Unauthorized");
                     }
                     if (logger.isTraceEnabled()) {
-                        logger.trace(format(assertion.getSecurityToken().getToken()));
+                        logger.trace(format(assertion.getSecurityToken()
+                                .getToken()));
                     }
 
                     logger.debug("Is user authenticated: {}", user.isAuthenticated());
 
                     logger.debug("Checking for permission");
-                    SecurityLogger.logInfo(
-                            "Is user [" + user.getPrincipal() + "] authenticated: " + user
-                                    .isAuthenticated());
+                    SecurityLogger.logInfo("Is user [" + user.getPrincipal() + "] authenticated: "
+                            + user.isAuthenticated());
 
                     if (StringUtils.isEmpty(actionURI)) {
                         logger.info("Denying access : unable to determine action for {}",
@@ -129,12 +129,14 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
                     logger.warn("Caught exception when trying to perform AuthZ.", e);
                     SecurityLogger.logWarn(
                             "Denying access : Caught exception when trying to authenticate user for service ["
-                                    + actionURI + "]", e);
+                                    + actionURI + "]",
+                            e);
                     throw new AccessDeniedException("Unauthorized");
                 }
                 if (!isPermitted) {
                     if (action != null) {
-                        logger.info("Denying access to {} for service {}", user.getPrincipal(),
+                        logger.info("Denying access to {} for service {}",
+                                user.getPrincipal(),
                                 action.getAction());
                         SecurityLogger.logWarn(
                                 "Denying access to [" + user.getPrincipal() + "] for service "
@@ -206,7 +208,8 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
                     .get(BindingOperationInfo.class);
             SoapOperationInfo soi = bindingOpInfo.getExtensor(SoapOperationInfo.class);
             if (soi == null && bindingOpInfo.isUnwrapped()) {
-                soi = bindingOpInfo.getWrappedOperation().getExtensor(SoapOperationInfo.class);
+                soi = bindingOpInfo.getWrappedOperation()
+                        .getExtensor(SoapOperationInfo.class);
             }
             actionURI = soi == null ? null : soi.getAction();
             actionURI = StringUtils.isEmpty(actionURI) ? null : actionURI;

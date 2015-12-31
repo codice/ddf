@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -133,8 +133,7 @@ public class TestWfsSource {
         when(mockFactory.getClient()).thenReturn(mockWfs);
 
         // GetCapabilities Response
-        when(mockWfs.getCapabilities(any(GetCapabilitiesRequest.class)))
-                .thenReturn(mockCapabilites);
+        when(mockWfs.getCapabilities(any(GetCapabilitiesRequest.class))).thenReturn(mockCapabilites);
 
         mockCapabilites.setFilterCapabilities(filterCapabilities);
 
@@ -151,7 +150,9 @@ public class TestWfsSource {
             }
             feature.setName(qName);
             feature.setDefaultCRS(Wfs20Constants.EPSG_4326_URN);
-            mockCapabilites.getFeatureTypeList().getFeatureType().add(feature);
+            mockCapabilites.getFeatureTypeList()
+                    .getFeatureType()
+                    .add(feature);
         }
 
         XmlSchema xmlSchema = null;
@@ -161,17 +162,17 @@ public class TestWfsSource {
             wfsUriResolver.setGmlNamespace(Wfs20Constants.GML_3_2_NAMESPACE);
             wfsUriResolver.setWfsNamespace(Wfs20Constants.WFS_2_0_NAMESPACE);
             schemaCollection.setSchemaResolver(wfsUriResolver);
-            xmlSchema = schemaCollection
-                    .read(new StreamSource(new ByteArrayInputStream(schema.getBytes())));
+            xmlSchema =
+                    schemaCollection.read(new StreamSource(new ByteArrayInputStream(schema.getBytes())));
         }
 
         if (throwExceptionOnDescribeFeatureType) {
-            when(mockWfs.describeFeatureType(any(DescribeFeatureTypeRequest.class)))
-                    .thenThrow(new WfsException(""));
+            when(mockWfs.describeFeatureType(any(DescribeFeatureTypeRequest.class))).thenThrow(new WfsException(
+                    ""));
 
         } else {
-            when(mockWfs.describeFeatureType(any(DescribeFeatureTypeRequest.class)))
-                    .thenReturn(xmlSchema);
+            when(mockWfs.describeFeatureType(any(DescribeFeatureTypeRequest.class))).thenReturn(
+                    xmlSchema);
         }
         //when(mockWfs.getFeatureCollectionReader()).thenReturn(mockReader);
 
@@ -199,8 +200,10 @@ public class TestWfsSource {
         List<MetacardMapper> mappers = new ArrayList<MetacardMapper>(1);
         mappers.add(mockMapper);
 
-        WfsSource source = new WfsSource(new GeotoolsFilterAdapterImpl(), mockContext,
-                mockAvailabilityTask, mockFactory);
+        WfsSource source = new WfsSource(new GeotoolsFilterAdapterImpl(),
+                mockContext,
+                mockAvailabilityTask,
+                mockFactory);
 
         source.setMetacardToFeatureMapper(mappers);
         return source;
@@ -215,8 +218,7 @@ public class TestWfsSource {
         when(mockFactory.getClient()).thenReturn(mockWfs);
 
         // GetCapabilities Response
-        when(mockWfs.getCapabilities(any(GetCapabilitiesRequest.class)))
-                .thenReturn(mockCapabilites);
+        when(mockWfs.getCapabilities(any(GetCapabilitiesRequest.class))).thenReturn(mockCapabilites);
 
         when(mockFeatureCollection.getMembers()).thenAnswer(new Answer<List<Metacard>>() {
             @Override
@@ -234,8 +236,8 @@ public class TestWfsSource {
         });
 
         if (numReturned != NULL_NUM_RETURNED) {
-            when(mockFeatureCollection.getNumberReturned())
-                    .thenReturn(BigInteger.valueOf(numReturned));
+            when(mockFeatureCollection.getNumberReturned()).thenReturn(BigInteger.valueOf(
+                    numReturned));
         } else {
             when(mockFeatureCollection.getNumberReturned()).thenReturn(null);
         }
@@ -256,7 +258,9 @@ public class TestWfsSource {
             }
             feature.setName(qName);
             feature.setDefaultCRS(Wfs20Constants.EPSG_4326_URN);
-            mockCapabilites.getFeatureTypeList().getFeatureType().add(feature);
+            mockCapabilites.getFeatureTypeList()
+                    .getFeatureType()
+                    .add(feature);
         }
 
         XmlSchema xmlSchema = null;
@@ -266,21 +270,23 @@ public class TestWfsSource {
             wfsUriResolver.setGmlNamespace(Wfs20Constants.GML_3_2_NAMESPACE);
             wfsUriResolver.setWfsNamespace(Wfs20Constants.WFS_2_0_NAMESPACE);
             schemaCollection.setSchemaResolver(wfsUriResolver);
-            xmlSchema = schemaCollection
-                    .read(new StreamSource(new ByteArrayInputStream(schema.getBytes())));
+            xmlSchema =
+                    schemaCollection.read(new StreamSource(new ByteArrayInputStream(schema.getBytes())));
         }
 
         if (throwExceptionOnDescribeFeatureType) {
-            when(mockWfs.describeFeatureType(any(DescribeFeatureTypeRequest.class)))
-                    .thenThrow(new WfsException(""));
+            when(mockWfs.describeFeatureType(any(DescribeFeatureTypeRequest.class))).thenThrow(new WfsException(
+                    ""));
 
         } else {
-            when(mockWfs.describeFeatureType(any(DescribeFeatureTypeRequest.class)))
-                    .thenReturn(xmlSchema);
+            when(mockWfs.describeFeatureType(any(DescribeFeatureTypeRequest.class))).thenReturn(
+                    xmlSchema);
         }
 
-        WfsSource wfsSource = new WfsSource(new GeotoolsFilterAdapterImpl(), mockContext,
-                mockAvailabilityTask, mockFactory);
+        WfsSource wfsSource = new WfsSource(new GeotoolsFilterAdapterImpl(),
+                mockContext,
+                mockAvailabilityTask,
+                mockFactory);
 
         wfsSource.setFeatureCollectionReader(mockReader);
 
@@ -290,26 +296,32 @@ public class TestWfsSource {
     @Test
     public void testAvailability() throws WfsException, SecurityServiceException {
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
-                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, 1);
+                MockWfsServer.getFilterCapabilities(),
+                Wfs20Constants.EPSG_4326_URN,
+                1);
         assertTrue(source.isAvailable());
     }
 
     @Test
     public void testParseCapabilities() throws WfsException, SecurityServiceException {
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
-                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, 1);
+                MockWfsServer.getFilterCapabilities(),
+                Wfs20Constants.EPSG_4326_URN,
+                1);
 
         assertTrue(source.isAvailable());
         assertThat(source.featureTypeFilters.size(), is(1));
-        WfsFilterDelegate delegate = source.featureTypeFilters
-                .get(new QName(SAMPLE_FEATURE_NAME + "0"));
+        WfsFilterDelegate delegate = source.featureTypeFilters.get(new QName(
+                SAMPLE_FEATURE_NAME + "0"));
         assertThat(delegate, notNullValue());
     }
 
     @Test
     public void testParseCapabilitiesNoFeatures() throws WfsException, SecurityServiceException {
-        WfsSource source = getWfsSource("", MockWfsServer.getFilterCapabilities(),
-                Wfs20Constants.EPSG_4326_URN, 0);
+        WfsSource source = getWfsSource("",
+                MockWfsServer.getFilterCapabilities(),
+                Wfs20Constants.EPSG_4326_URN,
+                0);
 
         assertTrue(source.isAvailable());
         assertThat(source.featureTypeFilters.size(), is(0));
@@ -318,8 +330,10 @@ public class TestWfsSource {
     @Test
     public void testParseCapabilitiesNoFilterCapabilities()
             throws WfsException, SecurityServiceException {
-        WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA, null,
-                Wfs20Constants.EPSG_4326_URN, 1);
+        WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
+                null,
+                Wfs20Constants.EPSG_4326_URN,
+                1);
 
         assertTrue(source.isAvailable());
         assertThat(source.featureTypeFilters.size(), is(0));
@@ -327,11 +341,13 @@ public class TestWfsSource {
 
     @Test
     public void testConfigureFeatureTypes() throws WfsException, SecurityServiceException {
-        ArgumentCaptor<DescribeFeatureTypeRequest> captor = ArgumentCaptor
-                .forClass(DescribeFeatureTypeRequest.class);
+        ArgumentCaptor<DescribeFeatureTypeRequest> captor = ArgumentCaptor.forClass(
+                DescribeFeatureTypeRequest.class);
 
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
-                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, 1);
+                MockWfsServer.getFilterCapabilities(),
+                Wfs20Constants.EPSG_4326_URN,
+                1);
 
         final String SAMPLE_FEATURE_NAME0 = SAMPLE_FEATURE_NAME + "0";
 
@@ -347,22 +363,27 @@ public class TestWfsSource {
         WfsFilterDelegate delegate = source.featureTypeFilters.get(new QName(SAMPLE_FEATURE_NAME0));
         assertThat(delegate, notNullValue());
 
-        assertThat(source.getContentTypes().size(), is(1));
+        assertThat(source.getContentTypes()
+                .size(), is(1));
 
         List<ContentType> types = new ArrayList<ContentType>();
         types.addAll(source.getContentTypes());
 
-        assertTrue(SAMPLE_FEATURE_NAME0.equals(types.get(0).getName()));
+        assertTrue(SAMPLE_FEATURE_NAME0.equals(types.get(0)
+                .getName()));
     }
 
     @Test
     public void testConfigureFeatureTypesDescribeFeatureException()
             throws WfsException, SecurityServiceException {
-        ArgumentCaptor<DescribeFeatureTypeRequest> captor = ArgumentCaptor
-                .forClass(DescribeFeatureTypeRequest.class);
+        ArgumentCaptor<DescribeFeatureTypeRequest> captor = ArgumentCaptor.forClass(
+                DescribeFeatureTypeRequest.class);
 
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
-                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, 1, true);
+                MockWfsServer.getFilterCapabilities(),
+                Wfs20Constants.EPSG_4326_URN,
+                1,
+                true);
 
         final String SAMPLE_FEATURE_NAME0 = SAMPLE_FEATURE_NAME + "0";
 
@@ -375,7 +396,8 @@ public class TestWfsSource {
 
         assertTrue(source.featureTypeFilters.isEmpty());
 
-        assertTrue(source.getContentTypes().isEmpty());
+        assertTrue(source.getContentTypes()
+                .isEmpty());
 
     }
 
@@ -389,11 +411,17 @@ public class TestWfsSource {
         final int pageSize = 1;
 
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
-                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, 3, false, true,
+                MockWfsServer.getFilterCapabilities(),
+                Wfs20Constants.EPSG_4326_URN,
+                3,
+                false,
+                true,
                 3);
 
-        QueryImpl query = new QueryImpl(
-                builder.attribute(Metacard.ANY_TEXT).is().like().text(searchPhrase));
+        QueryImpl query = new QueryImpl(builder.attribute(Metacard.ANY_TEXT)
+                .is()
+                .like()
+                .text(searchPhrase));
         query.setPageSize(pageSize);
         SortBy sortBy = new SortByImpl(TITLE, SortOrder.DESCENDING);
         query.setSortBy(sortBy);
@@ -406,9 +434,12 @@ public class TestWfsSource {
         for (JAXBElement<?> queryType : queryList) {
             Object val = queryType.getValue();
             QueryType queryTypeVal = (QueryType) val;
-            assertThat(queryTypeVal.getTypeNames().get(0), containsString("Prefix"));
-            assertThat(queryTypeVal.getTypeNames().get(0), containsString(":"));
-            assertThat(queryTypeVal.getTypeNames().get(0), containsString("SampleFeature"));
+            assertThat(queryTypeVal.getTypeNames()
+                    .get(0), containsString("Prefix"));
+            assertThat(queryTypeVal.getTypeNames()
+                    .get(0), containsString(":"));
+            assertThat(queryTypeVal.getTypeNames()
+                    .get(0), containsString("SampleFeature"));
         }
     }
 
@@ -422,11 +453,17 @@ public class TestWfsSource {
         final int pageSize = 1;
 
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
-                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, 3, false,
-                false, 3);
+                MockWfsServer.getFilterCapabilities(),
+                Wfs20Constants.EPSG_4326_URN,
+                3,
+                false,
+                false,
+                3);
 
-        QueryImpl query = new QueryImpl(
-                builder.attribute(Metacard.ANY_TEXT).is().like().text(searchPhrase));
+        QueryImpl query = new QueryImpl(builder.attribute(Metacard.ANY_TEXT)
+                .is()
+                .like()
+                .text(searchPhrase));
         query.setPageSize(pageSize);
         SortBy sortBy = new SortByImpl(TITLE, SortOrder.DESCENDING);
         query.setSortBy(sortBy);
@@ -439,9 +476,12 @@ public class TestWfsSource {
         for (JAXBElement<?> queryType : queryList) {
             Object val = queryType.getValue();
             QueryType queryTypeVal = (QueryType) val;
-            assertThat(queryTypeVal.getTypeNames().get(0), containsString("SampleFeature"));
-            assertThat(queryTypeVal.getTypeNames().get(0), is(not(containsString("Prefix"))));
-            assertThat(queryTypeVal.getTypeNames().get(0), is(not(containsString(":"))));
+            assertThat(queryTypeVal.getTypeNames()
+                    .get(0), containsString("SampleFeature"));
+            assertThat(queryTypeVal.getTypeNames()
+                    .get(0), is(not(containsString("Prefix"))));
+            assertThat(queryTypeVal.getTypeNames()
+                    .get(0), is(not(containsString(":"))));
         }
     }
 
@@ -463,8 +503,14 @@ public class TestWfsSource {
         int startIndex = 0;
 
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
-                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, 10, false);
-        Filter filter = builder.attribute(Metacard.ANY_TEXT).is().like().text(LITERAL);
+                MockWfsServer.getFilterCapabilities(),
+                Wfs20Constants.EPSG_4326_URN,
+                10,
+                false);
+        Filter filter = builder.attribute(Metacard.ANY_TEXT)
+                .is()
+                .like()
+                .text(LITERAL);
         Query query = new QueryImpl(filter, startIndex, pageSize, null, false, 0);
 
         //Execute
@@ -494,8 +540,14 @@ public class TestWfsSource {
         int startIndex = -1;
 
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
-                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, 10, false);
-        Filter filter = builder.attribute(Metacard.ANY_TEXT).is().like().text(LITERAL);
+                MockWfsServer.getFilterCapabilities(),
+                Wfs20Constants.EPSG_4326_URN,
+                10,
+                false);
+        Filter filter = builder.attribute(Metacard.ANY_TEXT)
+                .is()
+                .like()
+                .text(LITERAL);
         Query query = new QueryImpl(filter, startIndex, pageSize, null, false, 0);
 
         //Execute
@@ -519,8 +571,14 @@ public class TestWfsSource {
         int startIndex = 0;
 
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
-                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, 10, false);
-        Filter filter = builder.attribute(Metacard.ANY_TEXT).is().like().text(LITERAL);
+                MockWfsServer.getFilterCapabilities(),
+                Wfs20Constants.EPSG_4326_URN,
+                10,
+                false);
+        Filter filter = builder.attribute(Metacard.ANY_TEXT)
+                .is()
+                .like()
+                .text(LITERAL);
         Query query = new QueryImpl(filter, startIndex, pageSize, null, false, 0);
 
         //Execute
@@ -537,11 +595,17 @@ public class TestWfsSource {
         final int pageSize = 1;
 
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
-                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, 3, false, true,
+                MockWfsServer.getFilterCapabilities(),
+                Wfs20Constants.EPSG_4326_URN,
+                3,
+                false,
+                true,
                 -1);
 
-        QueryImpl query = new QueryImpl(
-                builder.attribute(Metacard.ANY_TEXT).is().like().text(searchPhrase));
+        QueryImpl query = new QueryImpl(builder.attribute(Metacard.ANY_TEXT)
+                .is()
+                .like()
+                .text(searchPhrase));
         query.setPageSize(pageSize);
         SortBy sortBy = new SortByImpl(TITLE, SortOrder.DESCENDING);
         query.setSortBy(sortBy);
@@ -570,11 +634,17 @@ public class TestWfsSource {
         final int pageSize = 1;
 
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
-                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, 3, false, true,
+                MockWfsServer.getFilterCapabilities(),
+                Wfs20Constants.EPSG_4326_URN,
+                3,
+                false,
+                true,
                 NULL_NUM_RETURNED);
 
-        QueryImpl query = new QueryImpl(
-                builder.attribute(Metacard.ANY_TEXT).is().like().text(searchPhrase));
+        QueryImpl query = new QueryImpl(builder.attribute(Metacard.ANY_TEXT)
+                .is()
+                .like()
+                .text(searchPhrase));
         query.setPageSize(pageSize);
         SortBy sortBy = new SortByImpl(TITLE, SortOrder.DESCENDING);
         query.setSortBy(sortBy);
@@ -582,7 +652,9 @@ public class TestWfsSource {
 
         // Perform test
         SourceResponse resp = source.query(queryReq);
-        assertEquals(3, resp.getResults().size());
+        assertEquals(3,
+                resp.getResults()
+                        .size());
 
     }
 
@@ -604,11 +676,17 @@ public class TestWfsSource {
         final int pageSize = 1;
 
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
-                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, 3, false, true,
+                MockWfsServer.getFilterCapabilities(),
+                Wfs20Constants.EPSG_4326_URN,
+                3,
+                false,
+                true,
                 5);
 
-        QueryImpl query = new QueryImpl(
-                builder.attribute(Metacard.ANY_TEXT).is().like().text(searchPhrase));
+        QueryImpl query = new QueryImpl(builder.attribute(Metacard.ANY_TEXT)
+                .is()
+                .like()
+                .text(searchPhrase));
         query.setPageSize(pageSize);
         SortBy sortBy = new SortByImpl(TITLE, SortOrder.DESCENDING);
         query.setSortBy(sortBy);
@@ -616,7 +694,9 @@ public class TestWfsSource {
 
         // Perform test
         SourceResponse resp = source.query(queryReq);
-        assertEquals(3, resp.getResults().size());
+        assertEquals(3,
+                resp.getResults()
+                        .size());
 
     }
 
@@ -630,11 +710,17 @@ public class TestWfsSource {
         final int pageSize = 1;
 
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
-                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, 3, false, true,
+                MockWfsServer.getFilterCapabilities(),
+                Wfs20Constants.EPSG_4326_URN,
+                3,
+                false,
+                true,
                 0);
 
-        QueryImpl query = new QueryImpl(
-                builder.attribute(Metacard.ANY_TEXT).is().like().text(searchPhrase));
+        QueryImpl query = new QueryImpl(builder.attribute(Metacard.ANY_TEXT)
+                .is()
+                .like()
+                .text(searchPhrase));
         query.setPageSize(pageSize);
         SortBy sortBy = new SortByImpl(TITLE, SortOrder.DESCENDING);
         query.setSortBy(sortBy);
@@ -642,7 +728,9 @@ public class TestWfsSource {
 
         // Perform test
         SourceResponse resp = source.query(queryReq);
-        assertEquals(3, resp.getResults().size());
+        assertEquals(3,
+                resp.getResults()
+                        .size());
 
     }
 
@@ -677,18 +765,24 @@ public class TestWfsSource {
         final int pageSize = 1;
 
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
-                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, 1, false,
-                false, 0);
+                MockWfsServer.getFilterCapabilities(),
+                Wfs20Constants.EPSG_4326_URN,
+                1,
+                false,
+                false,
+                0);
         MetacardMapper mockMetacardMapper = mock(MetacardMapper.class);
         when(mockMetacardMapper.getFeatureType()).thenReturn(mockFeatureType);
-        when(mockMetacardMapper.getSortByTemporalFeatureProperty())
-                .thenReturn(mockTemporalFeatureProperty);
+        when(mockMetacardMapper.getSortByTemporalFeatureProperty()).thenReturn(
+                mockTemporalFeatureProperty);
         List<MetacardMapper> mappers = new ArrayList<MetacardMapper>(1);
         mappers.add(mockMetacardMapper);
         source.setMetacardToFeatureMapper(mappers);
 
-        QueryImpl query = new QueryImpl(
-                builder.attribute(Metacard.ANY_TEXT).is().like().text(searchPhrase));
+        QueryImpl query = new QueryImpl(builder.attribute(Metacard.ANY_TEXT)
+                .is()
+                .like()
+                .text(searchPhrase));
         query.setPageSize(pageSize);
         SortBy sortBy = new SortByImpl(Result.TEMPORAL, SortOrder.ASCENDING);
         query.setSortBy(sortBy);
@@ -697,14 +791,18 @@ public class TestWfsSource {
         GetFeatureType featureType = source.buildGetFeatureRequest(query);
 
         // Verify
-        QueryType queryType = (QueryType) featureType.getAbstractQueryExpression().get(0)
+        QueryType queryType = (QueryType) featureType.getAbstractQueryExpression()
+                .get(0)
                 .getValue();
         JAXBElement<?> abstractSortingClause = queryType.getAbstractSortingClause();
         SortByType sortByType = (SortByType) abstractSortingClause.getValue();
-        assertThat(sortByType.getSortProperty().get(0).getValueReference(),
-                is(mockTemporalFeatureProperty));
-        assertThat(sortByType.getSortProperty().get(0).getSortOrder().name(),
-                is(SortOrderType.ASC.value()));
+        assertThat(sortByType.getSortProperty()
+                .get(0)
+                .getValueReference(), is(mockTemporalFeatureProperty));
+        assertThat(sortByType.getSortProperty()
+                .get(0)
+                .getSortOrder()
+                .name(), is(SortOrderType.ASC.value()));
     }
 
     /**
@@ -719,8 +817,8 @@ public class TestWfsSource {
         final int pageSize = 1;
 
         // Set ImplementsSorting to FALSE (sorting not supported)
-        FilterCapabilities mockCapabilitiesSortingNotSupported = MockWfsServer
-                .getFilterCapabilities();
+        FilterCapabilities mockCapabilitiesSortingNotSupported =
+                MockWfsServer.getFilterCapabilities();
         ConformanceType conformance = mockCapabilitiesSortingNotSupported.getConformance();
         List<DomainType> domainTypes = conformance.getConstraint();
         for (DomainType domainType : domainTypes) {
@@ -733,18 +831,24 @@ public class TestWfsSource {
         }
 
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
-                mockCapabilitiesSortingNotSupported, Wfs20Constants.EPSG_4326_URN, 1, false, false,
+                mockCapabilitiesSortingNotSupported,
+                Wfs20Constants.EPSG_4326_URN,
+                1,
+                false,
+                false,
                 0);
         MetacardMapper mockMetacardMapper = mock(MetacardMapper.class);
         when(mockMetacardMapper.getFeatureType()).thenReturn(mockFeatureType);
-        when(mockMetacardMapper.getSortByTemporalFeatureProperty())
-                .thenReturn(mockTemporalFeatureProperty);
+        when(mockMetacardMapper.getSortByTemporalFeatureProperty()).thenReturn(
+                mockTemporalFeatureProperty);
         List<MetacardMapper> mappers = new ArrayList<MetacardMapper>(1);
         mappers.add(mockMetacardMapper);
         source.setMetacardToFeatureMapper(mappers);
 
-        QueryImpl query = new QueryImpl(
-                builder.attribute(Metacard.ANY_TEXT).is().like().text(searchPhrase));
+        QueryImpl query = new QueryImpl(builder.attribute(Metacard.ANY_TEXT)
+                .is()
+                .like()
+                .text(searchPhrase));
         query.setPageSize(pageSize);
         SortBy sortBy = new SortByImpl(Result.TEMPORAL, SortOrder.ASCENDING);
         query.setSortBy(sortBy);
@@ -753,7 +857,8 @@ public class TestWfsSource {
         GetFeatureType featureType = source.buildGetFeatureRequest(query);
 
         // Verify
-        QueryType queryType = (QueryType) featureType.getAbstractQueryExpression().get(0)
+        QueryType queryType = (QueryType) featureType.getAbstractQueryExpression()
+                .get(0)
                 .getValue();
         assertFalse(queryType.isSetAbstractSortingClause());
     }
@@ -781,8 +886,12 @@ public class TestWfsSource {
         final int pageSize = 1;
 
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
-                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, 1, false,
-                false, 0);
+                MockWfsServer.getFilterCapabilities(),
+                Wfs20Constants.EPSG_4326_URN,
+                1,
+                false,
+                false,
+                0);
         MetacardMapper mockMetacardMapper = mock(MetacardMapper.class);
         when(mockMetacardMapper.getFeatureType()).thenReturn(mockFeatureType);
 
@@ -790,8 +899,10 @@ public class TestWfsSource {
         mappers.add(mockMetacardMapper);
         source.setMetacardToFeatureMapper(mappers);
 
-        QueryImpl query = new QueryImpl(
-                builder.attribute(Metacard.ANY_TEXT).is().like().text(searchPhrase));
+        QueryImpl query = new QueryImpl(builder.attribute(Metacard.ANY_TEXT)
+                .is()
+                .like()
+                .text(searchPhrase));
         query.setPageSize(pageSize);
         SortBy sortBy = new SortByImpl(Result.TEMPORAL, SortOrder.ASCENDING);
         query.setSortBy(sortBy);
@@ -800,7 +911,8 @@ public class TestWfsSource {
         GetFeatureType featureType = source.buildGetFeatureRequest(query);
 
         // Verify
-        QueryType queryType = (QueryType) featureType.getAbstractQueryExpression().get(0)
+        QueryType queryType = (QueryType) featureType.getAbstractQueryExpression()
+                .get(0)
                 .getValue();
         assertFalse(queryType.isSetAbstractSortingClause());
     }
@@ -836,18 +948,24 @@ public class TestWfsSource {
         final int pageSize = 1;
 
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
-                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, 1, false,
-                false, 0);
+                MockWfsServer.getFilterCapabilities(),
+                Wfs20Constants.EPSG_4326_URN,
+                1,
+                false,
+                false,
+                0);
         MetacardMapper mockMetacardMapper = mock(MetacardMapper.class);
         when(mockMetacardMapper.getFeatureType()).thenReturn(mockFeatureType);
-        when(mockMetacardMapper.getSortByTemporalFeatureProperty())
-                .thenReturn(mockTemporalFeatureProperty);
+        when(mockMetacardMapper.getSortByTemporalFeatureProperty()).thenReturn(
+                mockTemporalFeatureProperty);
         List<MetacardMapper> mappers = new ArrayList<MetacardMapper>(1);
         mappers.add(mockMetacardMapper);
         source.setMetacardToFeatureMapper(mappers);
 
-        QueryImpl query = new QueryImpl(
-                builder.attribute(Metacard.ANY_TEXT).is().like().text(searchPhrase));
+        QueryImpl query = new QueryImpl(builder.attribute(Metacard.ANY_TEXT)
+                .is()
+                .like()
+                .text(searchPhrase));
         query.setPageSize(pageSize);
         SortBy sortBy = new SortByImpl(Result.TEMPORAL, SortOrder.DESCENDING);
         query.setSortBy(sortBy);
@@ -856,14 +974,18 @@ public class TestWfsSource {
         GetFeatureType featureType = source.buildGetFeatureRequest(query);
 
         // Verify
-        QueryType queryType = (QueryType) featureType.getAbstractQueryExpression().get(0)
+        QueryType queryType = (QueryType) featureType.getAbstractQueryExpression()
+                .get(0)
                 .getValue();
         JAXBElement<?> abstractSortingClause = queryType.getAbstractSortingClause();
         SortByType sortByType = (SortByType) abstractSortingClause.getValue();
-        assertThat(sortByType.getSortProperty().get(0).getValueReference(),
-                is(mockTemporalFeatureProperty));
-        assertThat(sortByType.getSortProperty().get(0).getSortOrder().name(),
-                is(SortOrderType.DESC.value()));
+        assertThat(sortByType.getSortProperty()
+                .get(0)
+                .getValueReference(), is(mockTemporalFeatureProperty));
+        assertThat(sortByType.getSortProperty()
+                .get(0)
+                .getSortOrder()
+                .name(), is(SortOrderType.DESC.value()));
     }
 
     @Test
@@ -873,18 +995,25 @@ public class TestWfsSource {
         final int pageSize = 1;
 
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
-                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, 1, false,
-                false, 0);
+                MockWfsServer.getFilterCapabilities(),
+                Wfs20Constants.EPSG_4326_URN,
+                1,
+                false,
+                false,
+                0);
 
-        QueryImpl query = new QueryImpl(
-                builder.attribute(Metacard.ANY_TEXT).is().like().text(searchPhrase));
+        QueryImpl query = new QueryImpl(builder.attribute(Metacard.ANY_TEXT)
+                .is()
+                .like()
+                .text(searchPhrase));
         query.setPageSize(pageSize);
 
         // Perform Test
         GetFeatureType featureType = source.buildGetFeatureRequest(query);
 
         // Verify
-        QueryType queryType = (QueryType) featureType.getAbstractQueryExpression().get(0)
+        QueryType queryType = (QueryType) featureType.getAbstractQueryExpression()
+                .get(0)
                 .getValue();
         assertFalse(queryType.isSetAbstractSortingClause());
     }
@@ -892,15 +1021,21 @@ public class TestWfsSource {
     @Test
     public void testTimeoutConfiguration() throws WfsException, SecurityServiceException {
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
-                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, 1, false,
-                false, 0);
+                MockWfsServer.getFilterCapabilities(),
+                Wfs20Constants.EPSG_4326_URN,
+                1,
+                false,
+                false,
+                0);
 
         source.setConnectionTimeout(10000);
         source.setReceiveTimeout(10000);
 
         // Perform test
-        assertEquals(source.getConnectionTimeout().intValue(), 10000);
-        assertEquals(source.getReceiveTimeout().intValue(), 10000);
+        assertEquals(source.getConnectionTimeout()
+                .intValue(), 10000);
+        assertEquals(source.getReceiveTimeout()
+                .intValue(), 10000);
     }
 
     @Test
@@ -909,19 +1044,27 @@ public class TestWfsSource {
         int startIndex = 0;
         int pageSize = 10;
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
-                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, 10, false);
-        Filter filter = builder.attribute(Metacard.CONTENT_TYPE).is().equalTo()
+                MockWfsServer.getFilterCapabilities(),
+                Wfs20Constants.EPSG_4326_URN,
+                10,
+                false);
+        Filter filter = builder.attribute(Metacard.CONTENT_TYPE)
+                .is()
+                .equalTo()
                 .text(SAMPLE_FEATURE_NAME + "0");
         QueryImpl query = new QueryImpl(filter);
         query.setPageSize(pageSize);
 
         //Execute
         GetFeatureType featureType = source.buildGetFeatureRequest(query);
-        QueryType queryType = (QueryType) featureType.getAbstractQueryExpression().get(0)
+        QueryType queryType = (QueryType) featureType.getAbstractQueryExpression()
+                .get(0)
                 .getValue();
 
         //Validate
-        assertEquals(SAMPLE_FEATURE_NAME + "0", queryType.getTypeNames().get(0));
+        assertEquals(SAMPLE_FEATURE_NAME + "0",
+                queryType.getTypeNames()
+                        .get(0));
     }
 
     @Test
@@ -930,12 +1073,22 @@ public class TestWfsSource {
         int startIndex = 0;
         int pageSize = 10;
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
-                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, 10, false);
-        Filter filter0 = builder.attribute(Metacard.CONTENT_TYPE).is().equalTo()
+                MockWfsServer.getFilterCapabilities(),
+                Wfs20Constants.EPSG_4326_URN,
+                10,
+                false);
+        Filter filter0 = builder.attribute(Metacard.CONTENT_TYPE)
+                .is()
+                .equalTo()
                 .text(SAMPLE_FEATURE_NAME + "8");
-        Filter filter1 = builder.attribute(Metacard.CONTENT_TYPE).is().equalTo()
+        Filter filter1 = builder.attribute(Metacard.CONTENT_TYPE)
+                .is()
+                .equalTo()
                 .text(SAMPLE_FEATURE_NAME + "9");
-        Filter filter2 = builder.attribute(Metacard.ANY_TEXT).is().like().text("*");
+        Filter filter2 = builder.attribute(Metacard.ANY_TEXT)
+                .is()
+                .like()
+                .text("*");
 
         Filter typeSearchFilters = builder.anyOf(filter0, filter1);
 
@@ -944,7 +1097,8 @@ public class TestWfsSource {
 
         //Execute
         GetFeatureType featureType = source.buildGetFeatureRequest(query);
-        int numTypes = featureType.getAbstractQueryExpression().size();
+        int numTypes = featureType.getAbstractQueryExpression()
+                .size();
 
         //Validate
         assertEquals(2, numTypes);

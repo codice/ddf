@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -199,58 +199,87 @@ public class TestGeoJsonExtensible {
     public void testExtensibleGeoJsonA() throws IOException, CatalogTransformerException {
         MetacardTypeRegistry mtr = prepareMetacardTypeRegistry();
 
-        ByteArrayInputStream geoJsonInput = new ByteArrayInputStream(
-                sampleJsonExtensibleA().getBytes());
+        ByteArrayInputStream geoJsonInput =
+                new ByteArrayInputStream(sampleJsonExtensibleA().getBytes());
         Metacard metacard = new GeoJsonInputTransformer(mtr).transform(geoJsonInput);
 
         assertEquals(DEFAULT_TITLE, metacard.getTitle());
         assertEquals(DEFAULT_ID, metacard.getId());
-        assertTrue(metacard.getAttribute("frequency").getValue() instanceof Long);
-        assertEquals(SAMPLE_A_FREQUENCY, (Long) metacard.getAttribute("frequency").getValue(), 0);
-        assertTrue(metacard.getAttribute("max-frequency").getValue() instanceof Long);
+        assertTrue(metacard.getAttribute("frequency")
+                .getValue() instanceof Long);
+        assertEquals(SAMPLE_A_FREQUENCY,
+                (Long) metacard.getAttribute("frequency")
+                        .getValue(),
+                0);
+        assertTrue(metacard.getAttribute("max-frequency")
+                .getValue() instanceof Long);
         assertEquals(SAMPLE_A_MAX_FREQUENCY,
-                (Long) metacard.getAttribute("max-frequency").getValue(), 0);
-        assertTrue(metacard.getAttribute("min-frequency").getValue() instanceof Long);
+                (Long) metacard.getAttribute("max-frequency")
+                        .getValue(),
+                0);
+        assertTrue(metacard.getAttribute("min-frequency")
+                .getValue() instanceof Long);
         assertEquals(SAMPLE_A_MIN_FREQUENCY,
-                (Long) metacard.getAttribute("min-frequency").getValue(), 0);
-        assertTrue(metacard.getAttribute("angle").getValue() instanceof Integer);
-        assertTrue(SAMPLE_A_ANGLE == (Integer) metacard.getAttribute("angle").getValue());
-        assertEquals(SAMPLE_A_METACARD_TYPE_NAME, metacard.getMetacardType().getName());
+                (Long) metacard.getAttribute("min-frequency")
+                        .getValue(),
+                0);
+        assertTrue(metacard.getAttribute("angle")
+                .getValue() instanceof Integer);
+        assertTrue(SAMPLE_A_ANGLE == (Integer) metacard.getAttribute("angle")
+                .getValue());
+        assertEquals(SAMPLE_A_METACARD_TYPE_NAME,
+                metacard.getMetacardType()
+                        .getName());
     }
 
     @Test
     public void testExtensibleGeoJsonB() throws IOException, CatalogTransformerException {
         MetacardTypeRegistry mtr = prepareMetacardTypeRegistry();
 
-        ByteArrayInputStream geoJsonInput = new ByteArrayInputStream(
-                sampleJsonExtensibleB().getBytes());
+        ByteArrayInputStream geoJsonInput =
+                new ByteArrayInputStream(sampleJsonExtensibleB().getBytes());
         Metacard metacard = new GeoJsonInputTransformer(mtr).transform(geoJsonInput);
 
         assertEquals(DEFAULT_TITLE, metacard.getTitle());
         assertEquals(DEFAULT_ID, metacard.getId());
-        assertTrue(metacard.getAttribute(COLUMNS_ATTRIBUTE_KEY).getValue() instanceof Integer);
+        assertTrue(metacard.getAttribute(COLUMNS_ATTRIBUTE_KEY)
+                .getValue() instanceof Integer);
         assertTrue(DEFAULT_COLUMNS == (Integer) metacard.getAttribute(COLUMNS_ATTRIBUTE_KEY)
                 .getValue());
-        assertTrue(metacard.getAttribute(ROWS_ATTRIBUTE_KEY).getValue() instanceof Integer);
-        assertTrue(DEFAULT_ROWS == (Integer) metacard.getAttribute(ROWS_ATTRIBUTE_KEY).getValue());
-        assertTrue(metacard.getAttribute(DESCRIPTION_ATTRIBUTE_KEY).getValue() instanceof String);
+        assertTrue(metacard.getAttribute(ROWS_ATTRIBUTE_KEY)
+                .getValue() instanceof Integer);
+        assertTrue(DEFAULT_ROWS == (Integer) metacard.getAttribute(ROWS_ATTRIBUTE_KEY)
+                .getValue());
+        assertTrue(metacard.getAttribute(DESCRIPTION_ATTRIBUTE_KEY)
+                .getValue() instanceof String);
         assertEquals(DEFAULT_DESCRIPTION,
-                (String) metacard.getAttribute(DESCRIPTION_ATTRIBUTE_KEY).getValue());
-        assertEquals(SAMPLE_B_METACARD_TYPE_NAME, metacard.getMetacardType().getName());
+                (String) metacard.getAttribute(DESCRIPTION_ATTRIBUTE_KEY)
+                        .getValue());
+        assertEquals(SAMPLE_B_METACARD_TYPE_NAME,
+                metacard.getMetacardType()
+                        .getName());
         assertTrue(metacard.getAttribute(PRECISE_LENGTH_METERS_ATTRIBUTE_KEY)
                 .getValue() instanceof Double);
         assertEquals(Double.MAX_VALUE,
-                (Double) metacard.getAttribute(PRECISE_LENGTH_METERS_ATTRIBUTE_KEY).getValue(), 0);
-        assertTrue(metacard.getAttribute(REVIEWED_ATTRIBUTE_KEY).getValue() instanceof Boolean);
-        assertTrue((Boolean) metacard.getAttribute(REVIEWED_ATTRIBUTE_KEY).getValue());
+                (Double) metacard.getAttribute(PRECISE_LENGTH_METERS_ATTRIBUTE_KEY)
+                        .getValue(),
+                0);
+        assertTrue(metacard.getAttribute(REVIEWED_ATTRIBUTE_KEY)
+                .getValue() instanceof Boolean);
+        assertTrue((Boolean) metacard.getAttribute(REVIEWED_ATTRIBUTE_KEY)
+                .getValue());
         assertTrue(metacard.getAttribute(PRECISE_HEIGHT_METERS_ATTRIBUTE_KEY)
                 .getValue() instanceof Float);
         assertEquals(Float.MAX_VALUE,
-                (Float) metacard.getAttribute(PRECISE_HEIGHT_METERS_ATTRIBUTE_KEY).getValue(), 0);
-        assertTrue(
-                metacard.getAttribute(NUMBER_REVIEWERS_ATTRIBUTE_KEY).getValue() instanceof Short);
+                (Float) metacard.getAttribute(PRECISE_HEIGHT_METERS_ATTRIBUTE_KEY)
+                        .getValue(),
+                0);
+        assertTrue(metacard.getAttribute(NUMBER_REVIEWERS_ATTRIBUTE_KEY)
+                .getValue() instanceof Short);
         assertEquals(Short.MAX_VALUE,
-                (Short) metacard.getAttribute(NUMBER_REVIEWERS_ATTRIBUTE_KEY).getValue(), 0);
+                (Short) metacard.getAttribute(NUMBER_REVIEWERS_ATTRIBUTE_KEY)
+                        .getValue(),
+                0);
 
         // test that other attributes not contained in MetacardTypeB are not in resulting metacard
         assertNull(metacard.getAttribute("created"));
@@ -269,25 +298,38 @@ public class TestGeoJsonExtensible {
         // all sample B fields should be added to metacard except the non-parseable one
         assertEquals(DEFAULT_TITLE, metacard.getTitle());
         assertEquals(DEFAULT_ID, metacard.getId());
-        assertTrue(metacard.getAttribute(COLUMNS_ATTRIBUTE_KEY).getValue() instanceof Integer);
+        assertTrue(metacard.getAttribute(COLUMNS_ATTRIBUTE_KEY)
+                .getValue() instanceof Integer);
         assertTrue(DEFAULT_COLUMNS == (Integer) metacard.getAttribute(COLUMNS_ATTRIBUTE_KEY)
                 .getValue());
-        assertTrue(metacard.getAttribute(ROWS_ATTRIBUTE_KEY).getValue() instanceof Integer);
-        assertTrue(DEFAULT_ROWS == (Integer) metacard.getAttribute(ROWS_ATTRIBUTE_KEY).getValue());
-        assertTrue(metacard.getAttribute(DESCRIPTION_ATTRIBUTE_KEY).getValue() instanceof String);
+        assertTrue(metacard.getAttribute(ROWS_ATTRIBUTE_KEY)
+                .getValue() instanceof Integer);
+        assertTrue(DEFAULT_ROWS == (Integer) metacard.getAttribute(ROWS_ATTRIBUTE_KEY)
+                .getValue());
+        assertTrue(metacard.getAttribute(DESCRIPTION_ATTRIBUTE_KEY)
+                .getValue() instanceof String);
         assertEquals(DEFAULT_DESCRIPTION,
-                (String) metacard.getAttribute(DESCRIPTION_ATTRIBUTE_KEY).getValue());
-        assertEquals(SAMPLE_B_METACARD_TYPE_NAME, metacard.getMetacardType().getName());
-        assertTrue(metacard.getAttribute(REVIEWED_ATTRIBUTE_KEY).getValue() instanceof Boolean);
-        assertTrue((Boolean) metacard.getAttribute(REVIEWED_ATTRIBUTE_KEY).getValue());
+                (String) metacard.getAttribute(DESCRIPTION_ATTRIBUTE_KEY)
+                        .getValue());
+        assertEquals(SAMPLE_B_METACARD_TYPE_NAME,
+                metacard.getMetacardType()
+                        .getName());
+        assertTrue(metacard.getAttribute(REVIEWED_ATTRIBUTE_KEY)
+                .getValue() instanceof Boolean);
+        assertTrue((Boolean) metacard.getAttribute(REVIEWED_ATTRIBUTE_KEY)
+                .getValue());
         assertTrue(metacard.getAttribute(PRECISE_HEIGHT_METERS_ATTRIBUTE_KEY)
                 .getValue() instanceof Float);
         assertEquals(Float.MAX_VALUE,
-                (Float) metacard.getAttribute(PRECISE_HEIGHT_METERS_ATTRIBUTE_KEY).getValue(), 0);
-        assertTrue(
-                metacard.getAttribute(NUMBER_REVIEWERS_ATTRIBUTE_KEY).getValue() instanceof Short);
+                (Float) metacard.getAttribute(PRECISE_HEIGHT_METERS_ATTRIBUTE_KEY)
+                        .getValue(),
+                0);
+        assertTrue(metacard.getAttribute(NUMBER_REVIEWERS_ATTRIBUTE_KEY)
+                .getValue() instanceof Short);
         assertEquals(Short.MAX_VALUE,
-                (Short) metacard.getAttribute(NUMBER_REVIEWERS_ATTRIBUTE_KEY).getValue(), 0);
+                (Short) metacard.getAttribute(NUMBER_REVIEWERS_ATTRIBUTE_KEY)
+                        .getValue(),
+                0);
 
         assertNull(metacard.getAttribute(PRECISE_LENGTH_METERS_ATTRIBUTE_KEY));
     }
@@ -312,7 +354,9 @@ public class TestGeoJsonExtensible {
         assertNull(metacard.getAttribute("max-frequency"));
         assertNull(metacard.getAttribute("min-frequency"));
         assertNull(metacard.getAttribute("angle"));
-        assertEquals(BasicTypes.BASIC_METACARD.getName(), metacard.getMetacardType().getName());
+        assertEquals(BasicTypes.BASIC_METACARD.getName(),
+                metacard.getMetacardType()
+                        .getName());
     }
 
     @Test(expected = CatalogTransformerException.class)
@@ -329,8 +373,8 @@ public class TestGeoJsonExtensible {
     public void testBasicMetacardType()
             throws IOException, CatalogTransformerException, ParseException {
         MetacardTypeRegistry mtr = prepareMetacardTypeRegistry();
-        ByteArrayInputStream geoJsonInput = new ByteArrayInputStream(
-                sampleBasicMetacard().getBytes());
+        ByteArrayInputStream geoJsonInput =
+                new ByteArrayInputStream(sampleBasicMetacard().getBytes());
         Metacard metacard = new GeoJsonInputTransformer(mtr).transform(geoJsonInput);
 
         verifyBasics(metacard);
@@ -340,8 +384,8 @@ public class TestGeoJsonExtensible {
     public void testBasicMetacardTypeNoMetacardType()
             throws IOException, CatalogTransformerException, ParseException {
         MetacardTypeRegistry mtr = prepareMetacardTypeRegistry();
-        ByteArrayInputStream geoJsonInput = new ByteArrayInputStream(
-                sampleBasicMetacardNoMetacard().getBytes());
+        ByteArrayInputStream geoJsonInput =
+                new ByteArrayInputStream(sampleBasicMetacardNoMetacard().getBytes());
         Metacard metacard = new GeoJsonInputTransformer(mtr).transform(geoJsonInput);
 
         verifyBasics(metacard);
@@ -359,19 +403,23 @@ public class TestGeoJsonExtensible {
 
     protected void verifyBasics(Metacard metacard) throws ParseException {
         assertEquals(DEFAULT_TITLE, metacard.getTitle());
-        assertEquals(DEFAULT_URI, metacard.getResourceURI().toString());
+        assertEquals(DEFAULT_URI,
+                metacard.getResourceURI()
+                        .toString());
         assertEquals(DEFAULT_TYPE, metacard.getContentTypeName());
         assertEquals(DEFAULT_VERSION, metacard.getContentTypeVersion());
         assertEquals("<xml></xml>", metacard.getMetadata());
-        SimpleDateFormat dateFormat = new SimpleDateFormat(
-                GeoJsonInputTransformer.ISO_8601_DATE_FORMAT);
+        SimpleDateFormat dateFormat =
+                new SimpleDateFormat(GeoJsonInputTransformer.ISO_8601_DATE_FORMAT);
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         assertEquals(DEFAULT_CREATED_DATE, dateFormat.format(metacard.getCreatedDate()));
         assertEquals(DEFAULT_MODIFIED_DATE, dateFormat.format(metacard.getModifiedDate()));
         assertEquals(DEFAULT_EXPIRATION_DATE, dateFormat.format(metacard.getExpirationDate()));
         assertEquals(DEFAULT_EFFECTIVE_DATE, dateFormat.format(metacard.getEffectiveDate()));
         assertArrayEquals(DEFAULT_BYTES, metacard.getThumbnail());
-        assertEquals(BasicTypes.BASIC_METACARD.getName(), metacard.getMetacardType().getName());
+        assertEquals(BasicTypes.BASIC_METACARD.getName(),
+                metacard.getMetacardType()
+                        .getName());
 
         WKTReader reader = new WKTReader();
 
@@ -391,50 +439,102 @@ public class TestGeoJsonExtensible {
 
     private QualifiedMetacardType sampleMetacardTypeA() {
         Set<AttributeDescriptor> descriptors = new HashSet<AttributeDescriptor>();
-        descriptors
-                .add(new AttributeDescriptorImpl("frequency", true /* indexed */, true /* stored */,
-                        false /* tokenized */, false /* multivalued */, BasicTypes.LONG_TYPE));
-        descriptors.add(new AttributeDescriptorImpl("min-frequency", true /* indexed */, true /* stored */,
-                false /* tokenized */, false /* multivalued */, BasicTypes.LONG_TYPE));
-        descriptors.add(new AttributeDescriptorImpl("max-frequency", true /* indexed */, true /* stored */,
-                false /* tokenized */, false /* multivalued */, BasicTypes.LONG_TYPE));
-        descriptors.add(new AttributeDescriptorImpl("angle", true /* indexed */, true /* stored */,
-                false /* tokenized */, false /* multivalued */, BasicTypes.INTEGER_TYPE));
-        descriptors
-                .add(new AttributeDescriptorImpl(Metacard.ID, true /* indexed */, true /* stored */,
-                        false /* tokenized */, false /* multivalued */, BasicTypes.STRING_TYPE));
-        descriptors.add(new AttributeDescriptorImpl(Metacard.TITLE, true /* indexed */, true /* stored */,
-                true /* tokenized */, false /* multivalued */, BasicTypes.STRING_TYPE));
+        descriptors.add(new AttributeDescriptorImpl("frequency",
+                true /* indexed */,
+                true /* stored */,
+                false /* tokenized */,
+                false /* multivalued */,
+                BasicTypes.LONG_TYPE));
+        descriptors.add(new AttributeDescriptorImpl("min-frequency",
+                true /* indexed */,
+                true /* stored */,
+                false /* tokenized */,
+                false /* multivalued */,
+                BasicTypes.LONG_TYPE));
+        descriptors.add(new AttributeDescriptorImpl("max-frequency",
+                true /* indexed */,
+                true /* stored */,
+                false /* tokenized */,
+                false /* multivalued */,
+                BasicTypes.LONG_TYPE));
+        descriptors.add(new AttributeDescriptorImpl("angle",
+                true /* indexed */,
+                true /* stored */,
+                false /* tokenized */,
+                false /* multivalued */,
+                BasicTypes.INTEGER_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(Metacard.ID,
+                true /* indexed */,
+                true /* stored */,
+                false /* tokenized */,
+                false /* multivalued */,
+                BasicTypes.STRING_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(Metacard.TITLE,
+                true /* indexed */,
+                true /* stored */,
+                true /* tokenized */,
+                false /* multivalued */,
+                BasicTypes.STRING_TYPE));
 
         return new QualifiedMetacardTypeImpl("", SAMPLE_A_METACARD_TYPE_NAME, descriptors);
     }
 
     private QualifiedMetacardType sampleMetacardTypeB() {
         Set<AttributeDescriptor> descriptors = new HashSet<AttributeDescriptor>();
-        descriptors.add(new AttributeDescriptorImpl(COLUMNS_ATTRIBUTE_KEY, true /* indexed */, true /* stored */,
-                false /* tokenized */, false /* multivalued */, BasicTypes.INTEGER_TYPE));
-        descriptors.add(new AttributeDescriptorImpl(ROWS_ATTRIBUTE_KEY, true /* indexed */, true /* stored */,
-                false /* tokenized */, false /* multivalued */, BasicTypes.INTEGER_TYPE));
-        descriptors
-                .add(new AttributeDescriptorImpl(DESCRIPTION_ATTRIBUTE_KEY, true /* indexed */, true /* stored */,
-                        false /* tokenized */, false /* multivalued */, BasicTypes.STRING_TYPE));
-        descriptors
-                .add(new AttributeDescriptorImpl(Metacard.ID, true /* indexed */, true /* stored */,
-                        false /* tokenized */, false /* multivalued */, BasicTypes.STRING_TYPE));
-        descriptors.add(new AttributeDescriptorImpl(Metacard.TITLE, true /* indexed */, true /* stored */,
-                true /* tokenized */, false /* multivalued */, BasicTypes.STRING_TYPE));
-        descriptors.add(new AttributeDescriptorImpl(REVIEWED_ATTRIBUTE_KEY, true /* indexed */, true /* stored */,
-                true /* tokenized */, false /* multivalued */, BasicTypes.BOOLEAN_TYPE));
-        descriptors.add(new AttributeDescriptorImpl(PRECISE_LENGTH_METERS_ATTRIBUTE_KEY, true /* indexed */,
-                true /* stored */, true /* tokenized */, false /* multivalued */,
+        descriptors.add(new AttributeDescriptorImpl(COLUMNS_ATTRIBUTE_KEY,
+                true /* indexed */,
+                true /* stored */,
+                false /* tokenized */,
+                false /* multivalued */,
+                BasicTypes.INTEGER_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(ROWS_ATTRIBUTE_KEY,
+                true /* indexed */,
+                true /* stored */,
+                false /* tokenized */,
+                false /* multivalued */,
+                BasicTypes.INTEGER_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(DESCRIPTION_ATTRIBUTE_KEY,
+                true /* indexed */,
+                true /* stored */,
+                false /* tokenized */,
+                false /* multivalued */,
+                BasicTypes.STRING_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(Metacard.ID,
+                true /* indexed */,
+                true /* stored */,
+                false /* tokenized */,
+                false /* multivalued */,
+                BasicTypes.STRING_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(Metacard.TITLE,
+                true /* indexed */,
+                true /* stored */,
+                true /* tokenized */,
+                false /* multivalued */,
+                BasicTypes.STRING_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(REVIEWED_ATTRIBUTE_KEY,
+                true /* indexed */,
+                true /* stored */,
+                true /* tokenized */,
+                false /* multivalued */,
+                BasicTypes.BOOLEAN_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(PRECISE_LENGTH_METERS_ATTRIBUTE_KEY,
+                true /* indexed */,
+                true /* stored */,
+                true /* tokenized */,
+                false /* multivalued */,
                 BasicTypes.DOUBLE_TYPE));
-        descriptors.add(new AttributeDescriptorImpl(PRECISE_HEIGHT_METERS_ATTRIBUTE_KEY, true /* indexed */,
-                true /* stored */, true /* tokenized */, false /* multivalued */,
+        descriptors.add(new AttributeDescriptorImpl(PRECISE_HEIGHT_METERS_ATTRIBUTE_KEY,
+                true /* indexed */,
+                true /* stored */,
+                true /* tokenized */,
+                false /* multivalued */,
                 BasicTypes.FLOAT_TYPE));
-        descriptors
-                .add(new AttributeDescriptorImpl(NUMBER_REVIEWERS_ATTRIBUTE_KEY, true /* indexed */,
-                        true /* stored */, true /* tokenized */, false /* multivalued */,
-                        BasicTypes.SHORT_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(NUMBER_REVIEWERS_ATTRIBUTE_KEY,
+                true /* indexed */,
+                true /* stored */,
+                true /* tokenized */,
+                false /* multivalued */,
+                BasicTypes.SHORT_TYPE));
 
         return new QualifiedMetacardTypeImpl("", "MetacardTypeB", descriptors);
     }

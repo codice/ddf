@@ -199,8 +199,11 @@ public class IdpEndpointTest {
 
         HttpServletRequest request = mock(HttpServletRequest.class);
         when(request.isSecure()).thenReturn(true);
-        Response response = idpEndpoint.showGetLogin(samlRequest, relayState, signatureAlgorithm,
-                signature, request);
+        Response response = idpEndpoint.showGetLogin(samlRequest,
+                relayState,
+                signatureAlgorithm,
+                signature,
+                request);
         assertThat(response.getEntity()
                 .toString(), containsString("SAMLRequest"));
         assertThat(response.getEntity()
@@ -217,8 +220,11 @@ public class IdpEndpointTest {
         String signature = authNRequestGetSignature;
 
         HttpServletRequest request = mock(HttpServletRequest.class);
-        Response response = idpEndpoint.showGetLogin(samlRequest, relayState, signatureAlgorithm,
-                signature, request);
+        Response response = idpEndpoint.showGetLogin(samlRequest,
+                relayState,
+                signatureAlgorithm,
+                signature,
+                request);
         assertThat(response.getEntity()
                 .toString(), containsString("SAMLResponse"));
         assertThat(response.getEntity()
@@ -287,8 +293,7 @@ public class IdpEndpointTest {
                 signature,
                 SamlProtocol.REDIRECT_BINDING,
                 request);
-        assertThat(response.getStatus(),
-                is(400));
+        assertThat(response.getStatus(), is(400));
     }
 
     @Test

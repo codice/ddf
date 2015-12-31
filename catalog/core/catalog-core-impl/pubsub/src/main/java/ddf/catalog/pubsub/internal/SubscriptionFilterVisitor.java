@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -235,9 +235,9 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
                     if (currentType != null && incomingType == null && incomingVersion != null) {
                         currentContentTypePred.setVersion(incomingVersion);
 
-                    // Case 2
-                    // First ContentTypePredicate has no type but has a version. Second
-                    // ContentTypePredicate has no version, but it has a type.
+                        // Case 2
+                        // First ContentTypePredicate has no type but has a version. Second
+                        // ContentTypePredicate has no version, but it has a type.
                     } else if (currentType == null && currentVersion != null
                             && incomingType != null) {
                         currentContentTypePred.setType(incomingType);
@@ -248,7 +248,8 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
                     LOGGER.debug("first return predicate");
                     returnPredicate = currentContentTypePred;
                 } else {
-                    LOGGER.debug("ANDing the predicates. Pred1: {} Pred2: {}", returnPredicate,
+                    LOGGER.debug("ANDing the predicates. Pred1: {} Pred2: {}",
+                            returnPredicate,
                             currentContentTypePred);
                     returnPredicate = and(returnPredicate, currentContentTypePred);
                 }
@@ -279,8 +280,8 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
         LOGGER.debug("Must have received point/radius query criteria.");
 
         double radius = filter.getDistance();
-        com.vividsolutions.jts.geom.Geometry jtsGeometry = getJtsGeometery(
-                (LiteralExpressionImpl) filter.getExpression2());
+        com.vividsolutions.jts.geom.Geometry jtsGeometry =
+                getJtsGeometery((LiteralExpressionImpl) filter.getExpression2());
 
         double radiusInDegrees = (radius * 180.0) / (Math.PI * EQUATORIAL_RADIUS_IN_METERS);
         LOGGER.debug("radius in meters : {}", radius);
@@ -301,10 +302,11 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
         LOGGER.debug("ENTERING: Within filter");
         LOGGER.debug("Must have received CONTAINS query criteria: {}", filter.getExpression2());
 
-        com.vividsolutions.jts.geom.Geometry jtsGeometry = getJtsGeometery(
-                (LiteralExpressionImpl) filter.getExpression2());
+        com.vividsolutions.jts.geom.Geometry jtsGeometry =
+                getJtsGeometery((LiteralExpressionImpl) filter.getExpression2());
 
-        Predicate predicate = new GeospatialPredicate(jtsGeometry, SpatialOperator.CONTAINS.name(),
+        Predicate predicate = new GeospatialPredicate(jtsGeometry,
+                SpatialOperator.CONTAINS.name(),
                 0.0);
 
         LOGGER.debug("EXITING: Within filter");
@@ -320,10 +322,11 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
         LOGGER.debug("ENTERING: Intersects filter");
         LOGGER.debug("Must have received OVERLAPS query criteria.");
 
-        com.vividsolutions.jts.geom.Geometry jtsGeometry = getJtsGeometery(
-                (LiteralExpressionImpl) filter.getExpression2());
+        com.vividsolutions.jts.geom.Geometry jtsGeometry =
+                getJtsGeometery((LiteralExpressionImpl) filter.getExpression2());
 
-        Predicate predicate = new GeospatialPredicate(jtsGeometry, SpatialOperator.OVERLAPS.name(),
+        Predicate predicate = new GeospatialPredicate(jtsGeometry,
+                SpatialOperator.OVERLAPS.name(),
                 0.0);
         LOGGER.debug("EXITING: Intersects filter");
 
@@ -337,8 +340,8 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
     public Object visit(During filter, Object data) {
         LOGGER.debug("ENTERING: During filter");
 
-        AttributeExpressionImpl temporalTypeAttribute = (AttributeExpressionImpl) filter
-                .getExpression1();
+        AttributeExpressionImpl temporalTypeAttribute =
+                (AttributeExpressionImpl) filter.getExpression1();
         String temporalType = temporalTypeAttribute.getPropertyName();
         LiteralExpressionImpl timePeriodLiteral = (LiteralExpressionImpl) filter.getExpression2();
         Object literal = timePeriodLiteral.getValue();
@@ -348,15 +351,19 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
 
             Period timePeriod = (Period) literal;
             // Extract the start and end dates from the OGC TOverlaps filter
-            Date start = timePeriod.getBeginning().getPosition().getDate();
-            Date end = timePeriod.getEnding().getPosition().getDate();
+            Date start = timePeriod.getBeginning()
+                    .getPosition()
+                    .getDate();
+            Date end = timePeriod.getEnding()
+                    .getPosition()
+                    .getDate();
             LOGGER.debug("time period lowerBound = {}", start);
             LOGGER.debug("time period upperBound = {}", end);
 
             LOGGER.debug("EXITING: (temporal) filter");
 
             returnPredicate = new TemporalPredicate(start, end, DateType.valueOf(temporalType));
-        // CREATE RELATIVE
+            // CREATE RELATIVE
         } else if (literal instanceof PeriodDuration) {
             DefaultPeriodDuration duration = (DefaultPeriodDuration) literal;
 
@@ -412,7 +419,8 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
 
                     LOGGER.debug("URI Syntax exception creating EntryPredicate", e);
                     throw new UnsupportedOperationException(
-                            "Could not create a URI object from the given ResourceURI.", e);
+                            "Could not create a URI object from the given ResourceURI.",
+                            e);
 
                 }
             }
@@ -480,8 +488,10 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
         String sterilizedSearchPhrase = sterilize(searchPhrase, wildcard, escape, single);
         LOGGER.debug("sterilizedSearchPhrase = [{}]", sterilizedSearchPhrase);
 
-        ContextualPredicate contextPred = new ContextualPredicate(sterilizedSearchPhrase, isFuzzy,
-                likeFilter.isMatchingCase(), textPathList);
+        ContextualPredicate contextPred = new ContextualPredicate(sterilizedSearchPhrase,
+                isFuzzy,
+                likeFilter.isMatchingCase(),
+                textPathList);
 
         LOGGER.debug("EXITING: PropertyIsLike filter");
 
@@ -544,17 +554,17 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
         String returnSearchPhrase = searchPhrase.trim();
 
         if (!escape.equals(LUCENE_ESCAPE_CHAR)) {
-            returnSearchPhrase = returnSearchPhrase
-                    .replaceAll("(?<!" + "\\Q" + escape + "\\E)" + "\\Q" + escape + "\\E",
-                            Matcher.quoteReplacement(LUCENE_ESCAPE_CHAR));
+            returnSearchPhrase = returnSearchPhrase.replaceAll(
+                    "(?<!" + "\\Q" + escape + "\\E)" + "\\Q" + escape + "\\E",
+                    Matcher.quoteReplacement(LUCENE_ESCAPE_CHAR));
         }
         if (!wildcard.equals(LUCENE_WILDCARD_CHAR)) {
             // it is required to change the wildcard character of the
             // filter into the wildcard character of the Catalog Provider
 
             // one problem exists here is that this assumes that backslash is the escape character.
-            returnSearchPhrase = returnSearchPhrase
-                    .replaceAll("(?<!\\\\)" + "\\Q" + wildcard + "\\E", LUCENE_WILDCARD_CHAR);
+            returnSearchPhrase = returnSearchPhrase.replaceAll(
+                    "(?<!\\\\)" + "\\Q" + wildcard + "\\E", LUCENE_WILDCARD_CHAR);
         }
 
         String[] splitTokens = returnSearchPhrase.split(" ");

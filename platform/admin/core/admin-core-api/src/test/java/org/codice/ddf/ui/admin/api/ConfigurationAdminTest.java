@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -89,18 +89,21 @@ public class ConfigurationAdminTest {
 
     private static final String TEST_MODULE_2 = "TestModule2";
 
-    private static final String LOC_NOT_BOUND = "Configuration is not yet bound to a bundle location";
+    private static final String LOC_NOT_BOUND =
+            "Configuration is not yet bound to a bundle location";
 
-    private static final String LIST_SERV_PARAM_1 = "(|(service.factoryPid=TestFilter1)(service.factoryPid=TestFilter2))";
+    private static final String LIST_SERV_PARAM_1 =
+            "(|(service.factoryPid=TestFilter1)(service.factoryPid=TestFilter2))";
 
-    private static final String LIST_SERV_PARAM_2 = "(|(service.pid=TestFilter1*)(service.pid=TestFilter2*))";
+    private static final String LIST_SERV_PARAM_2 =
+            "(|(service.pid=TestFilter1*)(service.pid=TestFilter2*))";
 
     private static final String TEST_OCD = "TestOCD";
 
     private static final String TEST_BUNDLE_NAME = "TestBundle";
 
-    public static final org.osgi.service.cm.ConfigurationAdmin CONFIGURATION_ADMIN = mock(
-            org.osgi.service.cm.ConfigurationAdmin.class);
+    public static final org.osgi.service.cm.ConfigurationAdmin CONFIGURATION_ADMIN =
+            mock(org.osgi.service.cm.ConfigurationAdmin.class);
 
     public static final int CARDINALITY_ARRAY = 100;
 
@@ -108,8 +111,8 @@ public class ConfigurationAdminTest {
 
     public static final int CARDINALITY_PRIMITIVE = 0;
 
-    public static final int[] CARDINALITIES = new int[] {CARDINALITY_VECTOR, CARDINALITY_PRIMITIVE,
-            CARDINALITY_ARRAY};
+    public static final int[] CARDINALITIES =
+            new int[] {CARDINALITY_VECTOR, CARDINALITY_PRIMITIVE, CARDINALITY_ARRAY};
 
     public static final int TEST_INT = 42;
 
@@ -128,8 +131,8 @@ public class ConfigurationAdminTest {
      */
     @Test
     public void testConstructorInit() throws Exception {
-        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin = mock(
-                org.osgi.service.cm.ConfigurationAdmin.class);
+        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
+                mock(org.osgi.service.cm.ConfigurationAdmin.class);
         MBeanServer testServer = mock(MBeanServer.class);
 
         ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin);
@@ -151,15 +154,16 @@ public class ConfigurationAdminTest {
      */
     @Test
     public void testInitAlreadyExists() throws Exception {
-        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin = mock(
-                org.osgi.service.cm.ConfigurationAdmin.class);
+        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
+                mock(org.osgi.service.cm.ConfigurationAdmin.class);
         MBeanServer testServer = mock(MBeanServer.class);
 
         ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin);
 
         configAdmin.setMBeanServer(testServer);
-        when(testServer.registerMBean(any(Object.class), any(ObjectName.class)))
-                .thenThrow(new InstanceAlreadyExistsException()).thenReturn(null);
+        when(testServer.registerMBean(any(Object.class),
+                any(ObjectName.class))).thenThrow(new InstanceAlreadyExistsException())
+                .thenReturn(null);
 
         configAdmin.init();
 
@@ -175,15 +179,15 @@ public class ConfigurationAdminTest {
      */
     @Test(expected = RuntimeException.class)
     public void testInitException() throws Exception {
-        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin = mock(
-                org.osgi.service.cm.ConfigurationAdmin.class);
+        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
+                mock(org.osgi.service.cm.ConfigurationAdmin.class);
         MBeanServer testServer = mock(MBeanServer.class);
 
         ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin);
 
         configAdmin.setMBeanServer(testServer);
-        when(testServer.registerMBean(any(Object.class), any(ObjectName.class)))
-                .thenThrow(new NullPointerException());
+        when(testServer.registerMBean(any(Object.class),
+                any(ObjectName.class))).thenThrow(new NullPointerException());
 
         configAdmin.init();
     }
@@ -195,8 +199,8 @@ public class ConfigurationAdminTest {
      */
     @Test
     public void testDestroy() throws Exception {
-        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin = mock(
-                org.osgi.service.cm.ConfigurationAdmin.class);
+        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
+                mock(org.osgi.service.cm.ConfigurationAdmin.class);
         MBeanServer testServer = mock(MBeanServer.class);
 
         ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin);
@@ -217,14 +221,15 @@ public class ConfigurationAdminTest {
      */
     @Test(expected = RuntimeException.class)
     public void testDestroyException() throws Exception {
-        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin = mock(
-                org.osgi.service.cm.ConfigurationAdmin.class);
+        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
+                mock(org.osgi.service.cm.ConfigurationAdmin.class);
         MBeanServer testServer = mock(MBeanServer.class);
 
         ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin);
 
         configAdmin.setMBeanServer(testServer);
-        doThrow(new NullPointerException()).when(testServer).unregisterMBean(any(ObjectName.class));
+        doThrow(new NullPointerException()).when(testServer)
+                .unregisterMBean(any(ObjectName.class));
 
         configAdmin.init();
         configAdmin.destroy();
@@ -238,8 +243,8 @@ public class ConfigurationAdminTest {
      */
     @Test
     public void testSetGetConfigurationAdminPluginList() throws Exception {
-        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin = mock(
-                org.osgi.service.cm.ConfigurationAdmin.class);
+        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
+                mock(org.osgi.service.cm.ConfigurationAdmin.class);
         ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin);
         ConfigurationAdminPlugin testPlugin1 = mock(ConfigurationAdminPlugin.class);
         ConfigurationAdminPlugin testPlugin2 = mock(ConfigurationAdminPlugin.class);
@@ -260,8 +265,8 @@ public class ConfigurationAdminTest {
      */
     @Test
     public void testSetGetModuleList() throws Exception {
-        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin = mock(
-                org.osgi.service.cm.ConfigurationAdmin.class);
+        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
+                mock(org.osgi.service.cm.ConfigurationAdmin.class);
         ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin);
         List<AdminModule> moduleList = new ArrayList<>();
         AdminModule testModule1 = mock(AdminModule.class);
@@ -280,8 +285,8 @@ public class ConfigurationAdminTest {
      */
     @Test
     public void testListServices() throws Exception {
-        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin = mock(
-                org.osgi.service.cm.ConfigurationAdmin.class);
+        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
+                mock(org.osgi.service.cm.ConfigurationAdmin.class);
         ConfigurationAdminExt testConfigAdminExt = mock(ConfigurationAdminExt.class);
         ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin,
                 testConfigAdminExt);
@@ -300,8 +305,8 @@ public class ConfigurationAdminTest {
      */
     @Test
     public void testListServicesFilterList() throws Exception {
-        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin = mock(
-                org.osgi.service.cm.ConfigurationAdmin.class);
+        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
+                mock(org.osgi.service.cm.ConfigurationAdmin.class);
         ConfigurationAdminExt testConfigAdminExt = mock(ConfigurationAdminExt.class);
         ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin,
                 testConfigAdminExt);
@@ -325,8 +330,8 @@ public class ConfigurationAdminTest {
      */
     @Test
     public void testListModules() throws Exception {
-        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin = mock(
-                org.osgi.service.cm.ConfigurationAdmin.class);
+        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
+                mock(org.osgi.service.cm.ConfigurationAdmin.class);
         ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin);
 
         List<AdminModule> moduleList = new ArrayList<>();
@@ -341,7 +346,9 @@ public class ConfigurationAdminTest {
 
         List<Map<String, Object>> result = configAdmin.listModules();
 
-        assertThat("Should return the provided modules.", (String) result.get(0).get("name"),
+        assertThat("Should return the provided modules.",
+                (String) result.get(0)
+                        .get("name"),
                 is(TEST_MODULE_1));
     }
 
@@ -354,8 +361,8 @@ public class ConfigurationAdminTest {
      */
     @Test
     public void testListModulesJSCSSIFrameLocation() throws Exception {
-        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin = mock(
-                org.osgi.service.cm.ConfigurationAdmin.class);
+        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
+                mock(org.osgi.service.cm.ConfigurationAdmin.class);
         ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin);
 
         List<AdminModule> moduleList = new ArrayList<>();
@@ -377,9 +384,13 @@ public class ConfigurationAdminTest {
 
         List<Map<String, Object>> result = configAdmin.listModules();
 
-        assertThat("Should return the provided modules.", (String) result.get(0).get("name"),
+        assertThat("Should return the provided modules.",
+                (String) result.get(0)
+                        .get("name"),
                 is(TEST_MODULE_1));
-        assertThat("jsLocation should be assigned some value.", result.get(0).get("jsLocation"),
+        assertThat("jsLocation should be assigned some value.",
+                result.get(0)
+                        .get("jsLocation"),
                 is(notNullValue()));
     }
 
@@ -390,8 +401,8 @@ public class ConfigurationAdminTest {
      */
     @Test
     public void testGetService() throws Exception {
-        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin = mock(
-                org.osgi.service.cm.ConfigurationAdmin.class);
+        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
+                mock(org.osgi.service.cm.ConfigurationAdmin.class);
         ConfigurationAdminExt testConfigAdminExt = mock(ConfigurationAdminExt.class);
         ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin,
                 testConfigAdminExt);
@@ -402,7 +413,9 @@ public class ConfigurationAdminTest {
         serviceList.add(testService);
         when(testConfigAdminExt.listServices(TEST_FILTER_1, TEST_FILTER_1)).thenReturn(serviceList);
 
-        assertEquals(testService.get(TEST_KEY), configAdmin.getService(TEST_FILTER_1).get(TEST_KEY));
+        assertEquals(testService.get(TEST_KEY),
+                configAdmin.getService(TEST_FILTER_1)
+                        .get(TEST_KEY));
         verify(testConfigAdminExt).listServices(TEST_FILTER_1, TEST_FILTER_1);
     }
 
@@ -414,8 +427,8 @@ public class ConfigurationAdminTest {
      */
     @Test
     public void testCreateFactoryConfiguration() throws Exception {
-        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin = mock(
-                org.osgi.service.cm.ConfigurationAdmin.class);
+        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
+                mock(org.osgi.service.cm.ConfigurationAdmin.class);
         ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin);
 
         Configuration testConfig = mock(Configuration.class);
@@ -437,8 +450,8 @@ public class ConfigurationAdminTest {
      */
     @Test(expected = IOException.class)
     public void testCreateFactoryConfigurationIOException() throws Exception {
-        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin = mock(
-                org.osgi.service.cm.ConfigurationAdmin.class);
+        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
+                mock(org.osgi.service.cm.ConfigurationAdmin.class);
         ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin);
 
         configAdmin.createFactoryConfiguration(StringUtils.EMPTY);
@@ -452,8 +465,8 @@ public class ConfigurationAdminTest {
      */
     @Test
     public void testDelete() throws Exception {
-        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin = mock(
-                org.osgi.service.cm.ConfigurationAdmin.class);
+        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
+                mock(org.osgi.service.cm.ConfigurationAdmin.class);
         ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin);
 
         Configuration testConfig = mock(Configuration.class);
@@ -473,8 +486,8 @@ public class ConfigurationAdminTest {
      */
     @Test(expected = Exception.class)
     public void testDeleteIOException() throws Exception {
-        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin = mock(
-                org.osgi.service.cm.ConfigurationAdmin.class);
+        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
+                mock(org.osgi.service.cm.ConfigurationAdmin.class);
         ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin);
 
         configAdmin.delete(null);
@@ -487,14 +500,14 @@ public class ConfigurationAdminTest {
      */
     @Test
     public void testDeleteConfigurations() throws Exception {
-        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin = mock(
-                org.osgi.service.cm.ConfigurationAdmin.class);
+        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
+                mock(org.osgi.service.cm.ConfigurationAdmin.class);
         ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin);
 
         Configuration testConfig = mock(Configuration.class);
 
-        when(testConfigAdmin.listConfigurations(anyString()))
-                .thenReturn(new Configuration[] {testConfig});
+        when(testConfigAdmin.listConfigurations(anyString())).thenReturn(new Configuration[] {
+                testConfig});
 
         configAdmin.deleteConfigurations(TEST_FILTER_1);
 
@@ -510,8 +523,8 @@ public class ConfigurationAdminTest {
      */
     @Test(expected = IOException.class)
     public void testDeleteConfigurationsIOException() throws Exception {
-        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin = mock(
-                org.osgi.service.cm.ConfigurationAdmin.class);
+        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
+                mock(org.osgi.service.cm.ConfigurationAdmin.class);
         ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin);
 
         configAdmin.deleteConfigurations(StringUtils.EMPTY);
@@ -525,8 +538,8 @@ public class ConfigurationAdminTest {
      */
     @Test(expected = IOException.class)
     public void testDeleteConfigurationsInvalidFilter() throws Exception {
-        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin = mock(
-                org.osgi.service.cm.ConfigurationAdmin.class);
+        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
+                mock(org.osgi.service.cm.ConfigurationAdmin.class);
         ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin);
 
         doThrow(new InvalidSyntaxException("Invalid filter.", "filter")).when(testConfigAdmin)
@@ -541,8 +554,8 @@ public class ConfigurationAdminTest {
      */
     @Test
     public void testGetBundleLocation() throws Exception {
-        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin = mock(
-                org.osgi.service.cm.ConfigurationAdmin.class);
+        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
+                mock(org.osgi.service.cm.ConfigurationAdmin.class);
         ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin);
         Configuration testConfig = mock(Configuration.class);
 
@@ -563,8 +576,8 @@ public class ConfigurationAdminTest {
      */
     @Test
     public void testGetBundleLocationNotBound() throws Exception {
-        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin = mock(
-                org.osgi.service.cm.ConfigurationAdmin.class);
+        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
+                mock(org.osgi.service.cm.ConfigurationAdmin.class);
         ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin);
         Configuration testConfig = mock(Configuration.class);
 
@@ -583,8 +596,8 @@ public class ConfigurationAdminTest {
      */
     @Test(expected = IOException.class)
     public void testGetBundleLocationIOException() throws Exception {
-        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin = mock(
-                org.osgi.service.cm.ConfigurationAdmin.class);
+        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
+                mock(org.osgi.service.cm.ConfigurationAdmin.class);
         ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin);
 
         configAdmin.getBundleLocation(null);
@@ -597,8 +610,8 @@ public class ConfigurationAdminTest {
      */
     @Test
     public void testGetConfigurations() throws Exception {
-        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin = mock(
-                org.osgi.service.cm.ConfigurationAdmin.class);
+        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
+                mock(org.osgi.service.cm.ConfigurationAdmin.class);
         ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin);
 
         Configuration testConfig = mock(Configuration.class);
@@ -625,8 +638,8 @@ public class ConfigurationAdminTest {
      */
     @Test(expected = IOException.class)
     public void testGetConfigurationsNullParam() throws Exception {
-        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin = mock(
-                org.osgi.service.cm.ConfigurationAdmin.class);
+        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
+                mock(org.osgi.service.cm.ConfigurationAdmin.class);
         ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin);
 
         configAdmin.getConfigurations(null);
@@ -640,8 +653,8 @@ public class ConfigurationAdminTest {
      */
     @Test(expected = IOException.class)
     public void testGetConfigurationsInvalidFilter() throws Exception {
-        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin = mock(
-                org.osgi.service.cm.ConfigurationAdmin.class);
+        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
+                mock(org.osgi.service.cm.ConfigurationAdmin.class);
         ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin);
 
         doThrow(new InvalidSyntaxException("", "")).when(testConfigAdmin)
@@ -657,8 +670,8 @@ public class ConfigurationAdminTest {
      */
     @Test
     public void testGetFactoryPid() throws Exception {
-        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin = mock(
-                org.osgi.service.cm.ConfigurationAdmin.class);
+        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
+                mock(org.osgi.service.cm.ConfigurationAdmin.class);
         ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin);
 
         Configuration testConfig = mock(Configuration.class);
@@ -677,8 +690,8 @@ public class ConfigurationAdminTest {
      */
     @Test(expected = Exception.class)
     public void testGetFactoryPidNullParam() throws Exception {
-        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin = mock(
-                org.osgi.service.cm.ConfigurationAdmin.class);
+        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
+                mock(org.osgi.service.cm.ConfigurationAdmin.class);
         ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin);
 
         configAdmin.getFactoryPid(null);
@@ -692,8 +705,8 @@ public class ConfigurationAdminTest {
      */
     @Test
     public void testGetProperties() throws Exception {
-        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin = mock(
-                org.osgi.service.cm.ConfigurationAdmin.class);
+        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
+                mock(org.osgi.service.cm.ConfigurationAdmin.class);
         ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin);
 
         Configuration testConfig = mock(Configuration.class);
@@ -703,13 +716,15 @@ public class ConfigurationAdminTest {
         when(testConfig.getProperties()).thenReturn(testProp);
         when(testProp.get(TEST_KEY)).thenReturn(TEST_VALUE);
         when(testProp.keys()).thenReturn(testKeys);
-        when(testKeys.hasMoreElements()).thenReturn(true).thenReturn(false);
+        when(testKeys.hasMoreElements()).thenReturn(true)
+                .thenReturn(false);
         when(testKeys.nextElement()).thenReturn(TEST_KEY);
 
         when(testConfigAdmin.getConfiguration(TEST_PID, null)).thenReturn(testConfig);
         Map<String, Object> result = configAdmin.getProperties(TEST_PID);
 
-        assertThat("Should return the given properties.", (String) result.get(TEST_KEY),
+        assertThat("Should return the given properties.",
+                (String) result.get(TEST_KEY),
                 is(TEST_VALUE));
     }
 
@@ -721,8 +736,8 @@ public class ConfigurationAdminTest {
      */
     @Test(expected = Exception.class)
     public void testGetPropertiesNullParam() throws Exception {
-        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin = mock(
-                org.osgi.service.cm.ConfigurationAdmin.class);
+        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
+                mock(org.osgi.service.cm.ConfigurationAdmin.class);
         ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin);
 
         configAdmin.getPropertiesForLocation(null, null);
@@ -735,8 +750,8 @@ public class ConfigurationAdminTest {
      */
     @Test
     public void testSetBundleLocation() throws Exception {
-        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin = mock(
-                org.osgi.service.cm.ConfigurationAdmin.class);
+        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
+                mock(org.osgi.service.cm.ConfigurationAdmin.class);
         ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin);
 
         Configuration testConfig = mock(Configuration.class);
@@ -754,8 +769,8 @@ public class ConfigurationAdminTest {
      */
     @Test(expected = IOException.class)
     public void testSetBundleLocationNullLocation() throws Exception {
-        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin = mock(
-                org.osgi.service.cm.ConfigurationAdmin.class);
+        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
+                mock(org.osgi.service.cm.ConfigurationAdmin.class);
         ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin);
 
         configAdmin.setBundleLocation(null, TEST_LOCATION);
@@ -798,10 +813,14 @@ public class ConfigurationAdminTest {
         values.put(arrayInteger, "");
         configAdmin.update(TEST_PID, values);
         verify(testConfig, times(4)).update(captor.capture());
-        assertThat(((String[]) captor.getValue().get(arrayString)).length, equalTo(3));
-        assertThat((Boolean) captor.getValue().get(primitiveBoolean), equalTo(true));
-        assertThat((int) captor.getValue().get(primitiveInteger), equalTo(TEST_INT));
-        assertThat(((Integer[]) captor.getValue().get(arrayInteger)).length, equalTo(0));
+        assertThat(((String[]) captor.getValue()
+                .get(arrayString)).length, equalTo(3));
+        assertThat((Boolean) captor.getValue()
+                .get(primitiveBoolean), equalTo(true));
+        assertThat((int) captor.getValue()
+                .get(primitiveInteger), equalTo(TEST_INT));
+        assertThat(((Integer[]) captor.getValue()
+                .get(arrayInteger)).length, equalTo(0));
     }
 
     private Object getValue(int cardinality, TYPE type) {
@@ -863,8 +882,8 @@ public class ConfigurationAdminTest {
      */
     @Test(expected = IllegalArgumentException.class)
     public void testUpdateNullPid() throws Exception {
-        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin = mock(
-                org.osgi.service.cm.ConfigurationAdmin.class);
+        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
+                mock(org.osgi.service.cm.ConfigurationAdmin.class);
         ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin);
 
         Map<String, Object> testConfigTable = new Hashtable<>();
@@ -882,8 +901,8 @@ public class ConfigurationAdminTest {
      */
     @Test(expected = IllegalArgumentException.class)
     public void testUpdateNullConfigTable() throws Exception {
-        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin = mock(
-                org.osgi.service.cm.ConfigurationAdmin.class);
+        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
+                mock(org.osgi.service.cm.ConfigurationAdmin.class);
         ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin);
 
         configAdmin.update(TEST_PID, null);
@@ -912,8 +931,8 @@ public class ConfigurationAdminTest {
      */
     @Test
     public void testGetSetFilterList() {
-        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin = mock(
-                org.osgi.service.cm.ConfigurationAdmin.class);
+        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
+                mock(org.osgi.service.cm.ConfigurationAdmin.class);
         ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin);
 
         List<String> filterList = new ArrayList<>();
@@ -921,8 +940,12 @@ public class ConfigurationAdminTest {
         filterList.add(TEST_FILTER_2);
 
         configAdmin.setFilterList(filterList);
-        assertEquals(TEST_FILTER_1, configAdmin.getFilterList().get(0));
-        assertEquals(TEST_FILTER_2, configAdmin.getFilterList().get(1));
+        assertEquals(TEST_FILTER_1,
+                configAdmin.getFilterList()
+                        .get(0));
+        assertEquals(TEST_FILTER_2,
+                configAdmin.getFilterList()
+                        .get(1));
     }
 
     /**
@@ -932,30 +955,32 @@ public class ConfigurationAdminTest {
      */
     @Test
     public void testDisableConfiguration() throws Exception {
-        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin = mock(
-                org.osgi.service.cm.ConfigurationAdmin.class);
+        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
+                mock(org.osgi.service.cm.ConfigurationAdmin.class);
         ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin);
 
         Configuration testConfig = mock(Configuration.class);
         Configuration testFactoryConfig = mock(Configuration.class);
         Dictionary<String, Object> testProperties = new Hashtable<>();
 
-        testProperties
-                .put(org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID, TEST_FACTORY_PID);
+        testProperties.put(org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID,
+                TEST_FACTORY_PID);
 
-        when(testConfigAdmin.listConfigurations('(' + Constants.SERVICE_PID + '=' + TEST_PID + ')'))
-                .thenReturn(new Configuration[] {testConfig});
-        when(testConfigAdmin.createFactoryConfiguration(TEST_FACT_PID_DISABLED, null))
-                .thenReturn(testFactoryConfig);
+        when(testConfigAdmin.listConfigurations('(' + Constants.SERVICE_PID + '=' + TEST_PID
+                + ')')).thenReturn(new Configuration[] {testConfig});
+        when(testConfigAdmin.createFactoryConfiguration(TEST_FACT_PID_DISABLED, null)).thenReturn(
+                testFactoryConfig);
         when(testConfig.getProperties()).thenReturn(testProperties);
         when(testFactoryConfig.getPid()).thenReturn(TEST_FACT_PID_DISABLED);
 
         Map<String, Object> result = configAdmin.disableConfiguration(TEST_PID);
 
-        assertThat("Should show the pid in a disabled state.", (String) result.get("newFactoryPid"),
+        assertThat("Should show the pid in a disabled state.",
+                (String) result.get("newFactoryPid"),
                 is(TEST_FACT_PID_DISABLED));
         assertThat("Should return the given original pid.",
-                (String) result.get("originalFactoryPid"), is(TEST_FACTORY_PID));
+                (String) result.get("originalFactoryPid"),
+                is(TEST_FACTORY_PID));
 
         verify(testConfig).delete();
         verify(testFactoryConfig).update(testProperties);
@@ -969,8 +994,8 @@ public class ConfigurationAdminTest {
      */
     @Test(expected = IOException.class)
     public void testDisableConfigurationsNoConfig() throws Exception {
-        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin = mock(
-                org.osgi.service.cm.ConfigurationAdmin.class);
+        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
+                mock(org.osgi.service.cm.ConfigurationAdmin.class);
         ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin);
 
         configAdmin.disableConfiguration(TEST_PID);
@@ -984,8 +1009,8 @@ public class ConfigurationAdminTest {
      */
     @Test(expected = IOException.class)
     public void testDisableConfigurationsNullParam() throws Exception {
-        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin = mock(
-                org.osgi.service.cm.ConfigurationAdmin.class);
+        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
+                mock(org.osgi.service.cm.ConfigurationAdmin.class);
         ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin);
 
         configAdmin.disableConfiguration(null);
@@ -999,8 +1024,8 @@ public class ConfigurationAdminTest {
      */
     @Test(expected = Exception.class)
     public void testDisableConfigurationsAlreadyDisabled() throws Exception {
-        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin = mock(
-                org.osgi.service.cm.ConfigurationAdmin.class);
+        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
+                mock(org.osgi.service.cm.ConfigurationAdmin.class);
         ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin);
 
         Configuration testConfig = mock(Configuration.class);
@@ -1010,8 +1035,8 @@ public class ConfigurationAdminTest {
         testProperties.put(org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID,
                 TEST_FACT_PID_DISABLED);
 
-        when(testConfigAdmin.listConfigurations('(' + Constants.SERVICE_PID + '=' + TEST_PID + ')'))
-                .thenReturn(new Configuration[] {testConfig});
+        when(testConfigAdmin.listConfigurations('(' + Constants.SERVICE_PID + '=' + TEST_PID
+                + ')')).thenReturn(new Configuration[] {testConfig});
         when(testConfig.getProperties()).thenReturn(testProperties);
         when(testFactoryConfig.getPid()).thenReturn(TEST_FACT_PID_DISABLED);
 
@@ -1025,8 +1050,8 @@ public class ConfigurationAdminTest {
      */
     @Test
     public void testEnableConfigurations() throws Exception {
-        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin = mock(
-                org.osgi.service.cm.ConfigurationAdmin.class);
+        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
+                mock(org.osgi.service.cm.ConfigurationAdmin.class);
         ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin);
 
         Configuration testConfig = mock(Configuration.class);
@@ -1036,19 +1061,21 @@ public class ConfigurationAdminTest {
         testProperties.put(org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID,
                 TEST_FACT_PID_DISABLED);
 
-        when(testConfigAdmin.listConfigurations('(' + Constants.SERVICE_PID + '=' + TEST_PID + ')'))
-                .thenReturn(new Configuration[] {testConfig});
+        when(testConfigAdmin.listConfigurations('(' + Constants.SERVICE_PID + '=' + TEST_PID
+                + ')')).thenReturn(new Configuration[] {testConfig});
         when(testConfig.getProperties()).thenReturn(testProperties);
         when(testFactoryConfig.getPid()).thenReturn(TEST_FACTORY_PID);
-        when(testConfigAdmin.createFactoryConfiguration(TEST_FACTORY_PID, null))
-                .thenReturn(testFactoryConfig);
+        when(testConfigAdmin.createFactoryConfiguration(TEST_FACTORY_PID, null)).thenReturn(
+                testFactoryConfig);
 
         Map<String, Object> result = configAdmin.enableConfiguration(TEST_PID);
 
-        assertThat("Should show the pid in an enabled state.", (String) result.get("newFactoryPid"),
+        assertThat("Should show the pid in an enabled state.",
+                (String) result.get("newFactoryPid"),
                 is(TEST_FACTORY_PID));
         assertThat("Should show the original disabled pid.",
-                (String) result.get("originalFactoryPid"), is(TEST_FACT_PID_DISABLED));
+                (String) result.get("originalFactoryPid"),
+                is(TEST_FACT_PID_DISABLED));
     }
 
     /**
@@ -1058,8 +1085,8 @@ public class ConfigurationAdminTest {
      */
     @Test(expected = Exception.class)
     public void testEnableConfigurationsNullParam() throws Exception {
-        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin = mock(
-                org.osgi.service.cm.ConfigurationAdmin.class);
+        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
+                mock(org.osgi.service.cm.ConfigurationAdmin.class);
         ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin);
 
         configAdmin.enableConfiguration(null);
@@ -1073,23 +1100,23 @@ public class ConfigurationAdminTest {
      */
     @Test(expected = IOException.class)
     public void testEnableConfigurationsAlreadyEnabled() throws Exception {
-        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin = mock(
-                org.osgi.service.cm.ConfigurationAdmin.class);
+        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
+                mock(org.osgi.service.cm.ConfigurationAdmin.class);
         ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin);
 
         Configuration testConfig = mock(Configuration.class);
         Configuration testFactoryConfig = mock(Configuration.class);
         Dictionary<String, Object> testProperties = new Hashtable<>();
 
-        testProperties
-                .put(org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID, TEST_FACTORY_PID);
+        testProperties.put(org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID,
+                TEST_FACTORY_PID);
 
-        when(testConfigAdmin.listConfigurations('(' + Constants.SERVICE_PID + '=' + TEST_PID + ')'))
-                .thenReturn(new Configuration[] {testConfig});
+        when(testConfigAdmin.listConfigurations('(' + Constants.SERVICE_PID + '=' + TEST_PID
+                + ')')).thenReturn(new Configuration[] {testConfig});
         when(testConfig.getProperties()).thenReturn(testProperties);
         when(testFactoryConfig.getPid()).thenReturn(TEST_FACTORY_PID);
-        when(testConfigAdmin.createFactoryConfiguration(TEST_FACTORY_PID, null))
-                .thenReturn(testFactoryConfig);
+        when(testConfigAdmin.createFactoryConfiguration(TEST_FACTORY_PID, null)).thenReturn(
+                testFactoryConfig);
 
         configAdmin.enableConfiguration(TEST_PID);
     }
@@ -1103,8 +1130,8 @@ public class ConfigurationAdminTest {
      */
     @Test(expected = IOException.class)
     public void testEnableConfigurationsNullDisabledConfig() throws Exception {
-        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin = mock(
-                org.osgi.service.cm.ConfigurationAdmin.class);
+        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
+                mock(org.osgi.service.cm.ConfigurationAdmin.class);
         ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin);
 
         when(testConfigAdmin.listConfigurations(anyString())).thenReturn(null);
@@ -1113,8 +1140,8 @@ public class ConfigurationAdminTest {
 
     @Test
     public void testGetClaimsConfiguration() {
-        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin = mock(
-                org.osgi.service.cm.ConfigurationAdmin.class);
+        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
+                mock(org.osgi.service.cm.ConfigurationAdmin.class);
         ConfigurationAdminExt testConfigAdminExt = mock(ConfigurationAdminExt.class);
         ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin,
                 testConfigAdminExt);
@@ -1145,18 +1172,18 @@ public class ConfigurationAdminTest {
         final BundleContext testBundleContext = mock(BundleContext.class);
         final MetaTypeService testMTS = mock(MetaTypeService.class);
 
-        ConfigurationAdminExt configurationAdminExt = new ConfigurationAdminExt(
-                CONFIGURATION_ADMIN) {
-            @Override
-            BundleContext getBundleContext() {
-                return testBundleContext;
-            }
+        ConfigurationAdminExt configurationAdminExt =
+                new ConfigurationAdminExt(CONFIGURATION_ADMIN) {
+                    @Override
+                    BundleContext getBundleContext() {
+                        return testBundleContext;
+                    }
 
-            @Override
-            MetaTypeService getMetaTypeService() {
-                return testMTS;
-            }
-        };
+                    @Override
+                    MetaTypeService getMetaTypeService() {
+                        return testMTS;
+                    }
+                };
 
         ConfigurationAdmin configurationAdmin = new ConfigurationAdmin(CONFIGURATION_ADMIN,
                 configurationAdminExt);
@@ -1195,8 +1222,8 @@ public class ConfigurationAdminTest {
         when(bundleHeaders.get(Constants.BUNDLE_NAME)).thenReturn(TEST_BUNDLE_NAME);
 
         when(testOCD.getName()).thenReturn(TEST_OCD);
-        when(testOCD.getAttributeDefinitions(ObjectClassDefinition.ALL))
-                .thenReturn(attDefs.toArray(new AttributeDefinition[attDefs.size()]));
+        when(testOCD.getAttributeDefinitions(ObjectClassDefinition.ALL)).thenReturn(attDefs.toArray(
+                new AttributeDefinition[attDefs.size()]));
 
         when(testMTI.getBundle()).thenReturn(testBundle);
         when(testMTI.getFactoryPids()).thenReturn(new String[] {TEST_FACTORY_PID});
@@ -1207,14 +1234,14 @@ public class ConfigurationAdminTest {
 
         when(testBundleContext.getBundles()).thenReturn(new Bundle[] {testBundle});
 
-        when(CONFIGURATION_ADMIN.listConfigurations(anyString()))
-                .thenReturn(new Configuration[] {testConfig});
+        when(CONFIGURATION_ADMIN.listConfigurations(anyString())).thenReturn(new Configuration[] {
+                testConfig});
         when(CONFIGURATION_ADMIN.getConfiguration(anyString(), anyString())).thenReturn(testConfig);
 
-        when(testBundleContext.getAllServiceReferences(anyString(), anyString()))
-                .thenReturn(testServRefs);
-        when(testBundleContext.getAllServiceReferences(anyString(), anyString()))
-                .thenReturn(testServRefs);
+        when(testBundleContext.getAllServiceReferences(anyString(), anyString())).thenReturn(
+                testServRefs);
+        when(testBundleContext.getAllServiceReferences(anyString(), anyString())).thenReturn(
+                testServRefs);
 
         return configurationAdmin;
     }

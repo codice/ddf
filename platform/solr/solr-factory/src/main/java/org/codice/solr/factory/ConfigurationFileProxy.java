@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -125,17 +125,21 @@ public class ConfigurationFileProxy {
             try {
                 return new File(new File(
                         DEFAULT_SOLR_DATA_PARENT_DIR + "/" + CATALOG_SOLR_COLLECTION_NAME
-                                + "/conf"), name).toURI().toURL();
+                                + "/conf"), name).toURI()
+                        .toURL();
             } catch (MalformedURLException e) {
                 LOGGER.warn("Malformed URL exception getting SOLR configuration file", e);
             }
         }
 
-        return this.getClass().getClassLoader().getResource("solr/conf/" + name);
+        return this.getClass()
+                .getClassLoader()
+                .getResource("solr/conf/" + name);
     }
 
     @Override
     public String toString() {
-        return this.getClass().getSimpleName() + "-->[" + getDataDirectory() + "]";
+        return this.getClass()
+                .getSimpleName() + "-->[" + getDataDirectory() + "]";
     }
 }

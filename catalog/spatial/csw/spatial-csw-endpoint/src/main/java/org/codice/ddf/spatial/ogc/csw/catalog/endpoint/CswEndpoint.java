@@ -168,26 +168,32 @@ public class CswEndpoint implements Csw {
 
     protected static final String SERVICE_ABSTRACT = "DDF CSW Endpoint";
 
-    protected static final List<String> SERVICE_TYPE_VERSION = Collections
-            .unmodifiableList(Arrays.asList(CswConstants.VERSION_2_0_2));
+    protected static final List<String> SERVICE_TYPE_VERSION =
+            Collections.unmodifiableList(Arrays.asList(CswConstants.VERSION_2_0_2));
 
-    protected static final List<SpatialOperatorNameType> SPATIAL_OPERATORS = Collections
-            .unmodifiableList(
-                    Arrays.asList(SpatialOperatorNameType.BBOX, SpatialOperatorNameType.BEYOND,
-                            SpatialOperatorNameType.CONTAINS, SpatialOperatorNameType.CROSSES,
-                            SpatialOperatorNameType.DISJOINT, SpatialOperatorNameType.D_WITHIN,
-                            SpatialOperatorNameType.INTERSECTS, SpatialOperatorNameType.OVERLAPS,
-                            SpatialOperatorNameType.TOUCHES, SpatialOperatorNameType.WITHIN));
+    protected static final List<SpatialOperatorNameType> SPATIAL_OPERATORS =
+            Collections.unmodifiableList(Arrays.asList(SpatialOperatorNameType.BBOX,
+                    SpatialOperatorNameType.BEYOND,
+                    SpatialOperatorNameType.CONTAINS,
+                    SpatialOperatorNameType.CROSSES,
+                    SpatialOperatorNameType.DISJOINT,
+                    SpatialOperatorNameType.D_WITHIN,
+                    SpatialOperatorNameType.INTERSECTS,
+                    SpatialOperatorNameType.OVERLAPS,
+                    SpatialOperatorNameType.TOUCHES,
+                    SpatialOperatorNameType.WITHIN));
 
-    protected static final List<ComparisonOperatorType> COMPARISON_OPERATORS = Collections
-            .unmodifiableList(
-                    Arrays.asList(ComparisonOperatorType.BETWEEN, ComparisonOperatorType.NULL_CHECK,
-                            ComparisonOperatorType.LIKE, ComparisonOperatorType.EQUAL_TO,
-                            ComparisonOperatorType.GREATER_THAN,
-                            ComparisonOperatorType.GREATER_THAN_EQUAL_TO,
-                            ComparisonOperatorType.LESS_THAN,
-                            ComparisonOperatorType.LESS_THAN_EQUAL_TO,
-                            ComparisonOperatorType.EQUAL_TO, ComparisonOperatorType.NOT_EQUAL_TO));
+    protected static final List<ComparisonOperatorType> COMPARISON_OPERATORS =
+            Collections.unmodifiableList(Arrays.asList(ComparisonOperatorType.BETWEEN,
+                    ComparisonOperatorType.NULL_CHECK,
+                    ComparisonOperatorType.LIKE,
+                    ComparisonOperatorType.EQUAL_TO,
+                    ComparisonOperatorType.GREATER_THAN,
+                    ComparisonOperatorType.GREATER_THAN_EQUAL_TO,
+                    ComparisonOperatorType.LESS_THAN,
+                    ComparisonOperatorType.LESS_THAN_EQUAL_TO,
+                    ComparisonOperatorType.EQUAL_TO,
+                    ComparisonOperatorType.NOT_EQUAL_TO));
 
     protected static final String PROVIDER_NAME = "DDF";
 
@@ -200,14 +206,17 @@ public class CswEndpoint implements Csw {
     protected static final String FILTER_CAPABILITIES = "Filter_Capabilities";
 
     protected static final List<String> GET_CAPABILITIES_PARAMS = Collections.unmodifiableList(
-            Arrays.asList(SERVICE_IDENTIFICATION, SERVICE_PROVIDER, OPERATIONS_METADATA,
+            Arrays.asList(SERVICE_IDENTIFICATION,
+                    SERVICE_PROVIDER,
+                    OPERATIONS_METADATA,
                     FILTER_CAPABILITIES));
 
     private static final List<String> ELEMENT_NAMES = Arrays.asList("brief", "summary", "full");
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CswEndpoint.class);
 
-    private static final Configuration PARSER_CONFIG = new org.geotools.filter.v1_1.OGCConfiguration();
+    private static final Configuration PARSER_CONFIG =
+            new org.geotools.filter.v1_1.OGCConfiguration();
 
     private static final String DEFAULT_OUTPUT_FORMAT = MediaType.APPLICATION_XML;
 
@@ -270,14 +279,14 @@ public class CswEndpoint implements Csw {
         LOGGER.trace("Entering: getCapabilities.");
         capabilitiesType = buildCapabilitiesType();
 
-
         if (request.getAcceptVersions() != null) {
             validateVersion(request.getAcceptVersions());
         }
 
         List<String> sectionList = null;
         if (request.getSections() != null) {
-            String[] sections = request.getSections().split(",");
+            String[] sections = request.getSections()
+                    .split(",");
             sectionList = Arrays.asList(sections);
         }
 
@@ -295,12 +304,14 @@ public class CswEndpoint implements Csw {
 
         LOGGER.trace("Entering: getCapabilities.");
         if (request.getAcceptVersions() != null) {
-            validateVersion(request.getAcceptVersions().toString());
+            validateVersion(request.getAcceptVersions()
+                    .toString());
         }
 
         List<String> sectionList = null;
         if (request.getSections() != null) {
-            sectionList = request.getSections().getSection();
+            sectionList = request.getSections()
+                    .getSection();
         }
 
         LOGGER.trace("Exiting: getCapabilities.");
@@ -322,10 +333,11 @@ public class CswEndpoint implements Csw {
         validateOutputFormat(request.getOutputFormat());
         validateSchemaLanguage(request.getSchemaLanguage());
 
-        Map<String, String> namespacePrefixToUriMappings = request
-                .parseNamespaces(request.getNamespace());
+        Map<String, String> namespacePrefixToUriMappings =
+                request.parseNamespaces(request.getNamespace());
 
-        validateTypeNameToNamespaceMappings(request.getTypeName(), request.getNamespace(),
+        validateTypeNameToNamespaceMappings(request.getTypeName(),
+                request.getNamespace(),
                 namespacePrefixToUriMappings);
 
         if (request.getVersion() != null) {
@@ -394,19 +406,26 @@ public class CswEndpoint implements Csw {
         validateOutputSchema(request.getOutputSchema());
 
         if (request.getAbstractQuery() != null) {
-            if (!request.getAbstractQuery().getValue().getClass().equals(QueryType.class)) {
-                throw new CswException(
-                        "Unknown QueryType: " + request.getAbstractQuery().getValue().getClass());
+            if (!request.getAbstractQuery()
+                    .getValue()
+                    .getClass()
+                    .equals(QueryType.class)) {
+                throw new CswException("Unknown QueryType: " + request.getAbstractQuery()
+                        .getValue()
+                        .getClass());
             }
 
-            QueryType query = (QueryType) request.getAbstractQuery().getValue();
+            QueryType query = (QueryType) request.getAbstractQuery()
+                    .getValue();
 
             validateTypes(query.getTypeNames(), CswConstants.VERSION_2_0_2);
 
             validateElementNames(query);
 
             if (query.getConstraint() != null &&
-                    query.getConstraint().isSetFilter() && query.getConstraint().isSetCqlText()) {
+                    query.getConstraint()
+                            .isSetFilter() && query.getConstraint()
+                    .isSetCqlText()) {
                 throw new CswException("A Csw Query can only have a Filter or CQL constraint");
             }
         }
@@ -429,8 +448,11 @@ public class CswEndpoint implements Csw {
         validateOutputSchema(request.getOutputSchema());
 
         if (StringUtils.isNotBlank(request.getId())) {
-            LOGGER.debug("{} attempting to retrieve record(s): ", request.getRequest(), request.getId());
-            List<String> ids = Arrays.<String>asList(request.getId().split(CswConstants.COMMA));
+            LOGGER.debug("{} attempting to retrieve record(s): ",
+                    request.getRequest(),
+                    request.getId());
+            List<String> ids = Arrays.<String>asList(request.getId()
+                    .split(CswConstants.COMMA));
 
             CswRecordCollection response = queryById(ids);
             response.setOutputSchema(request.getOutputSchema());
@@ -439,11 +461,14 @@ public class CswEndpoint implements Csw {
             } else {
                 response.setElementSetType(ElementSetType.SUMMARY);
             }
-            LOGGER.debug("{} successfully retrieved record(s): {}", request.getRequest(), request.getId());
+            LOGGER.debug("{} successfully retrieved record(s): {}",
+                    request.getRequest(),
+                    request.getId());
             return response;
         } else {
             throw new CswException("A GetRecordById Query must contain an ID.",
-                    CswConstants.MISSING_PARAMETER_VALUE, "id");
+                    CswConstants.MISSING_PARAMETER_VALUE,
+                    "id");
         }
     }
 
@@ -460,20 +485,28 @@ public class CswEndpoint implements Csw {
 
         validateOutputSchema(request.getOutputSchema());
 
-        if (!request.getId().isEmpty()) {
-            LOGGER.debug("{} is attempting to retrieve records: {}", request.getService(), request.getId());
+        if (!request.getId()
+                .isEmpty()) {
+            LOGGER.debug("{} is attempting to retrieve records: {}",
+                    request.getService(),
+                    request.getId());
             CswRecordCollection response = queryById(request.getId());
             response.setOutputSchema(request.getOutputSchema());
-            if (request.isSetElementSetName() && request.getElementSetName().getValue() != null) {
-                response.setElementSetType(request.getElementSetName().getValue());
+            if (request.isSetElementSetName() && request.getElementSetName()
+                    .getValue() != null) {
+                response.setElementSetType(request.getElementSetName()
+                        .getValue());
             } else {
                 response.setElementSetType(ElementSetType.SUMMARY);
             }
-            LOGGER.debug("{} successfully retrieved record(s): {}", request.getService(), request.getId());
+            LOGGER.debug("{} successfully retrieved record(s): {}",
+                    request.getService(),
+                    request.getId());
             return response;
         } else {
             throw new CswException("A GetRecordById Query must contain an ID.",
-                    CswConstants.MISSING_PARAMETER_VALUE, "id");
+                    CswConstants.MISSING_PARAMETER_VALUE,
+                    "id");
         }
     }
 
@@ -500,17 +533,21 @@ public class CswEndpoint implements Csw {
             try {
                 CreateResponse createResponse = framework.create(createRequest);
                 if (request.isVerbose()) {
-                    response.getInsertResult().add(getInsertResultFromResponse(createResponse));
+                    response.getInsertResult()
+                            .add(getInsertResultFromResponse(createResponse));
                 }
 
-                numInserted += createResponse.getCreatedMetacards().size();
+                numInserted += createResponse.getCreatedMetacards()
+                        .size();
             } catch (IngestException | SourceUnavailableException e) {
                 throw new CswException("Unable to insert record(s).",
-                        CswConstants.TRANSACTION_FAILED, insertAction.getHandle());
+                        CswConstants.TRANSACTION_FAILED,
+                        insertAction.getHandle());
             }
         }
         LOGGER.debug("{} records inserted.", numInserted);
-        response.getTransactionSummary().setTotalInserted(BigInteger.valueOf(numInserted));
+        response.getTransactionSummary()
+                .setTotalInserted(BigInteger.valueOf(numInserted));
 
         int numUpdated = 0;
         for (UpdateAction updateAction : request.getUpdateActions()) {
@@ -519,11 +556,13 @@ public class CswEndpoint implements Csw {
             } catch (CswException | FederationException | IngestException |
                     SourceUnavailableException | UnsupportedQueryException e) {
                 throw new CswException("Unable to update record(s).",
-                        CswConstants.TRANSACTION_FAILED, updateAction.getHandle());
+                        CswConstants.TRANSACTION_FAILED,
+                        updateAction.getHandle());
             }
         }
         LOGGER.debug("{} records inserted.", numInserted);
-        response.getTransactionSummary().setTotalUpdated(BigInteger.valueOf(numUpdated));
+        response.getTransactionSummary()
+                .setTotalUpdated(BigInteger.valueOf(numUpdated));
 
         int numDeleted = 0;
         for (DeleteAction deleteAction : request.getDeleteActions()) {
@@ -532,11 +571,13 @@ public class CswEndpoint implements Csw {
             } catch (CswException | FederationException | IngestException |
                     SourceUnavailableException | UnsupportedQueryException e) {
                 throw new CswException("Unable to delete record(s).",
-                        CswConstants.TRANSACTION_FAILED, deleteAction.getHandle());
+                        CswConstants.TRANSACTION_FAILED,
+                        deleteAction.getHandle());
             }
         }
         LOGGER.debug("{} records deleted.", numDeleted);
-        response.getTransactionSummary().setTotalDeleted(BigInteger.valueOf(numDeleted));
+        response.getTransactionSummary()
+                .setTotalDeleted(BigInteger.valueOf(numDeleted));
 
         return response;
     }
@@ -551,7 +592,8 @@ public class CswEndpoint implements Csw {
             String bbox = null;
             try {
                 if (metacard.getAttribute(CswConstants.BBOX_PROP) != null) {
-                    bbox = metacard.getAttribute(CswConstants.BBOX_PROP).getValue()
+                    bbox = metacard.getAttribute(CswConstants.BBOX_PROP)
+                            .getValue()
                             .toString();
                     geometry = reader.read(bbox);
                 } else if (StringUtils.isNotBlank(metacard.getLocation())) {
@@ -568,24 +610,31 @@ public class CswEndpoint implements Csw {
                     boundingBox.setCrs(CswConstants.SRS_NAME);
                     boundingBox.setLowerCorner(Arrays.asList(bounds.getMinX(), bounds.getMinY()));
                     boundingBox.setUpperCorner(Arrays.asList(bounds.getMaxX(), bounds.getMaxY()));
-                    briefRecordType.getBoundingBox().add(new net.opengis.ows.v_1_0_0.ObjectFactory()
-                            .createBoundingBox(boundingBox));
+                    briefRecordType.getBoundingBox()
+                            .add(new net.opengis.ows.v_1_0_0.ObjectFactory().createBoundingBox(
+                                    boundingBox));
                 }
             }
             SimpleLiteral identifier = new SimpleLiteral();
-            identifier.getContent().add(metacard.getId());
+            identifier.getContent()
+                    .add(metacard.getId());
             briefRecordType.getIdentifier()
-                    .add(new JAXBElement<>(CswConstants.DC_IDENTIFIER_QNAME, SimpleLiteral.class,
+                    .add(new JAXBElement<>(CswConstants.DC_IDENTIFIER_QNAME,
+                            SimpleLiteral.class,
                             identifier));
             SimpleLiteral title = new SimpleLiteral();
-            title.getContent().add(metacard.getTitle());
+            title.getContent()
+                    .add(metacard.getTitle());
             briefRecordType.getTitle()
-                    .add(new JAXBElement<>(CswConstants.DC_TITLE_QNAME, SimpleLiteral.class,
+                    .add(new JAXBElement<>(CswConstants.DC_TITLE_QNAME,
+                            SimpleLiteral.class,
                             title));
             SimpleLiteral type = new SimpleLiteral();
-            type.getContent().add(metacard.getContentTypeName());
+            type.getContent()
+                    .add(metacard.getContentTypeName());
             briefRecordType.setType(type);
-            result.getBriefRecord().add(briefRecordType);
+            result.getBriefRecord()
+                    .add(briefRecordType);
         }
         return result;
     }
@@ -606,18 +655,20 @@ public class CswEndpoint implements Csw {
 
         for (Result result : response.getResults()) {
             if (result != null && result.getMetacard() != null) {
-                ids.add(result.getMetacard().getId());
+                ids.add(result.getMetacard()
+                        .getId());
             }
         }
 
         if (ids.size() > 0) {
-            DeleteRequestImpl deleteRequest = new DeleteRequestImpl(
-                    ids.toArray(new String[ids.size()]));
+            DeleteRequestImpl deleteRequest =
+                    new DeleteRequestImpl(ids.toArray(new String[ids.size()]));
 
             LOGGER.debug("Attempting to delete {} metacards. ", ids.size());
             DeleteResponse deleteResponse = framework.delete(deleteRequest);
 
-            return deleteResponse.getDeletedMetacards().size();
+            return deleteResponse.getDeletedMetacards()
+                    .size();
         }
 
         return 0;
@@ -633,16 +684,20 @@ public class CswEndpoint implements Csw {
                 UpdateRequest updateRequest = new UpdateRequestImpl(newRecord.getId(), newRecord);
                 LOGGER.debug("Attempting to update {} ", newRecord.getId());
                 UpdateResponse updateResponse = framework.update(updateRequest);
-                return updateResponse.getUpdatedMetacards().size();
+                return updateResponse.getUpdatedMetacards()
+                        .size();
             } else {
-                throw new CswException("Unable to update record.  No ID was specified in the request.",
-                        CswConstants.MISSING_PARAMETER_VALUE, updateAction.getHandle());
+                throw new CswException(
+                        "Unable to update record.  No ID was specified in the request.",
+                        CswConstants.MISSING_PARAMETER_VALUE,
+                        updateAction.getHandle());
 
             }
         } else if (updateAction.getConstraint() != null) {
             QueryConstraintType constraint = updateAction.getConstraint();
-            Filter filter = buildFilter(constraint, typeStringToQNames(updateAction.getTypeName(),
-                    updateAction.getPrefixToUriMappings())).getVisitedFilter();
+            Filter filter = buildFilter(constraint,
+                    typeStringToQNames(updateAction.getTypeName(),
+                            updateAction.getPrefixToUriMappings())).getVisitedFilter();
 
             QueryImpl query = new QueryImpl(filter);
             query.setPageSize(-1);
@@ -660,8 +715,7 @@ public class CswEndpoint implements Csw {
                     Metacard metacard = result.getMetacard();
 
                     if (metacard != null) {
-                        for (Entry<String, Serializable> recordProperty : recordProperties
-                                .entrySet()) {
+                        for (Entry<String, Serializable> recordProperty : recordProperties.entrySet()) {
                             Attribute attribute = new AttributeImpl(recordProperty.getKey(),
                                     recordProperty.getValue());
                             metacard.setAttribute(attribute);
@@ -672,14 +726,16 @@ public class CswEndpoint implements Csw {
                 }
 
                 if (updatedMetacardIdsList.size() > 0) {
-                    String[] updatedMetacardIds = updatedMetacardIdsList
-                            .toArray(new String[updatedMetacardIdsList.size()]);
+                    String[] updatedMetacardIds =
+                            updatedMetacardIdsList.toArray(new String[updatedMetacardIdsList.size()]);
                     UpdateRequest updateRequest = new UpdateRequestImpl(updatedMetacardIds,
                             updatedMetacards);
 
-                    LOGGER.debug("Attempting to update {} metacards.", updatedMetacardIdsList.size());
+                    LOGGER.debug("Attempting to update {} metacards.",
+                            updatedMetacardIdsList.size());
                     UpdateResponse updateResponse = framework.update(updateRequest);
-                    return updateResponse.getUpdatedMetacards().size();
+                    return updateResponse.getUpdatedMetacards()
+                            .size();
                 }
             }
         }
@@ -692,11 +748,13 @@ public class CswEndpoint implements Csw {
     @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
     public void unknownService(@QueryParam("") CswRequest request) throws CswException {
         if (request.getService() == null) {
-            throw new CswException("Missing service value", CswConstants.MISSING_PARAMETER_VALUE,
+            throw new CswException("Missing service value",
+                    CswConstants.MISSING_PARAMETER_VALUE,
                     "service");
         }
         throw new CswException("Unknown service (" + request.getService() + ")",
-                CswConstants.INVALID_PARAMETER_VALUE, "service");
+                CswConstants.INVALID_PARAMETER_VALUE,
+                "service");
     }
 
     @POST
@@ -711,7 +769,8 @@ public class CswEndpoint implements Csw {
     @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
     public void unknownOperation(@QueryParam("") CswRequest request) throws CswException {
         throw new CswException("No such operation: " + request.getRequest(),
-                CswConstants.OPERATION_NOT_SUPPORTED, request.getRequest());
+                CswConstants.OPERATION_NOT_SUPPORTED,
+                request.getRequest());
     }
 
     @POST
@@ -785,17 +844,18 @@ public class CswEndpoint implements Csw {
         for (String typeName : types) {
             // if type name is in the format prefix:localPart (eg. csw:Record).
             if (typeName.indexOf(CswConstants.NAMESPACE_DELIMITER) != -1) {
-                String prefix = typeName
-                        .substring(0, typeName.indexOf(CswConstants.NAMESPACE_DELIMITER));
-                String localPart = typeName
-                        .substring(typeName.indexOf(CswConstants.NAMESPACE_DELIMITER) + 1);
-                QName qname = new QName(
-                        getNamespaceFromType(prefix, localPart, namespacePrefixToUriMappings),
-                        localPart, prefix);
+                String prefix = typeName.substring(0,
+                        typeName.indexOf(CswConstants.NAMESPACE_DELIMITER));
+                String localPart = typeName.substring(
+                        typeName.indexOf(CswConstants.NAMESPACE_DELIMITER) + 1);
+                QName qname = new QName(getNamespaceFromType(prefix,
+                        localPart,
+                        namespacePrefixToUriMappings), localPart, prefix);
                 qNames.add(qname);
             } else {
-                QName qname = new QName(
-                        getNamespaceFromType("", typeName, namespacePrefixToUriMappings), typeName);
+                QName qname = new QName(getNamespaceFromType("",
+                        typeName,
+                        namespacePrefixToUriMappings), typeName);
                 qNames.add(qname);
             }
         }
@@ -837,8 +897,8 @@ public class CswEndpoint implements Csw {
         DescribeRecordResponseType response = new DescribeRecordResponseType();
         List<SchemaComponentType> schemas = new ArrayList<SchemaComponentType>();
 
-        if (types.isEmpty() || types.contains(
-                new QName(CswConstants.CSW_OUTPUT_SCHEMA, CswConstants.CSW_RECORD_LOCAL_NAME))) {
+        if (types.isEmpty() || types.contains(new QName(CswConstants.CSW_OUTPUT_SCHEMA,
+                CswConstants.CSW_RECORD_LOCAL_NAME))) {
             schemas.add(getSchemaComponentType());
         }
 
@@ -854,12 +914,13 @@ public class CswEndpoint implements Csw {
                     Marshaller marshaller = getJaxBContext().createMarshaller();
                     marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
 
-                    JAXBElement<GetRecordsType> jaxbElement = new ObjectFactory()
-                            .createGetRecords(request);
+                    JAXBElement<GetRecordsType> jaxbElement = new ObjectFactory().createGetRecords(
+                            request);
                     marshaller.marshal(jaxbElement, writer);
                 } catch (JAXBException e) {
                     LOGGER.debug("Unable to marshall {} to XML.  Exception {}",
-                            GetRecordsType.class, e);
+                            GetRecordsType.class,
+                            e);
                 }
                 LOGGER.debug(writer.toString());
             } catch (Exception e) {
@@ -867,36 +928,43 @@ public class CswEndpoint implements Csw {
             }
         }
 
-        QueryType query = (QueryType) request.getAbstractQuery().getValue();
+        QueryType query = (QueryType) request.getAbstractQuery()
+                .getValue();
 
         CswRecordCollection response = new CswRecordCollection();
         response.setRequest(request);
         response.setOutputSchema(request.getOutputSchema());
         response.setMimeType(request.getOutputFormat());
         response.setElementName(query.getElementName());
-        response.setElementSetType(
-                (query.getElementSetName() != null) ? query.getElementSetName().getValue() : null);
-        response.setResultType(
-                (ResultType) ObjectUtils.defaultIfNull(request.getResultType(), ResultType.HITS));
+        response.setElementSetType((query.getElementSetName() != null) ?
+                query.getElementSetName()
+                        .getValue() :
+                null);
+        response.setResultType((ResultType) ObjectUtils.defaultIfNull(request.getResultType(),
+                ResultType.HITS));
 
-        if (ResultType.HITS.equals(request.getResultType()) || ResultType.RESULTS
-                .equals(request.getResultType())) {
+        if (ResultType.HITS.equals(request.getResultType())
+                || ResultType.RESULTS.equals(request.getResultType())) {
             CswRecordMapperFilterVisitor filterVisitor = buildFilter(query.getConstraint(),
                     query.getTypeNames());
             QueryImpl frameworkQuery = new QueryImpl(filterVisitor.getVisitedFilter());
             frameworkQuery.setSortBy(buildSort(query.getSortBy()));
 
-            if (ResultType.HITS.equals(request.getResultType())
-                    || request.getMaxRecords().intValue() < 1) {
+            if (ResultType.HITS.equals(request.getResultType()) || request.getMaxRecords()
+                    .intValue() < 1) {
                 frameworkQuery.setStartIndex(1);
                 frameworkQuery.setPageSize(1);
             } else {
-                frameworkQuery.setStartIndex(request.getStartPosition().intValue());
-                frameworkQuery.setPageSize(request.getMaxRecords().intValue());
+                frameworkQuery.setStartIndex(request.getStartPosition()
+                        .intValue());
+                frameworkQuery.setPageSize(request.getMaxRecords()
+                        .intValue());
             }
             QueryRequest queryRequest = null;
             boolean isDistributed = request.getDistributedSearch() != null && (
-                    request.getDistributedSearch().getHopCount().longValue() > 1);
+                    request.getDistributedSearch()
+                            .getHopCount()
+                            .longValue() > 1);
 
             if (isDistributed && CollectionUtils.isEmpty(filterVisitor.getSourceIds())) {
                 queryRequest = new QueryRequestImpl(frameworkQuery, true);
@@ -943,22 +1011,27 @@ public class CswEndpoint implements Csw {
         } else {
             // not supported by catalog:
             //filter = Filter.INCLUDE;
-            filter = builder.attribute(Metacard.ID).is().like().text(FilterDelegate.WILDCARD_CHAR);
+            filter = builder.attribute(Metacard.ID)
+                    .is()
+                    .like()
+                    .text(FilterDelegate.WILDCARD_CHAR);
         }
 
         if (filter == null) {
-            throw new CswException("Invalid Filter Expression", CswConstants.NO_APPLICABLE_CODE,
+            throw new CswException("Invalid Filter Expression",
+                    CswConstants.NO_APPLICABLE_CODE,
                     null);
         }
         visitor.setVisitedFilter(filter);
-        if (typeNames.contains(
-                new QName(CswConstants.CSW_OUTPUT_SCHEMA, CswConstants.CSW_RECORD_LOCAL_NAME,
-                        CswConstants.CSW_NAMESPACE_PREFIX))) {
+        if (typeNames.contains(new QName(CswConstants.CSW_OUTPUT_SCHEMA,
+                CswConstants.CSW_RECORD_LOCAL_NAME,
+                CswConstants.CSW_NAMESPACE_PREFIX))) {
 
             try {
                 visitor.setVisitedFilter((Filter) filter.accept(visitor, null));
             } catch (UnsupportedOperationException ose) {
-                throw new CswException(ose.getMessage(), CswConstants.INVALID_PARAMETER_VALUE,
+                throw new CswException(ose.getMessage(),
+                        CswConstants.INVALID_PARAMETER_VALUE,
                         null);
             }
         }
@@ -983,18 +1056,22 @@ public class CswEndpoint implements Csw {
             return null;
         }
 
-        if (!DefaultCswRecordMap.getDefaultCswRecordMap().hasDefaultMetacardFieldForPrefixedString(
-                sortBy.getPropertyName().getPropertyName(),
-                sortBy.getPropertyName().getNamespaceContext())) {
-            throw new CswException("Property " + sortBy.getPropertyName().getPropertyName()
-                    + " is not a valid SortBy Field", CswConstants.INVALID_PARAMETER_VALUE,
+        if (!DefaultCswRecordMap.getDefaultCswRecordMap()
+                .hasDefaultMetacardFieldForPrefixedString(sortBy.getPropertyName()
+                                .getPropertyName(),
+                        sortBy.getPropertyName()
+                                .getNamespaceContext())) {
+            throw new CswException("Property " + sortBy.getPropertyName()
+                    .getPropertyName() + " is not a valid SortBy Field",
+                    CswConstants.INVALID_PARAMETER_VALUE,
                     "SortProperty");
         }
 
         String name = DefaultCswRecordMap.getDefaultCswRecordMap()
-                .getDefaultMetacardFieldForPrefixedString(
-                        sortBy.getPropertyName().getPropertyName(),
-                        sortBy.getPropertyName().getNamespaceContext());
+                .getDefaultMetacardFieldForPrefixedString(sortBy.getPropertyName()
+                                .getPropertyName(),
+                        sortBy.getPropertyName()
+                                .getNamespaceContext());
 
         PropertyName propName = new AttributeExpressionImpl(new NameImpl(name));
 
@@ -1021,7 +1098,8 @@ public class CswEndpoint implements Csw {
     }
 
     private Element loadDocElementFromResourcePath(String resourcePath) throws CswException {
-        URL recordUrl = context.getBundle().getResource(resourcePath);
+        URL recordUrl = context.getBundle()
+                .getResource(resourcePath);
 
         DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
         docBuilderFactory.setNamespaceAware(true);
@@ -1065,8 +1143,7 @@ public class CswEndpoint implements Csw {
         // Grab the desired sections from the global capabilitiesType variable
         for (String section : sections) {
             if (section.equalsIgnoreCase(SERVICE_IDENTIFICATION)) {
-                cswCapabilities
-                        .setServiceIdentification(capabilitiesType.getServiceIdentification());
+                cswCapabilities.setServiceIdentification(capabilitiesType.getServiceIdentification());
             } else if (section.equalsIgnoreCase(SERVICE_PROVIDER)) {
                 cswCapabilities.setServiceProvider(capabilitiesType.getServiceProvider());
             } else if (section.equalsIgnoreCase(OPERATIONS_METADATA)) {
@@ -1128,11 +1205,14 @@ public class CswEndpoint implements Csw {
         GeometryOperandsType geometryOperands = new GeometryOperandsType();
         List<QName> geoOperandsList = geometryOperands.getGeometryOperand();
 
-        geoOperandsList.add(new QName(CswConstants.GML_SCHEMA, CswConstants.GML_POINT,
+        geoOperandsList.add(new QName(CswConstants.GML_SCHEMA,
+                CswConstants.GML_POINT,
                 CswConstants.GML_NAMESPACE_PREFIX));
-        geoOperandsList.add(new QName(CswConstants.GML_SCHEMA, CswConstants.GML_LINESTRING,
+        geoOperandsList.add(new QName(CswConstants.GML_SCHEMA,
+                CswConstants.GML_LINESTRING,
                 CswConstants.GML_NAMESPACE_PREFIX));
-        geoOperandsList.add(new QName(CswConstants.GML_SCHEMA, CswConstants.GML_POLYGON,
+        geoOperandsList.add(new QName(CswConstants.GML_SCHEMA,
+                CswConstants.GML_POLYGON,
                 CswConstants.GML_NAMESPACE_PREFIX));
 
         spatialOpsType.setSpatialOperator(spatialOpTypes);
@@ -1142,7 +1222,8 @@ public class CswEndpoint implements Csw {
         filterCapabilities.setSpatialCapabilities(spatialCaps);
 
         IdCapabilitiesType idCapabilities = new IdCapabilitiesType();
-        idCapabilities.getEIDOrFID().add(new EID());
+        idCapabilities.getEIDOrFID()
+                .add(new EID());
 
         filterCapabilities.setIdCapabilities(idCapabilities);
 
@@ -1169,53 +1250,68 @@ public class CswEndpoint implements Csw {
         // Builds DescribeRecord operation metadata
         Operation describeRecordOp = buildOperation(CswConstants.DESCRIBE_RECORD, getAndPost);
         addOperationParameter(CswConstants.TYPE_NAME_PARAMETER,
-                Arrays.asList(CswConstants.CSW_RECORD), describeRecordOp);
+                Arrays.asList(CswConstants.CSW_RECORD),
+                describeRecordOp);
         Set<String> mimeTypeSet = new HashSet<>();
         mimeTypeSet.add(DEFAULT_OUTPUT_FORMAT);
         mimeTypeSet.addAll(mimeTypeTransformerManager.getAvailableMimeTypes());
         List<String> mimeTypes = new ArrayList<>(mimeTypeSet);
         addOperationParameter(CswConstants.OUTPUT_FORMAT_PARAMETER, mimeTypes, describeRecordOp);
-        addOperationParameter("schemaLanguage", CswConstants.VALID_SCHEMA_LANGUAGES,
+        addOperationParameter("schemaLanguage",
+                CswConstants.VALID_SCHEMA_LANGUAGES,
                 describeRecordOp);
 
         // Builds GetRecords operation metadata
         Operation getRecordsOp = buildOperation(CswConstants.GET_RECORDS, getAndPost);
         addOperationParameter(CswConstants.RESULT_TYPE_PARAMETER,
-                Arrays.asList("hits", "results", "validate"), getRecordsOp);
+                Arrays.asList("hits", "results", "validate"),
+                getRecordsOp);
         addOperationParameter(CswConstants.OUTPUT_FORMAT_PARAMETER, mimeTypes, getRecordsOp);
         addOperationParameter(CswConstants.OUTPUT_SCHEMA_PARAMETER,
-                schemaTransformerManager.getAvailableSchemas(), getRecordsOp);
+                schemaTransformerManager.getAvailableSchemas(),
+                getRecordsOp);
         addOperationParameter(CswConstants.TYPE_NAMES_PARAMETER,
-                Arrays.asList(CswConstants.CSW_RECORD), getRecordsOp);
+                Arrays.asList(CswConstants.CSW_RECORD),
+                getRecordsOp);
         addOperationParameter(CswConstants.CONSTRAINT_LANGUAGE_PARAMETER,
-                CswConstants.CONSTRAINT_LANGUAGES, getRecordsOp);
+                CswConstants.CONSTRAINT_LANGUAGES,
+                getRecordsOp);
         addFederatedCatalogs(getRecordsOp);
 
         // Builds GetRecordById operation metadata
         Operation getRecordByIdOp = buildOperation(CswConstants.GET_RECORD_BY_ID, getAndPost);
         addOperationParameter(CswConstants.OUTPUT_SCHEMA_PARAMETER,
-                schemaTransformerManager.getAvailableSchemas(), getRecordByIdOp);
+                schemaTransformerManager.getAvailableSchemas(),
+                getRecordByIdOp);
         addOperationParameter(CswConstants.OUTPUT_FORMAT_PARAMETER, mimeTypes, getRecordByIdOp);
         addOperationParameter(CswConstants.RESULT_TYPE_PARAMETER,
-                Arrays.asList("hits", "results", "validate"), getRecordByIdOp);
+                Arrays.asList("hits", "results", "validate"),
+                getRecordByIdOp);
         addOperationParameter(CswConstants.ELEMENT_SET_NAME_PARAMETER,
-                ELEMENT_NAMES, getRecordByIdOp);
+                ELEMENT_NAMES,
+                getRecordByIdOp);
 
         // Builds Transactions operation metadata
         Operation transactionOp = buildOperation(CswConstants.TRANSACTION,
                 Arrays.asList(CswConstants.POST));
         addOperationParameter(CswConstants.TYPE_NAMES_PARAMETER,
-                Arrays.asList(CswConstants.CSW_RECORD), transactionOp);
+                Arrays.asList(CswConstants.CSW_RECORD),
+                transactionOp);
         addOperationParameter(CswConstants.CONSTRAINT_LANGUAGE_PARAMETER,
-                CswConstants.CONSTRAINT_LANGUAGES, transactionOp);
+                CswConstants.CONSTRAINT_LANGUAGES,
+                transactionOp);
 
-        List<Operation> ops = Arrays
-                .asList(getCapabilitiesOp, describeRecordOp, getRecordsOp, getRecordByIdOp,
-                        transactionOp);
+        List<Operation> ops = Arrays.asList(getCapabilitiesOp,
+                describeRecordOp,
+                getRecordsOp,
+                getRecordByIdOp,
+                transactionOp);
         om.setOperation(ops);
 
-        om.getParameter().add(createDomainType(CswConstants.SERVICE, CswConstants.CSW));
-        om.getParameter().add(createDomainType(CswConstants.VERSION, CswConstants.VERSION_2_0_2));
+        om.getParameter()
+                .add(createDomainType(CswConstants.SERVICE, CswConstants.CSW));
+        om.getParameter()
+                .add(createDomainType(CswConstants.VERSION, CswConstants.VERSION_2_0_2));
 
         return om;
     }
@@ -1270,14 +1366,18 @@ public class CswEndpoint implements Csw {
         HTTP http = new HTTP();
         for (QName type : types) {
             RequestMethodType rmt = new RequestMethodType();
-            rmt.setHref(uri.getBaseUri().toASCIIString());
+            rmt.setHref(uri.getBaseUri()
+                    .toASCIIString());
             JAXBElement<RequestMethodType> requestElement = new JAXBElement<RequestMethodType>(type,
-                    RequestMethodType.class, rmt);
+                    RequestMethodType.class,
+                    rmt);
             if (type.equals(CswConstants.POST)) {
-                requestElement.getValue().getConstraint()
+                requestElement.getValue()
+                        .getConstraint()
                         .add(createDomainType(CswConstants.POST_ENCODING, CswConstants.XML));
             }
-            http.getGetOrPost().add(requestElement);
+            http.getGetOrPost()
+                    .add(requestElement);
         }
         dcp.setHTTP(http);
         dcpList.add(dcp);
@@ -1287,7 +1387,8 @@ public class CswEndpoint implements Csw {
 
     private void addOperationParameter(String name, List<String> params, Operation op) {
         DomainType dt = createDomainType(name, params);
-        op.getParameter().add(dt);
+        op.getParameter()
+                .add(dt);
     }
 
     private DomainType createDomainType(String name, String value) {
@@ -1304,7 +1405,8 @@ public class CswEndpoint implements Csw {
     private void addFederatedCatalogs(Operation operation) {
         List<String> sourceIds = new ArrayList<>(framework.getSourceIds());
         sourceIds.remove(framework.getId());
-        operation.getConstraint().add(createDomainType(CswConstants.FEDERATED_CATALOGS, sourceIds));
+        operation.getConstraint()
+                .add(createDomainType(CswConstants.FEDERATED_CATALOGS, sourceIds));
     }
 
     /**
@@ -1316,7 +1418,8 @@ public class CswEndpoint implements Csw {
         for (QName type : types) {
             if (StringUtils.isBlank(type.getNamespaceURI())) {
                 throw new CswException("Unqualified type name: '" + type.getLocalPart() + "'",
-                        CswConstants.INVALID_PARAMETER_VALUE, null);
+                        CswConstants.INVALID_PARAMETER_VALUE,
+                        null);
             }
         }
     }
@@ -1334,42 +1437,47 @@ public class CswEndpoint implements Csw {
         }
 
         if (types.size() == 1) {
-            if (!types.get(0).equals(new QName(CswConstants.CSW_OUTPUT_SCHEMA,
-                    CswConstants.CSW_RECORD_LOCAL_NAME))) {
-                throw createUnknownTypeException(types.get(0).toString());
+            if (!types.get(0)
+                    .equals(new QName(CswConstants.CSW_OUTPUT_SCHEMA,
+                            CswConstants.CSW_RECORD_LOCAL_NAME))) {
+                throw createUnknownTypeException(types.get(0)
+                        .toString());
             }
 
         }
     }
 
     /**
-    * Verifies that if the ElementName or ElementSetName is passed, that they are
-    * valid and mutually exclusive according to the OpenGIS CSW spec.
-    *
-    *  @param query   QueryType to be validated
-    */
+     * Verifies that if the ElementName or ElementSetName is passed, that they are
+     * valid and mutually exclusive according to the OpenGIS CSW spec.
+     *
+     * @param query QueryType to be validated
+     */
     private void validateElementNames(QueryType query) throws CswException {
 
         if (query.isSetElementSetName() && query.isSetElementName()) {
             throw new CswException("ElementSetName and ElementName must be mutually exclusive",
-                    CswConstants.INVALID_PARAMETER_VALUE, "ElementName");
-        } else if (query.isSetElementName() && query.getElementName().size() > 0) {
+                    CswConstants.INVALID_PARAMETER_VALUE,
+                    "ElementName");
+        } else if (query.isSetElementName() && query.getElementName()
+                .size() > 0) {
 
             for (QName elementName : query.getElementName()) {
                 String elementNameString = elementName.getLocalPart();
                 if (!ELEMENT_NAMES.contains(elementNameString)) {
-                    throw new CswException("Unknown ElementName "
-                            + elementNameString, CswConstants.INVALID_PARAMETER_VALUE,
+                    throw new CswException("Unknown ElementName " + elementNameString,
+                            CswConstants.INVALID_PARAMETER_VALUE,
                             "ElementName");
                 }
             }
-        } else if (query.isSetElementSetName() && query.getElementSetName().getValue() == null) {
+        } else if (query.isSetElementSetName() && query.getElementSetName()
+                .getValue() == null) {
             throw new CswException("Unknown ElementSetName",
-                    CswConstants.INVALID_PARAMETER_VALUE, "ElementSetName");
+                    CswConstants.INVALID_PARAMETER_VALUE,
+                    "ElementSetName");
         }
 
     }
-
 
     private void validateOutputSchema(String schema) throws CswException {
         if (schema == null || schemaTransformerManager.getTransformerBySchema(schema) != null) {
@@ -1382,17 +1490,20 @@ public class CswEndpoint implements Csw {
         if (!versions.contains(CswConstants.VERSION_2_0_2)) {
             throw new CswException(
                     "Version(s) " + versions + " is not supported, we currently support version "
-                            + CswConstants.VERSION_2_0_2, CswConstants.VERSION_NEGOTIATION_FAILED,
+                            + CswConstants.VERSION_2_0_2,
+                    CswConstants.VERSION_NEGOTIATION_FAILED,
                     null);
         }
     }
 
     private void validateOutputFormat(String format) throws CswException {
         if (!StringUtils.isEmpty(format)) {
-            if (!DEFAULT_OUTPUT_FORMAT.equals(format) && !mimeTypeTransformerManager
-                    .getAvailableMimeTypes().contains(format)) {
+            if (!DEFAULT_OUTPUT_FORMAT.equals(format)
+                    && !mimeTypeTransformerManager.getAvailableMimeTypes()
+                    .contains(format)) {
                 throw new CswException("Invalid output format '" + format + "'",
-                        CswConstants.INVALID_PARAMETER_VALUE, "outputformat");
+                        CswConstants.INVALID_PARAMETER_VALUE,
+                        "outputformat");
             }
         }
     }
@@ -1401,7 +1512,8 @@ public class CswEndpoint implements Csw {
         if (!StringUtils.isEmpty(schemaLanguage)) {
             if (!CswConstants.VALID_SCHEMA_LANGUAGES.contains(schemaLanguage)) {
                 throw new CswException("Invalid schema language '" + schemaLanguage + "'",
-                        CswConstants.INVALID_PARAMETER_VALUE, "schemaLanguage");
+                        CswConstants.INVALID_PARAMETER_VALUE,
+                        "schemaLanguage");
             }
         }
     }
@@ -1412,17 +1524,20 @@ public class CswEndpoint implements Csw {
 
     private CswException createUnknownTypeException(final String type) {
         return new CswException("The type '" + type + "' is not known to this service.",
-                CswConstants.INVALID_PARAMETER_VALUE, null);
+                CswConstants.INVALID_PARAMETER_VALUE,
+                null);
     }
 
     private CswException createUnknownSchemaException(final String schema) {
         return new CswException("The schema '" + schema + "' is not known to this service.",
-                CswConstants.INVALID_PARAMETER_VALUE, "OutputSchema");
+                CswConstants.INVALID_PARAMETER_VALUE,
+                "OutputSchema");
     }
 
     private InputStream marshalJaxB(JAXBElement<?> filterElement) throws JAXBException {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
-        getJaxBContext().createMarshaller().marshal(filterElement, os);
+        getJaxBContext().createMarshaller()
+                .marshal(filterElement, os);
         ByteArrayInputStream input = new ByteArrayInputStream(os.toByteArray());
         IOUtils.closeQuietly(os);
 
@@ -1433,17 +1548,18 @@ public class CswEndpoint implements Csw {
         if (!filterType.isSetComparisonOps() && !filterType.isSetId() && !filterType.isSetLogicOps()
                 && !filterType.isSetSpatialOps()) {
             throw new CswException("Empty Filter provided. Unable to preform query.",
-                    CswConstants.INVALID_PARAMETER_VALUE, "Filter");
+                    CswConstants.INVALID_PARAMETER_VALUE,
+                    "Filter");
         }
-        JAXBElement<FilterType> filterElement = new net.opengis.filter.v_1_1_0.ObjectFactory()
-                .createFilter(filterType);
+        JAXBElement<FilterType> filterElement =
+                new net.opengis.filter.v_1_1_0.ObjectFactory().createFilter(filterType);
 
         return (Filter) parseJaxB(filterElement);
     }
 
     private SortBy[] parseSortBy(SortByType sortByType) throws CswException {
-        JAXBElement<SortByType> sortByElement = new net.opengis.filter.v_1_1_0.ObjectFactory()
-                .createSortBy(sortByType);
+        JAXBElement<SortByType> sortByElement =
+                new net.opengis.filter.v_1_1_0.ObjectFactory().createSortBy(sortByType);
 
         return (SortBy[]) parseJaxB(sortByElement);
     }
@@ -1457,27 +1573,35 @@ public class CswEndpoint implements Csw {
             return parser.parse(inputStream);
         } catch (JAXBException e) {
             throw new CswException("Failed to parse Element: (JAXBException): " + e.getMessage(),
-                    CswConstants.INVALID_PARAMETER_VALUE, null);
+                    CswConstants.INVALID_PARAMETER_VALUE,
+                    null);
         } catch (IOException e) {
             throw new CswException("Failed to parse Element: (IOException): " + e.getMessage(),
-                    CswConstants.INVALID_PARAMETER_VALUE, null);
+                    CswConstants.INVALID_PARAMETER_VALUE,
+                    null);
         } catch (SAXException e) {
             throw new CswException("Failed to parse Element: (SAXException): " + e.getMessage(),
-                    CswConstants.INVALID_PARAMETER_VALUE, null);
+                    CswConstants.INVALID_PARAMETER_VALUE,
+                    null);
         } catch (ParserConfigurationException e) {
             throw new CswException(
                     "Failed to parse Element: (ParserConfigurationException): " + e.getMessage(),
-                    CswConstants.INVALID_PARAMETER_VALUE, null);
+                    CswConstants.INVALID_PARAMETER_VALUE,
+                    null);
         } catch (RuntimeException e) {
             throw new CswException("Failed to parse Element: (RuntimeException): " + e.getMessage(),
-                    CswConstants.INVALID_PARAMETER_VALUE, null);
+                    CswConstants.INVALID_PARAMETER_VALUE,
+                    null);
         }
     }
 
     private CswRecordCollection queryById(List<String> ids) throws CswException {
         List<Filter> filters = new ArrayList<>();
         for (String id : ids) {
-            filters.add(builder.attribute(Metacard.ID).is().equalTo().text(id));
+            filters.add(builder.attribute(Metacard.ID)
+                    .is()
+                    .equalTo()
+                    .text(id));
         }
 
         Filter anyOfFilter = builder.anyOf(filters);

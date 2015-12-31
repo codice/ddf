@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.source;
 
@@ -179,85 +178,124 @@ public class TestWfsFilterDelegate {
     @Test
     public void testFullFilterCapabilities() {
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType,
-                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, null,
+                MockWfsServer.getFilterCapabilities(),
+                Wfs20Constants.EPSG_4326_URN,
+                null,
                 WfsConstants.LAT_LON_ORDER);
         assertThat(delegate.isLogicalOps(), is(true));
         assertThat(delegate.isEpsg4326(), is(true));
         assertThat(delegate.isSortingSupported(), is(true));
         assertThat(delegate.getSrsName(), is(Wfs20Constants.EPSG_4326_URN));
-        assertThat(delegate.getComparisonOps().size(), is(COMPARISON_OPERATORS.values().length));
-        assertThat(delegate.getGeometryOperands().size(), greaterThan(0));
-        assertThat(delegate.getSpatialOps().size(), is(SPATIAL_OPERATORS.values().length));
-        assertThat(delegate.getTemporalOps().size(), is(TEMPORAL_OPERATORS.values().length));
-        assertThat(delegate.getTemporalOperands().size(), greaterThan(0));
+        assertThat(delegate.getComparisonOps()
+                .size(), is(COMPARISON_OPERATORS.values().length));
+        assertThat(delegate.getGeometryOperands()
+                .size(), greaterThan(0));
+        assertThat(delegate.getSpatialOps()
+                .size(), is(SPATIAL_OPERATORS.values().length));
+        assertThat(delegate.getTemporalOps()
+                .size(), is(TEMPORAL_OPERATORS.values().length));
+        assertThat(delegate.getTemporalOperands()
+                .size(), greaterThan(0));
     }
 
     @Test
     public void testNoConformance() {
         FilterCapabilities capabilities = MockWfsServer.getFilterCapabilities();
         capabilities.setConformance(null);
-        WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType, capabilities,
-                Wfs20Constants.EPSG_4326_URN, null, WfsConstants.LAT_LON_ORDER);
+        WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType,
+                capabilities,
+                Wfs20Constants.EPSG_4326_URN,
+                null,
+                WfsConstants.LAT_LON_ORDER);
         assertThat(delegate.isLogicalOps(), is(true));
         assertThat(delegate.isEpsg4326(), is(true));
         assertThat(delegate.isSortingSupported(), is(false));
         assertThat(delegate.getSrsName(), is(Wfs20Constants.EPSG_4326_URN));
-        assertThat(delegate.getComparisonOps().size(), is(COMPARISON_OPERATORS.values().length));
-        assertThat(delegate.getGeometryOperands().size(), greaterThan(0));
-        assertThat(delegate.getSpatialOps().size(), is(SPATIAL_OPERATORS.values().length));
-        assertThat(delegate.getTemporalOps().size(), is(TEMPORAL_OPERATORS.values().length));
-        assertThat(delegate.getTemporalOperands().size(), greaterThan(0));
+        assertThat(delegate.getComparisonOps()
+                .size(), is(COMPARISON_OPERATORS.values().length));
+        assertThat(delegate.getGeometryOperands()
+                .size(), greaterThan(0));
+        assertThat(delegate.getSpatialOps()
+                .size(), is(SPATIAL_OPERATORS.values().length));
+        assertThat(delegate.getTemporalOps()
+                .size(), is(TEMPORAL_OPERATORS.values().length));
+        assertThat(delegate.getTemporalOperands()
+                .size(), greaterThan(0));
     }
 
     @Test
     public void testNoComparisonOps() {
         FilterCapabilities capabilities = MockWfsServer.getFilterCapabilities();
         capabilities.setScalarCapabilities(null);
-        WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType, capabilities,
-                Wfs20Constants.EPSG_4326_URN, null, WfsConstants.LAT_LON_ORDER);
+        WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType,
+                capabilities,
+                Wfs20Constants.EPSG_4326_URN,
+                null,
+                WfsConstants.LAT_LON_ORDER);
         assertThat(delegate.isLogicalOps(), is(false));
         assertThat(delegate.isEpsg4326(), is(true));
         assertThat(delegate.isSortingSupported(), is(true));
         assertThat(delegate.getSrsName(), is(Wfs20Constants.EPSG_4326_URN));
-        assertThat(delegate.getComparisonOps().size(), is(0));
-        assertThat(delegate.getGeometryOperands().size(), greaterThan(0));
-        assertThat(delegate.getSpatialOps().size(), is(SPATIAL_OPERATORS.values().length));
-        assertThat(delegate.getTemporalOps().size(), is(TEMPORAL_OPERATORS.values().length));
-        assertThat(delegate.getTemporalOperands().size(), greaterThan(0));
+        assertThat(delegate.getComparisonOps()
+                .size(), is(0));
+        assertThat(delegate.getGeometryOperands()
+                .size(), greaterThan(0));
+        assertThat(delegate.getSpatialOps()
+                .size(), is(SPATIAL_OPERATORS.values().length));
+        assertThat(delegate.getTemporalOps()
+                .size(), is(TEMPORAL_OPERATORS.values().length));
+        assertThat(delegate.getTemporalOperands()
+                .size(), greaterThan(0));
     }
 
     @Test
     public void testNoSpatialOps() {
         FilterCapabilities capabilities = MockWfsServer.getFilterCapabilities();
         capabilities.setSpatialCapabilities(null);
-        WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType, capabilities,
-                Wfs20Constants.EPSG_4326_URN, null, WfsConstants.LAT_LON_ORDER);
+        WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType,
+                capabilities,
+                Wfs20Constants.EPSG_4326_URN,
+                null,
+                WfsConstants.LAT_LON_ORDER);
         assertThat(delegate.isLogicalOps(), is(true));
         assertThat(delegate.isEpsg4326(), is(true));
         assertThat(delegate.isSortingSupported(), is(true));
         assertThat(delegate.getSrsName(), is(Wfs20Constants.EPSG_4326_URN));
-        assertThat(delegate.getComparisonOps().size(), is(COMPARISON_OPERATORS.values().length));
-        assertThat(delegate.getGeometryOperands().size(), is(0));
-        assertThat(delegate.getSpatialOps().size(), is(0));
-        assertThat(delegate.getTemporalOps().size(), is(TEMPORAL_OPERATORS.values().length));
-        assertThat(delegate.getTemporalOperands().size(), greaterThan(0));
+        assertThat(delegate.getComparisonOps()
+                .size(), is(COMPARISON_OPERATORS.values().length));
+        assertThat(delegate.getGeometryOperands()
+                .size(), is(0));
+        assertThat(delegate.getSpatialOps()
+                .size(), is(0));
+        assertThat(delegate.getTemporalOps()
+                .size(), is(TEMPORAL_OPERATORS.values().length));
+        assertThat(delegate.getTemporalOperands()
+                .size(), greaterThan(0));
     }
 
     @Test
     public void testNoTemporalOps() {
         FilterCapabilities capabilities = MockWfsServer.getFilterCapabilities();
         capabilities.setTemporalCapabilities(null);
-        WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType, capabilities,
-                Wfs20Constants.EPSG_4326_URN, null, WfsConstants.LAT_LON_ORDER);
+        WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType,
+                capabilities,
+                Wfs20Constants.EPSG_4326_URN,
+                null,
+                WfsConstants.LAT_LON_ORDER);
         assertThat(delegate.isLogicalOps(), is(true));
         assertThat(delegate.isEpsg4326(), is(true));
         assertThat(delegate.isSortingSupported(), is(true));
         assertThat(delegate.getSrsName(), is(Wfs20Constants.EPSG_4326_URN));
-        assertThat(delegate.getComparisonOps().size(), is(COMPARISON_OPERATORS.values().length));
-        assertThat(delegate.getGeometryOperands().size(), greaterThan(0));
-        assertThat(delegate.getSpatialOps().size(), is(SPATIAL_OPERATORS.values().length));
-        assertThat(delegate.getTemporalOps().size(), is(0));
-        assertThat(delegate.getTemporalOperands().size(), is(0));
+        assertThat(delegate.getComparisonOps()
+                .size(), is(COMPARISON_OPERATORS.values().length));
+        assertThat(delegate.getGeometryOperands()
+                .size(), greaterThan(0));
+        assertThat(delegate.getSpatialOps()
+                .size(), is(SPATIAL_OPERATORS.values().length));
+        assertThat(delegate.getTemporalOps()
+                .size(), is(0));
+        assertThat(delegate.getTemporalOperands()
+                .size(), is(0));
     }
 
     @Test
@@ -287,14 +325,20 @@ public class TestWfsFilterDelegate {
         }
 
         // Perform Test
-        WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType, capabilities,
-                Wfs20Constants.EPSG_4326_URN, null, WfsConstants.LAT_LON_ORDER);
+        WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType,
+                capabilities,
+                Wfs20Constants.EPSG_4326_URN,
+                null,
+                WfsConstants.LAT_LON_ORDER);
 
         // Verify
         assertThat(delegate.isSortingSupported(), is(true));
-        assertThat(delegate.getAllowedSortOrders().size(), is(2));
-        assertThat(delegate.getAllowedSortOrders().contains(SortOrder.ASCENDING), is(true));
-        assertThat(delegate.getAllowedSortOrders().contains(SortOrder.DESCENDING), is(true));
+        assertThat(delegate.getAllowedSortOrders()
+                .size(), is(2));
+        assertThat(delegate.getAllowedSortOrders()
+                .contains(SortOrder.ASCENDING), is(true));
+        assertThat(delegate.getAllowedSortOrders()
+                .contains(SortOrder.DESCENDING), is(true));
     }
 
     @Test
@@ -320,18 +364,32 @@ public class TestWfsFilterDelegate {
         String mockFeatureProperty = sequentialTestMockHolder.getMockFeatureProperty();
         String mockFeatureType = sequentialTestMockHolder.getMockFeatureType();
 
-        DateTime startDate = new DateTime(2014, 01, 01, 01, 01, 01, 123,
+        DateTime startDate = new DateTime(2014,
+                01,
+                01,
+                01,
+                01,
+                01,
+                123,
                 DateTimeZone.forID("-07:00"));
-        DateTime endDate = new DateTime(2014, 01, 02, 01, 01, 01, 123,
+        DateTime endDate = new DateTime(2014,
+                01,
+                02,
+                01,
+                01,
+                01,
+                123,
                 DateTimeZone.forID("-07:00"));
 
         // Perform Test
-        FilterType filter = delegate
-                .during(mockMetacardAttribute, startDate.toDate(), endDate.toDate());
+        FilterType filter = delegate.during(mockMetacardAttribute,
+                startDate.toDate(),
+                endDate.toDate());
 
         //Verify
-        assertThat(filter.getTemporalOps().getName().toString(),
-                is("{http://www.opengis.net/fes/2.0}During"));
+        assertThat(filter.getTemporalOps()
+                .getName()
+                .toString(), is("{http://www.opengis.net/fes/2.0}During"));
         BinaryTemporalOpType binaryTemporalOpType = (BinaryTemporalOpType) filter.getTemporalOps()
                 .getValue();
         assertThat(binaryTemporalOpType.isSetValueReference(), is(true));
@@ -340,10 +398,16 @@ public class TestWfsFilterDelegate {
         TimePeriodType timePeriod = (TimePeriodType) binaryTemporalOpType.getExpression()
                 .getValue();
 
-        assertThat(timePeriod.getBeginPosition().getValue().get(0), is("2014-01-01T08:01:01Z"));
-        assertThat(timePeriod.getEndPosition().getValue().get(0), is("2014-01-02T08:01:01Z"));
-        assertThat(timePeriod.getId(), is(matchesPattern(new PatternMatcher(
-                sequence(mockFeatureType, ".", oneOrMore(anyCharacterIn("0-9")))))));
+        assertThat(timePeriod.getBeginPosition()
+                .getValue()
+                .get(0), is("2014-01-01T08:01:01Z"));
+        assertThat(timePeriod.getEndPosition()
+                .getValue()
+                .get(0), is("2014-01-02T08:01:01Z"));
+        assertThat(timePeriod.getId(),
+                is(matchesPattern(new PatternMatcher(sequence(mockFeatureType,
+                        ".",
+                        oneOrMore(anyCharacterIn("0-9")))))));
 
     }
 
@@ -352,8 +416,11 @@ public class TestWfsFilterDelegate {
      * Verify that when Feature property "myFeatureProperty" is not defined in the Feature schema as a {http://www.opengis.net/gml/3.2}TimePeriodType
      * an IllegalArgumentException is thrown.
      */ public void testDuringPropertyIsNotOfTemporalType() throws Throwable {
-        testSequentialPropertyIsNotOfTemporalType("during", new DateTime().minusDays(365).toDate(),
-                new DateTime().minusDays(10).toDate());
+        testSequentialPropertyIsNotOfTemporalType("during",
+                new DateTime().minusDays(365)
+                        .toDate(),
+                new DateTime().minusDays(10)
+                        .toDate());
     }
 
     @Test
@@ -390,15 +457,17 @@ public class TestWfsFilterDelegate {
          */
         DateTimeUtils.setCurrentMillisFixed(now.getMillis());
 
-        String startDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC)
+        String startDate = ISODateTimeFormat.dateTimeNoMillis()
+                .withZone(DateTimeZone.UTC)
                 .print(now.minus(duration));
 
         // Perform Test
         FilterType filter = delegate.relative(mockMetacardAttribute, duration);
 
         //Verify
-        assertThat(filter.getTemporalOps().getName().toString(),
-                is("{http://www.opengis.net/fes/2.0}During"));
+        assertThat(filter.getTemporalOps()
+                .getName()
+                .toString(), is("{http://www.opengis.net/fes/2.0}During"));
         BinaryTemporalOpType binaryTemporalOpType = (BinaryTemporalOpType) filter.getTemporalOps()
                 .getValue();
         assertThat(binaryTemporalOpType.isSetValueReference(), is(true));
@@ -406,11 +475,19 @@ public class TestWfsFilterDelegate {
         assertThat(binaryTemporalOpType.isSetExpression(), is(true));
         TimePeriodType timePeriod = (TimePeriodType) binaryTemporalOpType.getExpression()
                 .getValue();
-        assertThat(timePeriod.getBeginPosition().getValue().get(0), is(startDate.toString()));
-        assertThat(timePeriod.getEndPosition().getValue().get(0),
-                is(ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(now)));
-        assertThat(timePeriod.getId(), is(matchesPattern(new PatternMatcher(
-                sequence(mockFeatureType, ".", oneOrMore(anyCharacterIn("0-9")))))));
+        assertThat(timePeriod.getBeginPosition()
+                .getValue()
+                .get(0), is(startDate.toString()));
+        assertThat(timePeriod.getEndPosition()
+                        .getValue()
+                        .get(0),
+                is(ISODateTimeFormat.dateTimeNoMillis()
+                        .withZone(DateTimeZone.UTC)
+                        .print(now)));
+        assertThat(timePeriod.getId(),
+                is(matchesPattern(new PatternMatcher(sequence(mockFeatureType,
+                        ".",
+                        oneOrMore(anyCharacterIn("0-9")))))));
 
         // Reset the System time
         DateTimeUtils.setCurrentMillisSystem();
@@ -449,7 +526,9 @@ public class TestWfsFilterDelegate {
      */
     @Test(expected = IllegalArgumentException.class)
     public void testAfterPropertyIsNotOfTemporalType() throws Throwable {
-        testSequentialPropertyIsNotOfTemporalType("after", new DateTime().minusDays(365).toDate());
+        testSequentialPropertyIsNotOfTemporalType("after",
+                new DateTime().minusDays(365)
+                        .toDate());
     }
 
     /**
@@ -471,8 +550,8 @@ public class TestWfsFilterDelegate {
         testSequentialPropertyIsOfTemporalType("before", "{http://www.opengis.net/fes/2.0}Before");
     }
 
-    private void testSequentialPropertyIsOfTemporalType(String methName,
-            String temporalOpName) throws Exception {
+    private void testSequentialPropertyIsOfTemporalType(String methName, String temporalOpName)
+            throws Exception {
         SequentialTestMockHolder sequentialTestMockHolder = new SequentialTestMockHolder().invoke();
         WfsFilterDelegate delegate = sequentialTestMockHolder.getDelegate();
         String mockMetacardAttribute = sequentialTestMockHolder.getMockMetacardAttribute();
@@ -483,11 +562,14 @@ public class TestWfsFilterDelegate {
 
         // Perform Test
         Method method = WfsFilterDelegate.class.getMethod(methName, String.class, Date.class);
-        FilterType filter = (FilterType) method
-                .invoke(delegate, mockMetacardAttribute, date.toDate());
+        FilterType filter = (FilterType) method.invoke(delegate,
+                mockMetacardAttribute,
+                date.toDate());
 
         //Verify
-        assertThat(filter.getTemporalOps().getName().toString(), is(temporalOpName));
+        assertThat(filter.getTemporalOps()
+                .getName()
+                .toString(), is(temporalOpName));
         BinaryTemporalOpType binaryTemporalOpType = (BinaryTemporalOpType) filter.getTemporalOps()
                 .getValue();
         assertThat(binaryTemporalOpType.isSetValueReference(), is(true));
@@ -495,10 +577,16 @@ public class TestWfsFilterDelegate {
         assertThat(binaryTemporalOpType.isSetExpression(), is(true));
         TimeInstantType timeInstant = (TimeInstantType) binaryTemporalOpType.getExpression()
                 .getValue();
-        assertThat(timeInstant.getTimePosition().getValue().get(0),
-                is(ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(date)));
-        assertThat(timeInstant.getId(), is(matchesPattern(new PatternMatcher(
-                sequence(mockFeatureType, ".", oneOrMore(anyCharacterIn("0-9")))))));
+        assertThat(timeInstant.getTimePosition()
+                        .getValue()
+                        .get(0),
+                is(ISODateTimeFormat.dateTimeNoMillis()
+                        .withZone(DateTimeZone.UTC)
+                        .print(date)));
+        assertThat(timeInstant.getId(),
+                is(matchesPattern(new PatternMatcher(sequence(mockFeatureType,
+                        ".",
+                        oneOrMore(anyCharacterIn("0-9")))))));
     }
 
     /**
@@ -508,11 +596,12 @@ public class TestWfsFilterDelegate {
     @Test(expected = IllegalArgumentException.class)
     public void testBeforePropertyIsNotOfTemporalType() throws Throwable {
         testSequentialPropertyIsNotOfTemporalType("before",
-                new DateTime().minusDays(365).toDate());
+                new DateTime().minusDays(365)
+                        .toDate());
     }
 
-    private void testSequentialPropertyIsNotOfTemporalType(String methName,
-            Object... inputParams) throws Throwable {
+    private void testSequentialPropertyIsNotOfTemporalType(String methName, Object... inputParams)
+            throws Throwable {
         String mockMetacardAttribute = "myMetacardAttribute";
         String mockFeatureType = "myFeatureType";
         String mockFeatureProperty = "myFeatureProperty";
@@ -522,16 +611,18 @@ public class TestWfsFilterDelegate {
         when(mockFeatureMetacardType.getName()).thenReturn(mockFeatureType);
         List<String> mockTemporalProperties = Collections.emptyList();
         when(mockFeatureMetacardType.getTemporalProperties()).thenReturn(mockTemporalProperties);
-        FeatureAttributeDescriptor mockFeatureAttributeDescriptor = mock(
-                FeatureAttributeDescriptor.class);
+        FeatureAttributeDescriptor mockFeatureAttributeDescriptor =
+                mock(FeatureAttributeDescriptor.class);
         when(mockFeatureAttributeDescriptor.isIndexed()).thenReturn(true);
         when(mockFeatureAttributeDescriptor.getPropertyName()).thenReturn(mockFeatureProperty);
-        when(mockFeatureMetacardType.getAttributeDescriptor(mockFeatureProperty))
-                .thenReturn(mockFeatureAttributeDescriptor);
+        when(mockFeatureMetacardType.getAttributeDescriptor(mockFeatureProperty)).thenReturn(
+                mockFeatureAttributeDescriptor);
         MetacardMapper mockMapper = mock(MetacardMapper.class);
         when(mockMapper.getFeatureProperty(mockMetacardAttribute)).thenReturn(mockFeatureProperty);
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType,
-                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, mockMapper,
+                MockWfsServer.getFilterCapabilities(),
+                Wfs20Constants.EPSG_4326_URN,
+                mockMapper,
                 WfsConstants.LAT_LON_ORDER);
 
         try {
@@ -545,7 +636,8 @@ public class TestWfsFilterDelegate {
                             // Autoboxing is a small problem with reflection when trying to be too clever
                             return (o instanceof Long) ? long.class : o.getClass();
                         }
-                    }).toArray(Class.class);
+                    })
+                    .toArray(Class.class);
 
             Method method = WfsFilterDelegate.class.getMethod(methName, classTypes);
             method.invoke(delegate, methParams);
@@ -567,8 +659,11 @@ public class TestWfsFilterDelegate {
         FilterType filter = delegate.not(filterToBeNoted);
 
         //Verify
-        assertThat(filter.getLogicOps().getName().toString(), is(LOGICAL_NOT_NAME));
-        UnaryLogicOpType logicOpType = (UnaryLogicOpType) filter.getLogicOps().getValue();
+        assertThat(filter.getLogicOps()
+                .getName()
+                .toString(), is(LOGICAL_NOT_NAME));
+        UnaryLogicOpType logicOpType = (UnaryLogicOpType) filter.getLogicOps()
+                .getValue();
 
         PropertyIsLikeType compOpsType1 = (PropertyIsLikeType) logicOpType.getComparisonOps()
                 .getValue();
@@ -604,10 +699,14 @@ public class TestWfsFilterDelegate {
         FilterType filter = (FilterType) method.invoke(delegate, filtersToCombine);
 
         //Verify
-        assertThat(filter.getLogicOps().getName().toString(), is(compOpName));
-        BinaryLogicOpType logicOpType = (BinaryLogicOpType) filter.getLogicOps().getValue();
+        assertThat(filter.getLogicOps()
+                .getName()
+                .toString(), is(compOpName));
+        BinaryLogicOpType logicOpType = (BinaryLogicOpType) filter.getLogicOps()
+                .getValue();
 
-        Assert.assertThat(logicOpType.getComparisonOpsOrSpatialOpsOrTemporalOps().size(), is(2));
+        Assert.assertThat(logicOpType.getComparisonOpsOrSpatialOpsOrTemporalOps()
+                .size(), is(2));
 
         for (JAXBElement<?> jaxbElement : logicOpType.getComparisonOpsOrSpatialOpsOrTemporalOps()) {
             PropertyIsLikeType compOpsType = (PropertyIsLikeType) jaxbElement.getValue();
@@ -625,19 +724,25 @@ public class TestWfsFilterDelegate {
         String mockType = "myType";
         WfsFilterDelegate delegate = mockFeatureMetacardCreateDelegate(mockProperty, mockType);
 
-        FilterType spatialFilter1 = delegate
-                .dwithin(Metacard.ANY_GEO, "POINT (30 10)", Double.valueOf(1000));
+        FilterType spatialFilter1 = delegate.dwithin(Metacard.ANY_GEO,
+                "POINT (30 10)",
+                Double.valueOf(1000));
 
         //Perform Test
         FilterType filter = delegate.not(spatialFilter1);
 
         //Verify
-        assertThat(filter.getLogicOps().getName().toString(), is(LOGICAL_NOT_NAME));
-        UnaryLogicOpType logicOpType = (UnaryLogicOpType) filter.getLogicOps().getValue();
+        assertThat(filter.getLogicOps()
+                .getName()
+                .toString(), is(LOGICAL_NOT_NAME));
+        UnaryLogicOpType logicOpType = (UnaryLogicOpType) filter.getLogicOps()
+                .getValue();
         DistanceBufferType spatialOpsType1 = (DistanceBufferType) logicOpType.getSpatialOps()
                 .getValue();
-        assertThat(Double.toString(spatialOpsType1.getDistance().getValue()),
-                is(Double.valueOf(1000).toString()));
+        assertThat(Double.toString(spatialOpsType1.getDistance()
+                        .getValue()),
+                is(Double.valueOf(1000)
+                        .toString()));
 
     }
 
@@ -656,10 +761,12 @@ public class TestWfsFilterDelegate {
         String mockType = "myType";
         WfsFilterDelegate delegate = mockFeatureMetacardCreateDelegate(mockProperty, mockType);
 
-        FilterType spatialFilter1 = delegate
-                .dwithin(Metacard.ANY_GEO, "POINT (30 10)", Double.valueOf(1000));
-        FilterType spatialFilter2 = delegate
-                .dwithin(Metacard.ANY_GEO, "POINT (50 10)", Double.valueOf(1500));
+        FilterType spatialFilter1 = delegate.dwithin(Metacard.ANY_GEO,
+                "POINT (30 10)",
+                Double.valueOf(1000));
+        FilterType spatialFilter2 = delegate.dwithin(Metacard.ANY_GEO,
+                "POINT (50 10)",
+                Double.valueOf(1500));
 
         List<FilterType> filtersToCombine = new ArrayList<FilterType>();
         filtersToCombine.add(spatialFilter1);
@@ -670,17 +777,28 @@ public class TestWfsFilterDelegate {
         FilterType filter = (FilterType) method.invoke(delegate, filtersToCombine);
 
         //Verify
-        assertThat(filter.getLogicOps().getName().toString(), is(compOpName));
-        BinaryLogicOpType logicOpType = (BinaryLogicOpType) filter.getLogicOps().getValue();
-        DistanceBufferType spatialOpsType1 = (DistanceBufferType) logicOpType
-                .getComparisonOpsOrSpatialOpsOrTemporalOps().get(0).getValue();
-        assertThat(Double.toString(spatialOpsType1.getDistance().getValue()),
-                is(Double.valueOf(1000).toString()));
+        assertThat(filter.getLogicOps()
+                .getName()
+                .toString(), is(compOpName));
+        BinaryLogicOpType logicOpType = (BinaryLogicOpType) filter.getLogicOps()
+                .getValue();
+        DistanceBufferType spatialOpsType1 =
+                (DistanceBufferType) logicOpType.getComparisonOpsOrSpatialOpsOrTemporalOps()
+                        .get(0)
+                        .getValue();
+        assertThat(Double.toString(spatialOpsType1.getDistance()
+                        .getValue()),
+                is(Double.valueOf(1000)
+                        .toString()));
 
-        DistanceBufferType spatialOpsType2 = (DistanceBufferType) logicOpType
-                .getComparisonOpsOrSpatialOpsOrTemporalOps().get(1).getValue();
-        assertThat(Double.toString(spatialOpsType2.getDistance().getValue()),
-                is(Double.valueOf(1500).toString()));
+        DistanceBufferType spatialOpsType2 =
+                (DistanceBufferType) logicOpType.getComparisonOpsOrSpatialOpsOrTemporalOps()
+                        .get(1)
+                        .getValue();
+        assertThat(Double.toString(spatialOpsType2.getDistance()
+                        .getValue()),
+                is(Double.valueOf(1500)
+                        .toString()));
     }
 
     /**
@@ -695,14 +813,17 @@ public class TestWfsFilterDelegate {
         String mockType = "myType";
         WfsFilterDelegate delegate = mockFeatureMetacardCreateDelegate(mockProperty, mockType);
 
-        FilterType spatialFilter = delegate
-                .dwithin(Metacard.ANY_GEO, "POINT (30 10)", Double.valueOf(1000));
-        FilterType temporalFilter = delegate
-                .during(mockProperty, new DateTime().minusDays(365).toDate(),
-                        new DateTime().minusDays(10).toDate());
+        FilterType spatialFilter = delegate.dwithin(Metacard.ANY_GEO,
+                "POINT (30 10)",
+                Double.valueOf(1000));
+        FilterType temporalFilter = delegate.during(mockProperty,
+                new DateTime().minusDays(365)
+                        .toDate(),
+                new DateTime().minusDays(10)
+                        .toDate());
 
-        List<FilterType> filtersToBeAnded = new ArrayList<FilterType>(
-                Arrays.asList(spatialFilter, temporalFilter));
+        List<FilterType> filtersToBeAnded = new ArrayList<FilterType>(Arrays.asList(spatialFilter,
+                temporalFilter));
 
         //Perform Test
         FilterType filter = delegate.and(filtersToBeAnded);
@@ -711,16 +832,24 @@ public class TestWfsFilterDelegate {
         if (filter.getLogicOps() == null) {
             fail("No AND/OR element found in the generated FilterType.");
         }
-        assertEquals(LOGICAL_AND_NAME, filter.getLogicOps().getName().toString());
-        BinaryLogicOpType logicOpType = (BinaryLogicOpType) filter.getLogicOps().getValue();
+        assertEquals(LOGICAL_AND_NAME,
+                filter.getLogicOps()
+                        .getName()
+                        .toString());
+        BinaryLogicOpType logicOpType = (BinaryLogicOpType) filter.getLogicOps()
+                .getValue();
 
         //Verify two items were AND'ed
-        assertEquals(2, logicOpType.getComparisonOpsOrSpatialOpsOrTemporalOps().size());
+        assertEquals(2,
+                logicOpType.getComparisonOpsOrSpatialOpsOrTemporalOps()
+                        .size());
 
         //Verify first is spatial, second is temporal
-        assertTrue(logicOpType.getComparisonOpsOrSpatialOpsOrTemporalOps().get(0)
+        assertTrue(logicOpType.getComparisonOpsOrSpatialOpsOrTemporalOps()
+                .get(0)
                 .getValue() instanceof DistanceBufferType);
-        assertTrue(logicOpType.getComparisonOpsOrSpatialOpsOrTemporalOps().get(1)
+        assertTrue(logicOpType.getComparisonOpsOrSpatialOpsOrTemporalOps()
+                .get(1)
                 .getValue() instanceof BinaryTemporalOpType);
     }
 
@@ -734,8 +863,8 @@ public class TestWfsFilterDelegate {
         testLogicalCombinationOfLogicals("and", LOGICAL_AND_NAME);
     }
 
-    private void testLogicalCombinationOfLogicals(String methName, String compOpName) throws
-            Exception {
+    private void testLogicalCombinationOfLogicals(String methName, String compOpName)
+            throws Exception {
         String mockProperty = "myPropertyName";
         String mockType = "myType";
         WfsFilterDelegate delegate = mockFeatureMetacardCreateDelegate(mockProperty, mockType);
@@ -746,10 +875,12 @@ public class TestWfsFilterDelegate {
         subFiltersToBeOred.add(compFilter1);
         subFiltersToBeOred.add(compFilter2);
 
-        FilterType spatialFilter1 = delegate
-                .dwithin(Metacard.ANY_GEO, "POINT (30 10)", Double.valueOf(1000));
-        FilterType spatialFilter2 = delegate
-                .dwithin(Metacard.ANY_GEO, "POINT (50 10)", Double.valueOf(1500));
+        FilterType spatialFilter1 = delegate.dwithin(Metacard.ANY_GEO,
+                "POINT (30 10)",
+                Double.valueOf(1000));
+        FilterType spatialFilter2 = delegate.dwithin(Metacard.ANY_GEO,
+                "POINT (50 10)",
+                Double.valueOf(1500));
         List<FilterType> subFiltersToBeAnded = new ArrayList<>();
         subFiltersToBeAnded.add(spatialFilter1);
         subFiltersToBeAnded.add(spatialFilter2);
@@ -762,15 +893,22 @@ public class TestWfsFilterDelegate {
         FilterType filter = (FilterType) method.invoke(delegate, filtersToCombine);
 
         //Verify
-        assertThat(filter.getLogicOps().getName().toString(), is(compOpName));
-        BinaryLogicOpType logicOpType = (BinaryLogicOpType) filter.getLogicOps().getValue();
+        assertThat(filter.getLogicOps()
+                .getName()
+                .toString(), is(compOpName));
+        BinaryLogicOpType logicOpType = (BinaryLogicOpType) filter.getLogicOps()
+                .getValue();
 
-        BinaryLogicOpType logicOrType = (BinaryLogicOpType) logicOpType
-                .getComparisonOpsOrSpatialOpsOrTemporalOps().get(0).getValue();
-        assertThat(
-                logicOpType.getComparisonOpsOrSpatialOpsOrTemporalOps().get(0).getName().toString(),
-                is(LOGICAL_OR_NAME));
-        assertThat(logicOrType.getComparisonOpsOrSpatialOpsOrTemporalOps().size(), is(2));
+        BinaryLogicOpType logicOrType =
+                (BinaryLogicOpType) logicOpType.getComparisonOpsOrSpatialOpsOrTemporalOps()
+                        .get(0)
+                        .getValue();
+        assertThat(logicOpType.getComparisonOpsOrSpatialOpsOrTemporalOps()
+                .get(0)
+                .getName()
+                .toString(), is(LOGICAL_OR_NAME));
+        assertThat(logicOrType.getComparisonOpsOrSpatialOpsOrTemporalOps()
+                .size(), is(2));
 
         for (JAXBElement<?> jaxbElement : logicOrType.getComparisonOpsOrSpatialOpsOrTemporalOps()) {
             PropertyIsLikeType compOpsType = (PropertyIsLikeType) jaxbElement.getValue();
@@ -780,21 +918,32 @@ public class TestWfsFilterDelegate {
             assertThat(literal, is(LITERAL));
         }
 
-        BinaryLogicOpType logicAndType = (BinaryLogicOpType) logicOpType
-                .getComparisonOpsOrSpatialOpsOrTemporalOps().get(1).getValue();
-        assertThat(
-                logicOpType.getComparisonOpsOrSpatialOpsOrTemporalOps().get(1).getName().toString(),
-                is(LOGICAL_AND_NAME));
+        BinaryLogicOpType logicAndType =
+                (BinaryLogicOpType) logicOpType.getComparisonOpsOrSpatialOpsOrTemporalOps()
+                        .get(1)
+                        .getValue();
+        assertThat(logicOpType.getComparisonOpsOrSpatialOpsOrTemporalOps()
+                .get(1)
+                .getName()
+                .toString(), is(LOGICAL_AND_NAME));
 
-        DistanceBufferType spatialOpsType1 = (DistanceBufferType) logicAndType
-                .getComparisonOpsOrSpatialOpsOrTemporalOps().get(0).getValue();
-        assertThat(Double.toString(spatialOpsType1.getDistance().getValue()),
-                is(Double.valueOf(1000).toString()));
+        DistanceBufferType spatialOpsType1 =
+                (DistanceBufferType) logicAndType.getComparisonOpsOrSpatialOpsOrTemporalOps()
+                        .get(0)
+                        .getValue();
+        assertThat(Double.toString(spatialOpsType1.getDistance()
+                        .getValue()),
+                is(Double.valueOf(1000)
+                        .toString()));
 
-        DistanceBufferType spatialOpsType2 = (DistanceBufferType) logicAndType
-                .getComparisonOpsOrSpatialOpsOrTemporalOps().get(1).getValue();
-        assertThat(Double.toString(spatialOpsType2.getDistance().getValue()),
-                is(Double.valueOf(1500).toString()));
+        DistanceBufferType spatialOpsType2 =
+                (DistanceBufferType) logicAndType.getComparisonOpsOrSpatialOpsOrTemporalOps()
+                        .get(1)
+                        .getValue();
+        assertThat(Double.toString(spatialOpsType2.getDistance()
+                        .getValue()),
+                is(Double.valueOf(1500)
+                        .toString()));
     }
 
     @Test
@@ -813,21 +962,31 @@ public class TestWfsFilterDelegate {
         FilterType filter = delegate.not(delegate.or(subFiltersToBeOred));
 
         //Verify
-        assertThat(filter.getLogicOps().getName().toString(), is(LOGICAL_NOT_NAME));
-        UnaryLogicOpType logicOpType = (UnaryLogicOpType) filter.getLogicOps().getValue();
+        assertThat(filter.getLogicOps()
+                .getName()
+                .toString(), is(LOGICAL_NOT_NAME));
+        UnaryLogicOpType logicOpType = (UnaryLogicOpType) filter.getLogicOps()
+                .getValue();
 
-        BinaryLogicOpType logicOrType = (BinaryLogicOpType) logicOpType.getLogicOps().getValue();
-        assertThat(logicOpType.getLogicOps().getName().toString(), is(LOGICAL_OR_NAME));
+        BinaryLogicOpType logicOrType = (BinaryLogicOpType) logicOpType.getLogicOps()
+                .getValue();
+        assertThat(logicOpType.getLogicOps()
+                .getName()
+                .toString(), is(LOGICAL_OR_NAME));
 
-        PropertyIsLikeType compOpsType1 = (PropertyIsLikeType) logicOrType
-                .getComparisonOpsOrSpatialOpsOrTemporalOps().get(0).getValue();
+        PropertyIsLikeType compOpsType1 =
+                (PropertyIsLikeType) logicOrType.getComparisonOpsOrSpatialOpsOrTemporalOps()
+                        .get(0)
+                        .getValue();
         String valRef1 = fetchPropertyIsLikeExpression(compOpsType1, VALUE_REFERENCE);
         assertThat(valRef1, is(mockProperty));
         String literal1 = fetchPropertyIsLikeExpression(compOpsType1, LITERAL);
         assertThat(literal1, is(LITERAL));
 
-        PropertyIsLikeType compOpsType2 = (PropertyIsLikeType) logicOrType
-                .getComparisonOpsOrSpatialOpsOrTemporalOps().get(1).getValue();
+        PropertyIsLikeType compOpsType2 =
+                (PropertyIsLikeType) logicOrType.getComparisonOpsOrSpatialOpsOrTemporalOps()
+                        .get(1)
+                        .getValue();
         String valRef2 = fetchPropertyIsLikeExpression(compOpsType2, VALUE_REFERENCE);
         assertThat(valRef2, is(mockProperty));
         String literal2 = fetchPropertyIsLikeExpression(compOpsType2, LITERAL);
@@ -859,7 +1018,8 @@ public class TestWfsFilterDelegate {
         // Only one filter was provided to combinator so only that filter is returned as not
         // enough filters to combine together
         assertNull(filter.getLogicOps());
-        PropertyIsLikeType compOpsType1 = (PropertyIsLikeType) filter.getComparisonOps().getValue();
+        PropertyIsLikeType compOpsType1 = (PropertyIsLikeType) filter.getComparisonOps()
+                .getValue();
         String valRef1 = fetchPropertyIsLikeExpression(compOpsType1, VALUE_REFERENCE);
         assertThat(valRef1, is(mockProperty));
         String literal1 = fetchPropertyIsLikeExpression(compOpsType1, LITERAL);
@@ -945,12 +1105,12 @@ public class TestWfsFilterDelegate {
         when(mockFeatureMetacardType.getTextualProperties()).thenReturn(mockProperties);
         when(mockFeatureMetacardType.getTemporalProperties()).thenReturn(mockProperties);
         when(mockFeatureMetacardType.getName()).thenReturn(mockType);
-        FeatureAttributeDescriptor mockFeatureAttributeDescriptor = mock(
-                FeatureAttributeDescriptor.class);
+        FeatureAttributeDescriptor mockFeatureAttributeDescriptor =
+                mock(FeatureAttributeDescriptor.class);
         when(mockFeatureAttributeDescriptor.isIndexed()).thenReturn(true);
         when(mockFeatureAttributeDescriptor.getPropertyName()).thenReturn(mockProperty);
-        when(mockFeatureMetacardType.getAttributeDescriptor(mockProperty))
-                .thenReturn(mockFeatureAttributeDescriptor);
+        when(mockFeatureMetacardType.getAttributeDescriptor(mockProperty)).thenReturn(
+                mockFeatureAttributeDescriptor);
 
         FilterCapabilities filterCap = MockWfsServer.getFilterCapabilities();
 
@@ -960,12 +1120,17 @@ public class TestWfsFilterDelegate {
         for (COMPARISON_OPERATORS compOp : COMPARISON_OPERATORS.values()) {
             ComparisonOperatorType operator = new ComparisonOperatorType();
             operator.setName(compOp.toString());
-            scalar.getComparisonOperators().getComparisonOperator().add(operator);
+            scalar.getComparisonOperators()
+                    .getComparisonOperator()
+                    .add(operator);
         }
         filterCap.setScalarCapabilities(scalar);
 
-        return new WfsFilterDelegate(mockFeatureMetacardType, filterCap,
-                Wfs20Constants.EPSG_4326_URN, null, WfsConstants.LAT_LON_ORDER);
+        return new WfsFilterDelegate(mockFeatureMetacardType,
+                filterCap,
+                Wfs20Constants.EPSG_4326_URN,
+                null,
+                WfsConstants.LAT_LON_ORDER);
     }
 
     @Test
@@ -979,8 +1144,9 @@ public class TestWfsFilterDelegate {
         FilterType matchIdFilter = delegate.propertyIsLike(Metacard.ID, featureId, true);
 
         //Verify
-        assertThat(((ResourceIdType) matchIdFilter.getId().get(0).getValue()).getRid(),
-                is(featureId));
+        assertThat(((ResourceIdType) matchIdFilter.getId()
+                .get(0)
+                .getValue()).getRid(), is(featureId));
     }
 
     @Test
@@ -996,8 +1162,9 @@ public class TestWfsFilterDelegate {
         FilterType matchIdFilter = delegate.propertyIsEqualTo(Metacard.ID, mockTypeFeatureId, true);
 
         //Verify
-        assertThat(((ResourceIdType) matchIdFilter.getId().get(0).getValue()).getRid(),
-                is(mockTypeFeatureId));
+        assertThat(((ResourceIdType) matchIdFilter.getId()
+                .get(0)
+                .getValue()).getRid(), is(mockTypeFeatureId));
     }
 
     @Test
@@ -1019,18 +1186,31 @@ public class TestWfsFilterDelegate {
         gmlProps.add(MOCK_GEOM);
 
         when(mockFeatureMetacardType.getGmlProperties()).thenReturn(gmlProps);
-        when(mockFeatureMetacardType.getAttributeDescriptor(MOCK_GEOM)).thenReturn(
-                new FeatureAttributeDescriptor(MOCK_GEOM, MOCK_GEOM, true, false, false, false,
-                        BasicTypes.STRING_TYPE));
+        when(mockFeatureMetacardType.getAttributeDescriptor(MOCK_GEOM)).thenReturn(new FeatureAttributeDescriptor(
+                MOCK_GEOM,
+                MOCK_GEOM,
+                true,
+                false,
+                false,
+                false,
+                BasicTypes.STRING_TYPE));
 
         SpatialOperatorType operator = new SpatialOperatorType();
         operator.setName(spatialOpType.toString());
         FilterCapabilities capabilities = MockWfsServer.getFilterCapabilities();
-        capabilities.getSpatialCapabilities().getSpatialOperators().getSpatialOperator().clear();
-        capabilities.getSpatialCapabilities().getSpatialOperators().getSpatialOperator()
+        capabilities.getSpatialCapabilities()
+                .getSpatialOperators()
+                .getSpatialOperator()
+                .clear();
+        capabilities.getSpatialCapabilities()
+                .getSpatialOperators()
+                .getSpatialOperator()
                 .add(operator);
-        return new WfsFilterDelegate(mockFeatureMetacardType, capabilities,
-                Wfs20Constants.EPSG_4326_URN, null, WfsConstants.LAT_LON_ORDER);
+        return new WfsFilterDelegate(mockFeatureMetacardType,
+                capabilities,
+                Wfs20Constants.EPSG_4326_URN,
+                null,
+                WfsConstants.LAT_LON_ORDER);
     }
 
     @Test
@@ -1040,7 +1220,8 @@ public class TestWfsFilterDelegate {
         FilterType filter = delegate.beyond(Metacard.ANY_GEO, POLYGON, DISTANCE);
 
         assertTrue(filter.isSetSpatialOps());
-        assertTrue(filter.getSpatialOps().getValue() instanceof DistanceBufferType);
+        assertTrue(filter.getSpatialOps()
+                .getValue() instanceof DistanceBufferType);
 
         assertXMLEqual(MockWfsServer.getBeyondXmlFilter(), getXmlFromMarshaller(filter));
     }
@@ -1050,9 +1231,12 @@ public class TestWfsFilterDelegate {
         WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.DWithin.toString());
 
         FilterType filter = delegate.beyond(Metacard.ANY_GEO, POLYGON, DISTANCE);
-        assertTrue(filter.getLogicOps().getValue() instanceof UnaryLogicOpType);
-        UnaryLogicOpType type = (UnaryLogicOpType) filter.getLogicOps().getValue();
-        assertTrue(type.getSpatialOps().getValue() instanceof DistanceBufferType);
+        assertTrue(filter.getLogicOps()
+                .getValue() instanceof UnaryLogicOpType);
+        UnaryLogicOpType type = (UnaryLogicOpType) filter.getLogicOps()
+                .getValue();
+        assertTrue(type.getSpatialOps()
+                .getValue() instanceof DistanceBufferType);
     }
 
     @Test
@@ -1065,7 +1249,8 @@ public class TestWfsFilterDelegate {
         WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.Contains.toString());
 
         FilterType filter = delegate.contains(Metacard.ANY_GEO, POLYGON);
-        assertTrue(filter.getSpatialOps().getValue() instanceof BinarySpatialOpType);
+        assertTrue(filter.getSpatialOps()
+                .getValue() instanceof BinarySpatialOpType);
         assertFalse(filter.isSetLogicOps());
         assertXMLEqual(MockWfsServer.getContainsXmlFilter(), getXmlFromMarshaller(filter));
     }
@@ -1079,7 +1264,8 @@ public class TestWfsFilterDelegate {
     public void testCrossesFilter() throws SAXException, IOException, JAXBException {
         WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.Crosses.toString());
         FilterType filter = delegate.crosses(Metacard.ANY_GEO, LINESTRING);
-        assertTrue(filter.getSpatialOps().getValue() instanceof BinarySpatialOpType);
+        assertTrue(filter.getSpatialOps()
+                .getValue() instanceof BinarySpatialOpType);
         assertFalse(filter.isSetLogicOps());
         assertXMLEqual(MockWfsServer.getCrossesXmlFilter(), getXmlFromMarshaller(filter));
     }
@@ -1094,7 +1280,8 @@ public class TestWfsFilterDelegate {
         WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.Disjoint.toString());
 
         FilterType filter = delegate.disjoint(Metacard.ANY_GEO, POLYGON);
-        assertTrue(filter.getSpatialOps().getValue() instanceof BinarySpatialOpType);
+        assertTrue(filter.getSpatialOps()
+                .getValue() instanceof BinarySpatialOpType);
         assertXMLEqual(MockWfsServer.getDisjointXmlFilter(), getXmlFromMarshaller(filter));
     }
 
@@ -1103,9 +1290,12 @@ public class TestWfsFilterDelegate {
         WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.BBOX.toString());
 
         FilterType filter = delegate.disjoint(Metacard.ANY_GEO, POLYGON);
-        assertTrue(filter.getLogicOps().getValue() instanceof UnaryLogicOpType);
-        UnaryLogicOpType type = (UnaryLogicOpType) filter.getLogicOps().getValue();
-        assertTrue(type.getSpatialOps().getValue() instanceof BBOXType);
+        assertTrue(filter.getLogicOps()
+                .getValue() instanceof UnaryLogicOpType);
+        UnaryLogicOpType type = (UnaryLogicOpType) filter.getLogicOps()
+                .getValue();
+        assertTrue(type.getSpatialOps()
+                .getValue() instanceof BBOXType);
         assertXMLEqual(MockWfsServer.getNotBboxXmlFilter(), getXmlFromMarshaller(filter));
     }
 
@@ -1114,9 +1304,12 @@ public class TestWfsFilterDelegate {
         WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.Intersects.toString());
 
         FilterType filter = delegate.disjoint(Metacard.ANY_GEO, POLYGON);
-        assertTrue(filter.getLogicOps().getValue() instanceof UnaryLogicOpType);
-        UnaryLogicOpType type = (UnaryLogicOpType) filter.getLogicOps().getValue();
-        assertTrue(type.getSpatialOps().getValue() instanceof BinarySpatialOpType);
+        assertTrue(filter.getLogicOps()
+                .getValue() instanceof UnaryLogicOpType);
+        UnaryLogicOpType type = (UnaryLogicOpType) filter.getLogicOps()
+                .getValue();
+        assertTrue(type.getSpatialOps()
+                .getValue() instanceof BinarySpatialOpType);
         assertXMLEqual(MockWfsServer.getNotIntersectsXmlFilter(), getXmlFromMarshaller(filter));
     }
 
@@ -1127,7 +1320,8 @@ public class TestWfsFilterDelegate {
         FilterType filter = delegate.dwithin(Metacard.ANY_GEO, POLYGON, DISTANCE);
         assertFalse(filter.isSetLogicOps());
         assertTrue(filter.isSetSpatialOps());
-        assertTrue(filter.getSpatialOps().getValue() instanceof DistanceBufferType);
+        assertTrue(filter.getSpatialOps()
+                .getValue() instanceof DistanceBufferType);
 
         assertXMLEqual(MockWfsServer.getDWithinXmlFilter(), getXmlFromMarshaller(filter));
     }
@@ -1139,7 +1333,8 @@ public class TestWfsFilterDelegate {
         FilterType filter = delegate.dwithin(Metacard.ANY_GEO, POINT, DISTANCE);
         assertFalse(filter.isSetLogicOps());
         assertTrue(filter.isSetSpatialOps());
-        assertTrue(filter.getSpatialOps().getValue() instanceof DistanceBufferType);
+        assertTrue(filter.getSpatialOps()
+                .getValue() instanceof DistanceBufferType);
         assertXMLEqual(MockWfsServer.getDWithinPointXmlFilter(), getXmlFromMarshaller(filter));
     }
 
@@ -1148,9 +1343,12 @@ public class TestWfsFilterDelegate {
         WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.Beyond.toString());
 
         FilterType filter = delegate.dwithin(Metacard.ANY_GEO, POLYGON, DISTANCE);
-        assertTrue(filter.getLogicOps().getValue() instanceof UnaryLogicOpType);
-        UnaryLogicOpType type = (UnaryLogicOpType) filter.getLogicOps().getValue();
-        assertTrue(type.getSpatialOps().getValue() instanceof DistanceBufferType);
+        assertTrue(filter.getLogicOps()
+                .getValue() instanceof UnaryLogicOpType);
+        UnaryLogicOpType type = (UnaryLogicOpType) filter.getLogicOps()
+                .getValue();
+        assertTrue(type.getSpatialOps()
+                .getValue() instanceof DistanceBufferType);
 
     }
 
@@ -1184,7 +1382,8 @@ public class TestWfsFilterDelegate {
 
         FilterType filter = delegate.intersects(Metacard.ANY_GEO, POLYGON);
 
-        assertTrue(filter.getSpatialOps().getValue() instanceof BinarySpatialOpType);
+        assertTrue(filter.getSpatialOps()
+                .getValue() instanceof BinarySpatialOpType);
         assertFalse(filter.isSetLogicOps());
         assertXMLEqual(MockWfsServer.getIntersectsXmlFilter(), getXmlFromMarshaller(filter));
     }
@@ -1195,27 +1394,46 @@ public class TestWfsFilterDelegate {
         gmlProps.add(MOCK_GEOM);
 
         when(mockFeatureMetacardType.getGmlProperties()).thenReturn(gmlProps);
-        when(mockFeatureMetacardType.getAttributeDescriptor(MOCK_GEOM)).thenReturn(
-                new FeatureAttributeDescriptor(MOCK_GEOM, MOCK_GEOM, true, false, false, false,
-                        BasicTypes.STRING_TYPE));
+        when(mockFeatureMetacardType.getAttributeDescriptor(MOCK_GEOM)).thenReturn(new FeatureAttributeDescriptor(
+                MOCK_GEOM,
+                MOCK_GEOM,
+                true,
+                false,
+                false,
+                false,
+                BasicTypes.STRING_TYPE));
 
         SpatialOperatorType operator = new SpatialOperatorType();
         operator.setName(SPATIAL_OPERATORS.Intersects.toString());
         FilterCapabilities capabilities = MockWfsServer.getFilterCapabilities();
-        capabilities.getSpatialCapabilities().getSpatialOperators().getSpatialOperator().clear();
-        capabilities.getSpatialCapabilities().getSpatialOperators().getSpatialOperator()
+        capabilities.getSpatialCapabilities()
+                .getSpatialOperators()
+                .getSpatialOperator()
+                .clear();
+        capabilities.getSpatialCapabilities()
+                .getSpatialOperators()
+                .getSpatialOperator()
                 .add(operator);
-        capabilities.getSpatialCapabilities().getGeometryOperands().getGeometryOperand().clear();
+        capabilities.getSpatialCapabilities()
+                .getGeometryOperands()
+                .getGeometryOperand()
+                .clear();
         GeometryOperand geoOperand = new GeometryOperand();
         geoOperand.setName(Wfs20Constants.ENVELOPE);
-        capabilities.getSpatialCapabilities().getGeometryOperands().getGeometryOperand()
+        capabilities.getSpatialCapabilities()
+                .getGeometryOperands()
+                .getGeometryOperand()
                 .add(geoOperand);
-        WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType, capabilities,
-                Wfs20Constants.EPSG_4326_URN, null, WfsConstants.LAT_LON_ORDER);
+        WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType,
+                capabilities,
+                Wfs20Constants.EPSG_4326_URN,
+                null,
+                WfsConstants.LAT_LON_ORDER);
 
         FilterType filter = delegate.intersects(Metacard.ANY_GEO, POLYGON);
 
-        assertTrue(filter.getSpatialOps().getValue() instanceof BinarySpatialOpType);
+        assertTrue(filter.getSpatialOps()
+                .getValue() instanceof BinarySpatialOpType);
         assertFalse(filter.isSetLogicOps());
         assertXMLEqual(MockWfsServer.getIntersectsWithEnvelopeXmlFilter(),
                 getXmlFromMarshaller(filter));
@@ -1227,22 +1445,36 @@ public class TestWfsFilterDelegate {
         gmlProps.add(MOCK_GEOM);
 
         when(mockFeatureMetacardType.getGmlProperties()).thenReturn(gmlProps);
-        when(mockFeatureMetacardType.getAttributeDescriptor(MOCK_GEOM)).thenReturn(
-                new FeatureAttributeDescriptor(MOCK_GEOM, MOCK_GEOM, true, false, false, false,
-                        BasicTypes.STRING_TYPE));
+        when(mockFeatureMetacardType.getAttributeDescriptor(MOCK_GEOM)).thenReturn(new FeatureAttributeDescriptor(
+                MOCK_GEOM,
+                MOCK_GEOM,
+                true,
+                false,
+                false,
+                false,
+                BasicTypes.STRING_TYPE));
 
         SpatialOperatorType operator = new SpatialOperatorType();
         operator.setName(SPATIAL_OPERATORS.Intersects.toString());
         FilterCapabilities capabilities = MockWfsServer.getFilterCapabilities();
-        capabilities.getSpatialCapabilities().getSpatialOperators().getSpatialOperator().clear();
-        capabilities.getSpatialCapabilities().getSpatialOperators().getSpatialOperator()
+        capabilities.getSpatialCapabilities()
+                .getSpatialOperators()
+                .getSpatialOperator()
+                .clear();
+        capabilities.getSpatialCapabilities()
+                .getSpatialOperators()
+                .getSpatialOperator()
                 .add(operator);
-        WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType, capabilities,
-                Wfs20Constants.EPSG_4326_URN, null, WfsConstants.LON_LAT_ORDER);
+        WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType,
+                capabilities,
+                Wfs20Constants.EPSG_4326_URN,
+                null,
+                WfsConstants.LON_LAT_ORDER);
 
         FilterType filter = delegate.intersects(Metacard.ANY_GEO, POLYGON);
 
-        assertTrue(filter.getSpatialOps().getValue() instanceof BinarySpatialOpType);
+        assertTrue(filter.getSpatialOps()
+                .getValue() instanceof BinarySpatialOpType);
         assertFalse(filter.isSetLogicOps());
         assertXMLEqual(MockWfsServer.getIntersectsLonLatXmlFilter(), getXmlFromMarshaller(filter));
     }
@@ -1253,27 +1485,46 @@ public class TestWfsFilterDelegate {
         gmlProps.add(MOCK_GEOM);
 
         when(mockFeatureMetacardType.getGmlProperties()).thenReturn(gmlProps);
-        when(mockFeatureMetacardType.getAttributeDescriptor(MOCK_GEOM)).thenReturn(
-                new FeatureAttributeDescriptor(MOCK_GEOM, MOCK_GEOM, true, false, false, false,
-                        BasicTypes.STRING_TYPE));
+        when(mockFeatureMetacardType.getAttributeDescriptor(MOCK_GEOM)).thenReturn(new FeatureAttributeDescriptor(
+                MOCK_GEOM,
+                MOCK_GEOM,
+                true,
+                false,
+                false,
+                false,
+                BasicTypes.STRING_TYPE));
 
         SpatialOperatorType operator = new SpatialOperatorType();
         operator.setName(SPATIAL_OPERATORS.Intersects.toString());
         FilterCapabilities capabilities = MockWfsServer.getFilterCapabilities();
-        capabilities.getSpatialCapabilities().getSpatialOperators().getSpatialOperator().clear();
-        capabilities.getSpatialCapabilities().getSpatialOperators().getSpatialOperator()
+        capabilities.getSpatialCapabilities()
+                .getSpatialOperators()
+                .getSpatialOperator()
+                .clear();
+        capabilities.getSpatialCapabilities()
+                .getSpatialOperators()
+                .getSpatialOperator()
                 .add(operator);
-        capabilities.getSpatialCapabilities().getGeometryOperands().getGeometryOperand().clear();
+        capabilities.getSpatialCapabilities()
+                .getGeometryOperands()
+                .getGeometryOperand()
+                .clear();
         GeometryOperand geoOperand = new GeometryOperand();
         geoOperand.setName(Wfs20Constants.ENVELOPE);
-        capabilities.getSpatialCapabilities().getGeometryOperands().getGeometryOperand()
+        capabilities.getSpatialCapabilities()
+                .getGeometryOperands()
+                .getGeometryOperand()
                 .add(geoOperand);
-        WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType, capabilities,
-                Wfs20Constants.EPSG_4326_URN, null, WfsConstants.LON_LAT_ORDER);
+        WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType,
+                capabilities,
+                Wfs20Constants.EPSG_4326_URN,
+                null,
+                WfsConstants.LON_LAT_ORDER);
 
         FilterType filter = delegate.intersects(Metacard.ANY_GEO, POLYGON);
 
-        assertTrue(filter.getSpatialOps().getValue() instanceof BinarySpatialOpType);
+        assertTrue(filter.getSpatialOps()
+                .getValue() instanceof BinarySpatialOpType);
         assertFalse(filter.isSetLogicOps());
         assertXMLEqual(MockWfsServer.getIntersectsWithEnvelopeLonLatXmlFilter(),
                 getXmlFromMarshaller(filter));
@@ -1285,7 +1536,8 @@ public class TestWfsFilterDelegate {
 
         FilterType filter = delegate.intersects(Metacard.ANY_GEO, POLYGON);
         assertNotNull(filter);
-        assertTrue(filter.getSpatialOps().getValue() instanceof BBOXType);
+        assertTrue(filter.getSpatialOps()
+                .getValue() instanceof BBOXType);
         assertFalse(filter.isSetLogicOps());
         assertXMLEqual(MockWfsServer.getBboxXmlFilter(), getXmlFromMarshaller(filter));
     }
@@ -1297,10 +1549,13 @@ public class TestWfsFilterDelegate {
         FilterType filter = delegate.intersects(Metacard.ANY_GEO, POLYGON);
 
         assertTrue(filter.isSetLogicOps());
-        assertTrue(filter.getLogicOps().getValue() instanceof UnaryLogicOpType);
-        UnaryLogicOpType type = (UnaryLogicOpType) filter.getLogicOps().getValue();
+        assertTrue(filter.getLogicOps()
+                .getValue() instanceof UnaryLogicOpType);
+        UnaryLogicOpType type = (UnaryLogicOpType) filter.getLogicOps()
+                .getValue();
         assertTrue(type.isSetSpatialOps());
-        assertTrue(type.getSpatialOps().getValue() instanceof BinarySpatialOpType);
+        assertTrue(type.getSpatialOps()
+                .getValue() instanceof BinarySpatialOpType);
     }
 
     @Test
@@ -1310,41 +1565,49 @@ public class TestWfsFilterDelegate {
 
     @Test
     public void testOverlapsFilter() throws Exception {
-        ImmutableMap<SPATIAL_OPERATORS, String> acceptedSpatialTypes = ImmutableMap
-                .of(SPATIAL_OPERATORS.Overlaps, MockWfsServer.getOverlapsXmlFilter());
+        ImmutableMap<SPATIAL_OPERATORS, String> acceptedSpatialTypes = ImmutableMap.of(
+                SPATIAL_OPERATORS.Overlaps,
+                MockWfsServer.getOverlapsXmlFilter());
         testBinarySpatialFilter(acceptedSpatialTypes, "overlaps");
     }
 
     @Test
     public void testTouchesFilter() throws Exception {
-        ImmutableMap<SPATIAL_OPERATORS, String> acceptedSpatialTypes = ImmutableMap
-                .of(SPATIAL_OPERATORS.Touches, MockWfsServer.getTouchesXmlFilter());
+        ImmutableMap<SPATIAL_OPERATORS, String> acceptedSpatialTypes = ImmutableMap.of(
+                SPATIAL_OPERATORS.Touches,
+                MockWfsServer.getTouchesXmlFilter());
         testBinarySpatialFilter(acceptedSpatialTypes, "touches");
     }
 
     @Test
     public void testWithinFilter() throws Exception {
-        ImmutableMap<SPATIAL_OPERATORS, String> acceptedSpatialTypes = ImmutableMap
-                .of(SPATIAL_OPERATORS.Within, MockWfsServer.getWithinXmlFilter(),
-                        SPATIAL_OPERATORS.Contains, MockWfsServer.getContainsXmlFilter());
+        ImmutableMap<SPATIAL_OPERATORS, String> acceptedSpatialTypes = ImmutableMap.of(
+                SPATIAL_OPERATORS.Within,
+                MockWfsServer.getWithinXmlFilter(),
+                SPATIAL_OPERATORS.Contains,
+                MockWfsServer.getContainsXmlFilter());
         testBinarySpatialFilter(acceptedSpatialTypes, "within");
     }
 
     private void testBinarySpatialFilter(Map<SPATIAL_OPERATORS, String> acceptedSpatialTypes,
             String delegateMethodName) throws Exception {
-        List<SPATIAL_OPERATORS> failTypes = new ArrayList<>(
-                Arrays.asList(SPATIAL_OPERATORS.values()));
+        List<SPATIAL_OPERATORS> failTypes =
+                new ArrayList<>(Arrays.asList(SPATIAL_OPERATORS.values()));
         failTypes.removeAll(acceptedSpatialTypes.keySet());
 
-        Method spatialOpMeth = WfsFilterDelegate.class
-                .getMethod(delegateMethodName, String.class, String.class);
+        Method spatialOpMeth = WfsFilterDelegate.class.getMethod(delegateMethodName,
+                String.class,
+                String.class);
         for (Map.Entry<SPATIAL_OPERATORS, String> row : acceptedSpatialTypes.entrySet()) {
-            WfsFilterDelegate delegate = setupFilterDelegate(row.getKey().toString());
+            WfsFilterDelegate delegate = setupFilterDelegate(row.getKey()
+                    .toString());
 
-            FilterType filter = (FilterType) spatialOpMeth
-                    .invoke(delegate, Metacard.ANY_GEO, POLYGON);
+            FilterType filter = (FilterType) spatialOpMeth.invoke(delegate,
+                    Metacard.ANY_GEO,
+                    POLYGON);
 
-            assertThat(filter.getSpatialOps().getValue(), instanceOf(BinarySpatialOpType.class));
+            assertThat(filter.getSpatialOps()
+                    .getValue(), instanceOf(BinarySpatialOpType.class));
             assertFalse(filter.isSetLogicOps());
             assertXMLEqual(row.getValue(), getXmlFromMarshaller(filter));
         }
@@ -1354,17 +1617,17 @@ public class TestWfsFilterDelegate {
         }
     }
 
-    private void testUnsupportedFilterType(String spatialOpMethName,
-            SPATIAL_OPERATORS failType) throws NoSuchMethodException, InvocationTargetException,
-            IllegalAccessException {
-        Method spatialOpMeth = WfsFilterDelegate.class
-                .getMethod(spatialOpMethName, String.class, String.class);
+    private void testUnsupportedFilterType(String spatialOpMethName, SPATIAL_OPERATORS failType)
+            throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        Method spatialOpMeth = WfsFilterDelegate.class.getMethod(spatialOpMethName,
+                String.class,
+                String.class);
 
         testUnsupportedFilterType(spatialOpMeth, failType);
     }
 
-    private void testUnsupportedFilterType(Method spatialOpMeth, SPATIAL_OPERATORS failType) throws
-            InvocationTargetException, IllegalAccessException {
+    private void testUnsupportedFilterType(Method spatialOpMeth, SPATIAL_OPERATORS failType)
+            throws InvocationTargetException, IllegalAccessException {
         WfsFilterDelegate delegate = setupFilterDelegate(failType.toString());
         FilterType filter = (FilterType) spatialOpMeth.invoke(delegate, Metacard.ANY_GEO, POLYGON);
 
@@ -1372,14 +1635,18 @@ public class TestWfsFilterDelegate {
     }
 
     private void testUnsupportedFilterTypeWithDistance(String spatialOpMethName,
-            SPATIAL_OPERATORS failType, double distance) throws NoSuchMethodException,
-            InvocationTargetException, IllegalAccessException {
-        Method spatialOpMeth = WfsFilterDelegate.class
-                .getMethod(spatialOpMethName, String.class, String.class, double.class);
+            SPATIAL_OPERATORS failType, double distance)
+            throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        Method spatialOpMeth = WfsFilterDelegate.class.getMethod(spatialOpMethName,
+                String.class,
+                String.class,
+                double.class);
 
         WfsFilterDelegate delegate = setupFilterDelegate(failType.toString());
-        FilterType filter = (FilterType) spatialOpMeth
-                .invoke(delegate, Metacard.ANY_GEO, POLYGON, distance);
+        FilterType filter = (FilterType) spatialOpMeth.invoke(delegate,
+                Metacard.ANY_GEO,
+                POLYGON,
+                distance);
 
         assertNull(filter);
     }
@@ -1387,9 +1654,14 @@ public class TestWfsFilterDelegate {
     @Test(expected = IllegalArgumentException.class)
     public void testSingleGmlPropertyBlacklisted() {
         WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.Contains.toString());
-        when(mockFeatureMetacardType.getAttributeDescriptor(MOCK_GEOM)).thenReturn(
-                new FeatureAttributeDescriptor(MOCK_GEOM, MOCK_GEOM, false, false, false, false,
-                        BasicTypes.STRING_TYPE));
+        when(mockFeatureMetacardType.getAttributeDescriptor(MOCK_GEOM)).thenReturn(new FeatureAttributeDescriptor(
+                MOCK_GEOM,
+                MOCK_GEOM,
+                false,
+                false,
+                false,
+                false,
+                BasicTypes.STRING_TYPE));
 
         delegate.contains(MOCK_GEOM, POLYGON);
     }
@@ -1413,19 +1685,31 @@ public class TestWfsFilterDelegate {
         for (String gmlProp : gmlProps) {
             when(mockFeatureMetacardType.
                     getAttributeDescriptor(gmlProp)).
-                    thenReturn(
-                            new FeatureAttributeDescriptor(gmlProp, gmlProp, indexed, false, false,
-                                    false, BasicTypes.STRING_TYPE));
+                    thenReturn(new FeatureAttributeDescriptor(gmlProp,
+                            gmlProp,
+                            indexed,
+                            false,
+                            false,
+                            false,
+                            BasicTypes.STRING_TYPE));
         }
 
         SpatialOperatorType operator = new SpatialOperatorType();
         operator.setName(SPATIAL_OPERATORS.Intersects.toString());
         FilterCapabilities capabilities = MockWfsServer.getFilterCapabilities();
-        capabilities.getSpatialCapabilities().getSpatialOperators().getSpatialOperator().clear();
-        capabilities.getSpatialCapabilities().getSpatialOperators().getSpatialOperator()
+        capabilities.getSpatialCapabilities()
+                .getSpatialOperators()
+                .getSpatialOperator()
+                .clear();
+        capabilities.getSpatialCapabilities()
+                .getSpatialOperators()
+                .getSpatialOperator()
                 .add(operator);
-        WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType, capabilities,
-                Wfs20Constants.EPSG_4326_URN, null, WfsConstants.LAT_LON_ORDER);
+        WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType,
+                capabilities,
+                Wfs20Constants.EPSG_4326_URN,
+                null,
+                WfsConstants.LAT_LON_ORDER);
 
         FilterType filter = delegate.intersects(Metacard.ANY_GEO, POLYGON);
         if (indexed) {
@@ -1456,7 +1740,9 @@ public class TestWfsFilterDelegate {
         when(mockFeatureMetacardType.getGmlProperties()).thenReturn(gmlProps);
 
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType,
-                MockWfsServer.getFilterCapabilities(), "EPSG:42304", null,
+                MockWfsServer.getFilterCapabilities(),
+                "EPSG:42304",
+                null,
                 WfsConstants.LAT_LON_ORDER);
         FilterType filter = delegate.intersects(Metacard.ANY_GEO, POLYGON);
 
@@ -1466,7 +1752,9 @@ public class TestWfsFilterDelegate {
     @Test(expected = IllegalArgumentException.class)
     public void testGeoFilterNullMetacardType() {
         WfsFilterDelegate delegate = new WfsFilterDelegate(null,
-                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, null,
+                MockWfsServer.getFilterCapabilities(),
+                Wfs20Constants.EPSG_4326_URN,
+                null,
                 WfsConstants.LAT_LON_ORDER);
 
         delegate.beyond(Metacard.ANY_GEO, POLYGON, DISTANCE);
@@ -1477,13 +1765,20 @@ public class TestWfsFilterDelegate {
         String result = null;
         List<JAXBElement<?>> expressions = compOpsType.getExpression();
         for (int i = 0; i < expressions.size(); ++i) {
-            String item = expressions.get(i).getName().getLocalPart();
+            String item = expressions.get(i)
+                    .getName()
+                    .getLocalPart();
             if (item.equals(VALUE_REFERENCE) && item.equals(expressionType)) {
-                result = expressions.get(i).getValue().toString();
+                result = expressions.get(i)
+                        .getValue()
+                        .toString();
 
             } else if (item.equals(LITERAL) && item.equals(expressionType)) {
-                LiteralType literal = (LiteralType) expressions.get(i).getValue();
-                result = literal.getContent().get(0).toString();
+                LiteralType literal = (LiteralType) expressions.get(i)
+                        .getValue();
+                result = literal.getContent()
+                        .get(0)
+                        .toString();
             }
         }
 
@@ -1499,15 +1794,17 @@ public class TestWfsFilterDelegate {
         when(mockFeatureMetacardType.getTextualProperties()).thenReturn(mockProperties);
         when(mockFeatureMetacardType.getTemporalProperties()).thenReturn(mockProperties);
         when(mockFeatureMetacardType.getName()).thenReturn(mockType);
-        FeatureAttributeDescriptor mockFeatureAttributeDescriptor = mock(
-                FeatureAttributeDescriptor.class);
+        FeatureAttributeDescriptor mockFeatureAttributeDescriptor =
+                mock(FeatureAttributeDescriptor.class);
         when(mockFeatureAttributeDescriptor.isIndexed()).thenReturn(true);
         when(mockFeatureAttributeDescriptor.getPropertyName()).thenReturn(mockProperty);
-        when(mockFeatureMetacardType.getAttributeDescriptor(mockProperty))
-                .thenReturn(mockFeatureAttributeDescriptor);
+        when(mockFeatureMetacardType.getAttributeDescriptor(mockProperty)).thenReturn(
+                mockFeatureAttributeDescriptor);
 
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType,
-                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, null,
+                MockWfsServer.getFilterCapabilities(),
+                Wfs20Constants.EPSG_4326_URN,
+                null,
                 WfsConstants.LAT_LON_ORDER);
 
         return delegate;
@@ -1521,14 +1818,16 @@ public class TestWfsFilterDelegate {
         marshaller.marshal(getFilterTypeJaxbElement(filterType), writer);
         String xml = writer.toString();
         LOGGER.debug("XML returned by Marshaller:\n{}", xml);
-        LOGGER.trace(Thread.currentThread().getStackTrace().toString());
+        LOGGER.trace(Thread.currentThread()
+                .getStackTrace()
+                .toString());
         return xml;
     }
 
     private JAXBElement<FilterType> getFilterTypeJaxbElement(FilterType filterType) {
-        JAXBElement<FilterType> filterTypeJaxbElement = new JAXBElement<FilterType>(
-                new QName("http://www.opengis.net/ogc", FILTER_QNAME_LOCAL_PART), FilterType.class,
-                filterType);
+        JAXBElement<FilterType> filterTypeJaxbElement = new JAXBElement<FilterType>(new QName(
+                "http://www.opengis.net/ogc",
+                FILTER_QNAME_LOCAL_PART), FilterType.class, filterType);
         return filterTypeJaxbElement;
     }
 
@@ -1539,21 +1838,24 @@ public class TestWfsFilterDelegate {
         FilterType beforeFilter = setupBeforeFilterType();
         FilterCapabilities duringFilterCapabilities = setupFilterCapabilities();
         WfsFilterDelegate duringDelegate = new WfsFilterDelegate(mockFeatureMetacardType,
-                duringFilterCapabilities, Wfs20Constants.EPSG_4326_URN, mockMapper,
+                duringFilterCapabilities,
+                Wfs20Constants.EPSG_4326_URN,
+                mockMapper,
                 WfsConstants.LAT_LON_ORDER);
 
         WfsFilterDelegate spatialDelegate = mockFeatureMetacardCreateDelegate(mockFeatureProperty,
                 mockFeatureType);
-        FilterType spatialFilter = spatialDelegate
-                .dwithin(Metacard.ANY_GEO, "POINT (30 10)", Double.valueOf(1000));
+        FilterType spatialFilter = spatialDelegate.dwithin(Metacard.ANY_GEO,
+                "POINT (30 10)",
+                Double.valueOf(1000));
 
         List<List<FilterType>> testFilters = new ArrayList<>();
         testFilters.add(Arrays.asList(afterFilter, beforeFilter));
         testFilters.add(Arrays.asList(afterFilter, beforeFilter, spatialFilter));
 
         for (List<FilterType> filtersToBeConverted : testFilters) {
-            List<FilterType> convertedFilters = duringDelegate
-                    .applyTemporalFallbacks(filtersToBeConverted);
+            List<FilterType> convertedFilters = duringDelegate.applyTemporalFallbacks(
+                    filtersToBeConverted);
             FilterType duringFilter = convertedFilters.get(0);
 
             if (filtersToBeConverted.contains(spatialFilter)) {
@@ -1570,11 +1872,13 @@ public class TestWfsFilterDelegate {
                 assertThat(duringFilter.isSetTemporalOps(), is(true));
             }
 
-            assertThat(duringFilter.getTemporalOps().getName().toString(),
-                    is("{http://www.opengis.net/fes/2.0}During"));
+            assertThat(duringFilter.getTemporalOps()
+                    .getName()
+                    .toString(), is("{http://www.opengis.net/fes/2.0}During"));
 
-            BinaryTemporalOpType binaryTemporalOpType = (BinaryTemporalOpType) duringFilter
-                    .getTemporalOps().getValue();
+            BinaryTemporalOpType binaryTemporalOpType =
+                    (BinaryTemporalOpType) duringFilter.getTemporalOps()
+                            .getValue();
             assertThat(binaryTemporalOpType.isSetValueReference(), is(true));
             assertThat(binaryTemporalOpType.isSetExpression(), is(true));
             TimePeriodType timePeriod = (TimePeriodType) binaryTemporalOpType.getExpression()
@@ -1594,8 +1898,9 @@ public class TestWfsFilterDelegate {
     public void testDuringFilterTypeDates() throws Exception {
         setupMockMetacardType();
         FilterType duringFilter = setupDuringFilterType();
-        BinaryTemporalOpType binaryTemporalOpType = (BinaryTemporalOpType) duringFilter
-                .getTemporalOps().getValue();
+        BinaryTemporalOpType binaryTemporalOpType =
+                (BinaryTemporalOpType) duringFilter.getTemporalOps()
+                        .getValue();
         assertThat(binaryTemporalOpType.isSetValueReference(), is(true));
         assertThat(binaryTemporalOpType.isSetExpression(), is(true));
         TimePeriodType timePeriod = (TimePeriodType) binaryTemporalOpType.getExpression()
@@ -1650,23 +1955,24 @@ public class TestWfsFilterDelegate {
 
         FilterCapabilities duringFilterCapabilities = setupFilterCapabilities();
         WfsFilterDelegate duringDelegate = new WfsFilterDelegate(mockFeatureMetacardType,
-                duringFilterCapabilities, Wfs20Constants.EPSG_4326_URN, mockMapper,
+                duringFilterCapabilities,
+                Wfs20Constants.EPSG_4326_URN,
+                mockMapper,
                 WfsConstants.LAT_LON_ORDER);
-
 
         List<FilterType> testFilters = new ArrayList<>();
         testFilters.add(afterFilter);
 
-        List<FilterType> convertedFilters = duringDelegate
-                    .applyTemporalFallbacks(testFilters);
+        List<FilterType> convertedFilters = duringDelegate.applyTemporalFallbacks(testFilters);
         FilterType duringFilter = convertedFilters.get(0);
 
+        assertThat(duringFilter.getTemporalOps()
+                .getName()
+                .toString(), is("{http://www.opengis.net/fes/2.0}During"));
 
-        assertThat(duringFilter.getTemporalOps().getName().toString(),
-                is("{http://www.opengis.net/fes/2.0}During"));
-
-        BinaryTemporalOpType binaryTemporalOpType = (BinaryTemporalOpType) duringFilter
-                .getTemporalOps().getValue();
+        BinaryTemporalOpType binaryTemporalOpType =
+                (BinaryTemporalOpType) duringFilter.getTemporalOps()
+                        .getValue();
         assertThat(binaryTemporalOpType.isSetValueReference(), is(true));
         assertThat(binaryTemporalOpType.isSetExpression(), is(true));
         TimePeriodType timePeriod = (TimePeriodType) binaryTemporalOpType.getExpression()
@@ -1693,11 +1999,13 @@ public class TestWfsFilterDelegate {
         setupMockMetacardType();
         FilterType afterFilter = setupAfterFilterType();
 
-        assertThat(afterFilter.getTemporalOps().getName().toString(),
-                is("{http://www.opengis.net/fes/2.0}After"));
+        assertThat(afterFilter.getTemporalOps()
+                .getName()
+                .toString(), is("{http://www.opengis.net/fes/2.0}After"));
 
-        BinaryTemporalOpType binaryTemporalOpType = (BinaryTemporalOpType) afterFilter
-                .getTemporalOps().getValue();
+        BinaryTemporalOpType binaryTemporalOpType =
+                (BinaryTemporalOpType) afterFilter.getTemporalOps()
+                        .getValue();
         assertThat(binaryTemporalOpType.isSetValueReference(), is(true));
         assertThat(binaryTemporalOpType.isSetExpression(), is(true));
         TimeInstantType timePeriod = (TimeInstantType) binaryTemporalOpType.getExpression()
@@ -1711,7 +2019,7 @@ public class TestWfsFilterDelegate {
 
     }
 
-       /**
+    /**
      * If the WFS server does not support an 'After' and 'Before' temporal query,
      *  and supports a 'During' temporal query, the query should be translated
      *  into 'During <after> to <before>'
@@ -1726,12 +2034,15 @@ public class TestWfsFilterDelegate {
 
         FilterCapabilities duringFilterCapabilities = setupFilterCapabilities();
         WfsFilterDelegate duringDelegate = new WfsFilterDelegate(mockFeatureMetacardType,
-                duringFilterCapabilities, Wfs20Constants.EPSG_4326_URN, mockMapper,
+                duringFilterCapabilities,
+                Wfs20Constants.EPSG_4326_URN,
+                mockMapper,
                 WfsConstants.LAT_LON_ORDER);
 
         // Get After Filter Date
-        BinaryTemporalOpType binaryTemporalOpType = (BinaryTemporalOpType) afterFilter
-                .getTemporalOps().getValue();
+        BinaryTemporalOpType binaryTemporalOpType =
+                (BinaryTemporalOpType) afterFilter.getTemporalOps()
+                        .getValue();
         assertThat(binaryTemporalOpType.isSetValueReference(), is(true));
         assertThat(binaryTemporalOpType.isSetExpression(), is(true));
         TimeInstantType timePeriod = (TimeInstantType) binaryTemporalOpType.getExpression()
@@ -1740,8 +2051,8 @@ public class TestWfsFilterDelegate {
         Date afterDate = timePositionTypeToDate(beginPositionType);
 
         // Get Before Filter Date
-        binaryTemporalOpType = (BinaryTemporalOpType) beforeFilter
-                .getTemporalOps().getValue();
+        binaryTemporalOpType = (BinaryTemporalOpType) beforeFilter.getTemporalOps()
+                .getValue();
         assertThat(binaryTemporalOpType.isSetValueReference(), is(true));
         assertThat(binaryTemporalOpType.isSetExpression(), is(true));
         timePeriod = (TimeInstantType) binaryTemporalOpType.getExpression()
@@ -1749,21 +2060,19 @@ public class TestWfsFilterDelegate {
         TimePositionType endPositionType = timePeriod.getTimePosition();
         Date beforeDate = timePositionTypeToDate(endPositionType);
 
-
         List<FilterType> testFilters = new ArrayList<>();
         testFilters.add(afterFilter);
         testFilters.add(beforeFilter);
 
-        List<FilterType> convertedFilters = duringDelegate
-                .applyTemporalFallbacks(testFilters);
+        List<FilterType> convertedFilters = duringDelegate.applyTemporalFallbacks(testFilters);
         FilterType duringFilter = convertedFilters.get(0);
 
+        assertThat(duringFilter.getTemporalOps()
+                .getName()
+                .toString(), is("{http://www.opengis.net/fes/2.0}During"));
 
-        assertThat(duringFilter.getTemporalOps().getName().toString(),
-                is("{http://www.opengis.net/fes/2.0}During"));
-
-        binaryTemporalOpType = (BinaryTemporalOpType) duringFilter
-                .getTemporalOps().getValue();
+        binaryTemporalOpType = (BinaryTemporalOpType) duringFilter.getTemporalOps()
+                .getValue();
         assertThat(binaryTemporalOpType.isSetValueReference(), is(true));
         assertThat(binaryTemporalOpType.isSetExpression(), is(true));
         TimePeriodType timePeriodType = (TimePeriodType) binaryTemporalOpType.getExpression()
@@ -1794,8 +2103,9 @@ public class TestWfsFilterDelegate {
         WfsFilterDelegate delegate = setupTemporalFilterDelegate();
 
         // Get After Filter Date
-        BinaryTemporalOpType binaryTemporalOpType = (BinaryTemporalOpType) afterFilter
-                .getTemporalOps().getValue();
+        BinaryTemporalOpType binaryTemporalOpType =
+                (BinaryTemporalOpType) afterFilter.getTemporalOps()
+                        .getValue();
         assertThat(binaryTemporalOpType.isSetValueReference(), is(true));
         assertThat(binaryTemporalOpType.isSetExpression(), is(true));
         TimeInstantType timePeriod = (TimeInstantType) binaryTemporalOpType.getExpression()
@@ -1804,8 +2114,8 @@ public class TestWfsFilterDelegate {
         Date afterDate = timePositionTypeToDate(beginPositionType);
 
         // Get Before Filter Date
-        binaryTemporalOpType = (BinaryTemporalOpType) beforeFilter
-                .getTemporalOps().getValue();
+        binaryTemporalOpType = (BinaryTemporalOpType) beforeFilter.getTemporalOps()
+                .getValue();
         assertThat(binaryTemporalOpType.isSetValueReference(), is(true));
         assertThat(binaryTemporalOpType.isSetExpression(), is(true));
         timePeriod = (TimeInstantType) binaryTemporalOpType.getExpression()
@@ -1817,19 +2127,20 @@ public class TestWfsFilterDelegate {
         testFilters.add(afterFilter);
         testFilters.add(beforeFilter);
 
-        List<FilterType> convertedFilters = delegate
-                .applyTemporalFallbacks(testFilters);
+        List<FilterType> convertedFilters = delegate.applyTemporalFallbacks(testFilters);
         FilterType resultAfterFilter = convertedFilters.get(0);
         FilterType resultBeforeFilter = convertedFilters.get(1);
 
-        assertThat(resultAfterFilter.getTemporalOps().getName().toString(),
-                is("{http://www.opengis.net/fes/2.0}After"));
-        assertThat(resultBeforeFilter.getTemporalOps().getName().toString(),
-                is("{http://www.opengis.net/fes/2.0}Before"));
+        assertThat(resultAfterFilter.getTemporalOps()
+                .getName()
+                .toString(), is("{http://www.opengis.net/fes/2.0}After"));
+        assertThat(resultBeforeFilter.getTemporalOps()
+                .getName()
+                .toString(), is("{http://www.opengis.net/fes/2.0}Before"));
 
         // Get Resulting After Filter Date
-        binaryTemporalOpType = (BinaryTemporalOpType) resultAfterFilter
-                .getTemporalOps().getValue();
+        binaryTemporalOpType = (BinaryTemporalOpType) resultAfterFilter.getTemporalOps()
+                .getValue();
         assertThat(binaryTemporalOpType.isSetValueReference(), is(true));
         assertThat(binaryTemporalOpType.isSetExpression(), is(true));
         TimeInstantType timePeriodType = (TimeInstantType) binaryTemporalOpType.getExpression()
@@ -1838,8 +2149,8 @@ public class TestWfsFilterDelegate {
         Date beginDate = timePositionTypeToDate(beginPositionType);
 
         // Get Resulting Before Filter Date
-        binaryTemporalOpType = (BinaryTemporalOpType) resultBeforeFilter
-                .getTemporalOps().getValue();
+        binaryTemporalOpType = (BinaryTemporalOpType) resultBeforeFilter.getTemporalOps()
+                .getValue();
         assertThat(binaryTemporalOpType.isSetValueReference(), is(true));
         assertThat(binaryTemporalOpType.isSetExpression(), is(true));
         timePeriodType = (TimeInstantType) binaryTemporalOpType.getExpression()
@@ -1856,8 +2167,11 @@ public class TestWfsFilterDelegate {
 
     private WfsFilterDelegate setupTemporalFilterDelegate() {
         MetacardMapper mockMapper = mock(MetacardMapper.class);
-        return new WfsFilterDelegate(mockFeatureMetacardType, MockWfsServer.getFilterCapabilities(),
-                Wfs20Constants.EPSG_4326_URN, mockMapper, WfsConstants.LAT_LON_ORDER);
+        return new WfsFilterDelegate(mockFeatureMetacardType,
+                MockWfsServer.getFilterCapabilities(),
+                Wfs20Constants.EPSG_4326_URN,
+                mockMapper,
+                WfsConstants.LAT_LON_ORDER);
     }
 
     private void setupMockMetacardType() {
@@ -1873,21 +2187,22 @@ public class TestWfsFilterDelegate {
         when(mockFeatureMetacardType.getName()).thenReturn(mockFeatureType);
         when(mockFeatureMetacardType.getTemporalProperties()).thenReturn(mockProperties);
 
-        FeatureAttributeDescriptor mockFeatureAttributeDescriptor = mock(
-                FeatureAttributeDescriptor.class);
+        FeatureAttributeDescriptor mockFeatureAttributeDescriptor =
+                mock(FeatureAttributeDescriptor.class);
         when(mockFeatureAttributeDescriptor.isIndexed()).thenReturn(true);
         when(mockFeatureAttributeDescriptor.getPropertyName()).thenReturn("EXACT_COLLECT_DATE");
-        when(mockFeatureMetacardType.getAttributeDescriptor(mockFeatureProperty))
-                .thenReturn(mockFeatureAttributeDescriptor);
+        when(mockFeatureMetacardType.getAttributeDescriptor(mockFeatureProperty)).thenReturn(
+                mockFeatureAttributeDescriptor);
 
         mockMapper = mock(MetacardMapper.class);
-        when(mockMapper.getFeatureProperty(mockMetacardAttribute))
-                .thenReturn(mockFeatureProperty);
+        when(mockMapper.getFeatureProperty(mockMetacardAttribute)).thenReturn(mockFeatureProperty);
     }
 
     private FilterType setupBeforeFilterType() {
         WfsFilterDelegate beforeDelegate = new WfsFilterDelegate(mockFeatureMetacardType,
-                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, mockMapper,
+                MockWfsServer.getFilterCapabilities(),
+                Wfs20Constants.EPSG_4326_URN,
+                mockMapper,
                 WfsConstants.LAT_LON_ORDER);
         DateTime beforeDate = new DateTime().minusDays(1);
         return beforeDelegate.before(mockMetacardAttribute, beforeDate.toDate());
@@ -1895,7 +2210,9 @@ public class TestWfsFilterDelegate {
 
     private FilterType setupAfterFilterType() {
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType,
-                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, mockMapper,
+                MockWfsServer.getFilterCapabilities(),
+                Wfs20Constants.EPSG_4326_URN,
+                mockMapper,
                 WfsConstants.LAT_LON_ORDER);
         DateTime afterDate = new DateTime().minusDays(30);
         return delegate.after(mockMetacardAttribute, afterDate.toDate());
@@ -1903,11 +2220,25 @@ public class TestWfsFilterDelegate {
 
     private FilterType setupDuringFilterType() {
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType,
-                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, mockMapper,
+                MockWfsServer.getFilterCapabilities(),
+                Wfs20Constants.EPSG_4326_URN,
+                mockMapper,
                 WfsConstants.LAT_LON_ORDER);
-        DateTime startDate = new DateTime(2014, 01, 01, 01, 01, 01, 123,
+        DateTime startDate = new DateTime(2014,
+                01,
+                01,
+                01,
+                01,
+                01,
+                123,
                 DateTimeZone.forID("-07:00"));
-        DateTime endDate = new DateTime(2014, 01, 02, 01, 01, 01, 123,
+        DateTime endDate = new DateTime(2014,
+                01,
+                02,
+                01,
+                01,
+                01,
+                123,
                 DateTimeZone.forID("-07:00"));
         return delegate.during(mockMetacardAttribute, startDate.toDate(), endDate.toDate());
     }
@@ -1917,8 +2248,8 @@ public class TestWfsFilterDelegate {
         try {
             List<String> timeList = timePositionType.getValue();
             String dateTimeString = timeList.get(0);
-            DateFormat format = new SimpleDateFormat(
-                    "yyyy-MM-dd'T'HH:mm:ss");  // 2014-12-14T17:14:43Z
+            DateFormat format =
+                    new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");  // 2014-12-14T17:14:43Z
             date = format.parse(dateTimeString);
         } catch (ParseException pe) {
             LOGGER.debug("Parse Exception {}", pe);
@@ -1932,16 +2263,19 @@ public class TestWfsFilterDelegate {
         temporal.setTemporalOperators(new TemporalOperatorsType());
         TemporalOperatorType duringOperator = new TemporalOperatorType();
         duringOperator.setName(TEMPORAL_OPERATORS.During.name());
-        temporal.getTemporalOperators().getTemporalOperator().add(duringOperator);
+        temporal.getTemporalOperators()
+                .getTemporalOperator()
+                .add(duringOperator);
 
         TemporalOperandsType temporalOperands = new TemporalOperandsType();
-        List<QName> timeQNames = Arrays
-                .asList(new QName(Wfs20Constants.GML_3_2_NAMESPACE, "TimePeriod"),
-                        new QName(Wfs20Constants.GML_3_2_NAMESPACE, "TimeInstant"));
+        List<QName> timeQNames = Arrays.asList(new QName(Wfs20Constants.GML_3_2_NAMESPACE,
+                "TimePeriod"), new QName(Wfs20Constants.GML_3_2_NAMESPACE, "TimeInstant"));
         for (QName qName : timeQNames) {
-            TemporalOperandsType.TemporalOperand operand = new TemporalOperandsType.TemporalOperand();
+            TemporalOperandsType.TemporalOperand operand =
+                    new TemporalOperandsType.TemporalOperand();
             operand.setName(qName);
-            temporalOperands.getTemporalOperand().add(operand);
+            temporalOperands.getTemporalOperand()
+                    .add(operand);
         }
         temporal.setTemporalOperands(temporalOperands);
         filterCapabilities.setTemporalCapabilities(temporal);
@@ -1986,13 +2320,15 @@ public class TestWfsFilterDelegate {
                     FeatureAttributeDescriptor.class);
             when(mockFeatureAttributeDescriptor.isIndexed()).thenReturn(true);
             when(mockFeatureAttributeDescriptor.getPropertyName()).thenReturn(mockFeatureProperty);
-            when(mockFeatureMetacardType.getAttributeDescriptor(mockFeatureProperty))
-                    .thenReturn(mockFeatureAttributeDescriptor);
+            when(mockFeatureMetacardType.getAttributeDescriptor(mockFeatureProperty)).thenReturn(
+                    mockFeatureAttributeDescriptor);
             MetacardMapper mockMapper = mock(MetacardMapper.class);
-            when(mockMapper.getFeatureProperty(mockMetacardAttribute))
-                    .thenReturn(mockFeatureProperty);
+            when(mockMapper.getFeatureProperty(mockMetacardAttribute)).thenReturn(
+                    mockFeatureProperty);
             delegate = new WfsFilterDelegate(mockFeatureMetacardType,
-                    MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, mockMapper,
+                    MockWfsServer.getFilterCapabilities(),
+                    Wfs20Constants.EPSG_4326_URN,
+                    mockMapper,
                     WfsConstants.LAT_LON_ORDER);
             return this;
         }

@@ -17,6 +17,6 @@ CSW Source will return a bounding box for a point where both corners
 have the same exact Lon/Lat 
 -->
 <BoundingBox crs="">
-	<LowerCorner>65.6272038662182 33.305863417212</LowerCorner>
-	<UpperCorner>65.6272038662182 33.305863417212</UpperCorner>
+    <LowerCorner>65.6272038662182 33.305863417212</LowerCorner>
+    <UpperCorner>65.6272038662182 33.305863417212</UpperCorner>
 </BoundingBox>

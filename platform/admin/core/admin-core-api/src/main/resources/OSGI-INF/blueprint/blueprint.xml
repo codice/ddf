@@ -22,7 +22,8 @@
           init-method="init">
         <property name="availableClaimsFile" value="etc/ws-security/attributeMap.properties"/>
         <property name="profileDir" value="etc/ws-security/profiles/"/>
-        <property name="immutableClaims" value="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role"/>
+        <property name="immutableClaims"
+                  value="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role"/>
     </bean>
 
     <bean id="configAdminMbean" class="org.codice.ddf.ui.admin.api.ConfigurationAdmin"
@@ -35,7 +36,8 @@
         <property name="guestClaimsHandlerExt" ref="guestClaimsHandlerExt"/>
     </bean>
 
-    <bean id="systemProperties" class="org.codice.ddf.ui.admin.api.impl.SystemPropertiesAdmin" destroy-method="shutdown" />
+    <bean id="systemProperties" class="org.codice.ddf.ui.admin.api.impl.SystemPropertiesAdmin"
+          destroy-method="shutdown"/>
 
     <reference-list id="configurationAdminPluginList"
                     interface="org.codice.ddf.ui.admin.api.plugin.ConfigurationAdminPlugin"

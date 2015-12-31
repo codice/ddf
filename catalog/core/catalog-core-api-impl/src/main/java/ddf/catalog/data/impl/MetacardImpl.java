@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -572,8 +572,8 @@ public class MetacardImpl implements Metacard {
             return returnType.cast(data);
         } else {
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug(data.getClass().toString() + " can not be assigned to " + returnType
-                        .toString());
+                LOGGER.debug(data.getClass()
+                        .toString() + " can not be assigned to " + returnType.toString());
             }
         }
 
@@ -854,12 +854,14 @@ public class MetacardImpl implements Metacard {
 
             if (attribute != null) {
 
-                AttributeDescriptor attributeDescriptor = getMetacardType()
-                        .getAttributeDescriptor(attribute.getName());
+                AttributeDescriptor attributeDescriptor = getMetacardType().getAttributeDescriptor(
+                        attribute.getName());
 
                 if (attributeDescriptor != null && attribute.getValue() != null) {
-                    attributeDescriptor.getType().getAttributeFormat();
-                    attributeDescriptor.getType().getClass();
+                    attributeDescriptor.getType()
+                            .getAttributeFormat();
+                    attributeDescriptor.getType()
+                            .getClass();
                 }
 
             }
@@ -873,10 +875,13 @@ public class MetacardImpl implements Metacard {
 
         //TODO: add remaining fields for hashCode
         return new HashCodeBuilder(17, 37).
-                append(this.getId()).
-                append(this.getMetacardType()).
-                append(this.getMetadata()).
-                toHashCode();
+                append(this.getId())
+                .
+                        append(this.getMetacardType())
+                .
+                        append(this.getMetadata())
+                .
+                        toHashCode();
     }
 
     //TODO: is an equals() method needed?

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 public class GeoNamesLocalIndex implements GeoCoder {
     private static final int SEARCH_RADIUS = 50;
+
     private static final int SEARCH_RESULT_LIMIT = 1;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GeoNamesLocalIndex.class);
@@ -52,8 +53,11 @@ public class GeoNamesLocalIndex implements GeoCoder {
                 final String featureCode = topResult.getFeatureCode();
                 final long population = topResult.getPopulation();
 
-                return GeoResultCreator
-                        .createGeoResult(name, latitude, longitude, featureCode, population);
+                return GeoResultCreator.createGeoResult(name,
+                        latitude,
+                        longitude,
+                        featureCode,
+                        population);
             }
         } catch (GeoEntryQueryException e) {
             LOGGER.error("Error querying the local GeoNames index", e);
@@ -65,14 +69,16 @@ public class GeoNamesLocalIndex implements GeoCoder {
     public NearbyLocation getNearbyCity(String location) {
 
         try {
-            List<NearbyLocation> locations = geoEntryQueryable
-                    .getNearestCities(location, SEARCH_RADIUS, SEARCH_RESULT_LIMIT);
+            List<NearbyLocation> locations = geoEntryQueryable.getNearestCities(location,
+                    SEARCH_RADIUS,
+                    SEARCH_RESULT_LIMIT);
 
             if (locations.size() > 0) {
                 return locations.get(0);
             }
         } catch (ParseException parseException) {
-            LOGGER.error(String.format("Error parsing the supplied wkt: %s", location), parseException);
+            LOGGER.error(String.format("Error parsing the supplied wkt: %s", location),
+                    parseException);
         }
 
         return null;

@@ -66,7 +66,7 @@ public final class SecurityConstants {
     public static final String TRUSTSTORE_PATH = "javax.net.ssl.trustStore";
 
     public static final String TRUSTSTORE_TYPE = "javax.net.ssl.trustStoreType";
-    
+
     private SecurityConstants() {
 
     }

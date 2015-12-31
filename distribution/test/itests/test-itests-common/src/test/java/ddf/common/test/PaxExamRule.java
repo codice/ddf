@@ -31,10 +31,10 @@ import org.slf4j.LoggerFactory;
  * Adds support for {@link BeforeExam} and {@link AfterExam} annotations with OPS4J Pax
  * Exam integration tests.  There should only be one instance of the PaxExamRule for a test class,
  * including its super classes.
- *
+ * <p>
  * <code>
- * @Rule
- * public PaxExamRule paxExamRule = new PaxExamRule(this);
+ *
+ * @Rule public PaxExamRule paxExamRule = new PaxExamRule(this);
  * </code>
  */
 public class PaxExamRule implements TestRule {
@@ -43,7 +43,8 @@ public class PaxExamRule implements TestRule {
 
     public static final String BEFORE_EXAM_FAILURE_MESSAGE = "Failed to setup exam for %s: %s";
 
-    public static final String AFTER_EXAM_FAILURE_MESSAGE = "Failed to run AfterExam annotation(s) for %s: %s";
+    public static final String AFTER_EXAM_FAILURE_MESSAGE =
+            "Failed to run AfterExam annotation(s) for %s: %s";
 
     public static final String EXAM_SETUP_FAILED_MESSAGE = "Exam setup failed";
 
@@ -77,7 +78,8 @@ public class PaxExamRule implements TestRule {
 
     private void starting(Description description) {
         testsExecuted++;
-        String testClassName = description.getTestClass().getSimpleName();
+        String testClassName = description.getTestClass()
+                .getSimpleName();
 
         if (setupFailed) {
             fail(EXAM_SETUP_FAILED_MESSAGE);
@@ -101,7 +103,8 @@ public class PaxExamRule implements TestRule {
             } catch (Throwable throwable) {
                 setupFailed = true;
                 LOGGER.error("Failed to setup " + testClassName, throwable);
-                fail(String.format(BEFORE_EXAM_FAILURE_MESSAGE, testClassName,
+                fail(String.format(BEFORE_EXAM_FAILURE_MESSAGE,
+                        testClassName,
                         throwable.getMessage()));
             }
         }
@@ -115,12 +118,14 @@ public class PaxExamRule implements TestRule {
         if (testsExecuted == testCount) {
             resetStaticFields();
 
-            String testClassName = description.getTestClass().getSimpleName();
+            String testClassName = description.getTestClass()
+                    .getSimpleName();
             try {
                 runAnnotations(AfterExam.class, new TestClass(description.getTestClass()));
             } catch (Throwable throwable) {
-                fail(String
-                        .format(AFTER_EXAM_FAILURE_MESSAGE, testClassName, throwable.getMessage()));
+                fail(String.format(AFTER_EXAM_FAILURE_MESSAGE,
+                        testClassName,
+                        throwable.getMessage()));
             }
             LOGGER.info("Finished test(s) for {}", testClassName);
         }

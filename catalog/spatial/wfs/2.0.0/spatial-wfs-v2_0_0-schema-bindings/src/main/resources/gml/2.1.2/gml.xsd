@@ -8,13 +8,13 @@
     <annotation>
         <appinfo>gml.xsd v2.1.2.5</appinfo>
         <documentation xml:lang="en">
-            GML 'all-components' schema. 
-                
+            GML 'all-components' schema.
+
             GML is an OGC Standard.
             Copyright (c) 2001,2002,2010 Open Geospatial Consortium.
             To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
         </documentation>
-        </annotation>
+    </annotation>
     <!-- =========  includes and imports  ========================= -->
     <include schemaLocation="feature.xsd"/>
     <include schemaLocation="geometry.xsd"/>

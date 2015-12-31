@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -48,8 +48,8 @@ public class ResourceCacheSizeLimitTest {
 
     private static final String PRODUCT_CACHE_NAME = "Product_Cache";
 
-    private static final transient Logger LOGGER = LoggerFactory
-            .getLogger(ResourceCacheSizeLimitTest.class);
+    private static final transient Logger LOGGER = LoggerFactory.getLogger(
+            ResourceCacheSizeLimitTest.class);
 
     private static TestHazelcastInstanceFactory hcInstanceFactory;
 
@@ -69,13 +69,15 @@ public class ResourceCacheSizeLimitTest {
 
     @AfterClass
     public static void oneTimeTeardown() {
-        LOGGER.debug("instances still remaining" + Hazelcast.getAllHazelcastInstances().size());
+        LOGGER.debug("instances still remaining" + Hazelcast.getAllHazelcastInstances()
+                .size());
     }
 
     @After
     public void teardownTest() throws IOException {
         Collection<HazelcastInstance> instances = hcInstanceFactory.getAllHazelcastInstances();
-        HazelcastInstance instance = instances.iterator().next();
+        HazelcastInstance instance = instances.iterator()
+                .next();
         instance.shutdown();
         cleanProductCacheDirectory();
     }
@@ -91,7 +93,9 @@ public class ResourceCacheSizeLimitTest {
         // Simulate adding product to product cache
         String rr1Key = "rr1";
         String rr1FileName = "10bytes.txt";
-        simulateAddFileToProductCache(rr1Key, rr1FileName, rr1FileName,
+        simulateAddFileToProductCache(rr1Key,
+                rr1FileName,
+                rr1FileName,
                 cacheMap);  //this may take longer to execute than just the next line.
 
         // ensure that the entry has not been removed from the cache since it doesn't exceed the max size
@@ -194,12 +198,16 @@ public class ResourceCacheSizeLimitTest {
         int indexOfRemainingEntry = 11;
 
         for (int i = 0; i < 11; i++) {
-            simulateAddFileToProductCache(rrKeyPrefix + i, rr1FileNameBase, i + rr1FileNameBase,
+            simulateAddFileToProductCache(rrKeyPrefix + i,
+                    rr1FileNameBase,
+                    i + rr1FileNameBase,
                     cacheMap);
         }
 
         //not in loop in order to slightly delay this file being added to the cache so it is sorted correctly and not accidentally removed
-        simulateAddFileToProductCache(rrKeyPrefix + 11, rr1FileNameBase, 11 + rr1FileNameBase,
+        simulateAddFileToProductCache(rrKeyPrefix + 11,
+                rr1FileNameBase,
+                11 + rr1FileNameBase,
                 cacheMap);
 
         //entries from 0-10 should be removed from cache
@@ -207,7 +215,8 @@ public class ResourceCacheSizeLimitTest {
             verifyRemovedFromCache(cacheMap, rrKeyPrefix + 1, i + rr1FileNameBase);
         }
 
-        verifyCached(cacheMap, rrKeyPrefix + indexOfRemainingEntry,
+        verifyCached(cacheMap,
+                rrKeyPrefix + indexOfRemainingEntry,
                 indexOfRemainingEntry + rr1FileNameBase);
     }
 
@@ -223,7 +232,9 @@ public class ResourceCacheSizeLimitTest {
         String rrKeyPrefix = "rr";
         String rr1FileNameBase = "10bytes.txt";
         for (int i = 0; i < 12; i++) {
-            simulateAddFileToProductCache(rrKeyPrefix + i, rr1FileNameBase, i + rr1FileNameBase,
+            simulateAddFileToProductCache(rrKeyPrefix + i,
+                    rr1FileNameBase,
+                    i + rr1FileNameBase,
                     cacheMap);
         }
 
@@ -235,8 +246,10 @@ public class ResourceCacheSizeLimitTest {
         //push 1 large file into cache to total 245 bytes.  This file will be on the second "page" when querying the cache.
         String oneTwentyFiveBytesFileName = "125bytes.txt";
         int indexOf125Bytes = 12;
-        simulateAddFileToProductCache(rrKeyPrefix + indexOf125Bytes, oneTwentyFiveBytesFileName,
-                oneTwentyFiveBytesFileName, cacheMap);
+        simulateAddFileToProductCache(rrKeyPrefix + indexOf125Bytes,
+                oneTwentyFiveBytesFileName,
+                oneTwentyFiveBytesFileName,
+                cacheMap);
 
         //ensure 125-byte file is cached
         verifyCached(cacheMap, rrKeyPrefix + indexOf125Bytes, oneTwentyFiveBytesFileName);
@@ -288,14 +301,19 @@ public class ResourceCacheSizeLimitTest {
                 System.getProperty("user.dir") + "/src/test/resources/" + fileName;
         File rrCachedFile = new File(productCacheDir + "/" + destFileName);
         FileUtils.copyFile(new File(productOriginalLocation), rrCachedFile);
-        ReliableResource rr = new ReliableResource(key, rrCachedFile.getAbsolutePath(),
-                new MimeType(), fileName, new MetacardImpl());
+        ReliableResource rr = new ReliableResource(key,
+                rrCachedFile.getAbsolutePath(),
+                new MimeType(),
+                fileName,
+                new MetacardImpl());
         rr.setSize(rrCachedFile.length());
         LOGGER.debug("adding entry to cache: " + key);
         cacheMap.put(key, rr);
-        listener.entryAdded(
-                new EntryEvent<Object, Object>(destFileName, null, EntryEventType.ADDED.getType(),
-                        key, rr));
+        listener.entryAdded(new EntryEvent<Object, Object>(destFileName,
+                null,
+                EntryEventType.ADDED.getType(),
+                key,
+                rr));
         return rr;
     }
 

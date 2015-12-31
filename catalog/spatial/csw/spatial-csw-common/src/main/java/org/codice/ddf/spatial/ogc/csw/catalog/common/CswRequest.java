@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.common;
 
@@ -67,8 +66,8 @@ public class CswRequest {
         this.service = service;
     }
 
-    protected List<QName> typeStringToQNames(String typeNames,
-            Map<String, String> namespaces) throws CswException {
+    protected List<QName> typeStringToQNames(String typeNames, Map<String, String> namespaces)
+            throws CswException {
         List<QName> qNames = new ArrayList<QName>();
         if (typeNames == null) {
             return qNames;
@@ -104,13 +103,13 @@ public class CswRequest {
         String[] namespaceArray = namespaces.split(CswConstants.COMMA);
 
         for (String namespace : namespaceArray) {
-            if (namespace.startsWith(CswConstants.XMLNS_DEFINITION_PREFIX) && namespace
-                    .endsWith(CswConstants.XMLNS_DEFINITION_POSTFIX)) {
+            if (namespace.startsWith(CswConstants.XMLNS_DEFINITION_PREFIX) && namespace.endsWith(
+                    CswConstants.XMLNS_DEFINITION_POSTFIX)) {
 
-                String nsAssignment = namespace
-                        .substring(CswConstants.XMLNS_DEFINITION_PREFIX.length(),
-                                namespace.length() - CswConstants.XMLNS_DEFINITION_POSTFIX
-                                        .length());
+                String nsAssignment =
+                        namespace.substring(CswConstants.XMLNS_DEFINITION_PREFIX.length(),
+                                namespace.length()
+                                        - CswConstants.XMLNS_DEFINITION_POSTFIX.length());
 
                 String[] split = nsAssignment.split(CswConstants.EQUALS);
 

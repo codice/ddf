@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -37,8 +37,8 @@ public class ActivityListener implements EventHandler {
         List<Map<String, Object>> results = null;
         try {
             results = persistentStore.get(PersistentStore.ACTIVITY_TYPE,
-                    ActivityEvent.STATUS_KEY + " = '" + ActivityEvent.ActivityStatus.STARTED
-                            .toString() + "'");
+                    ActivityEvent.STATUS_KEY + " = '"
+                            + ActivityEvent.ActivityStatus.STARTED.toString() + "'");
             for (Map<String, Object> result : results) {
                 result.put(ActivityEvent.STATUS_KEY + "_txt",
                         ActivityEvent.ActivityStatus.FAILED.toString());
@@ -68,9 +68,10 @@ public class ActivityListener implements EventHandler {
         String title = (String) event.getProperty(ActivityEvent.TITLE_KEY);
         String message = (String) event.getProperty(ActivityEvent.MESSAGE_KEY);
         String timestamp = (String) event.getProperty(ActivityEvent.TIMESTAMP_KEY);
-        Map<String, String> operations = (Map<String, String>) event
-                .getProperty(ActivityEvent.OPERATIONS_KEY);
-        String progress = event.getProperty(ActivityEvent.PROGRESS_KEY).toString();
+        Map<String, String> operations =
+                (Map<String, String>) event.getProperty(ActivityEvent.OPERATIONS_KEY);
+        String progress = event.getProperty(ActivityEvent.PROGRESS_KEY)
+                .toString();
         String user = (String) event.getProperty(ActivityEvent.USER_ID_KEY);
         String category = (String) event.getProperty(ActivityEvent.CATEGORY_KEY);
         Long bytes = (Long) event.getProperty(ActivityEvent.BYTES_READ_KEY);

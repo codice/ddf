@@ -52,11 +52,13 @@ public class SystemPropertiesAdmin implements SystemPropertiesAdminMBean {
 
     private static final String HOST_TITLE = "Host";
 
-    private static final String HOST_DESCRIPTION = "The host name or IP address used to advertise the system. Possibilities include the address of a single node of that of a load balancer in a multi-node deployment. NOTE: Does not change the address the system runs on.";
+    private static final String HOST_DESCRIPTION =
+            "The host name or IP address used to advertise the system. Possibilities include the address of a single node of that of a load balancer in a multi-node deployment. NOTE: Does not change the address the system runs on.";
 
     private static final String PROTOCOL_TITLE = "Default Protocol";
 
-    private static final String PROTOCOL_DESCRIPTION = "The protocol used to advertise the system. When selecting the protocol, be sure to enter the port number corresponding to that protocol.";
+    private static final String PROTOCOL_DESCRIPTION =
+            "The protocol used to advertise the system. When selecting the protocol, be sure to enter the port number corresponding to that protocol.";
 
     private static final ArrayList<String> PROTOCOL_OPTIONS = new ArrayList<>();
 
@@ -67,19 +69,23 @@ public class SystemPropertiesAdmin implements SystemPropertiesAdminMBean {
 
     private static final String DEFAULT_PORT_TITLE = "Default Port";
 
-    private static final String DEFAULT_PORT_DESCRIPTION = "The default port used to advertise the system. Possibilities include the port of a single node of that of a load balancer in a multi-node deployment. NOTE: Does not change the port the system runs on.";
+    private static final String DEFAULT_PORT_DESCRIPTION =
+            "The default port used to advertise the system. Possibilities include the port of a single node of that of a load balancer in a multi-node deployment. NOTE: Does not change the port the system runs on.";
 
     private static final String HTTP_PORT_TITLE = "HTTP Port";
 
-    private static final String HTTP_PORT_DESCRIPTION = "The port used to advertise the system. Possibilities include the port of a single node of that of a load balancer in a multi-node deployment. NOTE: Does not change the port the system runs on.";
+    private static final String HTTP_PORT_DESCRIPTION =
+            "The port used to advertise the system. Possibilities include the port of a single node of that of a load balancer in a multi-node deployment. NOTE: Does not change the port the system runs on.";
 
     private static final String HTTPS_PORT_TITLE = "HTTPS Port";
 
-    private static final String HTTPS_PORT_DESCRIPTION = "The secure port used to advertise the system. Possibilities include the port of a single node of that of a load balancer in a multi-node deployment. NOTE: Does not change the port the system runs on.";
+    private static final String HTTPS_PORT_DESCRIPTION =
+            "The secure port used to advertise the system. Possibilities include the port of a single node of that of a load balancer in a multi-node deployment. NOTE: Does not change the port the system runs on.";
 
     private static final String ORGANIZATION_TITLE = "Organization";
 
-    private static final String ORGANIZATION_DESCRIPTION = "The name of the organization that runs this instance.";
+    private static final String ORGANIZATION_DESCRIPTION =
+            "The name of the organization that runs this instance.";
 
     private static final String SITE_CONTACT_TITLE = "Site Contact";
 
@@ -87,7 +93,8 @@ public class SystemPropertiesAdmin implements SystemPropertiesAdminMBean {
 
     private static final String SITE_NAME_TITLE = "Site Name";
 
-    private static final String SITE_NAME_DESCRIPTION = "The unique name of this instance. This name will be provided via web services that ask for the name.";
+    private static final String SITE_NAME_DESCRIPTION =
+            "The unique name of this instance. This name will be provided via web services that ask for the name.";
 
     private static final String VERSION_TITLE = "Version";
 
@@ -104,24 +111,42 @@ public class SystemPropertiesAdmin implements SystemPropertiesAdminMBean {
         LOGGER.info("get system properties");
 
         ArrayList<SystemPropertyDetails> properties = new ArrayList<>();
-        properties.add(getSystemPropertyDetails(SystemBaseUrl.PROTOCOL, PROTOCOL_TITLE,
-                PROTOCOL_DESCRIPTION, PROTOCOL_OPTIONS));
-        properties.add(getSystemPropertyDetails(SystemBaseUrl.HOST, HOST_TITLE, HOST_DESCRIPTION,
+        properties.add(getSystemPropertyDetails(SystemBaseUrl.PROTOCOL,
+                PROTOCOL_TITLE,
+                PROTOCOL_DESCRIPTION,
+                PROTOCOL_OPTIONS));
+        properties.add(getSystemPropertyDetails(SystemBaseUrl.HOST,
+                HOST_TITLE,
+                HOST_DESCRIPTION,
                 null));
-        properties.add(getSystemPropertyDetails(SystemBaseUrl.PORT, DEFAULT_PORT_TITLE,
-                DEFAULT_PORT_DESCRIPTION, null));
-        properties.add(getSystemPropertyDetails(SystemBaseUrl.HTTP_PORT, HTTP_PORT_TITLE,
-                HTTP_PORT_DESCRIPTION, null));
-        properties.add(getSystemPropertyDetails(SystemBaseUrl.HTTPS_PORT, HTTPS_PORT_TITLE,
-                HTTPS_PORT_DESCRIPTION, null));
-        properties.add(getSystemPropertyDetails(SystemInfo.ORGANIZATION, ORGANIZATION_TITLE,
-                ORGANIZATION_DESCRIPTION, null));
-        properties.add(getSystemPropertyDetails(SystemInfo.SITE_CONTACT, SITE_CONTACT_TITLE,
-                SITE_CONTACT_DESCRIPTION, null));
-        properties.add(getSystemPropertyDetails(SystemInfo.SITE_NAME, SITE_NAME_TITLE,
-                SITE_NAME_DESCRIPTION, null));
-        properties.add(getSystemPropertyDetails(SystemInfo.VERSION, VERSION_TITLE,
-                VERSION_DESCRIPTION, null));
+        properties.add(getSystemPropertyDetails(SystemBaseUrl.PORT,
+                DEFAULT_PORT_TITLE,
+                DEFAULT_PORT_DESCRIPTION,
+                null));
+        properties.add(getSystemPropertyDetails(SystemBaseUrl.HTTP_PORT,
+                HTTP_PORT_TITLE,
+                HTTP_PORT_DESCRIPTION,
+                null));
+        properties.add(getSystemPropertyDetails(SystemBaseUrl.HTTPS_PORT,
+                HTTPS_PORT_TITLE,
+                HTTPS_PORT_DESCRIPTION,
+                null));
+        properties.add(getSystemPropertyDetails(SystemInfo.ORGANIZATION,
+                ORGANIZATION_TITLE,
+                ORGANIZATION_DESCRIPTION,
+                null));
+        properties.add(getSystemPropertyDetails(SystemInfo.SITE_CONTACT,
+                SITE_CONTACT_TITLE,
+                SITE_CONTACT_DESCRIPTION,
+                null));
+        properties.add(getSystemPropertyDetails(SystemInfo.SITE_NAME,
+                SITE_NAME_TITLE,
+                SITE_NAME_DESCRIPTION,
+                null));
+        properties.add(getSystemPropertyDetails(SystemInfo.VERSION,
+                VERSION_TITLE,
+                VERSION_DESCRIPTION,
+                null));
 
         return properties;
     }
@@ -169,8 +194,8 @@ public class SystemPropertiesAdmin implements SystemPropertiesAdminMBean {
 
                 if (oldHostValue != null) {
                     userDotProperties.remove(oldHostName);
-                    userDotProperties
-                            .setProperty(System.getProperty(SystemBaseUrl.HOST), oldHostValue);
+                    userDotProperties.setProperty(System.getProperty(SystemBaseUrl.HOST),
+                            oldHostValue);
 
                     userDotProperties.save();
                 }

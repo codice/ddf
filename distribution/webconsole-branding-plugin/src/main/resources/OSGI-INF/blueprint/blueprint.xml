@@ -1,4 +1,3 @@
-
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -13,12 +12,13 @@
  **/
 -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
-	
-	<bean id="brandingImpl" class="org.codice.ddf.webconsole.branding.DDFBrandingPlugin"
-		init-method="init" destroy-method="destroy">
-	</bean>
-	
-	<service ref="brandingImpl" interface="org.apache.felix.webconsole.BrandingPlugin" ranking="100">
-	</service>
+
+    <bean id="brandingImpl" class="org.codice.ddf.webconsole.branding.DDFBrandingPlugin"
+          init-method="init" destroy-method="destroy">
+    </bean>
+
+    <service ref="brandingImpl" interface="org.apache.felix.webconsole.BrandingPlugin"
+             ranking="100">
+    </service>
 
 </blueprint>

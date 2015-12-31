@@ -33,7 +33,6 @@ import org.osgi.framework.Bundle;
 /**
  * Tests the ApplicationStatusImpl class which retuns the stats of an
  * application.
- *
  */
 public class ApplicationStatusImplTest {
 
@@ -51,25 +50,29 @@ public class ApplicationStatusImplTest {
         Feature testFeature1 = mock(Feature.class);
         Feature testFeature2 = mock(Feature.class);
 
-        List<Feature> testFeatureList = new ArrayList<Feature>(
-                Arrays.asList(testFeature1, testFeature2));
+        List<Feature> testFeatureList = new ArrayList<Feature>(Arrays.asList(testFeature1,
+                testFeature2));
         testFeatures.addAll(testFeatureList);
 
         Bundle testBundle1 = mock(Bundle.class);
         Bundle testBundle2 = mock(Bundle.class);
 
-        List<Bundle> testBundleList = new ArrayList<Bundle>(
-                Arrays.asList(testBundle1, testBundle2));
+        List<Bundle> testBundleList = new ArrayList<Bundle>(Arrays.asList(testBundle1,
+                testBundle2));
         testBundles.addAll(testBundleList);
 
-        ApplicationStatus testStatus = new ApplicationStatusImpl(testApp, testState, testFeatures,
+        ApplicationStatus testStatus = new ApplicationStatusImpl(testApp,
+                testState,
+                testFeatures,
                 testBundles);
 
         assertEquals("Sanity check for getApplication()", testApp, testStatus.getApplication());
         assertEquals("Sanity check for getState()", testState, testStatus.getState());
         assertTrue("Sanity check for getErrorFeatures()",
-                testStatus.getErrorFeatures().containsAll(testFeatureList));
+                testStatus.getErrorFeatures()
+                        .containsAll(testFeatureList));
         assertTrue("Sanity check for getErrorBundles()",
-                testStatus.getErrorBundles().containsAll(testBundleList));
+                testStatus.getErrorBundles()
+                        .containsAll(testBundleList));
     }
 }

@@ -68,8 +68,8 @@ import ddf.metrics.reporting.internal.MetricsGraphException;
 import ddf.metrics.reporting.internal.MetricsRetriever;
 
 public class RrdMetricsRetrieverTest extends XMLTestCase {
-    private static final transient Logger LOGGER = LoggerFactory
-            .getLogger(RrdMetricsRetrieverTest.class);
+    private static final transient Logger LOGGER =
+            LoggerFactory.getLogger(RrdMetricsRetrieverTest.class);
 
     private static final String TEST_DIR = "target/";
 
@@ -81,8 +81,8 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
 
     private static final int RRD_STEP = 60;
 
-    private static final String MONTHS[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug",
-            "Sep", "Oct", "Nov", "Dec"};
+    private static final String MONTHS[] =
+            {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 
     private RrdDb rrdDb;
 
@@ -114,11 +114,15 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
     @Test
     public void testMetricsGraphWithGauge() throws Exception {
         String rrdFilename = TEST_DIR + "queryCount_Gauge" + RRD_FILE_EXTENSION;
-        long endTime = new RrdFileBuilder().rrdFileName(rrdFilename).dsType(DsType.GAUGE).build();
+        long endTime = new RrdFileBuilder().rrdFileName(rrdFilename)
+                .dsType(DsType.GAUGE)
+                .build();
 
         MetricsRetriever metricsRetriever = new RrdMetricsRetriever();
-        byte[] metricsGraph = metricsRetriever
-                .createGraph("Query Reponse Time", rrdFilename, START_TIME, endTime);
+        byte[] metricsGraph = metricsRetriever.createGraph("Query Reponse Time",
+                rrdFilename,
+                START_TIME,
+                endTime);
 
         assertThat(metricsGraph, not(nullValue()));
         assertThat(metricsGraph.length, is(greaterThan(0)));
@@ -128,9 +132,12 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
         // All we can verify is that this alternate createGraph() method returns a byte array of the
         // graph image. Only
         // visual inspection can verify the graph's accurracy, title, and axis labels.
-        metricsGraph = metricsRetriever
-                .createGraph("Query Reponse Time", rrdFilename, START_TIME, endTime,
-                        "My Vertical Axis Label", "My Title");
+        metricsGraph = metricsRetriever.createGraph("Query Reponse Time",
+                rrdFilename,
+                START_TIME,
+                endTime,
+                "My Vertical Axis Label",
+                "My Title");
 
         assertThat(metricsGraph, not(nullValue()));
         assertThat(metricsGraph.length, is(greaterThan(0)));
@@ -139,11 +146,14 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
     @Test
     public void testMetricsGraphWithCounter() throws Exception {
         String rrdFilename = TEST_DIR + "queryCount_Counter" + RRD_FILE_EXTENSION;
-        long endTime = new RrdFileBuilder().rrdFileName(rrdFilename).build();
+        long endTime = new RrdFileBuilder().rrdFileName(rrdFilename)
+                .build();
 
         MetricsRetriever metricsRetriever = new RrdMetricsRetriever();
-        byte[] metricsGraph = metricsRetriever
-                .createGraph("Query Count", rrdFilename, START_TIME, endTime);
+        byte[] metricsGraph = metricsRetriever.createGraph("Query Count",
+                rrdFilename,
+                START_TIME,
+                endTime);
 
         assertThat(metricsGraph, not(nullValue()));
         assertThat(metricsGraph.length, is(greaterThan(0)));
@@ -153,8 +163,12 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
         // All we can verify is that this alternate createGraph() method returns a byte array of the
         // graph image. Only
         // visual inspection can verify the graph's accurracy, title, and axis labels.
-        metricsGraph = metricsRetriever.createGraph("Query Count", rrdFilename, START_TIME, endTime,
-                "My Vertical Axis Label", "My Title");
+        metricsGraph = metricsRetriever.createGraph("Query Count",
+                rrdFilename,
+                START_TIME,
+                endTime,
+                "My Vertical Axis Label",
+                "My Title");
 
         assertThat(metricsGraph, not(nullValue()));
         assertThat(metricsGraph.length, is(greaterThan(0)));
@@ -163,11 +177,14 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
     @Test
     public void testMetricsJsonDataWithCounter() throws Exception {
         String rrdFilename = TEST_DIR + "queryCount_Counter" + RRD_FILE_EXTENSION;
-        long endTime = new RrdFileBuilder().rrdFileName(rrdFilename).build();
+        long endTime = new RrdFileBuilder().rrdFileName(rrdFilename)
+                .build();
 
         MetricsRetriever metricsRetriever = new RrdMetricsRetriever();
-        String json = metricsRetriever
-                .createJsonData("queryCount", rrdFilename, START_TIME, endTime);
+        String json = metricsRetriever.createJsonData("queryCount",
+                rrdFilename,
+                START_TIME,
+                endTime);
 
         JSONParser parser = new JSONParser();
         JSONObject jsonObj = (JSONObject) parser.parse(json);
@@ -185,7 +202,8 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
         // Verify each retrieved sample has a timestamp and value
         for (int i = 0; i < samples.size(); i++) {
             JSONObject sample = (JSONObject) samples.get(i);
-            LOGGER.debug("timestamp = {},   value= {}", (String) sample.get("timestamp"),
+            LOGGER.debug("timestamp = {},   value= {}",
+                    (String) sample.get("timestamp"),
                     sample.get("value"));
             assertThat(sample.get("timestamp"), not(nullValue()));
             assertThat(sample.get("value"), not(nullValue()));
@@ -195,11 +213,15 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
     @Test
     public void testMetricsJsonDataWithGauge() throws Exception {
         String rrdFilename = TEST_DIR + "queryCount_Gauge" + RRD_FILE_EXTENSION;
-        long endTime = new RrdFileBuilder().rrdFileName(rrdFilename).dsType(DsType.GAUGE).build();
+        long endTime = new RrdFileBuilder().rrdFileName(rrdFilename)
+                .dsType(DsType.GAUGE)
+                .build();
 
         MetricsRetriever metricsRetriever = new RrdMetricsRetriever();
-        String json = metricsRetriever
-                .createJsonData("queryCount", rrdFilename, START_TIME, endTime);
+        String json = metricsRetriever.createJsonData("queryCount",
+                rrdFilename,
+                START_TIME,
+                endTime);
 
         JSONParser parser = new JSONParser();
         JSONObject jsonObj = (JSONObject) parser.parse(json);
@@ -216,7 +238,8 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
         // Verify each retrieved sample has a timestamp and value
         for (int i = 0; i < samples.size(); i++) {
             JSONObject sample = (JSONObject) samples.get(i);
-            LOGGER.debug("timestamp = {}, value = {}", (String) sample.get("timestamp"),
+            LOGGER.debug("timestamp = {}, value = {}",
+                    (String) sample.get("timestamp"),
                     sample.get("value"));
             assertThat(sample.get("timestamp"), not(nullValue()));
             assertThat(sample.get("value"), not(nullValue()));
@@ -226,7 +249,8 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
     @Test
     public void testMetricsCsvDataWithCounter() throws Exception {
         String rrdFilename = TEST_DIR + "queryCount_Counter" + RRD_FILE_EXTENSION;
-        long endTime = new RrdFileBuilder().rrdFileName(rrdFilename).build();
+        long endTime = new RrdFileBuilder().rrdFileName(rrdFilename)
+                .build();
 
         MetricsRetriever metricsRetriever = new RrdMetricsRetriever();
         String csv = metricsRetriever.createCsvData(rrdFilename, START_TIME, endTime);
@@ -248,7 +272,9 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
     @Test
     public void testMetricsCsvDataWithGauge() throws Exception {
         String rrdFilename = TEST_DIR + "queryCount_Gauge" + RRD_FILE_EXTENSION;
-        long endTime = new RrdFileBuilder().rrdFileName(rrdFilename).dsType(DsType.GAUGE).build();
+        long endTime = new RrdFileBuilder().rrdFileName(rrdFilename)
+                .dsType(DsType.GAUGE)
+                .build();
 
         MetricsRetriever metricsRetriever = new RrdMetricsRetriever();
         String csv = metricsRetriever.createCsvData(rrdFilename, START_TIME, endTime);
@@ -270,11 +296,14 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
     @Test
     public void testMetricsXlsDataWithCounter() throws Exception {
         String rrdFilename = TEST_DIR + "queryCount_Counter" + RRD_FILE_EXTENSION;
-        long endTime = new RrdFileBuilder().rrdFileName(rrdFilename).build();
+        long endTime = new RrdFileBuilder().rrdFileName(rrdFilename)
+                .build();
 
         MetricsRetriever metricsRetriever = new RrdMetricsRetriever();
-        OutputStream os = metricsRetriever
-                .createXlsData("queryCount", rrdFilename, START_TIME, endTime);
+        OutputStream os = metricsRetriever.createXlsData("queryCount",
+                rrdFilename,
+                START_TIME,
+                endTime);
         InputStream xls = new ByteArrayInputStream(((ByteArrayOutputStream) os).toByteArray());
         assertThat(xls, not(nullValue()));
 
@@ -297,29 +326,44 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
         long endTime = 1433141999L;  // May 31st, 2015 23:59:59
         int minutes = 31 * 24 * 60;  // minutes between startTime and endTime
         int numSamples = minutes + 10; // go into the next month
-        new RrdFileBuilder().startTime(startTime - RRD_STEP * 2).rrdFileName(rrdFilename)
-                .numRows(numSamples).numSamples(numSamples).dsType(DsType.GAUGE).build();
+        new RrdFileBuilder().startTime(startTime - RRD_STEP * 2)
+                .rrdFileName(rrdFilename)
+                .numRows(numSamples)
+                .numSamples(numSamples)
+                .dsType(DsType.GAUGE)
+                .build();
 
         RrdMetricsRetriever metricsRetriever = new RrdMetricsRetriever();
         MetricData metricData = metricsRetriever.getMetricData(rrdFilename, startTime, endTime);
-        assertThat(metricData.getTimestamps().size(), equalTo(minutes));
-        assertThat(metricData.getTimestamps().get(minutes - 1), lessThanOrEqualTo(endTime));
-        assertThat(metricData.getTimestamps().get(0), greaterThanOrEqualTo(startTime));
-        metricData = metricsRetriever
-                .getMetricData(rrdFilename, startTime - RRD_STEP * 2, endTime + RRD_STEP * 8);
-        assertThat(metricData.getTimestamps().get(0), lessThan(startTime));
-        assertThat(metricData.getTimestamps().get(numSamples - 1), greaterThan(endTime));
-        assertThat(metricData.getTimestamps().size(), equalTo(numSamples));
+        assertThat(metricData.getTimestamps()
+                .size(), equalTo(minutes));
+        assertThat(metricData.getTimestamps()
+                .get(minutes - 1), lessThanOrEqualTo(endTime));
+        assertThat(metricData.getTimestamps()
+                .get(0), greaterThanOrEqualTo(startTime));
+        metricData = metricsRetriever.getMetricData(rrdFilename,
+                startTime - RRD_STEP * 2,
+                endTime + RRD_STEP * 8);
+        assertThat(metricData.getTimestamps()
+                .get(0), lessThan(startTime));
+        assertThat(metricData.getTimestamps()
+                .get(numSamples - 1), greaterThan(endTime));
+        assertThat(metricData.getTimestamps()
+                .size(), equalTo(numSamples));
     }
 
     @Test
     public void testMetricsXlsDataWithGauge() throws Exception {
         String rrdFilename = TEST_DIR + "queryCount_Gauge" + RRD_FILE_EXTENSION;
-        long endTime = new RrdFileBuilder().rrdFileName(rrdFilename).dsType(DsType.GAUGE).build();
+        long endTime = new RrdFileBuilder().rrdFileName(rrdFilename)
+                .dsType(DsType.GAUGE)
+                .build();
 
         MetricsRetriever metricsRetriever = new RrdMetricsRetriever();
-        OutputStream os = metricsRetriever
-                .createXlsData("queryCount", rrdFilename, START_TIME, endTime);
+        OutputStream os = metricsRetriever.createXlsData("queryCount",
+                rrdFilename,
+                START_TIME,
+                endTime);
         InputStream xls = new ByteArrayInputStream(((ByteArrayOutputStream) os).toByteArray());
         assertThat(xls, not(nullValue()));
 
@@ -337,7 +381,8 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
     @Test
     public void testMetricsXmlDataWithCounter() throws Exception {
         String rrdFilename = TEST_DIR + "queryCount_Counter" + RRD_FILE_EXTENSION;
-        long endTime = new RrdFileBuilder().rrdFileName(rrdFilename).build();
+        long endTime = new RrdFileBuilder().rrdFileName(rrdFilename)
+                .build();
 
         MetricsRetriever metricsRetriever = new RrdMetricsRetriever();
         String xml = metricsRetriever.createXmlData("queryCount", rrdFilename, START_TIME, endTime);
@@ -353,7 +398,9 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
     @Test
     public void testMetricsXmlDataWithGauge() throws Exception {
         String rrdFilename = TEST_DIR + "queryCount_Gauge" + RRD_FILE_EXTENSION;
-        long endTime = new RrdFileBuilder().rrdFileName(rrdFilename).dsType(DsType.GAUGE).build();
+        long endTime = new RrdFileBuilder().rrdFileName(rrdFilename)
+                .dsType(DsType.GAUGE)
+                .build();
 
         MetricsRetriever metricsRetriever = new RrdMetricsRetriever();
         String xml = metricsRetriever.createXmlData("queryCount", rrdFilename, START_TIME, endTime);
@@ -369,18 +416,24 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
     @Test
     public void testMetricsXlsReport() throws Exception {
         String rrdFilename = TEST_DIR + "queryCount_Counter" + RRD_FILE_EXTENSION;
-        new RrdFileBuilder().rrdFileName(rrdFilename).build();
+        new RrdFileBuilder().rrdFileName(rrdFilename)
+                .build();
 
         rrdFilename = TEST_DIR + "queryCount_Gauge" + RRD_FILE_EXTENSION;
-        long endTime = new RrdFileBuilder().rrdFileName(rrdFilename).dsType(DsType.GAUGE).build();
+        long endTime = new RrdFileBuilder().rrdFileName(rrdFilename)
+                .dsType(DsType.GAUGE)
+                .build();
 
         List<String> metricNames = new ArrayList<String>();
         metricNames.add("queryCount_Counter");
         metricNames.add("queryCount_Gauge");
 
         MetricsRetriever metricsRetriever = new RrdMetricsRetriever();
-        OutputStream os = metricsRetriever
-                .createXlsReport(metricNames, TEST_DIR, START_TIME, endTime, null);
+        OutputStream os = metricsRetriever.createXlsReport(metricNames,
+                TEST_DIR,
+                START_TIME,
+                endTime,
+                null);
         InputStream xls = new ByteArrayInputStream(((ByteArrayOutputStream) os).toByteArray());
         assertThat(xls, not(nullValue()));
 
@@ -402,34 +455,43 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
         long endTime = new DateTime(DateTimeZone.UTC).getMillis();
         List<String> metricNames = new ArrayList<String>();
         metricNames.add(metricName);
-        for (RrdMetricsRetriever.SUMMARY_INTERVALS interval : RrdMetricsRetriever.SUMMARY_INTERVALS
-                .values()) {
+        for (RrdMetricsRetriever.SUMMARY_INTERVALS interval : RrdMetricsRetriever.SUMMARY_INTERVALS.values()) {
             long startTime = 0L;
             switch (interval) {
             case minute:
-                startTime = new DateTime(DateTimeZone.UTC).minusHours(1).getMillis();
+                startTime = new DateTime(DateTimeZone.UTC).minusHours(1)
+                        .getMillis();
                 break;
             case hour:
-                startTime = new DateTime(DateTimeZone.UTC).minusDays(1).getMillis();
+                startTime = new DateTime(DateTimeZone.UTC).minusDays(1)
+                        .getMillis();
                 break;
             case day:
-                startTime = new DateTime(DateTimeZone.UTC).minusWeeks(1).getMillis();
+                startTime = new DateTime(DateTimeZone.UTC).minusWeeks(1)
+                        .getMillis();
                 break;
             case week:
-                startTime = new DateTime(DateTimeZone.UTC).minusMonths(1).getMillis();
+                startTime = new DateTime(DateTimeZone.UTC).minusMonths(1)
+                        .getMillis();
                 break;
             case month:
-                startTime = new DateTime(DateTimeZone.UTC).minusYears(1).getMillis();
+                startTime = new DateTime(DateTimeZone.UTC).minusYears(1)
+                        .getMillis();
                 break;
             }
             int sampleSize = (int) ((endTime - startTime) / (RRD_STEP * 1000));
             new RrdFileBuilder().rrdFileName(TEST_DIR + metricName + RRD_FILE_EXTENSION)
-                    .dsType(DsType.GAUGE).numSamples(sampleSize).numRows(sampleSize)
-                    .startTime(startTime).build();
+                    .dsType(DsType.GAUGE)
+                    .numSamples(sampleSize)
+                    .numRows(sampleSize)
+                    .startTime(startTime)
+                    .build();
             MetricsRetriever metricsRetriever = new RrdMetricsRetriever();
-            OutputStream os = metricsRetriever
-                    .createXlsReport(metricNames, TEST_DIR, startTime, endTime,
-                            interval.toString());
+            OutputStream os = metricsRetriever.createXlsReport(metricNames,
+                    TEST_DIR,
+                    startTime,
+                    endTime,
+                    interval.toString());
             InputStream xls = new ByteArrayInputStream(((ByteArrayOutputStream) os).toByteArray());
             assertThat(xls, not(nullValue()));
 
@@ -444,11 +506,14 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
     @Test
     public void testMetricsPptDataWithCounter() throws Exception {
         String rrdFilename = TEST_DIR + "queryCount_Counter" + RRD_FILE_EXTENSION;
-        long endTime = new RrdFileBuilder().rrdFileName(rrdFilename).build();
+        long endTime = new RrdFileBuilder().rrdFileName(rrdFilename)
+                .build();
 
         MetricsRetriever metricsRetriever = new RrdMetricsRetriever();
-        OutputStream os = metricsRetriever
-                .createPptData("queryCount", rrdFilename, START_TIME, endTime);
+        OutputStream os = metricsRetriever.createPptData("queryCount",
+                rrdFilename,
+                START_TIME,
+                endTime);
         InputStream is = new ByteArrayInputStream(((ByteArrayOutputStream) os).toByteArray());
         assertThat(is, not(nullValue()));
 
@@ -461,11 +526,15 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
     @Test
     public void testMetricsPptDataWithGauge() throws Exception {
         String rrdFilename = TEST_DIR + "queryCount_Gauge" + RRD_FILE_EXTENSION;
-        long endTime = new RrdFileBuilder().rrdFileName(rrdFilename).dsType(DsType.GAUGE).build();
+        long endTime = new RrdFileBuilder().rrdFileName(rrdFilename)
+                .dsType(DsType.GAUGE)
+                .build();
 
         MetricsRetriever metricsRetriever = new RrdMetricsRetriever();
-        OutputStream os = metricsRetriever
-                .createPptData("queryCount", rrdFilename, START_TIME, endTime);
+        OutputStream os = metricsRetriever.createPptData("queryCount",
+                rrdFilename,
+                START_TIME,
+                endTime);
         InputStream is = new ByteArrayInputStream(((ByteArrayOutputStream) os).toByteArray());
         assertThat(is, not(nullValue()));
 
@@ -478,18 +547,23 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
     @Test
     public void testMetricsPptReport() throws Exception {
         String rrdFilename = TEST_DIR + "queryCount_Counter" + RRD_FILE_EXTENSION;
-        new RrdFileBuilder().rrdFileName(rrdFilename).build();
+        new RrdFileBuilder().rrdFileName(rrdFilename)
+                .build();
 
         rrdFilename = TEST_DIR + "queryCount_Gauge" + RRD_FILE_EXTENSION;
-        long endTime = new RrdFileBuilder().rrdFileName(rrdFilename).dsType(DsType.GAUGE).build();
+        long endTime = new RrdFileBuilder().rrdFileName(rrdFilename)
+                .dsType(DsType.GAUGE)
+                .build();
 
         List<String> metricNames = new ArrayList<String>();
         metricNames.add("queryCount_Counter");
         metricNames.add("queryCount_Gauge");
 
         MetricsRetriever metricsRetriever = new RrdMetricsRetriever();
-        OutputStream os = metricsRetriever
-                .createPptReport(metricNames, TEST_DIR, START_TIME, endTime);
+        OutputStream os = metricsRetriever.createPptReport(metricNames,
+                TEST_DIR,
+                START_TIME,
+                endTime);
         InputStream is = new ByteArrayInputStream(((ByteArrayOutputStream) os).toByteArray());
         assertThat(is, not(nullValue()));
 
@@ -505,8 +579,10 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
     // (expected = MetricsGraphException.class)
     public void testInvalidDataSourceType() throws Exception {
         String rrdFilename = TEST_DIR + "dummy_Absolute" + RRD_FILE_EXTENSION;
-        long endTime = new RrdFileBuilder().rrdFileName(rrdFilename).numSamples(4)
-                .dsType(DsType.ABSOLUTE).build();
+        long endTime = new RrdFileBuilder().rrdFileName(rrdFilename)
+                .numSamples(4)
+                .dsType(DsType.ABSOLUTE)
+                .build();
 
         MetricsRetriever metricsRetriever = new RrdMetricsRetriever();
         try {
@@ -521,8 +597,10 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
     public void testRrdFileWithMultipleDataSources() throws Exception {
         String rrdFilename = TEST_DIR + "dummy" + RRD_FILE_EXTENSION;
 
-        long endTime = new RrdFileBuilder().rrdFileName(rrdFilename).numSamples(4)
-                .secondDataSource(true).build();
+        long endTime = new RrdFileBuilder().rrdFileName(rrdFilename)
+                .numSamples(4)
+                .secondDataSource(true)
+                .build();
 
         MetricsRetriever metricsRetriever = new RrdMetricsRetriever();
         try {
@@ -544,27 +622,35 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
         // first row should have title in first cell
         HSSFRow row = sheet.getRow(0);
         assertThat(row, not(nullValue()));
-        assertThat(row.getCell(0).getStringCellValue(), startsWith(metricName + " for"));
+        assertThat(row.getCell(0)
+                .getStringCellValue(), startsWith(metricName + " for"));
 
         // third row should have column headers in first and second cells
         row = sheet.getRow(2);
-        assertThat(row.getCell(0).getStringCellValue(), equalTo("Timestamp"));
-        assertThat(row.getCell(1).getStringCellValue(), equalTo("Value"));
+        assertThat(row.getCell(0)
+                .getStringCellValue(), equalTo("Timestamp"));
+        assertThat(row.getCell(1)
+                .getStringCellValue(), equalTo("Value"));
 
         // verify rows with the sample data, i.e., timestamps and values
         int endRow = 3 + expectedNumberOfDataRows;
         for (int i = 3; i < endRow; i++) {
             row = sheet.getRow(i);
-            assertThat(row.getCell(0).getStringCellValue(), not(nullValue()));
-            assertThat(row.getCell(1).getNumericCellValue(), not(nullValue()));
+            assertThat(row.getCell(0)
+                    .getStringCellValue(), not(nullValue()));
+            assertThat(row.getCell(1)
+                    .getNumericCellValue(), not(nullValue()));
         }
 
         row = sheet.getRow(sheet.getLastRowNum());
         if (hasTotalCount) {
-            assertThat(row.getCell(0).getStringCellValue(), startsWith("Total Count:"));
-            assertThat(row.getCell(1).getNumericCellValue(), not(nullValue()));
+            assertThat(row.getCell(0)
+                    .getStringCellValue(), startsWith("Total Count:"));
+            assertThat(row.getCell(1)
+                    .getNumericCellValue(), not(nullValue()));
         } else {
-            assertThat(row.getCell(0).getStringCellValue(), not(startsWith("Total Count:")));
+            assertThat(row.getCell(0)
+                    .getStringCellValue(), not(startsWith("Total Count:")));
         }
     }
 
@@ -714,7 +800,9 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
                 int randomQueryCount = random.nextInt(max - min + 1) + min;
                 queryCount += randomQueryCount;
                 LOGGER.debug("timestamp: {}   ({}),   queryCount = {}",
-                        getCalendarTime(timestamp * 1000), timestamp, queryCount);
+                        getCalendarTime(timestamp * 1000),
+                        timestamp,
+                        queryCount);
                 sample.setTime(timestamp);
                 sample.setValue("data", queryCount);
                 sample.update();
@@ -738,7 +826,9 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
             for (int i = 1; i <= numSamples; i++) {
                 int randomQueryResponseTime = random.nextInt(max - min + 1) + min; // in ms
                 LOGGER.debug("timestamp: {},  ({}),   queryResponseTime = {}",
-                        getCalendarTime(timestamp * 1000), timestamp, randomQueryResponseTime);
+                        getCalendarTime(timestamp * 1000),
+                        timestamp,
+                        randomQueryResponseTime);
                 sample.setTime(timestamp);
                 sample.setValue("data", randomQueryResponseTime);
                 sample.update();
@@ -777,8 +867,9 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
         private void dumpData() throws IOException {
             LOGGER.debug(rrdDb.dump());
 
-            FetchRequest fetchRequest = rrdDb
-                    .createFetchRequest(ConsolFun.AVERAGE, startTime, endTime);
+            FetchRequest fetchRequest = rrdDb.createFetchRequest(ConsolFun.AVERAGE,
+                    startTime,
+                    endTime);
             FetchData fetchData = fetchRequest.fetchData();
             LOGGER.debug("************  {}: AVERAGE  **************", dsType.name());
             LOGGER.debug(fetchData.dump());

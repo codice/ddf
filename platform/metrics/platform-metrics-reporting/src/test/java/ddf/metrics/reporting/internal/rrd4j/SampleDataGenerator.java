@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -39,14 +39,19 @@ public class SampleDataGenerator {
                         if (oldDb.getDsCount() > 1) {
                             continue;
                         }
-                        DsType dsType = oldDb.getDatasource(0).getType();
+                        DsType dsType = oldDb.getDatasource(0)
+                                .getType();
                         String newDb = "target/" + metricsFileName;
-                        long startTime = new DateTime().minusYears(1).getMillis();
-                        int sampleSize = (int) ((new DateTime().getMillis() - startTime) / (60
-                                * 1000));
+                        long startTime = new DateTime().minusYears(1)
+                                .getMillis();
+                        int sampleSize =
+                                (int) ((new DateTime().getMillis() - startTime) / (60 * 1000));
                         new RrdMetricsRetrieverTest.RrdFileBuilder().rrdFileName(newDb)
-                                .dsType(dsType).numSamples(sampleSize).numRows(sampleSize)
-                                .startTime(startTime).build();
+                                .dsType(dsType)
+                                .numSamples(sampleSize)
+                                .numRows(sampleSize)
+                                .startTime(startTime)
+                                .build();
                         FileUtils.copyFile(new File(newDb), metricsFile);
                     }
                 }

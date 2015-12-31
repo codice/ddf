@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -105,11 +105,11 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
     private final MetricRegistry metricsRegistry = new MetricRegistry();
 
     private final JmxReporter reporter = JmxReporter.forRegistry(metricsRegistry)
-            .inDomain(MBEAN_PACKAGE_NAME).build();
+            .inDomain(MBEAN_PACKAGE_NAME)
+            .build();
 
     // Map of sourceId to Source's metric data
     protected Map<String, SourceMetric> metrics = new HashMap<String, SourceMetric>();
-
 
     // Injected list of CatalogProviders and FederatedSources
     // that is kept updated by container, e.g., with latest sourceIds
@@ -190,7 +190,8 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
             Map<String, Integer> totalHitsPerSource = new HashMap<String, Integer>();
 
             for (Result result : results) {
-                String sourceId = result.getMetacard().getSourceId();
+                String sourceId = result.getMetacard()
+                        .getSourceId();
                 if (totalHitsPerSource.containsKey(sourceId)) {
                     totalHitsPerSource.put(sourceId, totalHitsPerSource.get(sourceId) + 1);
                 } else {
@@ -252,7 +253,8 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
 
     private boolean createMetric(List<? extends Source> sources, String sourceId) {
         for (Source source : sources) {
-            if (source.getId().equals(sourceId)) {
+            if (source.getId()
+                    .equals(sourceId)) {
                 LOGGER.debug("Found sourceId = " + sourceId + " in sources list");
                 if (sourceToSourceIdMap.containsKey(source)) {
                     // Source's ID must have changed since it is in this map but not in the metrics
@@ -384,8 +386,8 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
         // as the local catalog provider).
         if (!metrics.containsKey(key)) {
             if (type == MetricType.HISTOGRAM) {
-                Histogram histogram = metricsRegistry
-                        .histogram(MetricRegistry.name(sourceId, mbeanName));
+                Histogram histogram = metricsRegistry.histogram(MetricRegistry.name(sourceId,
+                        mbeanName));
                 RrdJmxCollector collector = createGaugeMetricsCollector(sourceId, mbeanName);
                 metrics.put(key, new SourceMetric(histogram, sourceId, collector, true));
             } else if (type == MetricType.METER) {
@@ -409,7 +411,9 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
      * @return the ddf.metrics.collector.JmxCollector created
      */
     private RrdJmxCollector createCounterMetricsCollector(String sourceId, String collectorName) {
-        return createMetricsCollector(sourceId, collectorName, COUNT_MBEAN_ATTRIBUTE_NAME,
+        return createMetricsCollector(sourceId,
+                collectorName,
+                COUNT_MBEAN_ATTRIBUTE_NAME,
                 DERIVE_DATA_SOURCE_TYPE);
     }
 
@@ -421,7 +425,9 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
      * @return the ddf.metrics.collector.JmxCollector created
      */
     private RrdJmxCollector createGaugeMetricsCollector(String sourceId, String collectorName) {
-        return createMetricsCollector(sourceId, collectorName, MEAN_MBEAN_ATTRIBUTE_NAME,
+        return createMetricsCollector(sourceId,
+                collectorName,
+                MEAN_MBEAN_ATTRIBUTE_NAME,
                 GAUGE_DATA_SOURCE_TYPE);
     }
 
@@ -441,13 +447,18 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
 
         LOGGER.trace(
                 "ENTERING: createMetricsCollector - sourceId = {},   collectorName = {},   mbeanAttributeName = {},   dataSourceType = {}",
-                sourceId, collectorName, mbeanAttributeName, dataSourceType);
+                sourceId,
+                collectorName,
+                mbeanAttributeName,
+                dataSourceType);
 
         String rrdPath = getRrdFilename(sourceId, collectorName);
 
         RrdJmxCollector collector = new RrdJmxCollector(
-                MBEAN_PACKAGE_NAME + ":name=" + sourceId + "." + collectorName, mbeanAttributeName,
-                rrdPath, dataSourceType);
+                MBEAN_PACKAGE_NAME + ":name=" + sourceId + "." + collectorName,
+                mbeanAttributeName,
+                rrdPath,
+                dataSourceType);
         collector.init();
 
         LOGGER.trace("EXITING: createMetricsCollector - sourceId = {}", sourceId);
@@ -508,8 +519,10 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
     private void deleteCollector(String sourceId, String metricName) {
         String mapKey = sourceId + "." + metricName;
         SourceMetric sourceMetric = metrics.get(mapKey);
-        LOGGER.debug("Deleting " + metricName + " ddf.metrics.collector.JmxCollector for source " + sourceId);
-        sourceMetric.getCollector().destroy();
+        LOGGER.debug("Deleting " + metricName + " ddf.metrics.collector.JmxCollector for source "
+                + sourceId);
+        sourceMetric.getCollector()
+                .destroy();
         metrics.remove(mapKey);
     }
 

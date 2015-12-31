@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -199,8 +199,8 @@ public class CswSource extends MaskableImpl
     protected String configurationPid;
 
     static {
-        try (InputStream properties = CswSource.class
-                .getResourceAsStream(DESCRIBABLE_PROPERTIES_FILE)) {
+        try (InputStream properties = CswSource.class.getResourceAsStream(
+                DESCRIBABLE_PROPERTIES_FILE)) {
             describableProperties.load(properties);
         } catch (IOException e) {
             LOGGER.info("Failed to load properties", e);
@@ -286,9 +286,9 @@ public class CswSource extends MaskableImpl
 
         JAXBContext jaxbContext = null;
 
-        String contextPath = StringUtils
-                .join(new String[] {CswConstants.OGC_CSW_PACKAGE, CswConstants.OGC_FILTER_PACKAGE,
-                        CswConstants.OGC_GML_PACKAGE, CswConstants.OGC_OWS_PACKAGE}, ":");
+        String contextPath = StringUtils.join(new String[] {CswConstants.OGC_CSW_PACKAGE,
+                CswConstants.OGC_FILTER_PACKAGE, CswConstants.OGC_GML_PACKAGE,
+                CswConstants.OGC_OWS_PACKAGE}, ":");
 
         try {
             jaxbContext = JAXBContext.newInstance(contextPath, CswSource.class.getClassLoader());
@@ -310,18 +310,25 @@ public class CswSource extends MaskableImpl
     }
 
     private void initClientFactory() {
-        if (StringUtils.isNotBlank(cswSourceConfiguration.getUsername()) && StringUtils
-                .isNotBlank(cswSourceConfiguration.getPassword())) {
-            factory = new SecureCxfClientFactory(cswSourceConfiguration.getCswUrl(), Csw.class,
-                    initProviders(cswTransformProvider, cswSourceConfiguration), null,
-                    cswSourceConfiguration.getDisableCnCheck(), false,
+        if (StringUtils.isNotBlank(cswSourceConfiguration.getUsername()) && StringUtils.isNotBlank(
+                cswSourceConfiguration.getPassword())) {
+            factory = new SecureCxfClientFactory(cswSourceConfiguration.getCswUrl(),
+                    Csw.class,
+                    initProviders(cswTransformProvider, cswSourceConfiguration),
+                    null,
+                    cswSourceConfiguration.getDisableCnCheck(),
+                    false,
                     cswSourceConfiguration.getConnectionTimeout(),
                     cswSourceConfiguration.getReceiveTimeout(),
-                    cswSourceConfiguration.getUsername(), cswSourceConfiguration.getPassword());
+                    cswSourceConfiguration.getUsername(),
+                    cswSourceConfiguration.getPassword());
         } else {
-            factory = new SecureCxfClientFactory(cswSourceConfiguration.getCswUrl(), Csw.class,
-                    initProviders(cswTransformProvider, cswSourceConfiguration), null,
-                    cswSourceConfiguration.getDisableCnCheck(), false,
+            factory = new SecureCxfClientFactory(cswSourceConfiguration.getCswUrl(),
+                    Csw.class,
+                    initProviders(cswTransformProvider, cswSourceConfiguration),
+                    null,
+                    cswSourceConfiguration.getDisableCnCheck(),
+                    false,
                     cswSourceConfiguration.getConnectionTimeout(),
                     cswSourceConfiguration.getReceiveTimeout());
         }
@@ -352,8 +359,8 @@ public class CswSource extends MaskableImpl
         getRecordsTypeProvider.setJaxbElementClassNames(jaxbElementClassNames);
 
         // Adding map entry of <Class Name>,<Qualified Name> to jaxbElementClassMap
-        String expandedName = new QName(CswConstants.CSW_OUTPUT_SCHEMA, CswConstants.GET_RECORDS)
-                .toString();
+        String expandedName = new QName(CswConstants.CSW_OUTPUT_SCHEMA,
+                CswConstants.GET_RECORDS).toString();
         LOGGER.debug("{} expanded name: {}", CswConstants.GET_RECORDS, expandedName);
         jaxbElementClassMap.put(GetRecordsType.class.getName(), expandedName);
 
@@ -391,7 +398,9 @@ public class CswSource extends MaskableImpl
 
         if (configuration == null || configuration.isEmpty()) {
             LOGGER.error("Recieved null or empty configuration during refresh for {}: {}",
-                    this.getClass().getSimpleName(), cswSourceConfiguration.getId());
+                    this.getClass()
+                            .getSimpleName(),
+                    cswSourceConfiguration.getId());
             return;
         }
 
@@ -425,9 +434,11 @@ public class CswSource extends MaskableImpl
             String oldOutputSchema = cswSourceConfiguration.getOutputSchema();
             cswSourceConfiguration.setOutputSchema(schemaProp);
 
-            LOGGER.debug("{}: new output schema: {}", cswSourceConfiguration.getId(),
+            LOGGER.debug("{}: new output schema: {}",
+                    cswSourceConfiguration.getId(),
                     cswSourceConfiguration.getOutputSchema());
-            LOGGER.debug("{}: old output schema: {}", cswSourceConfiguration.getId(),
+            LOGGER.debug("{}: old output schema: {}",
+                    cswSourceConfiguration.getId(),
                     oldOutputSchema);
         }
 
@@ -483,17 +494,19 @@ public class CswSource extends MaskableImpl
             cswSourceConfiguration.setModifiedDateMapping(modifiedProp);
         }
 
-        String currentContentTypeMapping = ((String) configuration
-                .get(CONTENT_TYPE_MAPPING_PROPERTY));
+        String currentContentTypeMapping =
+                ((String) configuration.get(CONTENT_TYPE_MAPPING_PROPERTY));
 
         if (StringUtils.isNotBlank(currentContentTypeMapping)) {
             String previousContentTypeMapping = cswSourceConfiguration.getContentTypeMapping();
-            LOGGER.debug("{}: Previous content type mapping: {}.", cswSourceConfiguration.getId(),
+            LOGGER.debug("{}: Previous content type mapping: {}.",
+                    cswSourceConfiguration.getId(),
                     previousContentTypeMapping);
             currentContentTypeMapping = currentContentTypeMapping.trim();
             if (!currentContentTypeMapping.equals(previousContentTypeMapping)) {
                 LOGGER.debug("{}: The content type has been updated from {} to {}.",
-                        cswSourceConfiguration.getId(), previousContentTypeMapping,
+                        cswSourceConfiguration.getId(),
+                        previousContentTypeMapping,
                         currentContentTypeMapping);
                 contentTypes.clear();
             }
@@ -503,13 +516,14 @@ public class CswSource extends MaskableImpl
 
         cswSourceConfiguration.setContentTypeMapping(currentContentTypeMapping);
 
-        LOGGER.debug("{}: Current content type mapping: {}.", cswSourceConfiguration.getId(),
+        LOGGER.debug("{}: Current content type mapping: {}.",
+                cswSourceConfiguration.getId(),
                 currentContentTypeMapping);
 
         Integer newPollInterval = (Integer) configuration.get(POLL_INTERVAL_PROPERTY);
 
-        if (newPollInterval != null && !newPollInterval
-                .equals(cswSourceConfiguration.getPollIntervalMinutes())) {
+        if (newPollInterval != null
+                && !newPollInterval.equals(cswSourceConfiguration.getPollIntervalMinutes())) {
             LOGGER.debug("Poll Interval was changed for source {}.",
                     cswSourceConfiguration.getId());
             cswSourceConfiguration.setPollIntervalMinutes(newPollInterval);
@@ -518,8 +532,8 @@ public class CswSource extends MaskableImpl
         }
 
         String cswUrlProp = (String) configuration.get(CSWURL_PROPERTY);
-        if (StringUtils.isNotBlank(cswUrlProp) &&
-                !cswUrlProp.equals(cswSourceConfiguration.getCswUrl())) {
+        if (StringUtils.isNotBlank(cswUrlProp)
+                && !cswUrlProp.equals(cswSourceConfiguration.getCswUrl())) {
             cswSourceConfiguration.setCswUrl(cswUrlProp);
         }
         configureCswSource();
@@ -529,12 +543,14 @@ public class CswSource extends MaskableImpl
 
     protected void setupAvailabilityPoll() {
         LOGGER.debug("Setting Availability poll task for {} minute(s) on Source {}",
-                cswSourceConfiguration.getPollIntervalMinutes(), cswSourceConfiguration.getId());
+                cswSourceConfiguration.getPollIntervalMinutes(),
+                cswSourceConfiguration.getId());
         CswSourceAvailabilityCommand command = new CswSourceAvailabilityCommand();
         long interval = TimeUnit.MINUTES.toMillis(cswSourceConfiguration.getPollIntervalMinutes());
         if (availabilityPollFuture == null || availabilityPollFuture.isCancelled()) {
             if (availabilityTask == null) {
-                availabilityTask = new AvailabilityTask(interval, command,
+                availabilityTask = new AvailabilityTask(interval,
+                        command,
                         cswSourceConfiguration.getId());
             } else {
                 availabilityTask.setInterval(interval);
@@ -547,9 +563,10 @@ public class CswSource extends MaskableImpl
             // Schedule the availability check every 1 second. The actually call to
             // the remote server will only occur if the pollInterval has
             // elapsed.
-            availabilityPollFuture = scheduler
-                    .scheduleWithFixedDelay(availabilityTask, AvailabilityTask.NO_DELAY,
-                            AvailabilityTask.ONE_SECOND, TimeUnit.SECONDS);
+            availabilityPollFuture = scheduler.scheduleWithFixedDelay(availabilityTask,
+                    AvailabilityTask.NO_DELAY,
+                    AvailabilityTask.ONE_SECOND,
+                    TimeUnit.SECONDS);
         } else {
             LOGGER.debug("No changes being made on the poller.");
         }
@@ -617,8 +634,8 @@ public class CswSource extends MaskableImpl
 
     @Override
     public SourceResponse query(QueryRequest queryRequest) throws UnsupportedQueryException {
-        Subject subject = (Subject) queryRequest
-                .getPropertyValue(SecurityConstants.SECURITY_SUBJECT);
+        Subject subject =
+                (Subject) queryRequest.getPropertyValue(SecurityConstants.SECURITY_SUBJECT);
         Csw csw = factory.getClientForSubject(subject);
         return query(queryRequest, ElementSetType.FULL, null, csw);
     }
@@ -629,15 +646,18 @@ public class CswSource extends MaskableImpl
         Query query = queryRequest.getQuery();
         LOGGER.debug("{}: Received query:\n{}", cswSourceConfiguration.getId(), query);
 
-        GetRecordsType getRecordsType = createGetRecordsRequest(query, elementSetName,
+        GetRecordsType getRecordsType = createGetRecordsRequest(query,
+                elementSetName,
                 elementNames);
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("{}: GetRecords request:\n {}", cswSourceConfiguration.getId(),
+            LOGGER.debug("{}: GetRecords request:\n {}",
+                    cswSourceConfiguration.getId(),
                     getGetRecordsTypeAsXml(getRecordsType));
         }
 
-        LOGGER.debug("{}: Sending query to: {}", cswSourceConfiguration.getId(),
+        LOGGER.debug("{}: Sending query to: {}",
+                cswSourceConfiguration.getId(),
                 cswSourceConfiguration.getCswUrl());
 
         List<Result> results = null;
@@ -671,9 +691,11 @@ public class CswSource extends MaskableImpl
         }
 
         LOGGER.debug("{}: Adding {} result(s) to the source response.",
-                cswSourceConfiguration.getId(), results.size());
+                cswSourceConfiguration.getId(),
+                results.size());
 
-        SourceResponseImpl sourceResponse = new SourceResponseImpl(queryRequest, results,
+        SourceResponseImpl sourceResponse = new SourceResponseImpl(queryRequest,
+                results,
                 totalHits);
         addContentTypes(sourceResponse);
         return sourceResponse;
@@ -683,7 +705,8 @@ public class CswSource extends MaskableImpl
     public String getDescription() {
         StringBuilder sb = new StringBuilder();
         sb.append(describableProperties.getProperty(DESCRIPTION))
-                .append(System.getProperty("line.separator")).append(description);
+                .append(System.getProperty("line.separator"))
+                .append(description);
         return sb.toString();
     }
 
@@ -781,7 +804,8 @@ public class CswSource extends MaskableImpl
             }
         }
 
-        LOGGER.debug("{}: Setting CSW coordinate order to {}", cswSourceConfiguration.getId(),
+        LOGGER.debug("{}: Setting CSW coordinate order to {}",
+                cswSourceConfiguration.getId(),
                 cswAxisOrder);
         cswSourceConfiguration.setCswAxisOrder(cswAxisOrder);
     }
@@ -886,15 +910,17 @@ public class CswSource extends MaskableImpl
 
         QName queryTypeQName = null;
         try {
-            queryTypeQName = new QName(
-                    QName.valueOf(cswSourceConfiguration.getQueryTypeQName()).getNamespaceURI(),
-                    QName.valueOf(cswSourceConfiguration.getQueryTypeQName()).getLocalPart(),
+            queryTypeQName = new QName(QName.valueOf(cswSourceConfiguration.getQueryTypeQName())
+                    .getNamespaceURI(),
+                    QName.valueOf(cswSourceConfiguration.getQueryTypeQName())
+                            .getLocalPart(),
                     cswSourceConfiguration.getQueryTypePrefix());
         } catch (IllegalArgumentException e) {
             LOGGER.warn("Unable to parse query type QName of {}.  Defaulting to CSW Record",
                     cswSourceConfiguration.getQueryTypeQName());
             queryTypeQName = new QName(CswConstants.CSW_OUTPUT_SCHEMA,
-                    CswConstants.CSW_RECORD_LOCAL_NAME, CswConstants.CSW_NAMESPACE_PREFIX);
+                    CswConstants.CSW_RECORD_LOCAL_NAME,
+                    CswConstants.CSW_NAMESPACE_PREFIX);
         }
 
         queryType.setTypeNames(Arrays.asList(new QName[] {queryTypeQName}));
@@ -925,27 +951,31 @@ public class CswSource extends MaskableImpl
             sortBy = new SortByType();
             SortPropertyType sortProperty = new SortPropertyType();
             PropertyNameType propertyName = new PropertyNameType();
-            String propName = query.getSortBy().getPropertyName().getPropertyName();
+            String propName = query.getSortBy()
+                    .getPropertyName()
+                    .getPropertyName();
             if (propName != null) {
                 if (Result.TEMPORAL.equals(propName) || Metacard.ANY_DATE.equals(propName)) {
                     propName = Metacard.MODIFIED;
-                } else if (Result.RELEVANCE.equals(propName) || Metacard.ANY_TEXT
-                        .equals(propName)) {
+                } else if (Result.RELEVANCE.equals(propName)
+                        || Metacard.ANY_TEXT.equals(propName)) {
                     propName = Metacard.TITLE;
                 } else if (Result.DISTANCE.equals(propName) || Metacard.ANY_GEO.equals(propName)) {
                     return null;
                 }
             }
 
-            propertyName.setContent(
-                    Arrays.asList((Object) cswFilterDelegate.mapPropertyName(propName)));
+            propertyName.setContent(Arrays.asList((Object) cswFilterDelegate.mapPropertyName(
+                    propName)));
             sortProperty.setPropertyName(propertyName);
-            if (SortOrder.DESCENDING.equals(query.getSortBy().getSortOrder())) {
+            if (SortOrder.DESCENDING.equals(query.getSortBy()
+                    .getSortOrder())) {
                 sortProperty.setSortOrder(SortOrderType.DESC);
             } else {
                 sortProperty.setSortOrder(SortOrderType.ASC);
             }
-            sortBy.getSortProperty().add(sortProperty);
+            sortBy.getSortProperty()
+                    .add(sortProperty);
         }
 
         return sortBy;
@@ -960,7 +990,8 @@ public class CswSource extends MaskableImpl
         QueryConstraintType queryConstraintType = new QueryConstraintType();
         queryConstraintType.setVersion(CswConstants.CONSTRAINT_VERSION);
         if (isConstraintCql || cswSourceConfiguration.isCqlForced()) {
-            queryConstraintType.setCqlText(CswCqlTextFilter.getInstance().getCqlText(filter));
+            queryConstraintType.setCqlText(CswCqlTextFilter.getInstance()
+                    .getCqlText(filter));
         } else {
             queryConstraintType.setFilter(filter);
         }
@@ -988,7 +1019,8 @@ public class CswSource extends MaskableImpl
         List<Result> results = new ArrayList<Result>();
 
         LOGGER.debug("Found {} metacard(s) in the CswRecordCollection.",
-                cswRecordCollection.getCswRecords().size());
+                cswRecordCollection.getCswRecords()
+                        .size());
 
         String transformerId = getMetadataTransformerId();
 
@@ -997,11 +1029,12 @@ public class CswSource extends MaskableImpl
         for (Metacard metacard : cswRecordCollection.getCswRecords()) {
             MetacardImpl wrappedMetacard = new MetacardImpl(metacard);
             wrappedMetacard.setSourceId(getId());
-            if (wrappedMetacard.getAttribute(Metacard.RESOURCE_DOWNLOAD_URL) != null
-                    && wrappedMetacard.getAttribute(Metacard.RESOURCE_DOWNLOAD_URL).getValue()
-                    != null) {
+            if (wrappedMetacard.getAttribute(Metacard.RESOURCE_DOWNLOAD_URL) != null &&
+                    wrappedMetacard.getAttribute(Metacard.RESOURCE_DOWNLOAD_URL)
+                            .getValue() != null) {
                 wrappedMetacard.setAttribute(Metacard.RESOURCE_URI,
-                        wrappedMetacard.getAttribute(Metacard.RESOURCE_DOWNLOAD_URL).getValue());
+                        wrappedMetacard.getAttribute(Metacard.RESOURCE_DOWNLOAD_URL)
+                                .getValue());
             }
             Metacard tranformedMetacard = wrappedMetacard;
             if (transformer != null) {
@@ -1036,7 +1069,9 @@ public class CswSource extends MaskableImpl
             return transformer.transform(metacard);
         } catch (CatalogTransformerException e) {
             LOGGER.warn("{} :Metadata Transformation Failed for metacard: {}",
-                    cswSourceConfiguration.getId(), metacard.getId(), e);
+                    cswSourceConfiguration.getId(),
+                    metacard.getId(),
+                    e);
         }
         return metacard;
 
@@ -1068,13 +1103,15 @@ public class CswSource extends MaskableImpl
             Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
 
-            JAXBElement<GetRecordsType> jaxbElement = new JAXBElement<GetRecordsType>(
-                    new QName(CswConstants.CSW_OUTPUT_SCHEMA, CswConstants.GET_RECORDS),
-                    GetRecordsType.class, getRecordsType);
+            JAXBElement<GetRecordsType> jaxbElement = new JAXBElement<GetRecordsType>(new QName(
+                    CswConstants.CSW_OUTPUT_SCHEMA,
+                    CswConstants.GET_RECORDS), GetRecordsType.class, getRecordsType);
             marshaller.marshal(jaxbElement, writer);
         } catch (JAXBException e) {
-            LOGGER.error("{}: Unable to marshall {} to XML.", cswSourceConfiguration.getId(),
-                    GetRecordsType.class, e);
+            LOGGER.error("{}: Unable to marshall {} to XML.",
+                    cswSourceConfiguration.getId(),
+                    GetRecordsType.class,
+                    e);
         }
         return writer.toString();
     }
@@ -1185,7 +1222,8 @@ public class CswSource extends MaskableImpl
             return;
         }
 
-        description = capabilitiesType.getServiceIdentification().getAbstract();
+        description = capabilitiesType.getServiceIdentification()
+                .getAbstract();
 
         Operation getRecordsOp = getOperation(operationsMetadata, CswConstants.GET_RECORDS);
 
@@ -1205,8 +1243,8 @@ public class CswSource extends MaskableImpl
                     CswConstants.OUTPUT_FORMAT_PARAMETER);
             DomainType resultTypesValues = getParameter(getRecordsOp,
                     CswConstants.RESULT_TYPE_PARAMETER);
-            readSetDetailLevels(
-                    getParameter(getRecordsOp, CswConstants.ELEMENT_SET_NAME_PARAMETER));
+            readSetDetailLevels(getParameter(getRecordsOp,
+                    CswConstants.ELEMENT_SET_NAME_PARAMETER));
 
             List<String> constraints = new ArrayList<String>();
             for (String s : constraintLanguage.getValue()) {
@@ -1214,23 +1252,26 @@ public class CswSource extends MaskableImpl
             }
 
             if (constraints.contains(CswConstants.CONSTRAINT_LANGUAGE_CQL.toLowerCase())
-                    && !constraints
-                    .contains(CswConstants.CONSTRAINT_LANGUAGE_FILTER.toLowerCase())) {
+                    && !constraints.contains(CswConstants.CONSTRAINT_LANGUAGE_FILTER.toLowerCase())) {
                 isConstraintCql = true;
             } else {
                 isConstraintCql = false;
             }
 
-            setFilterDelegate(new CswRecordMetacardType(), getRecordsOp,
-                    capabilitiesType.getFilterCapabilities(), outputFormatValues, resultTypesValues,
+            setFilterDelegate(new CswRecordMetacardType(),
+                    getRecordsOp,
+                    capabilitiesType.getFilterCapabilities(),
+                    outputFormatValues,
+                    resultTypesValues,
                     cswSourceConfiguration);
 
-            spatialCapabilities = capabilitiesType.getFilterCapabilities().getSpatialCapabilities();
+            spatialCapabilities = capabilitiesType.getFilterCapabilities()
+                    .getSpatialCapabilities();
 
             if (!NO_FORCE_SPATIAL_FILTER.equals(forceSpatialFilter)) {
                 SpatialOperatorType sot = new SpatialOperatorType();
-                SpatialOperatorNameType sont = SpatialOperatorNameType
-                        .fromValue(forceSpatialFilter);
+                SpatialOperatorNameType sont =
+                        SpatialOperatorNameType.fromValue(forceSpatialFilter);
                 sot.setName(sont);
                 sot.setGeometryOperands(cswFilterDelegate.getGeoOpsForSpatialOp(sont));
                 SpatialOperatorsType spatialOperators = new SpatialOperatorsType();
@@ -1256,8 +1297,12 @@ public class CswSource extends MaskableImpl
             DomainType resultTypesValues, CswSourceConfiguration cswSourceConfiguration) {
         LOGGER.trace("Setting cswFilterDelegate to default CswFilterDelegate");
 
-        cswFilterDelegate = new CswFilterDelegate(metacardType, getRecordsOp, filterCapabilities,
-                outputFormatValues, resultTypesValues, cswSourceConfiguration);
+        cswFilterDelegate = new CswFilterDelegate(metacardType,
+                getRecordsOp,
+                filterCapabilities,
+                outputFormatValues,
+                resultTypesValues,
+                cswSourceConfiguration);
     }
 
     private void readSetDetailLevels(DomainType elementSetNamesValues) {
@@ -1267,14 +1312,18 @@ public class CswSource extends MaskableImpl
                     detailLevels.add(ElementSetType.fromValue(esn.toLowerCase()));
                 } catch (IllegalArgumentException iae) {
                     LOGGER.warn("{}: \"{}\" is not a ElementSetType, Error: {}",
-                            cswSourceConfiguration.getId(), esn, iae);
+                            cswSourceConfiguration.getId(),
+                            esn,
+                            iae);
                 }
             }
         }
     }
 
     protected void loadContentTypes() {
-        Filter filter = filterBuilder.attribute(CswConstants.ANY_TEXT).is().like()
+        Filter filter = filterBuilder.attribute(CswConstants.ANY_TEXT)
+                .is()
+                .like()
                 .text(CswConstants.WILD_CARD);
         Query query = new QueryImpl(filter, 1, CONTENT_TYPE_SAMPLE_SIZE, null, true, 0);
         QueryRequest queryReq = new QueryRequestImpl(query);

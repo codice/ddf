@@ -33,7 +33,8 @@ public class ZipFileApplicationDetailsTest {
      */
     @Test
     public void testConstructor() {
-        ZipFileApplicationDetails testZipFile = new ZipFileApplicationDetails(TEST_NAME_1, TEST_VERSION_1);
+        ZipFileApplicationDetails testZipFile = new ZipFileApplicationDetails(TEST_NAME_1,
+                TEST_VERSION_1);
 
         assertEquals(TEST_NAME_1, testZipFile.getName());
         assertEquals(TEST_VERSION_1, testZipFile.getVersion());

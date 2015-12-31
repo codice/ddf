@@ -32,8 +32,8 @@ import ddf.catalog.source.UnsupportedQueryException;
 
 public class MetacardValidityCheckerPlugin implements PreQueryPlugin {
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(MetacardValidityCheckerPlugin.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(MetacardValidityCheckerPlugin.class);
 
     protected final FilterBuilder filterBuilder;
 
@@ -51,10 +51,16 @@ public class MetacardValidityCheckerPlugin implements PreQueryPlugin {
         try {
             if (!filterAdapter.adapt(input.getQuery(), new ValidationQueryDelegate())) {
                 QueryImpl query = new QueryImpl(filterBuilder.allOf(input.getQuery(),
-                        filterBuilder.attribute(VALIDATION_ERRORS).is().empty(),
-                        filterBuilder.attribute(VALIDATION_WARNINGS).is().empty()));
-                queryRequest = new QueryRequestImpl(query, input.isEnterprise(),
-                        input.getSourceIds(), input.getProperties());
+                        filterBuilder.attribute(VALIDATION_ERRORS)
+                                .is()
+                                .empty(),
+                        filterBuilder.attribute(VALIDATION_WARNINGS)
+                                .is()
+                                .empty()));
+                queryRequest = new QueryRequestImpl(query,
+                        input.isEnterprise(),
+                        input.getSourceIds(),
+                        input.getProperties());
             } else {
                 queryRequest = input;
             }

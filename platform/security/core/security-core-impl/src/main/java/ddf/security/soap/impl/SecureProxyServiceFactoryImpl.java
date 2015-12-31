@@ -54,8 +54,8 @@ public class SecureProxyServiceFactoryImpl implements ProxyServiceFactory {
 
     protected static final String ADDRESSING_NAMESPACE = "http://www.w3.org/2005/08/addressing";
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(SecureProxyServiceFactoryImpl.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(SecureProxyServiceFactoryImpl.class);
 
     private final UnavailableUrls unavailableWsdls = new UnavailableUrls();
 
@@ -92,7 +92,9 @@ public class SecureProxyServiceFactoryImpl implements ProxyServiceFactory {
         LOGGER.debug("Creating proxy service");
 
         WebServiceProperties<ProxyServiceType> wsp = new WebServiceProperties<>(serviceClass,
-                serviceName, endpointName, endpointAddress);
+                serviceName,
+                endpointName,
+                endpointAddress);
         SecurityToken securityToken = getSecurityToken(wsp, securityAssertion);
         ProxyServiceType proxyServiceType = createSecureClientFactory(wsp, securityToken);
 
@@ -126,7 +128,8 @@ public class SecureProxyServiceFactoryImpl implements ProxyServiceFactory {
             //setting security token to point back to itself as the token to use to access this
             //endpoint address
             //this is basically a hack to get around CXF trying to go to the STS for a new token
-            securityToken.getProperties().put(wsp.endpointAddress, securityToken.getId());
+            securityToken.getProperties()
+                    .put(wsp.endpointAddress, securityToken.getId());
         }
         return securityToken;
     }
@@ -140,12 +143,14 @@ public class SecureProxyServiceFactoryImpl implements ProxyServiceFactory {
         if (populateFromClass) {
             LOGGER.debug("Using service class to create client rather than WSDL.");
         }
-        clientFactory.getClientFactoryBean().getServiceFactory()
+        clientFactory.getClientFactoryBean()
+                .getServiceFactory()
                 .setPopulateFromClass(populateFromClass);
 
         LOGGER.debug("Configuring client proxy properties");
         configureProxyFactoryProperties(clientFactory, token, wsp);
-        clientFactory.getOutInterceptors().add(new TokenPassThroughInterceptor(token));
+        clientFactory.getOutInterceptors()
+                .add(new TokenPassThroughInterceptor(token));
 
         ProxyServiceType proxyServiceType;
         try {
@@ -153,7 +158,9 @@ public class SecureProxyServiceFactoryImpl implements ProxyServiceFactory {
         } catch (ServiceConstructionException e) {
             LOGGER.debug("Unable to use WSDL to build client. Attempting to use service class.", e);
             unavailableWsdls.add(wsp.endpointWsdlURL);
-            clientFactory.getClientFactoryBean().getServiceFactory().setPopulateFromClass(true);
+            clientFactory.getClientFactoryBean()
+                    .getServiceFactory()
+                    .setPopulateFromClass(true);
             proxyServiceType = clientFactory.create(wsp.serviceClass);
         }
 
@@ -195,15 +202,15 @@ public class SecureProxyServiceFactoryImpl implements ProxyServiceFactory {
             if (signaturePropertiesPath != null && !signaturePropertiesPath.isEmpty()) {
                 LOGGER.debug("Setting signature properties on STSClient: {}",
                         signaturePropertiesPath);
-                Properties signatureProperties = PropertiesLoader
-                        .loadProperties(signaturePropertiesPath);
+                Properties signatureProperties = PropertiesLoader.loadProperties(
+                        signaturePropertiesPath);
                 map.put(SecurityConstants.SIGNATURE_PROPERTIES, signatureProperties);
             }
             if (encryptionPropertiesPath != null && !encryptionPropertiesPath.isEmpty()) {
                 LOGGER.debug("Setting encryption properties on STSClient: {}",
                         encryptionPropertiesPath);
-                Properties encryptionProperties = PropertiesLoader
-                        .loadProperties(encryptionPropertiesPath);
+                Properties encryptionProperties = PropertiesLoader.loadProperties(
+                        encryptionPropertiesPath);
                 map.put(SecurityConstants.ENCRYPT_PROPERTIES, encryptionProperties);
             }
             if (stsPropertiesPath != null && !stsPropertiesPath.isEmpty()) {
@@ -260,14 +267,14 @@ public class SecureProxyServiceFactoryImpl implements ProxyServiceFactory {
             }
             if (signaturePropertiesPath != null && !signaturePropertiesPath.isEmpty()) {
                 LOGGER.debug("Setting signature properties: {}", signaturePropertiesPath);
-                Properties signatureProperties = PropertiesLoader
-                        .loadProperties(signaturePropertiesPath);
+                Properties signatureProperties = PropertiesLoader.loadProperties(
+                        signaturePropertiesPath);
                 properties.put(SecurityConstants.SIGNATURE_PROPERTIES, signatureProperties);
             }
             if (encryptionPropertiesPath != null && !encryptionPropertiesPath.isEmpty()) {
                 LOGGER.debug("Setting encryption properties: {}", encryptionPropertiesPath);
-                Properties encryptionProperties = PropertiesLoader
-                        .loadProperties(encryptionPropertiesPath);
+                Properties encryptionProperties = PropertiesLoader.loadProperties(
+                        encryptionPropertiesPath);
                 properties.put(SecurityConstants.ENCRYPT_PROPERTIES, encryptionProperties);
             }
             properties.put(SecurityConstants.DISABLE_STS_CLIENT_WSMEX_CALL_USING_EPR_ADDRESS,

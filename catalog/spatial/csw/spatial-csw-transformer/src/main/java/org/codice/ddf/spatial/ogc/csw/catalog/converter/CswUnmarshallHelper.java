@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 
 package org.codice.ddf.spatial.ogc.csw.catalog.converter;
@@ -57,7 +56,9 @@ import ddf.catalog.data.impl.MetacardImpl;
 
 class CswUnmarshallHelper {
     private static final Logger LOGGER = LoggerFactory.getLogger(CswUnmarshallHelper.class);
+
     private static final CswRecordMetacardType CSW_METACARD_TYPE = new CswRecordMetacardType();
+
     private static final String UTF8_ENCODING = "UTF-8";
 
     /**
@@ -66,15 +67,17 @@ class CswUnmarshallHelper {
      * unmarshalling XML so that the tag name can be modified with a CSW-unique prefix before
      * attempting to lookup the attribute descriptor corresponding to the tag.
      */
-    private static final List<String> CSW_OVERLAPPING_ATTRIBUTE_NAMES = Arrays
-            .asList(Metacard.TITLE, Metacard.CREATED, Metacard.MODIFIED);
+    private static final List<String> CSW_OVERLAPPING_ATTRIBUTE_NAMES =
+            Arrays.asList(Metacard.TITLE, Metacard.CREATED, Metacard.MODIFIED);
 
     static Date convertToDate(String value) {
         // Dates are strings and expected to be in ISO8601 format, YYYY-MM-DD'T'hh:mm:ss.sss,
         // per annotations in the CSW Record schema. At least the date portion must be present;
         // the time zone and time are optional.
         try {
-            return ISODateTimeFormat.dateOptionalTimeParser().parseDateTime(value).toDate();
+            return ISODateTimeFormat.dateOptionalTimeParser()
+                    .parseDateTime(value)
+                    .toDate();
         } catch (IllegalArgumentException e) {
             LOGGER.debug("Failed to convert to date {} from ISO Format: {}", value, e);
         }
@@ -82,14 +85,17 @@ class CswUnmarshallHelper {
         // failed to convert iso format, attempt to convert from xsd:date or xsd:datetime format
         // this format is used by the NSG interoperability CITE tests
         try {
-            return CswMarshallHelper.XSD_FACTORY.newXMLGregorianCalendar(value).toGregorianCalendar().getTime();
+            return CswMarshallHelper.XSD_FACTORY.newXMLGregorianCalendar(value)
+                    .toGregorianCalendar()
+                    .getTime();
         } catch (IllegalArgumentException e) {
             LOGGER.debug("Unable to convert date {} from XSD format {} ", value, e);
         }
 
         // try from java date serialization for the default locale
         try {
-            return DateFormat.getDateInstance().parse(value);
+            return DateFormat.getDateInstance()
+                    .parse(value);
         } catch (ParseException e) {
             LOGGER.debug("Unable to convert date {} from default locale format {} ", value, e);
         }
@@ -106,11 +112,13 @@ class CswUnmarshallHelper {
         Map<String, String> convertedMappings = new CaseInsensitiveMap();
 
         for (Map.Entry<String, String> customMapEntry : customMappings.entrySet()) {
-            Iterator<Map.Entry<String, String>> existingMapIter = cswAttrMap.entrySet().iterator();
+            Iterator<Map.Entry<String, String>> existingMapIter = cswAttrMap.entrySet()
+                    .iterator();
 
             while (existingMapIter.hasNext()) {
                 Map.Entry<String, String> existingMapEntry = existingMapIter.next();
-                if (existingMapEntry.getValue().equalsIgnoreCase(customMapEntry.getValue())) {
+                if (existingMapEntry.getValue()
+                        .equalsIgnoreCase(customMapEntry.getValue())) {
                     existingMapIter.remove();
                 }
             }
@@ -124,7 +132,9 @@ class CswUnmarshallHelper {
         cswAttrMap.putAll(convertedMappings);
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Map contents: {}", Arrays.toString(cswAttrMap.entrySet().toArray()));
+            LOGGER.debug("Map contents: {}",
+                    Arrays.toString(cswAttrMap.entrySet()
+                            .toArray()));
         }
     }
 
@@ -142,8 +152,9 @@ class CswUnmarshallHelper {
             String thumbnailMapping, CswAxisOrder cswAxisOrder, Map<String, String> namespaceMap) {
 
         StringWriter metadataWriter = new StringWriter();
-        HierarchicalStreamReader reader = XStreamAttributeCopier
-                .copyXml(hreader, metadataWriter, namespaceMap);
+        HierarchicalStreamReader reader = XStreamAttributeCopier.copyXml(hreader,
+                metadataWriter,
+                namespaceMap);
 
         MetacardImpl mc = new MetacardImpl(CSW_METACARD_TYPE);
         Map<String, Attribute> attributes = new TreeMap<>();
@@ -157,8 +168,8 @@ class CswUnmarshallHelper {
             String name = getCswAttributeFromAttributeName(nodeName);
 
             LOGGER.debug("Processing node {}", name);
-            AttributeDescriptor attributeDescriptor = CSW_METACARD_TYPE
-                    .getAttributeDescriptor(name);
+            AttributeDescriptor attributeDescriptor =
+                    CSW_METACARD_TYPE.getAttributeDescriptor(name);
 
             Serializable value = null;
 
@@ -171,8 +182,8 @@ class CswUnmarshallHelper {
             // corresponding metacard attribute's value
             if (attributeDescriptor != null && (StringUtils.isNotBlank(reader.getValue())
                     || BasicTypes.GEO_TYPE.equals(attributeDescriptor.getType()))) {
-                value = convertRecordPropertyToMetacardAttribute(
-                        attributeDescriptor.getType().getAttributeFormat(), reader, cswAxisOrder);
+                value = convertRecordPropertyToMetacardAttribute(attributeDescriptor.getType()
+                        .getAttributeFormat(), reader, cswAxisOrder);
             }
 
             if (null != value) {
@@ -188,7 +199,8 @@ class CswUnmarshallHelper {
                 }
 
                 if (BasicTypes.GEO_TYPE.getAttributeFormat()
-                        .equals(attributeDescriptor.getType().getAttributeFormat())) {
+                        .equals(attributeDescriptor.getType()
+                                .getAttributeFormat())) {
                     mc.setLocation((String) value);
                 }
             }
@@ -208,7 +220,8 @@ class CswUnmarshallHelper {
                 String metacardAttrName = cswToMetacardAttributeNames.get(attrName);
                 if (mc.getAttribute(metacardAttrName) == null) {
                     Attribute metacardAttr = getMetacardAttributeFromCswAttribute(attrName,
-                            attr.getValue(), metacardAttrName);
+                            attr.getValue(),
+                            metacardAttrName);
                     mc.setAttribute(metacardAttr);
                 }
             }
@@ -222,7 +235,8 @@ class CswUnmarshallHelper {
         // special chars that clash
         // with usage in a URL - empirical testing with various CSW sites will
         // determine this.
-        mc.setId((String) mc.getAttribute(CswRecordMetacardType.CSW_IDENTIFIER).getValue());
+        mc.setId((String) mc.getAttribute(CswRecordMetacardType.CSW_IDENTIFIER)
+                .getValue());
 
         try {
             URI namespaceUri = new URI(CSW_METACARD_TYPE.getNamespaceURI());
@@ -276,10 +290,12 @@ class CswUnmarshallHelper {
                 is = url.openStream();
                 mc.setThumbnail(IOUtils.toByteArray(url.openStream()));
             } catch (MalformedURLException e) {
-                LOGGER.info("Error setting thumbnail data on metacard: {}, Exception {}", thumbnail,
+                LOGGER.info("Error setting thumbnail data on metacard: {}, Exception {}",
+                        thumbnail,
                         e);
             } catch (IOException e) {
-                LOGGER.info("Error setting thumbnail data on metacard: {}, Exception {}", thumbnail,
+                LOGGER.info("Error setting thumbnail data on metacard: {}, Exception {}",
+                        thumbnail,
                         e);
             } finally {
                 IOUtils.closeQuietly(is);
@@ -304,15 +320,20 @@ class CswUnmarshallHelper {
      */
     static Attribute getMetacardAttributeFromCswAttribute(String cswAttributeName,
             Serializable cswAttributeValue, String metacardAttributeName) {
-        AttributeType.AttributeFormat cswAttributeFormat = CSW_METACARD_TYPE
-                .getAttributeDescriptor(cswAttributeName).getType().getAttributeFormat();
-        AttributeDescriptor metacardAttributeDescriptor = CSW_METACARD_TYPE
-                .getAttributeDescriptor(metacardAttributeName);
+        AttributeType.AttributeFormat cswAttributeFormat = CSW_METACARD_TYPE.getAttributeDescriptor(
+                cswAttributeName)
+                .getType()
+                .getAttributeFormat();
+        AttributeDescriptor metacardAttributeDescriptor = CSW_METACARD_TYPE.getAttributeDescriptor(
+                metacardAttributeName);
         AttributeType.AttributeFormat metacardAttrFormat = metacardAttributeDescriptor.getType()
                 .getAttributeFormat();
         LOGGER.debug("Setting overlapping Metacard attribute [{}] to value in "
                         + "CSW attribute [{}] that has value [{}] and format {}",
-                metacardAttributeName, cswAttributeName, cswAttributeValue, metacardAttrFormat);
+                metacardAttributeName,
+                cswAttributeName,
+                cswAttributeValue,
+                metacardAttrFormat);
 
         if (cswAttributeFormat.equals(metacardAttrFormat)) {
             return new AttributeImpl(metacardAttributeName, cswAttributeValue);
@@ -333,8 +354,8 @@ class CswUnmarshallHelper {
      * @return the value that was extracted from {@code reader} and is of the type described by
      *         {@code attributeFormat}
      */
-    static Serializable convertStringValueToMetacardValue(AttributeType.AttributeFormat attributeFormat,
-            String value) {
+    static Serializable convertStringValueToMetacardValue(
+            AttributeType.AttributeFormat attributeFormat, String value) {
         LOGGER.debug("converting csw record property {}", value);
         Serializable ser = null;
 
@@ -436,7 +457,8 @@ class CswUnmarshallHelper {
             ser = reader.getValue();
             break;
         case DATE:
-            ser = CswUnmarshallHelper.convertStringValueToMetacardValue(attributeFormat, reader.getValue());
+            ser = CswUnmarshallHelper.convertStringValueToMetacardValue(attributeFormat,
+                    reader.getValue());
             break;
         case GEOMETRY:
             // We pass in cswAxisOrder, so we can determine coord order (LAT/LON vs
@@ -446,7 +468,8 @@ class CswUnmarshallHelper {
             try {
                 ser = bboxReader.getWkt();
             } catch (CswException cswException) {
-                LOGGER.error("CswUnmarshallHelper.convertRecordPropertyToMetacardAttribute(): could not read BoundingBox.",
+                LOGGER.error(
+                        "CswUnmarshallHelper.convertRecordPropertyToMetacardAttribute(): could not read BoundingBox.",
                         cswException);
             }
 
@@ -455,7 +478,8 @@ class CswUnmarshallHelper {
         case BINARY:
 
             try {
-                ser = reader.getValue().getBytes(UTF8_ENCODING);
+                ser = reader.getValue()
+                        .getBytes(UTF8_ENCODING);
             } catch (UnsupportedEncodingException e) {
                 LOGGER.warn("Error encoding the binary value into the metacard.", e);
             }

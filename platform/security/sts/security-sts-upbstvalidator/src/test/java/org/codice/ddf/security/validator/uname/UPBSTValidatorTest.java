@@ -73,7 +73,8 @@ public class UPBSTValidatorTest {
 
             }
         });
-        UPAuthenticationToken upAuthenticationToken = new UPAuthenticationToken("good", "password",
+        UPAuthenticationToken upAuthenticationToken = new UPAuthenticationToken("good",
+                "password",
                 "realm");
         BinarySecurityTokenType binarySecurityTokenType = new BinarySecurityTokenType();
         binarySecurityTokenType.setValueType(UPAuthenticationToken.UP_TOKEN_VALUE_TYPE);
@@ -99,7 +100,9 @@ public class UPBSTValidatorTest {
         tokenParameters.setStsProperties(stsPropertiesMBean);
         TokenValidatorResponse response = upbstValidator.validateToken(tokenParameters);
 
-        Assert.assertEquals(ReceivedToken.STATE.VALID, response.getToken().getState());
+        Assert.assertEquals(ReceivedToken.STATE.VALID,
+                response.getToken()
+                        .getState());
     }
 
     @Test
@@ -144,7 +147,9 @@ public class UPBSTValidatorTest {
         tokenParameters.setStsProperties(stsPropertiesMBean);
         TokenValidatorResponse response = upbstValidator.validateToken(tokenParameters);
 
-        Assert.assertEquals(ReceivedToken.STATE.VALID, response.getToken().getState());
+        Assert.assertEquals(ReceivedToken.STATE.VALID,
+                response.getToken()
+                        .getState());
     }
 
     @Test
@@ -161,7 +166,9 @@ public class UPBSTValidatorTest {
         tokenParameters.setStsProperties(stsPropertiesMBean);
         TokenValidatorResponse response = upbstValidator.validateToken(tokenParameters);
 
-        Assert.assertEquals(ReceivedToken.STATE.INVALID, response.getToken().getState());
+        Assert.assertEquals(ReceivedToken.STATE.INVALID,
+                response.getToken()
+                        .getState());
     }
 
     @Test
@@ -206,6 +213,8 @@ public class UPBSTValidatorTest {
         tokenParameters.setStsProperties(stsPropertiesMBean);
         TokenValidatorResponse response = upbstValidator.validateToken(tokenParameters);
 
-        Assert.assertEquals(ReceivedToken.STATE.INVALID, response.getToken().getState());
+        Assert.assertEquals(ReceivedToken.STATE.INVALID,
+                response.getToken()
+                        .getState());
     }
 }

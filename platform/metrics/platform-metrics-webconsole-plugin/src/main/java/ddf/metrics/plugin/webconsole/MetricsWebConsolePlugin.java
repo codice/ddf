@@ -107,8 +107,8 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin {
     }
 
     private static String urlEncodeDate(DateTime date) throws UnsupportedEncodingException {
-        return URLEncoder
-                .encode(date.toString(ISODateTimeFormat.dateTimeNoMillis()), CharEncoding.UTF_8);
+        return URLEncoder.encode(date.toString(ISODateTimeFormat.dateTimeNoMillis()),
+                CharEncoding.UTF_8);
     }
 
     public void start() {
@@ -197,10 +197,12 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin {
             // String3 = display text for hyperlink, e.g., PNG
             // String4 = hyperlink for metric data in specific format, e.g.,
             // http://host:port/.../catalogQueries.png?dateOffset=900
-            Map<String, Map<String, Map<String, String>>> json = new TreeMap(
-                    (Map<String, Map<String, Map<String, String>>>) parser
-                            .parse(metricsList, containerFactory));
-            Iterator iter = json.entrySet().iterator();
+            Map<String, Map<String, Map<String, String>>> json =
+                    new TreeMap((Map<String, Map<String, Map<String, String>>>) parser.parse(
+                            metricsList,
+                            containerFactory));
+            Iterator iter = json.entrySet()
+                    .iterator();
 
             // Create HTML table of Metric Name and hyperlinks to its associated
             // RRD graphs
@@ -211,8 +213,8 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin {
             // Column headers for the time ranges, e.g., 15m, 1h, 4h, etc.
             while (iter.hasNext()) {
                 Map.Entry entry = (Map.Entry) iter.next();
-                Map<String, Map<String, String>> timeRangeData = (Map<String, Map<String, String>>) entry
-                        .getValue();
+                Map<String, Map<String, String>> timeRangeData =
+                        (Map<String, Map<String, String>>) entry.getValue();
                 Set<String> timeRanges = timeRangeData.keySet();
                 for (String timeRange : timeRanges) {
                     pw.println("<th>" + timeRange + "</th>");
@@ -223,7 +225,8 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin {
 
             // List of metric names and associated hyperlinks per format per time range
             int rowCount = 1;
-            iter = json.entrySet().iterator();
+            iter = json.entrySet()
+                    .iterator();
             while (iter.hasNext()) {
                 Map.Entry entry = (Map.Entry) iter.next();
                 String metricName = (String) entry.getKey();
@@ -233,10 +236,11 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin {
                 }
                 pw.println("<tr class=\"" + tableStriping + " ui-state-default\">");
                 pw.println("<td>" + convertCamelCase(metricName) + "</td>");
-                Map<String, Map<String, String>> timeRangeData = (Map<String, Map<String, String>>) entry
-                        .getValue();
+                Map<String, Map<String, String>> timeRangeData =
+                        (Map<String, Map<String, String>>) entry.getValue();
 
-                Iterator metricDataIter = timeRangeData.entrySet().iterator();
+                Iterator metricDataIter = timeRangeData.entrySet()
+                        .iterator();
                 while (metricDataIter.hasNext()) {
                     Map.Entry entry2 = (Map.Entry) metricDataIter.next();
                     String timeRange = (String) entry2.getKey();
@@ -254,12 +258,12 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin {
                     LOGGER.debug("{} -> {}", timeRange, metricUrls);
                     pw.println("<td>");
 
-                    Iterator metricUrlsIter = metricUrls.entrySet().iterator();
+                    Iterator metricUrlsIter = metricUrls.entrySet()
+                            .iterator();
                     while (metricUrlsIter.hasNext()) {
                         Map.Entry metricUrl = (Map.Entry) metricUrlsIter.next();
-                        String metricUrlCell =
-                                "<a class=\"ui-state-default ui-corner-all\" href=\"" + metricUrl
-                                        .getValue() + "\">" + metricUrl.getKey() + "</a>&nbsp;";
+                        String metricUrlCell = "<a class=\"ui-state-default ui-corner-all\" href=\""
+                                + metricUrl.getValue() + "\">" + metricUrl.getKey() + "</a>&nbsp;";
                         pw.println(metricUrlCell);
                     }
                     pw.println("</td>");
@@ -311,7 +315,8 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin {
 
     private void configureHttps(WebClient client) {
         LOGGER.debug("Configuring client for HTTPS");
-        HTTPConduit conduit = WebClient.getConfig(client).getHttpConduit();
+        HTTPConduit conduit = WebClient.getConfig(client)
+                .getHttpConduit();
         if (null != conduit) {
             TLSClientParameters params = conduit.getTlsClientParameters();
 
@@ -344,14 +349,14 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin {
                 ksFIS = new FileInputStream(keyStoreFile);
                 keyStore.load(ksFIS, keyStorePassword.toCharArray());
 
-                TrustManagerFactory trustFactory = TrustManagerFactory
-                        .getInstance(TrustManagerFactory.getDefaultAlgorithm());
+                TrustManagerFactory trustFactory = TrustManagerFactory.getInstance(
+                        TrustManagerFactory.getDefaultAlgorithm());
                 trustFactory.init(trustStore);
                 TrustManager[] tm = trustFactory.getTrustManagers();
                 params.setTrustManagers(tm);
 
-                KeyManagerFactory keyFactory = KeyManagerFactory
-                        .getInstance(KeyManagerFactory.getDefaultAlgorithm());
+                KeyManagerFactory keyFactory =
+                        KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
                 keyFactory.init(keyStore, keyStorePassword.toCharArray());
                 KeyManager[] km = keyFactory.getKeyManagers();
                 params.setKeyManagers(km);
@@ -404,13 +409,14 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin {
 
         for (int i = 1; i <= numWeeklyReports; i++) {
             try {
-                DateMidnight startOfLastWeek = new DateMidnight(
-                        input.minusWeeks(i).withDayOfWeek(DateTimeConstants.MONDAY));
+                DateMidnight startOfLastWeek = new DateMidnight(input.minusWeeks(i)
+                        .withDayOfWeek(DateTimeConstants.MONDAY));
                 String startDate = urlEncodeDate(startOfLastWeek);
                 LOGGER.debug("Previous Week {} (start):  {}", i, startDate);
 
                 DateTime endOfLastWeek = startOfLastWeek.plusDays(DateTimeConstants.DAYS_PER_WEEK)
-                        .toDateTime().minus(1 /* millisecond */);
+                        .toDateTime()
+                        .minus(1 /* millisecond */);
                 String endDate = urlEncodeDate(endOfLastWeek);
                 LOGGER.debug("Previous Week {} (end):  ", i, endDate);
 
@@ -435,16 +441,19 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin {
 
         for (int i = 1; i <= numMonthlyReports; i++) {
             try {
-                DateMidnight startOfLastMonth = new DateMidnight(
-                        input.minusMonths(i).withDayOfMonth(1));
+                DateMidnight startOfLastMonth = new DateMidnight(input.minusMonths(i)
+                        .withDayOfMonth(1));
                 String startDate = urlEncodeDate(startOfLastMonth);
-                LOGGER.debug("Previous Month (start):  {}   (ms = {})", startDate,
+                LOGGER.debug("Previous Month (start):  {}   (ms = {})",
+                        startDate,
                         startOfLastMonth.getMillis());
 
-                DateTime endOfLastMonth = startOfLastMonth.plusMonths(1).toDateTime()
+                DateTime endOfLastMonth = startOfLastMonth.plusMonths(1)
+                        .toDateTime()
                         .minus(1 /* millisecond */);
                 String endDate = urlEncodeDate(endOfLastMonth);
-                LOGGER.debug("Previous Month (end):  {}   (ms = {})", endOfLastMonth,
+                LOGGER.debug("Previous Month (end):  {}   (ms = {})",
+                        endOfLastMonth,
                         endOfLastMonth.getMillis());
 
                 startTableRow(pw, i);
@@ -464,16 +473,19 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin {
 
         for (int i = 1; i <= numYearlyReports; i++) {
             try {
-                DateMidnight startOfLastYear = new DateMidnight(
-                        input.minusYears(1).withDayOfYear(1));
+                DateMidnight startOfLastYear = new DateMidnight(input.minusYears(1)
+                        .withDayOfYear(1));
                 String startDate = urlEncodeDate(startOfLastYear);
-                LOGGER.debug("Previous Year (start):  {}   (ms = {})", startOfLastYear,
+                LOGGER.debug("Previous Year (start):  {}   (ms = {})",
+                        startOfLastYear,
                         startOfLastYear.getMillis());
 
-                DateTime endOfLastYear = startOfLastYear.plusYears(1).toDateTime()
+                DateTime endOfLastYear = startOfLastYear.plusYears(1)
+                        .toDateTime()
                         .minus(1 /* millisecond */);
                 String endDate = urlEncodeDate(endOfLastYear);
-                LOGGER.debug("Previous Year (end):  {},   (ms = {})", endOfLastYear,
+                LOGGER.debug("Previous Year (end):  {},   (ms = {})",
+                        endOfLastYear,
                         endOfLastYear.getMillis());
 
                 String urlText = startOfLastYear.toString("yyyy");

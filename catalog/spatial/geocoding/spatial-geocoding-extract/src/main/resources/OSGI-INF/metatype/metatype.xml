@@ -17,8 +17,8 @@
 
     <OCD name="GeoNames URL" id="org.codice.ddf.spatial.geocoding.extract.properties">
         <AD description="Specifies the URL to download GeoNames files from."
-                name="Url" id="url" required="true" type="String"
-                default="http://download.geonames.org/export/dump/"/>
+            name="Url" id="url" required="true" type="String"
+            default="http://download.geonames.org/export/dump/"/>
     </OCD>
 
     <Designate pid="org.codice.ddf.spatial.geocoding.extract.properties">

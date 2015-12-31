@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.common;
 
@@ -58,14 +57,13 @@ public class GetRecordsRequest extends CswRequest {
 
     static {
         JAXBContext context = null;
-        String contextPath = StringUtils
-                .join(new String[] {CswConstants.OGC_FILTER_PACKAGE, CswConstants.OGC_GML_PACKAGE,
-                        CswConstants.OGC_OWS_PACKAGE}, ":");
+        String contextPath = StringUtils.join(new String[] {CswConstants.OGC_FILTER_PACKAGE,
+                CswConstants.OGC_GML_PACKAGE, CswConstants.OGC_OWS_PACKAGE}, ":");
 
         try {
             LOGGER.debug("Creating JAXB context with context path: {}", contextPath);
-            context = JAXBContext
-                    .newInstance(contextPath, CswJAXBElementProvider.class.getClassLoader());
+            context = JAXBContext.newInstance(contextPath,
+                    CswJAXBElementProvider.class.getClassLoader());
         } catch (JAXBException e) {
             LOGGER.error("Unable to create JAXB context using contextPath: {}", contextPath, e);
         }
@@ -290,7 +288,8 @@ public class GetRecordsRequest extends CswRequest {
                 getRecords.setResultType(ResultType.fromValue(getResultType()));
             } catch (IllegalArgumentException iae) {
                 LOGGER.warn("Failed to find \"{}\" as a valid ResultType, Exception {}",
-                        getResultType(), iae);
+                        getResultType(),
+                        iae);
                 throw new CswException(
                         "A CSW getRecords request ResultType must be \"hits\", \"results\", or \"validate\"");
             }
@@ -326,7 +325,8 @@ public class GetRecordsRequest extends CswRequest {
                 query.setElementSetName(eleSetName);
             } catch (IllegalArgumentException iae) {
                 LOGGER.warn("Failed to find \"{}\" as a valid elementSetType, Exception {}",
-                        getElementSetName(), iae);
+                        getElementSetName(),
+                        iae);
                 throw new CswException(
                         "A CSW getRecords request ElementSetType must be \"brief\", \"summary\", or \"full\"");
             }
@@ -377,14 +377,13 @@ public class GetRecordsRequest extends CswRequest {
 
             if (getConstraintLanguage().equalsIgnoreCase(CswConstants.CONSTRAINT_LANGUAGE_CQL)) {
                 queryConstraint.setCqlText(getConstraint());
-            } else if (getConstraintLanguage()
-                    .equalsIgnoreCase(CswConstants.CONSTRAINT_LANGUAGE_FILTER)) {
+            } else if (getConstraintLanguage().equalsIgnoreCase(CswConstants.CONSTRAINT_LANGUAGE_FILTER)) {
                 try {
                     Unmarshaller unmarshaller = JAX_BCONTEXT.createUnmarshaller();
                     Reader reader = new StringReader(getConstraint());
                     @SuppressWarnings("unchecked")
-                    JAXBElement<FilterType> jaxbFilter = (JAXBElement<FilterType>) unmarshaller
-                            .unmarshal(reader);
+                    JAXBElement<FilterType> jaxbFilter =
+                            (JAXBElement<FilterType>) unmarshaller.unmarshal(reader);
                     queryConstraint.setFilter(jaxbFilter.getValue());
                 } catch (JAXBException e) {
                     throw new CswException("JAXBException parsing OGC Filter:" + getConstraint(),
@@ -399,8 +398,10 @@ public class GetRecordsRequest extends CswRequest {
             query.setConstraint(queryConstraint);
         }
 
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                new QName(CswConstants.CSW_OUTPUT_SCHEMA), QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery =
+                new JAXBElement<QueryType>(new QName(CswConstants.CSW_OUTPUT_SCHEMA),
+                        QueryType.class,
+                        query);
 
         getRecords.setAbstractQuery(jaxbQuery);
 

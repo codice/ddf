@@ -90,12 +90,14 @@ public class XStreamAttributeCopier {
      */
     public static HierarchicalStreamReader copyXml(HierarchicalStreamReader reader,
             StringWriter writer, Map<String, String> attributeMap) {
-        copyElementWithAttributes(reader, new CompactWriter(writer, new NoNameCoder()),
+        copyElementWithAttributes(reader,
+                new CompactWriter(writer, new NoNameCoder()),
                 attributeMap);
 
         XmlPullParser parser;
         try {
-            parser = XmlPullParserFactory.newInstance().newPullParser();
+            parser = XmlPullParserFactory.newInstance()
+                    .newPullParser();
         } catch (XmlPullParserException e) {
             throw new ConversionException("Unable to create XmlPullParser, cannot parse XML.", e);
         }
@@ -103,9 +105,8 @@ public class XStreamAttributeCopier {
         try {
             // NOTE: must specify encoding here, otherwise the platform default
             // encoding will be used which will not always work
-            return new XppReader(new InputStreamReader(
-                    IOUtils.toInputStream(writer.toString(), StandardCharsets.UTF_8.name())),
-                    parser);
+            return new XppReader(new InputStreamReader(IOUtils.toInputStream(writer.toString(),
+                    StandardCharsets.UTF_8.name())), parser);
         } catch (IOException e) {
             LOGGER.warn("Unable create reader with UTF-8 encoding, Exception {}", e);
             return new XppReader(new InputStreamReader(IOUtils.toInputStream(writer.toString())),
@@ -127,8 +128,8 @@ public class XStreamAttributeCopier {
     public static void copyXmlNamespaceDeclarationsIntoContext(HierarchicalStreamReader reader,
             UnmarshallingContext context) {
         @SuppressWarnings("unchecked")
-        Map<String, String> namespaces = (Map<String, String>) context
-                .get(CswConstants.NAMESPACE_DECLARATIONS);
+        Map<String, String> namespaces =
+                (Map<String, String>) context.get(CswConstants.NAMESPACE_DECLARATIONS);
 
         if (namespaces == null) {
             namespaces = new HashMap<>();

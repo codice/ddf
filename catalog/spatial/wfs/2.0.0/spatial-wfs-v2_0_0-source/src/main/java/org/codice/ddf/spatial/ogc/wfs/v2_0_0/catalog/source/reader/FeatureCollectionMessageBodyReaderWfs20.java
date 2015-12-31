@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -60,8 +60,8 @@ import net.opengis.wfs.v_2_0_0.FeatureCollectionType;
 public class FeatureCollectionMessageBodyReaderWfs20
         implements MessageBodyReader<Wfs20FeatureCollection> {
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(FeatureCollectionMessageBodyReaderWfs20.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+            FeatureCollectionMessageBodyReaderWfs20.class);
 
     private static final JAXBContext JAXB_CONTEXT = initJaxbContext();
 
@@ -69,11 +69,13 @@ public class FeatureCollectionMessageBodyReaderWfs20
 
     protected FeatureCollectionConverterWfs20 featureCollectionConverter;
 
-    protected Map<String, FeatureConverter> featureConverterMap = new HashMap<String, FeatureConverter>();
+    protected Map<String, FeatureConverter> featureConverterMap =
+            new HashMap<String, FeatureConverter>();
 
     public FeatureCollectionMessageBodyReaderWfs20() {
         xstream = new XStream(new WstxDriver());
-        xstream.setClassLoader(this.getClass().getClassLoader());
+        xstream.setClassLoader(this.getClass()
+                .getClassLoader());
         xstream.registerConverter(new GmlGeometryConverter());
         xstream.registerConverter(new GmlEnvelopeConverter());
         featureCollectionConverter = new FeatureCollectionConverterWfs20();
@@ -120,19 +122,20 @@ public class FeatureCollectionMessageBodyReaderWfs20
         String originalInputStream = IOUtils.toString(inStream, "UTF-8");
         LOGGER.debug("{}", originalInputStream);
 
-        ClassLoader ccl = Thread.currentThread().getContextClassLoader();
+        ClassLoader ccl = Thread.currentThread()
+                .getContextClassLoader();
 
         try {
-            Thread.currentThread().setContextClassLoader(
-                    FeatureCollectionMessageBodyReaderWfs20.class.getClassLoader());
+            Thread.currentThread()
+                    .setContextClassLoader(FeatureCollectionMessageBodyReaderWfs20.class.getClassLoader());
             //Fetch FeatureCollection attributes
             Unmarshaller unmarshaller = null;
             JAXBElement<FeatureCollectionType> wfsFeatureCollectionType = null;
             try {
                 unmarshaller = JAXB_CONTEXT.createUnmarshaller();
                 Reader reader = new StringReader(originalInputStream);
-                wfsFeatureCollectionType = (JAXBElement<FeatureCollectionType>) unmarshaller
-                        .unmarshal(reader);
+                wfsFeatureCollectionType =
+                        (JAXBElement<FeatureCollectionType>) unmarshaller.unmarshal(reader);
             } catch (ClassCastException e1) {
                 LOGGER.warn(
                         "Exception unmarshalling {}, could be an OWS Exception Report from server.",
@@ -163,8 +166,10 @@ public class FeatureCollectionMessageBodyReaderWfs20
             Wfs20FeatureCollection featureCollection = null;
 
             if (null != wfsFeatureCollectionType && null != wfsFeatureCollectionType.getValue()) {
-                BigInteger numberReturned = wfsFeatureCollectionType.getValue().getNumberReturned();
-                String numberMatched = wfsFeatureCollectionType.getValue().getNumberMatched();
+                BigInteger numberReturned = wfsFeatureCollectionType.getValue()
+                        .getNumberReturned();
+                String numberMatched = wfsFeatureCollectionType.getValue()
+                        .getNumberMatched();
 
                 // Re-create the input stream (since it has already been read for potential
                 // exception message creation)
@@ -184,14 +189,17 @@ public class FeatureCollectionMessageBodyReaderWfs20
 
             return featureCollection;
         } finally {
-            Thread.currentThread().setContextClassLoader(ccl);
+            Thread.currentThread()
+                    .setContextClassLoader(ccl);
         }
     }
 
     public void registerConverter(FeatureConverter converter) {
-        featureConverterMap.put(converter.getMetacardType().getName(), converter);
+        featureConverterMap.put(converter.getMetacardType()
+                .getName(), converter);
         xstream.registerConverter(converter);
-        xstream.alias(converter.getMetacardType().getName(), Metacard.class);
+        xstream.alias(converter.getMetacardType()
+                .getName(), Metacard.class);
     }
 
 }

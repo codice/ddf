@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -70,8 +70,9 @@ public class MetacardMarshallerImpl implements MetacardMarshaller {
     public static final String OMIT_XML_DECL = "OMIT_XML_DECLARATION";
 
     static {
-        TYPE_NAME_LOOKUP = new ImmutableMap.Builder<AttributeType.AttributeFormat, String>()
-                .put(AttributeType.AttributeFormat.BINARY, "base64Binary")
+        TYPE_NAME_LOOKUP = new ImmutableMap.Builder<AttributeType.AttributeFormat, String>().put(
+                AttributeType.AttributeFormat.BINARY,
+                "base64Binary")
                 .put(AttributeType.AttributeFormat.STRING, "string")
                 .put(AttributeType.AttributeFormat.BOOLEAN, "boolean")
                 .put(AttributeType.AttributeFormat.DATE, "dateTime")
@@ -82,16 +83,18 @@ public class MetacardMarshallerImpl implements MetacardMarshaller {
                 .put(AttributeType.AttributeFormat.FLOAT, "float")
                 .put(AttributeType.AttributeFormat.GEOMETRY, "geometry")
                 .put(AttributeType.AttributeFormat.XML, "stringxml")
-                .put(AttributeType.AttributeFormat.OBJECT, "object").build();
+                .put(AttributeType.AttributeFormat.OBJECT, "object")
+                .build();
 
         String nsPrefix = "xmlns";
 
-        NAMESPACE_MAP = new ImmutableMap.Builder<String, String>()
-                .put(nsPrefix, "urn:catalog:metacard")
+        NAMESPACE_MAP = new ImmutableMap.Builder<String, String>().put(nsPrefix,
+                "urn:catalog:metacard")
                 .put(nsPrefix + ":" + GML_PREFIX, "http://www.opengis.net/gml")
                 .put(nsPrefix + ":xlink", "http://www.w3.org/1999/xlink")
                 .put(nsPrefix + ":smil", "http://www.w3.org/2001/SMIL20/")
-                .put(nsPrefix + ":smillang", "http://www.w3.org/2001/SMIL20/Language").build();
+                .put(nsPrefix + ":smillang", "http://www.w3.org/2001/SMIL20/Language")
+                .build();
     }
 
     private final GeometryTransformer geometryTransformer;
@@ -124,7 +127,6 @@ public class MetacardMarshallerImpl implements MetacardMarshaller {
             }
         }
 
-
         writer.startNode("metacard");
         for (Map.Entry<String, String> nsRow : NAMESPACE_MAP.entrySet()) {
             writer.addAttribute(nsRow.getKey(), nsRow.getValue());
@@ -135,10 +137,12 @@ public class MetacardMarshallerImpl implements MetacardMarshaller {
         }
 
         writer.startNode("type");
-        if (StringUtils.isBlank(metacard.getMetacardType().getName())) {
+        if (StringUtils.isBlank(metacard.getMetacardType()
+                .getName())) {
             writer.setValue(MetacardType.DEFAULT_METACARD_TYPE_NAME);
         } else {
-            writer.setValue(metacard.getMetacardType().getName());
+            writer.setValue(metacard.getMetacardType()
+                    .getName());
         }
         writer.endNode(); // type
 
@@ -209,7 +213,8 @@ public class MetacardMarshallerImpl implements MetacardMarshaller {
                 xmlValue = Base64.encode((byte[]) value);
                 break;
             case XML:
-                xmlValue = value.toString().replaceAll("[<][?]xml.*[?][>]", "");
+                xmlValue = value.toString()
+                        .replaceAll("[<][?]xml.*[?][>]", "");
                 break;
             }
 

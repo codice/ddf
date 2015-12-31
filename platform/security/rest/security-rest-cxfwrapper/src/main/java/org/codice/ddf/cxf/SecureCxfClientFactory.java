@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -97,15 +97,18 @@ public class SecureCxfClientFactory<T> {
         jaxrsClientFactoryBean.setServiceClass(interfaceClass);
         jaxrsClientFactoryBean.setAddress(endpointUrl);
         jaxrsClientFactoryBean.setClassLoader(interfaceClass.getClassLoader());
-        jaxrsClientFactoryBean.getInInterceptors().add(new LoggingInInterceptor());
-        jaxrsClientFactoryBean.getOutInterceptors().add(new LoggingOutInterceptor());
+        jaxrsClientFactoryBean.getInInterceptors()
+                .add(new LoggingInInterceptor());
+        jaxrsClientFactoryBean.getOutInterceptors()
+                .add(new LoggingOutInterceptor());
 
         if (CollectionUtils.isNotEmpty(providers)) {
             jaxrsClientFactoryBean.setProviders(providers);
         }
 
         if (interceptor != null) {
-            jaxrsClientFactoryBean.getInInterceptors().add(interceptor);
+            jaxrsClientFactoryBean.getInInterceptors()
+                    .add(interceptor);
         }
 
         this.clientFactory = jaxrsClientFactoryBean;
@@ -161,8 +164,14 @@ public class SecureCxfClientFactory<T> {
             boolean allowRedirects, Integer connectionTimeout, Integer receiveTimeout,
             String username, String password) {
 
-        this(endpointUrl, interfaceClass, providers, interceptor, disableCnCheck, allowRedirects,
-                connectionTimeout, receiveTimeout);
+        this(endpointUrl,
+                interfaceClass,
+                providers,
+                interceptor,
+                disableCnCheck,
+                allowRedirects,
+                connectionTimeout,
+                receiveTimeout);
 
         this.clientFactory.setPassword(password);
         this.clientFactory.setUsername(username);
@@ -217,7 +226,8 @@ public class SecureCxfClientFactory<T> {
         T clientImpl = JAXRSClientFactory.fromClient(clientFactory.create(), interfaceClass);
 
         ClientConfiguration clientConfig = WebClient.getConfig(clientImpl);
-        clientConfig.getRequestContext().put(Message.MAINTAIN_SESSION, Boolean.TRUE);
+        clientConfig.getRequestContext()
+                .put(Message.MAINTAIN_SESSION, Boolean.TRUE);
 
         configureConduit(clientConfig);
         configureTimeouts(clientConfig, connectionTimeout, receiveTimeout);
@@ -246,7 +256,8 @@ public class SecureCxfClientFactory<T> {
                 clientPolicy.setAutoRedirect(true);
                 Bus bus = clientConfig.getBus();
                 if (bus != null) {
-                    bus.getProperties().put("http.redirect.relative.uri", true);
+                    bus.getProperties()
+                            .put("http.redirect.relative.uri", true);
                 }
             }
         }

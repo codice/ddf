@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -15,7 +15,6 @@ package ddf.catalog.filter;
 
 import java.util.Date;
 import java.util.List;
-
 
 /***
  * FilterDelegate is the target delegate of the {@link FilterAdapter}. The FilterAdapter will visit
@@ -63,7 +62,8 @@ public abstract class FilterDelegate<T> {
      * @return result of "and" operation on operands
      */
     public T and(List<T> operands) {
-        throw new UnsupportedOperationException("And filter not supported by org.opengis.filter.Filter Delegate.");
+        throw new UnsupportedOperationException(
+                "And filter not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /**
@@ -74,7 +74,8 @@ public abstract class FilterDelegate<T> {
      * @return result of "or" operation on operands
      */
     public T or(List<T> operands) {
-        throw new UnsupportedOperationException("Or filter not supported by org.opengis.filter.Filter Delegate.");
+        throw new UnsupportedOperationException(
+                "Or filter not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /**
@@ -99,7 +100,8 @@ public abstract class FilterDelegate<T> {
      * @return result of "not" operation on operand
      */
     public T not(T operand) {
-        throw new UnsupportedOperationException("Not filter not supported by org.opengis.filter.Filter Delegate.");
+        throw new UnsupportedOperationException(
+                "Not filter not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /**
@@ -108,7 +110,8 @@ public abstract class FilterDelegate<T> {
      * @return returns the equivalent of true
      */
     public T include() {
-        throw new UnsupportedOperationException("include() not supported by org.opengis.filter.Filter Delegate.");
+        throw new UnsupportedOperationException(
+                "include() not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /**
@@ -117,7 +120,8 @@ public abstract class FilterDelegate<T> {
      * @return returns the equivalent of false
      */
     public T exclude() {
-        throw new UnsupportedOperationException("exclude() not supported by org.opengis.filter.Filter Delegate.");
+        throw new UnsupportedOperationException(
+                "exclude() not supported by org.opengis.filter.Filter Delegate.");
     }
 
     // Comparison operators

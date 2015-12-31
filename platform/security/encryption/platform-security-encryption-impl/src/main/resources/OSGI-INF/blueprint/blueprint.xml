@@ -11,11 +11,11 @@
  *
  **/ -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-        >
+>
 
-	<bean id="encryptionService" class="ddf.security.encryption.impl.EncryptionServiceImpl">
-	</bean>
+    <bean id="encryptionService" class="ddf.security.encryption.impl.EncryptionServiceImpl">
+    </bean>
 
-	<service ref="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
+    <service ref="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
 
 </blueprint>

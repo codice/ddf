@@ -30,7 +30,6 @@ import ddf.catalog.CatalogFramework;
 
 /**
  * Tests the {@link IngestCommand} output.
- *
  */
 public class TestIngestCommand extends AbstractCommandTest {
 
@@ -59,7 +58,8 @@ public class TestIngestCommand extends AbstractCommandTest {
                 return executeWithSubject();
             }
         };
-        command.filePath = testFolder.getRoot().getAbsolutePath();
+        command.filePath = testFolder.getRoot()
+                .getAbsolutePath();
     }
 
     /**
@@ -182,7 +182,8 @@ public class TestIngestCommand extends AbstractCommandTest {
             String expectedFailed = "1 file(s) failed";
             assertThat(consoleOutput.getOutput(), containsString(expectedIngested));
             assertThat(consoleOutput.getOutput(), containsString(expectedFailed));
-            assertFalse(consoleOutput.getOutput().contains("ignored"));
+            assertFalse(consoleOutput.getOutput()
+                    .contains("ignored"));
 
         } finally {
             consoleOutput.closeBuffer();

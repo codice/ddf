@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -56,7 +56,8 @@ public class PublishedEventHandler implements EventHandler {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("topic = {}", event.getTopic());
             for (String propertyName : event.getPropertyNames()) {
-                LOGGER.debug("name = {},   value = {}", propertyName,
+                LOGGER.debug("name = {},   value = {}",
+                        propertyName,
                         event.getProperty(propertyName));
             }
         }
@@ -89,7 +90,8 @@ public class PublishedEventHandler implements EventHandler {
         } else if (sourceIds == null || sourceIds.isEmpty()) {
             LOGGER.debug("subscription is a local subscription. Local Source Id: {}",
                     catalog.getId());
-            if (catalog.getId() != null && catalog.getId().equals(metacardSourceId)) {
+            if (catalog.getId() != null && catalog.getId()
+                    .equals(metacardSourceId)) {
                 LOGGER.debug("event received from local site");
                 evaluateEvent(event);
             } else {
@@ -98,7 +100,8 @@ public class PublishedEventHandler implements EventHandler {
             }
         } else if (!sourceIds.isEmpty()) {
             LOGGER.debug("subscription is a site-based subscription starting with site id {}",
-                    sourceIds.iterator().next());
+                    sourceIds.iterator()
+                            .next());
             // perform site based filtering on subscription
             if (sourceIds.contains(metacardSourceId)) {
                 LOGGER.debug("event received from subscribed site");
@@ -118,7 +121,7 @@ public class PublishedEventHandler implements EventHandler {
             LOGGER.debug(
                     "predicate is NULL (must be filterless subscription), publishing all events");
             new DeliveryProcessor(subscription, preDelivery).process(event);
-        // Otherwise, only send events that match the predicate's filter criteria
+            // Otherwise, only send events that match the predicate's filter criteria
         } else if (predicate.matches(event)) {
             new DeliveryProcessor(subscription, preDelivery).process(event);
         }

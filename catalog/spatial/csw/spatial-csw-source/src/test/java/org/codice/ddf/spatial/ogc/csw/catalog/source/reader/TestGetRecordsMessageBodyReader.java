@@ -67,29 +67,28 @@ public class TestGetRecordsMessageBodyReader {
 
     @Test
     public void testConfigurationArguments() throws Exception {
-        when(mockInputManager.getTransformerBySchema(anyString()))
-                .thenReturn(new CswRecordConverter());
+        when(mockInputManager.getTransformerBySchema(anyString())).thenReturn(new CswRecordConverter());
 
         CswSourceConfiguration config = new CswSourceConfiguration();
-        config.setMetacardCswMappings(
-                DefaultCswRecordMap.getDefaultCswRecordMap().getCswToMetacardAttributeNames());
+        config.setMetacardCswMappings(DefaultCswRecordMap.getDefaultCswRecordMap()
+                .getCswToMetacardAttributeNames());
         config.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
         config.setCswAxisOrder(CswAxisOrder.LAT_LON);
         config.setThumbnailMapping(CswRecordMetacardType.CSW_REFERENCES);
         config.setResourceUriMapping(CswRecordMetacardType.CSW_SOURCE);
 
         GetRecordsMessageBodyReader reader = new GetRecordsMessageBodyReader(mockProvider, config);
-        InputStream is = TestGetRecordsMessageBodyReader.class
-                .getResourceAsStream("/getRecordsResponse.xml");
+        InputStream is = TestGetRecordsMessageBodyReader.class.getResourceAsStream(
+                "/getRecordsResponse.xml");
 
-        ArgumentCaptor<UnmarshallingContext> captor = ArgumentCaptor
-                .forClass(UnmarshallingContext.class);
+        ArgumentCaptor<UnmarshallingContext> captor =
+                ArgumentCaptor.forClass(UnmarshallingContext.class);
 
         reader.readFrom(CswRecordCollection.class, null, null, null, null, is);
 
         // Verify the context arguments were set correctly
-        verify(mockProvider, times(3))
-                .unmarshal(any(HierarchicalStreamReader.class), captor.capture());
+        verify(mockProvider, times(3)).unmarshal(any(HierarchicalStreamReader.class),
+                captor.capture());
 
         UnmarshallingContext context = captor.getValue();
         // Assert the properties needed for CswRecordConverter
@@ -116,8 +115,7 @@ public class TestGetRecordsMessageBodyReader {
     public void testFullThread() throws Exception {
         CswTransformProvider provider = new CswTransformProvider(null, mockInputManager);
 
-        when(mockInputManager.getTransformerBySchema(anyString()))
-                .thenReturn(new CswRecordConverter());
+        when(mockInputManager.getTransformerBySchema(anyString())).thenReturn(new CswRecordConverter());
 
         CswSourceConfiguration config = new CswSourceConfiguration();
         Map<String, String> mappings = new HashMap<>();
@@ -134,11 +132,15 @@ public class TestGetRecordsMessageBodyReader {
         config.setResourceUriMapping(CswRecordMetacardType.CSW_SOURCE);
 
         GetRecordsMessageBodyReader reader = new GetRecordsMessageBodyReader(provider, config);
-        InputStream is = TestGetRecordsMessageBodyReader.class
-                .getResourceAsStream("/getRecordsResponse.xml");
+        InputStream is = TestGetRecordsMessageBodyReader.class.getResourceAsStream(
+                "/getRecordsResponse.xml");
 
-        CswRecordCollection cswRecords = reader
-                .readFrom(CswRecordCollection.class, null, null, null, null, is);
+        CswRecordCollection cswRecords = reader.readFrom(CswRecordCollection.class,
+                null,
+                null,
+                null,
+                null,
+                is);
 
         List<Metacard> metacards = cswRecords.getCswRecords();
 
@@ -147,26 +149,41 @@ public class TestGetRecordsMessageBodyReader {
 
         // verify first metacard's values
         Metacard mc = metacards.get(0);
-        Map<String, Object> expectedValues = getExpectedMap(
-                "{8C1F6297-EC96-4302-A01E-14988C9149FD}", "title 1", "2008-12-15",
-                new String[] {"subject 1", "second subject"}, "abstract 1",
-                new String[] {"copyright 1", "copyright 2"}, "dataset", "Shapefile",
-                "POLYGON((52.139 5.121, 52.517 5.121, 52.517 4.468, 52.139 4.468, 52.139 5.121))");
+        Map<String, Object> expectedValues =
+                getExpectedMap("{8C1F6297-EC96-4302-A01E-14988C9149FD}",
+                        "title 1",
+                        "2008-12-15",
+                        new String[] {"subject 1", "second subject"},
+                        "abstract 1",
+                        new String[] {"copyright 1", "copyright 2"},
+                        "dataset",
+                        "Shapefile",
+                        "POLYGON((52.139 5.121, 52.517 5.121, 52.517 4.468, 52.139 4.468, 52.139 5.121))");
         assertMetacard(mc, expectedValues);
 
         // verify second metacard's values
         mc = metacards.get(1);
-        expectedValues = getExpectedMap("{23362852-F370-4369-B0B2-BE74B2859614}", "mc2 title",
-                "2010-12-15", new String[] {"first subject", "subject 2"}, "mc2 abstract",
-                new String[] {"first copyright", "second copyright"}, "dataset 2", "Shapefile 2",
+        expectedValues = getExpectedMap("{23362852-F370-4369-B0B2-BE74B2859614}",
+                "mc2 title",
+                "2010-12-15",
+                new String[] {"first subject", "subject 2"},
+                "mc2 abstract",
+                new String[] {"first copyright", "second copyright"},
+                "dataset 2",
+                "Shapefile 2",
                 "POLYGON((53.139 6.121, 53.517 6.121, 53.517 5.468, 53.139 5.468, 53.139 6.121))");
         assertMetacard(mc, expectedValues);
 
         // verify third metacard's values
         mc = metacards.get(2);
-        expectedValues = getExpectedMap("{23362852-F370-4369-B0B2-BE74B2859615}", "mc3 title", "2010-12-15",
-                new String[] {"first subject", "subject 3"}, "mc3 abstract",
-                new String[] {"first copyright", "second copyright"}, "dataset 3", "Shapefile 3",
+        expectedValues = getExpectedMap("{23362852-F370-4369-B0B2-BE74B2859615}",
+                "mc3 title",
+                "2010-12-15",
+                new String[] {"first subject", "subject 3"},
+                "mc3 abstract",
+                new String[] {"first copyright", "second copyright"},
+                "dataset 3",
+                "Shapefile 3",
                 "POLYGON((53.139 6.121, 53.517 6.121, 53.517 5.468, 53.139 5.468, 53.139 6.121))");
         assertMetacard(mc, expectedValues);
 
@@ -176,15 +193,19 @@ public class TestGetRecordsMessageBodyReader {
     @Test
     public void testGetMultipleMetacardsWithForeignText() throws Exception {
         CswSourceConfiguration config = new CswSourceConfiguration();
-        config.setMetacardCswMappings(
-                DefaultCswRecordMap.getDefaultCswRecordMap().getCswToMetacardAttributeNames());
+        config.setMetacardCswMappings(DefaultCswRecordMap.getDefaultCswRecordMap()
+                .getCswToMetacardAttributeNames());
         config.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
         GetRecordsMessageBodyReader reader = new GetRecordsMessageBodyReader(mockProvider, config);
 
-        InputStream is = TestGetRecordsMessageBodyReader.class
-                .getResourceAsStream("/geomaticsGetRecordsResponse.xml");
-        CswRecordCollection cswRecords = reader
-                .readFrom(CswRecordCollection.class, null, null, null, null, is);
+        InputStream is = TestGetRecordsMessageBodyReader.class.getResourceAsStream(
+                "/geomaticsGetRecordsResponse.xml");
+        CswRecordCollection cswRecords = reader.readFrom(CswRecordCollection.class,
+                null,
+                null,
+                null,
+                null,
+                is);
         List<Metacard> metacards = cswRecords.getCswRecords();
         assertThat(metacards, not(nullValue()));
         assertThat(metacards.size(), equalTo(10));
@@ -194,33 +215,43 @@ public class TestGetRecordsMessageBodyReader {
 
     private void assertMetacard(Metacard mc, Map<String, Object> expectedValues) {
         assertThat(mc.getId(), equalTo((String) expectedValues.get(Metacard.ID)));
-        assertListStringAttribute(mc, CswRecordMetacardType.CSW_IDENTIFIER,
+        assertListStringAttribute(mc,
+                CswRecordMetacardType.CSW_IDENTIFIER,
                 (String[]) expectedValues.get(CswRecordMetacardType.CSW_IDENTIFIER));
         assertThat(mc.getTitle(), equalTo((String) expectedValues.get(Metacard.TITLE)));
-        assertListStringAttribute(mc, CswRecordMetacardType.CSW_TITLE,
+        assertListStringAttribute(mc,
+                CswRecordMetacardType.CSW_TITLE,
                 (String[]) expectedValues.get(CswRecordMetacardType.CSW_TITLE));
         assertThat(mc.getModifiedDate(), equalTo((Date) expectedValues.get(Metacard.MODIFIED)));
-        assertListStringAttribute(mc, CswRecordMetacardType.CSW_MODIFIED,
+        assertListStringAttribute(mc,
+                CswRecordMetacardType.CSW_MODIFIED,
                 (String[]) expectedValues.get(CswRecordMetacardType.CSW_MODIFIED));
-        assertListStringAttribute(mc, CswRecordMetacardType.CSW_SUBJECT,
+        assertListStringAttribute(mc,
+                CswRecordMetacardType.CSW_SUBJECT,
                 (String[]) expectedValues.get(CswRecordMetacardType.CSW_SUBJECT));
-        assertListStringAttribute(mc, Metacard.DESCRIPTION,
+        assertListStringAttribute(mc,
+                Metacard.DESCRIPTION,
                 (String[]) expectedValues.get(Metacard.DESCRIPTION));
-        assertListStringAttribute(mc, CswRecordMetacardType.CSW_RIGHTS,
+        assertListStringAttribute(mc,
+                CswRecordMetacardType.CSW_RIGHTS,
                 (String[]) expectedValues.get(CswRecordMetacardType.CSW_RIGHTS));
-        assertListStringAttribute(mc, CswRecordMetacardType.CSW_LANGUAGE,
+        assertListStringAttribute(mc,
+                CswRecordMetacardType.CSW_LANGUAGE,
                 (String[]) expectedValues.get(CswRecordMetacardType.CSW_LANGUAGE));
-        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_TYPE).getValue(),
-                equalTo((String) expectedValues.get(CswRecordMetacardType.CSW_TYPE)));
-        assertListStringAttribute(mc, CswRecordMetacardType.CSW_FORMAT,
+        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_TYPE)
+                .getValue(), equalTo((String) expectedValues.get(CswRecordMetacardType.CSW_TYPE)));
+        assertListStringAttribute(mc,
+                CswRecordMetacardType.CSW_FORMAT,
                 (String[]) expectedValues.get(CswRecordMetacardType.CSW_FORMAT));
         assertThat(mc.getLocation(), equalTo((String) expectedValues.get(Metacard.GEOGRAPHY)));
-        assertListStringAttribute(mc, CswRecordMetacardType.OWS_BOUNDING_BOX,
+        assertListStringAttribute(mc,
+                CswRecordMetacardType.OWS_BOUNDING_BOX,
                 (String[]) expectedValues.get(CswRecordMetacardType.OWS_BOUNDING_BOX));
     }
 
     private void assertListStringAttribute(Metacard mc, String attrName, String[] expectedValues) {
-        List<?> values = (List<?>) mc.getAttribute(attrName).getValues();
+        List<?> values = (List<?>) mc.getAttribute(attrName)
+                .getValues();
         assertThat(values, not(nullValue()));
         assertThat(values.size(), equalTo(expectedValues.length));
 
@@ -229,15 +260,17 @@ public class TestGetRecordsMessageBodyReader {
         assertThat(valuesList, hasItems(expectedValues));
     }
 
-    private Map<String, Object> getExpectedMap(String id, String title, String dateString, String[] subject,
-            String description, String[] rights, String dataset, String format, String poly) {
+    private Map<String, Object> getExpectedMap(String id, String title, String dateString,
+            String[] subject, String description, String[] rights, String dataset, String format,
+            String poly) {
         Map<String, Object> expectedValues = new HashMap<String, Object>();
         expectedValues.put(Metacard.ID, id);
         expectedValues.put(CswRecordMetacardType.CSW_IDENTIFIER, new String[] {id});
         expectedValues.put(Metacard.TITLE, title);
         expectedValues.put(CswRecordMetacardType.CSW_TITLE, new String[] {title});
         DateTimeFormatter dateFormatter = ISODateTimeFormat.dateOptionalTimeParser();
-        Date expectedModifiedDate = dateFormatter.parseDateTime(dateString).toDate();
+        Date expectedModifiedDate = dateFormatter.parseDateTime(dateString)
+                .toDate();
         expectedValues.put(CswRecordMetacardType.CSW_MODIFIED, new String[] {dateString});
         expectedValues.put(Metacard.MODIFIED, expectedModifiedDate);
         expectedValues.put(CswRecordMetacardType.CSW_SUBJECT, subject);

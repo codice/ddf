@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -254,7 +254,8 @@ public class PredicateTest {
         query.addTypeFilter(extensions);
 
         SubscriptionFilterVisitor visitor = new SubscriptionFilterVisitor();
-        Predicate pred = (Predicate) query.getFilter().accept(visitor, null);
+        Predicate pred = (Predicate) query.getFilter()
+                .accept(visitor, null);
 
         HashMap<String, Object> properties = new HashMap<>();
         properties.put(PubSubConstants.HEADER_CONTENT_TYPE_KEY, type + "," + version);
@@ -319,7 +320,8 @@ public class PredicateTest {
         query.addTypeFilter(extensions);
 
         SubscriptionFilterVisitor visitor = new SubscriptionFilterVisitor();
-        ContentTypePredicate pred = (ContentTypePredicate) query.getFilter().accept(visitor, null);
+        ContentTypePredicate pred = (ContentTypePredicate) query.getFilter()
+                .accept(visitor, null);
         assertEquals(type1, pred.getType());
         assertNull(pred.getVersion());
 
@@ -363,8 +365,8 @@ public class PredicateTest {
         properties.clear();
         properties.put(PubSubConstants.HEADER_OPERATION_KEY, PubSubConstants.CREATE);
         properties.put(PubSubConstants.HEADER_CONTEXTUAL_KEY, contextualMap);
-        properties
-                .put(PubSubConstants.HEADER_CONTENT_TYPE_KEY, "," + "unmatchingversion"); // Invalid
+        properties.put(PubSubConstants.HEADER_CONTENT_TYPE_KEY,
+                "," + "unmatchingversion"); // Invalid
         // input
         testEvent = new Event("topic", properties);
         assertFalse(pred.matches(testEvent));
@@ -394,7 +396,8 @@ public class PredicateTest {
         query.addTypeFilter(extensions);
 
         SubscriptionFilterVisitor visitor = new SubscriptionFilterVisitor();
-        Predicate pred = (Predicate) query.getFilter().accept(visitor, null);
+        Predicate pred = (Predicate) query.getFilter()
+                .accept(visitor, null);
         LOGGER.debug("Resulting Predicate: " + pred);
 
         HashMap<String, Object> properties = new HashMap<>();
@@ -500,7 +503,8 @@ public class PredicateTest {
         query.addTypeFilter(extensions);
 
         SubscriptionFilterVisitor visitor = new SubscriptionFilterVisitor();
-        Predicate pred = (Predicate) query.getFilter().accept(visitor, null);
+        Predicate pred = (Predicate) query.getFilter()
+                .accept(visitor, null);
         LOGGER.debug("Resulting Predicate: " + pred);
 
         HashMap<String, Object> properties = new HashMap<>();
@@ -538,8 +542,8 @@ public class PredicateTest {
         properties.clear();
         properties.put(PubSubConstants.HEADER_OPERATION_KEY, PubSubConstants.CREATE);
         properties.put(PubSubConstants.HEADER_CONTEXTUAL_KEY, contextualMap);
-        properties
-                .put(PubSubConstants.HEADER_CONTENT_TYPE_KEY, type3Input + "," + "random_version");
+        properties.put(PubSubConstants.HEADER_CONTENT_TYPE_KEY,
+                type3Input + "," + "random_version");
         testEvent = new Event("topic", properties);
         assertTrue(pred.matches(testEvent));
 
@@ -574,7 +578,8 @@ public class PredicateTest {
         query.addTemporalFilter(start, end, Metacard.EFFECTIVE);
 
         SubscriptionFilterVisitor visitor = new SubscriptionFilterVisitor();
-        Predicate pred = (Predicate) query.getFilter().accept(visitor, null);
+        Predicate pred = (Predicate) query.getFilter()
+                .accept(visitor, null);
         LOGGER.debug("resulting predicate: " + pred);
 
         Filter filter = query.getFilter();
@@ -592,7 +597,8 @@ public class PredicateTest {
         metacard.setMetadata(TestDataLibrary.getCatAndDogEntry());
 
         XMLGregorianCalendar cal = df.newXMLGregorianCalendarDate(2011, 10, 26, 0);
-        Date effectiveDate = cal.toGregorianCalendar().getTime();
+        Date effectiveDate = cal.toGregorianCalendar()
+                .getTime();
         metacard.setEffectiveDate(effectiveDate);
 
         HashMap<String, Object> properties = new HashMap<>();
@@ -611,7 +617,8 @@ public class PredicateTest {
         LOGGER.debug("\nfail temporal.  fail content type.\n");
         XMLGregorianCalendar cal1 = df.newXMLGregorianCalendarDate(2012, 10, 30, 0); // time out of
         // range
-        Date effectiveDate1 = cal1.toGregorianCalendar().getTime();
+        Date effectiveDate1 = cal1.toGregorianCalendar()
+                .getTime();
         metacard.setEffectiveDate(effectiveDate1);
         LOGGER.debug("metacard date: " + metacard.getEffectiveDate());
 
@@ -638,7 +645,8 @@ public class PredicateTest {
         query.addTemporalFilter(start, end, Metacard.EFFECTIVE);
 
         SubscriptionFilterVisitor visitor = new SubscriptionFilterVisitor();
-        Predicate pred = (Predicate) query.getFilter().accept(visitor, null);
+        Predicate pred = (Predicate) query.getFilter()
+                .accept(visitor, null);
         LOGGER.debug("resulting predicate: " + pred);
 
         Filter filter = query.getFilter();
@@ -655,7 +663,8 @@ public class PredicateTest {
         metacard.setModifiedDate(new Date());
 
         XMLGregorianCalendar cal = df.newXMLGregorianCalendarDate(2011, 10, 26, 0);
-        Date effectiveDate = cal.toGregorianCalendar().getTime();
+        Date effectiveDate = cal.toGregorianCalendar()
+                .getTime();
         metacard.setEffectiveDate(effectiveDate);
 
         HashMap<String, Object> properties = new HashMap<>();
@@ -683,7 +692,8 @@ public class PredicateTest {
         query.addTemporalFilter(start, end, Metacard.EFFECTIVE);
 
         SubscriptionFilterVisitor visitor = new SubscriptionFilterVisitor();
-        Predicate pred = (Predicate) query.getFilter().accept(visitor, null);
+        Predicate pred = (Predicate) query.getFilter()
+                .accept(visitor, null);
         LOGGER.debug("resulting predicate: " + pred);
 
         Filter filter = query.getFilter();
@@ -701,7 +711,8 @@ public class PredicateTest {
         metacard.setMetadata(TestDataLibrary.getCatAndDogEntry());
 
         XMLGregorianCalendar cal = df.newXMLGregorianCalendarDate(2011, 10, 26, 0);
-        Date effectiveDate = cal.toGregorianCalendar().getTime();
+        Date effectiveDate = cal.toGregorianCalendar()
+                .getTime();
         metacard.setEffectiveDate(effectiveDate);
 
         HashMap<String, Object> properties = new HashMap<>();
@@ -734,7 +745,8 @@ public class PredicateTest {
         query.addSpatialFilter(geometryWkt, inputRadius, linearUnit, spatialType);
 
         SubscriptionFilterVisitor visitor = new SubscriptionFilterVisitor();
-        Predicate pred = (Predicate) query.getFilter().accept(visitor, null);
+        Predicate pred = (Predicate) query.getFilter()
+                .accept(visitor, null);
         LOGGER.debug("resulting predicate: " + pred);
 
         Filter filter = query.getFilter();
@@ -770,7 +782,8 @@ public class PredicateTest {
         query.addTypeFilter(extensions);
 
         SubscriptionFilterVisitor visitor = new SubscriptionFilterVisitor();
-        Predicate pred = (Predicate) query.getFilter().accept(visitor, null);
+        Predicate pred = (Predicate) query.getFilter()
+                .accept(visitor, null);
         LOGGER.debug("resulting predicate: " + pred);
 
         Filter filter = query.getFilter();
@@ -788,7 +801,8 @@ public class PredicateTest {
         metacard.setMetadata(TestDataLibrary.getCatAndDogEntry());
 
         XMLGregorianCalendar cal = df.newXMLGregorianCalendarDate(2011, 10, 26, 0);
-        Date effectiveDate = cal.toGregorianCalendar().getTime();
+        Date effectiveDate = cal.toGregorianCalendar()
+                .getTime();
         metacard.setEffectiveDate(effectiveDate);
 
         HashMap<String, Object> properties = new HashMap<>();
@@ -808,7 +822,8 @@ public class PredicateTest {
         LOGGER.debug("\nfail temporal.  fail content type.\n");
         XMLGregorianCalendar cal1 = df.newXMLGregorianCalendarDate(2012, 10, 30, 0); // time out of
         // range
-        Date effectiveDate1 = cal1.toGregorianCalendar().getTime();
+        Date effectiveDate1 = cal1.toGregorianCalendar()
+                .getTime();
         metacard.setEffectiveDate(effectiveDate1);
         LOGGER.debug("metacard date: " + metacard.getEffectiveDate());
 
@@ -824,7 +839,8 @@ public class PredicateTest {
         LOGGER.debug("\npass temporal.  fail content type\n");
         XMLGregorianCalendar cal2 = df.newXMLGregorianCalendarDate(2011, 10, 26, 0); // time in
         // range
-        Date effectiveDate2 = cal2.toGregorianCalendar().getTime();
+        Date effectiveDate2 = cal2.toGregorianCalendar()
+                .getTime();
         metacard.setEffectiveDate(effectiveDate2);
         LOGGER.debug("metacard date: " + metacard.getEffectiveDate());
 
@@ -840,7 +856,8 @@ public class PredicateTest {
         LOGGER.debug("\nfail temporal.  pass content type\n");
         XMLGregorianCalendar cal3 = df.newXMLGregorianCalendarDate(2012, 10, 26, 0); // time out of
         // range
-        Date effectiveDate3 = cal3.toGregorianCalendar().getTime();
+        Date effectiveDate3 = cal3.toGregorianCalendar()
+                .getTime();
         metacard.setEffectiveDate(effectiveDate3);
         LOGGER.debug("metacard date: " + metacard.getEffectiveDate());
 
@@ -873,14 +890,16 @@ public class PredicateTest {
         query2.addTemporalFilter(start, end, Metacard.EFFECTIVE);
         query2.addTypeFilter(extensions);
         SubscriptionFilterVisitor visitor1 = new SubscriptionFilterVisitor();
-        Predicate pred1 = (Predicate) query2.getFilter().accept(visitor1, null);
+        Predicate pred1 = (Predicate) query2.getFilter()
+                .accept(visitor1, null);
         LOGGER.debug("resulting predicate: " + pred1);
 
         // Create metacard for input
         // time and contentType match
         XMLGregorianCalendar cal4 = df.newXMLGregorianCalendarDate(2011, 10, 26, 0); // time in
         // range
-        Date effectiveDate4 = cal4.toGregorianCalendar().getTime();
+        Date effectiveDate4 = cal4.toGregorianCalendar()
+                .getTime();
         metacard.setEffectiveDate(effectiveDate4);
         LOGGER.debug("metacard date: " + metacard.getEffectiveDate());
 
@@ -895,7 +914,8 @@ public class PredicateTest {
         // time and contentType match against content type 3 with any version
         XMLGregorianCalendar cal5 = df.newXMLGregorianCalendarDate(2011, 10, 26, 0); // time in
         // range
-        Date effectiveDate5 = cal5.toGregorianCalendar().getTime();
+        Date effectiveDate5 = cal5.toGregorianCalendar()
+                .getTime();
         metacard.setEffectiveDate(effectiveDate5);
         LOGGER.debug("metacard date: " + metacard.getEffectiveDate());
 
@@ -910,7 +930,8 @@ public class PredicateTest {
         // time matches and contentType matches type2
         XMLGregorianCalendar cal6 = df.newXMLGregorianCalendarDate(2011, 10, 26, 0); // time in
         // range
-        Date effectiveDate6 = cal6.toGregorianCalendar().getTime();
+        Date effectiveDate6 = cal6.toGregorianCalendar()
+                .getTime();
         metacard.setEffectiveDate(effectiveDate6);
         LOGGER.debug("metacard date: " + metacard.getEffectiveDate());
 
@@ -925,7 +946,8 @@ public class PredicateTest {
         // time matches and content type doesn't match
         XMLGregorianCalendar cal7 = df.newXMLGregorianCalendarDate(2011, 10, 26, 0); // time in
         // range
-        Date effectiveDate7 = cal7.toGregorianCalendar().getTime();
+        Date effectiveDate7 = cal7.toGregorianCalendar()
+                .getTime();
         metacard.setEffectiveDate(effectiveDate7);
         LOGGER.debug("metacard date: " + metacard.getEffectiveDate());
 
@@ -969,7 +991,8 @@ public class PredicateTest {
         metacard.setMetadata(TestDataLibrary.getCatAndDogEntry());
 
         XMLGregorianCalendar cal = df.newXMLGregorianCalendarDate(2011, 10, 26, 0);
-        Date modifiedDate = cal.toGregorianCalendar().getTime();
+        Date modifiedDate = cal.toGregorianCalendar()
+                .getTime();
         metacard.setModifiedDate(modifiedDate);
 
         HashMap<String, Object> properties = new HashMap<>();
@@ -985,7 +1008,8 @@ public class PredicateTest {
 
         // input passes temporal, id, and geo
         SubscriptionFilterVisitor visitor = new SubscriptionFilterVisitor();
-        Predicate pred = (Predicate) query.getFilter().accept(visitor, null);
+        Predicate pred = (Predicate) query.getFilter()
+                .accept(visitor, null);
         LOGGER.debug("resulting predicate: " + pred);
 
         Filter filter = query.getFilter();
@@ -1014,7 +1038,8 @@ public class PredicateTest {
         // input passes geo, and id, but fails temporal
         metacard.setLocation("POINT(5 5)");
         XMLGregorianCalendar cal1 = df.newXMLGregorianCalendarDate(2011, 10, 28, 0);
-        Date modifiedDate1 = cal1.toGregorianCalendar().getTime();
+        Date modifiedDate1 = cal1.toGregorianCalendar()
+                .getTime();
         metacard.setModifiedDate(modifiedDate1); // date out of range
         properties.clear();
         properties.put(PubSubConstants.HEADER_ID_KEY, metacard.getId());
@@ -1031,7 +1056,8 @@ public class PredicateTest {
 
         // input passes temporal, geo, but fails id
         XMLGregorianCalendar cal2 = df.newXMLGregorianCalendarDate(2011, 10, 26, 0);
-        Date modifiedDate2 = cal2.toGregorianCalendar().getTime();
+        Date modifiedDate2 = cal2.toGregorianCalendar()
+                .getTime();
         metacard.setModifiedDate(modifiedDate2);
         metacard.setId("invalid_id"); // bad id
         properties.clear();
@@ -1061,7 +1087,8 @@ public class PredicateTest {
         query.addContextualFilter(searchPhrase, null);
 
         SubscriptionFilterVisitor visitor = new SubscriptionFilterVisitor();
-        Predicate predicate = (Predicate) query.getFilter().accept(visitor, null);
+        Predicate predicate = (Predicate) query.getFilter()
+                .accept(visitor, null);
 
         MetacardImpl metacard = new MetacardImpl();
         metacard.setId("ABC123");
@@ -1127,11 +1154,12 @@ public class PredicateTest {
         for (String term : Arrays.asList(LEADING_TERM, TRAILING_TERM, EMBEDDED_TERM)) {
             for (Character specialChar : ContextualTokenizer.SPECIAL_CHARACTERS_SET) {
                 String phrase = String.format(term, specialChar);
-                String metadata = String
-                        .format(METADATA_FORMAT, StringEscapeUtils.escapeXml(phrase));
+                String metadata = String.format(METADATA_FORMAT,
+                        StringEscapeUtils.escapeXml(phrase));
                 Predicate predicate = getPredicate("\"" + phrase + "\"");
                 Event testEvent = getEvent(metadata);
-                assertThat(phrase + " not matched", predicate.matches(testEvent),
+                assertThat(phrase + " not matched",
+                        predicate.matches(testEvent),
                         is(equalTo(true)));
             }
         }
@@ -1144,11 +1172,13 @@ public class PredicateTest {
                 String phrase = String.format(term, specialChar);
                 for (Character differentSpecialChar : ContextualTokenizer.SPECIAL_CHARACTERS_SET) {
                     if (specialChar != differentSpecialChar) {
-                        String metadata = String.format(METADATA_FORMAT, StringEscapeUtils
-                                .escapeXml(String.format(term, differentSpecialChar)));
+                        String metadata = String.format(METADATA_FORMAT,
+                                StringEscapeUtils.escapeXml(String.format(term,
+                                        differentSpecialChar)));
                         Predicate predicate = getPredicate("\"" + phrase + "\"");
                         Event testEvent = getEvent(metadata);
-                        assertThat(phrase + " matched", predicate.matches(testEvent),
+                        assertThat(phrase + " matched",
+                                predicate.matches(testEvent),
                                 is(equalTo(false)));
                     }
                 }
@@ -1162,10 +1192,11 @@ public class PredicateTest {
         for (String term : Arrays.asList(LEADING_TERM, TRAILING_TERM, EMBEDDED_TERM)) {
             for (Character specialChar : ContextualTokenizer.SPECIAL_CHARACTERS_SET) {
                 String phrase = String.format(term, specialChar);
-                String metadata = String
-                        .format(METADATA_FORMAT, StringEscapeUtils.escapeXml(phrase));
+                String metadata = String.format(METADATA_FORMAT,
+                        StringEscapeUtils.escapeXml(phrase));
                 Event testEvent = getEvent(metadata);
-                assertThat(phrase + " not matched", predicate.matches(testEvent),
+                assertThat(phrase + " not matched",
+                        predicate.matches(testEvent),
                         is(equalTo(true)));
             }
         }
@@ -1177,18 +1208,19 @@ public class PredicateTest {
         for (String term : Arrays.asList(LEADING_TERM, EMBEDDED_TERM_REVERSED)) {
             for (Character specialChar : ContextualTokenizer.SPECIAL_CHARACTERS_SET) {
                 String phrase = String.format(term, specialChar);
-                String metadata = String
-                        .format(METADATA_FORMAT, StringEscapeUtils.escapeXml(phrase));
+                String metadata = String.format(METADATA_FORMAT,
+                        StringEscapeUtils.escapeXml(phrase));
                 Event testEvent = getEvent(metadata);
-                assertThat(phrase + " not matched", predicate.matches(testEvent),
+                assertThat(phrase + " not matched",
+                        predicate.matches(testEvent),
                         is(equalTo(true)));
             }
         }
         for (String term : Arrays.asList(TRAILING_TERM, EMBEDDED_TERM)) {
             for (Character specialChar : ContextualTokenizer.SPECIAL_CHARACTERS_SET) {
                 String phrase = String.format(term, specialChar);
-                String metadata = String
-                        .format(METADATA_FORMAT, StringEscapeUtils.escapeXml(phrase));
+                String metadata = String.format(METADATA_FORMAT,
+                        StringEscapeUtils.escapeXml(phrase));
                 Event testEvent = getEvent(metadata);
                 assertThat(phrase + " matched", predicate.matches(testEvent), is(equalTo(false)));
             }
@@ -1201,18 +1233,19 @@ public class PredicateTest {
         for (String term : Arrays.asList(TRAILING_TERM, EMBEDDED_TERM)) {
             for (Character specialChar : ContextualTokenizer.SPECIAL_CHARACTERS_SET) {
                 String phrase = String.format(term, specialChar);
-                String metadata = String
-                        .format(METADATA_FORMAT, StringEscapeUtils.escapeXml(phrase));
+                String metadata = String.format(METADATA_FORMAT,
+                        StringEscapeUtils.escapeXml(phrase));
                 Event testEvent = getEvent(metadata);
-                assertThat(phrase + " not matched", predicate.matches(testEvent),
+                assertThat(phrase + " not matched",
+                        predicate.matches(testEvent),
                         is(equalTo(true)));
             }
         }
         for (String term : Arrays.asList(LEADING_TERM, EMBEDDED_TERM_REVERSED)) {
             for (Character specialChar : ContextualTokenizer.SPECIAL_CHARACTERS_SET) {
                 String phrase = String.format(term, specialChar);
-                String metadata = String
-                        .format(METADATA_FORMAT, StringEscapeUtils.escapeXml(phrase));
+                String metadata = String.format(METADATA_FORMAT,
+                        StringEscapeUtils.escapeXml(phrase));
                 Event testEvent = getEvent(metadata);
                 assertThat(phrase + " matched", predicate.matches(testEvent), is(equalTo(false)));
             }
@@ -1230,7 +1263,8 @@ public class PredicateTest {
         query.addContextualFilter(searchPhrase, null);
 
         SubscriptionFilterVisitor visitor = new SubscriptionFilterVisitor();
-        Predicate predicate = (Predicate) query.getFilter().accept(visitor, null);
+        Predicate predicate = (Predicate) query.getFilter()
+                .accept(visitor, null);
 
         MetacardImpl metacard = new MetacardImpl();
         metacard.setId("ABC123");
@@ -1292,7 +1326,9 @@ public class PredicateTest {
         Geometry input = GeospatialEvaluator.buildGeometry(geospatialXml);
         LOGGER.debug("input.toText() = " + input.toText());
         GeospatialEvaluationCriteria gec = new GeospatialEvaluationCriteriaImpl(geoCriteria,
-                operation, input, distance);
+                operation,
+                input,
+                distance);
         boolean status = GeospatialEvaluator.evaluate(gec);
 
         assertTrue(status);
@@ -1363,7 +1399,8 @@ public class PredicateTest {
         String operation = "point_radius";
         double distance = 5000.0;
         double radiusInDegrees = (distance * 180.0) / (Math.PI * EQUATORIAL_RADIUS_IN_METERS);
-        GeospatialPredicate predicate = new GeospatialPredicate(geometryWkt, operation,
+        GeospatialPredicate predicate = new GeospatialPredicate(geometryWkt,
+                operation,
                 radiusInDegrees);
         Geometry geoCriteria = predicate.getGeoCriteria();
         LOGGER.debug("geoCriteria.toText() = " + geoCriteria.toText());
@@ -1382,7 +1419,9 @@ public class PredicateTest {
         Geometry input = GeospatialEvaluator.buildGeometry(geospatialXml);
         LOGGER.debug("input.toText() = " + input.toText());
         GeospatialEvaluationCriteria gec = new GeospatialEvaluationCriteriaImpl(geoCriteria,
-                operation, input, radiusInDegrees);
+                operation,
+                input,
+                radiusInDegrees);
         boolean status = GeospatialEvaluator.evaluate(gec);
 
         assertFalse(status);
@@ -1405,7 +1444,8 @@ public class PredicateTest {
         double radiusInDegrees = (distance * 180.0) / (Math.PI * EQUATORIAL_RADIUS_IN_METERS);
         LOGGER.debug(
                 "distance (in meters) = " + distance + ",   radiusInDegrees = " + radiusInDegrees);
-        GeospatialPredicate predicate = new GeospatialPredicate(geometryWkt, operation,
+        GeospatialPredicate predicate = new GeospatialPredicate(geometryWkt,
+                operation,
                 radiusInDegrees);
         Geometry geoCriteria = predicate.getGeoCriteria();
         LOGGER.debug("geoCriteria.toText() = " + geoCriteria.toText());
@@ -1424,7 +1464,9 @@ public class PredicateTest {
         Geometry input = GeospatialEvaluator.buildGeometry(geospatialXml);
         LOGGER.debug("input.toText() = " + input.toText());
         GeospatialEvaluationCriteria gec = new GeospatialEvaluationCriteriaImpl(geoCriteria,
-                operation, input, radiusInDegrees);
+                operation,
+                input,
+                radiusInDegrees);
         boolean status = GeospatialEvaluator.evaluate(gec);
 
         assertTrue(status);
@@ -1676,7 +1718,8 @@ public class PredicateTest {
 
         SubscriptionFilterVisitor visitor = new SubscriptionFilterVisitor();
 
-        return (Predicate) query.getFilter().accept(visitor, null);
+        return (Predicate) query.getFilter()
+                .accept(visitor, null);
     }
 
     private Event getEvent(String metadata) throws IOException {

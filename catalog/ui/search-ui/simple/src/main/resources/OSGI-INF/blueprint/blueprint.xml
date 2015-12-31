@@ -18,12 +18,12 @@
 
     <reference id="webBranding" interface="org.apache.felix.webconsole.BrandingPlugin"/>
 
-	<bean id="configurationStore"
+    <bean id="configurationStore"
           class="org.codice.ddf.ui.searchui.simple.properties.ConfigurationStore"
           factory-method="getInstance">
-		<cm:managed-properties persistent-id="org.codice.ddf.ui.search.simple.properties"
+        <cm:managed-properties persistent-id="org.codice.ddf.ui.search.simple.properties"
                                update-strategy="container-managed"/>
         <property name="branding" ref="webBranding"/>
-	</bean>
-	
+    </bean>
+
 </blueprint>

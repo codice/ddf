@@ -56,8 +56,8 @@ import ddf.catalog.source.Source;
 @Deprecated
 public class FifoFederationStrategy implements FederationStrategy {
 
-    private static final XLogger LOGGER = new XLogger(
-            LoggerFactory.getLogger(FifoFederationStrategy.class));
+    private static final XLogger LOGGER =
+            new XLogger(LoggerFactory.getLogger(FifoFederationStrategy.class));
 
     private static final int DEFAULT_MAX_START_INDEX = 50000;
 
@@ -72,8 +72,7 @@ public class FifoFederationStrategy implements FederationStrategy {
     /**
      * Instantiates a {@code FifoFederationStrategy} with the provided {@link ExecutorService}.
      *
-     * @param queryExecutorService
-     *            the {@link ExecutorService} for queries
+     * @param queryExecutorService the {@link ExecutorService} for queries
      */
     public FifoFederationStrategy(ExecutorService queryExecutorService,
             List<PreFederatedQueryPlugin> preQuery, List<PostFederatedQueryPlugin> postQuery) {
@@ -102,7 +101,8 @@ public class FifoFederationStrategy implements FederationStrategy {
 
         Query modifiedQuery = getModifiedQuery(originalQuery, sources.size(), offset, pageSize);
         QueryRequest modifiedQueryRequest = new QueryRequestImpl(modifiedQuery,
-                queryRequest.isEnterprise(), queryRequest.getSourceIds(),
+                queryRequest.isEnterprise(),
+                queryRequest.getSourceIds(),
                 queryRequest.getProperties());
 
         executeSourceQueries(sources, futures, modifiedQueryRequest);
@@ -112,9 +112,11 @@ public class FifoFederationStrategy implements FederationStrategy {
             resultsToSkip = offset - 1;
         }
 
-        queryExecutorService
-                .submit(new FifoQueryMonitor(queryExecutorService, futures, queryResponse,
-                        modifiedQueryRequest.getQuery(), resultsToSkip));
+        queryExecutorService.submit(new FifoQueryMonitor(queryExecutorService,
+                futures,
+                queryResponse,
+                modifiedQueryRequest.getQuery(),
+                resultsToSkip));
 
         return executePostFederationPlugins(queryResponse);
     }
@@ -143,18 +145,18 @@ public class FifoFederationStrategy implements FederationStrategy {
                     try {
                         for (PreFederatedQueryPlugin service : preQuery) {
                             try {
-                                modifiedQueryRequest = service
-                                        .process(source, modifiedQueryRequest);
+                                modifiedQueryRequest = service.process(source,
+                                        modifiedQueryRequest);
                             } catch (PluginExecutionException e) {
-                                LOGGER.warn("Error executing PreFederatedQueryPlugin: " + e
-                                        .getMessage(), e);
+                                LOGGER.warn("Error executing PreFederatedQueryPlugin: "
+                                        + e.getMessage(), e);
                             }
                         }
                     } catch (StopProcessingException e) {
                         LOGGER.warn("Plugin stopped processing: ", e);
                     }
-                    futures.put(source, queryExecutorService
-                            .submit(new CallableSourceResponse(source,
+                    futures.put(source,
+                            queryExecutorService.submit(new CallableSourceResponse(source,
                                     modifiedQueryRequest.getQuery(),
                                     modifiedQueryRequest.getProperties())));
                 } else {
@@ -180,8 +182,11 @@ public class FifoFederationStrategy implements FederationStrategy {
              * Federated sources always query from offset of 1. When all query results are received
              * from all federated sources and merged together - then the offset is applied.
              */
-            query = new QueryImpl(originalQuery, modifiedOffset, modifiedPageSize,
-                    originalQuery.getSortBy(), originalQuery.requestsTotalResultsCount(),
+            query = new QueryImpl(originalQuery,
+                    modifiedOffset,
+                    modifiedPageSize,
+                    originalQuery.getSortBy(),
+                    originalQuery.requestsTotalResultsCount(),
                     originalQuery.getTimeoutMillis());
         } else {
             query = originalQuery;
@@ -210,9 +215,11 @@ public class FifoFederationStrategy implements FederationStrategy {
             long startTime = System.currentTimeMillis();
             SourceResponse sourceResponse = source.query(new QueryRequestImpl(query, properties));
             long elapsedTime = System.currentTimeMillis() - startTime;
-            LOGGER.debug("The source {} responded to the query in {} milliseconds", source.getId(),
+            LOGGER.debug("The source {} responded to the query in {} milliseconds",
+                    source.getId(),
                     elapsedTime);
-            sourceResponse.getProperties().put(QueryResponse.ELAPSED_TIME, elapsedTime);
+            sourceResponse.getProperties()
+                    .put(QueryResponse.ELAPSED_TIME, elapsedTime);
             return sourceResponse;
         }
 
@@ -303,9 +310,9 @@ public class FifoFederationStrategy implements FederationStrategy {
                 SourceResponse sourceResponse = null;
                 Set<ProcessingDetails> processingDetails = returnResults.getProcessingDetails();
                 try {
-                    sourceResponse = query.getTimeoutMillis() < 1 ?
-                            curFuture.get() :
-                            curFuture.get(getTimeRemaining(deadline), TimeUnit.MILLISECONDS);
+                    sourceResponse = query.getTimeoutMillis() < 1 ? curFuture.get() : curFuture.get(
+                            getTimeRemaining(deadline),
+                            TimeUnit.MILLISECONDS);
                     sourceResponse = curFuture.get();
                 } catch (Exception e) {
                     LOGGER.warn("Federated query returned exception " + e.getMessage());
@@ -321,7 +328,8 @@ public class FifoFederationStrategy implements FederationStrategy {
                     List<Result> results = sourceResponse.getResults();
                     int resultsReturned = results.size();
 
-                    Map<String, Serializable> newSourceProperties = new HashMap<String, Serializable>();
+                    Map<String, Serializable> newSourceProperties =
+                            new HashMap<String, Serializable>();
                     newSourceProperties.put(QueryResponse.TOTAL_HITS, sourceHits);
                     newSourceProperties.put(QueryResponse.TOTAL_RESULTS_RETURNED, resultsReturned);
 
@@ -349,20 +357,22 @@ public class FifoFederationStrategy implements FederationStrategy {
 
                     returnResults.getProperties()
                             .put(site.getId(), (Serializable) newSourceProperties);
-                    Map<String, Serializable> originalSourceProperties = sourceResponse
-                            .getProperties();
+                    Map<String, Serializable> originalSourceProperties =
+                            sourceResponse.getProperties();
                     if (originalSourceProperties != null) {
-                        Serializable object = originalSourceProperties
-                                .get(QueryResponse.ELAPSED_TIME);
+                        Serializable object =
+                                originalSourceProperties.get(QueryResponse.ELAPSED_TIME);
                         if (object != null && object instanceof Long) {
                             newSourceProperties.put(QueryResponse.ELAPSED_TIME, (Long) object);
                             originalSourceProperties.remove(QueryResponse.ELAPSED_TIME);
                             LOGGER.debug(
                                     "Setting the elapsedTime responseProperty to {} for source {}",
-                                    object, site.getId());
+                                    object,
+                                    site.getId());
                         }
 
-                        returnResults.getProperties().putAll(originalSourceProperties);
+                        returnResults.getProperties()
+                                .putAll(originalSourceProperties);
                     }
                 }
 

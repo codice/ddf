@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.common;
 
@@ -52,8 +51,8 @@ public class TestCswRecordMetacardType {
         assertThat(descriptors, not(nullValue()));
         assertThat(CollectionUtils.isEmpty(descriptors), is(false));
 
-        assertThat(cswRecordMetacardType.getAttributeDescriptor(Metacard.ID).isMultiValued(),
-                is(false));
+        assertThat(cswRecordMetacardType.getAttributeDescriptor(Metacard.ID)
+                .isMultiValued(), is(false));
     }
 
     /**
@@ -77,12 +76,13 @@ public class TestCswRecordMetacardType {
 
         assertThat(metacard.getId(), equalTo("ddf_id"));
         assertThat(metacard.getTitle(), equalTo("ddf_title"));
-        assertThat(metacard.getModifiedDate().toString(), equalTo(modifiedDate.toString()));
+        assertThat(metacard.getModifiedDate()
+                .toString(), equalTo(modifiedDate.toString()));
         assertThat(metacard.getMetadata(), equalTo(metadata));
-        assertThat((String) metacard.getAttribute(CswRecordMetacardType.CSW_IDENTIFIER).getValue(),
-                equalTo("identifier_1"));
-        assertThat((String) metacard.getAttribute(CswRecordMetacardType.CSW_TITLE).getValue(),
-                equalTo("title_1"));
+        assertThat((String) metacard.getAttribute(CswRecordMetacardType.CSW_IDENTIFIER)
+                .getValue(), equalTo("identifier_1"));
+        assertThat((String) metacard.getAttribute(CswRecordMetacardType.CSW_TITLE)
+                .getValue(), equalTo("title_1"));
     }
 
     /**
@@ -112,7 +112,8 @@ public class TestCswRecordMetacardType {
         Date cswModifiedDate = cal.getTime();
         metacard.setAttribute(CswRecordMetacardType.CSW_MODIFIED, cswModifiedDate);
         metacard.setAttribute(CswRecordMetacardType.CSW_DESCRIPTION, "abstract_1");
-        String cswSpatial = "<dc:spatial><dcmiBox:Box name=\"Geographic\" projection=\"EPSG:4326\"><dcmiBox:northlimit units=\"decimal degrees\">42.01</dcmiBox:northlimit><dcmiBox:eastlimit units=\"decimal degrees\">-109.21</dcmiBox:eastlimit><dcmiBox:southlimit units=\"decimal degrees\">36.98</dcmiBox:southlimit><dcmiBox:westlimit units=\"decimal degrees\">-114.1</dcmiBox:westlimit></dcmiBox:Box></dc:spatial>";
+        String cswSpatial =
+                "<dc:spatial><dcmiBox:Box name=\"Geographic\" projection=\"EPSG:4326\"><dcmiBox:northlimit units=\"decimal degrees\">42.01</dcmiBox:northlimit><dcmiBox:eastlimit units=\"decimal degrees\">-109.21</dcmiBox:eastlimit><dcmiBox:southlimit units=\"decimal degrees\">36.98</dcmiBox:southlimit><dcmiBox:westlimit units=\"decimal degrees\">-114.1</dcmiBox:westlimit></dcmiBox:Box></dc:spatial>";
         metacard.setAttribute(CswRecordMetacardType.CSW_SPATIAL, cswSpatial);
         String cswBBox = "<ows:BoundingBox crs=\"urn:ogc:def:crs:EPSG:6.6:4326\">\r\n"
                 + "      <ows:LowerCorner>97.3805 6.74583</ows:LowerCorner>\r\n"
@@ -122,29 +123,29 @@ public class TestCswRecordMetacardType {
 
         assertThat(metacard.getId(), equalTo("ddf_id"));
         assertThat(metacard.getTitle(), equalTo("ddf_title"));
-        assertThat(metacard.getModifiedDate().toString(), equalTo(modifiedDate.toString()));
+        assertThat(metacard.getModifiedDate()
+                .toString(), equalTo(modifiedDate.toString()));
         assertThat(metacard.getMetadata(), equalTo(metadata));
-        assertThat((String) metacard.getAttribute(CswRecordMetacardType.CSW_IDENTIFIER).getValue(),
-                equalTo("identifier_1"));
-        assertThat((String) metacard.getAttribute(CswRecordMetacardType.CSW_TITLE).getValue(),
-                equalTo("title_1"));
-        assertThat((String) metacard.getAttribute(CswRecordMetacardType.CSW_TYPE).getValue(),
-                equalTo("type_1"));
-        assertThat((String) metacard.getAttribute(CswRecordMetacardType.CSW_FORMAT).getValue(),
-                equalTo("format_1"));
-        assertThat((String) metacard.getAttribute(CswRecordMetacardType.CSW_SUBJECT).getValue(),
-                equalTo("subject_1"));
-        assertThat((String) metacard.getAttribute(CswRecordMetacardType.CSW_RELATION).getValue(),
-                equalTo("relation_1"));
-        assertThat((Date) metacard.getAttribute(CswRecordMetacardType.CSW_MODIFIED).getValue(),
-                equalTo(cswModifiedDate));
-        assertThat((String) metacard.getAttribute(CswRecordMetacardType.CSW_DESCRIPTION).getValue(),
-                equalTo("abstract_1"));
-        assertThat((String) metacard.getAttribute(CswRecordMetacardType.CSW_SPATIAL).getValue(),
-                equalTo(cswSpatial));
-        assertThat(
-                (String) metacard.getAttribute(CswRecordMetacardType.OWS_BOUNDING_BOX).getValue(),
-                equalTo(cswBBox));
+        assertThat((String) metacard.getAttribute(CswRecordMetacardType.CSW_IDENTIFIER)
+                .getValue(), equalTo("identifier_1"));
+        assertThat((String) metacard.getAttribute(CswRecordMetacardType.CSW_TITLE)
+                .getValue(), equalTo("title_1"));
+        assertThat((String) metacard.getAttribute(CswRecordMetacardType.CSW_TYPE)
+                .getValue(), equalTo("type_1"));
+        assertThat((String) metacard.getAttribute(CswRecordMetacardType.CSW_FORMAT)
+                .getValue(), equalTo("format_1"));
+        assertThat((String) metacard.getAttribute(CswRecordMetacardType.CSW_SUBJECT)
+                .getValue(), equalTo("subject_1"));
+        assertThat((String) metacard.getAttribute(CswRecordMetacardType.CSW_RELATION)
+                .getValue(), equalTo("relation_1"));
+        assertThat((Date) metacard.getAttribute(CswRecordMetacardType.CSW_MODIFIED)
+                .getValue(), equalTo(cswModifiedDate));
+        assertThat((String) metacard.getAttribute(CswRecordMetacardType.CSW_DESCRIPTION)
+                .getValue(), equalTo("abstract_1"));
+        assertThat((String) metacard.getAttribute(CswRecordMetacardType.CSW_SPATIAL)
+                .getValue(), equalTo(cswSpatial));
+        assertThat((String) metacard.getAttribute(CswRecordMetacardType.OWS_BOUNDING_BOX)
+                .getValue(), equalTo(cswBBox));
     }
 
     /**
@@ -177,12 +178,12 @@ public class TestCswRecordMetacardType {
         metacard.setAttribute(cswSubjects);
 
         // verifies STRING_TYPE attribute storage and retrieval
-        assertThat((String) metacard.getAttribute(CswRecordMetacardType.CSW_IDENTIFIER).getValue(),
-                equalTo("identifier_1"));
+        assertThat((String) metacard.getAttribute(CswRecordMetacardType.CSW_IDENTIFIER)
+                .getValue(), equalTo("identifier_1"));
 
         // verifies DATE_TYPE attribute storage and retrieval
-        assertThat((Date) metacard.getAttribute(CswRecordMetacardType.CSW_MODIFIED).getValue(),
-                equalTo(cswModifiedDate));
+        assertThat((Date) metacard.getAttribute(CswRecordMetacardType.CSW_MODIFIED)
+                .getValue(), equalTo(cswModifiedDate));
 
         // verifies multi-value attribute storage and retrieval
         List<?> subjects = (List<?>) metacard.getAttribute(CswRecordMetacardType.CSW_SUBJECT)
@@ -229,27 +230,35 @@ public class TestCswRecordMetacardType {
         Date cswDateAccepted = cal.getTime();
         metacard.setAttribute(CswRecordMetacardType.CSW_DATE_ACCEPTED, cswDateAccepted);
 
-        assertThat((Date) metacard.getAttribute(CswRecordMetacardType.CSW_DATE).getValue(),
-                equalTo(cswDate));
-        assertThat((Date) metacard.getAttribute(CswRecordMetacardType.CSW_MODIFIED).getValue(),
-                equalTo(cswModifiedDate));
-        assertThat((Date) metacard.getAttribute(CswRecordMetacardType.CSW_CREATED).getValue(),
-                equalTo(cswCreatedDate));
-        assertThat((Date) metacard.getAttribute(CswRecordMetacardType.CSW_DATE_ACCEPTED).getValue(),
-                equalTo(cswDateAccepted));
+        assertThat((Date) metacard.getAttribute(CswRecordMetacardType.CSW_DATE)
+                .getValue(), equalTo(cswDate));
+        assertThat((Date) metacard.getAttribute(CswRecordMetacardType.CSW_MODIFIED)
+                .getValue(), equalTo(cswModifiedDate));
+        assertThat((Date) metacard.getAttribute(CswRecordMetacardType.CSW_CREATED)
+                .getValue(), equalTo(cswCreatedDate));
+        assertThat((Date) metacard.getAttribute(CswRecordMetacardType.CSW_DATE_ACCEPTED)
+                .getValue(), equalTo(cswDateAccepted));
     }
 
     @Test
     public void testCswMetacardHasBasicMetacardDescriptorsAsIsStoredTrue() {
         MetacardType cswMetacard = new CswRecordMetacardType();
-        assertThat(cswMetacard.getAttributeDescriptor(Metacard.ID).isStored(), is(true));
-        assertThat(cswMetacard.getAttributeDescriptor(Metacard.TITLE).isStored(), is(true));
-        assertThat(cswMetacard.getAttributeDescriptor(Metacard.METADATA).isStored(), is(true));
-        assertThat(cswMetacard.getAttributeDescriptor(Metacard.EFFECTIVE).isStored(), is(true));
-        assertThat(cswMetacard.getAttributeDescriptor(Metacard.MODIFIED).isStored(), is(true));
-        assertThat(cswMetacard.getAttributeDescriptor(Metacard.CREATED).isStored(), is(true));
-        assertThat(cswMetacard.getAttributeDescriptor(Metacard.RESOURCE_URI).isStored(), is(true));
-        assertThat(cswMetacard.getAttributeDescriptor(Metacard.CONTENT_TYPE).isStored(), is(true));
+        assertThat(cswMetacard.getAttributeDescriptor(Metacard.ID)
+                .isStored(), is(true));
+        assertThat(cswMetacard.getAttributeDescriptor(Metacard.TITLE)
+                .isStored(), is(true));
+        assertThat(cswMetacard.getAttributeDescriptor(Metacard.METADATA)
+                .isStored(), is(true));
+        assertThat(cswMetacard.getAttributeDescriptor(Metacard.EFFECTIVE)
+                .isStored(), is(true));
+        assertThat(cswMetacard.getAttributeDescriptor(Metacard.MODIFIED)
+                .isStored(), is(true));
+        assertThat(cswMetacard.getAttributeDescriptor(Metacard.CREATED)
+                .isStored(), is(true));
+        assertThat(cswMetacard.getAttributeDescriptor(Metacard.RESOURCE_URI)
+                .isStored(), is(true));
+        assertThat(cswMetacard.getAttributeDescriptor(Metacard.CONTENT_TYPE)
+                .isStored(), is(true));
     }
 
 }

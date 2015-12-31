@@ -67,7 +67,8 @@ public class SampleMetacardValidator implements MetacardValidator, Describable {
     }
 
     private Boolean checkMetacard(String metacardAttribute, ArrayList<String> toCheck) {
-        List<String> result = toCheck.stream().filter(metacardAttribute::contains)
+        List<String> result = toCheck.stream()
+                .filter(metacardAttribute::contains)
                 .collect(Collectors.toList());
         return !result.isEmpty();
     }

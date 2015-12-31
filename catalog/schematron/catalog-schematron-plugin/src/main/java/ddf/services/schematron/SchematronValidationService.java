@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -79,10 +79,12 @@ public class SchematronValidationService implements MetacardValidator {
     private static final String CLASS_NAME = SchematronValidationService.class.getName();
 
     /** ISO Schematron XSLT to expand inclusions in provided Schematron schema file */
-    private static final String ISO_SCHEMATRON_INCLUSION_EXPAND_XSL_FILENAME = "iso-schematron/iso_dsdl_include.xsl";
+    private static final String ISO_SCHEMATRON_INCLUSION_EXPAND_XSL_FILENAME =
+            "iso-schematron/iso_dsdl_include.xsl";
 
     /** ISO Schematron XSLT to expand abstractions in provided Schematron schema file */
-    private static final String ISO_SCHEMATRON_ABSTRACT_EXPAND_XSL_FILENAME = "iso-schematron/iso_abstract_expand.xsl";
+    private static final String ISO_SCHEMATRON_ABSTRACT_EXPAND_XSL_FILENAME =
+            "iso-schematron/iso_abstract_expand.xsl";
 
     /**
      * SVRL extension to ISO Schematron skeleton, allowing an XML-formatted report output from
@@ -217,8 +219,8 @@ public class SchematronValidationService implements MetacardValidator {
 
         // Initialize TransformerFactory if not already done
         if (transformerFactory == null) {
-            transformerFactory = TransformerFactory
-                    .newInstance(net.sf.saxon.TransformerFactoryImpl.class.getName(),
+            transformerFactory =
+                    TransformerFactory.newInstance(net.sf.saxon.TransformerFactoryImpl.class.getName(),
                             SchematronValidationService.class.getClassLoader());
         }
 
@@ -279,12 +281,14 @@ public class SchematronValidationService implements MetacardValidator {
             Source schSource = new StreamSource(schUrl.toString());
 
             // Stage 1: Perform inclusion expansion on Schematron schema file
-            DOMResult stage1Result = performStage(bundle, schSource,
+            DOMResult stage1Result = performStage(bundle,
+                    schSource,
                     ISO_SCHEMATRON_INCLUSION_EXPAND_XSL_FILENAME);
             DOMSource stage1Output = new DOMSource(stage1Result.getNode());
 
             // Stage 2: Perform abstract expansion on output file from Stage 1
-            DOMResult stage2Result = performStage(bundle, stage1Output,
+            DOMResult stage2Result = performStage(bundle,
+                    stage1Output,
                     ISO_SCHEMATRON_ABSTRACT_EXPAND_XSL_FILENAME);
             DOMSource stage2Output = new DOMSource(stage2Result.getNode());
 
@@ -299,24 +303,28 @@ public class SchematronValidationService implements MetacardValidator {
             LOGGER.error("Couldn't create transfomer", e);
             throw new SchematronInitializationException(
                     "Error trying to create SchematronValidationService using sch file "
-                            + this.schematronSchemaFilename, e);
+                            + this.schematronSchemaFilename,
+                    e);
         } catch (TransformerException e) {
             LOGGER.error("Couldn't create transfomer", e);
             throw new SchematronInitializationException(
                     "Error trying to create SchematronValidationService using sch file "
-                            + this.schematronSchemaFilename, e);
+                            + this.schematronSchemaFilename,
+                    e);
         } catch (ParserConfigurationException e) {
             LOGGER.error("Couldn't create transfomer", e);
             throw new SchematronInitializationException(
                     "Error trying to create SchematronValidationService using sch file "
-                            + this.schematronSchemaFilename, e);
+                            + this.schematronSchemaFilename,
+                    e);
 
-        // Would go here if an invalid .sch file was passed in
+            // Would go here if an invalid .sch file was passed in
         } catch (Exception e) {
             LOGGER.error("Couldn't create transfomer", e);
             throw new SchematronInitializationException(
                     "Error trying to create SchematronValidationService using sch file "
-                            + this.schematronSchemaFilename, e);
+                            + this.schematronSchemaFilename,
+                    e);
         }
 
         LOGGER.debug("EXITING: {}.{}", CLASS_NAME, methodName);
@@ -361,8 +369,8 @@ public class SchematronValidationService implements MetacardValidator {
         // Initialize container for warnings we may receive during transformation of input
         warnings = new Vector<String>();
 
-        TransformerFactory transformerFactory = TransformerFactory
-                .newInstance(net.sf.saxon.TransformerFactoryImpl.class.getName(),
+        TransformerFactory transformerFactory =
+                TransformerFactory.newInstance(net.sf.saxon.TransformerFactoryImpl.class.getName(),
                         SchematronValidationService.class.getClassLoader());
 
         Transformer transformer = transformerFactory.newTransformer(preprocessorSource);
@@ -494,7 +502,8 @@ public class SchematronValidationService implements MetacardValidator {
      */
     public void setSuppressWarnings(boolean suppressWarnings) {
         LOGGER.debug("ENTERING: setSuppressWarnings");
-        LOGGER.debug("suppressWarnings = {} (sch filename = {})", suppressWarnings,
+        LOGGER.debug("suppressWarnings = {} (sch filename = {})",
+                suppressWarnings,
                 this.schematronSchemaFilename);
 
         this.suppressWarnings = suppressWarnings;
@@ -566,8 +575,8 @@ public class SchematronValidationService implements MetacardValidator {
                 if (!this.report.isValid(this.suppressWarnings)) {
                     List<String> warnings = new ArrayList<String>();
 
-                    StringBuffer errorMessage = new StringBuffer(
-                            "Schematron validation failed.\n\n");
+                    StringBuffer errorMessage =
+                            new StringBuffer("Schematron validation failed.\n\n");
                     List<String> errors = this.report.getErrors();
 
                     List<String> trimmedErrors = new ArrayList<>();
@@ -593,7 +602,8 @@ public class SchematronValidationService implements MetacardValidator {
                     }
                     LOGGER.debug(errorMessage.toString());
                     throw new SchematronValidationException("Schematron validation failed.",
-                            trimmedErrors, trimmedWarnings);
+                            trimmedErrors,
+                            trimmedWarnings);
                 }
 
             } catch (TransformerException te) {
@@ -623,14 +633,16 @@ public class SchematronValidationService implements MetacardValidator {
 
         @Override
         public void warning(TransformerException e) throws TransformerException {
-            LOGGER.warn("Transformer warning: '{}' on file: {}", e.getMessage(),
+            LOGGER.warn("Transformer warning: '{}' on file: {}",
+                    e.getMessage(),
                     this.schematronSchemaFilename);
             LOGGER.debug("Saxon exception", e);
         }
 
         @Override
         public void error(TransformerException e) throws TransformerException {
-            LOGGER.warn("Transformer warning: '{}' on file: {}", e.getMessage(),
+            LOGGER.warn("Transformer warning: '{}' on file: {}",
+                    e.getMessage(),
                     this.schematronSchemaFilename);
             LOGGER.debug("Saxon exception", e);
         }
@@ -638,7 +650,8 @@ public class SchematronValidationService implements MetacardValidator {
         @Override
         public void fatalError(TransformerException e) throws TransformerException {
             LOGGER.error("Transformer error: (Schematron file = {}):",
-                    this.schematronSchemaFilename, e);
+                    this.schematronSchemaFilename,
+                    e);
         }
     }
 

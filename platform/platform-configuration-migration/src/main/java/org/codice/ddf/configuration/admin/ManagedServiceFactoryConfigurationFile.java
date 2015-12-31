@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -31,8 +31,8 @@ import org.slf4j.LoggerFactory;
  */
 public class ManagedServiceFactoryConfigurationFile extends ConfigurationFile {
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(ManagedServiceFactoryConfigurationFile.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+            ManagedServiceFactoryConfigurationFile.class);
 
     ManagedServiceFactoryConfigurationFile(Path configFilePath,
             Dictionary<String, Object> properties, ConfigurationAdmin configAdmin,
@@ -49,9 +49,9 @@ public class ManagedServiceFactoryConfigurationFile extends ConfigurationFile {
             Configuration configuration = configAdmin.createFactoryConfiguration(factoryPid, null);
             configuration.update(properties);
         } catch (IOException e) {
-            String message = String
-                    .format("Unable to get or update Configuration for factory pid [%s].",
-                            factoryPid);
+            String message = String.format(
+                    "Unable to get or update Configuration for factory pid [%s].",
+                    factoryPid);
             LOGGER.error(message, e);
             throw new ConfigurationFileException(message, e);
         }
@@ -71,8 +71,10 @@ public class ManagedServiceFactoryConfigurationFile extends ConfigurationFile {
 
         @Override
         public ConfigurationFile build() {
-            return new ManagedServiceFactoryConfigurationFile(configFilePath, properties,
-                    configAdmin, persistenceStrategy);
+            return new ManagedServiceFactoryConfigurationFile(configFilePath,
+                    properties,
+                    configAdmin,
+                    persistenceStrategy);
         }
     }
 }

@@ -15,16 +15,17 @@
  -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-        <OCD name="URL Resource Reader"
+    <OCD name="URL Resource Reader"
          id="ddf.catalog.resource.impl.URLResourceReader">
-                <AD
+        <AD
                 description="List of root resource directories. A relative path is relative to ddf.home. Specifies the only directories the URLResourceReader has access to when attempting to download resources linked using file-based URLs."
-                name="Root Resource Directories" id="rootResourceDirectories" required="true" cardinality="100"
+                name="Root Resource Directories" id="rootResourceDirectories" required="true"
+                cardinality="100"
                 type="String" default="data/products"/>
-        </OCD>
+    </OCD>
 
-        <Designate pid="ddf.catalog.resource.impl.URLResourceReader">
-                <Object ocdref="ddf.catalog.resource.impl.URLResourceReader"/>
-        </Designate>
+    <Designate pid="ddf.catalog.resource.impl.URLResourceReader">
+        <Object ocdref="ddf.catalog.resource.impl.URLResourceReader"/>
+    </Designate>
 
 </metatype:MetaData>
